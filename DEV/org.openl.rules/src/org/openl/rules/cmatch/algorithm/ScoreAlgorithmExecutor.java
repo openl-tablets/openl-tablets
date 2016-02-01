@@ -30,7 +30,9 @@ public class ScoreAlgorithmExecutor implements IMatchAlgorithmExecutor {
                 if (matcher.match(var, checkValue)) {
                     int score = scores[resultIndex] * node.getWeight();
                     sumScore += score;
-                    Tracer.put(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
+                    MatchTraceObject mto = new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex);
+                    mto.setResult(score);
+                    Tracer.put(mto);
                     break;
                 }
             }

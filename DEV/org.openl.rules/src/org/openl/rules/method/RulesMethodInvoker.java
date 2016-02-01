@@ -48,8 +48,8 @@ public abstract class RulesMethodInvoker<T extends ExecutableRulesMethod> implem
     public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
 
         ATableTracerNode traceObject = getTraceObject(params);
+        Tracer.begin(traceObject);
         try {
-            Tracer.begin(traceObject);
             Object result = invokeSimpleTraced(target, params, env);
             traceObject.setResult(result);
             return result;

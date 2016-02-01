@@ -7,19 +7,7 @@ public class SumFunction {
         }
 
         if (object.getClass().isArray()) {
-            Object[] array = (Object[]) object;
-
-            for (Object o : array) {
-                if (o != null) {
-                    if (o.getClass().isArray()) {
-                        return sum((Object[][]) array);
-                    } else {
-                        return sum(array);
-                    }
-                }
-            }
-
-            return 0;
+            return sum((Object[]) object);
         } else {
             return HelperFunctions.toDouble(object);
         }
@@ -30,20 +18,13 @@ public class SumFunction {
         double sum = 0;
 
         for (Object o : array) {
+            if (o != null && o.getClass().isArray()) {
+                o = sum((Object[]) o);
+            }
             Double value = HelperFunctions.toDouble(o);
             if (value != null) {
                 sum += value;
             }
-        }
-
-        return sum;
-    }
-
-    public static double sum(Object[][] array) {
-        double sum = 0;
-
-        for (Object[] row : array) {
-            sum += sum(row);
         }
 
         return sum;

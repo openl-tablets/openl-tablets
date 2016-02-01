@@ -2,6 +2,7 @@ package org.openl.extension.xmlrules.model;
 
 import java.util.List;
 
+import org.openl.extension.xmlrules.model.single.Attribute;
 import org.openl.extension.xmlrules.model.single.ParameterImpl;
 
 public interface Function {
@@ -12,4 +13,6 @@ public interface Function {
     String getReturnType();
 
     String getCellAddress();
+
+    List<Attribute> getAttributes();
 }

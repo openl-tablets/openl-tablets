@@ -1,88 +1,59 @@
 package org.openl.rules.dt.index;
 
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
+import org.openl.rules.dt.DecisionTableIndexedRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.type.IRangeAdaptor;
-import org.openl.util.OpenIterator;
 
 public class RangeIndex extends ARuleIndex {
 
-	protected Comparable<?>[] index;
-	protected DecisionTableRuleNode[] rules;
+    protected List<DecisionTableIndexedRuleNode<?>> index;
+    public Comparator<? super Object> comparator = null;
 
-	protected IRangeAdaptor<?, ?> adaptor;
+    protected IRangeAdaptor<?, ?> adaptor;
 
-	public RangeIndex(DecisionTableRuleNode emptyOrFormulaNodes,
-			Comparable<?>[] index, DecisionTableRuleNode[] rules,
-			IRangeAdaptor<?, ?> adaptor) {
-		super(emptyOrFormulaNodes);
+    public RangeIndex(DecisionTableRuleNode emptyOrFormulaNodes,
+            List<DecisionTableIndexedRuleNode<?>> index,
+            IRangeAdaptor<?, ?> adaptor) {
+        super(emptyOrFormulaNodes);
 
-		this.index = index;
-		this.rules = rules;
-		this.adaptor = adaptor;
-	}
+        this.index = index;
+        this.adaptor = adaptor;
+    }
 
-	@Override
-	public DecisionTableRuleNode findNodeInIndex(Object value) {
+    @Override
+    DecisionTableRuleNode findNodeInIndex(Object value) {
+        if (index.isEmpty()) {
+            // there is no values in index to compare => no reason to search
+            return null;
+        }
 
-		int idx = Arrays.binarySearch(index, convertValueForSearch(value));
+        if (adaptor != null) {
+            // Converts value for binary search in index
+            // Because different subclasses of Number are not comparable.
+            value = adaptor.adaptValueType(value);
+        }
 
-		if (idx >= 0) {
-			return rules[idx];
-		}
+        int idx = Collections.binarySearch(index, value, comparator);
 
-		int insertionPoint = -(idx + 1);
+        if (idx >= 0) {
+            return index.get(idx);
+        }
 
-		if (insertionPoint < index.length && insertionPoint > 0) {
-			return rules[insertionPoint - 1];
-		}
+        int insertionPoint = -(idx + 1);
 
-		return null;
-		// return idx < 0 ? null : rules[idx];
-	}
+        if (insertionPoint < index.size() && insertionPoint > 0) {
+            return index.get(insertionPoint - 1);
+        }
 
-	/**
-	 * Converts value for binary search in index(Because different subclasses of
-	 * {@link Number} are not comparable).
-	 * 
-	 * @param value
-	 *            Value to convert
-	 * @return New value that is adapted for binary search.
-	 */
-	protected Object convertValueForSearch(Object value) {
-		if (index.length < 1) {
-			return value; // there is no values in index to compare => no reason
-			// to convert
-		}
+        return null;
+    }
 
-		if (adaptor != null) {
-			return adaptor.adaptValueType(value);
-		}
-		return value;
-	}
-
-	@Override
-	public Iterator<DecisionTableRuleNode> nodes() {
-		return OpenIterator.fromArray(rules);
-	}
-
-	/**
-	 * Used for tests
-	 * 
-	 * @param node
-	 * @return
-	 */
-	public int getNodeIndex(DecisionTableRuleNode node) {
-		for (int i = 0; i < rules.length; i++) {
-			// check the node by the link
-			//
-			if (rules[i] == node) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
+    @Override
+    public Iterable<DecisionTableIndexedRuleNode<?>> nodes() {
+        return index;
+    }
 }

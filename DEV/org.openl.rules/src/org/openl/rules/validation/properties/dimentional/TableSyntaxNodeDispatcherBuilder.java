@@ -187,9 +187,9 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
 
     private int getNumberOfColumns(List<IDecisionTableColumn> conditions) {
         int numberOfAllLocalParameters = 0;
-        for (int i = 0; i < conditions.size(); i++) {
-            if (conditions.get(i).getNumberOfLocalParameters() > 0) {
-                numberOfAllLocalParameters += conditions.get(i).getNumberOfLocalParameters();
+        for (IDecisionTableColumn condition : conditions) {
+            if (condition.getNumberOfLocalParameters() > 0) {
+                numberOfAllLocalParameters += condition.getNumberOfLocalParameters();
             }
         }
         return numberOfAllLocalParameters;
@@ -254,7 +254,7 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
         //
         for (int j = 0; j < originalSignature.getNumberOfParameters(); j++) {
             final IOpenClass parameterType = originalSignature.getParameterType(j);
-            if (!(parameterType instanceof NullOpenClass)) {
+            if (!(parameterType instanceof NullOpenClass) && parameterType.getInstanceClass() != null) {
                 /*
                  * on compare in repository tutorial10, all original parameter
                  * types are instances of NullOpenClass. it causes

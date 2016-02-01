@@ -121,7 +121,7 @@ public class InternalFunctions {
         return SumFunction.sum(array);
     }
 
-    public static double SUM(Object[][] array) {
+    public static double SUM(Object[] array) {
         return SumFunction.sum(array);
     }
 

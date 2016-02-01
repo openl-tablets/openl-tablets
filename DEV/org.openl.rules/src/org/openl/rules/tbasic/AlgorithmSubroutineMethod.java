@@ -88,9 +88,11 @@ public class AlgorithmSubroutineMethod extends AlgorithmFunction {
         Object resultValue = null;
         try {
             resultValue = vm.run(algorithmSteps, labels, environment, debugMode);
-        } finally {
             if (debugMode) {
                 methodTracer.setResult(resultValue);
+            }
+        } finally {
+            if (debugMode) {
                 Tracer.end();
             }
         }

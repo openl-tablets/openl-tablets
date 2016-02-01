@@ -71,11 +71,16 @@ public class TraceFormatter {
         return "Result: " + resultValue;
     }
 
-    private static String getDisplayName(MatchTraceObject matchTraceObject) {
-        TableRow row = matchTraceObject.getRow();
+    private static String getDisplayName(MatchTraceObject mto) {
+        TableRow row = mto.getRow();
         String operation = row.get(MatchAlgorithmCompiler.OPERATION)[0].getString();
-        String checkValue = row.get(MatchAlgorithmCompiler.VALUES)[matchTraceObject.getResultIndex()].getString();
-        return "Match: " + operation + " " + checkValue;
+        String checkValue = row.get(MatchAlgorithmCompiler.VALUES)[mto.getResultIndex()].getString();
+        Object result = mto.getResult();
+        String txt = "Match: " + operation + " " + checkValue;
+        if (result != null) {
+            txt += " = " + FormattersManager.format(result);
+        }
+        return txt;
     }
 
     private static String getDisplayName(TBasicOperationTraceObject tbo) {

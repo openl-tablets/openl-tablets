@@ -74,8 +74,12 @@ public class FieldChain extends AOpenField {
 
         Object result = null;
 
-        for (int i = 0; i < fields.length; i++) {
-            result = fields[i].get(target, env);
+        for (IOpenField field : fields) {
+            if (target == null) {
+                result = null;
+                break;
+            }
+            result = field.get(target, env);
             target = result;
         }
 

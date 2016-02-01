@@ -3,8 +3,14 @@ package org.openl.extension.xmlrules.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openl.extension.xmlrules.java.api.FilteredValue;
+
 public class SplitUpFunction {
     public static Object[][] splitUp(Object object) {
+        if (object instanceof FilteredValue) {
+            object = ((FilteredValue) object).getValue();
+        }
+
         if (object == null) {
             return new Object[][] {};
         }

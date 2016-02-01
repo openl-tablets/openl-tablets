@@ -24,8 +24,6 @@ import org.slf4j.LoggerFactory;
  */
 public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
 
-    private final Logger log = LoggerFactory.getLogger(DecisionTableInvoker.class);
-
     public DecisionTableInvoker(DecisionTable decisionTable) {
         super(decisionTable);
     }
@@ -64,18 +62,14 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
     }
 
     private Object invokeTracedOptimized(Object target, Object[] params, IRuntimeEnv env) {
-
-    	DecisionTableTraceObject traceObject = (DecisionTableTraceObject) getTraceObject(params);
+        DecisionTableTraceObject traceObject = (DecisionTableTraceObject) getTraceObject(params);
         Tracer.begin(traceObject);
 
-        IDecisionTableAlgorithm algorithm = null;
         TraceStack conditionsStack = new ChildTraceStack(Tracer.getTracer());
 
         try {
-            algorithm = getInvokableMethod().getAlgorithm();
+            IDecisionTableAlgorithm algorithm = getInvokableMethod().getAlgorithm();
             IDecisionTableAlgorithm algorithmDelegator = algorithm.asTraceDecorator(conditionsStack, traceObject); 
-            		//new DecisionTableOptimizedAlgorithmTraceDecorator(algorithm, conditionsStack, traceObject);
-//            algorithmDelegator.buildIndex(); // Rebuild index with rules meta info
 
             IIntIterator rules = algorithmDelegator.checkedRules(target, params, env);
 
@@ -83,8 +77,8 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
 
                 int ruleNumber = rules.nextInt();
 
+                Tracer.begin(new DTRuleTracerLeaf(traceObject, ruleNumber));
                 try {
-                    Tracer.begin(new DTRuleTracerLeaf(traceObject, ruleNumber));
 
                     Object returnValue = getReturn(target, params, env, ruleNumber);
                     if (returnValue != null) {
@@ -101,15 +95,6 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
         } finally {
             conditionsStack.reset();
             Tracer.end();
-
-            // Restore index without rules meta info (memory optimization)
-//            if (algorithm != null) {
-//                try {
-//                    algorithm.buildIndex();
-//                } catch (SyntaxNodeException e) {
-//                    addErrorToTrace(traceObject, e);
-//                }
-//            }
         }
 
         return null;
