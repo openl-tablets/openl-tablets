@@ -22,7 +22,7 @@ public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTable
 
     public DecisionTableOptimizedAlgorithmTraceDecorator(DecisionTableOptimizedAlgorithm delegate,
             DecisionTableTraceObject baseTraceObject, IndexInfo info) {
-        super(delegate.getEvaluators(), delegate.getTable(), info, delegate.getIndexRoot());
+        super(delegate.getEvaluators(), delegate.getTable(), info);
         this.algorithmDelegate = delegate;
         this.baseTraceObject = baseTraceObject;
     }

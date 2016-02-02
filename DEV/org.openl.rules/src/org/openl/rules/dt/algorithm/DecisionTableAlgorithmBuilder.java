@@ -11,15 +11,12 @@ import org.openl.binding.impl.TypeBoundNode;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.data.DecisionTableDataType;
 import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.RuleRow;
-import org.openl.rules.dt.index.ARuleIndex;
-import org.openl.rules.dtx.IBaseCondition;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -63,53 +60,6 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         this.ruleRow = table.getRuleRow();
     }
 
-    protected ARuleIndex buildIndex(IndexInfo info) throws SyntaxNodeException {
-
-        int first = info.fromCondition;
-        IBaseCondition[] cc = table.getConditionRows();
-
-        if (cc.length <= first || first > info.toCondition)
-            return null;
-
-        ICondition firstCondition = (ICondition) cc[first];
-
-        if (!canIndex(evaluators[first], firstCondition))
-            return null;
-
-        ARuleIndex indexRoot = evaluators[first].makeIndex(firstCondition, info.makeRuleIterator());
-        // indexRoot.setHasMetaInfo(saveRulesMetaInfo);
-
-        indexNodes(indexRoot, first + 1, info);
-
-        return indexRoot;
-    }
-
-    private void indexNodes(ARuleIndex index, int condN, IndexInfo info) {
-
-        if (index == null || condN > info.toCondition)
-            return;
-
-        if (!canIndex(evaluators[condN], table.getCondition(condN))) {
-            return;
-        }
-
-        for (DecisionTableRuleNode node : index.nodes()) {
-            indexNode(node, condN, info);
-        }
-        indexNode(index.getEmptyOrFormulaNodes(), condN, info);
-    }
-
-    private void indexNode(DecisionTableRuleNode node, int condN, IndexInfo info) {
-
-        ARuleIndex nodeIndex = evaluators[condN].makeIndex(table.getCondition(condN), node.getRulesIterator());
-        node.setNextIndex(nodeIndex);
-
-        indexNodes(nodeIndex, condN + 1, info);
-    }
-
-    protected boolean canIndex(IConditionEvaluator evaluator, ICondition condition) {
-        return evaluator.isIndexed() && !condition.hasFormulasInStorage();
-    }
 
     public IDecisionTableAlgorithm buildAlgorithm() throws SyntaxNodeException {
         if (isTwoDimensional(table)) {
@@ -127,27 +77,19 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
 
         IndexInfo hInfo = baseInfo.makeHorizontalalInfo();
 
-        ARuleIndex index = buildIndex(hInfo);
-        DecisionTableOptimizedAlgorithm alg = new DecisionTableOptimizedAlgorithm(evaluators, table, hInfo, index);
-
-        return alg;
+        return new DecisionTableOptimizedAlgorithm(evaluators, table, hInfo);
     }
 
     protected IDecisionTableAlgorithm makeFullAlgorithm() throws SyntaxNodeException {
-        ARuleIndex index = buildIndex(baseInfo);
-        DecisionTableOptimizedAlgorithm alg = new DecisionTableOptimizedAlgorithm(evaluators, table, baseInfo, index);
 
-        return alg;
+        return new DecisionTableOptimizedAlgorithm(evaluators, table, baseInfo);
     }
 
     protected IDecisionTableAlgorithm makeVerticalAlgorithm() throws SyntaxNodeException {
 
         IndexInfo vInfo = baseInfo.makeVerticalInfo();
 
-        ARuleIndex index = buildIndex(vInfo);
-        DecisionTableOptimizedAlgorithm alg = new DecisionTableOptimizedAlgorithm(evaluators, table, vInfo, index);
-
-        return alg;
+        return new DecisionTableOptimizedAlgorithm(evaluators, table, vInfo);
     }
 
     protected boolean isTwoDimensional(DecisionTable table2) {

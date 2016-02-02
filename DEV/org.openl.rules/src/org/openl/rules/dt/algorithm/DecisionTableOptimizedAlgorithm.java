@@ -236,13 +236,60 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     private BindingDependencies dependencies;
     IndexInfo info;
 
-    public DecisionTableOptimizedAlgorithm(IConditionEvaluator[] evaluators, DecisionTable table, IndexInfo info, ARuleIndex indexRoot) {
+    public DecisionTableOptimizedAlgorithm(IConditionEvaluator[] evaluators, DecisionTable table, IndexInfo info) {
         this.evaluators = evaluators;
         this.table = table;
         this.info = info;
-        this.indexRoot = indexRoot;
+        this.indexRoot = buildIndex(info);
         this.dependencies = new RulesBindingDependencies();
         table.updateDependency(dependencies);
+    }
+
+    private ARuleIndex buildIndex(IndexInfo info) {
+
+        int first = info.fromCondition;
+        IBaseCondition[] cc = table.getConditionRows();
+
+        if (cc.length <= first || first > info.toCondition)
+            return null;
+
+        ICondition firstCondition = (ICondition) cc[first];
+
+        if (!canIndex(evaluators[first], firstCondition))
+            return null;
+
+        ARuleIndex indexRoot = evaluators[first].makeIndex(firstCondition, info.makeRuleIterator());
+
+        indexNodes(indexRoot, first + 1, info);
+
+        return indexRoot;
+    }
+
+    private boolean canIndex(IConditionEvaluator evaluator, ICondition condition) {
+        return evaluator.isIndexed() && !condition.hasFormulasInStorage();
+    }
+
+    private void indexNodes(ARuleIndex index, int condN, IndexInfo info) {
+
+        if (index == null || condN > info.toCondition)
+            return;
+
+        if (!canIndex(evaluators[condN], table.getCondition(condN))) {
+            return;
+        }
+
+        for (DecisionTableRuleNode node : index.nodes()) {
+            indexNode(node, condN, info);
+        }
+        indexNode(index.getEmptyOrFormulaNodes(), condN, info);
+    }
+
+    private void indexNode(DecisionTableRuleNode node, int condN, IndexInfo info) {
+
+        ARuleIndex nodeIndex = evaluators[condN].makeIndex(table.getCondition(condN), node.getRulesIterator());
+        node.setNextIndex(nodeIndex);
+
+        indexNodes(nodeIndex, condN + 1, info);
     }
 
     public IConditionEvaluator[] getEvaluators() {
@@ -588,10 +635,4 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 	public IDecisionTableAlgorithm asTraceDecorator(DecisionTableTraceObject traceObject) {
 		return new DecisionTableOptimizedAlgorithmTraceDecorator(this, traceObject, info);
 	}
-
-	public ARuleIndex getIndexRoot() {
-		return indexRoot;
-	}
-
-
 }
