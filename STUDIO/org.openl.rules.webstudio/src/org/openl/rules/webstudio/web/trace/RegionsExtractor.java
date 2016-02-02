@@ -90,7 +90,7 @@ public class RegionsExtractor {
     private static List<IGridRegion> getiGridRegions(DTIndexedTraceObject dti) {
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
 
-        for (int rule : dti.getLinkedRule().getRules()) {
+        for (int rule : dti.getLinkedRule()) {
             ILogicalTable table = dti.getCondition().getValueCell(rule);
             regions.addAll(GridTableUtils.getGridRegions(table));
         }

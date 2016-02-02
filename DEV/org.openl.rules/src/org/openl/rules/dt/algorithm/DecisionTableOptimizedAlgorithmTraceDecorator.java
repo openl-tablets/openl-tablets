@@ -93,7 +93,7 @@ public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTable
                 if (rule.getRulesIterator().hasNext()) {
                     // Do not trace index value that is not mapped to any rule. This can
                     // be an excluding boundary for example.
-                    Tracer.put(new DTIndexedTraceObject(baseTraceObject, condition, rule, false));
+                    Tracer.put(new DTIndexedTraceObject(baseTraceObject, condition, rule.getRules(), false));
                 }
                 return rule.compareTo(value);
             }

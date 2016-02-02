@@ -146,8 +146,7 @@ public class TraceFormatter {
     }
 
     private static String getDisplayName(DTIndexedTraceObject dti) {
-        IDecisionTableRuleNode linkedRule = dti.getLinkedRule();
-        int[] rules = linkedRule.getRules();
+        int[] rules = dti.getLinkedRule();
         IDecisionTable decisionTable = ((IDecisionTable) dti.getTraceObject());
 
         String[] ruleNames = new String[rules.length];
