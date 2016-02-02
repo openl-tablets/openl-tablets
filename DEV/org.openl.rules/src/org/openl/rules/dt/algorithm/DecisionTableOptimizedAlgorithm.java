@@ -43,7 +43,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.TraceStack;
 
 /**
  * The basic algorithm for decision table (DT) evaluation is straightforward
@@ -586,9 +585,8 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     }
 
 	@Override
-	public IDecisionTableAlgorithm asTraceDecorator(TraceStack conditionsStack,
-			DecisionTableTraceObject traceObject) {
-		return new DecisionTableOptimizedAlgorithmTraceDecorator(this, conditionsStack, traceObject, info);
+	public IDecisionTableAlgorithm asTraceDecorator(DecisionTableTraceObject traceObject) {
+		return new DecisionTableOptimizedAlgorithmTraceDecorator(this, traceObject, info);
 	}
 
 	public ARuleIndex getIndexRoot() {

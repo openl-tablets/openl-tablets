@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Yury Molchan
  */
-public final class Tracer implements TraceStack {
+public final class Tracer {
 
     private static ThreadLocal<Tracer> tracer = new ThreadLocal<Tracer>();
 
@@ -84,7 +84,6 @@ public final class Tracer implements TraceStack {
         current = root;
     }
 
-    @Override
     public void pop() {
         if (current != null) {
             current = current.getParent();
@@ -93,13 +92,11 @@ public final class Tracer implements TraceStack {
         }
     }
 
-    @Override
     public void push(ITracerObject obj) {
         current.addChild(obj);
         current = obj;
     }
 
-    @Override
     public void reset() {
         init();
     }

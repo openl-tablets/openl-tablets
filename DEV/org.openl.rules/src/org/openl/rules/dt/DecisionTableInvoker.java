@@ -11,11 +11,7 @@ import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
 import org.openl.rules.dtx.trace.DecisionTableTraceObject;
 import org.openl.rules.method.RulesMethodInvoker;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.ChildTraceStack;
-import org.openl.vm.trace.TraceStack;
 import org.openl.vm.trace.Tracer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Invoker for {@link DecisionTable}.
@@ -65,11 +61,9 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
         DecisionTableTraceObject traceObject = (DecisionTableTraceObject) getTraceObject(params);
         Tracer.begin(traceObject);
 
-        TraceStack conditionsStack = new ChildTraceStack(Tracer.getTracer());
-
         try {
             IDecisionTableAlgorithm algorithm = getInvokableMethod().getAlgorithm();
-            IDecisionTableAlgorithm algorithmDelegator = algorithm.asTraceDecorator(conditionsStack, traceObject); 
+            IDecisionTableAlgorithm algorithmDelegator = algorithm.asTraceDecorator(traceObject);
 
             IIntIterator rules = algorithmDelegator.checkedRules(target, params, env);
 
@@ -87,13 +81,11 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
                     }
                 } finally {
                     Tracer.end();
-                    conditionsStack.reset();
                 }
             }
         } catch (Exception e) {
             addErrorToTrace(traceObject, e);
         } finally {
-            conditionsStack.reset();
             Tracer.end();
         }
 
