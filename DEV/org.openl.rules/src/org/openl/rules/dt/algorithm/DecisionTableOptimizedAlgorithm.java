@@ -633,6 +633,6 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
 	@Override
 	public IDecisionTableAlgorithm asTraceDecorator(DecisionTableTraceObject traceObject) {
-		return new DecisionTableOptimizedAlgorithmTraceDecorator(this, traceObject, info);
+		return new DecisionTableOptimizedAlgorithmTraceDecorator(this, traceObject.getTraceObject(), info);
 	}
 }

@@ -11,6 +11,7 @@ import org.openl.rules.dt.index.RangeIndex;
 import org.openl.rules.dtx.trace.DTConditionTraceObject;
 import org.openl.rules.dtx.trace.DTIndexedTraceObject;
 import org.openl.rules.dtx.trace.DecisionTableTraceObject;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
 
@@ -18,13 +19,13 @@ import java.util.Comparator;
 
 public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTableOptimizedAlgorithm {
     private final DecisionTableOptimizedAlgorithm algorithmDelegate;
-    private final DecisionTableTraceObject baseTraceObject;
+    private final ExecutableRulesMethod method;
 
     public DecisionTableOptimizedAlgorithmTraceDecorator(DecisionTableOptimizedAlgorithm delegate,
-            DecisionTableTraceObject baseTraceObject, IndexInfo info) {
+            ExecutableRulesMethod method, IndexInfo info) {
         super(delegate.getEvaluators(), delegate.getTable(), info);
         this.algorithmDelegate = delegate;
-        this.baseTraceObject = baseTraceObject;
+        this.method = method;
     }
 
     public int hashCode() {
@@ -70,7 +71,7 @@ public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTable
                     @Override
                     public boolean select(int rule) {
                         boolean successful = selector.select(rule);
-                        Tracer.put(new DTConditionTraceObject(baseTraceObject, condition, rule, successful));
+                        Tracer.put(new DTConditionTraceObject(method, condition, rule, successful));
                         return successful;
                     }
                 };
@@ -93,7 +94,7 @@ public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTable
                 if (rule.getRulesIterator().hasNext()) {
                     // Do not trace index value that is not mapped to any rule. This can
                     // be an excluding boundary for example.
-                    Tracer.put(new DTIndexedTraceObject(baseTraceObject, condition, rule.getRules(), false));
+                    Tracer.put(new DTIndexedTraceObject(method, condition, rule.getRules(), false));
                 }
                 return rule.compareTo(value);
             }
