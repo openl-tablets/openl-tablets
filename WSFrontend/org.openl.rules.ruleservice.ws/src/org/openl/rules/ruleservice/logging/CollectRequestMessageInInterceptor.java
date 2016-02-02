@@ -24,6 +24,9 @@ import org.apache.cxf.phase.Phase;
  */
 @NoJSR250Annotations
 public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMessageInterceptor {
+    
+    public static final String ID_KEY = CollectRequestMessageInInterceptor.class.getName() + ".ID";
+    
     public CollectRequestMessageInInterceptor() {
         super(Phase.RECEIVE);
     }
@@ -51,15 +54,15 @@ public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMe
     }
 
     protected void store(Message message) throws Fault {
-        if (message.containsKey(LoggingMessage.ID_KEY)) {
+        if (message.containsKey(ID_KEY)) {
             return;
         }
-        String id = (String) message.getExchange().get(LoggingMessage.ID_KEY);
+        String id = (String) message.getExchange().get(ID_KEY);
         if (id == null) {
             id = LoggingMessage.nextId();
-            message.getExchange().put(LoggingMessage.ID_KEY, id);
+            message.getExchange().put(ID_KEY, id);
         }
-        message.put(LoggingMessage.ID_KEY, id);
+        message.put(ID_KEY, id);
         final LoggingMessage buffer = new LoggingMessage("Inbound Message\n----------------------------", id);
 
         if (!Boolean.TRUE.equals(message.get(Message.DECOUPLED_CHANNEL_MESSAGE))) {

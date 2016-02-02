@@ -7,9 +7,7 @@ import org.openl.rules.dt.DecisionTableIndexedRuleNode;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
-import org.openl.rules.dt.index.EqualsIndex;
 import org.openl.rules.dt.index.RangeIndex;
-import org.openl.rules.dt.index.TraceableEqualsIndex;
 import org.openl.rules.dtx.trace.DTConditionTraceObject;
 import org.openl.rules.dtx.trace.DTIndexedTraceObject;
 import org.openl.rules.dtx.trace.DecisionTableTraceObject;
@@ -65,8 +63,6 @@ public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTable
                 if (index instanceof RangeIndex) {
                     RangeIndex rIndex = (RangeIndex) index;
                     rIndex.comparator = createComparator(condition);
-                } else if (index instanceof EqualsIndex) {
-                    index = new TraceableEqualsIndex((EqualsIndex) index, condition, baseTraceObject, conditionsStack);
                 }
 
                 return index;
@@ -91,7 +87,11 @@ public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTable
                     rule = (DecisionTableIndexedRuleNode) o2;
                     value = o1;
                 }
-                Tracer.put(new DTIndexedTraceObject(baseTraceObject, condition, rule, false));
+                if (rule.getRulesIterator().hasNext()) {
+                    // Do not trace index value that is not mapped to any rule. This can
+                    // be an excluding boundary for example.
+                    Tracer.put(new DTIndexedTraceObject(baseTraceObject, condition, rule, false));
+                }
                 return rule.compareTo(value);
             }
         };
