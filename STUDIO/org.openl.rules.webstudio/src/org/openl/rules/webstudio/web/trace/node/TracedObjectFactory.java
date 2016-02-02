@@ -42,7 +42,7 @@ public class TracedObjectFactory {
         } else if (source instanceof DecisionTable) {
             return new DecisionTableTraceObject((DecisionTable) source, params);
         } else if (source instanceof Spreadsheet) {
-            return new SpreadsheetTraceObject((Spreadsheet) source, params);
+            return new ATableTracerNode("spreadsheet", "SpreadSheet", (Spreadsheet) source, params);
         } else if (source instanceof TableMethod) {
             return new MethodTableTraceObject((TableMethod) source, params);
         } else if (method instanceof SpreadsheetCell) {

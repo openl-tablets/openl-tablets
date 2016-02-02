@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.rules.webstudio.web.trace.node.SpreadsheetTraceObject;
+import org.openl.rules.webstudio.web.trace.node.ATableTracerNode;
 import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
 
 public class TraceFormatterTest {
@@ -16,7 +16,10 @@ public class TraceFormatterTest {
     @Test
     public void getDisplayNameTest() {
         Spreadsheet spreadsheet = createNodeMock();
-        SpreadsheetTraceObject spreadsheetTraceObject = new SpreadsheetTraceObject(spreadsheet, null);
+        ATableTracerNode spreadsheetTraceObject = new ATableTracerNode("spreadsheet",
+                "SpreadSheet",
+                spreadsheet,
+                null);
         SpreadsheetTracerLeaf leafNode = new SpreadsheetTracerLeaf(createCellMock());
         spreadsheetTraceObject.addChild(leafNode);
 
