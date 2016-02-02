@@ -43,33 +43,45 @@ public final class TreeBuildTracer extends Tracer {
         if (!isOn()) {
             return;
         }
+        ITracerObject trObj = getTracedObject(source, id, args);
+
+        if (trObj != null) {
+            doPut(trObj);
+        }
+    }
+
+    private static ITracerObject getTracedObject(Object source, String id, Object[] args) {
+        ITracerObject trObj;
         if (source instanceof DecisionTableOptimizedAlgorithm) {
-            doPut(DTRuleTraceObject.create(args));
+            trObj = DTRuleTraceObject.create(args);
         } else if (source instanceof RangeIndexTracer) {
-            doPut(DTRuleTraceObject.create(args));
+            trObj = DTRuleTraceObject.create(args);
         } else if (source instanceof IntSelectorTracer) {
-            doPut(DTRuleTraceObject.create(args));
+            trObj = DTRuleTraceObject.create(args);
         } else if (source instanceof MatchAlgorithmExecutor) {
             if ("match".equals(id)) {
-                doPut(MatchTraceObject.create(args));
+                trObj = MatchTraceObject.create(args);
             } else {
-                doPut(ResultTraceObject.create(args));
+                trObj = ResultTraceObject.create(args);
             }
         } else if (source instanceof WeightAlgorithmExecutor) {
             if ("match".equals(id)) {
-                doPut(MatchTraceObject.create(args));
+                trObj = MatchTraceObject.create(args);
             } else {
-                doPut(ResultTraceObject.create(args));
+                trObj = ResultTraceObject.create(args);
             }
         } else if (source instanceof ScoreAlgorithmExecutor) {
-            doPut(MatchTraceObject.create(args));
+            trObj = MatchTraceObject.create(args);
         } else if (source instanceof SpreadsheetCell) {
             SpreadsheetTracerLeaf tr = new SpreadsheetTracerLeaf((SpreadsheetCell) source);
             tr.setResult(args[0]);
-            doPut(tr);
+            trObj = tr;
         } else if (source instanceof OpenMethodDispatcher) {
-            doPut(new DTRuleTracerLeaf(((OpenMethodDispatcher) source).getCandidates().indexOf(args[0])));
+            trObj = new DTRuleTracerLeaf(((OpenMethodDispatcher) source).getCandidates().indexOf(args[0]));
+        } else {
+            trObj = null;
         }
+        return trObj;
     }
 
     private void doPut(ITracerObject obj) {
