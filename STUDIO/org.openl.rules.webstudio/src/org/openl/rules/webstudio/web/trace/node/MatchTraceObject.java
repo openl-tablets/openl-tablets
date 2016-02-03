@@ -31,7 +31,7 @@ public class MatchTraceObject extends ATableTracerNode {
         return gridRegion;
     }
 
-    public static MatchTraceObject create(Object... args) {
+    static MatchTraceObject create(Object... args) {
         ColumnMatch columnMatch = (ColumnMatch) args[0];
         MatchNode node = (MatchNode) args[1];
         int resultIndex = (Integer) args[2];

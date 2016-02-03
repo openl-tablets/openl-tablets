@@ -12,7 +12,7 @@ public class DTRuleTracerLeaf extends ATableTracerNode {
 
     private int ruleIndex;
 
-    public DTRuleTracerLeaf(int ruleIdx) {
+    DTRuleTracerLeaf(int ruleIdx) {
         super("rule", null, null, null);
         this.ruleIndex = ruleIdx;
     }
