@@ -19,9 +19,7 @@ import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.tbasic.compile.AlgorithmOperationSource;
-import org.openl.rules.tbasic.runtime.debug.TBasicMethodTraceObject;
 import org.openl.rules.tbasic.runtime.debug.TBasicOperationTraceObject;
 import org.openl.rules.types.impl.OverloadedMethodChoiceTraceObject;
 import org.openl.types.IOpenClass;
@@ -38,8 +36,6 @@ public class TraceFormatter {
             return getDisplayName((MatchTraceObject) obj);
         } else if (obj instanceof TBasicOperationTraceObject) {
             return getDisplayName((TBasicOperationTraceObject) obj);
-        } else if (obj instanceof TBasicMethodTraceObject) {
-            return getDisplayName((TBasicMethodTraceObject) obj, mode);
         } else if (obj instanceof DTIndexedTraceObject) {
             return getDisplayName((DTIndexedTraceObject) obj);
         } else if (obj instanceof DTConditionTraceObject) {
@@ -111,23 +107,6 @@ public class TraceFormatter {
         }
 
         return fields.toString();
-    }
-
-    private static String getDisplayName(TBasicMethodTraceObject tbm, int mode) {
-
-        AlgorithmSubroutineMethod method = tbm.getMethod();
-        Object result = tbm.getResult();
-        String returnValue = "";
-        IOpenClass returnType = method.getType();
-        if (!JavaOpenClass.isVoid(returnType)) {
-            returnValue = String.format("%s = %s",
-                returnType.getDisplayName(mode),
-                result != null ? result.toString() : "null");
-        }
-
-        String displayName = method.getHeader().getDisplayName(mode);
-
-        return String.format("Algorithm Method %s %s", returnValue, displayName);
     }
 
     private static String getDisplayName(DTIndexedTraceObject dti) {
