@@ -5,10 +5,6 @@ package org.openl.rules.webstudio.web.trace;
 
 import org.openl.domain.IIntSelector;
 import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.rules.cmatch.algorithm.MatchAlgorithmExecutor;
-import org.openl.rules.cmatch.algorithm.ScoreAlgorithmExecutor;
-import org.openl.rules.cmatch.algorithm.WeightAlgorithmExecutor;
-import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.RangeIndex;
 import org.openl.rules.types.OpenMethodDispatcher;
@@ -52,26 +48,12 @@ public final class TreeBuildTracer extends Tracer {
 
     private static ITracerObject getTracedObject(Object source, String id, Object[] args) {
         ITracerObject trObj;
-        if (source instanceof DecisionTableOptimizedAlgorithm) {
+        if ("index".equals(id) || "condition".equals(id)) {
             trObj = DTRuleTraceObject.create(args);
-        } else if (source instanceof RangeIndexTracer) {
-            trObj = DTRuleTraceObject.create(args);
-        } else if (source instanceof IntSelectorTracer) {
-            trObj = DTRuleTraceObject.create(args);
-        } else if (source instanceof MatchAlgorithmExecutor) {
-            if ("match".equals(id)) {
-                trObj = MatchTraceObject.create(args);
-            } else {
-                trObj = ResultTraceObject.create(args);
-            }
-        } else if (source instanceof WeightAlgorithmExecutor) {
-            if ("match".equals(id)) {
-                trObj = MatchTraceObject.create(args);
-            } else {
-                trObj = ResultTraceObject.create(args);
-            }
-        } else if (source instanceof ScoreAlgorithmExecutor) {
+        } else if ("match".equals(id)) {
             trObj = MatchTraceObject.create(args);
+        } else if ("result".equals(id)) {
+            trObj = ResultTraceObject.create(args);
         } else if (source instanceof SpreadsheetCell) {
             SpreadsheetTracerLeaf tr = new SpreadsheetTracerLeaf((SpreadsheetCell) source);
             tr.setResult(args[0]);
