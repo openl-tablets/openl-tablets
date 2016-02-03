@@ -25,7 +25,7 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.trace.ITracerObject;
 
 public class TraceFormatter {
-    static String getDisplayName(ITracerObject obj, int mode) {
+    static String getDisplayName(ITracerObject obj) {
         if (obj instanceof WScoreTraceObject) {
             return "Score: " + obj.getResult();
         } else if (obj instanceof ResultTraceObject) {

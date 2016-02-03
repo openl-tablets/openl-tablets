@@ -11,7 +11,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
-import org.openl.base.INamedThing;
 import org.openl.rules.dtx.trace.DTRuleTraceObject;
 import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
 import org.openl.rules.ui.TraceHelper;
@@ -61,10 +60,10 @@ public class TraceService {
             node.setExtraClasses("value");
             return node;
         }
-        String name = TraceFormatter.getDisplayName(element, INamedThing.SHORT);
+        String name = TraceFormatter.getDisplayName(element);
         node.setTitle(name);
 
-        String title = TraceFormatter.getDisplayName(element, INamedThing.REGULAR);
+        String title = TraceFormatter.getDisplayName(element);
         node.setTooltip(title);
 
         int key = traceHelper.getNodeKey(element);

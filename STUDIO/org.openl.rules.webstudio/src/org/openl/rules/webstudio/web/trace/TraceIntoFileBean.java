@@ -9,7 +9,6 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.commons.web.util.WebTool;
 import org.openl.main.SourceCodeURLConstants;
@@ -85,7 +84,7 @@ public class TraceIntoFileBean {
             }
             writer.write(indents, 0, level % indents.length);
             writer.write("TRACE: ");
-            writer.write(TraceFormatter.getDisplayName(aTrace, INamedThing.REGULAR));
+            writer.write(TraceFormatter.getDisplayName(aTrace));
             writer.write('\n');
             writer.write(indents, 0, level % indents.length);
             writer.write(SourceCodeURLConstants.AT_PREFIX);
