@@ -64,6 +64,6 @@ public abstract class ATableTracerNode extends SimpleTracerObject {
 
     @Override
     public String getUri() {
-        return getTraceObject().getSyntaxNode().getUri();
+        return getTraceObject().getSourceUrl();
     }
 }

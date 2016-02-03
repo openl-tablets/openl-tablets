@@ -8,9 +8,4 @@ public class TBasicMethodTraceObject extends ATableTracerNode {
     public TBasicMethodTraceObject(AlgorithmSubroutineMethod method) {
         super("tbasicMethod", "Algorithm Method", method, null);
     }
-
-    @Override
-    public String getUri() {
-        return getTraceObject().getSourceUrl();
-    }
 }
