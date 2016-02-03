@@ -27,8 +27,8 @@ class MatchUtil {
             TableRow row = columnMatch.getRows().get(rowIndex);
             IGridRegion gridRegion = row.get(MatchAlgorithmCompiler.VALUES)[resultIndex].getGridRegion();
             String operation = row.get(MatchAlgorithmCompiler.OPERATION)[0].getString();
-            MatchTraceObject trObj = new MatchTraceObject(columnMatch, node.getCheckValues()[resultIndex],
-                    operation, gridRegion);
+            String checkValue = row.get(MatchAlgorithmCompiler.VALUES)[resultIndex].getString();
+            MatchTraceObject trObj = new MatchTraceObject(columnMatch, checkValue, operation, gridRegion);
             trObj.setResult(result);
             Tracer.put(trObj);
         }

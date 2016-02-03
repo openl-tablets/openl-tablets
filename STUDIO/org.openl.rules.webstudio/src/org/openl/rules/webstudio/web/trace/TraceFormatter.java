@@ -51,7 +51,7 @@ public class TraceFormatter {
 
     private static String getDisplayName(MatchTraceObject mto) {
         String operation = mto.getOperation();
-        String checkValue = String.valueOf(mto.getCheckValue());
+        String checkValue = mto.getCheckValue();
         Object result = mto.getResult();
         String txt = "Match: " + operation + " " + checkValue;
         if (result != null) {

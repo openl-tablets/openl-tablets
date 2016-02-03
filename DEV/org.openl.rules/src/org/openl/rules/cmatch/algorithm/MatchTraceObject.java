@@ -8,17 +8,17 @@ import org.openl.rules.table.IGridRegion;
 public class MatchTraceObject extends ATableTracerNode {
 
     private IGridRegion gridRegion;
-    private Object checkValue;
+    private String checkValue;
     private String operation;
 
-    public MatchTraceObject(ColumnMatch columnMatch, Object checkValue, String operation, IGridRegion gridRegion) {
+    public MatchTraceObject(ColumnMatch columnMatch, String checkValue, String operation, IGridRegion gridRegion) {
         super("cmMatch", null, columnMatch, null);
         this.gridRegion = gridRegion;
         this.checkValue = checkValue;
         this.operation = operation;
     }
 
-    public Object getCheckValue() {
+    public String getCheckValue() {
         return checkValue;
     }
 
