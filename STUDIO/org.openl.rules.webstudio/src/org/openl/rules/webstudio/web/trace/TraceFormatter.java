@@ -65,17 +65,16 @@ public class TraceFormatter {
     }
 
     private static String getDisplayName(TBasicOperationTraceObject tbo) {
-        AlgorithmOperationSource sourceCode = tbo.getSourceCode();
         String nameForDebug = tbo.getNameForDebug();
         Object result = tbo.getResult();
         HashMap<String, Object> fieldValues = tbo.getFieldValues();
 
-        String operationName = sourceCode.getOperationName();
+        String operationName = tbo.getOperationName();
         String resultValue = "";
         if (result != null) {
             resultValue = "(" + result.toString() + ")";
         }
-        int operationRow = sourceCode.getRowNumber();
+        int operationRow = tbo.getOperationRow();
 
         String fieldFormatedValues = getFieldValuesAsString(fieldValues);
 

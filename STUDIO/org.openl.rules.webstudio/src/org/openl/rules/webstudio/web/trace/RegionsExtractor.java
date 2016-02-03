@@ -53,7 +53,7 @@ public class RegionsExtractor {
 
     private static List<IGridRegion> getiGridRegions(TBasicOperationTraceObject tbo) {
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
-        regions.add(tbo.getSourceCode().getGridRegion());
+        regions.add(tbo.getGridRegion());
         return regions;
     }
 
