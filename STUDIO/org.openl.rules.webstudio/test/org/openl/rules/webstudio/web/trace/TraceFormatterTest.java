@@ -9,7 +9,6 @@ import org.openl.base.INamedThing;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.rules.calc.trace.SpreadsheetTraceObject;
 import org.openl.rules.calc.trace.SpreadsheetTracerLeaf;
 
 public class TraceFormatterTest {
@@ -46,14 +45,11 @@ public class TraceFormatterTest {
         return cell;
     }
 
-    protected SpreadsheetTraceObject createNodeMock() {
+    protected Spreadsheet createNodeMock() {
         Spreadsheet spreadsheet = mock(Spreadsheet.class);
         when(spreadsheet.getColumnNames()).thenReturn(new String[] { "Value" });
         when(spreadsheet.getRowNames()).thenReturn(new String[] { "Vehicle_Premiums" });
-
-        SpreadsheetTraceObject node = mock(SpreadsheetTraceObject.class);
-        when(node.getTraceObject()).thenReturn(spreadsheet);
-        return node;
+        return spreadsheet;
     }
 
 }

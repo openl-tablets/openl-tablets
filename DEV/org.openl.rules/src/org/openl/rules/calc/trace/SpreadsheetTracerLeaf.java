@@ -1,34 +1,24 @@
 package org.openl.rules.calc.trace;
 
 import org.openl.rules.calc.element.SpreadsheetCell;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ATableTracerLeaf;
+import org.openl.rules.table.ATableTracerNode;
 
 /**
  * Leaf trace object that represented by one calculation of spreadsheet cell
  *
  * @author PUdalau
  */
-public class SpreadsheetTracerLeaf extends ATableTracerLeaf {
-    private SpreadsheetTraceObject spreadsheetTraceObject;
+public class SpreadsheetTracerLeaf extends ATableTracerNode {
     private SpreadsheetCell spreadsheetCell;
 
-    public SpreadsheetTracerLeaf(SpreadsheetTraceObject spreadsheetTraceObject, SpreadsheetCell spreadsheetCell) {
-        super("spreadsheetCell");
-        this.spreadsheetTraceObject = spreadsheetTraceObject;
+    public SpreadsheetTracerLeaf(ExecutableRulesMethod method, SpreadsheetCell spreadsheetCell) {
+        super("spreadsheetCell", null, method, null);
         this.spreadsheetCell = spreadsheetCell;
     }
 
     public SpreadsheetCell getSpreadsheetCell() {
         return spreadsheetCell;
     }
-
-    public SpreadsheetTraceObject getSpreadsheetTraceObject() {
-        return spreadsheetTraceObject;
-    }
-
-    @Override
-    public String getUri() {
-        return spreadsheetTraceObject.getTraceObject().getSyntaxNode().getUri();
-    }
-
 }
