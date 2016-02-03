@@ -2,35 +2,31 @@ package org.openl.rules.cmatch.algorithm;
 
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.TableRow;
-import org.openl.rules.table.ATableTracerLeaf;
+import org.openl.rules.table.ATableTracerNode;
+import org.openl.rules.table.IGridRegion;
 
-public class MatchTraceObject extends ATableTracerLeaf {
+public class MatchTraceObject extends ATableTracerNode {
 
-    private ColumnMatch columnMatch;
-    private int rowIndex;
-    private int resultIndex;
+    private IGridRegion gridRegion;
+    private Object checkValue;
+    private String operation;
 
-    MatchTraceObject(String type, ColumnMatch columnMatch, int rowIndex, int resultIndex) {
-        super(type);
-        this.columnMatch = columnMatch;
-        this.rowIndex = rowIndex;
-        this.resultIndex = resultIndex;
+    public MatchTraceObject(ColumnMatch columnMatch, Object checkValue, String operation, IGridRegion gridRegion) {
+        super("cmMatch", null, columnMatch, null);
+        this.gridRegion = gridRegion;
+        this.checkValue = checkValue;
+        this.operation = operation;
     }
 
-    public MatchTraceObject(ColumnMatch columnMatch, int rowIndex, int resultIndex) {
-        this("cmMatch", columnMatch, rowIndex, resultIndex);
+    public Object getCheckValue() {
+        return checkValue;
     }
 
-    public int getResultIndex() {
-        return resultIndex;
+    public String getOperation() {
+        return operation;
     }
 
-    public TableRow getRow() {
-        return columnMatch.getRows().get(rowIndex);
-    }
-
-    @Override
-    public String getUri() {
-        return columnMatch.getSyntaxNode().getUri();
+    public IGridRegion getGridRegion() {
+        return gridRegion;
     }
 }

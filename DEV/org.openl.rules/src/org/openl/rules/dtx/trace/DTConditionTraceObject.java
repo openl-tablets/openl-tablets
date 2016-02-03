@@ -4,20 +4,15 @@ import org.openl.rules.dtx.IBaseCondition;
 import org.openl.rules.table.ATableTracerNode;
 
 public class DTConditionTraceObject extends ATableTracerNode {
-    private final DecisionTableTraceObject baseTraceObject;
     protected final IBaseCondition condition;
     protected boolean successful;
     protected final int ruleIndex;
     private String conditionName;
 
-    public DTConditionTraceObject(DecisionTableTraceObject baseTraceObject,
-            IBaseCondition condition,
+    public DTConditionTraceObject(IBaseCondition condition,
             int ruleIndex,
             boolean successful) {
-        // Avoid cloning parameters for every instance - instead override the
-        // method getParameters()
-        super("decisionTableCondition", "DT", baseTraceObject.getTraceObject(), new Object[0]);
-        this.baseTraceObject = baseTraceObject;
+        super("decisionTableCondition", "DT", null, null);
         this.condition = condition;
         this.successful = successful;
         this.ruleIndex = ruleIndex;
@@ -36,21 +31,7 @@ public class DTConditionTraceObject extends ATableTracerNode {
         return condition;
     }
 
-    public void setSuccessful(boolean successful) {
-        this.successful = successful;
-    }
-
     public boolean isSuccessful() {
         return successful;
-    }
-
-    @Override
-    public Object[] getParameters() {
-        return baseTraceObject.getParameters();
-    }
-
-    @Override
-    public Object getResult() {
-        return baseTraceObject.getResult();
     }
 }

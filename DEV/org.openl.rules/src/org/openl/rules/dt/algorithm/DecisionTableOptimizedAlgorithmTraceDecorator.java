@@ -10,25 +10,18 @@ import org.openl.rules.dt.index.ARuleIndex;
 import org.openl.rules.dt.index.RangeIndex;
 import org.openl.rules.dtx.trace.DTConditionTraceObject;
 import org.openl.rules.dtx.trace.DTIndexedTraceObject;
-import org.openl.rules.dtx.trace.DecisionTableTraceObject;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.ChildTraceStack;
-import org.openl.vm.trace.TraceStack;
 import org.openl.vm.trace.Tracer;
 
 import java.util.Comparator;
 
 public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTableOptimizedAlgorithm {
     private final DecisionTableOptimizedAlgorithm algorithmDelegate;
-    private final DecisionTableTraceObject baseTraceObject;
-    private final TraceStack conditionsStack;
 
     public DecisionTableOptimizedAlgorithmTraceDecorator(DecisionTableOptimizedAlgorithm delegate,
-            TraceStack conditionsStack, DecisionTableTraceObject baseTraceObject, IndexInfo info) {
-        super(delegate.getEvaluators(), delegate.getTable(), info, delegate.getIndexRoot());
+            IndexInfo info) {
+        super(delegate.getEvaluators(), delegate.getTable(), info);
         this.algorithmDelegate = delegate;
-        this.baseTraceObject = baseTraceObject;
-        this.conditionsStack = conditionsStack;
     }
 
     public int hashCode() {
@@ -69,8 +62,15 @@ public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTable
             }
 
             @Override
-            public IIntSelector create(IIntSelector selector, ICondition condition) {
-                return new SelectorTracer(selector, condition, baseTraceObject, new ChildTraceStack(conditionsStack));
+            public IIntSelector create(final IIntSelector selector, final ICondition condition) {
+                return new IIntSelector() {
+                    @Override
+                    public boolean select(int rule) {
+                        boolean successful = selector.select(rule);
+                        Tracer.put(new DTConditionTraceObject(condition, rule, successful));
+                        return successful;
+                    }
+                };
             }
         });
     }
@@ -87,41 +87,10 @@ public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTable
                     rule = (DecisionTableIndexedRuleNode) o2;
                     value = o1;
                 }
-                if (rule.getRulesIterator().hasNext()) {
-                    // Do not trace index value that is not mapped to any rule. This can
-                    // be an excluding boundary for example.
-                    Tracer.put(new DTIndexedTraceObject(baseTraceObject, condition, rule, false));
-                }
+                Tracer.put(new DTIndexedTraceObject(condition, rule.getRules(), false));
                 return rule.compareTo(value);
             }
         };
-    }
-
-    private static class SelectorTracer implements IIntSelector {
-        private final DecisionTableTraceObject baseTraceObject;
-        private final IIntSelector delegate;
-        private final ICondition condition;
-        private final TraceStack conditionsStack;
-
-        public SelectorTracer(IIntSelector delegate, ICondition condition, DecisionTableTraceObject baseTraceObject,
-                TraceStack conditionsStack) {
-            this.baseTraceObject = baseTraceObject;
-            this.delegate = delegate;
-            this.condition = condition;
-            this.conditionsStack = conditionsStack;
-        }
-
-        @Override
-        public boolean select(int rule) {
-            boolean successful = delegate.select(rule);
-            conditionsStack.push(new DTConditionTraceObject(baseTraceObject, condition, rule, successful));
-
-            if (!successful) {
-                conditionsStack.reset();
-            }
-
-            return successful;
-        }
     }
 
 }

@@ -1,6 +1,7 @@
 package org.openl.rules.table;
 
 import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.vm.trace.ITracerObject;
 import org.openl.vm.trace.SimpleTracerObject;
 
 public abstract class ATableTracerNode extends SimpleTracerObject {
@@ -31,7 +32,14 @@ public abstract class ATableTracerNode extends SimpleTracerObject {
     }
 
     public ExecutableRulesMethod getTraceObject() {
-        return method;
+        if (method != null) {
+            return method;
+        }
+        ITracerObject parent = getParent();
+        if (parent instanceof ATableTracerNode) {
+            return ((ATableTracerNode)parent).getTraceObject();
+        }
+        throw new IllegalStateException("The executable method is not defined");
     }
 
     public String getPrefix() {
@@ -56,6 +64,6 @@ public abstract class ATableTracerNode extends SimpleTracerObject {
 
     @Override
     public String getUri() {
-        return method.getSyntaxNode().getUri();
+        return getTraceObject().getSourceUrl();
     }
 }

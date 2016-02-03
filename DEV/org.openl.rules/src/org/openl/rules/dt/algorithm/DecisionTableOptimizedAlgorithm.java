@@ -33,7 +33,7 @@ import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.type.IntRangeAdaptor;
 import org.openl.rules.dtx.IBaseCondition;
 import org.openl.rules.dtx.algorithm.evaluator.DomainCanNotBeDefined;
-import org.openl.rules.dtx.trace.DecisionTableTraceObject;
+import org.openl.rules.dtx.trace.DTIndexedTraceObject;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -43,7 +43,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.TraceStack;
+import org.openl.vm.trace.Tracer;
 
 /**
  * The basic algorithm for decision table (DT) evaluation is straightforward
@@ -237,13 +237,60 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     private BindingDependencies dependencies;
     IndexInfo info;
 
-    public DecisionTableOptimizedAlgorithm(IConditionEvaluator[] evaluators, DecisionTable table, IndexInfo info, ARuleIndex indexRoot) {
+    public DecisionTableOptimizedAlgorithm(IConditionEvaluator[] evaluators, DecisionTable table, IndexInfo info) {
         this.evaluators = evaluators;
         this.table = table;
         this.info = info;
-        this.indexRoot = indexRoot;
+        this.indexRoot = buildIndex(info);
         this.dependencies = new RulesBindingDependencies();
         table.updateDependency(dependencies);
+    }
+
+    private ARuleIndex buildIndex(IndexInfo info) {
+
+        int first = info.fromCondition;
+        IBaseCondition[] cc = table.getConditionRows();
+
+        if (cc.length <= first || first > info.toCondition)
+            return null;
+
+        ICondition firstCondition = (ICondition) cc[first];
+
+        if (!canIndex(evaluators[first], firstCondition))
+            return null;
+
+        ARuleIndex indexRoot = evaluators[first].makeIndex(firstCondition, info.makeRuleIterator());
+
+        indexNodes(indexRoot, first + 1, info);
+
+        return indexRoot;
+    }
+
+    private boolean canIndex(IConditionEvaluator evaluator, ICondition condition) {
+        return evaluator.isIndexed() && !condition.hasFormulasInStorage();
+    }
+
+    private void indexNodes(ARuleIndex index, int condN, IndexInfo info) {
+
+        if (index == null || condN > info.toCondition)
+            return;
+
+        if (!canIndex(evaluators[condN], table.getCondition(condN))) {
+            return;
+        }
+
+        for (DecisionTableRuleNode node : index.nodes()) {
+            indexNode(node, condN, info);
+        }
+        indexNode(index.getEmptyOrFormulaNodes(), condN, info);
+    }
+
+    private void indexNode(DecisionTableRuleNode node, int condN, IndexInfo info) {
+
+        ARuleIndex nodeIndex = evaluators[condN].makeIndex(table.getCondition(condN), node.getRulesIterator());
+        node.setNextIndex(nodeIndex);
+
+        indexNodes(nodeIndex, condN + 1, info);
     }
 
     public IConditionEvaluator[] getEvaluators() {
@@ -517,11 +564,14 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
             while(conditionNumber <= info.toCondition) {
 
-                index = decoratorFactory.create(index, table.getCondition(conditionNumber));
-
-                Object testValue = evaluateTestValue(table.getCondition(conditionNumber), target, params, env);
+                ICondition condition = table.getCondition(conditionNumber);
+                index = decoratorFactory.create(index, condition);
+                Object testValue = evaluateTestValue(condition, target, params, env);
 
                 DecisionTableRuleNode node = index.findNode(testValue);
+                if (Tracer.isTracerOn()) {
+                    Tracer.put(new DTIndexedTraceObject(condition, node.getRules(), true));
+                }
 
                 if (!node.hasIndex()) {
                     iterator = node.getRulesIterator();
@@ -586,14 +636,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     }
 
 	@Override
-	public IDecisionTableAlgorithm asTraceDecorator(TraceStack conditionsStack,
-			DecisionTableTraceObject traceObject) {
-		return new DecisionTableOptimizedAlgorithmTraceDecorator(this, conditionsStack, traceObject, info);
+	public IDecisionTableAlgorithm asTraceDecorator() {
+		return new DecisionTableOptimizedAlgorithmTraceDecorator(this, info);
 	}
-
-	public ARuleIndex getIndexRoot() {
-		return indexRoot;
-	}
-
-
 }

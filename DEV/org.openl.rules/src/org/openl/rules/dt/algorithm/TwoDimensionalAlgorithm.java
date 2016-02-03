@@ -5,9 +5,7 @@ import java.util.Iterator;
 
 import org.openl.domain.AIntIterator;
 import org.openl.domain.IIntIterator;
-import org.openl.rules.dtx.trace.DecisionTableTraceObject;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.TraceStack;
 
 public class TwoDimensionalAlgorithm implements IDecisionTableAlgorithm{
 
@@ -45,8 +43,7 @@ public class TwoDimensionalAlgorithm implements IDecisionTableAlgorithm{
 	}
 
 	@Override
-	public IDecisionTableAlgorithm asTraceDecorator(TraceStack conditionsStack,
-			DecisionTableTraceObject traceObject) {
+	public IDecisionTableAlgorithm asTraceDecorator() {
 		
 		
 		return this; //TODO fix this

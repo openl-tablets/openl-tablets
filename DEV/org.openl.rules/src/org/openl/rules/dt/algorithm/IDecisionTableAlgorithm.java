@@ -1,9 +1,7 @@
 package org.openl.rules.dt.algorithm;
 
 import org.openl.domain.IIntIterator;
-import org.openl.rules.dtx.trace.DecisionTableTraceObject;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.TraceStack;
 
 public interface IDecisionTableAlgorithm {
 
@@ -11,6 +9,6 @@ public interface IDecisionTableAlgorithm {
 
     IIntIterator checkedRules(Object target, Object[] params, IRuntimeEnv env);
 
-    IDecisionTableAlgorithm asTraceDecorator(TraceStack conditionsStack, DecisionTableTraceObject traceObject);
+    IDecisionTableAlgorithm asTraceDecorator();
 
 }

@@ -173,7 +173,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
     public Object getValueTraced(int row, int column) {
         SpreadsheetCell spreadsheetCell = spreadsheet.getCells()[row][column];
 
-        SpreadsheetTracerLeaf spreadsheetTraceLeaf = new SpreadsheetTracerLeaf(spreadsheetTraceObject, spreadsheetCell);
+        SpreadsheetTracerLeaf spreadsheetTraceLeaf = new SpreadsheetTracerLeaf(spreadsheetTraceObject.getTraceObject(), spreadsheetCell);
 
         Tracer.begin(spreadsheetTraceLeaf);
         try {

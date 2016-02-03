@@ -9,22 +9,17 @@ import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.trace.SpreadsheetTracerLeaf;
-import org.openl.rules.cmatch.TableRow;
-import org.openl.rules.cmatch.algorithm.MatchAlgorithmCompiler;
 import org.openl.rules.cmatch.algorithm.MatchTraceObject;
 import org.openl.rules.cmatch.algorithm.ResultTraceObject;
 import org.openl.rules.cmatch.algorithm.WScoreTraceObject;
 import org.openl.rules.dtx.IDecisionTable;
-import org.openl.rules.dtx.IDecisionTableRuleNode;
 import org.openl.rules.dtx.trace.DTConditionTraceObject;
 import org.openl.rules.dtx.trace.DTIndexedTraceObject;
 import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.tbasic.compile.AlgorithmOperationSource;
-import org.openl.rules.tbasic.runtime.debug.TBasicMethodTraceObject;
 import org.openl.rules.tbasic.runtime.debug.TBasicOperationTraceObject;
 import org.openl.rules.types.impl.OverloadedMethodChoiceTraceObject;
 import org.openl.types.IOpenClass;
@@ -36,13 +31,11 @@ public class TraceFormatter {
         if (obj instanceof WScoreTraceObject) {
             return "Score: " + obj.getResult();
         } else if (obj instanceof ResultTraceObject) {
-            return getDisplayName((ResultTraceObject) obj);
+            return "Result: " + obj.getResult();
         } else if (obj instanceof MatchTraceObject) {
             return getDisplayName((MatchTraceObject) obj);
         } else if (obj instanceof TBasicOperationTraceObject) {
             return getDisplayName((TBasicOperationTraceObject) obj);
-        } else if (obj instanceof TBasicMethodTraceObject) {
-            return getDisplayName((TBasicMethodTraceObject) obj, mode);
         } else if (obj instanceof DTIndexedTraceObject) {
             return getDisplayName((DTIndexedTraceObject) obj);
         } else if (obj instanceof DTConditionTraceObject) {
@@ -53,28 +46,16 @@ public class TraceFormatter {
             return "Overloaded method choice for method " + MethodUtil
                 .printSignature(((OverloadedMethodChoiceTraceObject) obj).getMethodCandidates().get(0), 0);
         } else if (obj instanceof DTRuleTracerLeaf) {
-            return getDisplayName((DTRuleTracerLeaf) obj);
+            return "Returned rule: " + ((DTRuleTracerLeaf) obj).getRuleName();
         } else if (obj instanceof ATableTracerNode) {
             return getDisplayName((ATableTracerNode) obj);
         }
         return "NULL - " + obj.getClass();
     }
 
-    private static String getDisplayName(DTRuleTracerLeaf dtr) {
-        return String.format("Returned rule: %s",
-            ((IDecisionTable) dtr.getParentTraceObject().getTraceObject()).getRuleName(dtr.getRuleIndex()));
-    }
-
-    private static String getDisplayName(ResultTraceObject resultTraceObject) {
-        TableRow row = resultTraceObject.getRow();
-        String resultValue = row.get(MatchAlgorithmCompiler.VALUES)[resultTraceObject.getResultIndex()].getString();
-        return "Result: " + resultValue;
-    }
-
     private static String getDisplayName(MatchTraceObject mto) {
-        TableRow row = mto.getRow();
-        String operation = row.get(MatchAlgorithmCompiler.OPERATION)[0].getString();
-        String checkValue = row.get(MatchAlgorithmCompiler.VALUES)[mto.getResultIndex()].getString();
+        String operation = mto.getOperation();
+        String checkValue = String.valueOf(mto.getCheckValue());
         Object result = mto.getResult();
         String txt = "Match: " + operation + " " + checkValue;
         if (result != null) {
@@ -84,17 +65,16 @@ public class TraceFormatter {
     }
 
     private static String getDisplayName(TBasicOperationTraceObject tbo) {
-        AlgorithmOperationSource sourceCode = tbo.getSourceCode();
         String nameForDebug = tbo.getNameForDebug();
         Object result = tbo.getResult();
         HashMap<String, Object> fieldValues = tbo.getFieldValues();
 
-        String operationName = sourceCode.getOperationName();
+        String operationName = tbo.getOperationName();
         String resultValue = "";
         if (result != null) {
             resultValue = "(" + result.toString() + ")";
         }
-        int operationRow = sourceCode.getRowNumber();
+        int operationRow = tbo.getOperationRow();
 
         String fieldFormatedValues = getFieldValuesAsString(fieldValues);
 
@@ -128,26 +108,8 @@ public class TraceFormatter {
         return fields.toString();
     }
 
-    private static String getDisplayName(TBasicMethodTraceObject tbm, int mode) {
-
-        AlgorithmSubroutineMethod method = tbm.getMethod();
-        Object result = tbm.getResult();
-        String returnValue = "";
-        IOpenClass returnType = method.getType();
-        if (!JavaOpenClass.isVoid(returnType)) {
-            returnValue = String.format("%s = %s",
-                returnType.getDisplayName(mode),
-                result != null ? result.toString() : "null");
-        }
-
-        String displayName = method.getHeader().getDisplayName(mode);
-
-        return String.format("Algorithm Method %s %s", returnValue, displayName);
-    }
-
     private static String getDisplayName(DTIndexedTraceObject dti) {
-        IDecisionTableRuleNode linkedRule = dti.getLinkedRule();
-        int[] rules = linkedRule.getRules();
+        int[] rules = dti.getLinkedRule();
         IDecisionTable decisionTable = ((IDecisionTable) dti.getTraceObject());
 
         String[] ruleNames = new String[rules.length];
@@ -166,7 +128,7 @@ public class TraceFormatter {
 
     private static String getDisplayName(SpreadsheetTracerLeaf stl) {
         StringBuilder buf = new StringBuilder(64);
-        Spreadsheet spreadsheet = (Spreadsheet) stl.getSpreadsheetTraceObject().getTraceObject();
+        Spreadsheet spreadsheet = (Spreadsheet) stl.getTraceObject();
         buf.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
         SpreadsheetCell spreadsheetCell = stl.getSpreadsheetCell();
         buf.append(spreadsheet.getColumnNames()[spreadsheetCell.getColumnIndex()]);

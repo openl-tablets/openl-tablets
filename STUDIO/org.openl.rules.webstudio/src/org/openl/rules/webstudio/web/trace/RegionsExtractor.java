@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.rules.calc.trace.SpreadsheetTracerLeaf;
-import org.openl.rules.cmatch.TableRow;
-import org.openl.rules.cmatch.algorithm.MatchAlgorithmCompiler;
 import org.openl.rules.cmatch.algorithm.MatchTraceObject;
+import org.openl.rules.cmatch.algorithm.ResultTraceObject;
 import org.openl.rules.dtx.IDecisionTable;
 import org.openl.rules.dtx.trace.DTConditionTraceObject;
 import org.openl.rules.dtx.trace.DTIndexedTraceObject;
@@ -30,6 +29,8 @@ public class RegionsExtractor {
             return getiGridRegions((DTConditionTraceObject) obj);
         } else if (obj instanceof DTRuleTracerLeaf) {
             return getiGridRegions((DTRuleTracerLeaf) obj);
+        } else if (obj instanceof ResultTraceObject) {
+            return getiGridRegions((ResultTraceObject) obj);
         } else if (obj instanceof MatchTraceObject) {
             return getiGridRegions((MatchTraceObject) obj);
         } else if (obj instanceof MethodTableTraceObject) {
@@ -44,9 +45,15 @@ public class RegionsExtractor {
         return null;
     }
 
+    private static List<IGridRegion> getiGridRegions(ResultTraceObject rto) {
+        List<IGridRegion> regions = new ArrayList<IGridRegion>();
+        regions.add(rto.getGridRegion());
+        return regions;
+    }
+
     private static List<IGridRegion> getiGridRegions(TBasicOperationTraceObject tbo) {
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
-        regions.add(tbo.getSourceCode().getGridRegion());
+        regions.add(tbo.getGridRegion());
         return regions;
     }
 
@@ -76,9 +83,8 @@ public class RegionsExtractor {
     }
 
     private static List<IGridRegion> getiGridRegions(MatchTraceObject mto) {
-        TableRow row = mto.getRow();
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
-        regions.add(row.get(MatchAlgorithmCompiler.VALUES)[mto.getResultIndex()].getGridRegion());
+        regions.add(mto.getGridRegion());
         return regions;
     }
 
@@ -90,7 +96,7 @@ public class RegionsExtractor {
     private static List<IGridRegion> getiGridRegions(DTIndexedTraceObject dti) {
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
 
-        for (int rule : dti.getLinkedRule().getRules()) {
+        for (int rule : dti.getLinkedRule()) {
             ILogicalTable table = dti.getCondition().getValueCell(rule);
             regions.addAll(GridTableUtils.getGridRegions(table));
         }
