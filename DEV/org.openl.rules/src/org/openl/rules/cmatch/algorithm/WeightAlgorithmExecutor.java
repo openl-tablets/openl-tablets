@@ -32,9 +32,9 @@ public class WeightAlgorithmExecutor extends ScoreAlgorithmExecutor {
             if (matcher.match(sumScore, checkValue)) {
                 Tracer.put(new MatchTraceObject(columnMatch, 1, resultIndex));
 
-                Tracer.put(new ResultTraceObject(columnMatch, resultIndex));
-
-                return returnValues[resultIndex];
+                Object result = returnValues[resultIndex];
+                MatchUtil.trace(columnMatch, resultIndex, result);
+                return result;
             }
         }
 

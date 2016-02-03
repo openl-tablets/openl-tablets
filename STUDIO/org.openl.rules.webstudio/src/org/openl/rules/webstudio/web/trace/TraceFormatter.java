@@ -15,7 +15,6 @@ import org.openl.rules.cmatch.algorithm.MatchTraceObject;
 import org.openl.rules.cmatch.algorithm.ResultTraceObject;
 import org.openl.rules.cmatch.algorithm.WScoreTraceObject;
 import org.openl.rules.dtx.IDecisionTable;
-import org.openl.rules.dtx.IDecisionTableRuleNode;
 import org.openl.rules.dtx.trace.DTConditionTraceObject;
 import org.openl.rules.dtx.trace.DTIndexedTraceObject;
 import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
@@ -36,7 +35,7 @@ public class TraceFormatter {
         if (obj instanceof WScoreTraceObject) {
             return "Score: " + obj.getResult();
         } else if (obj instanceof ResultTraceObject) {
-            return getDisplayName((ResultTraceObject) obj);
+            return "Result: " + obj.getResult();
         } else if (obj instanceof MatchTraceObject) {
             return getDisplayName((MatchTraceObject) obj);
         } else if (obj instanceof TBasicOperationTraceObject) {
@@ -63,12 +62,6 @@ public class TraceFormatter {
     private static String getDisplayName(DTRuleTracerLeaf dtr) {
         return String.format("Returned rule: %s",
             ((IDecisionTable) dtr.getParentTraceObject().getTraceObject()).getRuleName(dtr.getRuleIndex()));
-    }
-
-    private static String getDisplayName(ResultTraceObject resultTraceObject) {
-        TableRow row = resultTraceObject.getRow();
-        String resultValue = row.get(MatchAlgorithmCompiler.VALUES)[resultTraceObject.getResultIndex()].getString();
-        return "Result: " + resultValue;
     }
 
     private static String getDisplayName(MatchTraceObject mto) {

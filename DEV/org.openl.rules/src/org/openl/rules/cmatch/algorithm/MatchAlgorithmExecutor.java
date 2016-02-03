@@ -38,8 +38,9 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
                     for (MatchNode node : line.getChildren()) {
                         Tracer.put(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
                     }
-                    Tracer.put(new ResultTraceObject(columnMatch, resultIndex));
-                    return returnValues[resultIndex];
+                    Object result = returnValues[resultIndex];
+                    MatchUtil.trace(columnMatch, resultIndex, result);
+                    return result;
                 }
             }
         }

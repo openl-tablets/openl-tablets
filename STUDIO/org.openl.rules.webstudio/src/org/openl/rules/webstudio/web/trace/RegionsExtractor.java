@@ -7,6 +7,7 @@ import org.openl.rules.calc.trace.SpreadsheetTracerLeaf;
 import org.openl.rules.cmatch.TableRow;
 import org.openl.rules.cmatch.algorithm.MatchAlgorithmCompiler;
 import org.openl.rules.cmatch.algorithm.MatchTraceObject;
+import org.openl.rules.cmatch.algorithm.ResultTraceObject;
 import org.openl.rules.dtx.IDecisionTable;
 import org.openl.rules.dtx.trace.DTConditionTraceObject;
 import org.openl.rules.dtx.trace.DTIndexedTraceObject;
@@ -30,6 +31,8 @@ public class RegionsExtractor {
             return getiGridRegions((DTConditionTraceObject) obj);
         } else if (obj instanceof DTRuleTracerLeaf) {
             return getiGridRegions((DTRuleTracerLeaf) obj);
+        } else if (obj instanceof ResultTraceObject) {
+            return getiGridRegions((ResultTraceObject) obj);
         } else if (obj instanceof MatchTraceObject) {
             return getiGridRegions((MatchTraceObject) obj);
         } else if (obj instanceof MethodTableTraceObject) {
@@ -42,6 +45,12 @@ public class RegionsExtractor {
             return getiGridRegions((TBasicOperationTraceObject) obj);
         }
         return null;
+    }
+
+    private static List<IGridRegion> getiGridRegions(ResultTraceObject rto) {
+        List<IGridRegion> regions = new ArrayList<IGridRegion>();
+        regions.add(rto.getGridRegion());
+        return regions;
     }
 
     private static List<IGridRegion> getiGridRegions(TBasicOperationTraceObject tbo) {

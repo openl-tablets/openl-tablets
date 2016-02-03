@@ -2,7 +2,6 @@ package org.openl.rules.calc.trace;
 
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.table.ATableTracerLeaf;
 import org.openl.rules.table.ATableTracerNode;
 
 /**
