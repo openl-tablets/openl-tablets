@@ -15,6 +15,7 @@ import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.trace.ITracerObject;
+import org.openl.vm.trace.Tracer;
 
 @ManagedBean
 @SessionScoped
@@ -29,7 +30,16 @@ public final class RunTestHelper {
         catchParams();
         TestSuite testSuite = getTestSuite();
         ProjectModel model = WebStudioUtils.getProjectModel();
-        return model.traceElement(testSuite);
+        ITracerObject t = null;
+        try {
+            Tracer.initialize();
+            t = Tracer.getRoot();
+            model.traceElement(testSuite);
+        } finally {
+            Tracer.destroy();
+        }
+
+        return t;
     }
 
     public void initTrace() {

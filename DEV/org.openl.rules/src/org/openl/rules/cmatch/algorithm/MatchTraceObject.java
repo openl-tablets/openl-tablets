@@ -1,7 +1,6 @@
 package org.openl.rules.cmatch.algorithm;
 
 import org.openl.rules.cmatch.ColumnMatch;
-import org.openl.rules.cmatch.TableRow;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.IGridRegion;
 
