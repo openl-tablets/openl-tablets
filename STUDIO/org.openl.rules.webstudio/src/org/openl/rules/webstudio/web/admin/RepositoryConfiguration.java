@@ -21,7 +21,7 @@ public class RepositoryConfiguration {
 
     private boolean secure = false;
     private String oldName = null;
-    private JcrType oldJcrType = null;
+    private String defaultLocalUri = null;
 
     private String configName;
     private final ConfigurationManager configManager;
@@ -67,6 +67,14 @@ public class RepositoryConfiguration {
             uri = jcrType == JcrType.LOCAL ? configManager.getPath(REPOSITORY_URI)
                                            : configManager.getStringProperty(REPOSITORY_URI);
         }
+
+        if (jcrType == JcrType.LOCAL) {
+            defaultLocalUri = configManager.getPath(oldUriProperty);
+            if (defaultLocalUri == null) {
+                defaultLocalUri = configManager.getPath(REPOSITORY_URI);
+            }
+        }
+
         login = configManager.getStringProperty(REPOSITORY_LOGIN);
 
         fixState();
@@ -75,7 +83,6 @@ public class RepositoryConfiguration {
     private void fixState() {
         secure = StringUtils.isNotEmpty(login);
         oldName = name;
-        oldJcrType = jcrType;
     }
 
     private void store() {
@@ -116,25 +123,19 @@ public class RepositoryConfiguration {
     }
 
     public void setType(String accessType) {
-        this.jcrType = JcrType.findByAccessType(accessType);
+        JcrType newJcrType = JcrType.findByAccessType(accessType);
+        if (jcrType != newJcrType) {
+            jcrType = newJcrType;
+            uri = getDefaultPath(newJcrType);
+        }
     }
 
     public String getPath() {
         // Default values
-        if (StringUtils.isEmpty(uri) || oldJcrType != jcrType) {
-            String type = repositoryType == RepositoryType.DESIGN ? "design" : "deployment";
-            switch (jcrType) {
-                case LOCAL:
-                    return "../" + type + "-repository";
-                case RMI:
-                    return "//localhost:1099/" + type + "-repository";
-                case WEBDAV:
-                    return "http://localhost:8080/" + type + "-repository";
-                case DB:
-                    return "jdbc:mysql://localhost:3306/" + type + "-repository";
-                case JNDI:
-                    return "java:comp/env/jdbc/" + type + "DB";
-            }
+        if (StringUtils.isEmpty(uri)) {
+            String defaultPath = getDefaultPath(jcrType);
+            if (defaultPath != null)
+                return defaultPath;
         }
         return uri;
     }
@@ -198,6 +199,23 @@ public class RepositoryConfiguration {
 
     public void setSecure(boolean secure) {
         this.secure = secure;
+    }
+
+    private String getDefaultPath(JcrType jcrType) {
+        String type = repositoryType == RepositoryType.DESIGN ? "design" : "deployment";
+        switch (jcrType) {
+            case LOCAL:
+                return defaultLocalUri != null ? defaultLocalUri : "../" + type + "-repository";
+            case RMI:
+                return "//localhost:1099/" + type + "-repository";
+            case WEBDAV:
+                return "http://localhost:8080/" + type + "-repository";
+            case DB:
+                return "jdbc:mysql://localhost:3306/" + type + "-repository";
+            case JNDI:
+                return "java:comp/env/jdbc/" + type + "DB";
+        }
+        return null;
     }
 
     protected static class NameWithNumbersComparator implements Comparator<RepositoryConfiguration> {

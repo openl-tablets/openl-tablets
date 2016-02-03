@@ -113,7 +113,7 @@
                                 </div>
                             </h3>
                             <div class="repositoryConfig">
-                                <c:set var="productionRepos" value="#{installWizard.productionRepositoryConfigurations}" />
+                                <ui:param name="productionRepos" value="#{installWizard.productionRepositoryConfigurations}" />
 
                                 <a4j:repeat value="#{productionRepos}" var="repository">
                                     <div>
