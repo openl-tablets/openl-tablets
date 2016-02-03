@@ -3,28 +3,28 @@ package org.openl.rules.dtx.trace;
 import org.openl.rules.dtx.IBaseCondition;
 import org.openl.rules.table.ATableTracerNode;
 
-public class DTConditionTraceObject extends ATableTracerNode {
+public class DTRuleTraceObject extends ATableTracerNode {
     protected final IBaseCondition condition;
     protected boolean successful;
-    protected final int ruleIndex;
     private String conditionName;
+    private final int[] rules;
 
-    public DTConditionTraceObject(IBaseCondition condition,
-            int ruleIndex,
+    public DTRuleTraceObject(IBaseCondition condition,
+            int[] rules,
             boolean successful) {
-        super("decisionTableCondition", "DT", null, null);
+        super("dtRule", null, null, null);
         this.condition = condition;
         this.successful = successful;
-        this.ruleIndex = ruleIndex;
         this.conditionName = condition.getName();
+        this.rules = rules;
     }
 
     public String getConditionName() {
         return conditionName;
     }
 
-    public int getRuleIndex() {
-        return ruleIndex;
+    public int[] getRules() {
+        return rules;
     }
 
     public IBaseCondition getCondition() {

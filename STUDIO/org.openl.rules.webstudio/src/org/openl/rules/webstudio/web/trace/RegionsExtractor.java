@@ -7,8 +7,7 @@ import org.openl.rules.calc.trace.SpreadsheetTracerLeaf;
 import org.openl.rules.cmatch.algorithm.MatchTraceObject;
 import org.openl.rules.cmatch.algorithm.ResultTraceObject;
 import org.openl.rules.dtx.IDecisionTable;
-import org.openl.rules.dtx.trace.DTConditionTraceObject;
-import org.openl.rules.dtx.trace.DTIndexedTraceObject;
+import org.openl.rules.dtx.trace.DTRuleTraceObject;
 import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
 import org.openl.rules.method.table.MethodTableTraceObject;
 import org.openl.rules.table.GridTableUtils;
@@ -23,10 +22,8 @@ import org.openl.vm.trace.ITracerObject;
 
 public class RegionsExtractor {
     static List<IGridRegion> getGridRegions(ITracerObject obj) {
-        if (obj instanceof DTIndexedTraceObject) {
-            return getiGridRegions((DTIndexedTraceObject) obj);
-        } else if (obj instanceof DTConditionTraceObject) {
-            return getiGridRegions((DTConditionTraceObject) obj);
+        if (obj instanceof DTRuleTraceObject) {
+            return getiGridRegions((DTRuleTraceObject) obj);
         } else if (obj instanceof DTRuleTracerLeaf) {
             return getiGridRegions((DTRuleTracerLeaf) obj);
         } else if (obj instanceof ResultTraceObject) {
@@ -93,19 +90,13 @@ public class RegionsExtractor {
         return GridTableUtils.getGridRegions(table);
     }
 
-    private static List<IGridRegion> getiGridRegions(DTIndexedTraceObject dti) {
+    private static List<IGridRegion> getiGridRegions(DTRuleTraceObject dti) {
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
 
-        for (int rule : dti.getLinkedRule()) {
+        for (int rule : dti.getRules()) {
             ILogicalTable table = dti.getCondition().getValueCell(rule);
             regions.addAll(GridTableUtils.getGridRegions(table));
         }
         return regions;
     }
-
-    private static List<IGridRegion> getiGridRegions(DTConditionTraceObject dtc) {
-        ILogicalTable table = dtc.getCondition().getValueCell(dtc.getRuleIndex());
-        return GridTableUtils.getGridRegions(table);
-    }
-
 }

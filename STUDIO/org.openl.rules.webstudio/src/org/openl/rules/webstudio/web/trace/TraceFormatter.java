@@ -13,13 +13,11 @@ import org.openl.rules.cmatch.algorithm.MatchTraceObject;
 import org.openl.rules.cmatch.algorithm.ResultTraceObject;
 import org.openl.rules.cmatch.algorithm.WScoreTraceObject;
 import org.openl.rules.dtx.IDecisionTable;
-import org.openl.rules.dtx.trace.DTConditionTraceObject;
-import org.openl.rules.dtx.trace.DTIndexedTraceObject;
+import org.openl.rules.dtx.trace.DTRuleTraceObject;
 import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.tbasic.compile.AlgorithmOperationSource;
 import org.openl.rules.tbasic.runtime.debug.TBasicOperationTraceObject;
 import org.openl.rules.types.impl.OverloadedMethodChoiceTraceObject;
 import org.openl.types.IOpenClass;
@@ -36,10 +34,8 @@ public class TraceFormatter {
             return getDisplayName((MatchTraceObject) obj);
         } else if (obj instanceof TBasicOperationTraceObject) {
             return getDisplayName((TBasicOperationTraceObject) obj);
-        } else if (obj instanceof DTIndexedTraceObject) {
-            return getDisplayName((DTIndexedTraceObject) obj);
-        } else if (obj instanceof DTConditionTraceObject) {
-            return getDisplayName((DTConditionTraceObject) obj);
+        } else if (obj instanceof DTRuleTraceObject) {
+            return getDisplayName((DTRuleTraceObject) obj);
         } else if (obj instanceof SpreadsheetTracerLeaf) {
             return getDisplayName((SpreadsheetTracerLeaf) obj);
         } else if (obj instanceof OverloadedMethodChoiceTraceObject) {
@@ -108,8 +104,8 @@ public class TraceFormatter {
         return fields.toString();
     }
 
-    private static String getDisplayName(DTIndexedTraceObject dti) {
-        int[] rules = dti.getLinkedRule();
+    private static String getDisplayName(DTRuleTraceObject dti) {
+        int[] rules = dti.getRules();
         IDecisionTable decisionTable = ((IDecisionTable) dti.getTraceObject());
 
         String[] ruleNames = new String[rules.length];
@@ -117,13 +113,7 @@ public class TraceFormatter {
             ruleNames[i] = decisionTable.getRuleName(rules[i]);
         }
 
-        return String.format("Indexed condition: %s, Rules: %s", dti.getConditionName(), Arrays.toString(ruleNames));
-    }
-
-    private static String getDisplayName(DTConditionTraceObject dtc) {
-        return String.format("Rule: %s, Condition: %s",
-            ((IDecisionTable) dtc.getTraceObject()).getRuleName(dtc.getRuleIndex()),
-            dtc.getConditionName());
+        return String.format("Condition: %s, Rules: %s", dti.getConditionName(), Arrays.toString(ruleNames));
     }
 
     private static String getDisplayName(SpreadsheetTracerLeaf stl) {

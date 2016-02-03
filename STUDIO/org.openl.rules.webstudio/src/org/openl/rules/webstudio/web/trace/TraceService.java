@@ -12,8 +12,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.openl.base.INamedThing;
-import org.openl.rules.dtx.trace.DTConditionTraceObject;
-import org.openl.rules.dtx.trace.DTIndexedTraceObject;
+import org.openl.rules.dtx.trace.DTRuleTraceObject;
 import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -41,10 +40,10 @@ public class TraceService {
     private List<TraceNode> createNodes(Iterable<ITracerObject> children, TraceHelper traceHelper) {
         List<TraceNode> nodes = new ArrayList<TraceNode>(16);
         for (ITracerObject child : children) {
-            if (child instanceof DTIndexedTraceObject) {
+            if (child instanceof DTRuleTraceObject) {
                 // Do not trace index value that is not mapped to any rule.
                 // This can be an excluding boundary for example.
-                int[] rules = ((DTIndexedTraceObject) child).getLinkedRule();
+                int[] rules = ((DTRuleTraceObject) child).getRules();
                 if (rules == null || rules.length == 0) {
                     continue;
                 }
@@ -84,8 +83,8 @@ public class TraceService {
         if (type == null) {
             type = StringUtils.EMPTY;
         }
-        if (element instanceof DTConditionTraceObject) {
-            DTConditionTraceObject condition = (DTConditionTraceObject) element;
+        if (element instanceof DTRuleTraceObject) {
+            DTRuleTraceObject condition = (DTRuleTraceObject) element;
             if (!condition.isSuccessful()) {
                 return type + " fail";
             } else {
