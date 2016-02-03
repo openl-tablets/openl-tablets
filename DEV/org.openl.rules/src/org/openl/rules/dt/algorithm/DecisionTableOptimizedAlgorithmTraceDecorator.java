@@ -10,7 +10,6 @@ import org.openl.rules.dt.index.ARuleIndex;
 import org.openl.rules.dt.index.RangeIndex;
 import org.openl.rules.dtx.trace.DTConditionTraceObject;
 import org.openl.rules.dtx.trace.DTIndexedTraceObject;
-import org.openl.rules.dtx.trace.DecisionTableTraceObject;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
@@ -91,11 +90,7 @@ public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTable
                     rule = (DecisionTableIndexedRuleNode) o2;
                     value = o1;
                 }
-                if (rule.getRulesIterator().hasNext()) {
-                    // Do not trace index value that is not mapped to any rule. This can
-                    // be an excluding boundary for example.
-                    Tracer.put(new DTIndexedTraceObject(method, condition, rule.getRules(), false));
-                }
+                Tracer.put(new DTIndexedTraceObject(method, condition, rule.getRules(), false));
                 return rule.compareTo(value);
             }
         };
