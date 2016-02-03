@@ -10,7 +10,6 @@ import org.openl.rules.dt.index.ARuleIndex;
 import org.openl.rules.dt.index.RangeIndex;
 import org.openl.rules.dtx.trace.DTConditionTraceObject;
 import org.openl.rules.dtx.trace.DTIndexedTraceObject;
-import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
 
@@ -18,13 +17,11 @@ import java.util.Comparator;
 
 public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTableOptimizedAlgorithm {
     private final DecisionTableOptimizedAlgorithm algorithmDelegate;
-    private final ExecutableRulesMethod method;
 
     public DecisionTableOptimizedAlgorithmTraceDecorator(DecisionTableOptimizedAlgorithm delegate,
-            ExecutableRulesMethod method, IndexInfo info) {
+            IndexInfo info) {
         super(delegate.getEvaluators(), delegate.getTable(), info);
         this.algorithmDelegate = delegate;
-        this.method = method;
     }
 
     public int hashCode() {
@@ -70,7 +67,7 @@ public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTable
                     @Override
                     public boolean select(int rule) {
                         boolean successful = selector.select(rule);
-                        Tracer.put(new DTConditionTraceObject(method, condition, rule, successful));
+                        Tracer.put(new DTConditionTraceObject(condition, rule, successful));
                         return successful;
                     }
                 };
@@ -90,7 +87,7 @@ public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTable
                     rule = (DecisionTableIndexedRuleNode) o2;
                     value = o1;
                 }
-                Tracer.put(new DTIndexedTraceObject(method, condition, rule.getRules(), false));
+                Tracer.put(new DTIndexedTraceObject(condition, rule.getRules(), false));
                 return rule.compareTo(value);
             }
         };

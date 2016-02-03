@@ -63,7 +63,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
 
         try {
             IDecisionTableAlgorithm algorithm = getInvokableMethod().getAlgorithm();
-            IDecisionTableAlgorithm algorithmDelegator = algorithm.asTraceDecorator(traceObject);
+            IDecisionTableAlgorithm algorithmDelegator = algorithm.asTraceDecorator();
 
             IIntIterator rules = algorithmDelegator.checkedRules(target, params, env);
 

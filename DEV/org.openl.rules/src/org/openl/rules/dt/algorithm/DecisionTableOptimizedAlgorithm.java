@@ -33,7 +33,7 @@ import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.type.IntRangeAdaptor;
 import org.openl.rules.dtx.IBaseCondition;
 import org.openl.rules.dtx.algorithm.evaluator.DomainCanNotBeDefined;
-import org.openl.rules.dtx.trace.DecisionTableTraceObject;
+import org.openl.rules.dtx.trace.DTIndexedTraceObject;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -43,6 +43,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.trace.Tracer;
 
 /**
  * The basic algorithm for decision table (DT) evaluation is straightforward
@@ -563,11 +564,14 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
             while(conditionNumber <= info.toCondition) {
 
-                index = decoratorFactory.create(index, table.getCondition(conditionNumber));
-
-                Object testValue = evaluateTestValue(table.getCondition(conditionNumber), target, params, env);
+                ICondition condition = table.getCondition(conditionNumber);
+                index = decoratorFactory.create(index, condition);
+                Object testValue = evaluateTestValue(condition, target, params, env);
 
                 DecisionTableRuleNode node = index.findNode(testValue);
+                if (Tracer.isTracerOn()) {
+                    Tracer.put(new DTIndexedTraceObject(condition, node.getRules(), true));
+                }
 
                 if (!node.hasIndex()) {
                     iterator = node.getRulesIterator();
@@ -632,7 +636,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     }
 
 	@Override
-	public IDecisionTableAlgorithm asTraceDecorator(DecisionTableTraceObject traceObject) {
-		return new DecisionTableOptimizedAlgorithmTraceDecorator(this, traceObject.getTraceObject(), info);
+	public IDecisionTableAlgorithm asTraceDecorator() {
+		return new DecisionTableOptimizedAlgorithmTraceDecorator(this, info);
 	}
 }
