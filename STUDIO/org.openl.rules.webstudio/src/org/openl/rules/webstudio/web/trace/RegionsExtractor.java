@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.rules.calc.trace.SpreadsheetTracerLeaf;
-import org.openl.rules.cmatch.TableRow;
-import org.openl.rules.cmatch.algorithm.MatchAlgorithmCompiler;
 import org.openl.rules.cmatch.algorithm.MatchTraceObject;
 import org.openl.rules.cmatch.algorithm.ResultTraceObject;
 import org.openl.rules.dtx.IDecisionTable;
@@ -85,9 +83,8 @@ public class RegionsExtractor {
     }
 
     private static List<IGridRegion> getiGridRegions(MatchTraceObject mto) {
-        TableRow row = mto.getRow();
         List<IGridRegion> regions = new ArrayList<IGridRegion>();
-        regions.add(row.get(MatchAlgorithmCompiler.VALUES)[mto.getResultIndex()].getGridRegion());
+        regions.add(mto.getGridRegion());
         return regions;
     }
 

@@ -4,7 +4,6 @@ import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.MatchNode;
 import org.openl.rules.cmatch.matcher.IMatcher;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.Tracer;
 
 public class ScoreAlgorithmExecutor implements IMatchAlgorithmExecutor {
 
@@ -30,9 +29,7 @@ public class ScoreAlgorithmExecutor implements IMatchAlgorithmExecutor {
                 if (matcher.match(var, checkValue)) {
                     int score = scores[resultIndex] * node.getWeight();
                     sumScore += score;
-                    MatchTraceObject mto = new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex);
-                    mto.setResult(score);
-                    Tracer.put(mto);
+                    MatchUtil.trace(columnMatch, node, resultIndex, score);
                     break;
                 }
             }

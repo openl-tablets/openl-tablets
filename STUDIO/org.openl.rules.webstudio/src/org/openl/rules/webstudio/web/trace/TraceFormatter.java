@@ -9,8 +9,6 @@ import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.trace.SpreadsheetTracerLeaf;
-import org.openl.rules.cmatch.TableRow;
-import org.openl.rules.cmatch.algorithm.MatchAlgorithmCompiler;
 import org.openl.rules.cmatch.algorithm.MatchTraceObject;
 import org.openl.rules.cmatch.algorithm.ResultTraceObject;
 import org.openl.rules.cmatch.algorithm.WScoreTraceObject;
@@ -65,9 +63,8 @@ public class TraceFormatter {
     }
 
     private static String getDisplayName(MatchTraceObject mto) {
-        TableRow row = mto.getRow();
-        String operation = row.get(MatchAlgorithmCompiler.OPERATION)[0].getString();
-        String checkValue = row.get(MatchAlgorithmCompiler.VALUES)[mto.getResultIndex()].getString();
+        String operation = mto.getOperation();
+        String checkValue = String.valueOf(mto.getCheckValue());
         Object result = mto.getResult();
         String txt = "Match: " + operation + " " + checkValue;
         if (result != null) {

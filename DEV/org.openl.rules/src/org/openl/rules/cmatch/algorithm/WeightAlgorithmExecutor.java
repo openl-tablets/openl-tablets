@@ -30,7 +30,7 @@ public class WeightAlgorithmExecutor extends ScoreAlgorithmExecutor {
         for (int resultIndex = 0; resultIndex < returnValues.length; resultIndex++) {
             Object checkValue = totalScore.getCheckValues()[resultIndex];
             if (matcher.match(sumScore, checkValue)) {
-                Tracer.put(new MatchTraceObject(columnMatch, 1, resultIndex));
+                MatchUtil.trace(columnMatch, totalScore, resultIndex, null);
 
                 Object result = returnValues[resultIndex];
                 MatchUtil.trace(columnMatch, resultIndex, result);

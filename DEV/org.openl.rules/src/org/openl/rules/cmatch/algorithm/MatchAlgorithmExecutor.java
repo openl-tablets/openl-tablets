@@ -2,7 +2,9 @@ package org.openl.rules.cmatch.algorithm;
 
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.MatchNode;
+import org.openl.rules.cmatch.TableRow;
 import org.openl.rules.cmatch.matcher.IMatcher;
+import org.openl.rules.table.IGridRegion;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
 
@@ -36,7 +38,7 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
 
                 if (success) {
                     for (MatchNode node : line.getChildren()) {
-                        Tracer.put(new MatchTraceObject(columnMatch, node.getRowIndex(), resultIndex));
+                        MatchUtil.trace(columnMatch, node, resultIndex, null);
                     }
                     Object result = returnValues[resultIndex];
                     MatchUtil.trace(columnMatch, resultIndex, result);
