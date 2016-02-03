@@ -13,8 +13,11 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TableViewer {
+    private final Logger log = LoggerFactory.getLogger(TableViewer.class);
 
     private IGrid grid;
 
@@ -147,34 +150,40 @@ public class TableViewer {
     }
 
     private String createFormulaCellWithLinks(ICell cell, String formattedValue) {
-        int nextSymbolIndex = 0;
-        StringBuilder buff = new StringBuilder();
-        if (isShowLinks()) {
-            for (NodeUsage nodeUsage : cell.getMetaInfo().getUsedNodes()) {
-                int pstart = nodeUsage.getStart();
-                int pend = nodeUsage.getEnd();
-                String tableUri = nodeUsage.getUri();
-                buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex, pstart)));
-                // add link to used table with signature in tooltip
-                buff.append("<span class=\"title")
-                        .append(" title-")
-                        .append(nodeUsage.getNodeType().toString().toLowerCase())
-                        .append(" ").append(Constants.TABLE_EDITOR_META_INFO_CLASS)
-                        .append("\">");
-                if (tableUri != null) {
-                    buff.append(linkBuilder.createLinkForTable(tableUri, formattedValue.substring(pstart, pend + 1)));
-                } else {
+        try {
+            int nextSymbolIndex = 0;
+            StringBuilder buff = new StringBuilder();
+            if (isShowLinks()) {
+                for (NodeUsage nodeUsage : cell.getMetaInfo().getUsedNodes()) {
+                    int pstart = nodeUsage.getStart();
+                    int pend = nodeUsage.getEnd();
+                    String tableUri = nodeUsage.getUri();
+                    buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex, pstart)));
+                    // add link to used table with signature in tooltip
+                    buff.append("<span class=\"title")
+                            .append(" title-")
+                            .append(nodeUsage.getNodeType().toString().toLowerCase())
+                            .append(" ").append(Constants.TABLE_EDITOR_META_INFO_CLASS)
+                            .append("\">");
+                    if (tableUri != null) {
+                        buff.append(linkBuilder.createLinkForTable(tableUri, formattedValue.substring(pstart, pend + 1)));
+                    } else {
+                        buff.append(escapeHtml4(formattedValue.substring(pstart, pend + 1)));
+                    }
+                    buff.append("<em>").append(escapeHtml4(nodeUsage.getDescription())).append("</em></span>");
+                    buff.append("<span class='").append(Constants.TABLE_EDITOR_ACTUAL_VALUE_CLASS).append(" te_hidden'>");
                     buff.append(escapeHtml4(formattedValue.substring(pstart, pend + 1)));
+                    buff.append("</span>");
+                    nextSymbolIndex = pend + 1;
                 }
-                buff.append("<em>").append(escapeHtml4(nodeUsage.getDescription())).append("</em></span>");
-                buff.append("<span class='").append(Constants.TABLE_EDITOR_ACTUAL_VALUE_CLASS).append(" te_hidden'>");
-                buff.append(escapeHtml4(formattedValue.substring(pstart, pend + 1)));
-                buff.append("</span>");
-                nextSymbolIndex = pend + 1;
             }
+            buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex)));
+            return buff.toString();
+        } catch (RuntimeException e) {
+            // Fallback to the formula without links
+            log.error(e.getMessage(), e);
+            return escapeHtml4(formattedValue);
         }
-        buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex)));
-        return buff.toString();
     }
 
     private boolean isShowLinks() {

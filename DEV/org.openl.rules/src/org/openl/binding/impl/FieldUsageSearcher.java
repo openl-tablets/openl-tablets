@@ -7,6 +7,8 @@ import org.openl.binding.MethodUtil;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.data.DataOpenField;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.util.text.ILocation;
@@ -67,7 +69,13 @@ public final class FieldUsageSearcher {
             type = type.getComponentClass();
             metaInfo = type.getMetaInfo();
         }
-        ILocation typeLocation = boundNode.getSyntaxNode().getSourceLocation();
+        ISyntaxNode syntaxNode = boundNode.getSyntaxNode();
+        if (!(syntaxNode instanceof IdentifierNode)) {
+            if ("function".equals(syntaxNode.getType())) {
+                syntaxNode = syntaxNode.getChild(syntaxNode.getNumberOfChildren() - 1);
+            }
+        }
+        ILocation typeLocation = syntaxNode.getSourceLocation();
         SimpleNodeUsage simpleNodeUsage = null;
         if (metaInfo != null && typeLocation != null) {
             int start = startPosition + typeLocation.getStart().getAbsolutePosition(tableHeaderText);
