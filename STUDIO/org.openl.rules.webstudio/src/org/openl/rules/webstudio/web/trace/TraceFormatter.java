@@ -50,16 +50,11 @@ public class TraceFormatter {
             return "Overloaded method choice for method " + MethodUtil
                 .printSignature(((OverloadedMethodChoiceTraceObject) obj).getMethodCandidates().get(0), 0);
         } else if (obj instanceof DTRuleTracerLeaf) {
-            return getDisplayName((DTRuleTracerLeaf) obj);
+            return "Returned rule: " + ((DTRuleTracerLeaf) obj).getRuleName();
         } else if (obj instanceof ATableTracerNode) {
             return getDisplayName((ATableTracerNode) obj);
         }
         return "NULL - " + obj.getClass();
-    }
-
-    private static String getDisplayName(DTRuleTracerLeaf dtr) {
-        return String.format("Returned rule: %s",
-            ((IDecisionTable) dtr.getParentTraceObject().getTraceObject()).getRuleName(dtr.getRuleIndex()));
     }
 
     private static String getDisplayName(MatchTraceObject mto) {
