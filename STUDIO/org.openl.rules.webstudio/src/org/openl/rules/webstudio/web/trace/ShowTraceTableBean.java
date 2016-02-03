@@ -91,7 +91,6 @@ public class ShowTraceTableBean {
         if (tto instanceof ATableTracerNode) {
             tracerNode = (ATableTracerNode) tto;
         } else if (tto != null && tto.getParent() instanceof ATableTracerNode) {
-            // ATableTracerLeaf
             tracerNode = (ATableTracerNode) tto.getParent();
         }
         if (tracerNode == null || tracerNode.getTraceObject() == null) {

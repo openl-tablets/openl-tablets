@@ -2,10 +2,10 @@ package org.openl.rules.tbasic.runtime.debug;
 
 import java.util.HashMap;
 
-import org.openl.rules.table.ATableTracerLeaf;
 import org.openl.rules.tbasic.compile.AlgorithmOperationSource;
+import org.openl.vm.trace.SimpleTracerObject;
 
-public class TBasicOperationTraceObject extends ATableTracerLeaf {
+public class TBasicOperationTraceObject extends SimpleTracerObject {
 
     private HashMap<String, Object> fieldValues;
     private AlgorithmOperationSource sourceCode;
