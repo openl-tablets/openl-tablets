@@ -13,8 +13,6 @@ public final class Tracer {
 
     private static ThreadLocal<Tracer> tracer = new ThreadLocal<Tracer>();
 
-    private final Logger log = LoggerFactory.getLogger(Tracer.class);
-
     private ITracerObject root;
     private ITracerObject current;
 
@@ -40,28 +38,17 @@ public final class Tracer {
 
     public static void end() {
         if (isTracerOn()) {
-            tracer.get().pop();
+            ITracerObject current = tracer.get().current;
+            if (current != null) {
+                tracer.get().current = current.getParent();
+            } else {
+                log().warn("Something is wrong. Current trace object is null. Can't pop trace object.");
+            }
         }
-    }
-
-    public static Tracer getTracer() {
-        return tracer.get();
     }
 
     public static boolean isTracerOn() {
         return tracer.get() != null && tracer.get().active;
-    }
-
-    public static void disableTrace() {
-        if (tracer.get() != null) {
-            tracer.get().active = false;
-        }
-    }
-
-    public static void enableTrace() {
-        if (tracer.get() != null) {
-            tracer.get().active = true;
-        }
     }
 
     public static ITracerObject getRoot() {
@@ -84,23 +71,6 @@ public final class Tracer {
         current = root;
     }
 
-    public void pop() {
-        if (current != null) {
-            current = current.getParent();
-        } else {
-            log.warn("Something is wrong. Current trace object is null. Can't pop trace object.");
-        }
-    }
-
-    public void push(ITracerObject obj) {
-        current.addChild(obj);
-        current = obj;
-    }
-
-    public void reset() {
-        init();
-    }
-
     public static void initialize() {
         if (tracer.get() == null) {
             tracer.set(new Tracer());
@@ -111,5 +81,9 @@ public final class Tracer {
 
     public static void destroy() {
         tracer.set(null);
+    }
+
+    private static Logger log() {
+        return LoggerFactory.getLogger(Tracer.class);
     }
 }
