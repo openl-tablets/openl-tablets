@@ -8,7 +8,7 @@ package org.openl.rules.calculation.result.convertor;
  * #%L
  * OpenL - DEV - Rules - Calculation Result
  * %%
- * Copyright (C) 2013 - 2015 OpenL Tablets
+ * Copyright (C) 2013 - 2016 OpenL Tablets
  * %%
  * See the file LICENSE.txt for copying permission.
  * #L%
