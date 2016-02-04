@@ -55,4 +55,7 @@ public class MultiCallFieldAccessMethodBoundNode extends ATargetBoundNode {
         dependencies.addFieldDependency(singleField, this);
     }
 
+    public IOpenField getBoundField() {
+        return singleField;
+    }
 }

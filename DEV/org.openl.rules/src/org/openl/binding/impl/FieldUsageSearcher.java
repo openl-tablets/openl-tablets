@@ -41,16 +41,33 @@ public final class FieldUsageSearcher {
                             (DataOpenField) boundField));
                 }
             } else {
-                SimpleNodeUsage simpleNodeUsage = createFieldOfDatatype(boundNode,
+                SimpleNodeUsage simpleNodeUsage = createFieldOfDatatype(boundNode.getSyntaxNode(),
                         startPosition,
                         tableHeaderText,
-                        type);
+                        type,
+                        boundField);
                 if (simpleNodeUsage != null) {
                     fields.add(simpleNodeUsage);
                 }
             }
         } else if (boundNode instanceof IndexNode) {
             findAllFields(fields, boundNode.getTargetNode(), sourceString, startPosition);
+        } else if (boundNode instanceof MultiCallFieldAccessMethodBoundNode) {
+            findAllFields(fields, boundNode.getTargetNode(), sourceString, startPosition);
+            IOpenField boundField = ((MultiCallFieldAccessMethodBoundNode) boundNode).getBoundField();
+            IOpenClass type = boundField.getDeclaringClass();
+            if (type == null) {
+                return;
+            }
+            TextInfo tableHeaderText = new TextInfo(sourceString);
+            SimpleNodeUsage simpleNodeUsage = createFieldOfDatatype(boundNode.getSyntaxNode(),
+                    startPosition,
+                    tableHeaderText,
+                    type,
+                    boundField);
+            if (simpleNodeUsage != null) {
+                fields.add(simpleNodeUsage);
+            }
         } else {
             if (boundNode.getChildren() == null) {
                 return;
@@ -61,15 +78,14 @@ public final class FieldUsageSearcher {
         }
     }
 
-    public static SimpleNodeUsage createFieldOfDatatype(IBoundNode boundNode,
+    public static SimpleNodeUsage createFieldOfDatatype(ISyntaxNode syntaxNode,
             int startPosition,
-            TextInfo tableHeaderText, IOpenClass type) {
+            TextInfo tableHeaderText, IOpenClass type, IOpenField field) {
         IMetaInfo metaInfo = type.getMetaInfo();
         while (metaInfo == null && type.isArray()) {
             type = type.getComponentClass();
             metaInfo = type.getMetaInfo();
         }
-        ISyntaxNode syntaxNode = boundNode.getSyntaxNode();
         if (!(syntaxNode instanceof IdentifierNode)) {
             if ("function".equals(syntaxNode.getType())) {
                 syntaxNode = syntaxNode.getChild(syntaxNode.getNumberOfChildren() - 1);
@@ -81,7 +97,7 @@ public final class FieldUsageSearcher {
             int start = startPosition + typeLocation.getStart().getAbsolutePosition(tableHeaderText);
             int end = startPosition + typeLocation.getEnd().getAbsolutePosition(tableHeaderText);
             String description = MethodUtil.printType(type) + "\n" +
-                    MethodUtil.printType(boundNode.getType()) + " " + ((FieldBoundNode) boundNode).getFieldName();
+                    MethodUtil.printType(field.getType()) + " " + field.getName();
             simpleNodeUsage = new SimpleNodeUsage(start,
                     end,
                     description,

@@ -33,7 +33,7 @@ public class FieldAccessMethodBinder extends ANodeBinder {
 
         String fieldName = getAsFieldName(methodName);
 
-        IBoundNode accessorChain = null;
+        IBoundNode accessorChain;
 
         if (argumentType.isArray()) {
             accessorChain = bindArrayArgument(fieldName, bindingContext, argumentNode, argumentType.getComponentClass());
@@ -68,7 +68,7 @@ public class FieldAccessMethodBinder extends ANodeBinder {
             return null;
         }
 
-        return new MultiCallFieldAccessMethodBoundNode(argumentNode, containerField, field);
+        return new MultiCallFieldAccessMethodBoundNode(argumentNode.getParent(), containerField, field);
     }
 
     private IBoundNode bindSingleArgument(String fieldName, ISyntaxNode argumentNode, IBindingContext bindingContext) {
