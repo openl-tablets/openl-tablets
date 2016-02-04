@@ -30,11 +30,7 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
-import org.openl.rules.testmethod.ParameterWithValueDeclaration;
-import org.openl.rules.testmethod.TestDescription;
-import org.openl.rules.testmethod.TestSuite;
-import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.testmethod.TestUtils;
+import org.openl.rules.testmethod.*;
 import org.openl.rules.ui.ProjectHelper;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.RecentlyVisitedTables;
@@ -437,6 +433,14 @@ public class TableBean {
 
     public Integer getRowIndex() {
         if (runnableTestMethods.length > 0 && !runnableTestMethods[0].hasId()) {
+            if (method instanceof TestSuiteMethod) {
+                TestMethodBoundNode boundNode = ((TestSuiteMethod) method).getBoundNode();
+                if (boundNode != null && !boundNode.getTable().getHeaderTable().isNormalOrientation()) {
+                    // Currently row indexes aren't supported for transposed test tables
+                    return null;
+                }
+            }
+
             return table.getGridTable().getHeight() - runnableTestMethods.length + 1;
         }
         return null;
