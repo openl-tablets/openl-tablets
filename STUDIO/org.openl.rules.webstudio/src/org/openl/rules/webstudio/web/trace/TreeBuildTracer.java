@@ -37,6 +37,9 @@ public final class TreeBuildTracer extends Tracer {
 
     @Override
     protected void doPut(Object executor, String id, Object... args) {
+        if (!isOn()) {
+            return;
+        }
         if (executor instanceof DecisionTableOptimizedAlgorithm) {
             doPut(DTRuleTraceObject.create(args));
         } else if (executor instanceof MatchAlgorithmExecutor) {
@@ -72,12 +75,18 @@ public final class TreeBuildTracer extends Tracer {
 
     @Override
     protected void doBegin(ITracerObject obj) {
+        if (!isOn()) {
+            return;
+        }
         doPut(obj);
         tree.set(obj);
     }
 
     @Override
     protected void doEnd() {
+        if (!isOn()) {
+            return;
+        }
         ITracerObject current = tree.get();
         if (current != null) {
             tree.set(current.getParent());
@@ -88,6 +97,9 @@ public final class TreeBuildTracer extends Tracer {
 
     @Override
     protected Object doInvoke(Invokable executor, Object target, Object[] params, IRuntimeEnv env) {
+        if (!isOn()) {
+            return executor.invoke(target, params, env);
+        }
         ATableTracerNode trObj = TracedObjectFactory.getTracedObject(executor, params);
         doBegin(trObj);
         try {
@@ -104,7 +116,7 @@ public final class TreeBuildTracer extends Tracer {
 
     @Override
     protected boolean isOn() {
-        return true;
+        return tree.get() != null;
     }
 
     private static ITracerObject createRoot() {
