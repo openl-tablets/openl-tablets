@@ -13,6 +13,10 @@ public class Tracer {
         // Nothing
     }
 
+    protected void doPut(Object executor, String id, Object... args) {
+        // Nothing
+    }
+
     protected void doBegin(ITracerObject obj) {
         // Nothing
     }
@@ -27,6 +31,10 @@ public class Tracer {
 
     public static void put(ITracerObject obj) {
         instance.doPut(obj);
+    }
+
+    public static void put(Object executor, String id, Object... args) {
+        instance.doPut(executor, id, args);
     }
 
     public static void begin(ITracerObject obj) {

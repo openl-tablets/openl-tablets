@@ -3,6 +3,8 @@
  */
 package org.openl.rules.webstudio.web.trace;
 
+import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
+import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.vm.trace.ITracerObject;
 import org.openl.vm.trace.SimpleTracerObject;
 import org.openl.vm.trace.Tracer;
@@ -25,6 +27,13 @@ public final class TreeBuildTracer extends Tracer {
     protected void doPut(ITracerObject obj) {
         ITracerObject current = tree.get();
         current.addChild(obj);
+    }
+
+    @Override
+    protected void doPut(Object executor, String id, Object... args) {
+        if (executor instanceof DecisionTableOptimizedAlgorithm) {
+            doPut(DTRuleTraceObject.create(args));
+        }
     }
 
     @Override

@@ -8,7 +8,6 @@ import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
 import org.openl.rules.dt.index.RangeIndex;
-import org.openl.rules.dtx.trace.DTRuleTraceObject;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
 
@@ -66,7 +65,7 @@ public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTable
                     @Override
                     public boolean select(int rule) {
                         boolean successful = selector.select(rule);
-                        Tracer.put(new DTRuleTraceObject(condition, new int[]{rule}, successful));
+                        Tracer.put(DecisionTableOptimizedAlgorithmTraceDecorator.this, "condition", condition, rule, successful);
                         return successful;
                     }
                 };
@@ -86,7 +85,7 @@ public class DecisionTableOptimizedAlgorithmTraceDecorator extends DecisionTable
                     rule = (DecisionTableIndexedRuleNode) o2;
                     value = o1;
                 }
-                Tracer.put(new DTRuleTraceObject(condition, rule.getRules(), false));
+                Tracer.put(DecisionTableOptimizedAlgorithmTraceDecorator.this, "index", condition, rule, false);
                 return rule.compareTo(value);
             }
         };

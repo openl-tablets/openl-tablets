@@ -33,7 +33,6 @@ import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.type.IntRangeAdaptor;
 import org.openl.rules.dtx.IBaseCondition;
 import org.openl.rules.dtx.algorithm.evaluator.DomainCanNotBeDefined;
-import org.openl.rules.dtx.trace.DTRuleTraceObject;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -569,9 +568,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                 Object testValue = evaluateTestValue(condition, target, params, env);
 
                 DecisionTableRuleNode node = index.findNode(testValue);
-                if (Tracer.isTracerOn()) {
-                    Tracer.put(new DTRuleTraceObject(condition, node.getRules(), true));
-                }
+                Tracer.put(this, "index", condition, node, true);
 
                 if (!node.hasIndex()) {
                     iterator = node.getRulesIterator();

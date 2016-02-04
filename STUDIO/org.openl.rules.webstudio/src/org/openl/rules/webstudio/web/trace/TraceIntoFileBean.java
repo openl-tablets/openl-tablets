@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.commons.web.util.WebTool;
 import org.openl.main.SourceCodeURLConstants;
-import org.openl.rules.dtx.trace.DTRuleTraceObject;
+import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.rules.webstudio.web.test.RunTestHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;

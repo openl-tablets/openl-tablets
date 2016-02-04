@@ -13,7 +13,7 @@ import org.openl.rules.cmatch.algorithm.MatchTraceObject;
 import org.openl.rules.cmatch.algorithm.ResultTraceObject;
 import org.openl.rules.cmatch.algorithm.WScoreTraceObject;
 import org.openl.rules.dtx.IDecisionTable;
-import org.openl.rules.dtx.trace.DTRuleTraceObject;
+import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ATableTracerNode;
