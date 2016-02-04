@@ -45,7 +45,7 @@ public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
                 SpreadsheetCell cell = row[j];
                 switch (cell.getKind()) {
                     case EMPTY:
-                        res[i][j] = null;
+                        res[i][j] = SpreadsheetResultCalculator.EMPTY_CELL;
                         break;
                     case VALUE:
                         res[i][j] = cell.getValue();
@@ -53,14 +53,9 @@ public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
                     case METHOD:
                         res[i][j] = SpreadsheetResultCalculator.NEED_TO_CALCULATE_VALUE;
                         break;
-
                 }
-
             }
-
         }
-
         return res;
-
     }
 }

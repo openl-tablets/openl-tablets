@@ -3,6 +3,8 @@
  */
 package org.openl.rules.webstudio.web.trace;
 
+import org.openl.rules.calc.element.SpreadsheetCell;
+import org.openl.rules.calc.trace.SpreadsheetTracerLeaf;
 import org.openl.rules.cmatch.algorithm.MatchAlgorithmExecutor;
 import org.openl.rules.cmatch.algorithm.ScoreAlgorithmExecutor;
 import org.openl.rules.cmatch.algorithm.WeightAlgorithmExecutor;
@@ -13,6 +15,8 @@ import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.rules.webstudio.web.trace.node.MatchTraceObject;
 import org.openl.rules.webstudio.web.trace.node.ResultTraceObject;
 import org.openl.types.IOpenMethod;
+import org.openl.types.Invokable;
+import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.ITracerObject;
 import org.openl.vm.trace.SimpleTracerObject;
 import org.openl.vm.trace.Tracer;
@@ -49,9 +53,13 @@ public final class TreeBuildTracer extends Tracer {
             }
         } else if (executor instanceof ScoreAlgorithmExecutor) {
             doPut(MatchTraceObject.create(args));
+        } else if (executor instanceof SpreadsheetCell) {
+            SpreadsheetTracerLeaf tr = new SpreadsheetTracerLeaf((SpreadsheetCell) executor);
+            tr.setResult(args[0]);
+            doPut(tr);
         } else if ("error".equals(id)) {
             ATableTracerNode traceObject = TracedObjectFactory.getTracedObject((IOpenMethod) executor,
-                (Object[]) args[1]);
+                    (Object[]) args[1]);
             traceObject.setError((Throwable) args[0]);
             doPut(traceObject);
         }
@@ -75,6 +83,22 @@ public final class TreeBuildTracer extends Tracer {
             tree.set(current.getParent());
         } else {
             log.warn("Something is wrong. Current trace object is null. Can't pop trace object.");
+        }
+    }
+
+    @Override
+    protected Object doInvoke(Invokable executor, Object target, Object[] params, IRuntimeEnv env) {
+        ATableTracerNode trObj = TracedObjectFactory.getTracedObject(executor, params);
+        doBegin(trObj);
+        try {
+            Object res = executor.invoke(target, params, env);
+            trObj.setResult(res);
+            return res;
+        } catch (RuntimeException ex) {
+            trObj.setError(ex);
+            throw ex;
+        } finally {
+            doEnd();
         }
     }
 

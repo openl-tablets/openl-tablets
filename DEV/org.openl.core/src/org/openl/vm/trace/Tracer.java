@@ -3,6 +3,9 @@
  */
 package org.openl.vm.trace;
 
+import org.openl.types.Invokable;
+import org.openl.vm.IRuntimeEnv;
+
 /**
  * @author Yury Molchan
  */
@@ -21,12 +24,20 @@ public class Tracer {
         // Nothing
     }
 
+    protected Object doInvoke(Invokable executor, Object target, Object[] params, IRuntimeEnv env) {
+        return executor.invoke(target, params, env);
+    }
+
     protected boolean isOn() {
         return false;
     }
 
     public static void put(Object executor, String id, Object... args) {
         instance.doPut(executor, id, args);
+    }
+
+    public static Object invoke(Invokable executor, Object target, Object[] params, IRuntimeEnv env) {
+        return instance.doInvoke(executor, target, params, env);
     }
 
     public static void begin(ITracerObject obj) {
