@@ -3,12 +3,10 @@ package org.openl.rules.dt;
 import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
 import org.openl.domain.IIntIterator;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.dt.algorithm.FailOnMissException;
 import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
-import org.openl.rules.dtx.trace.DecisionTableTraceObject;
 import org.openl.rules.method.RulesMethodInvoker;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
@@ -28,7 +26,8 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
         return getInvokableMethod().getAlgorithm() != null;
     }
 
-    private Object invokeOptimized(Object target, Object[] params, IRuntimeEnv env) {
+    @Override
+    public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {
 
         IIntIterator rules = getInvokableMethod().getAlgorithm().checkedRules(target, params, env);
 
@@ -57,40 +56,30 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
         return returnValue;
     }
 
-    private Object invokeTracedOptimized(Object target, Object[] params, IRuntimeEnv env) {
-        DecisionTableTraceObject traceObject = (DecisionTableTraceObject) getTraceObject(params);
-        Tracer.begin(traceObject);
+    @Override
+    protected Object invokeSimpleTraced(Object target, Object[] params, IRuntimeEnv env) {
+        IDecisionTableAlgorithm algorithm = getInvokableMethod().getAlgorithm();
+        IDecisionTableAlgorithm algorithmDelegator = algorithm.asTraceDecorator();
 
-        try {
-            IDecisionTableAlgorithm algorithm = getInvokableMethod().getAlgorithm();
-            IDecisionTableAlgorithm algorithmDelegator = algorithm.asTraceDecorator();
+        IIntIterator rules = algorithmDelegator.checkedRules(target, params, env);
 
-            IIntIterator rules = algorithmDelegator.checkedRules(target, params, env);
+        while (rules.hasNext()) {
 
-            while (rules.hasNext()) {
+            int ruleNumber = rules.nextInt();
 
-                int ruleNumber = rules.nextInt();
+            DTRuleTracerLeaf resultTrace = new DTRuleTracerLeaf(ruleNumber);
+            Tracer.begin(resultTrace);
+            try {
 
-                DTRuleTracerLeaf resultTrace = new DTRuleTracerLeaf(ruleNumber);
-                Tracer.begin(resultTrace);
-                try {
-
-                    Object returnValue = getReturn(target, params, env, ruleNumber);
-                    if (returnValue != null) {
-                        traceObject.setResult(returnValue);
-                        resultTrace.setResult(returnValue);
-                        return returnValue;
-                    }
-                } finally {
-                    Tracer.end();
+                Object returnValue = getReturn(target, params, env, ruleNumber);
+                if (returnValue != null) {
+                    resultTrace.setResult(returnValue);
+                    return returnValue;
                 }
+            } finally {
+                Tracer.end();
             }
-        } catch (Exception e) {
-            addErrorToTrace(traceObject, e);
-        } finally {
-            Tracer.end();
         }
-
         return null;
     }
 
@@ -106,18 +95,5 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
             }
         }
         return returnValue;
-    }
-
-    private void addErrorToTrace(DecisionTableTraceObject traceObject, Throwable e) {
-        traceObject.setError(e);
-        throw new OpenLRuntimeException(e);
-    }
-
-    public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
-        return invokeTracedOptimized(target, params, env);
-    }
-
-    public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {
-        return invokeOptimized(target, params, env);
     }
 }
