@@ -5,7 +5,6 @@ import java.util.Map;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.element.SpreadsheetCellField;
-import org.openl.rules.calc.element.SpreadsheetCellType;
 import org.openl.rules.calc.trace.SpreadsheetTracerLeaf;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
@@ -125,56 +124,47 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
     }
     
     public Object getValue(int row, int column) {
-        SpreadsheetCell spreadsheetCell = spreadsheet.getCells()[row][column];
-        if (Tracer.isTracerOn() && spreadsheetCell.getKind() != SpreadsheetCellType.EMPTY) {
-            getValueTraced(row, column);        
+        if (Tracer.isTracerOn()) {
+            return getValueTraced(row, column);
         } else {
-        	Object result = null;
-            
-            if (cacheResult) {
-
-                result = results[row][column];
-            
-                if (result != NEED_TO_CALCULATE_VALUE) {
-                    return result;
-                }
-            }
-
-            result = spreadsheetCell.calculate(this, targetModule, params, env);
-            results[row][column] = result;            
+            return getValueInner(row, column);
         }
+    }
+
+    private Object getValueInner(int row, int column) {
+        SpreadsheetCell spreadsheetCell = spreadsheet.getCells()[row][column];
+        Object result;
+
+        if (cacheResult) {
+
+            result = results[row][column];
+        
+            if (result != NEED_TO_CALCULATE_VALUE) {
+                return result;
+            }
+        }
+
+        result = spreadsheetCell.calculate(this, targetModule, params, env);
+        results[row][column] = result;
         return results[row][column];
     }
-    
-	public void setValue(int row, int column, Object res) {
+
+    public void setValue(int row, int column, Object res) {
 		results[row][column] = res;
 	}
-   
-    
 
     public Object getValueTraced(int row, int column) {
         SpreadsheetCell spreadsheetCell = spreadsheet.getCells()[row][column];
+        if (spreadsheetCell.isEmpty()) {
+            return null;
+        }
 
         SpreadsheetTracerLeaf spreadsheetTraceLeaf = new SpreadsheetTracerLeaf(spreadsheetCell);
-
         Tracer.begin(spreadsheetTraceLeaf);
         try {
-            Object result;
-	        if (cacheResult) {
-	
-	            result = results[row][column];
-	        
-	            if (result != null) {
-	                spreadsheetTraceLeaf.setResult(result);
-	                return result;
-	            }
-	        }
-	
-	        result = spreadsheetCell.calculate(this, targetModule, params, env);
-	        results[row][column] = result;
-	
-	        spreadsheetTraceLeaf.setResult(result);
-	        return result;
+            Object result = getValueInner(row, column);
+            spreadsheetTraceLeaf.setResult(result);
+            return result;
         } finally {
             Tracer.end();
         }
