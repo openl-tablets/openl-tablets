@@ -14,7 +14,6 @@ import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.rules.webstudio.web.trace.node.MatchTraceObject;
 import org.openl.rules.webstudio.web.trace.node.ResultTraceObject;
-import org.openl.types.IOpenMethod;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.ITracerObject;
@@ -60,11 +59,6 @@ public final class TreeBuildTracer extends Tracer {
             SpreadsheetTracerLeaf tr = new SpreadsheetTracerLeaf((SpreadsheetCell) executor);
             tr.setResult(args[0]);
             doPut(tr);
-        } else if ("error".equals(id)) {
-            ATableTracerNode traceObject = TracedObjectFactory.getTracedObject((IOpenMethod) executor,
-                    (Object[]) args[1]);
-            traceObject.setError((Throwable) args[0]);
-            doPut(traceObject);
         }
     }
 
