@@ -11,11 +11,11 @@ import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.TraceHelper;
+import org.openl.rules.webstudio.web.trace.TreeBuildTracer;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.trace.ITracerObject;
-import org.openl.vm.trace.Tracer;
 
 @ManagedBean
 @SessionScoped
@@ -32,11 +32,10 @@ public final class RunTestHelper {
         ProjectModel model = WebStudioUtils.getProjectModel();
         ITracerObject t = null;
         try {
-            Tracer.initialize();
-            t = Tracer.getRoot();
+            t = TreeBuildTracer.initialize();
             model.traceElement(testSuite);
         } finally {
-            Tracer.destroy();
+            TreeBuildTracer.destroy();
         }
 
         return t;
