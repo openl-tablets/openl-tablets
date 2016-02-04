@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.openl.rules.calc.trace.SpreadsheetTracerLeaf;
 import org.openl.rules.cmatch.algorithm.MatchTraceObject;
-import org.openl.rules.cmatch.algorithm.ResultTraceObject;
+import org.openl.rules.webstudio.web.trace.node.ResultTraceObject;
 import org.openl.rules.dtx.IDecisionTable;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.rules.dtx.trace.DTRuleTracerLeaf;

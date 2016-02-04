@@ -33,7 +33,7 @@ public class WeightAlgorithmExecutor extends ScoreAlgorithmExecutor {
                 MatchUtil.trace(columnMatch, totalScore, resultIndex, null);
 
                 Object result = returnValues[resultIndex];
-                MatchUtil.trace(columnMatch, resultIndex, result);
+                Tracer.put(this, "result", columnMatch, resultIndex, result);
                 return result;
             }
         }

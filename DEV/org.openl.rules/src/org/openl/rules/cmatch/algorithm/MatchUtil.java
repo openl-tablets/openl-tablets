@@ -11,16 +11,6 @@ import org.openl.vm.trace.Tracer;
  */
 class MatchUtil {
 
-    static void trace(ColumnMatch columnMatch, int resultIndex, Object result) {
-        if (Tracer.isTracerOn()) {
-            TableRow tableRow = columnMatch.getRows().get(0);
-            IGridRegion gridRegion = tableRow.get(MatchAlgorithmCompiler.VALUES)[resultIndex].getGridRegion();
-            ResultTraceObject traceObject = new ResultTraceObject(columnMatch, gridRegion);
-            traceObject.setResult(result);
-            Tracer.put(traceObject);
-        }
-    }
-
     static void trace(ColumnMatch columnMatch, MatchNode node, int resultIndex, Object result) {
         if (Tracer.isTracerOn()) {
             int rowIndex = node.getRowIndex();
