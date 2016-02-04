@@ -6,7 +6,6 @@ import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.element.SpreadsheetCellField;
 import org.openl.rules.calc.element.SpreadsheetCellType;
-import org.openl.rules.calc.trace.SpreadsheetTraceObject;
 import org.openl.rules.calc.trace.SpreadsheetTracerLeaf;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
@@ -21,7 +20,6 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
 	private Spreadsheet spreadsheet;
 
     private boolean cacheResult = true;
-    private SpreadsheetTraceObject spreadsheetTraceObject;
     /**
      * OpenL module
      */
@@ -59,18 +57,6 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
     	
 		return res;
 	}
-
-	public SpreadsheetResultCalculator(Spreadsheet spreadsheet, IDynamicObject targetModule, Object[] params,
-            IRuntimeEnv env, SpreadsheetTraceObject spreadsheetTraceObject) {
-        super();
-
-        this.spreadsheet = spreadsheet;
-        this.targetModule = targetModule;
-        this.params = params;
-        this.env = env;
-        this.results = new Object[spreadsheet.getHeight()][spreadsheet.getWidth()];
-        this.spreadsheetTraceObject = spreadsheetTraceObject;
-    }
 
     public String getColumnName(int column) {
         return spreadsheet.getColumnNames()[column];
@@ -138,13 +124,9 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         return spreadsheet.getSpreadsheetType();
     }
     
-    private boolean isTraceOn(){
-        return spreadsheetTraceObject != null;
-    }
-
     public Object getValue(int row, int column) {
         SpreadsheetCell spreadsheetCell = spreadsheet.getCells()[row][column];
-        if (isTraceOn() && spreadsheetCell.getKind() != SpreadsheetCellType.EMPTY) {
+        if (Tracer.isTracerOn() && spreadsheetCell.getKind() != SpreadsheetCellType.EMPTY) {
             getValueTraced(row, column);        
         } else {
         	Object result = null;
@@ -173,7 +155,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
     public Object getValueTraced(int row, int column) {
         SpreadsheetCell spreadsheetCell = spreadsheet.getCells()[row][column];
 
-        SpreadsheetTracerLeaf spreadsheetTraceLeaf = new SpreadsheetTracerLeaf(spreadsheetTraceObject.getTraceObject(), spreadsheetCell);
+        SpreadsheetTracerLeaf spreadsheetTraceLeaf = new SpreadsheetTracerLeaf(spreadsheetCell);
 
         Tracer.begin(spreadsheetTraceLeaf);
         try {

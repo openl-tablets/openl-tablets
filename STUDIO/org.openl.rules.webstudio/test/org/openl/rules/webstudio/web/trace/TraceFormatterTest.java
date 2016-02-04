@@ -8,13 +8,17 @@ import org.junit.Test;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.element.SpreadsheetCell;
+import org.openl.rules.calc.trace.SpreadsheetTraceObject;
 import org.openl.rules.calc.trace.SpreadsheetTracerLeaf;
 
 public class TraceFormatterTest {
 
     @Test
     public void getDisplayNameTest() {
-        SpreadsheetTracerLeaf leafNode = new SpreadsheetTracerLeaf(createNodeMock(), createCellMock());
+        Spreadsheet spreadsheet = createNodeMock();
+        SpreadsheetTraceObject spreadsheetTraceObject = new SpreadsheetTraceObject(spreadsheet, null);
+        SpreadsheetTracerLeaf leafNode = new SpreadsheetTracerLeaf(createCellMock());
+        spreadsheetTraceObject.addChild(leafNode);
 
         leafNode.setResult(null);
         assertEquals("$Value$Vehicle_Premiums = null", TraceFormatter.getDisplayName(leafNode));

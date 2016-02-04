@@ -1,13 +1,9 @@
 package org.openl.rules.calc;
 
 import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.rules.calc.trace.SpreadsheetTraceObject;
 import org.openl.rules.method.RulesMethodInvoker;
 import org.openl.types.IDynamicObject;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.Tracer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Invoker for {@link Spreadsheet}.
@@ -16,7 +12,6 @@ import org.slf4j.LoggerFactory;
  */
 public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
 
-    private final Logger log = LoggerFactory.getLogger(SpreadsheetInvoker.class);
     protected Object[][] preFetchedResult;
 
     public SpreadsheetInvoker(Spreadsheet spreadsheet) {
@@ -33,29 +28,6 @@ public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
                 getInvokableMethod(), (IDynamicObject) target, params, env,
                 preFetchedResult);
         return getInvokableMethod().getResultBuilder().makeResult(res);
-    }
-
-    public Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
-
-        Object result = null;
-
-        SpreadsheetTraceObject traceObject = (SpreadsheetTraceObject) getTraceObject(params);
-        Tracer.begin(traceObject);
-
-        try {
-            SpreadsheetResultCalculator res = new SpreadsheetResultCalculator(
-                    getInvokableMethod(), (IDynamicObject) target, params, env,
-                    traceObject);
-
-            result = getInvokableMethod().getResultBuilder().makeResult(res);
-            traceObject.setResult(result);
-        } catch (RuntimeException e) {
-            traceObject.setError(e);
-            throw e;
-        } finally {
-            Tracer.end();
-        }
-        return result;
     }
 
     /**

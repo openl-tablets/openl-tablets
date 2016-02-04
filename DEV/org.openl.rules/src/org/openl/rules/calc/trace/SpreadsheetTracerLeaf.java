@@ -12,8 +12,8 @@ import org.openl.rules.table.ATableTracerNode;
 public class SpreadsheetTracerLeaf extends ATableTracerNode {
     private SpreadsheetCell spreadsheetCell;
 
-    public SpreadsheetTracerLeaf(ExecutableRulesMethod method, SpreadsheetCell spreadsheetCell) {
-        super("spreadsheetCell", null, method, null);
+    public SpreadsheetTracerLeaf(SpreadsheetCell spreadsheetCell) {
+        super("spreadsheetCell", null, null, null);
         this.spreadsheetCell = spreadsheetCell;
     }
 
