@@ -144,7 +144,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
             }
         }
 
-        result = spreadsheetCell.calculate(this, targetModule, params, env);
+        result = spreadsheetCell.invoke(this, params, env);
         results[row][column] = result;
         return results[row][column];
     }

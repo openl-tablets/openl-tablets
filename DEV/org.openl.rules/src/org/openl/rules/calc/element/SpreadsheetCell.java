@@ -1,21 +1,20 @@
 package org.openl.rules.calc.element;
 
-import org.openl.rules.calc.SpreadsheetResultCalculator;
 import org.openl.rules.table.ICell;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.Invokable;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.NumberUtils;
 import org.openl.vm.IRuntimeEnv;
 
-public class SpreadsheetCell {
+public class SpreadsheetCell implements Invokable {
 
     private int rowIndex;
     private int columnIndex;
     private ICell sourceCell;
 
-
-	private SpreadsheetCellType kind = SpreadsheetCellType.EMPTY;
+    private SpreadsheetCellType kind = SpreadsheetCellType.EMPTY;
     private Object value;
     private IOpenClass type;
 
@@ -76,35 +75,28 @@ public class SpreadsheetCell {
     }
 
     public void setType(IOpenClass type) {
-    	if (type == null)
-    		return;
-    	if (type == JavaOpenClass.VOID)
-    		type = JavaOpenClass.getOpenClass(Void.class);
-    	else if (type.getInstanceClass().isPrimitive())
-    	{
-    		Class<?> wrapper = NumberUtils.getWrapperType(type.getInstanceClass().getName());
-    		type = JavaOpenClass.getOpenClass(wrapper);
-    	}	
+        if (type == null)
+            return;
+        if (type == JavaOpenClass.VOID)
+            type = JavaOpenClass.getOpenClass(Void.class);
+        else if (type.getInstanceClass().isPrimitive()) {
+            Class<?> wrapper = NumberUtils.getWrapperType(type.getInstanceClass().getName());
+            type = JavaOpenClass.getOpenClass(wrapper);
+        }
         this.type = type;
     }
 
     public void setValue(Object value) {
-
         if (value == null) {
-//            this.kind = SpreadsheetCellType.EMPTY;
         } else if (value instanceof IOpenMethod) {
-//            this.kind = SpreadsheetCellType.METHOD;
             this.method = (IOpenMethod) value;
         } else {
             this.value = value;
-//            this.kind = SpreadsheetCellType.VALUE;
         }
     }
 
-    public Object calculate(SpreadsheetResultCalculator spreadsheetResult, Object targetModule, Object[] params, IRuntimeEnv env) {
-
+    public Object invoke(Object spreadsheetResult, Object[] params, IRuntimeEnv env) {
         if (isValueCell()) {
-
             Object value = getValue();
             return value;
         } else if (isMethodCell()) {
@@ -113,11 +105,9 @@ public class SpreadsheetCell {
             return null;
         }
     }
-    
+
     @Override
-	public String toString() {
-		return "R" + getRowIndex() + "C" + getColumnIndex() ;
-	}
-
-
+    public String toString() {
+        return "R" + getRowIndex() + "C" + getColumnIndex();
+    }
 }
