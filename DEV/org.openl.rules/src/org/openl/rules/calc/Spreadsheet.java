@@ -22,6 +22,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.trace.Tracer;
 
 @Executable
 public class Spreadsheet extends ExecutableRulesMethod {
@@ -181,7 +182,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
     }
 
     protected Object innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
-       return getInvoker().invoke(target, params, env);
+        return Tracer.invoke(getInvoker(), target, params, env);
     }
 
     protected Invokable createInvoker() {

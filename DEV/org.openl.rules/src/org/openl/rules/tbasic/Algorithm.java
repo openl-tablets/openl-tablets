@@ -11,6 +11,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.trace.Tracer;
 
 /**
  * Table Basic Algorithm component. It's runnable method inside OpenL Tablets
@@ -57,7 +58,7 @@ public class Algorithm extends AlgorithmFunction {
             // create new instance of invoker.
             invoker = new AlgorithmInvoker(this);
         }
-        return invoker.invoke(target, params, env);
+        return Tracer.invoke(invoker, target, params, env);
     }
 
     @Override

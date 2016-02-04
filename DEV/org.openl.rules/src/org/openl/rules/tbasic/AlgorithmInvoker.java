@@ -6,6 +6,7 @@ import org.openl.rules.tbasic.runtime.TBasicVM;
 import org.openl.types.IDynamicObject;
 import org.openl.types.impl.DelegatedDynamicObject;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.trace.Tracer;
 
 /**
  * Invoker for {@link Algorithm}.
@@ -25,21 +26,14 @@ public class AlgorithmInvoker extends RulesMethodInvoker<Algorithm> {
 
     @Override
     public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {
-        return invoke((IDynamicObject) target, params, env, false);
-    }
-
-    @Override
-    protected Object invokeSimpleTraced(Object target, Object[] params, IRuntimeEnv env) {
-        return invoke((IDynamicObject) target, params, env, true);
-    }
-
-    private Object invoke(IDynamicObject target, Object[] params, IRuntimeEnv env, boolean debugMode) {
-        DelegatedDynamicObject thisInstance = new DelegatedDynamicObject(getInvokableMethod().getThisClass(), target);
+        DelegatedDynamicObject thisInstance = new DelegatedDynamicObject(getInvokableMethod().getThisClass(),
+                (IDynamicObject) target);
 
         TBasicVM algorithmVM = new TBasicVM(getInvokableMethod().getType(), getInvokableMethod().getAlgorithmSteps(), getInvokableMethod().getLabels());
 
         TBasicContextHolderEnv runtimeEnvironment = new TBasicContextHolderEnv(env, thisInstance, params, algorithmVM);
 
-        return algorithmVM.run(runtimeEnvironment, debugMode);
+        return algorithmVM.run(runtimeEnvironment, Tracer.isTracerOn());
     }
+
 }

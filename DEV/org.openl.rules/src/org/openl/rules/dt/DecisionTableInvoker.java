@@ -28,10 +28,13 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
 
     @Override
     public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {
+        if (Tracer.isTracerOn()) {
+            return invokeTraced(target, params, env);
+        }
 
         IIntIterator rules = getInvokableMethod().getAlgorithm().checkedRules(target, params, env);
 
-        Object returnValue = null;
+        Object returnValue;
         boolean atLeastOneRuleFired = false;
 
         while (rules.hasNext()) {
@@ -46,18 +49,18 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
 
         if (!atLeastOneRuleFired && getInvokableMethod().shouldFailOnMiss()) {
 
-            String method = MethodUtil.printMethodWithParameterValues(getInvokableMethod().getMethod(), params,
-                    INamedThing.REGULAR);
+            String method = MethodUtil.printMethodWithParameterValues(getInvokableMethod().getMethod(),
+                params,
+                INamedThing.REGULAR);
             String message = String.format("%s failed to match any rule condition", method);
 
             throw new FailOnMissException(message, getInvokableMethod(), params);
         }
 
-        return returnValue;
+        return null;
     }
 
-    @Override
-    protected Object invokeSimpleTraced(Object target, Object[] params, IRuntimeEnv env) {
+    private Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
         IDecisionTableAlgorithm algorithm = getInvokableMethod().getAlgorithm();
         IDecisionTableAlgorithm algorithmDelegator = algorithm.asTraceDecorator();
 
@@ -83,7 +86,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
         return null;
     }
 
-    protected Object getReturn(Object target, Object[] params, IRuntimeEnv env, int ruleN) {
+    private Object getReturn(Object target, Object[] params, IRuntimeEnv env, int ruleN) {
         Object returnValue = null;
         for (int j = 0; j < getInvokableMethod().getActionRows().length; j++) {
             IAction action = getInvokableMethod().getAction(j);

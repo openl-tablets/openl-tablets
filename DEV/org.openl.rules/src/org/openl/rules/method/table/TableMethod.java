@@ -10,6 +10,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.trace.Tracer;
 
 /**
  * {@link IOpenMethod} implementation for table method component.
@@ -55,7 +56,7 @@ public class TableMethod extends ExecutableRulesMethod {
             // create new instance of invoker.
             invoker = new MethodTableInvoker(this);
         }
-        return invoker.invoke(target, params, env);
+        return Tracer.invoke(invoker, target, params, env);
     }
 
     public BindingDependencies getDependencies() {

@@ -32,6 +32,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.trace.Tracer;
 
 /**
  * @author snshor
@@ -173,7 +174,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
             invoker = new DecisionTableInvoker(this);
 
         }
-        return invoker.invoke(target, params, env);
+        return Tracer.invoke(invoker, target, params, env);
     }
 
     /**
