@@ -6,6 +6,8 @@ import org.openl.rules.cmatch.matcher.IMatcher;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
 
+import java.util.List;
+
 public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
     public static final Object NO_MATCH = null;
 
@@ -23,7 +25,8 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
             for (int resultIndex = 0; resultIndex < returnValues.length; resultIndex++) {
                 boolean success = true;
                 // check that all children are MATCH at resultIndex element
-                for (MatchNode node : line.getChildren()) {
+                List<MatchNode> children = line.getChildren();
+                for (MatchNode node : children) {
                     Argument arg = node.getArgument();
                     Object var = arg.extractValue(target, params, env);
                     IMatcher matcher = node.getMatcher();
@@ -35,10 +38,10 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
                 }
 
                 if (success) {
-                    for (MatchNode node : line.getChildren()) {
-                        MatchUtil.trace(columnMatch, node, resultIndex, null);
-                    }
                     Object result = returnValues[resultIndex];
+                    for (MatchNode node : line.getChildren()) {
+                        Tracer.put(this, "match", columnMatch, node, resultIndex, null);
+                    }
                     Tracer.put(this, "result", columnMatch, resultIndex, result);
                     return result;
                 }

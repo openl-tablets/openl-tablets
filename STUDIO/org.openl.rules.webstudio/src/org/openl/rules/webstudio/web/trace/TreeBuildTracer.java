@@ -4,9 +4,11 @@
 package org.openl.rules.webstudio.web.trace;
 
 import org.openl.rules.cmatch.algorithm.MatchAlgorithmExecutor;
+import org.openl.rules.cmatch.algorithm.ScoreAlgorithmExecutor;
 import org.openl.rules.cmatch.algorithm.WeightAlgorithmExecutor;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
+import org.openl.rules.webstudio.web.trace.node.MatchTraceObject;
 import org.openl.rules.webstudio.web.trace.node.ResultTraceObject;
 import org.openl.vm.trace.ITracerObject;
 import org.openl.vm.trace.SimpleTracerObject;
@@ -37,9 +39,19 @@ public final class TreeBuildTracer extends Tracer {
         if (executor instanceof DecisionTableOptimizedAlgorithm) {
             doPut(DTRuleTraceObject.create(args));
         } else if (executor instanceof MatchAlgorithmExecutor) {
-            doPut(ResultTraceObject.create(args));
+            if ("match".equals(id)) {
+                doPut(MatchTraceObject.create(args));
+            } else {
+                doPut(ResultTraceObject.create(args));
+            }
         } else if (executor instanceof WeightAlgorithmExecutor) {
-            doPut(ResultTraceObject.create(args));
+            if ("match".equals(id)) {
+                doPut(MatchTraceObject.create(args));
+            } else {
+                doPut(ResultTraceObject.create(args));
+            }
+        } else if (executor instanceof ScoreAlgorithmExecutor) {
+            doPut(MatchTraceObject.create(args));
         }
     }
 

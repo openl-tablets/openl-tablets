@@ -6,9 +6,10 @@ import org.openl.rules.cmatch.matcher.IMatcher;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
 
-public class WeightAlgorithmExecutor extends ScoreAlgorithmExecutor {
+public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
 
     public static final Object NO_MATCH = null;
+    private ScoreAlgorithmExecutor scoreAlgorithmExecutor = new ScoreAlgorithmExecutor();
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env, ColumnMatch columnMatch) {
         WScoreTraceObject wScore = new WScoreTraceObject(columnMatch, params);
@@ -17,7 +18,7 @@ public class WeightAlgorithmExecutor extends ScoreAlgorithmExecutor {
 
         Tracer.begin(wScore);
         try {
-            sumScore = (Integer) super.invoke(target, params, env, columnMatch);
+            sumScore = (Integer) scoreAlgorithmExecutor.invoke(target, params, env, columnMatch);
             wScore.setResult(sumScore);
         } finally {
             Tracer.end();
@@ -30,9 +31,9 @@ public class WeightAlgorithmExecutor extends ScoreAlgorithmExecutor {
         for (int resultIndex = 0; resultIndex < returnValues.length; resultIndex++) {
             Object checkValue = totalScore.getCheckValues()[resultIndex];
             if (matcher.match(sumScore, checkValue)) {
-                MatchUtil.trace(columnMatch, totalScore, resultIndex, null);
-
                 Object result = returnValues[resultIndex];
+
+                Tracer.put(this, "match", columnMatch, totalScore, resultIndex, null);
                 Tracer.put(this, "result", columnMatch, resultIndex, result);
                 return result;
             }

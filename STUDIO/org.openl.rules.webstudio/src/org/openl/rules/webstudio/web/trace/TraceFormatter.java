@@ -9,7 +9,7 @@ import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.trace.SpreadsheetTracerLeaf;
-import org.openl.rules.cmatch.algorithm.MatchTraceObject;
+import org.openl.rules.webstudio.web.trace.node.MatchTraceObject;
 import org.openl.rules.webstudio.web.trace.node.ResultTraceObject;
 import org.openl.rules.cmatch.algorithm.WScoreTraceObject;
 import org.openl.rules.dtx.IDecisionTable;
