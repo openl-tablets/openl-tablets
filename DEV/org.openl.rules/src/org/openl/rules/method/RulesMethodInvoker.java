@@ -5,8 +5,6 @@ import org.openl.rules.table.ATableTracerNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation for invokers supporting tracing.
@@ -15,7 +13,6 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class RulesMethodInvoker<T extends ExecutableRulesMethod> implements InvokerWithTrace {
 
-    private final Logger log = LoggerFactory.getLogger(RulesMethodInvoker.class);
     private T invokableMethod;
 
     protected RulesMethodInvoker(T invokableMethod) {
@@ -37,9 +34,7 @@ public abstract class RulesMethodInvoker<T extends ExecutableRulesMethod> implem
             // object can`t be invoked, inform user about the problem.
             SyntaxNodeException cause = getInvokableMethod().getSyntaxNode().getErrors()[0];
             OpenLRuntimeException error = new OpenLRuntimeException(cause);
-            if (Tracer.isTracerOn()) {
-                setErrorToTrace(error, params);
-            }
+            Tracer.put(invokableMethod, "error", error, params);
             throw error;
         }
     }
@@ -76,12 +71,6 @@ public abstract class RulesMethodInvoker<T extends ExecutableRulesMethod> implem
      */
     protected ATableTracerNode getTraceObject(Object[] params) {
         return TracedObjectFactory.getTracedObject(invokableMethod, params);
-    }
-
-    protected void setErrorToTrace(OpenLRuntimeException error, Object[] params) {
-        ATableTracerNode traceObject = getTraceObject(params);
-        traceObject.setError(error);
-        Tracer.put(traceObject);
     }
 
     public T getInvokableMethod() {

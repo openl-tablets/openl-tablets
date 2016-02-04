@@ -9,10 +9,6 @@ package org.openl.vm.trace;
 public class Tracer {
     protected static Tracer instance = new Tracer();
 
-    protected void doPut(ITracerObject obj) {
-        // Nothing
-    }
-
     protected void doPut(Object executor, String id, Object... args) {
         // Nothing
     }
@@ -27,10 +23,6 @@ public class Tracer {
 
     protected boolean isOn() {
         return false;
-    }
-
-    public static void put(ITracerObject obj) {
-        instance.doPut(obj);
     }
 
     public static void put(Object executor, String id, Object... args) {

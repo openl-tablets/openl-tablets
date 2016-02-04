@@ -7,9 +7,12 @@ import org.openl.rules.cmatch.algorithm.MatchAlgorithmExecutor;
 import org.openl.rules.cmatch.algorithm.ScoreAlgorithmExecutor;
 import org.openl.rules.cmatch.algorithm.WeightAlgorithmExecutor;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
+import org.openl.rules.method.TracedObjectFactory;
+import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.rules.webstudio.web.trace.node.MatchTraceObject;
 import org.openl.rules.webstudio.web.trace.node.ResultTraceObject;
+import org.openl.types.IOpenMethod;
 import org.openl.vm.trace.ITracerObject;
 import org.openl.vm.trace.SimpleTracerObject;
 import org.openl.vm.trace.Tracer;
@@ -26,12 +29,6 @@ public final class TreeBuildTracer extends Tracer {
 
     static {
         Tracer.instance = new TreeBuildTracer();
-    }
-
-    @Override
-    protected void doPut(ITracerObject obj) {
-        ITracerObject current = tree.get();
-        current.addChild(obj);
     }
 
     @Override
@@ -52,7 +49,17 @@ public final class TreeBuildTracer extends Tracer {
             }
         } else if (executor instanceof ScoreAlgorithmExecutor) {
             doPut(MatchTraceObject.create(args));
+        } else if ("error".equals(id)) {
+            ATableTracerNode traceObject = TracedObjectFactory.getTracedObject((IOpenMethod) executor,
+                (Object[]) args[1]);
+            traceObject.setError((Throwable) args[0]);
+            doPut(traceObject);
         }
+    }
+
+    private void doPut(ITracerObject obj) {
+        ITracerObject current = tree.get();
+        current.addChild(obj);
     }
 
     @Override
