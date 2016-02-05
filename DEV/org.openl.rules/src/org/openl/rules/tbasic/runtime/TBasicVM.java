@@ -88,7 +88,7 @@ public class TBasicVM {
         TBasicVMDataContext previousContext = swapContext(methodContext);
 
         try {
-            return run(environment, debugMode);
+            return run(environment);
         } finally {
             swapContext(previousContext);
         }
@@ -105,7 +105,7 @@ public class TBasicVM {
      * @param environment The environment for execution.
      * @return The result of the method execution.
      */
-    public Object run(TBasicContextHolderEnv environment, boolean debugMode) {
+    public Object run(TBasicContextHolderEnv environment) {
         assert environment != null;
 
         Object returnResult = null;
@@ -115,7 +115,7 @@ public class TBasicVM {
         
         boolean errorOccured = false;
         try {
-            returnResult = runAll(environment, debugMode);
+            returnResult = runAll(environment);
 
         } catch (OpenLAlgorithmErrorSignal signal) {
             if (currentContext.isMainMethodContext()) {
@@ -149,7 +149,7 @@ public class TBasicVM {
      * @param environment The environment for execution.
      * @return The result of the method execution.
      */
-    private Object runAll(TBasicContextHolderEnv environment, boolean debugMode) {
+    private Object runAll(TBasicContextHolderEnv environment) {
 
         RuntimeOperation operation = currentContext.getFirstOperation();
         Object previousStepResult = null;
@@ -159,7 +159,7 @@ public class TBasicVM {
             Result operationResult;
             try {
 
-                operationResult = invoke(environment, debugMode, operation, previousStepResult);
+                operationResult = invoke(environment, operation, previousStepResult);
 
             } catch (OpenLAlgorithmGoToMainSignal signal) {
                 operation = getLabeledOperation(signal.getLabel());
@@ -187,7 +187,6 @@ public class TBasicVM {
     }
 
     private Result invoke(TBasicContextHolderEnv environment,
-            boolean debugMode,
             RuntimeOperation operation,
             Object previousStepResult) {
         Result result = null;
@@ -195,19 +194,19 @@ public class TBasicVM {
         TBasicOperationTraceObject operationTracer = null;
 
         String nameForDebug = operation.getNameForDebug();
-        boolean significantForDebug = nameForDebug != null;
-        if (debugMode && significantForDebug) {
+        boolean significantForDebug = nameForDebug != null && Tracer.isTracerOn();
+        if (significantForDebug) {
             operationTracer = new TBasicOperationTraceObject(operation.getSourceCode(), nameForDebug);
             operationTracer.setFieldValues((HashMap<String, Object>)environment.getTbasicTarget().getFieldValues());
             Tracer.begin(operationTracer);
         }
         try {
             result = operation.execute(environment, previousStepResult);
-            if (debugMode && significantForDebug) {
+            if (significantForDebug) {
                 operationTracer.setResult(result.getValue());
             }
         } finally {
-            if (debugMode && significantForDebug) {
+            if (significantForDebug) {
                 Tracer.end();
             }
         }

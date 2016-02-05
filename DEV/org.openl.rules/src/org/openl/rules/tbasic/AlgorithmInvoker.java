@@ -6,7 +6,6 @@ import org.openl.rules.tbasic.runtime.TBasicVM;
 import org.openl.types.IDynamicObject;
 import org.openl.types.impl.DelegatedDynamicObject;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.Tracer;
 
 /**
  * Invoker for {@link Algorithm}.
@@ -33,7 +32,7 @@ public class AlgorithmInvoker extends RulesMethodInvoker<Algorithm> {
 
         TBasicContextHolderEnv runtimeEnvironment = new TBasicContextHolderEnv(env, thisInstance, params, algorithmVM);
 
-        return algorithmVM.run(runtimeEnvironment, Tracer.isTracerOn());
+        return algorithmVM.run(runtimeEnvironment);
     }
 
 }
