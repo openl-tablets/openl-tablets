@@ -1,4 +1,4 @@
-package org.openl.rules.calc.trace;
+package org.openl.rules.webstudio.web.trace.node;
 
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.method.ExecutableRulesMethod;

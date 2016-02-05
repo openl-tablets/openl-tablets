@@ -8,8 +8,8 @@ import org.junit.Test;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.rules.calc.trace.SpreadsheetTraceObject;
-import org.openl.rules.calc.trace.SpreadsheetTracerLeaf;
+import org.openl.rules.webstudio.web.trace.node.SpreadsheetTraceObject;
+import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
 
 public class TraceFormatterTest {
 

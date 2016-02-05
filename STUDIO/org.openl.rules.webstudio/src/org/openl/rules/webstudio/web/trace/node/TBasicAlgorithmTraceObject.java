@@ -1,4 +1,4 @@
-package org.openl.rules.tbasic.runtime.debug;
+package org.openl.rules.webstudio.web.trace.node;
 
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.tbasic.Algorithm;

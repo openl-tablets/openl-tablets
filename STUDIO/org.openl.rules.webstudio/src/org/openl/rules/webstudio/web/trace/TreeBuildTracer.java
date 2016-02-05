@@ -4,7 +4,7 @@
 package org.openl.rules.webstudio.web.trace;
 
 import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.rules.calc.trace.SpreadsheetTracerLeaf;
+import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.algorithm.MatchAlgorithmExecutor;
 import org.openl.rules.cmatch.algorithm.ScoreAlgorithmExecutor;
@@ -12,7 +12,7 @@ import org.openl.rules.cmatch.algorithm.WScoreTraceObject;
 import org.openl.rules.cmatch.algorithm.WeightAlgorithmExecutor;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
-import org.openl.rules.method.TracedObjectFactory;
+import org.openl.rules.webstudio.web.trace.node.TracedObjectFactory;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.webstudio.web.trace.node.OverloadedMethodChoiceTraceObject;

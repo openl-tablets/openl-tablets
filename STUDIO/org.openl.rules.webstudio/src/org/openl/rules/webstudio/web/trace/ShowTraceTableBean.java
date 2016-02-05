@@ -14,7 +14,7 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.result.SpreadsheetResultHelper;
 import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
-import org.openl.rules.dtx.trace.DecisionTableTraceObject;
+import org.openl.rules.webstudio.web.trace.node.DecisionTableTraceObject;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.method.ExecutableRulesMethod;

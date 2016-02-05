@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
-import org.openl.rules.dtx.trace.DecisionTableTraceObject;
+import org.openl.rules.webstudio.web.trace.node.DecisionTableTraceObject;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.RegionGridSelector;

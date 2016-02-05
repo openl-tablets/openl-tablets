@@ -3,12 +3,12 @@ package org.openl.rules.webstudio.web.trace;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.rules.calc.trace.SpreadsheetTracerLeaf;
+import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.MatchTraceObject;
 import org.openl.rules.webstudio.web.trace.node.ResultTraceObject;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
-import org.openl.rules.method.table.MethodTableTraceObject;
+import org.openl.rules.webstudio.web.trace.node.MethodTableTraceObject;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
