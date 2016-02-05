@@ -9,8 +9,11 @@ import org.openl.rules.cmatch.algorithm.MatchAlgorithmExecutor;
 import org.openl.rules.cmatch.algorithm.ScoreAlgorithmExecutor;
 import org.openl.rules.cmatch.algorithm.WeightAlgorithmExecutor;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
+import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
 import org.openl.rules.method.TracedObjectFactory;
 import org.openl.rules.table.ATableTracerNode;
+import org.openl.rules.types.OpenMethodDispatcher;
+import org.openl.rules.webstudio.web.trace.node.OverloadedMethodChoiceTraceObject;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.rules.webstudio.web.trace.node.MatchTraceObject;
 import org.openl.rules.webstudio.web.trace.node.ResultTraceObject;
@@ -59,6 +62,8 @@ public final class TreeBuildTracer extends Tracer {
             SpreadsheetTracerLeaf tr = new SpreadsheetTracerLeaf((SpreadsheetCell) executor);
             tr.setResult(args[0]);
             doPut(tr);
+        } else if (executor instanceof OpenMethodDispatcher) {
+            doPut(new DTRuleTracerLeaf(((OpenMethodDispatcher) executor).getCandidates().indexOf(args[0])));
         }
     }
 
@@ -95,7 +100,12 @@ public final class TreeBuildTracer extends Tracer {
             // Skip if tracing is switched off
             return executor.invoke(target, params, env);
         }
-        ATableTracerNode trObj = TracedObjectFactory.getTracedObject(executor, params);
+        ATableTracerNode trObj;
+        if (source instanceof OpenMethodDispatcher) {
+            trObj = OverloadedMethodChoiceTraceObject.create((OpenMethodDispatcher) source, params);
+        } else {
+            trObj = TracedObjectFactory.getTracedObject(executor, params);
+        }
         if (trObj == null) {
             // Skip if no tracing objects are
             return executor.invoke(target, params, env);

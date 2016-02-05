@@ -6,7 +6,6 @@ import java.util.List;
 import org.openl.rules.calc.trace.SpreadsheetTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.MatchTraceObject;
 import org.openl.rules.webstudio.web.trace.node.ResultTraceObject;
-import org.openl.rules.dtx.IDecisionTable;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
 import org.openl.rules.method.table.MethodTableTraceObject;
@@ -16,8 +15,7 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.ITable;
 import org.openl.rules.tbasic.runtime.debug.TBasicOperationTraceObject;
-import org.openl.rules.types.impl.OverloadedMethodChoiceTraceObject;
-import org.openl.types.IOpenMethod;
+import org.openl.rules.webstudio.web.trace.node.OverloadedMethodChoiceTraceObject;
 import org.openl.vm.trace.ITracerObject;
 
 public class RegionsExtractor {
@@ -61,10 +59,7 @@ public class RegionsExtractor {
     }
 
     private static List<IGridRegion> getiGridRegions(OverloadedMethodChoiceTraceObject omc) {
-        IOpenMethod method = (IOpenMethod) omc.getResult();
-        int methodIndex = omc.getMethodCandidates().indexOf(method);
-
-        ILogicalTable table = ((IDecisionTable) omc.getTraceObject()).getRuleTable(methodIndex);
+        ILogicalTable table = ((DTRuleTracerLeaf)omc.getChildren().iterator().next()).getRuleTable();
         return GridTableUtils.getGridRegions(table);
     }
 

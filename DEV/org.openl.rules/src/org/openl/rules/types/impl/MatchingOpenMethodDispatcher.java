@@ -2,12 +2,9 @@ package org.openl.rules.types.impl;
 
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.method.TracedObjectFactory;
-import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.types.OpenMethodDispatcher;
@@ -16,8 +13,6 @@ import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.Tracer;
 
 import java.util.*;
 
@@ -37,8 +32,6 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     private XlsModuleOpenClass moduleOpenClass;
 
     private List<IOpenMethod> candidatesSorted;
-
-    private ATableTracerNode traceObject;
 
     private IOpenMethod dispatchingOpenMethod;
 
@@ -70,69 +63,6 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         candidatesSorted = null;
     }
 
-    private Object invokeTraced(Object target, Object[] params, IRuntimeEnv env) {
-        Object returnResult = null;
-        traceObject = null;
-
-        /**
-         * this block is for overloaded by active property tables without any
-         * dimension property. All not active tables should be ignored.
-         */
-        List<IOpenMethod> methods = getCandidates();
-        Set<IOpenMethod> selected = new HashSet<IOpenMethod>(methods);
-        if (selected.size() > 1) {
-            traceObject = getTracedObject(selected, params);
-            Tracer.begin(traceObject);
-        }
-        try {
-            returnResult = super.invoke(target, params, env);
-        } catch (RuntimeException e) {
-            if (traceObject == null) {
-                traceObject = getTracedObject(selected, params);
-                Tracer.begin(traceObject);
-            }
-            traceObject.setError(e);
-            throw e;
-        } finally {
-            if (traceObject != null) {
-                Tracer.end();
-            }
-        }
-        return returnResult;
-    }
-
-    public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        if (Tracer.isTracerOn()) {
-            return invokeTraced(target, params, env);
-        } else {
-            return super.invoke(target, params, env);
-        }
-    }
-
-    private ATableTracerNode getTracedObject(Set<IOpenMethod> selected, Object[] params) {
-        if (selected.size() == 1) {
-            /**
-             * if only one table left, we need traced object for this type of
-             * table.
-             */
-            return TracedObjectFactory.getTracedObject((IOpenMethod) selected.toArray()[0], params);
-        } else {
-            /**
-             * in other case trace object for overloaded methods.
-             */
-            try {
-                DecisionTable dispatcherTable = (DecisionTable) getDispatcherTable().getMember();
-                return new OverloadedMethodChoiceTraceObject(dispatcherTable, params, getCandidates());
-            } catch (OpenLRuntimeException e) {
-                ATableTracerNode traceObject = TracedObjectFactory.getTracedObject((IOpenMethod) selected.toArray()[0],
-                    params);
-                traceObject.setError(e);
-                return traceObject;
-            }
-
-        }
-    }
-
     @Override
     protected IOpenMethod findMatchingMethod(List<IOpenMethod> candidates, IRuntimeContext context) {
 
@@ -151,18 +81,8 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                     context.toString()));
 
             case 1:
-
                 IOpenMethod matchingMethod = selected.iterator().next();
-                // TODO : refactor
-                // traceObject shouldn`t be the field of the class.
-                // trace information should be set only into trace method.
-                //
-                if (Tracer.isTracerOn() && traceObject != null) {
-                    traceObject.setResult(matchingMethod);
-                }
-
                 return matchingMethod;
-
             default:
                 // TODO add more detailed information about error, consider
                 // context values printout, may be log of constraints,

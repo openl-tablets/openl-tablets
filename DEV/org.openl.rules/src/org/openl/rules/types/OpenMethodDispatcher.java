@@ -28,6 +28,7 @@ import org.openl.types.*;
 import org.openl.types.impl.MethodDelegator;
 import org.openl.types.impl.MethodKey;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.trace.Tracer;
 
 /**
  * Class that decorates the <code>IOpenMehtod</code> interface for method
@@ -54,6 +55,12 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      * List of method candidates.
      */
     private List<IOpenMethod> candidates = new ArrayList<IOpenMethod>();
+    private final Invokable invokeInner = new Invokable() {
+        @Override public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+            return invokeInner(target, params, env);
+        }
+    };
+
 
     /**
      * Creates new instance of decorator.
@@ -145,11 +152,18 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     
     private static final int MAX_ELEMENTS_IN_CAHCE = 1000;
     private static final int MIN_ELEMENTS_IN_CAHCE = 800;
-    
+
     /**
      * Invokes appropriate method using runtime context.
      */
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+        return Tracer.invoke(invokeInner,target, params, env, this);
+    }
+
+    /**
+     * Invokes appropriate method using runtime context.
+     */
+    protected Object invokeInner(Object target, Object[] params, IRuntimeEnv env) {
 
         // Gets the runtime context.
         //
@@ -184,6 +198,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         }else{
             method = findMatchingMethod(candidates, context);
         }
+        Tracer.put(this, "rule", method);
 
         // Check that founded required method.
         //
@@ -336,4 +351,6 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     public IOpenMethod getTargetMethod() {
         return this.delegate;
     }
+
+    public abstract TableSyntaxNode getDispatcherTable();
 }

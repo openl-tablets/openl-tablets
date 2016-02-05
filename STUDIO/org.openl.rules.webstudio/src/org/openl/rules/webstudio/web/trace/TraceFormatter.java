@@ -19,7 +19,7 @@ import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.tbasic.runtime.debug.TBasicOperationTraceObject;
-import org.openl.rules.types.impl.OverloadedMethodChoiceTraceObject;
+import org.openl.rules.webstudio.web.trace.node.OverloadedMethodChoiceTraceObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.trace.ITracerObject;
