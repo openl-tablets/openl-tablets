@@ -4,6 +4,7 @@
 package org.openl.rules.webstudio.web.trace;
 
 import org.openl.rules.calc.element.SpreadsheetCell;
+import org.openl.rules.webstudio.web.trace.node.ColumnMatchTraceObject;
 import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.algorithm.MatchAlgorithmExecutor;
@@ -19,6 +20,7 @@ import org.openl.rules.webstudio.web.trace.node.OverloadedMethodChoiceTraceObjec
 import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.rules.webstudio.web.trace.node.MatchTraceObject;
 import org.openl.rules.webstudio.web.trace.node.ResultTraceObject;
+import org.openl.rules.webstudio.web.trace.node.WColumnMatchTraceObject;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.ITracerObject;
@@ -106,7 +108,14 @@ public final class TreeBuildTracer extends Tracer {
         if (source instanceof OpenMethodDispatcher) {
             trObj = OverloadedMethodChoiceTraceObject.create((OpenMethodDispatcher) source, params);
         } else if (source instanceof WeightAlgorithmExecutor) {
-            return new WScoreTraceObject((ColumnMatch) target, params);
+            trObj = new WScoreTraceObject((ColumnMatch) target, params);
+        } else if (source instanceof ColumnMatch) {
+            ColumnMatch columnMatch = (ColumnMatch) source;
+            if (executor instanceof WeightAlgorithmExecutor) {
+                trObj = new WColumnMatchTraceObject(columnMatch, params);
+            } else {
+                trObj = new ColumnMatchTraceObject(columnMatch, params);
+            }
         } else {
             trObj = TracedObjectFactory.getTracedObject(executor, params);
         }

@@ -9,7 +9,6 @@ import org.openl.rules.cmatch.algorithm.IMatchAlgorithmExecutor;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenMethodHeader;
-import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.Tracer;
 
@@ -22,8 +21,6 @@ public class ColumnMatch extends ExecutableRulesMethod {
     private MatchNode checkTree;
 
     private IMatchAlgorithmExecutor algorithmExecutor;
-
-    private Invokable invoker;
 
     // WEIGHT algorithm
     private MatchNode totalScore;
@@ -77,13 +74,14 @@ public class ColumnMatch extends ExecutableRulesMethod {
     }
 
     protected Object innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
-
-        if (invoker == null) {
-            // create new instance of invoker.
-            invoker = new ColumnMatchInvoker(this);
+        Object result = Tracer.invoke(algorithmExecutor, this, params, env, this);
+        if (result == null) {
+            Class<?> type = getHeader().getType().getInstanceClass();
+            if (type.isPrimitive()) {
+                throw new IllegalArgumentException("Cannot return <null> for primitive type " + type.getName());
+            }
         }
-        return Tracer.invoke(invoker, target, params, env, this);
-
+        return result;
     }
 
     public void setAlgorithmExecutor(IMatchAlgorithmExecutor algorithmExecutor) {
