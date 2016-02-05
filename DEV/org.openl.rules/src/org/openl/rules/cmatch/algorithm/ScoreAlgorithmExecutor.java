@@ -8,10 +8,10 @@ import org.openl.vm.trace.Tracer;
 
 public class ScoreAlgorithmExecutor implements IMatchAlgorithmExecutor {
 
-    public Object invoke(Object target, Object[] params, IRuntimeEnv env, ColumnMatch columnMatch) {
+    public Object invoke(ColumnMatch target, Object[] params, IRuntimeEnv env) {
 
-        MatchNode checkTree = columnMatch.getCheckTree();
-        int[] scores = columnMatch.getColumnScores();
+        MatchNode checkTree = target.getCheckTree();
+        int[] scores = target.getColumnScores();
 
         int sumScore = 0;
         // iterate over linearized nodes
@@ -30,7 +30,7 @@ public class ScoreAlgorithmExecutor implements IMatchAlgorithmExecutor {
                 if (matcher.match(var, checkValue)) {
                     int score = scores[resultIndex] * node.getWeight();
                     sumScore += score;
-                    Tracer.put(this, "match", columnMatch, node, resultIndex, score);
+                    Tracer.put(this, "match", target, node, resultIndex, score);
                     break;
                 }
             }

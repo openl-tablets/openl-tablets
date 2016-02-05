@@ -11,30 +11,30 @@ public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
     public static final Object NO_MATCH = null;
     private ScoreAlgorithmExecutor scoreAlgorithmExecutor = new ScoreAlgorithmExecutor();
 
-    public Object invoke(Object target, Object[] params, IRuntimeEnv env, ColumnMatch columnMatch) {
-        WScoreTraceObject wScore = new WScoreTraceObject(columnMatch, params);
+    public Object invoke(ColumnMatch target, Object[] params, IRuntimeEnv env) {
+        WScoreTraceObject wScore = new WScoreTraceObject(target, params);
         // score
         Integer sumScore;
 
         Tracer.begin(wScore);
         try {
-            sumScore = (Integer) scoreAlgorithmExecutor.invoke(target, params, env, columnMatch);
+            sumScore = (Integer) scoreAlgorithmExecutor.invoke(target, params, env);
             wScore.setResult(sumScore);
         } finally {
             Tracer.end();
         }
 
-        MatchNode totalScore = columnMatch.getTotalScore();
+        MatchNode totalScore = target.getTotalScore();
         IMatcher matcher = totalScore.getMatcher();
         // totalScore -> resultValue
-        Object[] returnValues = columnMatch.getReturnValues();
+        Object[] returnValues = target.getReturnValues();
         for (int resultIndex = 0; resultIndex < returnValues.length; resultIndex++) {
             Object checkValue = totalScore.getCheckValues()[resultIndex];
             if (matcher.match(sumScore, checkValue)) {
                 Object result = returnValues[resultIndex];
 
-                Tracer.put(this, "match", columnMatch, totalScore, resultIndex, null);
-                Tracer.put(this, "result", columnMatch, resultIndex, result);
+                Tracer.put(this, "match", target, totalScore, resultIndex, null);
+                Tracer.put(this, "result", target, resultIndex, result);
                 return result;
             }
         }

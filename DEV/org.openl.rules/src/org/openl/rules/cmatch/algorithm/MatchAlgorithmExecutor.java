@@ -11,9 +11,9 @@ import java.util.List;
 public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
     public static final Object NO_MATCH = null;
 
-    public Object invoke(Object target, Object[] params, IRuntimeEnv env, ColumnMatch columnMatch) {
-        MatchNode checkTree = columnMatch.getCheckTree();
-        Object returnValues[] = columnMatch.getReturnValues();
+    public Object invoke(ColumnMatch target, Object[] params, IRuntimeEnv env) {
+        MatchNode checkTree = target.getCheckTree();
+        Object returnValues[] = target.getReturnValues();
 
         // iterate over linearized nodes
         for (MatchNode line : checkTree.getChildren()) {
@@ -40,9 +40,9 @@ public class MatchAlgorithmExecutor implements IMatchAlgorithmExecutor {
                 if (success) {
                     Object result = returnValues[resultIndex];
                     for (MatchNode node : line.getChildren()) {
-                        Tracer.put(this, "match", columnMatch, node, resultIndex, null);
+                        Tracer.put(this, "match", target, node, resultIndex, null);
                     }
-                    Tracer.put(this, "result", columnMatch, resultIndex, result);
+                    Tracer.put(this, "result", target, resultIndex, result);
                     return result;
                 }
             }

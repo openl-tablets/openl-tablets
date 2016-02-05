@@ -20,7 +20,7 @@ public class ColumnMatchInvoker extends RulesMethodInvoker<ColumnMatch> {
 
     @Override
     public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {
-        Object result = getInvokableMethod().getAlgorithmExecutor().invoke(target, params, env, getInvokableMethod());
+        Object result = getInvokableMethod().getAlgorithmExecutor().invoke(getInvokableMethod(), params, env);
 
         if (result == null) {
             IOpenClass type = getInvokableMethod().getHeader().getType();
