@@ -5,8 +5,10 @@ package org.openl.rules.webstudio.web.trace;
 
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.trace.SpreadsheetTracerLeaf;
+import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.algorithm.MatchAlgorithmExecutor;
 import org.openl.rules.cmatch.algorithm.ScoreAlgorithmExecutor;
+import org.openl.rules.cmatch.algorithm.WScoreTraceObject;
 import org.openl.rules.cmatch.algorithm.WeightAlgorithmExecutor;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
@@ -103,6 +105,8 @@ public final class TreeBuildTracer extends Tracer {
         ATableTracerNode trObj;
         if (source instanceof OpenMethodDispatcher) {
             trObj = OverloadedMethodChoiceTraceObject.create((OpenMethodDispatcher) source, params);
+        } else if (source instanceof WeightAlgorithmExecutor) {
+            return new WScoreTraceObject((ColumnMatch) target, params);
         } else {
             trObj = TracedObjectFactory.getTracedObject(executor, params);
         }
