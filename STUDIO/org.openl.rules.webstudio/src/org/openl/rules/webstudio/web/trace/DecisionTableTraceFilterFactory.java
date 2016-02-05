@@ -15,7 +15,7 @@ import org.openl.rules.table.ui.filters.ColorGridFilter;
 import org.openl.rules.table.ui.filters.FontGridFilter;
 import org.openl.rules.table.ui.filters.IColorFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
-import org.openl.vm.trace.ITracerObject;
+import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 
 public class DecisionTableTraceFilterFactory {
     private static final int SELECTED_ITEM_INCREMENT_SIZE = 1;

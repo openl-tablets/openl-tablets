@@ -30,7 +30,7 @@ import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.vm.trace.ITracerObject;
+import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 
 /**
  * Request scope managed bean for showTraceTable page.

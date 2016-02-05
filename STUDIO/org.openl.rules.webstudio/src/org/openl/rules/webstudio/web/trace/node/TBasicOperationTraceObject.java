@@ -1,10 +1,9 @@
-package org.openl.rules.tbasic.runtime.debug;
+package org.openl.rules.webstudio.web.trace.node;
 
 import java.util.HashMap;
 
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.tbasic.compile.AlgorithmOperationSource;
-import org.openl.vm.trace.SimpleTracerObject;
 
 public class TBasicOperationTraceObject extends SimpleTracerObject {
 

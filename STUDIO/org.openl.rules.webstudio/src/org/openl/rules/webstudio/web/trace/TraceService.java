@@ -16,7 +16,7 @@ import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
-import org.openl.vm.trace.ITracerObject;
+import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.springframework.stereotype.Service;
 
 /**

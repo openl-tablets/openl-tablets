@@ -1,7 +1,7 @@
 /**
  * Created Dec 3, 2006
  */
-package org.openl.vm.trace;
+package org.openl.rules.webstudio.web.trace.node;
 
 /**
  * @author snshor

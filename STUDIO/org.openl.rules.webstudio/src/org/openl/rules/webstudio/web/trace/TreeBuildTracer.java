@@ -4,22 +4,21 @@
 package org.openl.rules.webstudio.web.trace;
 
 import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
 import org.openl.rules.cmatch.algorithm.MatchAlgorithmExecutor;
 import org.openl.rules.cmatch.algorithm.ScoreAlgorithmExecutor;
 import org.openl.rules.cmatch.algorithm.WeightAlgorithmExecutor;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
-import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
-import org.openl.rules.webstudio.web.trace.node.TracedObjectFactory;
-import org.openl.rules.webstudio.web.trace.node.ATableTracerNode;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
+import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
+import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.trace.node.MatchTraceObject;
 import org.openl.rules.webstudio.web.trace.node.ResultTraceObject;
+import org.openl.rules.webstudio.web.trace.node.SimpleTracerObject;
+import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
+import org.openl.rules.webstudio.web.trace.node.TracedObjectFactory;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.ITracerObject;
-import org.openl.vm.trace.SimpleTracerObject;
 import org.openl.vm.trace.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,8 +70,7 @@ public final class TreeBuildTracer extends Tracer {
         current.addChild(obj);
     }
 
-    @Override
-    protected void doBegin(ITracerObject obj) {
+    private void doBegin(ITracerObject obj) {
         if (!isOn()) {
             return;
         }
@@ -80,8 +78,7 @@ public final class TreeBuildTracer extends Tracer {
         tree.set(obj);
     }
 
-    @Override
-    protected void doEnd() {
+    private void doEnd() {
         if (!isOn()) {
             return;
         }
@@ -94,19 +91,23 @@ public final class TreeBuildTracer extends Tracer {
     }
 
     @Override
-    protected <T> Object doInvoke(Invokable<? super T> executor, T target, Object[] params, IRuntimeEnv env, Object source) {
+    protected <T, E extends IRuntimeEnv, R> R doInvoke(Invokable<? super T, E> executor,
+            T target,
+            Object[] params,
+            E env,
+            Object source) {
         if (!isOn()) {
             // Skip if tracing is switched off
             return executor.invoke(target, params, env);
         }
-        ATableTracerNode trObj = TracedObjectFactory.getTracedObject(source, executor, target, params);
+        SimpleTracerObject trObj = TracedObjectFactory.getTracedObject(source, executor, target, params, env);
         if (trObj == null) {
             // Skip if no tracing objects are
             return executor.invoke(target, params, env);
         }
         doBegin(trObj);
         try {
-            Object res = executor.invoke(target, params, env);
+            R res = executor.invoke(target, params, env);
             trObj.setResult(res);
             return res;
         } catch (RuntimeException ex) {

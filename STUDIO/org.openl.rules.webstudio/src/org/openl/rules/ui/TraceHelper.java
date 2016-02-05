@@ -6,7 +6,7 @@ package org.openl.rules.ui;
 
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
-import org.openl.vm.trace.ITracerObject;
+import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 
 /**
  * @author snshor

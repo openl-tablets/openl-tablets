@@ -3,6 +3,7 @@ package org.openl.rules.tbasic.runtime.operations;
 import org.openl.rules.tbasic.compile.AlgorithmOperationSource;
 import org.openl.rules.tbasic.runtime.Result;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
+import org.openl.types.Invokable;
 
 /**
  * The <code>RuntimeOperation</code> class describes operation in common.
@@ -10,7 +11,7 @@ import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
  * mode.
  *
  */
-public abstract class RuntimeOperation {
+public abstract class RuntimeOperation implements Invokable<Object, TBasicContextHolderEnv>{
     private AlgorithmOperationSource sourceCode;
 
     private String nameForDebug;
@@ -47,5 +48,10 @@ public abstract class RuntimeOperation {
 
     public void setSourceCode(AlgorithmOperationSource sourceCode) {
         this.sourceCode = sourceCode;
+    }
+
+    @Override
+    public Object invoke(Object target, Object[] params, TBasicContextHolderEnv env) {
+        return execute(env, params[0]);
     }
 }

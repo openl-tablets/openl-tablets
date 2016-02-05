@@ -15,7 +15,7 @@ import org.openl.rules.webstudio.web.trace.TreeBuildTracer;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
-import org.openl.vm.trace.ITracerObject;
+import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 
 @ManagedBean
 @SessionScoped

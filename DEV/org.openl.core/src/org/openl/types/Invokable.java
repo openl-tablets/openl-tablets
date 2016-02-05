@@ -7,7 +7,7 @@ import org.openl.vm.IRuntimeEnv;
  * 
  * @author DLiauchuk, Yury Molchan
  */
-public interface Invokable<T> {
+public interface Invokable<T, E extends IRuntimeEnv> {
 
     /**
      * Java's like reflection functionality to execute methods.
@@ -18,5 +18,5 @@ public interface Invokable<T> {
      * @param env TODO: what is IRuntimeEnv ?
      * @return returns result of this method execution.
      */
-    Object invoke(T target, Object[] params, IRuntimeEnv env);
+    <R> R invoke(T target, Object[] params, E env);
 }

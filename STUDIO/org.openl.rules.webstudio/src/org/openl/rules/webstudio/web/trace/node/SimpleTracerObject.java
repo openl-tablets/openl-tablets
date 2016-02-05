@@ -1,4 +1,4 @@
-package org.openl.vm.trace;
+package org.openl.rules.webstudio.web.trace.node;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,6 +8,7 @@ public abstract class SimpleTracerObject implements ITracerObject {
     private ITracerObject parent;
     private ArrayList<ITracerObject> children;
     private Object result;
+    private Throwable error;
     private String type;
 
     protected SimpleTracerObject(String type) {
@@ -49,7 +50,8 @@ public abstract class SimpleTracerObject implements ITracerObject {
 
     public abstract String getUri();
 
-    @Override public Object[] getParameters() {
+    @Override
+    public Object[] getParameters() {
         return null;
     }
 
@@ -61,4 +63,17 @@ public abstract class SimpleTracerObject implements ITracerObject {
     public void setResult(Object result) {
         this.result = result;
     }
+
+    public Throwable getError() {
+        return error;
+    }
+
+    public void setError(Throwable error) {
+        this.error = error;
+    }
+
+    public boolean hasError() {
+        return error != null;
+    }
+
 }

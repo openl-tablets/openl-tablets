@@ -14,9 +14,9 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.ITable;
-import org.openl.rules.tbasic.runtime.debug.TBasicOperationTraceObject;
+import org.openl.rules.webstudio.web.trace.node.TBasicOperationTraceObject;
 import org.openl.rules.webstudio.web.trace.node.OverloadedMethodChoiceTraceObject;
-import org.openl.vm.trace.ITracerObject;
+import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 
 public class RegionsExtractor {
     static List<IGridRegion> getGridRegions(ITracerObject obj) {

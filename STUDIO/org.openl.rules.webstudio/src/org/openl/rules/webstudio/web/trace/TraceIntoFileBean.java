@@ -16,7 +16,7 @@ import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.rules.webstudio.web.test.RunTestHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
-import org.openl.vm.trace.ITracerObject;
+import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -19,11 +19,11 @@ import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.webstudio.web.trace.node.ATableTracerNode;
 import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.tbasic.runtime.debug.TBasicOperationTraceObject;
+import org.openl.rules.webstudio.web.trace.node.TBasicOperationTraceObject;
 import org.openl.rules.webstudio.web.trace.node.OverloadedMethodChoiceTraceObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.vm.trace.ITracerObject;
+import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 
 public class TraceFormatter {
     static String getDisplayName(ITracerObject obj) {

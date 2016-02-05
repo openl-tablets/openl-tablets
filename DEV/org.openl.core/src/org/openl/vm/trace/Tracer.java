@@ -16,15 +16,11 @@ public class Tracer {
         // Nothing
     }
 
-    protected void doBegin(ITracerObject obj) {
-        // Nothing
-    }
-
-    protected void doEnd() {
-        // Nothing
-    }
-
-    protected <T> Object doInvoke(Invokable<? super T> executor, T target, Object[] params, IRuntimeEnv env, Object source) {
+    protected <T, E extends IRuntimeEnv, R> R doInvoke(Invokable<? super T, E> executor,
+            T target,
+            Object[] params,
+            E env,
+            Object source) {
         return executor.invoke(target, params, env);
     }
 
@@ -36,16 +32,12 @@ public class Tracer {
         instance.doPut(source, id, args);
     }
 
-    public static <T> Object invoke(Invokable<? super T> executor, T target, Object[] params, IRuntimeEnv env, Object source) {
+    public static <T, E extends IRuntimeEnv, R> R invoke(Invokable<? super T, E> executor,
+            T target,
+            Object[] params,
+            E env,
+            Object source) {
         return instance.doInvoke(executor, target, params, env, source);
-    }
-
-    public static void begin(ITracerObject obj) {
-        instance.doBegin(obj);
-    }
-
-    public static void end() {
-        instance.doEnd();
     }
 
     public static boolean isTracerOn() {

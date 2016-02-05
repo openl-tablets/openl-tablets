@@ -1,11 +1,9 @@
 package org.openl.rules.tbasic.runtime;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.impl.ControlSignal;
-import org.openl.rules.tbasic.runtime.debug.TBasicOperationTraceObject;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
@@ -108,7 +106,7 @@ public class TBasicVM {
     public Object run(TBasicContextHolderEnv environment) {
         assert environment != null;
 
-        Object returnResult = null;
+        Object returnResult;
 
         // Run fail safe, in case of error allow user code to handle it
         // processing of error will be done in Algorithm main method
@@ -159,7 +157,11 @@ public class TBasicVM {
             Result operationResult;
             try {
 
-                operationResult = invoke(environment, operation, previousStepResult);
+                operationResult = Tracer.invoke(operation,
+                        null,
+                        new Object[] { previousStepResult },
+                        environment,
+                        this);
 
             } catch (OpenLAlgorithmGoToMainSignal signal) {
                 operation = getLabeledOperation(signal.getLabel());
@@ -184,33 +186,6 @@ public class TBasicVM {
             }
         }
         return returnResult;
-    }
-
-    private Result invoke(TBasicContextHolderEnv environment,
-            RuntimeOperation operation,
-            Object previousStepResult) {
-        Result result = null;
-
-        TBasicOperationTraceObject operationTracer = null;
-
-        String nameForDebug = operation.getNameForDebug();
-        boolean significantForDebug = nameForDebug != null && Tracer.isTracerOn();
-        if (significantForDebug) {
-            operationTracer = new TBasicOperationTraceObject(operation.getSourceCode(), nameForDebug);
-            operationTracer.setFieldValues((HashMap<String, Object>)environment.getTbasicTarget().getFieldValues());
-            Tracer.begin(operationTracer);
-        }
-        try {
-            result = operation.execute(environment, previousStepResult);
-            if (significantForDebug) {
-                operationTracer.setResult(result);
-            }
-        } finally {
-            if (significantForDebug) {
-                Tracer.end();
-            }
-        }
-        return result;
     }
 
     /**
