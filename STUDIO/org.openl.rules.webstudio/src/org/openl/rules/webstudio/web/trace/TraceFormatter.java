@@ -8,6 +8,7 @@ import org.openl.binding.MethodUtil;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.calc.element.SpreadsheetCell;
+import org.openl.rules.tbasic.runtime.Result;
 import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.MatchTraceObject;
 import org.openl.rules.webstudio.web.trace.node.ResultTraceObject;
@@ -62,7 +63,7 @@ public class TraceFormatter {
 
     private static String getDisplayName(TBasicOperationTraceObject tbo) {
         String nameForDebug = tbo.getNameForDebug();
-        Object result = tbo.getResult();
+        Object result = ((Result)tbo.getResult()).getValue();
         HashMap<String, Object> fieldValues = tbo.getFieldValues();
 
         String operationName = tbo.getOperationName();

@@ -203,7 +203,7 @@ public class TBasicVM {
         try {
             result = operation.execute(environment, previousStepResult);
             if (significantForDebug) {
-                operationTracer.setResult(result.getValue());
+                operationTracer.setResult(result);
             }
         } finally {
             if (significantForDebug) {
