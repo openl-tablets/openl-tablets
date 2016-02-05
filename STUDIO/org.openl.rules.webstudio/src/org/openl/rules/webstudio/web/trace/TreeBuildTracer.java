@@ -38,32 +38,32 @@ public final class TreeBuildTracer extends Tracer {
     }
 
     @Override
-    protected void doPut(Object executor, String id, Object... args) {
+    protected void doPut(Object source, String id, Object... args) {
         if (!isOn()) {
             return;
         }
-        if (executor instanceof DecisionTableOptimizedAlgorithm) {
+        if (source instanceof DecisionTableOptimizedAlgorithm) {
             doPut(DTRuleTraceObject.create(args));
-        } else if (executor instanceof MatchAlgorithmExecutor) {
+        } else if (source instanceof MatchAlgorithmExecutor) {
             if ("match".equals(id)) {
                 doPut(MatchTraceObject.create(args));
             } else {
                 doPut(ResultTraceObject.create(args));
             }
-        } else if (executor instanceof WeightAlgorithmExecutor) {
+        } else if (source instanceof WeightAlgorithmExecutor) {
             if ("match".equals(id)) {
                 doPut(MatchTraceObject.create(args));
             } else {
                 doPut(ResultTraceObject.create(args));
             }
-        } else if (executor instanceof ScoreAlgorithmExecutor) {
+        } else if (source instanceof ScoreAlgorithmExecutor) {
             doPut(MatchTraceObject.create(args));
-        } else if (executor instanceof SpreadsheetCell) {
-            SpreadsheetTracerLeaf tr = new SpreadsheetTracerLeaf((SpreadsheetCell) executor);
+        } else if (source instanceof SpreadsheetCell) {
+            SpreadsheetTracerLeaf tr = new SpreadsheetTracerLeaf((SpreadsheetCell) source);
             tr.setResult(args[0]);
             doPut(tr);
-        } else if (executor instanceof OpenMethodDispatcher) {
-            doPut(new DTRuleTracerLeaf(((OpenMethodDispatcher) executor).getCandidates().indexOf(args[0])));
+        } else if (source instanceof OpenMethodDispatcher) {
+            doPut(new DTRuleTracerLeaf(((OpenMethodDispatcher) source).getCandidates().indexOf(args[0])));
         }
     }
 

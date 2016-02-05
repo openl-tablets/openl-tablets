@@ -12,7 +12,7 @@ import org.openl.vm.IRuntimeEnv;
 public class Tracer {
     protected static Tracer instance = new Tracer();
 
-    protected void doPut(Object executor, String id, Object... args) {
+    protected void doPut(Object source, String id, Object... args) {
         // Nothing
     }
 
@@ -32,8 +32,8 @@ public class Tracer {
         return false;
     }
 
-    public static void put(Object executor, String id, Object... args) {
-        instance.doPut(executor, id, args);
+    public static void put(Object source, String id, Object... args) {
+        instance.doPut(source, id, args);
     }
 
     public static Object invoke(Invokable executor, Object target, Object[] params, IRuntimeEnv env, Object source) {
