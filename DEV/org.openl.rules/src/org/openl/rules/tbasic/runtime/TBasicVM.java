@@ -81,7 +81,7 @@ public class TBasicVM {
      * @return The result of the method execution.
      */
     public Object run(List<RuntimeOperation> methodSteps, Map<String, RuntimeOperation> methodLabels,
-            TBasicContextHolderEnv environment, boolean debugMode) {
+            TBasicContextHolderEnv environment) {
 
         TBasicVMDataContext methodContext = new TBasicVMDataContext(methodSteps, methodLabels, false);
 

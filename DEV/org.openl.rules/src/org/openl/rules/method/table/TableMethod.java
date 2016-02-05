@@ -56,7 +56,7 @@ public class TableMethod extends ExecutableRulesMethod {
             // create new instance of invoker.
             invoker = new MethodTableInvoker(this);
         }
-        return Tracer.invoke(invoker, target, params, env, this);
+        return invoker.invoke(target, params, env);
     }
 
     public BindingDependencies getDependencies() {

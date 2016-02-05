@@ -10,8 +10,10 @@ import org.openl.rules.vm.ResultNotFoundException;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethodHeader;
+import org.openl.types.Invokable;
 import org.openl.types.impl.ExecutableMethod;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.trace.Tracer;
 
 public abstract class ExecutableRulesMethod extends ExecutableMethod implements ITablePropertiesMethod, TableUriMethod {
 
@@ -54,6 +56,16 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
 
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+        return Tracer.invoke(invoke2, target, params, env, this);
+    }
+
+    private Invokable invoke2 = new Invokable() {
+        @Override public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+            return invoke2(target, params, env);
+        }
+    };
+
+    private Object invoke2(Object target, Object[] params, IRuntimeEnv env) {
         if (env instanceof SimpleRulesRuntimeEnv) {
             SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) env;
             Object result = null;

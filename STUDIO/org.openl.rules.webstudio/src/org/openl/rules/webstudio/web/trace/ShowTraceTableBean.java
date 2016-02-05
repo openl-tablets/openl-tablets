@@ -18,7 +18,7 @@ import org.openl.rules.webstudio.web.trace.node.DecisionTableTraceObject;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.table.ATableTracerNode;
+import org.openl.rules.webstudio.web.trace.node.ATableTracerNode;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ui.RegionGridSelector;

@@ -1,7 +1,6 @@
-package org.openl.rules.cmatch.algorithm;
+package org.openl.rules.webstudio.web.trace.node;
 
 import org.openl.rules.cmatch.ColumnMatch;
-import org.openl.rules.table.ATableTracerNode;
 
 public class WScoreTraceObject extends ATableTracerNode {
 

@@ -1,8 +1,6 @@
 package org.openl.rules.webstudio.web.trace.node;
 
 import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.table.ATableTracerNode;
 
 /**
  * Leaf trace object that represented by one calculation of spreadsheet cell

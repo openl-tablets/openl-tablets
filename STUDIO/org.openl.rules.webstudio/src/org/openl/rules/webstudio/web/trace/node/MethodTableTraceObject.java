@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.trace.node;
 
 import org.openl.rules.method.table.TableMethod;
-import org.openl.rules.table.ATableTracerNode;
 
 /**
  * Trace object for method table.

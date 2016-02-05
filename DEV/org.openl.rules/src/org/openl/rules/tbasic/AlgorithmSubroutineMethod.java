@@ -11,11 +11,9 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.tbasic.runtime.TBasicVM;
-import org.openl.rules.tbasic.runtime.debug.TBasicMethodTraceObject;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.Tracer;
 
 /**
  * Table Basic Algorithm component for internal subroutines and functions. It
@@ -76,28 +74,7 @@ public class AlgorithmSubroutineMethod extends AlgorithmFunction {
         TBasicContextHolderEnv environment = (TBasicContextHolderEnv) env;
         TBasicVM vm = environment.getTbasicVm();
 
-        boolean debugMode = false;
-        TBasicMethodTraceObject methodTracer = null;
-
-        if (Tracer.isTracerOn()) {
-            debugMode = true;
-            methodTracer = new TBasicMethodTraceObject(this);
-            Tracer.begin(methodTracer);
-        }
-
-        Object resultValue = null;
-        try {
-            resultValue = vm.run(algorithmSteps, labels, environment, debugMode);
-            if (debugMode) {
-                methodTracer.setResult(resultValue);
-            }
-        } finally {
-            if (debugMode) {
-                Tracer.end();
-            }
-        }
-
-        return resultValue;
+        return vm.run(algorithmSteps, labels, environment);
     }
 
     @Override

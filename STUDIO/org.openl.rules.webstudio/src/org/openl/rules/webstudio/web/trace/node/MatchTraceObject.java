@@ -4,7 +4,6 @@ import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.MatchNode;
 import org.openl.rules.cmatch.TableRow;
 import org.openl.rules.cmatch.algorithm.MatchAlgorithmCompiler;
-import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.table.IGridRegion;
 
 public class MatchTraceObject extends ATableTracerNode {

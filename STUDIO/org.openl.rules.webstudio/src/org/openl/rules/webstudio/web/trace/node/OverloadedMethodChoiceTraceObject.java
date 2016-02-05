@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web.trace.node;
 import java.util.List;
 
 import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.types.IOpenMethod;
 

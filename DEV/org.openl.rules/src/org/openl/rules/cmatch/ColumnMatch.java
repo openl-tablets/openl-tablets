@@ -10,7 +10,6 @@ import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.Tracer;
 
 @Executable
 public class ColumnMatch extends ExecutableRulesMethod {
@@ -74,7 +73,7 @@ public class ColumnMatch extends ExecutableRulesMethod {
     }
 
     protected Object innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
-        Object result = Tracer.invoke(algorithmExecutor, this, params, env, this);
+        Object result = algorithmExecutor.invoke(this, params, env);
         if (result == null) {
             Class<?> type = getHeader().getType().getInstanceClass();
             if (type.isPrimitive()) {

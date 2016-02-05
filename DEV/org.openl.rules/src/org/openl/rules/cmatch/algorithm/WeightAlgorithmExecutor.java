@@ -12,7 +12,6 @@ public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
     private ScoreAlgorithmExecutor scoreAlgorithmExecutor = new ScoreAlgorithmExecutor();
 
     public Object invoke(ColumnMatch target, Object[] params, IRuntimeEnv env) {
-        WScoreTraceObject wScore = new WScoreTraceObject(target, params);
         Object sumScore = Tracer.invoke(scoreAlgorithmExecutor, target, params, env, this);
 
         MatchNode totalScore = target.getTotalScore();

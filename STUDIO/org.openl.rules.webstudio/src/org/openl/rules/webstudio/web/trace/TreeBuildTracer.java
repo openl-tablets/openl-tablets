@@ -4,23 +4,18 @@
 package org.openl.rules.webstudio.web.trace;
 
 import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.rules.webstudio.web.trace.node.ColumnMatchTraceObject;
 import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
-import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.algorithm.MatchAlgorithmExecutor;
 import org.openl.rules.cmatch.algorithm.ScoreAlgorithmExecutor;
-import org.openl.rules.cmatch.algorithm.WScoreTraceObject;
 import org.openl.rules.cmatch.algorithm.WeightAlgorithmExecutor;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.TracedObjectFactory;
-import org.openl.rules.table.ATableTracerNode;
+import org.openl.rules.webstudio.web.trace.node.ATableTracerNode;
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.rules.webstudio.web.trace.node.OverloadedMethodChoiceTraceObject;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.rules.webstudio.web.trace.node.MatchTraceObject;
 import org.openl.rules.webstudio.web.trace.node.ResultTraceObject;
-import org.openl.rules.webstudio.web.trace.node.WColumnMatchTraceObject;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.trace.ITracerObject;
@@ -104,21 +99,7 @@ public final class TreeBuildTracer extends Tracer {
             // Skip if tracing is switched off
             return executor.invoke(target, params, env);
         }
-        ATableTracerNode trObj;
-        if (source instanceof OpenMethodDispatcher) {
-            trObj = OverloadedMethodChoiceTraceObject.create((OpenMethodDispatcher) source, params);
-        } else if (source instanceof WeightAlgorithmExecutor) {
-            trObj = new WScoreTraceObject((ColumnMatch) target, params);
-        } else if (source instanceof ColumnMatch) {
-            ColumnMatch columnMatch = (ColumnMatch) source;
-            if (executor instanceof WeightAlgorithmExecutor) {
-                trObj = new WColumnMatchTraceObject(columnMatch, params);
-            } else {
-                trObj = new ColumnMatchTraceObject(columnMatch, params);
-            }
-        } else {
-            trObj = TracedObjectFactory.getTracedObject(executor, params);
-        }
+        ATableTracerNode trObj = TracedObjectFactory.getTracedObject(source, executor, target, params);
         if (trObj == null) {
             // Skip if no tracing objects are
             return executor.invoke(target, params, env);
