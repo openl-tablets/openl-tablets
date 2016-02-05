@@ -12,7 +12,7 @@ import org.openl.rules.cmatch.algorithm.ScoreAlgorithmExecutor;
 import org.openl.rules.cmatch.algorithm.WScoreTraceObject;
 import org.openl.rules.cmatch.algorithm.WeightAlgorithmExecutor;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
-import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
+import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.TracedObjectFactory;
 import org.openl.rules.table.ATableTracerNode;
 import org.openl.rules.types.OpenMethodDispatcher;

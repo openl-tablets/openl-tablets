@@ -7,7 +7,7 @@ import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.MatchTraceObject;
 import org.openl.rules.webstudio.web.trace.node.ResultTraceObject;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
-import org.openl.rules.dtx.trace.DTRuleTracerLeaf;
+import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.MethodTableTraceObject;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.ICell;
