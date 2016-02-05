@@ -52,7 +52,6 @@ public class OperationFactory {
 
             String nameForDebug = conversionStep.getNameForDebug();
             emittedOperation.setNameForDebug(nameForDebug);
-            emittedOperation.setSignificantForDebug(nameForDebug != null);
 
             return emittedOperation;
 

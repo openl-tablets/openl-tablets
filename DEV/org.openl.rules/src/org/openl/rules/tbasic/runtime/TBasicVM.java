@@ -1,12 +1,15 @@
 package org.openl.rules.tbasic.runtime;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.impl.ControlSignal;
+import org.openl.rules.tbasic.runtime.debug.TBasicOperationTraceObject;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.vm.trace.Tracer;
 
 /**
  * The <code>TBasicVM</code> class executes Algorithm logic. Besides execution
@@ -156,9 +159,8 @@ public class TBasicVM {
             Result operationResult;
             try {
 
-                operationResult = operation.execute(environment, previousStepResult, debugMode);
+                operationResult = invoke(environment, debugMode, operation, previousStepResult);
 
-                assert operationResult != null;
             } catch (OpenLAlgorithmGoToMainSignal signal) {
                 operation = getLabeledOperation(signal.getLabel());
                 continue;
@@ -182,6 +184,34 @@ public class TBasicVM {
             }
         }
         return returnResult;
+    }
+
+    private Result invoke(TBasicContextHolderEnv environment,
+            boolean debugMode,
+            RuntimeOperation operation,
+            Object previousStepResult) {
+        Result result = null;
+
+        TBasicOperationTraceObject operationTracer = null;
+
+        String nameForDebug = operation.getNameForDebug();
+        boolean significantForDebug = nameForDebug != null;
+        if (debugMode && significantForDebug) {
+            operationTracer = new TBasicOperationTraceObject(operation.getSourceCode(), nameForDebug);
+            operationTracer.setFieldValues((HashMap<String, Object>)environment.getTbasicTarget().getFieldValues());
+            Tracer.begin(operationTracer);
+        }
+        try {
+            result = operation.execute(environment, previousStepResult);
+            if (debugMode && significantForDebug) {
+                operationTracer.setResult(result.getValue());
+            }
+        } finally {
+            if (debugMode && significantForDebug) {
+                Tracer.end();
+            }
+        }
+        return result;
     }
 
     /**
