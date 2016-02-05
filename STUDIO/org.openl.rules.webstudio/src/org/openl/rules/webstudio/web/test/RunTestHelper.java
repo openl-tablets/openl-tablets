@@ -12,16 +12,17 @@ import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.trace.TreeBuildTracer;
+import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
-import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 
 @ManagedBean
 @SessionScoped
 public final class RunTestHelper {
 
-    // FIXME last parameters of the test suite should have temporary location(such as Flash scope)
+    // FIXME last parameters of the test suite should have temporary
+    // location(such as Flash scope)
     // but now it placed to session bean due to WebStudio navigation specific
     // TODO move this object to the correct place
     private Object[] params = new Object[0];
@@ -47,7 +48,6 @@ public final class RunTestHelper {
         TraceHelper traceHelper = WebStudioUtils.getTraceHelper();
         traceHelper.cacheTraceTree(root);// Register
     }
-
 
     public void catchParams() {
         this.params = ((InputArgsBean) FacesUtils.getBackingBean("inputArgsBean")).getParams();

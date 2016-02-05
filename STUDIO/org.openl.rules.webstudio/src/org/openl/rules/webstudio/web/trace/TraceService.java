@@ -11,12 +11,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
-import org.openl.rules.ui.TraceHelper;
+import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
-import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.springframework.stereotype.Service;
 
 /**

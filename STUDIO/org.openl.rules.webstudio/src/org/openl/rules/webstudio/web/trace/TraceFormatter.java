@@ -8,22 +8,22 @@ import org.openl.binding.MethodUtil;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.rules.tbasic.runtime.Result;
-import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
-import org.openl.rules.webstudio.web.trace.node.MatchTraceObject;
-import org.openl.rules.webstudio.web.trace.node.ResultTraceObject;
-import org.openl.rules.webstudio.web.trace.node.WScoreTraceObject;
 import org.openl.rules.dtx.IDecisionTable;
+import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.table.formatters.FormattersManager;
+import org.openl.rules.tbasic.runtime.Result;
+import org.openl.rules.webstudio.web.trace.node.ATableTracerNode;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
-import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.webstudio.web.trace.node.ATableTracerNode;
-import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.webstudio.web.trace.node.TBasicOperationTraceObject;
+import org.openl.rules.webstudio.web.trace.node.ITracerObject;
+import org.openl.rules.webstudio.web.trace.node.MatchTraceObject;
 import org.openl.rules.webstudio.web.trace.node.OverloadedMethodChoiceTraceObject;
+import org.openl.rules.webstudio.web.trace.node.ResultTraceObject;
+import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
+import org.openl.rules.webstudio.web.trace.node.TBasicOperationTraceObject;
+import org.openl.rules.webstudio.web.trace.node.WScoreTraceObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 
 public class TraceFormatter {
     static String getDisplayName(ITracerObject obj) {
@@ -63,7 +63,7 @@ public class TraceFormatter {
 
     private static String getDisplayName(TBasicOperationTraceObject tbo) {
         String nameForDebug = tbo.getNameForDebug();
-        Object result = ((Result)tbo.getResult()).getValue();
+        Object result = ((Result) tbo.getResult()).getValue();
         HashMap<String, Object> fieldValues = tbo.getFieldValues();
 
         String operationName = tbo.getOperationName();
