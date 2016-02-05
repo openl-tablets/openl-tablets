@@ -182,7 +182,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
     }
 
     protected Object innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
-        return Tracer.invoke(getInvoker(), target, params, env);
+        return Tracer.invoke(getInvoker(), target, params, env, this);
     }
 
     protected Invokable createInvoker() {

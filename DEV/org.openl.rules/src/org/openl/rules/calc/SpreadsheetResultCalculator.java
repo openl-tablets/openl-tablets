@@ -131,7 +131,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
             Tracer.put(spreadsheetCell, "cell", result);
             return result;
         }
-        result = Tracer.invoke(spreadsheetCell, this, params, env);
+        result = Tracer.invoke(spreadsheetCell, this, params, env, this);
         results[row][column] = result;
         return results[row][column];
     }

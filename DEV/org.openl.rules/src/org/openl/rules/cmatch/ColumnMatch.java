@@ -82,7 +82,7 @@ public class ColumnMatch extends ExecutableRulesMethod {
             // create new instance of invoker.
             invoker = new ColumnMatchInvoker(this);
         }
-        return Tracer.invoke(invoker, target, params, env);
+        return Tracer.invoke(invoker, target, params, env, this);
 
     }
 

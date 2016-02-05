@@ -174,7 +174,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
             invoker = new DecisionTableInvoker(this);
 
         }
-        return Tracer.invoke(invoker, target, params, env);
+        return Tracer.invoke(invoker, target, params, env, this);
     }
 
     /**

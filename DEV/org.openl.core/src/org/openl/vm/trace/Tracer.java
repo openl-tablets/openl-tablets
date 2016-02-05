@@ -24,7 +24,7 @@ public class Tracer {
         // Nothing
     }
 
-    protected Object doInvoke(Invokable executor, Object target, Object[] params, IRuntimeEnv env) {
+    protected Object doInvoke(Invokable executor, Object target, Object[] params, IRuntimeEnv env, Object source) {
         return executor.invoke(target, params, env);
     }
 
@@ -36,8 +36,8 @@ public class Tracer {
         instance.doPut(executor, id, args);
     }
 
-    public static Object invoke(Invokable executor, Object target, Object[] params, IRuntimeEnv env) {
-        return instance.doInvoke(executor, target, params, env);
+    public static Object invoke(Invokable executor, Object target, Object[] params, IRuntimeEnv env, Object source) {
+        return instance.doInvoke(executor, target, params, env, source);
     }
 
     public static void begin(ITracerObject obj) {

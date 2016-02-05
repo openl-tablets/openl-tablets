@@ -90,7 +90,7 @@ public final class TreeBuildTracer extends Tracer {
     }
 
     @Override
-    protected Object doInvoke(Invokable executor, Object target, Object[] params, IRuntimeEnv env) {
+    protected Object doInvoke(Invokable executor, Object target, Object[] params, IRuntimeEnv env, Object source) {
         if (!isOn()) {
             // Skip if tracing is switched off
             return executor.invoke(target, params, env);

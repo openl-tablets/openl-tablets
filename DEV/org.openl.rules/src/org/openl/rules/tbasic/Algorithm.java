@@ -58,7 +58,7 @@ public class Algorithm extends AlgorithmFunction {
             // create new instance of invoker.
             invoker = new AlgorithmInvoker(this);
         }
-        return Tracer.invoke(invoker, target, params, env);
+        return Tracer.invoke(invoker, target, params, env, this);
     }
 
     @Override
