@@ -47,11 +47,11 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
             if (getMethodProperties() == null) {
                 cacheble = Boolean.FALSE;
             } else {
-                Boolean cacheable = (Boolean) getMethodProperties().getCacheable();
+                Boolean cacheable = getMethodProperties().getCacheable();
                 cacheble = Boolean.TRUE.equals(cacheable);
             }
         }
-        return cacheble.booleanValue();
+        return cacheble;
     }
 
     @Override
@@ -68,7 +68,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
     private Object invoke2(Object target, Object[] params, IRuntimeEnv env) {
         if (env instanceof SimpleRulesRuntimeEnv) {
             SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) env;
-            Object result = null;
+            Object result;
             boolean isSimilarStep = false;
             boolean oldIsIgnoreRecalculate = simpleRulesRuntimeEnv.isIgnoreRecalculation();
             if (!simpleRulesRuntimeEnv.isIgnoreRecalculation()) {
@@ -118,7 +118,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
             if (getMethodProperties() == null) {
                 recalculateType = RecalculateEnum.ALWAYS;
             } else {
-                recalculateType = (RecalculateEnum) getMethodProperties().getRecalculate();
+                recalculateType = getMethodProperties().getRecalculate();
             }
         }
         return recalculateType;
