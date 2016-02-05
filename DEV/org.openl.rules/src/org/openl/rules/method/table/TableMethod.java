@@ -10,7 +10,6 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.Tracer;
 
 /**
  * {@link IOpenMethod} implementation for table method component.

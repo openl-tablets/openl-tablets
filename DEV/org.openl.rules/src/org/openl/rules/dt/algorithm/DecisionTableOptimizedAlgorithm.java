@@ -42,7 +42,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.Tracer;
+import org.openl.vm.Tracer;
 
 /**
  * The basic algorithm for decision table (DT) evaluation is straightforward

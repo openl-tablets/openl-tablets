@@ -13,7 +13,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
 import org.openl.types.impl.ExecutableMethod;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.Tracer;
+import org.openl.vm.Tracer;
 
 public abstract class ExecutableRulesMethod extends ExecutableMethod implements ITablePropertiesMethod, TableUriMethod {
 

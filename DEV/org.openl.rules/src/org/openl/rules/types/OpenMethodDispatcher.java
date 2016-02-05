@@ -28,7 +28,7 @@ import org.openl.types.*;
 import org.openl.types.impl.MethodDelegator;
 import org.openl.types.impl.MethodKey;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.Tracer;
+import org.openl.vm.Tracer;
 
 /**
  * Class that decorates the <code>IOpenMehtod</code> interface for method

@@ -51,7 +51,7 @@ public abstract class RuntimeOperation implements Invokable<Object, TBasicContex
     }
 
     @Override
-    public Object invoke(Object target, Object[] params, TBasicContextHolderEnv env) {
+    public Result invoke(Object target, Object[] params, TBasicContextHolderEnv env) {
         return execute(env, params[0]);
     }
 }

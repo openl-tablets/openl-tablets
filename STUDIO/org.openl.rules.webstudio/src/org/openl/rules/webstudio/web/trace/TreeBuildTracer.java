@@ -19,7 +19,7 @@ import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.TracedObjectFactory;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.Tracer;
+import org.openl.vm.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

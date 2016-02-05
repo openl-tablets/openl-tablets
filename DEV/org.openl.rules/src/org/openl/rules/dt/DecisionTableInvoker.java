@@ -8,7 +8,7 @@ import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.dtx.IBaseAction;
 import org.openl.rules.method.RulesMethodInvoker;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.Tracer;
+import org.openl.vm.Tracer;
 
 /**
  * Invoker for {@link DecisionTable}.

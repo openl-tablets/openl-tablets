@@ -7,7 +7,7 @@ import org.openl.binding.impl.ControlSignal;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.vm.trace.Tracer;
+import org.openl.vm.Tracer;
 
 /**
  * The <code>TBasicVM</code> class executes Algorithm logic. Besides execution

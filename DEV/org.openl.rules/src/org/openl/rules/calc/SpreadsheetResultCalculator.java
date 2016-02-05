@@ -9,7 +9,7 @@ import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.trace.Tracer;
+import org.openl.vm.Tracer;
 
 public class SpreadsheetResultCalculator implements IDynamicObject {
     public static final Object NEED_TO_CALCULATE_VALUE = new Object();

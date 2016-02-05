@@ -1,10 +1,9 @@
 /**
  * Created Dec 3, 2006
  */
-package org.openl.vm.trace;
+package org.openl.vm;
 
 import org.openl.types.Invokable;
-import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author Yury Molchan
