@@ -438,19 +438,13 @@ public class RuleRowHelper {
     public static void validateValue(Object value, IOpenClass paramType) throws Exception {
         IDomain<Object> domain = (IDomain<Object>)paramType.getDomain();
 
-        if (domain == null) {
-            // there is no domain so nothing to validate.
-            return;
-        } else {             
+        if (domain != null) {
             try {
                 // block is surrounded by try block, as EnumDomain implementation throws a
-                // RuntimeException when value doesn`t belong to domain.                
-                // 
+                // RuntimeException when value doesn`t belong to domain.
+                //
                 boolean contains = domain.selectObject(value);
-                if (contains) {
-                    // if value belongs to domain, return
-                    return;
-                } else {
+                if (!contains) {
                     throw new OpenLCompilationException(
                         String.format("The value '%s' is outside of domain %s", value, domain.toString()));
                 }
