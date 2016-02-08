@@ -1,6 +1,6 @@
 package org.openl.rules.dt.index;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -10,7 +10,8 @@ import org.openl.rules.dt.type.IRangeAdaptor;
 
 public class RangeIndex extends ARuleIndex {
 
-    protected List<DecisionTableIndexedRuleNode<?>> index;
+    private List<DecisionTableIndexedRuleNode<?>> index;
+    private DecisionTableIndexedRuleNode<?>[] index2;
     public Comparator<? super Object> comparator = null;
 
     protected IRangeAdaptor<?, ?> adaptor;
@@ -21,12 +22,14 @@ public class RangeIndex extends ARuleIndex {
         super(emptyOrFormulaNodes);
 
         this.index = index;
+        // Search in a List is slow on IBM Java 6
+        index2 = index.toArray(new DecisionTableIndexedRuleNode[index.size()]);
         this.adaptor = adaptor;
     }
 
     @Override
     DecisionTableRuleNode findNodeInIndex(Object value) {
-        if (index.isEmpty()) {
+        if (index2.length == 0) {
             // there is no values in index to compare => no reason to search
             return null;
         }
@@ -37,16 +40,16 @@ public class RangeIndex extends ARuleIndex {
             value = adaptor.adaptValueType(value);
         }
 
-        int idx = Collections.binarySearch(index, value, comparator);
+        int idx = Arrays.binarySearch(index2, value, comparator);
 
         if (idx >= 0) {
-            return index.get(idx);
+            return index2[idx];
         }
 
         int insertionPoint = -(idx + 1);
 
-        if (insertionPoint < index.size() && insertionPoint > 0) {
-            return index.get(insertionPoint - 1);
+        if (insertionPoint < index2.length && insertionPoint > 0) {
+            return index2[insertionPoint - 1];
         }
 
         return null;
