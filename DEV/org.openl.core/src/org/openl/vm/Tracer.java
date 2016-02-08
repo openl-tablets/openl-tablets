@@ -23,8 +23,8 @@ public class Tracer {
         return executor.invoke(target, params, env);
     }
 
-    protected boolean isOn() {
-        return false;
+    protected <T> T doWrap(Object source, T target, Object[] args) {
+        return target;
     }
 
     public static void put(Object source, String id, Object... args) {
@@ -39,7 +39,7 @@ public class Tracer {
         return instance.doInvoke(executor, target, params, env, source);
     }
 
-    public static boolean isTracerOn() {
-        return instance.isOn();
+    public static <T> T wrap(Object source, T target, Object... args) {
+        return instance.doWrap(source, target, args);
     }
 }

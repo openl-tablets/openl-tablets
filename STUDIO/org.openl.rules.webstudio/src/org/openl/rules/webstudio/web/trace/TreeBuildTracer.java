@@ -3,11 +3,14 @@
  */
 package org.openl.rules.webstudio.web.trace;
 
+import org.openl.domain.IIntSelector;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.cmatch.algorithm.MatchAlgorithmExecutor;
 import org.openl.rules.cmatch.algorithm.ScoreAlgorithmExecutor;
 import org.openl.rules.cmatch.algorithm.WeightAlgorithmExecutor;
 import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
+import org.openl.rules.dt.element.ICondition;
+import org.openl.rules.dt.index.RangeIndex;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
@@ -41,6 +44,10 @@ public final class TreeBuildTracer extends Tracer {
             return;
         }
         if (source instanceof DecisionTableOptimizedAlgorithm) {
+            doPut(DTRuleTraceObject.create(args));
+        } else if (source instanceof RangeIndexTracer) {
+            doPut(DTRuleTraceObject.create(args));
+        } else if (source instanceof IntSelectorTracer) {
             doPut(DTRuleTraceObject.create(args));
         } else if (source instanceof MatchAlgorithmExecutor) {
             if ("match".equals(id)) {
@@ -119,7 +126,19 @@ public final class TreeBuildTracer extends Tracer {
     }
 
     @Override
-    protected boolean isOn() {
+    protected <T> T doWrap(Object source, T target, Object[] args) {
+        if (!isOn()) {
+            return target;
+        } else if (target instanceof RangeIndex) {
+            new RangeIndexTracer((RangeIndex) target, (ICondition) args[0]);
+            // No return
+        } else if (target instanceof IIntSelector) {
+            return (T) new IntSelectorTracer((IIntSelector) target, (ICondition) args[0]);
+        }
+        return target;
+    }
+
+    private boolean isOn() {
         return tree.get() != null;
     }
 

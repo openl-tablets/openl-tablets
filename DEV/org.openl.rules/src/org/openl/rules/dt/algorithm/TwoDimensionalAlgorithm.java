@@ -42,15 +42,6 @@ public class TwoDimensionalAlgorithm implements IDecisionTableAlgorithm{
 		return ih.isResetable() ? new TwoDScaleIterator(iv,  ih) : new TwoDScaleIteratorNotResetable(iv,  ih);
 	}
 
-	@Override
-	public IDecisionTableAlgorithm asTraceDecorator() {
-		
-		
-		return this; //TODO fix this
-	}
-	
-	
-	
 	class TwoDScaleIterator extends AIntIterator
 	{
 		IIntIterator iv; 

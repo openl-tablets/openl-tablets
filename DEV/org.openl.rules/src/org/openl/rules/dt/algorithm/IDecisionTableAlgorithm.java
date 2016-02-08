@@ -9,6 +9,4 @@ public interface IDecisionTableAlgorithm {
 
     IIntIterator checkedRules(Object target, Object[] params, IRuntimeEnv env);
 
-    IDecisionTableAlgorithm asTraceDecorator();
-
 }

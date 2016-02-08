@@ -28,9 +28,6 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
     @Override
     public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {
         IDecisionTableAlgorithm algorithm = getInvokableMethod().getAlgorithm();
-        if (Tracer.isTracerOn()) {
-            algorithm = algorithm.asTraceDecorator();
-        }
         IIntIterator rules = algorithm.checkedRules(target, params, env);
 
         Object returnValue;

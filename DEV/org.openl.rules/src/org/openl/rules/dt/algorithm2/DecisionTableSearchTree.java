@@ -101,12 +101,6 @@ public class DecisionTableSearchTree implements IDecisionTableAlgorithm {
 		return null;
 	}
 
-	@Override
-	public IDecisionTableAlgorithm asTraceDecorator() {
-		// TODO Auto-generated method stub
-		return this;
-	}
-
 	public final class SearchContext extends RuntimeContext {
 
 		public int currentConditionIdx;

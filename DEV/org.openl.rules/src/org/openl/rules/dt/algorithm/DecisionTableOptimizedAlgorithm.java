@@ -225,8 +225,6 @@ import org.openl.vm.Tracer;
  * @author sshor
  */
 public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm {
-    private static final DefaultAlgorithmDecoratorFactory DEFAULT_ALGORITHM_DECORATOR_FACTORY = new DefaultAlgorithmDecoratorFactory();
-
     /**
      * There is one evaluator per condition in DT
      */
@@ -530,28 +528,6 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
      * @return iterator over <b>rule indexes</b> - integer iterator.
      */
     public IIntIterator checkedRules(Object target, Object[] params, IRuntimeEnv env) {
-        return checkedRules(target, params, env, DEFAULT_ALGORITHM_DECORATOR_FACTORY);
-    }
-
-    /**
-     * This method is used to pass an algorithm decorator factory that is used
-     * for tracing (for example). See
-     * {@link #checkedRules(Object, Object[], IRuntimeEnv)} for full
-     * documentation
-     * 
-     * @param target target object
-     * @param params parameters of a test
-     * @param env environment
-     * @param decoratorFactory a decorator factory that will decorate an objects
-     *            that are used to calculate a rule
-     * @return iterator over <b>rule indexes</b> - integer iterator.
-     * @see #checkedRules(Object, Object[], IRuntimeEnv)
-     */
-    protected final IIntIterator checkedRules(Object target,
-            Object[] params,
-            IRuntimeEnv env,
-            DefaultAlgorithmDecoratorFactory decoratorFactory) {
-
         IIntIterator iterator = null;
         int conditionNumber = info.fromCondition;
 
@@ -564,7 +540,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             while(conditionNumber <= info.toCondition) {
 
                 ICondition condition = table.getCondition(conditionNumber);
-                index = decoratorFactory.create(index, condition);
+                index = Tracer.wrap(this, index, condition);
                 Object testValue = evaluateTestValue(condition, target, params, env);
 
                 DecisionTableRuleNode node = index.findNode(testValue);
@@ -587,7 +563,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             IConditionEvaluator evaluator = evaluators[conditionNumber];
 
             IIntSelector sel = evaluator.getSelector(condition, target, params, env);
-            sel = decoratorFactory.create(sel, condition);
+            sel = Tracer.wrap(this, sel, condition);
 
             iterator = iterator.select(sel);
             conditionNumber++;
@@ -595,45 +571,4 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
         return iterator;
     }
-
-
-
-
-    /**
-     * Default decorator factory that creates nothing: it returns original
-     * objects
-     * 
-     * @author NSamatov
-     */
-    public static class DefaultAlgorithmDecoratorFactory {
-
-        /**
-         * Create a decorator of a selector for given condition
-         *
-         * @param selector original selector
-         * @param condition condition that will be used to check with selector
-         * @return a decorator for selector
-         */
-        public IIntSelector create(IIntSelector selector, ICondition condition) {
-            return selector;
-        }
-
-        /**
-         * Create a decorator of a rule's index for given condition
-         *
-         * @param index original rule's index
-         * @param condition condition that will be used to check with rule's
-         *            index
-         * @return a decorator for index
-         */
-        public ARuleIndex create(ARuleIndex index, ICondition condition) {
-            return index;
-        }
-
-    }
-
-	@Override
-	public IDecisionTableAlgorithm asTraceDecorator() {
-		return new DecisionTableOptimizedAlgorithmTraceDecorator(this, info);
-	}
 }
