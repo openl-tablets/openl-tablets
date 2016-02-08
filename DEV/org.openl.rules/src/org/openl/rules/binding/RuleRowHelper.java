@@ -290,7 +290,7 @@ public class RuleRowHelper {
         // agnostic (don't introduce excel dependencies). Also consider adding
         // meta info.
         if (source != null && (source = source.trim()).length() != 0) {
-            if (openlAdapter != null && openlAdapter.getHeader() != null) {
+            if (openlAdapter.getHeader() != null) {
                 IOpenMethodHeader old_header = openlAdapter.getHeader();
                 OpenMethodHeader newHeader = new OpenMethodHeader(old_header.getName(),
                     paramType,
