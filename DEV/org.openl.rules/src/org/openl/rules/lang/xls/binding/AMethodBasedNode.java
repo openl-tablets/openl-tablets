@@ -11,6 +11,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.exception.DuplicatedMethodException;
+import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.SimpleNodeUsage;
@@ -22,6 +23,9 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
@@ -158,12 +162,19 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
                 type = type.getComponentClass();
                 metaInfo = type.getMetaInfo();
             }
+
+            IOpenSourceCodeModule src = new GridCellSourceCodeModule(getTableSyntaxNode().getGridTable(), bindingContext);
+            SubTextSourceCodeModule headerSyntaxNode = new SubTextSourceCodeModule(src, startPosition, src.getCode().length());
+
             ILocation typeLocation = tableHeader.getTypeLocation();
             if (metaInfo != null && typeLocation != null) {
                 int start = startPosition + typeLocation.getStart().getAbsolutePosition(tableHeaderText);
                 int end = startPosition + typeLocation.getEnd().getAbsolutePosition(tableHeaderText);
                 nodeUsages.add(new SimpleNodeUsage(start, end, metaInfo.getDisplayName(INamedThing.SHORT), metaInfo.getSourceUrl(),
                         NodeType.DATATYPE));
+                if (type.getInstanceClass() == null) {
+                    addTypeError(type, typeLocation, headerSyntaxNode);
+                }
             }
 
             // Link to input parameters
@@ -183,6 +194,10 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
                         int end = startPosition + sourceLocation.getEnd().getAbsolutePosition(tableHeaderText);
                         nodeUsages.add(new SimpleNodeUsage(start, end, metaInfo.getDisplayName(INamedThing.SHORT), metaInfo.getSourceUrl(),
                                 NodeType.DATATYPE));
+
+                        if (parameterType.getInstanceClass() == null) {
+                            addTypeError(parameterType, sourceLocation, headerSyntaxNode);
+                        }
                     }
                 }
             }
@@ -191,6 +206,13 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
                 cell.setMetaInfo(new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, nodeUsages));
             }
         }
+    }
+
+    protected void addTypeError(IOpenClass type, ILocation location, IOpenSourceCodeModule syntaxNode) {
+        String message = String.format("Type '%s' was defined with errors", type.getName());
+        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, null, location, syntaxNode);
+        getTableSyntaxNode().addError(error);
+        BindHelper.processError(error);
     }
 
     protected int getSignatureStartIndex() {
