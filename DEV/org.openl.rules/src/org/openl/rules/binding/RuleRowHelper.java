@@ -39,6 +39,7 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.Log;
 import org.openl.util.StringPool;
 import org.openl.util.StringTool;
+import org.openl.util.text.LocationUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public class RuleRowHelper {
@@ -202,24 +203,29 @@ public class RuleRowHelper {
         // load value as native type
         if (theValueCell.hasNativeType()) {
             if (theValueCell.getNativeType() == IGrid.CELL_TYPE_NUMERIC) {
-                Object res = loadNativeValue(theValueCell,
-                    paramType,
-                    openlAdapter.getBindingContext(),
-                    paramName,
-                    ruleName,
-                    table);
-                if (res != null) {
-                    try {
+                try {
+                    Object res = loadNativeValue(theValueCell,
+                            paramType,
+                            openlAdapter.getBindingContext(),
+                            paramName,
+                            ruleName,
+                            table);
+                    if (res != null) {
                         validateValue(res, paramType);
-                    } catch (Throwable t) {
-                        throw SyntaxNodeExceptionUtils.createError(null,
-                            t,
-                            null,
-                            new GridCellSourceCodeModule(table.getSource(), openlAdapter.getBindingContext()));
+                        if (!openlAdapter.getBindingContext().isExecutionMode()) {
+                            setCellMetaInfo(table, paramName, paramType, false);
+                        }
+                        return res;
                     }
-                    if(!openlAdapter.getBindingContext().isExecutionMode())
-                        setCellMetaInfo(table, paramName, paramType, false);
-                    return res;
+                } catch (Throwable t) {
+                    String message = t.getMessage();
+                    if (message == null) {
+                        message = "Can't load cell value";
+                    }
+                    throw SyntaxNodeExceptionUtils.createError(message,
+                            t,
+                            LocationUtils.createTextInterval(theValueCell.getStringValue()),
+                            new GridCellSourceCodeModule(table.getSource(), openlAdapter.getBindingContext()));
                 }
             }
         }
