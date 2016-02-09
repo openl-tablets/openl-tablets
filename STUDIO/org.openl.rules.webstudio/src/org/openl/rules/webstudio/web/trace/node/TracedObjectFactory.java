@@ -31,14 +31,14 @@ public class TracedObjectFactory {
         } else if (source instanceof ColumnMatch) {
             ColumnMatch columnMatch = (ColumnMatch) source;
             if (columnMatch.getAlgorithmExecutor() instanceof WeightAlgorithmExecutor) {
-                return new WColumnMatchTraceObject(columnMatch, params);
+                return new ATableTracerNode("wcmatch", "WCM", columnMatch, params);
             } else {
-                return new ColumnMatchTraceObject(columnMatch, params);
+                return new ATableTracerNode("cmatch", "CM", columnMatch, params);
             }
         } else if (source instanceof Algorithm) {
-            return new TBasicAlgorithmTraceObject((Algorithm) source, params);
+            return new ATableTracerNode("tbasic", "Algorithm", (Algorithm) source, params);
         } else if (source instanceof AlgorithmSubroutineMethod) {
-            return new TBasicMethodTraceObject((AlgorithmSubroutineMethod) source);
+            return new ATableTracerNode("tbasicMethod", "Algorithm Method", (AlgorithmSubroutineMethod) source, null);
         } else if (source instanceof DecisionTable) {
             return new DecisionTableTraceObject((DecisionTable) source, params);
         } else if (source instanceof Spreadsheet) {
