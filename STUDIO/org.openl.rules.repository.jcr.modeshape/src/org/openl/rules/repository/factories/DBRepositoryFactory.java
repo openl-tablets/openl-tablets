@@ -304,10 +304,14 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
     }
 
     private boolean tableExists(Connection connection) {
-        ResultSet rs = null;
+        ResultSet rs = null; 
         try {
             DatabaseMetaData metaData = connection.getMetaData();
-            rs = metaData.getTables(null, null, REPO_TABLE, new String[] { "TABLE" });
+            if ("Oracle".equals(metaData.getDatabaseProductName())){
+                rs = metaData.getTables(null, metaData.getUserName(), REPO_TABLE, new String[] { "TABLE" });
+            }else{
+                rs = metaData.getTables(null, null, REPO_TABLE, new String[] { "TABLE" });
+            }
             return rs.next();
         } catch (SQLException e) {
             log.debug("SQLException occurs while checking the table {}", REPO_TABLE, e);
