@@ -1,7 +1,10 @@
 package org.openl.rules.binding;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
@@ -372,21 +375,6 @@ public class RuleRowHelper {
         return null;
     }
 
-    public static boolean isCommaSeparatedArray(ILogicalTable valuesTable) {
-        if (!isFormula(valuesTable)) {
-            String stringValue = valuesTable.getSource().getCell(0, 0).getStringValue();
-            if (stringValue != null) {
-                if (stringValue.contains(ARRAY_ELEMENTS_SEPARATOR)) {
-                    /**string like "0," isn't array*/
-                    if (stringValue.split(ARRAY_ELEMENTS_SEPARATOR).length > 1) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
     public static boolean isFormula(ILogicalTable valuesTable) {
 
         String stringValue = valuesTable.getSource().getCell(0, 0).getStringValue();
@@ -453,6 +441,18 @@ public class RuleRowHelper {
             }
         }
     }
+    
+    private static Object loadEmptyCellParams(ILogicalTable dataTable, String paramName, String ruleName, OpenlToolAdaptor openlAdaptor, IOpenClass paramType){
+        if(!openlAdaptor.getBindingContext().isExecutionMode()) {
+            if (paramType.isArray()){
+                IOpenClass arrayType = paramType.getAggregateInfo().getComponentType(paramType);
+                setCellMetaInfo(dataTable, paramName, arrayType, true);
+            }else{
+                setCellMetaInfo(dataTable, paramName, paramType, false);
+            }
+        }
+        return null;
+    }
 
     public static Object loadParam(ILogicalTable dataTable,
             IOpenClass paramType,
@@ -469,8 +469,10 @@ public class RuleRowHelper {
 
         int height = RuleRowHelper.calculateHeight(dataTable);
 
-        if (height == 0) {
-            return null;
+        boolean oneCellTable = height == 1;
+         
+        if (height == 0) { 
+            return loadEmptyCellParams(dataTable, paramName, ruleName, openlAdaptor, paramType);
         }
 
         // If data table contains one cell and parameter type is not array type
@@ -481,7 +483,7 @@ public class RuleRowHelper {
         // value
         // of 'paramType' variable?
         // 
-        if (height == 1 && !RuleRowHelper.isCommaSeparatedArray(dataTable) && !paramType.isArray()) {
+        if (oneCellTable && !paramType.isArray()) {
             // attempt to load as a single paramType(will work in case of
             // expressions)
             try {
@@ -500,10 +502,12 @@ public class RuleRowHelper {
 
         IOpenClass arrayType = paramType.getAggregateInfo().getComponentType(paramType);
 
-        if (height == 1 && RuleRowHelper.isCommaSeparatedArray(dataTable)) {
+        boolean isFormula = isFormula(dataTable);
+        
+        if (oneCellTable && !isFormula) {
             // load comma separated array
             return loadCommaSeparatedArrayParams(dataTable, paramName, ruleName, openlAdaptor, arrayType);
-        } else if (height == 1 && isFormula(dataTable)) {
+        } else if (oneCellTable && isFormula) {
             return loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
         } else {
             return loadSimpleArrayParams(dataTable, paramName, ruleName, openlAdaptor, arrayType);

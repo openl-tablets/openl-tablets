@@ -79,7 +79,7 @@ public class CellEditorSelector {
                 if (meta.isMultiValue()) {
                     result = factory.makeMultiSelectEditor(values, displayValues);
                 } else {
-                    result = factory.makeComboboxEditor(values, displayValues);
+                    result = factory.makeComboboxEditor(values, displayValues); 
                 }
 
                 // Range

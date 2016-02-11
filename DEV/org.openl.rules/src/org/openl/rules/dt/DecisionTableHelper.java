@@ -10,7 +10,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.helpers.IntRange;
@@ -30,6 +29,7 @@ import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.FileSourceCodeModule;
+import org.openl.types.IOpenClass;
 
 public class DecisionTableHelper {
 
@@ -276,7 +276,7 @@ public class DecisionTableHelper {
             //Set type of condition values(for Ranges and Array)
             grid.setCellValue(column, 2,
                     checkTypeOfValues(originalTable, i, 
-                            decisionTable.getSignature().getParameterTypes()[i].getName(),
+                            decisionTable.getSignature().getParameterTypes()[i],
                             isThatVCondition, lastCondition, vColumnCounter) );
 
             //merge columns
@@ -312,7 +312,7 @@ public class DecisionTableHelper {
      * position of horizontal condition
      * @return type of condition values
      */
-    private static String checkTypeOfValues(ILogicalTable originalTable, int column, String typeName,
+    private static String checkTypeOfValues(ILogicalTable originalTable, int column, IOpenClass type,
             boolean isThatVCondition, boolean lastCondition, int vColumnCounter) {
         final List<String> intType = Arrays.asList("byte", "short", "int", "java.lang.Byte",
                 "org.openl.meta.ByteValue", "org.openl.meta.ShortValue", "org.openl.meta.IntValue",
@@ -340,7 +340,11 @@ public class DecisionTableHelper {
 
             //if the name row is merged then we have Array
             if (isMerged) {
-                return typeName+"[]";
+                if (!type.isArray()){
+                    return type.getName() + "[]";
+                }else{
+                    return type.getName();
+                }
             }
         }
 
@@ -357,13 +361,11 @@ public class DecisionTableHelper {
                 continue;
             }
 
-            if (RuleRowHelper.isCommaSeparatedArray(cellValue)) {
-                return typeName+"[]";
-            } else if (maybeIsRange(cellValue.getSource().getCell(0, 0).getStringValue())) {
+           if (maybeIsRange(cellValue.getSource().getCell(0, 0).getStringValue())) {
                 INumberRange range = null;
 
                 /**try to create range by values**/
-                if (intType.contains(typeName)) {
+                if (intType.contains(type.getName())) {
                     try {
                         range = new IntRange(cellValue.getSource().getCell(0, 0).getStringValue());
 
@@ -372,7 +374,7 @@ public class DecisionTableHelper {
                     } catch(Exception e) {
                        continue;
                     }
-                } else if (doubleType.contains(typeName)) {
+                } else if (doubleType.contains(type.getName())) {
                     try {
                         range = new DoubleRange(cellValue.getSource().getCell(0, 0).getStringValue());
                         
@@ -384,8 +386,11 @@ public class DecisionTableHelper {
                 }
             }
         }
-
-        return null;
+        if (!type.isArray()){
+            return type.getName() + "[]";
+        }else{
+            return type.getName();
+        }
     }
 
     private static boolean maybeIsRange(String cellValue) {
