@@ -304,12 +304,12 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
     }
 
     private boolean tableExists(Connection connection) {
-        ResultSet rs = null; 
+        ResultSet rs = null;
         try {
             DatabaseMetaData metaData = connection.getMetaData();
-            if ("Oracle".equals(metaData.getDatabaseProductName())){
+            if ("Oracle".equals(metaData.getDatabaseProductName())) {
                 rs = metaData.getTables(null, metaData.getUserName(), REPO_TABLE, new String[] { "TABLE" });
-            }else{
+            } else {
                 rs = metaData.getTables(null, null, REPO_TABLE, new String[] { "TABLE" });
             }
             return rs.next();
