@@ -9,6 +9,13 @@
 
   <xs:complexType name="table">
     <xs:sequence>
+      <xs:element name="attributes">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="attribute" type="attribute" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="horizontalConditions">
         <xs:complexType>
           <xs:sequence>
@@ -44,6 +51,14 @@
     </xs:sequence>
   </xs:complexType>
 
+  <xs:complexType name="attribute">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="type" type="attribute-type" minOccurs="0"/>
+      <xs:element name="value" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
   <xs:complexType name="condition">
     <xs:sequence>
       <xs:element name="expressions">
@@ -69,7 +84,7 @@
   <xs:complexType name="parameter">
     <xs:sequence>
       <xs:element name="name" type="xs:string"/>
-      <xs:element name="type" type="xs:string" default="String" minOccurs="0"/>
+      <xs:element name="type" type="xs:string" default="Object" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -101,8 +116,23 @@
     </xs:sequence>
   </xs:complexType>
 
+  <xs:simpleType name="attribute-type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NUMBER"/>
+      <xs:enumeration value="STRING"/>
+      <xs:enumeration value="DATE"/>
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:complexType name="function">
     <xs:sequence>
+      <xs:element name="attributes">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="attribute" type="attribute" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="cellAddress" type="xs:string" minOccurs="0"/>
       <xs:element name="name" type="xs:string" minOccurs="0"/>
       <xs:element name="parameters">
@@ -113,6 +143,7 @@
         </xs:complexType>
       </xs:element>
       <xs:element name="returnType" type="xs:string" minOccurs="0"/>
+      <xs:element name="segment" type="segment" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 </xs:schema>

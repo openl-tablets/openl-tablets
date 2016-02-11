@@ -4,9 +4,9 @@
     <xs:complexType name="range">
         <xs:sequence>
             <xs:element name="colCount" type="xs:int" default="1" minOccurs="0"/>
-            <xs:element name="column" type="xs:string" minOccurs="0"/>
+            <xs:element name="column" type="xs:string"/>
             <xs:element name="path" type="xs:string" minOccurs="0"/>
-            <xs:element name="row" type="xs:string" minOccurs="0"/>
+            <xs:element name="row" type="xs:string"/>
             <xs:element name="rowCount" type="xs:int" default="1" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>

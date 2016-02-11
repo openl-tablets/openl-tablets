@@ -1,5 +1,6 @@
 package org.openl.extension.xmlrules.model.single;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlType(name = "attribute")
@@ -8,6 +9,7 @@ public class Attribute {
     private AttributeType type;
     private String value;
 
+    @XmlElement(required = true)
     public String getName() {
         return name;
     }
@@ -24,6 +26,7 @@ public class Attribute {
         this.type = type;
     }
 
+    @XmlElement(required = true)
     public String getValue() {
         return value;
     }
