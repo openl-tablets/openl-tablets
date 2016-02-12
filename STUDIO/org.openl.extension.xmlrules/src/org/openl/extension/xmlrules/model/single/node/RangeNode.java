@@ -33,7 +33,8 @@ public class RangeNode extends Node {
         this.currentSheet = currentSheet;
     }
 
-    @XmlElement(required = true)
+//    @XmlElement(required = true) // TODO Uncomment when LE part will be implemented
+    @XmlTransient // TODO Remove when LE part will be implemented
     public Range getRange() {
         return range;
     }

@@ -3,10 +3,7 @@ package org.openl.extension.xmlrules.model.single;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 
 import org.openl.extension.xmlrules.model.*;
 
@@ -95,7 +92,8 @@ public class TableImpl implements Table {
         this.segment = segment;
     }
 
-    @XmlElement(name = "table-ranges")
+//    @XmlElement(name = "table-ranges") // TODO Uncomment when LE part will be implemented
+    @XmlTransient // TODO Remove when LE part will be implemented
     @Override
     public TableRanges getTableRanges() {
         return tableRanges;

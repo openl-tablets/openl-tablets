@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-  <xs:include schemaLocation="common.xsd"/>
-
   <xs:element name="cells" type="cells"/>
 
   <xs:complexType name="cells">
@@ -29,8 +27,12 @@
     <xs:complexContent>
       <xs:extension base="node">
         <xs:sequence>
+          <xs:element name="colCount" type="xs:int" default="1" minOccurs="0"/>
+          <xs:element name="column" type="xs:string" minOccurs="0"/>
           <xs:element name="hasArrayFormula" type="xs:boolean" default="false" minOccurs="0"/>
-          <xs:element name="range" type="range"/>
+          <xs:element name="path" type="xs:string" minOccurs="0"/>
+          <xs:element name="row" type="xs:string" minOccurs="0"/>
+          <xs:element name="rowCount" type="xs:int" default="1" minOccurs="0"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
