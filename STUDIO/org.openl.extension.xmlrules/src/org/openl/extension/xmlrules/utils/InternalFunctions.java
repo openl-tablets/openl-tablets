@@ -1,5 +1,7 @@
 package org.openl.extension.xmlrules.utils;
 
+import java.util.Date;
+
 public class InternalFunctions {
     public static String[][] Out(Object o) {
         return Out(o, true, false);
@@ -126,6 +128,38 @@ public class InternalFunctions {
     }
 
     public static int DATEDIF(Object startDate, Object endDate, String unit) {
-        return DateDiffFunction.diff(startDate, endDate, unit);
+        return DateFunctions.diff(startDate, endDate, unit);
+    }
+
+    public static Date NOW() {
+        return DateFunctions.now();
+    }
+
+    public static int YEAR(Object date) {
+        return DateFunctions.year(date);
+    }
+
+    public static int MONTH(Object date) {
+        return DateFunctions.month(date);
+    }
+
+    public static int DAY(Object date) {
+        return DateFunctions.day(date);
+    }
+
+    public static int HOUR(Object date) {
+        return DateFunctions.hour(date);
+    }
+
+    public static int MINUTE(Object date) {
+        return DateFunctions.minute(date);
+    }
+
+    public static int SECOND(Object date) {
+        return DateFunctions.second(date);
+    }
+
+    public static Date DATE(int year, int month, int day) {
+        return DateFunctions.date(year, month, day);
     }
 }
