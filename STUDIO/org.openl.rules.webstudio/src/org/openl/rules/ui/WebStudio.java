@@ -1,6 +1,20 @@
 package org.openl.rules.ui;
 
-import com.thoughtworks.xstream.XStreamException;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EventListener;
+import java.util.List;
+
+import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.validation.ValidationException;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.FileUtils;
@@ -52,20 +66,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.validation.ValidationException;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EventListener;
-import java.util.List;
-import java.util.Map;
+import com.thoughtworks.xstream.XStreamException;
 
 /**
  * TODO Remove JSF dependency
@@ -387,8 +388,7 @@ public class WebStudio {
         }
     }
 
-    public void rebuildModel() {
-        reset(ReloadType.SINGLE);
+    public void rebuildModelProjectTree() {
         model.buildProjectTree();
     }
 
@@ -486,7 +486,7 @@ public class WebStudio {
         }
 
         reset(ReloadType.FORCED);
-        rebuildModel();
+        rebuildModelProjectTree();
         clearUploadedFiles();
 
         return null;
@@ -564,7 +564,7 @@ public class WebStudio {
         }
 
         reset(ReloadType.FORCED);
-        rebuildModel();
+        rebuildModelProjectTree();
         clearUploadedFiles();
 
         return null;

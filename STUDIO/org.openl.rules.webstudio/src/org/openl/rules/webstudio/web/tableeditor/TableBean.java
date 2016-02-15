@@ -21,6 +21,7 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.TableUriMethod;
+import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
@@ -372,7 +373,8 @@ public class TableBean {
             new TableServiceImpl().removeTable(gridTable);
             XlsSheetGridModel sheetModel = (XlsSheetGridModel) gridTable.getGrid();
             sheetModel.getSheetSource().getWorkbookSource().save();
-            studio.rebuildModel();
+            studio.reset(ReloadType.SINGLE);
+            studio.rebuildModelProjectTree();
             RecentlyVisitedTables visitedTables = studio.getModel().getRecentlyVisitedTables();
             visitedTables.remove(table);
         } catch (Exception e) {
@@ -400,7 +402,8 @@ public class TableBean {
     public void afterSaveAction(String newId) {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         //studio.setTableUri(newUri);
-        studio.rebuildModel();
+        studio.reset(ReloadType.SINGLE);
+        studio.rebuildModelProjectTree();
     }
 
     public boolean getCanEdit() {
