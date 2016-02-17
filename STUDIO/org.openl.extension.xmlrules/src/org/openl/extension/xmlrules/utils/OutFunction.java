@@ -221,15 +221,23 @@ public class OutFunction {
                 if (elem == null) {
                     value = null;
                 } else {
-                    Class type = elem.getClass();
-                    if (type.isArray() && ((Object[]) elem).length == 1) {
-                        value = String.valueOf(((Object[]) elem)[0]);
-                    } else {
-                        value = String.valueOf(elem);
-                    }
+                    value = getString(elem);
                 }
                 row.add(value);
             }
+        }
+    }
+
+    private static String getString(Object elem) {
+        if (elem == null) {
+            return null;
+        }
+
+        Class type = elem.getClass();
+        if (type.isArray() && ((Object[]) elem).length == 1) {
+            return getString(((Object[]) elem)[0]);
+        } else {
+            return String.valueOf(elem);
         }
     }
 
