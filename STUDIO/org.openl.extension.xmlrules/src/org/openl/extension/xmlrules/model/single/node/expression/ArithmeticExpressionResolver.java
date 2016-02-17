@@ -31,6 +31,8 @@ public class ArithmeticExpressionResolver extends SimpleExpressionResolver {
 
             if (expressionResolver instanceof RangeExpressionResolver && ((RangeExpressionResolver) expressionResolver).isRangeReturnsArray()) {
                 return toString(node);
+            } else if (expressionResolver instanceof ArithmeticExpressionResolver) {
+                return toString(node);
             }
         }
 

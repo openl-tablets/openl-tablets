@@ -23,11 +23,11 @@ import org.slf4j.LoggerFactory;
 
 public class MethodNodeBinder extends ANodeBinder {
 
-    private static final String FIELD_ACCESS_METHOD = "field access method";
-    private static final String VARIABLE_NUMBER_OF_ARGUMENTS_METHOD = "method with varialble number of arguments";
-    private static final String ARRAY_ARGUMENT_METHOD = "array argument method";
-    private static final String APPROPRIATE_BY_SIGNATURE_METHOD = "entirely appropriate by signature method";
-    private static final String NO_PARAMETERS = "no parameters";
+    protected static final String FIELD_ACCESS_METHOD = "field access method";
+    protected static final String VARIABLE_NUMBER_OF_ARGUMENTS_METHOD = "method with varialble number of arguments";
+    protected static final String ARRAY_ARGUMENT_METHOD = "array argument method";
+    protected static final String APPROPRIATE_BY_SIGNATURE_METHOD = "entirely appropriate by signature method";
+    protected static final String NO_PARAMETERS = "no parameters";
 
     private final Logger log = LoggerFactory.getLogger(MethodNodeBinder.class);
 
@@ -111,7 +111,7 @@ public class MethodNodeBinder extends ANodeBinder {
         return cantFindMethodError(methodNode, bindingContext, methodName, argumentTypes);
     }
 
-    private void log(String methodName, IOpenClass[] argumentTypes, String bindingType) {
+    protected void log(String methodName, IOpenClass[] argumentTypes, String bindingType) {
         if (log.isTraceEnabled()) {
             log.trace("Method '{}' with parameters '{}' was binded as {}", methodName, getArgumentsAsString(argumentTypes), bindingType);
         }
