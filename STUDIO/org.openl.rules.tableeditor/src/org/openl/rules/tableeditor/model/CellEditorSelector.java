@@ -11,9 +11,9 @@ import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
+import org.openl.types.IOpenClass;
 import org.openl.util.EnumUtils;
 import org.openl.util.NumberUtils;
-import org.openl.types.IOpenClass;
 
 // TODO Reimplement
 public class CellEditorSelector {
@@ -38,16 +38,18 @@ public class CellEditorSelector {
 
             if (domain instanceof EnumDomain) {
                 Object[] allObjects = ((EnumDomain<?>) domain).getEnum().getAllObjects();
-                
-                if (allObjects instanceof String[]) {
+
+                if (allObjects instanceof String[]) { 
+                    String[] allObjectValues = (String[]) allObjects;
+
                     if (meta.isMultiValue()) {
-                        return factory.makeMultiSelectEditor((String[]) allObjects);
+                        return factory.makeMultiSelectEditor(allObjectValues);
                     } else {
-                        return factory.makeComboboxEditor((String[]) allObjects);
+                        return factory.makeComboboxEditor(allObjectValues);
                     }
                 }
             }
-            
+
             // Numeric
             if (ClassUtils.isAssignable(instanceClass, Number.class, true)) {
                 if (domain == null) {
@@ -61,15 +63,15 @@ public class CellEditorSelector {
                     }
                 }
 
-            // Date
+                // Date
             } else if (instanceClass == Date.class) {
                 result = factory.makeDateEditor();
 
-            // Boolean
+                // Boolean
             } else if (ClassUtils.isAssignable(instanceClass, Boolean.class, true)) {
                 result = factory.makeBooleanEditor();
 
-            // Enum
+                // Enum
             } else if (instanceClass.isEnum()) {
                 String[] values = EnumUtils.getNames(instanceClass);
                 String[] displayValues = EnumUtils.getValues(instanceClass);
@@ -77,11 +79,13 @@ public class CellEditorSelector {
                 if (meta.isMultiValue()) {
                     result = factory.makeMultiSelectEditor(values, displayValues);
                 } else {
-                    result = factory.makeComboboxEditor(values, displayValues);
+                    result = factory.makeComboboxEditor(values, displayValues); 
                 }
 
-            // Range
-            } else if (ClassUtils.isAssignable(instanceClass, INumberRange.class, true) && (!instanceClass.equals(CharRange.class))) {
+                // Range
+            } else if (ClassUtils.isAssignable(instanceClass,
+                INumberRange.class,
+                true) && (!instanceClass.equals(CharRange.class))) {
                 if (ClassUtils.isAssignable(instanceClass, IntRange.class, true)) {
                     result = factory.makeNumberRangeEditor(ICellEditor.CE_INTEGER, initialValue);
                 } else if (ClassUtils.isAssignable(instanceClass, DoubleRange.class, true)) {
@@ -97,7 +101,7 @@ public class CellEditorSelector {
     private ICellEditor defaultEditor(ICell cell) {
         final String cellValue = cell.getStringValue();
         return cellValue != null && cellValue.indexOf('\n') >= 0 ? factory.makeMultilineEditor()
-                : factory.makeTextEditor();
+                                                                 : factory.makeTextEditor();
     }
 
 }

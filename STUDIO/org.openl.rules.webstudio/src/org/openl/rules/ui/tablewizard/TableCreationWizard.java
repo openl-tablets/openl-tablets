@@ -11,6 +11,7 @@ import org.openl.rules.lang.xls.load.SimpleSheetLoader;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
+import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -216,7 +217,8 @@ public abstract class TableCreationWizard extends BaseWizard {
 
     private void resetStudio() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
-        studio.rebuildModel();
+        studio.reset(ReloadType.FORCED);
+        studio.rebuildModelProjectTree();
     }
 
     /**

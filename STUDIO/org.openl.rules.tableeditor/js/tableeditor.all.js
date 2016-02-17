@@ -5117,12 +5117,13 @@ var MultiselectEditor = Class.create(BaseTextEditor, {
         if (this.separatorEscaper) {
             var tempEscaper = ";;;";
             var escaper = this.separatorEscaper + this.separator;
-            value = value.replace(escaper, tempEscaper);
+            var escaper1 = escaper.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1")
+            value = value.replace(new RegExp(escaper1,'g'), tempEscaper);
             var sValues = value.split(this.separator);
             var result = [];
             sValues.each(function (sValue) {
                 if (sValue.indexOf(tempEscaper) > -1) {
-                    sValue = sValue.replace(tempEscaper, escaper);
+                    sValue = sValue.replace(new RegExp(tempEscaper,'g'), escaper);
                 }
                 result.push(sValue);
             });

@@ -73,7 +73,8 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
         }
 
         if (this.dependencyName.equals(dependencyName)) {
-            if (!dependencyManager.getCompilationStack().isEmpty()){
+            boolean isCircularDependency = dependencyManager.getCompilationStack().contains(dependencyName);
+            if (!isCircularDependency && !dependencyManager.getCompilationStack().isEmpty()){
                 AbstractProjectDependencyManager.DependencyReference dr = new AbstractProjectDependencyManager.DependencyReference(dependencyManager.getCompilationStack().getLast(), dependencyName);
                 dependencyManager.getDependencyReferences().add(dr);
             }
@@ -84,7 +85,7 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
             }
 
             try {
-                if (dependencyManager.getCompilationStack().contains(dependencyName)) {
+                if (isCircularDependency) {
                     OpenLMessagesUtils.addError("Circular dependency detected in module: " + dependencyName);
                     return null;
                 }
