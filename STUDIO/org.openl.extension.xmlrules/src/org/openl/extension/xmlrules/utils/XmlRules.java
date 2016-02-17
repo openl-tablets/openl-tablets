@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.extension.xmlrules.java.api.FilteredValue;
 import org.openl.rules.helpers.RulesUtils;
 import org.openl.util.StringTool;
 
@@ -47,11 +46,7 @@ public class XmlRules {
         return cache.getCellValues(cell, rows, cols);
     }
 
-    public static FilteredValue Field(Object target, String fieldName) {
-        if (target instanceof FilteredValue) {
-            target = ((FilteredValue) target).getValue();
-        }
-
+    public static Object Field(Object target, String fieldName) {
         if (target == null) {
             return null;
         }
@@ -77,10 +72,10 @@ public class XmlRules {
             }
         }
 
-        return new FilteredValue(values.toArray((Object[]) Array.newInstance(type, values.size())));
+        return values.toArray((Object[]) Array.newInstance(type, values.size()));
     }
 
-    private static FilteredValue getField(Object target, String fieldName) {
+    private static Object getField(Object target, String fieldName) {
         if (target == null) {
             return null;
         }
@@ -89,7 +84,7 @@ public class XmlRules {
         Method method;
         try {
             method = targetClass.getMethod(StringTool.getGetterName(fieldName));
-            return new FilteredValue(method.invoke(target));
+            return method.invoke(target);
         } catch (NoSuchMethodException e1) {
             throw new OpenLRuntimeException("There is no field '" + fieldName + "'");
         } catch (IllegalAccessException e) {

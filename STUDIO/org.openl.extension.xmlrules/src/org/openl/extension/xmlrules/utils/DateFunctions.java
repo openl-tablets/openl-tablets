@@ -7,7 +7,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.poi.ss.usermodel.DateUtil;
-import org.openl.extension.xmlrules.java.api.FilteredValue;
 import org.openl.util.DateDifference;
 
 public class DateFunctions {
@@ -47,10 +46,6 @@ public class DateFunctions {
     }
 
     private static Calendar getCalendar(Object date) {
-        if (date instanceof FilteredValue) {
-            date = ((FilteredValue) date).getValue();
-        }
-
         if (date instanceof Double) {
             return DateUtil.getJavaCalendar((Double) date);
         } else if (date instanceof Integer) {

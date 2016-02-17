@@ -148,19 +148,7 @@ public class FilterNode extends Node {
             nodes.removeFirst();
             first = nodes.getFirst();
         }
-        String firstNodeString;
-        if (first.getNode() == null) {
-            firstNodeString = null;
-        }
-        else {
-            Node node = first.getNode();
-            if (node instanceof FilterNode && (((FilterNode) node).isFieldNode() || ((FilterNode) node).isFieldComparisonNode())) {
-                firstNodeString = "((FilteredValue) " + node.toOpenLString() + ").value";
-            } else {
-                firstNodeString = node.toOpenLString();
-            }
-        }
-        sb.append("new FilteredValue(");
+        String firstNodeString = first.getNode() == null ? null : first.getNode().toOpenLString();
         sb.append("((Object[]) ").append(firstNodeString).append(") [");
         sb.append("(o) @ ");
 
@@ -179,7 +167,7 @@ public class FilterNode extends Node {
                 comparison = Comparison.EQUAL;
             }
 
-            sb.append("Field(o, \"").append(node.getFieldName()).append("\").value");
+            sb.append("Field(o, \"").append(node.getFieldName()).append("\")");
             sb.append(" ").append(comparison.getValue()).append(" ");
             sb.append(getConditionValueString(node));
 
@@ -209,7 +197,7 @@ public class FilterNode extends Node {
                     comparison = Comparison.EQUAL;
                 }
 
-                sb.append("Field(o").append(varNumber).append(", \"").append(node.getFieldName()).append("\").value");
+                sb.append("Field(o").append(varNumber).append(", \"").append(node.getFieldName()).append("\")");
                 sb.append(" ").append(comparison.getValue()).append(" ");
                 sb.append(getConditionValueString(node));
 
@@ -223,7 +211,6 @@ public class FilterNode extends Node {
         }
 
         sb.append("]");
-        sb.append(")");// new FilteredValue(
 
         return sb.toString();
     }

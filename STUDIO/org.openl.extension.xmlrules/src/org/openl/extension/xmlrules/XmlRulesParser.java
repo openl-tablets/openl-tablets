@@ -1440,10 +1440,7 @@ public class XmlRulesParser extends BaseParser {
     }
 
     protected List<String> getImports() {
-        return Arrays.asList(
-                "org.openl.rules.enumeration",
-                "org.openl.extension.xmlrules.java.api"
-        );
+        return Collections.singletonList("org.openl.rules.enumeration");
     }
 
     protected WorkbookSyntaxNode[] getWorkbooks(ExtensionModule module,

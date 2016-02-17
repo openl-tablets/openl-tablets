@@ -5,22 +5,18 @@ import java.util.*;
 import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.model.Type;
 import org.openl.extension.xmlrules.model.single.FieldImpl;
-import org.openl.extension.xmlrules.java.api.FilteredValue;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 
 public class OutFunction {
     public static String[][] run(Object o, boolean horizontalRowValues, boolean showColumnNames) {
-        o = unwrapFilteredValue(o);
-
         if (o == null) {
             return null;
         }
 
         List<List<String>> result = convertToArray(o, showColumnNames);
-        if (result == null) {
+        if (result == null)
             return null;
-        }
 
         String[][] arr = toArray(result);
 
@@ -50,7 +46,6 @@ public class OutFunction {
 
             if (type.isArray()) {
                 for (Object object : objects) {
-                    object = unwrapFilteredValue(object);
                     Object[] row = (Object[]) object;
                     Class elementType = getElementType(row);
                     if (elementType == null) {
@@ -58,7 +53,6 @@ public class OutFunction {
                     }
                     if (elementType.isArray()) {
                         for (Object innerRow : row) {
-                            innerRow = unwrapFilteredValue(innerRow);
                             addArrayElements(result, showColumnNames, (Object[]) innerRow);
                         }
                     } else {
@@ -84,8 +78,6 @@ public class OutFunction {
     }
 
     private static void outComplexTypes(Object o, boolean showColumnNames, List<List<String>> result, Class<?> elementType) {
-        o = unwrapFilteredValue(o);
-
         String typeName = elementType.getName();
         typeName = typeName.replace("org.openl.generated.beans.", "");
         LinkedHashMap<String, Integer> fieldRows = new LinkedHashMap<String, Integer>();
@@ -102,13 +94,6 @@ public class OutFunction {
         for (Object object : objects) {
             if (object == null) {
                 continue;
-            }
-
-            if (object instanceof FilteredValue) {
-                object = ((FilteredValue) object).getValue();
-                if (object == null) {
-                    continue;
-                }
             }
 
             return object.getClass();
@@ -233,7 +218,6 @@ public class OutFunction {
         if (objectRow != null) {
             for (Object elem : objectRow) {
                 String value;
-                elem = unwrapFilteredValue(elem);
                 if (elem == null) {
                     value = null;
                 } else {
@@ -262,12 +246,5 @@ public class OutFunction {
             arr[i] = result.get(i).toArray(new String[max]);
         }
         return arr;
-    }
-
-    private static Object unwrapFilteredValue(Object object) {
-        if (object instanceof FilteredValue) {
-            object = ((FilteredValue) object).getValue();
-        }
-        return object;
     }
 }
