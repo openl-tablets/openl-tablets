@@ -61,7 +61,16 @@ public class XmlRules {
 
         for (int i = 0; i < Array.getLength(target); i++) {
             Object o = Array.get(target, i);
-            Object field = getField(o, fieldName);
+            Object field;
+            if (o == null) {
+                field = null;
+            } else {
+                if (o.getClass().isArray()) {
+                    field = Field(o, fieldName);
+                } else {
+                    field = getField(o, fieldName);
+                }
+            }
 
             if (field == null) {
                 values.add(null);

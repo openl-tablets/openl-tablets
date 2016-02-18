@@ -38,6 +38,10 @@ public class HelperFunctions {
             return ((Number) x).doubleValue();
         }
 
+        if (x.getClass().isArray() && Array.getLength(x) == 1) {
+            return toDouble(Array.get(x, 0));
+        }
+
         throw new IllegalArgumentException("Can't convert to double");
     }
 }
