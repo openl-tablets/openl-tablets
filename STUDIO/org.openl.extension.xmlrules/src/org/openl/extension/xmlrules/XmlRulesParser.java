@@ -656,6 +656,13 @@ public class XmlRulesParser extends BaseParser {
             skipColumns = returnValuesRange.getColumnNumber() - columnStart;
         }
 
+        if (skipRows > 0 || skipColumns > 0) {
+            String message = "There are gaps in the Table " + source.getName() + ". First " + skipRows + " rows and " +
+                    skipColumns + " columns were skipped";
+            log.warn(message);
+            OpenLMessagesUtils.addWarn(message);
+        }
+
         List<ReturnRow> newReturnValues = new ArrayList<ReturnRow>();
 
         List<ReturnRow> subList = returnValues.subList(skipRows, skipRows + rowCount);
