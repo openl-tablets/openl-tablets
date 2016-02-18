@@ -115,6 +115,9 @@ public class XmlRulesParser extends BaseParser {
                     String typeName = field.getTypeName();
                     if (StringUtils.isBlank(typeName)) {
                         typeName = "String";
+                    } else {
+                        // If the typeName exists - it always is array
+                        typeName += "[]";
                     }
 
                     gridBuilder.addCell(typeName).addCell(field.getName()).nextRow();
