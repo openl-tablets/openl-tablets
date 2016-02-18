@@ -15,6 +15,10 @@ public class SumFunction {
 
 
     public static double sum(Object[] array) {
+        if (array == null) {
+            return 0;
+        }
+
         double sum = 0;
 
         for (Object o : array) {
