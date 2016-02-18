@@ -95,11 +95,11 @@ public class XmlRules {
             method = targetClass.getMethod(StringTool.getGetterName(fieldName));
             return method.invoke(target);
         } catch (NoSuchMethodException e1) {
-            throw new OpenLRuntimeException("There is no field '" + fieldName + "'");
+            throw new OpenLRuntimeException("There is no field '" + fieldName + "' in type '" + targetClass.getSimpleName() + "'");
         } catch (IllegalAccessException e) {
-            throw new OpenLRuntimeException("Can't access the field '" + fieldName + "'", e);
+            throw new OpenLRuntimeException("Can't access the field '" + fieldName + "' in type '" + targetClass.getSimpleName() + "'", e);
         } catch (InvocationTargetException e) {
-            throw new OpenLRuntimeException("Can't get the field '" + fieldName + "'", e);
+            throw new OpenLRuntimeException("Can't get the field '" + fieldName + "' in type '" + targetClass.getSimpleName() + "'", e);
         }
     }
 }
