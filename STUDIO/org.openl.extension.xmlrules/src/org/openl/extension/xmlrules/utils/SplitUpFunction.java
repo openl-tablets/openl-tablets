@@ -23,6 +23,14 @@ public class SplitUpFunction {
             }
 
             if (type.isArray()) {
+                if (!(array instanceof Object[][])) {
+                    Object[][] newArray = new Object[array.length][];
+                    for (int i = 0; i < array.length; i++) {
+                        Object[] row = (Object[]) array[i];
+                        newArray[i] = row;
+                    }
+                    array = newArray;
+                }
                 return splitUp((Object[][]) array);
             } else {
                 return splitUp(new Object[][] { array });
