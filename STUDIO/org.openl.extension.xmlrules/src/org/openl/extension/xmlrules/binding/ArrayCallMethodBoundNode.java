@@ -92,6 +92,10 @@ public class ArrayCallMethodBoundNode extends MethodBoundNode {
         for (Integer arrayArgArgument : arrayArgArguments) {
             Object methodParameter = methodParameters[arrayArgArgument];
             if (methodParameter != null && methodParameter.getClass().isArray()) {
+                if (Array.getLength(methodParameter) == 0) {
+                    methodParameters[arrayArgArgument] = new Object[][] { { } };
+                    continue;
+                }
                 Object row = Array.get(methodParameter, 0);
                 if (!row.getClass().isArray()) {
                     methodParameters[arrayArgArgument] = new Object[][] { (Object[]) methodParameter };
