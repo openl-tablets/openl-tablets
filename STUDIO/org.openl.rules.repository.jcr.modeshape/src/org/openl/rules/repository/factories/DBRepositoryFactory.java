@@ -11,9 +11,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.UUID;
-import java.util.concurrent.Future;
 
-import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeTypeManager;
@@ -28,9 +26,10 @@ import org.infinispan.loaders.jdbc.configuration.JdbcStringBasedCacheStoreConfig
 import org.infinispan.schematic.document.ParsingException;
 import org.infinispan.transaction.TransactionMode;
 import org.modeshape.common.collection.Problems;
+import org.modeshape.jcr.ConfigurationException;
 import org.modeshape.jcr.JcrNodeTypeManager;
+import org.modeshape.jcr.JcrRepository;
 import org.modeshape.jcr.LocalEnvironment;
-import org.modeshape.jcr.ModeShapeEngine;
 import org.modeshape.jcr.RepositoryConfiguration;
 import org.openl.config.ConfigSet;
 import org.openl.rules.repository.RTransactionManager;
@@ -62,7 +61,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
     /**
      * Jackrabbit local repository
      */
-    private ModeShapeEngine engine;
+    private ModeshapeJcrRepo repo;
 
     @Override
     protected void finalize() throws Throwable {
@@ -108,20 +107,18 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         ShutDownHook shutDownHook = new ShutDownHook(this);
         Runtime.getRuntime().addShutdownHook(shutDownHook);
 
-        log.info("Starting ModeShape engine...");
-        // Create and start the engine ...
-        engine = new ModeShapeEngine();
-        engine.start();
-        // Deploy the repository ...
-        engine.deploy(config);
+        log.info("Checking ModeShape configuration...");
+        ModeshapeJcrRepo repo = new ModeshapeJcrRepo(config);
 
         String repoName = config.getName();
         log.info("Starting ModeShape repository [{}]...", repoName);
-        Future<? extends Repository> future = engine.startRepository(repoName);
-        Repository repository = future.get();
+        Problems repoProblems = repo.getStartupProblems();
+        if (repoProblems.hasErrors()) {
+            log.error("ModeShape repository ID=[{}] has errors: ", repoProblems);
+        }
         log.info("ModeShape repository ID=[{}] has been started", repoName);
 
-        setRepository(repository);
+        setRepository(repo);
         log.info("Checking the repository...");
         getRepositoryInstance();
         log.info("The repository has loaded");
@@ -242,9 +239,9 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
             super.release();
         } finally {
             try {
-                if (engine != null) {
-                    engine.shutdown().get();
-                    engine = null;
+                if (repo != null) {
+                    repo.shutdown();
+                    repo = null;
                 }
             } catch (Exception e) {
                 throw new RRepositoryException("Shutdown has failed.", e);
@@ -480,4 +477,14 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         }
     }
 
+    private class ModeshapeJcrRepo extends JcrRepository {
+
+        private ModeshapeJcrRepo(RepositoryConfiguration configuration) throws ConfigurationException {
+            super(configuration);
+        }
+
+        private void shutdown() {
+            doShutdown();
+        }
+    }
 }
