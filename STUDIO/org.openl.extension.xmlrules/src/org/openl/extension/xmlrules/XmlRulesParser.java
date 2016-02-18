@@ -115,7 +115,7 @@ public class XmlRulesParser extends BaseParser {
                     String typeName = field.getTypeName();
                     if (StringUtils.isBlank(typeName)) {
                         typeName = "String";
-                    } else {
+                    } else if (!"String".equals(field.getTypeName())){ // TODO Remove this condition after the fix on the LE side
                         // If the typeName exists - it always is array
                         typeName += "[]";
                     }
