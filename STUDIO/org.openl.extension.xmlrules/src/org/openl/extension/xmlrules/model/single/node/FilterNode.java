@@ -96,6 +96,12 @@ public class FilterNode extends Node {
 
         List<String> fieldNames = new ArrayList<String>();
 
+        FilterNode first = nodes.getFirst();
+        while (!first.isFieldComparisonNode()) {
+            nodes.removeFirst();
+            first = nodes.getFirst();
+        }
+
         FilterNode node = nodes.pop();
         FilterNode lastNode = node;
         while (node != null) {
