@@ -10,6 +10,8 @@ public class RulesTableReference {
     private final CellReference reference;
     private final CellReference endReference;
 
+    private String name;
+
     public RulesTableReference(String tableName) {
         Pattern TABLE_NAME_PATTERN = Pattern.compile("(.+)__(.+)__R(\\d+)C(\\d+)__R(\\d+)C(\\d+)");
         Matcher matcher = TABLE_NAME_PATTERN.matcher(tableName);
@@ -42,10 +44,12 @@ public class RulesTableReference {
     }
 
     public String getTable() {
-        String name = prepareString(reference.getWorkbook()) + "__" + prepareString(reference.getSheet());
-        if (endReference != null) {
-            name +=  "__R" + reference.getRow() + "C" + reference.getColumn();
-            name +=  "__R" + endReference.getRow() + "C" + endReference.getColumn();
+        if (name == null) {
+            name = prepareString(reference.getWorkbook()) + "__" + prepareString(reference.getSheet());
+            if (endReference != null) {
+                name += "__R" + reference.getRow() + "C" + reference.getColumn();
+                name += "__R" + endReference.getRow() + "C" + endReference.getColumn();
+            }
         }
         return name;
     }
