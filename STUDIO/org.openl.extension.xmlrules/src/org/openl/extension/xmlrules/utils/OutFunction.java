@@ -169,9 +169,6 @@ public class OutFunction {
     }
 
     private static Type getType(String typeName) {
-        if (typeName.endsWith("[]")) {
-            typeName = typeName.replace("[]", "");
-        }
         Set<Type> types = ProjectData.getCurrentInstance().getTypes();
         Type xmlRulesType = null;
         for (Type t : types) {
@@ -191,9 +188,7 @@ public class OutFunction {
         for (FieldImpl field : xmlRulesType.getFields()) {
             String fieldName = field.getName();
             String fieldTypeName = field.getTypeName();
-            if (fieldTypeName.endsWith("[]")) {
-                fieldTypeName = fieldTypeName.replace("[]", "");
-            }
+
             if (!projectData.getTypeNames().contains(fieldTypeName)) {
                 fieldRows.put(fieldPrefix + fieldName, currentRow);
                 currentRow++;

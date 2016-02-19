@@ -115,8 +115,8 @@ public class XmlRulesParser extends BaseParser {
                     String typeName = field.getTypeName();
                     if (StringUtils.isBlank(typeName)) {
                         typeName = "String";
-                    } else if (!"String".equals(field.getTypeName())){ // TODO Remove this condition after the fix on the LE side
-                        // If the typeName exists - it always is array
+                    }
+                    if (field.getIsArray()) {
                         typeName += "[]";
                     }
 
@@ -185,8 +185,7 @@ public class XmlRulesParser extends BaseParser {
 
                     FieldImpl actualField = getField(actualFields, field);
 
-                    if (actualField != null && actualField.getTypeName() != null && actualField.getTypeName().endsWith(
-                            "[]")) {
+                    if (actualField != null && actualField.getIsArray()) {
                         int maximumArrayLength = getMaximumArrayLength(dataInstance, fieldIndex);
                         for (int i = 0; i < maximumArrayLength; i++) {
                             gridBuilder.addCell(field + "[" + i + "]");
