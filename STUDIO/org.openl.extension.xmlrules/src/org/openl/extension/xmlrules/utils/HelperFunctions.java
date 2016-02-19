@@ -4,7 +4,7 @@ import java.lang.reflect.Array;
 
 public class HelperFunctions {
     public static <T> T[][] transpose(T[][] arr) {
-        if (arr.length == 0) {
+        if (arr == null || arr.length == 0) {
             return arr;
         }
 
