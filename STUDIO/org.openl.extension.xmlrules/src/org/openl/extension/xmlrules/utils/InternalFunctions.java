@@ -95,6 +95,11 @@ public class InternalFunctions {
         return MergeFunction.merge(array);
     }
 
+    // To support array calls correctly
+    public static Object INDEX(Object[][] object, int userRow, int userColumn) {
+        return INDEX((Object) object, userRow, userColumn);
+    }
+
     public static Object INDEX(Object object, int userRow, int userColumn) {
         return IndexFunction.index(object, userRow, userColumn);
     }

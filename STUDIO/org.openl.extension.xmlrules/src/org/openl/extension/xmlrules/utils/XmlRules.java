@@ -84,6 +84,11 @@ public class XmlRules {
         return values.toArray((Object[]) Array.newInstance(type, values.size()));
     }
 
+    // To support array calls correctly
+    public static Object Field(Object[][] target, String fieldName) {
+        return Field((Object) target, fieldName);
+    }
+
     private static Object getField(Object target, String fieldName) {
         if (target == null) {
             return null;
