@@ -77,12 +77,13 @@ public class LazyCellExecutor {
         String workbook = start.getWorkbook();
         String sheet = start.getSheet();
 
+        Map<String, SpreadsheetResult> spreadsheetResultCache = new HashMap<String, SpreadsheetResult>();
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 int currentRow = row + i;
                 int currentColumn = col + j;
                 CellReference cr = new CellReference(workbook, sheet, "" + currentRow, "" + currentColumn);
-                result[i][j] = getCellValue(cr.getStringValue());
+                result[i][j] = getCellUsingCache(cr.getStringValue(), spreadsheetResultCache);
             }
         }
 
@@ -90,6 +91,10 @@ public class LazyCellExecutor {
     }
 
     public Object getCellValue(String cell) {
+        return getCellUsingCache(cell, new HashMap<String, SpreadsheetResult>());
+    }
+
+    private Object getCellUsingCache(String cell, Map<String, SpreadsheetResult> spreadsheetResultCache) {
         if (!params.containsKey(cell)) {
             RulesTableReference tableReference = getTableReference(cell);
 
@@ -107,8 +112,14 @@ public class LazyCellExecutor {
                 String row = reference.getRow();
                 String column = reference.getColumn();
 
-                Spreadsheet cellsHolder = (Spreadsheet) xlsModuleOpenClass.getMethod(rulesTable, new IOpenClass[] {});
-                SpreadsheetResult result = (SpreadsheetResult) cellsHolder.invoke(target, new Object[] {}, env);
+                SpreadsheetResult result;
+                if (spreadsheetResultCache.containsKey(rulesTable)) {
+                    result = spreadsheetResultCache.get(rulesTable);
+                } else {
+                    Spreadsheet cellsHolder = (Spreadsheet) xlsModuleOpenClass.getMethod(rulesTable, new IOpenClass[] {});
+                    result = (SpreadsheetResult) cellsHolder.invoke(target, new Object[] {}, env);
+                    spreadsheetResultCache.put(rulesTable, result);
+                }
 
                 return result.getFieldValue("$C" + column + "$R" + row);
             }
