@@ -27,7 +27,7 @@
   </h:panelGroup>
 
   <h:panelGroup rendered="#{hasRulesDeploy}">
-    <h:panelGrid columns="2" columnClasses="label,">
+    <h:panelGrid columns="2" columnClasses="label," id="rules-deploy-configuration-form">
       <ui:param name="rulesDeploy" value="#{repositoryProjectRulesDeployConfig.rulesDeploy}" />
 
       <h:outputLabel for="#{prefix}provideRuntimeContext" value="Provide runtime context"/>
@@ -84,10 +84,23 @@
 
     <br />
     <br />
-    <a4j:commandButton value="Save Configuration" action="#{repositoryProjectRulesDeployConfig.saveRulesDeploy}" rendered="#{openedForEditing}" render="projectTree nodeView" />
+    <a4j:commandButton value="Save Configuration" action="#{repositoryProjectRulesDeployConfig.saveRulesDeploy}" rendered="#{openedForEditing}" render="projectTree nodeView" styleClass="save-deploy-configuration-button button-primary"/>
     <a4j:commandButton value="Delete Configuration" action="#{repositoryProjectRulesDeployConfig.deleteRulesDeploy}" immediate="true"
                        rendered="#{openedForEditing}" render="projectTree nodeView"
                        onclick="if(!window.confirm('Are you sure you want to delete the rules deploy configuration?')) {return false;}"/>
+      <script>
+          $j(function () {
+              $j('.save-deploy-configuration-button').prop("disabled", true);
+              $j("#rules-deploy-configuration-form").areYouSure();
+              // Enable save button only if the form is dirty - using events.
+              $j("#rules-deploy-configuration-form").bind('dirty.areYouSure', function () {
+                  $j('.save-deploy-configuration-button').prop("disabled", false);
+              });
+              $j("#rules-deploy-configuration-form").bind('clean.areYouSure', function () {
+                  $j('.save-deploy-configuration-button').prop("disabled", true);
+              });
+          });
+      </script>
   </h:panelGroup>
 
 </ui:composition>
