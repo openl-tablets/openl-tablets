@@ -98,6 +98,10 @@ public class ReadInFunction {
                     value = String.valueOf(value);
                 } else if (Double.class == expectedClass && value instanceof String) {
                     value = Double.valueOf((String) value);
+                } else if (String.class == expectedClass && value instanceof Integer) {
+                    value = String.valueOf(value);
+                } else if (Integer.class == expectedClass && value instanceof String) {
+                    value = Integer.valueOf((String) value);
                 } else if (expectedClass.isArray() && valueClass.isArray()) {
                     // For example expected: Rider[], but actual: Object[] with Rider objects
                     int size = Array.getLength(value);
