@@ -124,7 +124,7 @@ public class CellReference {
     }
 
     public String getStringValue() {
-        return String.format("[%s]%s!R%sC%s", workbook, sheet, row, column);
+        return "[" + workbook + "]" + sheet + "!R" + row + "C" + column;
     }
 
     private static int getColumnNumber(String letterColumn) {

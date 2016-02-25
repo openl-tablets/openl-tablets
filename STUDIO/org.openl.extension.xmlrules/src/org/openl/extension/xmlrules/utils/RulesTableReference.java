@@ -7,6 +7,39 @@ import org.apache.commons.lang3.StringUtils;
 import org.openl.extension.xmlrules.model.single.node.RangeNode;
 
 public class RulesTableReference {
+    private static final char[][] LETTERS = {
+            { '\u0024' },
+            { '\u0041', '\u005a' },
+            { '\u005f' },
+            { '\u0061', '\u007a' },
+            { '\u00c0', '\u00d6' },
+            { '\u00d8', '\u00f6' },
+            { '\u00f8', '\u00ff' },
+            { '\u0100', '\u1fff' },
+            { '\u3040', '\u318f' },
+            { '\u3300', '\u337f' },
+            { '\u3400', '\u3d2d' },
+            { '\u4e00', '\u9fff' },
+            { '\uf900', '\ufaff' }
+    };
+    private static final char[][] DIGITS = {
+            { '\u0030', '\u0039' },
+            { '\u0660', '\u0669' },
+            { '\u06f0', '\u06f9' },
+            { '\u0966', '\u096f' },
+            { '\u09e6', '\u09ef' },
+            { '\u0a66', '\u0a6f' },
+            { '\u0ae6', '\u0aef' },
+            { '\u0b66', '\u0b6f' },
+            { '\u0be7', '\u0bef' },
+            { '\u0c66', '\u0c6f' },
+            { '\u0ce6', '\u0cef' },
+            { '\u0d66', '\u0d6f' },
+            { '\u0e50', '\u0e59' },
+            { '\u0ed0', '\u0ed9' },
+            { '\u1040', '\u1049' },
+    };
+
     private final CellReference reference;
     private final CellReference endReference;
 
@@ -76,8 +109,10 @@ public class RulesTableReference {
         int toRow = endReference.getRowNumber();
         int toColumn = endReference.getColumnNumber();
 
-        int row = Integer.parseInt(cellReference.getRow());
-        int column = Integer.parseInt(cellReference.getColumn());
+        int row = cellReference.getRowNumber();
+        int column = cellReference.getColumnNumber();
+
+        // TODO move prepareString() method to CellReference and cache it
 
         return reference.getWorkbook().equals(prepareString(cellReference.getWorkbook()))
                 && reference.getSheet().equals(prepareString(cellReference.getSheet()))
@@ -106,45 +141,11 @@ public class RulesTableReference {
     }
 
     private static boolean isLetter(char c) {
-        char symbols[][] = {
-                {'\u0024'},
-                {'\u0041', '\u005a'},
-                {'\u005f'},
-                {'\u0061', '\u007a'},
-                {'\u00c0', '\u00d6'},
-                {'\u00d8', '\u00f6'},
-                {'\u00f8', '\u00ff'},
-                {'\u0100', '\u1fff'},
-                {'\u3040', '\u318f'},
-                {'\u3300', '\u337f'},
-                {'\u3400', '\u3d2d'},
-                {'\u4e00', '\u9fff'},
-                {'\uf900', '\ufaff'}
-        };
-
-        return isInRange(c, symbols);
+        return isInRange(c, LETTERS);
     }
 
     private static boolean isDigit(char c) {
-        char symbols[][] = {
-                {'\u0030','\u0039'},
-                {'\u0660','\u0669'},
-                {'\u06f0','\u06f9'},
-                {'\u0966','\u096f'},
-                {'\u09e6','\u09ef'},
-                {'\u0a66','\u0a6f'},
-                {'\u0ae6','\u0aef'},
-                {'\u0b66','\u0b6f'},
-                {'\u0be7','\u0bef'},
-                {'\u0c66','\u0c6f'},
-                {'\u0ce6','\u0cef'},
-                {'\u0d66','\u0d6f'},
-                {'\u0e50','\u0e59'},
-                {'\u0ed0','\u0ed9'},
-                {'\u1040','\u1049'},
-        };
-
-        return isInRange(c, symbols);
+        return isInRange(c, DIGITS);
     }
 
     private static boolean isInRange(char c, char[][] symbols) {
