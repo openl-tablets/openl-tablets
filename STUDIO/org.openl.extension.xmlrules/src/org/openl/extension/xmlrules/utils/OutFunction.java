@@ -140,6 +140,10 @@ public class OutFunction {
             return;
         }
 
+        if (xmlRulesType == null) {
+            throw new IllegalArgumentException("Type could be omitted only in basic types (String, Integer etc)");
+        }
+
         for (FieldImpl field : xmlRulesType.getFields()) {
             String fieldName = field.getName();
 
@@ -169,6 +173,10 @@ public class OutFunction {
     }
 
     private static Type getType(String typeName) {
+        if (typeName == null) {
+            return null;
+        }
+
         Set<Type> types = ProjectData.getCurrentInstance().getTypes();
         Type xmlRulesType = null;
         for (Type t : types) {
