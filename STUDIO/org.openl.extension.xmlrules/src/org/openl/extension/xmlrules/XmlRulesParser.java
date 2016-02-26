@@ -398,10 +398,7 @@ public class XmlRulesParser extends BaseParser {
 
                     for (Condition condition : table.getHorizontalConditions()) {
                         for (Expression expression : condition.getExpressions()) {
-                            String value = expression.getValue();
-                            if ("*".equals(value)) {
-                                value = "";
-                            }
+                            String value = convertExpressionValue(expression);
                             gridBuilder.addCell(value, expression.getWidth());
                         }
                         gridBuilder.nextRow();
@@ -442,10 +439,7 @@ public class XmlRulesParser extends BaseParser {
                 for (Condition condition : table.getVerticalConditions()) {
                     int row = conditionRow;
                     for (Expression expression : condition.getExpressions()) {
-                        String value = expression.getValue();
-                        if ("*".equals(value)) {
-                            value = "";
-                        }
+                        String value = convertExpressionValue(expression);
                         gridBuilder.setCell(conditionColumn,
                                 row,
                                 expression.getWidth(),
@@ -496,6 +490,18 @@ public class XmlRulesParser extends BaseParser {
             OpenLMessagesUtils.addError(e);
             gridBuilder.nextRow();
         }
+    }
+
+    private String convertExpressionValue(Expression expression) {
+        String value = expression.getValue();
+        if ("TRUE".equalsIgnoreCase(value) || "FALSE".equalsIgnoreCase(value)) {
+            // TODO Determine the type of a cell in condition from syntax tree
+            value = value.toLowerCase();
+        }
+        if ("*".equals(value)) {
+            value = "";
+        }
+        return value;
     }
 
     private void addAttributes(StringGridBuilder gridBuilder, List<Attribute> attributes) {
