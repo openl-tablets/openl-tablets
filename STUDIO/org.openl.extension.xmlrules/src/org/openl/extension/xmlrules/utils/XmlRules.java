@@ -2,13 +2,15 @@ package org.openl.extension.xmlrules.utils;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.helpers.RulesUtils;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringTool;
 
 public class XmlRules {
@@ -95,16 +97,11 @@ public class XmlRules {
         }
 
         Class<?> targetClass = target.getClass();
-        Method method;
-        try {
-            method = targetClass.getMethod(StringTool.getGetterName(fieldName));
-            return method.invoke(target);
-        } catch (NoSuchMethodException e1) {
+        JavaOpenClass openClass = JavaOpenClass.getOpenClass(targetClass);
+        IOpenMethod method = openClass.getMethod(StringTool.getGetterName(fieldName), new IOpenClass[0]);
+        if (method == null) {
             throw new OpenLRuntimeException("There is no field '" + fieldName + "' in type '" + targetClass.getSimpleName() + "'");
-        } catch (IllegalAccessException e) {
-            throw new OpenLRuntimeException("Can't access the field '" + fieldName + "' in type '" + targetClass.getSimpleName() + "'", e);
-        } catch (InvocationTargetException e) {
-            throw new OpenLRuntimeException("Can't get the field '" + fieldName + "' in type '" + targetClass.getSimpleName() + "'", e);
         }
+        return method.invoke(target, null, null);
     }
 }
