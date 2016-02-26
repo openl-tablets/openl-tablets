@@ -83,7 +83,7 @@ public class LazyCellExecutor {
             String currentRow = String.valueOf(row + i);
             for (int j = 0; j < cols; j++) {
                 CellReference cr = new CellReference(workbook, sheet, currentRow, String.valueOf(col + j));
-                result[i][j] = getCellUsingCache(cr.getStringValue());
+                result[i][j] = getCellValue(cr.getStringValue());
             }
         }
 
@@ -91,10 +91,6 @@ public class LazyCellExecutor {
     }
 
     public Object getCellValue(String cell) {
-        return getCellUsingCache(cell);
-    }
-
-    private Object getCellUsingCache(String cell) {
         if (!params.containsKey(cell)) {
             RulesTableReference tableReference = getTableReference(cell);
 
