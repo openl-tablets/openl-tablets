@@ -14,23 +14,12 @@
     <name>OpenL - DEV - Tests</name>
     <description>Tests for OpenL core functionality</description>
     <url>//openl-tablets.org</url>
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+    </properties>
     <build>
         <testSourceDirectory>test/java</testSourceDirectory>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-        </plugins>
         <testResources>
             <testResource>
                 <directory>test/resources</directory>
