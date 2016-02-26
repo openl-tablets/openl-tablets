@@ -123,9 +123,9 @@ public class LazyCellExecutor {
                     executionCache.put(key, result);
                 }
 
-                RulesTableReference reference = new RulesTableReference(CellReference.parse(cell));
-                String row = reference.getRow();
-                String column = reference.getColumn();
+                CellReference cellReference = CellReference.parse(cell);
+                String row = cellReference.getRow();
+                String column = cellReference.getColumn();
 
                 return result.getFieldValue("$C" + column + "$R" + row);
             }

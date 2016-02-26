@@ -28,22 +28,6 @@ public final class CellKey {
         if (!cell.equals(cellKey.cell))
             return false;
 
-        if (params.size() != cellKey.params.size()) {
-            return false;
-        }
-
-        for (String param : params.keySet()) {
-            if (!cellKey.params.containsKey(param)) {
-                return false;
-            }
-
-            Object value = params.get(param);
-            Object otherValue = cellKey.params.get(param);
-
-            if (value != null ? !value.equals(otherValue) : otherValue != null) {
-                return false;
-            }
-        }
         return params.equals(cellKey.params);
 
     }
@@ -53,12 +37,6 @@ public final class CellKey {
         if (hash == 0) {
             int result = cell.hashCode();
             result = 31 * result + params.hashCode();
-            for (String param : params.keySet()) {
-                result = 31 * result + param.hashCode();
-
-                Object value = params.get(param);
-                result = 31 * result + (value != null ? value.hashCode() : 0);
-            }
 
             hash = result;
         }

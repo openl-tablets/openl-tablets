@@ -112,15 +112,13 @@ public class RulesTableReference {
         int row = cellReference.getRowNumber();
         int column = cellReference.getColumnNumber();
 
-        // TODO move prepareString() method to CellReference and cache it
-
-        return reference.getWorkbook().equals(prepareString(cellReference.getWorkbook()))
-                && reference.getSheet().equals(prepareString(cellReference.getSheet()))
+        return reference.getWorkbook().equals(cellReference.getEscapedWorkbook())
+                && reference.getSheet().equals(cellReference.getEscapedSheet())
                 && fromRow <= row && row <= toRow
                 && fromColumn <= column && column <= toColumn;
     }
 
-    private String prepareString(String input) {
+    static String prepareString(String input) {
         if (StringUtils.isEmpty(input)) {
             return input;
         }

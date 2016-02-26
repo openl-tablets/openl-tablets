@@ -14,6 +14,9 @@ public class CellReference {
     private final String row;
     private final String column;
 
+    private String escapedWorkbook;
+    private String escapedSheet;
+
     public static CellReference parse(String reference) {
         return parse(null, null, reference);
     }
@@ -134,5 +137,19 @@ public class CellReference {
             result += letterColumn.charAt(i) - 'A' + 1;
         }
         return result;
+    }
+
+    public String getEscapedWorkbook() {
+        if (escapedWorkbook == null) {
+            escapedWorkbook = RulesTableReference.prepareString(workbook);
+        }
+        return escapedWorkbook;
+    }
+
+    public String getEscapedSheet() {
+        if (escapedSheet == null) {
+            escapedSheet = RulesTableReference.prepareString(sheet);
+        }
+        return escapedSheet;
     }
 }
