@@ -20,6 +20,8 @@ public class LazyCellExecutor {
 
     private final Map<String, RulesTableReference> referenceMap = new HashMap<String, RulesTableReference>();
 
+    private final Map<CellKey, Object> executionCache = new HashMap<CellKey, Object>();
+
     public LazyCellExecutor(XlsModuleOpenClass xlsModuleOpenClass, Object target, IRuntimeEnv env) {
         this.xlsModuleOpenClass = xlsModuleOpenClass;
         this.target = target;
@@ -77,13 +79,11 @@ public class LazyCellExecutor {
         String workbook = start.getWorkbook();
         String sheet = start.getSheet();
 
-        Map<String, SpreadsheetResult> spreadsheetResultCache = new HashMap<String, SpreadsheetResult>();
         for (int i = 0; i < rows; i++) {
+            String currentRow = String.valueOf(row + i);
             for (int j = 0; j < cols; j++) {
-                int currentRow = row + i;
-                int currentColumn = col + j;
-                CellReference cr = new CellReference(workbook, sheet, "" + currentRow, "" + currentColumn);
-                result[i][j] = getCellUsingCache(cr.getStringValue(), spreadsheetResultCache);
+                CellReference cr = new CellReference(workbook, sheet, currentRow, String.valueOf(col + j));
+                result[i][j] = getCellUsingCache(cr.getStringValue());
             }
         }
 
@@ -91,35 +91,45 @@ public class LazyCellExecutor {
     }
 
     public Object getCellValue(String cell) {
-        return getCellUsingCache(cell, new HashMap<String, SpreadsheetResult>());
+        return getCellUsingCache(cell);
     }
 
-    private Object getCellUsingCache(String cell, Map<String, SpreadsheetResult> spreadsheetResultCache) {
+    private Object getCellUsingCache(String cell) {
         if (!params.containsKey(cell)) {
             RulesTableReference tableReference = getTableReference(cell);
 
             if (tableReference.getEndReference() == null) {
-                String rulesTable = tableReference.getTable();
-                String row = tableReference.getRow();
-                String column = tableReference.getColumn();
+                CellKey key = getCellKey(cell);
+                if (executionCache.containsKey(key)) {
+                    return executionCache.get(key);
+                } else {
+                    String rulesTable = tableReference.getTable();
+                    String row = tableReference.getRow();
+                    String column = tableReference.getColumn();
 
-                IOpenMethod cellsHolder = xlsModuleOpenClass.getMethod(rulesTable,
-                        new IOpenClass[] { JavaOpenClass.STRING, JavaOpenClass.STRING });
-                return cellsHolder.invoke(target, new Object[] { row, column }, env);
+                    IOpenMethod cellsHolder = xlsModuleOpenClass.getMethod(rulesTable,
+                            new IOpenClass[] { JavaOpenClass.STRING, JavaOpenClass.STRING });
+                    Object result = cellsHolder.invoke(target, new Object[] { row, column }, env);
+                    executionCache.put(key, result);
+                    return result;
+                }
             } else {
                 String rulesTable = tableReference.getTable();
-                RulesTableReference reference = new RulesTableReference(CellReference.parse(cell));
-                String row = reference.getRow();
-                String column = reference.getColumn();
 
                 SpreadsheetResult result;
-                if (spreadsheetResultCache.containsKey(rulesTable)) {
-                    result = spreadsheetResultCache.get(rulesTable);
+
+                CellKey key = getCellKey(rulesTable);
+                if (executionCache.containsKey(key)) {
+                    result = (SpreadsheetResult) executionCache.get(key);
                 } else {
                     Spreadsheet cellsHolder = (Spreadsheet) xlsModuleOpenClass.getMethod(rulesTable, new IOpenClass[] {});
                     result = (SpreadsheetResult) cellsHolder.invoke(target, new Object[] {}, env);
-                    spreadsheetResultCache.put(rulesTable, result);
+                    executionCache.put(key, result);
                 }
+
+                RulesTableReference reference = new RulesTableReference(CellReference.parse(cell));
+                String row = reference.getRow();
+                String column = reference.getColumn();
 
                 return result.getFieldValue("$C" + column + "$R" + row);
             }
@@ -127,6 +137,14 @@ public class LazyCellExecutor {
 
         Deque<Object> objects = params.get(cell);
         return objects.getLast();
+    }
+
+    private CellKey getCellKey(String cell) {
+        Map<String, Object> executionParams = new HashMap<String, Object>();
+        for (Map.Entry<String, Deque<Object>> entry : params.entrySet()) {
+            executionParams.put(entry.getKey(), entry.getValue().getLast());
+        }
+        return new CellKey(cell, executionParams);
     }
 
     public RulesTableReference getArrayReference(String cell) {
