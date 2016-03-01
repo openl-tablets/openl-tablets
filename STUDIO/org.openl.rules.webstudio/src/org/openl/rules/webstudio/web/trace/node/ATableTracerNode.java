@@ -3,7 +3,7 @@ package org.openl.rules.webstudio.web.trace.node;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.OpenLArgumentsCloner;
 
-public abstract class ATableTracerNode extends SimpleTracerObject {
+public class ATableTracerNode extends SimpleTracerObject {
 
     private Object params[];
     private ExecutableRulesMethod method;

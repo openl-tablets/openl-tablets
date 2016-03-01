@@ -56,8 +56,8 @@ public class HTMLRenderer {
 
         if (!Constants.THIRD_PARTY_LIBS_PROTOTYPE.equalsIgnoreCase(editor.getExcludeScripts())) {
             result.append(renderJS("js/prototype/prototype-1.6.1.js"));
+            result.append(renderJS("js/tableeditor.min.js"));
         }
-        result.append(renderJS("js/tableeditor.min.js"));
 
         result.append("<div id='").append(editor.getId()).append("' class='te_'>");
 
