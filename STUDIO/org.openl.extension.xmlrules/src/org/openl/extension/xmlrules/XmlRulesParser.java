@@ -494,6 +494,10 @@ public class XmlRulesParser extends BaseParser {
 
     private String convertExpressionValue(Expression expression) {
         String value = expression.getValue();
+        if (value == null) {
+            return null;
+        }
+
         if ("TRUE".equalsIgnoreCase(value) || "FALSE".equalsIgnoreCase(value)) {
             // TODO Determine the type of a cell in condition from syntax tree
             value = value.toLowerCase();
@@ -969,8 +973,11 @@ public class XmlRulesParser extends BaseParser {
                     OpenLMessagesUtils.addWarn(message);
                 }
 
+                String cellAddress = function.getCellAddress();
+                boolean isRange = cellAddress.contains(":");
+
                 StringBuilder headerBuilder = new StringBuilder();
-                String returnType = "Object"; // Until it will be fixed on LE side
+                String returnType = isRange ? "Object[][]" : "Object"; // Until it will be fixed on LE side
 //                String returnType = function.getReturnType();
 //                if (StringUtils.isBlank(returnType)) {
 //                    returnType = "Object";
@@ -1016,12 +1023,24 @@ public class XmlRulesParser extends BaseParser {
                     gridBuilder.addCell(cell).nextRow();
                 }
 
-                CellReference cellReference = CellReference.parse(workbookName, sheetName, function.getCellAddress());
-                gridBuilder.addCell(String.format("%s result = (%s) Cell(\"%s\");",
-                        returnType,
-                        returnType,
-                        cellReference.getStringValue()));
-                gridBuilder.nextRow();
+                if (isRange) {
+                    String[] addresses = cellAddress.split(":");
+                    CellReference left = CellReference.parse(workbookName, sheetName, addresses[0]);
+                    CellReference right = CellReference.parse(workbookName, sheetName, addresses[1]);
+                    gridBuilder.addCell(String.format("%s result = CellRange(\"%s\", %d, %d);",
+                            returnType,
+                            left.getStringValue(),
+                            right.getRowNumber() - left.getRowNumber() + 1,
+                            right.getColumnNumber() - left.getColumnNumber() + 1));
+                    gridBuilder.nextRow();
+                } else {
+                    CellReference cellReference = CellReference.parse(workbookName, sheetName, cellAddress);
+                    gridBuilder.addCell(String.format("%s result = (%s) Cell(\"%s\");",
+                            returnType,
+                            returnType,
+                            cellReference.getStringValue()));
+                    gridBuilder.nextRow();
+                }
 
                 for (ParameterImpl parameter : parameters) {
                     CellReference reference = CellReference.parse(workbookName, sheetName, parameter.getName());
