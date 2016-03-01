@@ -10,7 +10,10 @@ import org.openl.rules.ruleservice.core.OpenLService;
  * @author Marat Kamalov
  * 
  */
-public interface RulesFrontend {
+public interface RulesFrontend { 
+    
+    @Deprecated
+    OpenLService findServiceByName(String serviceName);
 
     /**
      * Executes method with specified parameters.
