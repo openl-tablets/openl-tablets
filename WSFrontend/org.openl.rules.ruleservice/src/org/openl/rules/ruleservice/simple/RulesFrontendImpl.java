@@ -58,7 +58,8 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
     };
 
     // for internal usage
-    OpenLService findServiceByName(String serviceName) {
+    @Deprecated
+    public OpenLService findServiceByName(String serviceName) {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
         }

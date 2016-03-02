@@ -153,9 +153,9 @@
             <footer>
                 <a4j:commandButton rendered="#{systemConfig['user.mode'] != 'single'}" value="Save"
                     action="#{userProfileBean.editUser}" data="#{facesContext.maximumSeverity}"
-                    oncomplete="if(!event.data) hideAndReload()" styleClass="button-primary" />
+                    oncomplete="if(!event.data) hideAndReload()" styleClass="button-primary save-button" />
                 <a4j:commandButton rendered="#{systemConfig['user.mode'] == 'single'}" value="Save"
-                    oncomplete="hideAndReload()" styleClass="button-primary" />
+                    oncomplete="hideAndReload()" styleClass="button-primary save-button" />
                 <input class="restore-changed-state" type="button" value="Cancel" onclick="hideUserProfile();" />
             </footer>
         </h:form>
@@ -165,11 +165,25 @@
 
 <script>
     //<![CDATA[
+    $j(function () {
+        // Enable save button only if the form is dirty - using events.
+        $j("#userProfileForm").areYouSure();
+        $j("#userProfileForm").bind('dirty.areYouSure', function () {
+            $j(this).find('.save-button').prop("disabled", false);
+        });
+        $j("#userProfileForm").bind('clean.areYouSure', function () {
+            $j(this).find('.save-button').prop("disabled", true);
+        });
+    });
 
     function editUserProfile(tab) {
         RichFaces.$("modalUserProfile").show();
         #{rich:component("userProfileTab")}.switchToItem(
                 tab === "settings" ? "userProfileSettings" : "userProfileDetails");
+        $j(function () {
+            $j("#userProfileForm").find('.save-button').prop("disabled", true);
+            $j("#userProfileForm").trigger('reinitialize.areYouSure');
+        });
     }
 
     function hideAndReload() {
