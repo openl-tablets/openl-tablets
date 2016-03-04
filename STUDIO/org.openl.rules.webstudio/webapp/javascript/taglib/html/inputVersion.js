@@ -31,6 +31,7 @@
         subVersions[i] = value;
         var result = subVersions.join(".");
         input.val(result);
+        $j(input).trigger( "change" );
         hidden.val(result);
     }
 //})(jQuery);
