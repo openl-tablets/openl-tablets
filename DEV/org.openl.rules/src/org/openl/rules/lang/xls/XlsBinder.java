@@ -36,6 +36,7 @@ import org.openl.conf.OpenConfigurationException;
 import org.openl.conf.OpenLBuilderImpl;
 import org.openl.dependency.CompiledDependency;
 import org.openl.engine.OpenLSystemProperties;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.IVocabulary;
 import org.openl.rules.binding.RulesModuleBindingContext;
@@ -231,15 +232,11 @@ public class XlsBinder implements IOpenBinder {
                                                                              IBindingContext bindingContext, Set<CompiledDependency> moduleDependencies,
                                                                              XlsModuleOpenClass moduleOpenClass) {
         RulesModuleBindingContext moduleContext = createRulesBindingContext(bindingContext, moduleOpenClass);
-        for (CompiledDependency compiledDependency : moduleDependencies) {
-            CompiledOpenClass compiledOpenClass = compiledDependency.getCompiledOpenClass();
-            try {
-                moduleContext.addTypes(filterDependencyTypes(compiledOpenClass.getTypes(), moduleContext.getInternalTypes()));
-            } catch (Exception ex) {
-                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
-                        "Can`t add datatype from dependency", ex, moduleNode);
-                BindHelper.processError(error);
-            }
+        try {
+            moduleContext.addTypes(filterDependencyTypes(moduleOpenClass.getTypes(), moduleContext.getInternalTypes()));
+        } catch (Exception ex) {
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Can`t add datatype from dependency", ex, moduleNode);
+            BindHelper.processError(error);
         }
         return moduleContext;
     }

@@ -72,19 +72,11 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
             final RuleServiceDeploymentRelatedDependencyManager dependencyManager) throws OpenLCompilationException {
         CompiledOpenClass compiledOpenClass = LazyCompiledOpenClassCache.getInstance().get(deployment, dependencyName);
         if (compiledOpenClass != null) {
-            log.debug("Lazy CompiledOpenClass for:\n" + " deploymentName=\"{}\",\n" + " deploymentVersion=\"{}\",\n" + " dependencyName=\"{}\"\n" + "was returned from cache.",
-                deployment.getName(),
-                deployment.getVersion().getVersionName(),
-                dependencyName);
             return compiledOpenClass;
         }
         synchronized (LazyCompiledOpenClassCache.getInstance()) {
             compiledOpenClass = LazyCompiledOpenClassCache.getInstance().get(deployment, dependencyName);
             if (compiledOpenClass != null) {
-                log.debug("Lazy CompiledOpenClass for:\n" + " deploymentName=\"{}\",\n" + " deploymentVersion=\"{}\",\n" + " dependencyName=\"{}\"\n" + "was returned from cache.",
-                    deployment.getName(),
-                    deployment.getVersion().getVersionName(),
-                    dependencyName);
                 return compiledOpenClass;
             }
             IPrebindHandler prebindHandler = LazyBinderInvocationHandler.getPrebindHandler();
@@ -242,7 +234,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                     // correct
                     // compilation
                     LazyCompiledOpenClassCache.getInstance().putToCache(deployment, dependencyName, compiledOpenClass);
-                    log.debug("Lazy for:\n" + " deploymentName=\"{}\",\n" + " deploymentVersion=\"{}\",\n" + " dependencyName=\"{}\"\n" + "was stored in cache.",
+                    log.debug("Lazy CompiledOpenClass was stored in cache for:\n" + " deploymentName=\"{}\",\n" + " deploymentVersion=\"{}\",\n" + " dependencyName=\"{}\"\n",
                         deployment.getName(),
                         deployment.getVersion().getVersionName(),
                         dependencyName);

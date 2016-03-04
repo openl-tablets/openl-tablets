@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.openl.CompiledOpenClass;
@@ -25,7 +26,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AMethod;
-import org.openl.types.impl.MethodKey;
 import org.openl.util.Log;
 import org.openl.util.StringTool;
 
@@ -47,6 +47,8 @@ public class ModuleOpenClass extends ComponentOpenClass {
      */
     private Map<String, IOpenClass> internalTypes = new HashMap<String, IOpenClass>();
     
+    private Map<String, IOpenClass> dependencyTypes = new HashMap<String, IOpenClass>();
+    
     /**
      * Set of dependencies for current module.
      * 
@@ -67,12 +69,13 @@ public class ModuleOpenClass extends ComponentOpenClass {
     /**
      * Populate current module fields with data from dependent modules. 
      */
-    protected void initDependencies() {
+    protected void initDependencies() throws OpenLCompilationException{
         for (CompiledDependency dependency : usingModules) {
             // commented as there is no need to add each datatype to upper module.
             // as now it`s will be impossible to validate from which module the datatype is.
             //
             //addTypes(dependency);
+            addDependencyTypes(dependency);
             addMethods(dependency);
         }
     }
@@ -96,7 +99,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * 
      * @param dependency compiled dependency module
      */
-    private void addMethods(CompiledDependency dependency) {
+    protected void addMethods(CompiledDependency dependency) {
         CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
         for (IOpenMethod depMethod : compiledOpenClass.getOpenClassWithErrors().getMethods()) {
             // filter constructor and getOpenClass methods of dependency modules
@@ -147,20 +150,31 @@ public class ModuleOpenClass extends ComponentOpenClass {
         }
         return null;
     }
-        
+
+    private Map<String, IOpenField> dependencyFields = null;
+    private Object dependencyFieldsFlag = new Object();
+    
     @Override
     public Map<String, IOpenField> getFields() {
         Map<String, IOpenField> fields = new HashMap<String, IOpenField>();
 
         // get fields from dependencies
         //
-        for (CompiledDependency dependency : usingModules) {
-            CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass(); 
-            if (!compiledOpenClass.hasErrors()) {
-                fields.putAll(compiledOpenClass.getOpenClass().getFields());
-            }            
+        if (dependencyFields == null){
+            synchronized (dependencyFieldsFlag) {
+                if (dependencyFields == null){
+                    dependencyFields = new HashMap<String, IOpenField>();
+                    for (CompiledDependency dependency : usingModules) {
+                        CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass(); 
+                        if (!compiledOpenClass.hasErrors()) {
+                            dependencyFields.putAll(compiledOpenClass.getOpenClass().getFields());
+                        }            
+                    }
+                }
+            }
         }
-
+        fields.putAll(dependencyFields);
+        
         // get own fields. if current module has duplicated fields they will
         // override the same from dependencies.
         //
@@ -189,6 +203,17 @@ public class ModuleOpenClass extends ComponentOpenClass {
         return Collections.unmodifiableSet(usingModules);
     }
     
+    protected void addDependencyTypes(CompiledDependency dependency) {
+        CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
+        
+        for (Entry<String, IOpenClass> entry : compiledOpenClass.getTypes().entrySet()){
+            IOpenClass openClass = dependencyTypes.put(entry.getKey(), entry.getValue());
+            if (openClass != null && !openClass.equals(entry.getValue())){
+                addError(new OpenLCompilationException("Type " + entry.getKey() + " has been defined already"));
+            }
+        }
+    }
+    
     /**
      * Return the whole map of internal types. Where the key is namespace of the type, 
      * the value is {@link IOpenClass}.
@@ -198,11 +223,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
     @Override
     public Map<String, IOpenClass> getTypes() {
         Map<String, IOpenClass> currentModuleDatatypes = new HashMap<String, IOpenClass>(internalTypes);
-        for (CompiledDependency dependency : usingModules) {
-            CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
-            currentModuleDatatypes.putAll(compiledOpenClass.getTypes());
-        }
-        
+        currentModuleDatatypes.putAll(dependencyTypes);
         return currentModuleDatatypes;
     }
 
