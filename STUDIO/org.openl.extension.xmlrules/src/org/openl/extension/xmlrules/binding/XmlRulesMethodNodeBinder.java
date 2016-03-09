@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.poi.ss.formula.WorkbookEvaluator;
+import org.apache.poi.ss.formula.atp.AnalysisToolPak;
+import org.apache.poi.ss.formula.eval.FunctionEval;
+import org.apache.poi.ss.formula.function.FunctionMetadata;
+import org.apache.poi.ss.formula.function.FunctionMetadataRegistry;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.*;
@@ -18,8 +23,12 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
+    private final Logger log = LoggerFactory.getLogger(XmlRulesMethodNodeBinder.class);
+
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
         int childrenCount = node.getNumberOfChildren();
@@ -61,9 +70,20 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
             }
         }
 
+        // TODO Simplify the method
+
         if (methodCaller == null) {
-            methodCaller = bindingContext
-                    .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, parameterTypes);
+            methodCaller = bindingContext.findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, parameterTypes);
+        }
+
+        if (methodCaller == null) {
+            methodCaller = getPoiMethodCaller(methodName);
+            boolean isAggregateFunction = methodCaller != null &&
+                    (isReturnTwoDimensionArray(methodCaller) || paramsAreArrays(methodCaller, arrayCallArguments));
+            if (methodCaller == null || isAggregateFunction) {
+                isArrayCall = false;
+            }
+        } else {
             isArrayCall = false;
         }
 
@@ -86,7 +106,7 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
                             arrayCallArguments);
                 }
             }
-            if (boundNode == null) {
+            if (boundNode == null || boundNode instanceof ErrorBoundNode) {
                 boundNode = bindWithAdditionalBinders(node,
                         bindingContext,
                         methodName,
@@ -104,6 +124,23 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
             return new ArrayCallMethodBoundNode(node, children, methodCaller, arrayCallArguments);
         }
         return new MethodBoundNode(node, children, methodCaller);
+    }
+
+    private IMethodCaller getPoiMethodCaller(String methodName) {
+        if (WorkbookEvaluator.getSupportedFunctionNames().contains(methodName)) {
+            log.info("POI implementation for '{}' method is used", methodName);
+
+            if (AnalysisToolPak.isATPFunction(methodName)) {
+                PoiMethodCaller.create(AnalysisToolPak.instance.findFunction(methodName));
+            } else {
+                FunctionMetadata metaData = FunctionMetadataRegistry.getFunctionByName(methodName);
+                org.apache.poi.ss.formula.functions.Function function = FunctionEval.getBasicFunction(metaData.getIndex());
+
+                return PoiMethodCaller.create(function, metaData);
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -222,11 +259,18 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
     }
 
     private boolean isReturnTwoDimensionArray(IMethodCaller methodCaller) {
+        if (methodCaller instanceof PoiMethodCaller) {
+            return ((PoiMethodCaller) methodCaller).isReturnsArray();
+        }
         IOpenClass type = methodCaller.getMethod().getType();
         return type.isArray() && type.getComponentClass().isArray();
     }
 
     private boolean paramsAreArrays(IMethodCaller methodCaller, List<Integer> arrayCallArguments) {
+        if (methodCaller instanceof PoiMethodCaller) {
+            return ((PoiMethodCaller) methodCaller).isHasArrayParameter();
+        }
+
         IOpenClass arrayCallParameter = methodCaller.getMethod().getSignature().getParameterType(arrayCallArguments.get(0));
         return arrayCallParameter.isArray() ||
                 JavaOpenClass.OBJECT.equals(arrayCallParameter) && methodCaller instanceof JavaOpenMethod;

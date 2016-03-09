@@ -66,6 +66,9 @@ public class ArrayCallMethodBoundNode extends MethodBoundNode {
     }
 
     public IOpenClass getSingleReturnType() {
+        if (getMethodCaller() instanceof PoiMethodCaller) {
+            return JavaOpenClass.OBJECT;
+        }
         return super.getType();
     }
 
