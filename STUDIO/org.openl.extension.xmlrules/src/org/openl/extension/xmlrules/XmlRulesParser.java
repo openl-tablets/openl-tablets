@@ -498,10 +498,8 @@ public class XmlRulesParser extends BaseParser {
             return null;
         }
 
-        if ("TRUE".equalsIgnoreCase(value) || "FALSE".equalsIgnoreCase(value)) {
-            // TODO Determine the type of a cell in condition from syntax tree
-            value = value.toLowerCase();
-        }
+        value = value.toLowerCase();
+
         if ("*".equals(value)) {
             value = "";
         }

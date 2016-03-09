@@ -1,5 +1,7 @@
 package org.openl.extension.xmlrules;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.openl.OpenL;
@@ -20,6 +22,7 @@ import org.openl.rules.lang.xls.binding.wrapper.TableMethodWrapper;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
+import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
@@ -68,6 +71,14 @@ public class XmlRulesModuleOpenClass extends XlsModuleOpenClass {
         }
 
         if (openMethod instanceof DecisionTable) {
+            IMethodSignature signature = openMethod.getMethod().getSignature();
+            int numberOfParameters = signature.getNumberOfParameters();
+            final List<Integer> dimensionNums = new ArrayList<Integer>();
+            for (int i = 0; i < numberOfParameters; i++) {
+                if (signature.getParameterName(i).startsWith("dim")) {
+                    dimensionNums.add(i);
+                }
+            }
             return new DecisionTable2Wrapper(xlsModuleOpenClass, (DecisionTable) openMethod) {
                 @Override
                 public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
@@ -79,6 +90,12 @@ public class XmlRulesModuleOpenClass extends XlsModuleOpenClass {
                         ProjectData.setCurrentInstance(projectData);
                     }
                     try {
+                        for (Integer dimensionNum : dimensionNums) {
+                            Object param = params[dimensionNum];
+                            if (param instanceof String) {
+                                params[dimensionNum] = ((String) param).toLowerCase();
+                            }
+                        }
                         return super.invoke(target, params, env);
                     } finally {
                         if (topLevel) {
