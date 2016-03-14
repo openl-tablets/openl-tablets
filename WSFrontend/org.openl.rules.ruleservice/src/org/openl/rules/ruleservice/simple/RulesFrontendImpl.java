@@ -88,8 +88,19 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
                 ruleName,
                 inputParamsTypes);
             if (serviceMethod == null) {
-                throw new MethodInvocationException(
-                    "Method with name '" + ruleName + "' not found in service '" + serviceName + "'!");
+                StringBuilder sb = new StringBuilder();
+                boolean f = true;
+                for (Class<?> param : inputParamsTypes) {
+                    if (!f) {
+                        sb.append(",");
+                    } else {
+                        f = false;
+                    }
+                    sb.append(param.getCanonicalName());
+                }
+
+                throw new MethodInvocationException("Method with name '" + ruleName + "(" + sb
+                    .toString() + ")' not found in service '" + serviceName + "'!");
             }
             try {
                 return serviceMethod.invoke(service.getServiceBean(), params);
