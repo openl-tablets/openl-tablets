@@ -106,14 +106,16 @@ public class ReadInFunction {
         int verticalFieldNames = 0;
         for (FieldImpl field : type.getFields()) {
             for (int i = 0; i < array[0].length; i++) {
-                if (field.getName().equalsIgnoreCase((String) array[0][i])) {
+                Object cellValue = array[0][i];
+                if (cellValue instanceof String && field.getName().equalsIgnoreCase((String) cellValue)) {
                     horizontalFieldNames++;
                     break;
                 }
             }
 
             for (Object[] row : array) {
-                if (field.getName().equalsIgnoreCase((String) row[0])) {
+                Object cellValue = row[0];
+                if (cellValue instanceof String && field.getName().equalsIgnoreCase((String) cellValue)) {
                     verticalFieldNames++;
                     break;
                 }

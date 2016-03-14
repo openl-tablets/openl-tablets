@@ -74,19 +74,18 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
 
         if (methodCaller == null) {
             methodCaller = bindingContext.findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, parameterTypes);
-        }
 
-        if (methodCaller == null) {
-            methodCaller = getPoiMethodCaller(methodName);
-            boolean isAggregateFunction = methodCaller != null &&
-                    (isReturnTwoDimensionArray(methodCaller) || paramsAreArrays(methodCaller, arrayCallArguments));
-            if (methodCaller == null || isAggregateFunction) {
+            if (methodCaller == null) {
+                methodCaller = getPoiMethodCaller(methodName);
+                boolean isAggregateFunction = methodCaller != null &&
+                        (isReturnTwoDimensionArray(methodCaller) || paramsAreArrays(methodCaller, arrayCallArguments));
+                if (methodCaller == null || isAggregateFunction) {
+                    isArrayCall = false;
+                }
+            } else {
                 isArrayCall = false;
             }
-        } else {
-            isArrayCall = false;
         }
-
 
         // can`t find directly the method with given name and parameters. so, try to bind it some additional ways
         //
