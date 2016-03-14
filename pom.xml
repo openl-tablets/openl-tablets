@@ -28,15 +28,15 @@
             <timezone>-5</timezone>
         </developer>
         <developer>
-            <id>AndreiOstrovski</id>
-            <name>Andrei Ostrovski</name>
-            <email>aastrouski@eisgroup.com</email>
+            <id>YuryMolchan</id>
+            <name>Yury Molchan</name>
+            <email>ymolchan@eisgroup.com</email>
             <organization>EIS</organization>
             <organizationUrl>http://eisgroup.com</organizationUrl>
             <roles>
                 <role>developer</role>
             </roles>
-            <timezone>+2</timezone>
+            <timezone>+3</timezone>
         </developer>
         <developer>
             <id>MaratKamalov</id>
@@ -64,7 +64,7 @@
     <scm>
         <connection>scm:hg:${staging.hg.repo.url}</connection>
         <developerConnection>scm:hg:${staging.hg.repo.url}</developerConnection>
-        <url>scm:git:git://openl-tablets.git.sourceforge.net/gitroot/openl-tablets/openl-tablets</url>
+        <url>scm:git:git://github.com/openl-tablets/openl-tablets.git</url>
         <tag>HEAD</tag>
     </scm>
     <properties>
