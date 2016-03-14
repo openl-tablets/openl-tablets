@@ -5,8 +5,12 @@ import java.util.List;
 import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.model.Table;
 import org.openl.extension.xmlrules.model.single.ParameterImpl;
+import org.openl.extension.xmlrules.model.single.node.ExpressionNode;
 import org.openl.extension.xmlrules.model.single.node.FunctionNode;
 import org.openl.extension.xmlrules.model.single.node.Node;
+import org.openl.extension.xmlrules.model.single.node.expression.ExpressionResolver;
+import org.openl.extension.xmlrules.model.single.node.expression.ExpressionResolverFactory;
+import org.openl.extension.xmlrules.model.single.node.expression.RangeExpressionResolver;
 
 public class TableResolver extends DefaultFunctionResolver {
     @Override
@@ -36,6 +40,16 @@ public class TableResolver extends DefaultFunctionResolver {
             String parameterType = parameter.getType();
             if (parameterType == null) {
                 parameterType = "String";
+            }
+
+            if (argument instanceof ExpressionNode) {
+                ExpressionNode expressionNode = (ExpressionNode) argument;
+                ExpressionResolver expressionResolver = ExpressionResolverFactory.getExpressionResolver(expressionNode.getOperator());
+
+                if (expressionResolver instanceof RangeExpressionResolver) {
+                    parameterType += "[][]";
+                }
+
             }
 
             argumentString = "(" + parameterType + ")(" + argumentString + ")";
