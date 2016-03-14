@@ -21,16 +21,18 @@ public class CollectInputDataInterceptor extends AbstractPhaseInterceptor<Messag
     @Override
     public void handleMessage(Message message) {
         OperationInfo operationInfo = message.getExchange().get(OperationInfo.class);
-        String inputName = operationInfo.getInputName();
-        LoggingInfo loggingData = LoggingInfoHolder.get();
-        loggingData.setInputName(inputName);
-        MessageContentsList objs = MessageContentsList.getContentsList(message);
-        if (objs != null) {
-            Object[] params = new Object[objs.size()];
-            for (int i = 0; i < params.length; i++) {
-                params[i] = objs.get(i);
+        if (operationInfo != null) {
+            String inputName = operationInfo.getInputName();
+            LoggingInfo loggingData = LoggingInfoHolder.get();
+            loggingData.setInputName(inputName);
+            MessageContentsList objs = MessageContentsList.getContentsList(message);
+            if (objs != null) {
+                Object[] params = new Object[objs.size()];
+                for (int i = 0; i < params.length; i++) {
+                    params[i] = objs.get(i);
+                }
+                loggingData.setParameters(params);
             }
-            loggingData.setParameters(params);
         }
     }
 }
