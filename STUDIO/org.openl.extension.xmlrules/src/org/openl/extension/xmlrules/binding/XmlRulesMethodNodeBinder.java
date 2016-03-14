@@ -245,7 +245,8 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
             IBoundNode child = children[i];
             boolean isReturnsArray = child instanceof MethodBoundNode &&
                     isReturnTwoDimensionArray(((MethodBoundNode) child).getMethodCaller());
-            if (isReturnsArray || child instanceof ArrayCallMethodBoundNode || child instanceof ArrayInitializerNode) {
+            boolean isCastToArray = child instanceof CastNode && child.getType().isArray() && child.getType().getComponentClass().isArray();
+            if (isReturnsArray || isCastToArray || child instanceof ArrayCallMethodBoundNode || child instanceof ArrayInitializerNode) {
                 // Found array call argument
                 IOpenClass parameterType = parameterTypes[i];
                 if (!parameterType.isArray()) {
