@@ -149,7 +149,8 @@ public class OpenLSourceManager extends OpenLHolder {
             }
 
             List<OpenLMessage> messages = new ArrayList<OpenLMessage>(OpenLMessages.getCurrentInstance().getMessages());
-
+            List<OpenLMessage> dependencyMessages = new ArrayList<OpenLMessage>();
+            
             if (CollectionUtils.isNotEmpty(dependencies)) {
                 if (dependencyManager != null) {
                     for (IDependency dependency : dependencies) {
@@ -167,6 +168,12 @@ public class OpenLSourceManager extends OpenLHolder {
                                 ExtendableModuleOpenClass extendableModuleOpenClass = (ExtendableModuleOpenClass) loadedDependency.getCompiledOpenClass().getOpenClassWithErrors();
                                 extendableModuleOpenClass.applyToDependentParsedCode(parsedCode);
                             }
+                            
+                            for (OpenLMessage message : loadedDependency.getCompiledOpenClass().getMessages()) { // Save messages from dependencies
+                                if (!dependencyMessages.contains(message)) {
+                                    dependencyMessages.add(message);
+                                }
+                            }
 
                             OpenLMessages.getCurrentInstance().clear();// clear
                                                                        // all
@@ -179,13 +186,13 @@ public class OpenLSourceManager extends OpenLHolder {
                         }
                     }
                     OpenLMessages.getCurrentInstance().addMessages(messages);
-
                 } else {
                     OpenLMessagesUtils.addError("Can't load dependency. Dependency manager is not defined.");
                 }
             }
 
             parsedCode.setCompiledDependencies(compiledDependencies);
+            parsedCode.setMessagesFromDependencies(dependencyMessages);
         }
 
         Map<String, Object> externalParams = source.getParams();

@@ -20,7 +20,7 @@ public final class LazyCompiledOpenClassCache {
     private static final String CACHE_NAME = "lazyModulesCache";
 
     private static class LazyCompiledOpenClassCacheHolder {
-        public static final LazyCompiledOpenClassCache instance = new LazyCompiledOpenClassCache();
+        public static final LazyCompiledOpenClassCache INSTANCE = new LazyCompiledOpenClassCache();
     }
 
     private LazyCompiledOpenClassCache() {
@@ -32,7 +32,7 @@ public final class LazyCompiledOpenClassCache {
      * @return
      */
     public static LazyCompiledOpenClassCache getInstance() {
-        return LazyCompiledOpenClassCacheHolder.instance;
+        return LazyCompiledOpenClassCacheHolder.INSTANCE;
     }
 
     private Cache cache = CacheManager.create().getCache(CACHE_NAME);

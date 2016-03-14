@@ -71,7 +71,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AMethod;
 import org.openl.types.impl.CompositeMethod;
-import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenMethod;
 
 /**
@@ -118,7 +117,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             initDependencies();
         }
         initImports(metaInfo.getXlsModuleNode());
-        additionalInitDependencies(); // Required for data tables.
     }
 
     public ClassLoader getClassLoader() {
@@ -135,15 +133,22 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     /**
-     * Populate current module fields with data from dependent modules. Requered
-     * for data tables inheriting from dependend modules.
+     * Populate current module fields with data from dependent modules. 
      */
-    private void additionalInitDependencies() {
+    protected void initDependencies() {// Reduce iterators over dependencies for compilation issue with lazy loading
         for (CompiledDependency dependency : this.getDependencies()) {
-            addDataTables(dependency.getCompiledOpenClass());
+            // commented as there is no need to add each datatype to upper module.
+            // as now it`s will be impossible to validate from which module the datatype is.
+            //
+            //addTypes(dependency);
+            addDependencyTypes(dependency);
+            addMethods(dependency);
+            //Populate current module fields with data from dependent modules. Requered
+            //for data tables inheriting from dependend modules.
+            addDataTables(dependency.getCompiledOpenClass()); // Required for data tables.
         }
     }
-
+    
     public Collection<String> getImports() {
         return imports;
     }

@@ -20,7 +20,7 @@ public final class CompiledOpenClassCache {
     private static final String CACHE_NAME = "modulesCache";
 
     private static class CompiledOpenClassHolder {
-        public static final CompiledOpenClassCache instance = new CompiledOpenClassCache();
+        public static final CompiledOpenClassCache INSTANCE = new CompiledOpenClassCache();
     }
 
     private CompiledOpenClassCache() {
@@ -32,7 +32,7 @@ public final class CompiledOpenClassCache {
      * @return
      */
     public static CompiledOpenClassCache getInstance() {
-        return CompiledOpenClassHolder.instance;
+        return CompiledOpenClassHolder.INSTANCE;
     }
 
     private Cache cache = CacheManager.create().getCache(CACHE_NAME);
