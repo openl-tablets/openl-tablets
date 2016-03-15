@@ -47,6 +47,46 @@ public class XmlRules {
         return cache.getCellValues(cell, rows, cols);
     }
 
+    public static Object Field(Object target, String fieldName, Object index) {
+        Integer num = HelperFunctions.toInteger(index);
+
+        if (target == null) {
+            return null;
+        }
+
+        Class<?> targetClass = target.getClass();
+        if (!targetClass.isArray()) {
+            return getArrayElement(getField(target, fieldName), num);
+        }
+
+        List<Object> values = new ArrayList<Object>();
+        Class<?> type = Void.class;
+
+        for (int i = 0; i < Array.getLength(target); i++) {
+            Object o = Array.get(target, i);
+            Object field;
+            if (o == null) {
+                field = null;
+            } else {
+                if (o.getClass().isArray()) {
+                    field = Field(o, fieldName, index);
+                } else {
+                    field = getArrayElement(getField(o, fieldName), num);
+                }
+            }
+
+            if (field == null) {
+                values.add(null);
+            } else {
+                Object[] flatten = RulesUtils.flatten(field);
+                values.addAll(Arrays.asList(flatten));
+                type = RulesUtils.getCommonSuperClass(type, flatten.getClass().getComponentType());
+            }
+        }
+
+        return values.toArray((Object[]) Array.newInstance(type, values.size()));
+    }
+
     public static Object Field(Object target, String fieldName) {
         if (target == null) {
             return null;
@@ -88,6 +128,27 @@ public class XmlRules {
     // To support array calls correctly
     public static Object Field(Object[][] target, String fieldName) {
         return Field((Object) target, fieldName);
+    }
+
+    // To support array calls correctly
+    public static Object Field(Object[][] target, String fieldName, Object index) {
+        return Field((Object) target, fieldName, index);
+    }
+
+    private static Object getArrayElement(Object array, Integer index) {
+        if (array == null) {
+            return null;
+        }
+
+        if (!array.getClass().isArray()) {
+            if (index != 1) {
+                throw new ArrayIndexOutOfBoundsException(index);
+            }
+
+            return array;
+        } else {
+            return Array.get(array, index - 1);
+        }
     }
 
     private static Object getField(Object target, String fieldName) {

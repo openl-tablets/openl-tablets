@@ -257,7 +257,15 @@ public class FilterNode extends Node {
             obj = node == null ? null : node.toOpenLString();
         }
 
-        return skipFieldsCount > 0 ? obj : "Field(" + obj + ", \"" + fieldName + "\")";
+        if (skipFieldsCount > 0) {
+            return obj;
+        } else {
+            if (conditionValue != null) {
+                return "Field(" + obj + ", \"" + fieldName + "\", " + conditionValue.toOpenLString() + ")";
+            } else {
+                return "Field(" + obj + ", \"" + fieldName + "\")";
+            }
+        }
     }
 
     protected String getParentString() {
@@ -299,7 +307,9 @@ public class FilterNode extends Node {
     }
 
     protected boolean isFieldNode() {
-        return node != null && isEmptyComparison() && ProjectData.getCurrentInstance().getFieldNames().contains(fieldName);
+        return node != null && (isEmptyComparison() || isIndex()) && ProjectData.getCurrentInstance()
+                .getFieldNames()
+                .contains(fieldName);
     }
 
     protected boolean isParentNode() {
@@ -319,11 +329,15 @@ public class FilterNode extends Node {
     }
 
     private boolean hasComparison() {
-        return conditionValue != null;
+        return comparison != null;
     }
 
     private boolean isEmptyComparison() {
         return (comparison == null || comparison == Comparison.NONE) && conditionValue == null;
+    }
+
+    private boolean isIndex() {
+        return comparison == null && conditionValue != null;
     }
 
     @Override
