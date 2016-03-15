@@ -45,6 +45,31 @@ public class HelperFunctions {
         throw new IllegalArgumentException("Can't convert to double");
     }
 
+    public static Integer toInteger(Object x) {
+        if (x == null) {
+            return null;
+        }
+
+        if (x instanceof Integer) {
+            return (Integer) x;
+        }
+
+        if (x instanceof String) {
+            return Integer.valueOf((String) x);
+        }
+
+        // Other number types
+        if (x instanceof Number) {
+            return ((Number) x).intValue();
+        }
+
+        if (x.getClass().isArray() && Array.getLength(x) == 1) {
+            return toInteger(Array.get(x, 0));
+        }
+
+        throw new IllegalArgumentException("Can't convert to integer");
+    }
+
     public static Object convertArgument(Class<?> expectedClass, Object value) {
         if (value != null) {
             Class<?> valueClass = value.getClass();
