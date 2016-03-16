@@ -9,7 +9,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.openl.extension.xmlrules.ProjectData;
+import org.openl.extension.xmlrules.model.Function;
+import org.openl.extension.xmlrules.model.Table;
+import org.openl.extension.xmlrules.model.Type;
 import org.openl.extension.xmlrules.model.single.Cell;
+import org.openl.extension.xmlrules.model.single.FieldImpl;
 import org.openl.extension.xmlrules.model.single.node.expression.ExpressionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +75,9 @@ public class FilterNode extends Node {
     public String toOpenLString() {
         ExpressionContext instance = ExpressionContext.getInstance();
         boolean canHandleArrayOperators = instance.isCanHandleArrayOperators();
+
+        fixComparisonNodes(getNode());
+
         try {
             instance.setCanHandleArrayOperators(false);
             if (isFieldComparisonNode()) {
@@ -88,6 +95,82 @@ public class FilterNode extends Node {
         } finally {
             instance.setCanHandleArrayOperators(canHandleArrayOperators);
         }
+    }
+
+    /**
+     * Workaround for expressions like Out(planName(INDEX(SplitUp(enrollment("="; "EE Only"; rates(gr_rates)));1;1)))
+     */
+    private void fixComparisonNodes(Node currentNode) {
+        if (currentNode == null) {
+            return;
+        }
+
+        if (isPredefinedFunction(currentNode)) {
+            findComparisonAndFix((FunctionNode) currentNode);
+        } else if (currentNode instanceof FilterNode) {
+            fixComparisonNodes(((FilterNode) currentNode).getNode());
+        }
+    }
+
+    private void findComparisonAndFix(FunctionNode functionNode) {
+        ProjectData projectData = ProjectData.getCurrentInstance();
+
+        List<Node> newArguments = new ArrayList<Node>();
+        for (Node argNode : functionNode.getArguments()) {
+            if (isPredefinedFunction(argNode)) {
+                findComparisonAndFix((FunctionNode) argNode);
+                newArguments.add(argNode);
+            } else if (argNode instanceof FilterNode && ((FilterNode) argNode).isFieldComparisonNode()) {
+                FilterNode filterNode = (FilterNode) argNode;
+
+                Type type = null;
+                for (Type t : projectData.getTypes()) {
+                    for (FieldImpl field : t.getFields()) {
+                        if (field.getName().equalsIgnoreCase(filterNode.getFieldName())) {
+                            type = t;
+                            break;
+                        }
+                    }
+                }
+                if (type == null) {
+                    throw new IllegalArgumentException("Can't determine type for field " + filterNode.getFieldName());
+                }
+
+                FilterNode parent = new FilterNode();
+                parent.setNode(filterNode);
+                parent.setFieldName(type.getName());
+                newArguments.add(parent);
+
+                fixComparisonNodes(filterNode);
+            } else {
+                newArguments.add(argNode);
+            }
+        }
+
+        functionNode.setArguments(newArguments);
+    }
+
+    private boolean isPredefinedFunction(Node currentNode) {
+        return currentNode instanceof FunctionNode && !isXmlRulesFunction((FunctionNode) currentNode);
+    }
+
+    private boolean isXmlRulesFunction(FunctionNode functionNode) {
+        String functionName = functionNode.getName();
+        ProjectData projectData = ProjectData.getCurrentInstance();
+
+        for (Function function : projectData.getFunctions()) {
+            if (function.getName().equalsIgnoreCase(functionName)) {
+                return true;
+            }
+        }
+
+        for (Table table : projectData.getTables()) {
+            if (table.getName().equalsIgnoreCase(functionName)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public String wrapWithFieldAccess(String filterString, boolean lastFieldAccess, int skipFieldsCount) {
