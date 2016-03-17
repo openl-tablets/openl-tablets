@@ -54,9 +54,21 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
     private static final String COL_DATA = "DATA";
     private static final String COL_TIME = "TIMESTAMP";
     private static final String OPENL_JCR_REPO_ID_KEY = "openl-jcr-repo-id";
-    private static final String CREATE_TABLE = "CREATE TABLE " + REPO_TABLE + " (" + COL_ID + " %s NOT NULL, " + COL_DATA + " %s, " + COL_TIME + " %s, PRIMARY KEY (" + COL_ID + "))";
-    private static final String INSERT_ID = "INSERT INTO " + REPO_TABLE + " (" + COL_ID + ", " + COL_DATA + ", " + COL_TIME + ") VALUES(?,?,-1)";
-    private static final String SELECT_ID = "SELECT " + COL_DATA + " FROM " + REPO_TABLE + " WHERE " + COL_ID + " = ?";
+
+    private String colIdType;
+    private String identifierQuoteString;
+
+    private String getCreateTableStatement(){
+        return "CREATE TABLE " + getTableName() + " (" + COL_ID + " %s NOT NULL, " + COL_DATA + " %s, " + COL_TIME + " %s, PRIMARY KEY (" + COL_ID + "))";
+    }
+
+    private String getInsertIdStatement(){
+        return "INSERT INTO " + getTableName() + " (" + COL_ID + ", " + COL_DATA + ") VALUES(?,?)";
+    }
+
+    private String getSelectIdStatement(){
+        return "SELECT " + COL_DATA + " FROM " + getTableName() + " WHERE " + COL_ID + " = ?";
+    }
 
     /**
      * Jackrabbit local repository
@@ -94,6 +106,8 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         log.info("Checking a connection to DB [{}]", dbUrl);
         Connection conn;
         conn = createConnection(dbUrl, user, pwd);
+
+        colIdType = determineDBDataTypes(conn)[0];
 
         log.info("Preparing a repository...");
         initTable(conn);
@@ -182,6 +196,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
             .createOnStart(false)
             .tableNamePrefix(TABLE_PREFIX)
             .idColumnName(COL_ID)
+            .idColumnType(colIdType)
             .dataColumnName(COL_DATA)
             .timestampColumnName(COL_TIME);
         return configurationBuilder.build();
@@ -289,15 +304,15 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
 
     private void initTable(Connection conn) throws SQLException {
         if (tableExists(conn)) {
-            log.info("Table '{}' already exists", REPO_TABLE);
+            log.info("Table '{}' already exists", getTableName());
             return;
         }
         createTable(conn);
         if (tableExists(conn)) {
-            log.info("Table '{}' has been created", REPO_TABLE);
+            log.info("Table '{}' has been created", getTableName());
             return;
         }
-        throw new IllegalStateException("Table '" + REPO_TABLE + "' has not created");
+        throw new IllegalStateException("Table '" + getTableName() + "' has not created");
     }
 
     private boolean tableExists(Connection connection) {
@@ -305,13 +320,13 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         try {
             DatabaseMetaData metaData = connection.getMetaData();
             if ("Oracle".equals(metaData.getDatabaseProductName())) {
-                rs = metaData.getTables(null, metaData.getUserName(), REPO_TABLE, new String[] { "TABLE" });
+                rs = metaData.getTables(null, metaData.getUserName(), getTableName(), new String[] { "TABLE" });
             } else {
                 rs = metaData.getTables(null, null, REPO_TABLE, new String[] { "TABLE" });
             }
             return rs.next();
         } catch (SQLException e) {
-            log.debug("SQLException occurs while checking the table {}", REPO_TABLE, e);
+            log.debug("SQLException occurs while checking the table {}", getTableName(), e);
             return false;
         } finally {
             safeClose(rs);
@@ -322,15 +337,15 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         String[] strings = determineDBDataTypes(conn);
         String idType = strings[0];
         String dataType = strings[1];
-        String timestampType = strings[2];
-        String sql = String.format(CREATE_TABLE, idType, dataType, timestampType);
+        String timestampType = strings[3];
+        String sql = String.format(getCreateTableStatement(), idType, dataType, timestampType);
         log.info("The following SQL script being used [ {} ]", sql);
         Statement statement = null;
         try {
             statement = conn.createStatement();
             statement.executeUpdate(sql);
         } catch (SQLException e) {
-            log.warn("SQLException occurs while checking the table {}", REPO_TABLE, e);
+            log.warn("SQLException occurs while checking the table {}", getTableName(), e);
         } finally {
             safeClose(statement);
         }
@@ -341,10 +356,15 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         DatabaseMetaData metaData = conn.getMetaData();
         ResultSet rs = null;
 
+        identifierQuoteString = metaData.getIdentifierQuoteString();
+
         String nvarcharType = null;
         String varcharType = null;
         String binaryType = null;
+        String longBinaryType = null;
         String bigintType = null;
+        String timestampType = null;
+        String timestampTzType = null;
         try {
             rs = metaData.getTypeInfo();
             while (rs.next()) {
@@ -364,16 +384,38 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
                         if (varcharType != null) {
                             break;
                         }
-                        varcharType = typeName + '(' + getPrecision(rs) + ')';
+                        int precision = getPrecision(rs);
+                        if (0 == precision)
+                            break;
+                        varcharType = typeName + '(' + precision + ')';
                         break;
+
                     case Types.LONGVARBINARY:
+                        if (longBinaryType == null) {
+                            longBinaryType = typeName;
+                        }
+                        break;
+                    case Types.VARBINARY:
+                    case Types.BINARY:
                         if (binaryType == null) {
                             binaryType = typeName;
                         }
                         break;
+
                     case Types.BIGINT:
                         if (bigintType == null) {
                             bigintType = typeName;
+                        }
+                        break;
+
+                    case Types.TIMESTAMP_WITH_TIMEZONE:
+                        if (timestampTzType == null) {
+                            timestampTzType = typeName;
+                        }
+                        break;
+                    case Types.TIMESTAMP:
+                        if (timestampType == null) {
+                            timestampType = typeName;
                         }
                         break;
                 }
@@ -382,12 +424,21 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
             safeClose(rs);
         }
 
-        log.info("Determined SQL types ('{}', '{}', '{}', '{}')", nvarcharType, varcharType, binaryType, bigintType);
-        // Set defaults
+        log.info("Determined SQL types ('{}', '{}', '{}', '{}', {})", nvarcharType, varcharType, binaryType, bigintType, timestampTzType);
+        // Set fallback defaults
         if (nvarcharType != null) {
             varcharType = nvarcharType;
         } else if (varcharType == null) {
             varcharType = "VARCHAR(1000)";
+        }
+        if (longBinaryType != null){ // Prefer long. But Postgres does not have it
+            binaryType = longBinaryType;
+        }
+        if (timestampTzType != null){
+            timestampType = timestampTzType;
+        }
+        if (timestampType == null){
+            timestampType = bigintType;
         }
         if (binaryType == null) {
             binaryType = "BLOB";
@@ -395,9 +446,9 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         if (bigintType == null) {
             bigintType = "BIGINT";
         }
-        log.info("Used SQL types ('{}', '{}', '{}')", varcharType, binaryType, bigintType);
+        log.info("Used SQL types ('{}', '{}', '{}', '{}')", varcharType, binaryType, bigintType, timestampType);
 
-        return new String[] { varcharType, binaryType, bigintType };
+        return new String[] { varcharType, binaryType, bigintType, timestampType };
     }
 
     private int getPrecision(ResultSet rs) throws SQLException {
@@ -426,7 +477,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
-            statement = conn.prepareStatement(SELECT_ID);
+            statement = conn.prepareStatement(getSelectIdStatement());
             statement.setString(1, OPENL_JCR_REPO_ID_KEY);
             rs = statement.executeQuery();
             if (rs.next()) {
@@ -448,7 +499,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         String repoId = "openl-jcr-repo-" + UUID.randomUUID().toString();
         PreparedStatement statement = null;
         try {
-            statement = conn.prepareStatement(INSERT_ID);
+            statement = conn.prepareStatement(getInsertIdStatement());
             statement.setString(1, OPENL_JCR_REPO_ID_KEY);
             statement.setBytes(2, StringUtils.toBytes(repoId));
             statement.executeUpdate();
@@ -486,5 +537,9 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         private void shutdown() {
             doShutdown();
         }
+    }
+
+    public String getTableName() {
+        return identifierQuoteString + REPO_TABLE + identifierQuoteString;
     }
 }
