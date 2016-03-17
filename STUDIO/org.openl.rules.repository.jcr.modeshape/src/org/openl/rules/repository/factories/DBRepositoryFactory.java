@@ -408,7 +408,8 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
                         }
                         break;
 
-                    case Types.TIMESTAMP_WITH_TIMEZONE:
+                    // FIXME: It works in Java8 only!
+                    case 2014: //Types.TIMESTAMP_WITH_TIMEZONE:
                         if (timestampTzType == null) {
                             timestampTzType = typeName;
                         }
