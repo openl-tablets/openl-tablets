@@ -88,12 +88,12 @@ public final class LazyCompiledOpenClassCache {
         }
         Cache cache = OpenLEhCacheHolder.getInstance().getLazyModulesCache();
         @SuppressWarnings("unchecked")
-        List<Element> elements = cache.getKeys();
-        for (Element element : elements) {
-            DeploymentDescription deployment = ((Key) element.getKey()).getDeploymentDescription();
+        List<Key> keys = cache.getKeys();
+        for (Key key : keys) {
+            DeploymentDescription deployment = key.getDeploymentDescription();
             if (deploymentDescription.getName().equals(deployment.getName()) && deploymentDescription.getVersion()
                 .equals(deployment.getVersion())) {
-                cache.remove(element);
+                cache.remove(key);
             }
         }
     }

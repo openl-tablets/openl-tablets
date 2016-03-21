@@ -66,22 +66,4 @@ public abstract class AbstractRuleServicePublisher implements RuleServicePublish
         undeployService(serviceName);
         fireUndeployListeners(serviceName);
     }
-    
-    @Override
-    public final void redeploy(OpenLService service) throws RuleServiceRedeployException {
-        if (service == null) {
-            throw new IllegalArgumentException("service argument can't be null");
-        }
-        try {
-            undeploy(service.getName());
-            deploy(service);
-        } catch (RuleServiceDeployException e) {
-            throw new RuleServiceRedeployException("Service redeploy was failed", e);
-        } catch (RuleServiceUndeployException e) {
-            throw new RuleServiceRedeployException("Service redeploy was failed", e);
-        }
-
-    }
-
-   
 }

@@ -31,14 +31,6 @@ public interface RuleServicePublisher {
     void undeploy(String serviceName) throws RuleServiceUndeployException;
 
     /**
-     * Undeploys currently running service.
-     * 
-     * @param serviceName Name of the service to undeploy.
-     * @throws RuleServiceDeployException
-     */
-    void redeploy(OpenLService service) throws RuleServiceRedeployException;
-
-    /**
      * Provides info about all currently running services.
      * 
      * @return List of running services.

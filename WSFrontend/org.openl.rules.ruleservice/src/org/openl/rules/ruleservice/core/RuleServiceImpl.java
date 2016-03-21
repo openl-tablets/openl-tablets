@@ -38,8 +38,8 @@ public class RuleServiceImpl implements RuleService {
     public void redeploy(ServiceDescription serviceDescription) throws RuleServiceRedeployException {
         OpenLService service = ruleServicePublisher.getServiceByName(serviceDescription.getName());
         if (service == null) {
-            throw new RuleServiceRedeployException(String.format("There is no running service with name \"%s\"",
-                    serviceDescription.getName()));
+            throw new RuleServiceRedeployException(
+                String.format("There is no running service with name \"%s\"", serviceDescription.getName()));
         }
         try {
             ServiceDescription sd = mapping.get(serviceDescription.getName());
@@ -47,12 +47,19 @@ public class RuleServiceImpl implements RuleService {
                 throw new IllegalStateException("Invalid state!!!");
             }
             if (sd.getDeployment().getVersion().compareTo(serviceDescription.getDeployment().getVersion()) != 0) {
-                ruleServicePublisher.redeploy(ruleServiceInstantiationFactory.createService(serviceDescription));
-                mapping.put(serviceDescription.getName(), serviceDescription);
-                log.info("Service \"{}\" with URL \"{}\" succesfully redeployed.", service.getName(), service.getUrl());
+                try {
+                    OpenLService openLService = ruleServiceInstantiationFactory.createService(serviceDescription);
+                    undeploy(openLService.getName());
+                    deploy(serviceDescription);
+                } catch (RuleServiceDeployException e) {
+                    throw new RuleServiceRedeployException("Failed on deploy service", e);
+                } catch (RuleServiceUndeployException e) {
+                    throw new RuleServiceRedeployException("Failed on undeploy service", e);
+                }
+
             }
         } catch (RuleServiceInstantiationException e) {
-            throw new RuleServiceRedeployException("Failed on deploy service", e);
+            throw new RuleServiceRedeployException("Failed on redeploy service", e);
         }
     }
 
@@ -65,8 +72,8 @@ public class RuleServiceImpl implements RuleService {
         }
         OpenLService service = ruleServicePublisher.getServiceByName(serviceName);
         if (service == null) {
-            throw new RuleServiceUndeployException(String.format("There is no running service with name \"%s\"",
-                    serviceName));
+            throw new RuleServiceUndeployException(
+                String.format("There is no running service with name \"%s\"", serviceName));
         }
 
         ServiceDescription serviceDescription = mapping.get(serviceName);
@@ -75,11 +82,14 @@ public class RuleServiceImpl implements RuleService {
         }
 
         ruleServicePublisher.undeploy(serviceName);
-        service.destroy();
         mapping.remove(serviceDescription.getName());
-        if (ruleServiceInstantiationFactory instanceof RuleServiceOpenLServiceInstantiationFactoryImpl) { //NEED SOME FIX.
-            ((RuleServiceOpenLServiceInstantiationFactoryImpl) ruleServiceInstantiationFactory).clear(serviceDescription.getDeployment());
+        if (ruleServiceInstantiationFactory instanceof RuleServiceOpenLServiceInstantiationFactoryImpl) { // NEED
+                                                                                                          // SOME
+                                                                                                          // FIX.
+            ((RuleServiceOpenLServiceInstantiationFactoryImpl) ruleServiceInstantiationFactory)
+                .clear(serviceDescription.getDeployment());
         }
+        service.destroy();
         log.info("Service \"{}\" with URL \"{}\" succesfully undeployed.", service.getName(), service.getUrl());
     }
 
@@ -104,7 +114,8 @@ public class RuleServiceImpl implements RuleService {
     public void deploy(ServiceDescription serviceDescription) throws RuleServiceDeployException {
         OpenLService service = ruleServicePublisher.getServiceByName(serviceDescription.getName());
         if (service != null) {
-            throw new RuleServiceDeployException("The service with name \"" + serviceDescription.getName() + "\" has already deployed!");
+            throw new RuleServiceDeployException(
+                "The service with name \"" + serviceDescription.getName() + "\" has already deployed!");
         }
         try {
             OpenLService newService = ruleServiceInstantiationFactory.createService(serviceDescription);
@@ -114,7 +125,9 @@ public class RuleServiceImpl implements RuleService {
             }
             ruleServicePublisher.deploy(newService);
             mapping.put(serviceDescription.getName(), serviceDescription);
-            log.info("Service \"{}\" with URL \"{}\" succesfully deployed.", serviceDescription.getName(), serviceDescription.getUrl());
+            log.info("Service \"{}\" with URL \"{}\" succesfully deployed.",
+                serviceDescription.getName(),
+                serviceDescription.getUrl());
         } catch (RuleServiceInstantiationException e) {
             throw new RuleServiceDeployException("Failed on deploy service", e);
         }

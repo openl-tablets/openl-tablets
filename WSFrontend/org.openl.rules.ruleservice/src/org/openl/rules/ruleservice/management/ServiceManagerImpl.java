@@ -88,7 +88,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
         deployServices(newServices);
     }
 
-    @SuppressWarnings("unchecked")
     protected Map<String, ServiceDescription> gatherServicesToBeDeployed() {
         try {
             Collection<ServiceDescription> servicesToBeDeployed = serviceConfigurer.getServicesToBeDeployed(
