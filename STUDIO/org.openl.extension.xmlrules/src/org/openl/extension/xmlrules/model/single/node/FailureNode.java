@@ -18,6 +18,6 @@ public class FailureNode extends Node {
 
     @Override
     public String toOpenLString() {
-        return "Error in serialization: " + value;
+        throw new IllegalArgumentException("Error in serialization: " + value);
     }
 }
