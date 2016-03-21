@@ -1425,6 +1425,9 @@ public class XmlRulesParser extends BaseParser {
                     e.getMessage());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, null);
             errors.add(error);
+            OpenLMessagesUtils.addError(error);
+
+            syntaxNode = new XlsModuleSyntaxNode(new WorkbookSyntaxNode[0], sourceCodeModule, null, null, getImports());
         } finally {
             ProjectData.clearUnmarshaller();
         }

@@ -66,7 +66,7 @@ public abstract class BaseLazyItem<T> {
             zipFile = new ZipFile(file);
             ZipEntry entry = zipFile.getEntry(entryName);
             if (entry == null || entry.isDirectory()) {
-                throw new IllegalStateException("The file: " + entryName + " doesn't exist");
+                throw new IllegalStateException("Incorrect file format. The file '" + entryName + "' doesn't exist in the project.");
             }
 
             InputStream inputStream = zipFile.getInputStream(entry);
@@ -79,9 +79,9 @@ public abstract class BaseLazyItem<T> {
                 IOUtils.closeQuietly(inputStream);
             }
         } catch (JAXBException e) {
-            throw new IllegalStateException("Can't deserialize the file: " + e.getMessage(), e);
+            throw new IllegalStateException("Incorrect file format. Reason: " + e.getMessage(), e);
         } catch (IOException e) {
-            throw new IllegalStateException("Can't deserialize the file: " + e.getMessage(), e);
+            throw new IllegalStateException("Can't read the file. Reason: " + e.getMessage(), e);
         } finally {
             IOUtils.closeQuietly(zipFile);
         }
