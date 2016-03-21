@@ -2,12 +2,11 @@ package org.openl.rules.ruleservice.publish.lazy;
 
 import java.util.List;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
-
 import org.openl.CompiledOpenClass;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.Element;
 
 /**
  * Caches lazy compiled modules. Uses EhCache. This is singleton and thread safe
@@ -16,8 +15,6 @@ import org.openl.rules.ruleservice.core.DeploymentDescription;
  * @author Marat Kamalov
  */
 public final class LazyCompiledOpenClassCache {
-
-    private static final String CACHE_NAME = "lazyModulesCache";
 
     private static class LazyCompiledOpenClassCacheHolder {
         public static final LazyCompiledOpenClassCache INSTANCE = new LazyCompiledOpenClassCache();
@@ -35,8 +32,6 @@ public final class LazyCompiledOpenClassCache {
         return LazyCompiledOpenClassCacheHolder.INSTANCE;
     }
 
-    private Cache cache = CacheManager.create().getCache(CACHE_NAME);
-
     public CompiledOpenClass get(DeploymentDescription deploymentDescription, String dependencyName) {
         if (deploymentDescription == null) {
             throw new IllegalArgumentException("deploymentDescription can't be null!");
@@ -45,8 +40,11 @@ public final class LazyCompiledOpenClassCache {
             throw new IllegalArgumentException("dependencyName can't be null");
         }
         Key key = new Key(deploymentDescription, dependencyName);
+        
+        Cache cache = OpenLEhCacheHolder.getInstance().getLazyModulesCache();
+        
         Element element = cache.get(key);
-        if (element == null){
+        if (element == null) {
             return null;
         }
         return (CompiledOpenClass) element.getObjectValue();
@@ -63,6 +61,7 @@ public final class LazyCompiledOpenClassCache {
         }
         Key key = new Key(deploymentDescription, dependencyName);
         Element newElement = new Element(key, compiledOpenClass);
+        Cache cache = OpenLEhCacheHolder.getInstance().getLazyModulesCache();
         cache.put(newElement);
     }
 
@@ -79,13 +78,15 @@ public final class LazyCompiledOpenClassCache {
             throw new IllegalArgumentException("dependencyNAme can't be null");
         }
         Key key = new Key(deploymentDescription, dependencyName);
+        Cache cache = OpenLEhCacheHolder.getInstance().getLazyModulesCache();
         cache.remove(key);
     }
 
     public void removeAll(DeploymentDescription deploymentDescription) {
-        if (deploymentDescription == null){
+        if (deploymentDescription == null) {
             throw new IllegalArgumentException("deploymentDescription can't be null!");
         }
+        Cache cache = OpenLEhCacheHolder.getInstance().getLazyModulesCache();
         @SuppressWarnings("unchecked")
         List<Element> elements = cache.getKeys();
         for (Element element : elements) {
@@ -98,6 +99,7 @@ public final class LazyCompiledOpenClassCache {
     }
 
     public void reset() {
+        Cache cache = OpenLEhCacheHolder.getInstance().getLazyModulesCache();
         cache.removeAll();
         cache.clearStatistics();
     }
@@ -109,7 +111,7 @@ public final class LazyCompiledOpenClassCache {
         public DeploymentDescription getDeploymentDescription() {
             return deploymentDescription;
         }
-        
+
         public Key(DeploymentDescription deploymentDescription, String dependencyName) {
             if (deploymentDescription == null) {
                 throw new IllegalArgumentException("deploymentDescription can't be null!");
