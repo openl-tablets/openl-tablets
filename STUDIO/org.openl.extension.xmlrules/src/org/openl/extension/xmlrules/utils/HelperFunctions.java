@@ -44,4 +44,61 @@ public class HelperFunctions {
 
         throw new IllegalArgumentException("Can't convert to double");
     }
+
+    public static Integer toInteger(Object x) {
+        if (x == null) {
+            return null;
+        }
+
+        if (x instanceof Integer) {
+            return (Integer) x;
+        }
+
+        if (x instanceof String) {
+            return Integer.valueOf((String) x);
+        }
+
+        // Other number types
+        if (x instanceof Number) {
+            return ((Number) x).intValue();
+        }
+
+        if (x.getClass().isArray() && Array.getLength(x) == 1) {
+            return toInteger(Array.get(x, 0));
+        }
+
+        throw new IllegalArgumentException("Can't convert to integer");
+    }
+
+    public static Object convertArgument(Class<?> expectedClass, Object value) {
+        if (value != null) {
+            Class<?> valueClass = value.getClass();
+            if (!expectedClass.isAssignableFrom(valueClass)) {
+                if (String.class == expectedClass && value instanceof Double) {
+                    value = String.valueOf(value);
+                } else if (Double.class == expectedClass && value instanceof String) {
+                    value = Double.valueOf((String) value);
+                } else if (String.class == expectedClass && value instanceof Integer) {
+                    value = String.valueOf(value);
+                } else if (Integer.class == expectedClass && value instanceof String) {
+                    value = Integer.valueOf((String) value);
+                } else if (expectedClass.isArray() && valueClass.isArray()) {
+                    // For example expected: Rider[], but actual: Object[] with Rider objects
+                    int size = Array.getLength(value);
+
+                    Object newValue = Array.newInstance(expectedClass.getComponentType(), size);
+                    for (int i = 0; i < size; ++i) {
+                        Array.set(newValue, i, Array.get(value, i));
+                    }
+
+                    value = newValue;
+                } else if (!expectedClass.isArray() && valueClass.isArray()) {
+                    if (Array.getLength(value) == 1) {
+                        value = convertArgument(expectedClass, Array.get(value, 0));
+                    }
+                }
+            }
+        }
+        return value;
+    }
 }

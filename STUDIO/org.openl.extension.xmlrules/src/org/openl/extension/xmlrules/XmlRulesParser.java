@@ -498,10 +498,8 @@ public class XmlRulesParser extends BaseParser {
             return null;
         }
 
-        if ("TRUE".equalsIgnoreCase(value) || "FALSE".equalsIgnoreCase(value)) {
-            // TODO Determine the type of a cell in condition from syntax tree
-            value = value.toLowerCase();
-        }
+        value = value.toLowerCase();
+
         if ("*".equals(value)) {
             value = "";
         }
@@ -1427,6 +1425,9 @@ public class XmlRulesParser extends BaseParser {
                     e.getMessage());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, null);
             errors.add(error);
+            OpenLMessagesUtils.addError(error);
+
+            syntaxNode = new XlsModuleSyntaxNode(new WorkbookSyntaxNode[0], sourceCodeModule, null, null, getImports());
         } finally {
             ProjectData.clearUnmarshaller();
         }
