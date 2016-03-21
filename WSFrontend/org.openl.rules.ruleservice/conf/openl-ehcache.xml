@@ -1,5 +1,5 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="../config/ehcache.xsd">
+	xsi:noNamespaceSchemaLocation="../config/ehcache.xsd" name="openlRuleserviceCache">
 
 	<!-- The ehcache-failsafe.xml is a default configuration for ehcache, if 
 		an ehcache.xml is not configured. The diskStore element is optional. It must 
