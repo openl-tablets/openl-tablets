@@ -324,7 +324,7 @@ public class TableBuilder {
 
     private CellStyle findWorkbookCellStyle(CellStyle cellStyle) {
         Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
-        short numCellStyles = workbook.getNumCellStyles();
+        int numCellStyles = workbook.getNumCellStyles();
         for (int i = 0; i < numCellStyles; i++) {
             CellStyle cellStyleAt = workbook.getCellStyleAt((short) i);
             if (equalsStyle(cellStyleAt, cellStyle)) {
