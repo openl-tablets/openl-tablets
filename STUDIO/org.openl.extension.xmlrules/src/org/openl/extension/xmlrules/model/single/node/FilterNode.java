@@ -310,6 +310,8 @@ public class FilterNode extends Node {
         String valueString = value.toOpenLString();
         if (value instanceof NumberNode) {
             return "\"" + ((NumberNode) value).asString() + "\"";
+        } else if (value instanceof FunctionNode && ((FunctionNode) value).getName().equals("Out")) {
+            valueString  += "[0][0]";
         }
         return valueString;
     }
