@@ -8,6 +8,7 @@ import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundCode;
 import org.openl.conf.IUserContext;
 import org.openl.dependency.CompiledDependency;
+import org.openl.extension.xmlrules.project.XmlRulesModuleSyntaxNode;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -36,6 +37,8 @@ public class XmlRulesBinder extends XlsBinder {
     @Override
     public IBoundCode bind(IParsedCode parsedCode, IBindingContextDelegator bindingContextDelegator) {
         try {
+            XmlRulesModuleSyntaxNode topNode = (XmlRulesModuleSyntaxNode) parsedCode.getTopNode();
+            ProjectData.setCurrentInstance(topNode.getProjectData());
             return super.bind(parsedCode, bindingContextDelegator);
         } finally {
             ProjectData.removeCurrentInstance();

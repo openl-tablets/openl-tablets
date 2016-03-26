@@ -21,14 +21,7 @@ public class ProjectData {
     private static final ThreadLocal<Unmarshaller> unmarshallerThreadLocal = new ThreadLocal<Unmarshaller>();
 
     public static ProjectData getCurrentInstance() {
-        ProjectData projectData = INSTANCE.get();
-
-        if (projectData == null) {
-            projectData = new ProjectData();
-            INSTANCE.set(projectData);
-        }
-
-        return projectData;
+        return INSTANCE.get();
     }
 
     public static void setCurrentInstance(ProjectData projectData) {
