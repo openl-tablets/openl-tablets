@@ -62,9 +62,6 @@ public class DefaultFunctionResolver implements FunctionResolver {
                     argumentString += "[0][0]";
                 }
             }
-            if (parameter.getType() != null) {
-                argumentString = "(" + parameter.getType() + ")(" + argumentString + ")";
-            }
         }
         return argumentString;
     }

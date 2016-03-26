@@ -10,6 +10,7 @@ import org.openl.vm.IRuntimeEnv;
 public class XmlRulesTableMethodWrapper extends TableMethodWrapper {
     private final XlsModuleOpenClass xlsModuleOpenClass;
     private final ProjectData projectData;
+    private final ArgumentsConverter argumentsConverter;
 
     public XmlRulesTableMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass,
             TableMethod delegate,
@@ -17,6 +18,7 @@ public class XmlRulesTableMethodWrapper extends TableMethodWrapper {
         super(xlsModuleOpenClass, delegate);
         this.xlsModuleOpenClass = xlsModuleOpenClass;
         this.projectData = projectData;
+        argumentsConverter = new ArgumentsConverter(delegate.getMethod());
     }
 
     @Override
@@ -29,6 +31,7 @@ public class XmlRulesTableMethodWrapper extends TableMethodWrapper {
             ProjectData.setCurrentInstance(projectData);
         }
         try {
+            params = argumentsConverter.convert(params);
             return super.invoke(target, params, env);
         } finally {
             if (topLevel) {

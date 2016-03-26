@@ -17,7 +17,7 @@ public class XmlRulesDecisionTable2Wrapper extends DecisionTable2Wrapper {
 
     private final XlsModuleOpenClass xlsModuleOpenClass;
     private final List<Integer> dimensionNums;
-    private final Class<?>[] paramTypes;
+    private final ArgumentsConverter argumentsConverter;
 
     public XmlRulesDecisionTable2Wrapper(XlsModuleOpenClass xlsModuleOpenClass,
             DecisionTable delegate, ProjectData projectData) {
@@ -35,10 +35,7 @@ public class XmlRulesDecisionTable2Wrapper extends DecisionTable2Wrapper {
             }
         }
 
-        paramTypes = new Class[signature.getNumberOfParameters()];
-        for (int i = 0; i < paramTypes.length; i++) {
-            paramTypes[i] = signature.getParameterType(i).getInstanceClass();
-        }
+        argumentsConverter = new ArgumentsConverter(delegate.getMethod());
     }
 
     @Override
@@ -51,9 +48,7 @@ public class XmlRulesDecisionTable2Wrapper extends DecisionTable2Wrapper {
             ProjectData.setCurrentInstance(projectData);
         }
         try {
-            for (int i = 0; i < params.length; i++) {
-                params[i] = HelperFunctions.convertArgument(paramTypes[i], params[i]);
-            }
+            params = argumentsConverter.convert(params);
 
             for (Integer dimensionNum : dimensionNums) {
                 Object param = params[dimensionNum];

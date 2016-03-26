@@ -104,35 +104,35 @@ public class InternalFunctions {
         return IndexFunction.index(object, userRow, userColumn);
     }
 
-    public static double AVERAGE(Object[] array) {
+    public static Double AVERAGE(Object[] array) {
         return AverageFunction.average(array);
     }
 
-    public static int ROWS(Object array) {
+    public static Integer ROWS(Object array) {
         return ROWS((Object[][]) array);
     }
 
-    public static int ROWS(Object[][] array) {
+    public static Integer ROWS(Object[][] array) {
         return array.length;
     }
 
-    public static int COLUMNS(Object array) {
+    public static Integer COLUMNS(Object array) {
         return COLUMNS((Object[][]) array);
     }
 
-    public static int COLUMNS(Object[][] array) {
+    public static Integer COLUMNS(Object[][] array) {
         return array[0].length;
     }
 
-    public static double SUM(Object array) {
+    public static Double SUM(Object array) {
         return SumFunction.sum(array);
     }
 
-    public static double SUM(Object[] array) {
+    public static Double SUM(Object[] array) {
         return SumFunction.sum(array);
     }
 
-    public static int DATEDIF(Object startDate, Object endDate, String unit) {
+    public static Integer DATEDIF(Object startDate, Object endDate, String unit) {
         return DateFunctions.diff(startDate, endDate, unit);
     }
 
@@ -140,27 +140,27 @@ public class InternalFunctions {
         return DateFunctions.now();
     }
 
-    public static int YEAR(Object date) {
+    public static Integer YEAR(Object date) {
         return DateFunctions.year(date);
     }
 
-    public static int MONTH(Object date) {
+    public static Integer MONTH(Object date) {
         return DateFunctions.month(date);
     }
 
-    public static int DAY(Object date) {
+    public static Integer DAY(Object date) {
         return DateFunctions.day(date);
     }
 
-    public static int HOUR(Object date) {
+    public static Integer HOUR(Object date) {
         return DateFunctions.hour(date);
     }
 
-    public static int MINUTE(Object date) {
+    public static Integer MINUTE(Object date) {
         return DateFunctions.minute(date);
     }
 
-    public static int SECOND(Object date) {
+    public static Integer SECOND(Object date) {
         return DateFunctions.second(date);
     }
 
