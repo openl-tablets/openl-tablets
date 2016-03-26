@@ -17,6 +17,7 @@ import org.openl.extension.xmlrules.model.single.node.expression.CellInspector;
 import org.openl.extension.xmlrules.model.single.node.expression.ExpressionContext;
 import org.openl.extension.xmlrules.project.XmlRulesModule;
 import org.openl.extension.xmlrules.project.XmlRulesModuleSourceCodeModule;
+import org.openl.extension.xmlrules.project.XmlRulesModuleSyntaxNode;
 import org.openl.extension.xmlrules.syntax.StringGridBuilder;
 import org.openl.extension.xmlrules.utils.CellReference;
 import org.openl.extension.xmlrules.utils.RulesTableReference;
@@ -25,7 +26,6 @@ import org.openl.rules.lang.xls.*;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorksheetSyntaxNode;
-import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.source.IOpenSourceCodeModule;
@@ -1406,6 +1406,9 @@ public class XmlRulesParser extends BaseParser {
         ISyntaxNode syntaxNode = null;
         List<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
 
+        ProjectData projectData = new ProjectData();
+        ProjectData.setCurrentInstance(projectData);
+
         try {
             XlsWorkbookSourceCodeModule workbookSourceCodeModule = getWorkbookSourceCodeModule(module, source);
 
@@ -1413,11 +1416,12 @@ public class XmlRulesParser extends BaseParser {
 
             WorkbookSyntaxNode[] workbooksArray = getWorkbooks(module, workbookSourceCodeModule,
                     sourceCodeModule);
-            syntaxNode = new XlsModuleSyntaxNode(workbooksArray,
+            syntaxNode = new XmlRulesModuleSyntaxNode(workbooksArray,
                     workbookSourceCodeModule,
                     null,
                     null,
-                    getImports()
+                    getImports(),
+                    projectData
             );
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
@@ -1430,7 +1434,7 @@ public class XmlRulesParser extends BaseParser {
             errors.add(error);
             OpenLMessagesUtils.addError(error);
 
-            syntaxNode = new XlsModuleSyntaxNode(new WorkbookSyntaxNode[0], sourceCodeModule, null, null, getImports());
+            syntaxNode = new XmlRulesModuleSyntaxNode(new WorkbookSyntaxNode[0], sourceCodeModule, null, null, getImports(), projectData);
         } finally {
             ProjectData.clearUnmarshaller();
         }

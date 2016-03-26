@@ -10,6 +10,7 @@ import org.openl.extension.xmlrules.binding.wrapper.XmlRulesDecisionTable2Wrappe
 import org.openl.extension.xmlrules.binding.wrapper.XmlRulesMatchingOpenMethodDispatcherWrapper;
 import org.openl.extension.xmlrules.binding.wrapper.XmlRulesSpreadsheetWrapper;
 import org.openl.extension.xmlrules.binding.wrapper.XmlRulesTableMethodWrapper;
+import org.openl.extension.xmlrules.project.XmlRulesModuleSyntaxNode;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.dt.DecisionTable;
@@ -36,7 +37,7 @@ public class XmlRulesModuleOpenClass extends XlsModuleOpenClass {
                 OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams()),
                 OpenLSystemProperties.isDispatchingValidationEnabled(bindingContext.getExternalParams()));
 
-        this.projectData = ProjectData.getCurrentInstance();
+        this.projectData = ((XmlRulesModuleSyntaxNode) moduleNode).getProjectData();
     }
 
     @Override
