@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlType;
 public enum PredefinedType {
     String,
     Double,
-    Integer,
     Boolean,
     Date
 }
