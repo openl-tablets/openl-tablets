@@ -15,15 +15,15 @@ public class InternalFunctions {
         return OutFunction.run(o, horizontalRowValues, showColumnNames);
     }
 
-    public static String Out(int row, int column, Object o) {
-        return Out(row, column, o, true, false);
+    public static String Print(int row, int column, Object o) {
+        return Print(row, column, o, true, false);
     }
 
-    public static String Out(int row, int column, Object o, boolean horizontalRowValues) {
-        return Out(row, column, o, horizontalRowValues, false);
+    public static String Print(int row, int column, Object o, boolean horizontalRowValues) {
+        return Print(row, column, o, horizontalRowValues, false);
     }
 
-    public static String Out(int row, int column, Object o, boolean horizontalRowValues, boolean showColumnNames) {
+    public static String Print(int row, int column, Object o, boolean horizontalRowValues, boolean showColumnNames) {
         String[][] out = Out(o, horizontalRowValues, showColumnNames);
         String result;
         if (out == null) {

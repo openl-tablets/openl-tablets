@@ -87,7 +87,7 @@ public class OutFunction {
         }
 
         fillFieldCoordinates(xmlRulesType, fieldRows, 0, "");
-        outObject(result, showColumnNames, fieldRows, o, xmlRulesType,  0, "");
+        outObject(result, showColumnNames, fieldRows, o, xmlRulesType,  0, 0, "");
     }
 
     private static Class getElementType(Object[] objects) {
@@ -102,13 +102,17 @@ public class OutFunction {
     }
 
     private static boolean isBasicType(Class type) {
-        return type.isPrimitive() || String.class.isAssignableFrom(type) || Double.class.isAssignableFrom(type);
+        return type.isPrimitive()
+                || String.class.isAssignableFrom(type)
+                || Number.class.isAssignableFrom(type)
+                || Boolean.class.isAssignableFrom(type)
+                || Date.class.isAssignableFrom(type);
     }
 
-    private static void outObject(List<List<String>> result,
+    private static int outObject(List<List<String>> result,
             boolean showColumnNames,
             LinkedHashMap<String, Integer> fieldRows,
-            Object o, Type xmlRulesType, int currentRow, String fieldPrefix) {
+            Object o, Type xmlRulesType, int currentRow, int currentColumn, String fieldPrefix) {
 
         if (result.isEmpty()) {
             int size = fieldRows.keySet().size();
@@ -120,30 +124,37 @@ public class OutFunction {
                 for (Map.Entry<String, Integer> entry : fieldRows.entrySet()) {
                     result.get(entry.getValue()).add(entry.getKey());
                 }
+                currentColumn++;
             }
         }
+        List<String> resultRow = result.get(currentRow);
+        while (resultRow.size() <= currentColumn) {
+            resultRow.add(null);
+        }
         if (o == null) {
-            result.get(currentRow).add(null);
-            return;
+            resultRow.set(currentColumn, null);
+            return currentColumn + 1;
         }
 
         Class<?> type = o.getClass();
         if (isBasicType(type)) {
-            result.get(currentRow).add(String.valueOf(o));
-            return;
+            resultRow.set(currentColumn, String.valueOf(o));
+            return currentColumn + 1;
         } else if (type.isArray()) {
             Object[] objects = (Object[]) o;
+            int column = currentColumn;
             for (Object object : objects) {
-                outObject(result, false, fieldRows, object, xmlRulesType, currentRow, fieldPrefix);
+                column = outObject(result, false, fieldRows, object, xmlRulesType, currentRow, column, fieldPrefix);
             }
             align(result);
-            return;
+            return column;
         }
 
         if (xmlRulesType == null) {
             throw new IllegalArgumentException("Type could be omitted only in basic types (String, Integer etc)");
         }
 
+        int nextColumn = currentColumn;
         for (FieldImpl field : xmlRulesType.getFields()) {
             String fieldName = field.getName();
 
@@ -153,9 +164,26 @@ public class OutFunction {
 
             Type fieldType = getType(field.getTypeName());
             String newPrefix = fieldPrefix + fieldName;
-            int row = fieldRows.get(newPrefix);
-            outObject(result, false, fieldRows, fieldValue, fieldType, row, newPrefix);
+            Integer row = fieldRows.get(newPrefix);
+            if (row == null) {
+                int r = Integer.MAX_VALUE;
+                for (Map.Entry<String, Integer> entry : fieldRows.entrySet()) {
+                    if (entry.getKey().startsWith(newPrefix)) {
+                        r = Math.min(r, entry.getValue());
+                        row = r;
+                    }
+                }
+                if (row == null) {
+                    throw new IllegalArgumentException("Can't out the field " + newPrefix);
+                }
+            }
+            int c = outObject(result, false, fieldRows, fieldValue, fieldType, row, currentColumn, newPrefix + ".");
+            if (c > nextColumn) {
+                nextColumn = c;
+            }
         }
+
+        return nextColumn;
     }
 
     private static void align(List<List<String>> result) {
