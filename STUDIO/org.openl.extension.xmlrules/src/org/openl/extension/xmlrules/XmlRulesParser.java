@@ -549,13 +549,16 @@ public class XmlRulesParser extends BaseParser {
             }
             Parameter parameter = parameters.get(i);
             String type = parameter.getType();
-            if (StringUtils.isBlank(type)) {
-                type = "Object";
-            }
 
             if (isDimension(parameter)) {
+                if (StringUtils.isBlank(type)) {
+                    type = "String";
+                }
                 headerBuilder.append(type).append(" ").append(parameter.getName());
             } else {
+                if (StringUtils.isBlank(type)) {
+                    type = "Object";
+                }
                 CellReference cellReference = CellReference.parse(workbookName, sheetName, parameter.getName());
                 headerBuilder.append(type)
                         .append(" ")

@@ -15,6 +15,7 @@ import org.openl.binding.impl.*;
 import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.model.Function;
 import org.openl.extension.xmlrules.model.Table;
+import org.openl.extension.xmlrules.model.single.ParameterImpl;
 import org.openl.extension.xmlrules.model.single.node.IfErrorNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -47,6 +48,11 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
         IOpenClass[] parameterTypes = getTypes(children);
         IOpenClass[] singleCallParameterTypes = new IOpenClass[parameterTypes.length];
         System.arraycopy(parameterTypes, 0, singleCallParameterTypes, 0, parameterTypes.length);
+
+        IBoundNode xmlRulesNode = bindXmlRulesMethodNode(node, bindingContext, methodName, children, parameterTypes);
+        if (xmlRulesNode != null) {
+            return xmlRulesNode;
+        }
 
         IMethodCaller methodCaller = null;
 
@@ -125,6 +131,94 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
         return new MethodBoundNode(node, children, methodCaller);
     }
 
+    private IBoundNode bindXmlRulesMethodNode(ISyntaxNode methodNode,
+            IBindingContext bindingContext,
+            String methodName,
+            IBoundNode[] children,
+            IOpenClass[] argumentTypes) {
+        ProjectData instance = ProjectData.getCurrentInstance();
+
+        for (Function function : instance.getFunctions()) {
+            if (function.getName().equals(methodName)) {
+                List<ParameterImpl> parameters = function.getParameters();
+                if (parameters.size() == children.length) {
+                    return bindExactParametersMethodNode(methodNode,
+                            bindingContext,
+                            methodName,
+                            children,
+                            argumentTypes,
+                            parameters,
+                            "String");
+                } else {
+                    return bindModifiedAttributes(methodNode, bindingContext, methodName, argumentTypes, children);
+                }
+            }
+        }
+
+        for (Table table : instance.getTables()) {
+            if (table.getName().equals(methodName)) {
+                List<ParameterImpl> parameters = table.getParameters();
+                if (parameters.size() == children.length) {
+                    return bindExactParametersMethodNode(methodNode,
+                            bindingContext,
+                            methodName,
+                            children,
+                            argumentTypes,
+                            parameters,
+                            "String");
+                } else {
+                    return bindModifiedAttributes(methodNode, bindingContext, methodName, argumentTypes, children);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private MethodBoundNode bindExactParametersMethodNode(ISyntaxNode methodNode,
+            IBindingContext bindingContext,
+            String methodName,
+            IBoundNode[] children,
+            IOpenClass[] argumentTypes,
+            List<ParameterImpl> parameters,
+            String defaultType) {
+        IOpenClass[] parameterTypes = new IOpenClass[parameters.size()];
+        for (int i = 0; i < parameters.size(); i++) {
+            String parameterType = parameters.get(i).getType();
+            if (parameterType == null) {
+                parameterType = defaultType;
+            }
+            IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, parameterType);
+            if (type == null) {
+                BindHelper.processError("Can't find type " + parameterType,
+                        methodNode,
+                        bindingContext,
+                        false);
+            }
+
+            parameterTypes[i] = type;
+        }
+
+        IMethodCaller methodCaller = bindingContext.findMethodCaller(ISyntaxConstants.THIS_NAMESPACE,
+                methodName,
+                parameterTypes);
+
+        if (methodCaller == null) {
+            return null;
+        }
+
+        List<Integer> arrayCallArguments = getArrayCallArguments(children, argumentTypes);
+        boolean isArrayCall = !arrayCallArguments.isEmpty();
+        boolean isAggregateFunction = isReturnTwoDimensionArray(methodCaller) || paramsAreArrays(
+                methodCaller,
+                arrayCallArguments);
+        if (isArrayCall && !isAggregateFunction) {
+            return new ArrayCallMethodBoundNode(methodNode, children, methodCaller, arrayCallArguments);
+        } else {
+            return new MethodBoundNode(methodNode, children, methodCaller);
+        }
+    }
+
     private IMethodCaller getPoiMethodCaller(String methodName) {
         if (WorkbookEvaluator.getSupportedFunctionNames().contains(methodName)) {
             log.info("POI implementation for '{}' method is used", methodName);
@@ -172,6 +266,7 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
                 childrenCount);
     }
 
+    // TODO Array calls support fot attributes
     private IBoundNode bindModifiedAttributes(ISyntaxNode methodNode,
             IBindingContext bindingContext,
             String methodName,
@@ -211,7 +306,7 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
 
         for (Table table : instance.getTables()) {
             if (table.getName().equals(methodName)) {
-                int parameterCount = table.getVerticalConditions().size() + table.getHorizontalConditions().size() + table.getParameters().size();
+                int parameterCount = table.getParameters().size();
                 int possibleParameterCount = parameterCount + table.getAttributes().size();
                 if (parameterCount < children.length && possibleParameterCount >= children.length) {
                     IOpenClass[] parameterTypes = Arrays.copyOfRange(argumentTypes, 0, parameterCount);
@@ -271,7 +366,22 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
             return ((PoiMethodCaller) methodCaller).isHasArrayParameter();
         }
 
-        IOpenClass arrayCallParameter = methodCaller.getMethod().getSignature().getParameterType(arrayCallArguments.get(0));
+        if (!arrayCallArguments.isEmpty()) {
+            return isArrayParam(methodCaller, arrayCallArguments.get(0));
+        } else {
+            int numberOfParameters = methodCaller.getMethod().getSignature().getNumberOfParameters();
+            for (int i = 0; i < numberOfParameters; i++) {
+                if (isArrayParam(methodCaller, i)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
+    private boolean isArrayParam(IMethodCaller methodCaller, Integer paramNum) {
+        IOpenClass arrayCallParameter = methodCaller.getMethod().getSignature().getParameterType(paramNum);
         return arrayCallParameter.isArray() ||
                 JavaOpenClass.OBJECT.equals(arrayCallParameter) && methodCaller instanceof JavaOpenMethod;
     }

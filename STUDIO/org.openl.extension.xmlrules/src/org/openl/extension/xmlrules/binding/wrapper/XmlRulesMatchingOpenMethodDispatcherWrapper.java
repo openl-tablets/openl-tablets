@@ -10,6 +10,7 @@ import org.openl.vm.IRuntimeEnv;
 public class XmlRulesMatchingOpenMethodDispatcherWrapper extends MatchingOpenMethodDispatcherWrapper {
     private final XlsModuleOpenClass xlsModuleOpenClass;
     private final ProjectData projectData;
+    private final ArgumentsConverter argumentsConverter;
 
     public XmlRulesMatchingOpenMethodDispatcherWrapper(XlsModuleOpenClass xlsModuleOpenClass,
             MatchingOpenMethodDispatcher delegate,
@@ -17,6 +18,8 @@ public class XmlRulesMatchingOpenMethodDispatcherWrapper extends MatchingOpenMet
         super(xlsModuleOpenClass, delegate);
         this.xlsModuleOpenClass = xlsModuleOpenClass;
         this.projectData = projectData;
+
+        argumentsConverter = new ArgumentsConverter(delegate.getMethod());
     }
 
     @Override
@@ -29,6 +32,7 @@ public class XmlRulesMatchingOpenMethodDispatcherWrapper extends MatchingOpenMet
             ProjectData.setCurrentInstance(projectData);
         }
         try {
+            params = argumentsConverter.convert(params);
             return super.invoke(target, params, env);
         } finally {
             if (topLevel) {
