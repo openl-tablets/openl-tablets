@@ -162,7 +162,12 @@ public class PoiMethodCaller implements IMethodCaller {
         } else if (param instanceof Boolean) {
             value = BoolEval.valueOf((Boolean) param);
         } else if (param instanceof Object[][]) {
-            value = new WrappedAreaEval((Object[][]) param);
+            Object[][] arr = (Object[][]) param;
+            if (arr.length == 1 && arr[0].length == 1) {
+                value = getValueEval(arr[0][0]);
+            } else {
+                value = new WrappedAreaEval(arr);
+            }
         } else {
             value = new WrappedRefEval(param);
         }
