@@ -37,7 +37,8 @@ public class RuleServicePublisherLIstenerTest implements ApplicationContextAware
         Assert.assertEquals(2, RuleServicePublisherLIstenerTestListener.onDeployCount);
         Assert.assertEquals(0, RuleServicePublisherLIstenerTestListener.onUndeployCount);
         
-        publisher.redeploy(service);
+        publisher.undeploy(service.getName());
+        publisher.deploy(service);
         
         Assert.assertEquals(3, RuleServicePublisherLIstenerTestListener.onDeployCount);
         Assert.assertEquals(1, RuleServicePublisherLIstenerTestListener.onUndeployCount);
