@@ -58,6 +58,10 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
     private String colIdType;
     private String identifierQuoteString;
 
+    private String getTableName() {
+        return identifierQuoteString + REPO_TABLE + identifierQuoteString;
+    }
+
     private String getCreateTableStatement(){
         return "CREATE TABLE " + getTableName() + " (" + COL_ID + " %s NOT NULL, " + COL_DATA + " %s, " + COL_TIME + " %s, PRIMARY KEY (" + COL_ID + "))";
     }
@@ -304,15 +308,15 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
 
     private void initTable(Connection conn) throws SQLException {
         if (tableExists(conn)) {
-            log.info("Table '{}' already exists", getTableName());
+            log.info("Table '{}' already exists", REPO_TABLE);
             return;
         }
         createTable(conn);
         if (tableExists(conn)) {
-            log.info("Table '{}' has been created", getTableName());
+            log.info("Table '{}' has been created", REPO_TABLE);
             return;
         }
-        throw new IllegalStateException("Table '" + getTableName() + "' has not created");
+        throw new IllegalStateException("Table '" + REPO_TABLE + "' has not created");
     }
 
     private boolean tableExists(Connection connection) {
@@ -320,13 +324,13 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         try {
             DatabaseMetaData metaData = connection.getMetaData();
             if ("Oracle".equals(metaData.getDatabaseProductName())) {
-                rs = metaData.getTables(null, metaData.getUserName(), getTableName(), new String[] { "TABLE" });
+                rs = metaData.getTables(null, metaData.getUserName(), REPO_TABLE, new String[] { "TABLE" });
             } else {
                 rs = metaData.getTables(null, null, REPO_TABLE, new String[] { "TABLE" });
             }
             return rs.next();
         } catch (SQLException e) {
-            log.debug("SQLException occurs while checking the table {}", getTableName(), e);
+            log.debug("SQLException occurs while checking the table {}", REPO_TABLE, e);
             return false;
         } finally {
             safeClose(rs);
@@ -345,7 +349,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
             statement = conn.createStatement();
             statement.executeUpdate(sql);
         } catch (SQLException e) {
-            log.warn("SQLException occurs while checking the table {}", getTableName(), e);
+            log.warn("SQLException occurs while checking the table {}", REPO_TABLE, e);
         } finally {
             safeClose(statement);
         }
@@ -538,9 +542,5 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         private void shutdown() {
             doShutdown();
         }
-    }
-
-    public String getTableName() {
-        return identifierQuoteString + REPO_TABLE + identifierQuoteString;
     }
 }
