@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 
 // TODO Reduce complexity
 public class XmlRulesParser extends BaseParser {
+    private static final String FUNCTION_TABLE_SUFFIX = "_";
     private final Logger log = LoggerFactory.getLogger(XmlRulesParser.class);
     private List<ParseError> parseErrors = new ArrayList<ParseError>();
 
@@ -327,6 +328,7 @@ public class XmlRulesParser extends BaseParser {
                     segment = null;
                 }
 
+                String tableName = table.getName();
                 boolean hasFunctionArguments = table.getParameters().size() > table.getHorizontalConditions().size() +
                         table.getVerticalConditions().size();
                 if (hasFunctionArguments) {
@@ -335,6 +337,7 @@ public class XmlRulesParser extends BaseParser {
                     }
 
                     createFunctionTable(gridBuilder, sheet, table);
+                    tableName += FUNCTION_TABLE_SUFFIX;
                 }
                 boolean isSimpleRules = table.getHorizontalConditions().isEmpty();
 
@@ -348,7 +351,7 @@ public class XmlRulesParser extends BaseParser {
                 int headerWidth = 0;
 
                 if (segment != null) {
-                    String tablePartHeader = "TablePart " + table.getName() +
+                    String tablePartHeader = "TablePart " + tableName +
                             (segment.isColumnSegment() ? " column " : " row ")
                             + segment.getSegmentNumber() + " of " + segment.getTotalSegments();
                     gridBuilder.addCell(tablePartHeader, tableWidth).nextRow();
@@ -362,7 +365,7 @@ public class XmlRulesParser extends BaseParser {
 //                if (StringUtils.isBlank(returnType)) {
 //                    returnType = "Object";
 //                }
-                header.append(tableType).append(" ").append(returnType).append(" ").append(table.getName()).append("(");
+                header.append(tableType).append(" ").append(returnType).append(" ").append(tableName).append("(");
                 boolean needComma = false;
                 for (Parameter parameter : table.getParameters()) {
                     if (!isDimension(parameter)) {
@@ -589,7 +592,11 @@ public class XmlRulesParser extends BaseParser {
         }
 
         StringBuilder tableInvokeString = new StringBuilder();
-        tableInvokeString.append(returnType).append(" result = ").append(table.getName()).append("(");
+        tableInvokeString.append(returnType)
+                .append(" result = ")
+                .append(table.getName())
+                .append(FUNCTION_TABLE_SUFFIX)
+                .append("(");
         boolean needComma = false;
         for (ParameterImpl parameter : parameters) {
             if (isDimension(parameter)) {
