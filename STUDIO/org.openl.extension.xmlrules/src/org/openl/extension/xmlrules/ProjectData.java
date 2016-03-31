@@ -15,7 +15,6 @@ import org.openl.extension.xmlrules.model.Table;
 import org.openl.extension.xmlrules.model.Type;
 import org.openl.extension.xmlrules.model.single.node.RangeNode;
 
-// TODO Check, that this data is cleared when it's not needed anymore
 public class ProjectData {
     private static final ThreadLocal<ProjectData> INSTANCE = new ThreadLocal<ProjectData>();
     private static final ThreadLocal<Unmarshaller> unmarshallerThreadLocal = new ThreadLocal<Unmarshaller>();
