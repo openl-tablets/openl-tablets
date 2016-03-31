@@ -360,11 +360,10 @@ public class XmlRulesParser extends BaseParser {
 
                 String tableType = isSimpleRules ? "SimpleRules" : "SimpleLookup";
                 StringBuilder header = new StringBuilder();
-                String returnType = "Object"; // Until it will be fixed on LE side
-//                String returnType = table.getReturnType();
-//                if (StringUtils.isBlank(returnType)) {
-//                    returnType = "Object";
-//                }
+                String returnType = table.getReturnType();
+                if (StringUtils.isBlank(returnType)) {
+                    returnType = "Object";
+                }
                 header.append(tableType).append(" ").append(returnType).append(" ").append(tableName).append("(");
                 boolean needComma = false;
                 for (Parameter parameter : table.getParameters()) {
@@ -532,11 +531,10 @@ public class XmlRulesParser extends BaseParser {
 
     private void createFunctionTable(StringGridBuilder gridBuilder, Sheet sheet, Table table) {
         StringBuilder headerBuilder = new StringBuilder();
-        String returnType = "Object"; // Until it will be fixed on LE side
-        //                String returnType = function.getReturnType();
-        //                if (StringUtils.isBlank(returnType)) {
-        //                    returnType = "Object";
-        //                }
+        String returnType = table.getReturnType();
+        if (StringUtils.isBlank(returnType)) {
+            returnType = "Object";
+        }
 
         headerBuilder.append("Method ")
                 .append(returnType)
@@ -985,11 +983,14 @@ public class XmlRulesParser extends BaseParser {
                 boolean isRange = cellAddress.contains(":");
 
                 StringBuilder headerBuilder = new StringBuilder();
-                String returnType = isRange ? "Object[][]" : "Object"; // Until it will be fixed on LE side
-//                String returnType = function.getReturnType();
-//                if (StringUtils.isBlank(returnType)) {
-//                    returnType = "Object";
-//                }
+                String returnType = function.getReturnType();
+                if (StringUtils.isBlank(returnType)) {
+                    returnType = "Object";
+                }
+
+                if (isRange && !returnType.endsWith("[][]")) {
+                    returnType += "[][]";
+                }
 
                 headerBuilder.append("Method ")
                         .append(returnType)
