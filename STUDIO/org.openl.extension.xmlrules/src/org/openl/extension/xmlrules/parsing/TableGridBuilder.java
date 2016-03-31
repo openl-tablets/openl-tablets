@@ -1,0 +1,692 @@
+package org.openl.extension.xmlrules.parsing;
+
+import java.util.*;
+
+import org.apache.commons.lang3.StringUtils;
+import org.openl.extension.xmlrules.model.*;
+import org.openl.extension.xmlrules.model.single.*;
+import org.openl.extension.xmlrules.syntax.StringGridBuilder;
+import org.openl.extension.xmlrules.utils.CellReference;
+import org.openl.message.OpenLMessagesUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public final class TableGridBuilder {
+    private static final String FUNCTION_TABLE_SUFFIX = "_";
+
+    private TableGridBuilder() {
+    }
+
+    public static void build(StringGridBuilder gridBuilder, Sheet sheet) {
+        Logger log = LoggerFactory.getLogger(TableGridBuilder.class);
+        try {
+            if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
+                sheet = ((SheetHolder) sheet).getInternalSheet();
+            }
+            if (sheet.getTables() == null) {
+                return;
+            }
+
+            Set<String> tablesNamesWithAttributes = new HashSet<String>();
+            for (Table table : sheet.getTables()) {
+                if (!table.getAttributes().isEmpty()) {
+                    tablesNamesWithAttributes.add(table.getName());
+                }
+            }
+
+            for (Table table : sheet.getTables()) {
+                table = prepareTable(table);
+                Segment segment = table.getSegment();
+                if (segment != null && (segment.getTotalSegments() == 1 || tablesNamesWithAttributes.contains(table.getName()))) {
+                    segment = null;
+                }
+
+                String tableName = table.getName();
+                boolean hasFunctionArguments = table.getParameters().size() > table.getHorizontalConditions().size() +
+                        table.getVerticalConditions().size();
+                if (hasFunctionArguments) {
+                    if (segment != null && segment.getSegmentNumber() > 1) {
+                        return;
+                    }
+
+                    createFunctionTable(gridBuilder, sheet, table);
+                    tableName += FUNCTION_TABLE_SUFFIX;
+                }
+                boolean isSimpleRules = table.getHorizontalConditions().isEmpty();
+
+                int tableWidth = getTableWidth(table, isSimpleRules);
+                List<Attribute> attributes = table.getAttributes();
+                if (!attributes.isEmpty()) {
+                    tableWidth = Math.max(tableWidth, 3);
+                }
+
+                int headerHeight = 0;
+                int headerWidth = 0;
+
+                if (segment != null) {
+                    String tablePartHeader = "TablePart " + tableName +
+                            (segment.isColumnSegment() ? " column " : " row ")
+                            + segment.getSegmentNumber() + " of " + segment.getTotalSegments();
+                    gridBuilder.addCell(tablePartHeader, tableWidth).nextRow();
+                }
+                int tableRow = gridBuilder.getRow();
+
+                String tableType = isSimpleRules ? "SimpleRules" : "SimpleLookup";
+                StringBuilder header = new StringBuilder();
+                String returnType = table.getReturnType();
+                if (StringUtils.isBlank(returnType)) {
+                    returnType = "Object";
+                }
+                header.append(tableType).append(" ").append(returnType).append(" ").append(tableName).append("(");
+                boolean needComma = false;
+                for (Parameter parameter : table.getParameters()) {
+                    if (!isDimension(parameter)) {
+                        continue;
+                    }
+                    if (needComma) {
+                        header.append(", ");
+                    }
+                    String type = parameter.getType();
+                    if (StringUtils.isBlank(type)) {
+                        type = "String";
+                    }
+                    header.append(type).append(' ').append(parameter.getName());
+                    needComma = true;
+                }
+                header.append(")");
+
+                if (segment == null || segment.isColumnSegment() || segment.getSegmentNumber() == 1) {
+                    gridBuilder.addCell(header.toString(), tableWidth);
+                    gridBuilder.nextRow();
+                    headerHeight++;
+                }
+
+                int attributesCount = attributes.size();
+                headerHeight += attributesCount;
+                GridBuilderUtils.addAttributes(gridBuilder, attributes);
+
+                int startColumn = gridBuilder.getStartColumn();
+
+                // HC expressions
+                if (segment == null || !segment.isColumnSegment() || segment.getSegmentNumber() == 1) {
+                    gridBuilder.setStartColumn(startColumn + table.getVerticalConditions().size());
+
+                    for (Condition condition : table.getHorizontalConditions()) {
+                        for (Expression expression : condition.getExpressions()) {
+                            String value = convertExpressionValue(expression);
+                            gridBuilder.addCell(value, expression.getWidth());
+                        }
+                        gridBuilder.nextRow();
+                        headerHeight++;
+                    }
+                    gridBuilder.setStartColumn(startColumn);
+                }
+
+                // VC header
+                if (segment == null || segment.isColumnSegment() || segment.getSegmentNumber() == 1) {
+                    if (isSimpleRules) {
+                        for (Parameter parameter : table.getParameters()) {
+                            gridBuilder.addCell(parameter.getName().toUpperCase());
+                        }
+                        gridBuilder.addCell("Return");
+                        gridBuilder.nextRow();
+                        headerHeight++;
+                    } else {
+                        List<ParameterImpl> parameters = table.getParameters();
+                        for (int i = 0; i < parameters.size(); i++) {
+                            if (i >= table.getVerticalConditions().size()) {
+                                break;
+                            }
+                            Parameter parameter = parameters.get(i);
+                            gridBuilder.setCell(gridBuilder.getColumn(),
+                                    tableRow + 1 + attributesCount,
+                                    1,
+                                    table.getHorizontalConditions().size(),
+                                    parameter.getName().toUpperCase());
+                            headerWidth++;
+                        }
+                    }
+                }
+
+                // VC expressions
+                int conditionRow = gridBuilder.getRow();
+                int conditionColumn = gridBuilder.getColumn();
+                for (Condition condition : table.getVerticalConditions()) {
+                    int row = conditionRow;
+                    for (Expression expression : condition.getExpressions()) {
+                        String value = convertExpressionValue(expression);
+                        gridBuilder.setCell(conditionColumn,
+                                row,
+                                expression.getWidth(),
+                                expression.getHeight(),
+                                value);
+                        row += expression.getHeight();
+                    }
+                    conditionColumn++;
+                }
+
+                // Return values
+                String workbookName = sheet.getWorkbookName();
+                String sheetName = sheet.getName();
+                if (isSimpleRules) {
+                    gridBuilder.setRow(tableRow + headerHeight);
+                    gridBuilder.setStartColumn(conditionColumn);
+                } else {
+                    gridBuilder.setRow(tableRow + headerHeight);
+                    gridBuilder.setStartColumn(startColumn + headerWidth);
+                }
+                for (ReturnRow returnValues : table.getReturnValues()) {
+                    for (Expression returnValue : returnValues.getList()) {
+                        try {
+                            if (returnValue.getReference()) {
+                                String cell = CellReference.parse(workbookName, sheetName, returnValue.getValue())
+                                        .getStringValue();
+                                gridBuilder.addCell(String.format("= (%s) Cell(\"%s\")", returnType, cell));
+                            } else {
+                                gridBuilder.addCell(returnValue.getValue());
+                            }
+                            if (isSimpleRules && returnValues.getList().size() > 1) {
+                                log.warn("SimpleRules can't contain two-dimensional return values");
+                                break;
+                            }
+                        } catch (Exception e) {
+                            log.error(e.getMessage(), e);
+                            OpenLMessagesUtils.addError(e);
+                            gridBuilder.addCell("Error: " + e.getMessage());
+                        }
+                    }
+                    gridBuilder.nextRow();
+                }
+                gridBuilder.setStartColumn(startColumn);
+                gridBuilder.nextRow();
+            }
+        } catch (RuntimeException e) {
+            log.error(e.getMessage(), e);
+            OpenLMessagesUtils.addError(e);
+            gridBuilder.nextRow();
+        }
+    }
+
+    private static String convertExpressionValue(Expression expression) {
+        String value = expression.getValue();
+        if (value == null) {
+            return null;
+        }
+
+        value = value.toLowerCase();
+
+        if ("*".equals(value)) {
+            value = "";
+        }
+        return value;
+    }
+
+    private static void createFunctionTable(StringGridBuilder gridBuilder, Sheet sheet, Table table) {
+        StringBuilder headerBuilder = new StringBuilder();
+        String returnType = table.getReturnType();
+        if (StringUtils.isBlank(returnType)) {
+            returnType = "Object";
+        }
+
+        headerBuilder.append("Method ")
+                .append(returnType)
+                .append(' ')
+                .append(table.getName())
+                .append('(');
+        List<ParameterImpl> parameters = table.getParameters();
+        String workbookName = sheet.getWorkbookName();
+        String sheetName = sheet.getName();
+        for (int i = 0; i < parameters.size(); i++) {
+            if (i > 0) {
+                headerBuilder.append(", ");
+            }
+            Parameter parameter = parameters.get(i);
+            String type = parameter.getType();
+
+            if (isDimension(parameter)) {
+                if (StringUtils.isBlank(type)) {
+                    type = "String";
+                }
+                headerBuilder.append(type).append(" ").append(parameter.getName());
+            } else {
+                if (StringUtils.isBlank(type)) {
+                    type = "Object";
+                }
+                CellReference cellReference = CellReference.parse(workbookName, sheetName, parameter.getName());
+                headerBuilder.append(type)
+                        .append(" ")
+                        .append("R")
+                        .append(cellReference.getRow())
+                        .append("C")
+                        .append(cellReference.getColumn());
+            }
+        }
+        headerBuilder.append(')');
+
+        List<Attribute> attributes = table.getAttributes();
+        int width = attributes.isEmpty() ? 1 : 3;
+
+        gridBuilder.addCell(headerBuilder.toString(), width).nextRow();
+
+        GridBuilderUtils.addAttributes(gridBuilder, attributes);
+
+        for (ParameterImpl parameter : parameters) {
+            if (!isDimension(parameter)) {
+                CellReference reference = CellReference.parse(workbookName, sheetName, parameter.getName());
+                String cell = String.format("Push(\"%s\", R%sC%s);",
+                        reference.getStringValue(),
+                        reference.getRow(),
+                        reference.getColumn());
+                gridBuilder.addCell(cell).nextRow();
+            }
+        }
+
+        StringBuilder tableInvokeString = new StringBuilder();
+        tableInvokeString.append(returnType)
+                .append(" result = ")
+                .append(table.getName())
+                .append(FUNCTION_TABLE_SUFFIX)
+                .append("(");
+        boolean needComma = false;
+        for (ParameterImpl parameter : parameters) {
+            if (isDimension(parameter)) {
+                if (needComma) {
+                    tableInvokeString.append(", ");
+                }
+
+                tableInvokeString.append(parameter.getName());
+
+                needComma = true;
+            }
+        }
+        tableInvokeString.append(");");
+        gridBuilder.addCell(tableInvokeString.toString());
+        gridBuilder.nextRow();
+
+        for (ParameterImpl parameter : parameters) {
+            if (!isDimension(parameter)) {
+                CellReference reference = CellReference.parse(workbookName, sheetName, parameter.getName());
+                String cell = String.format("Pop(\"%s\");", reference.getStringValue());
+                gridBuilder.addCell(cell).nextRow();
+            }
+        }
+
+        gridBuilder.addCell("return result;").nextRow();
+
+        gridBuilder.nextRow();
+    }
+    private static boolean isDimension(Parameter parameter) {
+        return parameter.getName().startsWith("dim");
+    }
+
+    private static Table prepareTable(Table source) {
+        return sortReturnCells(sortConditionsOrder(removeGapsFromReturnRows(source)));
+    }
+
+    private static Table removeGapsFromReturnRows(Table source) {
+        List<ConditionImpl> horizontalConditions = source.getHorizontalConditions();
+        List<ConditionImpl> verticalConditions = source.getVerticalConditions();
+        if (horizontalConditions.isEmpty() || verticalConditions.isEmpty()) {
+            return source;
+        }
+
+        int rowCount;
+        int columnCount;
+
+        int skipRows;
+        int skipColumns;
+
+        List<ReturnRow> returnValues = source.getReturnValues();
+
+        TableRanges tableRanges = source.getTableRanges();
+        if (tableRanges == null) {
+            if ((verticalConditions.size() == 0 || returnValues.size() == verticalConditions.get(0)
+                    .getExpressions()
+                    .size())
+                    && (horizontalConditions.size() == 0 ||
+                    horizontalConditions.get(0).getExpressions().size() == returnValues.get(0).getList().size())) {
+                return source;
+            }
+
+            rowCount = verticalConditions.size() > 0 ? verticalConditions.get(0).getExpressions().size() : 0;
+            columnCount = horizontalConditions.size() > 0 ? horizontalConditions.get(0).getExpressions().size() : 0;
+            skipRows = returnValues.size() - rowCount;
+            skipColumns = returnValues.get(0).getList().size() - columnCount;
+        } else {
+            Range verticalRange = tableRanges.getVerticalConditionsRange();
+            Range horizontalRange = tableRanges.getHorizontalConditionsRange();
+            Range returnValuesRange = tableRanges.getReturnValuesRange();
+
+            int rowStart = verticalRange.getRowNumber();
+            rowCount = verticalRange.getRowCount();
+
+            int columnStart = horizontalRange.getColumnNumber();
+            columnCount = horizontalRange.getColCount();
+
+            skipRows = returnValuesRange.getRowNumber() - rowStart;
+            skipColumns = returnValuesRange.getColumnNumber() - columnStart;
+        }
+
+        if (skipRows > 0 || skipColumns > 0) {
+            String message = "There are gaps in the Table " + source.getName() + ". First " + skipRows + " rows and " +
+                    skipColumns + " columns were skipped";
+            Logger log = LoggerFactory.getLogger(TableGridBuilder.class);
+            log.warn(message);
+            OpenLMessagesUtils.addWarn(message);
+        }
+
+        List<ReturnRow> newReturnValues = new ArrayList<ReturnRow>();
+
+        List<ReturnRow> subList = returnValues.subList(skipRows, skipRows + rowCount);
+        for (ReturnRow returnValue : subList) {
+            ReturnRow newReturnRow = new ReturnRow();
+            newReturnRow.setList(returnValue.getList().subList(skipColumns, skipColumns + columnCount));
+            newReturnValues.add(newReturnRow);
+        }
+
+        TableImpl table = new TableImpl();
+
+        table.setSegment((SegmentImpl) source.getSegment());
+        table.setName(source.getName());
+        table.setAttributes(source.getAttributes());
+        table.setReturnType(source.getReturnType());
+        table.setParameters(new ArrayList<ParameterImpl>(source.getParameters()));
+        table.setHorizontalConditions(new ArrayList<ConditionImpl>(horizontalConditions));
+        table.setVerticalConditions(new ArrayList<ConditionImpl>(verticalConditions));
+        table.setReturnValues(newReturnValues);
+
+        return table;
+    }
+
+    private static Table sortConditionsOrder(Table source) {
+        Logger log = LoggerFactory.getLogger(TableGridBuilder.class);
+        try {
+            boolean sortedConditions = true;
+
+            int dimensionNumber = 0;
+            List<ConditionImpl> verticalConditions = source.getVerticalConditions();
+            List<ConditionImpl> horizontalConditions = source.getHorizontalConditions();
+            int verticalSize = verticalConditions.size();
+            int horizontalSize = horizontalConditions.size();
+
+            for (ConditionImpl condition : verticalConditions) {
+                if (condition.getParameterIndex() != dimensionNumber) {
+                    sortedConditions = false;
+                    break;
+                }
+                dimensionNumber++;
+            }
+            for (ConditionImpl condition : horizontalConditions) {
+                if (condition.getParameterIndex() != dimensionNumber) {
+                    sortedConditions = false;
+                    break;
+                }
+                dimensionNumber++;
+            }
+
+            if (sortedConditions) {
+                return source;
+            }
+
+            int parametersCount = source.getParameters().size();
+            List<ConditionPath> conditionPaths = new ArrayList<ConditionPath>();
+
+            for (int parameterIndex = 0; parameterIndex < parametersCount; parameterIndex++) {
+                for (int i = 0; i < verticalSize; i++) {
+                    ConditionImpl condition = verticalConditions.get(i);
+                    if (parameterIndex == condition.getParameterIndex()) {
+                        conditionPaths.add(new ConditionPath(true, i));
+                        break;
+                    }
+                }
+                for (int i = 0; i < horizontalSize; i++) {
+                    ConditionImpl condition = horizontalConditions.get(i);
+                    if (parameterIndex == condition.getParameterIndex()) {
+                        conditionPaths.add(new ConditionPath(false, i));
+                        break;
+                    }
+                }
+            }
+
+            ArrayList<ConditionImpl> newVerticalConditions = new ArrayList<ConditionImpl>();
+            ArrayList<ReturnRow> newReturnValues = new ArrayList<ReturnRow>();
+            for (int i = 0; i < conditionPaths.size(); i++) {
+                ConditionImpl condition = new ConditionImpl();
+                condition.setParameterIndex(i);
+                condition.setExpressions(new ArrayList<ExpressionImpl>());
+                newVerticalConditions.add(condition);
+            }
+
+            if (conditionPaths.get(0).isVertical()) {
+                int rows = verticalConditions.get(0).getExpressions().size();
+                for (int row = 0; row < rows; row++) {
+                    if (horizontalSize == 0) {
+                        for (int paramIndex = 0; paramIndex < conditionPaths.size(); paramIndex++) {
+                            int conditionIndex = conditionPaths.get(paramIndex).getIndex();
+                            ExpressionImpl expression = verticalConditions.get(conditionIndex).getExpressions().get(row);
+                            newVerticalConditions.get(paramIndex).getExpressions().add(expression);
+                        }
+
+                        fillNewReturnValues(source, newReturnValues, row, 0);
+                    } else {
+                        int columns = horizontalConditions.get(0).getExpressions().size();
+                        for (int column = 0; column < columns; column++) {
+                            fillNewVerticalConditions(source, conditionPaths, newVerticalConditions, row, column);
+                            fillNewReturnValues(source, newReturnValues, row, column);
+                        }
+                    }
+                }
+            } else {
+                int columns = horizontalConditions.get(0).getExpressions().size();
+                for (int column = 0; column < columns; column++) {
+                    if (verticalSize == 0) {
+                        for (int paramIndex = 0; paramIndex < conditionPaths.size(); paramIndex++) {
+                            int conditionIndex = conditionPaths.get(paramIndex).getIndex();
+                            ExpressionImpl expression = horizontalConditions.get(conditionIndex).getExpressions().get(
+                                    column);
+                            newVerticalConditions.get(paramIndex).getExpressions().add(expression);
+                        }
+
+                        fillNewReturnValues(source, newReturnValues, 0, column);
+                    } else {
+                        int rows = verticalConditions.get(0).getExpressions().size();
+                        for (int row = 0; row < rows; row++) {
+                            fillNewVerticalConditions(source, conditionPaths, newVerticalConditions, row, column);
+                            fillNewReturnValues(source, newReturnValues, row, column);
+                        }
+                    }
+                }
+            }
+
+            TableImpl table = new TableImpl();
+            table.setSegment((SegmentImpl) source.getSegment());
+            table.setName(source.getName());
+            table.setAttributes(source.getAttributes());
+            table.setReturnType(source.getReturnType());
+            table.setParameters(new ArrayList<ParameterImpl>(source.getParameters()));
+            table.setHorizontalConditions(new ArrayList<ConditionImpl>());
+            table.setVerticalConditions(newVerticalConditions);
+            table.setReturnValues(newReturnValues);
+
+            return table;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            OpenLMessagesUtils.addError(e);
+            return source;
+        }
+    }
+
+    private static void fillNewReturnValues(Table source, ArrayList<ReturnRow> newReturnValues, int row, int column) {
+        ReturnRow newReturnRow = new ReturnRow();
+        ExpressionImpl expression = source.getReturnValues().get(row).getList().get(column);
+        newReturnRow.setList(Collections.singletonList(expression));
+
+        newReturnValues.add(newReturnRow);
+    }
+    private static void fillNewVerticalConditions(Table source,
+            List<ConditionPath> conditionPaths,
+            ArrayList<ConditionImpl> newVerticalConditions, int row, int column) {
+        List<ConditionImpl> verticalConditions = source.getVerticalConditions();
+        List<ConditionImpl> horizontalConditions = source.getHorizontalConditions();
+
+        for (int paramIndex = 0; paramIndex < conditionPaths.size(); paramIndex++) {
+            ConditionPath conditionPath = conditionPaths.get(paramIndex);
+            int conditionIndex = conditionPath.getIndex();
+
+            ExpressionImpl expression;
+            if (conditionPath.isVertical()) {
+                expression = verticalConditions.get(conditionIndex).getExpressions().get(row);
+            } else {
+                expression = horizontalConditions.get(conditionIndex).getExpressions().get(column);
+            }
+
+            newVerticalConditions.get(paramIndex).getExpressions().add(expression);
+        }
+    }
+
+    private static Table sortReturnCells(Table source) {
+        try {
+            TableImpl table = new TableImpl();
+            table.setSegment((SegmentImpl) source.getSegment());
+            table.setName(source.getName());
+            table.setAttributes(source.getAttributes());
+            table.setReturnType(source.getReturnType());
+            table.setParameters(new ArrayList<ParameterImpl>(source.getParameters()));
+            table.setHorizontalConditions(new ArrayList<ConditionImpl>(source.getHorizontalConditions()));
+            table.setVerticalConditions(new ArrayList<ConditionImpl>(source.getVerticalConditions()));
+            table.setReturnValues(new ArrayList<ReturnRow>(source.getReturnValues()));
+
+            final List<ConditionImpl> verticalConditions = table.getVerticalConditions();
+            final List<ConditionImpl> horizontalConditions = table.getHorizontalConditions();
+            List<ReturnRow> returnValues = table.getReturnValues();
+
+            List<Integer> rowNumbers = new ArrayList<Integer>();
+            List<Integer> columnNumbers = new ArrayList<Integer>();
+            for (int i = 0; i < returnValues.size(); i++) {
+                rowNumbers.add(i);
+            }
+            for (int i = 0; i < returnValues.get(0).getList().size(); i++) {
+                columnNumbers.add(i);
+            }
+
+            if (verticalConditions.size() > 0) {
+                Collections.sort(rowNumbers, new ConditionsComparator(verticalConditions));
+            }
+
+            if (horizontalConditions.size() > 0) {
+                Collections.sort(columnNumbers, new ConditionsComparator(horizontalConditions));
+            }
+
+            for (ConditionImpl condition : verticalConditions) {
+                List<ExpressionImpl> oldExpressions = condition.getExpressions();
+                List<ExpressionImpl> newExpressions = new ArrayList<ExpressionImpl>();
+                for (Integer rowNumber : rowNumbers) {
+                    newExpressions.add(oldExpressions.get(rowNumber));
+                }
+                condition.setExpressions(newExpressions);
+            }
+
+            for (ConditionImpl condition : horizontalConditions) {
+                List<ExpressionImpl> oldExpressions = condition.getExpressions();
+                List<ExpressionImpl> newExpressions = new ArrayList<ExpressionImpl>();
+                for (Integer rowNumber : columnNumbers) {
+                    newExpressions.add(oldExpressions.get(rowNumber));
+                }
+                condition.setExpressions(newExpressions);
+            }
+
+            List<ReturnRow> newReturnValues = new ArrayList<ReturnRow>();
+            for (Integer rowNumber : rowNumbers) {
+                newReturnValues.add(returnValues.get(rowNumber));
+            }
+            returnValues = newReturnValues;
+
+            for (ReturnRow returnRow : returnValues) {
+                List<ExpressionImpl> oldExpressions = returnRow.getList();
+                List<ExpressionImpl> newExpressions = new ArrayList<ExpressionImpl>();
+                for (Integer rowNumber : columnNumbers) {
+                    newExpressions.add(oldExpressions.get(rowNumber));
+                }
+                returnRow.setList(newExpressions);
+            }
+
+            table.setReturnValues(returnValues);
+
+            return table;
+        } catch (Exception e) {
+            Logger log = LoggerFactory.getLogger(TableGridBuilder.class);
+            log.error(e.getMessage(), e);
+            OpenLMessagesUtils.addError(e);
+            return source;
+        }
+    }
+
+    private static int getTableWidth(Table table, boolean isSimpleRules) {
+        int tableWidth = 0;
+        for (Condition condition : table.getVerticalConditions()) {
+            if (condition.getExpressions().size() > 0) {
+                tableWidth += condition.getExpressions().get(0).getWidth();
+            }
+        }
+
+        if (table.getHorizontalConditions().size() > 0) {
+            Condition condition = table.getHorizontalConditions().get(0);
+            for (Expression expression : condition.getExpressions()) {
+                tableWidth += expression.getWidth();
+            }
+        }
+
+        if (isSimpleRules) {
+            tableWidth += 1;
+        }
+
+        if (tableWidth == 0) {
+            tableWidth = 1;
+        }
+        return tableWidth;
+    }
+
+    private static class ConditionsComparator implements Comparator<Integer> {
+        private final List<ConditionImpl> conditions;
+
+        public ConditionsComparator(List<ConditionImpl> conditions) {
+            this.conditions = conditions;
+        }
+
+        @Override
+        public int compare(Integer o1, Integer o2) {
+            for (ConditionImpl condition : conditions) {
+                String v1 = condition.getExpressions().get(o1).getValue();
+                String v2 = condition.getExpressions().get(o2).getValue();
+                if (!v1.equals(v2)) {
+                    if ("*".equals(v1)) {
+                        return 1;
+                    }
+                    if ("*".equals(v2)) {
+                        return -1;
+                    }
+                    return 0;
+                }
+            }
+            throw new IllegalStateException("All conditions are equal");
+        }
+    }
+
+    private static class ConditionPath {
+        private final boolean vertical;
+        private final int index;
+
+        private ConditionPath(boolean vertical, int index) {
+            this.vertical = vertical;
+            this.index = index;
+        }
+
+        public boolean isVertical() {
+            return vertical;
+        }
+
+        public int getIndex() {
+            return index;
+        }
+    }
+}

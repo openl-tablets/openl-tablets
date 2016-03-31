@@ -19,6 +19,7 @@ public class ExtensionDescriptor implements IExtensionDescriptor {
     public static final String TYPES_SHEET = "Types";
     public static final String TYPES_WORKBOOK = "Types.xlsx";
     public static final String MAIN_WORKBOOK = "Main.xlsx";
+    public static final int MAIN_SHEET_NUMBER = 1;
 
     @Override
     public String getOpenLName() {
