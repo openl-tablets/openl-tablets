@@ -18,7 +18,6 @@ public final class TableGridBuilder {
     }
 
     public static void build(StringGridBuilder gridBuilder, Sheet sheet) {
-        Logger log = LoggerFactory.getLogger(TableGridBuilder.class);
         try {
             if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
                 sheet = ((SheetHolder) sheet).getInternalSheet();
@@ -60,151 +59,206 @@ public final class TableGridBuilder {
                     tableWidth = Math.max(tableWidth, 3);
                 }
 
-                int headerHeight = 0;
-                int headerWidth = 0;
-
-                if (segment != null) {
-                    String tablePartHeader = "TablePart " + tableName +
-                            (segment.isColumnSegment() ? " column " : " row ")
-                            + segment.getSegmentNumber() + " of " + segment.getTotalSegments();
-                    gridBuilder.addCell(tablePartHeader, tableWidth).nextRow();
-                }
                 int tableRow = gridBuilder.getRow();
 
-                String tableType = isSimpleRules ? "SimpleRules" : "SimpleLookup";
-                StringBuilder header = new StringBuilder();
                 String returnType = table.getReturnType();
                 if (StringUtils.isBlank(returnType)) {
                     returnType = "Object";
                 }
-                header.append(tableType).append(" ").append(returnType).append(" ").append(tableName).append("(");
-                boolean needComma = false;
-                for (Parameter parameter : table.getParameters()) {
-                    if (!isDimension(parameter)) {
-                        continue;
-                    }
-                    if (needComma) {
-                        header.append(", ");
-                    }
-                    String type = parameter.getType();
-                    if (StringUtils.isBlank(type)) {
-                        type = "String";
-                    }
-                    header.append(type).append(' ').append(parameter.getName());
-                    needComma = true;
-                }
-                header.append(")");
 
-                if (segment == null || segment.isColumnSegment() || segment.getSegmentNumber() == 1) {
-                    gridBuilder.addCell(header.toString(), tableWidth);
-                    gridBuilder.nextRow();
-                    headerHeight++;
-                }
+                Size headerSize = writeHeader(gridBuilder, table, segment, tableName, isSimpleRules, tableWidth, returnType);
 
-                int attributesCount = attributes.size();
-                headerHeight += attributesCount;
-                GridBuilderUtils.addAttributes(gridBuilder, attributes);
+                int attributesCount = writeAttributes(gridBuilder, attributes, headerSize);
 
                 int startColumn = gridBuilder.getStartColumn();
 
-                // HC expressions
-                if (segment == null || !segment.isColumnSegment() || segment.getSegmentNumber() == 1) {
-                    gridBuilder.setStartColumn(startColumn + table.getVerticalConditions().size());
+                writeHorizontalColumnExpressions(gridBuilder, table, segment, headerSize, startColumn);
+                writeVerticalColumnHeader(gridBuilder, table, segment, isSimpleRules, tableRow, headerSize, attributesCount);
 
-                    for (Condition condition : table.getHorizontalConditions()) {
-                        for (Expression expression : condition.getExpressions()) {
-                            String value = convertExpressionValue(expression);
-                            gridBuilder.addCell(value, expression.getWidth());
-                        }
-                        gridBuilder.nextRow();
-                        headerHeight++;
-                    }
-                    gridBuilder.setStartColumn(startColumn);
-                }
+                // Don't move this expression. The order is important.
+                int simpleRulesStartColumn = gridBuilder.getColumn() + table.getVerticalConditions().size();
 
-                // VC header
-                if (segment == null || segment.isColumnSegment() || segment.getSegmentNumber() == 1) {
-                    if (isSimpleRules) {
-                        for (Parameter parameter : table.getParameters()) {
-                            gridBuilder.addCell(parameter.getName().toUpperCase());
-                        }
-                        gridBuilder.addCell("Return");
-                        gridBuilder.nextRow();
-                        headerHeight++;
-                    } else {
-                        List<ParameterImpl> parameters = table.getParameters();
-                        for (int i = 0; i < parameters.size(); i++) {
-                            if (i >= table.getVerticalConditions().size()) {
-                                break;
-                            }
-                            Parameter parameter = parameters.get(i);
-                            gridBuilder.setCell(gridBuilder.getColumn(),
-                                    tableRow + 1 + attributesCount,
-                                    1,
-                                    table.getHorizontalConditions().size(),
-                                    parameter.getName().toUpperCase());
-                            headerWidth++;
-                        }
-                    }
-                }
+                writeVerticalColumnExpressions(gridBuilder, table);
+                writeReturnValues(gridBuilder, sheet, table, isSimpleRules, tableRow, returnType, headerSize, startColumn, simpleRulesStartColumn);
 
-                // VC expressions
-                int conditionRow = gridBuilder.getRow();
-                int conditionColumn = gridBuilder.getColumn();
-                for (Condition condition : table.getVerticalConditions()) {
-                    int row = conditionRow;
-                    for (Expression expression : condition.getExpressions()) {
-                        String value = convertExpressionValue(expression);
-                        gridBuilder.setCell(conditionColumn,
-                                row,
-                                expression.getWidth(),
-                                expression.getHeight(),
-                                value);
-                        row += expression.getHeight();
-                    }
-                    conditionColumn++;
-                }
-
-                // Return values
-                String workbookName = sheet.getWorkbookName();
-                String sheetName = sheet.getName();
-                if (isSimpleRules) {
-                    gridBuilder.setRow(tableRow + headerHeight);
-                    gridBuilder.setStartColumn(conditionColumn);
-                } else {
-                    gridBuilder.setRow(tableRow + headerHeight);
-                    gridBuilder.setStartColumn(startColumn + headerWidth);
-                }
-                for (ReturnRow returnValues : table.getReturnValues()) {
-                    for (Expression returnValue : returnValues.getList()) {
-                        try {
-                            if (returnValue.getReference()) {
-                                String cell = CellReference.parse(workbookName, sheetName, returnValue.getValue())
-                                        .getStringValue();
-                                gridBuilder.addCell(String.format("= (%s) Cell(\"%s\")", returnType, cell));
-                            } else {
-                                gridBuilder.addCell(returnValue.getValue());
-                            }
-                            if (isSimpleRules && returnValues.getList().size() > 1) {
-                                log.warn("SimpleRules can't contain two-dimensional return values");
-                                break;
-                            }
-                        } catch (Exception e) {
-                            log.error(e.getMessage(), e);
-                            OpenLMessagesUtils.addError(e);
-                            gridBuilder.addCell("Error: " + e.getMessage());
-                        }
-                    }
-                    gridBuilder.nextRow();
-                }
                 gridBuilder.setStartColumn(startColumn);
                 gridBuilder.nextRow();
             }
         } catch (RuntimeException e) {
+            Logger log = LoggerFactory.getLogger(TableGridBuilder.class);
             log.error(e.getMessage(), e);
             OpenLMessagesUtils.addError(e);
             gridBuilder.nextRow();
         }
+    }
+
+    private static Size writeHeader(StringGridBuilder gridBuilder,
+            Table table,
+            Segment segment,
+            String tableName, boolean isSimpleRules, int tableWidth, String returnType) {
+        Size headerSize = new Size();
+
+        if (isTableHeaderNeeded(segment)) {
+            headerSize.height++;
+        }
+
+        if (segment != null) {
+            String tablePartHeader = "TablePart " + tableName +
+                    (segment.isColumnSegment() ? " column " : " row ")
+                    + segment.getSegmentNumber() + " of " + segment.getTotalSegments();
+            gridBuilder.addCell(tablePartHeader, tableWidth).nextRow();
+        }
+
+        String tableType = isSimpleRules ? "SimpleRules" : "SimpleLookup";
+        StringBuilder header = new StringBuilder();
+        header.append(tableType).append(" ").append(returnType).append(" ").append(tableName).append("(");
+        boolean needComma = false;
+        for (Parameter parameter : table.getParameters()) {
+            if (!isDimension(parameter)) {
+                continue;
+            }
+            if (needComma) {
+                header.append(", ");
+            }
+            String type = parameter.getType();
+            if (StringUtils.isBlank(type)) {
+                type = "String";
+            }
+            header.append(type).append(' ').append(parameter.getName());
+            needComma = true;
+        }
+        header.append(")");
+
+        if (isTableHeaderNeeded(segment)) {
+            gridBuilder.addCell(header.toString(), tableWidth);
+            gridBuilder.nextRow();
+        }
+        return headerSize;
+    }
+
+    private static int writeAttributes(StringGridBuilder gridBuilder,
+            List<Attribute> attributes,
+            Size headerSize) {
+        int attributesCount = attributes.size();
+        headerSize.height += attributesCount;
+        GridBuilderUtils.addAttributes(gridBuilder, attributes);
+        return attributesCount;
+    }
+
+    private static void writeHorizontalColumnExpressions(StringGridBuilder gridBuilder,
+            Table table,
+            Segment segment,
+            Size headerSize, int startColumn) {
+        // HC expressions
+        if (segment == null || !segment.isColumnSegment() || segment.getSegmentNumber() == 1) {
+            gridBuilder.setStartColumn(startColumn + table.getVerticalConditions().size());
+
+            for (Condition condition : table.getHorizontalConditions()) {
+                for (Expression expression : condition.getExpressions()) {
+                    String value = convertExpressionValue(expression);
+                    gridBuilder.addCell(value, expression.getWidth());
+                }
+                gridBuilder.nextRow();
+                headerSize.height++;
+            }
+            gridBuilder.setStartColumn(startColumn);
+        }
+    }
+
+    private static void writeVerticalColumnHeader(StringGridBuilder gridBuilder,
+            Table table,
+            Segment segment,
+            boolean isSimpleRules, int tableRow, Size headerSize, int attributesCount) {
+        // VC header
+        if (isTableHeaderNeeded(segment)) {
+            if (isSimpleRules) {
+                for (Parameter parameter : table.getParameters()) {
+                    gridBuilder.addCell(parameter.getName().toUpperCase());
+                }
+                gridBuilder.addCell("Return");
+                gridBuilder.nextRow();
+                headerSize.height++;
+            } else {
+                List<ParameterImpl> parameters = table.getParameters();
+                for (int i = 0; i < parameters.size(); i++) {
+                    if (i >= table.getVerticalConditions().size()) {
+                        break;
+                    }
+                    Parameter parameter = parameters.get(i);
+                    gridBuilder.setCell(gridBuilder.getColumn(),
+                            tableRow + 1 + attributesCount,
+                            1,
+                            table.getHorizontalConditions().size(),
+                            parameter.getName().toUpperCase());
+                    headerSize.width++;
+                }
+            }
+        }
+    }
+
+    private static void writeVerticalColumnExpressions(StringGridBuilder gridBuilder, Table table) {
+        // VC expressions
+        int conditionRow = gridBuilder.getRow();
+        int conditionColumn = gridBuilder.getColumn();
+        for (Condition condition : table.getVerticalConditions()) {
+            int row = conditionRow;
+            for (Expression expression : condition.getExpressions()) {
+                String value = convertExpressionValue(expression);
+                gridBuilder.setCell(conditionColumn, row, expression.getWidth(), expression.getHeight(), value);
+                row += expression.getHeight();
+            }
+            conditionColumn++;
+        }
+    }
+
+    // TODO merge startColumn and simpleRulesStartColumn
+    private static void writeReturnValues(StringGridBuilder gridBuilder,
+            Sheet sheet,
+            Table table,
+            boolean isSimpleRules,
+            int tableRow,
+            String returnType,
+            Size headerSize,
+            int startColumn,
+            int simpleRulesStartColumn) {
+        // Return values
+        String workbookName = sheet.getWorkbookName();
+        String sheetName = sheet.getName();
+        if (isSimpleRules) {
+            gridBuilder.setRow(tableRow + headerSize.height);
+            gridBuilder.setStartColumn(simpleRulesStartColumn);
+        } else {
+            gridBuilder.setRow(tableRow + headerSize.height);
+            gridBuilder.setStartColumn(startColumn + headerSize.width);
+        }
+        for (ReturnRow returnValues : table.getReturnValues()) {
+            for (Expression returnValue : returnValues.getList()) {
+                try {
+                    if (returnValue.getReference()) {
+                        String cell = CellReference.parse(workbookName, sheetName, returnValue.getValue())
+                                .getStringValue();
+                        gridBuilder.addCell(String.format("= (%s) Cell(\"%s\")", returnType, cell));
+                    } else {
+                        gridBuilder.addCell(returnValue.getValue());
+                    }
+                    if (isSimpleRules && returnValues.getList().size() > 1) {
+                        Logger log = LoggerFactory.getLogger(TableGridBuilder.class);
+                        log.warn("SimpleRules can't contain two-dimensional return values");
+                        break;
+                    }
+                } catch (Exception e) {
+                    Logger log = LoggerFactory.getLogger(TableGridBuilder.class);
+                    log.error(e.getMessage(), e);
+                    OpenLMessagesUtils.addError(e);
+                    gridBuilder.addCell("Error: " + e.getMessage());
+                }
+            }
+            gridBuilder.nextRow();
+        }
+    }
+
+    private static boolean isTableHeaderNeeded(Segment segment) {
+        return segment == null || segment.isColumnSegment() || segment.getSegmentNumber() == 1;
     }
 
     private static String convertExpressionValue(Expression expression) {
@@ -315,6 +369,7 @@ public final class TableGridBuilder {
 
         gridBuilder.nextRow();
     }
+
     private static boolean isDimension(Parameter parameter) {
         return parameter.getName().startsWith("dim");
     }
@@ -688,5 +743,10 @@ public final class TableGridBuilder {
         public int getIndex() {
             return index;
         }
+    }
+
+    private static class Size {
+        private int width = 0;
+        private int height = 0;
     }
 }
