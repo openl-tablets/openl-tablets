@@ -24,7 +24,6 @@ public final class CellExpressionGridBuilder {
     }
 
     public static void build(StringGridBuilder gridBuilder, Sheet sheet, List<ParseError> parseErrors) {
-        Logger log = LoggerFactory.getLogger(CellExpressionGridBuilder.class);
         try {
             if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
                 sheet = ((SheetHolder) sheet).getInternalSheet();
@@ -41,31 +40,9 @@ public final class CellExpressionGridBuilder {
 
             List<List<String>> conditions = new ArrayList<List<String>>();
             List<String> columnNumbers = new ArrayList<String>();
-            columnNumbers.add("-");
-            conditions.add(columnNumbers);
-            for (LazyCells cells : sheet.getCells()) {
-                for (Cell cell : cells.getCells()) {
-                    if (cell.getHasArrayFormula()) {
-                        // Array cells are handled differently
-                        continue;
-                    }
 
-                    try {
-                        // Initialize rows and columns
-                        // FIXME
-                        CellReference reference = CellReference.parse(workbookName, sheetName, cell.getAddress());
-                        getCurrentRow(conditions, reference);
-                        getCurrentColumnNumber(columnNumbers, reference);
-                    } catch (RuntimeException e) {
-                        log.error(e.getMessage(), e);
-                        ParseError error = GridBuilderUtils.createError(gridBuilder.getRow(),
-                                gridBuilder.getColumn(),
-                                cell,
-                                e);
-                        parseErrors.add(error);
-                    }
-                }
-            }
+            initialize(columnNumbers, conditions, sheet, gridBuilder, parseErrors);
+
             for (LazyCells cells : sheet.getCells()) {
                 for (Cell cell : cells.getCells()) {
                     if (cell.getHasArrayFormula()) {
@@ -104,6 +81,7 @@ public final class CellExpressionGridBuilder {
                             }
                         } catch (RuntimeException e) {
                             expression = "";
+                            Logger log = LoggerFactory.getLogger(CellExpressionGridBuilder.class);
                             log.error(e.getMessage(), e);
                             ParseError error = GridBuilderUtils.createError(gridBuilder.getRow(),
                                     currentColumnNumber,
@@ -113,6 +91,7 @@ public final class CellExpressionGridBuilder {
                         }
                         currentRow.set(currentColumnNumber, expression);
                     } catch (Exception e) {
+                        Logger log = LoggerFactory.getLogger(CellExpressionGridBuilder.class);
                         log.error(e.getMessage(), e);
                         ParseError error = GridBuilderUtils.createError(gridBuilder.getRow(),
                                 gridBuilder.getColumn(),
@@ -126,9 +105,45 @@ public final class CellExpressionGridBuilder {
             }
             addCells(gridBuilder, cellsOnSheetName, conditions);
         } catch (RuntimeException e) {
+            Logger log = LoggerFactory.getLogger(CellExpressionGridBuilder.class);
             log.error(e.getMessage(), e);
             OpenLMessagesUtils.addError(e);
             gridBuilder.nextRow();
+        }
+    }
+
+    private static void initialize(List<String> columnNumbers,
+            List<List<String>> conditions,
+            Sheet sheet,
+            StringGridBuilder gridBuilder,
+            List<ParseError> parseErrors) {
+        columnNumbers.add("-");
+        conditions.add(columnNumbers);
+        for (LazyCells cells : sheet.getCells()) {
+            for (Cell cell : cells.getCells()) {
+                if (cell.getHasArrayFormula()) {
+                    // Array cells are handled differently
+                    continue;
+                }
+
+                try {
+                    // Initialize rows and columns
+                    // FIXME
+                    CellReference reference = CellReference.parse(sheet.getWorkbookName(),
+                            sheet.getName(),
+                            cell.getAddress());
+                    getCurrentRow(conditions, reference);
+                    getCurrentColumnNumber(columnNumbers, reference);
+                } catch (RuntimeException e) {
+                    Logger log = LoggerFactory.getLogger(CellExpressionGridBuilder.class);
+                    log.error(e.getMessage(), e);
+                    ParseError error = GridBuilderUtils.createError(gridBuilder.getRow(),
+                            gridBuilder.getColumn(),
+                            cell,
+                            e);
+                    parseErrors.add(error);
+                }
+            }
         }
     }
 
