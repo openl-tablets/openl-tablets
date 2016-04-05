@@ -38,9 +38,6 @@ public final class FunctionGridBuilder {
         }
         for (Function function : sheet.getFunctions()) {
             try {
-                List<Attribute> attributes = function.getAttributes();
-                int width = attributes.isEmpty() ? 1 : 3;
-
                 Segment segment = function.getSegment();
                 if (segment != null && segment.getTotalSegments() == 1) {
                     segment = null;
@@ -54,82 +51,18 @@ public final class FunctionGridBuilder {
                 String cellAddress = function.getCellAddress();
                 boolean isRange = cellAddress.contains(":");
 
-                StringBuilder headerBuilder = new StringBuilder();
-                String returnType = function.getReturnType();
-                if (StringUtils.isBlank(returnType)) {
-                    returnType = "Object";
-                }
+                String returnType = getReturnType(function, isRange);
 
-                if (isRange && !returnType.endsWith("[][]")) {
-                    returnType += "[][]";
-                }
-
-                headerBuilder.append("Method ")
-                        .append(returnType)
-                        .append(' ')
-                        .append(function.getName())
-                        .append('(');
                 List<ParameterImpl> parameters = function.getParameters();
                 String workbookName = sheet.getWorkbookName();
                 String sheetName = sheet.getName();
-                for (int i = 0; i < parameters.size(); i++) {
-                    if (i > 0) {
-                        headerBuilder.append(", ");
-                    }
-                    Parameter parameter = parameters.get(i);
-                    String type = parameter.getType();
-                    if (StringUtils.isBlank(type)) {
-                        type = "Object";
-                    }
-                    CellReference cellReference = CellReference.parse(workbookName, sheetName, parameter.getName());
-                    headerBuilder.append(type)
-                            .append(" ")
-                            .append("R")
-                            .append(cellReference.getRow())
-                            .append("C")
-                            .append(cellReference.getColumn());
-                }
-                headerBuilder.append(')');
 
-                gridBuilder.addCell(headerBuilder.toString(), width).nextRow();
+                writeHeader(gridBuilder, function, returnType, parameters, workbookName, sheetName);
 
+                List<Attribute> attributes = function.getAttributes();
                 GridBuilderUtils.addAttributes(gridBuilder, attributes);
 
-                for (ParameterImpl parameter : parameters) {
-                    CellReference reference = CellReference.parse(workbookName, sheetName, parameter.getName());
-                    String cell = String.format("Push(\"%s\", R%sC%s);",
-                            reference.getStringValue(),
-                            reference.getRow(),
-                            reference.getColumn());
-                    gridBuilder.addCell(cell).nextRow();
-                }
-
-                if (isRange) {
-                    String[] addresses = cellAddress.split(":");
-                    CellReference left = CellReference.parse(workbookName, sheetName, addresses[0]);
-                    CellReference right = CellReference.parse(workbookName, sheetName, addresses[1]);
-                    gridBuilder.addCell(String.format("%s result = CellRange(\"%s\", %d, %d);",
-                            returnType,
-                            left.getStringValue(),
-                            right.getRowNumber() - left.getRowNumber() + 1,
-                            right.getColumnNumber() - left.getColumnNumber() + 1));
-                    gridBuilder.nextRow();
-                } else {
-                    CellReference cellReference = CellReference.parse(workbookName, sheetName, cellAddress);
-                    gridBuilder.addCell(String.format("%s result = (%s) Cell(\"%s\");",
-                            returnType,
-                            returnType,
-                            cellReference.getStringValue()));
-                    gridBuilder.nextRow();
-                }
-
-                for (ParameterImpl parameter : parameters) {
-                    CellReference reference = CellReference.parse(workbookName, sheetName, parameter.getName());
-                    String cell = String.format("Pop(\"%s\");", reference.getStringValue());
-                    gridBuilder.addCell(cell).nextRow();
-                }
-
-                gridBuilder.addCell("return result;").nextRow();
+                writeBody(gridBuilder, cellAddress, isRange, returnType, parameters, workbookName, sheetName);
 
                 gridBuilder.nextRow();
             } catch (RuntimeException e) {
@@ -138,5 +71,94 @@ public final class FunctionGridBuilder {
                 gridBuilder.nextRow();
             }
         }
+    }
+
+    private static void writeHeader(StringGridBuilder gridBuilder,
+            Function function,
+            String returnType,
+            List<ParameterImpl> parameters, String workbookName, String sheetName) {
+        List<Attribute> attributes = function.getAttributes();
+        int width = attributes.isEmpty() ? 1 : 3;
+
+        StringBuilder headerBuilder = new StringBuilder();
+        headerBuilder.append("Method ")
+                .append(returnType)
+                .append(' ')
+                .append(function.getName())
+                .append('(');
+        for (int i = 0; i < parameters.size(); i++) {
+            if (i > 0) {
+                headerBuilder.append(", ");
+            }
+            Parameter parameter = parameters.get(i);
+            String type = parameter.getType();
+            if (StringUtils.isBlank(type)) {
+                type = "Object";
+            }
+            CellReference cellReference = CellReference.parse(workbookName, sheetName, parameter.getName());
+            headerBuilder.append(type)
+                    .append(" ")
+                    .append("R")
+                    .append(cellReference.getRow())
+                    .append("C")
+                    .append(cellReference.getColumn());
+        }
+        headerBuilder.append(')');
+
+        gridBuilder.addCell(headerBuilder.toString(), width).nextRow();
+    }
+
+    private static void writeBody(StringGridBuilder gridBuilder,
+            String cellAddress,
+            boolean isRange,
+            String returnType,
+            List<ParameterImpl> parameters, String workbookName, String sheetName) {
+        for (ParameterImpl parameter : parameters) {
+            CellReference reference = CellReference.parse(workbookName, sheetName, parameter.getName());
+            String cell = String.format("Push(\"%s\", R%sC%s);",
+                    reference.getStringValue(),
+                    reference.getRow(),
+                    reference.getColumn());
+            gridBuilder.addCell(cell).nextRow();
+        }
+
+        if (isRange) {
+            String[] addresses = cellAddress.split(":");
+            CellReference left = CellReference.parse(workbookName, sheetName, addresses[0]);
+            CellReference right = CellReference.parse(workbookName, sheetName, addresses[1]);
+            gridBuilder.addCell(String.format("%s result = CellRange(\"%s\", %d, %d);",
+                    returnType,
+                    left.getStringValue(),
+                    right.getRowNumber() - left.getRowNumber() + 1,
+                    right.getColumnNumber() - left.getColumnNumber() + 1));
+            gridBuilder.nextRow();
+        } else {
+            CellReference cellReference = CellReference.parse(workbookName, sheetName, cellAddress);
+            gridBuilder.addCell(String.format("%s result = (%s) Cell(\"%s\");",
+                    returnType,
+                    returnType,
+                    cellReference.getStringValue()));
+            gridBuilder.nextRow();
+        }
+
+        for (ParameterImpl parameter : parameters) {
+            CellReference reference = CellReference.parse(workbookName, sheetName, parameter.getName());
+            String cell = String.format("Pop(\"%s\");", reference.getStringValue());
+            gridBuilder.addCell(cell).nextRow();
+        }
+
+        gridBuilder.addCell("return result;").nextRow();
+    }
+
+    private static String getReturnType(Function function, boolean isRange) {
+        String returnType = function.getReturnType();
+        if (StringUtils.isBlank(returnType)) {
+            returnType = "Object";
+        }
+
+        if (isRange && !returnType.endsWith("[][]")) {
+            returnType += "[][]";
+        }
+        return returnType;
     }
 }
