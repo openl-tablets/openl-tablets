@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.model.Function;
 import org.openl.extension.xmlrules.model.Parameter;
 import org.openl.extension.xmlrules.model.Segment;
@@ -158,6 +159,9 @@ public final class FunctionGridBuilder {
 
         if (isRange && !returnType.endsWith("[][]")) {
             returnType += "[][]";
+        } else if (ProjectData.getCurrentInstance().getTypeNames().contains(returnType)) {
+            // TODO: Remove it when it will be possible to choose if the type is an array on LE side
+            returnType += "[]";
         }
         return returnType;
     }
