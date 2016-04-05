@@ -3,6 +3,7 @@ package org.openl.extension.xmlrules.parsing;
 import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
+import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.model.single.*;
 import org.openl.extension.xmlrules.syntax.StringGridBuilder;
@@ -61,10 +62,7 @@ public final class TableGridBuilder {
 
                 int tableRow = gridBuilder.getRow();
 
-                String returnType = table.getReturnType();
-                if (StringUtils.isBlank(returnType)) {
-                    returnType = "Object";
-                }
+                String returnType = getReturnType(table);
 
                 Size headerSize = writeHeader(gridBuilder, table, segment, tableName, isSimpleRules, tableWidth, returnType);
 
@@ -90,6 +88,18 @@ public final class TableGridBuilder {
             OpenLMessagesUtils.addError(e);
             gridBuilder.nextRow();
         }
+    }
+
+    private static String getReturnType(Table table) {
+        String returnType = table.getReturnType();
+        if (StringUtils.isBlank(returnType)) {
+            returnType = "Object";
+        }
+        if (ProjectData.getCurrentInstance().getTypeNames().contains(returnType)) {
+            // TODO: Remove it when it will be possible to choose in LE, if the type is an array
+            returnType += "[]";
+        }
+        return returnType;
     }
 
     private static Size writeHeader(StringGridBuilder gridBuilder,
@@ -277,10 +287,7 @@ public final class TableGridBuilder {
 
     private static void createFunctionTable(StringGridBuilder gridBuilder, Sheet sheet, Table table) {
         StringBuilder headerBuilder = new StringBuilder();
-        String returnType = table.getReturnType();
-        if (StringUtils.isBlank(returnType)) {
-            returnType = "Object";
-        }
+        String returnType = getReturnType(table);
 
         headerBuilder.append("Method ")
                 .append(returnType)
