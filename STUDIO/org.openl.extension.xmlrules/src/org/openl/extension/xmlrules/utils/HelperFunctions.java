@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.poi.ss.usermodel.DateUtil;
+import org.openl.extension.xmlrules.ProjectData;
 
 public class HelperFunctions {
     private static final SimpleDateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
@@ -111,17 +112,24 @@ public class HelperFunctions {
         if (value != null) {
             Class<?> valueClass = value.getClass();
             if (!expectedClass.isAssignableFrom(valueClass)) {
-                if (expectedClass.isArray() && valueClass.isArray()) {
-                    // For example expected: Rider[], but actual: Object[] with Rider objects
-                    int size = Array.getLength(value);
+                if (expectedClass.isArray()) {
+                    Class<?> componentType = expectedClass.getComponentType();
+                    if (valueClass.isArray()) {
+                        // For example expected: Rider[], but actual: Object[] with Rider objects
+                        int size = Array.getLength(value);
 
-                    Object newValue = Array.newInstance(expectedClass.getComponentType(), size);
-                    for (int i = 0; i < size; ++i) {
-                        Array.set(newValue, i, Array.get(value, i));
+                        Object newValue = Array.newInstance(componentType, size);
+                        for (int i = 0; i < size; ++i) {
+                            Array.set(newValue, i, convertArgument(componentType, Array.get(value, i)));
+                        }
+
+                        value = newValue;
+                    } else {
+                        Object newValue = Array.newInstance(componentType, 1);
+                        Array.set(newValue, 1, convertArgument(componentType, value));
+                        value = newValue;
                     }
-
-                    value = newValue;
-                } else if (!expectedClass.isArray() && valueClass.isArray()) {
+                } else if (valueClass.isArray()) {
                     if (Array.getLength(value) == 1) {
                         value = convertArgument(expectedClass, Array.get(value, 0));
                     }
@@ -132,7 +140,7 @@ public class HelperFunctions {
                 } else if (Boolean.class == expectedClass) {
                     value = toBoolean(value);
                 } else if (Date.class == expectedClass) {
-                    value = getDate(value);
+                    value = toDate(value);
                 } else if (String.class == expectedClass) {
                     if (value instanceof Date) {
                         value = DEFAULT_DATE_FORMAT.format(value);
@@ -147,7 +155,7 @@ public class HelperFunctions {
         return value;
     }
 
-    public static Date getDate(Object date) {
+    public static Date toDate(Object date) {
         if (date == null || date instanceof Date) {
             return (Date) date;
         }
@@ -197,5 +205,26 @@ public class HelperFunctions {
         }
 
         throw new IllegalArgumentException("Unsupported date format '" + date + "'");
+    }
+
+    /**
+     * Get OpenL type analogue for XmlRules type
+     */
+    public static String getOpenLType(String xmlRulesType) {
+        // Number is Double. Other type names are same
+        return  "Number".equals(xmlRulesType) ? "Double" : xmlRulesType;
+    }
+
+    /**
+     * Convert XmlRules type to OpenL type
+     */
+    public static String convertToOpenLType(String xmlRulesType) {
+        String openLType = getOpenLType(xmlRulesType);
+        if (ProjectData.getCurrentInstance().getTypeNames().contains(openLType)) {
+            // TODO: Remove it when it will be possible to choose in LE, if the type is an array
+            openLType += "[]";
+        }
+
+        return  openLType;
     }
 }
