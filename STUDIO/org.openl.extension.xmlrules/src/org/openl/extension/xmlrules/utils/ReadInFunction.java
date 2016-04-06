@@ -5,7 +5,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.model.Type;
@@ -14,14 +13,7 @@ import org.openl.util.StringTool;
 
 public class ReadInFunction {
     public static Object[] readIn(String typeName, Object[][] array) {
-        Set<Type> types = ProjectData.getCurrentInstance().getTypes();
-        Type type = null;
-        for (Type t : types) {
-            if (t.getName().equalsIgnoreCase(typeName)) {
-                type = t;
-                break;
-            }
-        }
+        Type type = ProjectData.getCurrentInstance().getType(typeName);
 
         if (type == null) {
             throw new IllegalArgumentException("Type '" + typeName + "' can't be found");

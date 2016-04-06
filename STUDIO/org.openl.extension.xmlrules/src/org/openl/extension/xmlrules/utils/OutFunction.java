@@ -202,19 +202,7 @@ public class OutFunction {
     }
 
     private static Type getType(String typeName) {
-        if (typeName == null) {
-            return null;
-        }
-
-        Set<Type> types = ProjectData.getCurrentInstance().getTypes();
-        Type xmlRulesType = null;
-        for (Type t : types) {
-            if (typeName.equals(t.getName())) {
-                xmlRulesType = t;
-                break;
-            }
-        }
-        return xmlRulesType;
+        return ProjectData.getCurrentInstance().getType(typeName);
     }
 
     private static int fillFieldCoordinates(Type xmlRulesType,
@@ -226,7 +214,7 @@ public class OutFunction {
             String fieldName = field.getName();
             String fieldTypeName = field.getTypeName();
 
-            if (!projectData.getTypeNames().contains(fieldTypeName)) {
+            if (!projectData.containsType(fieldTypeName)) {
                 fieldRows.put(fieldPrefix + fieldName, currentRow);
                 currentRow++;
             } else {

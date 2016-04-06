@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.openl.extension.xmlrules.ProjectData;
+import org.openl.extension.xmlrules.model.Type;
 
 public class HelperFunctions {
     private static final SimpleDateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
@@ -212,7 +213,17 @@ public class HelperFunctions {
      */
     public static String getOpenLType(String xmlRulesType) {
         // Number is Double. Other type names are same
-        return  "Number".equals(xmlRulesType) ? "Double" : xmlRulesType;
+        if ("Number".equals(xmlRulesType)) {
+            return "Double";
+        }
+
+        Type type = ProjectData.getCurrentInstance().getType(xmlRulesType);
+        if (type != null) {
+            // To handle case insensitivity issues
+            return type.getName();
+        }
+
+        return xmlRulesType;
     }
 
     /**
@@ -220,7 +231,7 @@ public class HelperFunctions {
      */
     public static String convertToOpenLType(String xmlRulesType) {
         String openLType = getOpenLType(xmlRulesType);
-        if (ProjectData.getCurrentInstance().getTypeNames().contains(openLType)) {
+        if (ProjectData.getCurrentInstance().containsType(openLType)) {
             // TODO: Remove it when it will be possible to choose in LE, if the type is an array
             openLType += "[]";
         }
