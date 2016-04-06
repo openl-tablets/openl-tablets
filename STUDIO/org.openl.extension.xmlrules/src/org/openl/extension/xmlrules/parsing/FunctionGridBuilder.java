@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.model.Function;
 import org.openl.extension.xmlrules.model.Parameter;
 import org.openl.extension.xmlrules.model.Segment;
@@ -15,6 +14,7 @@ import org.openl.extension.xmlrules.model.single.ParameterImpl;
 import org.openl.extension.xmlrules.model.single.SheetHolder;
 import org.openl.extension.xmlrules.syntax.StringGridBuilder;
 import org.openl.extension.xmlrules.utils.CellReference;
+import org.openl.extension.xmlrules.utils.HelperFunctions;
 import org.openl.message.OpenLMessagesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,7 +92,7 @@ public final class FunctionGridBuilder {
                 headerBuilder.append(", ");
             }
             Parameter parameter = parameters.get(i);
-            String type = parameter.getType();
+            String type = HelperFunctions.convertToOpenLType(parameter.getType());
             if (StringUtils.isBlank(type)) {
                 type = "Object";
             }
@@ -152,14 +152,14 @@ public final class FunctionGridBuilder {
     }
 
     private static String getReturnType(Function function, boolean isRange) {
-        String returnType = function.getReturnType();
+        String returnType = HelperFunctions.convertToOpenLType(function.getReturnType());
         if (StringUtils.isBlank(returnType)) {
             returnType = "Object";
         }
 
         if (isRange && !returnType.endsWith("[][]")) {
             returnType += "[][]";
-        } else if (ProjectData.getCurrentInstance().getTypeNames().contains(returnType)) {
+        } else if (!"Object".equals(returnType) && !returnType.endsWith("[]")){
             // TODO: Remove it when it will be possible to choose if the type is an array on LE side
             returnType += "[]";
         }

@@ -6,6 +6,7 @@ import org.openl.extension.xmlrules.model.Field;
 import org.openl.extension.xmlrules.model.Sheet;
 import org.openl.extension.xmlrules.model.Type;
 import org.openl.extension.xmlrules.syntax.StringGridBuilder;
+import org.openl.extension.xmlrules.utils.HelperFunctions;
 import org.openl.message.OpenLMessagesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,7 @@ public final class TypeGridBuilder {
                 gridBuilder.addCell("Datatype " + type.getName(), 2).nextRow();
 
                 for (Field field : type.getFields()) {
-                    String typeName = field.getTypeName();
+                    String typeName = HelperFunctions.getOpenLType(field.getTypeName());
                     if (StringUtils.isBlank(typeName)) {
                         typeName = "String";
                     }

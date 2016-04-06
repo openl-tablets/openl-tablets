@@ -3,11 +3,11 @@ package org.openl.extension.xmlrules.parsing;
 import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
-import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.model.single.*;
 import org.openl.extension.xmlrules.syntax.StringGridBuilder;
 import org.openl.extension.xmlrules.utils.CellReference;
+import org.openl.extension.xmlrules.utils.HelperFunctions;
 import org.openl.message.OpenLMessagesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,13 +91,9 @@ public final class TableGridBuilder {
     }
 
     private static String getReturnType(Table table) {
-        String returnType = table.getReturnType();
+        String returnType = HelperFunctions.convertToOpenLType(table.getReturnType());
         if (StringUtils.isBlank(returnType)) {
             returnType = "Object";
-        }
-        if (ProjectData.getCurrentInstance().getTypeNames().contains(returnType)) {
-            // TODO: Remove it when it will be possible to choose in LE, if the type is an array
-            returnType += "[]";
         }
         return returnType;
     }
@@ -130,7 +126,7 @@ public final class TableGridBuilder {
             if (needComma) {
                 header.append(", ");
             }
-            String type = parameter.getType();
+            String type = HelperFunctions.convertToOpenLType(parameter.getType());
             if (StringUtils.isBlank(type)) {
                 type = "String";
             }
@@ -302,7 +298,7 @@ public final class TableGridBuilder {
                 headerBuilder.append(", ");
             }
             Parameter parameter = parameters.get(i);
-            String type = parameter.getType();
+            String type = HelperFunctions.convertToOpenLType(parameter.getType());
 
             if (isDimension(parameter)) {
                 if (StringUtils.isBlank(type)) {

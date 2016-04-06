@@ -17,6 +17,7 @@ import org.openl.extension.xmlrules.model.Function;
 import org.openl.extension.xmlrules.model.Table;
 import org.openl.extension.xmlrules.model.single.ParameterImpl;
 import org.openl.extension.xmlrules.model.single.node.IfErrorNode;
+import org.openl.extension.xmlrules.utils.HelperFunctions;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
@@ -184,16 +185,23 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
             String defaultType) {
         IOpenClass[] parameterTypes = new IOpenClass[parameters.size()];
         for (int i = 0; i < parameters.size(); i++) {
-            String parameterType = parameters.get(i).getType();
+            String parameterType = HelperFunctions.convertToOpenLType(parameters.get(i).getType());
             if (parameterType == null) {
                 parameterType = defaultType;
             }
+
+            String[] split = parameterType.split("\\[\\]", -1);
+            parameterType = split[0];
+            int dimensions = split.length - 1;
+
             IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, parameterType);
             if (type == null) {
                 BindHelper.processError("Can't find type " + parameterType,
                         methodNode,
                         bindingContext,
                         false);
+            } else if (dimensions > 0) {
+                type = type.getAggregateInfo().getIndexedAggregateType(type, dimensions);
             }
 
             parameterTypes[i] = type;
