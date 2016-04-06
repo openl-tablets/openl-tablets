@@ -383,24 +383,21 @@ public class FilterNode extends Node {
 
     protected boolean isDataInstanceNode() {
         return isEmptyComparison() && (node == null || node instanceof NumberNode) && ProjectData.getCurrentInstance()
-                .getTypeNames()
-                .contains(fieldName);
+                .containsType(fieldName);
     }
 
     protected boolean isFieldComparisonNode() {
-        return node != null && hasComparison() && ProjectData.getCurrentInstance().getFieldNames().contains(fieldName);
+        return node != null && hasComparison() && ProjectData.getCurrentInstance().containsField(fieldName);
     }
 
     protected boolean isFieldNode() {
         return node != null && (isEmptyComparison() || isIndex()) && ProjectData.getCurrentInstance()
-                .getFieldNames()
-                .contains(fieldName);
+                .containsField(fieldName);
     }
 
     protected boolean isParentNode() {
         return node != null && node instanceof FilterNode && isEmptyComparison() && ProjectData.getCurrentInstance()
-                .getTypeNames()
-                .contains(fieldName);
+                .containsType(fieldName);
     }
 
     protected void pushToChain(Deque<FilterNode> nodes) {

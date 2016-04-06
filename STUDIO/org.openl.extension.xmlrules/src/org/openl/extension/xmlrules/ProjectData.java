@@ -57,9 +57,9 @@ public class ProjectData {
     public void addType(Type type) {
         types.add(type);
 
-        typeNames.add(type.getName());
+        typeNames.add(type.getName().toLowerCase());
         for (Field field : type.getFields()) {
-            fieldNames.add(field.getName());
+            fieldNames.add(field.getName().toLowerCase());
         }
     }
 
@@ -75,16 +75,30 @@ public class ProjectData {
         namedRanges.put(name, rangeNode);
     }
 
+    public Type getType(String typeName) {
+        if (typeName == null) {
+            return null;
+        }
+
+        for (Type type : types) {
+            if (type.getName().equalsIgnoreCase(typeName)) {
+                return type;
+            }
+        }
+
+        return null;
+    }
+
+    public boolean containsType(String typeName) {
+        return typeName != null && typeNames.contains(typeName.toLowerCase());
+    }
+
     public Set<Type> getTypes() {
         return types;
     }
 
-    public Set<String> getTypeNames() {
-        return typeNames;
-    }
-
-    public Set<String> getFieldNames() {
-        return fieldNames;
+    public boolean containsField(String fieldName) {
+        return fieldName != null && fieldNames.contains(fieldName.toLowerCase());
     }
 
     public Map<String, RangeNode> getNamedRanges() {
