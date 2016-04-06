@@ -5,6 +5,7 @@ import java.util.*;
 import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.model.Type;
 import org.openl.extension.xmlrules.model.single.FieldImpl;
+import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 
@@ -264,11 +265,12 @@ public class OutFunction {
             return null;
         }
 
-        Class type = elem.getClass();
+        @SuppressWarnings("unchecked")
+        Class<Object> type = (Class<Object>) elem.getClass();
         if (type.isArray() && ((Object[]) elem).length == 1) {
             return getString(((Object[]) elem)[0]);
         } else {
-            return String.valueOf(elem);
+            return String2DataConvertorFactory.getConvertor(type).format(elem, null);
         }
     }
 
