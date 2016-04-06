@@ -14,10 +14,8 @@ public final class FunctionResolverFactory {
             return new OutFunctionResolver();
         }
         ProjectData projectData = ProjectData.getCurrentInstance();
-        for (Table table : projectData.getTables()) {
-            if (functionName.equals(table.getName())) {
-                return new TableResolver();
-            }
+        if (projectData.getTable(functionName) != null) {
+            return new TableResolver();
         }
 
         return new DefaultFunctionResolver();

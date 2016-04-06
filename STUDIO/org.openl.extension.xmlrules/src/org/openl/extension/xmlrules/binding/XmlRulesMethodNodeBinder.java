@@ -139,37 +139,35 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
             IOpenClass[] argumentTypes) {
         ProjectData instance = ProjectData.getCurrentInstance();
 
-        for (Function function : instance.getFunctions()) {
-            if (function.getName().equals(methodName)) {
-                List<ParameterImpl> parameters = function.getParameters();
-                if (parameters.size() == children.length) {
-                    return bindExactParametersMethodNode(methodNode,
-                            bindingContext,
-                            methodName,
-                            children,
-                            argumentTypes,
-                            parameters,
-                            "String");
-                } else {
-                    return bindModifiedAttributes(methodNode, bindingContext, methodName, argumentTypes, children);
-                }
+        Function function = instance.getFunction(methodName);
+        if (function != null) {
+            List<ParameterImpl> parameters = function.getParameters();
+            if (parameters.size() == children.length) {
+                return bindExactParametersMethodNode(methodNode,
+                        bindingContext,
+                        methodName,
+                        children,
+                        argumentTypes,
+                        parameters,
+                        "String");
+            } else {
+                return bindModifiedAttributes(methodNode, bindingContext, methodName, argumentTypes, children);
             }
         }
 
-        for (Table table : instance.getTables()) {
-            if (table.getName().equals(methodName)) {
-                List<ParameterImpl> parameters = table.getParameters();
-                if (parameters.size() == children.length) {
-                    return bindExactParametersMethodNode(methodNode,
-                            bindingContext,
-                            methodName,
-                            children,
-                            argumentTypes,
-                            parameters,
-                            "String");
-                } else {
-                    return bindModifiedAttributes(methodNode, bindingContext, methodName, argumentTypes, children);
-                }
+        Table table = instance.getTable(methodName);
+        if (table != null) {
+            List<ParameterImpl> parameters = table.getParameters();
+            if (parameters.size() == children.length) {
+                return bindExactParametersMethodNode(methodNode,
+                        bindingContext,
+                        methodName,
+                        children,
+                        argumentTypes,
+                        parameters,
+                        "String");
+            } else {
+                return bindModifiedAttributes(methodNode, bindingContext, methodName, argumentTypes, children);
             }
         }
 
@@ -287,53 +285,51 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
                 new IOpenClass[] {});
         ProjectData instance = ProjectData.getCurrentInstance();
 
-        for (Function function : instance.getFunctions()) {
-            if (function.getName().equals(methodName)) {
-                int parameterCount = function.getParameters().size();
-                int possibleParameterCount = parameterCount + function.getAttributes().size();
-                if (parameterCount < children.length && possibleParameterCount >= children.length) {
-                    IOpenClass[] parameterTypes = Arrays.copyOfRange(argumentTypes, 0, parameterCount);
-                    IMethodCaller methodCaller = bindingContext.findMethodCaller(ISyntaxConstants.THIS_NAMESPACE,
-                            methodName, parameterTypes);
-                    if (methodCaller == null) {
-                        return null;
-                    }
-
-                    return new MethodWithAttributesBoundNode(methodNode,
-                            children,
-                            methodCaller,
-                            modifyContext,
-                            restoreContext,
-                            function.getAttributes(),
-                            parameterCount);
-                } else {
+        Function function = instance.getFunction(methodName);
+        if (function != null) {
+            int parameterCount = function.getParameters().size();
+            int possibleParameterCount = parameterCount + function.getAttributes().size();
+            if (parameterCount < children.length && possibleParameterCount >= children.length) {
+                IOpenClass[] parameterTypes = Arrays.copyOfRange(argumentTypes, 0, parameterCount);
+                IMethodCaller methodCaller = bindingContext.findMethodCaller(ISyntaxConstants.THIS_NAMESPACE,
+                        methodName, parameterTypes);
+                if (methodCaller == null) {
                     return null;
                 }
+
+                return new MethodWithAttributesBoundNode(methodNode,
+                        children,
+                        methodCaller,
+                        modifyContext,
+                        restoreContext,
+                        function.getAttributes(),
+                        parameterCount);
+            } else {
+                return null;
             }
         }
 
-        for (Table table : instance.getTables()) {
-            if (table.getName().equals(methodName)) {
-                int parameterCount = table.getParameters().size();
-                int possibleParameterCount = parameterCount + table.getAttributes().size();
-                if (parameterCount < children.length && possibleParameterCount >= children.length) {
-                    IOpenClass[] parameterTypes = Arrays.copyOfRange(argumentTypes, 0, parameterCount);
-                    IMethodCaller methodCaller = bindingContext.findMethodCaller(ISyntaxConstants.THIS_NAMESPACE,
-                            methodName, parameterTypes);
-                    if (methodCaller == null) {
-                        return null;
-                    }
-
-                    return new MethodWithAttributesBoundNode(methodNode,
-                            children,
-                            methodCaller,
-                            modifyContext,
-                            restoreContext,
-                            table.getAttributes(),
-                            parameterCount);
-                } else {
+        Table table = instance.getTable(methodName);
+        if (table != null) {
+            int parameterCount = table.getParameters().size();
+            int possibleParameterCount = parameterCount + table.getAttributes().size();
+            if (parameterCount < children.length && possibleParameterCount >= children.length) {
+                IOpenClass[] parameterTypes = Arrays.copyOfRange(argumentTypes, 0, parameterCount);
+                IMethodCaller methodCaller = bindingContext.findMethodCaller(ISyntaxConstants.THIS_NAMESPACE,
+                        methodName, parameterTypes);
+                if (methodCaller == null) {
                     return null;
                 }
+
+                return new MethodWithAttributesBoundNode(methodNode,
+                        children,
+                        methodCaller,
+                        modifyContext,
+                        restoreContext,
+                        table.getAttributes(),
+                        parameterCount);
+            } else {
+                return null;
             }
         }
 
