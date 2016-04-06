@@ -9,8 +9,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.openl.extension.xmlrules.ProjectData;
-import org.openl.extension.xmlrules.model.Function;
-import org.openl.extension.xmlrules.model.Table;
 import org.openl.extension.xmlrules.model.Type;
 import org.openl.extension.xmlrules.model.single.Cell;
 import org.openl.extension.xmlrules.model.single.FieldImpl;
@@ -158,19 +156,7 @@ public class FilterNode extends Node {
         String functionName = functionNode.getName();
         ProjectData projectData = ProjectData.getCurrentInstance();
 
-        for (Function function : projectData.getFunctions()) {
-            if (function.getName().equalsIgnoreCase(functionName)) {
-                return true;
-            }
-        }
-
-        for (Table table : projectData.getTables()) {
-            if (table.getName().equalsIgnoreCase(functionName)) {
-                return true;
-            }
-        }
-
-        return false;
+        return projectData.getFunction(functionName) != null || projectData.getTable(functionName) != null;
     }
 
     public String wrapWithFieldAccess(String filterString, boolean lastFieldAccess, int skipFieldsCount) {

@@ -41,10 +41,9 @@ public class DefaultFunctionResolver implements FunctionResolver {
     protected List<ParameterImpl> getParameters(FunctionNode node) {
         ProjectData projectData = ProjectData.getCurrentInstance();
 
-        for (Function function : projectData.getFunctions()) {
-            if (node.getName().equals(function.getName())) {
-                return function.getParameters();
-            }
+        Function function = projectData.getFunction(node.getName());
+        if (function != null) {
+            return function.getParameters();
         }
 
         return null;

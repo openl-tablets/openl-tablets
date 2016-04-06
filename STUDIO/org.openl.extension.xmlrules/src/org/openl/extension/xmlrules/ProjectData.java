@@ -29,8 +29,8 @@ public class ProjectData {
     }
 
     private final Map<String, Type> types = new HashMap<String, Type>();
-    private final Set<Function> functions = new HashSet<Function>();
-    private final Set<Table> tables = new HashSet<Table>();
+    private final Map<String, Function> functions = new HashMap<String, Function>();
+    private final Map<String, Table> tables = new HashMap<String, Table>();
 
     private final Set<String> fieldNames = new HashSet<String>();
 
@@ -59,11 +59,11 @@ public class ProjectData {
     }
 
     public void addFunction(Function function) {
-        functions.add(function);
+        functions.put(function.getName().toLowerCase(), function);
     }
 
     public void addTable(Table table) {
-        tables.add(table);
+        tables.put(table.getName().toLowerCase(), table);
     }
 
     public void addNamedRange(String name, RangeNode rangeNode) {
@@ -71,11 +71,8 @@ public class ProjectData {
     }
 
     public Type getType(String typeName) {
-        if (typeName == null) {
-            return null;
-        }
+        return typeName == null ? null : types.get(typeName.toLowerCase());
 
-        return types.get(typeName.toLowerCase());
     }
 
     public boolean containsType(String typeName) {
@@ -94,11 +91,12 @@ public class ProjectData {
         return namedRanges;
     }
 
-    public Collection<Function> getFunctions() {
-        return functions;
+    public Function getFunction(String functionName) {
+        return functionName == null ? null : functions.get(functionName.toLowerCase());
     }
 
-    public Collection<Table> getTables() {
-        return tables;
+    public Table getTable(String tableName) {
+        return tableName == null ? null : tables.get(tableName.toLowerCase());
     }
+
 }

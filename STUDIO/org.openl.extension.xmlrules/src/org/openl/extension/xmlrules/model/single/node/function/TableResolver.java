@@ -13,10 +13,9 @@ public class TableResolver extends DefaultFunctionResolver {
     protected List<ParameterImpl> getParameters(FunctionNode node) {
         ProjectData projectData = ProjectData.getCurrentInstance();
 
-        for (Table table : projectData.getTables()) {
-            if (node.getName().equals(table.getName())) {
-                return table.getParameters();
-            }
+        Table table = projectData.getTable(node.getName());
+        if (table != null) {
+            return table.getParameters();
         }
 
         return null;
