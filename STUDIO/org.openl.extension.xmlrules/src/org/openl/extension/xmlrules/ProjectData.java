@@ -1,9 +1,6 @@
 package org.openl.extension.xmlrules;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -31,11 +28,10 @@ public class ProjectData {
         INSTANCE.remove();
     }
 
-    private final Set<Type> types = new HashSet<Type>();
+    private final Map<String, Type> types = new HashMap<String, Type>();
     private final Set<Function> functions = new HashSet<Function>();
     private final Set<Table> tables = new HashSet<Table>();
 
-    private final Set<String> typeNames = new HashSet<String>();
     private final Set<String> fieldNames = new HashSet<String>();
 
     private final Map<String, RangeNode> namedRanges = new HashMap<String, RangeNode>();
@@ -55,9 +51,8 @@ public class ProjectData {
     }
 
     public void addType(Type type) {
-        types.add(type);
+        types.put(type.getName().toLowerCase(), type);
 
-        typeNames.add(type.getName().toLowerCase());
         for (Field field : type.getFields()) {
             fieldNames.add(field.getName().toLowerCase());
         }
@@ -80,21 +75,15 @@ public class ProjectData {
             return null;
         }
 
-        for (Type type : types) {
-            if (type.getName().equalsIgnoreCase(typeName)) {
-                return type;
-            }
-        }
-
-        return null;
+        return types.get(typeName.toLowerCase());
     }
 
     public boolean containsType(String typeName) {
-        return typeName != null && typeNames.contains(typeName.toLowerCase());
+        return typeName != null && types.containsKey(typeName.toLowerCase());
     }
 
-    public Set<Type> getTypes() {
-        return types;
+    public Collection<Type> getTypes() {
+        return types.values();
     }
 
     public boolean containsField(String fieldName) {
@@ -105,11 +94,11 @@ public class ProjectData {
         return namedRanges;
     }
 
-    public Set<Function> getFunctions() {
+    public Collection<Function> getFunctions() {
         return functions;
     }
 
-    public Set<Table> getTables() {
+    public Collection<Table> getTables() {
         return tables;
     }
 }
