@@ -113,24 +113,27 @@ public class ZipUtils {
                             directoryList.add(file);
                         }
                     } else {
-                        ZipEntry entry = new ZipEntry(entryName);
-                        zos.putNextEntry(entry);
-                        FileInputStream fis = new FileInputStream(file);
-
-                        IOUtils.copy(fis, zos, data);
-                        fis.close();
+                        archiveFile(file, entryName, zos, data);
                     }
                 }
             } while (!directoryList.isEmpty());
         } else {
             // This is File
-            FileInputStream fis = new FileInputStream(sourceDirectory);
-            ZipEntry entry = new ZipEntry(sourceDirectory.getName());
+            String name = sourceDirectory.getName();
+            archiveFile(sourceDirectory, name, zos, data);
+        }
+        zos.close();
+    }
+
+    private static void archiveFile(File file, String name, ZipOutputStream zos, byte[] data) throws IOException {
+        FileInputStream fis = new FileInputStream(file);
+        try {
+            ZipEntry entry = new ZipEntry(name);
             zos.putNextEntry(entry);
 
             IOUtils.copy(fis, zos, data);
+        } finally {
             fis.close();
         }
-        zos.close();
     }
 }
