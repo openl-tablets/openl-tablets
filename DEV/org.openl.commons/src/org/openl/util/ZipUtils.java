@@ -77,9 +77,14 @@ public class ZipUtils {
      */
     public static void archive(File sourceDirectory, File targetFile) throws IOException {
         if (!sourceDirectory.exists()) {
-            throw new FileNotFoundException("File '" + sourceDirectory.getAbsolutePath() + "'not found!");
+            throw new FileNotFoundException("File '" + sourceDirectory.getAbsolutePath() + "' is not exist!");
         }
-        boolean isEntry = false;
+        if (sourceDirectory.isDirectory()) {
+            String[] list = sourceDirectory.list();
+            if (list == null || list.length == 0) {
+                throw new FileNotFoundException("Directory '" + sourceDirectory.getAbsolutePath() + "' is empty!");
+            }
+        }
         Queue<File> directoryList = new LinkedList<File>();
         FileOutputStream fos = new FileOutputStream(targetFile);
         ZipOutputStream zos = new ZipOutputStream(fos);
@@ -104,14 +109,12 @@ public class ZipUtils {
                         if (file.listFiles().length == 0) {
                             ZipEntry entry = new ZipEntry(entryName + "/");
                             zos.putNextEntry(entry);
-                            isEntry = true;
                         } else {
                             directoryList.add(file);
                         }
                     } else {
                         ZipEntry entry = new ZipEntry(entryName);
                         zos.putNextEntry(entry);
-                        isEntry = true;
                         FileInputStream fis = new FileInputStream(file);
 
                         IOUtils.copy(fis, zos, data);
@@ -124,15 +127,10 @@ public class ZipUtils {
             FileInputStream fis = new FileInputStream(sourceDirectory);
             ZipEntry entry = new ZipEntry(sourceDirectory.getName());
             zos.putNextEntry(entry);
-            isEntry = true;
 
             IOUtils.copy(fis, zos, data);
             fis.close();
         }
-        if (isEntry) {
-            zos.close();
-        } else {
-            zos = null;
-        }
+        zos.close();
     }
 }
