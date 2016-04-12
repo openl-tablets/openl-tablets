@@ -20,7 +20,7 @@ import java.util.zip.ZipOutputStream;
  */
 public class ZipUtils {
 
-    private static final int BUFFER = 2048;
+    private static final int BUFFER_SIZE = 64 * 1024;
 
     /**
      * Extract all files from a zip file into a directory.
@@ -41,7 +41,7 @@ public class ZipUtils {
      */
     public static void extractAll(InputStream zippedStream, File outputFolder) throws IOException {
 
-        byte[] buffer = new byte[BUFFER];
+        byte[] buffer = new byte[BUFFER_SIZE];
 
         ZipInputStream zis = new ZipInputStream(zippedStream);
         try {
@@ -104,7 +104,7 @@ public class ZipUtils {
      */
     private static void archive(File source, OutputStream output) throws IOException {
         ZipOutputStream zos = new ZipOutputStream(output);
-        byte data[] = new byte[BUFFER];
+        byte[] buffer = new byte[BUFFER_SIZE];
         if (source.isDirectory()) {
             // This is a directory
             String sourceDirAbsolutePath = source.getAbsolutePath() + File.separator;
@@ -128,14 +128,14 @@ public class ZipUtils {
                             directoryList.add(file);
                         }
                     } else {
-                        archiveFile(file, entryName, zos, data);
+                        archiveFile(file, entryName, zos, buffer);
                     }
                 }
             }
         } else {
             // This is a single File
             String name = source.getName();
-            archiveFile(source, name, zos, data);
+            archiveFile(source, name, zos, buffer);
         }
         // Do not close the zip output stream, because it cause closing the
         // output stream. So finish() is used instead.
