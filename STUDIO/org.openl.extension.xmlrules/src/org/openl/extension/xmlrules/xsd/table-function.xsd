@@ -51,8 +51,10 @@
   <xs:complexType name="attribute">
     <xs:sequence>
       <xs:element name="name" type="xs:string"/>
-      <xs:element name="type" type="attribute-type" minOccurs="0"/>
       <xs:element name="value" type="xs:string"/>
+      <xs:element name="condition" type="xs:string"/>
+      <xs:element name="parameter-index" type="xs:int"/>
+      <xs:element name="valueIsRange" type="xs:boolean" default="true" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
 
