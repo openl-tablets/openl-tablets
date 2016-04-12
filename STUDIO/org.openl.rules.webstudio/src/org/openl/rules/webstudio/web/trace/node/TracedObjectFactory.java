@@ -42,7 +42,7 @@ public class TracedObjectFactory {
         } else if (source instanceof DecisionTable) {
             return new DecisionTableTraceObject((DecisionTable) source, params);
         } else if (source instanceof Spreadsheet) {
-            return new SpreadsheetTraceObject((Spreadsheet) source, params);
+            return new ATableTracerNode("spreadsheet", "SpreadSheet", (Spreadsheet) source, params);
         } else if (source instanceof TableMethod) {
             return new MethodTableTraceObject((TableMethod) source, params);
         } else if (method instanceof SpreadsheetCell) {
@@ -62,5 +62,25 @@ public class TracedObjectFactory {
             return operationTracer;
         }
         return null;
+    }
+
+    public static ITracerObject getTracedObject(Object source, String id, Object[] args) {
+        ITracerObject trObj;
+        if ("index".equals(id) || "condition".equals(id)) {
+            trObj = DTRuleTraceObject.create(args);
+        } else if ("match".equals(id)) {
+            trObj = MatchTraceObject.create(args);
+        } else if ("result".equals(id)) {
+            trObj = ResultTraceObject.create(args);
+        } else if (source instanceof SpreadsheetCell) {
+            SpreadsheetTracerLeaf tr = new SpreadsheetTracerLeaf((SpreadsheetCell) source);
+            tr.setResult(args[0]);
+            trObj = tr;
+        } else if (source instanceof OpenMethodDispatcher) {
+            trObj = new DTRuleTracerLeaf(((OpenMethodDispatcher) source).getCandidates().indexOf(args[0]));
+        } else {
+            trObj = null;
+        }
+        return trObj;
     }
 }

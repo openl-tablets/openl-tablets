@@ -17,7 +17,7 @@ public class ResultTraceObject extends ATableTracerNode {
         return gridRegion;
     }
 
-    public static ResultTraceObject create(Object... args) {
+    static ResultTraceObject create(Object... args) {
         ColumnMatch columnMatch = (ColumnMatch) args[0];
         int resultIndex = (Integer) args[1];
         Object result = args[2];

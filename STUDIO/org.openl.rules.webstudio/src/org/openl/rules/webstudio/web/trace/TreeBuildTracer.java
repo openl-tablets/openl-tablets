@@ -4,21 +4,10 @@
 package org.openl.rules.webstudio.web.trace;
 
 import org.openl.domain.IIntSelector;
-import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.rules.cmatch.algorithm.MatchAlgorithmExecutor;
-import org.openl.rules.cmatch.algorithm.ScoreAlgorithmExecutor;
-import org.openl.rules.cmatch.algorithm.WeightAlgorithmExecutor;
-import org.openl.rules.dt.algorithm.DecisionTableOptimizedAlgorithm;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.RangeIndex;
-import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
-import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
-import org.openl.rules.webstudio.web.trace.node.MatchTraceObject;
-import org.openl.rules.webstudio.web.trace.node.ResultTraceObject;
 import org.openl.rules.webstudio.web.trace.node.SimpleTracerObject;
-import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.TracedObjectFactory;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
@@ -43,32 +32,10 @@ public final class TreeBuildTracer extends Tracer {
         if (!isOn()) {
             return;
         }
-        if (source instanceof DecisionTableOptimizedAlgorithm) {
-            doPut(DTRuleTraceObject.create(args));
-        } else if (source instanceof RangeIndexTracer) {
-            doPut(DTRuleTraceObject.create(args));
-        } else if (source instanceof IntSelectorTracer) {
-            doPut(DTRuleTraceObject.create(args));
-        } else if (source instanceof MatchAlgorithmExecutor) {
-            if ("match".equals(id)) {
-                doPut(MatchTraceObject.create(args));
-            } else {
-                doPut(ResultTraceObject.create(args));
-            }
-        } else if (source instanceof WeightAlgorithmExecutor) {
-            if ("match".equals(id)) {
-                doPut(MatchTraceObject.create(args));
-            } else {
-                doPut(ResultTraceObject.create(args));
-            }
-        } else if (source instanceof ScoreAlgorithmExecutor) {
-            doPut(MatchTraceObject.create(args));
-        } else if (source instanceof SpreadsheetCell) {
-            SpreadsheetTracerLeaf tr = new SpreadsheetTracerLeaf((SpreadsheetCell) source);
-            tr.setResult(args[0]);
-            doPut(tr);
-        } else if (source instanceof OpenMethodDispatcher) {
-            doPut(new DTRuleTracerLeaf(((OpenMethodDispatcher) source).getCandidates().indexOf(args[0])));
+        ITracerObject trObj = TracedObjectFactory.getTracedObject(source, id, args);
+
+        if (trObj != null) {
+            doPut(trObj);
         }
     }
 

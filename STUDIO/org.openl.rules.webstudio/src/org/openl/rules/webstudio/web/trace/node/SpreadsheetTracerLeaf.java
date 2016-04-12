@@ -10,7 +10,7 @@ import org.openl.rules.calc.element.SpreadsheetCell;
 public class SpreadsheetTracerLeaf extends ATableTracerNode {
     private SpreadsheetCell spreadsheetCell;
 
-    public SpreadsheetTracerLeaf(SpreadsheetCell spreadsheetCell) {
+    SpreadsheetTracerLeaf(SpreadsheetCell spreadsheetCell) {
         super("spreadsheetCell", null, null, null);
         this.spreadsheetCell = spreadsheetCell;
     }

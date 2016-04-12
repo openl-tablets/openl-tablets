@@ -33,7 +33,7 @@ public class DTRuleTraceObject extends ATableTracerNode {
         return successful;
     }
 
-    public static DTRuleTraceObject create(Object... args) {
+    static DTRuleTraceObject create(Object... args) {
         IBaseCondition condition = (IBaseCondition) args[0];
         int[] rules;
         if (args[1] instanceof DecisionTableRuleNode) {

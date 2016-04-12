@@ -15,7 +15,7 @@ public class TBasicOperationTraceObject extends SimpleTracerObject {
     private int operationRow;
 
 
-    public TBasicOperationTraceObject(AlgorithmOperationSource sourceCode, String nameForDebug) {
+    TBasicOperationTraceObject(AlgorithmOperationSource sourceCode, String nameForDebug) {
         super("tbasicOperation");
         this.nameForDebug = nameForDebug;
         this.gridRegion = sourceCode.getGridRegion();
