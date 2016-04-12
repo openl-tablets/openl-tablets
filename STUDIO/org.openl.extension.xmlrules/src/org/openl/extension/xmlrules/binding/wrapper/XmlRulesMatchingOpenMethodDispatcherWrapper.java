@@ -1,10 +1,16 @@
 package org.openl.extension.xmlrules.binding.wrapper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.utils.LazyCellExecutor;
+import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.binding.wrapper.MatchingOpenMethodDispatcherWrapper;
+import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
+import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
 public class XmlRulesMatchingOpenMethodDispatcherWrapper extends MatchingOpenMethodDispatcherWrapper {
@@ -40,5 +46,30 @@ public class XmlRulesMatchingOpenMethodDispatcherWrapper extends MatchingOpenMet
                 ProjectData.removeCurrentInstance();
             }
         }
+    }
+
+    @Override
+    public List<IOpenMethod> getCandidates() {
+        List<IOpenMethod> candidates = super.getCandidates();
+        List<IOpenMethod> newCandidates = new ArrayList<IOpenMethod>();
+
+        for (IOpenMethod candidate : candidates) {
+            // Prohibit unwrapping of several XmlRules methods inside of dispatcher, because they contain essential logic needed during execution
+            if (!(candidate instanceof XmlRulesMethodDelegator)) {
+                if (candidate instanceof TableMethod) {
+                    candidate = new XmlRulesTableMethodDelegator(new XmlRulesTableMethodWrapper(xlsModuleOpenClass,
+                            (TableMethod) candidate,
+                            projectData));
+                } else if (candidate instanceof DecisionTable) {
+                    candidate = new XmlRulesDecisionTable2Delegator(new XmlRulesDecisionTable2Wrapper(xlsModuleOpenClass,
+                            (DecisionTable) candidate,
+                            projectData));
+                }
+            }
+
+            newCandidates.add(candidate);
+        }
+
+        return newCandidates;
     }
 }
