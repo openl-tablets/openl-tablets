@@ -37,7 +37,7 @@ public class MethodWithAttributesBoundNode extends MethodBoundNode {
         Object target = getTargetNode() == null ? env.getThis() : getTargetNode().evaluate(env);
         Object[] arguments = evaluateChildren(env);
         Object[] methodParameters = Arrays.copyOfRange(arguments, 0, parameterCount);
-        Object[] attributeParameters = Arrays.copyOfRange(arguments, parameterCount, attributes.size());
+        Object[] attributeParameters = Arrays.copyOfRange(arguments, parameterCount, arguments.length);
 
         int attributesChanged = 0;
         try {
