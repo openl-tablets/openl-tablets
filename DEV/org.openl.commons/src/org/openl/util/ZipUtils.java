@@ -76,64 +76,63 @@ public class ZipUtils {
      * @throws IOException
      */
     public static void archive(File sourceDirectory, File targetFile) throws IOException {
+        if (!sourceDirectory.exists()) {
+            throw new FileNotFoundException("File '" + sourceDirectory.getAbsolutePath() + "'not found!");
+        }
         boolean isEntry = false;
         Queue<File> directoryList = new LinkedList<File>();
-        if (sourceDirectory.exists()) {
-            FileOutputStream fos = new FileOutputStream(targetFile);
-            ZipOutputStream zos = new ZipOutputStream(fos);
-            byte data[] = new byte[BUFFER];
-            final String sourceDirAbsolutePath = sourceDirectory.getAbsolutePath() + File.separator;
-            if (sourceDirectory.isDirectory()) {
-                // This is directory
-                do {
-                    File directory = null;
-                    if (!directoryList.isEmpty()) {
-                        directory = directoryList.poll();
-                    } else {
-                        directory = sourceDirectory;
-                    }
+        FileOutputStream fos = new FileOutputStream(targetFile);
+        ZipOutputStream zos = new ZipOutputStream(fos);
+        byte data[] = new byte[BUFFER];
+        final String sourceDirAbsolutePath = sourceDirectory.getAbsolutePath() + File.separator;
+        if (sourceDirectory.isDirectory()) {
+            // This is directory
+            do {
+                File directory = null;
+                if (!directoryList.isEmpty()) {
+                    directory = directoryList.poll();
+                } else {
+                    directory = sourceDirectory;
+                }
 
-                    File[] files = directory.listFiles();
+                File[] files = directory.listFiles();
 
-                    for (File file : files) {
-                        String entryName = file.getAbsolutePath().substring(sourceDirAbsolutePath.length());
-                        entryName = entryName.replaceAll("\\\\", "/");
-                        if (file.isDirectory()) {
-                            if (file.listFiles().length == 0) {
-                                ZipEntry entry = new ZipEntry(entryName + "/");
-                                zos.putNextEntry(entry);
-                                isEntry = true;
-                            } else {
-                                directoryList.add(file);
-                            }
-                        } else {
-                            ZipEntry entry = new ZipEntry(entryName);
+                for (File file : files) {
+                    String entryName = file.getAbsolutePath().substring(sourceDirAbsolutePath.length());
+                    entryName = entryName.replaceAll("\\\\", "/");
+                    if (file.isDirectory()) {
+                        if (file.listFiles().length == 0) {
+                            ZipEntry entry = new ZipEntry(entryName + "/");
                             zos.putNextEntry(entry);
                             isEntry = true;
-                            FileInputStream fis = new FileInputStream(file);
-
-                            IOUtils.copy(fis, zos, data);
-                            fis.close();
+                        } else {
+                            directoryList.add(file);
                         }
-                    }
-                } while (!directoryList.isEmpty());
-            } else {
-                // This is File
-                FileInputStream fis = new FileInputStream(sourceDirectory);
-                ZipEntry entry = new ZipEntry(sourceDirectory.getName());
-                zos.putNextEntry(entry);
-                isEntry = true;
+                    } else {
+                        ZipEntry entry = new ZipEntry(entryName);
+                        zos.putNextEntry(entry);
+                        isEntry = true;
+                        FileInputStream fis = new FileInputStream(file);
 
-                IOUtils.copy(fis, zos, data);
-                fis.close();
-            }
-            if (isEntry) {
-                zos.close();
-            } else {
-                zos = null;
-            }
+                        IOUtils.copy(fis, zos, data);
+                        fis.close();
+                    }
+                }
+            } while (!directoryList.isEmpty());
         } else {
-            throw new FileNotFoundException("File '" + sourceDirectory.getAbsolutePath() + "'not found!");
+            // This is File
+            FileInputStream fis = new FileInputStream(sourceDirectory);
+            ZipEntry entry = new ZipEntry(sourceDirectory.getName());
+            zos.putNextEntry(entry);
+            isEntry = true;
+
+            IOUtils.copy(fis, zos, data);
+            fis.close();
+        }
+        if (isEntry) {
+            zos.close();
+        } else {
+            zos = null;
         }
     }
 }
