@@ -111,10 +111,8 @@ public class ZipUtils {
                             zos.putNextEntry(entry);
                             isEntry = true;
                             FileInputStream fis = new FileInputStream(file);
-                            int size = -1;
-                            while ((size = fis.read(data, 0, BUFFER)) != -1) {
-                                zos.write(data, 0, size);
-                            }
+
+                            IOUtils.copy(fis, zos, data);
                             fis.close();
                         }
                     }
@@ -125,10 +123,8 @@ public class ZipUtils {
                 ZipEntry entry = new ZipEntry(sourceDirectory.getName());
                 zos.putNextEntry(entry);
                 isEntry = true;
-                int size = -1;
-                while ((size = fis.read(data, 0, BUFFER)) != -1) {
-                    zos.write(data, 0, size);
-                }
+
+                IOUtils.copy(fis, zos, data);
                 fis.close();
             }
             if (isEntry) {
