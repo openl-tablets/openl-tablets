@@ -12,13 +12,15 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
 import org.openl.extension.xmlrules.ProjectData;
-import org.openl.extension.xmlrules.model.single.XlsRegionImpl;
 import org.openl.util.IOUtils;
 
 public abstract class BaseLazyItem<T> {
+    private static final String OPENL_FOLDER = ".openl/";
     private final File file;
     private final String entryName;
     private WeakReference<T> info = new WeakReference<T>(null);
+
+    private String prefix = OPENL_FOLDER;
 
     public BaseLazyItem(File file, String entryName) {
         this.file = file;
@@ -48,23 +50,16 @@ public abstract class BaseLazyItem<T> {
         // Do nothing
     }
 
-    protected void postProcess(XlsRegionImpl path) {
-        if (path == null) {
-            return;
-        }
-        if (path.getWidth() == null) {
-            path.setWidth(1);
-        }
-        if (path.getHeight() == null) {
-            path.setHeight(1);
-        }
-    }
-
     protected T deserializeInfo() {
         ZipFile zipFile = null;
         try {
             zipFile = new ZipFile(file);
-            ZipEntry entry = zipFile.getEntry(entryName);
+            ZipEntry entry = zipFile.getEntry(prefix + entryName);
+            if (entry == null && !prefix.isEmpty()) {
+                // Fallback to the case when all files in the root folder
+                entry = zipFile.getEntry(entryName);
+                prefix = "";
+            }
             if (entry == null || entry.isDirectory()) {
                 throw new IllegalStateException("Incorrect file format. The file '" + entryName + "' doesn't exist in the project.");
             }
