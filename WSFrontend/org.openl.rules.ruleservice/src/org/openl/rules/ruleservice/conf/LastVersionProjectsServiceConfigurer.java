@@ -257,7 +257,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
     private boolean serviceGroupSupported(RulesDeploy rulesDeploy) {
         Set<String> supportedGroupSet = getSupportedGroupsSet();
         if (!supportedGroupSet.isEmpty()) {
-            if (rulesDeploy.getGroups() == null || rulesDeploy.getGroups().trim().isEmpty()) {
+            if (rulesDeploy == null || rulesDeploy.getGroups() == null || rulesDeploy.getGroups().trim().isEmpty()) {
                 return false;
             }
             String[] groups = rulesDeploy.getGroups().split(",");
