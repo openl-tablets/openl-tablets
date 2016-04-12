@@ -14,15 +14,13 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.lang3.SystemUtils;
-
 /**
  * A utility class to work with zip files.
  *
  * @author Yury Molchan
  */
 public class ZipUtils {
-    
+
     private static final int BUFFER = 2048;
 
     /**
@@ -73,10 +71,10 @@ public class ZipUtils {
     }
 
     /**
-     * Pack all files in a directory to output stream.
+     * Pack all files in a directory to a zip file.
      * 
      * @param sourceDirectory
-     * @param outputStream
+     * @param targetFile
      * @throws IOException
      */
     public static void archive(File sourceDirectory, File targetFile) throws IOException {
@@ -86,28 +84,28 @@ public class ZipUtils {
             FileOutputStream fos = new FileOutputStream(targetFile);
             ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(fos));
             byte data[] = new byte[BUFFER];
-            final String sourceDirAbsolutePath = sourceDirectory.getAbsolutePath() + SystemUtils.FILE_SEPARATOR;
+            final String sourceDirAbsolutePath = sourceDirectory.getAbsolutePath() + File.separator;
             if (sourceDirectory.isDirectory()) {
                 // This is directory
                 do {
                     File directory = null;
                     if (!directoryList.isEmpty()) {
                         directory = directoryList.poll();
-                    }else{
+                    } else {
                         directory = sourceDirectory;
                     }
-                    
+
                     File[] files = directory.listFiles();
 
                     for (File file : files) {
                         String entryName = file.getAbsolutePath().substring(sourceDirAbsolutePath.length());
                         entryName = entryName.replaceAll("\\\\", "/");
                         if (file.isDirectory()) {
-                            if (file.listFiles().length == 0){
+                            if (file.listFiles().length == 0) {
                                 ZipEntry entry = new ZipEntry(entryName + "/");
                                 zos.putNextEntry(entry);
                                 isEntry = true;
-                            }else{
+                            } else {
                                 directoryList.add(file);
                             }
                         } else {
