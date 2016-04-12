@@ -31,4 +31,8 @@ public class ObjectFactory {
     public Cells createCells() {
         return new Cells();
     }
+
+    public Attributes createAttributes() {
+        return new Attributes();
+    }
 }

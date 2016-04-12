@@ -76,8 +76,10 @@ public final class TableGridBuilder {
                 // Don't move this expression. The order is important.
                 int simpleRulesStartColumn = gridBuilder.getColumn() + table.getVerticalConditions().size();
 
-                writeVerticalColumnExpressions(gridBuilder, table);
+                int maxRow = writeVerticalColumnExpressions(gridBuilder, table);
                 writeReturnValues(gridBuilder, sheet, table, isSimpleRules, tableRow, returnType, headerSize, startColumn, simpleRulesStartColumn);
+
+                gridBuilder.setRow(Math.max(gridBuilder.getRow(), maxRow));
 
                 gridBuilder.setStartColumn(startColumn);
                 gridBuilder.nextRow();
@@ -202,10 +204,11 @@ public final class TableGridBuilder {
         }
     }
 
-    private static void writeVerticalColumnExpressions(StringGridBuilder gridBuilder, Table table) {
+    private static int writeVerticalColumnExpressions(StringGridBuilder gridBuilder, Table table) {
         // VC expressions
         int conditionRow = gridBuilder.getRow();
         int conditionColumn = gridBuilder.getColumn();
+        int maxRow = conditionRow;
         for (Condition condition : table.getVerticalConditions()) {
             int row = conditionRow;
             for (Expression expression : condition.getExpressions()) {
@@ -214,7 +217,10 @@ public final class TableGridBuilder {
                 row += expression.getHeight();
             }
             conditionColumn++;
+            maxRow = Math.max(row, maxRow);
         }
+
+        return maxRow;
     }
 
     // TODO merge startColumn and simpleRulesStartColumn
@@ -628,11 +634,11 @@ public final class TableGridBuilder {
             }
 
             if (verticalConditions.size() > 0) {
-                Collections.sort(rowNumbers, new ConditionsComparator(verticalConditions));
+                Collections.sort(rowNumbers, new ConditionsComparator(verticalConditions, table));
             }
 
             if (horizontalConditions.size() > 0) {
-                Collections.sort(columnNumbers, new ConditionsComparator(horizontalConditions));
+                Collections.sort(columnNumbers, new ConditionsComparator(horizontalConditions, table));
             }
 
             for (ConditionImpl condition : verticalConditions) {
@@ -705,10 +711,12 @@ public final class TableGridBuilder {
     }
 
     private static class ConditionsComparator implements Comparator<Integer> {
+        private final TableImpl table;
         private final List<ConditionImpl> conditions;
 
-        public ConditionsComparator(List<ConditionImpl> conditions) {
+        public ConditionsComparator(List<ConditionImpl> conditions, TableImpl table) {
             this.conditions = conditions;
+            this.table = table;
         }
 
         @Override
@@ -726,7 +734,7 @@ public final class TableGridBuilder {
                     return 0;
                 }
             }
-            throw new IllegalStateException("All conditions are equal");
+            throw new IllegalStateException("There are fully matched conditions in decision table '" + table.getName() + "'");
         }
     }
 

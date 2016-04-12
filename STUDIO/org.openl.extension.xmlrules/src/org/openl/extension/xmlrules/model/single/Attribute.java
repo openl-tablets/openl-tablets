@@ -8,6 +8,7 @@ public class Attribute {
     private String name;
     private AttributeType type;
     private String value;
+    private String condition;
 
     @XmlElement(required = true)
     public String getName() {
@@ -33,5 +34,14 @@ public class Attribute {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    @XmlElement(required = true)
+    public String getCondition() {
+        return condition;
+    }
+
+    public void setCondition(String condition) {
+        this.condition = condition;
     }
 }
