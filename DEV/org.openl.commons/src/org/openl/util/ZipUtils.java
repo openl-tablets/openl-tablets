@@ -85,25 +85,22 @@ public class ZipUtils {
                 throw new FileNotFoundException("Directory '" + sourceDirectory.getAbsolutePath() + "' is empty!");
             }
         }
-        Queue<File> directoryList = new LinkedList<File>();
         FileOutputStream fos = new FileOutputStream(targetFile);
         ZipOutputStream zos = new ZipOutputStream(fos);
         byte data[] = new byte[BUFFER];
         final String sourceDirAbsolutePath = sourceDirectory.getAbsolutePath() + File.separator;
+        int prefixLength = sourceDirAbsolutePath.length();
         if (sourceDirectory.isDirectory()) {
             // This is directory
-            do {
-                File directory = null;
-                if (!directoryList.isEmpty()) {
-                    directory = directoryList.poll();
-                } else {
-                    directory = sourceDirectory;
-                }
+            Queue<File> directoryList = new LinkedList<File>();
+            directoryList.add(sourceDirectory);
+            while (!directoryList.isEmpty()) {
+                File directory = directoryList.poll();
 
                 File[] files = directory.listFiles();
 
                 for (File file : files) {
-                    String entryName = file.getAbsolutePath().substring(sourceDirAbsolutePath.length());
+                    String entryName = file.getAbsolutePath().substring(prefixLength);
                     entryName = entryName.replaceAll("\\\\", "/");
                     if (file.isDirectory()) {
                         if (file.listFiles().length == 0) {
@@ -116,7 +113,7 @@ public class ZipUtils {
                         archiveFile(file, entryName, zos, data);
                     }
                 }
-            } while (!directoryList.isEmpty());
+            }
         } else {
             // This is File
             String name = sourceDirectory.getName();
