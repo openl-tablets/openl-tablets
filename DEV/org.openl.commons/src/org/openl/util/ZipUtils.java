@@ -1,7 +1,5 @@
 package org.openl.util;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -82,7 +80,7 @@ public class ZipUtils {
         Queue<File> directoryList = new LinkedList<File>();
         if (sourceDirectory.exists()) {
             FileOutputStream fos = new FileOutputStream(targetFile);
-            ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(fos));
+            ZipOutputStream zos = new ZipOutputStream(fos);
             byte data[] = new byte[BUFFER];
             final String sourceDirAbsolutePath = sourceDirectory.getAbsolutePath() + File.separator;
             if (sourceDirectory.isDirectory()) {
@@ -112,28 +110,26 @@ public class ZipUtils {
                             ZipEntry entry = new ZipEntry(entryName);
                             zos.putNextEntry(entry);
                             isEntry = true;
-                            FileInputStream fileInputStream = new FileInputStream(file);
-                            BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream, BUFFER);
+                            FileInputStream fis = new FileInputStream(file);
                             int size = -1;
-                            while ((size = bufferedInputStream.read(data, 0, BUFFER)) != -1) {
+                            while ((size = fis.read(data, 0, BUFFER)) != -1) {
                                 zos.write(data, 0, size);
                             }
-                            bufferedInputStream.close();
+                            fis.close();
                         }
                     }
                 } while (!directoryList.isEmpty());
             } else {
                 // This is File
                 FileInputStream fis = new FileInputStream(sourceDirectory);
-                BufferedInputStream bufferedInputStream = new BufferedInputStream(fis, BUFFER);
                 ZipEntry entry = new ZipEntry(sourceDirectory.getName());
                 zos.putNextEntry(entry);
                 isEntry = true;
                 int size = -1;
-                while ((size = bufferedInputStream.read(data, 0, BUFFER)) != -1) {
+                while ((size = fis.read(data, 0, BUFFER)) != -1) {
                     zos.write(data, 0, size);
                 }
-                bufferedInputStream.close();
+                fis.close();
             }
             if (isEntry) {
                 zos.close();
