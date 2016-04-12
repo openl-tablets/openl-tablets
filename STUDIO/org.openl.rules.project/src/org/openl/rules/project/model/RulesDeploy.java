@@ -37,6 +37,7 @@ public class RulesDeploy {
     private String rmiServiceClass;
     private String url;
     private String version;
+    private String groups;
     private Map<String, Object> configuration;
 
     private WildcardPattern[] lazyModulesForCompilationPatterns;
@@ -144,4 +145,13 @@ public class RulesDeploy {
     public void setLazyModulesForCompilationPatterns(WildcardPattern[] lazyModulesForCompilationPatterns) {
         this.lazyModulesForCompilationPatterns = lazyModulesForCompilationPatterns;
     }
+    
+    public String getGroups() {
+        return groups;
+    }
+    
+    public void setGroups(String groups) {
+        this.groups = groups;
+    }
+    
 }

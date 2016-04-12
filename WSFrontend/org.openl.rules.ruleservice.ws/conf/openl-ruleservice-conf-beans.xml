@@ -8,6 +8,18 @@
 		<property name="provideRuntimeContext" value="${ruleservice.isProvideRuntimeContext}"/>
 		<property name="supportVariations" value="${ruleservice.isSupportVariations}" />
 		<property name="useRuleServiceRuntimeContext" value="${ruleservice.useRuleServiceRuntimeContext}"/>
+		<property name="supportedGroups" value="${ruleservice.datasource.groups}"/>
 	</bean>
 
+	<bean id="unpackClasspathAutoJarToDirectoryBean" class="org.openl.rules.ruleservice.loader.UnpackClasspathJarToDirectoryBean" depends-on="serviceConfigurer">
+		<property name="destinationDirectory" value="${ruleservice.datasource.dir}"/>
+		<property name="unpackAllJarsInOneDeployment" value="#{!${ruleservice.datasource.filesystem.supportDeployments}}"/>
+		<property name="supportDeploymentVersion" value="${ruleservice.datasource.filesystem.supportVersion}"/>
+		<property name="enabled" value="${ruleservice.datasource.unpack.classpath.jars}"/>
+	</bean>
+
+	<bean id="deployClasspathJarsBean" class="org.openl.rules.ruleservice.loader.DeployClasspathJarsBean" depends-on="serviceConfigurer">
+		<property name="configurationFile" value="${ruleservice.datasource.repositoryPropertiesFile}"/>
+		<property name="enabled" value="${ruleservice.datasource.deploy.classspath.jars}"/>
+	</bean>	
 </beans>
