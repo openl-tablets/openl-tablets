@@ -12,6 +12,7 @@
   <annotationTemplateClassName>java.lang.String</annotationTemplateClassName>
   <url>someURL</url>
   <version>v1</version>
+  <groups>group1,group2</groups>
   <lazy-modules-for-compilation>
     <module name="some1*"/>
     <module name="some2*"/>

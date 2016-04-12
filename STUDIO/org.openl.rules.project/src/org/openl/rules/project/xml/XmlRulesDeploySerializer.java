@@ -17,6 +17,7 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
 
     public XmlRulesDeploySerializer() {
         xstream = new XStream(new DomDriver());
+        xstream.ignoreUnknownElements();
         xstream.omitField(RulesDeploy.class, "log");
 
         xstream.setMode(XStream.NO_REFERENCES);

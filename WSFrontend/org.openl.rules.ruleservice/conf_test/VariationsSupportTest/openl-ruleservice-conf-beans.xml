@@ -12,5 +12,6 @@
 		<property name="provideRuntimeContext" value="false" />
 		<property name="supportVariations" value="true" />
 		<property name="useRuleServiceRuntimeContext" value="false"/>
+		<property name="supportedGroups" value="${ruleservice.datasource.groups}"/>
 	</bean>
 </beans>	                  

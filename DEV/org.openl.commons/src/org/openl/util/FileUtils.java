@@ -37,7 +37,7 @@ public class FileUtils {
      *
      * @see java.nio.file.Files#createTempDirectory
      */
-    public static File createTempDirectory() throws IOException {
+    public static File createTempDirectory() throws IOException { 
         final File temp = File.createTempFile("openl", ".tmp");
 
         if (!(temp.delete())) {
