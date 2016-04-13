@@ -57,11 +57,11 @@ public class XmlRulesMatchingOpenMethodDispatcherWrapper extends MatchingOpenMet
             // Prohibit unwrapping of several XmlRules methods inside of dispatcher, because they contain essential logic needed during execution
             if (!(candidate instanceof XmlRulesMethodDelegator)) {
                 if (candidate instanceof TableMethod) {
-                    candidate = new XmlRulesTableMethodDelegator(new XmlRulesTableMethodWrapper(xlsModuleOpenClass,
+                    candidate = new XmlRulesTableMethodDelegator(new XmlRulesTableMethodDecorator(xlsModuleOpenClass,
                             (TableMethod) candidate,
                             projectData));
                 } else if (candidate instanceof DecisionTable) {
-                    candidate = new XmlRulesDecisionTable2Delegator(new XmlRulesDecisionTable2Wrapper(xlsModuleOpenClass,
+                    candidate = new XmlRulesDecisionTable2Delegator(new XmlRulesDecisionTableDecorator(xlsModuleOpenClass,
                             (DecisionTable) candidate,
                             projectData));
                 }
