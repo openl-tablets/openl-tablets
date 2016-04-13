@@ -13,8 +13,8 @@ import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.model.Type;
 
 public class HelperFunctions {
-    private static final SimpleDateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-    private static Pattern DEFAULT_DATE_PATTERN = Pattern.compile("(\\d{4})[-/\\.](\\d{1,2})[-/\\.](\\d{1,2})(\\s+(\\d{1,2}):(\\d{1,2})(:(\\d{1,2})(\\.(\\d+))?)?)?");
+    private static final SimpleDateFormat US_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
+    private static Pattern INTERNATIONAL_DATE_PATTERN = Pattern.compile("(\\d{4})[-/\\.](\\d{1,2})[-/\\.](\\d{1,2})(\\s+(\\d{1,2}):(\\d{1,2})(:(\\d{1,2})(\\.(\\d+))?)?)?");
     private static Pattern US_DATE_PATTERN = Pattern.compile("(\\d{1,2})[-/\\.](\\d{1,2})[-/\\.](\\d{4})(\\s+(\\d{1,2}):(\\d{1,2})(:(\\d{1,2})(\\.(\\d+))?)?)?");
 
     public static <T> T[][] transpose(T[][] arr) {
@@ -144,7 +144,7 @@ public class HelperFunctions {
                     value = toDate(value);
                 } else if (String.class == expectedClass) {
                     if (value instanceof Date) {
-                        value = DEFAULT_DATE_FORMAT.format(value);
+                        value = US_DATE_FORMAT.format(value);
                     } else if (value instanceof Number || value instanceof Boolean){
                         value = String.valueOf(value);
                     } else {
@@ -175,9 +175,9 @@ public class HelperFunctions {
             try {
                 return DateUtil.getJavaCalendar(Double.parseDouble((String) date));
             } catch (NumberFormatException e) {
-                Matcher matcher = DEFAULT_DATE_PATTERN.matcher((CharSequence) date);
+                Matcher matcher = US_DATE_PATTERN.matcher((CharSequence) date);
                 if (!matcher.matches()) {
-                    matcher = US_DATE_PATTERN.matcher((CharSequence) date);
+                    matcher = INTERNATIONAL_DATE_PATTERN.matcher((CharSequence) date);
                 }
                 if (matcher.matches()) {
                     Calendar calendar = new GregorianCalendar();

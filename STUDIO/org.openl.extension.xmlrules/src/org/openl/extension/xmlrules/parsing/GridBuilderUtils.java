@@ -3,11 +3,12 @@ package org.openl.extension.xmlrules.parsing;
 import java.util.List;
 
 import org.openl.extension.xmlrules.ParseError;
-import org.openl.extension.xmlrules.model.single.Attribute;
-import org.openl.extension.xmlrules.model.single.AttributeCondition;
-import org.openl.extension.xmlrules.model.single.Cell;
+import org.openl.extension.xmlrules.ProjectData;
+import org.openl.extension.xmlrules.model.lazy.LazyAttributes;
+import org.openl.extension.xmlrules.model.single.*;
 import org.openl.extension.xmlrules.model.single.node.RangeNode;
 import org.openl.extension.xmlrules.syntax.StringGridBuilder;
+import org.openl.extension.xmlrules.utils.HelperFunctions;
 import org.openl.rules.table.constraints.Constraint;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.constraints.LessThanConstraint;
@@ -43,7 +44,7 @@ public final class GridBuilderUtils {
                     String attributeName = matchedProperty != null ? matchedProperty.getName() : attribute.getName();
 
                     gridBuilder.addCell(attributeName);
-                    gridBuilder.addCell(attribute.getValue());
+                    gridBuilder.addCell(convertAttributeValue(attribute));
                     gridBuilder.nextRow();
                 }
             } finally {
@@ -51,6 +52,25 @@ public final class GridBuilderUtils {
                 gridBuilder.setStartColumn(column);
             }
 
+        }
+    }
+
+    private static String convertAttributeValue(Attribute attribute) {
+        String value = attribute.getValue();
+
+        LazyAttributes projectAttributes = ProjectData.getCurrentInstance().getAttributes();
+        AttributeType type = AttributeType.STRING;
+        for (MainAttribute mainAttribute : projectAttributes.getInstance().getItems().getAttribute()) {
+            if (mainAttribute.getName().equals(attribute.getName())) {
+                type = mainAttribute.getType();
+                break;
+            }
+        }
+
+        if (type == AttributeType.DATE) {
+            return HelperFunctions.convertArgument(String.class, HelperFunctions.toDate(value));
+        } else {
+            return value;
         }
     }
 

@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.extension.xmlrules.model.*;
+import org.openl.extension.xmlrules.model.lazy.LazyAttributes;
 import org.openl.extension.xmlrules.model.lazy.LazyCells;
 import org.openl.extension.xmlrules.model.lazy.LazyWorkbook;
 import org.openl.extension.xmlrules.model.single.SheetHolder;
@@ -45,11 +46,6 @@ public class XmlRulesParser extends BaseParser {
     private final Logger log = LoggerFactory.getLogger(XmlRulesParser.class);
 
     public XmlRulesParser() {
-    }
-
-    protected ExtensionModule load(IOpenSourceCodeModule source) {
-        String uri = source.getUri(0);
-        return new ZipFileXmlDeserializer(uri).deserialize();
     }
 
     /**
@@ -127,13 +123,15 @@ public class XmlRulesParser extends BaseParser {
     public IParsedCode parseAsModule(IOpenSourceCodeModule source) {
         XmlRulesModuleSourceCodeModule sourceCodeModule = (XmlRulesModuleSourceCodeModule) source;
         XmlRulesModule openlModule = sourceCodeModule.getModule();
-        ExtensionModule module = load(source);
+        ZipFileXmlDeserializer zipFileXmlDeserializer = new ZipFileXmlDeserializer(source.getUri(0));
+        ExtensionModule module = zipFileXmlDeserializer.deserialize();
 
         ISyntaxNode syntaxNode = null;
         List<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
 
         ProjectData projectData = new ProjectData();
         ProjectData.setCurrentInstance(projectData);
+        projectData.setAttributes(new LazyAttributes(zipFileXmlDeserializer.getFile()));
 
         try {
             XlsWorkbookSourceCodeModule workbookSourceCodeModule = getWorkbookSourceCodeModule(module, source);
