@@ -18,11 +18,11 @@ public class LazyCells extends BaseLazyItem<Cells> {
     }
 
     public List<Cell> getCells() {
-        return getInfo().getCells();
+        return getInstance().getCells();
     }
 
     public List<NamedRange> getNamedRanges() {
-        return getInfo().getNamedRanges();
+        return getInstance().getNamedRanges();
     }
 
     @Override

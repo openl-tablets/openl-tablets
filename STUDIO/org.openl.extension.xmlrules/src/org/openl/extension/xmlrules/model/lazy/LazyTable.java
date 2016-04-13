@@ -15,47 +15,47 @@ public class LazyTable extends BaseLazyItem<TableImpl> implements Table {
 
     @Override
     public String getName() {
-        return getInfo().getName();
+        return getInstance().getName();
     }
 
     @Override
     public List<ParameterImpl> getParameters() {
-        return getInfo().getParameters();
+        return getInstance().getParameters();
     }
 
     @Override
     public String getReturnType() {
-        return getInfo().getReturnType();
+        return getInstance().getReturnType();
     }
 
     @Override
     public List<ConditionImpl> getHorizontalConditions() {
-        return getInfo().getHorizontalConditions();
+        return getInstance().getHorizontalConditions();
     }
 
     @Override
     public List<ConditionImpl> getVerticalConditions() {
-        return getInfo().getVerticalConditions();
+        return getInstance().getVerticalConditions();
     }
 
     @Override
     public List<ReturnRow> getReturnValues() {
-        return getInfo().getReturnValues();
+        return getInstance().getReturnValues();
     }
 
     @Override
     public Segment getSegment() {
-        return getInfo().getSegment();
+        return getInstance().getSegment();
     }
 
     @Override
     public TableRanges getTableRanges() {
-        return getInfo().getTableRanges();
+        return getInstance().getTableRanges();
     }
 
     @Override
     public List<Attribute> getAttributes() {
-        return getInfo().getAttributes();
+        return getInstance().getAttributes();
     }
 
     @Override

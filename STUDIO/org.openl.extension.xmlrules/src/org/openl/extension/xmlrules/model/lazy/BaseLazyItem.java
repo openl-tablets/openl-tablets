@@ -18,7 +18,7 @@ public abstract class BaseLazyItem<T> {
     private static final String OPENL_FOLDER = ".openl/";
     private final File file;
     private final String entryName;
-    private WeakReference<T> info = new WeakReference<T>(null);
+    private WeakReference<T> instance = new WeakReference<T>(null);
 
     private String prefix = OPENL_FOLDER;
 
@@ -35,12 +35,12 @@ public abstract class BaseLazyItem<T> {
         return file;
     }
 
-    protected T getInfo() {
-        T item = info.get();
+    protected T getInstance() {
+        T item = instance.get();
         if (item == null) {
             item = deserializeInfo();
             postProcess(item);
-            info = new WeakReference<T>(item);
+            instance = new WeakReference<T>(item);
         }
 
         return item;
