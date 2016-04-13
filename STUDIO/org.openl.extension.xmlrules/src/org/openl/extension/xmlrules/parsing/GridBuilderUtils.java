@@ -35,6 +35,7 @@ public final class GridBuilderUtils {
             try {
                 gridBuilder.setCell(column, row, 1, height, "properties");
                 gridBuilder.setStartColumn(column + 1);
+                gridBuilder.setRow(row);
 
                 for (Attribute attribute : attributes) {
                     TablePropertyDefinition matchedProperty = getTablePropertyDefinition(attribute);
@@ -75,13 +76,18 @@ public final class GridBuilderUtils {
 
     private static Class<? extends Constraint> getConstraintClass(Attribute attribute) {
         AttributeCondition condition = attribute.getCondition() == null ? AttributeCondition.Equals : AttributeCondition.valueOf(attribute.getCondition());
+        // Constraint is opposite to condition. For example, for effectiveDate:
+        // 1) le(currentDate) (same meaning as currentDate > effectiveDate) is condition GreaterThan
+        // 2) effectiveDate < expirationDate is constraint LessThanConstraint
+        // Both for the same property.
+        // TODO refactor the code below to make it clear, for example, use condition from expression instead of constraint
         switch (condition) {
             case Equals:
                 return null;
-            case MoreThan:
-                return MoreThanConstraint.class;
-            case LessThan:
+            case GreaterThan:
                 return LessThanConstraint.class;
+            case LessThan:
+                return MoreThanConstraint.class;
         }
 
         throw new UnsupportedOperationException("Unsupported condition '" + condition + "'");
