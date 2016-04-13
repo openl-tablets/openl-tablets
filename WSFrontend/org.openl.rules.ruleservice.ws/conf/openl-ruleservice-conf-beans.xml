@@ -15,11 +15,11 @@
 		<property name="destinationDirectory" value="${ruleservice.datasource.dir}"/>
 		<property name="unpackAllJarsInOneDeployment" value="#{!${ruleservice.datasource.filesystem.supportDeployments}}"/>
 		<property name="supportDeploymentVersion" value="${ruleservice.datasource.filesystem.supportVersion}"/>
-		<property name="enabled" value="${ruleservice.datasource.deploy.classspath.jars}"/>
+		<property name="enabled" value="#{${ruleservice.datasource.deploy.classspath.jars} and '${ruleservice.datasource.type}' eq 'local'}"/>
 	</bean>
 
 	<bean id="deployClasspathJarsBean" class="org.openl.rules.ruleservice.loader.DeployClasspathJarsBean" depends-on="serviceConfigurer">
 		<property name="configurationFile" value="${ruleservice.datasource.repositoryPropertiesFile}"/>
-		<property name="enabled" value="${ruleservice.datasource.deploy.classspath.jars}"/>
+		<property name="enabled" value="#{${ruleservice.datasource.deploy.classspath.jars} and '${ruleservice.datasource.type}' eq 'jcr'}"/>
 	</bean>	
 </beans>
