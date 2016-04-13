@@ -13,7 +13,7 @@ public class TableResolver extends DefaultFunctionResolver {
     protected List<ParameterImpl> getParameters(FunctionNode node) {
         ProjectData projectData = ProjectData.getCurrentInstance();
 
-        Table table = projectData.getTable(node.getName());
+        Table table = projectData.getFirstTable(node.getName());
         if (table != null) {
             return table.getParameters();
         }

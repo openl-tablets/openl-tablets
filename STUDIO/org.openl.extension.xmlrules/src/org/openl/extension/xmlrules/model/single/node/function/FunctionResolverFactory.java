@@ -1,7 +1,6 @@
 package org.openl.extension.xmlrules.model.single.node.function;
 
 import org.openl.extension.xmlrules.ProjectData;
-import org.openl.extension.xmlrules.model.Table;
 import org.openl.extension.xmlrules.model.single.node.FunctionNode;
 
 public final class FunctionResolverFactory {
@@ -14,7 +13,7 @@ public final class FunctionResolverFactory {
             return new OutFunctionResolver();
         }
         ProjectData projectData = ProjectData.getCurrentInstance();
-        if (projectData.getTable(functionName) != null) {
+        if (projectData.getFirstTable(functionName) != null) {
             return new TableResolver();
         }
 

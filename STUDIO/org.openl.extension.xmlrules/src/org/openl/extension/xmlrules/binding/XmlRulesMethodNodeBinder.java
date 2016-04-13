@@ -15,6 +15,7 @@ import org.openl.binding.impl.*;
 import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.model.Function;
 import org.openl.extension.xmlrules.model.Table;
+import org.openl.extension.xmlrules.model.single.Attribute;
 import org.openl.extension.xmlrules.model.single.ParameterImpl;
 import org.openl.extension.xmlrules.model.single.node.IfErrorNode;
 import org.openl.extension.xmlrules.utils.HelperFunctions;
@@ -139,7 +140,7 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
             IOpenClass[] argumentTypes) {
         ProjectData instance = ProjectData.getCurrentInstance();
 
-        Function function = instance.getFunction(methodName);
+        Function function = instance.getFirstFunction(methodName);
         if (function != null) {
             List<ParameterImpl> parameters = function.getParameters();
             if (parameters.size() == children.length) {
@@ -155,7 +156,7 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
             }
         }
 
-        Table table = instance.getTable(methodName);
+        Table table = instance.getFirstTable(methodName);
         if (table != null) {
             List<ParameterImpl> parameters = table.getParameters();
             if (parameters.size() == children.length) {
@@ -285,10 +286,11 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
                 new IOpenClass[] {});
         ProjectData instance = ProjectData.getCurrentInstance();
 
-        Function function = instance.getFunction(methodName);
-        if (function != null) {
+        List<Function> overloadedFunctions = instance.getOverloadedFunctions(methodName);
+        for (Function function : overloadedFunctions) {
             int parameterCount = function.getParameters().size();
-            int possibleParameterCount = parameterCount + function.getAttributes().size();
+            List<String> attributeNames = getUniqueAttributeNames(function.getAttributes());
+            int possibleParameterCount = parameterCount + attributeNames.size();
             if (parameterCount < children.length && possibleParameterCount >= children.length) {
                 IOpenClass[] parameterTypes = Arrays.copyOfRange(argumentTypes, 0, parameterCount);
                 IMethodCaller methodCaller = bindingContext.findMethodCaller(ISyntaxConstants.THIS_NAMESPACE,
@@ -302,17 +304,16 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
                         methodCaller,
                         modifyContext,
                         restoreContext,
-                        function.getAttributes(),
+                        attributeNames,
                         parameterCount);
-            } else {
-                return null;
             }
         }
 
-        Table table = instance.getTable(methodName);
-        if (table != null) {
+        List<Table> tables = instance.getOverloadedTables(methodName);
+        for (Table table : tables) {
             int parameterCount = table.getParameters().size();
-            int possibleParameterCount = parameterCount + table.getAttributes().size();
+            List<String> attributeNames = getUniqueAttributeNames(table.getAttributes());
+            int possibleParameterCount = parameterCount + attributeNames.size();
             if (parameterCount < children.length && possibleParameterCount >= children.length) {
                 IOpenClass[] parameterTypes = Arrays.copyOfRange(argumentTypes, 0, parameterCount);
                 IMethodCaller methodCaller = bindingContext.findMethodCaller(ISyntaxConstants.THIS_NAMESPACE,
@@ -326,14 +327,23 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
                         methodCaller,
                         modifyContext,
                         restoreContext,
-                        table.getAttributes(),
+                        attributeNames,
                         parameterCount);
-            } else {
-                return null;
             }
         }
 
         return null;
+    }
+
+    private List<String> getUniqueAttributeNames(List<Attribute> attributes) {
+        List<String> attributeNames = new ArrayList<String>();
+        for (Attribute attribute : attributes) {
+            String attributeName = attribute.getName();
+            if (!attributeNames.contains(attributeName)) {
+                attributeNames.add(attributeName);
+            }
+        }
+        return attributeNames;
     }
 
     private List<Integer> getArrayCallArguments(IBoundNode[] children, IOpenClass[] parameterTypes) {

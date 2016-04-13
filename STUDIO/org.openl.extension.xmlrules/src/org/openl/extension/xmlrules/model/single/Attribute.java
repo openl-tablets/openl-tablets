@@ -9,6 +9,7 @@ public class Attribute {
     private AttributeType type;
     private String value;
     private String condition;
+    private Integer parameterIndex;
 
     @XmlElement(required = true)
     public String getName() {
@@ -43,5 +44,14 @@ public class Attribute {
 
     public void setCondition(String condition) {
         this.condition = condition;
+    }
+
+    @XmlElement(required = true, name = "parameter-index")
+    public Integer getParameterIndex() {
+        return parameterIndex;
+    }
+
+    public void setParameterIndex(Integer parameterIndex) {
+        this.parameterIndex = parameterIndex;
     }
 }
