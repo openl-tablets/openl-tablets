@@ -35,7 +35,7 @@ public abstract class BaseLazyItem<T> {
         return file;
     }
 
-    protected T getInstance() {
+    public T getInstance() {
         T item = instance.get();
         if (item == null) {
             item = deserializeInfo();
