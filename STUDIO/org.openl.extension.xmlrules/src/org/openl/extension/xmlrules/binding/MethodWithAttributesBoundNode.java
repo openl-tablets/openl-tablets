@@ -6,7 +6,6 @@ import java.util.List;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.MethodBoundNode;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.extension.xmlrules.model.single.Attribute;
 import org.openl.extension.xmlrules.utils.HelperFunctions;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
@@ -20,18 +19,18 @@ import org.openl.vm.IRuntimeEnv;
 public class MethodWithAttributesBoundNode extends MethodBoundNode {
     private final IMethodCaller modifyContext;
     private final IMethodCaller restoreContext;
-    private final List<Attribute> attributes;
+    private final List<String> attributeNames;
     private final int parameterCount;
 
     public MethodWithAttributesBoundNode(ISyntaxNode syntaxNode,
             IBoundNode[] child,
             IMethodCaller methodCaller,
             IMethodCaller modifyContext,
-            IMethodCaller restoreContext, List<Attribute> attributes, int parameterCount) {
+            IMethodCaller restoreContext, List<String> attributeNames, int parameterCount) {
         super(syntaxNode, child, methodCaller);
         this.modifyContext = modifyContext;
         this.restoreContext = restoreContext;
-        this.attributes = attributes;
+        this.attributeNames = attributeNames;
         this.parameterCount = parameterCount;
     }
 
@@ -45,8 +44,8 @@ public class MethodWithAttributesBoundNode extends MethodBoundNode {
         int attributesChanged = 0;
         try {
             // Modify runtime context
-            for (int i = 0; i < attributes.size(); i++) {
-                String attributeName = attributes.get(i).getName();
+            for (int i = 0; i < attributeNames.size(); i++) {
+                String attributeName = attributeNames.get(i);
                 Object attributeValue = convertAttribute(attributeName, attributeParameters[i]);
                 Object[] params = new Object[] { attributeName, attributeValue };
                 modifyContext.invoke(target, params, env);

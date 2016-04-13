@@ -29,8 +29,8 @@ public class ProjectData {
     }
 
     private final Map<String, Type> types = new HashMap<String, Type>();
-    private final Map<String, Function> functions = new HashMap<String, Function>();
-    private final Map<String, Table> tables = new HashMap<String, Table>();
+    private final Map<String, List<Function>> functions = new HashMap<String, List<Function>>();
+    private final Map<String, List<Table>> tables = new HashMap<String, List<Table>>();
 
     private final Set<String> fieldNames = new HashSet<String>();
 
@@ -59,11 +59,23 @@ public class ProjectData {
     }
 
     public void addFunction(Function function) {
-        functions.put(function.getName().toLowerCase(), function);
+        String key = function.getName().toLowerCase();
+        List<Function> overloadedFunctions = functions.get(key);
+        if (overloadedFunctions == null) {
+            overloadedFunctions = new ArrayList<Function>();
+            functions.put(key, overloadedFunctions);
+        }
+        overloadedFunctions.add(function);
     }
 
     public void addTable(Table table) {
-        tables.put(table.getName().toLowerCase(), table);
+        String key = table.getName().toLowerCase();
+        List<Table> overloadedTables = tables.get(key);
+        if (overloadedTables == null) {
+            overloadedTables = new ArrayList<Table>();
+            tables.put(key, overloadedTables);
+        }
+        overloadedTables.add(table);
     }
 
     public void addNamedRange(String name, RangeNode rangeNode) {
@@ -91,12 +103,34 @@ public class ProjectData {
         return namedRanges;
     }
 
-    public Function getFunction(String functionName) {
-        return functionName == null ? null : functions.get(functionName.toLowerCase());
+    public Function getFirstFunction(String functionName) {
+        List<Function> overloadedFunctions = getOverloadedFunctions(functionName);
+        return overloadedFunctions.isEmpty() ? null : overloadedFunctions.get(0);
     }
 
-    public Table getTable(String tableName) {
-        return tableName == null ? null : tables.get(tableName.toLowerCase());
+    public List<Function> getOverloadedFunctions(String functionName) {
+        if (functionName == null) {
+            return Collections.emptyList();
+        }
+        else {
+            List<Function> overloadedFunctions = functions.get(functionName.toLowerCase());
+            return overloadedFunctions == null ? Collections.<Function>emptyList() : overloadedFunctions;
+        }
+    }
+
+    public Table getFirstTable(String tableName) {
+        List<Table> overloadedTables = getOverloadedTables(tableName);
+        return overloadedTables.isEmpty() ? null : overloadedTables.get(0);
+    }
+
+    public List<Table> getOverloadedTables(String tableName) {
+        if (tableName == null) {
+            return Collections.emptyList();
+        }
+        else {
+            List<Table> overloadedTables = tables.get(tableName.toLowerCase());
+            return overloadedTables == null ? Collections.<Table>emptyList() : overloadedTables;
+        }
     }
 
 }

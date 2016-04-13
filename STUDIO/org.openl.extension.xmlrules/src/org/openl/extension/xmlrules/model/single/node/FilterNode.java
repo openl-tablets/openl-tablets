@@ -156,7 +156,7 @@ public class FilterNode extends Node {
         String functionName = functionNode.getName();
         ProjectData projectData = ProjectData.getCurrentInstance();
 
-        return projectData.getFunction(functionName) != null || projectData.getTable(functionName) != null;
+        return projectData.getFirstFunction(functionName) != null || projectData.getFirstTable(functionName) != null;
     }
 
     public String wrapWithFieldAccess(String filterString, boolean lastFieldAccess, int skipFieldsCount) {
