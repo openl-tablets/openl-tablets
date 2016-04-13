@@ -109,7 +109,7 @@ public class HelperFunctions {
         throw new IllegalArgumentException("Can't convert to integer");
     }
 
-    public static Object convertArgument(Class<?> expectedClass, Object value) {
+    public static<T> T convertArgument(Class<T> expectedClass, Object value) {
         if (value != null) {
             Class<?> valueClass = value.getClass();
             if (!expectedClass.isAssignableFrom(valueClass)) {
@@ -153,7 +153,9 @@ public class HelperFunctions {
                 }
             }
         }
-        return value;
+        @SuppressWarnings("unchecked")
+        T t = (T) value;
+        return t;
     }
 
     public static Date toDate(Object date) {
