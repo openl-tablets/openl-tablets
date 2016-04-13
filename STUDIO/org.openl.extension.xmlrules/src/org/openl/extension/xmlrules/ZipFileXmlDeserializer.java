@@ -31,4 +31,7 @@ public class ZipFileXmlDeserializer {
         return new LazyExtensionModule(file, ENTRY_POINT);
     }
 
+    public File getFile() {
+        return file;
+    }
 }

@@ -1,6 +1,8 @@
 
 package org.openl.extension.xmlrules.model.single;
 
+import java.util.Date;
+
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlType;
 
@@ -25,16 +27,22 @@ import javax.xml.bind.annotation.XmlType;
 @XmlEnum
 public enum AttributeType {
 
-    NUMBER,
-    STRING,
-    DATE;
+    NUMBER(Double.class),
+    STRING(String.class),
+    DATE(Date.class);
 
-    public String value() {
-        return name();
+    AttributeType(Class mappedType) {
+        this.mappedType = mappedType;
     }
 
     public static AttributeType fromValue(String v) {
         return valueOf(v);
     }
+
+    public Class getMappedType() {
+        return mappedType;
+    }
+
+    private final Class mappedType;
 
 }

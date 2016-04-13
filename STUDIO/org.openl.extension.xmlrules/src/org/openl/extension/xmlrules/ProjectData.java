@@ -10,6 +10,7 @@ import org.openl.extension.xmlrules.model.Field;
 import org.openl.extension.xmlrules.model.Function;
 import org.openl.extension.xmlrules.model.Table;
 import org.openl.extension.xmlrules.model.Type;
+import org.openl.extension.xmlrules.model.lazy.LazyAttributes;
 import org.openl.extension.xmlrules.model.single.node.RangeNode;
 
 public class ProjectData {
@@ -35,6 +36,8 @@ public class ProjectData {
     private final Set<String> fieldNames = new HashSet<String>();
 
     private final Map<String, RangeNode> namedRanges = new HashMap<String, RangeNode>();
+
+    private LazyAttributes attributes;
 
     public static Unmarshaller getUnmarshaller() throws JAXBException {
         Unmarshaller unmarshaller = unmarshallerThreadLocal.get();
@@ -133,4 +136,11 @@ public class ProjectData {
         }
     }
 
+    public LazyAttributes getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(LazyAttributes attributes) {
+        this.attributes = attributes;
+    }
 }
