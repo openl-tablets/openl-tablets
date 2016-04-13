@@ -14,12 +14,12 @@ public class LazyType extends BaseLazyItem<TypeImpl> implements Type {
 
     @Override
     public String getName() {
-        return getInfo().getName();
+        return getInstance().getName();
     }
 
     @Override
     public List<FieldImpl> getFields() {
-        return getInfo().getFields();
+        return getInstance().getFields();
     }
 
 }

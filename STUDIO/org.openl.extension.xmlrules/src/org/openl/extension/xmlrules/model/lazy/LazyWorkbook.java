@@ -20,12 +20,12 @@ public class LazyWorkbook extends BaseLazyItem<WorkbookInfo> {
     }
 
     @Override
-    public WorkbookInfo getInfo() {
+    public WorkbookInfo getInstance() {
         return info;
     }
 
     public String getXlsFileName() {
-        return getInfo().getXlsFileName();
+        return getInstance().getXlsFileName();
     }
 
     public List<Sheet> getSheets() {
@@ -33,7 +33,7 @@ public class LazyWorkbook extends BaseLazyItem<WorkbookInfo> {
             return this.sheets;
         }
         List<Sheet> sheets = new ArrayList<Sheet>();
-        List<SheetInfo> loadedSheets = getInfo().getSheets();
+        List<SheetInfo> loadedSheets = getInstance().getSheets();
         for (int i = 0; i < loadedSheets.size(); i++) {
             loadedSheets.get(i).setId(i + 1);
         }

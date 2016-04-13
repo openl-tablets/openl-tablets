@@ -15,26 +15,26 @@ public class LazyDataInstance extends BaseLazyItem<DataInstanceImpl> implements 
 
     @Override
     public String getType() {
-        return getInfo().getType();
+        return getInstance().getType();
     }
 
     @Override
     public String getName() {
-        return getInfo().getName();
+        return getInstance().getName();
     }
 
     @Override
     public List<String> getFields() {
-        return getInfo().getFields();
+        return getInstance().getFields();
     }
 
     @Override
     public List<Reference> getReferences() {
-        return getInfo().getReferences();
+        return getInstance().getReferences();
     }
 
     @Override
     public List<ValuesRow> getValues() {
-        return getInfo().getValues();
+        return getInstance().getValues();
     }
 }

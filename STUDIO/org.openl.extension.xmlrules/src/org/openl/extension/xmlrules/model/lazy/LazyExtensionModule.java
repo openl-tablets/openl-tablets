@@ -32,7 +32,7 @@ public class LazyExtensionModule extends BaseLazyItem<ExtensionModuleInfo> imple
     @Override
     public List<LazyWorkbook> getInternalWorkbooks() {
         List<LazyWorkbook> workbooks = new ArrayList<LazyWorkbook>();
-        ExtensionModuleInfo info = getInfo();
+        ExtensionModuleInfo info = getInstance();
         if (info == null) {
             throw new IllegalArgumentException("There is no " + getEntryName() + " file");
         }

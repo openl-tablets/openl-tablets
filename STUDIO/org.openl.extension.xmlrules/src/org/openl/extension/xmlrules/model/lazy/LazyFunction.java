@@ -16,32 +16,32 @@ public class LazyFunction extends BaseLazyItem<FunctionImpl> implements Function
 
     @Override
     public String getName() {
-        return getInfo().getName();
+        return getInstance().getName();
     }
 
     @Override
     public List<ParameterImpl> getParameters() {
-        return getInfo().getParameters();
+        return getInstance().getParameters();
     }
 
     @Override
     public String getReturnType() {
-        return getInfo().getReturnType();
+        return getInstance().getReturnType();
     }
 
     @Override
     public String getCellAddress() {
-        return getInfo().getCellAddress();
+        return getInstance().getCellAddress();
     }
 
     @Override
     public List<Attribute> getAttributes() {
-        return getInfo().getAttributes();
+        return getInstance().getAttributes();
     }
 
     @Override
     public Segment getSegment() {
-        return getInfo().getSegment();
+        return getInstance().getSegment();
     }
 
 }
