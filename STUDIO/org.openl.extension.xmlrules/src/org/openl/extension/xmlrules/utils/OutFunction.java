@@ -5,7 +5,6 @@ import java.util.*;
 import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.model.Type;
 import org.openl.extension.xmlrules.model.single.FieldImpl;
-import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 
@@ -33,7 +32,7 @@ public class OutFunction {
         if (o == null || isBasicType(o.getClass())) {
             ArrayList<String> row = new ArrayList<String>();
             result.add(row);
-            row.add(o == null ? null : String.valueOf(o));
+            row.add(o == null ? null : HelperFunctions.convertArgument(String.class, o));
             return result;
         }
 
@@ -139,7 +138,7 @@ public class OutFunction {
 
         Class<?> type = o.getClass();
         if (isBasicType(type)) {
-            resultRow.set(currentColumn, String.valueOf(o));
+            resultRow.set(currentColumn, HelperFunctions.convertArgument(String.class, o));
             return currentColumn + 1;
         } else if (type.isArray()) {
             Object[] objects = (Object[]) o;
@@ -258,7 +257,7 @@ public class OutFunction {
         if (type.isArray() && ((Object[]) elem).length == 1) {
             return getString(((Object[]) elem)[0]);
         } else {
-            return String2DataConvertorFactory.getConvertor(type).format(elem, null);
+            return HelperFunctions.convertArgument(String.class, elem);
         }
     }
 

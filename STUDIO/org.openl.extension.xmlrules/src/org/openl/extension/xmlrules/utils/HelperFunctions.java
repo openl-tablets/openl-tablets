@@ -176,14 +176,11 @@ public class HelperFunctions {
                 return DateUtil.getJavaCalendar(Double.parseDouble((String) date));
             } catch (NumberFormatException e) {
                 Matcher matcher = US_DATE_PATTERN.matcher((CharSequence) date);
-                if (!matcher.matches()) {
-                    matcher = INTERNATIONAL_DATE_PATTERN.matcher((CharSequence) date);
-                }
                 if (matcher.matches()) {
                     Calendar calendar = new GregorianCalendar();
-                    calendar.set(Calendar.YEAR, Integer.parseInt(matcher.group(1)));
+                    calendar.set(Calendar.YEAR, Integer.parseInt(matcher.group(3)));
                     calendar.set(Calendar.MONTH, Integer.parseInt(matcher.group(2)) - 1);
-                    calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(matcher.group(3)));
+                    calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(matcher.group(1)));
 
                     String hour = matcher.group(5);
                     calendar.set(Calendar.HOUR_OF_DAY, hour != null ? Integer.parseInt(hour) : 0);
@@ -194,6 +191,24 @@ public class HelperFunctions {
                     String millisecond = matcher.group(10);
                     calendar.set(Calendar.MILLISECOND, millisecond != null ? Integer.parseInt(millisecond) : 0);
                     return calendar;
+                } else {
+                    matcher = INTERNATIONAL_DATE_PATTERN.matcher((CharSequence) date);
+                    if (matcher.matches()) {
+                        Calendar calendar = new GregorianCalendar();
+                        calendar.set(Calendar.YEAR, Integer.parseInt(matcher.group(1)));
+                        calendar.set(Calendar.MONTH, Integer.parseInt(matcher.group(2)) - 1);
+                        calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(matcher.group(3)));
+
+                        String hour = matcher.group(5);
+                        calendar.set(Calendar.HOUR_OF_DAY, hour != null ? Integer.parseInt(hour) : 0);
+                        String minute = matcher.group(6);
+                        calendar.set(Calendar.MINUTE, minute != null ? Integer.parseInt(minute) : 0);
+                        String second = matcher.group(8);
+                        calendar.set(Calendar.SECOND, second != null ? Integer.parseInt(second) : 0);
+                        String millisecond = matcher.group(10);
+                        calendar.set(Calendar.MILLISECOND, millisecond != null ? Integer.parseInt(millisecond) : 0);
+                        return calendar;
+                    }
                 }
             }
         } else if (date instanceof Date) {
