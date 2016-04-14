@@ -1,6 +1,6 @@
 package org.openl.config;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openl.util.StringUtils;
 
 public class ConfigurationManagerFactory {
     private boolean useSystemProperties;
@@ -12,7 +12,7 @@ public class ConfigurationManagerFactory {
         this.useSystemProperties = useSystemProperties;
         this.defaultPropertiesLocation = StringUtils.trimToNull(defaultPropertiesLocation);
 
-        if (!StringUtils.isBlank(propertiesFolder) && !propertiesFolder.endsWith("/")
+        if (StringUtils.isNotBlank(propertiesFolder) && !propertiesFolder.endsWith("/")
                 && !propertiesFolder.endsWith("\\")) {
             propertiesFolder += "/";
         }

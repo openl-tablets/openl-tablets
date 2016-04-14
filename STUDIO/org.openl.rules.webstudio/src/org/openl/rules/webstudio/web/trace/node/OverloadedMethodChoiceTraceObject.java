@@ -26,7 +26,7 @@ public class OverloadedMethodChoiceTraceObject extends ATableTracerNode {
         return methodCandidates;
     }
 
-    public static ATableTracerNode create(OpenMethodDispatcher dispatcher, Object[] params) {
+    static ATableTracerNode create(OpenMethodDispatcher dispatcher, Object[] params) {
         ExecutableRulesMethod method = (ExecutableRulesMethod) dispatcher.getDispatcherTable().getMember();
         return new OverloadedMethodChoiceTraceObject(method, params, dispatcher.getCandidates());
     }

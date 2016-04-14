@@ -5,7 +5,7 @@ import org.openl.rules.method.ExecutableRulesMethod;
 
 public class DecisionTableTraceObject extends ATableTracerNode {
 
-    public DecisionTableTraceObject(IDecisionTable decisionTable, Object[] params) {
+    DecisionTableTraceObject(IDecisionTable decisionTable, Object[] params) {
         super("decisiontable", "DT", (ExecutableRulesMethod)decisionTable, params);
     }
 

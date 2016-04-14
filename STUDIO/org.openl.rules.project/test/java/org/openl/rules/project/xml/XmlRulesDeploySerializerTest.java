@@ -38,6 +38,7 @@ public class XmlRulesDeploySerializerTest {
         assertEquals("some1*", rulesDeploy.getLazyModulesForCompilationPatterns()[0].getValue());
         assertEquals("some2*", rulesDeploy.getLazyModulesForCompilationPatterns()[1].getValue());
         assertEquals("v1", rulesDeploy.getVersion());
+        assertEquals("group1,group2", rulesDeploy.getGroups());
     }
     
     @Test
@@ -54,6 +55,7 @@ public class XmlRulesDeploySerializerTest {
         rulesDeploy.setUrl("someURL");
         rulesDeploy.setVersion("v1");
         rulesDeploy.setPublishers(new RulesDeploy.PublisherType[]{PublisherType.WEBSERVICE});
+        rulesDeploy.setGroups("group1,group2");
         Map<String, Object> configuration = new HashMap<String, Object>();
         configuration.put("key", "value");
         rulesDeploy.setConfiguration(configuration);
@@ -72,6 +74,7 @@ public class XmlRulesDeploySerializerTest {
                                 "  <serviceClass>java.lang.String</serviceClass>"+ "\n" +
                                 "  <url>someURL</url>"+ "\n" +
                                 "  <version>v1</version>"+ "\n" +
+                                "  <groups>group1,group2</groups>"+ "\n" +
                                 "  <configuration>"+ "\n" +
                                 "    <entry>"+ "\n" +
                                 "      <string>key</string>"+ "\n" +

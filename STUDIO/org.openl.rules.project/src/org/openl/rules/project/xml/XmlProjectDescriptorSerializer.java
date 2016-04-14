@@ -37,6 +37,7 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
 
     public XmlProjectDescriptorSerializer(boolean postProcess) {
         xstream = new XStream(new DomDriver());
+        xstream.ignoreUnknownElements();
         xstream.omitField(ProjectDescriptor.class, "id"); // This field was deprecated
         xstream.omitField(ProjectDescriptor.class, "log");
         xstream.omitField(ProjectDescriptor.class, "classLoader");

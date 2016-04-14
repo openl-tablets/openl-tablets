@@ -36,6 +36,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
 
     private boolean unpackAllJarsInOneDeployment = true;
     private boolean supportDeploymentVersion = false;
+    private boolean enabled = true;
 
     private String deploymentVersionSuffix = "_v0.0.1";
 
@@ -158,6 +159,14 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
             return location.mkdirs();
         }
     }
+    
+    public boolean isEnabled() {
+        return enabled;
+    }
+    
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
     private void extractJarForJboss(URL resourceURL, File desFile) throws IOException,
                                                                   NoSuchMethodException,
@@ -208,6 +217,9 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
     }
 
     public void afterPropertiesSet() throws IOException {
+        if (!isEnabled()){
+            return;
+        }
         String destDirectory = getDestinationDirectory();
         if (destDirectory == null) {
             throw new IllegalStateException("Distination directory is null. Please, check bean configuration.");

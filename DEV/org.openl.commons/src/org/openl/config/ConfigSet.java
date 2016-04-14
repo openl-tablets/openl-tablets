@@ -1,6 +1,6 @@
 package org.openl.config;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +78,7 @@ public class ConfigSet {
 
         String pass = objectValue.toString();
         String passKey = this.getPassKey();
-        if (!StringUtils.isEmpty(passKey)) {
+        if (StringUtils.isNotEmpty(passKey)) {
             try {
                 prop.setTextValue(PassCoder.decode(pass, passKey));
             } catch (Exception e) {

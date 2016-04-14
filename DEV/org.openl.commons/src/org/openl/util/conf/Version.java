@@ -5,7 +5,7 @@
  */
 package org.openl.util.conf;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openl.util.StringUtils;
 
 /**
  * @author snshor
@@ -183,7 +183,7 @@ public class Version implements Comparable<Version> {
     }
 
     /**
-     * @param string
+     * @param s
      * @param i
      * @return
      */

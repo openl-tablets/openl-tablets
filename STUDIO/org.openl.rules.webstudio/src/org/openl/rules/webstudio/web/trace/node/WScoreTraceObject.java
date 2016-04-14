@@ -4,7 +4,7 @@ import org.openl.rules.cmatch.ColumnMatch;
 
 public class WScoreTraceObject extends ATableTracerNode {
 
-    public WScoreTraceObject(ColumnMatch columnMatch, Object[] params) {
+    WScoreTraceObject(ColumnMatch columnMatch, Object[] params) {
         super("wcmScore", null, columnMatch, params);
     }
 }

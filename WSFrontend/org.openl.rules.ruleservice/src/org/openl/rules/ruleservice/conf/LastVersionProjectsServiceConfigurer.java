@@ -1,5 +1,15 @@
 package org.openl.rules.ruleservice.conf;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.IRulesDeploySerializer;
@@ -15,15 +25,6 @@ import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Selects the latest deployments and deploys each of their projects as single
@@ -41,6 +42,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
     private boolean provideRuntimeContext = false;
     private boolean supportVariations = false;
     private boolean useRuleServiceRuntimeContext = false;
+    private String supportedGroups = null;
 
     private Collection<Deployment> filterDeployments(Collection<Deployment> deployments) {
         Map<String, Map<String, Deployment>> latestDeployments = new HashMap<String, Map<String, Deployment>>();
@@ -211,7 +213,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                         ServiceDescription serviceDescription = serviceDescriptionBuilder.build();
 
                         if (!serviceDescriptions.contains(serviceDescription) && !serviceURLs
-                            .contains(serviceDescription.getUrl())) {
+                            .contains(serviceDescription.getUrl()) && serviceGroupSupported(rulesDeploy)) {
                             serviceURLs.add(serviceDescription.getUrl());
                             serviceDescriptions.add(serviceDescription);
                         } else {
@@ -238,6 +240,35 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
         }
 
         return serviceDescriptions;
+    }
+
+    private Set<String> getSupportedGroupsSet() {
+        if (getSupportedGroups() != null && !getSupportedGroups().trim().isEmpty()) {
+            String[] groups = getSupportedGroups().split(",");
+            Set<String> supportedGroupSet = new HashSet<String>();
+            for (String group : groups) {
+                supportedGroupSet.add(group.trim());
+            }
+            return supportedGroupSet;
+        }
+        return Collections.emptySet();
+    }
+
+    private boolean serviceGroupSupported(RulesDeploy rulesDeploy) {
+        Set<String> supportedGroupSet = getSupportedGroupsSet();
+        if (!supportedGroupSet.isEmpty()) {
+            if (rulesDeploy == null || rulesDeploy.getGroups() == null || rulesDeploy.getGroups().trim().isEmpty()) {
+                return false;
+            }
+            String[] groups = rulesDeploy.getGroups().split(",");
+            for (String group : groups) {
+                if (supportedGroupSet.contains(group)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return true;
     }
 
     private String buildServiceName(Deployment deployment, AProject project, RulesDeploy rulesDeploy) {
@@ -313,5 +344,13 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
 
     public void setUseRuleServiceRuntimeContext(boolean useRuleServiceRuntimeContext) {
         this.useRuleServiceRuntimeContext = useRuleServiceRuntimeContext;
+    }
+
+    public void setSupportedGroups(String supportedGroups) {
+        this.supportedGroups = supportedGroups;
+    }
+
+    public String getSupportedGroups() {
+        return supportedGroups;
     }
 }

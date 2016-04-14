@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.beanutils.MethodUtils;
+import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.util.StringTool;
@@ -57,8 +58,6 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
         return new ArrayList<String>(runningServices.keySet());
     };
 
-    // for internal usage
-    @Deprecated
     public OpenLService findServiceByName(String serviceName) {
         if (serviceName == null) {
             throw new IllegalArgumentException("serviceName argument can't be null");
@@ -135,6 +134,9 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
 
         Class<?>[] paramTypes = new Class<?>[params.length];
         for (int i = 0; i < params.length; i++) {
+            if (params[i] == null){
+                throw new MethodInvocationException("One of parameter is null. Please, use 'execute(String serviceName, String ruleName, Class<?>[] inputParamsTypes, Object[] params)' method! This method doesn't supports null params!");
+            }
             paramTypes[i] = params[i].getClass();
         }
         return execute(serviceName, ruleName, paramTypes, params);

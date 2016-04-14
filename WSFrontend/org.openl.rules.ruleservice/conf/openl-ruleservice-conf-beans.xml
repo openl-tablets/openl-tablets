@@ -8,6 +8,7 @@
 		<property name="provideRuntimeContext" value="${ruleservice.isProvideRuntimeContext}"/>
 		<property name="supportVariations" value="${ruleservice.isSupportVariations}" />
 		<property name="useRuleServiceRuntimeContext" value="${ruleservice.useRuleServiceRuntimeContext}"/>
+		<property name="supportedGroups" value="${ruleservice.datasource.groups}"/>
 	</bean>
 
 </beans>

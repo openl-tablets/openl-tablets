@@ -11,8 +11,13 @@ import org.openl.rules.ruleservice.core.OpenLService;
  * 
  */
 public interface RulesFrontend { 
-    
-    @Deprecated
+    /**
+     * This method is designed for extending service functionality. Modify returned OpenLService object, can be result of system failure.
+     * Please, don't modify returned OpenLService object.
+     * 
+     * @param serviceName
+     * @return
+     */
     OpenLService findServiceByName(String serviceName);
 
     /**

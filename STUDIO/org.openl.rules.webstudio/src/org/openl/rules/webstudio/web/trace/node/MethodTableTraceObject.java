@@ -9,7 +9,7 @@ import org.openl.rules.method.table.TableMethod;
  */
 public class MethodTableTraceObject extends ATableTracerNode {
 
-    public MethodTableTraceObject(TableMethod method, Object[] params) {
+    MethodTableTraceObject(TableMethod method, Object[] params) {
         super("method", "Method table", method, params);
     }
 }

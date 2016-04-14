@@ -1,10 +1,10 @@
 package org.openl.util.generation;
 
 import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.openl.util.ArrayTool;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringTool;
+import org.openl.util.StringUtils;
 
 import java.lang.reflect.Constructor;
 import java.util.Iterator;
@@ -94,7 +94,7 @@ public class JavaClassGeneratorHelper {
     }
 
     public static String addImplementingInterfToClassDeclaration(String classDeclaration, String[] implementsInterfaces) {
-        String interfaces = StringUtils.join(implementsInterfaces, ",");
+        String interfaces = StringTool.arrayToStringThroughSymbol(implementsInterfaces, ",");
         return String.format("%s implements %s", classDeclaration, interfaces);
     }
 
@@ -398,7 +398,7 @@ public class JavaClassGeneratorHelper {
     }
 
     public static boolean isArray(String arrayTypeName) {
-        return StringUtils.contains(arrayTypeName, "[");
+        return arrayTypeName != null && arrayTypeName.indexOf('[') >= 0;
     }
 
     public static String replaceDots(String canonicalTypeName) {

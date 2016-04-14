@@ -8,16 +8,17 @@ import org.junit.Test;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.element.SpreadsheetCell;
-import org.openl.rules.webstudio.web.trace.node.SpreadsheetTraceObject;
-import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
+import org.openl.rules.webstudio.web.trace.node.SimpleTracerObject;
+import org.openl.rules.webstudio.web.trace.node.TracedObjectFactory;
 
 public class TraceFormatterTest {
 
     @Test
     public void getDisplayNameTest() {
         Spreadsheet spreadsheet = createNodeMock();
-        SpreadsheetTraceObject spreadsheetTraceObject = new SpreadsheetTraceObject(spreadsheet, null);
-        SpreadsheetTracerLeaf leafNode = new SpreadsheetTracerLeaf(createCellMock());
+        SimpleTracerObject spreadsheetTraceObject = TracedObjectFactory.getTracedObject(spreadsheet, null, null, null, null);
+        SpreadsheetCell cell = createCellMock();
+        SimpleTracerObject leafNode = TracedObjectFactory.getTracedObject(null, cell, null, null, null);
         spreadsheetTraceObject.addChild(leafNode);
 
         leafNode.setResult(null);

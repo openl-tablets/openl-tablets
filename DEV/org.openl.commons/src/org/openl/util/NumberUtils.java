@@ -1,7 +1,5 @@
 package org.openl.util;
 
-import org.apache.commons.lang3.StringUtils;
-
 /**
  * @author Andrei Astrouski
  */

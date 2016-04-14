@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.openl.base.INamedThing;
 
@@ -22,15 +21,15 @@ public class FormatterTest {
 
         String busStr = printBusView(testMap);
 
-        assertTrue(StringUtils.contains(busStr, "HashMap<Integer,String>"));
-        assertTrue(StringUtils.contains(busStr, "985643 : matata"));
-        assertTrue(StringUtils.contains(busStr, "4657 : cadabra"));
-        assertTrue(StringUtils.contains(busStr, "25 : yo265"));
-        assertTrue(StringUtils.contains(busStr, "1536 : abra"));
+        assertContains(busStr, "HashMap<Integer,String>");
+        assertContains(busStr, "985643 : matata");
+        assertContains(busStr, "4657 : cadabra");
+        assertContains(busStr, "25 : yo265");
+        assertContains(busStr, "1536 : abra");
 
         String devStr = printDevView(testMap);
-        assertTrue(StringUtils.contains(devStr, "HashMap<Integer,String>"));
-        assertTrue(StringUtils.contains(devStr, "... 3 more}"));
+        assertContains(devStr, "HashMap<Integer,String>");
+        assertContains(devStr, "... 3 more}");
     }
 
     private String printBusView(Object value) {
@@ -53,15 +52,15 @@ public class FormatterTest {
 
         String busStr = printBusView(strVector);
 
-        assertTrue(StringUtils.contains(busStr, "Vector<String>"));
-        assertTrue(StringUtils.contains(busStr, "first"));
-        assertTrue(StringUtils.contains(busStr, "second"));
-        assertTrue(StringUtils.contains(busStr, "third"));
-        assertTrue(StringUtils.contains(busStr, "fourth"));
+        assertContains(busStr, "Vector<String>");
+        assertContains(busStr, "first");
+        assertContains(busStr, "second");
+        assertContains(busStr, "third");
+        assertContains(busStr, "fourth");
 
         String devStr = printDevView(strVector);
-        assertTrue(StringUtils.contains(devStr, "Vector<String>"));
-        assertTrue(StringUtils.contains(devStr, "... 3 more"));
+        assertContains(devStr, "Vector<String>");
+        assertContains(devStr, "... 3 more");
     }
 
     @Test
@@ -72,10 +71,10 @@ public class FormatterTest {
         intMas[2] = Integer.valueOf(76442);
 
         String busStr = printBusView(intMas);
-        assertTrue(StringUtils.contains(busStr, "[345, 4567, 76442]"));
+        assertContains(busStr, "[345, 4567, 76442]");
 
         String devStr = printDevView(intMas);
-        assertTrue(StringUtils.contains(devStr, "[345, ... 2 more]"));
+        assertContains(devStr, "[345, ... 2 more]");
     }
 
     @Test
@@ -86,10 +85,10 @@ public class FormatterTest {
         intMas[2] = 76442;
 
         String busStr = printBusView(intMas);
-        assertTrue(StringUtils.contains(busStr, "[345, 4567, 76442]"));
+        assertContains(busStr, "[345, 4567, 76442]");
 
         String devStr = printDevView(intMas);
-        assertTrue(StringUtils.contains(devStr, "[345, ... 2 more]"));
+        assertContains(devStr, "[345, ... 2 more]");
     }
 
     @Test
@@ -101,5 +100,10 @@ public class FormatterTest {
 
         String devStr = printDevView(str);
         assertEquals(str, devStr);
+    }
+
+    private void assertContains(String text, String expected) {
+        assertNotNull(text);
+        assertTrue(text.contains(expected));
     }
 }

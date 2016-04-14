@@ -9,7 +9,7 @@ public class ATableTracerNode extends SimpleTracerObject {
     private ExecutableRulesMethod method;
     private String prefix;
 
-    public ATableTracerNode(String type, String prefix, ExecutableRulesMethod method, Object[] params) {
+    ATableTracerNode(String type, String prefix, ExecutableRulesMethod method, Object[] params) {
         super(type);
         this.prefix = prefix;
         this.method = method;
