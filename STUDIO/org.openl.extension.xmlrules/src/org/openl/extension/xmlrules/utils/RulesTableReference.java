@@ -3,7 +3,7 @@ package org.openl.extension.xmlrules.utils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openl.util.StringUtils;
 import org.openl.extension.xmlrules.model.single.node.RangeNode;
 
 public class RulesTableReference {

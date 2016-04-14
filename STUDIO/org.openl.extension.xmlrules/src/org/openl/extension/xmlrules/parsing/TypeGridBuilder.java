@@ -1,6 +1,6 @@
 package org.openl.extension.xmlrules.parsing;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openl.util.StringUtils;
 import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.model.Field;
 import org.openl.extension.xmlrules.model.Sheet;

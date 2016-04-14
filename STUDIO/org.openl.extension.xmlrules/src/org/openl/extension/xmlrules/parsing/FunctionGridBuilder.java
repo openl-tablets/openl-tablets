@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.extension.xmlrules.model.Function;
 import org.openl.extension.xmlrules.model.Parameter;
 import org.openl.extension.xmlrules.model.Segment;
@@ -16,6 +15,7 @@ import org.openl.extension.xmlrules.syntax.StringGridBuilder;
 import org.openl.extension.xmlrules.utils.CellReference;
 import org.openl.extension.xmlrules.utils.HelperFunctions;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

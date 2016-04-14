@@ -2,7 +2,7 @@ package org.openl.extension.xmlrules.parsing;
 
 import java.util.*;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openl.util.StringUtils;
 import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.model.single.*;
 import org.openl.extension.xmlrules.syntax.StringGridBuilder;

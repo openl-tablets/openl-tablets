@@ -2,7 +2,7 @@ package org.openl.extension.xmlrules.syntax;
 
 import java.util.*;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openl.util.StringUtils;
 import org.openl.extension.ExtensionWrapperGrid;
 import org.openl.extension.FileLauncher;
 import org.openl.rules.table.AGrid;
