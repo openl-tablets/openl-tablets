@@ -44,7 +44,7 @@ public class MethodWithAttributesBoundNode extends MethodBoundNode {
         int attributesChanged = 0;
         try {
             // Modify runtime context
-            for (int i = 0; i < attributeNames.size(); i++) {
+            for (int i = 0; i < attributeParameters.length; i++) {
                 String attributeName = attributeNames.get(i);
                 Object attributeValue = convertAttribute(attributeName, attributeParameters[i]);
                 Object[] params = new Object[] { attributeName, attributeValue };
