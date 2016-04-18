@@ -138,6 +138,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
                 GlobalConfigurationBuilder global = new GlobalConfigurationBuilder();
                 global.globalJmxStatistics().enable().allowDuplicateDomains(true);
                 global.transport().defaultTransport().clusterName(repoName);
+                global.transport().addProperty("configurationFile", "openl-jgroups-mosh-config.xml");
                 return global;
             }
         };
@@ -148,7 +149,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
 
         // Modeshape's configuration
         RepositoryConfiguration config = RepositoryConfiguration.read(
-            "{'name':'" + repoName + "', 'jndiName':'', 'storage':{'cacheName':'" + TABLE_NAME + "','binaryStorage':{'type':'cache','dataCacheName':'" + TABLE_NAME + "','metadataCacheName':'" + TABLE_NAME + "'}},'clustering':{'clusterName':'" + repoName + "'}}");
+            "{'name':'" + repoName + "', 'jndiName':'', 'storage':{'cacheName':'" + TABLE_NAME + "','binaryStorage':{'type':'cache','dataCacheName':'" + TABLE_NAME + "','metadataCacheName':'" + TABLE_NAME + "'}},'clustering':{'clusterName':'" + repoName + "', 'channelConfiguration':'openl-jgroups-insp-config.xml'}}");
         config = config.with(environment);
 
         // Verify the configuration for the repository ...
