@@ -12,6 +12,16 @@
     <name>OpenL - STUDIO - Modeshape DB repository</name>
     <description>Modeshape DB OpenL Repository implementation</description>
     <url>//openl-tablets.org</url>
+    <build>
+        <resources>
+            <resource>
+                <directory>src</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
     <dependencies>
         <dependency>
             <groupId>org.openl.rules</groupId>
