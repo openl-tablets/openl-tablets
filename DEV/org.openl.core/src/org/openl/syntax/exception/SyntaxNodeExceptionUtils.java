@@ -37,13 +37,13 @@ public class SyntaxNodeExceptionUtils {
             ILocation location,
             IOpenSourceCodeModule source) {
         Logger logger = LoggerFactory.getLogger(SyntaxNodeExceptionUtils.class);
-        logger.warn("Something wrong...\n{}", message, throwable);
+        logger.info(message, throwable);
         return new SyntaxNodeException(message, throwable, location, source);
     }
 
     public static SyntaxNodeException createError(String message, Throwable throwable, ISyntaxNode syntaxNode) {
         Logger logger = LoggerFactory.getLogger(SyntaxNodeExceptionUtils.class);
-        logger.warn("Something wrong...\n{}", message, throwable);
+        logger.info(message, throwable);
         return new SyntaxNodeException(message, throwable, syntaxNode);
     }
 
