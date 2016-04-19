@@ -122,8 +122,9 @@ public class SpreadsheetStructureBuilder {
     private void buildCellsInternal(SpreadsheetOpenClass spreadsheetType) {
         IBindingContext generalBindingContext = componentsBuilder.getBindingContext();
 
-        int rowsCount = componentsBuilder.getCellsHeadersExtractor().getRowNamesTable().getHeight();
-        int columnsCount = componentsBuilder.getCellsHeadersExtractor().getColumnNamesTable().getWidth();
+        CellsHeaderExtractor cellsHeadersExtractor = componentsBuilder.getCellsHeadersExtractor();
+        int rowsCount = cellsHeadersExtractor.getHeight();
+        int columnsCount = cellsHeadersExtractor.getWidth();
 
         /** create cells according to the size of the spreadsheet **/
         cells = new SpreadsheetCell[rowsCount][columnsCount];
@@ -151,8 +152,9 @@ public class SpreadsheetStructureBuilder {
     }
 
     private void extractCellValues() {
-        int rowsCount = componentsBuilder.getCellsHeadersExtractor().getRowNamesTable().getHeight();
-        int columnsCount = componentsBuilder.getCellsHeadersExtractor().getColumnNamesTable().getWidth();
+        CellsHeaderExtractor cellsHeadersExtractor = componentsBuilder.getCellsHeadersExtractor();
+        int rowsCount = cellsHeadersExtractor.getHeight();
+        int columnsCount = cellsHeadersExtractor.getWidth();
 
         for (int rowIndex = 0; rowIndex < rowsCount; rowIndex++) {
             IBindingContext rowBindingContext = getRowContext(rowIndex);

@@ -69,11 +69,20 @@ public class CellsHeaderExtractor {
     public ILogicalTable getColumnNamesTable() {
         return columnNamesTable;
     }
-    
+
+    public int getWidth() {
+        return (columnNamesTable == null) ? 0 : columnNamesTable.getWidth();
+    }
+
+
     public ILogicalTable getRowNamesTable() {
         return rowNamesTable;
     }
-     
+
+    public int getHeight() {
+        return (rowNamesTable == null) ? 0 : rowNamesTable.getHeight();
+    }
+
     public String[] getRowNames() {
         if (rowNames == null) {
             extractRowNames();
@@ -160,23 +169,23 @@ public class CellsHeaderExtractor {
     }
 
     private String[] extractRowNames() {
-        int height = (rowNamesTable == null) ? 0 : rowNamesTable.getHeight();
+        int height = getHeight();
         rowNames = new String[height];
         for (int row = 0; row < height; row++) {
             rowNames[row] = getRowName(row, rowNamesTable.getRow(row));
         }        
         return rowNames;        
     }
-    
-    private String[] extractColumnNames() {        
-        int width = (columnNamesTable == null) ? 0 : columnNamesTable.getWidth();
+
+    private String[] extractColumnNames() {
+        int width = getWidth();
         columnNames = new String[width];
         for (int col = 0; col < width; col++) {
             columnNames[col] = getColumnName(col, columnNamesTable.getColumn(col));
         }
         return columnNames;
     }
-    
+
     private String getRowName(int row, ILogicalTable rowNameCell) {
         IGridTable nameCell = rowNameCell.getColumn(0).getSource();
         String value = nameCell.getCell(0, 0).getStringValue();
