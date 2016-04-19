@@ -7,7 +7,6 @@ import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLSystemProperties;
-import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -123,7 +122,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                 width,
                 height);
 
-            OpenLMessagesUtils.addWarn(message, getTableSyntaxNode());
+            throw SyntaxNodeExceptionUtils.createError(message, getTableSyntaxNode());
         }
     }
 
