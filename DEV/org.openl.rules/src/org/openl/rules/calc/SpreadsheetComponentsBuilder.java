@@ -354,10 +354,10 @@ public class SpreadsheetComponentsBuilder {
     private int calculateNonEmptyCells(SpreadsheetHeaderDefinition headerDefinition) {
 
         int fromRow = 0;
-        int toRow = cellsHeaderExtractor.getRowNamesTable().getHeight();
+        int toRow = cellsHeaderExtractor.getHeight();
 
         int fromColumn = 0;
-        int toColumn = cellsHeaderExtractor.getColumnNamesTable().getWidth();
+        int toColumn = cellsHeaderExtractor.getWidth();
 
         if (headerDefinition.isRow()) {
             fromRow = headerDefinition.getRow();
