@@ -9,6 +9,8 @@ import org.openl.syntax.exception.formatter.ExceptionMessageFormatter;
 import org.openl.syntax.exception.formatter.IndexOutOfBoundsExceptionFormatter;
 import org.openl.syntax.exception.formatter.NullPointerExceptionFormatter;
 import org.openl.util.text.ILocation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SyntaxNodeExceptionUtils {
     
@@ -34,10 +36,14 @@ public class SyntaxNodeExceptionUtils {
             Throwable throwable,
             ILocation location,
             IOpenSourceCodeModule source) {
+        Logger logger = LoggerFactory.getLogger(SyntaxNodeExceptionUtils.class);
+        logger.warn("Something wrong...\n{}", message, throwable);
         return new SyntaxNodeException(message, throwable, location, source);
     }
 
     public static SyntaxNodeException createError(String message, Throwable throwable, ISyntaxNode syntaxNode) {
+        Logger logger = LoggerFactory.getLogger(SyntaxNodeExceptionUtils.class);
+        logger.warn("Something wrong...\n{}", message, throwable);
         return new SyntaxNodeException(message, throwable, syntaxNode);
     }
 
