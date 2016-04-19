@@ -159,8 +159,8 @@ public class CellsHeaderExtractor {
         return dependentSpreadsheets;
     }
 
-    private String[] extractRowNames() {   
-        int height = rowNamesTable.getHeight();
+    private String[] extractRowNames() {
+        int height = (rowNamesTable == null) ? 0 : rowNamesTable.getHeight();
         rowNames = new String[height];
         for (int row = 0; row < height; row++) {
             rowNames[row] = getRowName(row, rowNamesTable.getRow(row));
@@ -169,7 +169,7 @@ public class CellsHeaderExtractor {
     }
     
     private String[] extractColumnNames() {        
-        int width = columnNamesTable.getWidth();  
+        int width = (columnNamesTable == null) ? 0 : columnNamesTable.getWidth();
         columnNames = new String[width];
         for (int col = 0; col < width; col++) {
             columnNames[col] = getColumnName(col, columnNamesTable.getColumn(col));
