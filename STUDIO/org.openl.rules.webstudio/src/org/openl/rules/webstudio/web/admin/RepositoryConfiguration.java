@@ -162,6 +162,9 @@ public class RepositoryConfiguration {
         setName(other.getName());
         setType(other.getType());
         setPath(other.getPath());
+        setLogin(other.getLogin());
+        setPassword(other.configManager.getPassword(REPOSITORY_PASS));
+        fixState();
     }
 
     public boolean isNameChangedIgnoreCase() {
