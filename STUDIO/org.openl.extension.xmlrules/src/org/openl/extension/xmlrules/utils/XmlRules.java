@@ -145,6 +145,23 @@ public class XmlRules {
         return Field((Object) target, fieldName, index);
     }
 
+    public static Object convert(Object[] sample, Object source) {
+        // OpenL doesn't support passing classes of user-generated types (from Datatype table) that's why pass an array instead to determine the type we need to convert to.
+        return HelperFunctions.convertArgument(sample.getClass().getComponentType(), source);
+    }
+
+    public static Object[] convertToArray(Object[] sample, Object source) {
+        @SuppressWarnings("unchecked")
+        Class<Object[]> arrayType = (Class<Object[]>) sample.getClass();
+        return HelperFunctions.convertArgument(arrayType, source);
+    }
+
+    public static Object[][] convertToRange(Object[][] sample, Object source) {
+        @SuppressWarnings("unchecked")
+        Class<Object[][]> arrayType = (Class<Object[][]>) sample.getClass();
+        return HelperFunctions.convertArgument(arrayType, source);
+    }
+
     private static Object getArrayElement(Object array, Integer index) {
         if (array == null) {
             return null;
