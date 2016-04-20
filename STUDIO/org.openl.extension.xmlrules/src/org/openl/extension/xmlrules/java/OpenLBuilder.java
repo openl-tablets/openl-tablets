@@ -6,6 +6,7 @@ import org.openl.extension.xmlrules.binding.XmlRulesMethodNodeBinder;
 import org.openl.extension.xmlrules.utils.ArrayOperators;
 import org.openl.extension.xmlrules.utils.InternalFunctions;
 import org.openl.extension.xmlrules.utils.XmlRules;
+import org.openl.extension.xmlrules.utils.XmlRulesOperators;
 import org.openl.syntax.impl.ISyntaxConstants;
 
 public class OpenLBuilder extends AOpenLBuilder {
@@ -14,6 +15,11 @@ public class OpenLBuilder extends AOpenLBuilder {
     private static final String[] JAVA_LIBRARY_NAMES = new String[] {
             XmlRules.class.getName(),
             InternalFunctions.class.getName()
+    };
+
+    private static final String[] OPERATOR_LIBRARY_NAMES = new String[] {
+            ArrayOperators.class.getName(),
+            XmlRulesOperators.class.getName()
     };
 
     @Override
@@ -42,9 +48,13 @@ public class OpenLBuilder extends AOpenLBuilder {
 
         NameSpacedLibraryConfiguration nslc = new NameSpacedLibraryConfiguration();
         nslc.setNamespace(ISyntaxConstants.OPERATORS_NAMESPACE);
-        JavaLibraryConfiguration javalib1 = new JavaLibraryConfiguration();
-        javalib1.setClassName(ArrayOperators.class.getName());
-        nslc.addJavalib(javalib1);
+
+        for (String operatorLibraryName : OPERATOR_LIBRARY_NAMES) {
+            JavaLibraryConfiguration javalib = new JavaLibraryConfiguration();
+            javalib.setClassName(operatorLibraryName);
+            nslc.addJavalib(javalib);
+        }
+
         libraries.addConfiguredLibrary(nslc);
 
 
