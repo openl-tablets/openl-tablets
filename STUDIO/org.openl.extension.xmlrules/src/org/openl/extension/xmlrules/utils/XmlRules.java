@@ -62,7 +62,8 @@ public class XmlRules {
         List<Object> values = new ArrayList<Object>();
         Class<?> type = Void.class;
 
-        for (int i = 0; i < Array.getLength(target); i++) {
+        int length = Array.getLength(target);
+        for (int i = 0; i < length; i++) {
             Object o = Array.get(target, i);
             Object field;
             if (o == null) {
@@ -84,6 +85,10 @@ public class XmlRules {
             }
         }
 
+        if (type == Void.class) {
+            type = Object.class;
+        }
+
         return values.toArray((Object[]) Array.newInstance(type, values.size()));
     }
 
@@ -100,7 +105,8 @@ public class XmlRules {
         List<Object> values = new ArrayList<Object>();
         Class<?> type = Void.class;
 
-        for (int i = 0; i < Array.getLength(target); i++) {
+        int length = Array.getLength(target);
+        for (int i = 0; i < length; i++) {
             Object o = Array.get(target, i);
             Object field;
             if (o == null) {
@@ -120,6 +126,10 @@ public class XmlRules {
                 values.addAll(Arrays.asList(flatten));
                 type = RulesUtils.getCommonSuperClass(type, flatten.getClass().getComponentType());
             }
+        }
+
+        if (type == Void.class) {
+            type = Object.class;
         }
 
         return values.toArray((Object[]) Array.newInstance(type, values.size()));

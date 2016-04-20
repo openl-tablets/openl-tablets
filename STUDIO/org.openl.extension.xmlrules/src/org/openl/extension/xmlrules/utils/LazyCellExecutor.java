@@ -11,6 +11,7 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 public class LazyCellExecutor {
+    private static final Object NULL_OBJECT = new Object();
     private static ThreadLocal<LazyCellExecutor> instanceHolder = new ThreadLocal<LazyCellExecutor>();
     private final Map<String, Deque<Object>> params = new HashMap<String, Deque<Object>>();
     private final Object target;
@@ -56,7 +57,7 @@ public class LazyCellExecutor {
             objects = new ArrayDeque<Object>();
             params.put(cell, objects);
         }
-        objects.push(value);
+        objects.push(value == null ? NULL_OBJECT : value);
     }
 
     public void pop(String cell) {
@@ -132,13 +133,15 @@ public class LazyCellExecutor {
         }
 
         Deque<Object> objects = params.get(cell);
-        return objects.getLast();
+        Object value = objects.getLast();
+        return value == NULL_OBJECT ? null : value;
     }
 
     private CellKey getCellKey(String cell) {
         Map<String, Object> executionParams = new HashMap<String, Object>();
         for (Map.Entry<String, Deque<Object>> entry : params.entrySet()) {
-            executionParams.put(entry.getKey(), entry.getValue().getLast());
+            Object value = entry.getValue().getLast();
+            executionParams.put(entry.getKey(), value == NULL_OBJECT ? null : value);
         }
         return new CellKey(cell, executionParams);
     }
