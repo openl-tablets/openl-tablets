@@ -15,13 +15,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.openl.rules.ruleservice.databinding.jackson.Mixin;
-import org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.variation.ArgumentReplacementVariationType;
-import org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.variation.ComplexVariationType;
-import org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.variation.DeepCloningVariationType;
-import org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.variation.JXPathVariationType;
-import org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.variation.VariationType;
-import org.openl.rules.ruleservice.databinding.jackson.org.openl.rules.variation.VariationsResultType;
+import org.openl.rules.serialization.jackson.Mixin;
+import org.openl.rules.serialization.jackson.org.openl.rules.variation.ArgumentReplacementVariationType;
+import org.openl.rules.serialization.jackson.org.openl.rules.variation.ComplexVariationType;
+import org.openl.rules.serialization.jackson.org.openl.rules.variation.DeepCloningVariationType;
+import org.openl.rules.serialization.jackson.org.openl.rules.variation.JXPathVariationType;
+import org.openl.rules.serialization.jackson.org.openl.rules.variation.VariationType;
+import org.openl.rules.serialization.jackson.org.openl.rules.variation.VariationsResultType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

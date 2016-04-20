@@ -3,15 +3,25 @@ package org.openl.rules.ruleservice.publish;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
-import org.openl.rules.ruleservice.core.RuleServiceRedeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 
 public abstract class AbstractRuleServicePublisher implements RuleServicePublisher {
 
     protected Collection<RuleServicePublisherListener> listeners = new ArrayList<RuleServicePublisherListener>();
 
+    private PublisherType publisherType;
+    
+    public void setPublisherType(PublisherType publisherType) {
+        this.publisherType = publisherType;
+    }
+    
+    public PublisherType getPublisherType() {
+        return publisherType;
+    }
+    
     protected void fireDeployListeners(OpenLService service) {
         for (RuleServicePublisherListener listener : listeners) {
             listener.onDeploy(service);

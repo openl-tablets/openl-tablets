@@ -19,6 +19,7 @@ public class LoggingRecord {
     private String serviceName;
     private String url;
     private String inputName;
+    private String publisherType;
 
     public LoggingRecord(String id,
             String request,
@@ -27,7 +28,8 @@ public class LoggingRecord {
             Date outcomingTime,
             String serviceName,
             String url,
-            String inputName) {
+            String inputName,
+            String publisherType) {
         this.id = id;
         this.request = request;
         this.response = response;
@@ -36,8 +38,13 @@ public class LoggingRecord {
         this.inputName = inputName;
         this.url = url;
         this.serviceName = serviceName;
+        this.publisherType = publisherType;
     }
 
+    public String getPublisherType() {
+        return publisherType;
+    }
+    
     public String getId() {
         return id;
     }
@@ -69,7 +76,7 @@ public class LoggingRecord {
     public String getUrl() {
         return url;
     }
-
+    
     @Override
     public String toString() {
         return "LoggingRecord [id=" + id + "]";

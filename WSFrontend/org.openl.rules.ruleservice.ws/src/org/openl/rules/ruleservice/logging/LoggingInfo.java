@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.logging;
 import java.util.Date;
 
 import org.apache.cxf.interceptor.LoggingMessage;
+import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.ruleservice.core.OpenLService;
 
 /**
@@ -22,6 +23,16 @@ public class LoggingInfo {
     private Object[] parameters;
 
     private OpenLService service;
+    
+    private PublisherType publisherType;
+    
+    public PublisherType getPublisherType() {
+        return publisherType;
+    }
+    
+    public void setPublisherType(PublisherType publisherType) {
+        this.publisherType = publisherType;
+    }
 
     public LoggingMessage getRequestMessage() {
         return requestMessage;

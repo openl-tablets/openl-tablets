@@ -65,6 +65,10 @@
     </build>
     <dependencies>
         <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.jackson</artifactId>
+        </dependency>
+        <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib</artifactId>
         </dependency>

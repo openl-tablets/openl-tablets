@@ -36,41 +36,45 @@
 		<init-param>
 			<param-name>redirects-list</param-name>
 			<param-value>
-                /
-                /services/?
+                		/
             </param-value>
 		</init-param>
 		<init-param>
 			<param-name>redirect-servlet-name</param-name>
-			<param-value>servicesListServlet</param-value>
+			<param-value>DispatcherServlet</param-value>
+		</init-param>
+	
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+
+	<!-- Spring dispatcher context -->
+	<servlet>
+		<servlet-name>DispatcherServlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>/WEB-INF/classes/spring-dispatcher-servlet-context.xml</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
-
-	<servlet>
-		<servlet-name>servicesListServlet</servlet-name>
-		<servlet-class>org.openl.rules.ruleservice.servlet.ServicesListServlet</servlet-class>
-	</servlet>
-
+	<!-- JSPs -->
 	<servlet>
 		<servlet-name>index.jsp</servlet-name>
-		<jsp-file>/services/index.jsp</jsp-file>
+		<jsp-file>/WEB-INF/jsp/index.jsp</jsp-file>
 	</servlet>
-
 	<!-- Mapping -->
+	<servlet-mapping>
+		<servlet-name>DispatcherServlet</servlet-name>
+		<url-pattern>/application/*</url-pattern>
+	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>WSServlet</servlet-name>
 		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
-		<servlet-name>servicesListServlet</servlet-name>
-		<url-pattern>/services/</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
 		<servlet-name>index.jsp</servlet-name>
-		<url-pattern>/services/index.jsp</url-pattern>
+		<url-pattern>/WEB-INF/jsp/index.jsp</url-pattern>
 	</servlet-mapping>
-
 	<!-- Other stuff -->
 	<context-param>
 		<description>Location of the XML file that defines the root application context applied by ContextLoaderListener.</description>

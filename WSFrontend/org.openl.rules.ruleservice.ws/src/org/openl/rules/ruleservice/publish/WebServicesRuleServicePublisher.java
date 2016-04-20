@@ -23,6 +23,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.logging.CollectOpenLServiceIntercepror;
+import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
 import org.openl.rules.ruleservice.servlet.AvailableServicesGroup;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.springframework.beans.factory.ObjectFactory;
@@ -137,6 +138,7 @@ public class WebServicesRuleServicePublisher extends AbstractRuleServicePublishe
                 if (isLoggingStoreEnable()){
                     svrFactory.getFeatures().add(getStoreLoggingFeatureBean());
                     svrFactory.getInInterceptors().add(new CollectOpenLServiceIntercepror(service));
+                    svrFactory.getInInterceptors().add(new CollectPublisherTypeInterceptor(getPublisherType()));
                 }
                 svrFactory.getBus().setExtension(service.getServiceClass().getClassLoader(), ClassLoader.class);
                 Server wsServer = svrFactory.create();

@@ -37,17 +37,21 @@ public class CassandraLoggingInfoStoreService implements LoggingInfoStoringServi
         } catch (JsonProcessingException e) {
             log.error("Logging json input parameters failed!", e);
         }*/
-
+        String publisherType = null;
+        if (loggingData.getPublisherType() != null){
+            publisherType = loggingData.getPublisherType().toString(); 
+        }
+        
         LoggingRecord loggingRecord = new LoggingRecord(UUIDs.timeBased().toString(),
             loggingData.getRequestMessage().getPayload().toString(),
             loggingData.getResponseMessage().getPayload().toString(),
             loggingData.getIncomingMessageTime(),
             loggingData.getOutcomingMessageTime(),
             loggingData.getService().getName(),
-            loggingData.getService().getUrl(),
-            loggingData.getInputName());
+            loggingData.getRequestMessage().getAddress().toString(),
+            loggingData.getInputName(),
+            publisherType);
             //jsonInputParameters);
         cassandraOperations.insert(loggingRecord);
     }
-
 }
