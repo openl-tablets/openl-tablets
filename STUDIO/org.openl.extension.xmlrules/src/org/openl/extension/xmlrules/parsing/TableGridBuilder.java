@@ -243,13 +243,20 @@ public final class TableGridBuilder {
             gridBuilder.setRow(tableRow + headerSize.height);
             gridBuilder.setStartColumn(startColumn + headerSize.width);
         }
+        String componentType = returnType.replace("[]", "");
+
         for (ReturnRow returnValues : table.getReturnValues()) {
             for (Expression returnValue : returnValues.getList()) {
                 try {
                     if (returnValue.getReference()) {
                         String cell = CellReference.parse(workbookName, sheetName, returnValue.getValue())
                                 .getStringValue();
-                        gridBuilder.addCell(String.format("= (%s) Cell(\"%s\")", returnType, cell));
+                        String cellRetrieveString = String.format("Cell(\"%s\")", cell);
+                        cellRetrieveString = GridBuilderUtils.wrapWithConvertFunctionIfNeeded(returnType,
+                                componentType,
+                                false,
+                                cellRetrieveString);
+                        gridBuilder.addCell(String.format("= %s", cellRetrieveString));
                     } else {
                         gridBuilder.addCell(returnValue.getValue());
                     }

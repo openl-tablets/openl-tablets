@@ -123,24 +123,30 @@ public final class FunctionGridBuilder {
             gridBuilder.addCell(cell).nextRow();
         }
 
+        String cellRetrieveString;
         if (isRange) {
             String[] addresses = cellAddress.split(":");
             CellReference left = CellReference.parse(workbookName, sheetName, addresses[0]);
             CellReference right = CellReference.parse(workbookName, sheetName, addresses[1]);
-            gridBuilder.addCell(String.format("%s result = CellRange(\"%s\", %d, %d);",
-                    returnType,
+            cellRetrieveString = String.format("CellRange(\"%s\", %d, %d)",
                     left.getStringValue(),
                     right.getRowNumber() - left.getRowNumber() + 1,
-                    right.getColumnNumber() - left.getColumnNumber() + 1));
-            gridBuilder.nextRow();
+                    right.getColumnNumber() - left.getColumnNumber() + 1);
         } else {
             CellReference cellReference = CellReference.parse(workbookName, sheetName, cellAddress);
-            gridBuilder.addCell(String.format("%s result = (%s) Cell(\"%s\");",
-                    returnType,
-                    returnType,
-                    cellReference.getStringValue()));
-            gridBuilder.nextRow();
+            cellRetrieveString = String.format("Cell(\"%s\")", cellReference.getStringValue());
         }
+
+        String componentType = returnType.replace("[]", "");
+
+        cellRetrieveString = GridBuilderUtils.wrapWithConvertFunctionIfNeeded(returnType,
+                componentType,
+                isRange,
+                cellRetrieveString);
+        String expression = String.format("%s result = %s;", returnType, cellRetrieveString);
+
+        gridBuilder.addCell(expression);
+        gridBuilder.nextRow();
 
         for (ParameterImpl parameter : parameters) {
             CellReference reference = CellReference.parse(workbookName, sheetName, parameter.getName());
