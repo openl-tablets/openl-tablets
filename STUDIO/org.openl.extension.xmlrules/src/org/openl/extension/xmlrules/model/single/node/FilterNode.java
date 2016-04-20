@@ -291,12 +291,10 @@ public class FilterNode extends Node {
     }
 
     private String getConditionValueString(FilterNode node) {
-        // TODO At this time OpenL doesn't support comparisons like a == 2 where a is "2". Remove the code below when it will be implemented
         Node value = node.getConditionValue();
         String valueString = value.toOpenLString();
-        if (value instanceof NumberNode) {
-            return "\"" + ((NumberNode) value).asString() + "\"";
-        } else if (value instanceof FunctionNode && ((FunctionNode) value).getName().equals("Out")) {
+
+        if (value instanceof FunctionNode && ((FunctionNode) value).getName().equals("Out")) {
             valueString  += "[0][0]";
         }
         return valueString;
