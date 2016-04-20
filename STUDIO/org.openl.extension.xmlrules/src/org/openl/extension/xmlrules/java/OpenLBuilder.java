@@ -37,28 +37,8 @@ public class OpenLBuilder extends AOpenLBuilder {
 
         LibraryFactoryConfiguration libraries = op.createLibraries();
 
-        NameSpacedLibraryConfiguration library = new NameSpacedLibraryConfiguration();
-        library.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
-
-        for (String javaLibConfiguration : JAVA_LIBRARY_NAMES) {
-            JavaLibraryConfiguration javalib = new JavaLibraryConfiguration();
-            javalib.setClassName(javaLibConfiguration);
-            library.addJavalib(javalib);
-        }
-
-        NameSpacedLibraryConfiguration nslc = new NameSpacedLibraryConfiguration();
-        nslc.setNamespace(ISyntaxConstants.OPERATORS_NAMESPACE);
-
-        for (String operatorLibraryName : OPERATOR_LIBRARY_NAMES) {
-            JavaLibraryConfiguration javalib = new JavaLibraryConfiguration();
-            javalib.setClassName(operatorLibraryName);
-            nslc.addJavalib(javalib);
-        }
-
-        libraries.addConfiguredLibrary(nslc);
-
-
-        libraries.addConfiguredLibrary(library);
+        addLibraries(libraries, ISyntaxConstants.OPERATORS_NAMESPACE, OPERATOR_LIBRARY_NAMES);
+        addLibraries(libraries, ISyntaxConstants.THIS_NAMESPACE, JAVA_LIBRARY_NAMES);
 
         NodeBinderFactoryConfiguration nbc = op.createBindings();
 
@@ -74,5 +54,18 @@ public class OpenLBuilder extends AOpenLBuilder {
         }
 
         return op;
+    }
+
+    private void addLibraries(LibraryFactoryConfiguration libraries, String namespace, String[] libraryNames) {
+        NameSpacedLibraryConfiguration library = new NameSpacedLibraryConfiguration();
+        library.setNamespace(namespace);
+
+        for (String libraryName : libraryNames) {
+            JavaLibraryConfiguration configuration = new JavaLibraryConfiguration();
+            configuration.setClassName(libraryName);
+            library.addJavalib(configuration);
+        }
+
+        libraries.addConfiguredLibrary(library);
     }
 }
