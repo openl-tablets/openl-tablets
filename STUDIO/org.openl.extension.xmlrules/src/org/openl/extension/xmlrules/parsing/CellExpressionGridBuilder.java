@@ -28,7 +28,7 @@ public final class CellExpressionGridBuilder {
             if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
                 sheet = ((SheetHolder) sheet).getInternalSheet();
             }
-            if (CollectionUtils.isEmpty(sheet.getCells())) {
+            if (isEmptySheet(sheet)) {
                 return;
             }
             final String workbookName = sheet.getWorkbookName();
@@ -110,6 +110,20 @@ public final class CellExpressionGridBuilder {
             OpenLMessagesUtils.addError(e);
             gridBuilder.nextRow();
         }
+    }
+
+    private static boolean isEmptySheet(Sheet sheet) {
+        if (CollectionUtils.isEmpty(sheet.getCells())) {
+            return true;
+        }
+
+        for (LazyCells lazyCells : sheet.getCells()) {
+            if (!lazyCells.getCells().isEmpty()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static void initialize(List<String> columnNumbers,

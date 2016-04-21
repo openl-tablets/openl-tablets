@@ -37,4 +37,9 @@ public class LazyCells extends BaseLazyItem<Cells> {
             cell.getNode().configure(workbookName, sheetName, cell);
         }
     }
+
+    @Override
+    protected Cells getEmptyInstance() {
+        return new Cells();
+    }
 }
