@@ -1,17 +1,23 @@
 package org.openl.util.generation;
 
-import org.objectweb.asm.*;
-import org.openl.rules.runtime.InterfaceGenerator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.annotation.AnnotationUtils;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.openl.rules.runtime.InterfaceGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.annotation.AnnotationUtils;
 
 /**
  * This class is similar to {@link ClassReader} from ASM framework. But it can
@@ -153,7 +159,11 @@ public class InterfaceTransformer {
             av.visit(attributeName, Type.getType((Class<?>) attributeValue));
         } else if (attributeType.isEnum()) {
             av.visitEnum(attributeName, Type.getDescriptor(attributeType), attributeValue.toString());
-        } else {
+        } else if (attributeValue instanceof Annotation) {
+            Annotation annotation = (Annotation) attributeValue;
+            AnnotationVisitor av1 = av.visitAnnotation(attributeName, Type.getDescriptor(annotation.annotationType()));
+            processAnnotation(annotation, av1);
+        }else {
             av.visit(attributeName, attributeValue);
         }
     }

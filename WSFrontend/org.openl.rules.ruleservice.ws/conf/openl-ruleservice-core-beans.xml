@@ -26,6 +26,7 @@
 				<property name="ignoreResourceNotFound" value="true"/>
 			</bean>
 		</property>
+		<property name="serviceCallInterceptorGroups" value="RULESERVICE, "/>
 	</bean>
 
 	<!-- Bean orchestrates logic for web services application to identify and deploy services.  -->

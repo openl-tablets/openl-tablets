@@ -86,32 +86,6 @@ public class DynamicInterfaceAnnotationEnhancerHelper {
                 }
                 if (templateMethod != null) {
                     MethodVisitor mv = super.visitMethod(arg0, arg1, arg2, arg3, arg4);
-                    /*for (Annotation annotation : templateMethod.getAnnotations()) {
-                        if (annotation instanceof ServiceCallAfterInterceptor) {
-                            ServiceCallAfterInterceptor serviceCallAfterInterceptor = (ServiceCallAfterInterceptor) annotation;
-                            AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(annotation.annotationType()),
-                                    true);
-                            AnnotationVisitor av1 = av.visitArray(DEFAULT_ANNOTATION_VALUE);
-                            for (Class<? extends ServiceMethodAfterAdvice<?>> clazz : serviceCallAfterInterceptor
-                                   .value()) {
-                                av1.visit(null, Type.getType((Class<?>) clazz));
-                            }
-                            av1.visitEnd();
-                            av.visitEnd();
-                        }
-                        if (annotation instanceof ServiceCallBeforeInterceptor) {
-                            ServiceCallBeforeInterceptor serviceCallBeforeInterceptor = (ServiceCallBeforeInterceptor) annotation;
-                            AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(annotation.annotationType()),
-                                    true);
-                            AnnotationVisitor av1 = av.visitArray(DEFAULT_ANNOTATION_VALUE);
-                            for (Class<? extends ServiceMethodBeforeAdvice> clazz : serviceCallBeforeInterceptor
-                                    .value()) {
-                                av1.visit(null, Type.getType((Class<?>) clazz));
-                            }
-                            av1.visitEnd();
-                            av.visitEnd();
-                        }
-                    }*/
                     Annotation[] annotations = templateMethod.getAnnotations();
                     for (Annotation annotation : annotations){
                         AnnotationVisitor annotationVisitor = mv.visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);

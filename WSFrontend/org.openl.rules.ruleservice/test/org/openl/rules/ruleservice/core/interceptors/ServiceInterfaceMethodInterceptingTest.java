@@ -29,6 +29,8 @@ import org.openl.rules.ruleservice.core.RuleServiceInstantiationFactoryHelper;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
+import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptors;
+import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallInterceptorGroup;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 
@@ -42,10 +44,11 @@ public class ServiceInterfaceMethodInterceptingTest {
     }
 
     public static interface OverloadInterface {
-        @ServiceCallAfterInterceptor(value = ResultConvertor.class)
+        @ServiceCallAfterInterceptor(value = ResultConvertor.class, group=ServiceCallInterceptorGroup.GROUP1)
         Double driverRiskScoreOverloadTest(IRulesRuntimeContext runtimeContext, String driverRisk);
-
-        @ServiceCallAfterInterceptor(value = ResultConvertor.class)
+        @ServiceCallAfterInterceptors({
+            @ServiceCallAfterInterceptor(value = ResultConvertor.class, group=ServiceCallInterceptorGroup.ALL)
+        })
         Double driverRiskScoreNoOverloadTest(IRulesRuntimeContext runtimeContext, String driverRisk);
     }
 
@@ -102,6 +105,7 @@ public class ServiceInterfaceMethodInterceptingTest {
     @Test
     public void testResultConvertorInterceptor() throws Exception {
         RuleServiceOpenLServiceInstantiationFactoryImpl instantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
+        instantiationFactory.setServiceCallInterceptorGroups(new ServiceCallInterceptorGroup[]{ServiceCallInterceptorGroup.GROUP1});
         instantiationFactory.setRuleServiceLoader(ruleServiceLoader);
         OpenLService service = instantiationFactory.createService(serviceDescription);
         assertTrue(service.getServiceBean() instanceof OverloadInterface);
@@ -112,7 +116,37 @@ public class ServiceInterfaceMethodInterceptingTest {
         runtimeContext.setCurrentDate(calendar.getTime());
         Assert.assertEquals(100, instance.driverRiskScoreOverloadTest(runtimeContext, "High Risk Driver"), 0.1);
     }
-
+    
+    @Test(expected=ClassCastException.class)
+    public void testGroupInterceptor1() throws Exception {
+        RuleServiceOpenLServiceInstantiationFactoryImpl instantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
+        instantiationFactory.setServiceCallInterceptorGroups(new ServiceCallInterceptorGroup[]{ServiceCallInterceptorGroup.GROUP2});
+        instantiationFactory.setRuleServiceLoader(ruleServiceLoader);
+        OpenLService service = instantiationFactory.createService(serviceDescription);
+        assertTrue(service.getServiceBean() instanceof OverloadInterface);
+        OverloadInterface instance = (OverloadInterface) service.getServiceBean();
+        IRulesRuntimeContext runtimeContext = RulesRuntimeContextFactory.buildRulesRuntimeContext();
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2009, 5, 15);
+        runtimeContext.setCurrentDate(calendar.getTime());
+        instance.driverRiskScoreOverloadTest(runtimeContext, "High Risk Driver");
+    }
+    
+    @Test
+    public void testGroupInterceptor2() throws Exception {
+        RuleServiceOpenLServiceInstantiationFactoryImpl instantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
+        instantiationFactory.setServiceCallInterceptorGroups(new ServiceCallInterceptorGroup[]{ServiceCallInterceptorGroup.GROUP2});
+        instantiationFactory.setRuleServiceLoader(ruleServiceLoader);
+        OpenLService service = instantiationFactory.createService(serviceDescription);
+        assertTrue(service.getServiceBean() instanceof OverloadInterface);
+        OverloadInterface instance = (OverloadInterface) service.getServiceBean();
+        IRulesRuntimeContext runtimeContext = RulesRuntimeContextFactory.buildRulesRuntimeContext();
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2009, 5, 15);
+        runtimeContext.setCurrentDate(calendar.getTime());
+        instance.driverRiskScoreNoOverloadTest(runtimeContext, "High Risk Driver");
+    }
+    
     @Test
     public void testServiceClassUndecorating() throws Exception {
         RuleServiceOpenLServiceInstantiationFactoryImpl instantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();

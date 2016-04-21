@@ -5,17 +5,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAfterAdvice;
-
 /**
- * Annotation for registering after method interceptors.
+ * Annotation for registering before method intercepters.
  * 
  * @author Marat Kamalov
  * 
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface ServiceCallAfterInterceptor {
-    Class<? extends ServiceMethodAfterAdvice<?>>[] value();
-    ServiceCallInterceptorGroup group() default ServiceCallInterceptorGroup.ALL;
+public @interface ServiceCallBeforeInterceptors {
+    ServiceCallBeforeInterceptor[] value() default {};
 }

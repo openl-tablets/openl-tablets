@@ -5,8 +5,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.sf.cglib.core.ReflectUtils;
-
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -15,8 +13,11 @@ import org.objectweb.asm.Type;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
+import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptors;
 import org.openl.rules.variation.VariationsResult;
 import org.openl.util.generation.InterfaceTransformer;
+
+import net.sf.cglib.core.ReflectUtils;
 
 public abstract class RuleServiceInstantiationFactoryHelper {
 
@@ -107,6 +108,20 @@ public abstract class RuleServiceInstantiationFactoryHelper {
         }
     }
 
+    private static boolean isMethodsWithAfterInterceptor(Method method){
+        if (method.getAnnotation(ServiceCallAfterInterceptor.class) != null
+                && !method.getReturnType().equals(VariationsResult.class)) {
+            return true;
+        }
+        ServiceCallAfterInterceptors serviceCallAfterInterceptors = method.getAnnotation(ServiceCallAfterInterceptors.class);
+        if (serviceCallAfterInterceptors != null && serviceCallAfterInterceptors.value().length > 0 
+                && !method.getReturnType().equals(VariationsResult.class)) {
+            return true;
+        }
+
+        return false;
+    }
+    
     /**
      * Look through all methods (skip methods for variations) of the specified
      * class in order to find all methods annotated by
@@ -118,8 +133,7 @@ public abstract class RuleServiceInstantiationFactoryHelper {
      */
     public static boolean hasMethodsWithAfterInterceptors(Class<?> serviceClass) {
         for (Method method : serviceClass.getMethods()) {
-            if (method.getAnnotation(ServiceCallAfterInterceptor.class) != null
-                    && !method.getReturnType().equals(VariationsResult.class)) {
+            if (isMethodsWithAfterInterceptor(method)) {
                 return true;
             }
         }
@@ -136,8 +150,7 @@ public abstract class RuleServiceInstantiationFactoryHelper {
     public static Set<Method> getMethodsWithAfterInterceptors(Class<?> serviceClass) {
         Set<Method> changedReturnType = new HashSet<Method>();
         for (Method method : serviceClass.getMethods()) {
-            if (method.getAnnotation(ServiceCallAfterInterceptor.class) != null
-                    && !method.getReturnType().equals(VariationsResult.class)) {
+            if (isMethodsWithAfterInterceptor(method)) {
                 changedReturnType.add(method);
             }
         }

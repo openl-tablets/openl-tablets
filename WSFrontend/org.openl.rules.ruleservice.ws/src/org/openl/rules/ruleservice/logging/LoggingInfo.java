@@ -26,6 +26,8 @@ public class LoggingInfo {
     
     private PublisherType publisherType;
     
+    private LoggingCustomData loggingCustomData;
+    
     public PublisherType getPublisherType() {
         return publisherType;
     }
@@ -88,5 +90,13 @@ public class LoggingInfo {
 
     public void setParameters(Object[] parameters) {
         this.parameters = parameters;
+    }
+    
+    public LoggingCustomData getLoggingCustomData() {
+        return loggingCustomData;
+    }
+    
+    public void setLoggingCustomData(LoggingCustomData loggingCustomData) {
+        this.loggingCustomData = loggingCustomData;
     }
 }

@@ -1,18 +1,5 @@
 package org.openl.rules.ruleservice.core.interceptors;
 
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.beanutils.MethodUtils;
-import org.openl.exception.OpenLException;
-import org.openl.exception.OpenLRuntimeException;
-import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
-import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
-import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
-import org.openl.runtime.IEngineWrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.Ordered;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -21,6 +8,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.beanutils.MethodUtils;
+import org.openl.exception.OpenLException;
+import org.openl.exception.OpenLRuntimeException;
+import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
+import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
+import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptors;
+import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
+import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptors;
+import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallInterceptorGroup;
+import org.openl.runtime.IEngineWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.Ordered;
 
 /**
  * Advice for processing method intercepting.
@@ -41,10 +44,12 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
     private Map<Method, List<ServiceMethodAfterAdvice<?>>> afterInterceptors = new HashMap<Method, List<ServiceMethodAfterAdvice<?>>>();
     private Object serviceBean;
     private Class<?> serviceClass;
+    private ServiceCallInterceptorGroup[] serviceCallInterceptorGroupSupported;
 
-    public ServiceInvocationAdvice(Object serviceBean, Class<?> serviceClass) {
+    public ServiceInvocationAdvice(Object serviceBean, Class<?> serviceClass, ServiceCallInterceptorGroup[] serviceCallInterceptorGroupSupported) {
         this.serviceBean = serviceBean;
         this.serviceClass = serviceClass;
+        this.serviceCallInterceptorGroupSupported = serviceCallInterceptorGroupSupported;
         init();
     }
 
@@ -58,46 +63,76 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
         }
     }
 
+    private boolean groupIsSupported(ServiceCallInterceptorGroup serviceCallInterceptorGroup){
+        if (ServiceCallInterceptorGroup.ALL.equals(serviceCallInterceptorGroup)){
+            return true;
+        }
+        for (ServiceCallInterceptorGroup group : serviceCallInterceptorGroupSupported){
+            if (serviceCallInterceptorGroup.equals(group)){
+                return true;
+            }
+        }
+        return false;
+    }
+    
     private void checkForBeforeInterceptor(Method method, Annotation annotation) {
         if (annotation instanceof ServiceCallBeforeInterceptor) {
-            Class<? extends ServiceMethodBeforeAdvice>[] interceptorClasses = ((ServiceCallBeforeInterceptor) annotation)
-                    .value();
-            List<ServiceMethodBeforeAdvice> interceptors = beforeInterceptors.get(method);
-            if (interceptors == null) {
-                interceptors = new ArrayList<ServiceMethodBeforeAdvice>();
-                beforeInterceptors.put(method, interceptors);
-            }
-            for (Class<? extends ServiceMethodBeforeAdvice> interceptorClass : interceptorClasses) {
-                try {
-                    ServiceMethodBeforeAdvice preInterceptor = interceptorClass.getConstructor().newInstance();
-                    interceptors.add(preInterceptor);
-                } catch (Exception e) {
-                    throw new OpenLRuntimeException(String.format(
-                            "Wrong annotation definining before interceptor for method \"%s\" of class \"%s\"",
-                            method.getName(), serviceClass.getName()), e);
+            ServiceCallInterceptorGroup serviceCallInterceptorGroup = ((ServiceCallBeforeInterceptor) annotation).group();
+            if (groupIsSupported(serviceCallInterceptorGroup)){
+                Class<? extends ServiceMethodBeforeAdvice>[] interceptorClasses = ((ServiceCallBeforeInterceptor) annotation)
+                        .value();
+                List<ServiceMethodBeforeAdvice> interceptors = beforeInterceptors.get(method);
+                if (interceptors == null) {
+                    interceptors = new ArrayList<ServiceMethodBeforeAdvice>();
+                    beforeInterceptors.put(method, interceptors);
                 }
+                for (Class<? extends ServiceMethodBeforeAdvice> interceptorClass : interceptorClasses) {
+                    try {
+                        ServiceMethodBeforeAdvice preInterceptor = interceptorClass.getConstructor().newInstance();
+                        interceptors.add(preInterceptor);
+                    } catch (Exception e) {
+                        throw new OpenLRuntimeException(String.format(
+                                "Wrong annotation definining before interceptor for method \"%s\" of class \"%s\"",
+                                method.getName(), serviceClass.getName()), e);
+                    }
+                }
+            }
+        }
+        if (annotation instanceof ServiceCallBeforeInterceptors){
+            ServiceCallBeforeInterceptor[] serviceCallBeforeInterceptors = ((ServiceCallBeforeInterceptors) annotation).value();
+            for (ServiceCallBeforeInterceptor serviceCallBeforeInterceptor : serviceCallBeforeInterceptors){
+                checkForBeforeInterceptor(method, serviceCallBeforeInterceptor);
             }
         }
     }
 
     private void checkForAfterInterceptor(Method method, Annotation annotation) {
         if (annotation instanceof ServiceCallAfterInterceptor) {
-            Class<? extends ServiceMethodAfterAdvice<?>>[] interceptorClasses = ((ServiceCallAfterInterceptor) annotation)
-                    .value();
-            List<ServiceMethodAfterAdvice<?>> interceptors = afterInterceptors.get(method);
-            if (interceptors == null) {
-                interceptors = new ArrayList<ServiceMethodAfterAdvice<?>>();
-                afterInterceptors.put(method, interceptors);
-            }
-            for (Class<? extends ServiceMethodAfterAdvice<?>> interceptorClass : interceptorClasses) {
-                try {
-                    ServiceMethodAfterAdvice<?> postInterceptor = interceptorClass.getConstructor().newInstance();
-                    interceptors.add(postInterceptor);
-                } catch (Exception e) {
-                    throw new OpenLRuntimeException(String.format(
-                            "Wrong annotation definining afterReturning interceptor for method \"%s\" of class \"%s\"",
-                            method.getName(), serviceClass.getName()), e);
+            ServiceCallInterceptorGroup serviceCallInterceptorGroup = ((ServiceCallAfterInterceptor) annotation).group();
+            if (groupIsSupported(serviceCallInterceptorGroup)){
+                Class<? extends ServiceMethodAfterAdvice<?>>[] interceptorClasses = ((ServiceCallAfterInterceptor) annotation)
+                        .value();
+                List<ServiceMethodAfterAdvice<?>> interceptors = afterInterceptors.get(method);
+                if (interceptors == null) {
+                    interceptors = new ArrayList<ServiceMethodAfterAdvice<?>>();
+                    afterInterceptors.put(method, interceptors);
                 }
+                for (Class<? extends ServiceMethodAfterAdvice<?>> interceptorClass : interceptorClasses) {
+                    try {
+                        ServiceMethodAfterAdvice<?> postInterceptor = interceptorClass.getConstructor().newInstance();
+                        interceptors.add(postInterceptor);
+                    } catch (Exception e) {
+                        throw new OpenLRuntimeException(String.format(
+                                "Wrong annotation definining afterReturning interceptor for method \"%s\" of class \"%s\"",
+                                method.getName(), serviceClass.getName()), e);
+                    }
+                }
+            }
+        }
+        if (annotation instanceof ServiceCallAfterInterceptors){
+            ServiceCallAfterInterceptor[] serviceCallAfterInterceptors = ((ServiceCallAfterInterceptors) annotation).value();
+            for (ServiceCallAfterInterceptor serviceCallAfterInterceptor : serviceCallAfterInterceptors){
+                checkForAfterInterceptor(method, serviceCallAfterInterceptor);
             }
         }
     }

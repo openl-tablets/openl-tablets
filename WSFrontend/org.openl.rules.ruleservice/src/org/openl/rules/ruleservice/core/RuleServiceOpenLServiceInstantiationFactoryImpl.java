@@ -16,6 +16,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.instantiation.RuleServiceRuntimeContextInstantiationStrategyEnhancer;
 import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnhancerHelper;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdvice;
+import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallInterceptorGroup;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactory;
@@ -42,7 +43,9 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     private IDependencyManager externalDependencyManager;
 
     private Map<String, Object> externalParameters;
-
+    
+    private ServiceCallInterceptorGroup[] serviceCallInterceptorGroups = new ServiceCallInterceptorGroup[]{};
+    
     private void initService(IDependencyManager dependencyManager, OpenLService service) throws RulesInstantiationException,
                                                                                         ClassNotFoundException {
         RulesInstantiationStrategy instantiationStrategy = instantiationStrategyFactory.getStrategy(service.getModules(),
@@ -76,7 +79,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(instantiationStrategy.getClassLoader());
-            factory.addAdvice(new ServiceInvocationAdvice(serviceBean, serviceClass));
+            factory.addAdvice(new ServiceInvocationAdvice(serviceBean, serviceClass, getServiceCallInterceptorGroups()));
             if (serviceClass.isInterface()) {
                 factory.addInterface(serviceClass);
                 if (!service.isProvideRuntimeContext()) {
@@ -304,4 +307,13 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         }
         return dependencyManager;
     }
+    
+    public ServiceCallInterceptorGroup[] getServiceCallInterceptorGroups() {
+        return serviceCallInterceptorGroups;
+    }
+    
+    public void setServiceCallInterceptorGroups(ServiceCallInterceptorGroup[] serviceCallInterceptorGroups) {
+        this.serviceCallInterceptorGroups = serviceCallInterceptorGroups;
+    }
+
 }

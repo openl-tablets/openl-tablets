@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
  * 
  * @param <T>
  */
-public abstract class AbstractServiceMethodAfterReturningAdvice<T> implements ServiceMethodAfterAdvice<T> {
+public abstract class AbstractServiceMethodAfterReturningAdvice<T> implements ServiceMethodAfterAdvice<Object> {
 
     /** {@inheritDoc} */
     public final T afterThrowing(Method method, Exception t, Object... args) throws Exception {
