@@ -181,6 +181,9 @@ public final class TableGridBuilder {
         if (isTableHeaderNeeded(segment)) {
             if (isSimpleRules) {
                 for (Parameter parameter : table.getParameters()) {
+                    if (!isDimension(parameter)) {
+                        continue;
+                    }
                     gridBuilder.addCell(parameter.getName().toUpperCase());
                 }
                 gridBuilder.addCell("Return");
@@ -188,11 +191,8 @@ public final class TableGridBuilder {
                 headerSize.height++;
             } else {
                 List<ParameterImpl> parameters = table.getParameters();
-                for (int i = 0; i < parameters.size(); i++) {
-                    if (i >= table.getVerticalConditions().size()) {
-                        break;
-                    }
-                    Parameter parameter = parameters.get(i);
+                for (ConditionImpl condition : table.getVerticalConditions()) {
+                    Parameter parameter = parameters.get(condition.getParameterIndex());
                     gridBuilder.setCell(gridBuilder.getColumn(),
                             tableRow + 1 + attributesCount,
                             1,
