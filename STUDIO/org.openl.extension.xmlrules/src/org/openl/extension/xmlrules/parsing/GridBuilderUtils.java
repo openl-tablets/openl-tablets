@@ -112,4 +112,29 @@ public final class GridBuilderUtils {
 
         throw new UnsupportedOperationException("Unsupported condition '" + condition + "'");
     }
+
+    public static String wrapWithConvertFunctionIfNeeded(String returnType, String componentType, boolean isRange, String expressionToWrap) {
+        if ("Object".equals(returnType) || isRange && "Object[][]".equals(returnType)) {
+            // Cell() and CellRange() already return Object and Object[][] respectively
+            return expressionToWrap;
+        } else {
+            String expression;
+            if (returnType.endsWith("[]")) {
+                if (isRange) {
+                    expression = String.format("convertToRange(new %s[0][0], %s)", componentType, expressionToWrap);
+                }
+                else {
+                    expression = String.format("convertToArray(new %s[0], %s)", componentType, expressionToWrap);
+                }
+            } else {
+                expression = String.format("convert(new %s[0], %s)", componentType, expressionToWrap);
+            }
+
+            if (!"Object".equals(componentType)) {
+                expression = String.format("(%s) %s", returnType, expression);
+            }
+
+            return expression;
+        }
+    }
 }

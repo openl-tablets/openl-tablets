@@ -2684,6 +2684,13 @@ public class RulesUtils {
      *         value.
      */
     public static long round(double value) {
+        return Math.round(value + Math.ulp(value));
+    }
+
+    /**
+     * Like {@code round(double)} but without a ulp amendment
+     */
+    public static long roundStrict(double value) {
         return Math.round(value);
     }
 
@@ -2719,6 +2726,13 @@ public class RulesUtils {
      * @return the rounded value.
      */
     public static double round(double value, int scale) {
+        return MathUtils.round(value + Math.ulp(value), scale, BigDecimal.ROUND_HALF_UP);
+    }
+
+    /**
+     * Like {@code round(double, int)} but without a ulp amendment
+     */
+    public static double roundStrict(double value, int scale) {
         return MathUtils.round(value, scale, BigDecimal.ROUND_HALF_UP);
     }
 

@@ -18,18 +18,19 @@ public final class EnvironmentGridBuilder {
         try {
             gridBuilder.addCell("Environment", 2).nextRow();
 
-            gridBuilder.addCell("dependency");
-            String name = sourceCodeModule.getModuleName();
-            String moduleName = name.substring(0, name.lastIndexOf(".")) + "." + ExtensionDescriptor.TYPES_WORKBOOK.substring(0,
-                    ExtensionDescriptor.TYPES_WORKBOOK.lastIndexOf("."));
-            gridBuilder.addCell(moduleName);
-            gridBuilder.nextRow();
-
             List<String> dependencies = sourceCodeModule.getModule().getExtension().getDependencies();
-            if (dependencies != null) {
+            if (dependencies != null && !dependencies.isEmpty()) {
+                // It's expected that dependency to Types module is added in dependent workbooks
                 for (String dependency : dependencies) {
                     gridBuilder.addCell("dependency").addCell(dependency).nextRow();
                 }
+            } else {
+                gridBuilder.addCell("dependency");
+                String name = sourceCodeModule.getModuleName();
+                String moduleName = name.substring(0, name.lastIndexOf(".")) + "." + ExtensionDescriptor.TYPES_WORKBOOK.substring(0,
+                        ExtensionDescriptor.TYPES_WORKBOOK.lastIndexOf("."));
+                gridBuilder.addCell(moduleName);
+                gridBuilder.nextRow();
             }
 
             gridBuilder.nextRow();

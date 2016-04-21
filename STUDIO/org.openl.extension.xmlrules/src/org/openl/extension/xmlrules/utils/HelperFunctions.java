@@ -127,7 +127,7 @@ public class HelperFunctions {
                         value = newValue;
                     } else {
                         Object newValue = Array.newInstance(componentType, 1);
-                        Array.set(newValue, 1, convertArgument(componentType, value));
+                        Array.set(newValue, 0, convertArgument(componentType, value));
                         value = newValue;
                     }
                 } else if (valueClass.isArray()) {

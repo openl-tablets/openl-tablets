@@ -62,7 +62,8 @@ public class XmlRules {
         List<Object> values = new ArrayList<Object>();
         Class<?> type = Void.class;
 
-        for (int i = 0; i < Array.getLength(target); i++) {
+        int length = Array.getLength(target);
+        for (int i = 0; i < length; i++) {
             Object o = Array.get(target, i);
             Object field;
             if (o == null) {
@@ -84,6 +85,10 @@ public class XmlRules {
             }
         }
 
+        if (type == Void.class) {
+            type = Object.class;
+        }
+
         return values.toArray((Object[]) Array.newInstance(type, values.size()));
     }
 
@@ -100,7 +105,8 @@ public class XmlRules {
         List<Object> values = new ArrayList<Object>();
         Class<?> type = Void.class;
 
-        for (int i = 0; i < Array.getLength(target); i++) {
+        int length = Array.getLength(target);
+        for (int i = 0; i < length; i++) {
             Object o = Array.get(target, i);
             Object field;
             if (o == null) {
@@ -122,6 +128,10 @@ public class XmlRules {
             }
         }
 
+        if (type == Void.class) {
+            type = Object.class;
+        }
+
         return values.toArray((Object[]) Array.newInstance(type, values.size()));
     }
 
@@ -133,6 +143,23 @@ public class XmlRules {
     // To support array calls correctly
     public static Object Field(Object[][] target, String fieldName, Object index) {
         return Field((Object) target, fieldName, index);
+    }
+
+    public static Object convert(Object[] sample, Object source) {
+        // OpenL doesn't support passing classes of user-generated types (from Datatype table) that's why pass an array instead to determine the type we need to convert to.
+        return HelperFunctions.convertArgument(sample.getClass().getComponentType(), source);
+    }
+
+    public static Object[] convertToArray(Object[] sample, Object source) {
+        @SuppressWarnings("unchecked")
+        Class<Object[]> arrayType = (Class<Object[]>) sample.getClass();
+        return HelperFunctions.convertArgument(arrayType, source);
+    }
+
+    public static Object[][] convertToRange(Object[][] sample, Object source) {
+        @SuppressWarnings("unchecked")
+        Class<Object[][]> arrayType = (Class<Object[][]>) sample.getClass();
+        return HelperFunctions.convertArgument(arrayType, source);
     }
 
     private static Object getArrayElement(Object array, Integer index) {

@@ -9,8 +9,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.openl.extension.xmlrules.model.Function;
-import org.openl.extension.xmlrules.model.FunctionExpression;
-import org.openl.extension.xmlrules.model.Parameter;
 
 @XmlRootElement(name="function")
 @XmlType(name = "function")

@@ -6,6 +6,7 @@ import org.openl.extension.xmlrules.binding.XmlRulesMethodNodeBinder;
 import org.openl.extension.xmlrules.utils.ArrayOperators;
 import org.openl.extension.xmlrules.utils.InternalFunctions;
 import org.openl.extension.xmlrules.utils.XmlRules;
+import org.openl.extension.xmlrules.utils.XmlRulesOperators;
 import org.openl.syntax.impl.ISyntaxConstants;
 
 public class OpenLBuilder extends AOpenLBuilder {
@@ -14,6 +15,11 @@ public class OpenLBuilder extends AOpenLBuilder {
     private static final String[] JAVA_LIBRARY_NAMES = new String[] {
             XmlRules.class.getName(),
             InternalFunctions.class.getName()
+    };
+
+    private static final String[] OPERATOR_LIBRARY_NAMES = new String[] {
+            ArrayOperators.class.getName(),
+            XmlRulesOperators.class.getName()
     };
 
     @Override
@@ -31,24 +37,8 @@ public class OpenLBuilder extends AOpenLBuilder {
 
         LibraryFactoryConfiguration libraries = op.createLibraries();
 
-        NameSpacedLibraryConfiguration library = new NameSpacedLibraryConfiguration();
-        library.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
-
-        for (String javaLibConfiguration : JAVA_LIBRARY_NAMES) {
-            JavaLibraryConfiguration javalib = new JavaLibraryConfiguration();
-            javalib.setClassName(javaLibConfiguration);
-            library.addJavalib(javalib);
-        }
-
-        NameSpacedLibraryConfiguration nslc = new NameSpacedLibraryConfiguration();
-        nslc.setNamespace(ISyntaxConstants.OPERATORS_NAMESPACE);
-        JavaLibraryConfiguration javalib1 = new JavaLibraryConfiguration();
-        javalib1.setClassName(ArrayOperators.class.getName());
-        nslc.addJavalib(javalib1);
-        libraries.addConfiguredLibrary(nslc);
-
-
-        libraries.addConfiguredLibrary(library);
+        addLibraries(libraries, ISyntaxConstants.OPERATORS_NAMESPACE, OPERATOR_LIBRARY_NAMES);
+        addLibraries(libraries, ISyntaxConstants.THIS_NAMESPACE, JAVA_LIBRARY_NAMES);
 
         NodeBinderFactoryConfiguration nbc = op.createBindings();
 
@@ -64,5 +54,18 @@ public class OpenLBuilder extends AOpenLBuilder {
         }
 
         return op;
+    }
+
+    private void addLibraries(LibraryFactoryConfiguration libraries, String namespace, String[] libraryNames) {
+        NameSpacedLibraryConfiguration library = new NameSpacedLibraryConfiguration();
+        library.setNamespace(namespace);
+
+        for (String libraryName : libraryNames) {
+            JavaLibraryConfiguration configuration = new JavaLibraryConfiguration();
+            configuration.setClassName(libraryName);
+            library.addJavalib(configuration);
+        }
+
+        libraries.addConfiguredLibrary(library);
     }
 }
