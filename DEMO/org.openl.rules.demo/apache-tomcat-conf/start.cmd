@@ -13,7 +13,7 @@
 @if errorlevel 1 (
   @echo       Probably, you have not installed Java...
 ) else (
-  @for /f %%i in ('@where java.exe') do @call :startJAVA "%%i" & echo. & if not errorlevel 1 goto :end
+  @for /f "tokens=*" %%i in ('@where java.exe') do @call :startJAVA "%%i" & echo. & if not errorlevel 1 goto :end
 )
 
 @set errorcode=1
