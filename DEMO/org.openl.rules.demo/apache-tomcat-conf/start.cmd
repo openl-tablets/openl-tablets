@@ -70,7 +70,7 @@ rem SUBROUTINES
 @echo ### Trying to use JRE_HOME=%JRE_HOME% ...
 
 :start
-@setlocal & call bin\setclasspath.bat > NUL & endlocal & if errorlevel 1 exit /b 1 & endlocal
+@setlocal & pushd %~dp0 & call bin\setclasspath.bat > NUL & popd & endlocal & if errorlevel 1 exit /b 1 & endlocal
 @setlocal
 @echo.
 @echo ### Starting OpenL Tablets DEMO ...
@@ -78,7 +78,8 @@ rem SUBROUTINES
 @if "%JAVA_OPTS%" neq ""     @echo Using JAVA_OPTS:       "%JAVA_OPTS%"
 @if "%CATALINA_OPTS%" neq "" @echo Using CATALINA_OPTS:   "%CATALINA_OPTS%"
 @set CATALINA_OPTS=%CATALINA_OPTS% -DDEMO=DEMO
-@pushd bin
+@pushd %~dp0
+@cd bin
 @call startup.bat
 @popd
 @exit /b 0 & endlocal
