@@ -1,6 +1,7 @@
 @rem set JRE_HOME=C:\Program Files\Java\jre1.8.0_92
 
 @setlocal
+@set errorcode=0
 @set delay=20
 @echo ### Checking Java environment ...
 @echo.
@@ -88,4 +89,4 @@ rem SUBROUTINES
 @echo       http://openl-tablets.org/documentation/user-guides
 @echo.
 @echo %delay% seconds delay before closing this window.
-@choice /C C /T %delay% /D C /N /M "Press [C] key to Close this windows immediatly." & endlocal
+@choice /C C /T %delay% /D C /N /M "Press [C] key to Close this windows immediatly." & endlocal & exit /b %errorcode%
