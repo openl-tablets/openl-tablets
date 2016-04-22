@@ -12,24 +12,11 @@
 @where /Q java.exe
 @if errorlevel 1 (
   @echo       Probably, you have not installed Java...
-  @goto :noJava
+) else (
+  @for /f %%i in ('@where java.exe') do @call :startJAVA "%%i" & echo. & if not errorlevel 1 goto :end
 )
 
-@for /f %%i in ('@where java.exe') do @set VAR=%%i
-@echo       Executable java.exe is located at:
-@echo.
-@echo           %VAR%
-@echo.
-
-@rem Try to resolve JRE_HOME from the found executable java.
-@call :startJRE "%VAR%" & if not errorlevel 1 goto :end
-
-@rem Try to resolve JRE_HOME from the symlink on the found executable java.
-@for /f "tokens=2 delims=[]" %%i in ('@dir %VAR% ^| findstr /l \bin\java.exe') do @set VAR2=%%i
-@call :startJRE "%VAR2%" & if not errorlevel 1 goto :end
-
-:noJava
-
+@set errorcode=1
 @echo       Check JRE_HOME and JAVA_HOME environment variables.
 @echo       JRE_HOME should point to the directory where Java was installed.
 @echo.
@@ -58,18 +45,34 @@ goto :end
 
 rem SUBROUTINES
 
+:startJava
+@setlocal
+@set _ARG=%~1
+@echo ### Found executable java.exe is located at:
+@echo        %_ARG%
+
+@rem Try to resolve JRE_HOME from the found executable java.
+@call :startJRE "%_ARG%" & if not errorlevel 1 exit /b 0 & endlocal
+
+@rem Try to resolve JRE_HOME from the symlink on the found executable java.
+@for /f "tokens=2 delims=[]" %%i in ('@dir "%_ARG%" ^| findstr /l \bin\java.exe') do @set _VAR=%%i
+@if "%_VAR%" == "" exit /b 4 & endlocal
+@echo ### Resolving symlink...
+@call :startJRE "%_VAR%" & if not errorlevel 1 exit /b 0 & endlocal
+@exit /b 3 & endlocal
+
 :startJRE
 @setlocal
 @set _ARG=%~1
-@if "%_ARG:~-13%" neq "\bin\java.exe" exit /b 2 & endlocal
+@echo ### Composing JRE_HOME from %_ARG% ...
+@if "%_ARG:~-13%" neq "\bin\java.exe" @echo ###    ... it does not match & exit /b 2 & endlocal
 @set JRE_HOME=%_ARG:~0,-13%
-@echo ### Extracting JRE_HOME from %_ARG% ...
 @echo ### Trying to use JRE_HOME=%JRE_HOME% ...
-@echo.
 
 :start
 @setlocal & call bin\setclasspath.bat > NUL & endlocal & if errorlevel 1 exit /b 1 & endlocal
 @setlocal
+@echo.
 @echo ### Starting OpenL Tablets DEMO ...
 @echo.
 @if "%JAVA_OPTS%" neq ""     @echo Using JAVA_OPTS:       "%JAVA_OPTS%"
