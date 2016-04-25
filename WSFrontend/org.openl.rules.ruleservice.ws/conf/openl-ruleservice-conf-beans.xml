@@ -4,21 +4,21 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!-- Determines the services that should be exposed using RulesLoader. -->
-	<bean id="serviceConfigurer" class="org.openl.rules.ruleservice.conf.LastVersionProjectsServiceConfigurer">
+	<bean id="serviceConfigurer" class="org.openl.rules.ruleservice.conf.LastVersionProjectsServiceConfigurer" depends-on="unpackClasspathAutoJarToDirectoryBean">
 		<property name="provideRuntimeContext" value="${ruleservice.isProvideRuntimeContext}"/>
 		<property name="supportVariations" value="${ruleservice.isSupportVariations}" />
 		<property name="useRuleServiceRuntimeContext" value="${ruleservice.useRuleServiceRuntimeContext}"/>
 		<property name="supportedGroups" value="${ruleservice.datasource.groups}"/>
 	</bean>
 
-	<bean id="unpackClasspathAutoJarToDirectoryBean" class="org.openl.rules.ruleservice.loader.UnpackClasspathJarToDirectoryBean" depends-on="serviceConfigurer">
+	<bean id="unpackClasspathAutoJarToDirectoryBean" class="org.openl.rules.ruleservice.loader.UnpackClasspathJarToDirectoryBean" depends-on="deployClasspathJarsBean">
 		<property name="destinationDirectory" value="${ruleservice.datasource.dir}"/>
 		<property name="unpackAllJarsInOneDeployment" value="#{!${ruleservice.datasource.filesystem.supportDeployments}}"/>
 		<property name="supportDeploymentVersion" value="${ruleservice.datasource.filesystem.supportVersion}"/>
 		<property name="enabled" value="#{${ruleservice.datasource.deploy.classpath.jars} and '${ruleservice.datasource.type}' eq 'local'}"/>
 	</bean>
 
-	<bean id="deployClasspathJarsBean" class="org.openl.rules.ruleservice.loader.DeployClasspathJarsBean" depends-on="serviceConfigurer">
+	<bean id="deployClasspathJarsBean" class="org.openl.rules.ruleservice.loader.DeployClasspathJarsBean">
 		<property name="configurationFile" value="${ruleservice.datasource.repositoryPropertiesFile}"/>
 		<property name="enabled" value="#{${ruleservice.datasource.deploy.classpath.jars} and '${ruleservice.datasource.type}' eq 'jcr'}"/>
 	</bean>	
