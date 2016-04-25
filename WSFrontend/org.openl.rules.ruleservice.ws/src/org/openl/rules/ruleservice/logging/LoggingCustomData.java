@@ -11,11 +11,11 @@ public class LoggingCustomData {
     private Date customDate1;
     private Date customDate2;
     private Date customDate3;
-    private Long customNumber1;
-    private Long customNumber2;
-    private Long customNumber3;
-    private Long customNumber4;
-    private Long customNumber5;
+    private Integer customNumber1;
+    private Integer customNumber2;
+    private Integer customNumber3;
+    private Integer customNumber4;
+    private Integer customNumber5;
 
     public String getCustomString1() {
         return customString1;
@@ -81,43 +81,43 @@ public class LoggingCustomData {
         this.customDate3 = customDate3;
     }
 
-    public Long getCustomNumber1() {
+    public Integer getCustomNumber1() {
         return customNumber1;
     }
 
-    public void setCustomNumber1(Long customNumber1) {
+    public void setCustomNumber1(Integer customNumber1) {
         this.customNumber1 = customNumber1;
     }
 
-    public Long getCustomNumber2() {
+    public Integer getCustomNumber2() {
         return customNumber2;
     }
 
-    public void setCustomNumber2(Long customNumber2) {
+    public void setCustomNumber2(Integer customNumber2) {
         this.customNumber2 = customNumber2;
     }
 
-    public Long getCustomNumber3() {
+    public Integer getCustomNumber3() {
         return customNumber3;
     }
 
-    public void setCustomNumber3(Long customNumber3) {
+    public void setCustomNumber3(Integer customNumber3) {
         this.customNumber3 = customNumber3;
     }
 
-    public Long getCustomNumber4() {
+    public Integer getCustomNumber4() {
         return customNumber4;
     }
 
-    public void setCustomNumber4(Long customNumber4) {
+    public void setCustomNumber4(Integer customNumber4) {
         this.customNumber4 = customNumber4;
     }
 
-    public Long getCustomNumber5() {
+    public Integer getCustomNumber5() {
         return customNumber5;
     }
 
-    public void setCustomNumber5(Long customNumber5) {
+    public void setCustomNumber5(Integer customNumber5) {
         this.customNumber5 = customNumber5;
     }
 

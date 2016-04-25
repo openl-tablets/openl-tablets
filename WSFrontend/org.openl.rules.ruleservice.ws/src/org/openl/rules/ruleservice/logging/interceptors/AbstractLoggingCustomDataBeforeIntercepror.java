@@ -9,7 +9,7 @@ import org.openl.rules.ruleservice.logging.LoggingInfoHolder;
 
 public abstract class AbstractLoggingCustomDataBeforeIntercepror implements ServiceMethodBeforeAdvice {
     @Override
-    public void before(Method method, Object proxy, Object... args) throws Throwable {
+    public final void before(Method method, Object proxy, Object... args) throws Throwable {
         LoggingInfo loggingInfo = LoggingInfoHolder.get();
         LoggingCustomData loggingCustomData = loggingInfo.getLoggingCustomData();
         LoggingCustomData customData;

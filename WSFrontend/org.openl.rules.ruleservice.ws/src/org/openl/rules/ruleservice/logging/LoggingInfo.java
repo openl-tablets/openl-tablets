@@ -4,7 +4,6 @@ import java.util.Date;
 
 import org.apache.cxf.interceptor.LoggingMessage;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
-import org.openl.rules.ruleservice.core.OpenLService;
 
 /**
  * Bean for data for logging to external source feature.
@@ -22,7 +21,7 @@ public class LoggingInfo {
     private String inputName;
     private Object[] parameters;
 
-    private OpenLService service;
+    private String serviceName;
     
     private PublisherType publisherType;
     
@@ -52,12 +51,12 @@ public class LoggingInfo {
         this.responseMessage = responseMessage;
     }
 
-    public OpenLService getService() {
-        return service;
+    public String getServiceName() {
+        return serviceName;
     }
-
-    public void setService(OpenLService service) {
-        this.service = service;
+    
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 
     public Date getIncomingMessageTime() {

@@ -31,6 +31,6 @@ public class CollectOpenLServiceIntercepror extends AbstractPhaseInterceptor<Mes
     @Override
     public void handleMessage(Message message) throws Fault {
         LoggingInfo loggingInfo = LoggingInfoHolder.get();
-        loggingInfo.setService(service);
+        loggingInfo.setServiceName(service.getName());
     }
 }

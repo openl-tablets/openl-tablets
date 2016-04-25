@@ -27,11 +27,11 @@ public class LoggingRecord {
     private String customString4;
     private String customString5;
 
-    private Long customNumber1;
-    private Long customNumber2;
-    private Long customNumber3;
-    private Long customNumber4;
-    private Long customNumber5;
+    private Integer customNumber1;
+    private Integer customNumber2;
+    private Integer customNumber3;
+    private Integer customNumber4;
+    private Integer customNumber5;
 
     private Date customDate1;
     private Date customDate2;
@@ -51,11 +51,11 @@ public class LoggingRecord {
             String customString3,
             String customString4,
             String customString5,
-            Long customNumber1,
-            Long customNumber2,
-            Long customNumber3,
-            Long customNumber4,
-            Long customNumber5,
+            Integer customNumber1,
+            Integer customNumber2,
+            Integer customNumber3,
+            Integer customNumber4,
+            Integer customNumber5,
             Date customDate1,
             Date customDate2,
             Date customDate3) {
@@ -140,23 +140,23 @@ public class LoggingRecord {
         return customString5;
     }
 
-    public Long getCustomNumber1() {
+    public Integer getCustomNumber1() {
         return customNumber1;
     }
 
-    public Long getCustomNumber2() {
+    public Integer getCustomNumber2() {
         return customNumber2;
     }
 
-    public Long getCustomNumber3() {
+    public Integer getCustomNumber3() {
         return customNumber3;
     }
 
-    public Long getCustomNumber4() {
+    public Integer getCustomNumber4() {
         return customNumber4;
     }
 
-    public Long getCustomNumber5() {
+    public Integer getCustomNumber5() {
         return customNumber5;
     }
 

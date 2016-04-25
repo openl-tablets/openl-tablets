@@ -10,7 +10,7 @@ import org.openl.rules.ruleservice.logging.LoggingInfoHolder;
 public abstract class AbstractLoggingCustomDataAfterIntercepror implements ServiceMethodAfterAdvice<Object> {
 
     @Override
-    public Object afterReturning(Method method, Object result, Object... args) throws Exception {
+    public final Object afterReturning(Method method, Object result, Object... args) throws Exception {
         LoggingInfo loggingInfo = LoggingInfoHolder.get();
         LoggingCustomData loggingCustomData = loggingInfo.getLoggingCustomData();
         LoggingCustomData customData;
@@ -24,7 +24,7 @@ public abstract class AbstractLoggingCustomDataAfterIntercepror implements Servi
     }
 
     @Override
-    public Object afterThrowing(Method method, Exception t, Object... args) throws Exception {
+    public final Object afterThrowing(Method method, Exception t, Object... args) throws Exception {
         LoggingInfo loggingInfo = LoggingInfoHolder.get();
         LoggingCustomData loggingCustomData = loggingInfo.getLoggingCustomData();
         LoggingCustomData customData;
