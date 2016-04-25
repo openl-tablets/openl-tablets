@@ -61,7 +61,7 @@ public abstract class BaseLazyItem<T> {
                 prefix = "";
             }
             if (entry == null || entry.isDirectory()) {
-                throw new IllegalStateException("Incorrect file format. The file '" + entryName + "' doesn't exist in the project.");
+                return getEmptyInstance();
             }
 
             InputStream inputStream = zipFile.getInputStream(entry);
@@ -80,5 +80,9 @@ public abstract class BaseLazyItem<T> {
         } finally {
             IOUtils.closeQuietly(zipFile);
         }
+    }
+
+    protected T getEmptyInstance() {
+        throw new IllegalStateException("Incorrect file format. The file '" + entryName + "' doesn't exist in the project.");
     }
 }
