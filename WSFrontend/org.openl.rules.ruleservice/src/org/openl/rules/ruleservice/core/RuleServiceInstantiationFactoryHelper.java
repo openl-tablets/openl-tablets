@@ -14,6 +14,7 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptors;
+import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
 import org.openl.rules.variation.VariationsResult;
 import org.openl.util.generation.InterfaceTransformer;
 
@@ -113,8 +114,14 @@ public abstract class RuleServiceInstantiationFactoryHelper {
                 && !method.getReturnType().equals(VariationsResult.class)) {
             return true;
         }
+        
         ServiceCallAfterInterceptors serviceCallAfterInterceptors = method.getAnnotation(ServiceCallAfterInterceptors.class);
         if (serviceCallAfterInterceptors != null && serviceCallAfterInterceptors.value().length > 0 
+                && !method.getReturnType().equals(VariationsResult.class)) {
+            return true;
+        }
+        
+        if (method.getAnnotation(ServiceCallAroundInterceptor.class) != null
                 && !method.getReturnType().equals(VariationsResult.class)) {
             return true;
         }

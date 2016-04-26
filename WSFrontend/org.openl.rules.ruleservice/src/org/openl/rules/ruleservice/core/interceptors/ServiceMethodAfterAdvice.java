@@ -23,7 +23,7 @@ public interface ServiceMethodAfterAdvice<T> {
      * @return method return value
      * @throws Exception
      */
-    T afterReturning(Method method, Object result, Object... args) throws Exception;
+    T afterReturning(Method interfaceMethod, Object result, Object... args) throws Exception;
 
     /**
      * If after advice defined for a service method, invokes this method after
@@ -37,6 +37,6 @@ public interface ServiceMethodAfterAdvice<T> {
      * @return method return value
      * @throws Exception
      */
-    T afterThrowing(Method method, Exception t, Object... args) throws Exception;
+    T afterThrowing(Method interfaceMethod, Exception t, Object... args) throws Exception;
 
 }

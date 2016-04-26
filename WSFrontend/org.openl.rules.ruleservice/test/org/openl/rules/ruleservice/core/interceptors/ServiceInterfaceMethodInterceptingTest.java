@@ -30,6 +30,7 @@ import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFact
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptors;
+import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallInterceptorGroup;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
@@ -40,6 +41,13 @@ public class ServiceInterfaceMethodInterceptingTest {
         public Double afterReturning(Method method, Object result, Object... args) throws Exception {
             return ((DoubleValue) result).doubleValue();
         }
+    }
+
+    public static class AroundInterceptor implements ServiceMethodAroundAdvice<DoubleValue> {
+        @Override
+        public DoubleValue around(Method interfacemethod, Method beanMethod, Object result, Object... args) throws Exception {
+            return new DoubleValue(-1);
+        }
 
     }
 
@@ -49,6 +57,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         @ServiceCallAfterInterceptors({
             @ServiceCallAfterInterceptor(value = ResultConvertor.class, group=ServiceCallInterceptorGroup.ALL)
         })
+        @ServiceCallAroundInterceptor(value=AroundInterceptor.class)
         Double driverRiskScoreNoOverloadTest(IRulesRuntimeContext runtimeContext, String driverRisk);
     }
 
@@ -133,7 +142,7 @@ public class ServiceInterfaceMethodInterceptingTest {
     }
     
     @Test
-    public void testGroupInterceptor2() throws Exception {
+    public void testGroupAndAroundInterceptor2() throws Exception {
         RuleServiceOpenLServiceInstantiationFactoryImpl instantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
         instantiationFactory.setServiceCallInterceptorGroups(new ServiceCallInterceptorGroup[]{ServiceCallInterceptorGroup.GROUP2});
         instantiationFactory.setRuleServiceLoader(ruleServiceLoader);
@@ -144,7 +153,8 @@ public class ServiceInterfaceMethodInterceptingTest {
         Calendar calendar = Calendar.getInstance();
         calendar.set(2009, 5, 15);
         runtimeContext.setCurrentDate(calendar.getTime());
-        instance.driverRiskScoreNoOverloadTest(runtimeContext, "High Risk Driver");
+        Double result = instance.driverRiskScoreNoOverloadTest(runtimeContext, "High Risk Driver");
+        Assert.assertEquals(new Double(-1), result, 0.1d);
     }
     
     @Test
