@@ -150,7 +150,7 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
                         children,
                         argumentTypes,
                         parameters,
-                        "String");
+                        "Object");
             } else {
                 return bindModifiedAttributes(methodNode, bindingContext, methodName, argumentTypes, children);
             }
