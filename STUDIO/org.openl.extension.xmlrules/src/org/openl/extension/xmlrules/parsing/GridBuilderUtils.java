@@ -4,10 +4,17 @@ import java.util.List;
 
 import org.openl.extension.xmlrules.ParseError;
 import org.openl.extension.xmlrules.ProjectData;
+import org.openl.extension.xmlrules.model.ExtensionModule;
+import org.openl.extension.xmlrules.model.Sheet;
 import org.openl.extension.xmlrules.model.lazy.LazyAttributes;
+import org.openl.extension.xmlrules.model.lazy.LazyCells;
+import org.openl.extension.xmlrules.model.lazy.LazyWorkbook;
 import org.openl.extension.xmlrules.model.single.*;
+import org.openl.extension.xmlrules.model.single.node.Node;
 import org.openl.extension.xmlrules.model.single.node.RangeNode;
+import org.openl.extension.xmlrules.model.single.node.expression.ExpressionContext;
 import org.openl.extension.xmlrules.syntax.StringGridBuilder;
+import org.openl.extension.xmlrules.utils.CellReference;
 import org.openl.extension.xmlrules.utils.HelperFunctions;
 import org.openl.rules.table.constraints.Constraint;
 import org.openl.rules.table.constraints.Constraints;
@@ -136,5 +143,45 @@ public final class GridBuilderUtils {
 
             return expression;
         }
+    }
+
+    public static String getCellExpression(ExtensionModule module, String workbookName, String sheetName, CellReference cellReference) {
+        return getCellExpression(workbookName, sheetName, cellReference, getCell(module, cellReference));
+    }
+
+    public static String getCellExpression(String workbookName, String sheetName, CellReference reference, Cell cell) {
+        Node node = cell.getNode();
+        if (node == null) {
+            throw new IllegalArgumentException("Cell [" + workbookName + "]" + sheetName + "!" + cell
+                    .getAddress()
+                    .toOpenLString() + " contains incorrect value. It will be skipped");
+        }
+
+        ExpressionContext expressionContext = new ExpressionContext();
+        expressionContext.setCurrentRow(reference.getRowNumber());
+        expressionContext.setCurrentColumn(reference.getColumnNumber());
+        expressionContext.setCanHandleArrayOperators(false);
+        ExpressionContext.setInstance(expressionContext);
+
+        node.setRootNode(true);
+        return node.toOpenLString();
+    }
+
+    public static Cell getCell(ExtensionModule module, CellReference cellReference) {
+        for (LazyWorkbook workbook : module.getInternalWorkbooks()) {
+            for (Sheet sheet : workbook.getSheets()) {
+                String workbookName = sheet.getWorkbookName();
+                String sheetName = sheet.getName();
+
+                for (LazyCells cells : sheet.getCells()) {
+                    for (Cell c : cells.getCells()) {
+                        if (CellReference.parse(workbookName, sheetName, c.getAddress()).equals(cellReference)) {
+                            return c;
+                        }
+                    }
+                }
+            }
+        }
+        throw new IllegalStateException("Can't find the cell declaration: " + cellReference.getStringValue());
     }
 }

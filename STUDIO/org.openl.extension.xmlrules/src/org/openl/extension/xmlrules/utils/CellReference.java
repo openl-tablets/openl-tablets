@@ -152,4 +152,32 @@ public class CellReference {
         }
         return escapedSheet;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        CellReference that = (CellReference) o;
+
+        if (!workbook.equals(that.workbook))
+            return false;
+        if (!sheet.equals(that.sheet))
+            return false;
+        if (!row.equals(that.row))
+            return false;
+        return column.equals(that.column);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = workbook.hashCode();
+        result = 31 * result + sheet.hashCode();
+        result = 31 * result + row.hashCode();
+        result = 31 * result + column.hashCode();
+        return result;
+    }
 }

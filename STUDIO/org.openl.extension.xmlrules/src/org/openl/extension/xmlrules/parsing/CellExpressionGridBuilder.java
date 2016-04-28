@@ -55,29 +55,17 @@ public final class CellExpressionGridBuilder {
                         List<String> currentRow = getCurrentRow(conditions, reference);
                         int currentColumnNumber = getCurrentColumnNumber(columnNumbers, reference);
 
-                        ExpressionContext expressionContext = new ExpressionContext();
-                        expressionContext.setCurrentRow(reference.getRowNumber());
-                        expressionContext.setCurrentColumn(reference.getColumnNumber());
-                        expressionContext.setCanHandleArrayOperators(false);
-                        ExpressionContext.setInstance(expressionContext);
-
                         while (currentRow.size() < currentColumnNumber + 1) {
                             currentRow.add(null);
                         }
 
-                        Node node = cell.getNode();
                         String expression;
                         try {
-                            if (node == null) {
-                                throw new IllegalArgumentException("Cell [" + workbookName + "]" + sheetName + "!" + cell
-                                        .getAddress()
-                                        .toOpenLString() + " contains incorrect value. It will be skipped");
-                            }
-                            node.setRootNode(true);
+                            Node node = cell.getNode();
                             if (node instanceof ValueHolder) {
                                 expression = ((ValueHolder) node).asString();
                             } else {
-                                expression = "= " + node.toOpenLString();
+                                expression = "= " + GridBuilderUtils.getCellExpression(workbookName, sheetName, reference, cell);
                             }
                         } catch (RuntimeException e) {
                             expression = "";

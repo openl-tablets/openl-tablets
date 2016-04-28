@@ -83,8 +83,8 @@ public class XmlRulesParser extends BaseParser {
             TypeGridBuilder.build(gridBuilder, sheet);
         } else {
             DataInstanceGridBuilder.build(gridBuilder, module, sheet);
-            TableGridBuilder.build(gridBuilder, sheet);
-            FunctionGridBuilder.build(gridBuilder, sheet);
+            TableGridBuilder.build(gridBuilder, module, sheet);
+            FunctionGridBuilder.build(gridBuilder, module, sheet);
             CellExpressionGridBuilder.build(gridBuilder, sheet, parseErrors);
             ArrayCellExpressionGridBuilder.build(gridBuilder, sheet, parseErrors);
 

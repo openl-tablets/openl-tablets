@@ -4,10 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openl.extension.xmlrules.model.Function;
-import org.openl.extension.xmlrules.model.Parameter;
-import org.openl.extension.xmlrules.model.Segment;
-import org.openl.extension.xmlrules.model.Sheet;
+import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.model.single.Attribute;
 import org.openl.extension.xmlrules.model.single.ParameterImpl;
 import org.openl.extension.xmlrules.model.single.SheetHolder;
@@ -23,7 +20,7 @@ public final class FunctionGridBuilder {
     private FunctionGridBuilder() {
     }
 
-    public static void build(StringGridBuilder gridBuilder, Sheet sheet) {
+    public static void build(StringGridBuilder gridBuilder, ExtensionModule module, Sheet sheet) {
         Logger log = LoggerFactory.getLogger(FunctionGridBuilder.class);
         if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
             sheet = ((SheetHolder) sheet).getInternalSheet();
@@ -63,7 +60,7 @@ public final class FunctionGridBuilder {
                 List<Attribute> attributes = function.getAttributes();
                 GridBuilderUtils.addAttributes(gridBuilder, attributes);
 
-                writeBody(gridBuilder, cellAddress, isRange, returnType, parameters, workbookName, sheetName);
+                writeBody(gridBuilder, module, cellAddress, isRange, returnType, parameters, workbookName, sheetName);
 
                 gridBuilder.nextRow();
             } catch (RuntimeException e) {
@@ -110,6 +107,7 @@ public final class FunctionGridBuilder {
     }
 
     private static void writeBody(StringGridBuilder gridBuilder,
+            ExtensionModule module,
             String cellAddress,
             boolean isRange,
             String returnType,
@@ -134,7 +132,14 @@ public final class FunctionGridBuilder {
                     right.getColumnNumber() - left.getColumnNumber() + 1);
         } else {
             CellReference cellReference = CellReference.parse(workbookName, sheetName, cellAddress);
-            cellRetrieveString = String.format("Cell(\"%s\")", cellReference.getStringValue());
+            try {
+                cellRetrieveString = GridBuilderUtils.getCellExpression(module, workbookName, sheetName, cellReference);
+            } catch (RuntimeException e) {
+                Logger log = LoggerFactory.getLogger(FunctionGridBuilder.class);
+                log.error(e.getMessage(), e);
+                OpenLMessagesUtils.addError(e);
+                cellRetrieveString = String.format("Cell(\"%s\")", cellReference.getStringValue());
+            }
         }
 
         String componentType = returnType.replace("[]", "");

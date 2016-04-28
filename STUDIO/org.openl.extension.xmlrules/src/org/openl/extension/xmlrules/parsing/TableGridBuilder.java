@@ -2,13 +2,15 @@ package org.openl.extension.xmlrules.parsing;
 
 import java.util.*;
 
-import org.openl.util.StringUtils;
 import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.model.single.*;
+import org.openl.extension.xmlrules.model.single.node.Node;
+import org.openl.extension.xmlrules.model.single.node.ValueHolder;
 import org.openl.extension.xmlrules.syntax.StringGridBuilder;
 import org.openl.extension.xmlrules.utils.CellReference;
 import org.openl.extension.xmlrules.utils.HelperFunctions;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +20,7 @@ public final class TableGridBuilder {
     private TableGridBuilder() {
     }
 
-    public static void build(StringGridBuilder gridBuilder, Sheet sheet) {
+    public static void build(StringGridBuilder gridBuilder, ExtensionModule module, Sheet sheet) {
         try {
             if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
                 sheet = ((SheetHolder) sheet).getInternalSheet();
@@ -77,7 +79,7 @@ public final class TableGridBuilder {
                 int simpleRulesStartColumn = gridBuilder.getColumn() + table.getVerticalConditions().size();
 
                 int maxRow = writeVerticalColumnExpressions(gridBuilder, table);
-                writeReturnValues(gridBuilder, sheet, table, isSimpleRules, tableRow, returnType, headerSize, startColumn, simpleRulesStartColumn);
+                writeReturnValues(gridBuilder, module, sheet, table, isSimpleRules, tableRow, returnType, headerSize, startColumn, simpleRulesStartColumn);
 
                 gridBuilder.setRow(Math.max(gridBuilder.getRow(), maxRow));
 
@@ -225,7 +227,7 @@ public final class TableGridBuilder {
 
     // TODO merge startColumn and simpleRulesStartColumn
     private static void writeReturnValues(StringGridBuilder gridBuilder,
-            Sheet sheet,
+            ExtensionModule module, Sheet sheet,
             Table table,
             boolean isSimpleRules,
             int tableRow,
@@ -249,14 +251,23 @@ public final class TableGridBuilder {
             for (Expression returnValue : returnValues.getList()) {
                 try {
                     if (returnValue.getReference()) {
-                        String cell = CellReference.parse(workbookName, sheetName, returnValue.getValue())
-                                .getStringValue();
-                        String cellRetrieveString = String.format("Cell(\"%s\")", cell);
-                        cellRetrieveString = GridBuilderUtils.wrapWithConvertFunctionIfNeeded(returnType,
-                                componentType,
-                                false,
-                                cellRetrieveString);
-                        gridBuilder.addCell(String.format("= %s", cellRetrieveString));
+                        CellReference reference = CellReference.parse(workbookName, sheetName, returnValue.getValue());
+                        Cell cell = GridBuilderUtils.getCell(module, reference);
+                        Node node = cell.getNode();
+                        if (node instanceof ValueHolder) {
+                            gridBuilder.addCell(((ValueHolder) node).asString());
+                        } else {
+                            String cellRetrieveString = GridBuilderUtils.getCellExpression(workbookName,
+                                    sheetName,
+                                    reference,
+                                    cell);
+                            cellRetrieveString = GridBuilderUtils.wrapWithConvertFunctionIfNeeded(returnType,
+                                    componentType,
+                                    false,
+                                    cellRetrieveString);
+
+                            gridBuilder.addCell("= " + cellRetrieveString);
+                        }
                     } else {
                         gridBuilder.addCell(returnValue.getValue());
                     }
@@ -265,7 +276,7 @@ public final class TableGridBuilder {
                         log.warn("SimpleRules can't contain two-dimensional return values");
                         break;
                     }
-                } catch (Exception e) {
+                } catch (RuntimeException e) {
                     Logger log = LoggerFactory.getLogger(TableGridBuilder.class);
                     log.error(e.getMessage(), e);
                     OpenLMessagesUtils.addError(e);
