@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.extension.xmlrules.XmlRulesPath;
 import org.openl.rules.helpers.RulesUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -14,37 +15,88 @@ import org.openl.util.StringTool;
 
 public class XmlRules {
     public static void Push(String cell, Object value) {
-        LazyCellExecutor cache = LazyCellExecutor.getInstance();
-        if (cache == null) {
-            throw new IllegalStateException("Cells cache not initialized");
-        }
+        LazyCellExecutor cache = getLazyCellExecutor();
+        cache.push(cell, value);
+    }
+
+    public static void Push(int row, int column, Object value) {
+        LazyCellExecutor cache = getLazyCellExecutor();
+        String cell = CellReference.parse(cache.getCurrentPath(), row, column).getStringValue();
         cache.push(cell, value);
     }
 
     public static void Pop(String cell) {
-        LazyCellExecutor cache = LazyCellExecutor.getInstance();
-        if (cache == null) {
-            throw new IllegalStateException("Cells cache not initialized");
-        }
+        LazyCellExecutor cache = getLazyCellExecutor();
+        cache.pop(cell);
+    }
+
+    public static void Pop(int row, int column) {
+        LazyCellExecutor cache = getLazyCellExecutor();
+        String cell = CellReference.parse(cache.getCurrentPath(), row, column).getStringValue();
         cache.pop(cell);
     }
 
     public static Object Cell(String cell) {
-        LazyCellExecutor cache = LazyCellExecutor.getInstance();
-        if (cache == null) {
-            throw new IllegalStateException("Cells cache not initialized");
-        }
+        LazyCellExecutor cache = getLazyCellExecutor();
 
         return cache.getCellValue(cell);
     }
 
+    public static Object Cell(int row, int column) {
+        LazyCellExecutor cache = getLazyCellExecutor();
+
+        String cell = CellReference.parse(cache.getCurrentPath(), row, column).getStringValue();
+        return cache.getCellValue(cell);
+    }
+
+    public static Object Cell(String sheet, int row, int column) {
+        LazyCellExecutor cache = getLazyCellExecutor();
+
+        XmlRulesPath path = new XmlRulesPath(cache.getCurrentPath().getWorkbook(), sheet);
+        String cell = CellReference.parse(path, row, column).getStringValue();
+        return cache.getCellValue(cell);
+    }
+
+    public static Object Cell(String workbook, String sheet, int row, int column) {
+        LazyCellExecutor cache = getLazyCellExecutor();
+
+        String cell = CellReference.parse(new XmlRulesPath(workbook, sheet), row, column).getStringValue();
+        return cache.getCellValue(cell);
+    }
+
     public static Object[][] CellRange(String cell, int rows, int cols) {
+        LazyCellExecutor cache = getLazyCellExecutor();
+
+        return cache.getCellValues(cell, rows, cols);
+    }
+
+    public static Object[][] CellRange(int row, int column, int rows, int cols) {
+        LazyCellExecutor cache = getLazyCellExecutor();
+
+        String cell = CellReference.parse(cache.getCurrentPath(), row, column).getStringValue();
+        return cache.getCellValues(cell, rows, cols);
+    }
+
+    public static Object[][] CellRange(String sheet, int row, int column, int rows, int cols) {
+        LazyCellExecutor cache = getLazyCellExecutor();
+
+        XmlRulesPath path = new XmlRulesPath(cache.getCurrentPath().getWorkbook(), sheet);
+        String cell = CellReference.parse(path, row, column).getStringValue();
+        return cache.getCellValues(cell, rows, cols);
+    }
+    public static Object[][] CellRange(String workbook, String sheet, int row, int column, int rows, int cols) {
+        LazyCellExecutor cache = getLazyCellExecutor();
+
+        String cell = CellReference.parse(new XmlRulesPath(workbook, sheet), row, column).getStringValue();
+        return cache.getCellValues(cell, rows, cols);
+    }
+
+    private static LazyCellExecutor getLazyCellExecutor() {
         LazyCellExecutor cache = LazyCellExecutor.getInstance();
         if (cache == null) {
             throw new IllegalStateException("Cells cache not initialized");
         }
-
-        return cache.getCellValues(cell, rows, cols);
+        return cache;
     }
 
     public static Object Field(Object target, String fieldName, Object index) {

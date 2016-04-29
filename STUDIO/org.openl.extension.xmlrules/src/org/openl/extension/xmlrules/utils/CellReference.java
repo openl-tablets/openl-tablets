@@ -3,6 +3,7 @@ package org.openl.extension.xmlrules.utils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.openl.extension.xmlrules.XmlRulesPath;
 import org.openl.extension.xmlrules.model.single.node.RangeNode;
 
 public class CellReference {
@@ -93,6 +94,10 @@ public class CellReference {
             sheet = currentSheet;
         }
         return new CellReference(workbook, sheet, rangeNode.getRow(), rangeNode.getColumn());
+    }
+
+    public static CellReference parse(XmlRulesPath path, int row, int column) {
+        return new CellReference(path.getWorkbook(), path.getSheet(), "" + row, "" + column);
     }
 
     public CellReference(String workbook, String sheet, String row, String column) {

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.openl.extension.xmlrules.ParseError;
+import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.model.Sheet;
 import org.openl.extension.xmlrules.model.lazy.LazyCells;
 import org.openl.extension.xmlrules.model.single.Cell;
@@ -37,6 +38,9 @@ public final class CellExpressionGridBuilder {
                     sheetName,
                     null,
                     null)).getTable();
+
+            ProjectData projectData = ProjectData.getCurrentInstance();
+            projectData.addServiceTable(sheet, cellsOnSheetName);
 
             List<List<String>> conditions = new ArrayList<List<String>>();
             List<String> columnNumbers = new ArrayList<String>();

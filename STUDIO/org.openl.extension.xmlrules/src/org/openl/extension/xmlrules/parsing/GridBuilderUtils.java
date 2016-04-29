@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.openl.extension.xmlrules.ParseError;
 import org.openl.extension.xmlrules.ProjectData;
+import org.openl.extension.xmlrules.XmlRulesPath;
 import org.openl.extension.xmlrules.model.ExtensionModule;
 import org.openl.extension.xmlrules.model.Sheet;
 import org.openl.extension.xmlrules.model.lazy.LazyAttributes;
@@ -161,6 +162,7 @@ public final class GridBuilderUtils {
         expressionContext.setCurrentRow(reference.getRowNumber());
         expressionContext.setCurrentColumn(reference.getColumnNumber());
         expressionContext.setCanHandleArrayOperators(false);
+        expressionContext.setCurrentPath(new XmlRulesPath(workbookName, sheetName));
         ExpressionContext.setInstance(expressionContext);
 
         node.setRootNode(true);

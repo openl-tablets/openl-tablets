@@ -2,6 +2,7 @@ package org.openl.extension.xmlrules.utils;
 
 import java.util.*;
 
+import org.openl.extension.xmlrules.XmlRulesPath;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -22,6 +23,8 @@ public class LazyCellExecutor {
     private final Map<String, RulesTableReference> referenceMap = new HashMap<String, RulesTableReference>();
 
     private final Map<CellKey, Object> executionCache = new HashMap<CellKey, Object>();
+
+    private final Deque<XmlRulesPath> currentPathStack = new ArrayDeque<XmlRulesPath>();
 
     public LazyCellExecutor(XlsModuleOpenClass xlsModuleOpenClass, Object target, IRuntimeEnv env) {
         this.xlsModuleOpenClass = xlsModuleOpenClass;
@@ -91,6 +94,7 @@ public class LazyCellExecutor {
         return result;
     }
 
+    // TODO Change cells caching. Remove old approach.
     public Object getCellValue(String cell) {
         if (!params.containsKey(cell)) {
             RulesTableReference tableReference = getTableReference(cell);
@@ -170,5 +174,17 @@ public class LazyCellExecutor {
             referenceMap.put(cell, rulesTableReference);
         }
         return rulesTableReference;
+    }
+
+    public void pushCurrentPath(XmlRulesPath path) {
+        currentPathStack.addFirst(path);
+    }
+
+    public XmlRulesPath popCurrentPath() {
+        return currentPathStack.removeFirst();
+    }
+
+    public XmlRulesPath getCurrentPath() {
+        return currentPathStack.getFirst();
     }
 }

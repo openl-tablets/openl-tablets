@@ -3,6 +3,7 @@ package org.openl.extension.xmlrules.binding.wrapper;
 import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
+import org.openl.extension.xmlrules.XmlRulesPath;
 import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.utils.LazyCellExecutor;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
@@ -22,6 +23,8 @@ public class XmlRulesTableMethodDecorator extends TableMethod {
     private final ProjectData projectData;
     private final ArgumentsConverter argumentsConverter;
 
+    private final XmlRulesPath functionPath;
+
     public XmlRulesTableMethodDecorator(XlsModuleOpenClass xlsModuleOpenClass,
             TableMethod delegate,
             ProjectData projectData) {
@@ -29,6 +32,7 @@ public class XmlRulesTableMethodDecorator extends TableMethod {
         this.xlsModuleOpenClass = xlsModuleOpenClass;
         this.projectData = projectData;
         argumentsConverter = new ArgumentsConverter(delegate.getMethod());
+        functionPath = projectData.getPath(delegate.getName());
     }
 
     @Override
@@ -40,10 +44,12 @@ public class XmlRulesTableMethodDecorator extends TableMethod {
             LazyCellExecutor.setInstance(cache);
             ProjectData.setCurrentInstance(projectData);
         }
+        cache.pushCurrentPath(functionPath);
         try {
             params = argumentsConverter.convert(params);
             return delegate.invoke(target, params, env);
         } finally {
+            cache.popCurrentPath();
             if (topLevel) {
                 LazyCellExecutor.reset();
                 ProjectData.removeCurrentInstance();

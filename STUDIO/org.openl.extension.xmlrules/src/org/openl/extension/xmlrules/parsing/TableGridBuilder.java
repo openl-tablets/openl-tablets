@@ -2,6 +2,7 @@ package org.openl.extension.xmlrules.parsing;
 
 import java.util.*;
 
+import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.model.single.*;
 import org.openl.extension.xmlrules.model.single.node.Node;
@@ -53,6 +54,7 @@ public final class TableGridBuilder {
 
                     createFunctionTable(gridBuilder, sheet, table);
                     tableName += FUNCTION_TABLE_SUFFIX;
+                    ProjectData.getCurrentInstance().addServiceTable(sheet, tableName);
                 }
                 boolean isSimpleRules = table.getHorizontalConditions().isEmpty();
 
@@ -354,10 +356,19 @@ public final class TableGridBuilder {
         for (ParameterImpl parameter : parameters) {
             if (!isDimension(parameter)) {
                 CellReference reference = CellReference.parse(workbookName, sheetName, parameter.getName());
-                String cell = String.format("Push(\"%s\", R%sC%s);",
-                        reference.getStringValue(),
-                        reference.getRow(),
-                        reference.getColumn());
+                String cell;
+                if (isSameSheet(reference, workbookName, sheetName)) {
+                    cell = String.format("Push(%d, %d, R%sC%s);",
+                            reference.getRowNumber(),
+                            reference.getColumnNumber(),
+                            reference.getRow(),
+                            reference.getColumn());
+                } else {
+                    cell = String.format("Push(\"%s\", R%sC%s);",
+                            reference.getStringValue(),
+                            reference.getRow(),
+                            reference.getColumn());
+                }
                 gridBuilder.addCell(cell).nextRow();
             }
         }
@@ -387,7 +398,12 @@ public final class TableGridBuilder {
         for (ParameterImpl parameter : parameters) {
             if (!isDimension(parameter)) {
                 CellReference reference = CellReference.parse(workbookName, sheetName, parameter.getName());
-                String cell = String.format("Pop(\"%s\");", reference.getStringValue());
+                String cell;
+                if (isSameSheet(reference, workbookName, sheetName)) {
+                    cell = String.format("Pop(%d, %d);", reference.getRowNumber(), reference.getColumnNumber());
+                } else {
+                    cell = String.format("Pop(\"%s\");", reference.getStringValue());
+                }
                 gridBuilder.addCell(cell).nextRow();
             }
         }
@@ -395,6 +411,10 @@ public final class TableGridBuilder {
         gridBuilder.addCell("return result;").nextRow();
 
         gridBuilder.nextRow();
+    }
+
+    private static boolean isSameSheet(CellReference reference, String workbookName, String sheetName) {
+        return reference.getWorkbook().equals(workbookName) && reference.getSheet().equals(sheetName);
     }
 
     private static boolean isDimension(Parameter parameter) {

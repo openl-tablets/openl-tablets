@@ -1,5 +1,10 @@
 package org.openl.extension.xmlrules.model.single.node.expression;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+
+import org.openl.extension.xmlrules.XmlRulesPath;
+
 public class ExpressionContext {
     private static ThreadLocal<ExpressionContext> instanceHolder = new ThreadLocal<ExpressionContext>();
 
@@ -15,6 +20,8 @@ public class ExpressionContext {
 
     private boolean outArray = false;
     private boolean canHandleArrayOperators = true;
+
+    private XmlRulesPath currentPath;
 
     public static ExpressionContext getInstance() {
         return instanceHolder.get();
@@ -97,5 +104,13 @@ public class ExpressionContext {
 
     public void setCanHandleArrayOperators(boolean canHandleArrayOperators) {
         this.canHandleArrayOperators = canHandleArrayOperators;
+    }
+
+    public XmlRulesPath getCurrentPath() {
+        return currentPath;
+    }
+
+    public void setCurrentPath(XmlRulesPath currentPath) {
+        this.currentPath = currentPath;
     }
 }

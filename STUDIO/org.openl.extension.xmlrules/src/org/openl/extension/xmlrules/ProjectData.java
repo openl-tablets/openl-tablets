@@ -6,10 +6,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.openl.extension.xmlrules.model.Field;
-import org.openl.extension.xmlrules.model.Function;
-import org.openl.extension.xmlrules.model.Table;
-import org.openl.extension.xmlrules.model.Type;
+import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.model.lazy.LazyAttributes;
 import org.openl.extension.xmlrules.model.single.node.RangeNode;
 
@@ -37,6 +34,8 @@ public class ProjectData {
 
     private final Map<String, RangeNode> namedRanges = new HashMap<String, RangeNode>();
 
+    private final Map<String, XmlRulesPath> tableFunctionPaths = new HashMap<String, XmlRulesPath>();
+
     private LazyAttributes attributes;
 
     public static Unmarshaller getUnmarshaller() throws JAXBException {
@@ -61,7 +60,7 @@ public class ProjectData {
         }
     }
 
-    public void addFunction(Function function) {
+    public void addFunction(Sheet sheet, Function function) {
         String key = function.getName().toLowerCase();
         List<Function> overloadedFunctions = functions.get(key);
         if (overloadedFunctions == null) {
@@ -69,9 +68,11 @@ public class ProjectData {
             functions.put(key, overloadedFunctions);
         }
         overloadedFunctions.add(function);
+
+        tableFunctionPaths.put(key, new XmlRulesPath(sheet.getWorkbookName(), sheet.getName()));
     }
 
-    public void addTable(Table table) {
+    public void addTable(Sheet sheet, Table table) {
         String key = table.getName().toLowerCase();
         List<Table> overloadedTables = tables.get(key);
         if (overloadedTables == null) {
@@ -79,6 +80,13 @@ public class ProjectData {
             tables.put(key, overloadedTables);
         }
         overloadedTables.add(table);
+
+        tableFunctionPaths.put(key, new XmlRulesPath(sheet.getWorkbookName(), sheet.getName()));
+    }
+
+    public void addServiceTable(Sheet sheet, String tableName) {
+        String key = tableName.toLowerCase();
+        tableFunctionPaths.put(key, new XmlRulesPath(sheet.getWorkbookName(), sheet.getName()));
     }
 
     public void addNamedRange(String name, RangeNode rangeNode) {
@@ -143,4 +151,9 @@ public class ProjectData {
     public void setAttributes(LazyAttributes attributes) {
         this.attributes = attributes;
     }
+
+    public XmlRulesPath getPath(String tableOrFunction) {
+        return tableFunctionPaths.get(tableOrFunction.toLowerCase());
+    }
+
 }

@@ -196,10 +196,10 @@ public class XmlRulesParser extends BaseParser {
                     projectData.addType(type);
                 }
                 for (Function function : s.getFunctions()) {
-                    projectData.addFunction(function);
+                    projectData.addFunction(s, function);
                 }
                 for (Table table : s.getTables()) {
-                    projectData.addTable(table);
+                    projectData.addTable(s, table);
                 }
             }
         }
