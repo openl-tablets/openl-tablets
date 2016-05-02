@@ -46,10 +46,6 @@
     </build>
     <dependencies>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.openl</groupId>
             <artifactId>org.openl.commons</artifactId>
         </dependency>
