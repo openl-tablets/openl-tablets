@@ -92,37 +92,6 @@ public class ArrayTool {
         return new ArrayIterator<T>(array);
     }
 
-    public static Object merge(Object array1, Object array2) {
-        return merge(new Object[] { array1, array2 });
-    }
-
-    public static Object merge(Object[] arrays) {
-        if (arrays == null || arrays.length == 0) {
-            return new Object[0];
-        }
-        if (arrays.length == 1) {
-            return arrays[0];
-        }
-
-        int newSize = 0;
-        for (int i = 0; i < arrays.length; i++) {
-            newSize += Array.getLength(arrays[i]);
-        }
-
-        if (newSize == Array.getLength(arrays[0])) {
-            return arrays[0];
-        }
-
-        Object newArray = Array.newInstance(arrays[0].getClass().getComponentType(), newSize);
-        int pos = 0;
-        for (int i = 0; i < arrays.length; i++) {
-            int sz = Array.getLength(arrays[i]);
-            System.arraycopy(arrays[i], 0, newArray, pos, sz);
-            pos += Array.getLength(arrays[i]);
-        }
-        return newArray;
-    }
-
     static void print(Object obj, StringBuilder buf, int maxLength) {
         if (obj == null) {
             buf.append("null");

@@ -9,7 +9,6 @@ package org.openl.types.impl;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
-import org.openl.util.ArrayTool;
 import org.openl.util.StringTool;
 
 /**
@@ -76,11 +75,27 @@ public class MethodSignature implements IMethodSignature {
     }
 
     public MethodSignature merge(IParameterDeclaration[] extraParams) {
-        return new MethodSignature((IParameterDeclaration[]) ArrayTool.merge(parameters, extraParams));
+        return new MethodSignature(merge(parameters, extraParams));
     }
     
     @Override
     public String toString() {
         return StringTool.arrayToStringThroughSymbol(parameters, ",");
     }
+
+    private static IParameterDeclaration[] merge(IParameterDeclaration[] array1, IParameterDeclaration[] array2) {
+        if (array1 == null) {
+            return array2;
+        }
+        if (array2 == null || array2.length == 0) {
+            return array1;
+        }
+        int newSize = array1.length + array2.length;
+
+        IParameterDeclaration[] newArray = new IParameterDeclaration[newSize];
+        System.arraycopy(array1, 0, newArray, 0, array1.length);
+        System.arraycopy(array2, 0, newArray, array1.length, array2.length);
+        return newArray;
+    }
+
 }
