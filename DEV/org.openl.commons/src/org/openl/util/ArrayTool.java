@@ -39,17 +39,13 @@ public class ArrayTool {
     public static final Object[] ZERO_OBJECT = {};
 
     public static String asString(Object ary) {
-        return asString(ary, 128);
-    }
-
-    public static String asString(Object ary, int maxLength) {
         StringBuilder buf = new StringBuilder(100);
 
-        print(ary, buf, maxLength);
+        print(ary, buf, 128);
 
-        if (buf.length() > maxLength) {
+        if (buf.length() > 128) {
             String ellipses = "...";
-            buf.delete(maxLength - ellipses.length(), buf.length()).append(ellipses);
+            buf.delete(128 - ellipses.length(), buf.length()).append(ellipses);
         }
 
         return buf.toString();
