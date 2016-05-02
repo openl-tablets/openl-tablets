@@ -4,35 +4,13 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
 
 public class ArrayTool {
-
-    static class ArrayEnumeration<T> implements Enumeration<T> {
-        int _index = 0;
-        int _size;
-        T _array;
-
-        ArrayEnumeration(T array) {
-            _size = Array.getLength(array);
-            _array = array;
-        }
-
-        public boolean hasMoreElements() {
-            return _index < _size;
-        }
-
-        @SuppressWarnings("unchecked")
-        public T nextElement() {
-            return (T) Array.get(_array, _index++);
-        }
-    }
 
     static class ArrayIterator<T> implements Iterator<T> {
         int _index = 0;
@@ -97,11 +75,6 @@ public class ArrayTool {
             }
         }
         return true;
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static <P> Enumeration<P> enumeration(P[] array) {
-        return new ArrayEnumeration(array);
     }
 
     public static int findFirstElementIndex(Object array, Object element) {
