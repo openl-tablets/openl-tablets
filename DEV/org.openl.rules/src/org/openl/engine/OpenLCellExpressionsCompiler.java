@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.*;
@@ -21,6 +20,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.CollectionUtils;
 
 /**
  * Compiles OpenL expressions from the cells and sets meta info about used
@@ -162,7 +162,7 @@ public class OpenLCellExpressionsCompiler {
 
     private static void setCellMetaInfo(GridCellSourceCodeModule src, List<NodeUsage> methodUsages) {
         ICell cell = src.getCell();
-        if (!CollectionUtils.isEmpty(methodUsages) && cell != null) {
+        if (CollectionUtils.isNotEmpty(methodUsages) && cell != null) {
             cell.setMetaInfo(new CellMetaInfo(Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, methodUsages));
         }
     }

@@ -3,7 +3,6 @@ package org.openl.rules.lang.xls.binding;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
 import org.openl.base.INamedThing;
@@ -34,6 +33,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.MethodDelegator;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.CollectionUtils;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
 import org.openl.vm.IRuntimeEnv;
@@ -202,7 +202,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
                 }
             }
 
-            if (!CollectionUtils.isEmpty(nodeUsages)) {
+            if (CollectionUtils.isNotEmpty(nodeUsages)) {
                 cell.setMetaInfo(new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, nodeUsages));
             }
         }

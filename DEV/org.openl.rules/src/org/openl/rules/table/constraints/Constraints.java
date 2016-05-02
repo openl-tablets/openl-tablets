@@ -1,9 +1,9 @@
 package org.openl.rules.table.constraints;
 
+import org.openl.util.CollectionUtils;
+
 import java.util.List;
 import java.util.ArrayList;
-
-import org.apache.commons.collections4.CollectionUtils;
 
 /**
  * @author Andrei Astrouski

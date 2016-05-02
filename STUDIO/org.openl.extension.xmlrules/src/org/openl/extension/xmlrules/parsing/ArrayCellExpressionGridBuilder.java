@@ -2,7 +2,6 @@ package org.openl.extension.xmlrules.parsing;
 
 import java.util.List;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.openl.extension.xmlrules.ParseError;
 import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.XmlRulesPath;
@@ -19,6 +18,7 @@ import org.openl.extension.xmlrules.syntax.StringGridBuilder;
 import org.openl.extension.xmlrules.utils.CellReference;
 import org.openl.extension.xmlrules.utils.RulesTableReference;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

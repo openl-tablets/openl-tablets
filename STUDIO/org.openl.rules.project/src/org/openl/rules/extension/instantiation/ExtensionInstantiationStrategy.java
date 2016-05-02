@@ -1,6 +1,5 @@
 package org.openl.rules.extension.instantiation;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.SingleModuleInstantiationStrategy;
@@ -9,6 +8,7 @@ import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

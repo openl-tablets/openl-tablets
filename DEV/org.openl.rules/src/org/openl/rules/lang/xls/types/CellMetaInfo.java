@@ -2,10 +2,10 @@ package org.openl.rules.lang.xls.types;
 
 import java.util.List;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.rules.table.ICell;
 import org.openl.types.IOpenClass;
+import org.openl.util.CollectionUtils;
 
 public class CellMetaInfo {
 
@@ -65,7 +65,7 @@ public class CellMetaInfo {
     }
     
     public boolean hasNodeUsagesInCell() {
-        return !CollectionUtils.isEmpty(getUsedNodes());
+        return CollectionUtils.isNotEmpty(getUsedNodes());
     }
 
     public static boolean isCellContainsNodeUsages(ICell cell){
