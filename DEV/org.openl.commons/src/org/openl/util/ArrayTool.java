@@ -5,10 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -60,22 +58,7 @@ public class ArrayTool {
 
     }
 
-    public interface ArrayModel {
-        Object getObject(int i);
-    }
-
     public static final Object[] ZERO_OBJECT = {};
-    public static final Class<?>[] ZERO_CLASS = {};
-
-    public static final String[] ZERO_STRING = {};
-
-    public static final int[] ZERO_INT = {};
-
-    public static final char[] ZERO_CHAR = {};
-
-    public static Object add(Object array, Object value) {
-        return insertValue(Array.getLength(array), array, value);
-    }
 
     public static String asString(Object ary) {
         return asString(ary, 128);
@@ -92,17 +75,6 @@ public class ArrayTool {
         }
 
         return buf.toString();
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <DST, SRC> DST[] collect(SRC[] src, Class<DST> dstType, IConvertor<SRC, DST> c) {
-        int size = src.length;
-        DST[] dstArray = (DST[]) Array.newInstance(dstType, size);
-        for (int i = 0; i < size; ++i) {
-            Array.set(dstArray, i, c.convert(src[i]));
-        }
-
-        return dstArray;
     }
 
     public static boolean contains(Object array, Object test) {
@@ -127,77 +99,9 @@ public class ArrayTool {
         return true;
     }
 
-    public static Object copy(Object oldArray) {
-        int size = Array.getLength(oldArray);
-        Object newArray = Array.newInstance(oldArray.getClass().getComponentType(), size);
-        System.arraycopy(oldArray, 0, newArray, 0, size);
-        return newArray;
-    }
-
-    public static int dimensionOfArray(Object ary, Class<?> baseClass) {
-        Class<?> aryClass = ary.getClass();
-
-        int dim = 0;
-        while (aryClass != baseClass && aryClass.isArray()) {
-            aryClass = aryClass.getComponentType();
-            ++dim;
-        }
-
-        return aryClass == baseClass ? dim : -1;
-    }
-
-    public static Object ensureSize(Object oldArray, int newSize) {
-        int oldSize = Array.getLength(oldArray);
-        if (oldSize >= newSize) {
-            return oldArray;
-        }
-        Class<?> componentType = oldArray.getClass().getComponentType();
-        Object newArray = Array.newInstance(componentType, newSize);
-        System.arraycopy(oldArray, 0, newArray, 0, oldSize);
-        return newArray;
-    }
-
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static <P> Enumeration<P> enumeration(P[] array) {
         return new ArrayEnumeration(array);
-    }
-
-    public static boolean equals(Object obj1, Object obj2) {
-        if (obj1 == null || obj2 == null) {
-            return obj1 == obj2;
-        }
-
-        Class<?> c1 = obj1.getClass();
-        Class<?> c2 = obj2.getClass();
-        if (c1 != c2) {
-            return false;
-        }
-
-        if (c1.isArray()) {
-            int size1 = size(obj1);
-            int size2 = size(obj2);
-
-            if (size1 != size2) {
-                return false;
-            }
-            for (int i = 0; i < size1; i++) {
-                if (!equals(Array.get(obj1, i), Array.get(obj2, i))) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-        return obj1.equals(obj2);
-    }
-
-    public static Object findFirstElement(Object array, ISelector<Object> s) {
-        int index = findFirstIndex(array, s);
-        if (index < 0) {
-            return null;
-        }
-
-        return Array.get(array, index);
     }
 
     public static int findFirstElementIndex(Object array, Object element) {
@@ -215,28 +119,6 @@ public class ArrayTool {
         return -1;
     }
 
-    /**
-     * Returns a class for the array of the componentType with a given
-     * dimensions.
-     */
-    public static Class<?> getArrayClass(Class<?> componentType, int dimensions) {
-        if (dimensions == 0) {
-            return componentType;
-        }
-
-        int dims[] = new int[dimensions];
-        return Array.newInstance(componentType, dims).getClass();
-    }
-
-    /**
-     * Returns true if containsAll(array1, array2) && containsAll(array2,
-     * array1)
-     */
-
-    public static <T> boolean haveSameElements(T[] array1, T[] array2) {
-        return containsAll(array1, array2) && containsAll(array2, array1);
-    }
-
     public static Object insertValue(int i, Object oldArray, Object value) {
         int oldSize = Array.getLength(oldArray);
         Object newArray = Array.newInstance(oldArray.getClass().getComponentType(), oldSize + 1);
@@ -252,70 +134,6 @@ public class ArrayTool {
         }
 
         return newArray;
-    }
-
-    public static Object insertValues(int[] indexes, Object oldArray, ArrayModel value) {
-        if (indexes.length == 0) {
-            return oldArray;
-        }
-        if (indexes.length == 1) {
-            return insertValue(indexes[0], oldArray, value.getObject(indexes[0]));
-        }
-
-        Arrays.sort(indexes);
-
-        int oldSize = Array.getLength(oldArray);
-
-        int validIndexesSize = 0;
-        for (int i = 0; i < indexes.length; i++) {
-            if (indexes[i] <= oldSize) {
-                validIndexesSize = i + 1;
-            }
-        }
-        Object newArray = oldArray;
-        if (validIndexesSize == 1) {
-            newArray = insertValue(indexes[0], oldArray, value.getObject(indexes[0]));
-        } else if (validIndexesSize > 1) {
-            Class<?> componentType = oldArray.getClass().getComponentType();
-            newArray = Array.newInstance(componentType, oldSize + validIndexesSize);
-
-            for (int i = 0; i < validIndexesSize; i++) {
-                if (i == 0) {
-                    if (indexes[i] > 0) {
-                        System.arraycopy(oldArray, 0, newArray, 0, indexes[i]);
-                    }
-                } else if (i == validIndexesSize - 1) {
-                    int prev_i1 = indexes[i - 1];
-                    if (prev_i1 < indexes[i]) {
-                        System.arraycopy(oldArray, prev_i1, newArray, prev_i1 + i, indexes[i] - prev_i1);
-                    }
-
-                    if (indexes[i] < oldSize) {
-                        System.arraycopy(oldArray, indexes[i], newArray, indexes[i] + i + 1, oldSize - indexes[i]);
-                    }
-                } else {
-                    int prev_i1 = indexes[i - 1];
-                    if (prev_i1 < indexes[i]) {
-                        System.arraycopy(oldArray, prev_i1, newArray, prev_i1 + i, indexes[i] - prev_i1);
-                    }
-                }
-                Array.set(newArray, indexes[i] + i, value.getObject(indexes[i]));
-            }
-        }
-        return newArray;
-    }
-
-    /**
-     * Returns true if both array1 and array2 have at least one the same element
-     */
-    public static <T> boolean intersects(T[] array1, T[] array2) {
-        Iterator<T> it = iterator(array1);
-        while (it.hasNext()) {
-            if (contains(array2, it.next())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public static <T> Iterator<T> iterator(T[] array) {
@@ -353,22 +171,6 @@ public class ArrayTool {
         return newArray;
     }
 
-    public static void move(Object array, int index, int delta) {
-        Object value = Array.get(array, index);
-        if (delta > 0) {
-            for (int i = 0; i < delta; i++) {
-                Object newValue = Array.get(array, index + i + 1);
-                Array.set(array, index + i, newValue);
-            }
-        } else if (delta < 0) {
-            for (int i = 0; i > delta; i--) {
-                Object newValue = Array.get(array, index + i - 1);
-                Array.set(array, index + i, newValue);
-            }
-        }
-        Array.set(array, index + delta, value);
-    }
-
     static void print(Object obj, StringBuilder buf, int maxLength) {
         if (obj == null) {
             buf.append("null");
@@ -401,14 +203,6 @@ public class ArrayTool {
         buf.append(']');
     }
 
-    public static Object remove(Object array, Object element) {
-        int idx = findFirstElementIndex(array, element);
-        if (idx == -1) {
-            return array;
-        }
-        return removeValue(idx, array);
-    }
-
     public static Object removeValue(int i, Object oldArray) {
         int oldSize = Array.getLength(oldArray);
 
@@ -427,144 +221,14 @@ public class ArrayTool {
         return newArray;
     }
 
-    public static Object removeValues(int[] indexes, Object oldArray) {
-        if (indexes.length == 0) {
-            return oldArray;
-        }
-
-        int oldSize = Array.getLength(oldArray);
-        Arrays.sort(indexes);
-        int validIndexesSize = 0;
-        for (int i = 0; i < indexes.length; i++) {
-            if (indexes[i] < oldSize) {
-                validIndexesSize = i + 1;
-            }
-        }
-
-        if (validIndexesSize == 0) {
-            return oldArray;
-        }
-        if (validIndexesSize == 1) {
-            return removeValue(indexes[0], oldArray);
-        }
-
-        Object newArray = Array.newInstance(oldArray.getClass().getComponentType(), oldSize - validIndexesSize);
-
-        for (int i = 0; i < validIndexesSize; i++) {
-            if (i == 0) {
-                if (indexes[i] > 0) {
-                    System.arraycopy(oldArray, 0, newArray, 0, indexes[i]);
-                }
-            } else if (i == validIndexesSize - 1) {
-                int prev_i1 = indexes[i - 1] + 1;
-                if (prev_i1 < indexes[i]) {
-                    System.arraycopy(oldArray, prev_i1, newArray, prev_i1 - i, indexes[i] - prev_i1);
-                }
-
-                int i1 = indexes[i] + 1;
-                if (i1 < oldSize) {
-                    System.arraycopy(oldArray, i1, newArray, i1 - i - 1, oldSize - i1);
-                }
-            } else {
-                int prev_i1 = indexes[i - 1] + 1;
-                if (prev_i1 < indexes[i]) {
-                    System.arraycopy(oldArray, prev_i1, newArray, prev_i1 - i, indexes[i] - prev_i1);
-                }
-            }
-        }
-        return newArray;
-    }
-
     public static Object replace(int index, Object oldArray, Object newValue) {
         Object newArray = removeValue(index, oldArray);
         return insertValue(index, newArray, newValue);
     }
 
-    public static Object resize(Object oldArray, int newSize) {
-        int oldSize = Array.getLength(oldArray);
-        if (oldSize == newSize) {
-            return oldArray;
-        }
-        Class<?> componentType = oldArray.getClass().getComponentType();
-        Object newArray = Array.newInstance(componentType, newSize);
-        System.arraycopy(oldArray, 0, newArray, 0, Math.min(oldSize, newSize));
-        return newArray;
-    }
-
-    /**
-     * @return array's size
-     */
-
-    public static int size(Object ary) {
-        return Array.getLength(ary);
-    }
-
-    public static Object subarray(Object srcArray, int beginIndex, int endIndex) {
-        int count = Array.getLength(srcArray) - 1;
-        if (beginIndex < 0) {
-            throw new ArrayIndexOutOfBoundsException(beginIndex);
-        }
-        if (endIndex > count) {
-            throw new ArrayIndexOutOfBoundsException(endIndex);
-        }
-        int newLength = endIndex - beginIndex + 1;
-        if (newLength <= 0) {
-            throw new ArrayIndexOutOfBoundsException(endIndex - beginIndex);
-        }
-        if (beginIndex == 0 && endIndex == count) {
-            return srcArray;
-        }
-
-        Object newArray = Array.newInstance(srcArray.getClass().getComponentType(), newLength);
-        System.arraycopy(srcArray, beginIndex, newArray, 0, newLength);
-        return newArray;
-    }
-
-    public static void swap(Object array, int i1, int i2) {
-        Object value1 = Array.get(array, i1);
-        Object value2 = Array.get(array, i2);
-
-        Array.set(array, i1, value2);
-        Array.set(array, i2, value1);
-    }
-
-    public static void swap(Object array, Object value1, Object value2) {
-        int i1 = findFirstElementIndex(array, value1);
-        int i2 = findFirstElementIndex(array, value2);
-
-        swap(array, i1, i2);
-    }
-
     public static <T> Object[] toArray(List<T> v, Class<?> c) {
         Object[] ary = (Object[]) Array.newInstance(c, v.size());
         return v.toArray(ary);
-    }
-
-    public static String[] tokens(String toparse, String delim) {
-        StringTokenizer st = new StringTokenizer(toparse, delim);
-        List<String> v = new ArrayList<String>(10);
-
-        while (st.hasMoreTokens()) {
-            v.add(st.nextToken());
-        }
-
-        return (String[]) v.toArray(new String[v.size()]);
-
-    }
-
-    public static Set<Object> toSet(Object[] ary) {
-        Set<Object> set = new HashSet<Object>();
-        for (int i = 0; i < ary.length; i++) {
-            set.add(ary[i]);
-        }
-        return set;
-    }
-
-    public static Object zeroArray(Class<?> c) {
-        if (c == String.class) {
-            return ZERO_STRING;
-        }
-        return Array.newInstance(c, 0);
     }
 
     /**
