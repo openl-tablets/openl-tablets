@@ -1,14 +1,12 @@
 package org.openl.util.formatters;
 
-import org.apache.commons.lang3.ObjectUtils;
-
 public class DefaultFormatter implements IFormatter {
 
     public DefaultFormatter() {
     }
 
     public String format(Object obj) {
-        return ObjectUtils.toString(obj, null);
+        return obj == null ? null : obj.toString();
     }
 
     public Object parse(String value) {
