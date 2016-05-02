@@ -18,8 +18,6 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
@@ -54,6 +52,7 @@ import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
@@ -754,11 +753,11 @@ public class ProjectBean {
         // Multiple modules
         List<Module> modules = getModulesMatchingPathPattern(module);
 
-        return new ArrayList<String>(CollectionUtils.collect(modules, new Transformer<Module, String>() {
-            @Override public String transform(Module input) {
+        return CollectionUtils.map(modules, new CollectionUtils.Mapper<Module, String>() {
+            @Override public String map(Module input) {
                 return getModulePath(input);
             }
-        }));
+        });
     }
 
     public void setNewFileName(String newFileName) {

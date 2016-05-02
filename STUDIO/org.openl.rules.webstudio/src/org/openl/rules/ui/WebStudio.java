@@ -15,8 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.ValidationException;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -58,6 +56,7 @@ import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
+import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
@@ -696,7 +695,7 @@ public class WebStudio {
     }
 
     public ProjectDescriptor getProjectByName(final String name) {
-        return CollectionUtils.find(getAllProjects(), new Predicate<ProjectDescriptor>() {
+        return CollectionUtils.findFirst(getAllProjects(), new CollectionUtils.Predicate<ProjectDescriptor>() {
             public boolean evaluate(ProjectDescriptor project) {
                 return project.getName().equals(name);
             }
@@ -705,7 +704,7 @@ public class WebStudio {
 
     public ProjectDependencyDescriptor getProjectDependency(final String dependencyName) {
         List<ProjectDependencyDescriptor> dependencies = getCurrentProjectDescriptor().getDependencies();
-        return CollectionUtils.find(dependencies, new Predicate<ProjectDependencyDescriptor>() {
+        return CollectionUtils.findFirst(dependencies, new CollectionUtils.Predicate<ProjectDependencyDescriptor>() {
             public boolean evaluate(ProjectDependencyDescriptor dependency) {
                 return dependency.getName().equals(dependencyName);
             }
@@ -910,7 +909,7 @@ public class WebStudio {
             projectName = getCurrentProjectDescriptor().getName();
         } else {
             // Get a project
-            ProjectDescriptor project = CollectionUtils.find(getAllProjects(), new Predicate<ProjectDescriptor>() {
+            ProjectDescriptor project = CollectionUtils.findFirst(getAllProjects(), new CollectionUtils.Predicate<ProjectDescriptor>() {
                 @Override
                 public boolean evaluate(ProjectDescriptor projectDescriptor) {
                     String projectURI = projectDescriptor.getProjectFolder().toURI().toString();
@@ -921,7 +920,7 @@ public class WebStudio {
                 return null;
             }
             // Get a module
-            Module module = CollectionUtils.find(project.getModules(), new Predicate<Module>() {
+            Module module = CollectionUtils.findFirst(project.getModules(), new CollectionUtils.Predicate<Module>() {
                 @Override
                 public boolean evaluate(Module module) {
                     if (module.getRulesRootPath() == null) {

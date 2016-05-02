@@ -1,12 +1,9 @@
 package org.openl.rules.validation;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
 import org.openl.OpenL;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
@@ -23,6 +20,7 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.util.CollectionUtils;
 import org.openl.validation.ValidationResult;
 import org.openl.validation.ValidationStatus;
 import org.openl.validation.ValidationUtils;
@@ -122,7 +120,7 @@ public class UniquePropertyValueValidator extends TablesValidator {
 
     private ExecutableRulesMethod[] selectActiveMethods(List<IOpenMethod> methods) {
 
-        Collection<IOpenMethod> outputCollection = CollectionUtils.select(methods, new Predicate<IOpenMethod>() {
+        List<IOpenMethod> outputCollection = CollectionUtils.findAll(methods, new CollectionUtils.Predicate<IOpenMethod>() {
             
             public boolean evaluate(IOpenMethod method) {
                 if (method instanceof ITablePropertiesMethod) {
