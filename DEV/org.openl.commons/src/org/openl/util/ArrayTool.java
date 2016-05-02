@@ -52,7 +52,14 @@ public class ArrayTool {
     }
 
     public static boolean contains(Object array, Object test) {
-        return findFirstElementIndex(array, test) >= 0;
+        int size = Array.getLength(array);
+        for (int i = 0; i < size; ++i) {
+            if (ASelector.selectObject(test).select(Array.get(array, i))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -71,21 +78,6 @@ public class ArrayTool {
             }
         }
         return true;
-    }
-
-    public static int findFirstElementIndex(Object array, Object element) {
-        return findFirstIndex(array, ASelector.selectObject(element));
-    }
-
-    public static int findFirstIndex(Object array, ISelector<Object> sel) {
-        int size = Array.getLength(array);
-        for (int i = 0; i < size; ++i) {
-            if (sel.select(Array.get(array, i))) {
-                return i;
-            }
-        }
-
-        return -1;
     }
 
     static void print(Object obj, StringBuilder buf, int maxLength) {
