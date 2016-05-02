@@ -484,13 +484,6 @@ public class ArrayTool {
         }
     }
 
-    public static Class<?> getLowerComponentType(Class<?> clazz) {
-        if (clazz.isArray()) {
-            return getLowerComponentType(clazz.getComponentType());
-        }
-        return clazz;
-    }
-
     @SuppressWarnings("unchecked")
     public static <T> T[] removeNulls(T[] array) {
         T[] result;

@@ -1,7 +1,6 @@
 package org.openl.util.generation;
 
 import org.apache.commons.lang3.ClassUtils;
-import org.openl.util.ArrayTool;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
@@ -20,7 +19,7 @@ public class JavaClassGeneratorHelper {
 
     public static String filterTypeName(Class<?> type) {
         if (type != null) {
-            if (!type.isPrimitive() && !(type.isArray() && ArrayTool.getLowerComponentType(type).isPrimitive())) {
+            if (!type.isPrimitive() && !(type.isArray() && getLowerComponentType(type).isPrimitive())) {
                 // for not primitives
                 //
                 return String.format("%s.%s", ClassUtils.getPackageName(type), ClassUtils.getShortClassName(type));
@@ -29,6 +28,13 @@ public class JavaClassGeneratorHelper {
             }
         }
         return StringUtils.EMPTY;
+    }
+
+    private static Class<?> getLowerComponentType(Class<?> clazz) {
+        if (clazz.isArray()) {
+            return getLowerComponentType(clazz.getComponentType());
+        }
+        return clazz;
     }
 
     /**
