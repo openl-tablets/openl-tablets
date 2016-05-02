@@ -56,7 +56,6 @@ import org.openl.types.impl.ArrayIndex;
 import org.openl.types.impl.ArrayLengthOpenField;
 import org.openl.types.impl.MethodKey;
 import org.openl.util.AOpenIterator;
-import org.openl.util.CollectionsUtil;
 import org.openl.util.IConvertor;
 import org.openl.util.IOpenIterator;
 import org.openl.util.OpenIterator;
@@ -211,7 +210,9 @@ public class JavaOpenClass extends AOpenClass {
 
         IOpenClass[] ary = new IOpenClass[cc.length];
 
-        CollectionsUtil.collect(ary, cc, Class2JavaOpenClass);
+        for (int i = 0; i < cc.length; i++) {
+            ary[i] = Class2JavaOpenClass.convert(cc[i]);
+        }
 
         return ary;
 
