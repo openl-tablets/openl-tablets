@@ -9,9 +9,9 @@ package org.openl.util;
  */
 public class BooleanUtils {
 
-    public static final String NULL_ARRAY_MSG = "The Array must not be null";
-    public static final String EMPTY_ARRAY_MSG = "Array is empty";
-    public static final String NULL_VALUE_IN_ARRAY_MSG = "Array shouldn`t contain null objects";
+    private static final String NULL_ARRAY_MSG = "The Array must not be null";
+    private static final String EMPTY_ARRAY_MSG = "Array is empty";
+    private static final String NULL_VALUE_IN_ARRAY_MSG = "Array shouldn`t contain null objects";
 
     /**
      * Converts an Object to a boolean. For String value 'true', 'on', 'yes',
@@ -232,11 +232,8 @@ public class BooleanUtils {
         if (values == null) {
             return false;
         }
-        if (ArrayTool.contains(values, null)) {
-            return false;
-        }
         for (Boolean value : values) {
-            if (!value) {
+            if (value == null || !value) {
                 return false;
             }
         }
@@ -306,7 +303,7 @@ public class BooleanUtils {
         if (values.length == 0) {
             throw new IllegalArgumentException(EMPTY_ARRAY_MSG);
         }
-        if (ArrayTool.contains(values, null)) {
+        if (CollectionUtils.hasNull(values)) {
             throw new IllegalArgumentException(NULL_VALUE_IN_ARRAY_MSG);
         }
     }

@@ -27,7 +27,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.impl.AOpenField;
 import org.openl.types.impl.DatatypeArrayElementField;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.ArrayTool;
+import org.openl.util.CollectionUtils;
 
 public class DataTableBindHelper {
 
@@ -596,7 +596,7 @@ public class DataTableBindHelper {
             
             fieldAccessorChain[fieldIndex] = fieldInChain;
         }
-        if (!ArrayTool.contains((fieldAccessorChain), null)) { // check successful loading of all  
+        if (!CollectionUtils.hasNull(fieldAccessorChain)) { // check successful loading of all
                                                                 // fields in fieldAccessorChain.
             chainField = new FieldChain(type, fieldAccessorChain, fieldAccessorChainTokens, hasAccessByArrayId);
         }

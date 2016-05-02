@@ -13,10 +13,10 @@ import java.util.Map;
 public class CollectionUtils {
 
     /**
-     * Return {code}true{/code} if a collection is null or is empty.
+     * Return {@code true} if a collection is null or is empty.
      * 
      * @param col the checked collection
-     * @return return {code}true{/code} if collection does not contain any
+     * @return return {@code true} if collection does not contain any
      *         elements
      * @see Collection#isEmpty()
      */
@@ -25,21 +25,21 @@ public class CollectionUtils {
     }
 
     /**
-     * Return {code}true{/code} if a collection contains at least one element.
+     * Return {@code true} if a collection contains at least one element.
      * This method is inverse to {@link #isEmpty(Collection}.
      *
      * @param col the checked collection
-     * @return {code}true{/code} if a collection contains at least one element.
+     * @return {@code true} if a collection contains at least one element.
      */
     public static boolean isNotEmpty(Collection<?> col) {
         return !isEmpty(col);
     }
 
     /**
-     * Return {code}true{/code} if a map is null or is empty.
+     * Return {@code true} if a map is null or is empty.
      *
      * @param map the checked collection
-     * @return return {code}true{/code} if collection does not contain any
+     * @return return {@code true} if collection does not contain any
      *         elements
      * @see Map#isEmpty()
      */
@@ -48,11 +48,11 @@ public class CollectionUtils {
     }
 
     /**
-     * Return {code}true{/code} if a map contains at least one element. This
+     * Return {@code true} if a map contains at least one element. This
      * method is inverse to {@link #isEmpty(Map)}.
      *
      * @param map the checked collection
-     * @return {code}true{/code} if a collection contains at least one element.
+     * @return {@code true} if a collection contains at least one element.
      */
     public static boolean isNotEmpty(Map<?, ?> map) {
         return !isEmpty(map);
@@ -134,6 +134,22 @@ public class CollectionUtils {
             }
         }
         return result;
+    }
+
+    /**
+     * Checks an array on {@code null} value.
+     *
+     * @param array the checked array
+     * @param <T> the element type of checked array
+     * @return {@code true} if the array contains {@code null}.
+     */
+    public static <T> boolean hasNull(T[] array) {
+        for (T item : array) {
+            if (item == null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
