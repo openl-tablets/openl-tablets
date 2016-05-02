@@ -64,7 +64,7 @@ public class ArrayTool {
         if (container == null || testArray == null) {
             return false;
         }
-        Iterator<T> it = iterator(testArray);
+        Iterator<T> it = new ArrayIterator<T>(testArray);
         while (it.hasNext()) {
             if (!contains(container, it.next())) {
                 return false;
@@ -86,10 +86,6 @@ public class ArrayTool {
         }
 
         return -1;
-    }
-
-    public static <T> Iterator<T> iterator(T[] array) {
-        return new ArrayIterator<T>(array);
     }
 
     static void print(Object obj, StringBuilder buf, int maxLength) {
