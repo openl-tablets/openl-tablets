@@ -242,4 +242,10 @@ public abstract class ANodeBinder implements INodeBinder {
         return convertType(boundNode, bindingContext, type);
     }
 
+    protected static IOpenClass[] replace(int index, IOpenClass[] oldArray, IOpenClass newValue) {
+        IOpenClass[] newArray = new IOpenClass[oldArray.length];
+        System.arraycopy(oldArray, 0, newArray, 0, oldArray.length);
+        newArray[index] = newValue;
+        return newArray;
+    }
 }

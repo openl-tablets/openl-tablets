@@ -120,42 +120,6 @@ public class ArrayTool {
         buf.append(']');
     }
 
-    public static Object replace(int index, Object oldArray, Object newValue) {
-        int oldSize = Array.getLength(oldArray);
-
-        Object newArray = Array.newInstance(oldArray.getClass().getComponentType(), oldSize - 1);
-
-        if (index > 0) {
-            System.arraycopy(oldArray, 0, newArray, 0, index);
-        }
-
-        int i1 = index + 1;
-
-        if (i1 < oldSize) {
-            System.arraycopy(oldArray, i1, newArray, index, oldSize - i1);
-        }
-
-        int oldSize1 = Array.getLength(newArray);
-        Object newArray1 = Array.newInstance(newArray.getClass().getComponentType(), oldSize1 + 1);
-
-        if (index > 0) {
-            System.arraycopy(newArray, 0, newArray1, 0, index);
-        }
-
-        Array.set(newArray1, index, newValue);
-
-        if (index < oldSize1) {
-            System.arraycopy(newArray, index, newArray1, index + 1, oldSize1 - index);
-        }
-
-        return newArray1;
-    }
-
-    public static <T> Object[] toArray(List<T> v, Class<?> c) {
-        Object[] ary = (Object[]) Array.newInstance(c, v.size());
-        return v.toArray(ary);
-    }
-
     /**
      * Checks that array is not empty.
      * 
