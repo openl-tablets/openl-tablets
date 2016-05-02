@@ -88,23 +88,6 @@ public class ArrayTool {
         return -1;
     }
 
-    public static Object insertValue(int i, Object oldArray, Object value) {
-        int oldSize = Array.getLength(oldArray);
-        Object newArray = Array.newInstance(oldArray.getClass().getComponentType(), oldSize + 1);
-
-        if (i > 0) {
-            System.arraycopy(oldArray, 0, newArray, 0, i);
-        }
-
-        Array.set(newArray, i, value);
-
-        if (i < oldSize) {
-            System.arraycopy(oldArray, i, newArray, i + 1, oldSize - i);
-        }
-
-        return newArray;
-    }
-
     public static <T> Iterator<T> iterator(T[] array) {
         return new ArrayIterator<T>(array);
     }
@@ -172,27 +155,35 @@ public class ArrayTool {
         buf.append(']');
     }
 
-    public static Object removeValue(int i, Object oldArray) {
+    public static Object replace(int index, Object oldArray, Object newValue) {
         int oldSize = Array.getLength(oldArray);
 
         Object newArray = Array.newInstance(oldArray.getClass().getComponentType(), oldSize - 1);
 
-        if (i > 0) {
-            System.arraycopy(oldArray, 0, newArray, 0, i);
+        if (index > 0) {
+            System.arraycopy(oldArray, 0, newArray, 0, index);
         }
 
-        int i1 = i + 1;
+        int i1 = index + 1;
 
         if (i1 < oldSize) {
-            System.arraycopy(oldArray, i1, newArray, i, oldSize - i1);
+            System.arraycopy(oldArray, i1, newArray, index, oldSize - i1);
         }
 
-        return newArray;
-    }
+        int oldSize1 = Array.getLength(newArray);
+        Object newArray1 = Array.newInstance(newArray.getClass().getComponentType(), oldSize1 + 1);
 
-    public static Object replace(int index, Object oldArray, Object newValue) {
-        Object newArray = removeValue(index, oldArray);
-        return insertValue(index, newArray, newValue);
+        if (index > 0) {
+            System.arraycopy(newArray, 0, newArray1, 0, index);
+        }
+
+        Array.set(newArray1, index, newValue);
+
+        if (index < oldSize1) {
+            System.arraycopy(newArray, index, newArray1, index + 1, oldSize1 - index);
+        }
+
+        return newArray1;
     }
 
     public static <T> Object[] toArray(List<T> v, Class<?> c) {
