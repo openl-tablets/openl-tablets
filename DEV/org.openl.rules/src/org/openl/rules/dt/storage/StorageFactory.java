@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.openl.rules.dt.DTScale;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
