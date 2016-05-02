@@ -2,7 +2,6 @@ package org.openl.rules.tableeditor.event;
 
 import com.sdicons.json.mapper.JSONMapper;
 import com.sdicons.json.mapper.MapperException;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.formula.FormulaParseException;
 import org.openl.commons.web.jsf.FacesUtils;
@@ -18,6 +17,7 @@ import org.openl.rules.tableeditor.model.CellEditorSelector;
 import org.openl.rules.tableeditor.model.ICellEditor;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.util.Constants;
+import org.openl.util.BooleanUtils;
 import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.IFormatter;
 import org.slf4j.Logger;
