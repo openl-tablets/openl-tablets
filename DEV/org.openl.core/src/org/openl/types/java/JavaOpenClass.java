@@ -66,10 +66,7 @@ import org.openl.vm.IRuntimeEnv;
 /**
  * @author snshor
  */
-public class JavaOpenClass extends AOpenClass {  
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-	public static final IConvertor<Class, IOpenClass> Class2JavaOpenClass = new Class2JavaOpenClassCollector();
+public class JavaOpenClass extends AOpenClass {
 
     /**
      *  Stores a strong references to common java classes that's why they will not be garbage collected
@@ -211,7 +208,7 @@ public class JavaOpenClass extends AOpenClass {
         IOpenClass[] ary = new IOpenClass[cc.length];
 
         for (int i = 0; i < cc.length; i++) {
-            ary[i] = Class2JavaOpenClass.convert(cc[i]);
+            ary[i] = getOpenClass(cc[i]);
         }
 
         return ary;
