@@ -1,7 +1,7 @@
 package org.openl.rules.dt.validator;
 
 import org.openl.domain.IDomain;
-import org.openl.rules.dtx.IBaseDecisionRow;
+import org.openl.rules.dt.IBaseDecisionRow;
 import org.openl.types.IParameterDeclaration;
 
 public class ConditionAnalyzer {

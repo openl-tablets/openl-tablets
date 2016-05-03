@@ -1,4 +1,4 @@
-package org.openl.rules.dtx.algorithm.evaluator;
+package org.openl.rules.dt.algorithm.evaluator;
 
 public class DomainCanNotBeDefined extends Exception {
 

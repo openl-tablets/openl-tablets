@@ -4,7 +4,7 @@ import org.openl.OpenL;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLWarnMessage;
-import org.openl.rules.dtx.IDecisionTable;
+import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.dt.type.domains.DimensionPropertiesDomainsCollector;
 import org.openl.rules.dt.type.domains.IDomainAdaptor;
 import org.openl.rules.dt.validator.DecisionTableValidator;

@@ -6,8 +6,8 @@ package org.openl.rules.dt.validator;
 import java.util.Map;
 
 import org.openl.OpenL;
-import org.openl.rules.dtx.IBaseCondition;
-import org.openl.rules.dtx.IDecisionTable;
+import org.openl.rules.dt.IBaseCondition;
+import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.dt.type.domains.IDomainAdaptor;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.validator.IValidatedObject;

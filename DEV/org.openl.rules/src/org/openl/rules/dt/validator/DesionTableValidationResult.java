@@ -10,7 +10,7 @@ import java.util.List;
 import org.openl.ie.constrainer.consistencyChecking.Overlapping;
 import org.openl.ie.constrainer.consistencyChecking.Overlapping.OverlappingStatus;
 import org.openl.ie.constrainer.consistencyChecking.Uncovered;
-import org.openl.rules.dtx.IDecisionTable;
+import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.validator.IValidationResult;
 import org.openl.util.ArrayOfNamedValues;
 

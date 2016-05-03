@@ -5,8 +5,8 @@ import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
-import org.openl.rules.dtx.IBaseCondition;
-import org.openl.rules.dtx.algorithm.evaluator.DomainCanNotBeDefined;
+import org.openl.rules.dt.IBaseCondition;
+import org.openl.rules.dt.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.vm.IRuntimeEnv;
 

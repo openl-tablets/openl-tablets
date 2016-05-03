@@ -1,7 +1,7 @@
-package org.openl.rules.dtx;
+package org.openl.rules.dt;
 
 import org.openl.domain.IDomain;
-import org.openl.rules.dtx.algorithm.evaluator.DomainCanNotBeDefined;
+import org.openl.rules.dt.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.source.IOpenSourceCodeModule;
 
 public interface IBaseConditionEvaluator {

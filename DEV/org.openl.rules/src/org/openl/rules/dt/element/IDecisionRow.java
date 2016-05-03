@@ -9,7 +9,7 @@ package org.openl.rules.dt.element;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.component.ComponentOpenClass;
-import org.openl.rules.dtx.IBaseDecisionRow;
+import org.openl.rules.dt.IBaseDecisionRow;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;

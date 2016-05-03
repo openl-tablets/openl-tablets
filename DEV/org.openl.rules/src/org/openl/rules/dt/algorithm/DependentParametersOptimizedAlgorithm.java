@@ -29,7 +29,7 @@ import org.openl.rules.dt.algorithm.evaluator.RangeIndexedEvaluator;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.type.ITypeAdaptor;
-import org.openl.rules.dtx.IBaseCondition;
+import org.openl.rules.dt.IBaseCondition;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodSignature;

@@ -8,7 +8,7 @@ import java.net.URL;
 
 import junit.framework.TestCase;
 
-import org.openl.rules.dtx.IDecisionTable;
+import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.test.Tools;
 import org.openl.types.IOpenMethod;

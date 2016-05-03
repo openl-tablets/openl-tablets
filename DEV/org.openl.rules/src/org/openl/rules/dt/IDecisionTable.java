@@ -1,4 +1,4 @@
-package org.openl.rules.dtx;
+package org.openl.rules.dt;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;

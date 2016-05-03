@@ -5,7 +5,7 @@ import org.openl.binding.MethodUtil;
 import org.openl.domain.IIntIterator;
 import org.openl.rules.dt.algorithm.FailOnMissException;
 import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
-import org.openl.rules.dtx.IBaseAction;
+import org.openl.rules.dt.IBaseAction;
 import org.openl.rules.method.RulesMethodInvoker;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;

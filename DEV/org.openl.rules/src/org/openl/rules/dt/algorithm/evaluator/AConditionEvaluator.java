@@ -1,8 +1,8 @@
 package org.openl.rules.dt.algorithm.evaluator;
 
 import org.openl.domain.IDomain;
-import org.openl.rules.dtx.IBaseCondition;
-import org.openl.rules.dtx.algorithm.evaluator.DomainCanNotBeDefined;
+import org.openl.rules.dt.IBaseCondition;
+import org.openl.rules.dt.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.types.IMethodCaller;
 import org.openl.types.impl.ParameterMethodCaller;
 

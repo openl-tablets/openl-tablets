@@ -4,7 +4,7 @@
 package org.openl.rules.dt.validator;
 
 
-import org.openl.rules.dtx.IBaseCondition;
+import org.openl.rules.dt.IBaseCondition;
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
 import org.openl.ie.constrainer.Constrainer;

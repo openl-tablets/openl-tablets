@@ -4,7 +4,7 @@
 package org.openl.rules.dt.validator;
 
 import org.openl.ie.constrainer.consistencyChecking.CDecisionTable;
-import org.openl.rules.dtx.IDecisionTable;
+import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.validator.IValidatedObject;
 
 /**

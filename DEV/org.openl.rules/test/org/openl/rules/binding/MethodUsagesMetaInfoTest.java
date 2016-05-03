@@ -8,7 +8,7 @@ import org.openl.binding.impl.MethodUsagesSearcher.MethodUsage;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dtx.IBaseAction;
+import org.openl.rules.dt.IBaseAction;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;

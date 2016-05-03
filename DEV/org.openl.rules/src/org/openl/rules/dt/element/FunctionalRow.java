@@ -26,7 +26,7 @@ import org.openl.rules.dt.storage.IStorage;
 import org.openl.rules.dt.storage.IStorageBuilder;
 import org.openl.rules.dt.storage.StorageFactory;
 import org.openl.rules.dt.storage.StorageInfo;
-import org.openl.rules.dtx.IDecisionTableParameterInfo;
+import org.openl.rules.dt.IDecisionTableParameterInfo;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;

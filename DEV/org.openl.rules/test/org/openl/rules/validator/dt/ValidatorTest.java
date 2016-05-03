@@ -15,7 +15,7 @@ import org.openl.domain.IntRangeDomain;
 import org.openl.domain.StringDomain;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.dt.validator.DecisionTableValidator;
-import org.openl.rules.dtx.IDecisionTable;
+import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.dt.type.domains.DateRangeDomainAdaptor;
 import org.openl.rules.dt.type.domains.EnumDomainAdaptor;
 import org.openl.rules.dt.type.domains.IDomainAdaptor;

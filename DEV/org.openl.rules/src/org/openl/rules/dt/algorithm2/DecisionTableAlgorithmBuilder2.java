@@ -21,7 +21,7 @@ import org.openl.rules.dt.algorithm2.nodes.EqualsNodeBuilder;
 import org.openl.rules.dt.algorithm2.nodes.RangeNodeBuilder;
 import org.openl.rules.dt.algorithm2.nodes.SpecialNodeBuilder;
 import org.openl.rules.dt.element.ICondition;
-import org.openl.rules.dtx.IBaseCondition;
+import org.openl.rules.dt.IBaseCondition;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenMethodHeader;
 

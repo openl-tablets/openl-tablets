@@ -1,6 +1,6 @@
 package org.openl.rules.webstudio.web.trace.node;
 
-import org.openl.rules.dtx.IDecisionTable;
+import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.table.ILogicalTable;
 
 /**

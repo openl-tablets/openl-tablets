@@ -1,4 +1,4 @@
-package org.openl.rules.dtx;
+package org.openl.rules.dt;
 
 import org.openl.vm.IRuntimeEnv;
 

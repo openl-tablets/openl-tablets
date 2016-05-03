@@ -1,4 +1,4 @@
-package org.openl.rules.dtx;
+package org.openl.rules.dt;
 
 import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IMethodCaller;
