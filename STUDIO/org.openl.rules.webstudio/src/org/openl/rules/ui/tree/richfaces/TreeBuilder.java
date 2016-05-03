@@ -90,7 +90,7 @@ abstract class TreeBuilder {
     abstract String getUrl(ITreeElement<?> element);
 
     String getDisplayName(Object obj, int mode) {
-        if ((ClassUtils.isAssignable(obj.getClass(), Number.class, true))) {
+        if ((ClassUtils.isAssignable(obj.getClass(), Number.class))) {
             return FormattersManager.format(obj);
         }
         if (obj instanceof INamedThing) {

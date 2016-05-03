@@ -86,7 +86,7 @@ public class FormattersManager {
         IFormatter formatter;
 
         // Numeric
-        if (ClassUtils.isAssignable(clazz, Number.class, true)) {
+        if (ClassUtils.isAssignable(clazz, Number.class)) {
             if (StringUtils.isBlank(format) && NumberUtils.isFloatPointType(clazz)) {
                 format = getFormatForScale(value);
                 return new SmartNumberFormatter(Locale.US);
@@ -99,7 +99,7 @@ public class FormattersManager {
             formatter = new DateFormatter(dateFormat);
 
             // Boolean
-        } else if (ClassUtils.isAssignable(clazz, Boolean.class, true)) {
+        } else if (ClassUtils.isAssignable(clazz, Boolean.class)) {
             formatter = new BooleanFormatter();
 
             // Enum

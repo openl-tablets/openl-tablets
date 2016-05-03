@@ -33,7 +33,7 @@ public class XlsDataFormatterFactory {
             Class<?> instanceClass = dataType.getInstanceClass();
 
             // Numeric
-            if (ClassUtils.isAssignable(instanceClass, Number.class, true)) {
+            if (ClassUtils.isAssignable(instanceClass, Number.class)) {
                 IFormatter numberFormatter = getNumberFormatter(cell);
                 // Numeric Array
                 if (cellMetaInfo.isMultiValue()) {
@@ -47,7 +47,7 @@ public class XlsDataFormatterFactory {
                 formatter = getDateFormatter(cell);
 
             // Boolean
-            } else if (ClassUtils.isAssignable(instanceClass, Boolean.class, true)) {
+            } else if (ClassUtils.isAssignable(instanceClass, Boolean.class)) {
                 formatter = new BooleanFormatter();
 
             // Enum

@@ -742,7 +742,7 @@ public class JavaWrapperGenerator implements OpenLToJavaGenerator {
          * generated on runtime and are children of SpreadsheetResult. For the
          * wrapper use its parent.
          */
-        if (ClassUtils.isAssignable(instanceClass, SpreadsheetResult.class, false)) {
+        if (ClassUtils.isAssignable(instanceClass, SpreadsheetResult.class)) {
             return SpreadsheetResult.class.getName();
         }
         return instanceClass.getName();

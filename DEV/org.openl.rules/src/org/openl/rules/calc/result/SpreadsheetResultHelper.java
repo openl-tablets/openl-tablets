@@ -9,7 +9,7 @@ public class SpreadsheetResultHelper {
     }
 
     public static boolean isSpreadsheetResult(Class<?> clazz) {
-        return ClassUtils.isAssignable(clazz, SpreadsheetResult.class, false);
+        return ClassUtils.isAssignable(clazz, SpreadsheetResult.class);
     }
 
     public static void noMandatoryColumn(String mandatoryColumnName) {

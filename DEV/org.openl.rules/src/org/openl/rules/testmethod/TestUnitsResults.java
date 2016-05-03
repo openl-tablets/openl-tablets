@@ -276,8 +276,7 @@ public class TestUnitsResults implements INamedThing {
 
     public boolean isSpreadsheetResultTester() {
         return ClassUtils.isAssignable(testSuite.getTestedMethod().getType().getInstanceClass(),
-            SpreadsheetResult.class,
-            false);
+            SpreadsheetResult.class);
     }
 
     public boolean isRunmethod() {

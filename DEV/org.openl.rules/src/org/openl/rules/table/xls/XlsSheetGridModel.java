@@ -559,7 +559,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             CellMetaInfo cellMetaInfo = cell.getMetaInfo();
             IOpenClass dataType = cellMetaInfo == null ? null : cellMetaInfo.getDataType();
             if (dataType != null) {
-                if (ClassUtils.isAssignable(dataType.getInstanceClass(), INumberRange.class, true)) {
+                if (ClassUtils.isAssignable(dataType.getInstanceClass(), INumberRange.class)) {
                     result = true;
                 }
             }

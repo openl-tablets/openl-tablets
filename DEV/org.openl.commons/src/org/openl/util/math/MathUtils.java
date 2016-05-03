@@ -1705,10 +1705,9 @@ public class MathUtils {
         if (values.length == 0) {
             throw new IllegalArgumentException("Array cannot be empty.");
         }
-        if (!(ClassUtils.isAssignable(values.getClass().getComponentType(), Number.class, true) && ClassUtils.isAssignable(values.getClass()
+        if (!(ClassUtils.isAssignable(values.getClass().getComponentType(), Number.class) && ClassUtils.isAssignable(values.getClass()
             .getComponentType(),
-            Comparable.class,
-            true))) {
+            Comparable.class))) {
             throw new IllegalArgumentException("Income array must be comparable numeric.");
         }
         Comparable<Number>[] numberArray = (Comparable<Number>[]) values;
@@ -1758,10 +1757,9 @@ public class MathUtils {
         if (values.length == 0) {
             throw new IllegalArgumentException("Array cannot be empty.");
         }
-        if (!(ClassUtils.isAssignable(values.getClass().getComponentType(), Number.class, true) && ClassUtils.isAssignable(values.getClass()
+        if (!(ClassUtils.isAssignable(values.getClass().getComponentType(), Number.class) && ClassUtils.isAssignable(values.getClass()
             .getComponentType(),
-            Comparable.class,
-            true))) {
+            Comparable.class))) {
             throw new IllegalArgumentException("Income array must be comparable numeric.");
         }
         Comparable<Number>[] numberArray = (Comparable<Number>[]) values;
