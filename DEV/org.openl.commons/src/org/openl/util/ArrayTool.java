@@ -2,8 +2,6 @@ package org.openl.util;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -296,103 +294,6 @@ public class ArrayTool {
         }
 
         return count;
-    }
-
-    public static byte[] sort(byte[] values) {
-        if (values != null) {
-            Arrays.sort(values);
-        }
-        return values;
-    }
-
-    public static short[] sort(short[] values) {
-        if (values != null) {
-            Arrays.sort(values);
-        }
-        return values;
-    }
-
-    public static int[] sort(int[] values) {
-        if (values != null) {
-            Arrays.sort(values);
-        }
-        return values;
-    }
-
-    public static long[] sort(long[] values) {
-        if (values != null) {
-            Arrays.sort(values);
-        }
-        return values;
-    }
-
-    public static float[] sort(float[] values) {
-        if (values != null) {
-            Arrays.sort(values);
-        }
-        return values;
-    }
-
-    public static double[] sort(double[] values) {
-        if (values != null) {
-            Arrays.sort(values);
-        }
-        return values;
-    }
-
-    public static Object[] sort(Object[] values) {
-        Object[] sortedArray = null;
-        if (isArrayNull(values)) {
-            sortedArray = new Object[values.length];
-            Object[] notNullArray = ArrayTool.removeNulls(values);
-            Arrays.sort(notNullArray);
-
-            /* Filling sortedArray by sorted and null values */
-            for (int i = 0; i < notNullArray.length; i++) {
-                sortedArray[i] = notNullArray[i];
-            }
-        }
-        return sortedArray;
-    }
-
-    public static String[] sort(String[] values) {
-        String[] sortedArray = null;
-
-        if (values != null) {
-            sortedArray = new String[values.length];
-            String[] notNullArray = ArrayTool.removeNulls(values);
-            Arrays.sort(notNullArray);
-
-            /* Filling sortedArray by sorted and null values */
-            for (int i = 0; i < notNullArray.length; i++) {
-                sortedArray[i] = notNullArray[i];
-            }
-        }
-        return sortedArray;
-    }
-
-    public static Date[] sort(Date[] values) {
-        Date[] sortedArray = null;
-
-        if (isArrayNull(values)) {
-            sortedArray = new Date[values.length];
-            Date[] notNullArray = ArrayTool.removeNulls(values);
-            Arrays.sort(notNullArray);
-
-            /* Filling sortedArray by sorted and null values */
-            for (int i = 0; i < notNullArray.length; i++) {
-                sortedArray[i] = notNullArray[i];
-            }
-        }
-        return sortedArray;
-    }
-
-    private static boolean isArrayNull(Object[] values) {
-        if (values != null) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     @SuppressWarnings("unchecked")

@@ -1740,11 +1740,35 @@ public class RulesUtils {
     }
 
     public static String[] sort(String[] values) {
-        return ArrayTool.sort(values);
+        String[] sortedArray = null;
+
+        if (values != null) {
+            sortedArray = new String[values.length];
+            String[] notNullArray = ArrayTool.removeNulls(values);
+            Arrays.sort(notNullArray);
+
+            /* Filling sortedArray by sorted and null values */
+            for (int i = 0; i < notNullArray.length; i++) {
+                sortedArray[i] = notNullArray[i];
+            }
+        }
+        return sortedArray;
     }
 
     public static Date[] sort(Date[] values) {
-        return ArrayTool.sort(values);
+        Date[] sortedArray = null;
+
+        if (values != null) {
+            sortedArray = new Date[values.length];
+            Date[] notNullArray = ArrayTool.removeNulls(values);
+            Arrays.sort(notNullArray);
+
+            /* Filling sortedArray by sorted and null values */
+            for (int i = 0; i < notNullArray.length; i++) {
+                sortedArray[i] = notNullArray[i];
+            }
+        }
+        return sortedArray;
     }
 
     // <<< END INSERT Functions >>>
