@@ -38,19 +38,6 @@ public class ArrayTool {
 
     public static final Object[] ZERO_OBJECT = {};
 
-    public static String asString(Object ary) {
-        StringBuilder buf = new StringBuilder(100);
-
-        print(ary, buf, 128);
-
-        if (buf.length() > 128) {
-            String ellipses = "...";
-            buf.delete(128 - ellipses.length(), buf.length()).append(ellipses);
-        }
-
-        return buf.toString();
-    }
-
     public static boolean contains(Object array, Object test) {
         int size = Array.getLength(array);
         for (int i = 0; i < size; ++i) {
@@ -80,37 +67,6 @@ public class ArrayTool {
         return true;
     }
 
-    static void print(Object obj, StringBuilder buf, int maxLength) {
-        if (obj == null) {
-            buf.append("null");
-        } else if (obj instanceof String) {
-            buf.append('"').append(obj).append('"');
-        } else if (obj instanceof Class<?>) {
-            buf.append(((Class<?>) obj).getName());
-        } else if (obj.getClass().isArray()) {
-            printArray(obj, buf, maxLength);
-        } else {
-            buf.append(obj);
-        }
-    }
-
-    static void printArray(Object ary, StringBuilder buf, int maxLength) {
-        int size = Array.getLength(ary);
-
-        buf.append('[');
-        for (int i = 0; i < size; ++i) {
-            if (i > 0) {
-                buf.append(", ");
-            }
-
-            print(Array.get(ary, i), buf, maxLength);
-
-            if (buf.length() > maxLength) {
-                return;
-            }
-        }
-        buf.append(']');
-    }
 
     /**
      * Checks that array is not empty.
