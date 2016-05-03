@@ -2,7 +2,6 @@ package org.openl.rules.tableeditor.model;
 
 import java.util.Date;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.rules.helpers.CharRange;
@@ -12,6 +11,7 @@ import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.types.IOpenClass;
+import org.openl.util.ClassUtils;
 import org.openl.util.EnumUtils;
 import org.openl.util.NumberUtils;
 

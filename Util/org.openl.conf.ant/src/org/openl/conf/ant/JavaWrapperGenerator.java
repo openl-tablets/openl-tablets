@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.CompiledOpenClass;
@@ -22,6 +21,7 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.AOpenIterator;
 import org.openl.util.ASelector;
 import org.openl.util.ArrayTool;
+import org.openl.util.ClassUtils;
 import org.openl.util.ISelector;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;

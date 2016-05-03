@@ -1,8 +1,8 @@
 package org.openl.rules.calc.result.convertor;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.openl.rules.convertor.IObjectToDataConvertor;
 import org.openl.rules.convertor.ObjectToDataConvertorFactory;
+import org.openl.util.ClassUtils;
 import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

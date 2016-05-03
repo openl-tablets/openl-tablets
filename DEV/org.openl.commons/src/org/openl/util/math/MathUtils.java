@@ -7,10 +7,10 @@ import java.math.RoundingMode;
 import java.util.Arrays;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.openl.util.ArrayTool;
+import org.openl.util.ClassUtils;
 
 /**
  * The biggest part of methods is being generated. See org.openl.rules.gen

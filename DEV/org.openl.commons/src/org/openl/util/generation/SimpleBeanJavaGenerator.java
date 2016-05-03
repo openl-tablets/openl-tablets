@@ -17,7 +17,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.apache.commons.lang3.ClassUtils;
+import org.openl.util.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,7 +94,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         addImport(buf, filterTypeNameForImport(XmlElement.class));
         addImport(buf, filterTypeNameForImport(XmlType.class));
 
-        String packageName = ClassUtils.getPackageName(getClassNameForGeneration());
+        String packageName = ClassUtils.getPackageName(getClassForGeneration());
 
         String[] packageParts = packageName.split("\\.");
         StringBuilder namespace = new StringBuilder("http://");
@@ -121,7 +121,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         
         addJAXBAnnotations(buf);
 
-        addClassDeclaration(buf, ClassUtils.getShortClassName(getClassNameForGeneration()),
+        addClassDeclaration(buf, ClassUtils.getShortClassName(getClassForGeneration()),
                 ClassUtils.getShortClassName(getClassForGeneration().getSuperclass()));
 
         addFieldsDeclaration(buf);

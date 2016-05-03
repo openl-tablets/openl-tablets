@@ -1,11 +1,11 @@
 package org.openl.util.generation;
 
+import org.openl.util.ClassUtils;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import org.apache.commons.lang3.ClassUtils;
 
 /**
  * Java class generator for Custom Spreadsheet Results.
@@ -32,7 +32,7 @@ public class CustomSpreadsheetResultJavaGenerator extends JavaGenerator {
 
         addImports(buf);
 
-        addClassDeclaration(buf, ClassUtils.getShortClassName(getClassNameForGeneration()),
+        addClassDeclaration(buf, ClassUtils.getShortClassName(getClassForGeneration()),
                 ClassUtils.getShortClassName(getClassForGeneration().getSuperclass()));
 
         buf.append(JavaClassGeneratorHelper.getUUID());

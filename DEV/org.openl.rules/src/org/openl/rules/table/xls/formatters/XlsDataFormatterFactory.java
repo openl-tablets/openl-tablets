@@ -3,7 +3,6 @@ package org.openl.rules.table.xls.formatters;
 import java.util.Date;
 import java.util.Locale;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -13,6 +12,7 @@ import org.openl.rules.table.formatters.ArrayFormatter;
 import org.openl.rules.table.formatters.FormulaFormatter;
 import org.openl.rules.table.xls.XlsCell;
 import org.openl.types.IOpenClass;
+import org.openl.util.ClassUtils;
 import org.openl.util.formatters.BooleanFormatter;
 import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.EnumFormatter;

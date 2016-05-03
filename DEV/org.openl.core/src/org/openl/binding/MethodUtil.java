@@ -8,13 +8,13 @@ package org.openl.binding;
 
 import java.lang.reflect.Method;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.openl.base.INamedThing;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.OpenClassDelegator;
+import org.openl.util.ClassUtils;
 import org.openl.util.IConvertor;
 import org.openl.util.print.Formatter;
 

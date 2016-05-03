@@ -13,12 +13,12 @@ package org.openl.rules.calculation.result.convertor2.rules;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.cast.JavaNoCast;
 import org.openl.rules.calculation.result.convertor2.CalculationStep;
 import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.ClassUtils;
 import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

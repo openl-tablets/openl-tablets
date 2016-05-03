@@ -1,9 +1,9 @@
 package org.openl.util.generation;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 
 import java.io.Serializable;

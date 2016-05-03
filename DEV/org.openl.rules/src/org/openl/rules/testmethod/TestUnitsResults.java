@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.ClassUtils;
 import org.openl.base.INamedThing;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
@@ -26,6 +25,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.impl.AOpenField;
 import org.openl.types.impl.DatatypeArrayElementField;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
 
 /**
