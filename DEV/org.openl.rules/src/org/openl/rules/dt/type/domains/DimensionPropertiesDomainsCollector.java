@@ -89,7 +89,7 @@ public class DimensionPropertiesDomainsCollector {
                 propertiesDomains.put(propName, gatheredDomain);
                 propertiesDomains.put(key, gatheredDomain);
             }
-        }
+        }        
     }
 
     private void applyCurrentDateDomain(IDomainAdaptor dateDomainAdaptor) {

@@ -1,4 +1,4 @@
-package org.openl.rules.dtx.type.domains;
+package org.openl.rules.dt.type.domains;
 
 import org.openl.domain.DateRangeDomain;
 import org.openl.domain.EnumDomain;
