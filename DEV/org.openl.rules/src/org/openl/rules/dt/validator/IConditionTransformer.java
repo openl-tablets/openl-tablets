@@ -3,10 +3,10 @@
  */
 package org.openl.rules.dt.validator;
 
-import org.openl.rules.dt.element.ICondition;
+
+import org.openl.rules.dtx.IBaseCondition;
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
-
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.IntVar;
 
@@ -21,7 +21,7 @@ public interface IConditionTransformer {
     IOpenClass transformParameterType(IParameterDeclaration declaration);
 
     Object transformLocalParameterValue(String name,
-            ICondition condition,
+            IBaseCondition condition,
             Object value,            
             DecisionTableAnalyzer analyzer);
 

@@ -6,9 +6,9 @@ package org.openl.rules.dt.validator;
 import java.util.Map;
 
 import org.openl.OpenL;
-import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.element.ICondition;
-import org.openl.rules.dt.type.domains.IDomainAdaptor;
+import org.openl.rules.dtx.IBaseCondition;
+import org.openl.rules.dtx.IDecisionTable;
+import org.openl.rules.dtx.type.domains.IDomainAdaptor;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.validator.IValidatedObject;
 import org.openl.rules.validator.IValidationResult;
@@ -29,11 +29,11 @@ public final class DecisionTableValidator implements IValidator {
         return INSTANCE;
     }
 
-    public static DesionTableValidationResult validateTable(DecisionTable decisionTable,
+    public static DesionTableValidationResult validateTable(IDecisionTable decisionTable,
             Map<String, IDomainAdaptor> domains,
             IOpenClass type) throws Exception {
 
-        DecisionTableValidatedObject validatedObject = new DecisionTableValidatedObject(decisionTable, domains);
+        IDecisionTableValidatedObject validatedObject = new DecisionTableValidatedObject(decisionTable, domains);
         OpenL openl = ((XlsModuleOpenClass) type).getOpenl();
 
         return (DesionTableValidationResult) getInstance().validate(validatedObject, openl);
@@ -51,7 +51,7 @@ public final class DecisionTableValidator implements IValidator {
      * @return
      */
     
-    static public String getUniqueConditionParamName(ICondition condition, String pname) {
+    static public String getUniqueConditionParamName(IBaseCondition condition, String pname) {
         return condition.getName() + "_" + pname;
     }
 }

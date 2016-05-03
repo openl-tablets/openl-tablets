@@ -12,9 +12,9 @@ import org.openl.domain.IDomain;
 import org.openl.domain.IntRangeDomain;
 import org.openl.domain.StringDomain;
 import org.openl.rules.binding.RulesBindingDependencies;
-import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.element.ICondition;
-import org.openl.rules.dt.element.IDecisionRow;
+import org.openl.rules.dtx.IBaseCondition;
+import org.openl.rules.dtx.IBaseDecisionRow;
+import org.openl.rules.dtx.IDecisionTable;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -25,30 +25,30 @@ import org.openl.types.impl.ParameterDeclaration;
 
 public class DecisionTableAnalyzer {
 
-    private DecisionTable decisionTable;
+    private IDecisionTable decisionTable;
 
-    private Map<IDecisionRow, ConditionAnalyzer> conditionAnalyzers = new HashMap<IDecisionRow, ConditionAnalyzer>();
+    private Map<IBaseDecisionRow, ConditionAnalyzer> conditionAnalyzers = new HashMap<IBaseDecisionRow, ConditionAnalyzer>();
     private Map<String, DecisionTableParamDescription> usedParamsFromSignature = new HashMap<String, DecisionTableParamDescription>();
 
-    public DecisionTableAnalyzer(DecisionTable decisionTable) {
+    public DecisionTableAnalyzer(IDecisionTable decisionTable) {
 
         this.decisionTable = decisionTable;
 
         init(decisionTable);
     }
 
-    private void init(DecisionTable decisionTable) {
+    private void init(IDecisionTable decisionTable) {
 
         int n = decisionTable.getNumberOfConditions();
         
        
 
         for (int i = 0; i < n; ++i) {
-            conditionAnalyzers.put(decisionTable.getCondition(i), new ConditionAnalyzer(decisionTable.getCondition(i)));
+            conditionAnalyzers.put(decisionTable.getConditionRows()[i], new ConditionAnalyzer(decisionTable.getConditionRows()[i]));
         }
     }
 
-    public boolean containsFormula(IDecisionRow row) {
+    public boolean containsFormula(IBaseDecisionRow row) {
 
 
     	int len = row.getNumberOfRules();
@@ -66,11 +66,11 @@ public class DecisionTableAnalyzer {
         return usedParamsFromSignature.values().iterator();
     }
 
-    public DecisionTable getDecisionTable() {
+    public IDecisionTable getDecisionTable() {
         return decisionTable;
     }
 
-    public IDomain<?> getParameterDomain(String parameterName, IDecisionRow condition) {
+    public IDomain<?> getParameterDomain(String parameterName, IBaseDecisionRow condition) {
         return conditionAnalyzers.get(condition).getParameterDomain(parameterName);
     }
 
@@ -78,7 +78,7 @@ public class DecisionTableAnalyzer {
         return usedParamsFromSignature.get(parameterName).getDomain();
     }
     
-    public IDomain<?> gatherDomainFromValues(IParameterDeclaration parameter, ICondition condition) {
+    public IDomain<?> gatherDomainFromValues(IParameterDeclaration parameter, IBaseCondition condition) {
         IDomain<?> result = null;
         Class<?> type = parameter.getType().getInstanceClass();
         if (String.class.equals(type)) {
@@ -89,7 +89,7 @@ public class DecisionTableAnalyzer {
         return result;
     }
 
-    private StringDomain gatherStringDomainFromValues(ICondition condition) {
+    private StringDomain gatherStringDomainFromValues(IBaseCondition condition) {
     	int nRules = condition.getNumberOfRules();
     	int np = condition.getNumberOfParams();
         String[] enumValues = new String[nRules * np];
@@ -101,7 +101,7 @@ public class DecisionTableAnalyzer {
         return new StringDomain(enumValues);
     }
 
-    private IntRangeDomain gatherIntDomainFromValues(ICondition condition) {
+    private IntRangeDomain gatherIntDomainFromValues(IBaseCondition condition) {
         int min = Integer.MAX_VALUE;
         int max = Integer.MIN_VALUE;
     	int nRules = condition.getNumberOfRules();
@@ -130,7 +130,7 @@ public class DecisionTableAnalyzer {
      * cells. 
      * @return parameters that are income(from the signature) that are using in current row. 
      */
-    public IParameterDeclaration[] referencedSignatureParams(IDecisionRow row) {
+    public IParameterDeclaration[] referencedSignatureParams(IBaseDecisionRow row) {
 
         CompositeMethod method = (CompositeMethod) row.getMethod();
 

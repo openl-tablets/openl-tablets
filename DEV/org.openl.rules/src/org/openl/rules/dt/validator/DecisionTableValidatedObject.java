@@ -12,19 +12,18 @@ import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.domain.IntRangeDomain;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.element.ICondition;
-import org.openl.rules.dt.type.domains.EnumDomainAdaptor;
-import org.openl.rules.dt.type.domains.IDomainAdaptor;
-import org.openl.rules.dt.type.domains.IntRangeDomainAdaptor;
-import org.openl.rules.dt.type.domains.JavaEnumDomainAdaptor;
+import org.openl.rules.dtx.IBaseCondition;
+import org.openl.rules.dtx.IDecisionTable;
+import org.openl.rules.dtx.type.domains.EnumDomainAdaptor;
+import org.openl.rules.dtx.type.domains.IDomainAdaptor;
+import org.openl.rules.dtx.type.domains.IntRangeDomainAdaptor;
+import org.openl.rules.dtx.type.domains.JavaEnumDomainAdaptor;
 import org.openl.rules.helpers.IntRange;
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.java.JavaEnumDomain;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.Log;
-
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.IntBoolVar;
 import org.openl.ie.constrainer.IntExp;
@@ -36,14 +35,14 @@ import org.openl.ie.constrainer.IntVar;
  */
 public class DecisionTableValidatedObject implements IDecisionTableValidatedObject, IConditionTransformer {
 
-    private DecisionTable decisionTable;
+    private IDecisionTable decisionTable;
     private Map<String, IDomainAdaptor> domainMap;
 
-    public DecisionTableValidatedObject(DecisionTable decisionTable) {
+    public DecisionTableValidatedObject(IDecisionTable decisionTable) {
         this.decisionTable = decisionTable;
     }
 
-    public DecisionTableValidatedObject(DecisionTable decisionTable, Map<String, IDomainAdaptor> domainMap) {
+    public DecisionTableValidatedObject(IDecisionTable decisionTable, Map<String, IDomainAdaptor> domainMap) {
         this.decisionTable = decisionTable;
         this.domainMap = domainMap;
     }
@@ -55,7 +54,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         return domainMap;
     }
 
-    public DecisionTable getDecisionTable() {
+    public IDecisionTable getDecisionTable() {
         return decisionTable;
     }
 
@@ -80,7 +79,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         return result;
     }
 
-    private Map<String, IDomainAdaptor> makeDomains(DecisionTable dt2) {
+    private Map<String, IDomainAdaptor> makeDomains(IDecisionTable dt2) {
         return new HashMap<String, IDomainAdaptor>();
     }
 
@@ -131,7 +130,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         return null;
     }
         
-    public Object transformLocalParameterValue(String name, ICondition condition, Object value, DecisionTableAnalyzer dtan) {
+    public Object transformLocalParameterValue(String name, IBaseCondition condition, Object value, DecisionTableAnalyzer dtan) {
         
         if (value != null && value.getClass().isArray())
         {
@@ -145,7 +144,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         else return transformSingleLocalParameterValue(name, condition, value, dtan);
     } 
         
-  public Object transformSingleLocalParameterValue(String name, ICondition condition, Object value, DecisionTableAnalyzer dtan) {
+  public Object transformSingleLocalParameterValue(String name, IBaseCondition condition, Object value, DecisionTableAnalyzer dtan) {
         
         Object result = value;
         if (value instanceof IntRange) {

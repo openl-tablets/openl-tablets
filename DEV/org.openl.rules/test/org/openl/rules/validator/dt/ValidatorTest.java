@@ -14,14 +14,15 @@ import org.openl.domain.EnumDomain;
 import org.openl.domain.IntRangeDomain;
 import org.openl.domain.StringDomain;
 import org.openl.rules.BaseOpenlBuilderHelper;
+import org.openl.rules.dt.validator.DecisionTableValidator;
 import org.openl.rules.dtx.IDecisionTable;
 import org.openl.rules.dtx.type.domains.DateRangeDomainAdaptor;
 import org.openl.rules.dtx.type.domains.EnumDomainAdaptor;
 import org.openl.rules.dtx.type.domains.IDomainAdaptor;
 import org.openl.rules.dtx.type.domains.IntRangeDomainAdaptor;
-import org.openl.rules.dtx.validator.DecisionTableOverlapping;
-import org.openl.rules.dtx.validator.DecisionTableUncovered;
-import org.openl.rules.dtx.validator.DesionTableValidationResult;
+import org.openl.rules.dt.validator.DecisionTableOverlapping;
+import org.openl.rules.dt.validator.DecisionTableUncovered;
+import org.openl.rules.dt.validator.DesionTableValidationResult;
 import org.openl.rules.enumeration.CountriesEnum;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
@@ -99,7 +100,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
             IDecisionTable dt = (IDecisionTable) resultTsn.getMember();
             try {
                 // System.out.println("Validating <" + tableName+ ">");
-                result = org.openl.rules.dtx.validator.DecisionTableValidator.validateTable(dt, domains, getJavaWrapper().getOpenClass());
+                result = DecisionTableValidator.validateTable(dt, domains, getJavaWrapper().getOpenClass());
 
                 if (result.hasProblems()) {
                     resultTsn.setValidationResult(result);

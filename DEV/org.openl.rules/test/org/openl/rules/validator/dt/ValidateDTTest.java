@@ -3,7 +3,7 @@ package org.openl.rules.validator.dt;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
-import org.openl.rules.dtx.validator.DesionTableValidationResult;
+import org.openl.rules.dt.validator.DesionTableValidationResult;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 
