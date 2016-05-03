@@ -695,7 +695,12 @@ public class WebStudio {
     }
 
     public ProjectDescriptor getProjectByName(final String name) {
-        return CollectionUtils.findFirst(getAllProjects(), new CollectionUtils.Predicate<ProjectDescriptor>() {
+        List<ProjectDescriptor> allProjects = getAllProjects();
+        if (allProjects == null) {
+            return null;
+        }
+
+        return CollectionUtils.findFirst(allProjects, new CollectionUtils.Predicate<ProjectDescriptor>() {
             public boolean evaluate(ProjectDescriptor project) {
                 return project.getName().equals(name);
             }
@@ -704,6 +709,9 @@ public class WebStudio {
 
     public ProjectDependencyDescriptor getProjectDependency(final String dependencyName) {
         List<ProjectDependencyDescriptor> dependencies = getCurrentProjectDescriptor().getDependencies();
+        if (dependencies == null) {
+            return null;
+        }
         return CollectionUtils.findFirst(dependencies, new CollectionUtils.Predicate<ProjectDependencyDescriptor>() {
             public boolean evaluate(ProjectDependencyDescriptor dependency) {
                 return dependency.getName().equals(dependencyName);
@@ -909,7 +917,11 @@ public class WebStudio {
             projectName = getCurrentProjectDescriptor().getName();
         } else {
             // Get a project
-            ProjectDescriptor project = CollectionUtils.findFirst(getAllProjects(), new CollectionUtils.Predicate<ProjectDescriptor>() {
+            List<ProjectDescriptor> allProjects = getAllProjects();
+            if (allProjects == null) {
+                return null;
+            }
+            ProjectDescriptor project = CollectionUtils.findFirst(allProjects, new CollectionUtils.Predicate<ProjectDescriptor>() {
                 @Override
                 public boolean evaluate(ProjectDescriptor projectDescriptor) {
                     String projectURI = projectDescriptor.getProjectFolder().toURI().toString();
@@ -920,7 +932,10 @@ public class WebStudio {
                 return null;
             }
             // Get a module
-            Module module = CollectionUtils.findFirst(project.getModules(), new CollectionUtils.Predicate<Module>() {
+            List<Module> modules = project.getModules();
+            Module module = null;
+            if (modules != null) {
+            module = CollectionUtils.findFirst(modules, new CollectionUtils.Predicate<Module>() {
                 @Override
                 public boolean evaluate(Module module) {
                     if (module.getRulesRootPath() == null) {
@@ -944,6 +959,7 @@ public class WebStudio {
                     return tableURI.startsWith(moduleURI);
                 }
             });
+            }
 
             if (module != null) {
                 projectName = project.getName();
