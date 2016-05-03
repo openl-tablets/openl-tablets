@@ -61,22 +61,19 @@ public class StringUtils {
         final List<String> list = new ArrayList<String>();
         int i = 0, start = 0;
         boolean match = false;
-        boolean lastMatch = false;
         while (i < len) {
             if (str.charAt(i) == separator) {
                 if (match) {
                     list.add(str.substring(start, i));
                     match = false;
-                    lastMatch = true;
                 }
                 start = ++i;
                 continue;
             }
-            lastMatch = false;
             match = true;
             i++;
         }
-        if (match && !lastMatch) {
+        if (match) {
             list.add(str.substring(start, i));
         }
         return list.toArray(new String[list.size()]);
