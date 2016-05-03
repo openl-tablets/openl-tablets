@@ -76,7 +76,7 @@ public class StringUtils {
             match = true;
             i++;
         }
-        if (match && lastMatch) {
+        if (match && !lastMatch) {
             list.add(str.substring(start, i));
         }
         return list.toArray(new String[list.size()]);
