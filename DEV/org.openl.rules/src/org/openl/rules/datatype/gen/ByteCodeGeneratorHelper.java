@@ -150,7 +150,7 @@ public class ByteCodeGeneratorHelper {
     }
 
     public static String getSignature(Class<?> methodOwner, String methodName, Class<?>[] paramTypes) {
-        Method matchingMethod = MethodUtil.getMatchingAccessibleMethod(methodOwner, methodName, paramTypes, false);
+        Method matchingMethod = MethodUtil.getMatchingAccessibleMethod(methodOwner, methodName, paramTypes);
         StringBuilder signatureBuilder = new StringBuilder();
         signatureBuilder.append('(');
         for(Class<?> paramType : matchingMethod.getParameterTypes()){
