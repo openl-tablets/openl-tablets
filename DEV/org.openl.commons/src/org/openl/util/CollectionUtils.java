@@ -16,7 +16,7 @@ public class CollectionUtils {
      * Return {@code true} if a collection is null or is empty.
      * 
      * @param col the checked collection
-     * @return return {@code true} if collection does not contain any
+     * @return return {@code true} if the collection does not contain any
      *         elements
      * @see Collection#isEmpty()
      */
@@ -26,10 +26,10 @@ public class CollectionUtils {
 
     /**
      * Return {@code true} if a collection contains at least one element.
-     * This method is inverse to {@link #isEmpty(Collection}.
+     * This method is inverse to {@link #isEmpty(Collection)}.
      *
      * @param col the checked collection
-     * @return {@code true} if a collection contains at least one element.
+     * @return {@code true} if the collection contains at least one element.
      */
     public static boolean isNotEmpty(Collection<?> col) {
         return !isEmpty(col);
@@ -38,8 +38,8 @@ public class CollectionUtils {
     /**
      * Return {@code true} if a map is null or is empty.
      *
-     * @param map the checked collection
-     * @return return {@code true} if collection does not contain any
+     * @param map the checked map
+     * @return return {@code true} if the map does not contain any
      *         elements
      * @see Map#isEmpty()
      */
@@ -51,11 +51,34 @@ public class CollectionUtils {
      * Return {@code true} if a map contains at least one element. This
      * method is inverse to {@link #isEmpty(Map)}.
      *
-     * @param map the checked collection
-     * @return {@code true} if a collection contains at least one element.
+     * @param map the checked map
+     * @return {@code true} if the map contains at least one element.
      */
     public static boolean isNotEmpty(Map<?, ?> map) {
         return !isEmpty(map);
+    }
+
+    /**
+     * Return {@code true} if an array is null or is empty.
+     *
+     * @param array the checked array
+     * @return return {@code true} if the array does not contain any
+     *         elements
+     * @see Collection#isEmpty()
+     */
+    public static <T> boolean isEmpty(T[] array) {
+        return array == null || array.length == 0;
+    }
+
+    /**
+     * Return {@code true} if an array contains at least one element.
+     * This method is inverse to {@link #isEmpty(T[])}.
+     *
+     * @param array the checked array
+     * @return {@code true} if the array contains at least one element.
+     */
+    public static <T> boolean isNotEmpty(T[] array) {
+        return !isEmpty(array);
     }
 
     /**

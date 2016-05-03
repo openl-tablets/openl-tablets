@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 public class StringTool {
 
     public static final String NEW_LINE = "\n";
@@ -571,7 +569,7 @@ public class StringTool {
     }
 
     public static String arrayToStringThroughSymbol(Object[] values, String symbol) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         StringBuilder builder = new StringBuilder();

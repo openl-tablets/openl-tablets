@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
 
 public class ArrayTool {
@@ -272,7 +271,7 @@ public class ArrayTool {
 
     public static boolean noNulls(Object[] values) {
         boolean result = false;
-        if (ArrayUtils.isNotEmpty(values)) {
+        if (CollectionUtils.isNotEmpty(values)) {
             for (Object value : values) {
                 if (value == null) {
                     return result;
@@ -284,7 +283,7 @@ public class ArrayTool {
     }
 
     public static int getNotNullValuesCount(Object[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return 0;
         }
 
