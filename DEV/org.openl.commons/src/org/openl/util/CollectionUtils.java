@@ -88,15 +88,17 @@ public class CollectionUtils {
      *
      * @param <I> the type of object in the input collection
      * @param <O> the type of object in the output collection
-     * @param col the collection to get the input from
-     * @param mapper the mapper to use, may be null
+     * @param col the collection to get the input from, may be null
+     * @param mapper the mapper to use
      * @return the transformed result (new list)
-     * @throws NullPointerException if the input collection is null or the
-     *             mapper is null
+     * @throws NullPointerException if the mapper is null
      */
     public static <I, O> List<O> map(Iterable<I> col, Mapper<? super I, ? extends O> mapper) {
-        if (col == null || mapper == null) {
-            throw new NullPointerException("The input argument is NULL");
+        if (col == null) {
+            return null;
+        }
+        if (mapper == null) {
+            throw new NullPointerException("The 'mapper' argument is NULL");
         }
         int size = (col instanceof Collection) ? ((Collection) col).size() : 0;
         ArrayList<O> result = new ArrayList<O>(size);
@@ -113,16 +115,18 @@ public class CollectionUtils {
      * <p>
      *
      * @param <T> the type of object the {@link Iterable} contains
-     * @param col the collection to search
+     * @param col the collection to search, may be null
      * @param predicate the predicate to use
      * @return the first element of the collection which matches the predicate
      *         or null if none could be found
-     * @throws NullPointerException if the input collection is null or the
-     *             predicate is null
+     * @throws NullPointerException if the predicate is null
      */
     public static <T> T findFirst(Iterable<T> col, Predicate<? super T> predicate) {
-        if (col == null || predicate == null) {
-            throw new NullPointerException("The input argument is NULL");
+        if (col == null) {
+            return null;
+        }
+        if (predicate == null) {
+            throw new NullPointerException("The 'predicate' argument is NULL");
         }
         for (final T item : col) {
             if (predicate.evaluate(item)) {
@@ -138,16 +142,18 @@ public class CollectionUtils {
      * <p>
      *
      * @param <T> the type of object the {@link Iterable} contains
-     * @param col the collection to search
+     * @param col the collection to search, may be null
      * @param predicate the predicate to use
      * @return the first element of the collection which matches the predicate
      *         or null if none could be found
-     * @throws NullPointerException if the input collection is null or the
-     *             predicate is null
+     * @throws NullPointerException if the predicate is null
      */
     public static <T> List<T> findAll(Iterable<T> col, Predicate<? super T> predicate) {
-        if (col == null || predicate == null) {
-            throw new NullPointerException("The input argument is NULL");
+        if (col == null) {
+            return null;
+        }
+        if (predicate == null) {
+            throw new NullPointerException("The 'predicate' argument is NULL");
         }
         int size = (col instanceof Collection) ? ((Collection) col).size() : 0;
         ArrayList<T> result = new ArrayList<T>(size);
