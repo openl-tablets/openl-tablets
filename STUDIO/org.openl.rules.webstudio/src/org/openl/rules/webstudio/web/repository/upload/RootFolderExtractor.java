@@ -2,8 +2,8 @@ package org.openl.rules.webstudio.web.repository.upload;
 
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.workspace.filter.PathFilter;
+import org.openl.util.StringUtils;
 
 /**
  * Ectractor for folder name paths from the top root folder.
@@ -73,7 +73,7 @@ public class RootFolderExtractor {
             }
             if (isValidFolderName(name)) {
                 String secondFolderName = getFolderName(name);
-                firstFolderName = !StringUtils.isEmpty(firstFolderName) ? firstFolderName : secondFolderName;
+                firstFolderName = StringUtils.isNotEmpty(firstFolderName) ? firstFolderName : secondFolderName;
 
                 if (!secondFolderName.equals(firstFolderName)) {
                     return false;
@@ -81,7 +81,7 @@ public class RootFolderExtractor {
             }
         }
 
-        return !StringUtils.isEmpty(firstFolderName);
+        return StringUtils.isNotEmpty(firstFolderName);
     }
 
     private boolean isValidFolderName(String name) {

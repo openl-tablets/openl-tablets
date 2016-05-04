@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.repository;
 
 import com.thoughtworks.xstream.XStreamException;
-import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
@@ -20,6 +19,7 @@ import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

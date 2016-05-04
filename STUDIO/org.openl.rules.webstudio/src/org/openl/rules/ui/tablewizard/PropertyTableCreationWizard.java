@@ -15,7 +15,6 @@ import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 import javax.validation.constraints.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -28,6 +27,7 @@ import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.PropertiesTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
+import org.openl.util.StringUtils;
 
 public class PropertyTableCreationWizard extends TableCreationWizard {
 
@@ -235,7 +235,7 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
         for (TableProperty property : propertiesManager.getProperties()) {
             String name = property.getName();
             Object value = property.getValue();
-            if (value != null && (!(value instanceof String) || !StringUtils.isEmpty((String) value))) {
+            if (value != null && (!(value instanceof String) || StringUtils.isNotEmpty((String) value))) {
                 resultProperties.put(name.trim(), value);
             }
         }

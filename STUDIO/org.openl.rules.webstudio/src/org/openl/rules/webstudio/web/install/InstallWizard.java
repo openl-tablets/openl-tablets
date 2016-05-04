@@ -259,7 +259,7 @@ public class InstallWizard {
         String studioPath;
         File studioDir;
 
-        if (!StringUtils.isEmpty((String) value)) {
+        if (StringUtils.isNotEmpty((String) value)) {
             studioPath = ConfigurationManager.normalizePath((String) value);
             studioDir = new File(studioPath);
 

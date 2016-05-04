@@ -3,7 +3,6 @@ package org.openl.rules.dt.algorithm;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundMethodNode;
@@ -30,6 +29,7 @@ import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.ParameterMethodCaller;
 import org.openl.types.impl.SourceCodeMethodCaller;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.StringUtils;
 
 public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
 

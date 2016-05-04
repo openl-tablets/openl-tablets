@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.repository;
 
 import com.thoughtworks.xstream.XStreamException;
-import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
@@ -46,6 +45,7 @@ import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
+import org.openl.util.StringUtils;
 import org.openl.util.filter.IFilter;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;

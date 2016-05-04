@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.base.INamedThing;
 import org.openl.main.OpenLWrapper;
 import org.openl.rules.lang.xls.classes.ClassFinder;
@@ -19,6 +18,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.StringUtils;
 
 /**
  * @author Aliaksandr Antonik.

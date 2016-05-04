@@ -14,11 +14,11 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.validator.ValidatorException;
 import javax.validation.constraints.Size;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
+import org.openl.util.StringUtils;
 import org.springframework.security.core.GrantedAuthority;
 
 @ManagedBean
@@ -107,7 +107,7 @@ public class UserProfileBean extends UsersBean {
     public void passwordsValidator(FacesContext context, UIComponent component, Object value) {
         newPassword = (String) value;
 
-        if (!StringUtils.isEmpty(newPassword)) {
+        if (StringUtils.isNotEmpty(newPassword)) {
             UIInput uiInputConfirmPassword = (UIInput) component.getAttributes().get("confirmPassword");
             String confirmPasswordString = uiInputConfirmPassword.getSubmittedValue().toString();
             UIInput uiInputPassword = (UIInput) component.getAttributes().get("currentPassword");
@@ -118,7 +118,7 @@ public class UserProfileBean extends UsersBean {
                 throw new ValidatorException(new FacesMessage("Enter your password"));
             }
 
-            if (!StringUtils.equals(newPassword, confirmPasswordString)) {
+            if (!newPassword.equals(confirmPasswordString)) {
                 throw new ValidatorException(new FacesMessage("New password and confirm password do not match."));
             } else {
                 isPasswordValid = true;

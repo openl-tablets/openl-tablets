@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.abstraction.AProject;
@@ -23,6 +22,7 @@ import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +66,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                             rulesDeploy = getRulesDeploySerializer().deserialize(content);
                             hasRulesDeployXML = true;
                             String version = null;
-                            if (!StringUtils.isEmpty(rulesDeploy.getVersion())) {
+                            if (StringUtils.isNotEmpty(rulesDeploy.getVersion())) {
                                 version = rulesDeploy.getVersion();
                             }
                             if (latestDeployments.containsKey(deploymentName)) {
@@ -273,14 +273,14 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
 
     private String buildServiceName(Deployment deployment, AProject project, RulesDeploy rulesDeploy) {
         if (rulesDeploy != null) {
-            if (!StringUtils.isEmpty(rulesDeploy.getServiceName())) {
-                if (!StringUtils.isEmpty(rulesDeploy.getVersion())) {
+            if (StringUtils.isNotEmpty(rulesDeploy.getServiceName())) {
+                if (StringUtils.isNotEmpty(rulesDeploy.getVersion())) {
                     return rulesDeploy.getServiceName() + "(version=" + rulesDeploy.getVersion() + ")";
                 } else {
                     return rulesDeploy.getServiceName();
                 }
             } else {
-                if (!StringUtils.isEmpty(rulesDeploy.getVersion())) {
+                if (StringUtils.isNotEmpty(rulesDeploy.getVersion())) {
                     return deployment.getDeploymentName() + '_' + project.getName() + "(version=" + rulesDeploy
                         .getVersion() + ")";
                 }
@@ -291,8 +291,8 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
 
     private String buildServiceUrl(Deployment deployment, AProject project, RulesDeploy rulesDeploy) {
         if (rulesDeploy != null) {
-            if (!StringUtils.isEmpty(rulesDeploy.getUrl())) {
-                if (!StringUtils.isEmpty(rulesDeploy.getVersion())) {
+            if (StringUtils.isNotEmpty(rulesDeploy.getUrl())) {
+                if (StringUtils.isNotEmpty(rulesDeploy.getVersion())) {
                     if (rulesDeploy.getUrl().startsWith("/")) {
                         return "/" + rulesDeploy.getVersion() + rulesDeploy.getUrl();
                     } else {
@@ -302,7 +302,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                     return rulesDeploy.getUrl();
                 }
             } else {
-                if (!StringUtils.isEmpty(rulesDeploy.getVersion())) {
+                if (StringUtils.isNotEmpty(rulesDeploy.getVersion())) {
                     return "/" + rulesDeploy.getVersion() + "/" + deployment.getDeploymentName() + '/' + project
                         .getName();
                 }

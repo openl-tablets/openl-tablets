@@ -1,6 +1,5 @@
 package org.openl.rules.ui.tablewizard.util;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFPalette;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -11,6 +10,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openl.util.StringUtils;
 import org.richfaces.json.JSONException;
 import org.richfaces.json.JSONObject;
 
@@ -102,7 +102,7 @@ public class HTMLToExelStyleCoverter {
             if (!style.isNull("fontFamily")) {
                 String fontFamily = style.getString("fontFamily");
 
-                if (!StringUtils.isEmpty(fontFamily)) {
+                if (StringUtils.isNotEmpty(fontFamily)) {
                     name = fontFamily;
                 }
             }
@@ -110,7 +110,7 @@ public class HTMLToExelStyleCoverter {
             if (!style.isNull("color")) {
                 String rgbColor = style.getString("color");
 
-                if(!StringUtils.isEmpty(rgbColor)) {
+                if(StringUtils.isNotEmpty(rgbColor)) {
                     color = getColorIndex(stringRGBToShort(rgbColor), wb);
                 }
             }
@@ -122,7 +122,7 @@ public class HTMLToExelStyleCoverter {
                     fontSize = fontSize.replace("px", "");
                 }
 
-                if (!StringUtils.isEmpty(fontSize)) {
+                if (StringUtils.isNotEmpty(fontSize)) {
                     fontHeight = Short.parseShort(fontSize);
 
                     //convert to px
@@ -275,7 +275,7 @@ public class HTMLToExelStyleCoverter {
     public static XSSFColor getXSSFColorByHtmlStyleName(String styleName, JSONObject style, XSSFWorkbook workbook) {
         if (!style.isNull(styleName)) {
             try {
-                if (!StringUtils.isEmpty(style.getString(styleName))) {
+                if (StringUtils.isNotEmpty(style.getString(styleName))) {
                     return getXSSFColor(stringRGBToShort(style.getString(styleName)), workbook);
                 } else {
                     return new XSSFColor(new byte[]{0,0,0});
@@ -330,7 +330,7 @@ public class HTMLToExelStyleCoverter {
             if (!style.isNull("fontFamily")) {
                 String fontFamily = style.getString("fontFamily");
 
-                if (!StringUtils.isEmpty(fontFamily)) {
+                if (StringUtils.isNotEmpty(fontFamily)) {
                     name = fontFamily;
                 }
             }
@@ -338,7 +338,7 @@ public class HTMLToExelStyleCoverter {
             if (!style.isNull("color")) {
                 String rgbColor = style.getString("color");
 
-                if(!StringUtils.isEmpty(rgbColor)) {
+                if(StringUtils.isNotEmpty(rgbColor)) {
                     color = getXSSFColor(stringRGBToShort(rgbColor), workbook);
                     indexedColor = color.getIndexed();
                 }
@@ -351,7 +351,7 @@ public class HTMLToExelStyleCoverter {
                     fontSize = fontSize.replace("px", "");
                 }
 
-                if (!StringUtils.isEmpty(fontSize)) {
+                if (StringUtils.isNotEmpty(fontSize)) {
                     fontHeight = Short.parseShort(fontSize);
 
                     //convert to px

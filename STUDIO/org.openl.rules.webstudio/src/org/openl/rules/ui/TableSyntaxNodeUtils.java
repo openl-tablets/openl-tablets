@@ -59,10 +59,10 @@ public final class TableSyntaxNodeUtils {
                 for (String dimensionalPropertyName : dimensionalPropertyNames) {
                     String value = tableProperties.getPropertyValueAsString(dimensionalPropertyName);
 
-                    if (!StringUtils.isEmpty(value)) {
-                        String propertyInfo = StringUtils.join(dimensionalPropertyName, "=", value);
-                        dimensionInfo = StringUtils.join(dimensionInfo,
-                                StringUtils.isEmpty(dimensionInfo) ? StringUtils.EMPTY : ", ", propertyInfo);
+                    if (StringUtils.isNotEmpty(value)) {
+                        String propertyInfo = dimensionalPropertyName + "=" + value;
+                        dimensionInfo = dimensionInfo +
+                                (StringUtils.isEmpty(dimensionInfo) ? StringUtils.EMPTY : ", ") + propertyInfo;
                     }
                 }
             }

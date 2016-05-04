@@ -1,11 +1,12 @@
 package org.openl.rules.webstudio.web.admin;
 
+import org.openl.util.StringUtils;
+
 import java.io.File;
 import java.io.IOException;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Pavel Tarasevich
@@ -86,7 +87,7 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
                 return false;
             }
 
-            if (!StringUtils.isEmpty(repoConfig.getLogin())) {
+            if (StringUtils.isNotEmpty(repoConfig.getLogin())) {
                 try {
                     RepositoryValidators.validateConnection(repoConfig, getProductionRepositoryFactoryProxy());
                 } catch (RepositoryValidationException e) {

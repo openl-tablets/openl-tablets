@@ -19,7 +19,6 @@ import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.ProjectDescriptorManager;
@@ -56,6 +55,7 @@ import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.PathMatcher;
@@ -180,7 +180,7 @@ public class ProjectBean {
     public void validatePropertiesFileNamePattern(FacesContext context, UIComponent toValidate, Object value) {
         String pattern = (String) value;
 
-        if (!StringUtils.isBlank(pattern)) {
+        if (StringUtils.isNotBlank(pattern)) {
             PropertiesFileNameProcessor processor;
             PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
             try {
@@ -216,7 +216,7 @@ public class ProjectBean {
 
         if (StringUtils.isBlank(oldName) // Add new Module
                 || !oldName.equals(newName)) { // Edit current Module
-            if (!withWildcard || !StringUtils.isBlank(newName)) {
+            if (!withWildcard || StringUtils.isNotBlank(newName)) {
                 FacesUtils.validate(NameChecker.checkName(newName), NameChecker.BAD_NAME_MSG);
 
                 Module module = studio.getModule(studio.getCurrentProjectDescriptor(), newName);
@@ -239,7 +239,7 @@ public class ProjectBean {
 
         if (StringUtils.isBlank(oldName) // Add new Module
                 || !oldName.equals(newName)) { // Edit current Module
-            if (!withWildcard || !StringUtils.isBlank(newName)) {
+            if (!withWildcard || StringUtils.isNotBlank(newName)) {
                 FacesUtils.validate(NameChecker.checkName(newName), NameChecker.BAD_NAME_MSG);
 
                 Module module = studio.getModule(studio.getCurrentProjectDescriptor(), newName);
