@@ -981,17 +981,7 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.poi</groupId>
-                <artifactId>poi</artifactId>
-                <version>${org.apache.poi.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.poi</groupId>
                 <artifactId>poi-ooxml</artifactId>
-                <version>${org.apache.poi.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.poi</groupId>
-                <artifactId>poi-ooxml-schemas</artifactId>
                 <version>${org.apache.poi.version}</version>
             </dependency>
             <!-- JAXB (JSR 222) Reference Implementation -->
