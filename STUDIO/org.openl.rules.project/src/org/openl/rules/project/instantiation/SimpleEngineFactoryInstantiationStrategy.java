@@ -2,12 +2,12 @@ package org.openl.rules.project.instantiation;
 
 import java.io.File;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.FileSourceCodeModule;
+import org.openl.util.StringUtils;
 
 /**
  * Instantiation strategy for projects with interface. Generates proxy for

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BindHelper;
@@ -28,6 +27,7 @@ import org.openl.types.impl.AOpenField;
 import org.openl.types.impl.DatatypeArrayElementField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
+import org.openl.util.StringUtils;
 
 public class DataTableBindHelper {
 

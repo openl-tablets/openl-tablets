@@ -5,10 +5,10 @@ import java.util.List;
 
 import net.sf.cglib.core.ReflectUtils;
 
-import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.ClassWriter;
 import org.openl.rules.datatype.gen.bean.writers.BeanByteCodeWriter;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.util.StringUtils;
 import org.openl.util.generation.JavaClassGeneratorHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

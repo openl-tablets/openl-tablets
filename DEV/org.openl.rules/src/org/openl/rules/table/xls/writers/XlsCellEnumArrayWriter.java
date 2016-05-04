@@ -1,8 +1,8 @@
 package org.openl.rules.table.xls.writers;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.util.EnumUtils;
+import org.openl.util.StringUtils;
 
 public class XlsCellEnumArrayWriter extends AXlsCellWriter {
 

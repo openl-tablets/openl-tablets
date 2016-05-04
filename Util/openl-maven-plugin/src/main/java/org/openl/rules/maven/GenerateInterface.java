@@ -1,7 +1,6 @@
 package org.openl.rules.maven;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
@@ -12,6 +11,7 @@ import org.openl.conf.ant.JavaInterfaceAntTask;
 import org.openl.rules.ui.ProjectHelper;
 import org.openl.types.IOpenMethod;
 import org.openl.util.IOUtils;
+import org.openl.util.StringUtils;
 
 import java.io.*;
 import java.util.ArrayList;

@@ -2,7 +2,6 @@ package org.openl.rules.lang.xls.syntax;
 
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.message.OpenLMessage;
@@ -15,6 +14,7 @@ import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenMember;
+import org.openl.util.StringUtils;
 
 public class TableSyntaxNodeAdapter implements IOpenLTable {
 
@@ -69,7 +69,7 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
             String name = properties.getName();
             if (StringUtils.isNotBlank(name)) {
                 String version = properties.getVersion();
-                if (StringUtils.isNotBlank(version)) { 
+                if (StringUtils.isNotBlank(version)) {
                     return String.format("%s: %s", name, version);
                 }
                 return name;

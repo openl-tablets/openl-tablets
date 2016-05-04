@@ -3,7 +3,6 @@ package org.openl.rules.project.xml;
 import java.io.*;
 import java.util.Properties;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.util.IOUtils;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.xml.v5_11.XmlProjectDescriptorSerializer_v5_11;
@@ -11,6 +10,7 @@ import org.openl.rules.project.xml.v5_12.XmlProjectDescriptorSerializer_v5_12;
 import org.openl.rules.project.xml.v5_13.XmlProjectDescriptorSerializer_v5_13;
 import org.openl.rules.project.xml.v5_16.XmlProjectDescriptorSerializer_v5_16;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -3,10 +3,10 @@ package org.openl.rules.lang.xls;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.calc.CellsHeaderExtractor;
 import org.openl.rules.lang.xls.syntax.SpreadsheetHeaderNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.util.StringUtils;
 
 /**
  * Compares spreadsheets. Spreadsheets with dependencies in cells on other

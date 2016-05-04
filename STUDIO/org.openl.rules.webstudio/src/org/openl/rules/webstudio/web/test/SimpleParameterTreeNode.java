@@ -1,11 +1,11 @@
 package org.openl.rules.webstudio.web.test;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IOpenClass;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

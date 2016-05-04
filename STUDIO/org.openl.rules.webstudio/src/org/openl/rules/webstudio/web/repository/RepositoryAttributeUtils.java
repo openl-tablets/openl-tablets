@@ -6,11 +6,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.webstudio.web.tableeditor.PropertyRow;
 import org.openl.rules.webstudio.web.tableeditor.PropertyRowType;
+import org.openl.util.StringUtils;
 
 public class RepositoryAttributeUtils {
     private Map<String, String> attribs;
@@ -25,7 +25,7 @@ public class RepositoryAttributeUtils {
     }
 
     public PropertyRow getPropertyRowByAttrName(String attrName) {
-        if (!StringUtils.isBlank(attrName) && attribs.containsKey(attrName)) {
+        if (StringUtils.isNotBlank(attrName) && attribs.containsKey(attrName)) {
             TablePropertyDefinition tpd = new TablePropertyDefinition();
             setAttrType(attrName, tpd);
             

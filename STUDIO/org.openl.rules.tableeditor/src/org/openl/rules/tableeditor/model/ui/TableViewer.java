@@ -2,7 +2,6 @@ package org.openl.rules.tableeditor.model.ui;
 
 import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
@@ -13,6 +12,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.util.Log;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -3,9 +3,9 @@ package org.openl.rules.project.resolving;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.classloader.ClassLoaderCloserFactory;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.util.StringUtils;
 
 public final class PropertiesFileNameProcessorBuilder {
     public PropertiesFileNameProcessorBuilder() {
@@ -17,7 +17,7 @@ public final class PropertiesFileNameProcessorBuilder {
         if (processor != null){
             throw new IllegalStateException("Processor has already built! Use a new builder!");
         }
-        if (!StringUtils.isBlank(projectDescriptor.getPropertiesFileNameProcessor())) {
+        if (StringUtils.isNotBlank(projectDescriptor.getPropertiesFileNameProcessor())) {
             processor = buildCustomProcessor(projectDescriptor);
         } else {
             processor = buildDefaultProcessor(projectDescriptor);

@@ -7,10 +7,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.types.IOpenMethod;
+import org.openl.util.StringUtils;
 
 public final class MethodUtil {
     private MethodUtil() {
@@ -37,7 +37,7 @@ public final class MethodUtil {
         });
         return methods;
     }
-    
+
     public static String[] getParameterNames(Method method, OpenLService service) {
         if (service != null && service.getOpenClass() != null) {
             for (IOpenMethod m : service.getOpenClass().getMethods()) {

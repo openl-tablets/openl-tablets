@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.exception.OpenLException;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
@@ -14,6 +13,7 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.util.StringUtils;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
 import org.richfaces.component.UIRepeat;

@@ -6,7 +6,6 @@ import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.types.IOpenClass;
@@ -14,6 +13,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.OpenClassHelper;
+import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public abstract class AEngineFactory {

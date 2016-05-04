@@ -4,7 +4,6 @@
 
 package org.openl.rules.lang.xls;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.conf.IConfigurableResourceContext;
 import org.openl.conf.IUserContext;
 import org.openl.exception.OpenLCompilationException;
@@ -28,6 +27,7 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.util.PathTool;
 import org.openl.util.StringTool;
+import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

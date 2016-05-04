@@ -1,8 +1,7 @@
 package com.fasterxml.jackson.databind.util;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
+import org.openl.util.StringUtils;
 
 /**
  * Helper class that contains functionality needed by both serialization

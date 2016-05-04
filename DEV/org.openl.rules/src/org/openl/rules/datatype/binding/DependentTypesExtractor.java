@@ -1,6 +1,5 @@
 package org.openl.rules.datatype.binding;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.exception.OpenLCompilationException;
@@ -11,6 +10,8 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
+import org.openl.util.StringUtils;
+
 import static org.openl.rules.datatype.binding.DatatypeTableBoundNode.*;
 
 import java.util.*;

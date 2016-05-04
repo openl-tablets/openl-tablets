@@ -6,7 +6,6 @@ package org.openl.rules.dt.algorithm;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -41,6 +40,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
+import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
 

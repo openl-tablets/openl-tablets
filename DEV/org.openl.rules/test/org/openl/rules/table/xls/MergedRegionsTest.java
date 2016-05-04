@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.junit.Test;
@@ -16,6 +15,7 @@ import org.openl.rules.lang.xls.load.SimpleSheetLoader;
 import org.openl.rules.table.*;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
 import org.openl.source.impl.FileSourceCodeModule;
+import org.openl.util.StringUtils;
 
 import static org.junit.Assert.*;
 
@@ -155,7 +155,7 @@ public class MergedRegionsTest {
                         .getTop()
                         + row, grid.getSheetSource().getSheet());
                 if (resultCell != expectedCell
-                        && !StringUtils.equals(resultCell.getStringValue(), expectedCell.getStringValue())) {
+                        && StringUtils.notEquals(resultCell.getStringValue(), expectedCell.getStringValue())) {
                     // non top left cells of merged regions will be skipped in
                     // comparing by POI due to the second check
                     // TODO:remove the second check when the bug with non empty

@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
+import org.openl.util.StringUtils;
 
 public class OpenLMessagesUtils {
 

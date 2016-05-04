@@ -1,6 +1,6 @@
 package org.openl.rules.utils;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Common util methods for parsing and binding.

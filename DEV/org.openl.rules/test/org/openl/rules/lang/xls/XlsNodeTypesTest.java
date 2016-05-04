@@ -2,7 +2,6 @@ package org.openl.rules.lang.xls;
 
 import static org.junit.Assert.*;
 
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 public class XlsNodeTypesTest {
@@ -33,7 +32,7 @@ public class XlsNodeTypesTest {
         assertEquals(XlsNodeTypes.XLS_PROPERTIES, XlsNodeTypes.getEnumByValue("xls.properties"));
         
         assertNull(XlsNodeTypes.getEnumByValue(null));
-        assertNull(XlsNodeTypes.getEnumByValue(StringUtils.EMPTY));
+        assertNull(XlsNodeTypes.getEnumByValue(""));
         assertNull(XlsNodeTypes.getEnumByValue("abracadabra"));
     }
 }

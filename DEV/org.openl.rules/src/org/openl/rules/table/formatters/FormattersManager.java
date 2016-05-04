@@ -1,8 +1,8 @@
 package org.openl.rules.table.formatters;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.util.ClassUtils;
+import org.openl.util.StringUtils;
 import org.openl.util.formatters.*;
 import org.openl.util.print.DefaultFormat;
 

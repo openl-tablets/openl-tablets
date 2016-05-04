@@ -4,11 +4,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
-
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.util.StringUtils;
 
 /**
  * The class is responsible for creating Properties tables in excel sheets.

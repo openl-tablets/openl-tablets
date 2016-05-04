@@ -3,7 +3,6 @@ package org.openl.rules.tableeditor.model.ui;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.table.ui.ICellFont;
 
 public class CellModel implements ICellModel {
@@ -381,11 +380,13 @@ public class CellModel implements ICellModel {
 
         if (allSame) {
             result = values[0];
+        } else if (pairSame){
+            result = values[0] + ' ' + values[1];
+        } else if (evenSame){
+            result = values[0] + ' ' + values[1] + ' ' + values[2];
         } else {
-            int endJoin = pairSame ? 2 : (evenSame ? 3 : 4);
-            result = StringUtils.join(values, ' ', 0, endJoin);
+            result = values[0] + ' ' + values[1] + ' ' + values[2] + ' ' + values[3];
         }
-
         return result;
     }
 

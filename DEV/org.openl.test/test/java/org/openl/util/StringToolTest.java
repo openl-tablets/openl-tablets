@@ -4,13 +4,8 @@
 package org.openl.util;
 
 import junit.framework.TestCase;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author snshor

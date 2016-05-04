@@ -3,14 +3,13 @@ package org.openl.rules.webstudio.web.repository;
 import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
 import org.openl.config.SysConfigManager;
+import org.openl.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.NoneScoped;
-
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Repository artefact properties holder. Used for holding artefact properties
@@ -42,7 +41,7 @@ public class RepositoryArtefactPropsHolder {
         String propsUse = confPropsUse.getValue();
         if (StringUtils.isNotBlank(propsUse)) {
             propsMap = new HashMap<String, String>();
-            String[] props = StringUtils.deleteWhitespace(propsUse).split(",");
+            String[] props = propsUse.replaceAll("\\s", "").split(",");
             for (int i = 0; i < props.length; i++) {
                 ConfigPropertyString prop = new ConfigPropertyString(prefix + props[i], null);
                 propsSet.updateProperty(prop);

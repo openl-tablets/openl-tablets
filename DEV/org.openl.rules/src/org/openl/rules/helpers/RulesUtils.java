@@ -6356,7 +6356,7 @@ public class RulesUtils {
      *         String input
      */
     public static String removeStart(String str, String remove) {
-        return org.apache.commons.lang3.StringUtils.removeStart(str, remove);
+        return StringUtils.removeStart(str, remove);
     }
 
     /**

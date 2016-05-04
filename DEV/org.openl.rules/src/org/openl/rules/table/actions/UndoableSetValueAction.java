@@ -3,10 +3,10 @@
  */
 package org.openl.rules.table.actions;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
+import org.openl.util.StringUtils;
 
 /**
  * @author snshor

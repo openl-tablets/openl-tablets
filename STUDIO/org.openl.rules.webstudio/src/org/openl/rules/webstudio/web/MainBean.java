@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.conf.OpenLConfiguration;
@@ -13,6 +12,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Request scope managed bean providing logic for Main page.

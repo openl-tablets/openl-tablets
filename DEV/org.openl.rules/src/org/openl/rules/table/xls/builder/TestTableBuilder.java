@@ -5,8 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
-
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -15,6 +13,7 @@ import org.openl.rules.testmethod.TestMethodHelper;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenMember;
 import org.openl.types.impl.ExecutableMethod;
+import org.openl.util.StringUtils;
 
 /**
  * The class is responsible for creating test method tables in excel sheets.
@@ -77,7 +76,7 @@ public class TestTableBuilder extends TableBuilder {
         ExecutableMethod executableMethod = getExecutableMethod(executableNode);
         if (executableMethod != null) {
             String tableName = executableMethod.getName();
-            if (technicalName != null && !StringUtils.EMPTY.equals(technicalName)) {
+            if (StringUtils.isNotEmpty(technicalName)) {
                 result = IXlsTableNames.TEST_TABLE + " " + tableName + " " + technicalName;
             } else {
                 result = IXlsTableNames.TEST_TABLE + " " + tableName + " " + getDefaultTechnicalName(executableMethod);
@@ -181,7 +180,7 @@ public class TestTableBuilder extends TableBuilder {
         }
         if (!params.containsKey(TestMethodHelper.EXPECTED_RESULT_NAME)) {
             params.put(TestMethodHelper.EXPECTED_RESULT_NAME, StringUtils.isBlank(resultTitle) ? RESULT_PARAM_TITLE
-                    : resultTitle);
+                                                                                               : resultTitle);
         }
         int column = 0;
         Set<String> names = params.keySet();

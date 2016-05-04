@@ -7,7 +7,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.testmethod.TestSuite;
@@ -17,6 +16,7 @@ import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Request scope managed bean providing logic for 'Run Tables' page of WebStudio.

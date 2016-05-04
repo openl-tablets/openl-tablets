@@ -10,11 +10,11 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.IBindingContext;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.util.StringUtils;
 import org.openl.util.fast.FastStringReader;
 
 /**

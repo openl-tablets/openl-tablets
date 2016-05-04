@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 
 import net.sf.cglib.core.ReflectUtils;
 
-import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -21,6 +20,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ADynamicClass.OpenConstructor;
 import org.openl.types.java.JavaOpenConstructor;
 import org.openl.types.java.OpenClassHelper;
+import org.openl.util.StringUtils;
 
 /**
  * The factory class that provides methods to generate interface class using

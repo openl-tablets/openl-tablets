@@ -1,6 +1,6 @@
 package org.openl.rules.table.properties.expressions.match;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openl.util.StringUtils;
 
 public abstract class AMatchingExpression implements IMatchingExpression {
     

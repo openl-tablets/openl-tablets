@@ -2,11 +2,11 @@ package org.openl.rules.webstudio.web;
 
 import java.lang.reflect.Array;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.util.ASelector;
+import org.openl.util.StringUtils;
 
 class CellValueSelector extends ASelector<TableSyntaxNode> {
 

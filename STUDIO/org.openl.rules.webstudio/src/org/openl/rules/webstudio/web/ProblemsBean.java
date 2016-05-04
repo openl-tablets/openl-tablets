@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
@@ -9,6 +8,7 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.CollectionUtils;
+import org.openl.util.StringUtils;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;

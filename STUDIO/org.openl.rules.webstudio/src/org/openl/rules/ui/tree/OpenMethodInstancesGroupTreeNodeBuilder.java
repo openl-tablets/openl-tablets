@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeKey;
 import org.openl.rules.ui.IProjectTypes;
@@ -12,6 +11,7 @@ import org.openl.rules.ui.OverloadedMethodsDictionary;
 import org.openl.rules.ui.TableSyntaxNodeUtils;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodKey;
+import org.openl.util.StringUtils;
 
 /**
  * Builds tree node for group of methods.

@@ -1,10 +1,10 @@
 package org.openl.rules.table.xls.builder;
 
+import org.openl.util.StringUtils;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * A class, containing description of Data Table's field columns (or variables)
@@ -104,7 +104,7 @@ public abstract class DataTableField {
         
         String fk = ">" + foreignKeyTable;
         
-        if (!StringUtils.isBlank(foreignKeyColumn))
+        if (StringUtils.isNotBlank(foreignKeyColumn))
             fk += " " + foreignKeyColumn;
         
         return fk;

@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.StrBuilder;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -25,6 +24,7 @@ import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.OpenMethodHeader;
+import org.openl.util.StringUtils;
 import org.openl.util.text.TextInfo;
 
 /**

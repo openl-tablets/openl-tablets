@@ -1,6 +1,5 @@
 package org.openl.engine;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -18,6 +17,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.NullOpenClass;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.StringUtils;
 
 /**
  * Class that defines OpenL engine manager implementation for binding operations.

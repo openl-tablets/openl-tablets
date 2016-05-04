@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.repository;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.common.ArtefactType;
 import org.openl.rules.common.InheritedProperty;
 import org.openl.rules.common.PropertyException;
@@ -12,6 +11,7 @@ import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.webstudio.web.tableeditor.PropertyRow;
 import org.openl.rules.webstudio.web.tableeditor.PropertyRowType;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -298,7 +298,7 @@ public class RepositoryProjectPropsBean {
             }
         }
 
-        if (!StringUtils.isBlank(propertyToAdd) && attribs.containsKey(propertyToAdd)) {
+        if (StringUtils.isNotBlank(propertyToAdd) && attribs.containsKey(propertyToAdd)) {
             return repoAttrsUtils.getPropertyRowByAttrName(propertyToAdd);
         }
 
@@ -321,7 +321,7 @@ public class RepositoryProjectPropsBean {
     }
 
     public void save(TableProperty selectTProp) {
-        if (!StringUtils.isBlank(selectTProp.getDisplayValue())) {
+        if (StringUtils.isNotBlank(selectTProp.getDisplayValue())) {
             for (PropertyRow row : propsStore) {
                 if (row.getType().equals(PropertyRowType.PROPERTY)) {
                     TableProperty tProp = (TableProperty) row.getData();

@@ -3,9 +3,9 @@ package org.openl.rules.webstudio.web.repository;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
+import org.openl.util.StringUtils;
 
 public class XmlRulesDeployGuiWrapperSerializer {
     private static final Pattern CONFIGURATION_PATTERN = Pattern.compile("<configuration>.*</configuration>",
@@ -24,7 +24,7 @@ public class XmlRulesDeployGuiWrapperSerializer {
         String rulesDeploy = serializer.serialize(wrapper.getRulesDeploy());
 
         String configuration = "";
-        if (!StringUtils.isBlank(wrapper.getConfiguration())) {
+        if (StringUtils.isNotBlank(wrapper.getConfiguration())) {
             configuration = wrapper.getConfiguration();
             boolean enclosingConfigTags = ENCLOSING_CONFIG_PATTERN.matcher(configuration).matches();
             if (!enclosingConfigTags) {

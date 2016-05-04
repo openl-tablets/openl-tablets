@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.util.StringUtils;
 
 public class ProductionRepositoryEditor {
     private final ConfigurationManager configManager;
@@ -169,7 +169,7 @@ public class ProductionRepositoryEditor {
     }
 
     private String[] split(String s) {
-        return StringUtils.split(s, ",");
+        return StringUtils.split(s, ',');
     }
 
     private String join(String arr[]) {
