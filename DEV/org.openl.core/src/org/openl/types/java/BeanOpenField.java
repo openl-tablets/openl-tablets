@@ -11,6 +11,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.util.ArrayTool;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 
 import java.beans.BeanInfo;
@@ -62,7 +63,7 @@ public class BeanOpenField implements IOpenField {
                     // named with the first letter as upper case
                     //
                     try {
-                        Field f = c.getDeclaredField(fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1));
+                        Field f = c.getDeclaredField(StringUtils.capitalize(fieldName));
                         // Reset the name
                         fieldName = f.getName();
                         pd.setName(fieldName);

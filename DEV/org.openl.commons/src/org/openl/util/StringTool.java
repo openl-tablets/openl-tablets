@@ -576,12 +576,12 @@ public class StringTool {
      */
     public static String getSetterName(String fieldName) {
         final StringBuilder builder = new StringBuilder(64);
-        return builder.append("set").append(Character.toUpperCase(fieldName.charAt(0))).append(fieldName.substring(1)).toString();
+        return builder.append("set").append(StringUtils.capitalize(fieldName)).toString();
     }
 
     public static String getGetterName(String fieldName) {
         final StringBuilder builder = new StringBuilder(64);
-        return builder.append("get").append(Character.toUpperCase(fieldName.charAt(0))).append(fieldName.substring(1)).toString();
+        return builder.append("get").append(StringUtils.capitalize(fieldName)).toString();
     }
 
     /**
