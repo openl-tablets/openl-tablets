@@ -9,7 +9,7 @@ package org.openl.types.impl;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
-import org.openl.util.StringTool;
+import org.openl.util.StringUtils;
 
 /**
  * @author snshor
@@ -80,7 +80,7 @@ public class MethodSignature implements IMethodSignature {
     
     @Override
     public String toString() {
-        return StringTool.arrayToStringThroughSymbol(parameters, ",");
+        return StringUtils.join(parameters, ",");
     }
 
     private static IParameterDeclaration[] merge(IParameterDeclaration[] array1, IParameterDeclaration[] array2) {

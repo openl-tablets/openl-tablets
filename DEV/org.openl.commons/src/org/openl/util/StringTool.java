@@ -15,7 +15,6 @@ import java.util.StringTokenizer;
 public class StringTool {
 
     public static final String NEW_LINE = "\n";
-    private static final String COMMA = ",";
 
     public interface Convertor {
         void convert(char c, int idx, StringBuilder out);
@@ -566,22 +565,6 @@ public class StringTool {
             }
         }
         return strBuf.toString();
-    }
-
-    public static String arrayToStringThroughSymbol(Object[] values, String symbol) {
-        if (CollectionUtils.isEmpty(values)) {
-            return null;
-        }
-        StringBuilder builder = new StringBuilder();
-        boolean prependComma = false;
-        for (Object value : values) {
-            if (prependComma) {
-                builder.append(symbol);
-            }
-            builder.append(value);
-            prependComma = true;
-        }
-        return builder.toString();
     }
 
     /**

@@ -57,7 +57,7 @@ public class JavaClassGeneratorHelper {
     }
 
     public static String addImplementingInterfToClassDeclaration(String classDeclaration, String[] implementsInterfaces) {
-        String interfaces = StringTool.arrayToStringThroughSymbol(implementsInterfaces, ",");
+        String interfaces = StringUtils.join(implementsInterfaces, ",");
         return String.format("%s implements %s", classDeclaration, interfaces);
     }
 

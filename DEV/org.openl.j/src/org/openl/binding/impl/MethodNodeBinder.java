@@ -12,7 +12,6 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
-import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,7 +117,7 @@ public class MethodNodeBinder extends ANodeBinder {
     }
 
     private String getArgumentsAsString(IOpenClass[] argumentTypes) {
-        String result = StringTool.arrayToStringThroughSymbol(argumentTypes, ",");
+        String result = StringUtils.join(argumentTypes, ",");
         if (StringUtils.isNotBlank(result)) {
             return result;
         }
