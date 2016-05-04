@@ -34,6 +34,7 @@ import org.openl.meta.StringValue;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.ArrayTool;
+import org.openl.util.CollectionUtils;
 import org.openl.util.DateTool;
 import org.openl.util.math.MathUtils;
 
@@ -6060,7 +6061,7 @@ public class RulesUtils {
      * @return true if the array is empty or null
      */
     public static boolean isEmpty(Object[] array) {
-        return ArrayUtils.isEmpty(array);
+        return CollectionUtils.isEmpty(array);
     }
 
     /**
@@ -6140,7 +6141,7 @@ public class RulesUtils {
      * @return true if the array is empty or null
      */
     public static boolean isEmpty(Date[] array) {
-        return ArrayUtils.isEmpty(array);
+        return CollectionUtils.isEmpty(array);
     }
 
     /**
@@ -6150,7 +6151,7 @@ public class RulesUtils {
      * @return true if the array is empty or null
      */
     public static boolean isEmpty(BigDecimal[] array) {
-        return ArrayUtils.isEmpty(array);
+        return CollectionUtils.isEmpty(array);
     }
 
     /**
@@ -6160,35 +6161,35 @@ public class RulesUtils {
      * @return true if the array is empty or null
      */
     public static boolean isEmpty(BigInteger[] array) {
-        return ArrayUtils.isEmpty(array);
+        return CollectionUtils.isEmpty(array);
     }
 
     public static boolean isEmpty(Byte[] array) {
-        return ArrayUtils.isEmpty(array);
+        return CollectionUtils.isEmpty(array);
     }
 
     public static boolean isEmpty(Short[] array) {
-        return ArrayUtils.isEmpty(array);
+        return CollectionUtils.isEmpty(array);
     }
     
     public static boolean isEmpty(Integer[] array) {
-        return ArrayUtils.isEmpty(array);
+        return CollectionUtils.isEmpty(array);
     }
 
     public static boolean isEmpty(Long[] array) {
-        return ArrayUtils.isEmpty(array);
+        return CollectionUtils.isEmpty(array);
     }
 
     public static boolean isEmpty(Double[] array) {
-        return ArrayUtils.isEmpty(array);
+        return CollectionUtils.isEmpty(array);
     }
 
     public static boolean isEmpty(Float[] array) {
-        return ArrayUtils.isEmpty(array);
+        return CollectionUtils.isEmpty(array);
     }
 
     public static boolean isEmpty(Character[] array) {
-        return ArrayUtils.isEmpty(array);
+        return CollectionUtils.isEmpty(array);
     }
 
     /**

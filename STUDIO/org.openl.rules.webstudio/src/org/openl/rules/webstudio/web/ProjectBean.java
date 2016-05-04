@@ -18,7 +18,6 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.ProjectDescriptorManager;
@@ -475,7 +474,7 @@ public class ProjectBean {
         List<PathEntry> sourceList = new ArrayList<PathEntry>();
         String[] sourceArray = sources.split(StringTool.NEW_LINE);
 
-        if (ArrayUtils.isNotEmpty(sourceArray)) {
+        if (CollectionUtils.isNotEmpty(sourceArray)) {
             for (String source : sourceArray) {
                 if (StringUtils.isNotBlank(source)) {
                     PathEntry sourcePath = new PathEntry(source);

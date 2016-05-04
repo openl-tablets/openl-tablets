@@ -10,7 +10,6 @@ import java.util.Map;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -338,11 +337,11 @@ public class TableBean {
      * runs without any parameters and tests without cases and runs.
      */
     public boolean isHasAnyTests() {
-        return ArrayUtils.isNotEmpty(allTests);
+        return CollectionUtils.isNotEmpty(allTests);
     }
 
     public boolean isHasTests() {
-        return ArrayUtils.isNotEmpty(tests);
+        return CollectionUtils.isNotEmpty(tests);
     }
 
     /**

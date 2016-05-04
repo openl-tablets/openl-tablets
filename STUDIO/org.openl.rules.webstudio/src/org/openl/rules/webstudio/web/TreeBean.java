@@ -6,11 +6,11 @@ import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_RUN;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.richfaces.ProjectTreeBuilder;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.CollectionUtils;
 import org.openl.util.tree.ITreeElement;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
@@ -44,7 +44,7 @@ public class TreeBean {
     public int getProjectTestsCount() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         TestSuiteMethod[] allTestMethods = studio.getModel().getAllTestMethods();
-        return ArrayUtils.isNotEmpty(allTestMethods) ? allTestMethods.length : 0;
+        return CollectionUtils.isNotEmpty(allTestMethods) ? allTestMethods.length : 0;
     }
 
     public TreeNode getTree() {

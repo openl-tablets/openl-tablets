@@ -169,7 +169,7 @@ public class SearchBean {
 
         ISelector<TableSyntaxNode> selectors = new CellValueSelector(query);
 
-        if (ArrayUtils.isNotEmpty(tableTypes)) {
+        if (CollectionUtils.isNotEmpty(tableTypes)) {
             selectors = selectors.and(new TableTypeSelector(tableTypes));
         }
 
