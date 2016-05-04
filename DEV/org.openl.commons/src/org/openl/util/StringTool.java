@@ -2,265 +2,22 @@ package org.openl.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.StringTokenizer;
 
 public class StringTool {
 
     public static final String NEW_LINE = "\n";
 
-    public interface Convertor {
-        void convert(char c, int idx, StringBuilder out);
-    }
-
-    public interface MacroKeyHandler {
-        void handleKey(String key, MacroSubst ms, StringBuilder out);
-    }
-
-    public static class MacroSubst extends TextTransformer {
-
-        public char _macroDelim;
-        public Map<String, String> _macros;
-        MacroKeyHandler _mkh;
-
-        public MacroSubst(Map<String, String> macros, char macroDelim, MacroKeyHandler mkh) {
-            _macros = macros;
-            _macroDelim = macroDelim;
-            _mkh = mkh;
-        }
-
-        /**
-         * cur == delim delim != delim !=delim status == 1 0 0 1
-         * ====================================================== flush out tmp
-         * status=0 status=1
-         */
-
-        @Override
-        public void process() {
-            if (cur == _macroDelim) {
-                if (status == 0) {
-                    status = 1;
-                } else {
-                    status = 0;
-                    String key = flushTmp();
-                    String res = (String) _macros.get(key);
-                    if (res == null) {
-                        _mkh.handleKey(key, this, out);
-                    } else {
-                        out.append(res);
-                    }
-                }
-            } else if (status == 0) {
-                out.append(cur);
-            } else {
-                tmp().append(cur);
-            }
-        }
-
-        // protected void handleUnknownKey(String key)
-        // {
-        // switch(_mode)
-        // {
-        // case COPY:
-        // out.append(_macroDelim).append(key).append(_macroDelim);
-        // break;
-        // case ERROR:
-        // throw new RuntimeException("Macro key: " + key + " is not found");
-        // case EMPTY:
-        // }
-        // do nothing
-        // throw new RuntimeException("Key " + key + " is not found");
-        // }
-    }
-
-    public interface Selector {
-        boolean select(char c, int idx);
-    }
-
-    static public class TextTransformer {
-        static final public char EOF = (char) -1;
-        protected char prev = EOF, cur = EOF, next = EOF;
-        protected StringBuilder out = null;
-        private StringBuilder tmp = null;
-        protected int len = -1;
-        protected int status = 0;
-        protected int idx = 0;
-
-        public String flushTmp() {
-            String s = tmp().toString();
-            tmp.setLength(0);
-            return s;
-        }
-
-        public void process() {
-            out.append(cur);
-        }
-
-        public final StringBuilder tmp() {
-            if (tmp == null) {
-                tmp = new StringBuilder();
-            }
-            return tmp;
-        }
-
-        public String transform(String src) {
-            return transform(src, new StringBuilder()).toString();
-        }
-
-        public StringBuilder transform(String src, StringBuilder buf) {
-            out = buf;
-            len = src.length();
-            if (len > 0) {
-                next = src.charAt(0);
-            }
-
-            for (idx = 0; idx < len; idx++) {
-                prev = cur;
-                cur = next;
-                next = idx + 1 < len ? src.charAt(idx + 1) : EOF;
-
-                process();
-            }
-
-            veryEnd();
-
-            return out;
-
-        }
-
-        public void veryEnd() {
-        }
-    }
-
-    static public Convertor IGNORE = new Convertor() {
-        public void convert(char c, int idx, StringBuilder out) {
-        }
-    };
-
-    static public Convertor UPPER = new Convertor() {
-        public void convert(char c, int idx, StringBuilder out) {
-            out.append(Character.toUpperCase(c));
-        }
-    };
-
-    static public Convertor LOWER = new Convertor() {
-        public void convert(char c, int idx, StringBuilder out) {
-            out.append(Character.toLowerCase(c));
-        }
-    };
-
-    static public final MacroKeyHandler MKH_DONOTHING = new MacroKeyHandler() {
-        public void handleKey(String key, MacroSubst ms, StringBuilder out) {
-        }
-    };
-
-    static public final MacroKeyHandler MKH_LEAVE = new MacroKeyHandler() {
-        public void handleKey(String key, MacroSubst ms, StringBuilder out) {
-            out.append(ms._macroDelim).append(key).append(ms._macroDelim);
-        }
-    };
-
-    static public final MacroKeyHandler MKH_ERROR = new MacroKeyHandler() {
-        public void handleKey(String key, MacroSubst ms, StringBuilder out) {
-            throw new RuntimeException("Key " + key + " not found");
-        }
-    };
-
     public static StringBuilder append(StringBuilder buf, char c, int n) {
         for (int i = 0; i < n; i++) {
             buf.append(c);
         }
-        return buf;
-    }
-
-    /**
-     * Create hexadecimal string representation of a specified number of bytes
-     * from array (padded with 0s)
-     * 
-     * @param src source byte array
-     * @param off offset
-     * @param len length
-     * @return hex string
-     */
-    public static String byteArrayToHexString(byte[] src, int off, int len) {
-        StringBuilder out = new StringBuilder();
-        for (int i = off; i < off + len; i++) {
-            String s = Integer.toHexString(src[i] & 0xFF);
-            if (s.length() % 2 != 0) {
-                out.append("0");
-            }
-            out.append(s);
-        }
-        return out.toString();
-    }
-
-    /**
-     * See examples below: 1) Assert.assertEquals("url",
-     * StringTool.decapitalizeName("URL", "_")); 2)
-     * Assert.assertEquals("driver", StringTool.decapitalizeName("Driver",
-     * "_")); 3) Assert.assertEquals("test_url",
-     * StringTool.decapitalizeName("TestURL", "_")); 4)
-     * Assert.assertEquals("testurl", StringTool.decapitalizeName("testURL",
-     * null)); 5) Assert.assertEquals("test_url_code",
-     * StringTool.decapitalizeName("TestURLCode", "_")); 6)
-     * Assert.assertEquals("url_code", StringTool.decapitalizeName("URLCode",
-     * "_"));
-     */
-
-    public static String decapitalizeName(String capitalized, String separator) {
-        return decapitalizeName(capitalized, separator, new StringBuilder()).toString();
-    }
-
-    public static StringBuilder decapitalizeName(String capitalized, String separator, StringBuilder buf) {
-        if (capitalized == null) {
-            return buf;
-        }
-        if (separator == null) {
-            separator = "";
-        }
-
-        // StringBuilder buf = new StringBuilder();
-        int start = 0;
-        boolean prevUP = false;
-
-        char[] src = capitalized.toCharArray();
-
-        for (int i = 0; i < src.length; i++) {
-            char c = src[i];
-
-            if (Character.isUpperCase(c)) {
-                if (!prevUP) {
-                    prevUP = true;
-                    if (i > start) {
-                        buf.append(src, start, i - start);
-                        start = i;
-                        buf.append(separator);
-                    }
-                }
-                src[i] = Character.toLowerCase(c);
-            } else // lower case
-            {
-                if (prevUP) {
-                    prevUP = false;
-                    int len = i - start;
-
-                    if (len > 1) {
-                        buf.append(src, start, len - 1);
-                        start = i - 1;
-                        buf.append(separator);
-                    }
-                }
-            } // else
-        } // for
-
-        buf.append(src, start, src.length - start);
         return buf;
     }
 
@@ -292,38 +49,6 @@ public class StringTool {
         return decodedUrl;
     }
 
-    /**
-     * Transforms String using the following rule: if c is not selected,
-     * convertor is called to transform it, otherwise c is put into output
-     */
-    public static String filter(String src, Selector sel, Convertor conv) {
-        return filter(src, sel, conv, new StringBuilder()).toString();
-    }
-
-    /**
-     * Transforms String using the following rule: if c is not selected,
-     * convertor is called to transform it, otherwise c is put into output
-     */
-    public static StringBuilder filter(String src, Selector sel, Convertor conv, StringBuilder buf) {
-        int len = src.length();
-
-        for (int i = 0; i < len; i++) {
-            char c = src.charAt(i);
-            if (!sel.select(c, i)) {
-                conv.convert(c, i, buf);
-            } else {
-                buf.append(c);
-            }
-        }
-
-        return buf;
-    }
-
-    public static String firstToken(String src, String delim) {
-        String[] tokens = tokenize(src, delim);
-        return tokens.length > 0 ? tokens[0] : "";
-    }
-
     public static int indexOfClosingBracket(String src, char openingBracket, char closingBracket, int fromIndex) {
         int len = src.length();
         int cnt = 1;
@@ -341,34 +66,9 @@ public class StringTool {
         return -1;
     }
 
-    static public boolean isSpace(char c) {
-        return c <= ' ' || Character.isWhitespace(c) || Character.isSpaceChar(c);
-    }
-
-    public static String keepChars(String src, String toKeep) {
-        StringBuilder buf = new StringBuilder(src.length());
-        for (int i = 0; i < src.length(); i++) {
-            char c = src.charAt(i);
-            if (toKeep.indexOf(c) >= 0) {
-                buf.append(c);
-            }
-        }
-        return buf.toString();
-    }
-
     public static String lastToken(String src, String delim) {
         String[] tokens = tokenize(src, delim);
         return tokens.length > 0 ? tokens[tokens.length - 1] : "";
-    }
-
-    public static String macroSubst(String src, Map<String, String> macros, char macroDelim, MacroKeyHandler mkh) {
-        return macroSubst(src, macros, macroDelim, mkh, new StringBuilder()).toString();
-    }
-
-    public static StringBuilder macroSubst(String src, Map<String, String> macros, char macroDelim, MacroKeyHandler mkh,
-            StringBuilder buf) {
-        MacroSubst ms = new MacroSubst(macros, macroDelim, mkh);
-        return ms.transform(src, buf);
     }
 
     public static String makeJavaIdentifier(String src) {
@@ -409,53 +109,11 @@ public class StringTool {
 
         }
 
-        return (String[]) v.toArray(new String[v.size()]);
+        return v.toArray(new String[v.size()]);
     }
 
-    public static String replace(String src, String toFind, String toReplace) {
-        return replace(src, toFind, toReplace, true, false, new StringBuilder()).toString();
-    }
-
-    public static StringBuilder replace(String src, String toFind, String toReplace, boolean all, boolean ignoreCase,
-            StringBuilder out) {
-        int find_len = toFind.length();
-        int src_len = src.length();
-        int replace_len = toReplace.length();
-        int start = 0;
-
-        String test_src = src;
-        String test_tofind = toFind;
-        if (ignoreCase) {
-            test_src = src.toLowerCase();
-            test_tofind = toFind.toLowerCase();
-        }
-
-        while (start + find_len <= src_len) {
-            int idx = test_src.indexOf(test_tofind, start);
-            if (idx < 0) {
-                break;
-            }
-
-            if (start != idx) {
-                out.append(src.substring(start, idx));
-            }
-            if (replace_len > 0) {
-                out.append(toReplace);
-            }
-            start = idx + find_len;
-            if (!all) {
-                break;
-            }
-        }
-
-        if (start < src_len) {
-            out.append(src.substring(start));
-        }
-        return out;
-    }
-
-    public static String[] splitLines(Reader reader) {
-        BufferedReader br = new BufferedReader(reader);
+    public static String[] splitLines(String src) {
+        BufferedReader br = new BufferedReader(new StringReader(src));
         List<String> v = new ArrayList<String>();
         String s;
 
@@ -464,7 +122,7 @@ public class StringTool {
                 while ((s = br.readLine()) != null) {
                     v.add(s);
                 }
-                return (String[]) v.toArray(new String[v.size()]);
+                return v.toArray(new String[v.size()]);
             } finally {
                 br.close();
             }
@@ -472,10 +130,6 @@ public class StringTool {
             throw RuntimeExceptionWrapper.wrap(e);
         }
 
-    }
-
-    public static String[] splitLines(String src) {
-        return splitLines(new StringReader(src));
     }
 
     public static String[] tokenize(String src, String delim) {
@@ -544,7 +198,7 @@ public class StringTool {
                     }
                 }
             }
-            result = (String[]) resultList.toArray(new String[0]);
+            result = resultList.toArray(new String[0]);
         } else {
             result = tokens;
         }

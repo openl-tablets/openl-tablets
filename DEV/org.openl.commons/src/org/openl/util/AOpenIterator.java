@@ -422,28 +422,6 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
         return UNKNOWN_SIZE;
     }
 
-    public static <T> Iterator<T> sort(Iterator<T> it, Comparator<T> cmp) {
-        int size = size(it);
-        switch (size) {
-            case 0:
-                return empty();
-            case 1:
-                return it;
-            default:
-                ArrayList<T> v = new ArrayList<T>();
-                store(it, Appender.toCollection(v));
-                Collections.sort(v, cmp);
-                return v.iterator();
-                // {
-                // Object[] ary = new Object[size];
-                // store(it, Appender.toArray(ary));
-                // Arrays.sort(ary, cmp);
-                // return new AIndexedIterator.ArrayIterator(ary);
-                // }
-
-        }
-    }
-
     static public <T> int store(Iterator<T> it, IAppender<T> appender) {
         int cnt = 0;
         for (; it.hasNext() && appender.add(it.next()); ++cnt) {
@@ -554,10 +532,6 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
 
         return x - n;
 
-    }
-
-    public IOpenIterator<T> sort(Comparator<T> cmp) {
-        return asOpenIterator(sort(this, cmp));
     }
 
     public int store(IAppender<T> appender) {

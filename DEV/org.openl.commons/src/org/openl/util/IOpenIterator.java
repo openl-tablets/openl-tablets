@@ -6,7 +6,6 @@
 
 package org.openl.util;
 
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -64,7 +63,4 @@ public interface IOpenIterator<T> extends Iterator<T> {
     int size();
 
     int skip(int n);
-
-    IOpenIterator<T> sort(Comparator<T> cmp);
-
 }
