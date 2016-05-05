@@ -1,5 +1,6 @@
 package org.openl.engine;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.CompiledOpenClass;
@@ -21,7 +22,6 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.validation.ValidationResult;
-import org.openl.validation.ValidationUtils;
 
 /**
  * Class that defines OpenL engine manager implementation for compilation operations.
@@ -92,8 +92,13 @@ public class OpenLCompileManager extends OpenLHolder {
         SyntaxNodeException[] bindingErrors = processedCode.getBindingErrors();
         if (!executionMode) {
             List<ValidationResult> validationResults = validationManager.validate(openClass);
-            List<OpenLMessage> validationMessages = ValidationUtils.getValidationMessages(validationResults);
-            OpenLMessages.getCurrentInstance().addMessages(validationMessages);
+
+            List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
+
+            for (ValidationResult result : validationResults) {
+                messages.addAll(result.getMessages());
+            }
+            OpenLMessages.getCurrentInstance().addMessages(messages);
         }
         OpenLMessages messages = OpenLMessages.getCurrentInstance();
         messages.addMessages(processedCode.getMessagesFromDependencies());

@@ -14,16 +14,5 @@ public class ValidationUtils {
     public static ValidationResult validationSuccess() {
         return new ValidationResult(ValidationStatus.SUCCESS, null);
     }
-    
-    public static List<OpenLMessage> getValidationMessages(List<ValidationResult> results) {
-        
-        List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
-        
-        for (ValidationResult result : results) {
-            messages.addAll(result.getMessages());
-        }
-        
-        return messages;
-    }
-   
+
 }
