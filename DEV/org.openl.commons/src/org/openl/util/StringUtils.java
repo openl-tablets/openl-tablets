@@ -327,11 +327,11 @@ public class StringUtils {
      * This method is inverse to {@link #equals(String, String)}.
      * <p>
      * <pre>
-     * StringUtils.equals(null, null)   = false
-     * StringUtils.equals(null, "boo")  = true
-     * StringUtils.equals("boo", null)  = true
-     * StringUtils.equals("boo", "boo") = false
-     * StringUtils.equals("boo", "BOO") = true
+     * StringUtils.notEquals(null, null)   = false
+     * StringUtils.notEquals(null, "boo")  = true
+     * StringUtils.notEquals("boo", null)  = true
+     * StringUtils.notEquals("boo", "boo") = false
+     * StringUtils.notEquals("boo", "BOO") = true
      * </pre>
      *
      * @param str1 the first String, may be {@code null}
