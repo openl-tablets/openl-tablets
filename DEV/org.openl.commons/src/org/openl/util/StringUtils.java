@@ -38,6 +38,7 @@ public class StringUtils {
      * A {@code null} input String returns {@code null}.
      * </p>
      * <p>
+     * 
      * <pre>
      * StringUtils.split(null, *)         = null
      * StringUtils.split("", *)           = []
@@ -47,29 +48,36 @@ public class StringUtils {
      * StringUtils.split("a b c", ' ')    = ["a", "b", "c"]
      * </pre>
      *
-     * @param str       the String to parse, may be null
+     * @param str the String to parse, may be null
      * @param separator the character used as the delimiter
      * @return an array of parsed Strings, {@code null} if null String input
      */
     public static String[] split(final String str, final char separator) {
         return splitWorker(str, new Predicate() {
-            @Override public boolean evaluate(char ch) {
+            @Override
+            public boolean evaluate(char ch) {
                 return ch == separator;
             }
         });
     }
 
     /**
-     * <p>Splits the provided text into an array, using whitespace as the
-     * separator.
-     * Whitespace is defined by {@link Character#isWhitespace(char)}.</p>
      * <p>
-     * <p>The separator is not included in the returned String array.
-     * Adjacent separators are treated as one separator.
-     * For more control over the split use the StrTokenizer class.</p>
+     * Splits the provided text into an array, using whitespace as the
+     * separator. Whitespace is defined by {@link Character#isWhitespace(char)}.
+     * </p>
      * <p>
-     * <p>A {@code null} input String returns {@code null}.</p>
      * <p>
+     * The separator is not included in the returned String array. Adjacent
+     * separators are treated as one separator. For more control over the split
+     * use the StrTokenizer class.
+     * </p>
+     * <p>
+     * <p>
+     * A {@code null} input String returns {@code null}.
+     * </p>
+     * <p>
+     * 
      * <pre>
      * StringUtils.split(null)         = null
      * StringUtils.split("")           = []
@@ -84,7 +92,8 @@ public class StringUtils {
      */
     public static String[] split(final String str) {
         return splitWorker(str, new Predicate() {
-            @Override public boolean evaluate(char ch) {
+            @Override
+            public boolean evaluate(char ch) {
                 return Character.isWhitespace(ch);
             }
         });
@@ -120,14 +129,18 @@ public class StringUtils {
     }
 
     /**
-     * <p>Joins the elements of the provided array into a single String
-     * containing the provided list of elements.</p>
      * <p>
-     * <p>No delimiter is added before or after the list.
-     * A {@code null} separator is the same as an empty String ("").
-     * Null objects or empty strings within the array are represented by
-     * empty strings.</p>
+     * Joins the elements of the provided array into a single String containing
+     * the provided list of elements.
+     * </p>
      * <p>
+     * <p>
+     * No delimiter is added before or after the list. A {@code null} separator
+     * is the same as an empty String (""). Null objects or empty strings within
+     * the array are represented by empty strings.
+     * </p>
+     * <p>
+     * 
      * <pre>
      * StringUtils.join(null, *)                = null
      * StringUtils.join([], *)                  = ""
@@ -138,7 +151,7 @@ public class StringUtils {
      * StringUtils.join([null, "", "a"], ',')   = ",,a"
      * </pre>
      *
-     * @param values    the array of values to join together, may be null
+     * @param values the array of values to join together, may be null
      * @param separator the separator character to use, null treated as ""
      * @return the joined String, {@code null} if null array input
      */
@@ -150,14 +163,18 @@ public class StringUtils {
     }
 
     /**
-     * <p>Joins the elements of the provided collection into a single String
-     * containing the provided list of elements.</p>
      * <p>
-     * <p>No delimiter is added before or after the list.
-     * A {@code null} separator is the same as an empty String ("").
-     * Null objects or empty strings within the array are represented by
-     * empty strings.</p>
+     * Joins the elements of the provided collection into a single String
+     * containing the provided list of elements.
+     * </p>
      * <p>
+     * <p>
+     * No delimiter is added before or after the list. A {@code null} separator
+     * is the same as an empty String (""). Null objects or empty strings within
+     * the array are represented by empty strings.
+     * </p>
+     * <p>
+     * 
      * <pre>
      * StringUtils.join(null, *)                = null
      * StringUtils.join([], *)                  = ""
@@ -168,7 +185,7 @@ public class StringUtils {
      * StringUtils.join([null, "", "a"], ',')   = ",,a"
      * </pre>
      *
-     * @param values    the collection of values to join together, may be null
+     * @param values the collection of values to join together, may be null
      * @param separator the separator character to use, null treated as ""
      * @return the joined String, {@code null} if null array input
      */
@@ -198,6 +215,7 @@ public class StringUtils {
      * Checks if a CharSequence is empty ("") or null.
      * </p>
      * <p>
+     * 
      * <pre>
      * StringUtils.isEmpty(null)      = true
      * StringUtils.isEmpty("")        = true
@@ -218,6 +236,7 @@ public class StringUtils {
      * Checks if a CharSequence is not empty ("") and not null.
      * </p>
      * <p>
+     * 
      * <pre>
      * StringUtils.isNotEmpty(null)      = false
      * StringUtils.isNotEmpty("")        = false
@@ -238,6 +257,7 @@ public class StringUtils {
      * Checks if a CharSequence is whitespace, empty ("") or null.
      * </p>
      * <p>
+     * 
      * <pre>
      * StringUtils.isBlank(null)      = true
      * StringUtils.isBlank("")        = true
@@ -268,6 +288,7 @@ public class StringUtils {
      * only.
      * </p>
      * <p>
+     * 
      * <pre>
      * StringUtils.isNotBlank(null)      = false
      * StringUtils.isNotBlank("")        = false
@@ -278,7 +299,7 @@ public class StringUtils {
      *
      * @param cs the CharSequence to check, may be null
      * @return {@code true} if the CharSequence is not empty and not null and
-     * not whitespace
+     *         not whitespace
      */
     public static boolean isNotBlank(final CharSequence cs) {
         return !isBlank(cs);
@@ -295,6 +316,7 @@ public class StringUtils {
      * are considered to be equal. The comparison is case sensitive.
      * </p>
      * <p>
+     * 
      * <pre>
      * StringUtils.equals(null, null)   = true
      * StringUtils.equals(null, "boo")  = false
@@ -306,7 +328,7 @@ public class StringUtils {
      * @param str1 the first String, may be {@code null}
      * @param str2 the second String, may be {@code null}
      * @return {@code true} if the Strings are equal (case-sensitive), or both
-     * {@code null}
+     *         {@code null}
      * @see String#equals(Object)
      */
     public static boolean equals(final String str1, final String str2) {
@@ -326,6 +348,7 @@ public class StringUtils {
      * </p>
      * This method is inverse to {@link #equals(String, String)}.
      * <p>
+     * 
      * <pre>
      * StringUtils.notEquals(null, null)   = false
      * StringUtils.notEquals(null, "boo")  = true
@@ -337,7 +360,7 @@ public class StringUtils {
      * @param str1 the first String, may be {@code null}
      * @param str2 the second String, may be {@code null}
      * @return {@code false} if the Strings are equal (case-sensitive), or both
-     * {@code null}
+     *         {@code null}
      * @see #equals(String, String)
      */
     public static boolean notEquals(final String str1, final String str2) {
@@ -345,12 +368,16 @@ public class StringUtils {
     }
 
     /**
-     * <p>Checks if String contains a search String irrespective of case,
-     * handling {@code null}. Case-insensitivity is defined as by
+     * <p>
+     * Checks if String contains a search String irrespective of case, handling
+     * {@code null}. Case-insensitivity is defined as by
      * {@link String#equalsIgnoreCase(String)}.
      * <p>
-     * <p>A {@code null} String will return {@code false}.</p>
      * <p>
+     * A {@code null} String will return {@code false}.
+     * </p>
+     * <p>
+     * 
      * <pre>
      * StringUtils.contains(null, *)     = false
      * StringUtils.contains(*, null)     = false
@@ -362,16 +389,23 @@ public class StringUtils {
      * StringUtils.contains("abc", "Z")  = false
      * </pre>
      *
-     * @param str       the String to check, may be null
+     * @param str the String to check, may be null
      * @param searchStr the String to find, may be null
      * @return true if the String contains the search String irrespective of
-     * case or false if not or {@code null} string input
+     *         case or false if not or {@code null} string input
      */
     public static boolean containsIgnoreCase(final String str, final String searchStr) {
         if (str == null || searchStr == null) {
             return false;
         }
-        return str.regionMatches(true, 0, searchStr, 0, searchStr.length());
+        final int len = searchStr.length();
+        final int end = str.length() - len;
+        for (int i = 0; i <= end; i++) {
+            if (str.regionMatches(true, i, searchStr, 0, len)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -380,6 +414,7 @@ public class StringUtils {
      * handling {@code null} by returning {@code null}.
      * </p>
      * <p>
+     * 
      * <pre>
      * StringUtils.trim(null)          = null
      * StringUtils.trim("")            = ""
@@ -401,6 +436,7 @@ public class StringUtils {
      * returning {@code null} if the String is empty ("") after the trim or if
      * it is {@code null}.
      * <p>
+     * 
      * <pre>
      * StringUtils.trimToNull(null)          = null
      * StringUtils.trimToNull("")            = null
@@ -411,7 +447,7 @@ public class StringUtils {
      *
      * @param str the String to be trimmed, may be null
      * @return the trimmed String, {@code null} if only chars &lt;= 32, empty or
-     * null String input
+     *         null String input
      */
     public static String trimToNull(final String str) {
         final String ts = trim(str);
@@ -424,6 +460,7 @@ public class StringUtils {
      * returning an empty String ("") if the String is empty ("") after the trim
      * or if it is {@code null}.
      * <p>
+     * 
      * <pre>
      * StringUtils.trimToEmpty(null)          = ""
      * StringUtils.trimToEmpty("")            = ""
@@ -440,13 +477,18 @@ public class StringUtils {
     }
 
     /**
-     * <p>Removes a substring only if it is at the beginning of a source string,
-     * otherwise returns the source string.</p>
      * <p>
-     * <p>A {@code null} source string will return {@code null}.
-     * An empty ("") source string will return the empty string.
-     * A {@code null} search string will return the source string.</p>
+     * Removes a substring only if it is at the beginning of a source string,
+     * otherwise returns the source string.
+     * </p>
      * <p>
+     * <p>
+     * A {@code null} source string will return {@code null}. An empty ("")
+     * source string will return the empty string. A {@code null} search string
+     * will return the source string.
+     * </p>
+     * <p>
+     * 
      * <pre>
      * StringUtils.removeStart(null, *)                      = null
      * StringUtils.removeStart("", *)                        = ""
@@ -457,10 +499,10 @@ public class StringUtils {
      * StringUtils.removeStart("www.example.com", "example") = "www.example.com"
      * </pre>
      *
-     * @param str    the source String to search, may be null
+     * @param str the source String to search, may be null
      * @param remove the String to search for and remove, may be null
-     * @return the substring with the string removed if found,
-     * {@code null} if null String input
+     * @return the substring with the string removed if found, {@code null} if
+     *         null String input
      */
     public static String removeStart(final String str, final String remove) {
         if (isEmpty(str) || isEmpty(remove)) {
@@ -473,13 +515,18 @@ public class StringUtils {
     }
 
     /**
-     * <p>Removes a substring only if it is at the end of a source string,
-     * otherwise returns the source string.</p>
      * <p>
-     * <p>A {@code null} source string will return {@code null}.
-     * An empty ("") source string will return the empty string.
-     * A {@code null} search string will return the source string.</p>
+     * Removes a substring only if it is at the end of a source string,
+     * otherwise returns the source string.
+     * </p>
      * <p>
+     * <p>
+     * A {@code null} source string will return {@code null}. An empty ("")
+     * source string will return the empty string. A {@code null} search string
+     * will return the source string.
+     * </p>
+     * <p>
+     * 
      * <pre>
      * StringUtils.removeEnd(null, *)                      = null
      * StringUtils.removeEnd("", *)                        = ""
@@ -490,10 +537,10 @@ public class StringUtils {
      * StringUtils.removeEnd("www.example.com", "example") = "www.example.com"
      * </pre>
      *
-     * @param str    the source String to search, may be null
+     * @param str the source String to search, may be null
      * @param remove the String to search for and remove, may be null
-     * @return the substring with the string removed if found,
-     * {@code null} if null String input
+     * @return the substring with the string removed if found, {@code null} if
+     *         null String input
      */
     public static String removeEnd(final String str, final String remove) {
         if (isEmpty(str) || isEmpty(remove)) {
@@ -506,11 +553,16 @@ public class StringUtils {
     }
 
     /**
-     * <p>Capitalizes a String changing the first letter to title case as
-     * per {@link Character#toTitleCase(char)}. No other letters are changed.</p>
      * <p>
-     * <p>A {@code null} input String returns {@code null}.</p>
+     * Capitalizes a String changing the first letter to title case as per
+     * {@link Character#toTitleCase(char)}. No other letters are changed.
+     * </p>
      * <p>
+     * <p>
+     * A {@code null} input String returns {@code null}.
+     * </p>
+     * <p>
+     * 
      * <pre>
      * StringUtils.capitalize(null)  = null
      * StringUtils.capitalize("")    = ""
@@ -533,18 +585,22 @@ public class StringUtils {
             return str;
         }
 
-        return new StringBuilder(str.length())
-                .append(Character.toTitleCase(firstChar))
-                .append(str, 1, str.length())
-                .toString();
+        return new StringBuilder(str.length()).append(Character.toTitleCase(firstChar))
+            .append(str, 1, str.length())
+            .toString();
     }
 
     /**
-     * <p>Uncapitalizes a String changing the first letter to title case as
-     * per {@link Character#toLowerCase(char)}. No other letters are changed.</p>
      * <p>
-     * <p>A {@code null} input String returns {@code null}.</p>
+     * Uncapitalizes a String changing the first letter to title case as per
+     * {@link Character#toLowerCase(char)}. No other letters are changed.
+     * </p>
      * <p>
+     * <p>
+     * A {@code null} input String returns {@code null}.
+     * </p>
+     * <p>
+     * 
      * <pre>
      * StringUtils.uncapitalize(null)  = null
      * StringUtils.uncapitalize("")    = ""
@@ -568,10 +624,7 @@ public class StringUtils {
             return str;
         }
 
-        return new StringBuilder(strLen)
-                .append(Character.toLowerCase(firstChar))
-                .append(str.substring(1))
-                .toString();
+        return new StringBuilder(strLen).append(Character.toLowerCase(firstChar)).append(str.substring(1)).toString();
     }
 
     /**
