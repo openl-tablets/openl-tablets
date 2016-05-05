@@ -9,11 +9,12 @@ import javax.xml.bind.Unmarshaller;
 import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.model.lazy.LazyAttributes;
 import org.openl.extension.xmlrules.model.single.node.RangeNode;
+import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
+import org.openl.util.CollectionUtils;
 
 public class ProjectData {
     private static final ThreadLocal<ProjectData> INSTANCE = new ThreadLocal<ProjectData>();
     private static final ThreadLocal<Unmarshaller> unmarshallerThreadLocal = new ThreadLocal<Unmarshaller>();
-
     public static ProjectData getCurrentInstance() {
         return INSTANCE.get();
     }
@@ -27,14 +28,22 @@ public class ProjectData {
     }
 
     private final Map<String, Type> types = new HashMap<String, Type>();
+
     private final Map<String, List<Function>> functions = new HashMap<String, List<Function>>();
     private final Map<String, List<Table>> tables = new HashMap<String, List<Table>>();
-
     private final Set<String> fieldNames = new HashSet<String>();
 
     private final Map<String, RangeNode> namedRanges = new HashMap<String, RangeNode>();
 
     private final Map<String, XmlRulesPath> tableFunctionPaths = new HashMap<String, XmlRulesPath>();
+
+    private final Set<String> serviceTables = new HashSet<String>();
+    private final CollectionUtils.Predicate<String> utilityTablePredicate = new CollectionUtils.Predicate<String>() {
+        @Override
+        public boolean evaluate(String tableName) {
+            return tableName.startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME) || serviceTables.contains(tableName);
+        }
+    };
 
     private LazyAttributes attributes;
 
@@ -87,6 +96,7 @@ public class ProjectData {
     public void addServiceTable(Sheet sheet, String tableName) {
         String key = tableName.toLowerCase();
         tableFunctionPaths.put(key, new XmlRulesPath(sheet.getWorkbookName(), sheet.getName()));
+        serviceTables.add(tableName);
     }
 
     public void addNamedRange(String name, RangeNode rangeNode) {
@@ -142,6 +152,10 @@ public class ProjectData {
             List<Table> overloadedTables = tables.get(tableName.toLowerCase());
             return overloadedTables == null ? Collections.<Table>emptyList() : overloadedTables;
         }
+    }
+
+    public CollectionUtils.Predicate<String> getUtilityTablePredicate() {
+        return utilityTablePredicate;
     }
 
     public LazyAttributes getAttributes() {

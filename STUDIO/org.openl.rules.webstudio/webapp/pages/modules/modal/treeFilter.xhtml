@@ -17,10 +17,10 @@
     <h:form id="filterForm">
       <table>
         <tr>
-          <td>Hide dispatcher tables</td>
+          <td>Hide utility tables</td>
           <td>
-            <h:selectBooleanCheckbox id="hideDispatcherTables" value="#{treeBean.hideDispatcherTables}"
-                style="margin:0" />
+            <h:selectBooleanCheckbox id="hideUtilityTables" value="#{treeBean.hideUtilityTables}"
+                                     style="margin:0" />
           </td>
         </tr>
       </table>
@@ -35,7 +35,7 @@
   <script>
     function showTreeFilterDialog() {
         ws.ui.show('modalTreeFilter');
-        focusElement('filterForm:hideDispatcherTables');
+        focusElement('filterForm:hideUtilityTables');
     }
     function applyFilter() {
         ws.ui.hide('modalTreeFilter');

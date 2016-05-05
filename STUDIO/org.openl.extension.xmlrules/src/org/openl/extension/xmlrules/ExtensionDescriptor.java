@@ -10,10 +10,13 @@ import org.openl.extension.xmlrules.model.ExtensionModule;
 import org.openl.extension.xmlrules.model.lazy.LazyWorkbook;
 import org.openl.extension.xmlrules.project.XmlRulesModule;
 import org.openl.extension.xmlrules.project.XmlRulesModuleSourceCodeModule;
+import org.openl.extension.xmlrules.project.XmlRulesModuleSyntaxNode;
 import org.openl.rules.extension.instantiation.IExtensionDescriptor;
+import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.util.CollectionUtils;
 
 public class ExtensionDescriptor implements IExtensionDescriptor {
     public static final String TYPES_SHEET = "Types";
@@ -79,5 +82,10 @@ public class ExtensionDescriptor implements IExtensionDescriptor {
             moduleURI += "?sheet=" + TYPES_SHEET;
         }
         return moduleURI;
+    }
+
+    @Override
+    public CollectionUtils.Predicate<String> getUtilityTablePredicate(XlsModuleSyntaxNode moduleSyntaxNode) {
+        return ((XmlRulesModuleSyntaxNode) moduleSyntaxNode).getProjectData().getUtilityTablePredicate();
     }
 }

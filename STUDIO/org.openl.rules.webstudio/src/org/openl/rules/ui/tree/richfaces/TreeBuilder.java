@@ -4,19 +4,20 @@ import org.openl.base.INamedThing;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.util.ClassUtils;
+import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.tree.ITreeElement;
 
 abstract class TreeBuilder {
 
-    private boolean hideDispatcherTables;
+    private CollectionUtils.Predicate<String> serviceTablePredicate;
 
 
     TreeBuilder() {
     }
 
-    TreeBuilder(boolean hideDispatcherTables) {
-        this.hideDispatcherTables = hideDispatcherTables;
+    TreeBuilder(CollectionUtils.Predicate<String> serviceTablePredicate) {
+        this.serviceTablePredicate = serviceTablePredicate;
     }
 
     public TreeNode build(ITreeElement<?> root) {
@@ -39,7 +40,7 @@ abstract class TreeBuilder {
         Iterable<? extends ITreeElement<?>> children = element.getChildren();
         for (ITreeElement<?> child : children) {
             TreeNode rfChild = buildNode(child);
-            if (hideDispatcherTables && rfChild.getName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME)) {
+            if (serviceTablePredicate != null && serviceTablePredicate.evaluate(rfChild.getName())) {
                 continue;
             }
             node.addChild(rfChild, rfChild);
