@@ -11,8 +11,8 @@ import org.openl.util.tree.ITreeElement;
 
 public class ProjectTreeBuilder extends TreeBuilder {
 
-    public ProjectTreeBuilder(CollectionUtils.Predicate<String> serviceTablePredicate) {
-        super(serviceTablePredicate);
+    public ProjectTreeBuilder(CollectionUtils.Predicate<String> utilityTablePredicate) {
+        super(utilityTablePredicate);
     }
 
     @Override

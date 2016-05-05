@@ -2,7 +2,6 @@ package org.openl.rules.ui.tree.richfaces;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.util.ClassUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
@@ -10,14 +9,14 @@ import org.openl.util.tree.ITreeElement;
 
 abstract class TreeBuilder {
 
-    private CollectionUtils.Predicate<String> serviceTablePredicate;
+    private CollectionUtils.Predicate<String> utilityTablePredicate;
 
 
     TreeBuilder() {
     }
 
-    TreeBuilder(CollectionUtils.Predicate<String> serviceTablePredicate) {
-        this.serviceTablePredicate = serviceTablePredicate;
+    TreeBuilder(CollectionUtils.Predicate<String> utilityTablePredicate) {
+        this.utilityTablePredicate = utilityTablePredicate;
     }
 
     public TreeNode build(ITreeElement<?> root) {
@@ -40,7 +39,7 @@ abstract class TreeBuilder {
         Iterable<? extends ITreeElement<?>> children = element.getChildren();
         for (ITreeElement<?> child : children) {
             TreeNode rfChild = buildNode(child);
-            if (serviceTablePredicate != null && serviceTablePredicate.evaluate(rfChild.getName())) {
+            if (utilityTablePredicate != null && utilityTablePredicate.evaluate(rfChild.getName())) {
                 continue;
             }
             node.addChild(rfChild, rfChild);
