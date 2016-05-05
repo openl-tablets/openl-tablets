@@ -223,32 +223,6 @@ public class JavaOpenClass extends AOpenClass {
         return new ArrayIndex(getOpenClass(arrayType.getInstanceClass().getComponentType()));
     }
 
-    public static synchronized void printCache() {
-        int i = 0;
-        for (Iterator<Class<?>> iter = getClassCache().keySet().iterator(); iter.hasNext();) {
-            Class<?> element = iter.next();
-            System.out.println("" + (i++) + ":\t" + printClass(element));
-
-        }
-    }
-
-    protected static String printClass(Class<?> c) {
-        if (c.isArray()) {
-            return "[]" + printClass(c.getComponentType());
-        }
-
-        return c.getName();
-    }
-
-    // ////////////////////// helpers ////////////////////////////
-
-    public static synchronized void resetAllClassloaders(HashMap<?, ClassLoader> oldLoaders) {
-        for (Iterator<ClassLoader> iter = oldLoaders.values().iterator(); iter.hasNext();) {
-            ClassLoader cl = iter.next();
-            resetClassloader(cl);
-        }
-    }
-
     public static synchronized void resetClassloader(ClassLoader cl) {
         List<Class<?>> toRemove = new ArrayList<Class<?>>();
         for (Class<?> c : getClassCache().keySet()) {
@@ -269,8 +243,6 @@ public class JavaOpenClass extends AOpenClass {
 
         for (Class<?> c : toRemove) {
             getClassCache().remove(c);
-
-            // System.out.println("Removing " + printClass(c));
         }
     }   
     
