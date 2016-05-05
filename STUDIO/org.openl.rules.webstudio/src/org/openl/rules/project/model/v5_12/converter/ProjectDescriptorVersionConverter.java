@@ -42,7 +42,7 @@ public class ProjectDescriptorVersionConverter implements ObjectVersionConverter
                     return dependencyConverter.fromOldVersion(input);
                 }
             });
-        if (!dependencies.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(dependencies)) {
             descriptor.setDependencies(dependencies);
         }
 
@@ -76,7 +76,7 @@ public class ProjectDescriptorVersionConverter implements ObjectVersionConverter
                     return dependencyConverter.toOldVersion(input);
                 }
             });
-        if (!dependencies.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(dependencies)) {
             descriptor.setDependencies(dependencies);
         }
 
