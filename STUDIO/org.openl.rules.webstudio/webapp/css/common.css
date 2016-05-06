@@ -584,12 +584,14 @@ ul.enum li {
     border-bottom: 1px dotted;
 }
 
-.title-field > a {
+.title-field > a,
+.title-other > a {
     color: inherit;
     text-decoration: none;
 }
 
-.title-field > a:hover {
+.title-field > a:hover,
+.title-other > a:hover {
     border-bottom: 1px dotted;
 }
 

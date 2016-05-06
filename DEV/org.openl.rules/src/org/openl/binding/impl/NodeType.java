@@ -4,5 +4,6 @@ public enum NodeType {
     RULE,
     DATATYPE,
     DATA,
-    FIELD
+    FIELD,
+    OTHER
 }
