@@ -131,7 +131,7 @@ public final class ArrayCellExpressionGridBuilder {
         String tableName = new RulesTableReference(start, end).getTable();
 
         ProjectData projectData = ProjectData.getCurrentInstance();
-        projectData.addServiceTable(sheet, tableName);
+        projectData.addUtilityTable(sheet, tableName);
 
         int startColumn = start.getColumnNumber();
         int endColumn = end.getColumnNumber();

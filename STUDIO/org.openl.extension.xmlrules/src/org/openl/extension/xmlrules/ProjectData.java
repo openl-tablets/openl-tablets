@@ -9,6 +9,8 @@ import javax.xml.bind.Unmarshaller;
 import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.model.lazy.LazyAttributes;
 import org.openl.extension.xmlrules.model.single.node.RangeNode;
+import org.openl.extension.xmlrules.utils.CellReference;
+import org.openl.extension.xmlrules.utils.RulesTableReference;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.util.CollectionUtils;
 
@@ -37,11 +39,11 @@ public class ProjectData {
 
     private final Map<String, XmlRulesPath> tableFunctionPaths = new HashMap<String, XmlRulesPath>();
 
-    private final Set<String> serviceTables = new HashSet<String>();
+    private final Map<String, String> utilityTables = new HashMap<String, String>();
     private final CollectionUtils.Predicate<String> utilityTablePredicate = new CollectionUtils.Predicate<String>() {
         @Override
         public boolean evaluate(String tableName) {
-            return tableName.startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME) || serviceTables.contains(tableName);
+            return tableName.startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME) || utilityTables.containsKey(tableName);
         }
     };
 
@@ -93,10 +95,25 @@ public class ProjectData {
         tableFunctionPaths.put(key, new XmlRulesPath(sheet.getWorkbookName(), sheet.getName()));
     }
 
-    public void addServiceTable(Sheet sheet, String tableName) {
+    /**
+     * TODO remove this method
+     *
+     * @deprecated use {@link #addUtilityTable(Sheet, String, String)} instead
+     */
+    @Deprecated
+    public void addUtilityTable(Sheet sheet, String tableName) {
+        addUtilityTable(sheet, tableName, "");
+    }
+
+    public void addUtilityTable(Sheet sheet, String tableName, String uri) {
         String key = tableName.toLowerCase();
         tableFunctionPaths.put(key, new XmlRulesPath(sheet.getWorkbookName(), sheet.getName()));
-        serviceTables.add(tableName);
+        utilityTables.put(tableName, uri);
+    }
+
+    public String getTableUri(String workbook, String sheet) {
+        String table = new RulesTableReference(new CellReference(workbook, sheet, null, null)).getTable();
+        return utilityTables.get(table);
     }
 
     public void addNamedRange(String name, RangeNode rangeNode) {

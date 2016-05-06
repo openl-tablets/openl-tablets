@@ -54,7 +54,7 @@ public final class TableGridBuilder {
 
                     createFunctionTable(gridBuilder, sheet, table);
                     tableName += FUNCTION_TABLE_SUFFIX;
-                    ProjectData.getCurrentInstance().addServiceTable(sheet, tableName);
+                    ProjectData.getCurrentInstance().addUtilityTable(sheet, tableName);
                 }
                 boolean isSimpleRules = table.getHorizontalConditions().isEmpty();
 

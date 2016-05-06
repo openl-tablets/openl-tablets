@@ -16,6 +16,7 @@ import org.openl.extension.xmlrules.syntax.StringGridBuilder;
 import org.openl.extension.xmlrules.utils.CellReference;
 import org.openl.extension.xmlrules.utils.RulesTableReference;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,7 @@ public final class CellExpressionGridBuilder {
     private CellExpressionGridBuilder() {
     }
 
-    public static void build(StringGridBuilder gridBuilder, Sheet sheet, List<ParseError> parseErrors) {
+    public static void build(XlsSheetSourceCodeModule sheetSource, StringGridBuilder gridBuilder, Sheet sheet, List<ParseError> parseErrors) {
         try {
             if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
                 sheet = ((SheetHolder) sheet).getInternalSheet();
@@ -38,9 +39,6 @@ public final class CellExpressionGridBuilder {
                     sheetName,
                     null,
                     null)).getTable();
-
-            ProjectData projectData = ProjectData.getCurrentInstance();
-            projectData.addServiceTable(sheet, cellsOnSheetName);
 
             List<List<String>> conditions = new ArrayList<List<String>>();
             List<String> columnNumbers = new ArrayList<String>();
@@ -95,6 +93,18 @@ public final class CellExpressionGridBuilder {
                     }
                 }
             }
+
+            ProjectData projectData = ProjectData.getCurrentInstance();
+            int startRow = gridBuilder.getRow();
+            int startColumn = gridBuilder.getColumn();
+            int endRow = startRow + conditions.size();
+            int endColumn = startColumn + conditions.get(0).size() - 1;
+            String uri = sheetSource.getUri() + "&range="
+                    + GridBuilderUtils.toA1Row(startColumn) + (startRow + 1)
+                    + "%3a" // Encoded colon
+                    + GridBuilderUtils.toA1Row(endColumn) + (endRow + 1);
+            projectData.addUtilityTable(sheet, cellsOnSheetName, uri);
+
             addCells(gridBuilder, cellsOnSheetName, conditions);
         } catch (RuntimeException e) {
             Logger log = LoggerFactory.getLogger(CellExpressionGridBuilder.class);

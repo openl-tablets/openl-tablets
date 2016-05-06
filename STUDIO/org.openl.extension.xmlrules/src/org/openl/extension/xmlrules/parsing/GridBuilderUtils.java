@@ -186,4 +186,15 @@ public final class GridBuilderUtils {
         }
         throw new IllegalStateException("Can't find the cell declaration: " + cellReference.getStringValue());
     }
+
+    public static String toA1Row(int rowInR1) {
+        String s = Integer.toString(rowInR1, 'Z' - 'A' + 1);
+        StringBuilder sb = new StringBuilder();
+        for (char c : s.toCharArray()) {
+            int diff = c < '9' ? c - '0' : c - 'a';
+            sb.append((char) ('A' + diff));
+        }
+
+        return sb.toString();
+    }
 }

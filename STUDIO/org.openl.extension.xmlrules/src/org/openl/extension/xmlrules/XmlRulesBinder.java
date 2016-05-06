@@ -6,12 +6,17 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundCode;
+import org.openl.binding.IMemberBoundNode;
 import org.openl.conf.IUserContext;
 import org.openl.dependency.CompiledDependency;
+import org.openl.extension.xmlrules.model.single.node.expression.ExpressionContext;
 import org.openl.extension.xmlrules.project.XmlRulesModuleSyntaxNode;
+import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.lang.xls.XlsBinder;
+import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.syntax.code.IParsedCode;
 
@@ -42,6 +47,26 @@ public class XmlRulesBinder extends XlsBinder {
             return super.bind(parsedCode, bindingContextDelegator);
         } finally {
             ProjectData.removeCurrentInstance();
+        }
+    }
+
+    @Override
+    protected void finilizeBind(IMemberBoundNode memberBoundNode,
+            TableSyntaxNode tableSyntaxNode,
+            RulesModuleBindingContext moduleContext) {
+        if (memberBoundNode instanceof AMethodBasedNode) {
+            try {
+                String methodName = ((AMethodBasedNode) memberBoundNode).getMethod().getName();
+
+                ExpressionContext expressionContext = new ExpressionContext();
+                expressionContext.setCurrentPath(ProjectData.getCurrentInstance().getPath(methodName));
+                ExpressionContext.setInstance(expressionContext);
+                super.finilizeBind(memberBoundNode, tableSyntaxNode, moduleContext);
+            } finally {
+                ExpressionContext.removeInstance();
+            }
+        } else {
+            super.finilizeBind(memberBoundNode, tableSyntaxNode, moduleContext);
         }
     }
 }
