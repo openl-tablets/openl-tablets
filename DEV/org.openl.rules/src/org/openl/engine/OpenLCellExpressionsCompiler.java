@@ -116,7 +116,6 @@ public class OpenLCellExpressionsCompiler {
                         method.getMethodBodyBoundNode(),
                         source.getCode(),
                         startIndex);
-                Collections.sort(nodeUsages, new NodeUsageComparator());
                 setCellMetaInfo((GridCellSourceCodeModule) src, nodeUsages);
             }
         }
@@ -153,7 +152,6 @@ public class OpenLCellExpressionsCompiler {
                         }
                     }
                 }
-                Collections.sort(currentCellMethodUsages, new NodeUsageComparator());
                 setCellMetaInfo(cellSource, currentCellMethodUsages);
             }
             moduleStart = moduleEnd + 1;
@@ -163,6 +161,11 @@ public class OpenLCellExpressionsCompiler {
     private static void setCellMetaInfo(GridCellSourceCodeModule src, List<NodeUsage> methodUsages) {
         ICell cell = src.getCell();
         if (CollectionUtils.isNotEmpty(methodUsages) && cell != null) {
+            CellMetaInfo oldMetaInfo = cell.getMetaInfo();
+            if (oldMetaInfo != null && oldMetaInfo.getUsedNodes() != null) {
+                methodUsages.addAll(oldMetaInfo.getUsedNodes());
+            }
+            Collections.sort(methodUsages, new NodeUsageComparator());
             cell.setMetaInfo(new CellMetaInfo(Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, methodUsages));
         }
     }
