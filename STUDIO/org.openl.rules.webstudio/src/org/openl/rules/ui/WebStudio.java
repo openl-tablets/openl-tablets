@@ -350,13 +350,13 @@ public class WebStudio {
     public void compile() {
         //studio.setTableUri(newUri);
         reset(ReloadType.SINGLE);
-        rebuildModelProjectTree();
+        model.buildProjectTree();
 
     }
 
     public void rebuild() {
         reset();
-        rebuildModelProjectTree();// Reason: tree should be built
+        model.buildProjectTree(); // Reason: tree should be built
         // before accessing the ProjectModel.
         // Is is related to UI: rendering of
         // frames is asynchronous and we
@@ -387,10 +387,6 @@ public class WebStudio {
         } catch (Exception e) {
             log.error("Error when trying to reset studio model", e);
         }
-    }
-
-    public void rebuildModelProjectTree() {
-        model.buildProjectTree();
     }
 
     public void selectProject(String name) throws Exception {
