@@ -5,7 +5,6 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -75,7 +74,7 @@ public class RepositoryProjectRulesDeployConfig {
             try {
                 project.deleteArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
                 repositoryTreeState.refreshSelectedNode();
-                studio.reset(ReloadType.FORCED);
+                studio.reset();
             } catch (ProjectException e) {
                 FacesUtils.addErrorMessage("Cannot delete " + RULES_DEPLOY_CONFIGURATION_FILE + " file");
                 log.error(e.getMessage(), e);
@@ -96,7 +95,7 @@ public class RepositoryProjectRulesDeployConfig {
             } else {
                 project.addResource(RULES_DEPLOY_CONFIGURATION_FILE, inputStream);
                 repositoryTreeState.refreshSelectedNode();
-                studio.reset(ReloadType.FORCED);
+                studio.reset();
             }
         } catch (ProjectException e) {
             FacesUtils.addErrorMessage("Cannot save " + RULES_DEPLOY_CONFIGURATION_FILE + " file");

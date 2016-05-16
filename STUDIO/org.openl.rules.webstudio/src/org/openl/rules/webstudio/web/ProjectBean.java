@@ -24,7 +24,6 @@ import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.SafeCloner;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
@@ -373,7 +372,7 @@ public class ProjectBean {
     }
 
     private void refreshProject(String name) {
-        studio.reset(ReloadType.FORCED);
+        studio.reset();
         TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(name);
         if (projectNode != null) {
             // For example, repository wasn't refreshed yet

@@ -369,13 +369,17 @@ public class WebStudio {
     }
 
     public void rebuild() {
-        reset(ReloadType.FORCED);
+        reset();
         rebuildModelProjectTree();// Reason: tree should be built
         // before accessing the ProjectModel.
         // Is is related to UI: rendering of
         // frames is asynchronous and we
         // should build tree before the
         // 'content' frame
+    }
+
+    public void reset() {
+        reset(ReloadType.FORCED);
     }
 
     public void reset(ReloadType reloadType) {

@@ -17,7 +17,6 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.ResourceTransformer;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.*;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
@@ -1774,7 +1773,7 @@ public class RepositoryTreeController {
             //Shouldn't occure but...
             log.error("Not expected exception occure!", e);
         }
-        studio.reset(ReloadType.FORCED);
+        studio.reset();
     }
 
     public boolean isOpenDependencies() {
