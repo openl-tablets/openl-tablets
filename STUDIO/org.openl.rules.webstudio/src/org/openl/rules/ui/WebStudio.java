@@ -188,7 +188,6 @@ public class WebStudio {
                 return;
             }
             project.save();
-            rebuild();
         } catch (Exception e) {
             log.error("Can not Save changes", e);
             // TODO Display message - e.getMessage()
@@ -202,7 +201,6 @@ public class WebStudio {
                 return;
             }
             project.edit();
-            rebuild();
         } catch (Exception e) {
             log.error("Can not Open project in Edit mode", e);
             // TODO Display message - e.getMessage()
@@ -559,7 +557,6 @@ public class WebStudio {
             throw new IllegalStateException("Error while updating project in user workspace.", e);
         }
 
-        rebuild();
         clearUploadedFiles();
 
         return null;
