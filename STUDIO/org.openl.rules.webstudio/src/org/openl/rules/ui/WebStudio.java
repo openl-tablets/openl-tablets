@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EventListener;
 import java.util.List;
 
 import javax.faces.context.FacesContext;
@@ -76,10 +75,6 @@ import com.thoughtworks.xstream.XStreamException;
  */
 public class WebStudio {
 
-    interface StudioListener extends EventListener {
-        void studioReset();
-    }
-
     private final Logger log = LoggerFactory.getLogger(WebStudio.class);
 
     private final RulesTreeView TYPE_VIEW = new TypeView();
@@ -97,7 +92,6 @@ public class WebStudio {
 
     private String workspacePath;
     private ArrayList<BenchmarkInfoView> benchmarks = new ArrayList<BenchmarkInfoView>();
-    private List<StudioListener> listeners = new ArrayList<StudioListener>();
     private String tableUri;
     private ProjectModel model = new ProjectModel(this);
     private RulesProjectResolver projectResolver;
@@ -185,10 +179,6 @@ public class WebStudio {
 
     public void addBenchmark(BenchmarkInfoView bi) {
         benchmarks.add(0, bi);
-    }
-
-    public void addEventListener(StudioListener listener) {
-        listeners.add(listener);
     }
 
     public void saveProject(HttpSession session) {
@@ -357,10 +347,6 @@ public class WebStudio {
         benchmarks.remove(i);
     }
 
-    public boolean removeListener(StudioListener listener) {
-        return listeners.remove(listener);
-    }
-
     public void compile() {
         //studio.setTableUri(newUri);
         reset(ReloadType.SINGLE);
@@ -398,9 +384,6 @@ public class WebStudio {
                 }
             }
             model.reset(reloadType);
-            for (StudioListener listener : listeners) {
-                listener.studioReset();
-            }
         } catch (Exception e) {
             log.error("Error when trying to reset studio model", e);
         }
@@ -776,10 +759,6 @@ public class WebStudio {
 
         currentModule = module;
         currentProject = currentModule != null ? currentModule.getProject() : null;
-
-        for (StudioListener listener : listeners) {
-            listener.studioReset();
-        }
     }
 
     public void setTreeView(RulesTreeView treeView) throws Exception {
