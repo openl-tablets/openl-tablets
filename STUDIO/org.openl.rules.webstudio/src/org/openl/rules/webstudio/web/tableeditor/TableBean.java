@@ -396,7 +396,7 @@ public class TableBean {
         return true;
     }
 
-    public void afterSaveAction() {
+    public void afterSaveAction(String newId) {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         studio.compile();
     }
