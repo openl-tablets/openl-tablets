@@ -208,7 +208,7 @@ public abstract class TableCreationWizard extends BaseWizard {
             throw e;
         }
         if (success) {
-            WebStudioUtils.getWebStudio().rebuild();
+            WebStudioUtils.getWebStudio().compile();
             reset(); // After wizard is finished - no need to store references to tables etc: it will be a memory leak.
         }
         return null;

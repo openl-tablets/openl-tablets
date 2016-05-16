@@ -335,14 +335,7 @@ public class WebStudio {
     }
 
     public void compile() {
-        //studio.setTableUri(newUri);
-        reset(ReloadType.SINGLE);
-        model.buildProjectTree();
-
-    }
-
-    public void rebuild() {
-        reset();
+        reset(currentModule == null ? ReloadType.FORCED : ReloadType.SINGLE);
         model.buildProjectTree(); // Reason: tree should be built
         // before accessing the ProjectModel.
         // Is is related to UI: rendering of
@@ -473,7 +466,7 @@ public class WebStudio {
             // TODO Display message - e.getMessage()
         }
 
-        rebuild();
+        compile();
         clearUploadedFiles();
 
         return null;
