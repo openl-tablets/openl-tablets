@@ -368,7 +368,7 @@ public class WebStudio {
         reset(ReloadType.FORCED);
     }
 
-    public void reset(ReloadType reloadType) {
+    private void reset(ReloadType reloadType) {
         try {
             if (reloadType == ReloadType.FORCED) {
                 invalidateProjects();
