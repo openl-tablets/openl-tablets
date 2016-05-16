@@ -19,7 +19,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.syntax.TableUtils;
-import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.ITableProperties;
@@ -282,8 +281,7 @@ public class TableDetailsBean {
                     WebStudioUtils.getWebStudio().getSystemConfigManager().getStringProperty("user.mode"));
             }
             this.newTableId = tableEditorModel.save();
-            studio.reset(ReloadType.SINGLE);
-            studio.rebuildModelProjectTree();
+            studio.compile();
         }
     }
 

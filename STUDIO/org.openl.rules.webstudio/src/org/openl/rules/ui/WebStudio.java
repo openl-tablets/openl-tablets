@@ -363,6 +363,13 @@ public class WebStudio {
         return listeners.remove(listener);
     }
 
+    public void compile() {
+        //studio.setTableUri(newUri);
+        reset(ReloadType.SINGLE);
+        rebuildModelProjectTree();
+
+    }
+
     public void reset(ReloadType reloadType) {
         try {
             if (reloadType == ReloadType.FORCED) {
