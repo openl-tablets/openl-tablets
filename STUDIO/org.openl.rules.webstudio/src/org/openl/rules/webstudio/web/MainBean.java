@@ -6,7 +6,6 @@ import javax.faces.bean.RequestScoped;
 import org.openl.OpenL;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.conf.OpenLConfiguration;
-import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ui.WebStudio;
@@ -81,14 +80,7 @@ public class MainBean {
     }
 
     public void reload() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        studio.reset(ReloadType.FORCED);
-        studio.getModel().getProjectTree(); // Reason: tree should be built
-                                            // before accessing the ProjectModel.
-                                            // Is is related to UI: rendering of
-                                            // frames is asynchronous and we
-                                            // should build tree before the
-                                            // 'content' frame
+        WebStudioUtils.getWebStudio().rebuild();
     }
 
 }

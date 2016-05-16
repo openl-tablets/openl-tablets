@@ -198,8 +198,7 @@ public class WebStudio {
                 return;
             }
             project.save();
-            reset(ReloadType.FORCED);
-            model.getProjectTree();
+            rebuild();
         } catch (Exception e) {
             log.error("Can not Save changes", e);
             // TODO Display message - e.getMessage()
@@ -213,8 +212,7 @@ public class WebStudio {
                 return;
             }
             project.edit();
-            reset(ReloadType.FORCED);
-            model.getProjectTree();
+            rebuild();
         } catch (Exception e) {
             log.error("Can not Open project in Edit mode", e);
             // TODO Display message - e.getMessage()
@@ -370,6 +368,16 @@ public class WebStudio {
 
     }
 
+    public void rebuild() {
+        reset(ReloadType.FORCED);
+        rebuildModelProjectTree();// Reason: tree should be built
+        // before accessing the ProjectModel.
+        // Is is related to UI: rendering of
+        // frames is asynchronous and we
+        // should build tree before the
+        // 'content' frame
+    }
+
     public void reset(ReloadType reloadType) {
         try {
             if (reloadType == ReloadType.FORCED) {
@@ -491,8 +499,7 @@ public class WebStudio {
             // TODO Display message - e.getMessage()
         }
 
-        reset(ReloadType.FORCED);
-        rebuildModelProjectTree();
+        rebuild();
         clearUploadedFiles();
 
         return null;
@@ -569,8 +576,7 @@ public class WebStudio {
             throw new IllegalStateException("Error while updating project in user workspace.", e);
         }
 
-        reset(ReloadType.FORCED);
-        rebuildModelProjectTree();
+        rebuild();
         clearUploadedFiles();
 
         return null;
