@@ -21,7 +21,6 @@ import org.openl.classloader.ClassLoaderCloserFactory;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
-import org.openl.rules.common.CommonException;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -324,16 +323,6 @@ public class WebStudio {
         return workspacePath;
     }
 
-    public synchronized void invalidateProjects() {
-        try {
-            WebStudioUtils.getRulesUserSession(FacesUtils.getSession()).getUserWorkspace().refresh();
-        } catch (CommonException e) {
-            log.error(e.getMessage(), e);
-        }
-
-        projects = null;
-    }
-
     public synchronized List<ProjectDescriptor> getAllProjects() {
         if (projects == null) {
             projects = projectResolver.listOpenLProjects();
@@ -369,7 +358,7 @@ public class WebStudio {
     private void reset(ReloadType reloadType) {
         try {
             if (reloadType == ReloadType.FORCED) {
-                invalidateProjects();
+                projects = null;
                 if (currentProject != null) {
                     String projectName = currentProject.getName();
                     if (currentModule != null) {
