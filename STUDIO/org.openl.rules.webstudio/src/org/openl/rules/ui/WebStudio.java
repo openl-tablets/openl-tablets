@@ -358,21 +358,25 @@ public class WebStudio {
     private void reset(ReloadType reloadType) {
         try {
             if (reloadType == ReloadType.FORCED) {
-                projects = null;
-                if (currentProject != null) {
-                    String projectName = currentProject.getName();
-                    if (currentModule != null) {
-                        String moduleName = currentModule.getName();
-                        currentProject = null; // To reload current project
-                        selectModule(projectName, moduleName);
-                    } else {
-                        selectProject(projectName);
-                    }
-                }
+                reselectCurrentModule();
             }
             model.reset(reloadType);
         } catch (Exception e) {
             log.error("Error when trying to reset studio model", e);
+        }
+    }
+
+    private void reselectCurrentModule() throws Exception {
+        projects = null;
+        if (currentProject != null) {
+            String projectName = currentProject.getName();
+            if (currentModule != null) {
+                String moduleName = currentModule.getName();
+                currentProject = null; // To reload current project
+                selectModule(projectName, moduleName);
+            } else {
+                selectProject(projectName);
+            }
         }
     }
 
