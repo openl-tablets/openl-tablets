@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 import javax.jcr.LoginException;
 import javax.security.auth.login.FailedLoginException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.RRepository;
@@ -16,6 +15,7 @@ import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
+import org.openl.util.StringUtils;
 
 public final class RepositoryValidators {
     private static final Pattern PROHIBITED_CHARACTERS = Pattern.compile("[\\p{Punct}]+");

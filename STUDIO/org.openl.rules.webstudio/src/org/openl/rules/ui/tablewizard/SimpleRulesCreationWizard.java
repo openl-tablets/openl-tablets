@@ -18,7 +18,6 @@ import javax.faces.model.SelectItemGroup;
 import javax.faces.validator.ValidatorException;
 import javax.validation.constraints.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
@@ -47,6 +46,7 @@ import org.openl.rules.ui.tablewizard.util.JSONHolder;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.OpenClassDelegator;
+import org.openl.util.StringUtils;
 import org.richfaces.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

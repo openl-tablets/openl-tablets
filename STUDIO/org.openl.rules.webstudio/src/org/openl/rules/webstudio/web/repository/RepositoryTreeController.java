@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.repository;
 
 import com.thoughtworks.xstream.XStreamException;
-import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
@@ -18,7 +17,6 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.ResourceTransformer;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.*;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
@@ -46,6 +44,7 @@ import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
+import org.openl.util.StringUtils;
 import org.openl.util.filter.IFilter;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
@@ -1774,7 +1773,7 @@ public class RepositoryTreeController {
             //Shouldn't occure but...
             log.error("Not expected exception occure!", e);
         }
-        studio.reset(ReloadType.FORCED);
+        studio.reset();
     }
 
     public boolean isOpenDependencies() {

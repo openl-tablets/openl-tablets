@@ -37,23 +37,6 @@ public class UtilTest extends TestCase {
         Assert.assertEquals(3, res.length);
     }
 
-    public void testDimensionOfArray() {
-        String[] x = { "abc" };
-
-        String[][] y = {};
-
-        int[][] z = {};
-
-        Assert.assertEquals(1, ArrayTool.dimensionOfArray(x, String.class));
-
-        Assert.assertEquals(2, ArrayTool.dimensionOfArray(y, String.class));
-
-        Assert.assertEquals(1, ArrayTool.dimensionOfArray(y, x.getClass()));
-
-        Assert.assertEquals(-1, ArrayTool.dimensionOfArray(z, String.class));
-
-    }
-    
     public void testArrayContains() {
         String[] strMas = new String[]{"my", "yee", null, "hello"};
         Assert.assertTrue(ArrayTool.contains(strMas, null));

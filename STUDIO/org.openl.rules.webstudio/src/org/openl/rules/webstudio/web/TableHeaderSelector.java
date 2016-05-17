@@ -1,8 +1,8 @@
 package org.openl.rules.webstudio.web;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.util.ASelector;
+import org.openl.util.StringUtils;
 
 class TableHeaderSelector extends ASelector<TableSyntaxNode> {
 

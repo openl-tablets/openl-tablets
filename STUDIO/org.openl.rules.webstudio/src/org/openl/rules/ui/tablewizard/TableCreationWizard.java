@@ -1,7 +1,6 @@
 package org.openl.rules.ui.tablewizard;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.hibernate.validator.constraints.NotBlank;
@@ -11,7 +10,6 @@ import org.openl.rules.lang.xls.load.SimpleSheetLoader;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
-import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -20,6 +18,7 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -209,16 +208,10 @@ public abstract class TableCreationWizard extends BaseWizard {
             throw e;
         }
         if (success) {
-            resetStudio();
+            WebStudioUtils.getWebStudio().compile();
             reset(); // After wizard is finished - no need to store references to tables etc: it will be a memory leak.
         }
         return null;
-    }
-
-    private void resetStudio() {
-        final WebStudio studio = WebStudioUtils.getWebStudio();
-        studio.reset(ReloadType.FORCED);
-        studio.rebuildModelProjectTree();
     }
 
     /**

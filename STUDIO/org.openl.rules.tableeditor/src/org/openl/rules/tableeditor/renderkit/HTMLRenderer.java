@@ -5,9 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.IGridRegion;
@@ -19,6 +17,8 @@ import org.openl.rules.tableeditor.model.ui.CellModel;
 import org.openl.rules.tableeditor.model.ui.ICellModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.util.Constants;
+import org.openl.util.CollectionUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Render TableEditor HTML.

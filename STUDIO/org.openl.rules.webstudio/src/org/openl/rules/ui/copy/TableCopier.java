@@ -1,6 +1,5 @@
 package org.openl.rules.ui.copy;
 
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -29,6 +28,7 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tablewizard.PropertiesBean;
 import org.openl.rules.ui.tablewizard.TableCreationWizard;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StringUtils;
 import org.openl.util.conf.Version;
 import org.richfaces.component.UIRepeat;
 import org.slf4j.Logger;

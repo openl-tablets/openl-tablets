@@ -2,7 +2,6 @@ package org.openl.rules.tableeditor.model;
 
 import java.util.Date;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.rules.helpers.CharRange;
@@ -12,6 +11,7 @@ import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.types.IOpenClass;
+import org.openl.util.ClassUtils;
 import org.openl.util.EnumUtils;
 import org.openl.util.NumberUtils;
 
@@ -51,7 +51,7 @@ public class CellEditorSelector {
             }
 
             // Numeric
-            if (ClassUtils.isAssignable(instanceClass, Number.class, true)) {
+            if (ClassUtils.isAssignable(instanceClass, Number.class)) {
                 if (domain == null) {
                     if (!meta.isMultiValue()) {
                         Number minValue = NumberUtils.getMinValue(instanceClass);
@@ -68,7 +68,7 @@ public class CellEditorSelector {
                 result = factory.makeDateEditor();
 
                 // Boolean
-            } else if (ClassUtils.isAssignable(instanceClass, Boolean.class, true)) {
+            } else if (ClassUtils.isAssignable(instanceClass, Boolean.class)) {
                 result = factory.makeBooleanEditor();
 
                 // Enum
@@ -84,11 +84,10 @@ public class CellEditorSelector {
 
                 // Range
             } else if (ClassUtils.isAssignable(instanceClass,
-                INumberRange.class,
-                true) && (!instanceClass.equals(CharRange.class))) {
-                if (ClassUtils.isAssignable(instanceClass, IntRange.class, true)) {
+                INumberRange.class) && (!instanceClass.equals(CharRange.class))) {
+                if (ClassUtils.isAssignable(instanceClass, IntRange.class)) {
                     result = factory.makeNumberRangeEditor(ICellEditor.CE_INTEGER, initialValue);
-                } else if (ClassUtils.isAssignable(instanceClass, DoubleRange.class, true)) {
+                } else if (ClassUtils.isAssignable(instanceClass, DoubleRange.class)) {
                     result = factory.makeNumberRangeEditor(ICellEditor.CE_DOUBLE, initialValue);
                 }
             }

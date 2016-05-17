@@ -1,7 +1,7 @@
 package org.openl.rules.helpers;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.util.RangeWithBounds;
+import org.openl.util.StringUtils;
 
 public abstract class BaseRangeParser implements RangeParser {
     protected String minNumber = "";
@@ -42,7 +42,7 @@ public abstract class BaseRangeParser implements RangeParser {
     protected int parseIntWithMultiplier(String number, String suffix) {
         int result = Integer.parseInt(number.replace(",", ""));
 
-        if (!StringUtils.isEmpty(suffix)) {
+        if (StringUtils.isNotEmpty(suffix)) {
             result *= parseMultiplier(suffix);
         }
 
@@ -52,7 +52,7 @@ public abstract class BaseRangeParser implements RangeParser {
     protected double parseDoubleWithMultiplier(String number, String suffix) {
         double result = Double.parseDouble(number.replace(",", ""));
 
-        if (!StringUtils.isEmpty(suffix)) {
+        if (StringUtils.isNotEmpty(suffix)) {
             result *= parseMultiplier(suffix);
         }
 

@@ -1,6 +1,5 @@
 package org.openl.rules.tableeditor.model.ui;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.filters.IGridFilter;
@@ -8,6 +7,7 @@ import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
+import org.openl.util.CollectionUtils;
 
 public class TableModel {
 
@@ -39,7 +39,7 @@ public class TableModel {
 
         IGrid grid;
 
-        if (ArrayUtils.isNotEmpty(filters)) {
+        if (CollectionUtils.isNotEmpty(filters)) {
             grid = new FilteredGrid(table.getGrid(), filters);
         } else {
             grid = table.getGrid();

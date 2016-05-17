@@ -1,12 +1,12 @@
 package org.openl.rules.ui.tree.richfaces;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.Formulas;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.StringTool;
+import org.openl.util.StringUtils;
 import org.openl.util.tree.ITreeElement;
 
 public class ExplainTreeBuilder extends TreeBuilder {

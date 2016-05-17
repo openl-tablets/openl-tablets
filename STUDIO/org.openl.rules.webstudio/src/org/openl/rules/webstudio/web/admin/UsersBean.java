@@ -19,7 +19,6 @@ import javax.faces.validator.ValidatorException;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.openl.rules.security.DefaultPrivileges;
@@ -29,6 +28,7 @@ import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
+import org.openl.util.StringUtils;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 

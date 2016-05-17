@@ -3,9 +3,9 @@ package org.openl.rules.helpers;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.source.SourceType;
 import org.openl.util.RangeWithBounds;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -272,7 +272,7 @@ public class IntRangeParser {
             String firstBound = mergeBoundParts(firstBound1, firstBound2);
             String secondBound = mergeBoundParts(secondBound1, secondBound2);
 
-            if (StringUtils.isAnyEmpty(firstBound, secondBound)) {
+            if (StringUtils.isEmpty(firstBound) || StringUtils.isEmpty(secondBound)) {
                 return null;
             }
 
@@ -290,7 +290,7 @@ public class IntRangeParser {
         }
 
         private String mergeBoundParts(String part1, String part2) {
-            if (!StringUtils.isAnyEmpty(part1, part2)) {
+            if (StringUtils.isNotEmpty(part1) && StringUtils.isNotEmpty(part2)) {
                 // One of them should be empty. Validation failed.
                 return null;
             }

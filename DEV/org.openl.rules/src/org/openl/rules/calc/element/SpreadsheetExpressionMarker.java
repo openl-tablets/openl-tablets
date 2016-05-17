@@ -1,6 +1,6 @@
 package org.openl.rules.calc.element;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openl.util.StringUtils;
 
 public enum SpreadsheetExpressionMarker {
 

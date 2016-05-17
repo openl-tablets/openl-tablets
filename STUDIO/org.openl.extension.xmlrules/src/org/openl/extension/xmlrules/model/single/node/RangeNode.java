@@ -4,8 +4,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
-import org.openl.extension.xmlrules.model.single.Range;
+import org.openl.extension.xmlrules.XmlRulesPath;
 import org.openl.extension.xmlrules.model.single.Cell;
+import org.openl.extension.xmlrules.model.single.Range;
+import org.openl.extension.xmlrules.model.single.node.expression.ExpressionContext;
 import org.openl.extension.xmlrules.utils.CellReference;
 
 @XmlType(name = "range-node")
@@ -111,12 +113,32 @@ public class RangeNode extends Node {
 
     @XmlTransient
     public String getAddress() {
-        return CellReference.parse(currentWorkbook, currentSheet, this).getStringValue();
+        return getReference().getStringValue();
+    }
+
+    @XmlTransient
+    public CellReference getReference() {
+        return CellReference.parse(currentWorkbook, currentSheet, this);
     }
 
     @Override
     public String toOpenLString() {
-        String cell = getAddress();
-        return String.format("Cell(\"%s\")", cell);
+        CellReference reference = getReference();
+
+        XmlRulesPath path = ExpressionContext.getInstance().getCurrentPath();
+        if (!reference.getWorkbook().equals(path.getWorkbook())) {
+            return String.format("Cell(\"%s\", \"%s\", %d, %d)",
+                    reference.getWorkbook(),
+                    reference.getSheet(),
+                    reference.getRowNumber(),
+                    reference.getColumnNumber());
+        } else if (!reference.getSheet().equals(path.getSheet())) {
+            return String.format("Cell(\"%s\", %d, %d)",
+                    reference.getSheet(),
+                    reference.getRowNumber(),
+                    reference.getColumnNumber());
+        } else {
+            return String.format("Cell(%d, %d)", reference.getRowNumber(), reference.getColumnNumber());
+        }
     }
 }

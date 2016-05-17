@@ -5,7 +5,6 @@ package org.openl.rules.dt.validator;
 
 import org.openl.ie.constrainer.consistencyChecking.Overlapping;
 import org.openl.util.ArrayOfNamedValues;
-import org.openl.util.ArrayTool;
 
 /**
  * @author snshor
@@ -56,8 +55,27 @@ public class DecisionTableOverlapping {
                     value.toString());
         }
         return String.format("Rules with # %s overlap for values: %s",
-            ArrayTool.asString(rulesIndexes),
+            asString(rulesIndexes),
             value.toString());
+    }
+
+    private String asString(int[] ary) {
+        StringBuilder buf = new StringBuilder(100);
+
+        if (ary == null) {
+            buf.append("null");
+        } else {
+
+            buf.append('[');
+            for (int i = 0; i < ary.length; ++i) {
+                if (i > 0) {
+                    buf.append(", ");
+                }
+                buf.append(ary[i]);
+            }
+            buf.append(']');
+        }
+        return buf.toString();
     }
 
 }

@@ -1,6 +1,5 @@
 package org.openl.rules.project.resolving;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.engine.OpenLSourceManager;
 import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.model.Module;
@@ -8,6 +7,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesLoader;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,7 +115,7 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
 
     private PropertiesFileNameProcessor buildProcessor(final Set<String> globalErrorMessages,
                                                        ProjectDescriptor projectDescriptor, PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder) throws InvalidFileNameProcessorException {
-        if (!StringUtils.isBlank(projectDescriptor.getPropertiesFileNameProcessor())) {
+        if (StringUtils.isNotBlank(projectDescriptor.getPropertiesFileNameProcessor())) {
             try {
                 return propertiesFileNameProcessorBuilder.buildCustomProcessor(projectDescriptor);
             } catch (InvalidFileNameProcessorException e) {
@@ -125,7 +125,7 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
                 return null;
             }
         } else {
-            if (!StringUtils.isBlank(projectDescriptor.getPropertiesFileNamePattern())) {
+            if (StringUtils.isNotBlank(projectDescriptor.getPropertiesFileNamePattern())) {
                 return propertiesFileNameProcessorBuilder.buildDefaultProcessor(projectDescriptor);
             }
 

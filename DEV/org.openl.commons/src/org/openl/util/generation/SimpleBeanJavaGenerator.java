@@ -3,11 +3,13 @@ package org.openl.util.generation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -15,8 +17,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.reflect.FieldUtils;
+import org.openl.util.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,9 +63,22 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
     public SimpleBeanJavaGenerator(Class<?> datatypeClass) {
         super(datatypeClass);
         this.datatypeDeclaredFields = new LinkedHashMap<String, Class<?>>(getFieldsDescription(datatypeClass.getDeclaredFields()));
-        this.datatypeAllFields = new LinkedHashMap<String, Class<?>>(getFieldsDescription(FieldUtils.getAllFields(datatypeClass)));
+        this.datatypeAllFields = new LinkedHashMap<String, Class<?>>(getFieldsDescription(getAllFields(datatypeClass)));
     }
-    
+
+    private Field[] getAllFields(Class<?> cls) {
+        final List<Field> allFields = new ArrayList<Field>();
+        Class<?> currentClass = cls;
+        while (currentClass != null) {
+            final Field[] declaredFields = currentClass.getDeclaredFields();
+            for (Field field : declaredFields) {
+                allFields.add(field);
+            }
+            currentClass = currentClass.getSuperclass();
+        }
+        return allFields.toArray(new Field[]{});
+    }
+
     private Map<String, Class<?>> getFieldsDescription(Field[] fields) {
         Map<String, Class<?>> fieldsDescriprtion = new LinkedHashMap<String, Class<?>>();
         for (Field field : fields) {
@@ -80,7 +94,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         addImport(buf, filterTypeNameForImport(XmlElement.class));
         addImport(buf, filterTypeNameForImport(XmlType.class));
 
-        String packageName = ClassUtils.getPackageName(getClassNameForGeneration());
+        String packageName = ClassUtils.getPackageName(getClassForGeneration());
 
         String[] packageParts = packageName.split("\\.");
         StringBuilder namespace = new StringBuilder("http://");
@@ -107,7 +121,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         
         addJAXBAnnotations(buf);
 
-        addClassDeclaration(buf, ClassUtils.getShortClassName(getClassNameForGeneration()),
+        addClassDeclaration(buf, ClassUtils.getShortClassName(getClassForGeneration()),
                 ClassUtils.getShortClassName(getClassForGeneration().getSuperclass()));
 
         addFieldsDeclaration(buf);

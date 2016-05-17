@@ -1,10 +1,10 @@
 package org.openl.rules.validation.properties.dimentional;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.expressions.match.MatchingExpression;
+import org.openl.util.StringUtils;
 
 /**
  * Column that is used in the dispatching table, built by dimension properties of the group of tables.
@@ -77,7 +77,7 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
     
     public String getRuleValue(int ruleIndex, int localParameterIndex) {
         String valuesThroughComma = getRules().getRule(ruleIndex).getPropertyValueAsString(getProperty().getName());
-        String[] values = StringUtils.split(valuesThroughComma, ",");
+        String[] values = StringUtils.split(valuesThroughComma, ',');
         if (values != null && (values.length > localParameterIndex)) {
             return values[localParameterIndex];
         } else {

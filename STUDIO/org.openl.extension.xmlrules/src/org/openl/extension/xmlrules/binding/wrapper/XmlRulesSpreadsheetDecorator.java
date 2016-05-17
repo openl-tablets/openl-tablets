@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.extension.xmlrules.ProjectData;
+import org.openl.extension.xmlrules.XmlRulesPath;
 import org.openl.extension.xmlrules.utils.LazyCellExecutor;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetHeaderDefinition;
@@ -26,6 +27,7 @@ public class XmlRulesSpreadsheetDecorator extends Spreadsheet {
     private final Spreadsheet delegate;
     private final XlsModuleOpenClass xlsModuleOpenClass;
     private final ProjectData projectData;
+    private final XmlRulesPath functionPath;
 
     public XmlRulesSpreadsheetDecorator(XlsModuleOpenClass xlsModuleOpenClass,
             Spreadsheet delegate,
@@ -33,6 +35,8 @@ public class XmlRulesSpreadsheetDecorator extends Spreadsheet {
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
         this.projectData = projectData;
+
+        functionPath = projectData.getPath(delegate.getName());
     }
 
     @Override
@@ -44,9 +48,11 @@ public class XmlRulesSpreadsheetDecorator extends Spreadsheet {
             LazyCellExecutor.setInstance(cache);
             ProjectData.setCurrentInstance(projectData);
         }
+        cache.pushCurrentPath(functionPath);
         try {
             return delegate.invoke(target, params, env);
         } finally {
+            cache.popCurrentPath();
             if (topLevel) {
                 LazyCellExecutor.reset();
                 ProjectData.removeCurrentInstance();

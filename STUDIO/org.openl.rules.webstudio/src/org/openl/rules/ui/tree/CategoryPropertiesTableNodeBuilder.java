@@ -1,12 +1,12 @@
 package org.openl.rules.ui.tree;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.ui.IProjectTypes;
 import org.openl.rules.ui.TableSyntaxNodeUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Builder for category properties table. 
@@ -75,7 +75,7 @@ public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder
         ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
         if (tableProperties != null) {
             String propValue = tableProperties.getScope();
-            if (StringUtils.isNotEmpty(propValue)) {                
+            if (StringUtils.isNotEmpty(propValue)) {
                 if (InheritanceLevel.CATEGORY.getDisplayName().equals(propValue)) {
                     result = true;
                 }

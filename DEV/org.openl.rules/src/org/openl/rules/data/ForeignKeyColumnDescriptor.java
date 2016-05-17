@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -34,6 +32,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.CollectionUtils;
 import org.openl.util.StringTool;
 import org.openl.util.text.ILocation;
 
@@ -410,21 +409,18 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                         foreignKeyIndex,
                         foreignKeyTableAccessorChainTokens,
                         domainClass);
-                    List<Object> values = new ArrayList<Object>();
-
                     // Cell can contain empty reference value. As a result we
                     // will
                     // receive collection with one null value element. The
                     // following code snippet
                     // searches null value elements and removes them.
                     //
-                    Predicate predicate = new Predicate() {
+
+                    List<Object> values = CollectionUtils.findAll(cellValues, new CollectionUtils.Predicate() {
                         public boolean evaluate(Object arg) {
                             return arg != null;
                         }
-                    };
-
-                    CollectionUtils.select(cellValues, predicate, values);
+                    });
 
                     int size = values.size();
                     IOpenClass componentType;

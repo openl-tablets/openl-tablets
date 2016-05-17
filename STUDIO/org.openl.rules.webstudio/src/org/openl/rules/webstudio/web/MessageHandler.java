@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -11,6 +10,7 @@ import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.util.StringTool;
+import org.openl.util.StringUtils;
 
 public class MessageHandler {
 

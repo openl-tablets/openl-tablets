@@ -5,9 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -22,9 +20,11 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.AOpenIterator;
 import org.openl.util.ASelector;
 import org.openl.util.ArrayTool;
+import org.openl.util.ClassUtils;
 import org.openl.util.ISelector;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
+import org.openl.util.StringUtils;
 import org.openl.util.generation.JavaClassGeneratorHelper;
 
 public class JavaWrapperGenerator implements OpenLToJavaGenerator {
@@ -742,7 +742,7 @@ public class JavaWrapperGenerator implements OpenLToJavaGenerator {
          * generated on runtime and are children of SpreadsheetResult. For the
          * wrapper use its parent.
          */
-        if (ClassUtils.isAssignable(instanceClass, SpreadsheetResult.class, false)) {
+        if (ClassUtils.isAssignable(instanceClass, SpreadsheetResult.class)) {
             return SpreadsheetResult.class.getName();
         }
         return instanceClass.getName();

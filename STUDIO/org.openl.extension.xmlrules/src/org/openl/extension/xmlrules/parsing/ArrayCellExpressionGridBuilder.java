@@ -2,8 +2,9 @@ package org.openl.extension.xmlrules.parsing;
 
 import java.util.List;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.openl.extension.xmlrules.ParseError;
+import org.openl.extension.xmlrules.ProjectData;
+import org.openl.extension.xmlrules.XmlRulesPath;
 import org.openl.extension.xmlrules.model.Sheet;
 import org.openl.extension.xmlrules.model.lazy.LazyCells;
 import org.openl.extension.xmlrules.model.single.Cell;
@@ -17,6 +18,7 @@ import org.openl.extension.xmlrules.syntax.StringGridBuilder;
 import org.openl.extension.xmlrules.utils.CellReference;
 import org.openl.extension.xmlrules.utils.RulesTableReference;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +80,7 @@ public final class ArrayCellExpressionGridBuilder {
 
             ExpressionContext expressionContext = new ExpressionContext(startRow, startColumn, endRow, endColumn);
             expressionContext.setCanHandleArrayOperators(true);
+            expressionContext.setCurrentPath(new XmlRulesPath(workbookName, sheetName));
             ExpressionContext.setInstance(expressionContext);
 
             Node node = cell.getNode();
@@ -85,7 +88,7 @@ public final class ArrayCellExpressionGridBuilder {
 
             boolean isOutFunction = node instanceof FunctionNode && "Out".equals(((FunctionNode) node).getName());
 
-            writeHeader(gridBuilder, start, end);
+            writeHeader(gridBuilder, sheet, start, end);
             writeColumnNames(gridBuilder, startColumn, endColumn);
 
             CellInspector.NodeSize nodeSize = CellInspector.inspect(cell.getNode(), true);
@@ -124,8 +127,11 @@ public final class ArrayCellExpressionGridBuilder {
         }
     }
 
-    private static void writeHeader(StringGridBuilder gridBuilder, CellReference start, CellReference end) {
+    private static void writeHeader(StringGridBuilder gridBuilder, Sheet sheet, CellReference start, CellReference end) {
         String tableName = new RulesTableReference(start, end).getTable();
+
+        ProjectData projectData = ProjectData.getCurrentInstance();
+        projectData.addUtilityTable(sheet, tableName);
 
         int startColumn = start.getColumnNumber();
         int endColumn = end.getColumnNumber();

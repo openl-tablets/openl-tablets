@@ -10,8 +10,8 @@ import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.dt.element.ICondition;
+import org.openl.rules.dt.IBaseCondition;
+import org.openl.rules.dt.IDecisionTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -21,7 +21,6 @@ import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
-
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.IntBoolExp;
 import org.openl.ie.constrainer.IntBoolExpConst;
@@ -48,7 +47,7 @@ public class ValidationAlgorithm {
 
     @SuppressWarnings("deprecation")
     public DesionTableValidationResult validate() {
-        DecisionTable decisionTable = decisionTableToValidate.getDecisionTable();
+        IDecisionTable decisionTable = decisionTableToValidate.getDecisionTable();
         DecisionTableAnalyzer analyzer = new DecisionTableAnalyzer(decisionTable);
         
         DesionTableValidationResult result = null;
@@ -58,7 +57,7 @@ public class ValidationAlgorithm {
             IOpenMethod[] methodsForConditionValidation = new IOpenMethod[n];
 
             for (int i = 0; i < n; i++) {
-                methodsForConditionValidation[i] = makeConditionMethod(decisionTable.getCondition(i), analyzer);
+                methodsForConditionValidation[i] = makeConditionMethod(decisionTable.getConditionRows()[i], analyzer);
             }
 
             vars = makeVars(analyzer);
@@ -87,7 +86,7 @@ public class ValidationAlgorithm {
         return result;
     }
     
-    private boolean canValidateDecisionTable(DecisionTable decisionTable, DecisionTableAnalyzer analyzer) {        
+    private boolean canValidateDecisionTable(IDecisionTable decisionTable, DecisionTableAnalyzer analyzer) {        
         
         // if there is no conditions in validated decision table, we don`t need to validate anything.
     	int ncond = decisionTable.getNumberOfConditions(); 
@@ -98,7 +97,7 @@ public class ValidationAlgorithm {
         // if any value of a condition contains OpenL formula, we don`t validate anything! (we don't know how to do it now)
         
         for (int i = 0; i < ncond ; ++i) {
-            if (analyzer.containsFormula(decisionTable.getCondition(i))) {
+            if (analyzer.containsFormula(decisionTable.getConditionRows()[i])) {
                 return false;
             }
         }
@@ -116,7 +115,7 @@ public class ValidationAlgorithm {
         return null;
     }
 
-    private IOpenMethod makeConditionMethod(ICondition condition, DecisionTableAnalyzer analyzer) {
+    private IOpenMethod makeConditionMethod(IBaseCondition condition, DecisionTableAnalyzer analyzer) {
 
         IMethodSignature newSignature = getNewSignature(condition, analyzer);
 
@@ -134,7 +133,7 @@ public class ValidationAlgorithm {
         return OpenLManager.makeMethod(openl, formulaSourceCode, methodHeader, bindingContext);
     }
 
-    private IMethodSignature getNewSignature(ICondition condition, DecisionTableAnalyzer analyzer) {
+    private IMethodSignature getNewSignature(IBaseCondition condition, DecisionTableAnalyzer analyzer) {
 
         IParameterDeclaration[] paramDeclarations = condition.getParams(); // params from this column
         IParameterDeclaration[] referencedSignatureParams = analyzer.referencedSignatureParams(condition); // income params from the signature 
@@ -153,7 +152,7 @@ public class ValidationAlgorithm {
             expressions[i] = ruleExpression;
 
             for (int j = 0; j < methodsForConditionValidation.length; j++) {
-                ruleExpression[j] = makeExpression(i, decisionTableToValidate.getDecisionTable().getCondition(j), analyzer, 
+                ruleExpression[j] = makeExpression(i, decisionTableToValidate.getDecisionTable().getConditionRows()[j], analyzer, 
                         methodsForConditionValidation[j]);
             }
         }
@@ -161,7 +160,7 @@ public class ValidationAlgorithm {
         return expressions;
     }
 
-    private IntBoolExp makeExpression(int ruleN, ICondition conditionToValidate, DecisionTableAnalyzer analyzer, 
+    private IntBoolExp makeExpression(int ruleN, IBaseCondition conditionToValidate, DecisionTableAnalyzer analyzer, 
             IOpenMethod methodForConditionValidation) {
         
 
@@ -271,7 +270,7 @@ public class ValidationAlgorithm {
     }
 
     @SuppressWarnings("deprecation")
-    private Object transformValue(String name, ICondition condition, Object value, DecisionTableAnalyzer analyzer) {
+    private Object transformValue(String name, IBaseCondition condition, Object value, DecisionTableAnalyzer analyzer) {
         return decisionTableToValidate.getTransformer().transformLocalParameterValue(name, condition, value, analyzer);
     }
 

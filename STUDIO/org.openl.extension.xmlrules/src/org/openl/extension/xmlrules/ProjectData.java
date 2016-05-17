@@ -6,17 +6,17 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.openl.extension.xmlrules.model.Field;
-import org.openl.extension.xmlrules.model.Function;
-import org.openl.extension.xmlrules.model.Table;
-import org.openl.extension.xmlrules.model.Type;
+import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.model.lazy.LazyAttributes;
 import org.openl.extension.xmlrules.model.single.node.RangeNode;
+import org.openl.extension.xmlrules.utils.CellReference;
+import org.openl.extension.xmlrules.utils.RulesTableReference;
+import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
+import org.openl.util.CollectionUtils;
 
 public class ProjectData {
     private static final ThreadLocal<ProjectData> INSTANCE = new ThreadLocal<ProjectData>();
     private static final ThreadLocal<Unmarshaller> unmarshallerThreadLocal = new ThreadLocal<Unmarshaller>();
-
     public static ProjectData getCurrentInstance() {
         return INSTANCE.get();
     }
@@ -30,12 +30,22 @@ public class ProjectData {
     }
 
     private final Map<String, Type> types = new HashMap<String, Type>();
+
     private final Map<String, List<Function>> functions = new HashMap<String, List<Function>>();
     private final Map<String, List<Table>> tables = new HashMap<String, List<Table>>();
-
     private final Set<String> fieldNames = new HashSet<String>();
 
     private final Map<String, RangeNode> namedRanges = new HashMap<String, RangeNode>();
+
+    private final Map<String, XmlRulesPath> tableFunctionPaths = new HashMap<String, XmlRulesPath>();
+
+    private final Map<String, String> utilityTables = new HashMap<String, String>();
+    private final CollectionUtils.Predicate<String> utilityTablePredicate = new CollectionUtils.Predicate<String>() {
+        @Override
+        public boolean evaluate(String tableName) {
+            return tableName.startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME) || utilityTables.containsKey(tableName);
+        }
+    };
 
     private LazyAttributes attributes;
 
@@ -61,7 +71,7 @@ public class ProjectData {
         }
     }
 
-    public void addFunction(Function function) {
+    public void addFunction(Sheet sheet, Function function) {
         String key = function.getName().toLowerCase();
         List<Function> overloadedFunctions = functions.get(key);
         if (overloadedFunctions == null) {
@@ -69,9 +79,11 @@ public class ProjectData {
             functions.put(key, overloadedFunctions);
         }
         overloadedFunctions.add(function);
+
+        tableFunctionPaths.put(key, new XmlRulesPath(sheet.getWorkbookName(), sheet.getName()));
     }
 
-    public void addTable(Table table) {
+    public void addTable(Sheet sheet, Table table) {
         String key = table.getName().toLowerCase();
         List<Table> overloadedTables = tables.get(key);
         if (overloadedTables == null) {
@@ -79,6 +91,29 @@ public class ProjectData {
             tables.put(key, overloadedTables);
         }
         overloadedTables.add(table);
+
+        tableFunctionPaths.put(key, new XmlRulesPath(sheet.getWorkbookName(), sheet.getName()));
+    }
+
+    /**
+     * TODO remove this method
+     *
+     * @deprecated use {@link #addUtilityTable(Sheet, String, String)} instead
+     */
+    @Deprecated
+    public void addUtilityTable(Sheet sheet, String tableName) {
+        addUtilityTable(sheet, tableName, "");
+    }
+
+    public void addUtilityTable(Sheet sheet, String tableName, String uri) {
+        String key = tableName.toLowerCase();
+        tableFunctionPaths.put(key, new XmlRulesPath(sheet.getWorkbookName(), sheet.getName()));
+        utilityTables.put(tableName, uri);
+    }
+
+    public String getTableUri(String workbook, String sheet) {
+        String table = new RulesTableReference(new CellReference(workbook, sheet, null, null)).getTable();
+        return utilityTables.get(table);
     }
 
     public void addNamedRange(String name, RangeNode rangeNode) {
@@ -136,6 +171,10 @@ public class ProjectData {
         }
     }
 
+    public CollectionUtils.Predicate<String> getUtilityTablePredicate() {
+        return utilityTablePredicate;
+    }
+
     public LazyAttributes getAttributes() {
         return attributes;
     }
@@ -143,4 +182,9 @@ public class ProjectData {
     public void setAttributes(LazyAttributes attributes) {
         this.attributes = attributes;
     }
+
+    public XmlRulesPath getPath(String tableOrFunction) {
+        return tableFunctionPaths.get(tableOrFunction.toLowerCase());
+    }
+
 }

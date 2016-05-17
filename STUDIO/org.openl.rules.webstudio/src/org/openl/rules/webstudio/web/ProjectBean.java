@@ -18,17 +18,12 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.SafeCloner;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
@@ -54,9 +49,11 @@ import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.PathMatcher;
@@ -181,7 +178,7 @@ public class ProjectBean {
     public void validatePropertiesFileNamePattern(FacesContext context, UIComponent toValidate, Object value) {
         String pattern = (String) value;
 
-        if (!StringUtils.isBlank(pattern)) {
+        if (StringUtils.isNotBlank(pattern)) {
             PropertiesFileNameProcessor processor;
             PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
             try {
@@ -217,7 +214,7 @@ public class ProjectBean {
 
         if (StringUtils.isBlank(oldName) // Add new Module
                 || !oldName.equals(newName)) { // Edit current Module
-            if (!withWildcard || !StringUtils.isBlank(newName)) {
+            if (!withWildcard || StringUtils.isNotBlank(newName)) {
                 FacesUtils.validate(NameChecker.checkName(newName), NameChecker.BAD_NAME_MSG);
 
                 Module module = studio.getModule(studio.getCurrentProjectDescriptor(), newName);
@@ -240,7 +237,7 @@ public class ProjectBean {
 
         if (StringUtils.isBlank(oldName) // Add new Module
                 || !oldName.equals(newName)) { // Edit current Module
-            if (!withWildcard || !StringUtils.isBlank(newName)) {
+            if (!withWildcard || StringUtils.isNotBlank(newName)) {
                 FacesUtils.validate(NameChecker.checkName(newName), NameChecker.BAD_NAME_MSG);
 
                 Module module = studio.getModule(studio.getCurrentProjectDescriptor(), newName);
@@ -375,7 +372,7 @@ public class ProjectBean {
     }
 
     private void refreshProject(String name) {
-        studio.reset(ReloadType.FORCED);
+        studio.reset();
         TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(name);
         if (projectNode != null) {
             // For example, repository wasn't refreshed yet
@@ -476,7 +473,7 @@ public class ProjectBean {
         List<PathEntry> sourceList = new ArrayList<PathEntry>();
         String[] sourceArray = sources.split(StringTool.NEW_LINE);
 
-        if (ArrayUtils.isNotEmpty(sourceArray)) {
+        if (CollectionUtils.isNotEmpty(sourceArray)) {
             for (String source : sourceArray) {
                 if (StringUtils.isNotBlank(source)) {
                     PathEntry sourcePath = new PathEntry(source);
@@ -754,11 +751,11 @@ public class ProjectBean {
         // Multiple modules
         List<Module> modules = getModulesMatchingPathPattern(module);
 
-        return new ArrayList<String>(CollectionUtils.collect(modules, new Transformer<Module, String>() {
-            @Override public String transform(Module input) {
+        return CollectionUtils.map(modules, new CollectionUtils.Mapper<Module, String>() {
+            @Override public String map(Module input) {
                 return getModulePath(input);
             }
-        }));
+        });
     }
 
     public void setNewFileName(String newFileName) {

@@ -9,7 +9,6 @@ import java.util.Map;
 import javax.faces.model.SelectItem;
 import javax.validation.constraints.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -20,6 +19,7 @@ import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.table.xls.builder.TestTableBuilder;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
+import org.openl.util.StringUtils;
 
 /**
  * @author Aliaksandr Antonik.

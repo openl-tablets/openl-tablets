@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.install;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.util.IOUtils;
 import org.flywaydb.core.api.FlywayException;
 import org.hibernate.validator.constraints.NotBlank;
@@ -11,6 +10,7 @@ import org.openl.rules.db.utils.DBUtils;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.admin.*;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -259,7 +259,7 @@ public class InstallWizard {
         String studioPath;
         File studioDir;
 
-        if (!StringUtils.isEmpty((String) value)) {
+        if (StringUtils.isNotEmpty((String) value)) {
             studioPath = ConfigurationManager.normalizePath((String) value);
             studioDir = new File(studioPath);
 
@@ -356,7 +356,7 @@ public class InstallWizard {
 
         if (dbPropFolder.isDirectory()) {
             for (File file : dbPropFolder.listFiles()) {
-                if (StringUtils.startsWith(file.getName(), "db-")) {
+                if (file.getName().startsWith("db-")) {
                     dbPropFiles.add(file);
                 }
             }
@@ -406,7 +406,7 @@ public class InstallWizard {
 
             String url = externalDBConfig.getStringProperty("db.url");
 
-            if (!StringUtils.isEmpty(url)) {
+            if (StringUtils.isNotEmpty(url)) {
                 String dbUrlSeparator = externalDBConfig.getStringProperty("db.url.separator");
                 String dbUrl = (externalDBConfig.getStringProperty("db.url")).split(dbUrlSeparator)[1];
                 String prefix = (externalDBConfig.getStringProperty("db.url")).split(dbUrlSeparator)[0] + dbUrlSeparator;

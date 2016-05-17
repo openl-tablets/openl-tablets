@@ -260,6 +260,10 @@
                 <configuration>
                     <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
                     <argLine>${jacococ.argLine} -XX:MaxPermSize=128m -Xms512m -Xmx2048m</argLine>
+                    <classpathDependencyExcludes>
+                        <!-- To resolve conflict with org.slf4j:slf4j-simple in the test scope. -->
+                        <exclude>org.slf4j:slf4j-log4j12</exclude>
+                    </classpathDependencyExcludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -718,6 +722,12 @@
                 <artifactId>slf4j-api</artifactId>
                 <version>${org.slf4j.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>${org.slf4j.version}</version>
+                <scope>test</scope>
+            </dependency>
             <!-- SLF4J LOG4J-12 Binding -->
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -992,17 +1002,7 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.poi</groupId>
-                <artifactId>poi</artifactId>
-                <version>${org.apache.poi.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.poi</groupId>
                 <artifactId>poi-ooxml</artifactId>
-                <version>${org.apache.poi.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.poi</groupId>
-                <artifactId>poi-ooxml-schemas</artifactId>
                 <version>${org.apache.poi.version}</version>
             </dependency>
             <!-- JAXB (JSR 222) Reference Implementation -->
@@ -1344,13 +1344,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
+            <artifactId>slf4j-simple</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -1,8 +1,10 @@
 package org.openl.extension.xmlrules.model.single.node.expression;
 
+import org.openl.extension.xmlrules.XmlRulesPath;
 import org.openl.extension.xmlrules.model.single.node.NamedRangeNode;
 import org.openl.extension.xmlrules.model.single.node.Node;
 import org.openl.extension.xmlrules.model.single.node.RangeNode;
+import org.openl.extension.xmlrules.utils.CellReference;
 
 public class RangeExpressionResolver implements ExpressionResolver {
     @Override
@@ -18,10 +20,32 @@ public class RangeExpressionResolver implements ExpressionResolver {
         ExpressionContext context = ExpressionContext.getInstance();
 
         if (context.isCanHandleArrayOperators()) {
-            return String.format("CellRange(\"%s\", %d, %d)",
-                    left.getAddress(),
-                    right.getRowNumber() - left.getRowNumber() + 1,
-                    right.getColumnNumber() - left.getColumnNumber() + 1);
+            CellReference reference = left.getReference();
+            XmlRulesPath path = ExpressionContext.getInstance().getCurrentPath();
+            int rowCount = right.getRowNumber() - left.getRowNumber() + 1;
+            int columnCount = right.getColumnNumber() - left.getColumnNumber() + 1;
+            if (!reference.getWorkbook().equals(path.getWorkbook())) {
+                return String.format("CellRange(\"%s\", \"%s\", %d, %d, %d, %d)",
+                        reference.getWorkbook(),
+                        reference.getSheet(),
+                        reference.getRowNumber(),
+                        reference.getColumnNumber(),
+                        rowCount,
+                        columnCount);
+            } else if (!reference.getSheet().equals(path.getSheet())) {
+                return String.format("CellRange(\"%s\", %d, %d, %d, %d)",
+                        reference.getSheet(),
+                        reference.getRowNumber(),
+                        reference.getColumnNumber(),
+                        rowCount,
+                        columnCount);
+            } else {
+                return String.format("CellRange(%d, %d, %d, %d)",
+                        reference.getRowNumber(),
+                        reference.getColumnNumber(),
+                        rowCount,
+                        columnCount);
+            }
         }
 
         if (context.isArrayExpression()) {

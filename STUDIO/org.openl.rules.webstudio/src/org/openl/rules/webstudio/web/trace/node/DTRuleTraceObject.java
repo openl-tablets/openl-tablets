@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.web.trace.node;
 
 import org.openl.rules.dt.DecisionTableRuleNode;
-import org.openl.rules.dtx.IBaseCondition;
+import org.openl.rules.dt.IBaseCondition;
 
 public class DTRuleTraceObject extends ATableTracerNode {
     protected final IBaseCondition condition;

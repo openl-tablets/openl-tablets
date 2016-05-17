@@ -10,7 +10,7 @@ import javax.faces.bean.RequestScoped;
 
 import org.openl.rules.domaintree.DomainTree;
 import org.openl.rules.domaintree.DomainTreeContext;
-import org.apache.commons.lang3.StringUtils;
+import org.openl.util.StringUtils;
 
 /**
  * @author Aliaksandr Antonik.
@@ -61,7 +61,7 @@ public class DomainTreePath {
     }
 
     public void setNewDotPart(String newDotPart) {
-        if (!StringUtils.isBlank(newDotPart)) {
+        if (StringUtils.isNotBlank(newDotPart)) {
             if (StringUtils.isBlank(dotExpression)) {
                 dotExpression = newDotPart;
             } else {

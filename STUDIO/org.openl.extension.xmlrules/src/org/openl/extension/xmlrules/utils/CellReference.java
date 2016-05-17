@@ -3,6 +3,7 @@ package org.openl.extension.xmlrules.utils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.openl.extension.xmlrules.XmlRulesPath;
 import org.openl.extension.xmlrules.model.single.node.RangeNode;
 
 public class CellReference {
@@ -95,6 +96,10 @@ public class CellReference {
         return new CellReference(workbook, sheet, rangeNode.getRow(), rangeNode.getColumn());
     }
 
+    public static CellReference parse(XmlRulesPath path, int row, int column) {
+        return new CellReference(path.getWorkbook(), path.getSheet(), "" + row, "" + column);
+    }
+
     public CellReference(String workbook, String sheet, String row, String column) {
         this.workbook = workbook;
         this.sheet = sheet;
@@ -151,5 +156,33 @@ public class CellReference {
             escapedSheet = RulesTableReference.prepareString(sheet);
         }
         return escapedSheet;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        CellReference that = (CellReference) o;
+
+        if (!workbook.equals(that.workbook))
+            return false;
+        if (!sheet.equals(that.sheet))
+            return false;
+        if (!row.equals(that.row))
+            return false;
+        return column.equals(that.column);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = workbook.hashCode();
+        result = 31 * result + sheet.hashCode();
+        result = 31 * result + row.hashCode();
+        result = 31 * result + column.hashCode();
+        return result;
     }
 }

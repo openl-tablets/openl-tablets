@@ -3,7 +3,7 @@ package org.openl.rules.dt;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IntArrayIterator;
 import org.openl.rules.dt.index.ARuleIndex;
-import org.openl.rules.dtx.IDecisionTableRuleNode;
+import org.openl.rules.dt.IDecisionTableRuleNode;
 
 public class DecisionTableRuleNode  implements IDecisionTableRuleNode{
 

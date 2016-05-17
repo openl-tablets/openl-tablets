@@ -3,10 +3,10 @@ package org.openl.rules.testmethod;
 import java.util.Collection;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.testmethod.result.TestResultComparator;
+import org.openl.util.StringUtils;
 
 public class TestUnitResultComparator {
 

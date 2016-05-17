@@ -6,6 +6,7 @@
 
 package org.openl.conf;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,7 +18,6 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-import org.openl.util.CollectionsUtil;
 
 /**
  * @author snshor
@@ -27,19 +27,19 @@ public class NameSpacedLibraryConfiguration extends AConfigurationElement {
 
     String namespace;
 
-    IMethodFactoryConfigurationElement[] factories = {};
+    ArrayList<IMethodFactoryConfigurationElement> factories = new ArrayList<IMethodFactoryConfigurationElement>();
 
     public void addAnyLibrary(GenericLibraryConfiguration glb) {
-        factories = (IMethodFactoryConfigurationElement[]) CollectionsUtil.add(factories, glb);
+        factories.add(glb);
     }
 
     public void addJavalib(JavaLibraryConfiguration factory) {
-        factories = (IMethodFactoryConfigurationElement[]) CollectionsUtil.add(factories, factory);
+        factories.add(factory);
     }
 
     public IOpenField getField(String name, IConfigurableResourceContext cxt, boolean strictMatch) {
-        for (int i = 0; i < factories.length; i++) {
-            IOpenField field = factories[i].getLibrary(cxt).getVar(name, strictMatch);
+        for (IMethodFactoryConfigurationElement factory : factories) {
+            IOpenField field = factory.getLibrary(cxt).getVar(name, strictMatch);
             if (field != null) {
                 return field;
             }
@@ -51,21 +51,21 @@ public class NameSpacedLibraryConfiguration extends AConfigurationElement {
             IOpenClass[] params,
             ICastFactory casts,
             IConfigurableResourceContext cxt) throws AmbiguousMethodException {
-        for (int i = 0; i < factories.length; i++) {
-            IMethodCaller mc = MethodSearch.getMethodCaller(name, params, casts, factories[i].getLibrary(cxt), true);
+        for (IMethodFactoryConfigurationElement factory : factories) {
+            IMethodCaller mc = MethodSearch.getMethodCaller(name, params, casts, factory.getLibrary(cxt), true);
             if (mc != null) {
                 return mc;
             }
         }
-        
+
         List<IOpenMethod> methods = new LinkedList<IOpenMethod>();
-        for (int i = 0; i < factories.length; i++) {
-            Iterator<IOpenMethod> itr = factories[i].getLibrary(cxt).methods(name);
-            while (itr.hasNext()){
+        for (IMethodFactoryConfigurationElement factory : factories) {
+            Iterator<IOpenMethod> itr = factory.getLibrary(cxt).methods(name);
+            while (itr.hasNext()) {
                 methods.add(itr.next());
             }
         }
-        
+
         return MethodSearch.getCastingMethodCaller(name, params, casts, methods.iterator());
     }
 
@@ -84,8 +84,8 @@ public class NameSpacedLibraryConfiguration extends AConfigurationElement {
     }
 
     public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
-        for (int i = 0; i < factories.length; i++) {
-            factories[i].validate(cxt);
+        for (IMethodFactoryConfigurationElement factory : factories) {
+            factory.validate(cxt);
         }
     }
 

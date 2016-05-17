@@ -2,7 +2,6 @@ package org.openl.rules.table.xls;
 
 import java.util.Date;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Comment;
@@ -22,6 +21,7 @@ import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.table.xls.writers.AXlsCellWriter;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringPool;
+import org.openl.util.StringUtils;
 import org.openl.util.formatters.IFormatter;
 
 public class XlsCell implements ICell {

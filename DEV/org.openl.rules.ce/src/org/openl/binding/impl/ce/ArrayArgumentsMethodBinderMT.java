@@ -65,7 +65,7 @@ public class ArrayArgumentsMethodBinderMT extends ANodeBinder {
     private IOpenClass[] unwrapArguments(int arrayArgumentIndex) {
         if (arrayArgumentIndex < argumentsTypes.length) {
             IOpenClass unwrappedType = argumentsTypes[arrayArgumentIndex].getComponentClass();
-            return (IOpenClass[]) ArrayTool.replace(arrayArgumentIndex, argumentsTypes, unwrappedType);
+            return replace(arrayArgumentIndex, argumentsTypes, unwrappedType);
         }
         log.warn("Can`t find the appropriate argument");
         return null;

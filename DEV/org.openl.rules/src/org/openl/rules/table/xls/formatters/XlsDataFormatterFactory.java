@@ -3,8 +3,6 @@ package org.openl.rules.table.xls.formatters;
 import java.util.Date;
 import java.util.Locale;
 
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DataFormatter;
@@ -13,6 +11,8 @@ import org.openl.rules.table.formatters.ArrayFormatter;
 import org.openl.rules.table.formatters.FormulaFormatter;
 import org.openl.rules.table.xls.XlsCell;
 import org.openl.types.IOpenClass;
+import org.openl.util.ClassUtils;
+import org.openl.util.StringUtils;
 import org.openl.util.formatters.BooleanFormatter;
 import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.EnumFormatter;
@@ -33,7 +33,7 @@ public class XlsDataFormatterFactory {
             Class<?> instanceClass = dataType.getInstanceClass();
 
             // Numeric
-            if (ClassUtils.isAssignable(instanceClass, Number.class, true)) {
+            if (ClassUtils.isAssignable(instanceClass, Number.class)) {
                 IFormatter numberFormatter = getNumberFormatter(cell);
                 // Numeric Array
                 if (cellMetaInfo.isMultiValue()) {
@@ -47,7 +47,7 @@ public class XlsDataFormatterFactory {
                 formatter = getDateFormatter(cell);
 
             // Boolean
-            } else if (ClassUtils.isAssignable(instanceClass, Boolean.class, true)) {
+            } else if (ClassUtils.isAssignable(instanceClass, Boolean.class)) {
                 formatter = new BooleanFormatter();
 
             // Enum

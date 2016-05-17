@@ -9,6 +9,7 @@ import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.extension.xmlrules.ProjectData;
+import org.openl.extension.xmlrules.XmlRulesPath;
 import org.openl.extension.xmlrules.utils.LazyCellExecutor;
 import org.openl.rules.dt.DTInfo;
 import org.openl.rules.dt.DecisionTable;
@@ -16,8 +17,8 @@ import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.RuleRow;
-import org.openl.rules.dtx.IBaseAction;
-import org.openl.rules.dtx.IBaseCondition;
+import org.openl.rules.dt.IBaseAction;
+import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -34,6 +35,8 @@ public class XmlRulesDecisionTableDecorator extends DecisionTable {
     private final XlsModuleOpenClass xlsModuleOpenClass;
     private final List<Integer> dimensionNums;
     private final ArgumentsConverter argumentsConverter;
+
+    private final XmlRulesPath functionPath;
 
     public XmlRulesDecisionTableDecorator(XlsModuleOpenClass xlsModuleOpenClass,
             DecisionTable delegate, ProjectData projectData) {
@@ -52,6 +55,7 @@ public class XmlRulesDecisionTableDecorator extends DecisionTable {
         }
 
         argumentsConverter = new ArgumentsConverter(delegate.getMethod());
+        functionPath = projectData.getPath(delegate.getName());
     }
 
     @Override
@@ -63,6 +67,7 @@ public class XmlRulesDecisionTableDecorator extends DecisionTable {
             LazyCellExecutor.setInstance(cache);
             ProjectData.setCurrentInstance(projectData);
         }
+        cache.pushCurrentPath(functionPath);
         try {
             params = argumentsConverter.convert(params);
 
@@ -74,6 +79,7 @@ public class XmlRulesDecisionTableDecorator extends DecisionTable {
             }
             return delegate.invoke(target, params, env);
         } finally {
+            cache.popCurrentPath();
             if (topLevel) {
                 LazyCellExecutor.reset();
                 ProjectData.removeCurrentInstance();

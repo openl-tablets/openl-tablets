@@ -56,7 +56,6 @@ import org.openl.types.impl.ArrayIndex;
 import org.openl.types.impl.ArrayLengthOpenField;
 import org.openl.types.impl.MethodKey;
 import org.openl.util.AOpenIterator;
-import org.openl.util.CollectionsUtil;
 import org.openl.util.IConvertor;
 import org.openl.util.IOpenIterator;
 import org.openl.util.OpenIterator;
@@ -67,10 +66,7 @@ import org.openl.vm.IRuntimeEnv;
 /**
  * @author snshor
  */
-public class JavaOpenClass extends AOpenClass {  
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-	public static final IConvertor<Class, IOpenClass> Class2JavaOpenClass = new Class2JavaOpenClassCollector();
+public class JavaOpenClass extends AOpenClass {
 
     /**
      *  Stores a strong references to common java classes that's why they will not be garbage collected
@@ -211,7 +207,9 @@ public class JavaOpenClass extends AOpenClass {
 
         IOpenClass[] ary = new IOpenClass[cc.length];
 
-        CollectionsUtil.collect(ary, cc, Class2JavaOpenClass);
+        for (int i = 0; i < cc.length; i++) {
+            ary[i] = getOpenClass(cc[i]);
+        }
 
         return ary;
 
@@ -223,32 +221,6 @@ public class JavaOpenClass extends AOpenClass {
 
     public static ArrayIndex makeArrayIndex(IOpenClass arrayType) {
         return new ArrayIndex(getOpenClass(arrayType.getInstanceClass().getComponentType()));
-    }
-
-    public static synchronized void printCache() {
-        int i = 0;
-        for (Iterator<Class<?>> iter = getClassCache().keySet().iterator(); iter.hasNext();) {
-            Class<?> element = iter.next();
-            System.out.println("" + (i++) + ":\t" + printClass(element));
-
-        }
-    }
-
-    protected static String printClass(Class<?> c) {
-        if (c.isArray()) {
-            return "[]" + printClass(c.getComponentType());
-        }
-
-        return c.getName();
-    }
-
-    // ////////////////////// helpers ////////////////////////////
-
-    public static synchronized void resetAllClassloaders(HashMap<?, ClassLoader> oldLoaders) {
-        for (Iterator<ClassLoader> iter = oldLoaders.values().iterator(); iter.hasNext();) {
-            ClassLoader cl = iter.next();
-            resetClassloader(cl);
-        }
     }
 
     public static synchronized void resetClassloader(ClassLoader cl) {
@@ -271,8 +243,6 @@ public class JavaOpenClass extends AOpenClass {
 
         for (Class<?> c : toRemove) {
             getClassCache().remove(c);
-
-            // System.out.println("Removing " + printClass(c));
         }
     }   
     

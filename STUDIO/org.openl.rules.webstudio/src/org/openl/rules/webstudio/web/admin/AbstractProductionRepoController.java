@@ -5,10 +5,10 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedProperty;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
+import org.openl.util.StringUtils;
 
 /**
  * @author Pavel Tarasevich

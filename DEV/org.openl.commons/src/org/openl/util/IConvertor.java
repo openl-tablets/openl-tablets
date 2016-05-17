@@ -12,14 +12,5 @@ package org.openl.util;
  */
 public interface IConvertor<T, C> {
 
-    class SameAs<X> implements IConvertor<X, X> {
-        public X convert(X obj) {
-            return obj;
-        }
-    }
-
-    static IConvertor<?, ?> SAME_AS = new SameAs<Object>();
-
     C convert(T obj);
-
 }

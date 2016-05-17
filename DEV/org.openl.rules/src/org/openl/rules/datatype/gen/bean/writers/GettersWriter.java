@@ -5,7 +5,6 @@ import java.util.Map;
 
 import javax.xml.bind.annotation.XmlElement;
 
-import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -14,6 +13,7 @@ import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.util.StringTool;
+import org.openl.util.StringUtils;
 
 /**
  * Writes getters to the generated bean class.

@@ -10,7 +10,7 @@ import java.util.Set;
 import org.junit.Test;
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.calc.Spreadsheet;
-import org.openl.rules.dtx.IDecisionTable;
+import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.tbasic.Algorithm;

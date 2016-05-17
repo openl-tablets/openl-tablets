@@ -34,6 +34,7 @@ import org.openl.meta.StringValue;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.ArrayTool;
+import org.openl.util.CollectionUtils;
 import org.openl.util.DateTool;
 import org.openl.util.math.MathUtils;
 
@@ -1740,11 +1741,35 @@ public class RulesUtils {
     }
 
     public static String[] sort(String[] values) {
-        return ArrayTool.sort(values);
+        String[] sortedArray = null;
+
+        if (values != null) {
+            sortedArray = new String[values.length];
+            String[] notNullArray = ArrayTool.removeNulls(values);
+            Arrays.sort(notNullArray);
+
+            /* Filling sortedArray by sorted and null values */
+            for (int i = 0; i < notNullArray.length; i++) {
+                sortedArray[i] = notNullArray[i];
+            }
+        }
+        return sortedArray;
     }
 
     public static Date[] sort(Date[] values) {
-        return ArrayTool.sort(values);
+        Date[] sortedArray = null;
+
+        if (values != null) {
+            sortedArray = new Date[values.length];
+            Date[] notNullArray = ArrayTool.removeNulls(values);
+            Arrays.sort(notNullArray);
+
+            /* Filling sortedArray by sorted and null values */
+            for (int i = 0; i < notNullArray.length; i++) {
+                sortedArray[i] = notNullArray[i];
+            }
+        }
+        return sortedArray;
     }
 
     // <<< END INSERT Functions >>>
@@ -6036,7 +6061,7 @@ public class RulesUtils {
      * @return true if the array is empty or null
      */
     public static boolean isEmpty(Object[] array) {
-        return ArrayUtils.isEmpty(array);
+        return CollectionUtils.isEmpty(array);
     }
 
     /**
@@ -6116,7 +6141,7 @@ public class RulesUtils {
      * @return true if the array is empty or null
      */
     public static boolean isEmpty(Date[] array) {
-        return ArrayUtils.isEmpty(array);
+        return CollectionUtils.isEmpty(array);
     }
 
     /**
@@ -6126,7 +6151,7 @@ public class RulesUtils {
      * @return true if the array is empty or null
      */
     public static boolean isEmpty(BigDecimal[] array) {
-        return ArrayUtils.isEmpty(array);
+        return CollectionUtils.isEmpty(array);
     }
 
     /**
@@ -6136,35 +6161,35 @@ public class RulesUtils {
      * @return true if the array is empty or null
      */
     public static boolean isEmpty(BigInteger[] array) {
-        return ArrayUtils.isEmpty(array);
+        return CollectionUtils.isEmpty(array);
     }
 
     public static boolean isEmpty(Byte[] array) {
-        return ArrayUtils.isEmpty(array);
+        return CollectionUtils.isEmpty(array);
     }
 
     public static boolean isEmpty(Short[] array) {
-        return ArrayUtils.isEmpty(array);
+        return CollectionUtils.isEmpty(array);
     }
     
     public static boolean isEmpty(Integer[] array) {
-        return ArrayUtils.isEmpty(array);
+        return CollectionUtils.isEmpty(array);
     }
 
     public static boolean isEmpty(Long[] array) {
-        return ArrayUtils.isEmpty(array);
+        return CollectionUtils.isEmpty(array);
     }
 
     public static boolean isEmpty(Double[] array) {
-        return ArrayUtils.isEmpty(array);
+        return CollectionUtils.isEmpty(array);
     }
 
     public static boolean isEmpty(Float[] array) {
-        return ArrayUtils.isEmpty(array);
+        return CollectionUtils.isEmpty(array);
     }
 
     public static boolean isEmpty(Character[] array) {
-        return ArrayUtils.isEmpty(array);
+        return CollectionUtils.isEmpty(array);
     }
 
     /**
@@ -6332,7 +6357,7 @@ public class RulesUtils {
      *         String input
      */
     public static String removeStart(String str, String remove) {
-        return org.apache.commons.lang3.StringUtils.removeStart(str, remove);
+        return StringUtils.removeStart(str, remove);
     }
 
     /**

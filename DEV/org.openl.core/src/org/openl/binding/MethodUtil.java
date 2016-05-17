@@ -8,13 +8,13 @@ package org.openl.binding;
 
 import java.lang.reflect.Method;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.openl.base.INamedThing;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.OpenClassDelegator;
+import org.openl.util.ClassUtils;
 import org.openl.util.IConvertor;
 import org.openl.util.print.Formatter;
 
@@ -147,18 +147,17 @@ public class MethodUtil {
         }
     }
     
-    public static Method getMatchingAccessibleMethod(Class<?> methodOwner, String methodName, Class<?>[] argTypes,
-            boolean autoboxing) {
+    public static Method getMatchingAccessibleMethod(Class<?> methodOwner, String methodName, Class<?>[] argTypes) {
         Method resultMethod = null;
         Method[] methods = methodOwner.getMethods();
         for (Method method : methods) {
             Class<?>[] signatureParams = method.getParameterTypes();
             if (methodName.equals(method.getName()) && signatureParams.length == argTypes.length) {
-                if (ClassUtils.isAssignable(argTypes, signatureParams, autoboxing)) {
+                if (isAssignable(argTypes, signatureParams)) {
                     method = MethodUtils.getAccessibleMethod(method);//kills inherited methods
                     if (method != null) {
                         if (resultMethod != null) {
-                            resultMethod = getCloserMethod(resultMethod, method, argTypes, autoboxing);
+                            resultMethod = getCloserMethod(resultMethod, method, argTypes);
                         } else {
                             resultMethod = method;
                         }
@@ -168,14 +167,22 @@ public class MethodUtil {
         }
         return resultMethod;
     }
-
-    private static Method getCloserMethod(Method firstMethod, Method secondMethod, Class<?>[] argTypes,
-            boolean autoboxing) {
-        int firstTransfCount = getTransformationsCount(firstMethod.getParameterTypes(), argTypes, autoboxing);
+    private static boolean isAssignable(Class<?>[] classArray, Class<?>[] toClassArray) {
+        for (int i = 0; i < classArray.length; i++) {
+            Class<?> from = classArray[i];
+            Class<?> to = toClassArray[i];
+            if ((from.isPrimitive() ^ to.isPrimitive()) || !ClassUtils.isAssignable(from, to)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    private static Method getCloserMethod(Method firstMethod, Method secondMethod, Class<?>[] argTypes) {
+        int firstTransfCount = getTransformationsCount(firstMethod.getParameterTypes(), argTypes);
         if (firstTransfCount < 0) {
             return secondMethod;
         }
-        int secondTransfCount = getTransformationsCount(secondMethod.getParameterTypes(), argTypes, autoboxing);
+        int secondTransfCount = getTransformationsCount(secondMethod.getParameterTypes(), argTypes);
         if (secondTransfCount < 0 || secondTransfCount >= firstTransfCount) {
             return firstMethod;
         }
@@ -187,17 +194,16 @@ public class MethodUtil {
      * 
      * @param signatureToCheck Signature to check
      * @param argTypes Types of existing arguments.
-     * @param autoboxing flag that indicates
      * @return <code>-1</code> if signature to check is not suitable for
      *         specified args and transformations count otherwise.
      */
-    private static int getTransformationsCount(Class<?>[] signatureToCheck, Class<?>[] argTypes, boolean autoboxing) {
+    private static int getTransformationsCount(Class<?>[] signatureToCheck, Class<?>[] argTypes) {
+        if (!isAssignable(argTypes, signatureToCheck)) {
+            return -1;
+        }
         int transformationsCount = 0;
         for (int i = 0; i < argTypes.length; i++) {
             if (!signatureToCheck[i].equals(argTypes[i])) {
-                if (!ClassUtils.isAssignable(argTypes[i], signatureToCheck[i], autoboxing)) {
-                    return -1;
-                }
                 transformationsCount++;
             }
         }

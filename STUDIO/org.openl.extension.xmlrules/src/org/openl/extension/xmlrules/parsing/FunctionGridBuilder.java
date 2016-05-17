@@ -4,10 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openl.extension.xmlrules.model.Function;
-import org.openl.extension.xmlrules.model.Parameter;
-import org.openl.extension.xmlrules.model.Segment;
-import org.openl.extension.xmlrules.model.Sheet;
+import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.model.single.Attribute;
 import org.openl.extension.xmlrules.model.single.ParameterImpl;
 import org.openl.extension.xmlrules.model.single.SheetHolder;
@@ -23,7 +20,7 @@ public final class FunctionGridBuilder {
     private FunctionGridBuilder() {
     }
 
-    public static void build(StringGridBuilder gridBuilder, Sheet sheet) {
+    public static void build(StringGridBuilder gridBuilder, ExtensionModule module, Sheet sheet) {
         Logger log = LoggerFactory.getLogger(FunctionGridBuilder.class);
         if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
             sheet = ((SheetHolder) sheet).getInternalSheet();
@@ -63,7 +60,7 @@ public final class FunctionGridBuilder {
                 List<Attribute> attributes = function.getAttributes();
                 GridBuilderUtils.addAttributes(gridBuilder, attributes);
 
-                writeBody(gridBuilder, cellAddress, isRange, returnType, parameters, workbookName, sheetName);
+                writeBody(gridBuilder, module, cellAddress, isRange, returnType, parameters, workbookName, sheetName);
 
                 gridBuilder.nextRow();
             } catch (RuntimeException e) {
@@ -110,16 +107,26 @@ public final class FunctionGridBuilder {
     }
 
     private static void writeBody(StringGridBuilder gridBuilder,
+            ExtensionModule module,
             String cellAddress,
             boolean isRange,
             String returnType,
             List<ParameterImpl> parameters, String workbookName, String sheetName) {
         for (ParameterImpl parameter : parameters) {
             CellReference reference = CellReference.parse(workbookName, sheetName, parameter.getName());
-            String cell = String.format("Push(\"%s\", R%sC%s);",
-                    reference.getStringValue(),
-                    reference.getRow(),
-                    reference.getColumn());
+            String cell;
+            if (isSameSheet(reference, workbookName, sheetName)) {
+                cell = String.format("Push(%d, %d, R%sC%s);",
+                        reference.getRowNumber(),
+                        reference.getColumnNumber(),
+                        reference.getRow(),
+                        reference.getColumn());
+            } else {
+                cell = String.format("Push(\"%s\", R%sC%s);",
+                        reference.getStringValue(),
+                        reference.getRow(),
+                        reference.getColumn());
+            }
             gridBuilder.addCell(cell).nextRow();
         }
 
@@ -128,13 +135,25 @@ public final class FunctionGridBuilder {
             String[] addresses = cellAddress.split(":");
             CellReference left = CellReference.parse(workbookName, sheetName, addresses[0]);
             CellReference right = CellReference.parse(workbookName, sheetName, addresses[1]);
-            cellRetrieveString = String.format("CellRange(\"%s\", %d, %d)",
-                    left.getStringValue(),
+            cellRetrieveString = String.format("CellRange(%d, %d, %d, %d)",
+                    left.getRowNumber(),
+                    left.getColumnNumber(),
                     right.getRowNumber() - left.getRowNumber() + 1,
                     right.getColumnNumber() - left.getColumnNumber() + 1);
         } else {
             CellReference cellReference = CellReference.parse(workbookName, sheetName, cellAddress);
-            cellRetrieveString = String.format("Cell(\"%s\")", cellReference.getStringValue());
+            try {
+                cellRetrieveString = GridBuilderUtils.getCellExpression(module, workbookName, sheetName, cellReference);
+            } catch (RuntimeException e) {
+                Logger log = LoggerFactory.getLogger(FunctionGridBuilder.class);
+                log.error(e.getMessage(), e);
+                OpenLMessagesUtils.addError(e);
+                cellRetrieveString = String.format("Cell(\"%s\", \"%s\", %d, %d)",
+                        cellReference.getWorkbook(),
+                        cellReference.getSheet(),
+                        cellReference.getRowNumber(),
+                        cellReference.getColumnNumber());
+            }
         }
 
         String componentType = returnType.replace("[]", "");
@@ -150,11 +169,20 @@ public final class FunctionGridBuilder {
 
         for (ParameterImpl parameter : parameters) {
             CellReference reference = CellReference.parse(workbookName, sheetName, parameter.getName());
-            String cell = String.format("Pop(\"%s\");", reference.getStringValue());
+            String cell;
+            if (isSameSheet(reference, workbookName, sheetName)) {
+                cell = String.format("Pop(%d, %d);", reference.getRowNumber(), reference.getColumnNumber());
+            } else {
+                cell = String.format("Pop(\"%s\");", reference.getStringValue());
+            }
             gridBuilder.addCell(cell).nextRow();
         }
 
         gridBuilder.addCell("return result;").nextRow();
+    }
+
+    private static boolean isSameSheet(CellReference reference, String workbookName, String sheetName) {
+        return reference.getWorkbook().equals(workbookName) && reference.getSheet().equals(sheetName);
     }
 
     private static String getReturnType(Function function, boolean isRange) {

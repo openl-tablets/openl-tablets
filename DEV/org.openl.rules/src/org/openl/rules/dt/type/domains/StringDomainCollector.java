@@ -4,8 +4,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.domain.StringDomain;
+import org.openl.util.StringUtils;
 
 public class StringDomainCollector implements IDomainCollector {
     
@@ -20,7 +20,7 @@ public class StringDomainCollector implements IDomainCollector {
     public void gatherDomains(Map<String, Object> methodProperties) {        
         if (methodProperties != null) {
             String propvalue = (String) methodProperties.get(propertyToSearch);
-            if (StringUtils.isNotEmpty(propvalue)) {                    
+            if (StringUtils.isNotEmpty(propvalue)) {
                 stringProp.add(propvalue);
             }
        }        

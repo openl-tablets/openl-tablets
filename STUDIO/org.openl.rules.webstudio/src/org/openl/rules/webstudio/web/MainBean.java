@@ -3,16 +3,18 @@ package org.openl.rules.webstudio.web;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.conf.OpenLConfiguration;
-import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.common.CommonException;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Request scope managed bean providing logic for Main page.
@@ -21,6 +23,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 @RequestScoped
 public class MainBean {
 
+    private final Logger log = LoggerFactory.getLogger(MainBean.class);
     public MainBean() throws Exception {
         if (WebContext.getContextPath() == null) {
             WebContext.setContextPath(FacesUtils.getContextPath());
@@ -81,14 +84,16 @@ public class MainBean {
     }
 
     public void reload() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        studio.reset(ReloadType.FORCED);
-        studio.getModel().getProjectTree(); // Reason: tree should be built
-                                            // before accessing the ProjectModel.
-                                            // Is is related to UI: rendering of
-                                            // frames is asynchronous and we
-                                            // should build tree before the
-                                            // 'content' frame
+        try {
+            WebStudioUtils.getRulesUserSession(FacesUtils.getSession()).getUserWorkspace().refresh();
+        } catch (CommonException e) {
+            log.error("Error on reloading user's workspace", e);
+        }
+        WebStudioUtils.getWebStudio().compile();
     }
 
+    public void compile() {
+        WebStudioUtils.getWebStudio().reset();
+        WebStudioUtils.getWebStudio().compile();
+    }
 }

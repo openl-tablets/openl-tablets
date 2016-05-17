@@ -17,7 +17,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.openl.util.IOUtils;
 
 /**
@@ -43,7 +42,7 @@ public class WebResourceFilter implements Filter {
             HttpServletRequest httpRequest = (HttpServletRequest) request;
             String path = httpRequest.getRequestURI();
 
-            if (StringUtils.contains(path, WEBRESOURCE_PREFIX)) {
+            if (path != null && path.contains(WEBRESOURCE_PREFIX)) {
                 Matcher matcher = JSESSION_ID_PATTERN.matcher(path);
                 if (matcher.matches()) {
                     path = matcher.group(1);

@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web.explain;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.GridRegion;
@@ -20,6 +19,7 @@ import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Request scope managed bean for showExplainTable page.

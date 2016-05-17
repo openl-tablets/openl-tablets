@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.openl.meta.StringValue;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -26,6 +25,7 @@ import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.NaryNode;
 import org.openl.types.IOpenMember;
+import org.openl.util.CollectionUtils;
 
 /**
  * @author snshor

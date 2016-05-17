@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
@@ -42,6 +41,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.ConstOpenField;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.StringUtils;
 
 public class SpreadsheetStructureBuilder {
 

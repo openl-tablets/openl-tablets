@@ -6,9 +6,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
+import org.openl.util.StringUtils;
 
 public class RepositoryConfiguration {
     public static final Comparator<RepositoryConfiguration> COMPARATOR = new NameWithNumbersComparator();
@@ -98,7 +98,7 @@ public class RepositoryConfiguration {
             configManager.removeProperty(REPOSITORY_LOGIN);
             configManager.removeProperty(REPOSITORY_PASS);
         } else {
-            if (!StringUtils.isEmpty(password)) {
+            if (StringUtils.isNotEmpty(password)) {
                 configManager.setProperty(REPOSITORY_LOGIN, login);
                 configManager.setPassword(REPOSITORY_PASS, password);
             }

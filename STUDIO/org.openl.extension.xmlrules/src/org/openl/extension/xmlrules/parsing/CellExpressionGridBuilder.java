@@ -3,8 +3,8 @@ package org.openl.extension.xmlrules.parsing;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.openl.extension.xmlrules.ParseError;
+import org.openl.extension.xmlrules.ProjectData;
 import org.openl.extension.xmlrules.model.Sheet;
 import org.openl.extension.xmlrules.model.lazy.LazyCells;
 import org.openl.extension.xmlrules.model.single.Cell;
@@ -16,6 +16,8 @@ import org.openl.extension.xmlrules.syntax.StringGridBuilder;
 import org.openl.extension.xmlrules.utils.CellReference;
 import org.openl.extension.xmlrules.utils.RulesTableReference;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
+import org.openl.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +25,7 @@ public final class CellExpressionGridBuilder {
     private CellExpressionGridBuilder() {
     }
 
-    public static void build(StringGridBuilder gridBuilder, Sheet sheet, List<ParseError> parseErrors) {
+    public static void build(XlsSheetSourceCodeModule sheetSource, StringGridBuilder gridBuilder, Sheet sheet, List<ParseError> parseErrors) {
         try {
             if (sheet instanceof SheetHolder && ((SheetHolder) sheet).getInternalSheet() != null) {
                 sheet = ((SheetHolder) sheet).getInternalSheet();
@@ -55,29 +57,17 @@ public final class CellExpressionGridBuilder {
                         List<String> currentRow = getCurrentRow(conditions, reference);
                         int currentColumnNumber = getCurrentColumnNumber(columnNumbers, reference);
 
-                        ExpressionContext expressionContext = new ExpressionContext();
-                        expressionContext.setCurrentRow(reference.getRowNumber());
-                        expressionContext.setCurrentColumn(reference.getColumnNumber());
-                        expressionContext.setCanHandleArrayOperators(false);
-                        ExpressionContext.setInstance(expressionContext);
-
                         while (currentRow.size() < currentColumnNumber + 1) {
                             currentRow.add(null);
                         }
 
-                        Node node = cell.getNode();
                         String expression;
                         try {
-                            if (node == null) {
-                                throw new IllegalArgumentException("Cell [" + workbookName + "]" + sheetName + "!" + cell
-                                        .getAddress()
-                                        .toOpenLString() + " contains incorrect value. It will be skipped");
-                            }
-                            node.setRootNode(true);
+                            Node node = cell.getNode();
                             if (node instanceof ValueHolder) {
                                 expression = ((ValueHolder) node).asString();
                             } else {
-                                expression = "= " + node.toOpenLString();
+                                expression = "= " + GridBuilderUtils.getCellExpression(workbookName, sheetName, reference, cell);
                             }
                         } catch (RuntimeException e) {
                             expression = "";
@@ -103,6 +93,18 @@ public final class CellExpressionGridBuilder {
                     }
                 }
             }
+
+            ProjectData projectData = ProjectData.getCurrentInstance();
+            int startRow = gridBuilder.getRow();
+            int startColumn = gridBuilder.getColumn();
+            int endRow = startRow + conditions.size();
+            int endColumn = startColumn + conditions.get(0).size() - 1;
+            String uri = sheetSource.getUri() + "&range="
+                    + GridBuilderUtils.toA1Row(startColumn) + (startRow + 1)
+                    + "%3a" // Encoded colon
+                    + GridBuilderUtils.toA1Row(endColumn) + (endRow + 1);
+            projectData.addUtilityTable(sheet, cellsOnSheetName, uri);
+
             addCells(gridBuilder, cellsOnSheetName, conditions);
         } catch (RuntimeException e) {
             Logger log = LoggerFactory.getLogger(CellExpressionGridBuilder.class);

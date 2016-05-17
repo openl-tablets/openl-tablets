@@ -6,13 +6,14 @@
 
 package org.openl.conf;
 
+import java.util.ArrayList;
+
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.StaticClassLibrary;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.CollectionsUtil;
 
 /**
  * @author snshor
@@ -28,10 +29,12 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
 
         public synchronized ICastFactory getCastFactory(IConfigurableResourceContext cxt) {
             if (factory == null) {
-                Class<?> libClass = ClassFactory.validateClassExistsAndPublic(libraryClassName, cxt.getClassLoader(),
-                        getUri());
-                Class<?> implClass = ClassFactory.validateClassExistsAndPublic(className, cxt.getClassLoader(),
-                        getUri());
+                Class<?> libClass = ClassFactory.validateClassExistsAndPublic(libraryClassName,
+                    cxt.getClassLoader(),
+                    getUri());
+                Class<?> implClass = ClassFactory.validateClassExistsAndPublic(className,
+                    cxt.getClassLoader(),
+                    getUri());
 
                 factory = (CastFactory) ClassFactory.newInstance(implClass, getUri());
                 factory.setMethodFactory(new StaticClassLibrary(JavaOpenClass.getOpenClass(libClass)));
@@ -56,7 +59,9 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
         /*
          * (non-Javadoc)
          *
-         * @see org.openl.newconf.IConfigurationElement#validate(org.openl.newconf.IConfigurationContext)
+         * @see
+         * org.openl.newconf.IConfigurationElement#validate(org.openl.newconf.
+         * IConfigurationContext)
          */
         public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
             ClassFactory.validateClassExistsAndPublic(libraryClassName, cxt.getClassLoader(), getUri());
@@ -69,21 +74,21 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
 
     }
 
-    JavaCastComponent[] components = {};
+    ArrayList<JavaCastComponent> components = new ArrayList<JavaCastComponent>();
 
     public void addJavaCast(JavaCastComponent cmp) {
-        components = (JavaCastComponent[]) CollectionsUtil.add(components, cmp);
+        components.add(cmp);
     }
 
     /*
      * (non-Javadoc)
      *
      * @see org.openl.binding.ICastFactory#getCast(org.openl.types.IOpenClass,
-     *      org.openl.types.IOpenClass)
+     * org.openl.types.IOpenClass)
      */
     public IOpenCast getCast(IOpenClass from, IOpenClass to, IConfigurableResourceContext cxt) {
-        for (int i = 0; i < components.length; i++) {
-            IOpenCast openCast = components[i].getCastFactory(cxt).getCast(from, to);
+        for (JavaCastComponent component : components) {
+            IOpenCast openCast = component.getCastFactory(cxt).getCast(from, to);
             if (openCast != null) {
                 return openCast;
             }
@@ -94,11 +99,12 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
     /*
      * (non-Javadoc)
      *
-     * @see org.openl.newconf.IConfigurationElement#validate(org.openl.newconf.IConfigurationContext)
+     * @see org.openl.newconf.IConfigurationElement#validate(org.openl.newconf.
+     * IConfigurationContext)
      */
     public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
-        for (int i = 0; i < components.length; i++) {
-            components[i].validate(cxt);
+        for (JavaCastComponent component : components) {
+            component.validate(cxt);
         }
     }
 

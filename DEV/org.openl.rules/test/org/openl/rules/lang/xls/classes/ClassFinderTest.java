@@ -4,11 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 
 import org.junit.Test;
 import org.openl.rules.lang.xls.classes.test.TestBean;
-import org.openl.util.ArrayTool;
 
 public class ClassFinderTest {
 
@@ -44,8 +45,7 @@ public class ClassFinderTest {
 
             @Override
             public Enumeration<URL> getResources(String name) throws IOException {
-
-                return ArrayTool.enumeration(urls);
+                return Collections.enumeration(Arrays.asList(urls));
             }
 
         };

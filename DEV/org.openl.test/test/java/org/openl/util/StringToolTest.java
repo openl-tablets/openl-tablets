@@ -4,13 +4,7 @@
 package org.openl.util;
 
 import junit.framework.TestCase;
-import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author snshor
@@ -48,14 +42,6 @@ public class StringToolTest extends TestCase {
      */
     public void testClone() {
 
-    }
-
-    /*
-     * Test method for 'org.openl.util.StringTool.decapitalizeName(String,
-     * String)'
-     */
-    public void testDecapitalizeNameStringString() {
-        Assert.assertEquals("abc:ends:with:id:operator:xyz", StringTool.decapitalizeName("ABCEndsWithIDOperatorXYZ", ":"));
     }
 
     /*

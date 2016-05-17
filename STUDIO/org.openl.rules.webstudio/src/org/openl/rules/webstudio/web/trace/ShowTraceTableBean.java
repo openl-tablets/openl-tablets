@@ -7,7 +7,6 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -31,6 +30,7 @@ import org.openl.rules.webstudio.web.trace.node.DecisionTableTraceObject;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.CollectionUtils;
 
 /**
  * Request scope managed bean for showTraceTable page.

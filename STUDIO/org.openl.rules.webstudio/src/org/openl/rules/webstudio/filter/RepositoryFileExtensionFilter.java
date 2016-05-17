@@ -6,8 +6,8 @@ import java.util.HashSet;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.util.ASelector;
+import org.openl.util.StringUtils;
 import org.openl.util.filter.IFilter;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Filter for <code>ProjectResource</code>s based on their file extension.
@@ -29,7 +29,7 @@ public class RepositoryFileExtensionFilter extends ASelector<AProjectArtefact> i
         // set of parsed extensions
         Collection<String> extSet = new HashSet<String>();
         for (String ext : extensionList.split(";")) {
-            if (!StringUtils.isBlank(ext)) {
+            if (StringUtils.isNotBlank(ext)) {
                 extSet.add(ext.trim());
             }
         }

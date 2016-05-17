@@ -1,11 +1,11 @@
 package org.openl.rules.db.migration;
 
-import org.apache.commons.lang3.StringUtils;
 import org.flywaydb.core.Flyway;
 import org.hibernate.dialect.*;
 import org.hibernate.engine.jdbc.dialect.internal.StandardDialectResolver;
 import org.hibernate.engine.jdbc.dialect.spi.DatabaseMetaDataDialectResolutionInfoAdapter;
 import org.openl.rules.db.utils.DBUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

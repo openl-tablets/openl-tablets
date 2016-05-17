@@ -1,22 +1,22 @@
 package org.openl.rules.ui.tree.richfaces;
 
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.openl.base.INamedThing;
 import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
+import org.openl.util.ClassUtils;
+import org.openl.util.CollectionUtils;
+import org.openl.util.StringUtils;
 import org.openl.util.tree.ITreeElement;
 
 abstract class TreeBuilder {
 
-    private boolean hideDispatcherTables;
+    private CollectionUtils.Predicate<String> utilityTablePredicate;
 
 
     TreeBuilder() {
     }
 
-    TreeBuilder(boolean hideDispatcherTables) {
-        this.hideDispatcherTables = hideDispatcherTables;
+    TreeBuilder(CollectionUtils.Predicate<String> utilityTablePredicate) {
+        this.utilityTablePredicate = utilityTablePredicate;
     }
 
     public TreeNode build(ITreeElement<?> root) {
@@ -39,7 +39,7 @@ abstract class TreeBuilder {
         Iterable<? extends ITreeElement<?>> children = element.getChildren();
         for (ITreeElement<?> child : children) {
             TreeNode rfChild = buildNode(child);
-            if (hideDispatcherTables && rfChild.getName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME)) {
+            if (utilityTablePredicate != null && utilityTablePredicate.evaluate(rfChild.getName())) {
                 continue;
             }
             node.addChild(rfChild, rfChild);
@@ -90,7 +90,7 @@ abstract class TreeBuilder {
     abstract String getUrl(ITreeElement<?> element);
 
     String getDisplayName(Object obj, int mode) {
-        if ((ClassUtils.isAssignable(obj.getClass(), Number.class, true))) {
+        if ((ClassUtils.isAssignable(obj.getClass(), Number.class))) {
             return FormattersManager.format(obj);
         }
         if (obj instanceof INamedThing) {

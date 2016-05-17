@@ -6,13 +6,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
+import org.openl.util.CollectionUtils;
+import org.openl.util.StringUtils;
 
 public class OpenLMessagesUtils {
 
@@ -70,7 +70,7 @@ public class OpenLMessagesUtils {
     public static List<OpenLMessage> newMessages(OpenLException[] exceptions) {
         List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
 
-        if (ArrayUtils.isNotEmpty(exceptions)) {
+        if (CollectionUtils.isNotEmpty(exceptions)) {
             for (OpenLException error : exceptions) {
                 OpenLMessage errorMessage = new OpenLErrorMessage(error);
                 messages.add(errorMessage);

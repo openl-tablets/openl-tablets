@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.model.lazy.LazyAttributes;
@@ -38,6 +37,7 @@ import org.openl.syntax.code.impl.ParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
+import org.openl.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,9 +83,9 @@ public class XmlRulesParser extends BaseParser {
             TypeGridBuilder.build(gridBuilder, sheet);
         } else {
             DataInstanceGridBuilder.build(gridBuilder, module, sheet);
-            TableGridBuilder.build(gridBuilder, sheet);
-            FunctionGridBuilder.build(gridBuilder, sheet);
-            CellExpressionGridBuilder.build(gridBuilder, sheet, parseErrors);
+            TableGridBuilder.build(gridBuilder, module, sheet);
+            FunctionGridBuilder.build(gridBuilder, module, sheet);
+            CellExpressionGridBuilder.build(sheetSource, gridBuilder, sheet, parseErrors);
             ArrayCellExpressionGridBuilder.build(gridBuilder, sheet, parseErrors);
 
             if (sheet.getId() == ExtensionDescriptor.MAIN_SHEET_NUMBER) {
@@ -196,10 +196,10 @@ public class XmlRulesParser extends BaseParser {
                     projectData.addType(type);
                 }
                 for (Function function : s.getFunctions()) {
-                    projectData.addFunction(function);
+                    projectData.addFunction(s, function);
                 }
                 for (Table table : s.getTables()) {
-                    projectData.addTable(table);
+                    projectData.addTable(s, table);
                 }
             }
         }

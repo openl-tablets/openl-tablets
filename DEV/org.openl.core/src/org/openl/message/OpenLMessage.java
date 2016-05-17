@@ -1,6 +1,6 @@
 package org.openl.message;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openl.util.StringUtils;
 
 /**
  * The <code>OpenLMessage</code> class defines a message abstraction. Messages
@@ -60,7 +60,7 @@ public class OpenLMessage {
 
     @Override
     public String toString() {
-        return StringUtils.defaultString(summary);
+        return summary == null ? StringUtils.EMPTY : summary;
     }
 
     public String getSourceLocation() {

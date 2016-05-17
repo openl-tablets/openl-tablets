@@ -3,10 +3,10 @@ package org.openl.rules.table.xls.builder;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.util.StringUtils;
 
 /**
  * The class is responsible for creating Data tables.
@@ -105,7 +105,7 @@ public class DataTableBuilder extends TableBuilder {
             if (field.isFillChildren()) {
                 hasForeignKey = hasForeignKeys(field.getAggregatedFields());
             } else {
-                hasForeignKey = !StringUtils.isBlank(field.getForeignKey());
+                hasForeignKey = StringUtils.isNotBlank(field.getForeignKey());
             }
 
             if (hasForeignKey) {
@@ -140,7 +140,7 @@ public class DataTableBuilder extends TableBuilder {
     }
 
     private String parseForeignKey(String foreignKey) {
-        if (!StringUtils.isBlank(foreignKey)) {
+        if (StringUtils.isNotBlank(foreignKey)) {
             if (foreignKey.startsWith(">"))
                 return foreignKey;
 

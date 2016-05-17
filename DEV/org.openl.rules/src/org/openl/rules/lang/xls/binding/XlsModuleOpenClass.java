@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.exception.DuplicatedMethodException;
@@ -72,6 +71,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AMethod;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenMethod;
+import org.openl.util.StringUtils;
 
 /**
  * @author snshor

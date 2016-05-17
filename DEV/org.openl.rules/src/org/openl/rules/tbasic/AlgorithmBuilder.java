@@ -1,6 +1,5 @@
 package org.openl.rules.tbasic;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.IBindingContext;
 import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
@@ -17,6 +16,7 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.StringUtils;
 
 import java.util.*;
 

@@ -3,7 +3,6 @@ package org.openl.rules.datatype.gen.bean.writers;
 import java.util.Date;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -11,6 +10,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
+import org.openl.util.StringUtils;
 import org.openl.util.generation.DefaultValue;
 
 /**
@@ -26,7 +26,7 @@ public class ProtectedFieldsWriter extends DefaultBeanByteCodeWriter {
      * @param beanFields fields of generating class.
      */
     public ProtectedFieldsWriter(Map<String, FieldDescription> beanFields) {
-        super(StringUtils.EMPTY, null, beanFields);        
+        super(StringUtils.EMPTY, null, beanFields);
     }
     
     public void write(ClassWriter classWriter) {

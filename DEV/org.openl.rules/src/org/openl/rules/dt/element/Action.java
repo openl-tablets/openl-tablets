@@ -1,7 +1,5 @@
 package org.openl.rules.dt.element;
 
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
@@ -19,6 +17,8 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.ParameterDeclaration;
+import org.openl.util.ClassUtils;
+import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public class Action extends FunctionalRow implements IAction {
@@ -70,8 +70,7 @@ public class Action extends FunctionalRow implements IAction {
             // execution.
             //
             if (returnValue == null || ClassUtils.isAssignable(returnValue.getClass(),
-                    returnType.getInstanceClass(),
-                    true)) {
+                    returnType.getInstanceClass())) {
                 return returnValue;
             }
 

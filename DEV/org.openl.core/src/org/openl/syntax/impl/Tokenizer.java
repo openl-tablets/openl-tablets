@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.util.StringUtils;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;

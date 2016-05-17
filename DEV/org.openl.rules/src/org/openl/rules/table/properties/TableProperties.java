@@ -1,6 +1,5 @@
 package org.openl.rules.table.properties;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -11,6 +10,7 @@ import org.openl.types.impl.DynamicObject;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ArrayTool;
 import org.openl.util.EnumUtils;
+import org.openl.util.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

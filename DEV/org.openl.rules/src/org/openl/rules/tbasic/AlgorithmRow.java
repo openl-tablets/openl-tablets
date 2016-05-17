@@ -1,8 +1,8 @@
 package org.openl.rules.tbasic;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.meta.StringValue;
 import org.openl.rules.table.IGridRegion;
+import org.openl.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;

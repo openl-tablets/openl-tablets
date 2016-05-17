@@ -10,6 +10,7 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.binding.exception.MethodNotFoundException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
 import org.openl.rules.data.DataNodeBinder;
@@ -27,7 +28,7 @@ import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
-import org.openl.types.impl.MethodsHelper;
+import org.openl.util.CollectionUtils;
 
 /**
  * @author snshor
@@ -62,10 +63,18 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         IdentifierNode[] parsedHeader = Tokenizer.tokenize(source, " \n\r");
         checkParsedHeader(parsedHeader, source);
 
-        String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
+        final String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
         String tableName = parsedHeader[TABLE_NAME_INDEX].getIdentifier();
 
-        IOpenMethod[] testedMethods = MethodsHelper.getMethods(typeName, module.getMethods());
+        List<IOpenMethod> testedMethods = CollectionUtils.findAll(module.getMethods(), new CollectionUtils.Predicate<IOpenMethod>() {
+            @Override public boolean evaluate(IOpenMethod method) {
+                return typeName.equals(method.getName());
+            }
+        });
+        if (testedMethods.isEmpty()) {
+            throw new MethodNotFoundException(null, typeName, IOpenClass.EMPTY);
+        }
+
         IOpenMethodHeader header = TestMethodHelper.makeHeader(tableName, module);
 
         int i = 0;
@@ -126,7 +135,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             } catch (AmbiguousMethodException e) {
                 throw e;
             } catch (Exception e) {
-                if (i < testedMethods.length - 1) {
+                if (i < testedMethods.size() - 1) {
                     continue;
                 }
                 throw e;
@@ -154,4 +163,5 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         String message = String.format("Type not found: '%s'", typeName);
         throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
     }
+
 }

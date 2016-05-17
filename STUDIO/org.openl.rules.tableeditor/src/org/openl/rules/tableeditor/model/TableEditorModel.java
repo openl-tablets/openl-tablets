@@ -4,7 +4,6 @@
  */
 package org.openl.rules.tableeditor.model;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableUtils;
@@ -24,6 +23,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.tableeditor.renderkit.TableEditor;
+import org.openl.util.StringUtils;
 import org.openl.util.formatters.IFormatter;
 
 import java.io.IOException;

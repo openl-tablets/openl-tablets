@@ -6,11 +6,16 @@ import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_RUN;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
-import org.apache.commons.lang3.ArrayUtils;
+import org.openl.classloader.ClassLoaderCloserFactory;
+import org.openl.classloader.SimpleBundleClassLoader;
+import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
+import org.openl.rules.project.model.Module;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.richfaces.ProjectTreeBuilder;
+import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.CollectionUtils;
 import org.openl.util.tree.ITreeElement;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
@@ -22,14 +27,14 @@ import org.richfaces.model.TreeNodeImpl;
 @SessionScoped
 public class TreeBean {
 
-    boolean hideDispatcherTables = true;
+    private boolean hideUtilityTables = true;
 
-    public void setHideDispatcherTables(boolean hideDispatcherTables) {
-        this.hideDispatcherTables = hideDispatcherTables;
+    public void setHideUtilityTables(boolean hideUtilityTables) {
+        this.hideUtilityTables = hideUtilityTables;
     }
 
-    public boolean isHideDispatcherTables() {
-        return hideDispatcherTables;
+    public boolean isHideUtilityTables() {
+        return hideUtilityTables;
     }
 
     public void setCurrentView(String currentView) throws Exception {
@@ -44,18 +49,47 @@ public class TreeBean {
     public int getProjectTestsCount() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         TestSuiteMethod[] allTestMethods = studio.getModel().getAllTestMethods();
-        return ArrayUtils.isNotEmpty(allTestMethods) ? allTestMethods.length : 0;
+        return CollectionUtils.isNotEmpty(allTestMethods) ? allTestMethods.length : 0;
     }
 
     public TreeNode getTree() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         ITreeElement<?> tree = studio.getModel().getProjectTree();
         if (tree != null) {
-            TreeNode rfTree = new ProjectTreeBuilder(hideDispatcherTables).build(tree);
-            return rfTree;
+            Module module = studio.getCurrentModule();
+            CollectionUtils.Predicate<String> utilityTablePredicate = null;
+            if (hideUtilityTables) {
+                utilityTablePredicate = getUtilityTablePredicate(studio, module);
+            }
+
+            return new ProjectTreeBuilder(utilityTablePredicate).build(tree);
         }
         // Empty tree
         return new TreeNodeImpl();
     }
 
+    private CollectionUtils.Predicate<String> getUtilityTablePredicate(WebStudio studio, Module module) {
+        CollectionUtils.Predicate<String> utilityTablePredicate;
+        if (module.getExtension() == null) {
+            utilityTablePredicate = new DispatcherTablePredicate();
+        } else {
+            ClassLoader classLoader = null;
+            try {
+                classLoader = new SimpleBundleClassLoader(Thread.currentThread().getContextClassLoader());
+                utilityTablePredicate = ExtensionDescriptorFactory.getExtensionDescriptor(
+                        module.getExtension(), classLoader
+                ).getUtilityTablePredicate(studio.getModel().getXlsModuleNode());
+            } finally {
+                ClassLoaderCloserFactory.getClassLoaderCloser().close(classLoader);
+            }
+        }
+        return utilityTablePredicate;
+    }
+
+    private static class DispatcherTablePredicate implements CollectionUtils.Predicate<String> {
+        @Override
+        public boolean evaluate(String tableName) {
+            return tableName.startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
+        }
+    }
 }

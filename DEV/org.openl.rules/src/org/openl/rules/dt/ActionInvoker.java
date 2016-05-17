@@ -1,6 +1,6 @@
 package org.openl.rules.dt;
 
-import org.openl.rules.dtx.IBaseAction;
+import org.openl.rules.dt.IBaseAction;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
 

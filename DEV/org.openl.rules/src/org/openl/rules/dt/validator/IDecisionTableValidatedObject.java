@@ -4,7 +4,7 @@
 package org.openl.rules.dt.validator;
 
 import org.openl.ie.constrainer.consistencyChecking.CDecisionTable;
-import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.validator.IValidatedObject;
 
 /**
@@ -13,7 +13,7 @@ import org.openl.rules.validator.IValidatedObject;
  */
 public interface IDecisionTableValidatedObject extends IValidatedObject {
     
-    DecisionTable getDecisionTable();
+    IDecisionTable getDecisionTable();
 
     @Deprecated
     IConditionSelector getSelector();
@@ -23,7 +23,7 @@ public interface IDecisionTableValidatedObject extends IValidatedObject {
 
     /**
      * 
-     * @return true if the {@link DecisionTable} allows for ascending override (usually true for DT that return value)
+     * @return true if the {@link IDecisionTable} allows for ascending override (usually true for DT that return value)
      * @see CDecisionTable#isOverrideAscending()
      */
     

@@ -6,8 +6,6 @@ package org.openl.rules.dt.algorithm;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -31,8 +29,8 @@ import org.openl.rules.dt.type.BooleanTypeAdaptor;
 import org.openl.rules.dt.type.DoubleRangeAdaptor;
 import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.type.IntRangeAdaptor;
-import org.openl.rules.dtx.IBaseCondition;
-import org.openl.rules.dtx.algorithm.evaluator.DomainCanNotBeDefined;
+import org.openl.rules.dt.IBaseCondition;
+import org.openl.rules.dt.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -41,6 +39,8 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.ClassUtils;
+import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
 
@@ -323,7 +323,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     }
 
     private static boolean isMethodTypeNumber(IOpenClass methodType) {
-        return ClassUtils.isAssignable(methodType.getInstanceClass(), Number.class, true);
+        return ClassUtils.isAssignable(methodType.getInstanceClass(), Number.class);
     }
 
     // TODO to do - fix _NO_PARAM_ issue

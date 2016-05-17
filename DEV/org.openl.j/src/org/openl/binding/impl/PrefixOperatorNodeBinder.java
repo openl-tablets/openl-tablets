@@ -4,12 +4,12 @@
 
 package org.openl.binding.impl;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.util.ClassUtils;
 
 /**
  * @author snshor

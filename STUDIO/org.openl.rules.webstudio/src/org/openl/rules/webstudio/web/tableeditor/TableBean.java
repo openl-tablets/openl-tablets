@@ -10,8 +10,6 @@ import java.util.Map;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -21,7 +19,6 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.TableUriMethod;
-import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
@@ -42,6 +39,7 @@ import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenMethod;
+import org.openl.util.CollectionUtils;
 
 /**
  * Request scope managed bean for Table page.
@@ -338,11 +336,11 @@ public class TableBean {
      * runs without any parameters and tests without cases and runs.
      */
     public boolean isHasAnyTests() {
-        return ArrayUtils.isNotEmpty(allTests);
+        return CollectionUtils.isNotEmpty(allTests);
     }
 
     public boolean isHasTests() {
-        return ArrayUtils.isNotEmpty(tests);
+        return CollectionUtils.isNotEmpty(tests);
     }
 
     /**
@@ -373,8 +371,7 @@ public class TableBean {
             new TableServiceImpl().removeTable(gridTable);
             XlsSheetGridModel sheetModel = (XlsSheetGridModel) gridTable.getGrid();
             sheetModel.getSheetSource().getWorkbookSource().save();
-            studio.reset(ReloadType.SINGLE);
-            studio.rebuildModelProjectTree();
+            studio.compile();
             RecentlyVisitedTables visitedTables = studio.getModel().getRecentlyVisitedTables();
             visitedTables.remove(table);
         } catch (Exception e) {
@@ -401,9 +398,7 @@ public class TableBean {
 
     public void afterSaveAction(String newId) {
         final WebStudio studio = WebStudioUtils.getWebStudio();
-        //studio.setTableUri(newUri);
-        studio.reset(ReloadType.SINGLE);
-        studio.rebuildModelProjectTree();
+        studio.compile();
     }
 
     public boolean getCanEdit() {

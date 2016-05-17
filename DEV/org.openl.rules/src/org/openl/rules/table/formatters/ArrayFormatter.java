@@ -1,8 +1,8 @@
 package org.openl.rules.table.formatters;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.util.ArrayTool;
 import org.openl.util.StringTool;
+import org.openl.util.StringUtils;
 import org.openl.util.formatters.IFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

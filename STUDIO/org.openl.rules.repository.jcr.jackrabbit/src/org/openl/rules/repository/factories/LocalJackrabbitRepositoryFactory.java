@@ -11,7 +11,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeTypeManager;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.api.JackrabbitNodeTypeManager;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
@@ -26,6 +25,7 @@ import org.openl.rules.repository.jcr.JcrProductionRepository;
 import org.openl.rules.repository.utils.UserUtil;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

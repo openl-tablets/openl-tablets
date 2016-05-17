@@ -1,16 +1,15 @@
 package org.openl.rules.webstudio.web.repository;
 
 import com.thoughtworks.xstream.XStreamException;
-import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.IOUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +74,7 @@ public class RepositoryProjectRulesDeployConfig {
             try {
                 project.deleteArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
                 repositoryTreeState.refreshSelectedNode();
-                studio.reset(ReloadType.FORCED);
+                studio.reset();
             } catch (ProjectException e) {
                 FacesUtils.addErrorMessage("Cannot delete " + RULES_DEPLOY_CONFIGURATION_FILE + " file");
                 log.error(e.getMessage(), e);
@@ -96,7 +95,7 @@ public class RepositoryProjectRulesDeployConfig {
             } else {
                 project.addResource(RULES_DEPLOY_CONFIGURATION_FILE, inputStream);
                 repositoryTreeState.refreshSelectedNode();
-                studio.reset(ReloadType.FORCED);
+                studio.reset();
             }
         } catch (ProjectException e) {
             FacesUtils.addErrorMessage("Cannot save " + RULES_DEPLOY_CONFIGURATION_FILE + " file");
@@ -135,7 +134,7 @@ public class RepositoryProjectRulesDeployConfig {
     public void validateServiceName(FacesContext context, UIComponent toValidate, Object value) {
         String name = (String) value;
 
-        if (!StringUtils.isBlank(name)) {
+        if (StringUtils.isNotBlank(name)) {
             String message = "Invalid service name: only latin letters, numbers and _ are allowed, name must begin with a letter";
             FacesUtils.validate(name.matches("[a-zA-Z][a-zA-Z_\\-\\d]*"), message);
         }
@@ -143,7 +142,7 @@ public class RepositoryProjectRulesDeployConfig {
 
     public void validateServiceClass(FacesContext context, UIComponent toValidate, Object value) {
         String className = (String) value;
-        if (!StringUtils.isBlank(className)) {
+        if (StringUtils.isNotBlank(className)) {
             FacesUtils.validate(className.matches("([\\w$]+\\.)*[\\w$]+"), "Invalid class name");
         }
     }

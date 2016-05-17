@@ -1,8 +1,8 @@
 package org.openl.rules.convertor;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.IBindingContext;
 import org.openl.util.StringTool;
+import org.openl.util.StringUtils;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;

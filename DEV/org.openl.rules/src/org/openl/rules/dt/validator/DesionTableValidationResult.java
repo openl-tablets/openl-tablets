@@ -10,7 +10,7 @@ import java.util.List;
 import org.openl.ie.constrainer.consistencyChecking.Overlapping;
 import org.openl.ie.constrainer.consistencyChecking.Overlapping.OverlappingStatus;
 import org.openl.ie.constrainer.consistencyChecking.Uncovered;
-import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.validator.IValidationResult;
 import org.openl.util.ArrayOfNamedValues;
 
@@ -20,17 +20,17 @@ import org.openl.util.ArrayOfNamedValues;
  */
 public class DesionTableValidationResult implements IValidationResult {
 
-    private DecisionTable decisionTable;
+    private IDecisionTable decisionTable;
     private DecisionTableOverlapping[] overlappings;
     private DecisionTableUncovered[] uncovered;
 
-    public DesionTableValidationResult(DecisionTable decisionTable) {
+    public DesionTableValidationResult(IDecisionTable decisionTable) {
         this.decisionTable = decisionTable;
         this.overlappings = new DecisionTableOverlapping[] {};
         this.uncovered = new DecisionTableUncovered[] {};
     }
 
-    public DesionTableValidationResult(DecisionTable decisionTable,
+    public DesionTableValidationResult(IDecisionTable decisionTable,
             Overlapping[] overlappings,
             Uncovered[] uncovered,
             IConditionTransformer transformer,
@@ -91,7 +91,7 @@ public class DesionTableValidationResult implements IValidationResult {
         return tableUncovered;
     }
 
-    public DecisionTable getDecisionTable() {
+    public IDecisionTable getDecisionTable() {
         return decisionTable;
     }
 

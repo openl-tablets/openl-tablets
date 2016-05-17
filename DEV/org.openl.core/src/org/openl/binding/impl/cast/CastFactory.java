@@ -8,7 +8,6 @@ package org.openl.binding.impl.cast;
 
 import java.util.HashMap;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
@@ -19,6 +18,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.ClassUtils;
 
 /**
  * Base implementation of {@link ICastFactory} abstraction that used by engine

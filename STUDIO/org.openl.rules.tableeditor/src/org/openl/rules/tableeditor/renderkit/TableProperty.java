@@ -7,13 +7,13 @@ import java.util.List;
 
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.util.EnumUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Temporary class for holding table properties
@@ -148,7 +148,7 @@ public class TableProperty {
     }
 
     public String getStringValue() {        
-        String result = StringUtils.EMPTY;       
+        String result = StringUtils.EMPTY;
         if (value != null) {
             result = FormattersManager.getFormatter(type, getFormat()).format(value); 
         }        

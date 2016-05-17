@@ -11,9 +11,7 @@ import javax.faces.bean.RequestScoped;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -24,7 +22,9 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.CollectionUtils;
 import org.openl.util.ISelector;
+import org.openl.util.StringUtils;
 
 @ManagedBean
 @RequestScoped
@@ -169,7 +169,7 @@ public class SearchBean {
 
         ISelector<TableSyntaxNode> selectors = new CellValueSelector(query);
 
-        if (ArrayUtils.isNotEmpty(tableTypes)) {
+        if (CollectionUtils.isNotEmpty(tableTypes)) {
             selectors = selectors.and(new TableTypeSelector(tableTypes));
         }
 
@@ -178,7 +178,7 @@ public class SearchBean {
         }
 
         Map<String, Object> properties = getSearchProperties();
-        if (MapUtils.isNotEmpty(properties)) {
+        if (CollectionUtils.isNotEmpty(properties)) {
             selectors = selectors.and(new TablePropertiesSelector(properties));
         }
 

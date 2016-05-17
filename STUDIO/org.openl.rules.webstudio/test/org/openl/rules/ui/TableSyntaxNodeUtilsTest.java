@@ -2,7 +2,6 @@ package org.openl.rules.ui;
 
 import static org.junit.Assert.*;
 
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 
@@ -16,7 +15,7 @@ public class TableSyntaxNodeUtilsTest {
         assertEquals("Datatype", TableSyntaxNodeUtils.str2name("Datatype", XlsNodeTypes.XLS_DATATYPE));
         
         assertEquals("NO NAME", TableSyntaxNodeUtils.str2name(null, XlsNodeTypes.XLS_DATATYPE));
-        assertEquals("NO NAME", TableSyntaxNodeUtils.str2name(StringUtils.EMPTY, XlsNodeTypes.XLS_DATATYPE));
+        assertEquals("NO NAME", TableSyntaxNodeUtils.str2name("", XlsNodeTypes.XLS_DATATYPE));
         
         assertEquals("Rules", TableSyntaxNodeUtils.str2name("Rules", XlsNodeTypes.XLS_DT));
         

@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EventListener;
 import java.util.List;
 
 import javax.faces.context.FacesContext;
@@ -15,17 +14,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.ValidationException;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.lang3.StringUtils;
 import org.openl.classloader.ClassLoaderCloserFactory;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
-import org.openl.rules.common.CommonException;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -58,9 +53,11 @@ import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
+import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
+import org.openl.util.StringUtils;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,10 +73,6 @@ import com.thoughtworks.xstream.XStreamException;
  * @author snshor
  */
 public class WebStudio {
-
-    interface StudioListener extends EventListener {
-        void studioReset();
-    }
 
     private final Logger log = LoggerFactory.getLogger(WebStudio.class);
 
@@ -98,7 +91,6 @@ public class WebStudio {
 
     private String workspacePath;
     private ArrayList<BenchmarkInfoView> benchmarks = new ArrayList<BenchmarkInfoView>();
-    private List<StudioListener> listeners = new ArrayList<StudioListener>();
     private String tableUri;
     private ProjectModel model = new ProjectModel(this);
     private RulesProjectResolver projectResolver;
@@ -188,10 +180,6 @@ public class WebStudio {
         benchmarks.add(0, bi);
     }
 
-    public void addEventListener(StudioListener listener) {
-        listeners.add(listener);
-    }
-
     public void saveProject(HttpSession session) {
         try {
             RulesProject project = getCurrentProject(session);
@@ -199,8 +187,6 @@ public class WebStudio {
                 return;
             }
             project.save();
-            reset(ReloadType.FORCED);
-            model.getProjectTree();
         } catch (Exception e) {
             log.error("Can not Save changes", e);
             // TODO Display message - e.getMessage()
@@ -214,8 +200,6 @@ public class WebStudio {
                 return;
             }
             project.edit();
-            reset(ReloadType.FORCED);
-            model.getProjectTree();
         } catch (Exception e) {
             log.error("Can not Open project in Edit mode", e);
             // TODO Display message - e.getMessage()
@@ -339,16 +323,6 @@ public class WebStudio {
         return workspacePath;
     }
 
-    public synchronized void invalidateProjects() {
-        try {
-            WebStudioUtils.getRulesUserSession(FacesUtils.getSession()).getUserWorkspace().refresh();
-        } catch (CommonException e) {
-            log.error(e.getMessage(), e);
-        }
-
-        projects = null;
-    }
-
     public synchronized List<ProjectDescriptor> getAllProjects() {
         if (projects == null) {
             projects = projectResolver.listOpenLProjects();
@@ -360,36 +334,43 @@ public class WebStudio {
         benchmarks.remove(i);
     }
 
-    public boolean removeListener(StudioListener listener) {
-        return listeners.remove(listener);
+    public void compile() {
+//        reset(currentModule == null ? ReloadType.FORCED : ReloadType.SINGLE);
+        model.buildProjectTree(); // Reason: tree should be built
+        // before accessing the ProjectModel.
+        // Is is related to UI: rendering of
+        // frames is asynchronous and we
+        // should build tree before the
+        // 'content' frame
     }
 
-    public void reset(ReloadType reloadType) {
+    public void reset() {
+        reset(ReloadType.FORCED);
+    }
+
+    private void reset(ReloadType reloadType) {
         try {
             if (reloadType == ReloadType.FORCED) {
-                invalidateProjects();
-                if (currentProject != null) {
-                    String projectName = currentProject.getName();
-                    if (currentModule != null) {
-                        String moduleName = currentModule.getName();
-                        currentProject = null; // To reload current project
-                        selectModule(projectName, moduleName);
-                    } else {
-                        selectProject(projectName);
-                    }
-                }
+                reselectCurrentModule();
             }
             model.reset(reloadType);
-            for (StudioListener listener : listeners) {
-                listener.studioReset();
-            }
         } catch (Exception e) {
             log.error("Error when trying to reset studio model", e);
         }
     }
 
-    public void rebuildModelProjectTree() {
-        model.buildProjectTree();
+    private void reselectCurrentModule() throws Exception {
+        projects = null;
+        if (currentProject != null) {
+            String projectName = currentProject.getName();
+            if (currentModule != null) {
+                String moduleName = currentModule.getName();
+                currentProject = null; // To reload current project
+                selectModule(projectName, moduleName);
+            } else {
+                selectProject(projectName);
+            }
+        }
     }
 
     public void selectProject(String name) throws Exception {
@@ -485,8 +466,7 @@ public class WebStudio {
             // TODO Display message - e.getMessage()
         }
 
-        reset(ReloadType.FORCED);
-        rebuildModelProjectTree();
+        compile();
         clearUploadedFiles();
 
         return null;
@@ -563,8 +543,6 @@ public class WebStudio {
             throw new IllegalStateException("Error while updating project in user workspace.", e);
         }
 
-        reset(ReloadType.FORCED);
-        rebuildModelProjectTree();
         clearUploadedFiles();
 
         return null;
@@ -696,7 +674,7 @@ public class WebStudio {
     }
 
     public ProjectDescriptor getProjectByName(final String name) {
-        return CollectionUtils.find(getAllProjects(), new Predicate<ProjectDescriptor>() {
+        return CollectionUtils.findFirst(getAllProjects(), new CollectionUtils.Predicate<ProjectDescriptor>() {
             public boolean evaluate(ProjectDescriptor project) {
                 return project.getName().equals(name);
             }
@@ -705,7 +683,7 @@ public class WebStudio {
 
     public ProjectDependencyDescriptor getProjectDependency(final String dependencyName) {
         List<ProjectDependencyDescriptor> dependencies = getCurrentProjectDescriptor().getDependencies();
-        return CollectionUtils.find(dependencies, new Predicate<ProjectDependencyDescriptor>() {
+        return CollectionUtils.findFirst(dependencies, new CollectionUtils.Predicate<ProjectDependencyDescriptor>() {
             public boolean evaluate(ProjectDependencyDescriptor dependency) {
                 return dependency.getName().equals(dependencyName);
             }
@@ -760,10 +738,6 @@ public class WebStudio {
 
         currentModule = module;
         currentProject = currentModule != null ? currentModule.getProject() : null;
-
-        for (StudioListener listener : listeners) {
-            listener.studioReset();
-        }
     }
 
     public void setTreeView(RulesTreeView treeView) throws Exception {
@@ -910,7 +884,7 @@ public class WebStudio {
             projectName = getCurrentProjectDescriptor().getName();
         } else {
             // Get a project
-            ProjectDescriptor project = CollectionUtils.find(getAllProjects(), new Predicate<ProjectDescriptor>() {
+            ProjectDescriptor project = CollectionUtils.findFirst(getAllProjects(), new CollectionUtils.Predicate<ProjectDescriptor>() {
                 @Override
                 public boolean evaluate(ProjectDescriptor projectDescriptor) {
                     String projectURI = projectDescriptor.getProjectFolder().toURI().toString();
@@ -921,7 +895,7 @@ public class WebStudio {
                 return null;
             }
             // Get a module
-            Module module = CollectionUtils.find(project.getModules(), new Predicate<Module>() {
+            Module module = CollectionUtils.findFirst(project.getModules(), new CollectionUtils.Predicate<Module>() {
                 @Override
                 public boolean evaluate(Module module) {
                     if (module.getRulesRootPath() == null) {

@@ -1,6 +1,5 @@
 package org.openl.rules.ui;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -8,6 +7,7 @@ import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.types.IOpenMethod;
+import org.openl.util.StringUtils;
 
 public final class TableSyntaxNodeUtils {
 
@@ -59,10 +59,10 @@ public final class TableSyntaxNodeUtils {
                 for (String dimensionalPropertyName : dimensionalPropertyNames) {
                     String value = tableProperties.getPropertyValueAsString(dimensionalPropertyName);
 
-                    if (!StringUtils.isEmpty(value)) {
-                        String propertyInfo = StringUtils.join(dimensionalPropertyName, "=", value);
-                        dimensionInfo = StringUtils.join(dimensionInfo,
-                                StringUtils.isEmpty(dimensionInfo) ? StringUtils.EMPTY : ", ", propertyInfo);
+                    if (StringUtils.isNotEmpty(value)) {
+                        String propertyInfo = dimensionalPropertyName + "=" + value;
+                        dimensionInfo = dimensionInfo +
+                                (StringUtils.isEmpty(dimensionInfo) ? StringUtils.EMPTY : ", ") + propertyInfo;
                     }
                 }
             }
@@ -102,7 +102,9 @@ public final class TableSyntaxNodeUtils {
             resultName = tokens[tokens.length - 1].trim();
 
         } else if (tableType.equals(XlsNodeTypes.XLS_OTHER)) {
-            resultName = StringUtils.abbreviate(resultName, 57);
+            if (resultName != null && resultName.length() > 57) {
+                resultName = resultName.substring(0, 57) + "...";
+            }
         }
 
         return resultName;

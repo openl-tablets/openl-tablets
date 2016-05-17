@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.service;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.security.DefaultPrivileges;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleGroup;
@@ -8,6 +7,7 @@ import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.security.standalone.persistence.User;
 import org.openl.rules.security.standalone.service.UserInfoUserDetailsServiceImpl;
+import org.openl.util.StringUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;

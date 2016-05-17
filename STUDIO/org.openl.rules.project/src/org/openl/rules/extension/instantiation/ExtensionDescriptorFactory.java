@@ -1,7 +1,7 @@
 package org.openl.rules.extension.instantiation;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.project.model.Extension;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +17,7 @@ public final class ExtensionDescriptorFactory {
             extensionPackage = extension.getExtensionPackage();
             if (StringUtils.isBlank(extensionPackage)) {
                 // Get extension package using convention
-                extensionPackage = "org.openl.extension." + StringUtils.lowerCase(extension.getName());
+                extensionPackage = "org.openl.extension." + extension.getName().toLowerCase();
             }
 
             Class<?> extensionClass = classLoader.loadClass(extensionPackage + ".ExtensionDescriptor");

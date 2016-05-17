@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
@@ -15,6 +14,7 @@ import org.openl.rules.project.model.Property;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
+import org.openl.util.CollectionUtils;
 
 public class XmlProjectDescriptorSerializer implements IProjectDescriptorSerializer {
 

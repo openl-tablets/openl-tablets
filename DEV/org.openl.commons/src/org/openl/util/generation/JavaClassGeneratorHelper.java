@@ -1,7 +1,6 @@
 package org.openl.util.generation;
 
-import org.apache.commons.lang3.ClassUtils;
-import org.openl.util.ArrayTool;
+import org.openl.util.ClassUtils;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
@@ -20,13 +19,7 @@ public class JavaClassGeneratorHelper {
 
     public static String filterTypeName(Class<?> type) {
         if (type != null) {
-            if (!type.isPrimitive() && !(type.isArray() && ArrayTool.getLowerComponentType(type).isPrimitive())) {
-                // for not primitives
-                //
-                return String.format("%s.%s", ClassUtils.getPackageName(type), ClassUtils.getShortClassName(type));
-            } else {
-                return ClassUtils.getShortClassName(type);
-            }
+            return type.getCanonicalName();
         }
         return StringUtils.EMPTY;
     }
@@ -51,36 +44,6 @@ public class JavaClassGeneratorHelper {
         return String.format("/*\n * %s \n*/\n\n", comment);
     }
 
-    public static String getPackage(String classNameWithNamespace) {
-        int idx = classNameWithNamespace.lastIndexOf('.');
-        if (idx > 0) {
-            return classNameWithNamespace.substring(0, idx);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * 
-     * @param classNameWithNamespace name of the class with namespace, symbols
-     *            '/' or '.' are supported to be a separator<br>
-     *            (e.g. <code>my/test/TestClass</code> or
-     *            <code>my.test.TestClass</code>)
-     * 
-     * @return name of the class file without package (e.g.
-     *         <code>TestClass</code>) if no one of the supported symbols found,
-     *         returns classNameWithNamespace.
-     */
-    public static String getShortClassName(String classNameWithNamespace) {
-        if (classNameWithNamespace.contains("/")) {
-            String[] path = classNameWithNamespace.split("/");
-            return path[path.length - 1];
-        } else if (classNameWithNamespace.contains(".")) {
-            return ClassUtils.getShortCanonicalName(classNameWithNamespace);
-        }
-        return classNameWithNamespace;
-    }
-
     public static String getImportText(String importStr) {
         return String.format("import %s;\n", importStr);
     }
@@ -94,7 +57,7 @@ public class JavaClassGeneratorHelper {
     }
 
     public static String addImplementingInterfToClassDeclaration(String classDeclaration, String[] implementsInterfaces) {
-        String interfaces = StringTool.arrayToStringThroughSymbol(implementsInterfaces, ",");
+        String interfaces = StringUtils.join(implementsInterfaces, ",");
         return String.format("%s implements %s", classDeclaration, interfaces);
     }
 
@@ -270,21 +233,6 @@ public class JavaClassGeneratorHelper {
     public static String getStaticPublicFieldInitialization(String fieldType, String fieldName,
             String initializationValue) {
         return String.format("  public static %s %s = %s;\n\n", fieldType, fieldName, initializationValue);
-    }
-
-    /**
-     * 
-     * @param name name of the class with package, symbol '/' is used as
-     *            separator<br>
-     *            (e.g. <code>my/test/TestClass</code>)
-     * 
-     * @return class name without package with <code>.java</code> suffix (e.g.
-     *         <code>TestClass.java</code>)
-     */
-    public static String getClassFileName(String name) {
-        String className = JavaClassGeneratorHelper.getShortClassName(name);
-
-        return String.format("%s.java", className);
     }
 
     /**

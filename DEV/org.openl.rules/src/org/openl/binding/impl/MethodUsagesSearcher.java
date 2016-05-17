@@ -3,7 +3,6 @@ package org.openl.binding.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.lang.xls.PrebindOpenMethod;
@@ -14,6 +13,7 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ExecutableMethod;
 import org.openl.types.impl.MethodDelegator;
+import org.openl.util.CollectionUtils;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
 
@@ -145,7 +145,7 @@ public class MethodUsagesSearcher {
                 }
             }
         }
-        if (ArrayUtils.isNotEmpty(boundNode.getChildren())) {
+        if (CollectionUtils.isNotEmpty(boundNode.getChildren())) {
             for (IBoundNode child : boundNode.getChildren()) {
                 findAllMethods(child, methods, sourceString, startIndex);
             }

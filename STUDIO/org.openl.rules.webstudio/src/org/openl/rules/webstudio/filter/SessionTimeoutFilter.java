@@ -1,6 +1,6 @@
 package org.openl.rules.webstudio.filter;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,6 +1,6 @@
 package org.openl.rules.dt.element;
 
-import org.openl.rules.dtx.IDecisionTableParameterInfo;
+import org.openl.rules.dt.IDecisionTableParameterInfo;
 import org.openl.types.IParameterDeclaration;
 
 public class DecisionTableParameterInfo implements IDecisionTableParameterInfo {

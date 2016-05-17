@@ -1,9 +1,9 @@
 package org.openl.rules.validation.properties.dimentional;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.expressions.match.MatchingExpression;
+import org.openl.util.StringUtils;
 
 /**
  * Column that is used in the dispatching table, built by dimension properties of the group of tables.

@@ -6,12 +6,13 @@ import org.openl.rules.ui.IProjectTypes;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.CollectionUtils;
 import org.openl.util.tree.ITreeElement;
 
 public class ProjectTreeBuilder extends TreeBuilder {
 
-    public ProjectTreeBuilder(boolean hideDispatcherTables) {
-        super(hideDispatcherTables);
+    public ProjectTreeBuilder(CollectionUtils.Predicate<String> utilityTablePredicate) {
+        super(utilityTablePredicate);
     }
 
     @Override

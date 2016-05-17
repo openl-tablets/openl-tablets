@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.AmbiguousMethodException;
@@ -25,8 +24,8 @@ import org.openl.rules.dt.builder.ConditionsBuilder;
 import org.openl.rules.dt.builder.DecisionTableBuilder;
 import org.openl.rules.dt.builder.ReturnColumnBuilder;
 import org.openl.rules.dt.builder.TableHeaderBuilder;
-import org.openl.rules.dtx.IBaseAction;
-import org.openl.rules.dtx.IBaseCondition;
+import org.openl.rules.dt.IBaseAction;
+import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -51,6 +50,7 @@ import org.openl.types.NullOpenClass;
 import org.openl.types.impl.MethodDelegator;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
