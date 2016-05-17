@@ -24,6 +24,14 @@ import org.openl.util.ArrayTool;
 
 public class DatatypeHelper {
 
+    /**
+     * Datatype table can contain no more than 3 columns:
+     * 1) First column - type name
+     * 2) Second column - field name
+     * 3) Third column - default value
+     */
+    private static final int MAXIMUM_COLUMNS_COUNT = 3;
+
     @SuppressWarnings("unchecked")
     public static IDomain<?> getTypeDomain(ILogicalTable table, IOpenClass type, OpenL openl, IBindingContext cxt)
         throws SyntaxNodeException {
@@ -48,7 +56,7 @@ public class DatatypeHelper {
 
     public static ILogicalTable getNormalizedDataPartTable(ILogicalTable table, OpenL openl, IBindingContext cxt) {
         
-        ILogicalTable dataPart = null;
+        ILogicalTable dataPart;
         if (PropertiesHelper.getPropertiesTableSection(table) != null) {
             dataPart = table.getRows(2);
         } else {
@@ -63,6 +71,14 @@ public class DatatypeHelper {
         if (dataPart.getHeight() == 1) {
             return dataPart;
         } else if (dataPart.getWidth() == 1) {
+            return dataPart.transpose();
+        }
+
+        if (dataPart.getHeight() > MAXIMUM_COLUMNS_COUNT) {
+            return dataPart;
+        }
+
+        if (dataPart.getWidth() > MAXIMUM_COLUMNS_COUNT) {
             return dataPart.transpose();
         }
 
