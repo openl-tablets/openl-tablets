@@ -335,7 +335,7 @@ public class WebStudio {
     }
 
     public void compile() {
-//        reset(currentModule == null ? ReloadType.FORCED : ReloadType.SINGLE);
+        reset(currentModule == null ? ReloadType.FORCED : ReloadType.SINGLE);
         model.buildProjectTree(); // Reason: tree should be built
         // before accessing the ProjectModel.
         // Is is related to UI: rendering of
