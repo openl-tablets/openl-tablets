@@ -19,6 +19,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.logging.CollectOpenLServiceIntercepror;
+import org.openl.rules.ruleservice.logging.CollectOperationResourceInfoInterceptor;
 import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSInterfaceEnhancerHelper;
 import org.openl.rules.ruleservice.servlet.AvailableServicesGroup;
@@ -129,6 +130,10 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 svrFactory.getFeatures().add(getStoreLoggingFeatureBean());
                 svrFactory.getInInterceptors().add(new CollectOpenLServiceIntercepror(service));
                 svrFactory.getInInterceptors().add(new CollectPublisherTypeInterceptor(getPublisherType()));
+                svrFactory.getInInterceptors().add(new CollectOperationResourceInfoInterceptor());
+                svrFactory.getInFaultInterceptors().add(new CollectOpenLServiceIntercepror(service));
+                svrFactory.getInFaultInterceptors().add(new CollectPublisherTypeInterceptor(getPublisherType()));
+                svrFactory.getInFaultInterceptors().add(new CollectOperationResourceInfoInterceptor());
             }
             Class<?> serviceClass = enhanceServiceClassWithJAXRSAnnotations(service.getServiceClass(), service, url);
             svrFactory.setResourceClasses(serviceClass);

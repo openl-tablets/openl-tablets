@@ -9,7 +9,7 @@
     </parent>
     <artifactId>org.openl.rules.ruleservice</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL - RuleService - RuleService</name>
+    <name>OpenL - RuleService - Core</name>
     <description>Common OpenL Rules service</description>
     <url>//openl-tablets.org</url>
     <build>

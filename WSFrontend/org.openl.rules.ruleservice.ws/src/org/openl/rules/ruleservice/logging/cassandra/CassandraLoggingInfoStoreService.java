@@ -2,6 +2,7 @@ package org.openl.rules.ruleservice.logging.cassandra;
 
 import org.openl.rules.ruleservice.logging.LoggingInfo;
 import org.openl.rules.ruleservice.logging.LoggingInfoStoringService;
+import org.openl.rules.ruleservice.logging.cassandra.LoggingRecord.LoggingRecordBuilder;
 import org.springframework.data.cassandra.core.CassandraOperations;
 
 import com.datastax.driver.core.utils.UUIDs;
@@ -19,59 +20,40 @@ public class CassandraLoggingInfoStoreService implements LoggingInfoStoringServi
     }
 
     @Override
-    public void store(LoggingInfo loggingData) {
+    public void store(LoggingInfo loggingInfo) {
         String publisherType = null;
-        if (loggingData.getPublisherType() != null) {
-            publisherType = loggingData.getPublisherType().toString();
+        if (loggingInfo.getPublisherType() != null) {
+            publisherType = loggingInfo.getPublisherType().toString();
         }
-        LoggingRecord loggingRecord;
-        if (loggingData.getLoggingCustomData() != null) {
-            loggingRecord = new LoggingRecord(UUIDs.timeBased().toString(),
-                loggingData.getIncomingMessageTime(),
-                loggingData.getOutcomingMessageTime(),
-                loggingData.getRequestMessage().getPayload().toString(),
-                loggingData.getResponseMessage().getPayload().toString(),
-                loggingData.getServiceName(),
-                loggingData.getRequestMessage().getAddress().toString(),
-                loggingData.getInputName(),
-                publisherType,
-                loggingData.getLoggingCustomData().getCustomString1(),
-                loggingData.getLoggingCustomData().getCustomString2(),
-                loggingData.getLoggingCustomData().getCustomString3(),
-                loggingData.getLoggingCustomData().getCustomString4(),
-                loggingData.getLoggingCustomData().getCustomString5(),
-                loggingData.getLoggingCustomData().getCustomNumber1(),
-                loggingData.getLoggingCustomData().getCustomNumber2(),
-                loggingData.getLoggingCustomData().getCustomNumber3(),
-                loggingData.getLoggingCustomData().getCustomNumber4(),
-                loggingData.getLoggingCustomData().getCustomNumber5(),
-                loggingData.getLoggingCustomData().getCustomDate1(),
-                loggingData.getLoggingCustomData().getCustomDate2(),
-                loggingData.getLoggingCustomData().getCustomDate3());
-        } else {
-            loggingRecord = new LoggingRecord(UUIDs.timeBased().toString(),
-                loggingData.getIncomingMessageTime(),
-                loggingData.getOutcomingMessageTime(),
-                loggingData.getRequestMessage().getPayload().toString(),
-                loggingData.getResponseMessage().getPayload().toString(),
-                loggingData.getServiceName(),
-                loggingData.getRequestMessage().getAddress().toString(),
-                loggingData.getInputName(),
-                publisherType,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null);
+        LoggingRecordBuilder loggingRecordBuilder = new LoggingRecordBuilder();
+        loggingRecordBuilder.setId(UUIDs.timeBased().toString());
+        loggingRecordBuilder.setIncomingTime(loggingInfo.getIncomingMessageTime());
+        loggingRecordBuilder.setOutcomingTime(loggingInfo.getOutcomingMessageTime());
+        loggingRecordBuilder.setRequest(loggingInfo.getRequestMessage().getPayload().toString());
+        loggingRecordBuilder.setResponse(loggingInfo.getResponseMessage().getPayload().toString());
+        loggingRecordBuilder.setServiceName(loggingInfo.getServiceName());
+        loggingRecordBuilder.setUrl(loggingInfo.getRequestMessage().getAddress().toString());
+        loggingRecordBuilder.setInputName(loggingInfo.getInputName());
+        loggingRecordBuilder.setPublisherType(publisherType);
+
+        if (loggingInfo.getLoggingCustomData() != null) {
+            loggingRecordBuilder.setStringValue1(loggingInfo.getLoggingCustomData().getStringValue1());
+            loggingRecordBuilder.setStringValue2(loggingInfo.getLoggingCustomData().getStringValue2());
+            loggingRecordBuilder.setStringValue3(loggingInfo.getLoggingCustomData().getStringValue3());
+            loggingRecordBuilder.setStringValue4(loggingInfo.getLoggingCustomData().getStringValue4());
+            loggingRecordBuilder.setStringValue5(loggingInfo.getLoggingCustomData().getStringValue5());
+            loggingRecordBuilder.setNumberValue1(loggingInfo.getLoggingCustomData().getNumberValue1());
+            loggingRecordBuilder.setNumberValue2(loggingInfo.getLoggingCustomData().getNumberValue2());
+            loggingRecordBuilder.setNumberValue3(loggingInfo.getLoggingCustomData().getNumberValue3());
+            loggingRecordBuilder.setNumberValue4(loggingInfo.getLoggingCustomData().getNumberValue4());
+            loggingRecordBuilder.setNumberValue5(loggingInfo.getLoggingCustomData().getNumberValue5());
+            loggingRecordBuilder.setDateValue1(loggingInfo.getLoggingCustomData().getDateValue1());
+            loggingRecordBuilder.setDateValue2(loggingInfo.getLoggingCustomData().getDateValue2());
+            loggingRecordBuilder.setDateValue3(loggingInfo.getLoggingCustomData().getDateValue3());
         }
+
+        LoggingRecord loggingRecord = loggingRecordBuilder.build();
+
         cassandraOperations.insert(loggingRecord);
     }
 }

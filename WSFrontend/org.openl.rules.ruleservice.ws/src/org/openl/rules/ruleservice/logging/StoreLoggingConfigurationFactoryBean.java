@@ -14,18 +14,22 @@ public class StoreLoggingConfigurationFactoryBean implements FactoryBean<Logging
 
     private static final String CASSANDRA_STORING_SERVICE_BEAN_NAME = "cassandraLoggingInfoStoreService";
 
+    private static final String ELASTICSEARCH_STORING_SERVICE_BEAN_NAME = "elasticSearchLoggingInfoStoreService";
+
     private static final String CASSANDRA_TYPE = "cassandra";
+
+    private static final String ELASTICSEARCH_TYPE = "elasticsearch";
 
     private ApplicationContext applicationContext;
 
     private String type = CASSANDRA_TYPE;
-    
+
     private boolean loggingStoreEnable = false;
-    
+
     public boolean isLoggingStoreEnable() {
         return loggingStoreEnable;
     }
-    
+
     public void setLoggingStoreEnable(boolean loggingStoreEnable) {
         this.loggingStoreEnable = loggingStoreEnable;
     }
@@ -50,12 +54,19 @@ public class StoreLoggingConfigurationFactoryBean implements FactoryBean<Logging
 
     @Override
     public LoggingInfoStoringService getObject() throws Exception {
-        if (!isLoggingStoreEnable()){
+        if (!isLoggingStoreEnable()) {
             return null;
         }
         if (CASSANDRA_TYPE.equalsIgnoreCase(getType())) {
             log.info("Cassandra logging store is enabled!");
             return applicationContext.getBean(CASSANDRA_STORING_SERVICE_BEAN_NAME, LoggingInfoStoringService.class);
+        } else if (ELASTICSEARCH_TYPE.equalsIgnoreCase(getType())) {
+            log.info("Elastic Search logging store is enabled!");
+            LoggingInfoStoringService loggingInfoStoringService = applicationContext.getBean(ELASTICSEARCH_STORING_SERVICE_BEAN_NAME, LoggingInfoStoringService.class);
+            if (loggingInfoStoringService == null){
+                log.error("Elastic Search logging store wasn't configured! Please, refer to OpenL documentation.");
+            }
+            return loggingInfoStoringService;
         } else {
             return null;
         }
@@ -68,9 +79,9 @@ public class StoreLoggingConfigurationFactoryBean implements FactoryBean<Logging
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (!(CASSANDRA_TYPE.equalsIgnoreCase(getType()))) {
+        if (!(CASSANDRA_TYPE.equalsIgnoreCase(getType())) && !(ELASTICSEARCH_TYPE.equalsIgnoreCase(getType()))) {
             throw new IllegalArgumentException(
-                "Property 'type' is required! Supported value is '" + CASSANDRA_TYPE + "'!");
+                "Property 'type' is required! Supported value is '" + CASSANDRA_TYPE + "','" + ELASTICSEARCH_TYPE + "!");
         }
     }
 

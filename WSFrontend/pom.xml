@@ -20,6 +20,7 @@
         <module>org.openl.rules.ruleservice.rmi</module>
         <module>org.openl.rules.ruleservice.ws.databinding</module>
         <module>org.openl.rules.ruleservice.ws</module>
+        <module>org.openl.rules.ruleservice.ws.logging.elasticsearch</module>
     </modules>
     <repositories>
         <repository>

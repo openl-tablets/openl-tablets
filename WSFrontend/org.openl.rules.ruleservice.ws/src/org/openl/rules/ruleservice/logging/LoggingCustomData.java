@@ -3,122 +3,122 @@ package org.openl.rules.ruleservice.logging;
 import java.util.Date;
 
 public class LoggingCustomData {
-    private String customString1;
-    private String customString2;
-    private String customString3;
-    private String customString4;
-    private String customString5;
-    private Date customDate1;
-    private Date customDate2;
-    private Date customDate3;
-    private Integer customNumber1;
-    private Integer customNumber2;
-    private Integer customNumber3;
-    private Integer customNumber4;
-    private Integer customNumber5;
+    private String stringValue1;
+    private String stringValue2;
+    private String stringValue3;
+    private String stringValue4;
+    private String stringValue5;
+    private Date dateValue1;
+    private Date dateValue2;
+    private Date dateValue3;
+    private Long numberValue1;
+    private Long numberValue2;
+    private Long numberValue3;
+    private Long numberValue4;
+    private Long numberValue5;
 
-    public String getCustomString1() {
-        return customString1;
+    public String getStringValue1() {
+        return stringValue1;
     }
 
-    public void setCustomString1(String customString1) {
-        this.customString1 = customString1;
+    public void setStringValue1(String stringValue1) {
+        this.stringValue1 = stringValue1;
     }
 
-    public String getCustomString2() {
-        return customString2;
+    public String getStringValue2() {
+        return stringValue2;
     }
 
-    public void setCustomString2(String customString2) {
-        this.customString2 = customString2;
+    public void setStringValue2(String stringValue2) {
+        this.stringValue2 = stringValue2;
     }
 
-    public String getCustomString3() {
-        return customString3;
+    public String getStringValue3() {
+        return stringValue3;
     }
 
-    public void setCustomString3(String customString3) {
-        this.customString3 = customString3;
+    public void setStringValue3(String stringValue3) {
+        this.stringValue3 = stringValue3;
     }
 
-    public String getCustomString4() {
-        return customString4;
+    public String getStringValue4() {
+        return stringValue4;
     }
 
-    public void setCustomString4(String customString4) {
-        this.customString4 = customString4;
+    public void setStringValue4(String stringValue4) {
+        this.stringValue4 = stringValue4;
     }
 
-    public String getCustomString5() {
-        return customString5;
+    public String getStringValue5() {
+        return stringValue5;
     }
 
-    public void setCustomString5(String customString5) {
-        this.customString5 = customString5;
+    public void setStringValue5(String stringValue5) {
+        this.stringValue5 = stringValue5;
     }
 
-    public Date getCustomDate1() {
-        return customDate1;
+    public Date getDateValue1() {
+        return dateValue1;
     }
 
-    public void setCustomDate1(Date customDate1) {
-        this.customDate1 = customDate1;
+    public void setDateValue1(Date dateValue1) {
+        this.dateValue1 = dateValue1;
     }
 
-    public Date getCustomDate2() {
-        return customDate2;
+    public Date getDateValue2() {
+        return dateValue2;
     }
 
-    public void setCustomDate2(Date customDate2) {
-        this.customDate2 = customDate2;
+    public void setDateValue2(Date dateValue2) {
+        this.dateValue2 = dateValue2;
     }
 
-    public Date getCustomDate3() {
-        return customDate3;
+    public Date getDateValue3() {
+        return dateValue3;
     }
 
-    public void setCustomDate3(Date customDate3) {
-        this.customDate3 = customDate3;
+    public void setDateValue3(Date dateValue3) {
+        this.dateValue3 = dateValue3;
     }
 
-    public Integer getCustomNumber1() {
-        return customNumber1;
+    public Long getNumberValue1() {
+        return numberValue1;
     }
 
-    public void setCustomNumber1(Integer customNumber1) {
-        this.customNumber1 = customNumber1;
+    public void setNumberValue1(Long numberValue1) {
+        this.numberValue1 = numberValue1;
     }
 
-    public Integer getCustomNumber2() {
-        return customNumber2;
+    public Long getNumberValue2() {
+        return numberValue2;
     }
 
-    public void setCustomNumber2(Integer customNumber2) {
-        this.customNumber2 = customNumber2;
+    public void setNumberValue2(Long numberValue2) {
+        this.numberValue2 = numberValue2;
     }
 
-    public Integer getCustomNumber3() {
-        return customNumber3;
+    public Long getNumberValue3() {
+        return numberValue3;
     }
 
-    public void setCustomNumber3(Integer customNumber3) {
-        this.customNumber3 = customNumber3;
+    public void setNumberValue3(Long numberValue3) {
+        this.numberValue3 = numberValue3;
     }
 
-    public Integer getCustomNumber4() {
-        return customNumber4;
+    public Long getNumberValue4() {
+        return numberValue4;
     }
 
-    public void setCustomNumber4(Integer customNumber4) {
-        this.customNumber4 = customNumber4;
+    public void setNumberValue4(Long numberValue4) {
+        this.numberValue4 = numberValue4;
     }
 
-    public Integer getCustomNumber5() {
-        return customNumber5;
+    public Long getNumberValue5() {
+        return numberValue5;
     }
 
-    public void setCustomNumber5(Integer customNumber5) {
-        this.customNumber5 = customNumber5;
+    public void setNumberValue5(Long numberValue5) {
+        this.numberValue5 = numberValue5;
     }
 
 }

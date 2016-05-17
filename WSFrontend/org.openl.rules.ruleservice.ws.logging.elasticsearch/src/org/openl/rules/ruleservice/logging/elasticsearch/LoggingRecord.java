@@ -1,67 +1,64 @@
-package org.openl.rules.ruleservice.logging.cassandra;
+package org.openl.rules.ruleservice.logging.elasticsearch;
 
 import java.util.Date;
 
-import org.springframework.data.cassandra.mapping.CassandraType;
-import org.springframework.data.cassandra.mapping.PrimaryKey;
-import org.springframework.data.cassandra.mapping.Table;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
 
-import com.datastax.driver.core.DataType.Name;
-
-@Table
+@Document(indexName = "loggingrecord")
 public class LoggingRecord {
-    @PrimaryKey
+    @Id
     private String id;
 
     private Date incomingTime;
     private Date outcomingTime;
 
-    private String request;
-    private String response;
+    private Object request;
+    private Object response;
 
     private String serviceName;
     private String url;
     private String inputName;
     private String publisherType;
 
-    private String stringValue1;
-    private String stringValue2;
-    private String stringValue3;
-    private String stringValue4;
-    private String stringValue5;
+    private String customString1;
+    private String customString2;
+    private String customString3;
+    private String customString4;
+    private String customString5;
 
-    private Long numberValue1;
-    private Long numberValue2;
-    private Long numberValue3;
-    private Long numberValue4;
-    private Long numberValue5;
+    private Long customNumber1;
+    private Long customNumber2;
+    private Long customNumber3;
+    private Long customNumber4;
+    private Long customNumber5;
 
-    private Date dateValue1;
-    private Date dateValue2;
-    private Date dateValue3;
+    private Date customDate1;
+    private Date customDate2;
+    private Date customDate3;
 
     public LoggingRecord(String id,
             Date incomingTime,
             Date outcomingTime,
-            String request,
-            String response,
+            Object request,
+            Object response,
             String serviceName,
             String url,
             String inputName,
             String publisherType,
-            String stringValue1,
-            String stringValue2,
-            String stringValue3,
-            String stringValue4,
-            String stringValue5,
-            Long numberValue1,
-            Long numberValue2,
-            Long numberValue3,
-            Long numberValue4,
-            Long numberValue5,
-            Date dateValue1,
-            Date dateValue2,
-            Date dateValue3) {
+            String customString1,
+            String customString2,
+            String customString3,
+            String customString4,
+            String customString5,
+            Long customNumber1,
+            Long customNumber2,
+            Long customNumber3,
+            Long customNumber4,
+            Long customNumber5,
+            Date customDate1,
+            Date customDate2,
+            Date customDate3) {
         super();
         this.id = id;
         this.incomingTime = incomingTime;
@@ -72,19 +69,19 @@ public class LoggingRecord {
         this.url = url;
         this.inputName = inputName;
         this.publisherType = publisherType;
-        this.stringValue1 = stringValue1;
-        this.stringValue2 = stringValue2;
-        this.stringValue3 = stringValue3;
-        this.stringValue4 = stringValue4;
-        this.stringValue5 = stringValue5;
-        this.numberValue1 = numberValue1;
-        this.numberValue2 = numberValue2;
-        this.numberValue3 = numberValue3;
-        this.numberValue4 = numberValue4;
-        this.numberValue5 = numberValue5;
-        this.dateValue1 = dateValue1;
-        this.dateValue2 = dateValue2;
-        this.dateValue3 = dateValue3;
+        this.customString1 = customString1;
+        this.customString2 = customString2;
+        this.customString3 = customString3;
+        this.customString4 = customString4;
+        this.customString5 = customString5;
+        this.customNumber1 = customNumber1;
+        this.customNumber2 = customNumber2;
+        this.customNumber3 = customNumber3;
+        this.customNumber4 = customNumber4;
+        this.customNumber5 = customNumber5;
+        this.customDate1 = customDate1;
+        this.customDate2 = customDate2;
+        this.customDate3 = customDate3;
     }
 
     public String getPublisherType() {
@@ -95,11 +92,11 @@ public class LoggingRecord {
         return id;
     }
 
-    public String getRequest() {
+    public Object getRequest() {
         return request;
     }
 
-    public String getResponse() {
+    public Object getResponse() {
         return response;
     }
 
@@ -123,61 +120,56 @@ public class LoggingRecord {
         return url;
     }
 
-    public String getStringValue1() {
-        return stringValue1;
+    public String getCustomString1() {
+        return customString1;
     }
 
-    public String getStringValue2() {
-        return stringValue2;
+    public String getCustomString2() {
+        return customString2;
     }
 
-    public String getStringValue3() {
-        return stringValue3;
+    public String getCustomString3() {
+        return customString3;
     }
 
-    public String getStringValue4() {
-        return stringValue4;
+    public String getCustomString4() {
+        return customString4;
     }
 
-    public String getStringValue5() {
-        return stringValue5;
+    public String getCustomString5() {
+        return customString5;
     }
 
-    @CassandraType(type = Name.BIGINT)
-    public Long getNumberValue1() {
-        return numberValue1;
+    public Long getCustomNumber1() {
+        return customNumber1;
     }
 
-    @CassandraType(type = Name.BIGINT)
-    public Long getNumberValue2() {
-        return numberValue2;
+    public Long getCustomNumber2() {
+        return customNumber2;
     }
 
-    @CassandraType(type = Name.BIGINT)
-    public Long getNumberValue3() {
-        return numberValue3;
+    public Long getCustomNumber3() {
+        return customNumber3;
     }
 
-    @CassandraType(type = Name.BIGINT)
-    public Long getNumberValue4() {
-        return numberValue4;
+    public Long getCustomNumber4() {
+        return customNumber4;
     }
 
-    @CassandraType(type = Name.BIGINT)
-    public Long getNumberValue5() {
-        return numberValue5;
+    public Long getCustomNumber5() {
+        return customNumber5;
     }
 
-    public Date getDateValue1() {
-        return dateValue1;
+    public Date getCustomDate1() {
+        return customDate1;
     }
 
-    public Date getDateValue2() {
-        return dateValue2;
+    public Date getCustomDate2() {
+        return customDate2;
     }
 
-    public Date getDateValue3() {
-        return dateValue3;
+    public Date getCustomDate3() {
+        return customDate3;
     }
 
     @Override
@@ -186,34 +178,34 @@ public class LoggingRecord {
     }
 
     public static class LoggingRecordBuilder {
-        private String id;
+        protected String id;
 
-        private Date incomingTime;
-        private Date outcomingTime;
+        protected Date incomingTime;
+        protected Date outcomingTime;
 
-        private String request;
-        private String response;
+        protected Object request;
+        protected Object response;
 
-        private String serviceName;
-        private String url;
-        private String inputName;
-        private String publisherType;
+        protected String serviceName;
+        protected String url;
+        protected String inputName;
+        protected String publisherType;
 
-        private String stringValue1;
-        private String stringValue2;
-        private String stringValue3;
-        private String stringValue4;
-        private String stringValue5;
+        protected String stringValue1;
+        protected String stringValue2;
+        protected String stringValue3;
+        protected String stringValue4;
+        protected String stringValue5;
 
-        private Long numberValue1;
-        private Long numberValue2;
-        private Long numberValue3;
-        private Long numberValue4;
-        private Long numberValue5;
+        protected Long numberValue1;
+        protected Long numberValue2;
+        protected Long numberValue3;
+        protected Long numberValue4;
+        protected Long numberValue5;
 
-        private Date dateValue1;
-        private Date dateValue2;
-        private Date dateValue3;
+        protected Date dateValue1;
+        protected Date dateValue2;
+        protected Date dateValue3;
 
         public LoggingRecord build() {
             return new LoggingRecord(id,
@@ -255,12 +247,12 @@ public class LoggingRecord {
             return this;
         }
 
-        public LoggingRecordBuilder setRequest(String request) {
+        public LoggingRecordBuilder setRequest(Object request) {
             this.request = request;
             return this;
         }
 
-        public LoggingRecordBuilder setResponse(String response) {
+        public LoggingRecordBuilder setResponse(Object response) {
             this.response = response;
             return this;
         }
@@ -357,11 +349,11 @@ public class LoggingRecord {
             return outcomingTime;
         }
 
-        public String getRequest() {
+        public Object getRequest() {
             return request;
         }
 
-        public String getResponse() {
+        public Object getResponse() {
             return response;
         }
 

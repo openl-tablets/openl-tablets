@@ -23,6 +23,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.logging.CollectOpenLServiceIntercepror;
+import org.openl.rules.ruleservice.logging.CollectOperationResourceInfoInterceptor;
 import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
 import org.openl.rules.ruleservice.servlet.AvailableServicesGroup;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
@@ -139,6 +140,10 @@ public class WebServicesRuleServicePublisher extends AbstractRuleServicePublishe
                     svrFactory.getFeatures().add(getStoreLoggingFeatureBean());
                     svrFactory.getInInterceptors().add(new CollectOpenLServiceIntercepror(service));
                     svrFactory.getInInterceptors().add(new CollectPublisherTypeInterceptor(getPublisherType()));
+                    svrFactory.getInInterceptors().add(new CollectOperationResourceInfoInterceptor());
+                    svrFactory.getInFaultInterceptors().add(new CollectOpenLServiceIntercepror(service));
+                    svrFactory.getInFaultInterceptors().add(new CollectPublisherTypeInterceptor(getPublisherType()));
+                    svrFactory.getInFaultInterceptors().add(new CollectOperationResourceInfoInterceptor());
                 }
                 svrFactory.getBus().setExtension(service.getServiceClass().getClassLoader(), ClassLoader.class);
                 Server wsServer = svrFactory.create();

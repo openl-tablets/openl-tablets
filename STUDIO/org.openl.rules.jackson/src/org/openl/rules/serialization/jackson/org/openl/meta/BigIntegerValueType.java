@@ -50,7 +50,7 @@ public class BigIntegerValueType {
         @Override
         public BigIntegerValue deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException,
                                                                                       JsonProcessingException {
-            Number value = numberDeserializer.deserialize(jp, ctxt);
+            Number value = (Number) numberDeserializer.deserialize(jp, ctxt);
             if (value == null) {
                 return null;
             } else {

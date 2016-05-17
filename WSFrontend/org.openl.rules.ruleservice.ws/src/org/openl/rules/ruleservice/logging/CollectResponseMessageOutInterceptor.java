@@ -199,7 +199,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
             try {
                 getLoggingInfoStoringService().store(getLoggingInfo());
             } catch (Exception e) {
-                log.error("Logging infor storing failure!", e);
+                log.error("Logging info storing failure!", e);
             }
         }
     }

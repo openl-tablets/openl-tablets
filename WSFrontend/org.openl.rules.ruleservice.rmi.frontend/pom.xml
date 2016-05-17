@@ -9,7 +9,7 @@
     </parent>
     <artifactId>org.openl.rules.ruleservice.rmi.frontend</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL - RuleService - RuleService - RMI - Frontend</name>
+    <name>OpenL - RuleService - RMI Frontend</name>
     <description>OpenL Rules Rulesevice RMI</description>
     <url>//openl-tablets.org</url>
     <properties>

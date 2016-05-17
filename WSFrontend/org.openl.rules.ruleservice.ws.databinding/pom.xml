@@ -9,7 +9,7 @@
     </parent>
     <artifactId>org.openl.rules.ruleservice.ws.databinding</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL - RuleService - RuleService - Web Services Databinding</name>
+    <name>OpenL - RuleService - Web Services - Databinding</name>
     <description>OpenL Rules Webservice Databinding</description>
     <url>//openl-tablets.org</url>
     <properties>

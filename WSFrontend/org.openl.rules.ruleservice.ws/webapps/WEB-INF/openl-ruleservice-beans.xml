@@ -5,8 +5,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 	                    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-	<context:property-placeholder location="classpath:openl-ruleservice.properties,classpath:cassandra.properties"/>
-	<context:property-placeholder location="classpath*:*-ruleservice-ext.properties" order="-2147483648" ignore-unresolvable="true" system-properties-mode="OVERRIDE"/>
+	<import resource="classpath:openl-ruleservice-property-placeholder.xml"/>
 
 	<import resource="classpath:openl-ruleservice-core-beans.xml"/>
 	<import resource="classpath:openl-ruleservice-conf-beans.xml"/>

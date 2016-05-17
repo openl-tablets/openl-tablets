@@ -1,8 +1,11 @@
 package org.openl.rules.ruleservice.logging;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.cxf.interceptor.LoggingMessage;
+import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
 
 /**
@@ -25,7 +28,11 @@ public class LoggingInfo {
     
     private PublisherType publisherType;
     
+    private OperationResourceInfo operationResourceInfo;
+    
     private LoggingCustomData loggingCustomData;
+    
+    private Map<String, Object> context = new HashMap<String, Object>();
     
     public PublisherType getPublisherType() {
         return publisherType;
@@ -97,5 +104,17 @@ public class LoggingInfo {
     
     public void setLoggingCustomData(LoggingCustomData loggingCustomData) {
         this.loggingCustomData = loggingCustomData;
+    }
+    
+    public OperationResourceInfo getOperationResourceInfo() {
+        return operationResourceInfo;
+    }
+    
+    public void setOperationResourceInfo(OperationResourceInfo operationResourceInfo) {
+        this.operationResourceInfo = operationResourceInfo;
+    }
+    
+    public Map<String, Object> getContext() {
+        return context;
     }
 }

@@ -6,13 +6,12 @@
 	                    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<import resource="classpath:openl-ruleservice-cassandra-beans.xml" />
-	
+
 	<!-- Logging request/response feature to external storage feature beans. -->
 
 	<!-- Cassandra logging store service bean. -->
-	<bean id="cassandraLoggingInfoStoreService" class="org.openl.rules.ruleservice.logging.cassandra.CassandraLoggingInfoStoreService" lazy-init="true" scope="prototype">
+	<bean id="cassandraLoggingInfoStoreService" class="org.openl.rules.ruleservice.logging.cassandra.CassandraLoggingInfoStoreService" lazy-init="true">
 		<property name="cassandraOperations" ref="cassandraTemplate"/>
-		<!-- <property name="jacksonObjectMapper" ref="loggingJacksonObjectMapper"/>  -->
 	</bean>
 	
 	<!-- This is databinding (JSON) access feature in logging store for each service. Not remove commented code bellow. -->
@@ -37,7 +36,7 @@
 	</bean>-->
 	
 	<!-- Bean for configure storages type via openl-ruleservice.properties file. -->
-	<bean id="loggingInfoStoringService" class="org.openl.rules.ruleservice.logging.StoreLoggingConfigurationFactoryBean">
+	<bean id="loggingInfoStoringService" class="org.openl.rules.ruleservice.logging.StoreLoggingConfigurationFactoryBean" lazy-init="false">
 		<property name="loggingStoreEnable" value="${ruleservice.logging.store.enabled}"/>
 		<property name="type" value="${ruleservice.logging.store.type}"/>
 	</bean> 
