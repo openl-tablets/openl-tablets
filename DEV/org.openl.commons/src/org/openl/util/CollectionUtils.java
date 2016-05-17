@@ -144,8 +144,8 @@ public class CollectionUtils {
      * @param <T> the type of object the {@link Iterable} contains
      * @param col the collection to search, may be null
      * @param predicate the predicate to use
-     * @return the first element of the collection which matches the predicate
-     *         or null if none could be found
+     * @return the all the elements of the collection which matches the predicate
+     *         or [] if none could be found
      * @throws NullPointerException if the predicate is null
      */
     public static <T> List<T> findAll(Iterable<T> col, Predicate<? super T> predicate) {
