@@ -1,21 +1,6 @@
 package org.openl.util.benchmark;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.openl.util.Log;
-
 public class Benchmark {
-
-    public List<BenchmarkInfo> measureAllInList(BenchmarkUnit[] units, int ms) throws Exception {
-        List<BenchmarkInfo> list = new ArrayList<BenchmarkInfo>();
-        for (BenchmarkUnit bu: units) {
-            Log.info("Benchmarking Unit " + bu.getName());
-            BenchmarkInfo bi = runUnit(bu, ms);
-            list.add(bi);
-        }
-        return list;
-    }
 
     public BenchmarkInfo runUnit(BenchmarkUnit bu, int ms) throws Exception {
 
