@@ -1,15 +1,9 @@
 package org.openl.rules.calc.result;
 
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.util.ClassUtils;
 
 public class SpreadsheetResultHelper {
     private SpreadsheetResultHelper() {
-    }
-
-    public static boolean isSpreadsheetResult(Class<?> clazz) {
-        return ClassUtils.isAssignable(clazz, SpreadsheetResult.class);
     }
 
     public static void noMandatoryColumn(String mandatoryColumnName) {

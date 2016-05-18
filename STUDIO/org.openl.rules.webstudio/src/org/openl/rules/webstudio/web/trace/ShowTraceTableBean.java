@@ -11,7 +11,6 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.calc.result.SpreadsheetResultHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.method.ExecutableRulesMethod;
@@ -30,6 +29,7 @@ import org.openl.rules.webstudio.web.trace.node.DecisionTableTraceObject;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.ClassUtils;
 import org.openl.util.CollectionUtils;
 
 /**
@@ -133,7 +133,7 @@ public class ShowTraceTableBean {
     }
 
     public static boolean isSpreadsheetResult(Object value) {
-        return value != null && SpreadsheetResultHelper.isSpreadsheetResult(value.getClass());
+        return value != null && ClassUtils.isAssignable(value.getClass(), SpreadsheetResult.class);
     }
 
     public String getFormattedSpreadsheetResult(Object value) {
