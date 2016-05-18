@@ -1,14 +1,7 @@
 package org.openl.rules.calc.result;
 
-import org.openl.exception.OpenlNotCheckedException;
-
 public class SpreadsheetResultHelper {
     private SpreadsheetResultHelper() {
-    }
-
-    public static void noMandatoryColumn(String mandatoryColumnName) {
-        String message = String.format("Spreadsheet does not have a mandatory column: %s", mandatoryColumnName);
-        throw new OpenlNotCheckedException(message);
     }
 
     public static int getColumnIndex(String columnName, String[] colNames) {
@@ -45,7 +38,7 @@ public class SpreadsheetResultHelper {
 
         int columnIndex = getColumnIndex(columnName, colNames);
         if (columnIndex < 0) {
-            noMandatoryColumn(columnName);
+            throw new IndexOutOfBoundsException("Spreadsheet does not have a mandatory column: " + columnName);
         }
         return columnIndex;
     }
