@@ -13,8 +13,8 @@ import org.openl.rules.webstudio.web.admin.RepositoryType;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProductionDProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
-import org.openl.util.filter.AllFilter;
-import org.openl.util.filter.IFilter;
+import org.openl.rules.webstudio.filter.AllFilter;
+import org.openl.rules.webstudio.filter.IFilter;
 import org.richfaces.component.UITree;
 import org.richfaces.event.TreeSelectionChangeEvent;
 import org.slf4j.Logger;
@@ -49,8 +49,7 @@ public class ProductionRepositoriesTreeState {
      */
     private TreeRepository root;
 
-    private static IFilter<AProjectArtefact> ALL_FILTER = new AllFilter<AProjectArtefact>();
-    private IFilter<AProjectArtefact> filter = ALL_FILTER;
+    private IFilter<AProjectArtefact> filter = new AllFilter<AProjectArtefact>();
 
     private void buildTree() {
         if (root != null) {

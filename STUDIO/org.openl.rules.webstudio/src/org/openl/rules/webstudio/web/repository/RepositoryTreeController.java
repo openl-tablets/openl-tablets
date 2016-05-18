@@ -45,7 +45,7 @@ import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
-import org.openl.util.filter.IFilter;
+import org.openl.rules.webstudio.filter.IFilter;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

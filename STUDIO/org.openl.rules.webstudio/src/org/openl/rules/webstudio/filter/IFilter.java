@@ -1,4 +1,4 @@
-package org.openl.util.filter;
+package org.openl.rules.webstudio.filter;
 
 import org.openl.util.ISelector;
 

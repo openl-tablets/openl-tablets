@@ -6,7 +6,7 @@ import org.openl.rules.common.VersionInfo;
 import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.repository.UiConst;
-import org.openl.util.filter.IFilter;
+import org.openl.rules.webstudio.filter.IFilter;
 
 import java.util.Date;
 
