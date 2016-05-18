@@ -265,19 +265,6 @@ public class ArrayTool {
         return newArray;
     }
 
-    public static boolean noNulls(Object[] values) {
-        boolean result = false;
-        if (CollectionUtils.isNotEmpty(values)) {
-            for (Object value : values) {
-                if (value == null) {
-                    return result;
-                }
-            }
-            result = true;
-        }
-        return result;
-    }
-
     public static int getNotNullValuesCount(Object[] values) {
         if (CollectionUtils.isEmpty(values)) {
             return 0;
