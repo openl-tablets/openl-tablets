@@ -1,10 +1,6 @@
 package org.openl.util;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertSame;
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertNotSame;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.Test;
