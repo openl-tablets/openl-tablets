@@ -1,5 +1,16 @@
 package org.openl.rules.calc.result;
 
+/*
+ * #%L
+ * OpenL - DEV - Rules - Calculation Result
+ * %%
+ * Copyright (C) 2015 - 2016 OpenL Tablets
+ * %%
+ * See the file LICENSE.txt for copying permission.
+ * #L%
+ */
+
+
 public class SpreadsheetResultHelper {
     private SpreadsheetResultHelper() {
     }
