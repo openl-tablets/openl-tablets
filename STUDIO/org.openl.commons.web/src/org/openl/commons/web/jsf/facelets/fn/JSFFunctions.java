@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.commons.web.util.WebTool;
 import org.openl.util.StringTool;
@@ -94,10 +93,6 @@ public final class JSFFunctions {
 
     public static String unescape(String string) {
         return StringEscapeUtils.unescapeHtml4(string);
-    }
-
-    public static Number toNumber(String string) {
-        return NumberUtils.createNumber(string);
     }
 
     public static String encodeURL(String url) {
