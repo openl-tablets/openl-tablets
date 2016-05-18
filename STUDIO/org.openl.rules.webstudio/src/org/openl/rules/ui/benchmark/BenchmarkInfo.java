@@ -1,4 +1,4 @@
-package org.openl.util.benchmark;
+package org.openl.rules.ui.benchmark;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;

@@ -1,7 +1,5 @@
 package org.openl.util.ce;
 
-import org.openl.util.benchmark.Benchmark;
-
 public interface IActivity extends IDependent<IActivity>{
 	
 	/**

@@ -1,4 +1,4 @@
-package org.openl.util.benchmark;
+package org.openl.rules.ui.benchmark;
 
 public class Benchmark {
 
