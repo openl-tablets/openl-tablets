@@ -1,5 +1,6 @@
 package org.openl.util;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -62,7 +63,7 @@ public class CollectionUtils {
      *
      * @param array the checked array.
      * @return return {@code true} if the array does not contain any elements.
-     * @see Collection#isEmpty()
+     * @see T[].length
      */
     public static <T> boolean isEmpty(T[] array) {
         return array == null || array.length == 0;
@@ -76,6 +77,30 @@ public class CollectionUtils {
      * @return {@code true} if the array contains at least one element.
      */
     public static <T> boolean isNotEmpty(T[] array) {
+        return !isEmpty(array);
+    }
+
+    /**
+     * Return {@code true} if an array is null or is empty.
+     *
+     * @param array the checked array.
+     * @return return {@code true} if the array does not contain any elements.
+     * @see Array#getLength(Object)
+     * @throws IllegalArgumentException if the argument is not an array.
+     */
+    public static <T> boolean isEmpty(T array) {
+        return array == null || Array.getLength(array) == 0;
+    }
+
+    /**
+     * Return {@code true} if an array contains at least one element. This
+     * method is inverse to {@link #isEmpty(T[])}.
+     *
+     * @param array the checked array.
+     * @return {@code true} if the array contains at least one element.
+     * @throws IllegalArgumentException if the argument is not an array.
+     */
+    public static <T> boolean isNotEmpty(T array) {
         return !isEmpty(array);
     }
 
