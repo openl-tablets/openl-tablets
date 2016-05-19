@@ -17,11 +17,9 @@ import javax.validation.ValidationException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
-import org.openl.OpenL;
 import org.openl.classloader.ClassLoaderCloserFactory;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.conf.OpenLConfiguration;
 import org.openl.config.ConfigurationManager;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
@@ -117,6 +115,7 @@ public class WebStudio {
     private ConfigurationManager userSettingsManager;
 
     private boolean needRestart = false;
+    private boolean forcedCompile = true;
     private boolean needCompile = true;
 
     private List<ProjectFile> uploadedFiles = new ArrayList<ProjectFile>();
@@ -342,7 +341,7 @@ public class WebStudio {
     }
 
     public void forceCompile() {
-        reset(currentModule == null ? ReloadType.FORCED : ReloadType.SINGLE);
+        reset(forcedCompile ? ReloadType.FORCED : ReloadType.SINGLE);
         model.buildProjectTree(); // Reason: tree should be built
         // before accessing the ProjectModel.
         // Is is related to UI: rendering of
@@ -350,126 +349,56 @@ public class WebStudio {
         // should build tree before the
         // 'content' frame
         needCompile = false;
+        forcedCompile = false;
     }
 
     public void reset() {
         needCompile = true;
-        try {
-            setCurrentModule(null);
-        } catch (Exception e) {
-            //Shouldn't occure but...
-            log.error("Not expected exception occure!", e);
-        }
+        forcedCompile = true;
+        projects = null;
+        currentModule = null;
+        currentProject = null;
         reset(ReloadType.FORCED);
     }
 
     private void reset(ReloadType reloadType) {
         try {
-            if (reloadType == ReloadType.FORCED) {
-                projects = null;
-            }
+            model.setModuleInfo(currentModule);
             model.reset(reloadType);
         } catch (Exception e) {
             log.error("Error when trying to reset studio model", e);
         }
     }
 
-    public void init(String projectName, String moduleName) {
+    public synchronized void init(String projectName, String moduleName) {
         try {
-            if (StringUtils.isBlank(projectName) && StringUtils.isBlank(moduleName)) {
-                // Clear project/module on Home page
-                setCurrentModule(null);
+            ProjectDescriptor project = getProjectByName(projectName);
+            Module module = getModule(project, moduleName);
+            if (currentProject != project || currentModule != module) {
+                forcedCompile = true;
             }
-
-            if (StringUtils.isNotBlank(projectName)) {
-                ProjectDescriptor project = getCurrentProjectDescriptor();
-
-                if (StringUtils.isNotBlank(moduleName)) {
-                    synchronized (this) {
-                        // Select module
-                        Module module = getCurrentModule();
-                        if (project != null && module != null
-                                && !project.getName().equals(projectName)
-                                && !module.getName().equals(moduleName)) {
-                            // Delete all previous cached config
-                            OpenL.reset();
-                            OpenLConfiguration.reset();
-                        }
-                        selectModule(projectName, moduleName);
-                    }
-                } else {
-                    // Select project
-                    selectProject(projectName);
+            currentModule = module;
+            currentProject = project;
+            if (module != null && (needCompile || forcedCompile)) {
+                if (forcedCompile || needCompile) {
+                    forceCompile();
                 }
-            }
-            if (needCompile) {
-                forceCompile();
             }
         } catch (Exception e) {
             log.warn("Failed initialization. Project='{}'  Module='{}'", projectName, moduleName, e);
         }
-
     }
 
-    private void selectProject(String name) throws Exception {
-        if (StringUtils.isBlank(name)) {
-            if (currentProject != null) {
-                return;
+    public Module getModule(ProjectDescriptor project, final String moduleName) {
+        if (project == null) {
+            return null;
+        }
+        return CollectionUtils.findFirst(project.getModules(), new CollectionUtils.Predicate<Module>() {
+            @Override
+            public boolean evaluate(Module module) {
+                return module.getName().equals(moduleName);
             }
-
-            if (getAllProjects().size() > 0) {
-                currentProject = getAllProjects().get(0);
-            }
-            return;
-        }
-
-        currentProject = getProjectByName(name);
-
-        if (currentProject == null && getAllProjects().size() > 0) {
-            currentProject = getAllProjects().get(0);
-        }
-
-        currentModule = null;
-    }
-
-    private void selectModule(String projectName, String moduleName) throws Exception {
-        if (StringUtils.isBlank(projectName) || StringUtils.isBlank(moduleName)) {
-            if (currentModule != null) {
-                return;
-            }
-
-            if (getAllProjects().size() > 0) {
-                setCurrentModule(getAllProjects().get(0).getModules().get(0));
-            }
-            return;
-        }
-
-        ProjectDescriptor project;
-        if (currentProject != null && projectName.equals(currentProject.getName())) {
-            project = currentProject;
-        } else {
-            project = getProjectByName(projectName);
-        }
-        if (project != null) {
-            Module module = getModule(project, moduleName);
-            if (module != null) {
-                setCurrentModule(module);
-                return;
-            }
-        }
-
-        if (getAllProjects().size() > 0) {
-            setCurrentModule(getAllProjects().get(0).getModules().get(0));
-        }
-    }
-
-    public Module getModule(ProjectDescriptor project, String moduleName) {
-        for (Module module : project.getModules()) {
-            if (module.getName().equals(moduleName)) {
-                return module;
-            }
-        }
-        return null;
+        });
     }
 
     public String updateModule() {
@@ -760,22 +689,6 @@ public class WebStudio {
         }
 
         return false;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param module The current module to set.
-     * @throws Exception
-     */
-    private void setCurrentModule(Module module) throws Exception {
-        if (currentModule == null || !getModuleId(currentModule).equals(getModuleId(module))) {
-            model.setModuleInfo(module);
-            model.getRecentlyVisitedTables().clear();
-        }
-
-        currentModule = module;
-        currentProject = currentModule != null ? currentModule.getProject() : null;
     }
 
     public void setTreeView(RulesTreeView treeView) throws Exception {

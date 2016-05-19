@@ -895,6 +895,7 @@ public class ProjectModel {
                     webStudioWorkspaceDependencyManager.resetAll();
                 }
                 webStudioWorkspaceDependencyManager = null;
+                recentlyVisitedTables.clear();
                 break;
             case SINGLE:
                 webStudioWorkspaceDependencyManager.reset(new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, moduleToOpen.getName(), null)));
