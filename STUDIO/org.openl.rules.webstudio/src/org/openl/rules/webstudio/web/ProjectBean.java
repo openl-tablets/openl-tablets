@@ -372,7 +372,7 @@ public class ProjectBean {
     }
 
     private void refreshProject(String name) {
-        studio.reset();
+        studio.resetProjects();
         TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(name);
         if (projectNode != null) {
             // For example, repository wasn't refreshed yet

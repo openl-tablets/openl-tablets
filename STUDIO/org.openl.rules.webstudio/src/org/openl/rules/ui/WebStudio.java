@@ -353,10 +353,14 @@ public class WebStudio {
         forcedCompile = false;
     }
 
-    public void reset() {
+    public void resetProjects() {
         needCompile = true;
         forcedCompile = true;
         projects = null;
+    }
+
+    public void reset() {
+        resetProjects();
         currentModule = null;
         currentProject = null;
         reset(ReloadType.FORCED);
