@@ -63,7 +63,6 @@ public class MainBean {
     }
 
     public void compile() {
-        WebStudioUtils.getWebStudio().reset();
-        WebStudioUtils.getWebStudio().compile();
+        WebStudioUtils.getWebStudio().forceCompile();
     }
 }

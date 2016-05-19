@@ -117,6 +117,7 @@ public class WebStudio {
     private ConfigurationManager userSettingsManager;
 
     private boolean needRestart = false;
+    private boolean needCompile = true;
 
     private List<ProjectFile> uploadedFiles = new ArrayList<ProjectFile>();
 
@@ -337,6 +338,10 @@ public class WebStudio {
     }
 
     public void compile() {
+        needCompile = true;
+    }
+
+    public void forceCompile() {
         reset(currentModule == null ? ReloadType.FORCED : ReloadType.SINGLE);
         model.buildProjectTree(); // Reason: tree should be built
         // before accessing the ProjectModel.
@@ -344,9 +349,11 @@ public class WebStudio {
         // frames is asynchronous and we
         // should build tree before the
         // 'content' frame
+        needCompile = false;
     }
 
     public void reset() {
+        needCompile = true;
         reset(ReloadType.FORCED);
     }
 
@@ -388,6 +395,9 @@ public class WebStudio {
                     // Select project
                     selectProject(projectName);
                 }
+            }
+            if (needCompile) {
+                forceCompile();
             }
         } catch (Exception e) {
             log.warn("Failed initialization. Project='{}'  Module='{}'", projectName, moduleName, e);
