@@ -17,9 +17,11 @@ import javax.validation.ValidationException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
+import org.openl.OpenL;
 import org.openl.classloader.ClassLoaderCloserFactory;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.conf.OpenLConfiguration;
 import org.openl.config.ConfigurationManager;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
@@ -373,7 +375,41 @@ public class WebStudio {
         }
     }
 
-    public void selectProject(String name) throws Exception {
+    public void init(String projectName, String moduleName) {
+        try {
+            if (StringUtils.isBlank(projectName) && StringUtils.isBlank(moduleName)) {
+                // Clear project/module on Home page
+                setCurrentModule(null);
+            }
+
+            if (StringUtils.isNotBlank(projectName)) {
+                ProjectDescriptor project = getCurrentProjectDescriptor();
+
+                if (StringUtils.isNotBlank(moduleName)) {
+                    synchronized (this) {
+                        // Select module
+                        Module module = getCurrentModule();
+                        if (project != null && module != null
+                                && !project.getName().equals(projectName)
+                                && !module.getName().equals(moduleName)) {
+                            // Delete all previous cached config
+                            OpenL.reset();
+                            OpenLConfiguration.reset();
+                        }
+                        selectModule(projectName, moduleName);
+                    }
+                } else {
+                    // Select project
+                    selectProject(projectName);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed initialization. Project='{}'  Module='{}'", projectName, moduleName, e);
+        }
+
+    }
+
+    private void selectProject(String name) throws Exception {
         if (StringUtils.isBlank(name)) {
             if (currentProject != null) {
                 return;
@@ -394,7 +430,7 @@ public class WebStudio {
         currentModule = null;
     }
 
-    public void selectModule(String projectName, String moduleName) throws Exception {
+    private void selectModule(String projectName, String moduleName) throws Exception {
         if (StringUtils.isBlank(projectName) || StringUtils.isBlank(moduleName)) {
             if (currentModule != null) {
                 return;
@@ -944,4 +980,5 @@ public class WebStudio {
     public WebStudioLinkBuilder getLinkBuilder() {
         return linkBuilder;
     }
+
 }
