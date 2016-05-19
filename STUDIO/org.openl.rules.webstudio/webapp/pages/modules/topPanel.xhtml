@@ -185,7 +185,15 @@
 
         <h:panelGroup rendered="#{!empty module}">
         <div class="navbar-inner right">
-            <a onclick="compile(); return false;" href="#">Compile</a>
+            <span class="dropdown" style="text-align: right">
+                <a onclick="compile(); return false;" href="#" style="padding-right: 0px;">Compile#{studio.autoCompile ? " (Auto)" : ""}</a>
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#" style="padding-left: 0px;"><b class="caret"></b></a>
+                <ul class="dropdown-menu pull-right" role="menu">
+                    <li><a class="changes-listener" onclick="autoCompileOn(); return false;" href="#">Auto compilation - ON</a></li>
+                    <li><a class="changes-listener" onclick="autoCompileOff(); return false;" href="#">Auto compilation - OFF</a></li>
+                </ul>
+            </span>
+
             <span class="dropdown" style="text-align: right">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     #{studio.model.singleModuleMode ? "Single-module" : "Multi-module"}<b class="caret"></b>
@@ -201,6 +209,8 @@
         </h:panelGroup>
 
         <a4j:jsFunction name="compile" action="#{mainBean.compile}" onbegin="ws.ui.showLoader();" oncomplete="ws.nav.reload(true);ws.ui.hideLoader();" />
+        <a4j:jsFunction name="autoCompileOn" action="#{studio.setAutoCompile(true)}" onbegin="ws.ui.showLoader();" oncomplete="ws.nav.reload(true);ws.ui.hideLoader();" />
+        <a4j:jsFunction name="autoCompileOff" action="#{studio.setAutoCompile(false)}" onbegin="ws.ui.showLoader();" oncomplete="ws.nav.reload(true);ws.ui.hideLoader();" />
         <a4j:jsFunction name="forceReload" action="#{mainBean.reload}" onbegin="ws.ui.showLoader();" oncomplete="ws.nav.reload(true);ws.ui.hideLoader();" />
         <a4j:jsFunction name="useSingleModuleMode" action="#{studio.model.useSingleModuleMode}" onbegin="ws.ui.showLoader();" oncomplete="ws.nav.reload(true);ws.ui.hideLoader();" />
         <a4j:jsFunction name="useMultiModuleMode" action="#{studio.model.useMultiModuleMode}" onbegin="ws.ui.showLoader();" oncomplete="ws.nav.reload(true);ws.ui.hideLoader();" />

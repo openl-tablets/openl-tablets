@@ -117,6 +117,7 @@ public class WebStudio {
     private boolean needRestart = false;
     private boolean forcedCompile = true;
     private boolean needCompile = true;
+    private boolean autoCompile = true;
 
     private List<ProjectFile> uploadedFiles = new ArrayList<ProjectFile>();
 
@@ -370,6 +371,14 @@ public class WebStudio {
         }
     }
 
+    public void setAutoCompile(boolean autoCompile) {
+        this.autoCompile = autoCompile;
+    }
+
+    public boolean isAutoCompile() {
+        return autoCompile;
+    }
+
     public synchronized void init(String projectName, String moduleName) {
         try {
             ProjectDescriptor project = getProjectByName(projectName);
@@ -380,7 +389,7 @@ public class WebStudio {
             currentModule = module;
             currentProject = project;
             if (module != null && (needCompile || forcedCompile)) {
-                if (forcedCompile || needCompile) {
+                if (forcedCompile || (needCompile && autoCompile)) {
                     forceCompile();
                 }
             }
