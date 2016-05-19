@@ -354,6 +354,12 @@ public class WebStudio {
 
     public void reset() {
         needCompile = true;
+        try {
+            setCurrentModule(null);
+        } catch (Exception e) {
+            //Shouldn't occure but...
+            log.error("Not expected exception occure!", e);
+        }
         reset(ReloadType.FORCED);
     }
 
@@ -762,7 +768,7 @@ public class WebStudio {
      * @param module The current module to set.
      * @throws Exception
      */
-    public void setCurrentModule(Module module) throws Exception {
+    private void setCurrentModule(Module module) throws Exception {
         if (currentModule == null || !getModuleId(currentModule).equals(getModuleId(module))) {
             model.setModuleInfo(module);
             model.getRecentlyVisitedTables().clear();

@@ -1763,12 +1763,6 @@ public class RepositoryTreeController {
     }
 
     private void resetStudioModel() {
-        try {
-            studio.setCurrentModule(null);
-        } catch (Exception e) {
-            //Shouldn't occure but...
-            log.error("Not expected exception occure!", e);
-        }
         studio.reset();
     }
 
