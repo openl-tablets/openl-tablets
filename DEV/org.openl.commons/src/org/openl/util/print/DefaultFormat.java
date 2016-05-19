@@ -25,12 +25,6 @@ import org.openl.util.OpenIterator;
  */
 public class DefaultFormat {
 
-    private static DefaultFormat format = new DefaultFormat();
-
-    public static DefaultFormat get() {
-        return format;
-    }
-
     public static StringBuilder format(Object obj, StringBuilder buf) {
         if (obj == null) {
             return buf.append("null");
