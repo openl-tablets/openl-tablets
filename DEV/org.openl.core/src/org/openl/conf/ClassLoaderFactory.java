@@ -185,6 +185,7 @@ public class ClassLoaderFactory {
 
     }
 
+    //FIXME: multithreading issue: users can reset foreign OpenL calculation
     public static synchronized HashMap<Key, ClassLoader> reset() {
         HashMap<Key, ClassLoader> oldLoaders = userClassLoaders;
 
