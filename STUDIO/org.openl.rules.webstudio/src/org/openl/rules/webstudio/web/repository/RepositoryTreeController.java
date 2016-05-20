@@ -238,7 +238,6 @@ public class RepositoryTreeController {
         try {
             if (repositoryTreeState.getSelectedProject().equals(studio.getModel().getProject())) {
                 studio.getModel().clearModuleInfo();
-                studio.setCurrentModule(null);
             }
             repositoryTreeState.getSelectedProject().close();
             repositoryTreeState.refreshSelectedNode();
@@ -697,9 +696,6 @@ public class RepositoryTreeController {
         try {
             studio.getModel().clearModuleInfo(); // Release resources like jars
             String nodeType = selectedNode.getType();
-            if (UiConst.TYPE_PROJECT.equals(nodeType) && projectArtefact.equals(studio.getModel().getProject())) {
-                studio.setCurrentModule(null);
-            }
             unregisterSelectedNodeInProjectDescriptor();
             projectArtefact.delete();
             if (selectedNode != activeProjectNode) {
@@ -1767,12 +1763,6 @@ public class RepositoryTreeController {
     }
 
     private void resetStudioModel() {
-        try {
-            studio.setCurrentModule(null);
-        } catch (Exception e) {
-            //Shouldn't occure but...
-            log.error("Not expected exception occure!", e);
-        }
         studio.reset();
     }
 

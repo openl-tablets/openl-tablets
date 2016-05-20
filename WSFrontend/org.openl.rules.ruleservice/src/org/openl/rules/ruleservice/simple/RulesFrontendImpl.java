@@ -114,7 +114,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
                 }
             } 
         } else {
-            throw new MethodInvocationException("Service not found!");
+            throw new MethodInvocationException("Service '" + serviceName + "' not found!");
         }
     }
 

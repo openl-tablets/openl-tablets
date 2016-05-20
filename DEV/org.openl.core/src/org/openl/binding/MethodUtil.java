@@ -16,7 +16,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.OpenClassDelegator;
 import org.openl.util.ClassUtils;
 import org.openl.util.IConvertor;
-import org.openl.util.print.Formatter;
+import org.openl.util.print.DefaultFormat;
 
 /**
  * @author snshor
@@ -61,7 +61,23 @@ public class MethodUtil {
         IMethodSignature signature = methodHeader.getSignature();
 
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
-            printParameterInfo(typeConverter.convert(signature.getParameterType(i)), signature.getParameterName(i), i == 0, buf);
+            String type = typeConverter.convert(signature.getParameterType(i));
+            String name = signature.getParameterName(i);
+            if (i != 0) {
+                buf.append(", ");
+            }
+
+            if (type != null){
+                buf.append(type);
+            }
+
+            if (type != null && name != null){
+                buf.append(' ');
+            }
+
+            if (name != null){
+                buf.append(name);
+            }
         }
 
         endPrintingMethodName(buf);
@@ -73,11 +89,19 @@ public class MethodUtil {
 
     public static StringBuilder printMethod(String name, Class<?>[] params, StringBuilder buf) {
         startPrintingMethodName(name, buf);
-        
+
         for (int i = 0; i < params.length; i++) {
-            printParameterInfo(params[i].getName(), null, i == 0, buf);
+            String type = params[i].getName();
+            if (i != 0){
+                buf.append(", ");
+            }
+
+            if (type != null){
+                buf.append(type);
+            }
+
         }
-        
+
         endPrintingMethodName(buf);
         return buf;
     }
@@ -88,29 +112,45 @@ public class MethodUtil {
 
     public static StringBuilder printMethod(String name, IOpenClass[] params, StringBuilder buf) {
         startPrintingMethodName(name, buf);
-        
+
         for (int i = 0; i < params.length; i++) {
-            printParameterInfo(params[i].getName(), null, i == 0, buf);
+            String type = params[i].getName();
+            if (i != 0){
+                buf.append(", ");
+            }
+
+            if (type != null){
+                buf.append(type);
+            }
         }
         endPrintingMethodName(buf);
         return buf;
     }
 
-    public static StringBuilder printMethodWithParameterValues(IOpenMethodHeader method, Object[] params, int mode, StringBuilder buf) {
+    public static String printMethodWithParameterValues(IOpenMethodHeader method, Object[] params) {
+        StringBuilder buf = new StringBuilder();
         startPrintingMethodName(method.getName(), buf);
 
         IMethodSignature signature = method.getSignature();
         for (int i = 0; i < params.length; i++) {
-            printParameterInfo(null, signature.getParameterName(i), params[i], i == 0, mode, buf);
+            String name = signature.getParameterName(i);
+            if (i != 0){
+                buf.append(", ");
+            }
+
+            if (name != null){
+                buf.append(name);
+            }
+
+            if (params[i] != null){
+                buf.append(" = ");
+                DefaultFormat.format(params[i], buf);
+            }
         }
 
         endPrintingMethodName(buf);
 
-        return buf;
-    }
-    
-    public static String printMethodWithParameterValues(IOpenMethodHeader method, Object[] params, int mode) {
-        return printMethodWithParameterValues(method, params, mode, new StringBuilder()).toString();
+        return buf.toString();
     }
     
     private static void startPrintingMethodName(String name, StringBuilder buf) {
@@ -120,33 +160,7 @@ public class MethodUtil {
     private static void endPrintingMethodName(StringBuilder buf) {
         buf.append(')');
     }
-    private static void printParameterInfo(String type, String name, boolean isFirst, StringBuilder buf){
-        printParameterInfo(type, name, null, isFirst, 0, buf);
-    }
-    
-    private static void printParameterInfo(String type, String name, Object value, boolean isFirst, int displayMode, StringBuilder buf){
-        if (!isFirst){
-            buf.append(", ");
-        }
-        
-        if (type != null){
-            buf.append(type);
-        }
-        
-        if (type != null && name != null){
-            buf.append(' ');
-        }
-        
-        if (name != null){
-            buf.append(name);
-        }
-        
-        if (value != null){
-            buf.append(" = ");
-            Formatter.format(value, displayMode, buf);
-        }
-    }
-    
+
     public static Method getMatchingAccessibleMethod(Class<?> methodOwner, String methodName, Class<?>[] argTypes) {
         Method resultMethod = null;
         Method[] methods = methodOwner.getMethods();

@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.trace.node;
 
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.IBaseCondition;
+import org.openl.util.CollectionUtils;
 
 public class DTRuleTraceObject extends ATableTracerNode {
     protected final IBaseCondition condition;
@@ -40,6 +41,10 @@ public class DTRuleTraceObject extends ATableTracerNode {
             rules = ((DecisionTableRuleNode) args[1]).getRules();
         } else {
             rules = new int[] { ((Integer) args[1]) };
+        }
+        if (CollectionUtils.isEmpty(rules)) {
+            // Don't trace empty rules
+            return null;
         }
         boolean arg = (Boolean) args[2];
         return new DTRuleTraceObject(condition, rules, arg);

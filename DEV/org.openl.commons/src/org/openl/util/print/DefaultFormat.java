@@ -9,8 +9,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.openl.base.INamedThing;
+import org.openl.util.ClassUtils;
 import org.openl.util.OpenIterator;
-import org.openl.util.StringTool;
 
 /**
  * Default format to convert <code>Object</code> values to <code>String</code>
@@ -23,67 +23,60 @@ import org.openl.util.StringTool;
  * @author snshor
  * 
  */
-public class DefaultFormat implements IFormat {
+public class DefaultFormat {
 
-    public DefaultFormat() {
-        super();
-    }
-
-    public StringBuilder format(Object obj, int mode, StringBuilder buf) {
+    public static StringBuilder format(Object obj, StringBuilder buf) {
         if (obj == null) {
             return buf.append("null");
         }
 
         if (obj.getClass().isArray()) {
-            return formatArray(obj, mode, buf);
+            return formatArray(obj, buf);
         }
 
         if (obj instanceof Collection<?>) {
-            return formatCollection((Collection<?>) obj, mode, buf);
+            return formatCollection((Collection<?>) obj, buf);
         }
 
         if (obj instanceof Map<?, ?>) {
-            return formatMap((Map<?, ?>) obj, mode, buf);
+            return formatMap((Map<?, ?>) obj, buf);
         }
         if (obj instanceof Map.Entry<?, ?>) {
-            return formatMapEntry((Map.Entry<?, ?>) obj, mode, buf);
+            return formatMapEntry((Map.Entry<?, ?>) obj, buf);
         }
-        if (!isPrimitive(obj.getClass())) {
-            return formatBean(obj, mode, buf);
+        if (!obj.getClass().isPrimitive()) {
+            return formatBean(obj, buf);
         }
 
         return buf.append(obj);
     }
 
-    private StringBuilder formatMapEntry(Map.Entry<?, ?> obj, int mode, StringBuilder buf) {
+    private static StringBuilder formatMapEntry(Map.Entry<?, ?> obj, StringBuilder buf) {
         buf.append("(");
-        Formatter.format(obj.getKey(), mode, buf);
+        format(obj.getKey(), buf);
         buf.append(" : ");
-        Formatter.format(obj.getValue(), mode, buf);
+        format(obj.getValue(), buf);
         buf.append(")");
         return buf;
     }
 
-    protected StringBuilder formatArray(Object obj, int mode, StringBuilder buf) {
-        int maxLen = maxCollectionLength(mode);
+    protected static StringBuilder formatArray(Object obj, StringBuilder buf) {
 
-        return formatIterator(OpenIterator.fromArrayObj(obj), mode, buf, maxLen, Array.getLength(obj), "[]");
+        return formatIterator(OpenIterator.fromArrayObj(obj), buf, Array.getLength(obj), "[]");
     }
 
-    protected StringBuilder formatBean(Object obj, int mode, StringBuilder buf) {
+    protected static StringBuilder formatBean(Object obj, StringBuilder buf) {
         if (obj instanceof INamedThing) {
-            return buf.append(((INamedThing) obj).getDisplayName(mode));
+            return buf.append(((INamedThing) obj).getDisplayName(INamedThing.REGULAR));
         }
         NicePrinter printer = new NicePrinter();
         printer.print(obj, new BeanNicePrinterAdaptor());
         return buf.append(printer.getBuffer());
     }
 
-    protected StringBuilder formatCollection(Collection<?> collection, int mode, StringBuilder buf) {
+    protected static StringBuilder formatCollection(Collection<?> collection, StringBuilder buf) {
 
-        int maxLength = maxCollectionLength(mode);
-
-        buf.append(shortClassName(collection));
+        buf.append(ClassUtils.getShortClassName(collection.getClass()));
 
         Object element = null;
         Iterator<?> it = collection.iterator();
@@ -92,22 +85,24 @@ public class DefaultFormat implements IFormat {
         }
 
         if (element != null) {
-            buf.append('<').append(shortClassName(element)).append('>');
+            buf.append('<').append(ClassUtils.getShortClassName(element.getClass())).append('>');
         }
 
-        formatIterator(collection.iterator(), mode, buf, maxLength, collection.size(), "{}");
+        formatIterator(collection.iterator(), buf, collection.size(), "{}");
 
         return buf;
     }
 
-    public StringBuilder formatIterator(Iterator<?> it, int mode, StringBuilder buf, int maxLength, int actualLength,
+    private static StringBuilder formatIterator(Iterator<?> it,
+            StringBuilder buf,
+            int actualLength,
             String brackets) {
         buf.append(brackets.charAt(0));
 
         int len = actualLength;
 
-        if (actualLength > maxLength + 1) {
-            len = maxLength;
+        if (actualLength > 4) {
+            len = 3;
         }
 
         for (int i = 0; i < len; ++i) {
@@ -115,7 +110,7 @@ public class DefaultFormat implements IFormat {
                 buf.append(", ");
             }
             if (it.hasNext()) {
-                Formatter.format(it.next(), mode, buf);
+                format(it.next(), buf);
             }
         }
 
@@ -128,10 +123,9 @@ public class DefaultFormat implements IFormat {
         return buf;
     }
 
-    protected StringBuilder formatMap(Map<?, ?> map, int mode, StringBuilder buf) {
-        int maxLength = maxCollectionLength(mode);
+    protected static StringBuilder formatMap(Map<?, ?> map, StringBuilder buf) {
 
-        buf.append(shortClassName(map));
+        buf.append(ClassUtils.getShortClassName(map.getClass()));
 
         Map.Entry<?, ?> element = null;
         Iterator<? extends Map.Entry<?, ?>> it = map.entrySet().iterator();
@@ -143,33 +137,13 @@ public class DefaultFormat implements IFormat {
             Object key = element.getKey();
             Object value = element.getValue();
             if (key != null && value != null) {
-                buf.append('<').append(shortClassName(key)).append(',').append(shortClassName(value)).append('>');
+                buf.append('<').append(ClassUtils.getShortClassName(key.getClass())).append(',').append(ClassUtils.getShortClassName(value.getClass())).append('>');
             }
         }
 
-        formatIterator(map.entrySet().iterator(), mode, buf, maxLength, map.size(), "{}");
+        formatIterator(map.entrySet().iterator(), buf, map.size(), "{}");
 
         return buf;
-    }
-
-    protected boolean isPrimitive(Class<?> c) {
-        return c.isPrimitive();
-    }
-
-    protected int maxCollectionLength(int mode) {
-
-        switch (mode) {
-            case INamedThing.SHORT:
-                return 1;
-            case INamedThing.REGULAR:
-                return 3;
-        }
-        return 5;
-
-    }
-
-    public String shortClassName(Object obj) {
-        return StringTool.lastToken(obj.getClass().getName(), ".");
     }
 
 }

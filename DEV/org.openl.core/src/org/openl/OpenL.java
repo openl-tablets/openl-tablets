@@ -231,6 +231,7 @@ public class OpenL {
     /**
      * Resets OpenL internal cache.
      */
+    //FIXME: multithreading issue: users can reset foreign OpenL calculation
     public static synchronized void reset() {
         //openlCache = new HashMap<Object, OpenL>();
         openLCache.clear();

@@ -3,12 +3,8 @@ package org.openl.rules.webstudio.web;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
-import org.openl.OpenL;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.conf.OpenLConfiguration;
 import org.openl.rules.common.CommonException;
-import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -44,33 +40,7 @@ public class MainBean {
         String projectName = FacesUtils.getRequestParameter("project");
         String moduleName = FacesUtils.getRequestParameter("module");
 
-        if (StringUtils.isBlank(projectName) && StringUtils.isBlank(moduleName)) {
-            // Clear project/module on Home page
-            studio.setCurrentModule(null);
-            return;
-        }
-
-        if (StringUtils.isNotBlank(projectName)) {
-            ProjectDescriptor project = studio.getCurrentProjectDescriptor();
-
-            if (StringUtils.isNotBlank(moduleName)) {
-                synchronized (WebStudioUtils.getWebStudio()) {
-                    // Select module
-                    Module module = studio.getCurrentModule();
-                    if (project != null && module != null
-                            && !project.getName().equals(projectName)
-                            && !module.getName().equals(moduleName)) {
-                        // Delete all previous cached config
-                        OpenL.reset();
-                        OpenLConfiguration.reset();
-                    }
-                    studio.selectModule(projectName, moduleName);
-                }
-            } else {
-                // Select project
-                studio.selectProject(projectName);
-            }
-        }
+        studio.init(projectName, moduleName);
     }
 
     public void saveProject() {
@@ -89,11 +59,6 @@ public class MainBean {
         } catch (CommonException e) {
             log.error("Error on reloading user's workspace", e);
         }
-        WebStudioUtils.getWebStudio().compile();
-    }
-
-    public void compile() {
-        WebStudioUtils.getWebStudio().reset();
         WebStudioUtils.getWebStudio().compile();
     }
 }

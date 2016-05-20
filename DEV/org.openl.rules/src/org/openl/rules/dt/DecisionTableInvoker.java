@@ -1,11 +1,9 @@
 package org.openl.rules.dt;
 
-import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
 import org.openl.domain.IIntIterator;
 import org.openl.rules.dt.algorithm.FailOnMissException;
 import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
-import org.openl.rules.dt.IBaseAction;
 import org.openl.rules.method.RulesMethodInvoker;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
@@ -47,8 +45,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
         if (!atLeastOneRuleFired && getInvokableMethod().shouldFailOnMiss()) {
 
             String method = MethodUtil.printMethodWithParameterValues(getInvokableMethod().getMethod(),
-                params,
-                INamedThing.REGULAR);
+                params);
             String message = String.format("%s failed to match any rule condition", method);
 
             throw new FailOnMissException(message, getInvokableMethod(), params);

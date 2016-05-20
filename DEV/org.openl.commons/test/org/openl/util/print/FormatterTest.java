@@ -2,12 +2,12 @@ package org.openl.util.print;
 
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
 import org.junit.Test;
-import org.openl.base.INamedThing;
 
 public class FormatterTest {
 
@@ -27,19 +27,20 @@ public class FormatterTest {
         assertContains(busStr, "25 : yo265");
         assertContains(busStr, "1536 : abra");
 
+        testMap.put(Integer.valueOf(983), "acuna");
         String devStr = printDevView(testMap);
         assertContains(devStr, "HashMap<Integer,String>");
-        assertContains(devStr, "... 3 more}");
+        assertContains(devStr, "... 2 more}");
     }
 
     private String printBusView(Object value) {
         StringBuilder strBuf = new StringBuilder();
-        return Formatter.format(value, INamedThing.REGULAR, strBuf).toString();
+        return DefaultFormat.format(value, strBuf).toString();
     }
 
     private String printDevView(Object value) {
         StringBuilder strBuf = new StringBuilder();
-        return Formatter.format(value, INamedThing.SHORT, strBuf).toString();
+        return DefaultFormat.format(value, strBuf).toString();
     }
 
     @Test
@@ -58,9 +59,10 @@ public class FormatterTest {
         assertContains(busStr, "third");
         assertContains(busStr, "fourth");
 
+        strVector.add("fifth");
         String devStr = printDevView(strVector);
         assertContains(devStr, "Vector<String>");
-        assertContains(devStr, "... 3 more");
+        assertContains(devStr, "... 2 more");
     }
 
     @Test
@@ -73,8 +75,9 @@ public class FormatterTest {
         String busStr = printBusView(intMas);
         assertContains(busStr, "[345, 4567, 76442]");
 
-        String devStr = printDevView(intMas);
-        assertContains(devStr, "[345, ... 2 more]");
+
+        String devStr = printDevView(new Integer[]{1,2,3,4,5});
+        assertContains(devStr, "[1, 2, 3, ... 2 more]");
     }
 
     @Test
@@ -87,8 +90,8 @@ public class FormatterTest {
         String busStr = printBusView(intMas);
         assertContains(busStr, "[345, 4567, 76442]");
 
-        String devStr = printDevView(intMas);
-        assertContains(devStr, "[345, ... 2 more]");
+        String devStr = printDevView(new int[] {1,2,3,4,5});
+        assertContains(devStr, "[1, 2, 3, ... 2 more]");
     }
 
     @Test
@@ -104,6 +107,6 @@ public class FormatterTest {
 
     private void assertContains(String text, String expected) {
         assertNotNull(text);
-        assertTrue(text.contains(expected));
+        assertTrue(text, text.contains(expected));
     }
 }

@@ -1,8 +1,8 @@
 package org.openl.rules.webstudio.web.test;
 
 import org.openl.base.INamedThing;
+import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
-import org.openl.rules.calc.result.SpreadsheetResultHelper;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.table.GridTable;
@@ -14,6 +14,7 @@ import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.OpenClassHelper;
+import org.openl.util.ClassUtils;
 import org.openl.vm.SimpleVM;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
@@ -170,7 +171,7 @@ public class ParameterTreeBuilder {
     }
 
     public static boolean isSpreadsheetResult(Object value) {
-        return value != null && SpreadsheetResultHelper.isSpreadsheetResult(value.getClass());
+        return value != null && ClassUtils.isAssignable(value.getClass(), SpreadsheetResult.class);
     }
 
     public String formattedResult(Object value) {

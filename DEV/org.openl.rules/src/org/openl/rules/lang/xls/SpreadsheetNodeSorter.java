@@ -6,6 +6,7 @@ import java.util.Queue;
 import org.openl.rules.calc.CellsHeaderExtractor;
 import org.openl.rules.lang.xls.syntax.SpreadsheetHeaderNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.util.StringUtils;
 
 /**
@@ -107,17 +108,19 @@ public class SpreadsheetNodeSorter {
 
         // try to get previously stored extractor
         //
-        extractor = ((SpreadsheetHeaderNode) tableSyntaxNode.getHeader()).getCellHeadersExtractor();
+        SpreadsheetHeaderNode header = (SpreadsheetHeaderNode) tableSyntaxNode.getHeader();
+        extractor = header.getCellHeadersExtractor();
 
         if (extractor == null) {
-            extractor = new CellsHeaderExtractor(getSignature(tableSyntaxNode), tableSyntaxNode.getTableBody().getRow(0).getColumns(1),
-                    tableSyntaxNode.getTableBody().getColumn(0).getRows(1));
+            ILogicalTable body = tableSyntaxNode.getTableBody();
+            extractor = new CellsHeaderExtractor(getSignature(tableSyntaxNode), body.getRow(0).getColumns(1),
+                    body.getColumn(0).getRows(1));
             extractor.extract();
 
             // set cells header extractor to the table syntax node, to avoid
             // extracting several times
             //
-            ((SpreadsheetHeaderNode) tableSyntaxNode.getHeader()).setCellHeadersExtractor(extractor);
+            header.setCellHeadersExtractor(extractor);
         }
 
         return extractor;

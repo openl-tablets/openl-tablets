@@ -79,6 +79,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     }
 
+    //FIXME: multithreading issue: users can reset foreign OpenL calculation
     public static void reset() {
         configurations = new HashMap<Object, IOpenLConfiguration>();
     }

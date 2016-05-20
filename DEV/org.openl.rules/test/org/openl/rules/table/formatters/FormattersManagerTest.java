@@ -84,6 +84,6 @@ public class FormattersManagerTest {
         assertEquals("07/12/1980", FormattersManager.format(new GregorianCalendar(1980,6,12).getTime()));
         assertEquals("foo,bar", FormattersManager.format(new String[]{"foo", "bar"}));
         assertEquals("Object(id=0)[]", FormattersManager.format(new Object()));
-        assertEquals("Arrays$ArrayList<String>{BAR, FOO}", FormattersManager.format(Arrays.asList("BAR", "FOO")));
+        assertEquals("Arrays.ArrayList<String>{BAR, FOO}", FormattersManager.format(Arrays.asList("BAR", "FOO")));
     }
 }

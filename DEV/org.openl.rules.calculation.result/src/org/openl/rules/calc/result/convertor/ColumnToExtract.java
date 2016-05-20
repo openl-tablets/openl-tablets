@@ -1,5 +1,16 @@
 package org.openl.rules.calc.result.convertor;
 
+/*
+ * #%L
+ * OpenL - DEV - Rules - Calculation Result
+ * %%
+ * Copyright (C) 2015 - 2016 OpenL Tablets
+ * %%
+ * See the file LICENSE.txt for copying permission.
+ * #L%
+ */
+
+
 
 /**
  * Class that holds the information about the column that need to be extracted from spreadsheet table.
