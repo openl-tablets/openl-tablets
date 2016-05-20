@@ -13,7 +13,6 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.commons.web.util.WebTool;
 import org.openl.main.SourceCodeURLConstants;
 import org.openl.rules.webstudio.web.test.RunTestHelper;
-import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -74,14 +73,6 @@ public class TraceIntoFileBean {
 
         Iterable<ITracerObject> tracerObjects = tracer.getChildren();
         for (ITracerObject aTrace : tracerObjects) {
-            if (aTrace instanceof DTRuleTraceObject) {
-                // Do not trace index value that is not mapped to any rule.
-                // This can be an excluding boundary for example.
-                int[] rules = ((DTRuleTraceObject) aTrace).getRules();
-                if (rules == null || rules.length == 0) {
-                    continue;
-                }
-            }
             writer.write(indents, 0, level % indents.length);
             writer.write("TRACE: ");
             writer.write(TraceFormatter.getDisplayName(aTrace));
