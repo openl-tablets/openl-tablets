@@ -3,13 +3,7 @@ package org.openl.rules.repository.factories;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Types;
+import java.sql.*;
 import java.util.UUID;
 
 import javax.jcr.RepositoryException;
@@ -18,6 +12,8 @@ import javax.jcr.nodetype.NodeTypeManager;
 import javax.naming.NamingException;
 import javax.transaction.UserTransaction;
 
+import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
@@ -47,16 +43,7 @@ import org.slf4j.LoggerFactory;
 abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
     private final Logger log = LoggerFactory.getLogger(DBRepositoryFactory.class);
 
-    private static final String TABLE_PREFIX = "OPENL";
-    private static final String TABLE_NAME = "JCR_CACHE";
-    private static final String REPO_TABLE = TABLE_PREFIX + '_' + TABLE_NAME;
-    private static final String COL_ID = "ID";
-    private static final String COL_DATA = "DATA";
-    private static final String COL_TIME = "TIMESTAMP";
     private static final String OPENL_JCR_REPO_ID_KEY = "openl-jcr-repo-id";
-    private static final String CREATE_TABLE = "CREATE TABLE " + REPO_TABLE + " (" + COL_ID + " %s NOT NULL, " + COL_DATA + " %s, " + COL_TIME + " %s, PRIMARY KEY (" + COL_ID + "))";
-    private static final String INSERT_ID = "INSERT INTO " + REPO_TABLE + " (" + COL_ID + ", " + COL_DATA + ", " + COL_TIME + ") VALUES(?,?,-1)";
-    private static final String SELECT_ID = "SELECT " + COL_DATA + " FROM " + REPO_TABLE + " WHERE " + COL_ID + " = ?";
 
     /**
      * Jackrabbit local repository
@@ -95,13 +82,20 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         Connection conn;
         conn = createConnection(dbUrl, user, pwd);
 
+        DatabaseMetaData metaData = conn.getMetaData();
+        String databaseName = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
+        CompositeConfiguration properties = getConfiguration(databaseName);
+        Case namesCase = getCase(metaData);
+
+        determineDBDataTypes(conn);
+
         log.info("Preparing a repository...");
-        initTable(conn);
-        String repoID = getRepoID(conn);
+        initTable(conn, properties);
+        String repoID = getRepoID(conn, properties);
         conn.close();
         log.info("The repository for ID=[{}] has been prepared", repoID);
 
-        RepositoryConfiguration config = getModeshapeConfiguration(dbUrl, user, pwd, repoID);
+        RepositoryConfiguration config = getModeshapeConfiguration(dbUrl, user, pwd, repoID, properties, namesCase);
 
         // Register shut down hook
         ShutDownHook shutDownHook = new ShutDownHook(this);
@@ -129,7 +123,9 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
     private RepositoryConfiguration getModeshapeConfiguration(String url,
             String user,
             String password,
-            final String repoName) throws SQLException, ParsingException, FileNotFoundException, NamingException {
+            final String repoName,
+            CompositeConfiguration properties,
+            Case namesCase) throws SQLException, ParsingException, FileNotFoundException, NamingException {
         // Create a local environment that we'll set up to own the external
         // components ModeShape needs ...
         LocalEnvironment environment = new LocalEnvironment() {
@@ -144,12 +140,13 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         };
 
         // Infinispan cache declaration
-        Configuration ispnConfig = getInfinispanConfiguration(url, user, password);
-        environment.defineCache(TABLE_NAME, ispnConfig);
+        Configuration ispnConfig = getInfinispanConfiguration(url, user, password, properties, namesCase);
+        String tableName = changeCase(namesCase, properties.getString("table.name"));
+        environment.defineCache(tableName, ispnConfig);
 
         // Modeshape's configuration
         RepositoryConfiguration config = RepositoryConfiguration.read(
-            "{'name':'" + repoName + "', 'jndiName':'', 'storage':{'cacheName':'" + TABLE_NAME + "','binaryStorage':{'type':'cache','dataCacheName':'" + TABLE_NAME + "','metadataCacheName':'" + TABLE_NAME + "'}},'clustering':{'clusterName':'" + repoName + "', 'channelConfiguration':'openl-jgroups-insp-config.xml'}}");
+            "{'name':'" + repoName + "', 'jndiName':'', 'storage':{'cacheName':'" + tableName + "','binaryStorage':{'type':'cache','dataCacheName':'" + tableName + "','metadataCacheName':'" + tableName + "'}},'clustering':{'clusterName':'" + repoName + "', 'channelConfiguration':'openl-jgroups-insp-config.xml'}}");
         config = config.with(environment);
 
         // Verify the configuration for the repository ...
@@ -163,8 +160,12 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         return config;
     }
 
-    private Configuration getInfinispanConfiguration(String url, String user, String password) throws SQLException,
-                                                                                               NamingException {
+    private Configuration getInfinispanConfiguration(String url,
+            String user,
+            String password,
+            CompositeConfiguration properties,
+            Case namesCase) throws SQLException,
+                                          NamingException {
 
         // Infinispan's configuration
         ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
@@ -181,10 +182,11 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
 
         jdbcBuilder.table()
             .createOnStart(false)
-            .tableNamePrefix(TABLE_PREFIX)
-            .idColumnName(COL_ID)
-            .dataColumnName(COL_DATA)
-            .timestampColumnName(COL_TIME);
+            .tableNamePrefix(changeCase(namesCase, properties.getString("table.prefix")))
+            .idColumnName(changeCase(namesCase, properties.getString("column.id.name")))
+            .idColumnType(changeCase(namesCase, properties.getString("column.id.type")))
+            .dataColumnName(changeCase(namesCase, properties.getString("column.data.name")))
+            .timestampColumnName(changeCase(namesCase, properties.getString("column.time.name")));
         return configurationBuilder.build();
     }
 
@@ -288,50 +290,49 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         }
     }
 
-    private void initTable(Connection conn) throws SQLException {
-        if (tableExists(conn)) {
-            log.info("Table '{}' already exists", REPO_TABLE);
+    private void initTable(Connection conn, CompositeConfiguration properties) throws SQLException {
+        String repoTable = getRepoTableName(properties);
+        if (tableExists(conn, properties)) {
+            log.info("Table '{}' already exists", repoTable);
             return;
         }
-        createTable(conn);
-        if (tableExists(conn)) {
-            log.info("Table '{}' has been created", REPO_TABLE);
+        createTable(conn, properties);
+        if (tableExists(conn, properties)) {
+            log.info("Table '{}' has been created", repoTable);
             return;
         }
-        throw new IllegalStateException("Table '" + REPO_TABLE + "' has not created");
+        throw new IllegalStateException("Table '" + repoTable + "' has not created");
     }
 
-    private boolean tableExists(Connection connection) {
+    private boolean tableExists(Connection connection, CompositeConfiguration properties) {
         ResultSet rs = null;
+        String repoTable = getRepoTableName(properties);
         try {
             DatabaseMetaData metaData = connection.getMetaData();
+            repoTable = changeCase(getCase(metaData), repoTable);
             if ("Oracle".equals(metaData.getDatabaseProductName())) {
-                rs = metaData.getTables(null, metaData.getUserName(), REPO_TABLE, new String[] { "TABLE" });
+                rs = metaData.getTables(null, metaData.getUserName(), repoTable, new String[] { "TABLE" });
             } else {
-                rs = metaData.getTables(null, null, REPO_TABLE, new String[] { "TABLE" });
+                rs = metaData.getTables(null, null, repoTable, new String[] { "TABLE" });
             }
             return rs.next();
         } catch (SQLException e) {
-            log.debug("SQLException occurs while checking the table {}", REPO_TABLE, e);
+            log.debug("SQLException occurs while checking the table {}", repoTable, e);
             return false;
         } finally {
             safeClose(rs);
         }
     }
 
-    private void createTable(Connection conn) throws SQLException {
-        String[] strings = determineDBDataTypes(conn);
-        String idType = strings[0];
-        String dataType = strings[1];
-        String timestampType = strings[2];
-        String sql = String.format(CREATE_TABLE, idType, dataType, timestampType);
+    private void createTable(Connection conn, CompositeConfiguration properties) throws SQLException {
+        String sql = properties.getString("sql.create-table");
         log.info("The following SQL script being used [ {} ]", sql);
         Statement statement = null;
         try {
             statement = conn.createStatement();
             statement.executeUpdate(sql);
         } catch (SQLException e) {
-            log.warn("SQLException occurs while checking the table {}", REPO_TABLE, e);
+            log.warn("SQLException occurs while checking the table {}", getRepoTableName(properties), e);
         } finally {
             safeClose(statement);
         }
@@ -365,7 +366,11 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
                         if (varcharType != null) {
                             break;
                         }
-                        varcharType = typeName + '(' + getPrecision(rs) + ')';
+                        int precision = getPrecision(rs);
+                        if (0 == precision) {
+                            break;
+                        }
+                        varcharType = typeName + '(' + precision + ')';
                         break;
                     case Types.LONGVARBINARY:
                         if (binaryType == null) {
@@ -409,25 +414,25 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         return prec;
     }
 
-    private String getRepoID(Connection conn) throws SQLException {
-        String repoID = selectRepoID(conn);
+    private String getRepoID(Connection conn, CompositeConfiguration properties) throws SQLException {
+        String repoID = selectRepoID(conn, properties);
 
         if (repoID != null) {
             return repoID;
         }
-        createRepoID(conn);
-        repoID = selectRepoID(conn);
+        createRepoID(conn, properties);
+        repoID = selectRepoID(conn, properties);
         if (repoID != null) {
             return repoID;
         }
         throw new IllegalStateException("The row with ID = '" + OPENL_JCR_REPO_ID_KEY + "' has not created");
     }
 
-    private String selectRepoID(Connection conn) throws SQLException {
+    private String selectRepoID(Connection conn, CompositeConfiguration properties) throws SQLException {
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
-            statement = conn.prepareStatement(SELECT_ID);
+            statement = conn.prepareStatement(properties.getString("sql.select-id"));
             statement.setString(1, OPENL_JCR_REPO_ID_KEY);
             rs = statement.executeQuery();
             if (rs.next()) {
@@ -445,11 +450,11 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         }
     }
 
-    private void createRepoID(Connection conn) throws SQLException {
+    private void createRepoID(Connection conn, CompositeConfiguration properties) throws SQLException {
         String repoId = "openl-jcr-repo-" + UUID.randomUUID().toString();
         PreparedStatement statement = null;
         try {
-            statement = conn.prepareStatement(INSERT_ID);
+            statement = conn.prepareStatement(properties.getString("sql.insert-id"));
             statement.setString(1, OPENL_JCR_REPO_ID_KEY);
             statement.setBytes(2, StringUtils.toBytes(repoId));
             statement.executeUpdate();
@@ -478,6 +483,45 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         }
     }
 
+    private CompositeConfiguration getConfiguration(String databaseName) {
+        CompositeConfiguration compositeConfiguration = new CompositeConfiguration();
+        compositeConfiguration.addConfiguration(createConfiguration("modeshape-" + databaseName + ".properties"));
+        compositeConfiguration.addConfiguration(createConfiguration("modeshape.properties"));
+        return compositeConfiguration;
+    }
+
+    private PropertiesConfiguration createConfiguration(String configLocation) {
+        PropertiesConfiguration configuration = new PropertiesConfiguration();
+        configuration.setDelimiterParsingDisabled(true);
+        configuration.setFileName(configLocation);
+        try {
+            configuration.load();
+        } catch (org.apache.commons.configuration.ConfigurationException e) {
+            log.error("Error when initializing configuration: {}", configLocation, e);
+        }
+        return configuration;
+    }
+
+    private String getRepoTableName(CompositeConfiguration configuration) {
+        return configuration.getString("table.prefix") + "_" + configuration.getString("table.name");
+    }
+
+    private String changeCase(Case namesCase, String name) throws SQLException {
+        switch (namesCase) {
+            case LOWER:
+                return name.toLowerCase();
+            case UPPER:
+                return name.toUpperCase();
+            default:
+                return name;
+        }
+    }
+
+    private Case getCase(DatabaseMetaData metaData) throws SQLException {
+        return metaData.storesLowerCaseIdentifiers() ? Case.LOWER : metaData.storesUpperCaseIdentifiers() ? Case.UPPER : Case.MIXED;
+    }
+
+
     private class ModeshapeJcrRepo extends JcrRepository {
 
         private ModeshapeJcrRepo(RepositoryConfiguration configuration) throws ConfigurationException {
@@ -487,5 +531,11 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         private void shutdown() {
             doShutdown();
         }
+    }
+
+    private enum Case {
+        UPPER,
+        LOWER,
+        MIXED
     }
 }
