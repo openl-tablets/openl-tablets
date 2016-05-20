@@ -341,18 +341,6 @@ public class WebStudio {
         needCompile = true;
     }
 
-    public void forceCompile() {
-        reset(forcedCompile ? ReloadType.FORCED : ReloadType.SINGLE);
-        model.buildProjectTree(); // Reason: tree should be built
-        // before accessing the ProjectModel.
-        // Is is related to UI: rendering of
-        // frames is asynchronous and we
-        // should build tree before the
-        // 'content' frame
-        needCompile = false;
-        forcedCompile = false;
-    }
-
     public void resetProjects() {
         needCompile = true;
         forcedCompile = true;
@@ -394,7 +382,15 @@ public class WebStudio {
             currentProject = project;
             if (module != null && (needCompile || forcedCompile)) {
                 if (forcedCompile || (needCompile && autoCompile)) {
-                    forceCompile();
+                    reset(forcedCompile ? ReloadType.FORCED : ReloadType.SINGLE);
+                    model.buildProjectTree(); // Reason: tree should be built
+                    // before accessing the ProjectModel.
+                    // Is is related to UI: rendering of
+                    // frames is asynchronous and we
+                    // should build tree before the
+                    // 'content' frame
+                    needCompile = false;
+                    forcedCompile = false;
                 }
             }
         } catch (Exception e) {
