@@ -87,8 +87,6 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         CompositeConfiguration properties = getConfiguration(databaseName);
         Case namesCase = getCase(metaData);
 
-        determineDBDataTypes(conn);
-
         log.info("Preparing a repository...");
         initTable(conn, properties);
         String repoID = getRepoID(conn, properties);
@@ -336,82 +334,6 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         } finally {
             safeClose(statement);
         }
-    }
-
-    private String[] determineDBDataTypes(Connection conn) throws SQLException {
-        log.info("Determine SQL types");
-        DatabaseMetaData metaData = conn.getMetaData();
-        ResultSet rs = null;
-
-        String nvarcharType = null;
-        String varcharType = null;
-        String binaryType = null;
-        String bigintType = null;
-        try {
-            rs = metaData.getTypeInfo();
-            while (rs.next()) {
-                // Get the database-specific type name
-                String typeName = rs.getString("TYPE_NAME");
-                // Get the java.sql.Types type to which this
-                // database-specific type is mapped
-                int dataType = rs.getInt("DATA_TYPE");
-                switch (dataType) {
-                    case Types.NVARCHAR:
-                        if (nvarcharType != null) {
-                            break;
-                        }
-                        nvarcharType = typeName + '(' + getPrecision(rs) + ')';
-                        break;
-                    case Types.VARCHAR:
-                        if (varcharType != null) {
-                            break;
-                        }
-                        int precision = getPrecision(rs);
-                        if (0 == precision) {
-                            break;
-                        }
-                        varcharType = typeName + '(' + precision + ')';
-                        break;
-                    case Types.LONGVARBINARY:
-                        if (binaryType == null) {
-                            binaryType = typeName;
-                        }
-                        break;
-                    case Types.BIGINT:
-                        if (bigintType == null) {
-                            bigintType = typeName;
-                        }
-                        break;
-                }
-            }
-        } finally {
-            safeClose(rs);
-        }
-
-        log.info("Determined SQL types ('{}', '{}', '{}', '{}')", nvarcharType, varcharType, binaryType, bigintType);
-        // Set defaults
-        if (nvarcharType != null) {
-            varcharType = nvarcharType;
-        } else if (varcharType == null) {
-            varcharType = "VARCHAR(1000)";
-        }
-        if (binaryType == null) {
-            binaryType = "BLOB";
-        }
-        if (bigintType == null) {
-            bigintType = "BIGINT";
-        }
-        log.info("Used SQL types ('{}', '{}', '{}')", varcharType, binaryType, bigintType);
-
-        return new String[] { varcharType, binaryType, bigintType };
-    }
-
-    private int getPrecision(ResultSet rs) throws SQLException {
-        int prec = rs.getInt("PRECISION");
-        if (prec > 1000) {
-            prec = 1000;
-        }
-        return prec;
     }
 
     private String getRepoID(Connection conn, CompositeConfiguration properties) throws SQLException {
