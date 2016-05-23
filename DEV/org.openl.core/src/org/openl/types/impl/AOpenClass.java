@@ -441,7 +441,7 @@ public abstract class AOpenClass implements IOpenClass {
     
 	@SuppressWarnings("unchecked")
 	@Override
-	public Iterator<IOpenMethod> methods(String name) {
+	public Iterable<IOpenMethod> methods(String name) {
 		if (methodNameMap == null)
 		{
 			synchronized(this)
@@ -452,7 +452,7 @@ public abstract class AOpenClass implements IOpenClass {
 		
 		List<IOpenMethod> found = methodNameMap.get(name);
 		
-		return found == null ? (Iterator<IOpenMethod>)OpenIterator.EMPTY : found.iterator();
+		return found == null ? Collections.<IOpenMethod>emptyList() : found;
 	}
 
 	static public  Map<String, List<IOpenMethod>> buildMethodNameMap(

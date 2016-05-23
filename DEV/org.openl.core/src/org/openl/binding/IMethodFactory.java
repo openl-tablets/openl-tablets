@@ -19,5 +19,5 @@ public interface IMethodFactory {
 
     IOpenMethod getMatchingMethod(String name, IOpenClass[] params) throws AmbiguousMethodException;
 
-    Iterator<IOpenMethod> methods(String name);
+    Iterable<IOpenMethod> methods(String name);
 }

@@ -213,7 +213,7 @@ public class NullOpenClass implements IOpenClass {
 
 
 	@Override
-	public Iterator<IOpenMethod> methods(String name) {
+	public Iterable<IOpenMethod> methods(String name) {
 		return null;
 	}
 }

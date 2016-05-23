@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.MethodSearch;
@@ -28,7 +27,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.Invokable;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.OpenIterator;
+import org.openl.util.CollectionUtils;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,13 +86,23 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
     
     @Override
-    public IMethodCaller findMethodCaller(String namespace, String methodName, IOpenClass[] parTypes) throws AmbiguousMethodException {
+    public IMethodCaller findMethodCaller(String namespace, final String methodName, IOpenClass[] parTypes) throws AmbiguousMethodException {
         IMethodCaller method = super.findMethodCaller(namespace, methodName, parTypes);
         if (method == null) {
-            method = MethodSearch.getCastingMethodCaller(methodName, parTypes, this, OpenIterator.select(internalMethods.iterator(), new INamedThing.NameSelector<IOpenMethod>(methodName)));
+            Iterable<IOpenMethod> select = CollectionUtils.findAll(internalMethods, new CollectionUtils.Predicate<IOpenMethod>() {
+                @Override public boolean evaluate(IOpenMethod method) {
+                    return methodName.equals(method.getName());
+                }
+            });
+            method = MethodSearch.getCastingMethodCaller(methodName, parTypes, this, select);
         }
         if (method == null) {
-            method = MethodSearch.getCastingMethodCaller(methodName, parTypes, this, OpenIterator.select(internalPrebindMethods.iterator(), new INamedThing.NameSelector<IOpenMethod>(methodName)));
+            Iterable<IOpenMethod> select = CollectionUtils.findAll(internalPrebindMethods, new CollectionUtils.Predicate<IOpenMethod>() {
+                @Override public boolean evaluate(IOpenMethod method) {
+                    return methodName.equals(method.getName());
+                }
+            });
+            method = MethodSearch.getCastingMethodCaller(methodName, parTypes, this, select);
         }
         return method;
     }

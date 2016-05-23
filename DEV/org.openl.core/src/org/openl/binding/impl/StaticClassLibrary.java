@@ -6,7 +6,7 @@
 
 package org.openl.binding.impl;
 
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +16,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AOpenClass;
 import org.openl.util.CollectionUtils;
-import org.openl.util.OpenIterator;
 
 /**
  * @author snshor
@@ -54,7 +53,7 @@ public class StaticClassLibrary implements IOpenLibrary {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Iterator<IOpenMethod> methods(String name) {
+    public Iterable<IOpenMethod> methods(String name) {
         if (methodNameMap == null) {
             synchronized (this) {
                 List<IOpenMethod> methods = CollectionUtils.findAll(openClass.getMethods(),
@@ -70,7 +69,7 @@ public class StaticClassLibrary implements IOpenLibrary {
 
         List<IOpenMethod> found = methodNameMap.get(name);
 
-        return found == null ? (Iterator<IOpenMethod>) OpenIterator.EMPTY : found.iterator();
+        return found == null ? Collections.<IOpenMethod>emptyList() : found;
     }
 
 }
