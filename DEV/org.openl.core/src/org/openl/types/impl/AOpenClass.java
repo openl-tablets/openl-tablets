@@ -32,7 +32,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.OpenIterator;
 
 /**
  * @author snshor
@@ -69,14 +68,6 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     protected abstract Map<String, IOpenField> fieldMap();
-
-    /**
-     * @deprecated use {@link #getFields()} instead.
-     */
-    public Iterator<IOpenField> fields() {
-        Map<String, IOpenField> fieldMap = getFields();
-        return fieldMap == null ? null : fieldMap.values().iterator();
-    }
 
     public Map<String, IOpenField> getFields() {
         Map<String, IOpenField> fields = new HashMap<String, IOpenField>();

@@ -8,7 +8,6 @@ package org.openl.types;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.openl.binding.exception.AmbiguousMethodException;
@@ -38,13 +37,6 @@ public class NullOpenClass implements IOpenClass {
     
     
     private NullOpenClass() {
-    }
-
-    /**
-     * @deprecated use {@link #getFields()} instead.
-     */
-    public Iterator<IOpenField> fields() {
-        return null;
     }
 
     public IAggregateInfo getAggregateInfo() {

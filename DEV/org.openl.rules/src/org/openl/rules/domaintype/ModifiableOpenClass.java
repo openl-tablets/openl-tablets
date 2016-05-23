@@ -1,7 +1,6 @@
 package org.openl.rules.domaintype;
 
 import java.util.HashMap;
-import java.util.Iterator;
 
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -17,13 +16,6 @@ public class ModifiableOpenClass extends OpenClassDelegator {
 
     public void addField(IOpenField f) {
         modifiedFields.put(f.getName(), f);
-    }
-
-    @Override
-    @Deprecated
-    public Iterator<IOpenField> fields() {
-        // TODO this does not take strictMatch correctly
-        return super.fields();
     }
 
     @Override

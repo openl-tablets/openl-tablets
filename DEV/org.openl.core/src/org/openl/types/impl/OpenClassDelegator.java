@@ -1,7 +1,6 @@
 package org.openl.types.impl;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -26,13 +25,6 @@ public class OpenClassDelegator implements IOpenClass {
         this.baseClass = baseClass;
         this.name = name;
         this.metaInfo = metaInfo;
-    }
-
-    /**
-     * @deprecated use {@link #getFields()} instead.
-     */
-    public Iterator<IOpenField> fields() {
-        return baseClass.fields();
     }
 
     public IAggregateInfo getAggregateInfo() {
