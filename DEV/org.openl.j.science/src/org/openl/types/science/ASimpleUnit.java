@@ -6,10 +6,10 @@
 
 package org.openl.types.science;
 
+import java.util.Collections;
 import java.util.Iterator;
 
 import org.openl.base.INamedThing;
-import org.openl.util.AOpenIterator;
 
 /**
  * @author snshor
@@ -53,7 +53,7 @@ public abstract class ASimpleUnit extends AMultiplicativeExpression implements I
     }
 
     public Iterator<IDimensionPower> getDimensionsPowers() {
-        return AOpenIterator.single((IDimensionPower) this);
+        return Collections.<IDimensionPower>singletonList(this).iterator();
     }
 
     public String getDisplayName(int mode) {

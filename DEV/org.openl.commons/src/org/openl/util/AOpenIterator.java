@@ -128,44 +128,6 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
 
     }
 
-    /**
-     * Iterates over single object exactly one time.
-     */
-    static final class SingleIterator<T> extends AOpenIterator<T> {
-        T value;
-
-        SingleIterator(T value) {
-            this.value = value;
-        }
-
-        public boolean hasNext() {
-            return value != null;
-        }
-
-        public T next() {
-            if (value == null) {
-                throw new NoSuchElementException();
-            }
-            T tmp = value;
-            value = null;
-            return tmp;
-        }
-
-        @Override
-        public IOpenIterator<T> reverse() {
-            if (size() == 0) {
-                return empty();
-            }
-            return this;
-        }
-
-        @Override
-        public final int size() {
-            return value == null ? 0 : 1;
-        }
-
-    }
-
     public static final EmptyIterator<?> EMPTY = new EmptyIterator<Object>();
 
     public static <T> List<T> asList(Iterator<T> it) {
@@ -214,13 +176,6 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
      * @return iterator over single value, if value != null, empty iterator
      *         otherwise
      */
-    public static <T> IOpenIterator<T> single(T value) {
-        if (value == null) {
-            return empty();
-        }
-        return new SingleIterator<T>(value);
-    }
-
     public static <T> int size(Iterator<T> it) {
         if (it instanceof IOpenIterator<?>) {
             return ((IOpenIterator<T>) it).size();

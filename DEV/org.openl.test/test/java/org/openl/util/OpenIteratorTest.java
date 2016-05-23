@@ -38,22 +38,8 @@ public class OpenIteratorTest extends TestCase {
         Assert.assertTrue(AOpenIterator.isEmpty(OpenIterator.fromArray(null)));
     }
 
-    public void testRemove() {
-    }
-
-    public void testSingle() {
-        IOpenIterator<OpenIteratorTest> it = AOpenIterator.single(this);
-        Assert.assertEquals(1, it.size());
-        Assert.assertEquals(this, it.next());
-        Assert.assertEquals(0, it.size());
-    }
-
     public void testSize() {
         IOpenIterator<String> it = OpenIterator.fromArray(ary1);
         Assert.assertEquals(3, it.size());
     }
-
-    public void testSkip() {
-    }
-
 }

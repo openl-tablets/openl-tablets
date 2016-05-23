@@ -6,6 +6,7 @@
 
 package org.openl.util.tree;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Stack;
 
@@ -56,7 +57,7 @@ public class TreeIterator<N> extends AOpenIterator<N> {
     Iterator<N> children = null;
 
     public TreeIterator(N treeRoot, TreeAdaptor<N> adaptor, int mode) {
-        this.children = single(treeRoot);
+        this.children = Collections.singletonList(treeRoot).iterator();
         this.adaptor = adaptor;
         this.mode = mode;
         findNextNode();
