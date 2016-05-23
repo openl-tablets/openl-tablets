@@ -85,10 +85,6 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
             itt[1] = it2;
         }
 
-        public MergeIterator(Iterator<T>[] itt) {
-            this.itt = itt;
-        }
-
         public boolean hasNext() {
             for (; current < itt.length; ++current) {
                 if (itt[current].hasNext()) {
@@ -123,64 +119,6 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
             return total;
 
         }
-    }
-
-    static class ModifierIterator<E, T> extends AOpenIterator<E> {
-        Iterator<T> baseIterator;
-        IOpenIteratorExtender<E, T> modifier;
-        boolean hasNext = false;
-        E next = null;
-        Iterator<E> modifierIterator;
-
-        ModifierIterator(Iterator<T> baseIterator, IOpenIteratorExtender<E, T> modifier) {
-            this.baseIterator = baseIterator;
-            this.modifier = modifier;
-        }
-
-        protected void findNextObject() {
-            while (modifierIterator == null || !modifierIterator.hasNext()) {
-                if (modifierIterator == null) {
-                    modifierIterator = getNextIterator();
-                    if (modifierIterator == null) {
-                        return;
-                    }
-                }
-
-                if (!modifierIterator.hasNext()) {
-                    modifierIterator = null;
-                }
-            }
-
-            next = modifierIterator.next();
-            hasNext = true;
-        }
-
-        protected Iterator<E> getNextIterator() {
-            while (baseIterator.hasNext()) {
-                Iterator<E> it = modifier.extend(baseIterator.next());
-                if (it != null) {
-                    return it;
-                }
-            }
-            return null;
-        }
-
-        public boolean hasNext() {
-            if (hasNext) {
-                return true;
-            }
-            findNextObject();
-            return hasNext;
-        }
-
-        public E next() {
-            if (!hasNext()) {
-                throw new IllegalStateException();
-            }
-            hasNext = false;
-            return next;
-        }
-
     }
 
     static final class SelectIterator<T> extends IteratorWrapper<T, T> {
@@ -298,40 +236,9 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
         return result;
     }
 
-    public static <T> IOpenIterator<T> asOpenIterator(Iterator<T> it) {
-        if (it == null) {
-            return empty();
-        }
-
-        if (it instanceof IOpenIterator<?>) {
-            return (IOpenIterator<T>) it;
-        }
-
-        return new SimpleIteratorWrapper<T>(it);
-    }
-
-    static public <T, C> IOpenIterator<C> collect(Iterator<T> it, IConvertor<T, C> ic) {
-        return new CollectIterator<T, C>(it, ic);
-    }
-
     @SuppressWarnings("unchecked")
     public static <T> IOpenIterator<T> empty() {
         return (IOpenIterator<T>) EMPTY;
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> Iterator<T> emptyIterator() {
-        return (Iterator<T>) EMPTY;
-    }
-
-    public static <X> void evaluate(IBlock block, Iterator<X> it) {
-        while (it.hasNext()) {
-            block.evaluate(it.next());
-        }
-    }
-
-    static public <E, T> IOpenIterator<E> extend(Iterator<T> it, IOpenIteratorExtender<E, T> mod) {
-        return new ModifierIterator<E, T>(it, mod);
     }
 
     public static boolean isEmpty(Iterator<?> it) {
@@ -342,21 +249,6 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
         if (isEmpty(it1)) {
             if (it2 == null) {
                 return empty();
-            }
-            return it2;
-        }
-
-        if (isEmpty(it2)) {
-            return it1;
-        }
-
-        return new MergeIterator<T>(it1, it2);
-    }
-
-    public static <T> Iterator<T> merge(Iterator<T> it1, Iterator<T> it2) {
-        if (isEmpty(it1)) {
-            if (it2 == null) {
-                return emptyIterator();
             }
             return it2;
         }
@@ -399,22 +291,6 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
         return UNKNOWN_SIZE;
     }
 
-    static public <T> int store(Iterator<T> it, IAppender<T> appender) {
-        int cnt = 0;
-        for (; it.hasNext() && appender.add(it.next()); ++cnt) {
-            ;
-        }
-        return cnt;
-    }
-
-    public IOpenIterator<T> append(IOpenIterator<T> it) {
-        return it == null || it == EMPTY ? this : merge(this, it);
-    }
-
-    public Iterator<T> append(Iterator<T> it) {
-        return it == null || it == EMPTY ? this : merge(this, it);
-    }
-
     public List<T> asList() {
         return asList(this);
     }
@@ -425,10 +301,6 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
 
     // ////////////////////////////// Some useful OpenIterators
     // ///////////////////////////////////////////
-
-    public <C> IOpenIterator<C> convert(IConvertor<T, C> ic) {
-        return collect(ic);
-    }
 
     /**
      * Calculates the number of iterated elements. Unfortunately, destroys the
@@ -444,20 +316,6 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
             next();
         }
         return cnt;
-    }
-
-    public void evaluate(IBlock block) {
-        evaluate(block, this);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.openl.util.IOpenIterator#modify(org.openl.util.IOpenIteratorModifier)
-     */
-    public <E> IOpenIterator<E> extend(IOpenIteratorExtender<E, T> mod) {
-        return extend(this, mod);
     }
 
     public void remove() {
@@ -490,25 +348,4 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
     public int size() {
         return UNKNOWN_SIZE;
     }
-
-    /**
-     * Skips up to n elements.
-     * 
-     * @param n
-     * @return actual number of skipped elements
-     */
-    public int skip(int n) {
-        int x = n;
-        for (; n > 0 && hasNext(); n--) {
-            next();
-        }
-
-        return x - n;
-
-    }
-
-    public int store(IAppender<T> appender) {
-        return store(this, appender);
-    }
-
 }

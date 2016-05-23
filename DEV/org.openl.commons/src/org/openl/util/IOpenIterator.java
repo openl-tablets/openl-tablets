@@ -17,10 +17,6 @@ public interface IOpenIterator<T> extends Iterator<T> {
 
     int UNKNOWN_SIZE = -1;
 
-    IOpenIterator<T> append(IOpenIterator<T> it);
-
-    Iterator<T> append(Iterator<T> it);
-
     List<T> asList();
 
     /**
@@ -32,22 +28,10 @@ public interface IOpenIterator<T> extends Iterator<T> {
     <C> IOpenIterator<C> collect(IConvertor<T, C> col);
 
     /**
-     * Same as collect
-     * 
-     * @param col
-     * @return
-     */
-    <C> IOpenIterator<C> convert(IConvertor<T, C> col);
-
-    /**
      * @return the number of elements in iterator, it is not a "const" method,
      *         performs it by actual enumeration
      */
     int count();
-
-    void evaluate(IBlock block);
-
-    <E> IOpenIterator<E> extend(IOpenIteratorExtender<E, T> mod);
 
     IOpenIterator<T> reverse() throws UnsupportedOperationException;
 
@@ -58,6 +42,4 @@ public interface IOpenIterator<T> extends Iterator<T> {
      *         not known, this method is "const"
      */
     int size();
-
-    int skip(int n);
 }

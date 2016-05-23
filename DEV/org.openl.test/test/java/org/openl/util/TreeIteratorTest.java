@@ -150,30 +150,6 @@ public class TreeIteratorTest extends TestCase {
 
     }
 
-    public void testHasNext() {
-
-    }
-
-    public void testModes() {
-        TreeIterator it = create(TreeIterator.BOTTOM_TOP);
-        Assert.assertEquals(12, it.count());
-        it = create(TreeIterator.BOTTOM_TOP);
-        it.skip(2);
-        Assert.assertEquals("ccc", it.next());
-
-        it.skip(8);
-
-        Assert.assertEquals(root, it.next());
-
-        it = create(TreeIterator.RIGHT_TO_LEFT);
-        it.skip(3);
-        Assert.assertEquals("ggg", it.next());
-
-    }
-
-    public void testNext() {
-    }
-
     /*
      * Test for int size()
      */
@@ -181,9 +157,6 @@ public class TreeIteratorTest extends TestCase {
         TreeIterator it = create(TreeIterator.DEFAULT);
         Assert.assertEquals(-1, it.size());
 
-    }
-
-    public void testSkip() {
     }
 
     public void testZip() throws Exception {
