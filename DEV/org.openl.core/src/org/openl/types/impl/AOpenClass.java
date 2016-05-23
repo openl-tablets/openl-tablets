@@ -347,14 +347,6 @@ public abstract class AOpenClass implements IOpenClass {
         methodList = null;
     }
 
-    /**
-     * @deprecated use {@link #getMethods()} instead.
-     */
-    public Iterator<IOpenMethod> methods() {
-        return getMethods().iterator();
-    }
-    
-    
     private Collection<IOpenMethod> methodList = null;
     
     public synchronized Collection<IOpenMethod> getMethods() {

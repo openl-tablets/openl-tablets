@@ -8,7 +8,6 @@ package org.openl.types;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.IOpenLibrary;
@@ -146,11 +145,6 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
      * @see {@link IOpenClass#isArray()}
      */
     IOpenClass getComponentClass();
-    
-    /**
-     * @deprecated use {@link #getMethods()} instead.
-     */
-    Iterator<IOpenMethod> methods();
 
     Collection<IOpenMethod> getMethods();
 

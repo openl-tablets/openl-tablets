@@ -127,13 +127,6 @@ public class OpenClassDelegator implements IOpenClass {
         return baseClass.getComponentClass();
     }
 
-    /**
-     * @deprecated use {@link #getMethods()} instead.
-     */
-    public Iterator<IOpenMethod> methods() {
-        return baseClass.methods();
-    }
-
     public Object newInstance(IRuntimeEnv env) {
         return baseClass.newInstance(env);
     }

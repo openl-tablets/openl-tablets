@@ -156,13 +156,6 @@ public class NullOpenClass implements IOpenClass {
         return true;
     }
 
-    /**
-     * @deprecated use {@link #getMethods()} instead.
-     */
-    public Iterator<IOpenMethod> methods() {
-        return null;
-    }
-
     /*
      * (non-Javadoc)
      *

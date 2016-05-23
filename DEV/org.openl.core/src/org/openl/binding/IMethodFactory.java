@@ -18,6 +18,6 @@ import org.openl.types.IOpenMethod;
 public interface IMethodFactory {
 
     IOpenMethod getMatchingMethod(String name, IOpenClass[] params) throws AmbiguousMethodException;
-    Iterator<IOpenMethod> methods();
+
     Iterator<IOpenMethod> methods(String name);
 }

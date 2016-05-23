@@ -24,7 +24,6 @@ import org.openl.util.OpenIterator;
  */
 public class StaticClassLibrary implements IOpenLibrary {
 
-    IOpenMethod[] methods;
     Map<String, List<IOpenMethod>> methodNameMap = null;
     private IOpenClass openClass;
 
@@ -49,24 +48,6 @@ public class StaticClassLibrary implements IOpenLibrary {
         return openClass.getField(name, strictMatch);
     }
 
-    public Iterator<IOpenMethod> methods() {
-
-        if (methods == null) {
-            synchronized (this) {
-                List<IOpenMethod> methodsList = CollectionUtils.findAll(openClass.getMethods(),
-                    new CollectionUtils.Predicate<IOpenMethod>() {
-                        @Override
-                        public boolean evaluate(IOpenMethod method) {
-                            return method.isStatic();
-                        }
-                    });
-                this.methods = methodsList.toArray(new IOpenMethod[0]);
-            }
-        }
-
-        return OpenIterator.fromArray(methods);
-    }
-
     public void setOpenClass(IOpenClass c) {
         openClass = c;
     }
@@ -76,7 +57,14 @@ public class StaticClassLibrary implements IOpenLibrary {
     public Iterator<IOpenMethod> methods(String name) {
         if (methodNameMap == null) {
             synchronized (this) {
-                methodNameMap = AOpenClass.buildMethodNameMap(methods());
+                List<IOpenMethod> methods = CollectionUtils.findAll(openClass.getMethods(),
+                        new CollectionUtils.Predicate<IOpenMethod>() {
+                            @Override
+                            public boolean evaluate(IOpenMethod method) {
+                                return method.isStatic();
+                            }
+                        });
+                methodNameMap = AOpenClass.buildMethodNameMap(methods.iterator());
             }
         }
 
