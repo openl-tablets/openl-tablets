@@ -17,8 +17,6 @@ public interface IOpenIterator<T> extends Iterator<T> {
 
     int UNKNOWN_SIZE = -1;
 
-    List<T> asList();
-
     /**
      * Legacy (Smalltalk) name, same as convert
      * 

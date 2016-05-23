@@ -3,11 +3,11 @@ package org.openl.conf.ant;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.openl.CompiledOpenClass;
-import org.openl.base.INamedThing;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.data.DataOpenField;
 import org.openl.rules.data.ITable;
@@ -17,11 +17,9 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.AOpenIterator;
-import org.openl.util.ASelector;
 import org.openl.util.ArrayTool;
 import org.openl.util.ClassUtils;
-import org.openl.util.ISelector;
+import org.openl.util.CollectionUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
@@ -681,11 +679,15 @@ public class JavaWrapperGenerator implements OpenLToJavaGenerator {
 
     private String getMethodFieldName(IOpenMethod method) {
 
-        String methodName = getMethodName(method);
+        final String methodName = getMethodName(method);
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        ISelector<IOpenMethod> nameSel = (ISelector<IOpenMethod>) new ASelector.StringValueSelector(methodName,
-                INamedThing.NAME_CONVERTOR);
-        List<IOpenMethod> list = AOpenIterator.select(moduleOpenClass.getMethods().iterator(), nameSel).asList();
+        Collection<IOpenMethod> methods = moduleOpenClass.getMethods();
+        List<IOpenMethod> list = CollectionUtils.findAll(methods, new CollectionUtils.Predicate<IOpenMethod>() {
+            @Override
+            public boolean evaluate(IOpenMethod method) {
+                return methodName.equals(method.getName());
+            }
+        });
 
         if (list.size() == 1) {
             return methodName + "_Method";

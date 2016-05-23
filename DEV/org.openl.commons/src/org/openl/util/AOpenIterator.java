@@ -6,10 +6,7 @@
 
 package org.openl.util;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
@@ -130,26 +127,6 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
 
     public static final EmptyIterator<?> EMPTY = new EmptyIterator<Object>();
 
-    public static <T> List<T> asList(Iterator<T> it) {
-        int size = size(it);
-        List<T> result = null;
-
-        switch (size) {
-            case 0:
-                return Collections.emptyList();
-            case UNKNOWN_SIZE:
-                result = new ArrayList<T>();
-                break;
-            default:
-                result = new ArrayList<T>(size);
-        }
-
-        for (; it.hasNext();) {
-            result.add(it.next());
-        }
-        return result;
-    }
-
     @SuppressWarnings("unchecked")
     public static <T> IOpenIterator<T> empty() {
         return (IOpenIterator<T>) EMPTY;
@@ -181,10 +158,6 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
             return ((IOpenIterator<T>) it).size();
         }
         return UNKNOWN_SIZE;
-    }
-
-    public List<T> asList() {
-        return asList(this);
     }
 
     public <C> IOpenIterator<C> collect(IConvertor<T, C> ic) {

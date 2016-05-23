@@ -7,7 +7,6 @@
 package org.openl.base;
 
 import org.openl.util.ASelector;
-import org.openl.util.AStringConvertor;
 
 /**
  * @author snshor
@@ -15,13 +14,6 @@ import org.openl.util.AStringConvertor;
  *         Wow, almost everything has a name.
  */
 public interface INamedThing {
-
-    static class NameConverter<T extends INamedThing> extends AStringConvertor<INamedThing> {
-        @Override
-        public String getStringValue(INamedThing nt) {
-            return nt.getName();
-        }
-    }
 
     static class NameSelector<T extends INamedThing> extends ASelector<T> {
     	String value;
@@ -40,8 +32,6 @@ public interface INamedThing {
     static public int SHORT = 0;
     static public int REGULAR = 1;
     static public int LONG = 2;
-
-    NameConverter<INamedThing> NAME_CONVERTOR = new NameConverter<INamedThing>();
 
     String getDisplayName(int mode);
 
