@@ -6,7 +6,6 @@
 
 package org.openl.util;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -72,53 +71,6 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
         }
 
         public abstract C next();
-    }
-
-    static public class MergeIterator<T> extends AOpenIterator<T> {
-        Iterator<T>[] itt;
-        int current = 0;
-
-        @SuppressWarnings("unchecked")
-        public MergeIterator(Iterator<T> it1, Iterator<T> it2) {
-            this.itt = (Iterator<T>[]) Array.newInstance(Iterator.class, 2);
-            itt[0] = it1;
-            itt[1] = it2;
-        }
-
-        public boolean hasNext() {
-            for (; current < itt.length; ++current) {
-                if (itt[current].hasNext()) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public T next() {
-            return itt[current].next();
-        }
-
-        @Override
-        public void remove() {
-            itt[current].remove();
-        }
-
-        @Override
-        public int size() {
-
-            int total = 0;
-            for (int i = current; i < itt.length; i++) {
-                int size = size(itt[i]);
-                if (size == UNKNOWN_SIZE) {
-                    return UNKNOWN_SIZE;
-                }
-                total += size;
-            }
-
-            return total;
-
-        }
     }
 
     static final class SelectIterator<T> extends IteratorWrapper<T, T> {
@@ -243,21 +195,6 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
 
     public static boolean isEmpty(Iterator<?> it) {
         return it == null || it == EMPTY;
-    }
-
-    public static <T> IOpenIterator<T> merge(IOpenIterator<T> it1, IOpenIterator<T> it2) {
-        if (isEmpty(it1)) {
-            if (it2 == null) {
-                return empty();
-            }
-            return it2;
-        }
-
-        if (isEmpty(it2)) {
-            return it1;
-        }
-
-        return new MergeIterator<T>(it1, it2);
     }
 
     static public <X> IOpenIterator<X> reverse(Iterator<X> it) {

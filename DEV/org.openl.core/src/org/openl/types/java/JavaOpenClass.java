@@ -55,9 +55,6 @@ import org.openl.types.impl.AOpenClass;
 import org.openl.types.impl.ArrayIndex;
 import org.openl.types.impl.ArrayLengthOpenField;
 import org.openl.types.impl.MethodKey;
-import org.openl.util.AOpenIterator;
-import org.openl.util.IConvertor;
-import org.openl.util.IOpenIterator;
 import org.openl.util.OpenIterator;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
@@ -429,39 +426,24 @@ public class JavaOpenClass extends AOpenClass {
     IOpenClass[] superClasses;
     
     public synchronized Iterator<IOpenClass> superClasses() {
-    	if (superClasses == null)
-    	{
-				IOpenIterator<IOpenClass> sc = collectSuperClasses();
-				superClasses = sc.asList().toArray(new IOpenClass[0]);
-    	}
-    	
-    	return OpenIterator.fromArray(superClasses);
-    }
-    
-    
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private IOpenIterator<IOpenClass> collectSuperClasses() {
-        Class<?>[] tmp = instanceClass.getInterfaces();
-        IOpenIterator<Class<?>> ic = OpenIterator.fromArray(tmp);
-
-        IOpenIterator<IOpenClass> interfaces = ic.collect(new Class2JavaOpenClassCollector());
-
-        Class superClass = instanceClass.getSuperclass();
-
-        if (superClass == null) {
-            return interfaces;
-        } else {
-            return AOpenIterator.merge(AOpenIterator.single((IOpenClass) JavaOpenClass.getOpenClass(superClass)),
-                    interfaces);
+        if (superClasses == null) {
+            Class<?>[] interfaces = instanceClass.getInterfaces();
+            Class superClass = instanceClass.getSuperclass();
+            int size = interfaces.length + (superClass == null ? 0 : 1);
+            IOpenClass[] superClasses = new IOpenClass[size];
+            int pos = 0;
+            if (superClass != null) {
+                superClasses[pos++] = getOpenClass(superClass);
+            }
+            for (Class<?> interf:interfaces) {
+                superClasses[pos++] = getOpenClass(interf);
+            }
+            this.superClasses = superClasses;
         }
+
+        return OpenIterator.fromArray(superClasses);
     }
-    
-    private static class Class2JavaOpenClassCollector<T> implements IConvertor<Class<T>, IOpenClass> {
-        public IOpenClass convert(Class<T> c) {
-            return getOpenClass(c);
-        }
-    }
-    
+
     private static class JavaArrayLengthField extends ArrayLengthOpenField {
         @Override
         public int getLength(Object target) {
