@@ -63,7 +63,7 @@ public class StaticClassLibrary implements IOpenLibrary {
                                 return method.isStatic();
                             }
                         });
-                methodNameMap = AOpenClass.buildMethodNameMap(methods.iterator());
+                methodNameMap = AOpenClass.buildMethodNameMap(methods);
             }
         }
 

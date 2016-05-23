@@ -437,7 +437,7 @@ public abstract class AOpenClass implements IOpenClass {
 		{
 			synchronized(this)
 			{
-				methodNameMap = buildMethodNameMap(getMethods().iterator());
+				methodNameMap = buildMethodNameMap(getMethods());
 			}
 		}	
 		
@@ -447,12 +447,11 @@ public abstract class AOpenClass implements IOpenClass {
 	}
 
 	static public  Map<String, List<IOpenMethod>> buildMethodNameMap(
-			Iterator<IOpenMethod> methods) {
+			Iterable<IOpenMethod> methods) {
 		
 		Map<String, List<IOpenMethod>> res = new HashMap<String, List<IOpenMethod>>();
 
-		for (; methods.hasNext();) {
-			IOpenMethod m = (IOpenMethod) methods.next();
+		for (IOpenMethod m : methods) {
 			String name = m.getName();
 			
 			List<IOpenMethod> list = res.get(name);
