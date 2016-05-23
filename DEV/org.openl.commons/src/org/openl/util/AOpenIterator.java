@@ -9,12 +9,9 @@ package org.openl.util;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 /**
  * @author snshor
@@ -313,26 +310,6 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
         return new SimpleIteratorWrapper<T>(it);
     }
 
-    public static <T> Set<T> asSet(Iterator<T> it) {
-        int size = size(it);
-        Set<T> result = null;
-
-        switch (size) {
-            case 0:
-                return Collections.emptySet();
-            case UNKNOWN_SIZE:
-                result = new HashSet<T>();
-                break;
-            default:
-                result = new HashSet<T>(size);
-        }
-
-        for (; it.hasNext();) {
-            result.add(it.next());
-        }
-        return result;
-    }
-
     static public <T, C> IOpenIterator<C> collect(Iterator<T> it, IConvertor<T, C> ic) {
         return new CollectIterator<T, C>(it, ic);
     }
@@ -440,10 +417,6 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
 
     public List<T> asList() {
         return asList(this);
-    }
-
-    public Set<T> asSet() {
-        return asSet(this);
     }
 
     public <C> IOpenIterator<C> collect(IConvertor<T, C> ic) {

@@ -8,7 +8,6 @@ package org.openl.util;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author snshor
@@ -23,8 +22,6 @@ public interface IOpenIterator<T> extends Iterator<T> {
     Iterator<T> append(Iterator<T> it);
 
     List<T> asList();
-
-    Set<T> asSet();
 
     /**
      * Legacy (Smalltalk) name, same as convert
