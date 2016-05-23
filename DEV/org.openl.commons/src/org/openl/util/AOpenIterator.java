@@ -147,41 +147,12 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
         return new SelectIterator<X>(it, is);
     }
 
-    /**
-     * 
-     * @param value
-     * @return iterator over single value, if value != null, empty iterator
-     *         otherwise
-     */
-    public static <T> int size(Iterator<T> it) {
-        if (it instanceof IOpenIterator<?>) {
-            return ((IOpenIterator<T>) it).size();
-        }
-        return UNKNOWN_SIZE;
-    }
-
     public <C> IOpenIterator<C> collect(IConvertor<T, C> ic) {
         return new CollectIterator<T, C>(this, ic);
     }
 
     // ////////////////////////////// Some useful OpenIterators
     // ///////////////////////////////////////////
-
-    /**
-     * Calculates the number of iterated elements. Unfortunately, destroys the
-     * iterator
-     * 
-     * @see #size
-     * @return
-     */
-
-    public int count() {
-        int cnt = 0;
-        for (; hasNext(); ++cnt) {
-            next();
-        }
-        return cnt;
-    }
 
     public void remove() {
         throw new IllegalStateException();

@@ -6,8 +6,6 @@
 
 package org.openl.util;
 
-import java.util.Iterator;
-
 import org.junit.Assert;
 import junit.framework.TestCase;
 
@@ -16,8 +14,6 @@ import junit.framework.TestCase;
  *
  */
 public class OpenIteratorTest extends TestCase {
-
-    String[] ary1 = { "aaa", "bbb", "ccc" };
 
     /**
      * Constructor for AOpenIteratorTest.
@@ -28,18 +24,8 @@ public class OpenIteratorTest extends TestCase {
         super(arg0);
     }
 
-    public void testCount() {
-        IOpenIterator<String> it = OpenIterator.fromArray(ary1).reverse();
-        Assert.assertEquals(3, it.count());
-    }
-    
-    
     public void testIsEmpty() {
         Assert.assertTrue(AOpenIterator.isEmpty(OpenIterator.fromArray(null)));
     }
 
-    public void testSize() {
-        IOpenIterator<String> it = OpenIterator.fromArray(ary1);
-        Assert.assertEquals(3, it.size());
-    }
 }

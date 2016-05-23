@@ -29,8 +29,6 @@ public interface IOpenIterator<T> extends Iterator<T> {
      * @return the number of elements in iterator, it is not a "const" method,
      *         performs it by actual enumeration
      */
-    int count();
-
     IOpenIterator<T> reverse() throws UnsupportedOperationException;
 
     IOpenIterator<T> select(ISelector<T> sel);

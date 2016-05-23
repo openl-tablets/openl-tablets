@@ -66,7 +66,7 @@ public class TreeIteratorTest extends TestCase {
 
         };
 
-        count += it.select(sel).count();
+        count += it.select(sel).size();
     }
 
     public static void main(String[] args) throws Exception {
@@ -127,7 +127,12 @@ public class TreeIteratorTest extends TestCase {
 
     public void testCount() {
         TreeIterator it = create(TreeIterator.DEFAULT);
-        Assert.assertEquals(12, it.count());
+        int size = 0;
+        while (it.hasNext()) {
+            it.next();
+            size++;
+        }
+        Assert.assertEquals(12, size);
     }
 
     public void testFile() throws Exception {
@@ -146,7 +151,10 @@ public class TreeIteratorTest extends TestCase {
 
         };
 
-        Assert.assertEquals(it.select(sel).count(), 1);
+        IOpenIterator<?> iterator = it.select(sel);
+        Assert.assertTrue(iterator.hasNext());
+        iterator.next();
+        Assert.assertFalse(iterator.hasNext());
 
     }
 
@@ -176,7 +184,10 @@ public class TreeIteratorTest extends TestCase {
 
         };
 
-        Assert.assertEquals(it.select(sel).count(), 1);
+        IOpenIterator<?> iterator = it.select(sel);
+        Assert.assertTrue(iterator.hasNext());
+        iterator.next();
+        Assert.assertFalse(iterator.hasNext());
 
     }
 
