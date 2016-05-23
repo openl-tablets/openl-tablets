@@ -1,7 +1,6 @@
 package org.openl.types.java;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.openl.conf.ClassFactory;
@@ -60,11 +59,6 @@ public class JavaLongNameTypeLibrary implements ITypeLibrary {
             return ioc;
         } catch (Throwable t) {
         }
-        return null;
-    }
-
-    public Iterator<String> typeNames() {
-        // TODO Auto-generated method stub
         return null;
     }
 }
