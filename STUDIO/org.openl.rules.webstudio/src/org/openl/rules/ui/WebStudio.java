@@ -343,7 +343,6 @@ public class WebStudio {
 
     public void resetProjects() {
         needCompile = true;
-        forcedCompile = true;
         projects = null;
     }
 

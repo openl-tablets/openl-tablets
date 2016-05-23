@@ -59,6 +59,6 @@ public class MainBean {
         } catch (CommonException e) {
             log.error("Error on reloading user's workspace", e);
         }
-        WebStudioUtils.getWebStudio().compile();
+        WebStudioUtils.getWebStudio().resetProjects();
     }
 }
