@@ -10,7 +10,6 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.openl.util.RuntimeExceptionWrapper;
@@ -96,8 +95,7 @@ public abstract class AGenericConfiguration extends AConfigurationElement {
             if (properties != null) {
                 Method m = ClassFactory.validateHasMethod(implementingClass, "setProperty", new Class[] { String.class,
                         String.class }, getUri());
-                for (Iterator<StringProperty> iter = properties.iterator(); iter.hasNext();) {
-                    StringProperty prop = iter.next();
+                for (StringProperty prop : properties) {
                     m.invoke(res, new Object[] { prop.getName(), prop.getValue() });
                 }
             }

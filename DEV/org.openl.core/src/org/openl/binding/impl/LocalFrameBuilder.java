@@ -7,7 +7,6 @@
 package org.openl.binding.impl;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Stack;
 
 import org.openl.binding.ILocalVar;
@@ -155,29 +154,6 @@ public class LocalFrameBuilder {
     }
 
     static public class LocalVarFrameElement extends ArrayList<ILocalVar> {
-
-        /**
-         *
-         */
-        private static final long serialVersionUID = 9004729180675641226L;
-
-        static boolean compareStrings(String s1, String s2) {
-            return s1 != null ? s1.equals(s2) : s1 == s2;
-        }
-
-        public void addVar(ILocalVar var) {
-            add(var);
-        }
-
-        ILocalVar findVar(String namespace, String varname) {
-            for (Iterator<ILocalVar> iter = iterator(); iter.hasNext();) {
-                ILocalVar var = iter.next();
-                if (var.getName().equals(varname) && compareStrings(var.getNamespace(), namespace)) {
-                    return var;
-                }
-            }
-            return null;
-        }
     }
 
     Stack<LocalVarFrameElement> localFrames = new Stack<LocalVarFrameElement>();
@@ -210,19 +186,19 @@ public class LocalFrameBuilder {
 
     public int currentFrameSize() {
         int sum = 0;
-        for (Iterator<LocalVarFrameElement> iter = localFrames.iterator(); iter.hasNext();) {
-            LocalVarFrameElement element = iter.next();
+        for (LocalVarFrameElement element : localFrames) {
             sum += element.size();
         }
         return sum;
     }
 
     public ILocalVar findLocalVar(String namespace, String varname) {
-        for (Iterator<LocalVarFrameElement> iter = localFrames.iterator(); iter.hasNext();) {
-            LocalVarFrameElement frame = iter.next();
-            ILocalVar var = frame.findVar(namespace, varname);
-            if (var != null) {
-                return var;
+        for (LocalVarFrameElement frame : localFrames) {
+            for (ILocalVar var : frame) {
+                String s1 = var.getNamespace();
+                if (var.getName().equals(varname) && (s1 != null ? s1.equals(namespace) : namespace == null)) {
+                    return var;
+                }
             }
         }
 

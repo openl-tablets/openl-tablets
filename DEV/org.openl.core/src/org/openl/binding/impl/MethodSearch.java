@@ -8,7 +8,6 @@ package org.openl.binding.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import org.openl.binding.ICastFactory;
@@ -139,17 +138,13 @@ public class MethodSearch {
      * @throws AmbiguousMethodException Exception will be thrown if most
      *             specific method can not be determined.
      */
-    public static IOpenMethod findMostSpecificMethod(String name,
+    private static IOpenMethod findMostSpecificMethod(String name,
             IOpenClass[] params,
             List<IOpenMethod> matchingMethods,
             ICastFactory casts) throws AmbiguousMethodException {
-        Iterator<IOpenMethod> iterator = matchingMethods.iterator();
-        while (iterator.hasNext()) {
-            IOpenMethod res = iterator.next();
-            Iterator<IOpenMethod> itr = matchingMethods.iterator();
+        for(IOpenMethod res : matchingMethods) {
             boolean f = true;
-            while (itr.hasNext()) {
-                IOpenMethod next = itr.next();
+            for (IOpenMethod next : matchingMethods) {
                 if (res != next && !isMoreSpecificMethod(res, next, casts)) {
                     f = false;
                     break;

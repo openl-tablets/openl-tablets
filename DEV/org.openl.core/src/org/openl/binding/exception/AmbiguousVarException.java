@@ -6,7 +6,6 @@
 
 package org.openl.binding.exception;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.openl.base.INamedThing;
@@ -38,8 +37,7 @@ public class AmbiguousVarException extends OpenlNotCheckedException {
         buf.append("Variable ").append(varName);
         buf.append(" is ambiguous:\n").append("Matching fieldValues:\n");
         boolean first = true;
-        for (Iterator<IOpenField> iter = matchingFields.iterator(); iter.hasNext();) {
-            IOpenField f = iter.next();
+        for (IOpenField f : matchingFields) {
             if (!first) {
                 buf.append(", ");
             }

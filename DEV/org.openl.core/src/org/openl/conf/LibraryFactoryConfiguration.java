@@ -6,8 +6,6 @@
 
 package org.openl.conf;
 
-import java.util.Iterator;
-
 import org.openl.binding.ICastFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.types.IMethodCaller;
@@ -46,10 +44,8 @@ public class LibraryFactoryConfiguration extends AConfigurationElement implement
     }
 
     public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
-        for (Iterator<Object> iter = map.values().iterator(); iter.hasNext();) {
-            NameSpacedLibraryConfiguration lib = (NameSpacedLibraryConfiguration) iter.next();
-            lib.validate(cxt);
+        for (Object lib : map.values()) {
+            ((NameSpacedLibraryConfiguration) lib).validate(cxt);
         }
     }
-
 }

@@ -7,7 +7,6 @@
 package org.openl.conf;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.openl.binding.ICastFactory;
@@ -273,8 +272,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         }
 
         if (openFactories != null) {
-            for (Iterator<IOpenFactoryConfiguration> iter = openFactories.values().iterator(); iter.hasNext();) {
-                IOpenFactoryConfiguration factory = iter.next();
+            for (IOpenFactoryConfiguration factory : openFactories.values()) {
                 factory.validate(cxt);
             }
         }

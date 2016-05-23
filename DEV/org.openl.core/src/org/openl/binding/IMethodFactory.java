@@ -6,8 +6,6 @@
 
 package org.openl.binding;
 
-import java.util.Iterator;
-
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;

@@ -6,7 +6,6 @@
 
 package org.openl.binding.exception;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.openl.exception.OpenlNotCheckedException;
@@ -37,8 +36,7 @@ public class AmbiguousTypeException extends OpenlNotCheckedException {
 
         buf.append("Type ").append(typeName);
         buf.append(" is ambiguous:\n").append("Matching types:\n");
-        for (Iterator<IOpenClass> iter = matchingTypes.iterator(); iter.hasNext();) {
-            IOpenClass type = iter.next();
+        for (IOpenClass type : matchingTypes) {
             buf.append(type.getName()).append('\n');
         }
 

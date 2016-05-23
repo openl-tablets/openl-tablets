@@ -79,10 +79,8 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 					aggregateInfo.getComponentType(getType()),
 					new int[] { size });
 
-			Iterator<Object> mapIterator = map.values().iterator();
 			int idx = 0;
-			while (mapIterator.hasNext()) {
-				Object element = mapIterator.next();
+			for (Object element : map.values()) {
 				if (element.getClass() != OrderList.class)
 					Array.set(result, nextIdx(idx++, size), element);
 				else {
