@@ -33,7 +33,6 @@ public class TreeIterator<N> extends AOpenIterator<N> {
         /**
          * 
          * @param node parent node
-         * @param mode inthis case only, left-right or right-left is relevant
          * @return iterator over children collection, null or empty iterator if
          *         none
          */
@@ -69,7 +68,7 @@ public class TreeIterator<N> extends AOpenIterator<N> {
 
             Iterator<N> grandChildren = adaptor.children(nextChild);
 
-            if (isEmpty(grandChildren)) // nextChild is a leaf
+            if (grandChildren == null || !grandChildren.hasNext()) // nextChild is a leaf
             {
                 currentNode = nextChild;
                 return;

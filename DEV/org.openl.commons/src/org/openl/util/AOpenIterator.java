@@ -132,10 +132,6 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
         return (IOpenIterator<T>) EMPTY;
     }
 
-    public static boolean isEmpty(Iterator<?> it) {
-        return it == null || it == EMPTY;
-    }
-
     static public <X> IOpenIterator<X> reverse(Iterator<X> it) {
         if (it instanceof IOpenIterator<?>) {
             return ((IOpenIterator<X>) it).reverse();
