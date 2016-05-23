@@ -3,10 +3,8 @@ package org.openl.util.trie;
 import static org.junit.Assert.*;
 
 import java.util.Iterator;
-import java.util.List;
 
 import org.junit.Test;
-import org.openl.util.AOpenIterator;
 
 public class PrefixTest {
 
@@ -29,12 +27,11 @@ public class PrefixTest {
 		
 		Iterator<Integer> it = tree.allPrefixesOf(new CharSequenceKey("abcdmnox"));
 		
-		List<Integer> list = AOpenIterator.asList(it);
-		assertEquals(list.size(), 4);
-		assertEquals(Integer.valueOf(7), list.get(0));
-		assertEquals(Integer.valueOf(4), list.get(1));
-		assertEquals(Integer.valueOf(3), list.get(2));
-		assertEquals(Integer.valueOf(2), list.get(3));
+		assertEquals(Integer.valueOf(7), it.next());
+		assertEquals(Integer.valueOf(4), it.next());
+		assertEquals(Integer.valueOf(3), it.next());
+		assertEquals(Integer.valueOf(2), it.next());
+		assertFalse(it.hasNext());
 	}
 	
 	

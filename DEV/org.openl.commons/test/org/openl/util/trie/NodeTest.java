@@ -2,12 +2,10 @@ package org.openl.util.trie;
 
 import static org.junit.Assert.*;
 
-import java.util.List;
+import java.util.Iterator;
 import java.util.Random;
 
 import org.junit.Test;
-import org.openl.domain.IIntIterator;
-import org.openl.util.trie.IARTNode;
 import org.openl.util.trie.cnodes.ARTNode1N;
 import org.openl.util.trie.nodes.ARTNode1NbVib;
 
@@ -40,13 +38,12 @@ public class NodeTest {
 		assertNull(n1.findNode(51));
 		
 		
-		IIntIterator it = n1.indexIteratorN();
-		List<Integer> list = it.asList();
-		System.out.println(list);
-		assertEquals(3, list.size());
-		assertEquals((Integer)30, list.get(0));
-		assertEquals((Integer)79, list.get(2));
-		
+		Iterator it = n1.indexIteratorN();
+		assertEquals(30, it.next());
+		assertEquals(50, it.next());
+		assertEquals(79, it.next());
+		assertFalse(it.hasNext());
+
 		
 	}
 
