@@ -6,8 +6,6 @@
 
 package org.openl.types.science;
 
-import java.util.Iterator;
-
 /**
  * @author snshor
  * 
@@ -30,7 +28,7 @@ public interface IMultiplicativeExpression {
 
     IDimensionPower getDimensionPower(IDimension id);
 
-    Iterator<IDimensionPower> getDimensionsPowers();
+    Iterable<IDimensionPower> getDimensionsPowers();
 
     /**
      * Return scalar part of the expression

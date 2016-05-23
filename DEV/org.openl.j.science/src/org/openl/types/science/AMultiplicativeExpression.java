@@ -8,7 +8,6 @@ package org.openl.types.science;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -31,8 +30,7 @@ public abstract class AMultiplicativeExpression implements IMultiplicativeExpres
             return false;
         }
 
-        for (Iterator<IDimensionPower> it = m1.getDimensionsPowers(); it.hasNext();) {
-            IDimensionPower d1 = it.next();
+        for (IDimensionPower d1 : m1.getDimensionsPowers()) {
             IDimensionPower d2 = m2.getDimensionPower(d1.getDimension());
 
             if (d2 == null || d1.getPower() != d2.getPower()) {
@@ -47,8 +45,7 @@ public abstract class AMultiplicativeExpression implements IMultiplicativeExpres
 
         List<IDimensionPower> res = new ArrayList<IDimensionPower>();
 
-        for (Iterator<IDimensionPower> it = m1.getDimensionsPowers(); it.hasNext();) {
-            IDimensionPower d1 = it.next();
+        for (IDimensionPower d1 : m1.getDimensionsPowers()) {
             IDimensionPower d2 = m2.getDimensionPower(d1.getDimension());
 
             if (d2 == null) {
@@ -62,8 +59,7 @@ public abstract class AMultiplicativeExpression implements IMultiplicativeExpres
             }
         }
 
-        for (Iterator<IDimensionPower> it2 = m2.getDimensionsPowers(); it2.hasNext();) {
-            IDimensionPower d2 = it2.next();
+        for (IDimensionPower d2 : m2.getDimensionsPowers()) {
             IDimensionPower d1 = m1.getDimensionPower(d2.getDimension());
 
             if (d1 == null) {

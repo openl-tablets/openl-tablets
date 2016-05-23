@@ -6,9 +6,7 @@
 
 package org.openl.types.science;
 
-import java.util.Iterator;
-
-import org.openl.util.AOpenIterator;
+import java.util.Collections;
 
 /**
  * @author snshor
@@ -49,9 +47,8 @@ public class ScalarExpression extends AMultiplicativeExpression {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    public Iterator<IDimensionPower> getDimensionsPowers() {
-        return (Iterator<IDimensionPower>) AOpenIterator.EMPTY;
+    public Iterable<IDimensionPower> getDimensionsPowers() {
+        return Collections.emptyList();
     }
 
     public double getScalar() {
