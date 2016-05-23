@@ -1,8 +1,8 @@
 package org.openl.util.trie;
 
+import java.util.Collections;
 import java.util.Iterator;
 
-import org.openl.util.AOpenIterator;
 import org.openl.util.trie.ISequentialKey.KeyRange;
 import org.openl.util.trie.nodes.ARTNode1NbVib;
 
@@ -138,7 +138,8 @@ public final class ARTree3<V> implements IARPrefixTree<V>, IARTree<V>{
 		
 		int len = key.length() - 1;
 		if (len < 0)
-			return AOpenIterator.<V>empty();
+			//TODO: Use JAVA7 Collections.emptyIterator()
+			return Collections.<V>emptyList().iterator();
 		
 		Object[] ary = new Object[len + 1];
 		int maxNode = -1;
@@ -218,7 +219,8 @@ public final class ARTree3<V> implements IARPrefixTree<V>, IARTree<V>{
 		
 		int len = key.length() - 1;
 		if (len < 0)
-			return AOpenIterator.<V>empty();
+			//TODO: Use JAVA7 Collections.emptyIterator()
+			return Collections.<V>emptyList().iterator();
 		
 		Object[] ary = new Object[len + 1];
 		int maxNode = -1;
