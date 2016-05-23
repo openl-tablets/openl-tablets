@@ -163,7 +163,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
      * We do not have a limitation on number of superclasses. This feature is
      * not fully supported yet
      */
-    Iterator<IOpenClass> superClasses();
+    Iterable<IOpenClass> superClasses();
     
     /**
 	 * Add new type to internal types list. If the type with the same name

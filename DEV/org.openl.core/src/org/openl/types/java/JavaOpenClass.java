@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,7 +54,6 @@ import org.openl.types.impl.AOpenClass;
 import org.openl.types.impl.ArrayIndex;
 import org.openl.types.impl.ArrayLengthOpenField;
 import org.openl.types.impl.MethodKey;
-import org.openl.util.OpenIterator;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
 import org.openl.vm.IRuntimeEnv;
@@ -423,25 +421,23 @@ public class JavaOpenClass extends AOpenClass {
     }
     
     
-    IOpenClass[] superClasses;
+    List<IOpenClass> superClasses;
     
-    public synchronized Iterator<IOpenClass> superClasses() {
+    public synchronized Iterable<IOpenClass> superClasses() {
         if (superClasses == null) {
             Class<?>[] interfaces = instanceClass.getInterfaces();
             Class superClass = instanceClass.getSuperclass();
-            int size = interfaces.length + (superClass == null ? 0 : 1);
-            IOpenClass[] superClasses = new IOpenClass[size];
-            int pos = 0;
+            List<IOpenClass> superClasses = new ArrayList<IOpenClass>(interfaces.length + 1);
             if (superClass != null) {
-                superClasses[pos++] = getOpenClass(superClass);
+                superClasses.add(getOpenClass(superClass));
             }
-            for (Class<?> interf:interfaces) {
-                superClasses[pos++] = getOpenClass(interf);
+            for (Class<?> interf : interfaces) {
+                superClasses.add(getOpenClass(interf));
             }
             this.superClasses = superClasses;
         }
 
-        return OpenIterator.fromArray(superClasses);
+        return superClasses;
     }
 
     private static class JavaArrayLengthField extends ArrayLengthOpenField {

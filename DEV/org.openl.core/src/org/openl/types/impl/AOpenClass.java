@@ -80,9 +80,9 @@ public abstract class AOpenClass implements IOpenClass {
 
     public Map<String, IOpenField> getFields() {
         Map<String, IOpenField> fields = new HashMap<String, IOpenField>();
-        Iterator<IOpenClass> superClasses = superClasses();
-        while (superClasses.hasNext()) {
-            fields.putAll(superClasses.next().getFields());
+        Iterable<IOpenClass> superClasses = superClasses();
+        for (IOpenClass superClass : superClasses) {
+            fields.putAll(superClass.getFields());
         }
         fields.putAll(fieldMap());
         return fields;
@@ -144,9 +144,9 @@ public abstract class AOpenClass implements IOpenClass {
 
     private IOpenField searchFieldFromSuperClass(String fname, boolean strictMatch) {
         IOpenField f;
-        Iterator<IOpenClass> superClasses = superClasses();
-        while (superClasses.hasNext()) {
-            f = superClasses.next().getField(fname, strictMatch);
+        Iterable<IOpenClass> superClasses = superClasses();
+        for (IOpenClass superClass : superClasses) {
+            f = superClass.getField(fname, strictMatch);
             if (f != null) {
                 return f;
             }
@@ -182,7 +182,7 @@ public abstract class AOpenClass implements IOpenClass {
         // If method is not found try to find it in parent classes.
         //
         if (method == null) {
-            Iterator<IOpenClass> superClasses = superClasses();
+            Iterator<IOpenClass> superClasses = superClasses().iterator();
 
             while (method == null && superClasses.hasNext()) {
                 method = superClasses.next().getMethod(name, classes);
@@ -357,9 +357,9 @@ public abstract class AOpenClass implements IOpenClass {
 
     private Collection<IOpenMethod> collectMethods() {
         Map<MethodKey, IOpenMethod> methods = new HashMap<MethodKey, IOpenMethod>();
-        Iterator<IOpenClass> superClasses = superClasses();
-        while (superClasses.hasNext()) {
-            for(IOpenMethod method : superClasses.next().getMethods()){
+        Iterable<IOpenClass> superClasses = superClasses();
+        for (IOpenClass superClass : superClasses) {
+            for(IOpenMethod method : superClass.getMethods()){
                 methods.put(new MethodKey(method), method);
             }
         }

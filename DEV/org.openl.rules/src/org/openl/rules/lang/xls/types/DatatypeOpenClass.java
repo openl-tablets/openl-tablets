@@ -65,12 +65,11 @@ public class DatatypeOpenClass extends ADynamicClass {
     }
 
     @Override
-    public Iterator<IOpenClass> superClasses() {
+    public Iterable<IOpenClass> superClasses() {
         if (superClass != null) {
-            return Collections.singletonList(superClass).iterator();
+            return Collections.singletonList(superClass);
         } else {
-            // TODO: Use Java7 Collections.emptyIterator()
-            return Collections.<IOpenClass>emptyList().iterator();
+            return Collections.emptyList();
         }
     }
 
@@ -98,9 +97,9 @@ public class DatatypeOpenClass extends ADynamicClass {
     @Override
     public Map<String, IOpenField> getFields() {
         Map<String, IOpenField> fields = new LinkedHashMap<String, IOpenField>();
-        Iterator<IOpenClass> superClasses = superClasses();
-        while (superClasses.hasNext()) {
-            fields.putAll(superClasses.next().getFields());
+        Iterable<IOpenClass> superClasses = superClasses();
+        for(IOpenClass superClass : superClasses) {
+            fields.putAll(superClass.getFields());
         }
         fields.putAll(fieldMap());
         return fields;

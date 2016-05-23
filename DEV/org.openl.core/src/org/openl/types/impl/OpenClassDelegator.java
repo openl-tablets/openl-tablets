@@ -151,7 +151,7 @@ public class OpenClassDelegator implements IOpenClass {
         this.nameSpace = nameSpace;
     }
 
-    public Iterator<IOpenClass> superClasses() {
+    public Iterable<IOpenClass> superClasses() {
         return baseClass.superClasses();
     }
 

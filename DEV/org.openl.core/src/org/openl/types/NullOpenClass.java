@@ -16,7 +16,6 @@ import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;
 import org.openl.syntax.impl.ISyntaxConstants;
-import org.openl.util.AOpenIterator;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -172,8 +171,8 @@ public class NullOpenClass implements IOpenClass {
     public void setMetaInfo(IMetaInfo info) {
     }
 
-    public Iterator<IOpenClass> superClasses() {
-        return AOpenIterator.empty();
+    public Iterable<IOpenClass> superClasses() {
+        return Collections.emptyList();
     }
 
 	public void addType(String namespace, IOpenClass type) throws Exception {
