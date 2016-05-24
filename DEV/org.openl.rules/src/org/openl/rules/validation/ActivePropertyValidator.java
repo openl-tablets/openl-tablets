@@ -12,7 +12,6 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.validation.ValidationResult;
 import org.openl.validation.ValidationStatus;
-import org.openl.validation.ValidationUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

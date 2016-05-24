@@ -25,7 +25,6 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
 import org.openl.validation.ValidationResult;
 import org.openl.validation.ValidationStatus;
-import org.openl.validation.ValidationUtils;
 
 /**
  * Gap/overlap analysis for Decision Tables with property "validateDT" == "on".

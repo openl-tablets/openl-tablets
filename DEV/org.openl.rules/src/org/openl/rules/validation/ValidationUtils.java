@@ -1,9 +1,8 @@
-package org.openl.validation;
-
-import java.util.ArrayList;
-import java.util.List;
+package org.openl.rules.validation;
 
 import org.openl.message.OpenLMessage;
+import org.openl.validation.ValidationResult;
+import org.openl.validation.ValidationStatus;
 
 public class ValidationUtils {
 
