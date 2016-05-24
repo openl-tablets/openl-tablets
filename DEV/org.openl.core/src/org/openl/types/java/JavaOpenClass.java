@@ -257,14 +257,6 @@ public class JavaOpenClass extends AOpenClass {
         return instanceClass == ((JavaOpenClass) obj).instanceClass;
     }
     
-    public boolean equalsAsPrimitive(Object obj) {
-        if (!(obj instanceof JavaPrimitiveClass)) {
-            return false;
-        }
-        return ((JavaPrimitiveClass) obj).equalsAsPrimitive(this);
-    }
-
-
     @Override
     protected synchronized Map<String, IOpenField> fieldMap() {
         if (fields == null) {
@@ -524,16 +516,6 @@ public class JavaOpenClass extends AOpenClass {
         public Object nullObject() {
             return nullObject;
         }
-        
-        @Override
-        public boolean equalsAsPrimitive(Object obj) {
-            if (!(obj instanceof JavaOpenClass)) {
-                return false;
-            }
-            return wrapperClass == ((JavaOpenClass) obj).instanceClass;
-        }
-
-
     }
     
     private static class JavaOpenInterface extends JavaOpenClass {
