@@ -8,8 +8,11 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IMemberBoundNode;
+import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.engine.OpenLManager;
+import org.openl.rules.OpenlToolAdaptor;
+import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -25,6 +28,7 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
+import org.openl.util.ArrayTool;
 
 /**
  * @author snshor
@@ -87,7 +91,19 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 			
 			// Create appropriate domain object.
 			//
-			IDomain<?> domain = DatatypeHelper.getTypeDomain(dataPart, arrayOpenClass, openl, cxt);
+			Object[] res = {};
+			if (dataPart != null) {
+
+                OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, cxt);
+
+                Object values = RuleRowHelper.loadParam(dataPart, arrayOpenClass, "Values", "", openlAdaptor, true);
+
+                if (values != null) {
+                    res = ArrayTool.toArray(values);
+                }
+            }
+
+			IDomain<?> domain = new EnumDomain<Object>(res);
 
 			// Create domain class definition which will be used by OpenL engine at runtime. 
 			//

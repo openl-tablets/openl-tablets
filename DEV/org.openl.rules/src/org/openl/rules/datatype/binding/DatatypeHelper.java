@@ -32,28 +32,6 @@ public class DatatypeHelper {
      */
     private static final int MAXIMUM_COLUMNS_COUNT = 3;
 
-    @SuppressWarnings("unchecked")
-    public static IDomain<?> getTypeDomain(ILogicalTable table, IOpenClass type, OpenL openl, IBindingContext cxt)
-        throws SyntaxNodeException {
-        if (table != null) {
-            Object values = loadAliasDatatypeValues(table, type, openl, cxt);
-
-            if (values != null) {
-                return new EnumDomain(ArrayTool.toArray(values));
-            }
-        }
-
-        return new EnumDomain<Object>(new Object[] {});
-    }
-
-    public static Object loadAliasDatatypeValues(ILogicalTable table, IOpenClass type, OpenL openl, IBindingContext cxt)
-        throws SyntaxNodeException {
-
-        OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, cxt);
-
-        return RuleRowHelper.loadParam(table, type, "Values", "", openlAdaptor, true);
-    }
-
     public static ILogicalTable getNormalizedDataPartTable(ILogicalTable table, OpenL openl, IBindingContext cxt) {
         
         ILogicalTable dataPart;
