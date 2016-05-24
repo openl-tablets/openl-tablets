@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.repository;
 
 import com.thoughtworks.xstream.XStreamException;
+import com.thoughtworks.xstream.io.StreamException;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
@@ -642,9 +643,21 @@ public class RepositoryTreeController {
         Collection<String> modulePaths = new HashSet<String>();
         findModulePaths(aProjectArtefact, modulePaths);
         if (projectDescriptorArtifact instanceof AProjectResource) {
+            String projectDescriptorPath = projectDescriptorArtifact.getArtefactPath().withoutFirstSegment() .getStringValue();
+            if (projectDescriptorPath.equals(aProjectArtefact.getArtefactPath().withoutFirstSegment().getStringValue())) {
+                // There is no need to unregister itself
+                return;
+            }
+
             AProjectResource resource = (AProjectResource) projectDescriptorArtifact;
             InputStream content = resource.getContent();
-            ProjectDescriptor projectDescriptor = xmlProjectDescriptorSerializer.deserialize(content);
+            ProjectDescriptor projectDescriptor;
+            try {
+                projectDescriptor = xmlProjectDescriptorSerializer.deserialize(content);
+            } catch (StreamException e) {
+                log.error("Broken rules.xml file. Can't remove modules from it", e);
+                return;
+            }
             for (String modulePath : modulePaths) {
                 Iterator<Module> itr = projectDescriptor.getModules().iterator();
                 while (itr.hasNext()) {
