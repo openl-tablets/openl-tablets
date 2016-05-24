@@ -419,7 +419,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
     }
 
 
-    private class ModeshapeJcrRepo extends JcrRepository {
+    private static class ModeshapeJcrRepo extends JcrRepository {
 
         private ModeshapeJcrRepo(RepositoryConfiguration configuration) throws ConfigurationException {
             super(configuration);
