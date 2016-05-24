@@ -6,7 +6,6 @@
 
 package org.openl.vm;
 
-import org.openl.IOpenDebugger;
 import org.openl.IOpenRunner;
 import org.openl.IOpenVM;
 import org.openl.binding.IBoundMethodNode;
@@ -196,17 +195,7 @@ public class SimpleVM implements IOpenVM {
 			return new SimpleRuntimeEnv(this);
 		}
 	}
-	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.openl.IOpenVM#debug(org.openl.binding.IBoundCode)
-	 */
-	public IOpenDebugger getDebugger() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
