@@ -4,6 +4,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
 import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,22 +15,32 @@ public final class DBConfigurationLoader {
 
     private static CompositeConfiguration getConfiguration(String databaseName) {
         CompositeConfiguration compositeConfiguration = new CompositeConfiguration();
-        compositeConfiguration.addConfiguration(createConfiguration("modeshape-" + databaseName + ".properties"));
-        compositeConfiguration.addConfiguration(createConfiguration("modeshape.properties"));
-        return compositeConfiguration;
-    }
 
-    private static PropertiesConfiguration createConfiguration(String configLocation) {
+        // Configuration for specific DB. Can be absent
         PropertiesConfiguration configuration = new PropertiesConfiguration();
         configuration.setDelimiterParsingDisabled(true);
-        configuration.setFileName(configLocation);
+        configuration.setFileName("modeshape-" + databaseName + ".properties");
         try {
             configuration.load();
-        } catch (org.apache.commons.configuration.ConfigurationException e) {
+            compositeConfiguration.addConfiguration(configuration);
+        } catch (ConfigurationException e) {
             Logger logger = LoggerFactory.getLogger(DBRepositoryFactory.class);
-            logger.error("Error when initializing configuration: {}", configLocation, e);
+            logger.debug("Configuration: {} file is absent", "modeshape-" + databaseName + ".properties", e);
         }
-        return configuration;
+
+        // Default configuration
+        configuration = new PropertiesConfiguration();
+        configuration.setDelimiterParsingDisabled(true);
+        configuration.setFileName("modeshape.properties");
+        try {
+            configuration.load();
+        } catch (ConfigurationException e) {
+            Logger logger = LoggerFactory.getLogger(DBRepositoryFactory.class);
+            logger.error("Error when initializing configuration: {}", "modeshape.properties", e);
+        }
+        compositeConfiguration.addConfiguration(configuration);
+
+        return compositeConfiguration;
     }
 
     static CompositeConfiguration getConfigurationForConnection(DatabaseMetaData metaData) throws SQLException {
