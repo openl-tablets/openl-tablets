@@ -1,6 +1,7 @@
 package org.openl.rules.lang.xls.load;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openl.exception.OpenLRuntimeException;
@@ -21,6 +22,10 @@ final class WorkbookLoadUtils {
 
         InputStream is = null;
         Workbook workbook;
+
+        // Disable zip bomb detection
+        ZipSecureFile.setMinInflateRatio(0);
+
         try {
             is = fileSource.getByteStream();
             workbook = WorkbookFactory.create(is);
