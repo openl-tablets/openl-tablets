@@ -868,7 +868,10 @@ public class ProjectModel {
     }
 
     public void reset(ReloadType reloadType) throws Exception {
-        Module moduleToOpen = moduleInfo;
+        reset(reloadType, moduleInfo);
+    }
+
+    public void reset(ReloadType reloadType, Module moduleToOpen) throws Exception {
         switch (reloadType) {
             case FORCED:
                 OpenL.reset();

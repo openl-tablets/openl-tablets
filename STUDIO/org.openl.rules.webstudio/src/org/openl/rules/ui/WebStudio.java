@@ -355,8 +355,7 @@ public class WebStudio {
 
     private void reset(ReloadType reloadType) {
         try {
-            model.setModuleInfo(currentModule);
-            model.reset(reloadType);
+            model.reset(reloadType, currentModule);
         } catch (Exception e) {
             log.error("Error when trying to reset studio model", e);
         }
