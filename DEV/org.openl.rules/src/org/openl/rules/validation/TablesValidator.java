@@ -7,7 +7,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.validation.IOpenLValidator;
 import org.openl.validation.ValidationResult;
-import org.openl.validation.ValidationUtils;
 
 public abstract class TablesValidator implements IOpenLValidator {
 

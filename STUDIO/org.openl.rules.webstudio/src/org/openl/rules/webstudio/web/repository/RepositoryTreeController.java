@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.repository;
 
 import com.thoughtworks.xstream.XStreamException;
+import com.thoughtworks.xstream.io.StreamException;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
@@ -45,7 +46,7 @@ import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
-import org.openl.util.filter.IFilter;
+import org.openl.rules.webstudio.filter.IFilter;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -238,7 +239,6 @@ public class RepositoryTreeController {
         try {
             if (repositoryTreeState.getSelectedProject().equals(studio.getModel().getProject())) {
                 studio.getModel().clearModuleInfo();
-                studio.setCurrentModule(null);
             }
             repositoryTreeState.getSelectedProject().close();
             repositoryTreeState.refreshSelectedNode();
@@ -643,9 +643,21 @@ public class RepositoryTreeController {
         Collection<String> modulePaths = new HashSet<String>();
         findModulePaths(aProjectArtefact, modulePaths);
         if (projectDescriptorArtifact instanceof AProjectResource) {
+            String projectDescriptorPath = projectDescriptorArtifact.getArtefactPath().withoutFirstSegment() .getStringValue();
+            if (projectDescriptorPath.equals(aProjectArtefact.getArtefactPath().withoutFirstSegment().getStringValue())) {
+                // There is no need to unregister itself
+                return;
+            }
+
             AProjectResource resource = (AProjectResource) projectDescriptorArtifact;
             InputStream content = resource.getContent();
-            ProjectDescriptor projectDescriptor = xmlProjectDescriptorSerializer.deserialize(content);
+            ProjectDescriptor projectDescriptor;
+            try {
+                projectDescriptor = xmlProjectDescriptorSerializer.deserialize(content);
+            } catch (StreamException e) {
+                log.error("Broken rules.xml file. Can't remove modules from it", e);
+                return;
+            }
             for (String modulePath : modulePaths) {
                 Iterator<Module> itr = projectDescriptor.getModules().iterator();
                 while (itr.hasNext()) {
@@ -697,9 +709,6 @@ public class RepositoryTreeController {
         try {
             studio.getModel().clearModuleInfo(); // Release resources like jars
             String nodeType = selectedNode.getType();
-            if (UiConst.TYPE_PROJECT.equals(nodeType) && projectArtefact.equals(studio.getModel().getProject())) {
-                studio.setCurrentModule(null);
-            }
             unregisterSelectedNodeInProjectDescriptor();
             projectArtefact.delete();
             if (selectedNode != activeProjectNode) {
@@ -1767,12 +1776,6 @@ public class RepositoryTreeController {
     }
 
     private void resetStudioModel() {
-        try {
-            studio.setCurrentModule(null);
-        } catch (Exception e) {
-            //Shouldn't occure but...
-            log.error("Not expected exception occure!", e);
-        }
         studio.reset();
     }
 

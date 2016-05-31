@@ -5,6 +5,7 @@ import org.openl.OpenL;
 import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.IBoundNode;
+import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.MethodNotFoundException;
 import org.openl.binding.impl.LiteralBoundNode;
 import org.openl.exception.OpenLRuntimeException;
@@ -14,6 +15,9 @@ import org.openl.syntax.code.ProcessedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.util.CollectionUtils;
+
+import java.util.List;
 
 /**
  * Class that defines OpenL engine manager implementation for evaluate/run
@@ -48,7 +52,7 @@ public class OpenLRunManager extends OpenLHolder {
      * @throws MethodNotFoundException
      * @throws SyntaxNodeException
      */
-    public Object runMethod(IOpenSourceCodeModule source, String methodName, IOpenClass[] paramTypes, Object[] params)
+    public Object runMethod(IOpenSourceCodeModule source, final String methodName, IOpenClass[] paramTypes, Object[] params)
             throws OpenLRuntimeException, MethodNotFoundException, SyntaxNodeException {
 
         IOpenClass openClass = compileManager.compileModule(source, false, null);
@@ -56,7 +60,30 @@ public class OpenLRunManager extends OpenLHolder {
 
         Object target = openClass.newInstance(vm.getRuntimeEnv());
 
-        IOpenMethod method = OpenLUtils.getMethod(methodName, paramTypes, openClass);
+        IOpenMethod method = null;
+
+        if (paramTypes != null) {
+            method = openClass.getMatchingMethod(methodName, paramTypes);
+        } else {
+            List<IOpenMethod> list = CollectionUtils.findAll(openClass.getMethods(),
+                    new CollectionUtils.Predicate<IOpenMethod>() {
+                        @Override
+                        public boolean evaluate(IOpenMethod method11) {
+                            return methodName.equals(method11.getName());
+                        }
+                    });
+            if (list.size() > 1) {
+                throw new AmbiguousMethodException(methodName, IOpenClass.EMPTY, list);
+            } else if (list.size() == 1) {
+                method = list.get(0);
+            }
+        }
+
+        if (method == null) {
+            throw new MethodNotFoundException("Can not run method: ",
+                    methodName,
+                    paramTypes == null ? IOpenClass.EMPTY : paramTypes);
+        }
 
         return method.invoke(target, params, vm.getRuntimeEnv());
     }

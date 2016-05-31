@@ -1,20 +1,10 @@
 package org.openl.rules.ui;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_CREATE_TABLES;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_PROJECTS;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_TABLES;
+import static org.openl.rules.security.DefaultPrivileges.*;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.io.FilenameUtils;
 import org.openl.CompiledOpenClass;
@@ -46,11 +36,7 @@ import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
-import org.openl.rules.project.instantiation.ReloadType;
-import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
-import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
-import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
-import org.openl.rules.project.instantiation.SimpleProjectDependencyLoader;
+import org.openl.rules.project.instantiation.*;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -67,6 +53,9 @@ import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.types.OpenMethodDispatcher;
+import org.openl.rules.ui.benchmark.Benchmark;
+import org.openl.rules.ui.benchmark.BenchmarkInfo;
+import org.openl.rules.ui.benchmark.BenchmarkUnit;
 import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
@@ -86,9 +75,6 @@ import org.openl.util.ISelector;
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
-import org.openl.util.benchmark.Benchmark;
-import org.openl.util.benchmark.BenchmarkInfo;
-import org.openl.util.benchmark.BenchmarkUnit;
 import org.openl.util.tree.ITreeElement;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
@@ -882,7 +868,10 @@ public class ProjectModel {
     }
 
     public void reset(ReloadType reloadType) throws Exception {
-        Module moduleToOpen = moduleInfo;
+        reset(reloadType, moduleInfo);
+    }
+
+    public void reset(ReloadType reloadType, Module moduleToOpen) throws Exception {
         switch (reloadType) {
             case FORCED:
                 OpenL.reset();
@@ -895,6 +884,7 @@ public class ProjectModel {
                     webStudioWorkspaceDependencyManager.resetAll();
                 }
                 webStudioWorkspaceDependencyManager = null;
+                recentlyVisitedTables.clear();
                 break;
             case SINGLE:
                 webStudioWorkspaceDependencyManager.reset(new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, moduleToOpen.getName(), null)));
@@ -1045,6 +1035,7 @@ public class ProjectModel {
 
         try {
             if (reloadType == ReloadType.FORCED) {
+                // FIXME Why we create classloader in singleModuleMode and immediately clear it by invoking forcedReset() ?
                 instantiationStrategy.forcedReset();
             } else if (reloadType != ReloadType.NO) {
                 instantiationStrategy.reset();
@@ -1056,7 +1047,15 @@ public class ProjectModel {
             // Find all dependent XlsModuleSyntaxNode-s
             final String moduleName = moduleInfo.getName();
 
-            compiledOpenClass = instantiationStrategy.compile(); 
+            compiledOpenClass = instantiationStrategy.compile();
+
+            if (reloadType == ReloadType.FORCED) {
+                // EPBDS-6193: After instantiationStrategy.forcedReset() classloader is cleared (not closed). But after
+                // instantiationStrategy.compile() the new one is created. We need to save the latter inside dependency
+                // manager, otherwise newly created classloader will not be closed when the project is deleted.
+                // TODO Classloader must be created, handled and cleared by dependency manager only, not in the ProjectModel
+                webStudioWorkspaceDependencyManager.replaceClassLoader(moduleInfo.getProject(), instantiationStrategy.getClassLoader());
+            }
 
             for (CompiledDependency dependency : webStudioWorkspaceDependencyManager.getCompiledDependencies()) {
                 if (!dependency.getDependencyName().equals(moduleName)) {

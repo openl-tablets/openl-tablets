@@ -233,4 +233,13 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
         }
     }
 
+    public void replaceClassLoader(ProjectDescriptor project, ClassLoader classLoader) {
+        ClassLoader oldClassloader = classLoaders.get(project.getName());
+        if (oldClassloader != null && oldClassloader != classLoader) {
+            oldClassLoaders.add(oldClassloader);
+        }
+
+        classLoaders.put(project.getName(), classLoader);
+    }
+
 }

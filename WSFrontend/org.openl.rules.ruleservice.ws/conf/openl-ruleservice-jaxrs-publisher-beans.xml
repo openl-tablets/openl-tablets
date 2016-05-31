@@ -54,6 +54,7 @@
 	<bean id="wadlGenerator" class="org.apache.cxf.jaxrs.model.wadl.WadlGenerator">
 		<property name="linkJsonToXmlSchema" value="true" />
 		<property name="linkAnyMediaTypeToXmlSchema" value="true" />
+		<property name="supportCollections" value="false" />
 	</bean>
 
 	<bean id="JAXRSServicesServerPrototype" class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean"

@@ -6,6 +6,7 @@
 
 package org.openl.util.tree;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Stack;
 
@@ -32,7 +33,6 @@ public class TreeIterator<N> extends AOpenIterator<N> {
         /**
          * 
          * @param node parent node
-         * @param mode inthis case only, left-right or right-left is relevant
          * @return iterator over children collection, null or empty iterator if
          *         none
          */
@@ -56,7 +56,7 @@ public class TreeIterator<N> extends AOpenIterator<N> {
     Iterator<N> children = null;
 
     public TreeIterator(N treeRoot, TreeAdaptor<N> adaptor, int mode) {
-        this.children = single(treeRoot);
+        this.children = Collections.singletonList(treeRoot).iterator();
         this.adaptor = adaptor;
         this.mode = mode;
         findNextNode();
@@ -68,7 +68,7 @@ public class TreeIterator<N> extends AOpenIterator<N> {
 
             Iterator<N> grandChildren = adaptor.children(nextChild);
 
-            if (isEmpty(grandChildren)) // nextChild is a leaf
+            if (grandChildren == null || !grandChildren.hasNext()) // nextChild is a leaf
             {
                 currentNode = nextChild;
                 return;

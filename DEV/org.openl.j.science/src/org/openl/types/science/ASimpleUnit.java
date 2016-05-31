@@ -6,10 +6,9 @@
 
 package org.openl.types.science;
 
-import java.util.Iterator;
+import java.util.Collections;
 
 import org.openl.base.INamedThing;
-import org.openl.util.AOpenIterator;
 
 /**
  * @author snshor
@@ -52,8 +51,8 @@ public abstract class ASimpleUnit extends AMultiplicativeExpression implements I
         return id == dimension ? this : null;
     }
 
-    public Iterator<IDimensionPower> getDimensionsPowers() {
-        return AOpenIterator.single((IDimensionPower) this);
+    public Iterable<IDimensionPower> getDimensionsPowers() {
+        return Collections.<IDimensionPower>singletonList(this);
     }
 
     public String getDisplayName(int mode) {

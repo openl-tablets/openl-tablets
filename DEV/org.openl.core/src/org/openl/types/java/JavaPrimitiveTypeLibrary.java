@@ -7,7 +7,6 @@
 package org.openl.types.java;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.openl.binding.exception.AmbiguousTypeException;
@@ -37,9 +36,4 @@ public class JavaPrimitiveTypeLibrary implements ITypeLibrary {
     public IOpenClass getType(String typename) throws AmbiguousTypeException {
         return classMap.get(typename);
     }
-
-    public Iterator<String> typeNames() {
-        return classMap.keySet().iterator();
-    }
-
 }

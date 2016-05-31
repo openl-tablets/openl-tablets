@@ -14,7 +14,6 @@ import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.AOpenIterator;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,11 +65,11 @@ public class DatatypeOpenClass extends ADynamicClass {
     }
 
     @Override
-    public Iterator<IOpenClass> superClasses() {
+    public Iterable<IOpenClass> superClasses() {
         if (superClass != null) {
-            return AOpenIterator.single(superClass);
+            return Collections.singletonList(superClass);
         } else {
-            return AOpenIterator.empty();
+            return Collections.emptyList();
         }
     }
 
@@ -98,9 +97,9 @@ public class DatatypeOpenClass extends ADynamicClass {
     @Override
     public Map<String, IOpenField> getFields() {
         Map<String, IOpenField> fields = new LinkedHashMap<String, IOpenField>();
-        Iterator<IOpenClass> superClasses = superClasses();
-        while (superClasses.hasNext()) {
-            fields.putAll(superClasses.next().getFields());
+        Iterable<IOpenClass> superClasses = superClasses();
+        for(IOpenClass superClass : superClasses) {
+            fields.putAll(superClass.getFields());
         }
         fields.putAll(fieldMap());
         return fields;

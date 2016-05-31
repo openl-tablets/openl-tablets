@@ -4,7 +4,6 @@ import org.openl.rules.helpers.NumberUtils;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.formatters.*;
-import org.openl.util.print.DefaultFormat;
 
 import java.util.Date;
 import java.util.Locale;
@@ -22,7 +21,7 @@ public class FormattersManager {
 
     /**
      * Gets the formatter for appropriate value. Formatters supports formatting
-     * of <code>null</code> objects, see {@link DefaultFormat}.
+     * of <code>null</code> objects.
      *
      * @param value value to format
      * @return xls formatter for appropriate value class (if the value isn`t

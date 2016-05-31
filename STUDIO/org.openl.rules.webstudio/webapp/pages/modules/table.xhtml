@@ -6,8 +6,7 @@
     xmlns:fn="http://java.sun.com/jsp/jstl/functions"
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich"
-    xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
-    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
+    xmlns:rules="http://openl-tablets.sourceforge.net/jsf">
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
@@ -124,14 +123,8 @@
                     <span>Failures per test</span>
                     <select id="failures" name="failures">
                         <c:set var="values" value="#{fn:split('1;5;20;-1', ';')}"/>
-                        <c:set var="titles" value="#{fn:split('1;5;20;All', ';')}"/>
                         <ui:repeat value="#{values}" var="value" varStatus="i">
-                            <ui:fragment rendered="#{studio.testsFailuresPerTest == jsffn:toNumber(value)}">
-                                <option value="#{value}" selected="selected">#{titles[i.index]}</option>
-                            </ui:fragment>
-                            <ui:fragment rendered="#{studio.testsFailuresPerTest != jsffn:toNumber(value)}">
-                                <option value="#{value}">#{titles[i.index]}</option>
-                            </ui:fragment>
+                            <option value="#{value}" selected="#{studio.testsFailuresPerTest == value ? 'selected':''}" >#{value == -1 ? "All" : value}</option>
                         </ui:repeat>
                     </select>
                 </div>

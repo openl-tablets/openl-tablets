@@ -8,7 +8,6 @@ package org.openl.types;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.openl.binding.exception.AmbiguousMethodException;
@@ -16,7 +15,6 @@ import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;
 import org.openl.syntax.impl.ISyntaxConstants;
-import org.openl.util.AOpenIterator;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -39,13 +37,6 @@ public class NullOpenClass implements IOpenClass {
     
     
     private NullOpenClass() {
-    }
-
-    /**
-     * @deprecated use {@link #getFields()} instead.
-     */
-    public Iterator<IOpenField> fields() {
-        return null;
     }
 
     public IAggregateInfo getAggregateInfo() {
@@ -156,13 +147,6 @@ public class NullOpenClass implements IOpenClass {
         return true;
     }
 
-    /**
-     * @deprecated use {@link #getMethods()} instead.
-     */
-    public Iterator<IOpenMethod> methods() {
-        return null;
-    }
-
     /*
      * (non-Javadoc)
      *
@@ -179,8 +163,8 @@ public class NullOpenClass implements IOpenClass {
     public void setMetaInfo(IMetaInfo info) {
     }
 
-    public Iterator<IOpenClass> superClasses() {
-        return AOpenIterator.empty();
+    public Iterable<IOpenClass> superClasses() {
+        return Collections.emptyList();
     }
 
 	public void addType(String namespace, IOpenClass type) throws Exception {
@@ -221,7 +205,7 @@ public class NullOpenClass implements IOpenClass {
 
 
 	@Override
-	public Iterator<IOpenMethod> methods(String name) {
+	public Iterable<IOpenMethod> methods(String name) {
 		return null;
 	}
 }

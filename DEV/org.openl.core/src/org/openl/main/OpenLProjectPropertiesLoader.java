@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -148,8 +147,7 @@ public class OpenLProjectPropertiesLoader {
             return p;
         }
         boolean newProps = false;
-        for (Iterator<Map.Entry<Object, Object>> iter = old.entrySet().iterator(); iter.hasNext();) {
-            Map.Entry<Object, Object> element = iter.next();
+        for (Map.Entry<Object, Object> element : old.entrySet()) {
 
             Object x = p.get(element.getKey());
             if (x == null) {
@@ -224,10 +222,8 @@ public class OpenLProjectPropertiesLoader {
         try {
             fw = new FileWriter(new File(folder, OPENL_PROPERTIES_FNAME));
 
-            for (Iterator<Map.Entry<Object, Object>> iter = p.entrySet().iterator(); iter.hasNext();) {
-                Map.Entry<Object, Object> element = iter.next();
+            for (Map.Entry<Object, Object> element : p.entrySet()) {
                 writeSingleProperty(element, fw);
-
             }
 
         } catch (Exception ex) {
@@ -246,7 +242,7 @@ public class OpenLProjectPropertiesLoader {
 
     /**
      * @param element
-     * @param fw
+     * @param w
      * @throws IOException
      */
     public void writeSingleProperty(Map.Entry<Object, Object> element, Writer w) throws IOException {

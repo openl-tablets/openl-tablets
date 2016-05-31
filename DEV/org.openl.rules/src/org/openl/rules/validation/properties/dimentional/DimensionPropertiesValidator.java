@@ -15,7 +15,7 @@ import org.openl.rules.validation.TablesValidator;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.validation.ValidationResult;
-import org.openl.validation.ValidationUtils;
+import org.openl.rules.validation.ValidationUtils;
 
 import java.util.ArrayList;
 import java.util.List;

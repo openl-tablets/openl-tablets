@@ -2,7 +2,7 @@ package org.openl.rules.webstudio.web.repository.tree;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.webstudio.web.repository.UiConst;
-import org.openl.util.filter.IFilter;
+import org.openl.rules.webstudio.filter.IFilter;
 
 /**
  * Represents Repository in a tree. Repository is a root element.

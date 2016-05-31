@@ -2351,7 +2351,7 @@ public class RulesUtils {
     // --------------------------------------
 
     public static boolean noNulls(Object[] values) {
-        return ArrayTool.noNulls(values);
+        return CollectionUtils.isNotEmpty(values) && !CollectionUtils.hasNull(values);
     }
 
     public static void error(String msg) {

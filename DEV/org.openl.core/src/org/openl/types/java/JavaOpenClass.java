@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,10 +54,6 @@ import org.openl.types.impl.AOpenClass;
 import org.openl.types.impl.ArrayIndex;
 import org.openl.types.impl.ArrayLengthOpenField;
 import org.openl.types.impl.MethodKey;
-import org.openl.util.AOpenIterator;
-import org.openl.util.IConvertor;
-import org.openl.util.IOpenIterator;
-import org.openl.util.OpenIterator;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
 import org.openl.vm.IRuntimeEnv;
@@ -262,14 +257,6 @@ public class JavaOpenClass extends AOpenClass {
         return instanceClass == ((JavaOpenClass) obj).instanceClass;
     }
     
-    public boolean equalsAsPrimitive(Object obj) {
-        if (!(obj instanceof JavaPrimitiveClass)) {
-            return false;
-        }
-        return ((JavaPrimitiveClass) obj).equalsAsPrimitive(this);
-    }
-
-
     @Override
     protected synchronized Map<String, IOpenField> fieldMap() {
         if (fields == null) {
@@ -426,42 +413,25 @@ public class JavaOpenClass extends AOpenClass {
     }
     
     
-    IOpenClass[] superClasses;
+    List<IOpenClass> superClasses;
     
-    public synchronized Iterator<IOpenClass> superClasses() {
-    	if (superClasses == null)
-    	{
-				IOpenIterator<IOpenClass> sc = collectSuperClasses();
-				superClasses = sc.asList().toArray(new IOpenClass[0]);
-    	}
-    	
-    	return OpenIterator.fromArray(superClasses);
-    }
-    
-    
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private IOpenIterator<IOpenClass> collectSuperClasses() {
-        Class<?>[] tmp = instanceClass.getInterfaces();
-        IOpenIterator<Class<?>> ic = OpenIterator.fromArray(tmp);
-
-        IOpenIterator<IOpenClass> interfaces = ic.collect(new Class2JavaOpenClassCollector());
-
-        Class superClass = instanceClass.getSuperclass();
-
-        if (superClass == null) {
-            return interfaces;
-        } else {
-            return AOpenIterator.merge(AOpenIterator.single((IOpenClass) JavaOpenClass.getOpenClass(superClass)),
-                    interfaces);
+    public synchronized Iterable<IOpenClass> superClasses() {
+        if (superClasses == null) {
+            Class<?>[] interfaces = instanceClass.getInterfaces();
+            Class superClass = instanceClass.getSuperclass();
+            List<IOpenClass> superClasses = new ArrayList<IOpenClass>(interfaces.length + 1);
+            if (superClass != null) {
+                superClasses.add(getOpenClass(superClass));
+            }
+            for (Class<?> interf : interfaces) {
+                superClasses.add(getOpenClass(interf));
+            }
+            this.superClasses = superClasses;
         }
+
+        return superClasses;
     }
-    
-    private static class Class2JavaOpenClassCollector<T> implements IConvertor<Class<T>, IOpenClass> {
-        public IOpenClass convert(Class<T> c) {
-            return getOpenClass(c);
-        }
-    }
-    
+
     private static class JavaArrayLengthField extends ArrayLengthOpenField {
         @Override
         public int getLength(Object target) {
@@ -546,16 +516,6 @@ public class JavaOpenClass extends AOpenClass {
         public Object nullObject() {
             return nullObject;
         }
-        
-        @Override
-        public boolean equalsAsPrimitive(Object obj) {
-            if (!(obj instanceof JavaOpenClass)) {
-                return false;
-            }
-            return wrapperClass == ((JavaOpenClass) obj).instanceClass;
-        }
-
-
     }
     
     private static class JavaOpenInterface extends JavaOpenClass {

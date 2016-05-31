@@ -6,8 +6,6 @@
 
 package org.openl.binding;
 
-import java.util.Iterator;
-
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -18,6 +16,6 @@ import org.openl.types.IOpenMethod;
 public interface IMethodFactory {
 
     IOpenMethod getMatchingMethod(String name, IOpenClass[] params) throws AmbiguousMethodException;
-    Iterator<IOpenMethod> methods();
-    Iterator<IOpenMethod> methods(String name);
+
+    Iterable<IOpenMethod> methods(String name);
 }

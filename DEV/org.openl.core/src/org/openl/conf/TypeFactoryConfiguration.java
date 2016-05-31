@@ -6,8 +6,6 @@
 
 package org.openl.conf;
 
-import java.util.Iterator;
-
 import org.openl.types.IOpenClass;
 import org.openl.util.CategorizedMap;
 
@@ -34,9 +32,8 @@ public class TypeFactoryConfiguration extends AConfigurationElement implements I
      * @see org.openl.newconf.IConfigurationElement#validate(org.openl.newconf.IConfigurationContext)
      */
     public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
-        for (Iterator<Object> iter = map.values().iterator(); iter.hasNext();) {
-            NameSpacedTypeConfiguration lib = (NameSpacedTypeConfiguration) iter.next();
-            lib.validate(cxt);
+        for (Object lib : map.values()) {
+            ((NameSpacedTypeConfiguration) lib).validate(cxt);
         }
     }
 

@@ -115,6 +115,9 @@ public class WebStudio {
     private ConfigurationManager userSettingsManager;
 
     private boolean needRestart = false;
+    private boolean forcedCompile = true;
+    private boolean needCompile = true;
+    private boolean autoCompile = true;
 
     private List<ProjectFile> uploadedFiles = new ArrayList<ProjectFile>();
 
@@ -335,103 +338,74 @@ public class WebStudio {
     }
 
     public void compile() {
-//        reset(currentModule == null ? ReloadType.FORCED : ReloadType.SINGLE);
-        model.buildProjectTree(); // Reason: tree should be built
-        // before accessing the ProjectModel.
-        // Is is related to UI: rendering of
-        // frames is asynchronous and we
-        // should build tree before the
-        // 'content' frame
+        needCompile = true;
+    }
+
+    public void resetProjects() {
+        needCompile = true;
+        projects = null;
     }
 
     public void reset() {
+        resetProjects();
+        currentModule = null;
+        currentProject = null;
         reset(ReloadType.FORCED);
     }
 
     private void reset(ReloadType reloadType) {
         try {
-            if (reloadType == ReloadType.FORCED) {
-                reselectCurrentModule();
-            }
-            model.reset(reloadType);
+            model.reset(reloadType, currentModule);
         } catch (Exception e) {
             log.error("Error when trying to reset studio model", e);
         }
     }
 
-    private void reselectCurrentModule() throws Exception {
-        projects = null;
-        if (currentProject != null) {
-            String projectName = currentProject.getName();
-            if (currentModule != null) {
-                String moduleName = currentModule.getName();
-                currentProject = null; // To reload current project
-                selectModule(projectName, moduleName);
-            } else {
-                selectProject(projectName);
-            }
-        }
+    public void setAutoCompile(boolean autoCompile) {
+        this.autoCompile = autoCompile;
     }
 
-    public void selectProject(String name) throws Exception {
-        if (StringUtils.isBlank(name)) {
-            if (currentProject != null) {
-                return;
-            }
-
-            if (getAllProjects().size() > 0) {
-                currentProject = getAllProjects().get(0);
-            }
-            return;
-        }
-
-        currentProject = getProjectByName(name);
-
-        if (currentProject == null && getAllProjects().size() > 0) {
-            currentProject = getAllProjects().get(0);
-        }
-
-        currentModule = null;
+    public boolean isAutoCompile() {
+        return autoCompile;
     }
 
-    public void selectModule(String projectName, String moduleName) throws Exception {
-        if (StringUtils.isBlank(projectName) || StringUtils.isBlank(moduleName)) {
-            if (currentModule != null) {
-                return;
-            }
-
-            if (getAllProjects().size() > 0) {
-                setCurrentModule(getAllProjects().get(0).getModules().get(0));
-            }
-            return;
-        }
-
-        ProjectDescriptor project;
-        if (currentProject != null && projectName.equals(currentProject.getName())) {
-            project = currentProject;
-        } else {
-            project = getProjectByName(projectName);
-        }
-        if (project != null) {
+    public synchronized void init(String projectName, String moduleName) {
+        try {
+            ProjectDescriptor project = getProjectByName(projectName);
             Module module = getModule(project, moduleName);
-            if (module != null) {
-                setCurrentModule(module);
-                return;
+            if (currentProject != project || currentModule != module) {
+                forcedCompile = true;
             }
-        }
-
-        if (getAllProjects().size() > 0) {
-            setCurrentModule(getAllProjects().get(0).getModules().get(0));
+            currentModule = module;
+            currentProject = project;
+            if (module != null && (needCompile || forcedCompile)) {
+                if (forcedCompile || (needCompile && autoCompile)) {
+                    reset(forcedCompile ? ReloadType.FORCED : ReloadType.SINGLE);
+                    model.buildProjectTree(); // Reason: tree should be built
+                    // before accessing the ProjectModel.
+                    // Is is related to UI: rendering of
+                    // frames is asynchronous and we
+                    // should build tree before the
+                    // 'content' frame
+                    needCompile = false;
+                    forcedCompile = false;
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed initialization. Project='{}'  Module='{}'", projectName, moduleName, e);
         }
     }
 
-    public Module getModule(ProjectDescriptor project, String moduleName) {
-        for (Module module : project.getModules()) {
-            if (module.getName().equals(moduleName)) {
-                return module;
-            }
+    public Module getModule(ProjectDescriptor project, final String moduleName) {
+        if (project == null) {
+            return null;
         }
-        return null;
+        return CollectionUtils.findFirst(project.getModules(), new CollectionUtils.Predicate<Module>() {
+            @Override
+            public boolean evaluate(Module module) {
+                return module.getName().equals(moduleName);
+            }
+        });
     }
 
     public String updateModule() {
@@ -724,22 +698,6 @@ public class WebStudio {
         return false;
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param module The current module to set.
-     * @throws Exception
-     */
-    public void setCurrentModule(Module module) throws Exception {
-        if (currentModule == null || !getModuleId(currentModule).equals(getModuleId(module))) {
-            model.setModuleInfo(module);
-            model.getRecentlyVisitedTables().clear();
-        }
-
-        currentModule = module;
-        currentProject = currentModule != null ? currentModule.getProject() : null;
-    }
-
     public void setTreeView(RulesTreeView treeView) throws Exception {
         this.treeView = treeView;
         model.redraw();
@@ -944,4 +902,5 @@ public class WebStudio {
     public WebStudioLinkBuilder getLinkBuilder() {
         return linkBuilder;
     }
+
 }

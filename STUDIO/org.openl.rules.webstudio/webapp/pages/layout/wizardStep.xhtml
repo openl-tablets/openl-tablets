@@ -13,19 +13,6 @@
             <ui:insert name="header" />
         </h1>
 
-        <!--ui:insert name="steps">
-            <h:panelGroup rendered="#{not empty wizard and wizard.stepsCount > 0}">
-                <ui:fragment>
-                    <ui:include src="/pages/common/wizardSteps.xhtml">
-                        <ui:param name="current" value="#{wizard.step}" />
-                        <ui:param name="max" value="#{wizard.stepsCount}" />
-                    </ui:include>
-                    <br />
-                    <br />
-                </ui:fragment>
-            </h:panelGroup>
-        </ui:insert-->
-
         <div>
             <ui:insert name="data" />
         </div>

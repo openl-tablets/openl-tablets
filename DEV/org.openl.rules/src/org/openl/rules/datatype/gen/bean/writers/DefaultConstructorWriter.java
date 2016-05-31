@@ -2,7 +2,6 @@ package org.openl.rules.datatype.gen.bean.writers;
 
 import java.util.Map;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -58,10 +57,8 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
     }
     
     private int writeAtLeast1DefaultValue(MethodVisitor methodVisitor) {
-        int minStackVariable = 2; // as there are at least 1 default value, stack trace variable value will be at least 2.
+        int stackVariables = 2; // as there are at least 1 default value, stack trace variable value will be at least 2.
         
-        int[] stackVariables = new int[getBeanFields().entrySet().size()];
-        int index = 0;
         for (Map.Entry<String, FieldDescription> field : getBeanFields().entrySet()) {
             FieldDescription fieldDescription = field.getValue();            
             
@@ -69,16 +66,16 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
                 methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
                 
                 TypeWriter typeWriter = ByteCodeGeneratorHelper.getTypeWriter(fieldDescription);
-                stackVariables[index] = typeWriter.writeFieldValue(methodVisitor, fieldDescription);
+                int variables = typeWriter.writeFieldValue(methodVisitor, fieldDescription);
+                if (variables > stackVariables) {
+                    stackVariables = variables;
+                }
 
                 String fieldTypeName = ByteCodeGeneratorHelper.getJavaType(fieldDescription);
                 methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), field.getKey(), fieldTypeName);
-            } else {
-            	stackVariables[index] = minStackVariable;
             }
-            index++;
         }
-        return NumberUtils.max(stackVariables);
+        return stackVariables;
     }
     
     /**

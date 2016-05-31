@@ -3,8 +3,8 @@ package org.openl.rules.ui;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
-import org.openl.util.benchmark.BenchmarkInfo;
-import org.openl.util.benchmark.BenchmarkUnit;
+import org.openl.rules.ui.benchmark.BenchmarkInfo;
+import org.openl.rules.ui.benchmark.BenchmarkUnit;
 
 /**
  * Benchmark Info that will be displayed in the form. Contains BenchmarkInfo and

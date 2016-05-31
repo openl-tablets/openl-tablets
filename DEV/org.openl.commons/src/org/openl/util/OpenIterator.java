@@ -32,7 +32,7 @@ public class OpenIterator<T> extends AOpenIterator.SimpleIteratorWrapper<T> {
 
     }
 
-    public static <T> IOpenIterator<T> fromArray(T[] ary) {
+    public static <T> Iterator<T> fromArray(T[] ary) {
         if (ary == null || ary.length == 0) {
             return empty();
         }
@@ -40,7 +40,7 @@ public class OpenIterator<T> extends AOpenIterator.SimpleIteratorWrapper<T> {
         return new AIndexedIterator.ArrayIterator<T>(ary);
     }
 
-    public static IOpenIterator<Object> fromArrayObj(Object ary) {
+    public static Iterator<Object> fromArrayObj(Object ary) {
         if (ary == null) {
             return empty();
         }

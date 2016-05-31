@@ -6,8 +6,6 @@
 
 package org.openl.conf;
 
-import java.util.Iterator;
-
 import org.openl.binding.INodeBinder;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.util.CategorizedMap;
@@ -69,9 +67,8 @@ public class NodeBinderFactoryConfiguration extends AConfigurationElement {
     }
 
     public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {
-        for (Iterator<Object> iter = map.values().iterator(); iter.hasNext();) {
-            SingleBinderFactory factory = (SingleBinderFactory) iter.next();
-            factory.validate(cxt);
+        for (Object factory : map.values()) {
+            ((SingleBinderFactory) factory).validate(cxt);
         }
     }
 

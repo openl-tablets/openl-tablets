@@ -32,7 +32,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.OpenIterator;
 
 /**
  * @author snshor
@@ -70,19 +69,11 @@ public abstract class AOpenClass implements IOpenClass {
 
     protected abstract Map<String, IOpenField> fieldMap();
 
-    /**
-     * @deprecated use {@link #getFields()} instead.
-     */
-    public Iterator<IOpenField> fields() {
-        Map<String, IOpenField> fieldMap = getFields();
-        return fieldMap == null ? null : fieldMap.values().iterator();
-    }
-
     public Map<String, IOpenField> getFields() {
         Map<String, IOpenField> fields = new HashMap<String, IOpenField>();
-        Iterator<IOpenClass> superClasses = superClasses();
-        while (superClasses.hasNext()) {
-            fields.putAll(superClasses.next().getFields());
+        Iterable<IOpenClass> superClasses = superClasses();
+        for (IOpenClass superClass : superClasses) {
+            fields.putAll(superClass.getFields());
         }
         fields.putAll(fieldMap());
         return fields;
@@ -144,9 +135,9 @@ public abstract class AOpenClass implements IOpenClass {
 
     private IOpenField searchFieldFromSuperClass(String fname, boolean strictMatch) {
         IOpenField f;
-        Iterator<IOpenClass> superClasses = superClasses();
-        while (superClasses.hasNext()) {
-            f = superClasses.next().getField(fname, strictMatch);
+        Iterable<IOpenClass> superClasses = superClasses();
+        for (IOpenClass superClass : superClasses) {
+            f = superClass.getField(fname, strictMatch);
             if (f != null) {
                 return f;
             }
@@ -182,7 +173,7 @@ public abstract class AOpenClass implements IOpenClass {
         // If method is not found try to find it in parent classes.
         //
         if (method == null) {
-            Iterator<IOpenClass> superClasses = superClasses();
+            Iterator<IOpenClass> superClasses = superClasses().iterator();
 
             while (method == null && superClasses.hasNext()) {
                 method = superClasses.next().getMethod(name, classes);
@@ -347,14 +338,6 @@ public abstract class AOpenClass implements IOpenClass {
         methodList = null;
     }
 
-    /**
-     * @deprecated use {@link #getMethods()} instead.
-     */
-    public Iterator<IOpenMethod> methods() {
-        return getMethods().iterator();
-    }
-    
-    
     private Collection<IOpenMethod> methodList = null;
     
     public synchronized Collection<IOpenMethod> getMethods() {
@@ -365,9 +348,9 @@ public abstract class AOpenClass implements IOpenClass {
 
     private Collection<IOpenMethod> collectMethods() {
         Map<MethodKey, IOpenMethod> methods = new HashMap<MethodKey, IOpenMethod>();
-        Iterator<IOpenClass> superClasses = superClasses();
-        while (superClasses.hasNext()) {
-            for(IOpenMethod method : superClasses.next().getMethods()){
+        Iterable<IOpenClass> superClasses = superClasses();
+        for (IOpenClass superClass : superClasses) {
+            for(IOpenMethod method : superClass.getMethods()){
                 methods.put(new MethodKey(method), method);
             }
         }
@@ -449,27 +432,26 @@ public abstract class AOpenClass implements IOpenClass {
     
 	@SuppressWarnings("unchecked")
 	@Override
-	public Iterator<IOpenMethod> methods(String name) {
+	public Iterable<IOpenMethod> methods(String name) {
 		if (methodNameMap == null)
 		{
 			synchronized(this)
 			{
-				methodNameMap = buildMethodNameMap(getMethods().iterator());
+				methodNameMap = buildMethodNameMap(getMethods());
 			}
 		}	
 		
 		List<IOpenMethod> found = methodNameMap.get(name);
 		
-		return found == null ? (Iterator<IOpenMethod>)OpenIterator.EMPTY : found.iterator();
+		return found == null ? Collections.<IOpenMethod>emptyList() : found;
 	}
 
 	static public  Map<String, List<IOpenMethod>> buildMethodNameMap(
-			Iterator<IOpenMethod> methods) {
+			Iterable<IOpenMethod> methods) {
 		
 		Map<String, List<IOpenMethod>> res = new HashMap<String, List<IOpenMethod>>();
 
-		for (; methods.hasNext();) {
-			IOpenMethod m = (IOpenMethod) methods.next();
+		for (IOpenMethod m : methods) {
 			String name = m.getName();
 			
 			List<IOpenMethod> list = res.get(name);

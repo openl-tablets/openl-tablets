@@ -6,9 +6,7 @@
 
 package org.openl.types.science;
 
-import java.util.Iterator;
-
-import org.openl.util.AOpenIterator;
+import java.util.Collections;
 
 /**
  * @author snshor
@@ -44,8 +42,8 @@ public class OneDimensionalExpression extends AMultiplicativeExpression implemen
         return id == dimension ? this : null;
     }
 
-    public Iterator<IDimensionPower> getDimensionsPowers() {
-        return AOpenIterator.single((IDimensionPower) this);
+    public Iterable<IDimensionPower> getDimensionsPowers() {
+        return Collections.<IDimensionPower>singletonList(this);
     }
 
     /*

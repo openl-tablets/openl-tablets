@@ -1,7 +1,6 @@
 package org.openl.types.impl;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -26,13 +25,6 @@ public class OpenClassDelegator implements IOpenClass {
         this.baseClass = baseClass;
         this.name = name;
         this.metaInfo = metaInfo;
-    }
-
-    /**
-     * @deprecated use {@link #getFields()} instead.
-     */
-    public Iterator<IOpenField> fields() {
-        return baseClass.fields();
     }
 
     public IAggregateInfo getAggregateInfo() {
@@ -127,13 +119,6 @@ public class OpenClassDelegator implements IOpenClass {
         return baseClass.getComponentClass();
     }
 
-    /**
-     * @deprecated use {@link #getMethods()} instead.
-     */
-    public Iterator<IOpenMethod> methods() {
-        return baseClass.methods();
-    }
-
     public Object newInstance(IRuntimeEnv env) {
         return baseClass.newInstance(env);
     }
@@ -158,7 +143,7 @@ public class OpenClassDelegator implements IOpenClass {
         this.nameSpace = nameSpace;
     }
 
-    public Iterator<IOpenClass> superClasses() {
+    public Iterable<IOpenClass> superClasses() {
         return baseClass.superClasses();
     }
 
@@ -211,7 +196,7 @@ public class OpenClassDelegator implements IOpenClass {
         return new EqualsBuilder().append(getName(), ((IOpenClass) obj).getName()).isEquals();
     }
 
-	public Iterator<IOpenMethod> methods(String name) {
+	public Iterable<IOpenMethod> methods(String name) {
 		return baseClass.methods(name);
 	}
 

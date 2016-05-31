@@ -13,7 +13,6 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public interface IOpenVM {
-    IOpenDebugger getDebugger();
 
     IOpenRunner getRunner();
 

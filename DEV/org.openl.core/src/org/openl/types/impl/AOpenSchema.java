@@ -6,7 +6,6 @@
 
 package org.openl.types.impl;
 
-import java.util.Iterator;
 import java.util.Map;
 
 import org.openl.types.IOpenClass;
@@ -44,9 +43,5 @@ public abstract class AOpenSchema implements IOpenSchema {
         IOpenClassHolder holder = allClasses().get(name);
 
         return holder == null ? null : holder.getOpenClass();
-    }
-
-    public synchronized Iterator<String> typeNames() {
-        return allClasses().keySet().iterator();
     }
 }

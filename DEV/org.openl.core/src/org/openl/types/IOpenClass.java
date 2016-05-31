@@ -7,8 +7,6 @@
 package org.openl.types;
 
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.IOpenLibrary;
@@ -30,15 +28,6 @@ import org.openl.vm.IRuntimeEnv;
 public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMetaHolder {
 
     IOpenClass[] EMPTY = {};
-
-    /**
-     * Returns an iterator of all the field values.
-     * 
-     * @deprecated use {@link #getFields()} instead.
-     * 
-     * @return an iterator of all the field values.
-     */
-    Iterator<IOpenField> fields();
 
     Map<String, IOpenField> getFields();
 
@@ -146,11 +135,6 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
      * @see {@link IOpenClass#isArray()}
      */
     IOpenClass getComponentClass();
-    
-    /**
-     * @deprecated use {@link #getMethods()} instead.
-     */
-    Iterator<IOpenMethod> methods();
 
     Collection<IOpenMethod> getMethods();
 
@@ -169,7 +153,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
      * We do not have a limitation on number of superclasses. This feature is
      * not fully supported yet
      */
-    Iterator<IOpenClass> superClasses();
+    Iterable<IOpenClass> superClasses();
     
     /**
 	 * Add new type to internal types list. If the type with the same name

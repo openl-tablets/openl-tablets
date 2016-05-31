@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -98,6 +99,38 @@ public class DBUtils {
     }
 
     /**
+     * Checks that schema isn't empty and contains at least one excluded table.
+     * If it contains some unspecified table or don't contain any table, returns false
+     * @param conn a connection (session) with a specific database.
+     * @param excludedTables collection of excluded tables
+     * @return true if schema isn't empty and contains at least one excluded table.
+     */
+    public boolean hasExcludedTablesOnly(Connection conn, Collection<String> excludedTables) throws SQLException {
+        List<String> tables = getDBOpenlTables(conn);
+        if (tables.size() == 0) {
+            return false;
+        }
+
+        if (tables.size() <= excludedTables.size()) {
+            for (String table : tables) {
+                boolean found = false;
+                for (String excludedTable : excludedTables) {
+                    if (excludedTable.equalsIgnoreCase(table)) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Returns a list of schemas form OpenL database
      *
      * @param conn is a connection (session) with a specific database.
@@ -141,7 +174,11 @@ public class DBUtils {
         ResultSet rs = null;
         try {
             DatabaseMetaData meta = conn.getMetaData();
-            rs = meta.getTables(null, null, "%", null);
+            if ("Oracle".equals(meta.getDatabaseProductName())) {
+                rs = meta.getTables(null, meta.getUserName(), "%", new String[] { "TABLE" });
+            } else {
+                rs = meta.getTables(null, null, "%", new String[] { "TABLE" });
+            }
 
             while (rs.next()) {
                 String dbTableName = rs.getString("TABLE_NAME");

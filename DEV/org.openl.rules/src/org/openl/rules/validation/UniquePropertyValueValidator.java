@@ -23,7 +23,6 @@ import org.openl.types.IOpenMethod;
 import org.openl.util.CollectionUtils;
 import org.openl.validation.ValidationResult;
 import org.openl.validation.ValidationStatus;
-import org.openl.validation.ValidationUtils;
 
 public class UniquePropertyValueValidator extends TablesValidator {
 

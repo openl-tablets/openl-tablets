@@ -6,9 +6,7 @@
 
 package org.openl.types.science;
 
-import java.util.Iterator;
-
-import org.openl.util.OpenIterator;
+import java.util.Arrays;
 
 /**
  * @author snshor
@@ -45,8 +43,8 @@ public class MultiDimensionalExpression extends AMultiplicativeExpression {
         return null;
     }
 
-    public Iterator<IDimensionPower> getDimensionsPowers() {
-        return OpenIterator.fromArray(power);
+    public Iterable<IDimensionPower> getDimensionsPowers() {
+        return Arrays.asList(power);
     }
 
     public double getScalar() {

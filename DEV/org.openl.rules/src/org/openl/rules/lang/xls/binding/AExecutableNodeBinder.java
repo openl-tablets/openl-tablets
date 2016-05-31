@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.text.StrBuilder;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
@@ -135,8 +134,8 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
         }
 
         // two or more elements
-        StrBuilder buf = new StrBuilder(256); // Java default is 16, probably
-                                              // too small
+        StringBuilder buf = new StringBuilder(256); // Java default is 16, probably
+                                                    // too small
         if (first != null) {
             buf.append(first);
         }

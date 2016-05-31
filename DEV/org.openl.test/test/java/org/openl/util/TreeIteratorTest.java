@@ -66,7 +66,7 @@ public class TreeIteratorTest extends TestCase {
 
         };
 
-        count += it.select(sel).count();
+        count += it.select(sel).size();
     }
 
     public static void main(String[] args) throws Exception {
@@ -127,7 +127,12 @@ public class TreeIteratorTest extends TestCase {
 
     public void testCount() {
         TreeIterator it = create(TreeIterator.DEFAULT);
-        Assert.assertEquals(12, it.count());
+        int size = 0;
+        while (it.hasNext()) {
+            it.next();
+            size++;
+        }
+        Assert.assertEquals(12, size);
     }
 
     public void testFile() throws Exception {
@@ -146,32 +151,11 @@ public class TreeIteratorTest extends TestCase {
 
         };
 
-        Assert.assertEquals(it.select(sel).count(), 1);
+        IOpenIterator<?> iterator = it.select(sel);
+        Assert.assertTrue(iterator.hasNext());
+        iterator.next();
+        Assert.assertFalse(iterator.hasNext());
 
-    }
-
-    public void testHasNext() {
-
-    }
-
-    public void testModes() {
-        TreeIterator it = create(TreeIterator.BOTTOM_TOP);
-        Assert.assertEquals(12, it.count());
-        it = create(TreeIterator.BOTTOM_TOP);
-        it.skip(2);
-        Assert.assertEquals("ccc", it.next());
-
-        it.skip(8);
-
-        Assert.assertEquals(root, it.next());
-
-        it = create(TreeIterator.RIGHT_TO_LEFT);
-        it.skip(3);
-        Assert.assertEquals("ggg", it.next());
-
-    }
-
-    public void testNext() {
     }
 
     /*
@@ -181,9 +165,6 @@ public class TreeIteratorTest extends TestCase {
         TreeIterator it = create(TreeIterator.DEFAULT);
         Assert.assertEquals(-1, it.size());
 
-    }
-
-    public void testSkip() {
     }
 
     public void testZip() throws Exception {
@@ -203,7 +184,10 @@ public class TreeIteratorTest extends TestCase {
 
         };
 
-        Assert.assertEquals(it.select(sel).count(), 1);
+        IOpenIterator<?> iterator = it.select(sel);
+        Assert.assertTrue(iterator.hasNext());
+        iterator.next();
+        Assert.assertFalse(iterator.hasNext());
 
     }
 

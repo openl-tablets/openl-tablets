@@ -6,8 +6,8 @@
 
 package org.openl.types.impl;
 
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.openl.binding.exception.DuplicatedVarException;
@@ -18,7 +18,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaNoAggregateInfo;
-import org.openl.util.AOpenIterator;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -113,8 +112,8 @@ public abstract class ADynamicClass extends AOpenClass {
         return false;
     }
 
-    public Iterator<IOpenClass> superClasses() {
-        return AOpenIterator.empty();
+    public Iterable<IOpenClass> superClasses() {
+        return Collections.emptyList();
     }
     
     protected IOpenClass[] getArrayTypes() {

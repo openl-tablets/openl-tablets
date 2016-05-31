@@ -13,10 +13,10 @@ import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.ui.BenchmarkInfoView;
 import org.openl.rules.ui.ProjectHelper;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.ui.benchmark.BenchmarkInfo;
+import org.openl.rules.ui.benchmark.BenchmarkOrder;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
-import org.openl.util.benchmark.BenchmarkInfo;
-import org.openl.util.benchmark.BenchmarkOrder;
 
 @ManagedBean
 @SessionScoped

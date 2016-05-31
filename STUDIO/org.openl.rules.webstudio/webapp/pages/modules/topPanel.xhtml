@@ -185,7 +185,11 @@
 
         <h:panelGroup rendered="#{!empty module}">
         <div class="navbar-inner right">
-            <a onclick="compile(); return false;" href="#">Compile</a>
+            <span class="dropdown">
+                <a title="On/Off compilation" style="padding-top: 8px; padding-bottom: 9px;">
+                        Compile <input type="checkbox" style="vertical-align:-2px" checked="#{studio.autoCompile ? 'checked' : ''}" onchange="toggleCompile()" />
+                </a>
+            </span>
             <span class="dropdown" style="text-align: right">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     #{studio.model.singleModuleMode ? "Single-module" : "Multi-module"}<b class="caret"></b>
@@ -200,7 +204,7 @@
         </div>
         </h:panelGroup>
 
-        <a4j:jsFunction name="compile" action="#{mainBean.compile}" onbegin="ws.ui.showLoader();" oncomplete="ws.nav.reload(true);ws.ui.hideLoader();" />
+        <a4j:jsFunction name="toggleCompile" action="#{studio.setAutoCompile(!studio.autoCompile)}" onbegin="ws.ui.showLoader();" oncomplete="ws.nav.reload(true);ws.ui.hideLoader();" />
         <a4j:jsFunction name="forceReload" action="#{mainBean.reload}" onbegin="ws.ui.showLoader();" oncomplete="ws.nav.reload(true);ws.ui.hideLoader();" />
         <a4j:jsFunction name="useSingleModuleMode" action="#{studio.model.useSingleModuleMode}" onbegin="ws.ui.showLoader();" oncomplete="ws.nav.reload(true);ws.ui.hideLoader();" />
         <a4j:jsFunction name="useMultiModuleMode" action="#{studio.model.useMultiModuleMode}" onbegin="ws.ui.showLoader();" oncomplete="ws.nav.reload(true);ws.ui.hideLoader();" />

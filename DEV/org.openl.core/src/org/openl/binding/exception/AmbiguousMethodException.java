@@ -6,7 +6,6 @@
 
 package org.openl.binding.exception;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.openl.binding.MethodUtil;
@@ -42,8 +41,7 @@ public class AmbiguousMethodException extends OpenlNotCheckedException {
         buf.append("Method ");
         MethodUtil.printMethod(methodName, pars, buf);
         buf.append(" is ambiguous:\n").append("Matching methods:\n");
-        for (Iterator<IOpenMethod> iter = matchingMethods.iterator(); iter.hasNext();) {
-            IOpenMethod method = iter.next();
+        for (IOpenMethod method : matchingMethods) {
             MethodUtil.printMethod(method, buf).append('\n');
         }
 

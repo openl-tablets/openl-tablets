@@ -7,6 +7,7 @@
 package org.openl.types.impl;
 
 import java.lang.reflect.Array;
+import java.util.Collections;
 import java.util.Iterator;
 
 import org.openl.types.IAggregateInfo;
@@ -14,7 +15,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.AOpenIterator;
 import org.openl.util.IntegerValuesUtils;
 import org.openl.util.OpenIterator;
 import org.openl.vm.IRuntimeEnv;
@@ -63,8 +63,8 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
             return null;
         }
 
-        public Iterator<IOpenClass> superClasses() {
-            return AOpenIterator.empty();
+        public Iterable<IOpenClass> superClasses() {
+            return Collections.emptyList();
         }
     }
 
