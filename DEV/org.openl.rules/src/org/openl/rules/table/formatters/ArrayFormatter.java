@@ -98,21 +98,20 @@ public class ArrayFormatter implements IFormatter {
             for (String elementValue : elementValues) {
                 Object element = elementFormat.parse(elementValue);
                 elements.add(element);
-                elementType = element.getClass();
+                Class<?> type = element.getClass();
+                if (elementType == null) {
+                    elementType = type;
+                } else if (elementType != type) {
+                    elementType = Object.class;
+                }
             }
 
             if (elementType == null) {
-                return result;
+                return null;
             }
 
             Object[] resultArray = (Object[]) Array.newInstance(elementType, elements.size());
-
-            try {
-                result = elements.toArray(resultArray);
-            } catch (ArrayStoreException e) {
-                // Ignore exception. An exception occurs when element type is
-                // different for elements of array.
-            }
+            result = elements.toArray(resultArray);
         }
 
         return result;
