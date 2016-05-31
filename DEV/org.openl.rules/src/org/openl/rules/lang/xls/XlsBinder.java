@@ -594,16 +594,18 @@ public class XlsBinder implements IOpenBinder {
                                       RulesModuleBindingContext moduleContext) {
 
         IMemberBoundNode[] children = new IMemberBoundNode[tableSyntaxNodes.length]; 
-
+        OpenMethodHeader[] openMethodHeaders = new OpenMethodHeader[tableSyntaxNodes.length];
+        
         for (int i = 0; i < tableSyntaxNodes.length; i++) {
             if (isExecutableTableSyntaxNode(tableSyntaxNodes[i])){
                 AExecutableNodeBinder aExecutableNodeBinder = (AExecutableNodeBinder) getBinderFactory().get(tableSyntaxNodes[i].getType());
                 try{
                     OpenMethodHeader openMethodHeader = aExecutableNodeBinder.createHeader(tableSyntaxNodes[i], openl, moduleContext);
+                    openMethodHeaders[i] = openMethodHeader;
                     if (moduleContext.isExecutionMode()){
-                        moduleContext.addPrebindMethod(new PrebindOpenMethod(openMethodHeader, null));
+                        moduleContext.addPrebindMethod(openMethodHeader, new PrebindOpenMethod(openMethodHeader, null));
                     }else{
-                        moduleContext.addPrebindMethod(new PrebindOpenMethod(openMethodHeader, tableSyntaxNodes[i]));
+                        moduleContext.addPrebindMethod(openMethodHeader, new PrebindOpenMethod(openMethodHeader, tableSyntaxNodes[i]));
                     }
                 }catch(Exception e){
                     //skip
@@ -640,6 +642,9 @@ public class XlsBinder implements IOpenBinder {
         for (int i = 0; i < children.length; i++) {
             if (children[i] != null) {
                 finilizeBind(children[i], tableSyntaxNodes[i], moduleContext);
+                if (openMethodHeaders[i] != null){
+                    moduleContext.removePrebindMethodByHeader(openMethodHeaders[i]);
+                }
             }
         }
 
@@ -647,8 +652,6 @@ public class XlsBinder implements IOpenBinder {
             removeDebugInformation(children, tableSyntaxNodes, moduleContext);
         }
         
-        moduleContext.clearPrebindMethods();
-
         return new ModuleNode(moduleSyntaxNode, moduleContext.getModule());
     }
 

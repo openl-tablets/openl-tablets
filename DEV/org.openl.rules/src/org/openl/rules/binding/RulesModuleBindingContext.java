@@ -5,6 +5,7 @@ package org.openl.rules.binding;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -25,8 +26,9 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.Invokable;
+import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.MethodSignature;
+import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.OpenIterator;
 import org.openl.vm.IRuntimeEnv;
@@ -51,7 +53,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
      */
     private List<IOpenMethod> internalMethods;
     
-    private List<IOpenMethod> internalPrebindMethods = new ArrayList<IOpenMethod>();
+    private Map<IOpenMethodHeader, IOpenMethod> internalPrebindMethods = new HashMap<IOpenMethodHeader, IOpenMethod>();
     
     public RulesModuleBindingContext(IBindingContext delegate,
             ModuleOpenClass module) {
@@ -93,23 +95,29 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             method = MethodSearch.getCastingMethodCaller(methodName, parTypes, this, OpenIterator.select(internalMethods.iterator(), new INamedThing.NameSelector<IOpenMethod>(methodName)));
         }
         if (method == null) {
-            method = MethodSearch.getCastingMethodCaller(methodName, parTypes, this, OpenIterator.select(internalPrebindMethods.iterator(), new INamedThing.NameSelector<IOpenMethod>(methodName)));
+            method = MethodSearch.getCastingMethodCaller(methodName, parTypes, this, OpenIterator.select(internalPrebindMethods.values().iterator(), new INamedThing.NameSelector<IOpenMethod>(methodName)));
         }
         return method;
     }
     
-    public void addPrebindMethod(PrebindOpenMethod method){
-        internalPrebindMethods.add(method);
+    public void addPrebindMethod(OpenMethodHeader openMethodHeader, PrebindOpenMethod method){
+        internalPrebindMethods.put(openMethodHeader, method);
     }
     
-    public void clearPrebindMethods(){
+    /*public void clearPrebindMethods(){
         for (IOpenMethod openMethod : internalPrebindMethods){
             PrebindOpenMethod prebindOpenMethod = (PrebindOpenMethod) openMethod;
-            Invokable bindedMethod = findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, prebindOpenMethod.getName(), prebindOpenMethod.getSignature().getParameterTypes());
-            prebindOpenMethod.setInvokable(bindedMethod);
+            IMethodCaller bindedMethod = findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, prebindOpenMethod.getName(), prebindOpenMethod.getSignature().getParameterTypes());
+            prebindOpenMethod.setMethodCaller(bindedMethod);
         }
         
         internalPrebindMethods.clear();
+    }*/
+    
+    public void removePrebindMethodByHeader(OpenMethodHeader openMethodHeader){
+        PrebindOpenMethod prebindOpenMethod = (PrebindOpenMethod) internalPrebindMethods.get(openMethodHeader);
+        IMethodCaller bindedMethod = findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, prebindOpenMethod.getName(), prebindOpenMethod.getSignature().getParameterTypes());
+        prebindOpenMethod.setMethodCaller(bindedMethod);
     }
 
     public final class CurrentRuntimeContextMethod implements IOpenMethod {
