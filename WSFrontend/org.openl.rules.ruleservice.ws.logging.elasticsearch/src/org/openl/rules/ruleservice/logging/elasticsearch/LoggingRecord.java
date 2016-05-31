@@ -4,6 +4,8 @@ import java.util.Date;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 @Document(indexName = "loggingrecord")
 public class LoggingRecord {
@@ -13,11 +15,13 @@ public class LoggingRecord {
     private Date incomingTime;
     private Date outcomingTime;
 
+    private String requestBody;
+    private String responseBody;
+
     private Object request;
     private Object response;
-
+    
     private String serviceName;
-    private String url;
     private String inputName;
     private String publisherType;
 
@@ -37,11 +41,15 @@ public class LoggingRecord {
     private Date customDate2;
     private Date customDate3;
 
+    private String url;
+    
     public LoggingRecord(String id,
             Date incomingTime,
             Date outcomingTime,
             Object request,
             Object response,
+            String requestBody,
+            String responseBody,
             String serviceName,
             String url,
             String inputName,
@@ -65,6 +73,8 @@ public class LoggingRecord {
         this.outcomingTime = outcomingTime;
         this.request = request;
         this.response = response;
+        this.requestBody = requestBody;
+        this.responseBody = responseBody;
         this.serviceName = serviceName;
         this.url = url;
         this.inputName = inputName;
@@ -172,6 +182,14 @@ public class LoggingRecord {
         return customDate3;
     }
 
+    public String getRequestBody() {
+        return requestBody;
+    }
+
+    public String getResponseBody() {
+        return responseBody;
+    }
+
     @Override
     public String toString() {
         return "LoggingRecord [id=" + id + "]";
@@ -185,6 +203,9 @@ public class LoggingRecord {
 
         protected Object request;
         protected Object response;
+
+        protected String requestBody;
+        protected String responseBody;
 
         protected String serviceName;
         protected String url;
@@ -213,6 +234,8 @@ public class LoggingRecord {
                 outcomingTime,
                 request,
                 response,
+                requestBody,
+                responseBody,
                 serviceName,
                 url,
                 inputName,
@@ -230,6 +253,16 @@ public class LoggingRecord {
                 dateValue1,
                 dateValue2,
                 dateValue3);
+        }
+
+        public LoggingRecordBuilder setRequestBody(String requestBody) {
+            this.requestBody = requestBody;
+            return this;
+        }
+
+        public LoggingRecordBuilder setResponseBody(String responseBody) {
+            this.responseBody = responseBody;
+            return this;
         }
 
         public LoggingRecordBuilder setId(String id) {
@@ -337,6 +370,11 @@ public class LoggingRecord {
             return this;
         }
 
+        public LoggingRecordBuilder setDateValue3(Date dateValue3) {
+            this.dateValue3 = dateValue3;
+            return this;
+        }
+
         public String getId() {
             return id;
         }
@@ -425,9 +463,5 @@ public class LoggingRecord {
             return dateValue3;
         }
 
-        public LoggingRecordBuilder setDateValue3(Date dateValue3) {
-            this.dateValue3 = dateValue3;
-            return this;
-        }
     }
 }

@@ -13,11 +13,11 @@ public class DefaultElasticSearchIndexBuilderImpl implements ElasticSearchIndexB
 
     @Override
     public LoggingRecord withObject(LoggingInfo loggingInfo) {
-        Object requestBody = loggingInfo.getRequestMessage().getPayload().toString();
-        Object responseBody = loggingInfo.getResponseMessage().getPayload().toString();
+        Object request = null;
+        Object response = null;
         if (RulesDeploy.PublisherType.RESTFUL.equals(loggingInfo.getPublisherType())) {
-            requestBody = JSON.parse((String) requestBody);
-            responseBody = JSON.parse((String) responseBody);
+            request = JSON.parse(loggingInfo.getRequestMessage().getPayload().toString());
+            response = JSON.parse(loggingInfo.getResponseMessage().getPayload().toString());
         }
         String id = null;
 
@@ -37,12 +37,14 @@ public class DefaultElasticSearchIndexBuilderImpl implements ElasticSearchIndexB
         loggingRecordBuilder.setId(id);
         loggingRecordBuilder.setIncomingTime(loggingInfo.getIncomingMessageTime());
         loggingRecordBuilder.setOutcomingTime(loggingInfo.getOutcomingMessageTime());
-        loggingRecordBuilder.setRequest(requestBody);
-        loggingRecordBuilder.setResponse(responseBody);
+        loggingRecordBuilder.setRequest(request);
+        loggingRecordBuilder.setResponse(response);
         loggingRecordBuilder.setServiceName(loggingInfo.getServiceName());
         loggingRecordBuilder.setUrl(loggingInfo.getRequestMessage().getAddress().toString());
         loggingRecordBuilder.setInputName(loggingInfo.getInputName());
         loggingRecordBuilder.setPublisherType(publisherType);
+        loggingRecordBuilder.setRequestBody(loggingInfo.getRequestMessage().getPayload().toString());
+        loggingRecordBuilder.setResponseBody(loggingInfo.getResponseMessage().getPayload().toString());
 
         if (loggingInfo.getLoggingCustomData() != null) {
             loggingRecordBuilder.setStringValue1(loggingInfo.getLoggingCustomData().getStringValue1());
