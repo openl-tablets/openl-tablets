@@ -94,14 +94,22 @@ public class DatatypeOpenClass extends ADynamicClass {
         return (LinkedHashMap<String, IOpenField>) fieldMap;
     }
 
+    private Map<String, IOpenField> fields = null;
+    
     @Override
     public Map<String, IOpenField> getFields() {
-        Map<String, IOpenField> fields = new LinkedHashMap<String, IOpenField>();
-        Iterable<IOpenClass> superClasses = superClasses();
-        for(IOpenClass superClass : superClasses) {
-            fields.putAll(superClass.getFields());
+        if (fields == null){
+            synchronized (this) {
+                if (fields == null){
+                    fields = new LinkedHashMap<String, IOpenField>();
+                    Iterable<IOpenClass> superClasses = superClasses();
+                    for(IOpenClass superClass : superClasses) {
+                        fields.putAll(superClass.getFields());
+                    }
+                    fields.putAll(fieldMap());
+                }
+            }
         }
-        fields.putAll(fieldMap());
         return fields;
     }
 

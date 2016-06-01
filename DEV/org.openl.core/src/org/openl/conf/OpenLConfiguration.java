@@ -131,13 +131,17 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return parent == null ? null : parent.getCast(from, to);
     }
 
-   public IConfigurableResourceContext getConfigurationContext() {
+    public IConfigurableResourceContext getConfigurationContext() {
         return configurationContext;
     }
 
+   
     public synchronized IGrammar getGrammar() throws OpenConfigurationException {
-        return grammarFactory == null ? parent.getGrammar() : (IGrammar) grammarFactory
-                .getResource(configurationContext);
+        if (grammarFactory == null) {
+            return parent.getGrammar();
+        } else {
+            return (IGrammar) grammarFactory.getResource(configurationContext);
+        }
     }
 
     public ClassFactory getGrammarFactory() {
@@ -183,13 +187,33 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
         return null;
     }
+    
+    Map<String, Map<String, IOpenClass>> cache = new HashMap<String, Map<String, IOpenClass>>();
 
     public IOpenClass getType(String namespace, String name) {
+        Map<String, IOpenClass> namespaceCache = cache.get(namespace);
+        if (namespaceCache == null){
+            namespaceCache = new HashMap<String, IOpenClass>();
+            cache.put(namespace, namespaceCache);
+        }
+        if (namespaceCache.containsKey(name)){
+            return namespaceCache.get(name);
+        }
+        
         IOpenClass type = typeFactory == null ? null : typeFactory.getType(namespace, name, configurationContext);
         if (type != null) {
+            namespaceCache.put(name, type);
             return type;
         }
-        return parent == null ? null : parent.getType(namespace, name);
+        
+        if (parent == null){
+            namespaceCache.put(name, null);
+            return null;
+        }else{
+            type = parent.getType(namespace, name);
+            namespaceCache.put(name, type);
+            return type;
+        }
     }
 
     public TypeCastFactory getTypeCastFactory() {
