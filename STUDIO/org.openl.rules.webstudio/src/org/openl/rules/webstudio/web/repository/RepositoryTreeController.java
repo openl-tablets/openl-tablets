@@ -1295,7 +1295,7 @@ public class RepositoryTreeController {
 
     public String refreshTree() {
         repositoryTreeState.invalidateTree();
-        repositoryTreeState.invalidateSelection();
+        resetStudioModel();
         return null;
     }
 

@@ -1,12 +1,14 @@
 package org.openl.rules.webstudio.web;
 
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.CommonException;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.WebContext;
+import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -19,11 +21,18 @@ import org.slf4j.LoggerFactory;
 @RequestScoped
 public class MainBean {
 
+    @ManagedProperty(value = "#{repositoryTreeState}")
+    private RepositoryTreeState repositoryTreeState;
+
     private final Logger log = LoggerFactory.getLogger(MainBean.class);
     public MainBean() throws Exception {
         if (WebContext.getContextPath() == null) {
             WebContext.setContextPath(FacesUtils.getContextPath());
         }
+    }
+
+    public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
+        this.repositoryTreeState = repositoryTreeState;
     }
 
     /**
@@ -59,6 +68,7 @@ public class MainBean {
         } catch (CommonException e) {
             log.error("Error on reloading user's workspace", e);
         }
+        repositoryTreeState.invalidateTree();
         WebStudioUtils.getWebStudio().resetProjects();
     }
 }
