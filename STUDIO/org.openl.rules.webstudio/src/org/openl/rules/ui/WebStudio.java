@@ -344,6 +344,7 @@ public class WebStudio {
     public void resetProjects() {
         needCompile = true;
         projects = null;
+        model.resetSourceModified();
     }
 
     public void reset() {
