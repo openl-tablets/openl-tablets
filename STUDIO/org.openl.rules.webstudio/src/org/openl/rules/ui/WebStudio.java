@@ -344,6 +344,7 @@ public class WebStudio {
     public void resetProjects() {
         needCompile = true;
         projects = null;
+        model.resetSourceModified();
     }
 
     public void reset() {
@@ -830,6 +831,10 @@ public class WebStudio {
      * Page Url =       create/
      * Normalized Url = #tutorial1/rules/create/
      */
+    public String url() {
+        return url(null, null);
+    }
+
     public String url(String pageUrl) {
         return url(pageUrl, null);
     }
@@ -895,8 +900,12 @@ public class WebStudio {
                 && StringUtils.isNotBlank(pageUrl)) {
             return "#" + pageUrl;
         }
+        String moduleUrl = "#" + StringTool.encodeURL(projectName) + "/" + StringTool.encodeURL(moduleName);
+        if (StringUtils.isBlank(pageUrl)) {
+            return moduleUrl;
+        }
 
-        return "#" + StringTool.encodeURL(projectName) + "/" + StringTool.encodeURL(moduleName) + "/" + pageUrl;
+        return moduleUrl + "/" + pageUrl;
     }
 
     public WebStudioLinkBuilder getLinkBuilder() {

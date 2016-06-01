@@ -111,26 +111,6 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 		}
 	}
 
-
-	static public IBoundNode checkOrderExpressionBoundNode(
-			IBoundNode orderExpressionNode, IBindingContext bindingContext) {
-
-		if (orderExpressionNode != null
-				&& !Comparable.class.isAssignableFrom(orderExpressionNode
-						.getType().getInstanceClass())) {
-
-			if (orderExpressionNode.getType() != NullOpenClass.the) {
-				BindHelper.processError(
-						"Order By expression must be Comparable",
-						orderExpressionNode.getSyntaxNode(), bindingContext);
-			}
-			return new ErrorBoundNode(orderExpressionNode.getSyntaxNode());
-		} else {
-			return orderExpressionNode;
-		}
-
-	}
-
 	@Override
 	public String getDefaultTempVarName(IBindingContext bindingContext) {
 		return BindHelper.getTemporaryVarName(bindingContext,
@@ -145,9 +125,27 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 				expressionNode }, localVar, isDecreasing);
 	}
 
-	@Override
-	protected IBoundNode validateExpressionNode(IBoundNode expressionNode,
-			IBindingContext bindingContext) {
-		return checkOrderExpressionBoundNode(expressionNode, bindingContext);
-	}
+    @Override
+    protected IBoundNode validateExpressionNode(IBoundNode expressionNode, IBindingContext bindingContext) {
+
+        if (expressionNode == null) {
+            return expressionNode;
+        }
+
+        IOpenClass type = expressionNode.getType();
+        Class<?> instanceClass = type.getInstanceClass();
+        if (Comparable.class.isAssignableFrom(instanceClass)) {
+            return expressionNode;
+        }
+        if (instanceClass.isPrimitive() && instanceClass != void.class) {
+            return expressionNode;
+        }
+        if (type != NullOpenClass.the) {
+            BindHelper.processError("Order By expression must be Comparable",
+                expressionNode.getSyntaxNode(),
+                bindingContext);
+        }
+        return new ErrorBoundNode(expressionNode.getSyntaxNode());
+
+    }
 }
