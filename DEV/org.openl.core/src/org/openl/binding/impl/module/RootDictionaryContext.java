@@ -82,7 +82,7 @@ public class RootDictionaryContext implements VariableInContextFinder {
         initializeRoots();
     }
 
-    private synchronized void add(ContextField contextField) {
+    private void add(ContextField contextField) {
 
         String name = contextField.getName().toLowerCase();
         List<IOpenField> ff = fields.get(name);

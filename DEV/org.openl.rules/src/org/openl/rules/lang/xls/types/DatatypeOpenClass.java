@@ -110,7 +110,7 @@ public class DatatypeOpenClass extends ADynamicClass {
                 }
             }
         }
-        return fields;
+        return Collections.unmodifiableMap(fields);
     }
 
     @SuppressWarnings("unchecked")
