@@ -597,7 +597,7 @@ public class RepositoryTreeController {
                 repositoryTreeState.deleteNode(projectInTree);
             }
 
-            FacesUtils.addInfoMessage("Configuration was deleted successfully.");
+            FacesUtils.addInfoMessage("Deploy configuration was deleted successfully.");
         } catch (ProjectException e) {
             log.error("Cannot delete deploy configuration '" + projectName + "'.", e);
             FacesUtils.addErrorMessage("Failed to delete deploy configuration.", e.getMessage());
