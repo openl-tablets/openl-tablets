@@ -4,6 +4,8 @@ import java.util.Date;
 
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
+import org.openl.rules.convertor.IString2DataConvertor;
+import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.helpers.CharRange;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.INumberRange;
@@ -41,6 +43,27 @@ public class CellEditorSelector {
 
                 if (allObjects instanceof String[]) { 
                     String[] allObjectValues = (String[]) allObjects;
+
+                    if (meta.isMultiValue()) {
+                        return factory.makeMultiSelectEditor(allObjectValues);
+                    } else {
+                        return factory.makeComboboxEditor(allObjectValues);
+                    }
+                } else if (allObjects != null) {
+                    @SuppressWarnings("unchecked")
+                    Class<Object> componentType = (Class<Object>) allObjects.getClass().getComponentType();
+                    IString2DataConvertor<Object> convertor = String2DataConvertorFactory.getConvertor(componentType);
+                    String[] allObjectValues = new String[allObjects.length];
+                    boolean convertToNumber = Number.class.isAssignableFrom(componentType);
+                    for (int i = 0; i < allObjects.length; i++) {
+                        String stringValue = convertor.format(allObjects[i], null);
+                        if (convertToNumber && stringValue.endsWith(".0")) {
+                            // Doubles like 2015 in domain are implicitly formatted as 2015.0 but cell values not.
+                            // TODO Format behavior for cells and domain values in combobox must be same
+                            stringValue = stringValue.replace(".0", "");
+                        }
+                        allObjectValues[i] = stringValue;
+                    }
 
                     if (meta.isMultiValue()) {
                         return factory.makeMultiSelectEditor(allObjectValues);

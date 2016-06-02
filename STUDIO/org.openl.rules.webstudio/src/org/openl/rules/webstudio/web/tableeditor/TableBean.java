@@ -418,15 +418,15 @@ public class TableBean {
     }
 
     public boolean getCanRun() {
-        return isGranted(PRIVILEGE_RUN) && !hasErrorsInTargetTables();
+        return isGranted(PRIVILEGE_RUN) && !hasErrorsInTargetTables() && !isHasErrors();
     }
 
     public boolean getCanTrace() {
-        return isGranted(PRIVILEGE_TRACE) && !hasErrorsInTargetTables();
+        return isGranted(PRIVILEGE_TRACE) && !hasErrorsInTargetTables() && !isHasErrors();
     }
 
     public boolean getCanBenchmark() {
-        return isGranted(PRIVILEGE_BENCHMARK) && !hasErrorsInTargetTables();
+        return isGranted(PRIVILEGE_BENCHMARK) && !hasErrorsInTargetTables() && !isHasErrors();
     }
 
     public Integer getRowIndex() {

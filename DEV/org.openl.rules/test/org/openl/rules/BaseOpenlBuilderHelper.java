@@ -12,6 +12,7 @@ import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
@@ -100,6 +101,20 @@ public abstract class BaseOpenlBuilderHelper {
         }
         return result;
     }
+
+    protected TableSyntaxNode findDispatcherForMethod(String methodName) {
+        IOpenClass moduleOpenClass = getJavaWrapper().getOpenClass();
+        for (IOpenMethod method : moduleOpenClass.getMethods()) {
+            if (method.getInfo() != null && method.getInfo().getSyntaxNode() instanceof TableSyntaxNode) {
+                TableSyntaxNode tsn = (TableSyntaxNode) method.getInfo().getSyntaxNode();
+                if (DispatcherTablesBuilder.isDispatcherTable(tsn) && method.getName().endsWith(methodName)) {
+                    return tsn;
+                }
+            }
+        }
+        return null;
+    }
+
 
     protected TableSyntaxNode[] getTableSyntaxNodes() {
         TableSyntaxNode[] tsns = xsn.getXlsTableSyntaxNodes();

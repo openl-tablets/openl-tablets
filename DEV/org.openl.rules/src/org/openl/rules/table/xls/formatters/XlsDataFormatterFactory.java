@@ -48,7 +48,8 @@ public class XlsDataFormatterFactory {
 
             // Boolean
             } else if (ClassUtils.isAssignable(instanceClass, Boolean.class)) {
-                formatter = new BooleanFormatter();
+                BooleanFormatter booleanFormatter = new BooleanFormatter();
+                formatter = cellMetaInfo.isMultiValue() ? new ArrayFormatter(booleanFormatter) : booleanFormatter;
 
             // Enum
             } else if (instanceClass.isEnum()) {

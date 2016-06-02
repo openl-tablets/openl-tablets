@@ -14,10 +14,7 @@ import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.properties.TableProperties;
-import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.java.JavaOpenClass;
 
 import static org.junit.Assert.*;
 
@@ -47,9 +44,7 @@ public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void testMetaInfoInDispatcherTable() {
-        IOpenMethod method = getJavaWrapper().getOpenClass()
-                .getMethod("testDT", new IOpenClass[] { JavaOpenClass.INT });
-        TableSyntaxNode dispatcherTable = ((MatchingOpenMethodDispatcher) method).getDispatcherTable();
+        TableSyntaxNode dispatcherTable = findDispatcherForMethod("testDT");
         IBaseAction returnColumn = ((DecisionTable) dispatcherTable.getMember()).getActionRows()[0];
         ICell firstMethodCell = returnColumn.getValueCell(0).getSource().getCell(0, 0);
         IOpenMethod firstMethodInOveloading = ((MethodUsage) firstMethodCell.getMetaInfo().getUsedNodes().get(0)).getMethod();

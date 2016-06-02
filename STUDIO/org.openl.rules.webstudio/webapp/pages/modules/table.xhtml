@@ -602,7 +602,7 @@
 
     <c:if test="#{empty tableBean.table}">
         <script>
-            ws.nav.go("##{jsffn:encodeURL(studio.currentProjectDescriptor.name)}/#{jsffn:encodeURL(studio.currentModule.name)}", true);
+            ws.nav.go("#{studio.url()}", true);
         </script>
     </c:if>
 

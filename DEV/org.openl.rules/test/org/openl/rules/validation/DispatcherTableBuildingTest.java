@@ -14,10 +14,7 @@ import org.openl.message.OpenLWarnMessage;
 import org.openl.message.Severity;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 
 public class DispatcherTableBuildingTest extends BaseOpenlBuilderHelper {
     private static final String SRC = "test/rules/overload/DispatcherTest.xlsx";
@@ -29,19 +26,6 @@ public class DispatcherTableBuildingTest extends BaseOpenlBuilderHelper {
     @BeforeClass
     public static void init() {
         System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_JAVA);
-    }
-
-    private TableSyntaxNode findDispatcherForMethod(String methodName) {
-        IOpenClass moduleOpenClass = getJavaWrapper().getOpenClass();
-        for (IOpenMethod method : moduleOpenClass.getMethods()) {
-            if (method.getInfo() != null && method.getInfo().getSyntaxNode() instanceof TableSyntaxNode) {
-                TableSyntaxNode tsn = (TableSyntaxNode) method.getInfo().getSyntaxNode();
-                if (DispatcherTablesBuilder.isDispatcherTable(tsn) && method.getName().endsWith(methodName)) {
-                    return tsn;
-                }
-            }
-        }
-        return null;
     }
 
     private static List<OpenLMessage> getWarningsForTable(List<OpenLMessage> allMessages, TableSyntaxNode tsn) {
@@ -76,5 +60,4 @@ public class DispatcherTableBuildingTest extends BaseOpenlBuilderHelper {
         assertFalse(dispatcherTable.hasErrors());
         assertTrue(getWarningsForTable(getJavaWrapper().getCompiledClass().getMessages(), dispatcherTable).size() == 0);
     }
-
 }

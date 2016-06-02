@@ -17,7 +17,6 @@ import org.openl.rules.dt.validator.DecisionTableValidator;
 import org.openl.rules.dt.validator.DesionTableValidationResult;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.types.OpenMethodDispatcherHelper;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
@@ -40,7 +39,7 @@ public class GapOverlapValidator extends TablesValidator {
     @Override
     public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
         validationResult = null;
-        List<IOpenMethod> allModuleMethods = OpenMethodDispatcherHelper.extractMethods(openClass.getMethods());
+        List<IOpenMethod> allModuleMethods = OpenMethodDispatcherHelper.extractMethods(openClass);
 
         for (IOpenMethod method : allModuleMethods) {
             if (method instanceof ExecutableRulesMethod) {

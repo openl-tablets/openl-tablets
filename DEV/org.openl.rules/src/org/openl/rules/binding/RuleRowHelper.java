@@ -1,6 +1,7 @@
 package org.openl.rules.binding;
 
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -12,6 +13,7 @@ import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.domain.IDomain;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.meta.BigDecimalValue;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.ValueMetaInfo;
@@ -249,26 +251,33 @@ public class RuleRowHelper {
             String ruleName,
             ILogicalTable table) {
         Class<?> expectedType = paramType.getInstanceClass();
-        double value = cell.getNativeNumber();
-        IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, double.class);
         Object res = null;
-        if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor) {
-            res = objectConvertor.convert(value, bindingContext);
+
+        if (BigDecimal.class.isAssignableFrom(expectedType) || BigDecimalValue.class.isAssignableFrom(expectedType)) {
+            // Convert String -> BigDecimal instead of double ->BigDecimal, otherwise we lose in precision (part of EPBDS-5879)
+            IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, String.class);
+            res = objectConvertor.convert(cell.getStringValue(), bindingContext);
         } else {
-            objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Double.class);            
+            double value = cell.getNativeNumber();
+            IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType,
+                    double.class);
             if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor) {
                 res = objectConvertor.convert(value, bindingContext);
-            }
-            else {
-                objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Date.class);
+            } else {
+                objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Double.class);
                 if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor) {
-                    Date dateValue = cell.getNativeDate();
-                    res = objectConvertor.convert(dateValue, bindingContext);
-                } else if (((int) value) == value) {
-                    objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Integer.class);
-                    if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor)
-                        res = objectConvertor.convert((int) value, bindingContext);
+                    res = objectConvertor.convert(value, bindingContext);
+                } else {
+                    objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Date.class);
+                    if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor) {
+                        Date dateValue = cell.getNativeDate();
+                        res = objectConvertor.convert(dateValue, bindingContext);
+                    } else if (((int) value) == value) {
+                        objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Integer.class);
+                        if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor)
+                            res = objectConvertor.convert((int) value, bindingContext);
 
+                    }
                 }
             }
         }

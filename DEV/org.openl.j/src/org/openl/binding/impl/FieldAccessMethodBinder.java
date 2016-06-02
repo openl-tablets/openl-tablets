@@ -42,7 +42,8 @@ public class FieldAccessMethodBinder extends ANodeBinder {
         }
 
         if (accessorChain == null) {
-            log.warn("Can`t bind as field access method the method with name {}", methodName);
+            // It just means that another binder must be used. It's not an error
+            log.debug("Can`t bind as field access method the method with name {}", methodName);
         }
 
         return accessorChain;

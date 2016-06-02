@@ -15,7 +15,6 @@ import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.types.OpenMethodDispatcherHelper;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
@@ -36,7 +35,7 @@ public class UniquePropertyValueValidator extends TablesValidator {
     public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
         
         ExecutableRulesMethod[] executableActiveMethods = 
-            selectActiveMethods(OpenMethodDispatcherHelper.extractMethods(openClass.getMethods()));
+            selectActiveMethods(OpenMethodDispatcherHelper.extractMethods(openClass));
 
         Map<Object, ExecutableRulesMethod> values = new HashMap<Object, ExecutableRulesMethod>();
         ValidationResult validationResult = null;
