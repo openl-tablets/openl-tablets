@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
+import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.module.DeferredMethod;
@@ -72,12 +73,15 @@ import org.openl.types.impl.AMethod;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenMethod;
 import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author snshor
  *
  */
 public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableModuleOpenClass {
+    private Logger log = LoggerFactory.getLogger(XlsModuleOpenClass.class);
 
     protected Set<String> duplicatedMethodUrls = new HashSet<String>();
     private IDataBase dataBase = null;
@@ -490,9 +494,14 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, newMethodSyntaxNode);
             ((TableSyntaxNode) newMethodSyntaxNode).addError(error);
 
-            TableSyntaxNode existedMethodSyntaxNode = (TableSyntaxNode) existedMethod.getInfo().getSyntaxNode();
-            if (existedMethodSyntaxNode != null) {
-                existedMethodSyntaxNode.addError(SyntaxNodeExceptionUtils.createError(message, existedMethodSyntaxNode));
+            try {
+                TableSyntaxNode existedMethodSyntaxNode = (TableSyntaxNode) existedMethod.getInfo().getSyntaxNode();
+                if (existedMethodSyntaxNode != null) {
+                    existedMethodSyntaxNode.addError(SyntaxNodeExceptionUtils.createError(message,
+                            existedMethodSyntaxNode));
+                }
+            } catch (Exception ex) {
+                log.warn("Cannot get a syntax node for the method: {}", MethodUtil.printMethod(existedMethod, new StringBuilder()), ex);
             }
 
             addError(error);

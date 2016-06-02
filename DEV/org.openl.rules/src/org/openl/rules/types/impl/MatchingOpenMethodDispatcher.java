@@ -111,7 +111,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
             }
         }
 
-        throw new OpenLRuntimeException(String.format("There is no dispatcher table for [%s] method.", getName()));
+        throw new IllegalStateException(String.format("There is no dispatcher table for [%s] method.", getName()));
     }
 
     @Override
