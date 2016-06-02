@@ -13,7 +13,12 @@
 (function($) {
   
   $.fn.areYouSure = function(options) {
-      
+
+    var $form = $(this);
+// var $form = ($(this).is('form'))
+//               ? $(this)
+//               : $(this).parents('form');
+
     var settings = $.extend(
       {
         'message' : 'You have unsaved changes!',
@@ -77,11 +82,6 @@
         }
         return (getValue($field) != origValue);
       };
-
-      var $form = $(this);
-//      var $form = ($(this).is('form'))
-//                    ? $(this)
-//                    : $(this).parents('form');
 
       // Test on the target first as it's the most likely to be dirty
       if (isFieldDirty($(evt.target))) {
