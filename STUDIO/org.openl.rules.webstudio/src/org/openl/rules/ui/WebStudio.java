@@ -343,7 +343,7 @@ public class WebStudio {
     }
 
     public void resetProjects() {
-        needCompile = true;
+        forcedCompile = true;
         projects = null;
         model.resetSourceModified();
     }
@@ -352,7 +352,6 @@ public class WebStudio {
         resetProjects();
         currentModule = null;
         currentProject = null;
-        reset(ReloadType.FORCED);
     }
 
     private void reset(ReloadType reloadType) {
@@ -376,13 +375,17 @@ public class WebStudio {
             ProjectDescriptor project = getProjectByName(projectName);
             Module module = getModule(project, moduleName);
             if (currentProject != project || currentModule != module) {
-                forcedCompile = true;
+                needCompile = true;
             }
             currentModule = module;
             currentProject = project;
             if (module != null && (needCompile || forcedCompile)) {
                 if (forcedCompile || (needCompile && autoCompile)) {
-                    reset(forcedCompile ? ReloadType.FORCED : ReloadType.SINGLE);
+                    if (forcedCompile) {
+                        reset(ReloadType.FORCED);
+                    } else {
+                        model.setModuleInfo(module);
+                    }
                     model.buildProjectTree(); // Reason: tree should be built
                     // before accessing the ProjectModel.
                     // Is is related to UI: rendering of
