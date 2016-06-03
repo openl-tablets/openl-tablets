@@ -203,6 +203,7 @@ public class WebStudio {
                 return;
             }
             project.edit();
+            model.resetSourceModified(); // Because project.edit() rewrite files in the workspace
         } catch (Exception e) {
             log.error("Can not Open project in Edit mode", e);
             // TODO Display message - e.getMessage()
@@ -441,6 +442,7 @@ public class WebStudio {
             // TODO Display message - e.getMessage()
         }
 
+        model.resetSourceModified(); // Because we rewrite a file in the workspace
         compile();
         clearUploadedFiles();
 
