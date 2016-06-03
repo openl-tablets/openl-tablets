@@ -520,6 +520,7 @@ public class WebStudio {
             throw new IllegalStateException("Error while updating project in user workspace.", e);
         }
 
+        model.resetSourceModified(); // Because we rewrite a file in the workspace
         clearUploadedFiles();
 
         return null;
