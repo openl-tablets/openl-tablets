@@ -374,15 +374,15 @@ public class WebStudio {
         try {
             ProjectDescriptor project = getProjectByName(projectName);
             Module module = getModule(project, moduleName);
-            if (currentProject != project || currentModule != module) {
-                needCompile = true;
-            }
+            boolean moduleChanged = currentProject != project || currentModule != module;
             currentModule = module;
             currentProject = project;
             if (module != null && (needCompile || forcedCompile)) {
-                if (forcedCompile || (needCompile && autoCompile)) {
+                if (forcedCompile || (needCompile && autoCompile) || moduleChanged) {
                     if (forcedCompile) {
                         reset(ReloadType.FORCED);
+                    } else if (needCompile) {
+                        reset(ReloadType.SINGLE);
                     } else {
                         model.setModuleInfo(module);
                     }
