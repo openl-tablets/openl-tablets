@@ -829,12 +829,6 @@
                 <artifactId>hibernate-validator</artifactId>
                 <version>5.1.1.Final</version>
             </dependency>
-            <!-- MySQL java connector -->
-            <dependency>
-                <groupId>mysql</groupId>
-                <artifactId>mysql-connector-java</artifactId>
-                <version>5.1.31</version>
-            </dependency>
             <!-- Lightweight 100% Java SQL Database Engine -->
             <dependency>
                 <groupId>org.hsqldb</groupId>
