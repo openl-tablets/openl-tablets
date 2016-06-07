@@ -377,24 +377,22 @@ public class WebStudio {
             boolean moduleChanged = currentProject != project || currentModule != module;
             currentModule = module;
             currentProject = project;
-            if (module != null && (needCompile || forcedCompile)) {
-                if (forcedCompile || (needCompile && autoCompile) || moduleChanged) {
-                    if (forcedCompile) {
-                        reset(ReloadType.FORCED);
-                    } else if (needCompile) {
-                        reset(ReloadType.SINGLE);
-                    } else {
-                        model.setModuleInfo(module);
-                    }
-                    model.buildProjectTree(); // Reason: tree should be built
-                    // before accessing the ProjectModel.
-                    // Is is related to UI: rendering of
-                    // frames is asynchronous and we
-                    // should build tree before the
-                    // 'content' frame
-                    needCompile = false;
-                    forcedCompile = false;
+            if (module != null && ((needCompile && autoCompile) || forcedCompile || moduleChanged)) {
+                if (forcedCompile) {
+                    reset(ReloadType.FORCED);
+                } else if (needCompile) {
+                    reset(ReloadType.SINGLE);
+                } else {
+                    model.setModuleInfo(module);
                 }
+                model.buildProjectTree(); // Reason: tree should be built
+                // before accessing the ProjectModel.
+                // Is is related to UI: rendering of
+                // frames is asynchronous and we
+                // should build tree before the
+                // 'content' frame
+                needCompile = false;
+                forcedCompile = false;
             }
         } catch (Exception e) {
             log.warn("Failed initialization. Project='{}'  Module='{}'", projectName, moduleName, e);
