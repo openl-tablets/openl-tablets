@@ -112,7 +112,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         if (decisionTableOpenMethod != null) {
             return (TableSyntaxNode) decisionTableOpenMethod.getInfo().getSyntaxNode();
         }
-        throw new OpenLRuntimeException(String.format("There is no dispatcher table for [%s] method.", getName()));
+        throw new IllegalStateException(String.format("There is no dispatcher table for [%s] method.", getName()));
     }
 
     @Override

@@ -168,6 +168,9 @@
     $j(function () {
         // Enable save button only if the form is dirty - using events.
         $j("#userProfileForm").areYouSure();
+        // Ignore hidden input for selected tab from the dirtiness check
+        $j("#userProfileForm\\:userProfileTab-value").addClass('ays-ignore');
+
         $j("#userProfileForm").bind('dirty.areYouSure', function () {
             $j(this).find('.save-button').prop("disabled", false);
         });

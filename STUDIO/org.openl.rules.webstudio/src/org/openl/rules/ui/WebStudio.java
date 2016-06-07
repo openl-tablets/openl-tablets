@@ -203,6 +203,7 @@ public class WebStudio {
                 return;
             }
             project.edit();
+            model.resetSourceModified(); // Because project.edit() rewrite files in the workspace
         } catch (Exception e) {
             log.error("Can not Open project in Edit mode", e);
             // TODO Display message - e.getMessage()
@@ -342,7 +343,7 @@ public class WebStudio {
     }
 
     public void resetProjects() {
-        needCompile = true;
+        forcedCompile = true;
         projects = null;
         model.resetSourceModified();
     }
@@ -351,7 +352,6 @@ public class WebStudio {
         resetProjects();
         currentModule = null;
         currentProject = null;
-        reset(ReloadType.FORCED);
     }
 
     private void reset(ReloadType reloadType) {
@@ -374,23 +374,25 @@ public class WebStudio {
         try {
             ProjectDescriptor project = getProjectByName(projectName);
             Module module = getModule(project, moduleName);
-            if (currentProject != project || currentModule != module) {
-                forcedCompile = true;
-            }
+            boolean moduleChanged = currentProject != project || currentModule != module;
             currentModule = module;
             currentProject = project;
-            if (module != null && (needCompile || forcedCompile)) {
-                if (forcedCompile || (needCompile && autoCompile)) {
-                    reset(forcedCompile ? ReloadType.FORCED : ReloadType.SINGLE);
-                    model.buildProjectTree(); // Reason: tree should be built
-                    // before accessing the ProjectModel.
-                    // Is is related to UI: rendering of
-                    // frames is asynchronous and we
-                    // should build tree before the
-                    // 'content' frame
-                    needCompile = false;
-                    forcedCompile = false;
+            if (module != null && ((needCompile && autoCompile) || forcedCompile || moduleChanged)) {
+                if (forcedCompile) {
+                    reset(ReloadType.FORCED);
+                } else if (needCompile) {
+                    reset(ReloadType.SINGLE);
+                } else {
+                    model.setModuleInfo(module);
                 }
+                model.buildProjectTree(); // Reason: tree should be built
+                // before accessing the ProjectModel.
+                // Is is related to UI: rendering of
+                // frames is asynchronous and we
+                // should build tree before the
+                // 'content' frame
+                needCompile = false;
+                forcedCompile = false;
             }
         } catch (Exception e) {
             log.warn("Failed initialization. Project='{}'  Module='{}'", projectName, moduleName, e);
@@ -404,7 +406,7 @@ public class WebStudio {
         return CollectionUtils.findFirst(project.getModules(), new CollectionUtils.Predicate<Module>() {
             @Override
             public boolean evaluate(Module module) {
-                return module.getName().equals(moduleName);
+                return module.getName() != null && module.getName().equals(moduleName);
             }
         });
     }
@@ -441,6 +443,7 @@ public class WebStudio {
             // TODO Display message - e.getMessage()
         }
 
+        model.resetSourceModified(); // Because we rewrite a file in the workspace
         compile();
         clearUploadedFiles();
 
@@ -518,6 +521,7 @@ public class WebStudio {
             throw new IllegalStateException("Error while updating project in user workspace.", e);
         }
 
+        model.resetSourceModified(); // Because we rewrite a file in the workspace
         clearUploadedFiles();
 
         return null;
