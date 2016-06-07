@@ -112,6 +112,14 @@ public class CastFactory implements ICastFactory {
         if (from == NullOpenClass.the && !isPrimitive(to)) {
             return JAVA_UP_CAST;
         }
+        
+        if (from.isArray() && to.isArray()){
+            if (to.getInstanceClass().isAssignableFrom(from.getInstanceClass())) { //Improve for up cast
+                return JAVA_UP_CAST;
+            }
+            IOpenCast arrayElementCast = findCast(from.getComponentClass(), to.getComponentClass());
+            return new ArrayDownCast(to, arrayElementCast);
+        }
 
         IOpenCast typeCast = findAliasCast(from, to);
 
@@ -530,5 +538,4 @@ public class CastFactory implements ICastFactory {
 
         return false;
     }
-
 }
