@@ -18,7 +18,7 @@ public class DimensionalPropValidTest extends BaseOpenlBuilderHelper {
         // number of tsns consider to be 6 tables defined in rule source file.
         // and 2 extra tables generated for dimensional properties for overriden
         // tables.
-        assertTrue(8 == getTableSyntaxNodes().length);
+        assertTrue(6 == getTableSyntaxNodes().length);
     }
 
 }

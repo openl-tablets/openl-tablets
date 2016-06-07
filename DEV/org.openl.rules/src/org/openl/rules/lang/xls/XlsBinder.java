@@ -59,6 +59,7 @@ import org.openl.rules.property.PropertyTableBinder;
 import org.openl.rules.table.properties.PropertiesLoader;
 import org.openl.rules.tbasic.AlgorithmNodeBinder;
 import org.openl.rules.testmethod.TestMethodNodeBinder;
+import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
@@ -68,6 +69,7 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.util.ASelector;
 import org.openl.util.ASelector.StringValueSelector;
@@ -329,9 +331,14 @@ public class XlsBinder implements IOpenBinder {
                     new TestAndMethodTableNodeComparator());
             topNode = bindInternal(moduleNode, moduleOpenClass, otherNodes, openl, moduleContext);
         }
-        DispatcherTablesBuilder dispTableBuilder = new DispatcherTablesBuilder((XlsModuleOpenClass) topNode.getType(),
-                moduleContext);
-        dispTableBuilder.build();
+        
+        if (moduleOpenClass.isUseDescisionTableDispatcher()){
+            DispatcherTablesBuilder dispTableBuilder = new DispatcherTablesBuilder((XlsModuleOpenClass) topNode.getType(),
+            moduleContext);
+            dispTableBuilder.build();
+        }
+        
+        ((XlsModuleOpenClass) topNode.getType()).setRulesModuleBindingContext(moduleContext);
 
         processErrors(moduleOpenClass.getErrors(), bindingContext);
 

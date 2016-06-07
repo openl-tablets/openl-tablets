@@ -22,7 +22,15 @@ class String2DateConvertor implements IString2DataConvertor<Date> {
         DateFormat df = format == null ? DateFormat.getDateInstance(DateFormat.SHORT) : new SimpleDateFormat(format);
         return df.format(data);
     }
+    
+    private static DateFormat defaultDateFormat = DateFormat.getDateInstance(DateFormat.SHORT, LocaleDependConvertor.getLocale());
 
+    static {
+        defaultDateFormat.setLenient(false);
+        defaultDateFormat.getCalendar().set(0, 0, 0, 0, 0, 0);
+        defaultDateFormat.getCalendar().set(Calendar.MILLISECOND, 0);
+    }
+    
     @Override
     public Date parse(String data, String format) {
         if (data == null) {
@@ -33,13 +41,13 @@ class String2DateConvertor implements IString2DataConvertor<Date> {
 
         DateFormat df;
         if (format == null) {
-            df = DateFormat.getDateInstance(DateFormat.SHORT, LocaleDependConvertor.getLocale());
+            df = defaultDateFormat;
         } else {
             df = new SimpleDateFormat(format, LocaleDependConvertor.getLocale());
+            df.setLenient(false);
+            df.getCalendar().set(0, 0, 0, 0, 0, 0);
+            df.getCalendar().set(Calendar.MILLISECOND, 0);
         }
-        df.setLenient(false);
-        df.getCalendar().set(0, 0, 0, 0, 0, 0);
-        df.getCalendar().set(Calendar.MILLISECOND, 0);
 
         try {
             return df.parse(data);

@@ -133,6 +133,8 @@ public class TableSyntaxNodeDispatcherBuilder implements Builder<TableSyntaxNode
 
             loadCreatedTable(decisionTable, tsn);
 
+            dispatcher.setDecisionTableOpenMethod(decisionTable);
+            
             if (moduleContext.isExecutionMode()){
                 removeDebugInformation(decisionTable, tsn);
             }

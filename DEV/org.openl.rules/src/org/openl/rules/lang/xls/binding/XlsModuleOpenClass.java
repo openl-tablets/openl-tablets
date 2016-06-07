@@ -24,6 +24,7 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
+import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.data.DataOpenField;
@@ -94,7 +95,17 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     private Collection<String> imports = new HashSet<String>();
     
     private ClassLoader classLoader;
-
+    
+    private RulesModuleBindingContext rulesModuleBindingContext;
+    
+    public RulesModuleBindingContext getRulesModuleBindingContext() {
+        return rulesModuleBindingContext;
+    }
+    
+    public void setRulesModuleBindingContext(RulesModuleBindingContext rulesModuleBindingContext) {
+        this.rulesModuleBindingContext = rulesModuleBindingContext;
+    }
+    
     /**
      * Constructor for module with dependent modules
      *
@@ -118,7 +129,11 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
         initImports(metaInfo.getXlsModuleNode());
     }
-
+    
+    public boolean isUseDescisionTableDispatcher() {
+        return useDescisionTableDispatcher;
+    }
+    
     public ClassLoader getClassLoader() {
         return classLoader;
     }
@@ -460,6 +475,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     public void clearOddDataForExecutionMode() {
         super.clearOddDataForExecutionMode();
         dataBase = null;
+        rulesModuleBindingContext = null;
     }
 
     @Override

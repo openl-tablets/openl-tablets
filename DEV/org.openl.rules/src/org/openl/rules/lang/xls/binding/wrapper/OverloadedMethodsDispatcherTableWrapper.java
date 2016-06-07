@@ -24,12 +24,13 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
         return WrapperLogic.invoke(xlsModuleOpenClass, this, target, params, env);
     }
 
-    public IOpenMethod getDispatchingOpenMethod() {
-        return delegate.getDispatchingOpenMethod();
+
+    public IOpenMethod getDecisionTableOpenMethod() {
+        return delegate.getDecisionTableOpenMethod();
     }
 
-    public void setDispatchingOpenMethod(IOpenMethod dispatchingOpenMethod) {
-        delegate.setDispatchingOpenMethod(dispatchingOpenMethod);
+    public void setDecisionTableOpenMethod(IOpenMethod decisionTableOpenMethod) {
+        delegate.setDecisionTableOpenMethod(decisionTableOpenMethod);
     }
 
     public TableSyntaxNode getDispatcherTable() {

@@ -25,7 +25,7 @@ public class OverloadedMethodsDispatcherTable extends MatchingOpenMethodDispatch
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        IOpenMethod openMethod = getDispatchingOpenMethod();
+        IOpenMethod openMethod = getDecisionTableOpenMethod();
         if (openMethod != null) {
             return openMethod.invoke(target, updateArguments(params, env, openMethod), env);
         } else {

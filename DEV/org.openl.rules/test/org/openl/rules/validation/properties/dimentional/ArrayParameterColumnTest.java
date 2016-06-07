@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.enumeration.CountriesEnum;
@@ -20,7 +21,7 @@ public class ArrayParameterColumnTest {
         ArrayParameterColumn arrayColumn = new ArrayParameterColumn(getArrayProperty(), 
             getRules());
         
-        assertEquals("country == null || countryLocal1 == country || countryLocal2 == country || countryLocal3 == country || countryLocal4 == country", 
+        assertEquals("country == null || contains(countryLocal,country)", 
             arrayColumn.getCodeExpression());
         
         // test array column with one element
@@ -31,7 +32,7 @@ public class ArrayParameterColumnTest {
         properties.add(tableProperty);
         ArrayParameterColumn arrayColumn1 = new ArrayParameterColumn(getArrayProperty(), 
             new DispatcherTableRules(properties));
-        assertEquals("country == null || countryLocal == country", arrayColumn1.getCodeExpression());
+        assertEquals("country == null || contains(countryLocal,country)", arrayColumn1.getCodeExpression());
         
     }
     
@@ -48,7 +49,7 @@ public class ArrayParameterColumnTest {
         ArrayParameterColumn arrayColumn = new ArrayParameterColumn(getArrayProperty(), 
             getRules());
         
-        assertEquals("CountriesEnum countryLocal", arrayColumn.getParameterDeclaration());
+        assertEquals("CountriesEnum[] countryLocal", arrayColumn.getParameterDeclaration());
     }
     
     @Test
@@ -56,7 +57,7 @@ public class ArrayParameterColumnTest {
         ArrayParameterColumn arrayColumn = new ArrayParameterColumn(getArrayProperty(), 
             getRules());
         
-        assertEquals(4, arrayColumn.getNumberOfLocalParameters());
+        assertEquals(1, arrayColumn.getNumberOfLocalParameters());
     }
     
     @Test
@@ -65,15 +66,9 @@ public class ArrayParameterColumnTest {
             getRules());
         
         assertEquals(2, arrayColumn.getRulesNumber());
-        assertEquals(4, arrayColumn.getNumberOfLocalParameters());
-        assertEquals("CL", arrayColumn.getRuleValue(0, 0));
-        assertEquals("BA", arrayColumn.getRuleValue(0, 1));
-        assertEquals("AT", arrayColumn.getRuleValue(0, 2));
-        assertEquals("SA", arrayColumn.getRuleValue(0, 3));
-        
-        assertEquals("CA", arrayColumn.getRuleValue(1, 0));        
-        assertEquals("BE", arrayColumn.getRuleValue(1, 1));
-        assertEquals("AU", arrayColumn.getRuleValue(1, 2));
+        assertEquals(1, arrayColumn.getNumberOfLocalParameters());
+        assertEquals("CL,BA,AT,SA", arrayColumn.getRuleValue(0, 0));
+        assertEquals("CA,BE,AU", arrayColumn.getRuleValue(1, 0));        
     }
     
     @Test

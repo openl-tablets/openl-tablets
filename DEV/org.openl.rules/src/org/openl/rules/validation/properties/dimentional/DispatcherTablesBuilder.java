@@ -51,11 +51,11 @@ public class DispatcherTablesBuilder {
      */
     public void build() {        
         for (MatchingOpenMethodDispatcher dispatcher : getAllMethodDispatchers()) {
-            build(dispatcher);
+           build(dispatcher);
         }
     }
-
-    private void build(MatchingOpenMethodDispatcher dispatcher) {
+    
+    public void build(MatchingOpenMethodDispatcher dispatcher) {
         Builder<TableSyntaxNode> tsnDispatcherBuilder = new TableSyntaxNodeDispatcherBuilder(moduleContext,
                 moduleOpenClass, dispatcher);
         TableSyntaxNode tsn = tsnDispatcherBuilder.build();
@@ -63,7 +63,6 @@ public class DispatcherTablesBuilder {
             if (!isVirtualWorkbook()) {
                 addNewTsnToTopNode(tsn);
             }
-            dispatcher.setDispatchingOpenMethod((IOpenMethod) tsn.getMember());
         }
     }
     

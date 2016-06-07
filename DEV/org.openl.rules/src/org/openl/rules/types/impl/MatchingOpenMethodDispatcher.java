@@ -1,8 +1,14 @@
 package org.openl.rules.types.impl;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
@@ -14,16 +20,17 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
-import java.util.*;
-
 /**
  * Represents group of methods(rules) overloaded by dimension properties.
  * 
- * TODO: refactor invoke functionality. Use {@link org.openl.rules.method.RulesMethodInvoker}.
+ * TODO: refactor invoke functionality. Use
+ * {@link org.openl.rules.method.RulesMethodInvoker}.
  */
 public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
-    // The fields below hold only algorithms and they don't change during application lifetime. There is no need
-    // to hold a new instance of that objects for every of thousands of MatchingOpenMethodDispatchers. That's why
+    // The fields below hold only algorithms and they don't change during
+    // application lifetime. There is no need
+    // to hold a new instance of that objects for every of thousands of
+    // MatchingOpenMethodDispatchers. That's why
     // they were made static.
     private static final IPropertiesContextMatcher matcher = new DefaultPropertiesContextMatcher();
     private static final DefaultTablePropertiesSorter prioritySorter = new DefaultTablePropertiesSorter();
@@ -33,14 +40,14 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     private List<IOpenMethod> candidatesSorted;
 
-    private IOpenMethod dispatchingOpenMethod;
+    private IOpenMethod decisionTableOpenMethod;
 
-    public IOpenMethod getDispatchingOpenMethod() {
-        return dispatchingOpenMethod;
+    public IOpenMethod getDecisionTableOpenMethod() {
+        return decisionTableOpenMethod;
     }
 
-    public void setDispatchingOpenMethod(IOpenMethod dispatchingOpenMethod) {
-        this.dispatchingOpenMethod = dispatchingOpenMethod;
+    public void setDecisionTableOpenMethod(IOpenMethod decisionTableOpenMethod) {
+        this.decisionTableOpenMethod = decisionTableOpenMethod;
     }
 
     public MatchingOpenMethodDispatcher() { // For CGLIB proxing
@@ -76,9 +83,10 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 // TODO add more detailed information about error, consider
                 // context values printout, may be log of constraints that
                 // removed candidates
-                throw new OpenLRuntimeException(String.format("No matching methods for the context. Details: \n%1$s\nContext: %2$s",
-                    toString(candidates),
-                    context.toString()));
+                throw new OpenLRuntimeException(
+                    String.format("No matching methods for the context. Details: \n%1$s\nContext: %2$s",
+                        toString(candidates),
+                        context.toString()));
 
             case 1:
                 IOpenMethod matchingMethod = selected.iterator().next();
@@ -87,36 +95,29 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 // TODO add more detailed information about error, consider
                 // context values printout, may be log of constraints,
                 // list of remaining methods with properties
-                throw new OpenLRuntimeException(String.format("Ambiguous method dispatch. Details: \n%1$s\nContext: %2$s",
-                    toString(selected),
-                    context.toString()));
+                throw new OpenLRuntimeException(
+                    String.format("Ambiguous method dispatch. Details: \n%1$s\nContext: %2$s",
+                        toString(selected),
+                        context.toString()));
         }
 
-    }
-
-    private TableSyntaxNode[] getTableSyntaxNodes() {
-        XlsMetaInfo xlsMetaInfo = moduleOpenClass.getXlsMetaInfo();
-        return xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodes();
     }
 
     public TableSyntaxNode getDispatcherTable() {
-        if (dispatchingOpenMethod != null) {
-            return (TableSyntaxNode) dispatchingOpenMethod.getInfo().getSyntaxNode();
+        if (decisionTableOpenMethod == null) {
+            DispatcherTablesBuilder dispTableBuilder = new DispatcherTablesBuilder(moduleOpenClass,
+                moduleOpenClass.getRulesModuleBindingContext());
+            dispTableBuilder.build(this);
         }
-
-        TableSyntaxNode[] tables = getTableSyntaxNodes();
-        for (TableSyntaxNode tsn : tables) {
-            if (DispatcherTablesBuilder.isDispatcherTable(tsn) && tsn.getMember().getName().endsWith(getName())) {
-                return tsn;
-            }
+        if (decisionTableOpenMethod != null) {
+            return (TableSyntaxNode) decisionTableOpenMethod.getInfo().getSyntaxNode();
         }
-
         throw new OpenLRuntimeException(String.format("There is no dispatcher table for [%s] method.", getName()));
     }
 
     @Override
     public IMemberMetaInfo getInfo() {
-        if (getCandidates().size() == 1){
+        if (getCandidates().size() == 1) {
             return getCandidates().get(0).getInfo();
         }
         return getDispatcherTable().getMember().getInfo();
@@ -290,5 +291,5 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         return propNames;
     }
 
-// <<< END INSERT MatchingProperties >>>
+    // <<< END INSERT MatchingProperties >>>
 }
