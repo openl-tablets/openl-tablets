@@ -84,6 +84,7 @@ public class ProjectBean {
     private SupportedVersion supportedVersion;
     private String newFileName;
     private String currentPathPattern;
+    private Integer currentModuleIndex;
 
     public String getModulePath(Module module) {
         PathEntry modulePath = module.getRulesRootPath();
@@ -700,7 +701,12 @@ public class ProjectBean {
         }
 
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(getOriginalProjectDescriptor());
-        Module module = studio.getModule(newProjectDescriptor, currentModuleName);
+        Module module;
+        if (!StringUtils.isBlank(currentModuleName)) {
+            module = studio.getModule(newProjectDescriptor, currentModuleName);
+        } else {
+            module = newProjectDescriptor.getModules().get(currentModuleIndex);
+        }
         if (module == null) {
             module = getModuleWithWildcard(studio.getModule(studio.getCurrentProjectDescriptor(), currentModuleName));
         }
@@ -738,9 +744,13 @@ public class ProjectBean {
             otherModule = getModuleWithWildcard(module);
         }
         if (otherModule != null) {
-            module = studio.getModule(newProjectDescriptor, otherModule.getName());
+            module = otherModule;
         } else {
-            module = studio.getModule(newProjectDescriptor, currentModuleName);
+            if (!StringUtils.isBlank(currentModuleName)) {
+                module = studio.getModule(newProjectDescriptor, currentModuleName);
+            } else {
+                module = newProjectDescriptor.getModules().get(currentModuleIndex);
+            }
 
             if (!projectDescriptorManager.isModuleWithWildcard(module)) {
                 // Single module
@@ -914,5 +924,13 @@ public class ProjectBean {
             log.error(e.getMessage(), e);
             return descriptor;
         }
+    }
+
+    public void setCurrentModuleIndex(Integer currentModuleIndex) {
+        this.currentModuleIndex = currentModuleIndex;
+    }
+
+    public Integer getCurrentModuleIndex() {
+        return currentModuleIndex;
     }
 }

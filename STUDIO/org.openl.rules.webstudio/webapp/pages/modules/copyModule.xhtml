@@ -217,6 +217,7 @@
 
             <a4j:jsFunction name="rerenderCopyModuleDialog" render="modulePathPattern modulePathOldPanel propertiesFileNamePattern" oncomplete="showCopyModuleDialog();">
                 <a4j:param name="moduleName" assignTo="#{projectBean.currentModuleName}" />
+                <a4j:param name="moduleIndex" assignTo="#{projectBean.currentModuleIndex}" />
             </a4j:jsFunction>
 
             <a4j:jsFunction name="checkFileMatch" render="validationIcon wildcardChangedWarning">
@@ -238,7 +239,7 @@
             }
             currentModule = module;
 
-            rerenderCopyModuleDialog(module.name);
+            rerenderCopyModuleDialog(module.name, module.index);
         }
 
         function showCopyModuleDialog() {

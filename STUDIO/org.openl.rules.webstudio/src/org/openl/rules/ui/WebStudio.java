@@ -408,7 +408,7 @@ public class WebStudio {
         return CollectionUtils.findFirst(project.getModules(), new CollectionUtils.Predicate<Module>() {
             @Override
             public boolean evaluate(Module module) {
-                return module.getName().equals(moduleName);
+                return module.getName() != null && module.getName().equals(moduleName);
             }
         });
     }
