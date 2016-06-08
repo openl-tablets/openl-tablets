@@ -113,7 +113,9 @@ public class CastFactory implements ICastFactory {
             return JAVA_UP_CAST;
         }
         
-        if (from.isArray() && to.isArray()){
+        IOpenCast typeCast = findAliasCast(from, to);
+        
+        if (typeCast == null && from.isArray() && to.isArray()){
             if (to.getInstanceClass().isAssignableFrom(from.getInstanceClass())) { //Improve for up cast
                 return JAVA_UP_CAST;
             }
@@ -121,7 +123,6 @@ public class CastFactory implements ICastFactory {
             return new ArrayDownCast(to, arrayElementCast);
         }
 
-        IOpenCast typeCast = findAliasCast(from, to);
 
         IOpenCast javaCast = findJavaCast(from, to);
         // Select minimum between alias cast and java cast

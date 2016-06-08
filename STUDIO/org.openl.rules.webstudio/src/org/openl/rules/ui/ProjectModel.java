@@ -1,10 +1,20 @@
 package org.openl.rules.ui;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.DefaultPrivileges.*;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_CREATE_TABLES;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_PROJECTS;
+import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_TABLES;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
 import org.openl.CompiledOpenClass;
@@ -36,7 +46,11 @@ import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
-import org.openl.rules.project.instantiation.*;
+import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
+import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
+import org.openl.rules.project.instantiation.SimpleProjectDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -476,7 +490,13 @@ public class ProjectModel {
         if (tsn != null) {
             return new TableSyntaxNodeAdapter(tsn);
         }
+        updateCacheTree();
+        tsn = getNode(tableUri);
+        if (tsn != null) {
+            return new TableSyntaxNodeAdapter(tsn);
+        }
         return null;
+
     }
 
     public IOpenLTable getTableById(String id) {
@@ -484,6 +504,11 @@ public class ProjectModel {
             buildProjectTree();
         }
         TableSyntaxNode tsn = getNodeById(id);
+        if (tsn != null) {
+            return new TableSyntaxNodeAdapter(tsn);
+        }
+        updateCacheTree();
+        tsn = getNodeById(id);
         if (tsn != null) {
             return new TableSyntaxNodeAdapter(tsn);
         }
@@ -817,6 +842,21 @@ public class ProjectModel {
             cacheTree(child);
         }
     }
+    
+    private void updateCacheTree() {
+        TableSyntaxNode[] tableSyntaxNodes = getTableSyntaxNodes();
+        for (TableSyntaxNode tsn : tableSyntaxNodes) {
+            if (tsn.getType().startsWith(XlsNodeTypes.XLS_DT.toString())) {
+                if (!uriTableCache.containsKey(tsn.getUri())){
+                    uriTableCache.put(tsn.getUri(), tsn);
+                }
+                if (!idTableCache.containsKey(tsn.getId())){
+                    idTableCache.put(tsn.getId(), tsn);
+                }
+            }
+        }
+    }
+
 
     private OverloadedMethodsDictionary makeMethodNodesDictionary(TableSyntaxNode[] tableSyntaxNodes) {
 
