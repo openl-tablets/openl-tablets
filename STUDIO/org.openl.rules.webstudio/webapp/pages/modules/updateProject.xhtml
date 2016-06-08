@@ -28,8 +28,8 @@
             </h:panelGrid>
 
             <footer>
-                <a4j:commandButton id="uploadProject" value="Update" action="#{studio.updateProject}" styleClass="button-primary"
-                    oncomplete="RichFaces.$('updateProject').hide();ws.nav.reload(true);ws.ui.success('Project was updated successfully!');" />
+                <a4j:commandButton id="uploadProject" value="Update" action="#{studio.updateProject}" data="#{studio.url()}" styleClass="button-primary"
+                    oncomplete="RichFaces.$('updateProject').hide();ws.nav.go(event.data);ws.nav.reload(true);ws.ui.success('Project was updated successfully!');" />
                 <input type="button" value="Cancel" onclick="closeUpdateProjectDialog();" />
             </footer>
 

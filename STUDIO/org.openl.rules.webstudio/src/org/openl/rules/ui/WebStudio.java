@@ -31,6 +31,8 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
+import org.openl.rules.project.resolving.ProjectResolvingException;
+import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.ui.tree.view.CategoryDetailedView;
 import org.openl.rules.ui.tree.view.CategoryInversedView;
@@ -460,6 +462,7 @@ public class WebStudio {
             // TODO Replace exceptions with FacesUtils.addErrorMessage()
             throw new IllegalArgumentException("Wrong filename extension. Please upload .zip file");
         }
+        final File projectFolder;
         try {
             ProjectDescriptor projectDescriptor = getCurrentProjectDescriptor();
             PathFilter filter = getZipFilter();
@@ -476,7 +479,7 @@ public class WebStudio {
             zipWalker.iterateEntries(filesCollector);
             List<String> filesInZip = filesCollector.getFilePaths();
 
-            final File projectFolder = projectDescriptor.getProjectFolder();
+            projectFolder = projectDescriptor.getProjectFolder();
             Collection<File> files = getProjectFiles(projectFolder, filter);
 
             // Delete absent files in project
@@ -522,6 +525,25 @@ public class WebStudio {
         }
 
         model.resetSourceModified(); // Because we rewrite a file in the workspace
+
+        ProjectDescriptor newProjectDescriptor = null;
+        ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
+        if (resolvingStrategy != null) {
+            try {
+                newProjectDescriptor = resolvingStrategy.resolveProject(projectFolder);
+            } catch (ProjectResolvingException e) {
+                log.warn(e.getMessage(), e);
+            }
+        }
+
+        // Note that "newProjectDescriptor == null" is correct case too: it means that it's not OpenL project anymore:
+        // newly updated project doesn't contain rules.xml nor xls file. Such projects are not shown in Editor but
+        // are shown in Repository.
+        // In this case we must show the list of all projects in Editor.
+        currentProject = newProjectDescriptor;
+
+        // Project can be fully changed and renamed, we must force compile and reset projects
+        resetProjects(); // TODO reset (replace in the list) only changed project
         clearUploadedFiles();
 
         return null;
@@ -847,8 +869,8 @@ public class WebStudio {
         String projectName;
         String moduleName;
         if (tableURI == null) {
-            moduleName = getCurrentModule().getName();
-            projectName = getCurrentProjectDescriptor().getName();
+            moduleName = getCurrentModule() == null ? null : getCurrentModule().getName();
+            projectName = getCurrentProjectDescriptor() == null ? null : getCurrentProjectDescriptor().getName();
         } else {
             // Get a project
             ProjectDescriptor project = CollectionUtils.findFirst(getAllProjects(), new CollectionUtils.Predicate<ProjectDescriptor>() {
@@ -903,6 +925,12 @@ public class WebStudio {
         if ((StringUtils.isBlank(projectName) || StringUtils.isBlank(moduleName))
                 && StringUtils.isNotBlank(pageUrl)) {
             return "#" + pageUrl;
+        }
+        if (StringUtils.isBlank(projectName)) {
+            return "#"; // Current project isn't selected. Show all projects list.
+        }
+        if (StringUtils.isBlank(moduleName)) {
+            return "#" + StringTool.encodeURL(projectName);
         }
         String moduleUrl = "#" + StringTool.encodeURL(projectName) + "/" + StringTool.encodeURL(moduleName);
         if (StringUtils.isBlank(pageUrl)) {
