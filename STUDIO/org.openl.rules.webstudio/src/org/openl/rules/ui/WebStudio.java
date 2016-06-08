@@ -462,7 +462,6 @@ public class WebStudio {
             // TODO Replace exceptions with FacesUtils.addErrorMessage()
             throw new IllegalArgumentException("Wrong filename extension. Please upload .zip file");
         }
-        final File projectFolder;
         ProjectDescriptor projectDescriptor;
         try {
             projectDescriptor = getCurrentProjectDescriptor();
@@ -480,7 +479,7 @@ public class WebStudio {
             zipWalker.iterateEntries(filesCollector);
             List<String> filesInZip = filesCollector.getFilePaths();
 
-            projectFolder = projectDescriptor.getProjectFolder();
+            final File projectFolder = projectDescriptor.getProjectFolder();
             Collection<File> files = getProjectFiles(projectFolder, filter);
 
             // Delete absent files in project
@@ -525,14 +524,15 @@ public class WebStudio {
             throw new IllegalStateException("Error while updating project in user workspace.", e);
         }
 
-        currentProject = resolveProject(projectFolder, projectDescriptor);
+        currentProject = resolveProject(projectDescriptor);
 
         clearUploadedFiles();
 
         return null;
     }
 
-    private ProjectDescriptor resolveProject(File projectFolder, ProjectDescriptor oldProjectDescriptor) {
+    private ProjectDescriptor resolveProject(ProjectDescriptor oldProjectDescriptor) {
+        File projectFolder = oldProjectDescriptor.getProjectFolder();
         model.resetSourceModified(); // Because we rewrite a file in the workspace
 
         ProjectDescriptor newProjectDescriptor = null;
