@@ -525,6 +525,14 @@ public class WebStudio {
             throw new IllegalStateException("Error while updating project in user workspace.", e);
         }
 
+        currentProject = resolveProject(projectFolder, projectDescriptor);
+
+        clearUploadedFiles();
+
+        return null;
+    }
+
+    private ProjectDescriptor resolveProject(File projectFolder, ProjectDescriptor oldProjectDescriptor) {
         model.resetSourceModified(); // Because we rewrite a file in the workspace
 
         ProjectDescriptor newProjectDescriptor = null;
@@ -539,7 +547,7 @@ public class WebStudio {
 
         // Replace project descriptor in the list of all projects
         for (int i = 0; i < projects.size(); i++) {
-            if (projects.get(i) == projectDescriptor) {
+            if (projects.get(i) == oldProjectDescriptor) {
                 if (newProjectDescriptor != null) {
                     projects.set(i, newProjectDescriptor);
                 } else {
@@ -555,11 +563,7 @@ public class WebStudio {
         // newly updated project doesn't contain rules.xml nor xls file. Such projects are not shown in Editor but
         // are shown in Repository.
         // In this case we must show the list of all projects in Editor.
-        currentProject = newProjectDescriptor;
-
-        clearUploadedFiles();
-
-        return null;
+        return newProjectDescriptor;
     }
 
     public boolean isUploadedProjectStructureChanged() {
