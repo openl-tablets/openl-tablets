@@ -1,6 +1,8 @@
 package org.openl.rules.webstudio.web.trace;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.openl.rules.table.GridTableUtils;
@@ -59,8 +61,13 @@ public class RegionsExtractor {
     }
 
     private static List<IGridRegion> getiGridRegions(OverloadedMethodChoiceTraceObject omc) {
-        ILogicalTable table = ((DTRuleTracerLeaf) omc.getChildren().iterator().next()).getRuleTable();
-        return GridTableUtils.getGridRegions(table);
+        Iterator<ITracerObject> iterator = omc.getChildren().iterator();
+        if (iterator.hasNext()) {
+            ILogicalTable table = ((DTRuleTracerLeaf) iterator.next()).getRuleTable();
+            return GridTableUtils.getGridRegions(table);
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     private static List<IGridRegion> getiGridRegions(MethodTableTraceObject mmto) {
