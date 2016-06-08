@@ -531,7 +531,7 @@ public class WebStudio {
         return null;
     }
 
-    private ProjectDescriptor resolveProject(ProjectDescriptor oldProjectDescriptor) {
+    public ProjectDescriptor resolveProject(ProjectDescriptor oldProjectDescriptor) {
         File projectFolder = oldProjectDescriptor.getProjectFolder();
         model.resetSourceModified(); // Because we rewrite a file in the workspace
 
