@@ -85,7 +85,7 @@
                 if (value) {
                     params[key] = value;
                 }
-            }
+            };
 
             setParam("query", $j("#searchQuery").val());
             setParam("header", $j("#tableHeader").val());
@@ -100,7 +100,7 @@
                 setParam(propName, propValue);
             });
 
-            ws.nav.search(params, '#{studio.url('')}');
+            ws.nav.search(params, '#{studio.url("")}');
         }
 
         function getPropertyValue(elem) {

@@ -284,6 +284,10 @@
                             }
                         }
 
+                        if (prefixPage.length > 0 && prefixPage.substr(-1) !== '/') {
+                            prefixPage += '/';
+                        }
+
                         api.nav.go(prefixPage + "search" + (query ? "?" + query : ""));
                     },
                     isProjectChanged: function () {
