@@ -463,8 +463,9 @@ public class WebStudio {
             throw new IllegalArgumentException("Wrong filename extension. Please upload .zip file");
         }
         final File projectFolder;
+        ProjectDescriptor projectDescriptor;
         try {
-            ProjectDescriptor projectDescriptor = getCurrentProjectDescriptor();
+            projectDescriptor = getCurrentProjectDescriptor();
             PathFilter filter = getZipFilter();
 
             String errorMessage = validateUploadedFiles(lastUploadedFile, filter, projectDescriptor);
@@ -536,14 +537,26 @@ public class WebStudio {
             }
         }
 
+        // Replace project descriptor in the list of all projects
+        for (int i = 0; i < projects.size(); i++) {
+            if (projects.get(i) == projectDescriptor) {
+                if (newProjectDescriptor != null) {
+                    projects.set(i, newProjectDescriptor);
+                } else {
+                    projects.remove(i);
+                }
+                break;
+            }
+        }
+        // Project can be fully changed and renamed, we must force compile
+        forcedCompile = true;
+
         // Note that "newProjectDescriptor == null" is correct case too: it means that it's not OpenL project anymore:
         // newly updated project doesn't contain rules.xml nor xls file. Such projects are not shown in Editor but
         // are shown in Repository.
         // In this case we must show the list of all projects in Editor.
         currentProject = newProjectDescriptor;
 
-        // Project can be fully changed and renamed, we must force compile and reset projects
-        resetProjects(); // TODO reset (replace in the list) only changed project
         clearUploadedFiles();
 
         return null;
