@@ -473,6 +473,9 @@ public class WebStudio {
                 throw new ValidationException(errorMessage);
             }
 
+            // Release resources that can be deleted or replaced
+            getModel().clearModuleInfo();
+
             ZipWalker zipWalker = new ZipWalker(lastUploadedFile, filter);
 
             FilePathsCollector filesCollector = new FilePathsCollector();
