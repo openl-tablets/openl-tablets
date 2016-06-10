@@ -76,7 +76,7 @@ public class DecisionTableHelper {
      * </tr>
      * </table>
      * 
-     * @param table     
+     * @param table checked table
      * @return <code>TRUE</code> if table is vertical.
      */
     public static boolean looksLikeVertical(ILogicalTable table) {
@@ -161,7 +161,7 @@ public class DecisionTableHelper {
     /**
      * Checks if given table contain any horizontal condition header.
      * 
-     * @param table
+     * @param table checked table
      * @return true if there is is any horizontal condition header in the table.
      */
     public static boolean hasHConditions(ILogicalTable table) {
@@ -175,7 +175,7 @@ public class DecisionTableHelper {
      * 
      * @param decisionTable method description for simple Decision Table.
      * @param originalTable The original body of simple Decision Table.
-     * @param numberOfHcondition
+     * @param numberOfHcondition The number of horizontal conditions. In SimpleRules it == 0 in SimpleLookups > 0
      * @return prepared usual Decision Table.
      */
     public static ILogicalTable preprocessSimpleDecisionTable(DecisionTable decisionTable, ILogicalTable originalTable,
@@ -305,7 +305,7 @@ public class DecisionTableHelper {
      * 
      * @param originalTable The original body of simple Decision Table.
      * @param column The number of a condition 
-     * @param typeName The type name of an input parameter
+     * @param type The type of an input parameter
      * @param isThatVCondition If condition is vertical value = true
      * @param vColumnCounter Counter of vertical conditions. Needed for calculating 
      * position of horizontal condition
@@ -486,7 +486,7 @@ public class DecisionTableHelper {
      *
      * @param sheet poi sheet source
      * @param virtualExcelFile file name, if null or blank will be used default name.
-     * @return
+     * @return virtual grid that wraps sheet
      */
     private static XlsSheetGridModel createVirtualGrid(Sheet sheet, String virtualExcelFile) {
         final FileSourceCodeModule sourceCodeModule = new FileSourceCodeModule(virtualExcelFile, null);
