@@ -203,7 +203,7 @@ public class DecisionTableHelper {
 
     private static void writeVirtualHeadersForSimpleDecisionTable(IWritableGrid grid, ILogicalTable originalTable,
             DecisionTable decisionTable, int numberOfHcondition) throws OpenLCompilationException {
-        int columnsForConditions = 0;
+        int columnsForConditions;
 
         // number of physical columns for conditions(including merged)
         //
@@ -320,7 +320,7 @@ public class DecisionTableHelper {
                 "java.lang.Double", "org.openl.meta.LongValue","org.openl.meta.FloatValue","org.openl.meta.DoubleValue",
                 "org.openl.meta.BigDecimalValue");
         ILogicalTable decisionValues;
-        int width = 0;
+        int width;
 
         if (isThatVCondition) {
             decisionValues = originalTable.getColumn(column);
@@ -361,7 +361,7 @@ public class DecisionTableHelper {
             }
 
            if (maybeIsRange(cellValue.getSource().getCell(0, 0).getStringValue())) {
-                INumberRange range = null;
+                INumberRange range;
 
                 /**try to create range by values**/
                 if (intType.contains(type.getName())) {
@@ -414,22 +414,14 @@ public class DecisionTableHelper {
 
     public static boolean isSimpleDecisionTable(TableSyntaxNode tableSyntaxNode) {
         String dtType = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier();
-        
-        if (IXlsTableNames.SIMPLE_DECISION_TABLE.equals(dtType)) {
-            return true;
-        } else {
-            return false;
-        }
+
+        return IXlsTableNames.SIMPLE_DECISION_TABLE.equals(dtType);
     }
 
     public static boolean isSimpleLookupTable(TableSyntaxNode tableSyntaxNode) {
         String dtType = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier();
-        
-        if (IXlsTableNames.SIMPLE_DECISION_LOOKUP.equals(dtType)) {
-            return true;
-        } else {
-            return false;
-        }
+
+        return IXlsTableNames.SIMPLE_DECISION_LOOKUP.equals(dtType);
     }
 
 	public static int countHConditions(ILogicalTable table) {
