@@ -216,26 +216,25 @@ public class DecisionTableHelper {
 
     private static void writeReturn(IWritableGrid grid, ILogicalTable originalTable, DecisionTable decisionTable,
             int columnsForConditions, boolean isLookupTable) throws OpenLCompilationException {
-        // if the physical number of columns for conditions is equals or more than whole width of the table,
-        // means there is no return column.
-        //
-        /*
-        if (columnsForConditions >= originalTable.getWidth()) {
-            throw new OpenLCompilationException("Wrong table structure: There is no column for return values");
-        }
-        */
         // write return column
         //
         grid.setCellValue(columnsForConditions, 0, (DecisionTableColumnHeaders.RETURN.getHeaderKey() + "1").intern());
         
-        if (!isLookupTable && !(originalTable.getWidth() <= getNumberOfConditions(decisionTable))) {
-            int mergedColumnsCounts = originalTable.getColumnWidth(getNumberOfConditions(decisionTable));
-            
-            if (mergedColumnsCounts > 1) {
-                for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
-                    grid.addMergedRegion(
-                        new GridRegion(row, columnsForConditions, row, columnsForConditions + mergedColumnsCounts - 1));
+        if (!isLookupTable) {
+            if (originalTable.getWidth() > getNumberOfConditions(decisionTable)) {
+                int mergedColumnsCounts = originalTable.getColumnWidth(getNumberOfConditions(decisionTable));
+
+                if (mergedColumnsCounts > 1) {
+                    for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
+                        grid.addMergedRegion(
+                            new GridRegion(row, columnsForConditions, row, columnsForConditions + mergedColumnsCounts - 1));
+                    }
                 }
+            } else {
+                // if the physical number of columns for conditions is equals or more than whole width of the table,
+                // means there is no return column.
+                //
+                throw new OpenLCompilationException("Wrong table structure: There is no column for return values");
             }
         }
     }
