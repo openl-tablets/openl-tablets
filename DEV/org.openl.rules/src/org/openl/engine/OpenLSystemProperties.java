@@ -34,7 +34,7 @@ public class OpenLSystemProperties {
     }
 
     public static boolean isJavaDispatchingMode(Map<String, Object> externalParameters) {
-        String dispatchingMode = null;
+        String dispatchingMode;
         if (externalParameters != null && externalParameters.containsKey(DISPATCHING_MODE_PROPERTY)) {
             dispatchingMode = externalParameters.get(DISPATCHING_MODE_PROPERTY).toString();
         } else {
@@ -44,7 +44,7 @@ public class OpenLSystemProperties {
     }
 
     public static boolean isDTDispatchingMode(Map<String, Object> externalParameters) {
-        String dispatchingMode = null;
+        String dispatchingMode;
         if (externalParameters != null && externalParameters.containsKey(DISPATCHING_MODE_PROPERTY)) {
             dispatchingMode = externalParameters.get(DISPATCHING_MODE_PROPERTY).toString();
         } else {
@@ -54,7 +54,7 @@ public class OpenLSystemProperties {
     }
     
     public static boolean isDispatchingValidationEnabled(Map<String, Object> externalParameters) {
-        String dispatchingValidation = null;
+        String dispatchingValidation;
         if (externalParameters != null && externalParameters.containsKey(DISPATCHING_VALIDATION)) {
             dispatchingValidation = externalParameters.get(DISPATCHING_VALIDATION).toString();
         } else {
@@ -75,7 +75,7 @@ public class OpenLSystemProperties {
     }
 
     public static int getTestRunThreadCount(Map<String, Object> externalParameters) {
-        Integer testRunTheadCount = null;
+        Integer testRunTheadCount;
         if (externalParameters != null && externalParameters.containsKey(TEST_RUN_THREAD_COUNT_PROPERTY)) {
             testRunTheadCount = Integer.valueOf(externalParameters.get(TEST_RUN_THREAD_COUNT_PROPERTY).toString());
         } else {
@@ -87,7 +87,7 @@ public class OpenLSystemProperties {
 
     
     public static String getDispatchingMode(Map<String, Object> externalParameters) {
-        String dispatchingMode = null;
+        String dispatchingMode;
         if (externalParameters != null && externalParameters.containsKey(DISPATCHING_MODE_PROPERTY)) {
             dispatchingMode = externalParameters.get(DISPATCHING_MODE_PROPERTY).toString();
         } else {
@@ -97,7 +97,7 @@ public class OpenLSystemProperties {
     }
 
     public static boolean isCustomSpreadsheetType(Map<String, Object> externalParameters) {
-        String customSpreadsheetType = null;
+        String customSpreadsheetType;
         if (externalParameters != null && externalParameters.containsKey(CUSTOM_SPREADSHEET_TYPE_PROPERTY)) {
             customSpreadsheetType = externalParameters.get(CUSTOM_SPREADSHEET_TYPE_PROPERTY).toString();
         } else {
