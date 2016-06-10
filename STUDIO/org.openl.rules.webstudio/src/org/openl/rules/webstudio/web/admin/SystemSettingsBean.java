@@ -166,6 +166,14 @@ public class SystemSettingsBean {
         configManager.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, dispatchingMode);
     }
 
+    public boolean isAutoCompile() {
+        return OpenLSystemProperties.isAutoCompile(configManager.getProperties());
+    }
+
+    public void setAutoCompile(boolean autoCompile) {
+        configManager.setProperty(OpenLSystemProperties.AUTO_COMPILE, autoCompile);
+    }
+
     public void applyChanges() {
         try {
             RepositoryValidators.validate(designRepositoryConfiguration);

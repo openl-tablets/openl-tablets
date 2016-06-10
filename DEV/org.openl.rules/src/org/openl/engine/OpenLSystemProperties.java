@@ -14,6 +14,7 @@ public class OpenLSystemProperties {
     public static final String DISPATCHING_VALIDATION = "dispatching.validation";
     public static final String DISPATCHING_MODE_JAVA = "java";
     public static final String DISPATCHING_MODE_DT = "dt";
+    public static final String AUTO_COMPILE = "compile.auto";
 
     private OpenLSystemProperties(){}
 
@@ -108,5 +109,16 @@ public class OpenLSystemProperties {
         }
 
         return BooleanUtils.toBoolean(customSpreadsheetType);
+    }
+
+    public static boolean isAutoCompile(Map<String, Object> externalParameters) {
+        String autoCompile;
+        if (externalParameters != null && externalParameters.containsKey(AUTO_COMPILE)) {
+            autoCompile = externalParameters.get(AUTO_COMPILE).toString();
+        } else {
+            autoCompile = System.getProperty(AUTO_COMPILE);
+        }
+
+        return BooleanUtils.toBoolean(autoCompile);
     }
 }

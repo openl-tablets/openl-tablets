@@ -21,6 +21,7 @@ import org.openl.classloader.ClassLoaderCloserFactory;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
+import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -119,7 +120,7 @@ public class WebStudio {
     private boolean needRestart = false;
     private boolean forcedCompile = true;
     private boolean needCompile = true;
-    private boolean autoCompile = true;
+    private boolean manualCompile = false;
 
     private List<ProjectFile> uploadedFiles = new ArrayList<ProjectFile>();
 
@@ -364,12 +365,16 @@ public class WebStudio {
         }
     }
 
-    public void setAutoCompile(boolean autoCompile) {
-        this.autoCompile = autoCompile;
+    private boolean isAutoCompile() {
+        return OpenLSystemProperties.isAutoCompile(getSystemConfigManager().getProperties());
     }
 
-    public boolean isAutoCompile() {
-        return autoCompile;
+    public boolean isManualCompileNeeded() {
+        return !isAutoCompile() && needCompile;
+    }
+
+    public void invokeManualCompile() {
+        manualCompile = true;
     }
 
     public synchronized void init(String projectName, String moduleName) {
@@ -379,7 +384,7 @@ public class WebStudio {
             boolean moduleChanged = currentProject != project || currentModule != module;
             currentModule = module;
             currentProject = project;
-            if (module != null && ((needCompile && autoCompile) || forcedCompile || moduleChanged)) {
+            if (module != null && (needCompile && (isAutoCompile() || manualCompile) || forcedCompile || moduleChanged)) {
                 if (forcedCompile) {
                     reset(ReloadType.FORCED);
                 } else if (needCompile) {
@@ -395,6 +400,7 @@ public class WebStudio {
                 // 'content' frame
                 needCompile = false;
                 forcedCompile = false;
+                manualCompile = false;
             }
         } catch (Exception e) {
             log.warn("Failed initialization. Project='{}'  Module='{}'", projectName, moduleName, e);
