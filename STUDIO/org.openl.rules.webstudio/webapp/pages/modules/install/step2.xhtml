@@ -179,7 +179,7 @@
 
                         </div>
                         <div class="wizard-buttons">
-                            <h:button id="prevButton" value="Prev" outcome="#{installWizard.previousPage}" />
+                            <h:button id="prevButton" value="Prev" outcome="#{installWizard.previousPage}" onclick="showLoader()" />
                             <h:commandButton value="Next" action="#{installWizard.next}" class="button-primary" onclick="showLoader()" />
                         </div>
                     </h:panelGroup>

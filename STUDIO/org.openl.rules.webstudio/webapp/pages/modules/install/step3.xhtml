@@ -113,8 +113,8 @@
                         </div>
                     </div>
                     <div class="wizard-buttons">
-                        <h:button id="prevButton" value="Prev" outcome="#{installWizard.previousPage}" />
-                        <h:commandButton value="Finish" action="#{installWizard.finish}" class="button-primary" />
+                        <h:button id="prevButton" value="Prev" outcome="#{installWizard.previousPage}" onclick="showLoader()" />
+                        <h:commandButton value="Finish" action="#{installWizard.finish}" class="button-primary" onclick="showLoader()" />
                         <span style="color:#7b1">Click 'Finish' to complete the installation process</span>
                     </div>
                 </h:form>
