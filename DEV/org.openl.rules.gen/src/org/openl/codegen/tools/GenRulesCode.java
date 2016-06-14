@@ -101,7 +101,6 @@ public class GenRulesCode {
         Map<String, Object> variables = new HashMap<String, Object>();
         variables.put("tool", new VelocityTool());
         variables.put("tablePropertyDefinitions", tablePropertyDefinitions);
-        variables.put("tablePropertyDefinitions", tablePropertyDefinitions);
 
         String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(TableProperties.class);
         processSourceCode(sourceFilePath, "DefaultTableProperties-properties.vm", variables);

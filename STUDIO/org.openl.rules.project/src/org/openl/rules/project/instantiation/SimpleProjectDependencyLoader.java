@@ -7,6 +7,7 @@ import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
+import org.openl.engine.OpenLValidationManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
@@ -113,7 +114,9 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
                 rulesInstantiationStrategy.setServiceClass(EmptyInterface.class); // Prevent
                 // interface
                 // generation
+                boolean validationWasOn = OpenLValidationManager.isValidationEnabled();
                 try {
+                    OpenLValidationManager.turnOffValidation();
                     CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
                     CompiledDependency cd = new CompiledDependency(dependencyName, compiledOpenClass);
                     log.debug("Dependency for dependencyName = {} was stored to cache.", dependencyName);
@@ -122,6 +125,10 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
                 } catch (Exception ex) {
                     log.error(ex.getMessage(), ex);
                     return onCompilationFailure(ex, dependencyManager);
+                } finally{
+                    if (validationWasOn){
+                        OpenLValidationManager.turnOnValidation();
+                    }
                 }
             } finally {
                 dependencyManager.getCompilationStack().pollLast();
