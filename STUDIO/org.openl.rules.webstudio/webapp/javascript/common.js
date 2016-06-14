@@ -72,6 +72,9 @@ function message(content, life, closable, styleClass) {
  * This function fixes rich:popupPanel's processTabindexes() function to correctly handle TABs in dialog boxes
  */
 function fixTabIndexesInRichPopupPanels() {
+    if (!RichFaces.ui.PopupPanel) {
+        return;
+    }
     RichFaces.ui.PopupPanel.prototype.processTabindexes = function (input) {
         if (!this.firstOutside) {
             this.firstOutside = input;
