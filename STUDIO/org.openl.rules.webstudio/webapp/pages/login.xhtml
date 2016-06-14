@@ -25,7 +25,7 @@
                         </c:if>
                         <div>
                             <!-- form itself -->
-                            <form action="#{contextPath}/security_login_check" method="post" onsubmit="$j('#loadingPanel').show(); setSubmitUrl(this);">
+                            <form action="#{contextPath}/security_login_check" method="post" onsubmit="showLoader(); setSubmitUrl(this);">
                                 <table id="loginForm" style="text-align: left;" cellpadding="4" cellspacing="0">
                                     <tr>
                                         <td align="right">
