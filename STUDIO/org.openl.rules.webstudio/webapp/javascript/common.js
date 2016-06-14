@@ -94,3 +94,13 @@ function fixTabIndexesInRichPopupPanels() {
         }
     };
 }
+
+function showAnimatedPanel(loadingPanel) {
+    loadingPanel.show();
+
+    // EPBDS-6231 Workaround for IE.
+    // IE freezes animation when the form is submitted or url is changed. The trick below with replacing of html
+    // makes IE think that the gif is a new img element and IE animates it.
+    // Html must be replaced after form is submitted - that's why timeout is used.
+    setTimeout(function() {loadingPanel.html(loadingPanel.html());}, 1);
+}
