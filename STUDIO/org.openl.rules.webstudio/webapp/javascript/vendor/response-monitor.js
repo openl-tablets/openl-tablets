@@ -128,7 +128,7 @@
             this.options.onRequest(this.cookie.name);
 
             this.monitor();//check immediately
-            this.downloadTimer = window.setInterval(this.monitor, 1000);
+            this.downloadTimer = window.setInterval(this.monitor, 100);
         };
 
         ResponseMonitor.prototype._terminate = function () {
