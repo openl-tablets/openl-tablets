@@ -336,6 +336,12 @@ public class Table implements ITable {
                     ILogicalTable lTable = logicalTable.getSubtable(columnNum, rowNum, 1, 1);
                     if (!(lTable.getHeight() == 1 && lTable.getWidth() == 1) || lTable.getCell(0, 0).getStringValue() != null) { //EPBDS-6104. For empty values should be used data type default value.
                         columnDescriptor.populateLiteral(literal, lTable, openlAdapter);
+                    } else {
+                        // Set meta info for empty cells. To suggest an appropriate editor
+                        // according to cell type.
+                        if (!openlAdapter.getBindingContext().isExecutionMode()) {
+                            columnDescriptor.setCellMetaInfo(lTable);
+                        }
                     }
                 } catch (SyntaxNodeException ex) {
                     tableSyntaxNode.addError(ex);

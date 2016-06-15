@@ -61,7 +61,7 @@ public class ColumnDescriptor {
      * Checks if type values are represented as array of elements.
      * 
      * @param paramType Parameter type.
-     * @return
+     * @return true if paramType represents array
      */
     protected static boolean isValuesAnArray(IOpenClass paramType) {
         return paramType.getAggregateInfo().isAggregate(paramType);
@@ -221,4 +221,24 @@ public class ColumnDescriptor {
         return arrayValues;
     }
 
+    public void setCellMetaInfo(ILogicalTable cell) {
+        if (field != null) {
+            IOpenClass paramType = field.getType();
+            String paramName = field.getName();
+
+            if (valuesAnArray) {
+                paramType = paramType.getAggregateInfo().getComponentType(paramType);
+            }
+
+            if (cell.getHeight() == 1 && cell.getWidth() == 1) {
+                RuleRowHelper.setCellMetaInfo(cell, paramName, paramType, valuesAnArray);
+            } else {
+                cell = LogicalTableHelper.make1ColumnTable(cell);
+                int valuesTableHeight = RuleRowHelper.calculateHeight(cell);
+                for (int i = 0; i < valuesTableHeight; i++) {
+                    RuleRowHelper.setCellMetaInfo(cell.getRow(i), paramName, paramType, false);
+                }
+            }
+        }
+    }
 }
