@@ -98,8 +98,8 @@
                 this.trigger.href="javascript:void(0);";//prevent navigation away from the page during the request
             this.countdown=this.options.timeout;
 
-            if( typeof event !== 'undefined' )
-                event.preventDefault(); //we are overriding form.submit and a.click
+            // if( typeof event !== 'undefined' )
+            //     event.preventDefault(); //we are overriding form.submit and a.click
 
             /*the cookie name is not constant to allow simultaneous monitoring of
              multiple requests*/
