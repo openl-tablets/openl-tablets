@@ -183,10 +183,6 @@ public class ColumnDescriptor {
             return RuleRowHelper.loadCommaSeparatedParam(paramType, field.getName(), null, valuesTable.getRow(0), ota);
         }
 
-        if (valuesTable.getHeight() != 1) {
-            valuesTable.transpose();
-        }
-
         return loadMultiRowArray(valuesTable, ota, paramType);
     }
 
