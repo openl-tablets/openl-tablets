@@ -4,6 +4,8 @@
     xmlns:rich="http://richfaces.org/rich"
     xmlns:ui="http://java.sun.com/jsf/facelets">
 
+    <script src="#{contextPath}/javascript/vendor/response-monitor.js"></script>
+
     <f:view transient="true">
     <rich:popupPanel id="exportProject" width="400" autosized="true">
         <f:facet name="header">
@@ -22,7 +24,7 @@
 
             <footer>
                 <h:commandButton value="Export" action="#{studio.exportProject}"
-                    onclick="RichFaces.$('exportProject').hide();ws.changes.addAfterUnloadAction(ws.changes.restoreChangedState);" immediate="true" styleClass="button-primary" />
+                    onclick="ws.changes.addAfterUnloadAction(ws.changes.restoreChangedState);" immediate="true" styleClass="button-primary" />
                 <input class="restore-changed-state" type="button" value="Cancel" onclick="RichFaces.$('exportProject').hide();" />
             </footer>
         </h:form>
@@ -34,5 +36,28 @@
         function openExportProjectDialog() {
             RichFaces.$('exportProject').show();
         }
+
+        $j(function () {
+            var options = {
+                timeout: 1200,
+                onRequest: function(token){
+                    ws.ui.showLoader();
+                },
+                onResponse: function(status){
+                    ws.ui.hideLoader();
+                    if (status === "success") {
+                        RichFaces.$('exportProject').hide();
+                    } else {
+                        ws.ui.error(status);
+                    }
+                },
+                onTimeout: function(){
+                    ws.ui.hideLoader();
+                    RichFaces.$('exportProject').hide();
+                    ws.ui.info('File generation is too long');
+                }
+            };
+            ResponseMonitor.register($j('#exportProjectForm').get(), options);
+        });
     </script>
 </ui:composition>

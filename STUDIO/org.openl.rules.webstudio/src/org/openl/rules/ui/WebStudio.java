@@ -249,6 +249,8 @@ public class WebStudio {
 
     public String exportProject() {
         File file = null;
+        String cookePrefix = "response-monitor";
+        String cookieName = cookePrefix + "_" + FacesUtils.getRequestParameter(cookePrefix);
         try {
             RulesProject forExport = getCurrentProject();
             String userName = WebStudioUtils.getRulesUserSession(FacesUtils.getSession()).getUserName();
@@ -258,11 +260,13 @@ public class WebStudio {
 
             final FacesContext facesContext = FacesUtils.getFacesContext();
             HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
+            FacesUtils.addCookie(cookieName, "success", -1);
 
             ExportModule.writeOutContent(response, file, fileName);
             facesContext.responseComplete();
         } catch (ProjectException e) {
-            log.error("Failed to export module", e);
+            log.error("Failed to export the project", e);
+            FacesUtils.addCookie(cookieName, "Failed to export the project", -1);
         } finally {
             FileUtils.deleteQuietly(file);
         }

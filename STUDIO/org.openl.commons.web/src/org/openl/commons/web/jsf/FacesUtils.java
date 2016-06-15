@@ -209,6 +209,13 @@ public abstract class FacesUtils {
         ((HttpServletResponse) getResponse()).addCookie(cookie);
     }
 
+    public static void addCookie(String name, String value, int age) {
+        Cookie cookie = new Cookie(name, value);
+        cookie.setPath(((HttpServletRequest) getRequest()).getContextPath());
+        cookie.setMaxAge(age);
+        FacesUtils.addCookie(cookie);
+    }
+
     public static void redirect(String page) throws IOException {
         HttpServletResponse response = (HttpServletResponse) getResponse();
         response.sendRedirect(page);
@@ -294,5 +301,4 @@ public abstract class FacesUtils {
             throwValidationError(message);
         }
     }
-
 }
