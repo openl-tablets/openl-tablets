@@ -36,6 +36,9 @@ public final class IntRangeAdaptor implements IRangeAdaptor<IntRange, Integer> {
 
 	@Override
 	public Integer adaptValueType(Object value) {
+	    if (value == null){
+	        return null;
+	    }
         return Integer.valueOf(((Number)value).intValue());
 	}
 

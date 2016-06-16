@@ -40,6 +40,9 @@ public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Doub
 
 	@Override
 	public Double adaptValueType(Object value) {
+	    if (value == null){
+	        return null;
+	    }
         return Double.valueOf(((Number)value).doubleValue());
 	}
 
