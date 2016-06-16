@@ -381,6 +381,8 @@
                                         <h:panelGrid columns="2" columnClasses="titleColumn">
                                             <h:outputText value="Custom Spreadsheet Type:" />
                                             <h:selectBooleanCheckbox value="#{systemSettingsBean.customSpreadsheetType}" title="Turn on/off the Custom Spreadsheet Type feature"/>
+                                            <h:outputText value="Dispatching Validation:" />
+                                            <h:selectBooleanCheckbox value="#{systemSettingsBean.dispatchingValidationEnabled}" title="Turn on/off the Dispatching Validation feature"/>
                                             <h:outputText value="Rules Dispatching Mode:" />
                                             <h:selectOneMenu value="#{systemSettingsBean.rulesDispatchingMode}" title="Select the rule tables dispatching mode">
                                                 <f:selectItem itemLabel="Decision Table" itemValue="dt"/>
