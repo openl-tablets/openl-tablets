@@ -32,12 +32,10 @@ public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
 
     /**
      * Creates a result with constant values that are populated
-     *
-     * @param spreadsheet
      */
     protected Object[][] preFetchResult(Spreadsheet spreadsheet) {
         SpreadsheetCell[][] cc = spreadsheet.getCells();
-        Object[][] res = new Object[cc.length][cc[0].length];
+        Object[][] res = cc.length == 0 ? new Object[0][0] : new Object[cc.length][cc[0].length];
 
         for (int i = 0; i < cc.length; i++) {
             SpreadsheetCell[] row = cc[i];
