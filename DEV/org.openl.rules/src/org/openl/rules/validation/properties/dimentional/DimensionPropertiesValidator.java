@@ -8,7 +8,7 @@ import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.dt.type.domains.DimensionPropertiesDomainsCollector;
 import org.openl.rules.dt.type.domains.IDomainAdaptor;
 import org.openl.rules.dt.validator.DecisionTableValidator;
-import org.openl.rules.dt.validator.DesionTableValidationResult;
+import org.openl.rules.dt.validator.DecisionTableValidationResult;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.validation.TablesValidator;
@@ -73,7 +73,7 @@ public class DimensionPropertiesValidator extends TablesValidator {
 	private OpenLMessage validateDecisionTable(TableSyntaxNode tsn, Map<String, IDomainAdaptor> propertiesDomains, 
             IOpenClass openClass) {
         
-        DesionTableValidationResult tableValidationResult = validate(tsn, propertiesDomains, openClass);
+        DecisionTableValidationResult tableValidationResult = validate(tsn, propertiesDomains, openClass);
         
         return createMessage(tsn, tableValidationResult);        
     }
@@ -85,11 +85,11 @@ public class DimensionPropertiesValidator extends TablesValidator {
      * @param tsn generated DT with dimension properties.
      * @param propertiesDomains domains for dimension properties.
      * @param openClass Open class for whole module.
-     * @return {@link DesionTableValidationResult}
+     * @return {@link DecisionTableValidationResult}
      */
-    private DesionTableValidationResult validate(TableSyntaxNode tsn,  Map<String, IDomainAdaptor> propertiesDomains,
+    private DecisionTableValidationResult validate(TableSyntaxNode tsn,  Map<String, IDomainAdaptor> propertiesDomains,
             IOpenClass openClass) {
-        DesionTableValidationResult tableValidationResult = null;
+        DecisionTableValidationResult tableValidationResult = null;
         try {
             tableValidationResult = DecisionTableValidator.validateTable((IDecisionTable)tsn.getMember(), 
                     propertiesDomains, openClass);     
@@ -100,7 +100,7 @@ public class DimensionPropertiesValidator extends TablesValidator {
     }
     
     
-    private OpenLMessage createMessage(TableSyntaxNode tsn, DesionTableValidationResult tableValidationResult) {
+    private OpenLMessage createMessage(TableSyntaxNode tsn, DecisionTableValidationResult tableValidationResult) {
         OpenLMessage validationMessage = null;
         if (tableValidationResult != null && tableValidationResult.hasProblems()) {
             tsn.setValidationResult(tableValidationResult);

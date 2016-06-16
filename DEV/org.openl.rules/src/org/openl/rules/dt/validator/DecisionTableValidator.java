@@ -29,14 +29,14 @@ public final class DecisionTableValidator implements IValidator {
         return INSTANCE;
     }
 
-    public static DesionTableValidationResult validateTable(IDecisionTable decisionTable,
+    public static DecisionTableValidationResult validateTable(IDecisionTable decisionTable,
             Map<String, IDomainAdaptor> domains,
             IOpenClass type) throws Exception {
 
         IDecisionTableValidatedObject validatedObject = new DecisionTableValidatedObject(decisionTable, domains);
         OpenL openl = ((XlsModuleOpenClass) type).getOpenl();
 
-        return (DesionTableValidationResult) getInstance().validate(validatedObject, openl);
+        return (DecisionTableValidationResult) getInstance().validate(validatedObject, openl);
     }
 
     public IValidationResult validate(IValidatedObject validatedObject, OpenL openl) {

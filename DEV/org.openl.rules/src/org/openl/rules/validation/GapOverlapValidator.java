@@ -14,7 +14,7 @@ import org.openl.rules.dt.type.domains.DomainAdaptorFactory;
 import org.openl.rules.dt.type.domains.IDomainAdaptor;
 import org.openl.rules.dt.validator.DecisionTableAnalyzer;
 import org.openl.rules.dt.validator.DecisionTableValidator;
-import org.openl.rules.dt.validator.DesionTableValidationResult;
+import org.openl.rules.dt.validator.DecisionTableValidationResult;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -49,7 +49,7 @@ public class GapOverlapValidator extends TablesValidator {
                     // only to DT.
                     //
                     IDecisionTable decisionTable = (IDecisionTable) executableMethod;
-                    DesionTableValidationResult dtValidResult = validate(openClass, decisionTable);
+                    DecisionTableValidationResult dtValidResult = validate(openClass, decisionTable);
                     if (dtValidResult != null && dtValidResult.hasProblems()) {
                         decisionTable.getSyntaxNode().setValidationResult(dtValidResult);
                         if (dtValidResult.hasErrors())
@@ -66,8 +66,8 @@ public class GapOverlapValidator extends TablesValidator {
         return ValidationUtils.validationSuccess();
     }
 
-    private DesionTableValidationResult validate(IOpenClass openClass, IDecisionTable decisionTable) {
-        DesionTableValidationResult dtValidResult = null;
+    private DecisionTableValidationResult validate(IOpenClass openClass, IDecisionTable decisionTable) {
+        DecisionTableValidationResult dtValidResult = null;
         try {
             Map<String, IDomainAdaptor> domains = gatherDomains(decisionTable);
             dtValidResult = DecisionTableValidator.validateTable(decisionTable, domains, openClass);

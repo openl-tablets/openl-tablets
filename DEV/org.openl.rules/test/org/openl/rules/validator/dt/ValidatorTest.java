@@ -22,7 +22,7 @@ import org.openl.rules.dt.type.domains.IDomainAdaptor;
 import org.openl.rules.dt.type.domains.IntRangeDomainAdaptor;
 import org.openl.rules.dt.validator.DecisionTableOverlapping;
 import org.openl.rules.dt.validator.DecisionTableUncovered;
-import org.openl.rules.dt.validator.DesionTableValidationResult;
+import org.openl.rules.dt.validator.DecisionTableValidationResult;
 import org.openl.rules.enumeration.CountriesEnum;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
@@ -56,21 +56,21 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
         // EnumDomainAdaptor(enumDomain2);
         // domains.put("value2", enumDomainAdaptor2);
 
-        DesionTableValidationResult dtValidResult = testTable(tableName, domains);
+        DecisionTableValidationResult dtValidResult = testTable(tableName, domains);
         assertFalse(dtValidResult.hasProblems());
     }
 
     @Test
     public void testGap() {
         String tableName = "Rules String validationGap(TestValidationEnum1 value1, TestValidationEnum2 value2)";
-        DesionTableValidationResult dtValidResult = testTable(tableName, null);
+        DecisionTableValidationResult dtValidResult = testTable(tableName, null);
         assertEquals(1, dtValidResult.getUncovered().length);
     }
 
     @Test
     public void testOverlap() {
         String tableName = "Rules String validationOverlap(TestValidationEnum1 value1, TestValidationEnum2 value2)";
-        DesionTableValidationResult dtValidResult = testTable(tableName, null);
+        DecisionTableValidationResult dtValidResult = testTable(tableName, null);
         assertEquals(1, dtValidResult.getOverlappings().length);
     }
 
@@ -82,14 +82,14 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
         IntRangeDomainAdaptor intRangeDomainAdaptor = new IntRangeDomainAdaptor(intRangeDomain);
         domains.put("hour", intRangeDomainAdaptor);
 
-        DesionTableValidationResult dtValidResult = testTable(tableName, domains);
+        DecisionTableValidationResult dtValidResult = testTable(tableName, domains);
         assertEquals(1, dtValidResult.getUncovered().length);
         assertEquals("Param value missing", "hour = 24", dtValidResult.getUncovered()[0].getValues().toString());
     }
 
     @SuppressWarnings("deprecation")
-    private DesionTableValidationResult testTable(String tableName, Map<String, IDomainAdaptor> domains) {
-        DesionTableValidationResult result = null;
+    private DecisionTableValidationResult testTable(String tableName, Map<String, IDomainAdaptor> domains) {
+        DecisionTableValidationResult result = null;
         TableSyntaxNode resultTsn = findTable(tableName);
         if (resultTsn != null) {
             ITableProperties tableProperties = resultTsn.getTableProperties();
@@ -125,7 +125,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
         IntRangeDomainAdaptor intRangeDomainAdaptor = new IntRangeDomainAdaptor(intRangeDomain);
         domains.put("currentValue", intRangeDomainAdaptor);
 
-        DesionTableValidationResult dtValidResult = testTable(tableName, domains);
+        DecisionTableValidationResult dtValidResult = testTable(tableName, domains);
         assertFalse(dtValidResult.hasProblems());
     }
 
@@ -139,7 +139,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
         domains.put("stringValue", enumDomainStrAdaptor);
         domains.put("localValue", enumDomainStrAdaptor);
 
-        DesionTableValidationResult dtValidResult = testTable(tableName, domains);
+        DecisionTableValidationResult dtValidResult = testTable(tableName, domains);
         assertTrue(dtValidResult.hasProblems());
     }
 
@@ -165,7 +165,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
         domains.put("min", adaptor);
         domains.put("max", adaptor);
 
-        DesionTableValidationResult dtValidResult = testTable(tableName, domains);
+        DecisionTableValidationResult dtValidResult = testTable(tableName, domains);
         assertTrue(!dtValidResult.hasProblems());
 
         Date newEndDate = null;
@@ -183,7 +183,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
     public void testArrayContains() {
         String tableName = "Rules void testArrayContains(TestValidationEnum3 value)";
 
-        DesionTableValidationResult dtValidResult = testTable(tableName, null);
+        DecisionTableValidationResult dtValidResult = testTable(tableName, null);
         assertFalse(dtValidResult.hasProblems());
     }
 
@@ -191,7 +191,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
     public void testArrayContainsOverlap() {
         String tableName = "Rules void testArrayContainsOverlap(TestValidationEnum3 value)";
 
-        DesionTableValidationResult dtValidResult = testTable(tableName, null);
+        DecisionTableValidationResult dtValidResult = testTable(tableName, null);
         assertFalse(dtValidResult.hasProblems());
         assertTrue(dtValidResult.getOverlappings().length == 1);
         DecisionTableOverlapping overlap = dtValidResult.getOverlappings()[0];
@@ -202,7 +202,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
     public void testArrayContainsGap() {
         String tableName = "Rules void testArrayContainsGap(TestValidationEnum3 value)";
 
-        DesionTableValidationResult dtValidResult = testTable(tableName, null);
+        DecisionTableValidationResult dtValidResult = testTable(tableName, null);
         assertTrue(dtValidResult.hasProblems());
         assertTrue(dtValidResult.getUncovered().length == 1);
         DecisionTableUncovered gap = dtValidResult.getUncovered()[0];
@@ -236,7 +236,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
         domains.put("countryLocal15", enumDomainAdaptor1);
         domains.put("countryLocal16", enumDomainAdaptor1);
 
-        DesionTableValidationResult dtValidResult = testTable(tableName, domains);
+        DecisionTableValidationResult dtValidResult = testTable(tableName, domains);
         assertFalse(dtValidResult.hasProblems());
     }
 

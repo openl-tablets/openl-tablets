@@ -18,19 +18,19 @@ import org.openl.util.ArrayOfNamedValues;
  * @author snshor
  * 
  */
-public class DesionTableValidationResult implements IValidationResult {
+public class DecisionTableValidationResult implements IValidationResult {
 
     private IDecisionTable decisionTable;
     private DecisionTableOverlapping[] overlappings;
     private DecisionTableUncovered[] uncovered;
 
-    public DesionTableValidationResult(IDecisionTable decisionTable) {
+    public DecisionTableValidationResult(IDecisionTable decisionTable) {
         this.decisionTable = decisionTable;
         this.overlappings = new DecisionTableOverlapping[] {};
         this.uncovered = new DecisionTableUncovered[] {};
     }
 
-    public DesionTableValidationResult(IDecisionTable decisionTable,
+    public DecisionTableValidationResult(IDecisionTable decisionTable,
             Overlapping[] overlappings,
             Uncovered[] uncovered,
             IConditionTransformer transformer,

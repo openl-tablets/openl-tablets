@@ -46,11 +46,11 @@ public class ValidationAlgorithm {
     }
 
     @SuppressWarnings("deprecation")
-    public DesionTableValidationResult validate() {
+    public DecisionTableValidationResult validate() {
         IDecisionTable decisionTable = decisionTableToValidate.getDecisionTable();
         DecisionTableAnalyzer analyzer = new DecisionTableAnalyzer(decisionTable);
         
-        DesionTableValidationResult result = null;
+        DecisionTableValidationResult result = null;
         
         if(canValidateDecisionTable(decisionTable, analyzer)) {
         	int n = decisionTable.getNumberOfConditions();
@@ -74,13 +74,13 @@ public class ValidationAlgorithm {
             // System.out.println("C: " + completeness);
             // System.out.println("O:" + overlappings);
 
-            result = new DesionTableValidationResult(decisionTable,
+            result = new DecisionTableValidationResult(decisionTable,
                 overlappings.toArray(new Overlapping[overlappings.size()]),
                 completeness.toArray(new Uncovered[completeness.size()]),
                 decisionTableToValidate.getTransformer(),
                 analyzer);
         } else {
-            result = new DesionTableValidationResult(decisionTable);
+            result = new DecisionTableValidationResult(decisionTable);
         }
         
         return result;
