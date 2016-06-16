@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.openl.CompiledOpenClass;
 import org.openl.rules.enumeration.RegionsEnum;
 import org.openl.rules.enumeration.UsRegionsEnum;
+import org.openl.rules.enumeration.ValidateDTEnum;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
@@ -47,7 +48,7 @@ public class PropertiesTableInExecutionModeTest {
             assertTrue(moduleProperties.size() == 3);
             assertEquals(InheritanceLevel.MODULE.getDisplayName(), (String) moduleProperties.get("scope"));
             assertEquals("Any phase", (String) moduleProperties.get("buildPhase"));
-            assertEquals("on", (String) moduleProperties.get("validateDT"));
+            assertEquals(ValidateDTEnum.ON, (ValidateDTEnum) moduleProperties.get("validateDT"));
 
             Map<String, Object> categoryProperties = tableProperties.getPropertiesAppliedForCategory();
             assertTrue(categoryProperties.size() == 4);

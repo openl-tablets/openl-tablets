@@ -174,8 +174,8 @@ public interface ITableProperties {
 	void setId(java.lang.String id);
 	java.lang.String getBuildPhase();
 	void setBuildPhase(java.lang.String buildPhase);
-	java.lang.String getValidateDT();
-	void setValidateDT(java.lang.String validateDT);
+	org.openl.rules.enumeration.ValidateDTEnum getValidateDT();
+	void setValidateDT(org.openl.rules.enumeration.ValidateDTEnum validateDT);
 	java.lang.Boolean getFailOnMiss();
 	void setFailOnMiss(java.lang.Boolean failOnMiss);
 	java.lang.String getScope();

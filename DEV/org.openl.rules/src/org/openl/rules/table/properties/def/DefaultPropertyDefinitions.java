@@ -367,8 +367,8 @@ public class DefaultPropertyDefinitions
 		definitions[25].setSystem(false);
 		definitions[25].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[26] = new TablePropertyDefinition();
-		definitions[26].setConstraints(new org.openl.rules.table.constraints.Constraints("one of: on, off, gaps, overlaps"));
-		definitions[26].setDescription("On/Off/Gap/Overlap validation mode for the rule table");
+		definitions[26].setConstraints(new org.openl.rules.table.constraints.Constraints("data: validateDT"));
+		definitions[26].setDescription("On/Off validation mode for the rule table");
 		definitions[26].setDimensional(false);
 		definitions[26].setDisplayName("Validate DT");
 		definitions[26].setGroup("Dev");
@@ -378,7 +378,7 @@ public class DefaultPropertyDefinitions
 		definitions[26].setSecurityFilter("no");
 		definitions[26].setSystem(false);
 		definitions[26].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_PROPERTIES});
-		definitions[26].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
+		definitions[26].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.ValidateDTEnum.class));
 		definitions[27] = new TablePropertyDefinition();
 		definitions[27].setDefaultValue("false");
 		definitions[27].setDescription("Defines whether to raise an error in case no rules are matched");

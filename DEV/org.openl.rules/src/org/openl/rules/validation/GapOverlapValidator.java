@@ -14,6 +14,7 @@ import org.openl.rules.dt.type.domains.DomainAdaptorFactory;
 import org.openl.rules.dt.type.domains.IDomainAdaptor;
 import org.openl.rules.dt.validator.DecisionTableAnalyzer;
 import org.openl.rules.dt.validator.DecisionTableValidator;
+import org.openl.rules.enumeration.ValidateDTEnum;
 import org.openl.rules.dt.validator.DecisionTableValidationResult;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
@@ -171,7 +172,7 @@ public class GapOverlapValidator extends TablesValidator {
     
     
     private static boolean isValidatableMethod(ExecutableRulesMethod executableMethod) {
-        return executableMethod.getMethodProperties() != null && "on".equals(executableMethod.getMethodProperties()
-            .getPropertyValueAsString("validateDT"));
+        return executableMethod.getMethodProperties() != null && ValidateDTEnum.ON.equals(executableMethod.getMethodProperties()
+            .getValidateDT());
     }
 }

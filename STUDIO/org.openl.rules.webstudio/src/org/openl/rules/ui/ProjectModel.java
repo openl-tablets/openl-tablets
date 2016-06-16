@@ -32,6 +32,7 @@ import org.openl.message.OpenLMessages;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
+import org.openl.rules.enumeration.ValidateDTEnum;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
@@ -290,7 +291,7 @@ public class ProjectModel {
             if (tsn.getType() == XlsNodeTypes.XLS_DT.toString()) {
                 if (tsn.getErrors() == null) {
                     if (tsn.getTableProperties() != null) {
-                        if ("on".equals(tsn.getTableProperties().getValidateDT())) {
+                        if (ValidateDTEnum.ON.equals(tsn.getTableProperties().getValidateDT())) {
                             list.add(tsn);
                         }
                     }

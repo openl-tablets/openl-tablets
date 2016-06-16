@@ -259,10 +259,10 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 		setFieldValue("buildPhase", buildPhase);
 		allProperties = null;
 	}	
-	public java.lang.String getValidateDT() {
-		return (java.lang.String) getPropertyValue("validateDT"); 
+	public org.openl.rules.enumeration.ValidateDTEnum getValidateDT() {
+		return (org.openl.rules.enumeration.ValidateDTEnum) getPropertyValue("validateDT"); 
 	}
-	public void setValidateDT(java.lang.String validateDT) {
+	public void setValidateDT(org.openl.rules.enumeration.ValidateDTEnum validateDT) {
 		setFieldValue("validateDT", validateDT);
 		allProperties = null;
 	}	
