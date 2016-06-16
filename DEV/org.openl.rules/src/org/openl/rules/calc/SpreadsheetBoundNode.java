@@ -87,7 +87,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
     public void preBind(IBindingContext bindingContext) throws SyntaxNodeException {
         TableSyntaxNode tableSyntaxNode = getTableSyntaxNode();
-        validateTableBody(tableSyntaxNode.getTableBody());
+        validateTableBody(tableSyntaxNode, bindingContext);
         IOpenMethodHeader header = getHeader();
 
         this.bindingContext = bindingContext;
@@ -105,7 +105,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         builder.finalizeBuild(getSpreadsheet());
     }
 
-    private void validateTableBody(ILogicalTable tableBody) throws SyntaxNodeException {
+    private void validateTableBody(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) throws SyntaxNodeException {
+        ILogicalTable tableBody = tableSyntaxNode.getTableBody();
         if (tableBody == null) {
             throw SyntaxNodeExceptionUtils.createError("Table has no body! Try to merge header cell horizontally to identify table.",
                 getTableSyntaxNode());
@@ -115,11 +116,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         int width = tableBody.getWidth();
 
         if (height < 2 || width < 2) {
-            String message = String.format("Spreadsheet must have at least 2x2 cells! Actual size %dx%d.",
-                width,
-                height);
-
-            throw SyntaxNodeExceptionUtils.createError(message, getTableSyntaxNode());
+            String message = "Spreadsheet has empty body. Spreadsheet table should has at least 2x3 cells.";
+            BindHelper.processWarn(message, tableSyntaxNode, bindingContext);
         }
     }
 

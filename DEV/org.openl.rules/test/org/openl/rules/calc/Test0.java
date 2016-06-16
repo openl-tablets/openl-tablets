@@ -50,12 +50,13 @@ public class Test0 {
 
     @Test
     public void test3() {
-        TestUtils.assertEx(new Runnable() {
-            public void run() {
-                File xlsFile = new File("test/rules/calc0/calc0-3.xls");
-                new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
-            }
-        }, "Spreadsheet must have at least 2x2 cells!");
+        File xlsFile = new File("test/rules/calc0/calc0-3.xls");
+        TestHelper<ITestCalc> testHelper = new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
+
+        ITestCalc test = testHelper.getInstance();
+        SpreadsheetResult result = test.calc();
+        assertEquals(0, result.getHeight());
+        assertEquals(0, result.getWidth());
     }
 
     @Test

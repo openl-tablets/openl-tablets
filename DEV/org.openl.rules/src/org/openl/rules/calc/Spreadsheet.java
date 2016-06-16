@@ -169,7 +169,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
     }
 
     public int getWidth() {
-        return cells[0].length;
+        return cells.length == 0 ? 0 : cells[0].length;
     }
 
     public String[] getRowNames() {
