@@ -142,6 +142,15 @@ public class SystemSettingsBean {
         configManager.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, customSpreadsheetType);
     }
 
+    public void setDispatchingValidationEnabled(boolean dispatchingValidationEnabled) {
+        configManager.setProperty(OpenLSystemProperties.DISPATCHING_VALIDATION, dispatchingValidationEnabled);
+    }
+    
+    public boolean isDispatchingValidationEnabled(){
+        return OpenLSystemProperties.isDispatchingValidationEnabled(configManager.getProperties());
+    }
+
+    
     public boolean isRunTestsInParallel() {
         return OpenLSystemProperties.isRunTestsInParallel(configManager.getProperties());
     }
