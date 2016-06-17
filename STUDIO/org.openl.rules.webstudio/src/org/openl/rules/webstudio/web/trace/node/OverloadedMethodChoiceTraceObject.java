@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
+import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenMethod;
 
 /**
@@ -13,12 +14,15 @@ import org.openl.types.IOpenMethod;
  * @author PUdalau
  */
 public class OverloadedMethodChoiceTraceObject extends ATableTracerNode {
-    private List<IOpenMethod> methodCandidates;
+    private final IRuntimeContext context;
+    private final List<IOpenMethod> methodCandidates;
 
     private OverloadedMethodChoiceTraceObject(ExecutableRulesMethod dispatcherTable,
             Object[] params,
+            IRuntimeContext context,
             List<IOpenMethod> methodCandidates) {
         super("overloadedMethodChoice", null, dispatcherTable, params);
+        this.context = context;
         this.methodCandidates = methodCandidates;
     }
 
@@ -26,8 +30,12 @@ public class OverloadedMethodChoiceTraceObject extends ATableTracerNode {
         return methodCandidates;
     }
 
-    static ATableTracerNode create(OpenMethodDispatcher dispatcher, Object[] params) {
+    public IRuntimeContext getContext() {
+        return context;
+    }
+
+    static ATableTracerNode create(OpenMethodDispatcher dispatcher, Object[] params, IRuntimeContext context) {
         ExecutableRulesMethod method = (ExecutableRulesMethod) dispatcher.getDispatcherTable().getMember();
-        return new OverloadedMethodChoiceTraceObject(method, params, dispatcher.getCandidates());
+        return new OverloadedMethodChoiceTraceObject(method, params, context, dispatcher.getCandidates());
     }
 }

@@ -42,6 +42,14 @@
                             </td>
                         </h:panelGroup>
                     </ui:repeat>
+                    <h:panelGroup rendered="#{!empty showTraceTableBean.context}">
+                        <td>
+                            <ui:include src="/pages/modules/test/parameter.xhtml">
+                                <ui:param name="parameter" value="#{showTraceTableBean.context}" />
+                                <ui:param name="lazy" value="false" />
+                            </ui:include>
+                        </td>
+                    </h:panelGroup>
                 </tr>
                 </table>
                 
