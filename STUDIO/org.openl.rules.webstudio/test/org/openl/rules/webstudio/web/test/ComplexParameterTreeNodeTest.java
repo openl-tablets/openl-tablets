@@ -82,22 +82,28 @@ public class ComplexParameterTreeNodeTest {
         public String getName() {
             return "test";
         }
+        public void setName(String name) {}
     }
 
     public static class ThrowingField {
         public String getName() {
             return "test";
         }
-        
+        public void setName(String name) {}
+
         public String getValue() {
             throw new UnsupportedOperationException();
         }
+
+        public void setValue(String value) {}
     }
     
     public static class SelfReference {
         public SelfReference getValue() {
             return this;
         }
+
+        public void setValue(SelfReference reference) { }
     }
     
     public static class Container {
