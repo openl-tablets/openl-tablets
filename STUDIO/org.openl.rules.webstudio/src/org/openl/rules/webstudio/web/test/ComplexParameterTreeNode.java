@@ -47,7 +47,7 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
             IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
             for (Entry<String, IOpenField> fieldEntry : getType().getFields().entrySet()) {
                 IOpenField field = fieldEntry.getValue();
-                if (!field.isConst()) {
+                if (!field.isConst() && field.isReadable() && field.isWritable()) {
                     String fieldName = fieldEntry.getKey();
                     Object fieldValue;
                     IOpenClass fieldType = field.getType();

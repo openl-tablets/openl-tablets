@@ -25,7 +25,7 @@ public class TracedObjectFactory {
             Object[] params,
             IRuntimeEnv env) {
         if (source instanceof OpenMethodDispatcher) {
-            return OverloadedMethodChoiceTraceObject.create((OpenMethodDispatcher) source, params);
+            return OverloadedMethodChoiceTraceObject.create((OpenMethodDispatcher) source, params, env.getContext());
         } else if (source instanceof WeightAlgorithmExecutor) {
             return new WScoreTraceObject((ColumnMatch) target, params);
         } else if (source instanceof ColumnMatch) {
