@@ -105,6 +105,10 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     public TestDescription getTest(int numberOfTest) {
         return getTests()[numberOfTest];
     }
+    
+    public void setTestedMethod(IOpenMethod testedMethod) {
+        this.testedMethod = testedMethod;
+    }
 
     public String getColumnDisplayName(String columnTechnicalName) {
         int columnIndex = getBoundNode().getTable().getColumnIndex(columnTechnicalName);

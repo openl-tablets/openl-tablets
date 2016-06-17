@@ -323,9 +323,14 @@ public class XlsBinder implements IOpenBinder {
             topNode = bindInternalWithCustomSpreadsheetTypes(moduleNode, openl, moduleContext, moduleOpenClass,
                     notPropertiesAndNotDatatypeSelector);
         } else {
-            TableSyntaxNode[] otherNodes = selectAndSortNodes(moduleNode, notPropertiesAndNotDatatypeSelector,
-                    new TestAndMethodTableNodeComparator());
+            ASelector<ISyntaxNode> testTableTypeSelector = getSelector(XlsNodeTypes.XLS_TEST_METHOD);
+            ISelector<ISyntaxNode> notPropertiesAndNotDatatypeAndNotTestMethodsSelector = propertiesSelector.not()
+                            .and(dataTypeSelector.not())
+                            .and(testTableTypeSelector.not());
+            TableSyntaxNode[] otherNodes = selectNodes(moduleNode, notPropertiesAndNotDatatypeAndNotTestMethodsSelector);
             topNode = bindInternal(moduleNode, moduleOpenClass, otherNodes, openl, moduleContext);
+            TableSyntaxNode[] testMethodNodes = selectNodes(moduleNode, testTableTypeSelector);
+            bindInternal(moduleNode, moduleOpenClass, testMethodNodes, openl, moduleContext);
         }
         
         if (moduleOpenClass.isUseDescisionTableDispatcher()){
@@ -335,6 +340,7 @@ public class XlsBinder implements IOpenBinder {
         }
         
         ((XlsModuleOpenClass) topNode.getType()).setRulesModuleBindingContext(moduleContext);
+        ((XlsModuleOpenClass) topNode.getType()).completeOpenClassBuilding();
 
         processErrors(moduleOpenClass.getErrors(), bindingContext);
         
@@ -374,8 +380,11 @@ public class XlsBinder implements IOpenBinder {
         bindInternal(moduleNode, moduleOpenClass, commonAndSpreadsheetTables, openl, moduleContext);
 
         // Select Test and RunMethod tables
-        TableSyntaxNode[] testsAndRunTables = selectNodes(moduleNode, testMethodSelector.or(runMethodSelector));
-        return bindInternal(moduleNode, moduleOpenClass, testsAndRunTables, openl, moduleContext);
+        TableSyntaxNode[] runTables = selectNodes(moduleNode, runMethodSelector);
+        bindInternal(moduleNode, moduleOpenClass, runTables, openl, moduleContext);
+
+        TableSyntaxNode[] testTables = selectNodes(moduleNode, testMethodSelector);
+        return bindInternal(moduleNode, moduleOpenClass, testTables, openl, moduleContext);
     }
 
     private StringValueSelector<ISyntaxNode> getSelector(XlsNodeTypes selectorValue) {

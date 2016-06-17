@@ -73,6 +73,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AMethod;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenMethod;
+import org.openl.util.Log;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,19 +98,19 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     private boolean dispatchingValidationEnabled;
 
     private Collection<String> imports = new HashSet<String>();
-    
+
     private ClassLoader classLoader;
-    
+
     private RulesModuleBindingContext rulesModuleBindingContext;
-    
+
     public RulesModuleBindingContext getRulesModuleBindingContext() {
         return rulesModuleBindingContext;
     }
-    
+
     public void setRulesModuleBindingContext(RulesModuleBindingContext rulesModuleBindingContext) {
         this.rulesModuleBindingContext = rulesModuleBindingContext;
     }
-    
+
     /**
      * Constructor for module with dependent modules
      *
@@ -120,7 +121,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             IDataBase dbase,
             Set<CompiledDependency> usingModules,
             ClassLoader classLoader,
-            boolean useDescisionTableDispatcher, boolean dispatchingValidationEnabled) {
+            boolean useDescisionTableDispatcher,
+            boolean dispatchingValidationEnabled) {
         super(name, openl);
         this.dataBase = dbase;
         this.metaInfo = metaInfo;
@@ -133,11 +135,11 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
         initImports(metaInfo.getXlsModuleNode());
     }
-    
+
     public boolean isUseDescisionTableDispatcher() {
         return useDescisionTableDispatcher;
     }
-    
+
     public ClassLoader getClassLoader() {
         return classLoader;
     }
@@ -152,24 +154,37 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     /**
-     * Populate current module fields with data from dependent modules. 
+     * Populate current module fields with data from dependent modules.
      */
-    protected void initDependencies() {// Reduce iterators over dependencies for compilation issue with lazy loading
+    protected void initDependencies() {// Reduce iterators over dependencies for
+                                       // compilation issue with lazy loading
         for (CompiledDependency dependency : this.getDependencies()) {
-            // commented as there is no need to add each datatype to upper module.
-            // as now it`s will be impossible to validate from which module the datatype is.
+            // commented as there is no need to add each datatype to upper
+            // module.
+            // as now it`s will be impossible to validate from which module the
+            // datatype is.
             //
-            //addTypes(dependency);
+            // addTypes(dependency);
             addDependencyTypes(dependency);
             addMethods(dependency);
-            //Populate current module fields with data from dependent modules. Requered
-            //for data tables inheriting from dependend modules.
-            addDataTables(dependency.getCompiledOpenClass()); // Required for data tables.
+            // Populate current module fields with data from dependent modules.
+            // Requered
+            // for data tables inheriting from dependend modules.
+            addDataTables(dependency.getCompiledOpenClass()); // Required for
+                                                              // data tables.
         }
     }
-    
+
     public Collection<String> getImports() {
         return imports;
+    }
+
+    @Override
+    protected boolean shouldAddMethodFromDependency(IOpenMethod method) {
+        if (method instanceof TestSuiteMethod) {
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -210,7 +225,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                             for (CompiledDependency d : getDependencies()) {
                                 IOpenClass dependentModuleClass = d.getCompiledOpenClass().getOpenClassWithErrors();
                                 if (dependentModuleClass instanceof XlsModuleOpenClass) {
-                                    if (((XlsModuleOpenClass) dependentModuleClass).duplicatedMethodUrls.contains(tableUrl)) {
+                                    if (((XlsModuleOpenClass) dependentModuleClass).duplicatedMethodUrls
+                                        .contains(tableUrl)) {
                                         containsInDependency = true;
                                         break;
                                     }
@@ -223,8 +239,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                         }
                     }
                 } catch (OpenlNotCheckedException e) {
-                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e.getMessage(), e,
-                            dataOpenField.getTable().getTableSyntaxNode());
+                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e.getMessage(),
+                        e,
+                        dataOpenField.getTable().getTableSyntaxNode());
                     addError(error);
                 }
             }
@@ -256,7 +273,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         // fix
         // for
         // mul1ti-module
-        if (openMethod instanceof IOpenMethodWrapper){
+        if (openMethod instanceof IOpenMethodWrapper) {
             IOpenMethodWrapper dispatchWrapper = (IOpenMethodWrapper) openMethod;
             return dispatchWrapper.getDelegate();
         }
@@ -264,9 +281,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     protected IOpenMethod decorateForMultimoduleDispatching(final IOpenMethod openMethod) { // Dispatching
-                                                                                          // fix
-                                                                                          // for
-                                                                                          // mul1ti-module
+                                                                                            // fix
+                                                                                            // for
+                                                                                            // mul1ti-module
         if (openMethod instanceof IOpenMethodWrapper || openMethod instanceof TestSuiteMethod) {
             return openMethod;
         }
@@ -306,9 +323,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
 
         /*
-         * if (log.isWarnEnabled()) {
-         * log.warn("Method wasn't wrapped. Dispatching will not work properly!"
-         * ); }
+         * if (log.isWarnEnabled()) { log.warn(
+         * "Method wasn't wrapped. Dispatching will not work properly!" ); }
          */
         return openMethod;
     }
@@ -348,10 +364,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
             if (!existedMethod.getType().equals(method.getType())) {
                 String message = String.format(
-                        "Method \"%s\" with return type \"%s\" has already been defined with another return type (\"%s\")",
-                        method.getName(),
-                        method.getType().getDisplayName(0),
-                        existedMethod.getType().getDisplayName(0));
+                    "Method \"%s\" with return type \"%s\" has already been defined with another return type (\"%s\")",
+                    method.getName(),
+                    method.getType().getDisplayName(0),
+                    existedMethod.getType().getDisplayName(0));
                 addDuplicatedMethodError(message, method, existedMethod);
                 return;
             }
@@ -393,8 +409,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     if (memberMetaInfo.getSyntaxNode() != null) {
                         if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
                             error = SyntaxNodeExceptionUtils.createError(e.getMessage(),
-                                    e,
-                                    memberMetaInfo.getSyntaxNode());
+                                e,
+                                memberMetaInfo.getSyntaxNode());
                             ((TableSyntaxNode) memberMetaInfo.getSyntaxNode()).addError(error);
                         }
                     }
@@ -434,7 +450,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     private boolean dimensionalPropertyPresented(IOpenMethod m) {
-        List<TablePropertyDefinition> dimensionalPropertiesDef = TablePropertyDefinitionUtils.getDimensionalTableProperties();
+        List<TablePropertyDefinition> dimensionalPropertiesDef = TablePropertyDefinitionUtils
+            .getDimensionalTableProperties();
         ITableProperties propertiesFromMethod = PropertiesHelper.getTableProperties(m);
         for (TablePropertyDefinition dimensionProperty : dimensionalPropertiesDef) {
             String propertyValue = propertiesFromMethod.getPropertyValueAsString(dimensionProperty.getName());
@@ -484,14 +501,13 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     @Override
     public void addError(Throwable error) {
-        if (error instanceof DuplicatedMethodException || error instanceof DuplicatedVarException ||
-                error instanceof DuplicatedTableException || error instanceof SyntaxNodeException) {
+        if (error instanceof DuplicatedMethodException || error instanceof DuplicatedVarException || error instanceof DuplicatedTableException || error instanceof SyntaxNodeException) {
             if (VirtualSourceCodeModule.SOURCE_URI.equals(metaInfo.getSourceUrl())) {
-                // Avoid duplication of error messages. This error was defined in dependent module already.
+                // Avoid duplication of error messages. This error was defined
+                // in dependent module already.
                 for (CompiledDependency dependency : getDependencies()) {
-                    List<OpenLMessage> errors = OpenLMessagesUtils.filterMessagesBySeverity(dependency.getCompiledOpenClass()
-                            .getMessages(),
-                            Severity.ERROR);
+                    List<OpenLMessage> errors = OpenLMessagesUtils
+                        .filterMessagesBySeverity(dependency.getCompiledOpenClass().getMessages(), Severity.ERROR);
                     for (OpenLMessage message : errors) {
                         if (message.getSummary() != null && message.getSummary().equals(error.getMessage())) {
                             return;
@@ -504,6 +520,42 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         super.addError(error);
     }
 
+    public void completeOpenClassBuilding() {
+        addTestSuiteMethodsFromDependencies(); // Test method from dependencies
+                                               // should use methods from this
+                                               // class.
+    }
+
+    private TestSuiteMethod createNewTestSuiteMethod(TestSuiteMethod testSuiteMethod) {
+        IOpenMethod method = testSuiteMethod.getTestedMethod();
+        IOpenMethod newTargetMethod = getDeclaredMethod(method.getName(), method.getSignature().getParameterTypes());
+        return new TestSuiteMethod(newTargetMethod, testSuiteMethod.getHeader(), testSuiteMethod.getBoundNode());
+    }
+
+    protected void addTestSuiteMethodsFromDependencies() {
+        for (CompiledDependency dependency : this.getDependencies()) {
+            for (IOpenMethod depMethod : dependency.getCompiledOpenClass().getOpenClassWithErrors().getMethods()) {
+                if (depMethod instanceof TestSuiteMethod) {
+                    TestSuiteMethod testSuiteMethod = (TestSuiteMethod) depMethod;
+                    try {
+                        // Workaround for set dependency names in method while
+                        // compile
+                        if (testSuiteMethod.getModuleName() == null) {
+                            testSuiteMethod.setModuleName(dependency.getDependencyName());
+                        }
+                        TestSuiteMethod newTestSuiteMethod = createNewTestSuiteMethod(testSuiteMethod);
+                        addMethod(newTestSuiteMethod);
+                    } catch (OpenlNotCheckedException e) {
+                        if (Log.isDebugEnabled()) {
+                            Log.debug(e.getMessage(), e);
+                        }
+                        addError(e);
+                    }
+                }
+            }
+        }
+    }
+
     private void addDuplicatedMethodError(String message, IOpenMethod method, IOpenMethod existedMethod) {
         ISyntaxNode newMethodSyntaxNode = method.getInfo().getSyntaxNode();
         if (newMethodSyntaxNode instanceof TableSyntaxNode) {
@@ -513,11 +565,13 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             try {
                 TableSyntaxNode existedMethodSyntaxNode = (TableSyntaxNode) existedMethod.getInfo().getSyntaxNode();
                 if (existedMethodSyntaxNode != null) {
-                    existedMethodSyntaxNode.addError(SyntaxNodeExceptionUtils.createError(message,
-                            existedMethodSyntaxNode));
+                    existedMethodSyntaxNode
+                        .addError(SyntaxNodeExceptionUtils.createError(message, existedMethodSyntaxNode));
                 }
             } catch (Exception ex) {
-                log.warn("Cannot get a syntax node for the method: {}", MethodUtil.printMethod(existedMethod, new StringBuilder()), ex);
+                log.warn("Cannot get a syntax node for the method: {}",
+                    MethodUtil.printMethod(existedMethod, new StringBuilder()),
+                    ex);
             }
 
             addError(error);

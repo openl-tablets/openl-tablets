@@ -94,6 +94,10 @@ public class ModuleOpenClass extends ComponentOpenClass {
 //        }
 //    }
     
+    protected boolean shouldAddMethodFromDependency(IOpenMethod method) {
+        return true;
+    }
+    
     /**
      * Add methods form dependent modules to current one.
      * 
@@ -113,7 +117,9 @@ public class ModuleOpenClass extends ComponentOpenClass {
                             methodDependencyInfo.setModuleName(dependency.getDependencyName());
                         }
                     }
-                    addMethod(depMethod);
+                    if (shouldAddMethodFromDependency(depMethod)){
+                        addMethod(depMethod);
+                    }
                 } catch (OpenlNotCheckedException e) {
                     if (Log.isDebugEnabled()) {
                         Log.debug(e.getMessage(), e);
