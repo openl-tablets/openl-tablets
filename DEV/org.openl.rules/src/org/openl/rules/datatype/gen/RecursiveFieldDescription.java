@@ -90,9 +90,4 @@ public class RecursiveFieldDescription implements FieldDescription {
     public boolean hasDefaultKeyWord() {
         return field.hasDefaultKeyWord();
     }
-    
-    @Override
-    public boolean hasEmptyKeyWord() {
-        return field.hasEmptyKeyWord();
-    }
 }

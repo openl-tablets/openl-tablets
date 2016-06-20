@@ -76,10 +76,11 @@ public class ByteCodeGeneratorHelper {
     
     public static TypeWriter getTypeWriter(FieldDescription field) {
         if (field.hasDefaultKeyWord()) {
-           return new DefaultConstructorTypeWriter();
-        }
-        if (field.hasEmptyKeyWord() && field.getType().isArray()){
-            return new DefaultEmptyArrayConstructorTypeWriter();  
+           if (field.getType().isArray()){
+               return new DefaultEmptyArrayConstructorTypeWriter();
+           }else{
+               return new DefaultConstructorTypeWriter();
+           }
         }
         Class<?> clazz = field.getType();
         return getTypeWriter(clazz);

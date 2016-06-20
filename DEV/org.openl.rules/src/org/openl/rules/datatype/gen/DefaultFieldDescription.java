@@ -94,8 +94,6 @@ public class DefaultFieldDescription implements FieldDescription {
                     // Keep the default value key word for all the types of the field as the default value.
                     //
                     defaultValue = DEFAULT_KEY_WORD;
-                } else if (EMPTY_KEY_WORD.equals(defaultValueAsString)) {
-                    defaultValue = EMPTY_KEY_WORD;
                 } else {
                     IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(getType());
                     defaultValue = convertor.parse(defaultValueAsString, null);
@@ -120,11 +118,6 @@ public class DefaultFieldDescription implements FieldDescription {
     @Override
     public boolean hasDefaultKeyWord() {
         return hasDefaultValue() && DEFAULT_KEY_WORD.equals(getDefaultValue());
-    }
-
-    @Override
-    public boolean hasEmptyKeyWord() {
-        return hasDefaultValue() && EMPTY_KEY_WORD.equals(getDefaultValue());
     }
 
 }

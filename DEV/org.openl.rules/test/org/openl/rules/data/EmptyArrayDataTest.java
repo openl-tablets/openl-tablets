@@ -22,25 +22,34 @@ public class EmptyArrayDataTest {
 
         Class<?> clazz = engineFactory.getInterfaceClass();
 
-        Method getPoliciesMethod = clazz.getMethod("getPolicies");
+        Method getMyDatasMethod = clazz.getMethod("getMyDatas");
 
         Class<?> policyClazz = engineFactory.getCompiledOpenClass()
             .getClassLoader()
-            .loadClass("org.openl.generated.beans.Policy");
+            .loadClass("org.openl.generated.beans.MyData");
 
-        Object[] policies = (Object[]) getPoliciesMethod.invoke(instance);
+        Object[] myDatas = (Object[]) getMyDatasMethod.invoke(instance);
 
-        Assert.assertEquals(2, policies.length);
+        Assert.assertEquals(2, myDatas.length);
 
-        Method getDriversMethod = policyClazz.getMethod("getDrivers");
+        Method getStringsMethod = policyClazz.getMethod("getStrings");
 
-        String[] policy1Drivers = (String[]) getDriversMethod.invoke(policies[0]);
+        String[] strings1 = (String[]) getStringsMethod.invoke(myDatas[0]);
 
-        Assert.assertEquals(3, policy1Drivers.length);
-        Assert.assertEquals("28", policy1Drivers[2]);
+        Assert.assertEquals(3, strings1.length);
+        Assert.assertEquals("28", strings1[2]);
 
-        String[] policy2Drivers = (String[]) getDriversMethod.invoke(policies[1]);
-        Assert.assertEquals(0, policy2Drivers.length);
+        String[] strings2 = (String[]) getStringsMethod.invoke(myDatas[1]);
+        Assert.assertEquals(0, strings2.length);
+        
+        Method getPrimitivesMethod = policyClazz.getMethod("getPrimitives");
 
+        long[] primitives = (long[]) getPrimitivesMethod.invoke(myDatas[0]);
+        Assert.assertEquals(0, primitives.length);
+
+        Method getPrimitives2Method = policyClazz.getMethod("getPrimitives2");
+        
+        int[][] primitives2 = (int[][]) getPrimitives2Method.invoke(myDatas[0]);
+        Assert.assertEquals(0, primitives2.length);
     }
 }

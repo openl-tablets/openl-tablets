@@ -18,6 +18,28 @@ public class DefaultEmptyArrayConstructorTypeWriter implements TypeWriter {
         return Opcodes.ARETURN;
     }
 
+    private int findOptcodesForType(Class<?> type) {
+        Type t = Type.getType(type);
+        if (Type.BOOLEAN_TYPE.equals(t)) {
+            return Opcodes.T_BOOLEAN;
+        } else if (Type.BYTE_TYPE.equals(t)) {
+            return Opcodes.T_BYTE;
+        } else if (Type.CHAR_TYPE.equals(t)) {
+            return Opcodes.T_CHAR;
+        } else if (Type.DOUBLE_TYPE.equals(t)) {
+            return Opcodes.T_DOUBLE;
+        } else if (Type.FLOAT_TYPE.equals(t)) {
+            return Opcodes.T_FLOAT;
+        } else if (Type.INT_TYPE.equals(t)) {
+            return Opcodes.T_INT;
+        } else if (Type.LONG_TYPE.equals(t)) {
+            return Opcodes.T_LONG;
+        } else if (Type.SHORT_TYPE.equals(t)) {
+            return Opcodes.T_SHORT;
+        } 
+        throw new IllegalStateException("Primitive type wasn't found for code generation!");
+    }
+
     public int writeFieldValue(MethodVisitor methodVisitor, FieldDescription field) {
         if (!field.getType().isArray()) {
             throw new IllegalArgumentException("Field type is not an array!");
@@ -27,7 +49,11 @@ public class DefaultEmptyArrayConstructorTypeWriter implements TypeWriter {
         if (!type.isArray()) { // one dim
             String internalName = Type.getInternalName(type);
             methodVisitor.visitInsn(Opcodes.ICONST_0);
-            methodVisitor.visitTypeInsn(Opcodes.ANEWARRAY, internalName);
+            if (type.isPrimitive()) {
+                methodVisitor.visitIntInsn(Opcodes.NEWARRAY, findOptcodesForType(type));
+            } else {
+                methodVisitor.visitTypeInsn(Opcodes.ANEWARRAY, internalName);
+            }
         } else { // multi dim
             int level = 1;
             while (type.isArray()) {
