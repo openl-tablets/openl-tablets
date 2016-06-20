@@ -47,6 +47,7 @@ import org.openl.rules.lang.xls.binding.wrapper.SpreadsheetWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.TableMethodWrapper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.method.TableUriMethod;
 import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.properties.ITableProperties;
@@ -373,10 +374,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             }
 
             if (method != existedMethod && method instanceof TestSuiteMethod) {
-                duplicatedMethodUrls.add(method.getInfo().getSourceUrl());
-                String message = ValidationMessages.getDuplicatedMethodMessage(existedMethod, method);
-
-                addDuplicatedMethodError(message, method, existedMethod);
+                validateTestSuiteMethod(method, existedMethod);
                 return;
             }
 
@@ -446,6 +444,20 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             } else {
                 super.addMethod(m);
             }
+        }
+    }
+
+    private void validateTestSuiteMethod(IOpenMethod method, IOpenMethod existedMethod) {
+        if (method instanceof TableUriMethod && existedMethod instanceof TableUriMethod) {
+            String methodHashUrl = ((TableUriMethod) method).getTableUri();
+            String existedMethodHashUrl = ((TableUriMethod) existedMethod).getTableUri();
+            if (!methodHashUrl.equals(existedMethodHashUrl)) {
+                duplicatedMethodUrls.add(method.getInfo().getSourceUrl());
+                String message = ValidationMessages.getDuplicatedMethodMessage(existedMethod, method);
+                addDuplicatedMethodError(message, method, existedMethod);
+            }
+        } else {
+            throw new IllegalStateException("Implementation supports only TableUriMethod!");
         }
     }
 
