@@ -9,11 +9,13 @@ import javax.faces.bean.SessionScoped;
 import org.openl.classloader.ClassLoaderCloserFactory;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
+import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.richfaces.ProjectTreeBuilder;
-import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.util.tree.ITreeElement;
@@ -71,7 +73,7 @@ public class TreeBean {
     private CollectionUtils.Predicate<String> getUtilityTablePredicate(WebStudio studio, Module module) {
         CollectionUtils.Predicate<String> utilityTablePredicate;
         if (module.getExtension() == null) {
-            utilityTablePredicate = new DispatcherTablePredicate();
+            utilityTablePredicate = new OtherTablePredicate();
         } else {
             ClassLoader classLoader = null;
             try {
@@ -86,10 +88,21 @@ public class TreeBean {
         return utilityTablePredicate;
     }
 
-    private static class DispatcherTablePredicate implements CollectionUtils.Predicate<String> {
+    private static class OtherTablePredicate implements CollectionUtils.Predicate<String> {
         @Override
         public boolean evaluate(String tableName) {
-            return tableName.startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
+            ProjectModel projectModel = WebStudioUtils.getProjectModel();
+            if (projectModel == null) {
+                return false;
+            }
+
+            for (TableSyntaxNode node : projectModel.getTableSyntaxNodes()) {
+                if (tableName.equals(node.getDisplayName())) {
+                    return node.getType().equals(XlsNodeTypes.XLS_OTHER.toString());
+                }
+            }
+
+            return false;
         }
     }
 }
