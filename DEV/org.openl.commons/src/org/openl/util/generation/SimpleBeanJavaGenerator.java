@@ -279,10 +279,11 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
                 defaultFieldValue = defaultValueAnnotation.value();
             }
             if ("_DEFAULT_".equals(defaultFieldValue)) {
-                writer = initializationWriters.get(MarkerClass.class);
-            }
-            if ("_EMPTY_".equals(defaultFieldValue) && fieldValueClass.isArray()){
-                writer = initializationWriters.get(EmptyArrayMarkerClass.class);
+                if (fieldValueClass.isArray()){
+                    writer = initializationWriters.get(EmptyArrayMarkerClass.class);
+                }else{
+                    writer = initializationWriters.get(MarkerClass.class);
+                }
             }
         }
         return writer;

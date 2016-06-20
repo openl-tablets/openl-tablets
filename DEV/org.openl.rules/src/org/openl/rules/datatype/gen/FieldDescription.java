@@ -11,8 +11,6 @@ public interface FieldDescription {
      */
     String DEFAULT_KEY_WORD = "_DEFAULT_";
     
-    String EMPTY_KEY_WORD = "_EMPTY_";
-
     String getCanonicalTypeName();
 
     Class<?> getType();
@@ -31,5 +29,4 @@ public interface FieldDescription {
 
     boolean hasDefaultKeyWord();
     
-    boolean hasEmptyKeyWord();
 }
