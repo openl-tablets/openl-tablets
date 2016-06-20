@@ -130,55 +130,102 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
             List<String> notNullPropertyNames = getNotNullPropertyNames(context);
             // Find the most high priority method
-            IOpenMethod mostPriority = null;
+            List<IOpenMethod> mostPriority = new ArrayList<IOpenMethod>();
             ITableProperties mostPriorityProperties = null;
 
             for (IOpenMethod candidate : selected) {
-                if (mostPriority == null) {
-                    mostPriority = candidate;
-                    mostPriorityProperties = PropertiesHelper.getTableProperties(mostPriority);
+                if (mostPriority.isEmpty()) {
+                    mostPriority.add(candidate);
+                    mostPriorityProperties = PropertiesHelper.getTableProperties(candidate);
                 } else {
-                    boolean nested = false;
-                    boolean contains = false;
-
                     ITableProperties candidateProperties = PropertiesHelper.getTableProperties(candidate);
                     int cmp = compareMaxMinPriorities(candidateProperties, mostPriorityProperties);
                     if (cmp < 0) {
-                        nested = true;
-                        contains = false;
-                    } else if (cmp > 0) {
-                        nested = false;
-                        contains = true;
+                        notPriorMethods.addAll(mostPriority);
+                        mostPriority.clear();
+                        mostPriority.add(candidate);
+                        mostPriorityProperties = PropertiesHelper.getTableProperties(candidate);
                     }
-
-                    if (!nested && !contains) {
-                        propsLoop: for (String propName : notNullPropertyNames) {
-
-                            switch (intersectionMatcher.match(propName, candidateProperties, mostPriorityProperties)) {
-                                case NESTED:
-                                    nested = true;
-                                    break;
-                                case CONTAINS:
-                                    contains = true;
-                                    break;
-                                case EQUALS:
-                                    // do nothing
-                                    break;
-                                case NO_INTERSECTION:
-                                case PARTLY_INTERSECTS:
-                                    nested = false;
-                                    contains = false;
-                                    break propsLoop;
+                    if (cmp == 0) {
+                        mostPriority.add(candidate);
+                    }
+                    if (cmp > 0) {
+                        notPriorMethods.add(candidate);
+                    }
+                }
+            }
+            selected.removeAll(notPriorMethods);
+            if (selected.size() > 1) {
+                notPriorMethods.clear();
+                mostPriority.clear();
+                for (IOpenMethod candidate : selected) {
+                    boolean nested = false;
+                    boolean contains = false;
+                    if (mostPriority.isEmpty()) {
+                        mostPriority.add(candidate);
+                        mostPriorityProperties = PropertiesHelper.getTableProperties(candidate);
+                    } else {
+                        ITableProperties candidateProperties = PropertiesHelper.getTableProperties(candidate);
+                        if (mostPriority.size() == 1) {
+                            propsLoop: for (String propName : notNullPropertyNames) {
+                                switch (intersectionMatcher.match(propName,
+                                    candidateProperties,
+                                    mostPriorityProperties)) {
+                                    case NESTED:
+                                        nested = true;
+                                        break;
+                                    case CONTAINS:
+                                        contains = true;
+                                        break;
+                                    case EQUALS:
+                                        // do nothing
+                                        break;
+                                    case NO_INTERSECTION:
+                                    case PARTLY_INTERSECTS:
+                                        nested = false;
+                                        contains = false;
+                                        break propsLoop;
+                                }
+                            }
+                            if (nested && !contains && mostPriority.size() == 1) {
+                                notPriorMethods.addAll(mostPriority);
+                                mostPriority.clear();
+                                mostPriority.add(candidate);
+                                mostPriorityProperties = PropertiesHelper.getTableProperties(candidate);
+                            } else if (contains && !nested && mostPriority.size() == 1) {
+                                notPriorMethods.add(candidate);
+                            } else {
+                                mostPriority.add(candidate);
+                            }
+                        } else {
+                            boolean moreConcreteMethod = true;
+                            for (IOpenMethod m : mostPriority) {
+                                ITableProperties mProperties = PropertiesHelper.getTableProperties(m);
+                                propsLoop: for (String propName : notNullPropertyNames) {
+                                    switch (intersectionMatcher.match(propName, candidateProperties, mProperties)) {
+                                        case NESTED:
+                                            break;
+                                        case CONTAINS:
+                                            moreConcreteMethod = false;
+                                            break propsLoop;
+                                        case EQUALS:
+                                            break;
+                                        case NO_INTERSECTION:
+                                        case PARTLY_INTERSECTS:
+                                            moreConcreteMethod = false;
+                                            break propsLoop;
+                                    }
+                                }
+                            }
+                            if (moreConcreteMethod) {
+                                notPriorMethods.addAll(mostPriority);
+                                mostPriority.clear();
+                                mostPriority.add(candidate);
+                                mostPriorityProperties = PropertiesHelper.getTableProperties(candidate);
+                            } else {
+                                mostPriority.add(candidate);
                             }
                         }
-                    }
-
-                    if (nested && !contains) {
-                        notPriorMethods.add(mostPriority);
-                        mostPriority = candidate;
-                        mostPriorityProperties = PropertiesHelper.getTableProperties(mostPriority);
-                    } else if (contains && !nested) {
-                        notPriorMethods.add(candidate);
                     }
                 }
             }
@@ -291,5 +338,5 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         return propNames;
     }
 
-// <<< END INSERT MatchingProperties >>>
+    // <<< END INSERT MatchingProperties >>>
 }
