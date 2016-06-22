@@ -58,7 +58,6 @@ public class JcrRulesClientTestCase extends TestCase {
         ensureTestFolderExistsAndClear();
         
         productionRepositoryFactoryProxy = new ProductionRepositoryFactoryProxy();
-        productionRepositoryFactoryProxy.setConfigManagerFactory(new ConfigurationManagerFactory(true, null, ""));
 
         instance = new JcrRulesClient(productionRepositoryFactoryProxy, ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE);
 
