@@ -69,7 +69,7 @@ public class TestMojo extends BaseOpenLMojo {
 
         StringBuilder stringBuilder = new StringBuilder();
         for (Module module : projectDescriptor.getModules()) {
-            RulesInstantiationStrategy instantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(module,
+            RulesInstantiationStrategy instantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(module, false,
                 dependencyManager);
             try {
                 CompiledOpenClass compiledOpenClass = instantiationStrategy.compile();

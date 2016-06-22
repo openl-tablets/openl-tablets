@@ -14,12 +14,8 @@ public final class RulesInstantiationStrategyFactory {
      * @return {@link SingleModuleInstantiationStrategy} instance that will compile
      *         {@link Module}
      */
-    public static SingleModuleInstantiationStrategy getStrategy(Module moduleInfo) {
-        return getStrategy(moduleInfo, false, null);
-    }
-
-    public static SingleModuleInstantiationStrategy getStrategy(Module moduleInfo, IDependencyManager dependencyManager) {
-        return getStrategy(moduleInfo, false, dependencyManager);
+    public static SingleModuleInstantiationStrategy getStrategy(Module moduleInfo, boolean executionMode) {
+        return getStrategy(moduleInfo, executionMode, null);
     }
 
     public static SingleModuleInstantiationStrategy getStrategy(Module moduleInfo, boolean executionMode, IDependencyManager dependencyManager) {

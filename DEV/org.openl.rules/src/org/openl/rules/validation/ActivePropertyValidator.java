@@ -70,8 +70,11 @@ public class ActivePropertyValidator extends TablesValidator {
                     validationResult = new ValidationResult(ValidationStatus.SUCCESS);
                 }
                 // warning is attached to any table syntax node
-                ValidationUtils.addValidationMessage(validationResult, new OpenLWarnMessage(NO_ACTIVE_TABLE_MESSAGE,
-                    methodsGroup.get(0)));
+                
+                for (TableSyntaxNode tsn : methodsGroup){
+                    ValidationUtils.addValidationMessage(validationResult, new OpenLWarnMessage(NO_ACTIVE_TABLE_MESSAGE,
+                        tsn));
+                }
             }
         }
 

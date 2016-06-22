@@ -16,7 +16,7 @@ public abstract class TablesValidator implements IOpenLValidator {
 
     private void findAllTableSyntaxNodes(List<TableSyntaxNode> tableSyntaxNodes, IOpenClass openClass) {
         for (CompiledDependency compiledDependency : ((XlsModuleOpenClass) openClass).getDependencies()) {
-            IOpenClass dependencyOpenClass = compiledDependency.getCompiledOpenClass().getOpenClass();
+            IOpenClass dependencyOpenClass = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors();
             findAllTableSyntaxNodes(tableSyntaxNodes, dependencyOpenClass);
         }
 

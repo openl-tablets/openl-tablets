@@ -137,7 +137,7 @@ public class RulesPublisherTest implements ApplicationContextAware{
             dependencyManager.setExecutionMode(true);
             IDependencyLoader loader = new RulesModuleDependencyLoader(modules);
             dependencyManager.setDependencyLoaders(Arrays.asList(loader));
-            RulesInstantiationStrategy instantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(module,
+            RulesInstantiationStrategy instantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(module, true,
                     dependencyManager);
             Class<?> moduleServiceClass = instantiationStrategy.getInstanceClass();
             for (Method method : moduleServiceClass.getMethods()) {

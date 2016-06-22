@@ -69,7 +69,7 @@ public class InstantiationStrategiesReloadingTest {
                 classpath = new ArrayList<PathEntry>();
                 project.setClasspath(classpath);
             }
-            return RulesInstantiationStrategyFactory.getStrategy(project.getModules().get(0));
+            return RulesInstantiationStrategyFactory.getStrategy(project.getModules().get(0), false);
         } else {
             throw new RuntimeException("Wrong folder.");
         }

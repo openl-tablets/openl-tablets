@@ -75,7 +75,7 @@ public class CompileMojo extends BaseOpenLMojo {
 
         int currentError = 1;
         for (Module module : projectDescriptor.getModules()) {
-            RulesInstantiationStrategy instantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(module, dependencyManager);
+            RulesInstantiationStrategy instantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(module, false, dependencyManager);
             try {
                 CompiledOpenClass compiledOpenClass = instantiationStrategy.compile();
                 
