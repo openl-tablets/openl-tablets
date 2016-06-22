@@ -1,6 +1,7 @@
 package org.openl.rules.table.properties;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.types.IOpenMethod;
@@ -61,18 +62,17 @@ public final class DimensionPropertiesMethodKey {
 
     @Override
     public int hashCode() {
-        int result = method != null ? new MethodKey(method).hashCode() : 0;
-
         String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
         Map<String, Object> methodProperties = PropertiesHelper.getMethodProperties(method);
-
+        HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
+        hashCodeBuilder.append(new MethodKey(method));
         if (methodProperties != null) {
-            for (int i = 0; i < dimensionalPropertyNames.length; i++) {
-                Object property = methodProperties.get(dimensionalPropertyNames[i]);
-                result = 31 * result + (property == null ? 0 : property.hashCode());
+            for (String dimensionalPropertyName : dimensionalPropertyNames) {
+                Object property = methodProperties.get(dimensionalPropertyName);
+                hashCodeBuilder.append(property);
             }
         }
-        return result;
+        return hashCodeBuilder.build();
     }
 
     @Override
