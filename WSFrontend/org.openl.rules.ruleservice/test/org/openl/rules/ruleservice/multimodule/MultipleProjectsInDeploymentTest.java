@@ -6,10 +6,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.ruleservice.test.AbstractJavaClassRuleServiceTest;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:MultipleProjectsInDeploymentTest/openl-ruleservice-beans.xml" })
+@TestPropertySource(properties={"ruleservice.datasource.dir=test-resources/MultipleProjectsInDeploymentTest"})
+@ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
 public class MultipleProjectsInDeploymentTest extends AbstractJavaClassRuleServiceTest {
 
     @Test
