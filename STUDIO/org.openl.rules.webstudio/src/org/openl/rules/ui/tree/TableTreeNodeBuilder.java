@@ -6,6 +6,8 @@ import java.util.Map;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.ui.IProjectTypes;
+import org.openl.types.impl.DomainOpenClass;
+import org.openl.types.impl.InternalDatatypeClass;
 
 /**
  * Builds tree node using table type.
@@ -15,6 +17,7 @@ public class TableTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 
     private static final String OTHER_NODE_KEY = "Other";
     private static final String TABLE_TYPE_NAME = "Table Type";
+    private static final String ALIAS_SUFFIX = ".alias";
 
     /**
      * Internal map that represent dictionary of available table types.
@@ -49,8 +52,10 @@ public class TableTreeNodeBuilder extends BaseTableTreeNodeBuilder {
                 "Tables with run data for methods", "" }));
         nodeKeysMap.put(XlsNodeTypes.XLS_DATATYPE.toString(),
                 new NodeKey(6, new String[] { "Datatype", "OpenL Datatypes", "" }));
-        nodeKeysMap.put(XlsNodeTypes.XLS_METHOD.toString(), new NodeKey(7, new String[] { "Method", "OpenL Methods", "" }));
-        nodeKeysMap.put(XlsNodeTypes.XLS_ENVIRONMENT.toString(), new NodeKey(8, new String[] { "Configuration",
+        nodeKeysMap.put(XlsNodeTypes.XLS_DATATYPE.toString() + ALIAS_SUFFIX,
+                new NodeKey(7, new String[] { "Alias Datatype", "OpenL Alias Datatypes", "" }));
+        nodeKeysMap.put(XlsNodeTypes.XLS_METHOD.toString(), new NodeKey(8, new String[] { "Method", "OpenL Methods", "" }));
+        nodeKeysMap.put(XlsNodeTypes.XLS_ENVIRONMENT.toString(), new NodeKey(9, new String[] { "Configuration",
                 "Environment table, used to configure OpenL project", "" }));
 
         nodeKeysMap.put(OTHER_NODE_KEY, new NodeKey(10, new String[] { "Other",
@@ -136,6 +141,11 @@ public class TableTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 
         TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
         String type = tsn.getType();
+
+        // Separate alias datatypes from ordinary datatypes.
+        if (tsn.getMember() instanceof InternalDatatypeClass && tsn.getMember().getType() instanceof DomainOpenClass) {
+            type += ALIAS_SUFFIX;
+        }
 
         NodeKey nodeKey = nodeKeysMap.get(type);
 
