@@ -16,10 +16,12 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:CustomSpreadsheetResultInterfaceEnhancerHelperTest/openl-ruleservice-beans.xml" })
+@TestPropertySource(properties={"ruleservice.isProvideRuntimeContext=false", "ruleservice.datasource.dir=test-resources/CustomSpreadsheetResultInterfaceEnhancerHelperTest"})
+@ContextConfiguration({ "classpath:openl-ruleservice-beans.xml", "classpath:CustomSpreadsheetResultInterfaceEnhancerHelperTest.xml" })
 public class CustomSpreadsheetResultInterfaceEnhancerHelperTest implements ApplicationContextAware {
 
     private ApplicationContext applicationContext;
