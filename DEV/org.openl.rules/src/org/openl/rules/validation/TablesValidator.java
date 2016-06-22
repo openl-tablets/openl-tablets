@@ -1,7 +1,7 @@
 package org.openl.rules.validation;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.openl.OpenL;
 import org.openl.dependency.CompiledDependency;
@@ -14,7 +14,7 @@ import org.openl.validation.ValidationResult;
 
 public abstract class TablesValidator implements IOpenLValidator {
 
-    private void findAllTableSyntaxNodes(List<TableSyntaxNode> tableSyntaxNodes, IOpenClass openClass) {
+    private void findAllTableSyntaxNodes(Set<TableSyntaxNode> tableSyntaxNodes, IOpenClass openClass) {
         for (CompiledDependency compiledDependency : ((XlsModuleOpenClass) openClass).getDependencies()) {
             IOpenClass dependencyOpenClass = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors();
             findAllTableSyntaxNodes(tableSyntaxNodes, dependencyOpenClass);
@@ -33,7 +33,7 @@ public abstract class TablesValidator implements IOpenLValidator {
 
             // Get all table syntax nodes of xls module.
             //
-            List<TableSyntaxNode> tableSyntaxNodes = new ArrayList<TableSyntaxNode>();
+            Set<TableSyntaxNode> tableSyntaxNodes = new HashSet<TableSyntaxNode>();
 
             findAllTableSyntaxNodes(tableSyntaxNodes, openClass);
 
