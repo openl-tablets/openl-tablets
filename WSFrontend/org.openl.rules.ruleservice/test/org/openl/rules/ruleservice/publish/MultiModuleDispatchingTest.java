@@ -14,9 +14,11 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:MultiModuleDispatchingTest/openl-ruleservice-beans.xml" })
+@TestPropertySource(properties={"ruleservice.datasource.dir=test-resources/MultiModuleDispatchingTest" })
+@ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
 public class MultiModuleDispatchingTest implements ApplicationContextAware{
     private static final String SERVICE_NAME = "MultiModuleDispatchingTest_multimodule";
     

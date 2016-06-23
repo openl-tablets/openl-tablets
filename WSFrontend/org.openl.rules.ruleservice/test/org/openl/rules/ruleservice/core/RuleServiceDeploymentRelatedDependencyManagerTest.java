@@ -21,10 +21,12 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:RuleServiceDeploymentRelatedDependencyManagerTest/openl-ruleservice-beans.xml" })
+@TestPropertySource(properties={"ruleservice.datasource.dir=test-resources/RuleServiceDeploymentRelatedDependencyManagerTest", "ruleservice.isProvideRuntimeContext=false"})
+@ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
 @Ignore
 public class RuleServiceDeploymentRelatedDependencyManagerTest implements ApplicationContextAware {
 

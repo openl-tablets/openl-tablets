@@ -18,7 +18,7 @@ import java.util.Map;
 public class ProductionRepositoryFactoryProxy {
 
     public static final String DEFAULT_REPOSITORY_PROPERTIES_FILE = "rules-production.properties";
-    public static final ConfigurationManagerFactory DEFAULT_CONFIGURATION_MANAGER_FACTORY = new ConfigurationManagerFactory(false, null, "");
+    public static final ConfigurationManagerFactory DEFAULT_CONFIGURATION_MANAGER_FACTORY = new ConfigurationManagerFactory(true, null, "");
 
     private ConfigurationManagerFactory configManagerFactory = DEFAULT_CONFIGURATION_MANAGER_FACTORY;
 
