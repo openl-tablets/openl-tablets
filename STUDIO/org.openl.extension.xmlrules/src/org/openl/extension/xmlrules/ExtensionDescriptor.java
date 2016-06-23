@@ -17,6 +17,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.CollectionUtils;
+import org.openl.util.tree.ITreeElement;
 
 public class ExtensionDescriptor implements IExtensionDescriptor {
     public static final String TYPES_SHEET = "Types";
@@ -85,7 +86,7 @@ public class ExtensionDescriptor implements IExtensionDescriptor {
     }
 
     @Override
-    public CollectionUtils.Predicate<String> getUtilityTablePredicate(XlsModuleSyntaxNode moduleSyntaxNode) {
+    public CollectionUtils.Predicate<ITreeElement> getUtilityTablePredicate(XlsModuleSyntaxNode moduleSyntaxNode) {
         return ((XmlRulesModuleSyntaxNode) moduleSyntaxNode).getProjectData().getUtilityTablePredicate();
     }
 }

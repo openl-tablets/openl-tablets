@@ -10,13 +10,12 @@ import org.openl.classloader.ClassLoaderCloserFactory;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
 import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.richfaces.ProjectTreeBuilder;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.util.CollectionUtils;
 import org.openl.util.tree.ITreeElement;
 import org.richfaces.model.TreeNode;
@@ -59,7 +58,7 @@ public class TreeBean {
         ITreeElement<?> tree = studio.getModel().getProjectTree();
         if (tree != null) {
             Module module = studio.getCurrentModule();
-            CollectionUtils.Predicate<String> utilityTablePredicate = null;
+            CollectionUtils.Predicate<ITreeElement> utilityTablePredicate = null;
             if (hideUtilityTables) {
                 utilityTablePredicate = getUtilityTablePredicate(studio, module);
             }
@@ -70,8 +69,8 @@ public class TreeBean {
         return new TreeNodeImpl();
     }
 
-    private CollectionUtils.Predicate<String> getUtilityTablePredicate(WebStudio studio, Module module) {
-        CollectionUtils.Predicate<String> utilityTablePredicate;
+    private CollectionUtils.Predicate<ITreeElement> getUtilityTablePredicate(WebStudio studio, Module module) {
+        CollectionUtils.Predicate<ITreeElement> utilityTablePredicate;
         if (module.getExtension() == null) {
             utilityTablePredicate = new OtherTablePredicate();
         } else {
@@ -88,18 +87,12 @@ public class TreeBean {
         return utilityTablePredicate;
     }
 
-    private static class OtherTablePredicate implements CollectionUtils.Predicate<String> {
+    private static class OtherTablePredicate implements CollectionUtils.Predicate<ITreeElement> {
         @Override
-        public boolean evaluate(String tableName) {
-            ProjectModel projectModel = WebStudioUtils.getProjectModel();
-            if (projectModel == null) {
-                return false;
-            }
-
-            for (TableSyntaxNode node : projectModel.getTableSyntaxNodes()) {
-                if (tableName.equals(node.getDisplayName())) {
-                    return node.getType().equals(XlsNodeTypes.XLS_OTHER.toString());
-                }
+        public boolean evaluate(ITreeElement tableNode) {
+            if (tableNode.isLeaf() && tableNode.getObject() instanceof ISyntaxNode) {
+                String tableType = ((ISyntaxNode) tableNode.getObject()).getType();
+                return XlsNodeTypes.XLS_OTHER.toString().equals(tableType);
             }
 
             return false;
