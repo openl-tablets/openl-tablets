@@ -53,7 +53,7 @@ public class TableTreeNodeBuilder extends BaseTableTreeNodeBuilder {
         nodeKeysMap.put(XlsNodeTypes.XLS_DATATYPE.toString(),
                 new NodeKey(6, new String[] { "Datatype", "OpenL Datatypes", "" }));
         nodeKeysMap.put(XlsNodeTypes.XLS_DATATYPE.toString() + ALIAS_SUFFIX,
-                new NodeKey(7, new String[] { "Alias Datatype", "OpenL Alias Datatypes", "" }));
+                new NodeKey(7, new String[] { "Vocabulary", "OpenL Vocabularies", "" }));
         nodeKeysMap.put(XlsNodeTypes.XLS_METHOD.toString(), new NodeKey(8, new String[] { "Method", "OpenL Methods", "" }));
         nodeKeysMap.put(XlsNodeTypes.XLS_ENVIRONMENT.toString(), new NodeKey(9, new String[] { "Configuration",
                 "Environment table, used to configure OpenL project", "" }));
