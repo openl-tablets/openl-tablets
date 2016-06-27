@@ -297,7 +297,12 @@ public class TestUnitsResults implements INamedThing {
         String[] columnTechnicalNames = getTestDataColumnHeaders();
         String[] columnDisplayNames = new String[columnTechnicalNames.length];
         for (int i = 0; i < columnDisplayNames.length; i++) {
-            columnDisplayNames[i] = testSuite.getTestSuiteMethod().getColumnDisplayName(columnTechnicalNames[i]);
+            String displayName = testSuite.getTestSuiteMethod().getColumnDisplayName(columnTechnicalNames[i]);
+            if (displayName != null){
+                columnDisplayNames[i] = displayName;
+            }else{
+                columnDisplayNames[i] = columnTechnicalNames[i];
+            }
         }
         return columnDisplayNames;
     }
