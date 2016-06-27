@@ -274,7 +274,7 @@ public class PoiExcelHelper {
             return ((HSSFColor) color).getTriplet();
 
         } else if (color instanceof XSSFColor) {
-            byte[] rgb = ((XSSFColor) color).getRGB();
+            byte[] rgb = ((XSSFColor) color).getRgb();
 
             // Byte to short
             if (rgb != null) {
