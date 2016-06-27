@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <import resource="classpath:openl-ruleservice-core-beans.xml"/>
+
+    <bean id="sysProps" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject" ref="ruleServiceInstantiationFactory"/>
+        <property name="targetMethod">
+            <value>setExternalParameters</value>
+        </property>
+        <property name="arguments">
+            <map>
+                <entry key="custom.spreadsheet.type" value="true"/>
+                <entry key="dispatching.mode" value="java"/>
+            </map>
+        </property>
+    </bean>
+
+</beans>

@@ -93,8 +93,7 @@ public class JcrProductionDeployerTestCase extends TestCase {
         ensureTestFolderExistsAndClear();
 
         productionRepositoryFactoryProxy = new ProductionRepositoryFactoryProxy();
-        productionRepositoryFactoryProxy.setConfigManagerFactory(new ConfigurationManagerFactory(true, null, ""));
-        
+
         instance = new JcrProductionDeployer(productionRepositoryFactoryProxy, ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE);
 
         project1 = makeProject();

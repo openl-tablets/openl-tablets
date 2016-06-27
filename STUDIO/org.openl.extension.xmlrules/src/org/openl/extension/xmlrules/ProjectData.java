@@ -6,13 +6,14 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import org.openl.base.INamedThing;
 import org.openl.extension.xmlrules.model.*;
 import org.openl.extension.xmlrules.model.lazy.LazyAttributes;
 import org.openl.extension.xmlrules.model.single.node.RangeNode;
 import org.openl.extension.xmlrules.utils.CellReference;
 import org.openl.extension.xmlrules.utils.RulesTableReference;
-import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.util.CollectionUtils;
+import org.openl.util.tree.ITreeElement;
 
 public class ProjectData {
     private static final ThreadLocal<ProjectData> INSTANCE = new ThreadLocal<ProjectData>();
@@ -40,10 +41,15 @@ public class ProjectData {
     private final Map<String, XmlRulesPath> tableFunctionPaths = new HashMap<String, XmlRulesPath>();
 
     private final Map<String, String> utilityTables = new HashMap<String, String>();
-    private final CollectionUtils.Predicate<String> utilityTablePredicate = new CollectionUtils.Predicate<String>() {
+    private final CollectionUtils.Predicate<ITreeElement> utilityTablePredicate = new CollectionUtils.Predicate<ITreeElement>() {
         @Override
-        public boolean evaluate(String tableName) {
-            return tableName.startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME) || utilityTables.containsKey(tableName);
+        public boolean evaluate(ITreeElement tableNode) {
+            if (tableNode.isLeaf() && tableNode instanceof INamedThing) {
+                INamedThing namedThing = (INamedThing) tableNode;
+                return utilityTables.containsKey(namedThing.getDisplayName(INamedThing.SHORT));
+            }
+
+            return false;
         }
     };
 
@@ -171,7 +177,7 @@ public class ProjectData {
         }
     }
 
-    public CollectionUtils.Predicate<String> getUtilityTablePredicate() {
+    public CollectionUtils.Predicate<ITreeElement> getUtilityTablePredicate() {
         return utilityTablePredicate;
     }
 

@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 public class FileSystemDataSourceTest {
     private FileSystemDataSource dataSource;
 
-    private static String FILE_SYSTEM_DATA_SOURCE_DIRECTORY = "test-resources/filesystemdatasource";
+    private static String FILE_SYSTEM_DATA_SOURCE_DIRECTORY = "target/filesystemdatasource";
 
     @Before
     public void setDataSource() {

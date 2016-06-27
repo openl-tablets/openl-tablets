@@ -11,12 +11,14 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:RuleServicePublisherLIstenerTest/openl-ruleservice-beans.xml" })
+@TestPropertySource(properties={"ruleservice.datasource.dir=test-resources/RulesPublisherTest", "ruleservice.isProvideRuntimeContext=false"})
+@ContextConfiguration({ "classpath:openl-ruleservice-beans.xml", "classpath:RuleServicePublisherLIstenerTest.xml" })
 public class RuleServicePublisherLIstenerTest implements ApplicationContextAware{
-    
+
     private ApplicationContext applicationContext;
 
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {

@@ -9,13 +9,13 @@ import org.openl.util.tree.ITreeElement;
 
 abstract class TreeBuilder {
 
-    private CollectionUtils.Predicate<String> utilityTablePredicate;
+    private CollectionUtils.Predicate<ITreeElement> utilityTablePredicate;
 
 
     TreeBuilder() {
     }
 
-    TreeBuilder(CollectionUtils.Predicate<String> utilityTablePredicate) {
+    TreeBuilder(CollectionUtils.Predicate<ITreeElement> utilityTablePredicate) {
         this.utilityTablePredicate = utilityTablePredicate;
     }
 
@@ -38,10 +38,10 @@ abstract class TreeBuilder {
         TreeNode node = createNode(element);
         Iterable<? extends ITreeElement<?>> children = element.getChildren();
         for (ITreeElement<?> child : children) {
-            TreeNode rfChild = buildNode(child);
-            if (utilityTablePredicate != null && utilityTablePredicate.evaluate(rfChild.getName())) {
+            if (utilityTablePredicate != null && utilityTablePredicate.evaluate(child)) {
                 continue;
             }
+            TreeNode rfChild = buildNode(child);
             node.addChild(rfChild, rfChild);
         }
         return node;

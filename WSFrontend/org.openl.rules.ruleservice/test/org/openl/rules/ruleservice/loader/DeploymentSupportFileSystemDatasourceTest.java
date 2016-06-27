@@ -10,10 +10,13 @@ import org.openl.rules.ruleservice.conf.LastVersionProjectsServiceConfigurer;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:DeploymentSupportFileSystemDatasourceTest/openl-ruleservice-filesystemdatasource-beans.xml" })
+@TestPropertySource(properties={"ruleservice.datasource.dir=test-resources/DeploymentSupportFileSystemDatasourceTest", "ruleservice.datasource.filesystem.supportDeployments = true",
+        "ruleservice.datasource.filesystem.supportVersion = true"})
+@ContextConfiguration({ "classpath:properties.xml", "classpath:openl-ruleservice-datasource-beans.xml", "classpath:openl-ruleservice-loader-beans.xml" })
 public class DeploymentSupportFileSystemDatasourceTest {
     @Autowired
     private RuleServiceLoader rulesLoader;
@@ -35,5 +38,4 @@ public class DeploymentSupportFileSystemDatasourceTest {
         assertEquals("deployment1", serviceDescription.getDeployment().getName());
         assertEquals("0.0.2", serviceDescription.getDeployment().getVersion().getVersionName());
     }
-
 }

@@ -27,7 +27,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:openl-ruleservice-datasource-jcr-beans.xml" })
+@ContextConfiguration({ "classpath:properties.xml", "classpath:openl-ruleservice-datasource-jcr-beans.xml" })
 public class RulesLoaderTest {
 
     @Autowired

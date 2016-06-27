@@ -18,7 +18,7 @@ import static org.openl.rules.ruleservice.Constants.DEPLOYMENT_NAME;
 import static org.openl.rules.ruleservice.Constants.VERSION;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:openl-ruleservice-datasource-jcr-beans.xml" })
+@ContextConfiguration({ "classpath:properties.xml", "classpath:openl-ruleservice-datasource-jcr-beans.xml" })
 public class JcrDataSourceTest {
 
     @Autowired

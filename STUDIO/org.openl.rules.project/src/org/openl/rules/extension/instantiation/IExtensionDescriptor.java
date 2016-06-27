@@ -6,6 +6,7 @@ import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.model.Module;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.CollectionUtils;
+import org.openl.util.tree.ITreeElement;
 
 public interface IExtensionDescriptor {
     String getOpenLName();
@@ -16,5 +17,5 @@ public interface IExtensionDescriptor {
 
     String getUrlForModule(Module module);
 
-    CollectionUtils.Predicate<String> getUtilityTablePredicate(XlsModuleSyntaxNode moduleSyntaxNode);
+    CollectionUtils.Predicate<ITreeElement> getUtilityTablePredicate(XlsModuleSyntaxNode moduleSyntaxNode);
 }

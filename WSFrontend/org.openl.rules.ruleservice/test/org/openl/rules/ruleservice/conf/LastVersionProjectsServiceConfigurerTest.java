@@ -13,10 +13,12 @@ import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:LastVersionProjectsServiceConfigurerTest/openl-ruleservice-filesystemdatasource-beans.xml" })
+@TestPropertySource(properties={"ruleservice.datasource.dir=test-resources/LastVersionProjectsServiceConfigurerTest"})
+@ContextConfiguration({ "classpath:properties.xml", "classpath:openl-ruleservice-datasource-beans.xml", "classpath:openl-ruleservice-loader-beans.xml" })
 public class LastVersionProjectsServiceConfigurerTest {
     private static final String PROJECT_NAME = "openl-project";
     

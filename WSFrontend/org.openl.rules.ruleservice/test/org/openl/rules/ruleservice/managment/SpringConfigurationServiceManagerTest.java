@@ -16,10 +16,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:SpringConfigurationServiceManagerTest/openl-ruleservice-beans.xml" })
+@TestPropertySource(properties={"ruleservice.datasource.type=jcr"})
+@ContextConfiguration(locations = { "classpath:openl-ruleservice-beans.xml" })
 @DirtiesContext
 public class SpringConfigurationServiceManagerTest implements ApplicationContextAware {
 
