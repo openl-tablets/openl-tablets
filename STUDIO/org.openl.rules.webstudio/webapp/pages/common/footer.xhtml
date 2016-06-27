@@ -12,23 +12,14 @@
         <a style="text-decoration: none" href="mailto:openltablets@eisgroup.com?subject=OpenL Tablets Feedback">Report a problem</a>
 
         <i style="position:absolute;right:13px;">
-            v#{versionProperties['openl.version']}
+            <c:set var="version" value="#{versionProperties['openl.version']}" />
+            <c:set var="commitHash" value="#{versionProperties['openl.commit.hash']}" />
+            <c:set var="commitHash" value="#{fn:endsWith(commitHash, '+') ? fn:substringBefore(commitHash, '+') : commitHash}" />
 
-            <c:set var="commitHash" value="#{fn:endsWith(versionProperties['openl.commit.hash'], '+') ? fn:substringBefore(versionProperties['openl.commit.hash'], '+') : versionProperties['openl.commit.hash']}" />
-            <c:set var="commitUrlPrefix" value="#{versionProperties['openl.commit.urlPrefix']}" />
-            <c:set var="hasCommitHash" value="#{!empty commitHash and !fn:startsWith(commitHash, '${')}" />
-            <c:set var="hasCommitUrl" value="#{!empty commitUrlPrefix and !fn:startsWith(commitUrlPrefix, '${')}" />
-
-            <h:panelGroup rendered="#{hasCommitHash}">
+            v#{version}
+            <h:panelGroup rendered="#{fn:endsWith(version, 'SNAPSHOT')}">
                 Revision hash:
-                <h:panelGroup rendered="#{hasCommitUrl}">
-                    <a href="#{commitUrlPrefix}#{commitHash}">
-                        <h:outputText value="#{commitHash}"/>
-                    </a>
-                </h:panelGroup>
-                <h:panelGroup rendered="#{!hasCommitUrl}">
-                    <h:outputText value="#{commitHash}"/>
-                </h:panelGroup>
+                <a href="https://sourceforge.net/p/openl-tablets/openl/ci/#{commitHash}">#{commitHash}</a>
             </h:panelGroup>
         </i>
     </div>
