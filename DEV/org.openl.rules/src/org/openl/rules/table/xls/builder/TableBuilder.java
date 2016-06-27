@@ -7,7 +7,12 @@ import java.util.Set;
 
 import java.io.IOException;
 
+import org.apache.poi.ss.usermodel.ClientAnchor;
+import org.apache.poi.ss.usermodel.Comment;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.xls.PoiExcelHelper;
+import org.openl.rules.table.xls.XlsCellComment;
 import org.openl.rules.table.xls.XlsCellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.formatters.XlsDateFormatter;
@@ -384,6 +389,20 @@ public class TableBuilder {
                 if (cell.getType() != Cell.CELL_TYPE_FORMULA && newCell.getCellType() == Cell.CELL_TYPE_FORMULA) {
                     newCell.setCellType(Cell.CELL_TYPE_STRING);
                     newCell.setCellValue(cellValue.toString());
+                }
+                ICellComment iCellComment = cell.getComment();
+                if (iCellComment != null) {
+                    Comment xlxComment = ((XlsCellComment) iCellComment).getXlxComment();
+                    Sheet sheet = newCell.getSheet();
+                    ClientAnchor anchor = sheet.getWorkbook().getCreationHelper().createClientAnchor();
+                    anchor.setCol1(newCell.getColumnIndex());
+                    anchor.setCol2(newCell.getColumnIndex() + 1);
+                    anchor.setRow1(newCell.getRow().getRowNum());
+                    anchor.setRow2(newCell.getRow().getRowNum() + 3);
+                    Comment comment = sheet.createDrawingPatriarch().createCellComment(anchor);
+                    comment.setAuthor(xlxComment.getAuthor());
+                    comment.setString(xlxComment.getString());
+                    newCell.setCellComment(comment);
                 }
             }
         }
