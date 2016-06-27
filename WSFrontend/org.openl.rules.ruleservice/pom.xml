@@ -90,10 +90,6 @@
         </plugins>
     </build>
     <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
         <!-- DEV -->
         <dependency>
             <groupId>org.openl</groupId>
