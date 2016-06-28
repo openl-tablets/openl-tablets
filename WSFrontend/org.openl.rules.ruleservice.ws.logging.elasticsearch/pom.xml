@@ -38,10 +38,6 @@
         </testResources>
     </build>
     <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
         <!-- RulesService -->
         <dependency>
             <groupId>org.openl.rules</groupId>
