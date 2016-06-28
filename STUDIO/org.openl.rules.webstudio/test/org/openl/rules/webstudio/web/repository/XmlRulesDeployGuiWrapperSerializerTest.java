@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.xml.RulesDeploySerializerFactory;
+import org.openl.rules.project.xml.SupportedVersion;
 
 public class XmlRulesDeployGuiWrapperSerializerTest {
 
@@ -11,6 +13,8 @@ public class XmlRulesDeployGuiWrapperSerializerTest {
     public void testSerialize() {
         RulesDeploy rulesDeploy = new RulesDeploy();
         rulesDeploy.setProvideRuntimeContext(false);
+
+        RulesDeploySerializerFactory serializerFactory = new RulesDeploySerializerFactory(null);
 
         RulesDeployGuiWrapper wrapper = new RulesDeployGuiWrapper(rulesDeploy);
         String config = "    <configuration>\n" + 
@@ -27,7 +31,7 @@ public class XmlRulesDeployGuiWrapperSerializerTest {
                 "  </configuration>";
         wrapper.setConfiguration(config);
         
-        String serialized = new XmlRulesDeployGuiWrapperSerializer().serialize(wrapper);
+        String serialized = new XmlRulesDeployGuiWrapperSerializer(serializerFactory).serialize(wrapper, SupportedVersion.getLastVersion());
 
         String expected = "<rules-deploy>\n" +
                 "  <isProvideRuntimeContext>false</isProvideRuntimeContext>\n" + 
@@ -69,8 +73,9 @@ public class XmlRulesDeployGuiWrapperSerializerTest {
                 "  </configuration>\n" + 
                 "\n" + 
                 "</rules-deploy>";
-        
-        RulesDeployGuiWrapper wrapper = new XmlRulesDeployGuiWrapperSerializer().deserialize(value);
+
+        RulesDeploySerializerFactory serializerFactory = new RulesDeploySerializerFactory(null);
+        RulesDeployGuiWrapper wrapper = new XmlRulesDeployGuiWrapperSerializer(serializerFactory).deserialize(value, SupportedVersion.getLastVersion());
         String expected = "<configuration>\n" + 
                 "    <entry>\n" + 
                 "      <string>key2</string>\n" + 
