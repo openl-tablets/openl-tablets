@@ -83,12 +83,8 @@
         <org.apache.poi.version>3.14</org.apache.poi.version>
         <org.apache.jackrabbit.version>2.8.0</org.apache.jackrabbit.version>
         <com.fasterxml.jackson.version>2.6.5</com.fasterxml.jackson.version>
-        <jacococ.argLine />
         <!-- Empty for building without JaCoCo agent -->
-        <!-- By default empty mercurial revision hash -->
-        <changeSet />
-        <!-- By default empty mercurial revision url -->
-	<changeSetUrlPrefix>https://sourceforge.net/p/openl-tablets/openl/ci/</changeSetUrlPrefix>
+        <jacococ.argLine />
     </properties>
 
     <modules>
