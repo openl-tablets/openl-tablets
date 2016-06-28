@@ -38,42 +38,46 @@ public class ActivePropertyValidator extends TablesValidator {
         // represented in current module. The only information about dependency
         // methods contains in openClass.
         //
-        Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupedMethods = groupExecutableMethods(tableSyntaxNodes);
+        Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupedMethods = groupExecutableMethods(
+            tableSyntaxNodes);
 
         for (DimensionPropertiesMethodKey key : groupedMethods.keySet()) {
             List<TableSyntaxNode> methodsGroup = groupedMethods.get(key);
-            boolean activeTableWasFound = false;
+            List<TableSyntaxNode> activeExecutableMethodTable = new ArrayList<TableSyntaxNode>();
+            int activeTableFoundCount = 0;
 
             for (TableSyntaxNode executableMethodTable : methodsGroup) {
                 if (executableMethodTable.getMember() instanceof TestSuiteMethod) {
-                    // all tests are active by default
-                    //
-                    activeTableWasFound = true;
+                    activeTableFoundCount++;
                     break;
                 }
                 if (executableMethodTable.getTableProperties() != null && isActive(executableMethodTable)) {
-                    if (activeTableWasFound) {
-                        if (validationResult == null) {
-                            validationResult = new ValidationResult(ValidationStatus.FAIL);
-                        }
-                        SyntaxNodeException exception = SyntaxNodeExceptionUtils.createError(ODD_ACTIVE_TABLE_MESSAGE,
-                                executableMethodTable);
-                        executableMethodTable.addError(exception);
-                        ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(exception));
-                    } else {
-                        activeTableWasFound = true;
-                    }
+                    activeExecutableMethodTable.add(executableMethodTable);
+                    activeTableFoundCount++;
                 }
             }
-            if (!activeTableWasFound) {
+
+            if (activeTableFoundCount > 1) {
+                if (validationResult == null) {
+                    validationResult = new ValidationResult(ValidationStatus.FAIL);
+                }
+                for (TableSyntaxNode executableMethodTable : activeExecutableMethodTable) {
+                    SyntaxNodeException exception = SyntaxNodeExceptionUtils.createError(ODD_ACTIVE_TABLE_MESSAGE,
+                        executableMethodTable);
+                    executableMethodTable.addError(exception);
+                    ValidationUtils.addValidationMessage(validationResult, new OpenLErrorMessage(exception));
+                }
+            }
+
+            if (activeTableFoundCount == 0) {
                 if (validationResult == null) {
                     validationResult = new ValidationResult(ValidationStatus.SUCCESS);
                 }
-                // warning is attached to any table syntax node
-                
-                for (TableSyntaxNode tsn : methodsGroup){
-                    ValidationUtils.addValidationMessage(validationResult, new OpenLWarnMessage(NO_ACTIVE_TABLE_MESSAGE,
-                        tsn));
+                // warning is attached to all table syntax node
+
+                for (TableSyntaxNode tsn : methodsGroup) {
+                    ValidationUtils.addValidationMessage(validationResult,
+                        new OpenLWarnMessage(NO_ACTIVE_TABLE_MESSAGE, tsn));
                 }
             }
         }
@@ -86,11 +90,11 @@ public class ActivePropertyValidator extends TablesValidator {
     }
 
     private boolean isActive(TableSyntaxNode executableMethodTable) {
-        return Boolean.TRUE.equals(executableMethodTable.getTableProperties()
-            .getActive());
+        return Boolean.TRUE.equals(executableMethodTable.getTableProperties().getActive());
     }
 
-    private Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupExecutableMethods(TableSyntaxNode[] tableSyntaxNodes) {
+    private Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupExecutableMethods(
+            TableSyntaxNode[] tableSyntaxNodes) {
         Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupedMethods = new HashMap<DimensionPropertiesMethodKey, List<TableSyntaxNode>>();
 
         for (TableSyntaxNode tsn : tableSyntaxNodes) {
