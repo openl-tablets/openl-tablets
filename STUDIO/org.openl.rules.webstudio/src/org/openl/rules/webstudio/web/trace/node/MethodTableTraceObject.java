@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.trace.node;
 
 import org.openl.rules.method.table.TableMethod;
+import org.openl.runtime.IRuntimeContext;
 
 /**
  * Trace object for method table.
@@ -9,7 +10,7 @@ import org.openl.rules.method.table.TableMethod;
  */
 public class MethodTableTraceObject extends ATableTracerNode {
 
-    MethodTableTraceObject(TableMethod method, Object[] params) {
-        super("method", "Method table", method, params);
+    MethodTableTraceObject(TableMethod method, Object[] params, IRuntimeContext context) {
+        super("method", "Method table", method, params, context);
     }
 }

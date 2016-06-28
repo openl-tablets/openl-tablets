@@ -2,14 +2,20 @@ package org.openl.rules.webstudio.web.trace.node;
 
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.OpenLArgumentsCloner;
+import org.openl.runtime.IRuntimeContext;
 
 public class ATableTracerNode extends SimpleTracerObject {
 
     private Object params[];
     private ExecutableRulesMethod method;
     private String prefix;
+    private final IRuntimeContext context;
 
     ATableTracerNode(String type, String prefix, ExecutableRulesMethod method, Object[] params) {
+        this(type, prefix, method, params, null);
+    }
+
+    ATableTracerNode(String type, String prefix, ExecutableRulesMethod method, Object[] params, IRuntimeContext context) {
         super(type);
         this.prefix = prefix;
         this.method = method;
@@ -27,6 +33,8 @@ public class ATableTracerNode extends SimpleTracerObject {
         } else {
             this.params = new Object[0];
         }
+
+        this.context = context;
     }
 
     public ExecutableRulesMethod getTraceObject() {
@@ -51,5 +59,9 @@ public class ATableTracerNode extends SimpleTracerObject {
     @Override
     public String getUri() {
         return getTraceObject().getSourceUrl();
+    }
+
+    public IRuntimeContext getContext() {
+        return context;
     }
 }
