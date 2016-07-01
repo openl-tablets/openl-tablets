@@ -378,6 +378,7 @@ public class FileUtils {
      * <p>
      * This method returns the textual part of the filename after the last dot.
      * There must be no directory separator after the dot.
+     * 
      * <pre>
      * a/b/c.txt    --> txt
      * a.b.txt      --> txt
@@ -387,24 +388,19 @@ public class FileUtils {
      * <p>
      *
      * @param filename the filename to retrieve the extension of.
-     * @return the extension of the file or an empty string if none exists or {@code null}
-     * if the filename is {@code null}.
+     * @return the extension of the file or an empty string if none exists or
+     *         {@code null} if the filename is {@code null}.
      */
     public static String getExtension(String filename) {
         if (filename == null) {
             return null;
         }
 
-        int dot = filename.lastIndexOf('.');
+        int dot = getExtensionIndex(filename);
         if (dot == -1) {
             return StringUtils.EMPTY;
-        }
-
-        int sep = getSeparatorIndex(filename);
-        if (sep < dot) {
-            return filename.substring(dot + 1);
         } else {
-            return StringUtils.EMPTY;
+            return filename.substring(dot + 1);
         }
     }
 
@@ -430,13 +426,8 @@ public class FileUtils {
             return null;
         }
 
-        int dot = filename.lastIndexOf('.');
+        int dot = getExtensionIndex(filename);
         if (dot == -1) {
-            return filename;
-        }
-
-        int sep = getSeparatorIndex(filename);
-        if (sep > dot) {
             return filename;
         } else {
             return filename.substring(0, dot);
@@ -447,5 +438,17 @@ public class FileUtils {
         int winSep = filename.lastIndexOf('\\');
         int unixSep = filename.lastIndexOf('/');
         return winSep > unixSep ? winSep : unixSep;
+    }
+
+    private static int getExtensionIndex(String filename) {
+        int dot = filename.lastIndexOf('.');
+        if (dot == -1) {
+            return -1;
+        }
+        int sep = getSeparatorIndex(filename);
+        if (dot > sep) {
+            return dot;
+        }
+        return -1;
     }
 }
