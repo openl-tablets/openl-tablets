@@ -16,7 +16,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.io.FilenameUtils;
+import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
 /**
@@ -59,7 +59,7 @@ public class WebResourceFilter implements Filter {
                 }
 
                 // IE 9 fix
-                if (FilenameUtils.isExtension(path, "css")) {
+                if ("css".equals(FileUtils.getExtension(path))) {
                     response.setContentType("text/css");
                 }
 

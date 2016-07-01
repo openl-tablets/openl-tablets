@@ -45,12 +45,38 @@ public class FileUtilsTest {
         assertEquals("c.txt",FileUtils.getName("a/b/c.txt"));
         assertEquals("c",FileUtils.getName("a/b/c"));
         assertEquals("",FileUtils.getName("a/b/c/"));
+        assertEquals("c",FileUtils.getName("a/b.txt/c"));
 
         assertEquals("",FileUtils.getName("\\"));
         assertEquals("c",FileUtils.getName("\\c"));
         assertEquals("c.txt",FileUtils.getName("a\\b\\c.txt"));
         assertEquals("c",FileUtils.getName("a\\b\\c"));
         assertEquals("",FileUtils.getName("a\\b\\c\\"));
+        assertEquals("c",FileUtils.getName("a\\b.txt\\c"));
+    }
+
+    @Test
+    public void testGetExtension() throws Exception {
+        assertEquals(null,FileUtils.getExtension(null));
+
+        assertEquals("",FileUtils.getExtension(""));
+        assertEquals("txt",FileUtils.getExtension(".txt"));
+        assertEquals("txt",FileUtils.getExtension("a.txt"));
+        assertEquals("txt",FileUtils.getExtension("a.b.txt"));
+
+        assertEquals("",FileUtils.getExtension("/"));
+        assertEquals("",FileUtils.getExtension("/c"));
+        assertEquals("txt",FileUtils.getExtension("a/b/c.txt"));
+        assertEquals("",FileUtils.getExtension("a/b/c"));
+        assertEquals("",FileUtils.getExtension("a/b/c/"));
+        assertEquals("",FileUtils.getExtension("a/b.txt/c"));
+
+        assertEquals("",FileUtils.getExtension("\\"));
+        assertEquals("",FileUtils.getExtension("\\c"));
+        assertEquals("txt",FileUtils.getExtension("a\\b\\c.txt"));
+        assertEquals("",FileUtils.getExtension("a\\b\\c"));
+        assertEquals("",FileUtils.getExtension("a\\b\\c\\"));
+        assertEquals("",FileUtils.getExtension("a\\b.txt\\c"));
     }
 
     @Test
@@ -67,11 +93,13 @@ public class FileUtilsTest {
         assertEquals("a/b/c",FileUtils.removeExtension("a/b/c.txt"));
         assertEquals("a/b/c",FileUtils.removeExtension("a/b/c"));
         assertEquals("a/b/c/",FileUtils.removeExtension("a/b/c/"));
+        assertEquals("a/b.txt/c",FileUtils.removeExtension("a/b.txt/c"));
 
         assertEquals("\\",FileUtils.removeExtension("\\"));
         assertEquals("\\c",FileUtils.removeExtension("\\c"));
         assertEquals("a\\b\\c",FileUtils.removeExtension("a\\b\\c.txt"));
         assertEquals("a\\b\\c",FileUtils.removeExtension("a\\b\\c"));
         assertEquals("a\\b\\c\\",FileUtils.removeExtension("a\\b\\c\\"));
+        assertEquals("a\\b.txt\\c",FileUtils.removeExtension("a\\b.txt\\c"));
     }
 }
