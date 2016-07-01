@@ -1171,86 +1171,38 @@ void IndexTypeExpression() :
   }
 
 void IndexOperator() :
-{Token x1,x2, x3; String prefix;}
 {
-   LOOKAHEAD(6)
-  (x1="[" IndexTypeExpression()  (
-      (x3="@ " | x3="select all having" | x3="select all where " ) {prefix="selectall.index";}  |
-      (x3="!@" | x3="select first having" | x3="select first where") {prefix="selectfirst.index";}  |
-      (x3="^@" | x3="order by" | x3="order increasing by") {prefix="orderby.index";}  |
-      (x3="v@" | x3="order decreasing by") {prefix="orderdecreasingby.index";}  |
-      (x3="~@" | x3="s@" | x3="split by") {prefix="splitby.index";}  |
-      (x3="*@" | x3="transform to") {prefix="transform.index";}  |
-      (x3="*!@" | x3="transform unique to") {prefix="transformunique.index";}
-      )  
+  Token x1,x2;
+  String prefix;
+  boolean hasTypeExpression = false;
+}
+{
+  LOOKAHEAD(5)
+  (x1="[" [IndexTypeExpression() {hasTypeExpression = true;}]  (
+      ("@" | "select all having" | "select all where" ) {prefix="selectall.index";}  |
+      ("!@" | "select first having" | "select first where") {prefix="selectfirst.index";}  |
+      ("^@" | "order by" | "order increasing by") {prefix="orderby.index";}  |
+      ("v@" | "order decreasing by") {prefix="orderdecreasingby.index";}  |
+      ("~@" | "s@" | "split by") {prefix="splitby.index";}  |
+      ("*@" | "transform to") {prefix="transform.index";}  |
+      ("*!@" | "transform unique to") {prefix="transformunique.index";}
+      )
       Expression()
   x2="]"
   {
-    syntaxBuilder.nop(prefix, pos(x1, x2), 2);
-    
+    if (hasTypeExpression) {
+        syntaxBuilder.nop(prefix, pos(x1, x2), 2);
+    } else {
+        syntaxBuilder.uop(prefix, pos(x1, x2));
+    }
   })
 |
-LOOKAHEAD(2)
   ( x1="["
     Expression()
   x2="]"
   {
     syntaxBuilder.uop("op.index", pos(x1, x2));
-    
   })
-|
-  ( (x1="[!@" | x1="[select first having " | x1="[select first where ") Expression()
-  x2="]"
-  {
-    syntaxBuilder.uop("selectfirst.index", pos(x1, x2));
-    
-  })
-|
-  ( (x1="[@" | x1="[select all having " | x1="[select all where ") Expression()
-  x2="]"
-  {
-    syntaxBuilder.uop("selectall.index", pos(x1, x2));
-    
-  })
-|
-  ( (x1="[^@" | x1="[order by " | x1="[order increasing by ") Expression()
-  x2="]"
-  {
-    syntaxBuilder.uop("orderby.index", pos(x1, x2));
-    
-  })
-|
-  ( (x1="[v@" | x1="[order decreasing by ") Expression()
-  x2="]"
-  {
-    syntaxBuilder.uop("orderdecreasingby.index", pos(x1, x2));
-    
-  })
-|
-  ( (x1="[~@" | x1="[s@" | x1="[split by ") Expression()
-  x2="]"
-  {
-    syntaxBuilder.uop("splitby.index", pos(x1, x2));
-    
-  })
-|
-  ( (x1="[*@" | x1="[transform to ") Expression()
-  x2="]"
-  {
-    syntaxBuilder.uop("transform.index", pos(x1, x2));
-    
-  })
-|
-  ( (x1="[*!@" | x1="[transform unique to ") Expression()
-  x2="]"
-  {
-    syntaxBuilder.uop("transformunique.index", pos(x1, x2));
-    
-  })
-  
-  
-  
-  
 }
 
 void AbsExpression() :
