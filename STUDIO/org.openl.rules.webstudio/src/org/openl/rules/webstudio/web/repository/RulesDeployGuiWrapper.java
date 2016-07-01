@@ -2,15 +2,18 @@ package org.openl.rules.webstudio.web.repository;
 
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
+import org.openl.rules.project.xml.SupportedVersion;
 
 public class RulesDeployGuiWrapper {
     private static final PublisherType[] DEFAULT_PUBLISHERS = new PublisherType[] { PublisherType.WEBSERVICE,
             PublisherType.RESTFUL };
     private final RulesDeploy rulesDeploy;
     private String configuration;
+    private final SupportedVersion version;
 
-    public RulesDeployGuiWrapper(RulesDeploy rulesDeploy) {
+    public RulesDeployGuiWrapper(RulesDeploy rulesDeploy, SupportedVersion version) {
         this.rulesDeploy = rulesDeploy;
+        this.version = version;
     }
 
     public RulesDeploy getRulesDeploy() {
@@ -89,6 +92,10 @@ public class RulesDeployGuiWrapper {
     }
 
     public PublisherType[] getAvailablePublishers() {
+        if (version.compareTo(SupportedVersion.V5_15) <=0) {
+            return new PublisherType[] {PublisherType.WEBSERVICE, PublisherType.RESTFUL};
+        }
+
         return PublisherType.values();
     }
 }

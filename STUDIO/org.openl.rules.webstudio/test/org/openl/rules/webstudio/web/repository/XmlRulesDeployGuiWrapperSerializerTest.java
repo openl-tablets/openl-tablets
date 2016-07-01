@@ -16,7 +16,7 @@ public class XmlRulesDeployGuiWrapperSerializerTest {
 
         RulesDeploySerializerFactory serializerFactory = new RulesDeploySerializerFactory(null);
 
-        RulesDeployGuiWrapper wrapper = new RulesDeployGuiWrapper(rulesDeploy);
+        RulesDeployGuiWrapper wrapper = new RulesDeployGuiWrapper(rulesDeploy, SupportedVersion.getLastVersion());
         String config = "    <configuration>\n" + 
                 "    <entry>\n" + 
                 "      <string>key2</string>\n" + 

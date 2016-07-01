@@ -72,7 +72,7 @@ public class RepositoryProjectRulesDeployConfig {
     }
 
     public void createRulesDeploy() {
-        rulesDeploy = new RulesDeployGuiWrapper(new RulesDeploy());
+        rulesDeploy = new RulesDeployGuiWrapper(new RulesDeploy(), getSupportedVersion());
 
         // default values
         rulesDeploy.setProvideRuntimeContext(true);
@@ -112,6 +112,10 @@ public class RepositoryProjectRulesDeployConfig {
             FacesUtils.addErrorMessage("Cannot save " + RULES_DEPLOY_CONFIGURATION_FILE + " file");
             log.error(e.getMessage(), e);
         }
+    }
+
+    private SupportedVersion getSupportedVersion() {
+        return getSupportedVersion(getProject());
     }
 
     private SupportedVersion getSupportedVersion(UserWorkspaceProject project) {
@@ -163,5 +167,13 @@ public class RepositoryProjectRulesDeployConfig {
         if (StringUtils.isNotBlank(className)) {
             FacesUtils.validate(className.matches("([\\w$]+\\.)*[\\w$]+"), "Invalid class name");
         }
+    }
+
+    public boolean isVersionSupported() {
+        return getSupportedVersion().compareTo(SupportedVersion.V5_17) >= 0;
+    }
+
+    public boolean isPublishersSupported() {
+        return getSupportedVersion().compareTo(SupportedVersion.V5_14) >= 0;
     }
 }

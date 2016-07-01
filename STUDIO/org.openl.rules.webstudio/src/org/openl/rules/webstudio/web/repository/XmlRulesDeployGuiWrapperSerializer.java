@@ -52,7 +52,7 @@ public class XmlRulesDeployGuiWrapperSerializer {
         }
 
         RulesDeploy rulesDeploy = getSerializer(version).deserialize(IOUtils.toInputStream(source));
-        RulesDeployGuiWrapper result = new RulesDeployGuiWrapper(rulesDeploy);
+        RulesDeployGuiWrapper result = new RulesDeployGuiWrapper(rulesDeploy, version);
         result.setConfiguration(configuration);
         return result;
     }
