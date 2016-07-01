@@ -1,6 +1,5 @@
 package org.openl.rules.ui.tablewizard;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.hibernate.validator.constraints.NotBlank;
@@ -18,6 +17,7 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,7 +95,7 @@ public abstract class TableCreationWizard extends BaseWizard {
     }
 
     public String getModuleName() {
-        return FilenameUtils.getBaseName(workbook);
+        return FileUtils.getBaseName(workbook);
     }
 
     public void setWorksheetIndex(Integer worksheetIndex) {
@@ -105,7 +105,7 @@ public abstract class TableCreationWizard extends BaseWizard {
     public List<SelectItem> getWorkbooks() {
         List<SelectItem> items = new ArrayList<SelectItem>(workbooks.size());
         for (String wbURI : workbooks.keySet()) {
-            items.add(new SelectItem(wbURI, FilenameUtils.getBaseName(wbURI)));
+            items.add(new SelectItem(wbURI, FileUtils.getBaseName(wbURI)));
         }
 
         return items;

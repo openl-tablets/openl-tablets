@@ -1,9 +1,9 @@
 package org.openl.rules.ruleservice.loader;
 
-import org.apache.commons.io.FilenameUtils;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
+import org.openl.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -113,7 +113,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
      */
 
     private static void unpack(File jarFile, String destDir) throws IOException {
-        File newProjectDir = new File(destDir, FilenameUtils.getBaseName(jarFile.getCanonicalPath()));
+        File newProjectDir = new File(destDir, FileUtils.getBaseName(jarFile.getCanonicalPath()));
         newProjectDir.mkdirs();
 
         JarFile jar = null;
@@ -189,7 +189,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
 
                 File d = desFile;
                 if (!isUnpackAllJarsInOneDeployment()) {
-                    String folderName = FilenameUtils.getBaseName(name);
+                    String folderName = FileUtils.getBaseName(name);
                     if (isSupportDeploymentVersion()) {
                         folderName = folderName + getDeploymentVersionSuffix();
                     }
@@ -197,7 +197,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                     d.mkdirs();
                 }
 
-                File newProjectDir = new File(d, FilenameUtils.getBaseName(name));
+                File newProjectDir = new File(d, FileUtils.getBaseName(name));
                 Class<?> VFSUtilsClazz = Thread.currentThread()
                     .getContextClassLoader()
                     .loadClass("org.jboss.vfs.VFSUtils");
@@ -273,7 +273,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
 
             File d = desFile;
             if (!isUnpackAllJarsInOneDeployment()) {
-                String folderName = FilenameUtils.getBaseName(file.getCanonicalPath());
+                String folderName = FileUtils.getBaseName(file.getCanonicalPath());
                 if (isSupportDeploymentVersion()) {
                     folderName = folderName + getDeploymentVersionSuffix();
                 }

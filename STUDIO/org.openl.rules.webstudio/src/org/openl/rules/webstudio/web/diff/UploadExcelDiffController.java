@@ -7,8 +7,8 @@ import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
-import org.apache.commons.io.FilenameUtils;
 import org.openl.util.FileTool;
+import org.openl.util.FileUtils;
 import org.richfaces.event.FileUploadEvent;
 import org.richfaces.model.UploadedFile;
 
@@ -42,7 +42,7 @@ public class UploadExcelDiffController extends ExcelDiffController {
             List<File> filesToCompare = new ArrayList<File>();
             for (UploadedFile uploadedFile : uploadedFiles) {
                 File fileToCompare = FileTool.toTempFile(
-                        uploadedFile.getInputStream(), FilenameUtils.getName(uploadedFile.getName()));
+                        uploadedFile.getInputStream(), FileUtils.getName(uploadedFile.getName()));
                 filesToCompare.add(fileToCompare);
             }
             compare(filesToCompare);
