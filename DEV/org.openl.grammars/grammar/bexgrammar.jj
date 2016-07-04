@@ -1173,12 +1173,14 @@ void IndexTypeExpression() :
 void IndexOperator() :
 {
   Token x1,x2;
-  String prefix;
+  String prefix = "op.index";
   boolean hasTypeExpression = false;
 }
 {
-  LOOKAHEAD(5)
-  (x1="[" [IndexTypeExpression() {hasTypeExpression = true;}]  (
+  (x1="["
+   [
+      LOOKAHEAD(4)
+      [IndexTypeExpression() {hasTypeExpression = true;}]  (
       ("@" | "select all having" | "select all where" ) {prefix="selectall.index";}  |
       ("!@" | "select first having" | "select first where") {prefix="selectfirst.index";}  |
       ("^@" | "order by" | "order increasing by") {prefix="orderby.index";}  |
@@ -1187,6 +1189,7 @@ void IndexOperator() :
       ("*@" | "transform to") {prefix="transform.index";}  |
       ("*!@" | "transform unique to") {prefix="transformunique.index";}
       )
+   ]
       Expression()
   x2="]"
   {
@@ -1195,13 +1198,6 @@ void IndexOperator() :
     } else {
         syntaxBuilder.uop(prefix, pos(x1, x2));
     }
-  })
-|
-  ( x1="["
-    Expression()
-  x2="]"
-  {
-    syntaxBuilder.uop("op.index", pos(x1, x2));
   })
 }
 
