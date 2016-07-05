@@ -20,15 +20,12 @@ import javax.faces.context.FacesContext;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.project.IProjectDescriptorSerializer;
+import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.SafeCloner;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.project.model.MethodFilter;
-import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.PathEntry;
-import org.openl.rules.project.model.ProjectDependencyDescriptor;
-import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.model.*;
 import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.project.resolving.EclipseBasedResolvingStrategy;
 import org.openl.rules.project.resolving.FileNamePatternValidator;
@@ -41,6 +38,7 @@ import org.openl.rules.project.resolving.PropertiesFileNameProcessorBuilder;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
+import org.openl.rules.project.xml.RulesDeploySerializerFactory;
 import org.openl.rules.project.xml.SupportedVersion;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.WebStudio;
@@ -61,6 +59,7 @@ import org.springframework.util.PathMatcher;
 @ManagedBean
 @RequestScoped
 public class ProjectBean {
+    private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
     private final ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
 
     @ManagedProperty(value = "#{repositoryTreeState}")
@@ -68,6 +67,9 @@ public class ProjectBean {
 
     @ManagedProperty(value = "#{projectDescriptorSerializerFactory}")
     private ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory;
+    @ManagedProperty(value = "#{rulesDeploySerializerFactory}")
+    private RulesDeploySerializerFactory rulesDeploySerializerFactory;
+
 
     private WebStudio studio = WebStudioUtils.getWebStudio();
 
@@ -85,6 +87,7 @@ public class ProjectBean {
     private String newFileName;
     private String currentPathPattern;
     private Integer currentModuleIndex;
+    private IRulesDeploySerializer rulesDeploySerializer;
 
     public String getModulePath(Module module) {
         PathEntry modulePath = module.getRulesRootPath();
@@ -512,6 +515,14 @@ public class ProjectBean {
                 project.addResource(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME, inputStream);
                 // repositoryTreeState.refreshSelectedNode();
             }
+
+            if (project.hasArtefact(RULES_DEPLOY_XML)) {
+                AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_XML);
+                RulesDeploy rulesDeploy = rulesDeploySerializerFactory.getSerializer(SupportedVersion.getLastVersion())
+                        .deserialize(artefact.getContent());
+                artefact.setContent(new ByteArrayInputStream(rulesDeploySerializer.serialize(rulesDeploy).getBytes("UTF-8")));
+            }
+
             refreshProject(project.getName());
         } catch (ValidationException e) {
             throw new Message(e.getMessage());
@@ -533,6 +544,8 @@ public class ProjectBean {
 
         serializer = projectDescriptorSerializerFactory.getSerializer(version);
         projectDescriptorManager.setSerializer(serializer);
+
+        rulesDeploySerializer = rulesDeploySerializerFactory.getSerializer(version);
     }
 
     private void clean(ProjectDescriptor descriptor) {
@@ -593,6 +606,10 @@ public class ProjectBean {
 
     public void setProjectDescriptorSerializerFactory(ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory) {
         this.projectDescriptorSerializerFactory = projectDescriptorSerializerFactory;
+    }
+
+    public void setRulesDeploySerializerFactory(RulesDeploySerializerFactory rulesDeploySerializerFactory) {
+        this.rulesDeploySerializerFactory = rulesDeploySerializerFactory;
     }
 
     public UIInput getPropertiesFileNameProcessorInput() {

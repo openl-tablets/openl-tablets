@@ -16,7 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FilenameUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.conf.ClassLoaderFactory;
@@ -86,6 +85,7 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
+import org.openl.util.FileUtils;
 import org.openl.util.ISelector;
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -1121,7 +1121,7 @@ public class ProjectModel {
                 for (WorkbookSyntaxNode workbookSyntaxNode : workbookNodes) {
                     XlsWorkbookSourceCodeModule module = workbookSyntaxNode.getWorkbookSourceCodeModule();
                     boolean currentModule = this.moduleInfo.getRulesRootPath() == null ||
-                            module.getSourceFile().getName().equals(FilenameUtils.getName(this.moduleInfo.getRulesRootPath().getPath()));
+                            module.getSourceFile().getName().equals(FileUtils.getName(this.moduleInfo.getRulesRootPath().getPath()));
                     module.getWorkbookLoader().setCanUnload(!currentModule);
                 }
             }
@@ -1312,7 +1312,7 @@ public class ProjectModel {
         for (WorkbookSyntaxNode workbookSyntaxNode : workbookNodes) {
             XlsWorkbookSourceCodeModule module = workbookSyntaxNode.getWorkbookSourceCodeModule();
             if (rulesRootPath != null &&
-                    module.getSourceFile().getName().equals(FilenameUtils.getName(rulesRootPath.getPath()))) {
+                    module.getSourceFile().getName().equals(FileUtils.getName(rulesRootPath.getPath()))) {
                 return module;
             }
         }

@@ -11,7 +11,6 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.method.ExecutableRulesMethod;
@@ -24,11 +23,9 @@ import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.TraceHelper;
-import org.openl.rules.webstudio.web.test.Context;
 import org.openl.rules.webstudio.web.trace.node.*;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.runtime.IRuntimeContext;
 import org.openl.util.ClassUtils;
 import org.openl.util.CollectionUtils;
 
@@ -108,15 +105,7 @@ public class ShowTraceTableBean {
             return null;
         }
 
-        if (tracerNode instanceof OverloadedMethodChoiceTraceObject) {
-            IRuntimeContext context = ((OverloadedMethodChoiceTraceObject) tracerNode).getContext();
-            if (context instanceof IRulesRuntimeContext) {
-                context = new Context((IRulesRuntimeContext) context);
-            }
-            return new ParameterWithValueDeclaration("context", context);
-        }
-
-        return null;
+        return new ParameterWithValueDeclaration("context", tracerNode.getContext());
     }
 
     private ATableTracerNode getTableTracerNode() {

@@ -36,8 +36,8 @@
       <h:outputLabel for="#{prefix}provideVariations" value="Provide variations"/>
       <h:selectBooleanCheckbox id="#{prefix}provideVariations" value="#{rulesDeploy.provideVariations}" disabled="#{!openedForEditing}"/>
 
-      <h:outputLabel for="#{prefix}publishers" value="Create services"/>
-      <h:panelGroup>
+      <h:outputLabel for="#{prefix}publishers" value="Create services" rendered="#{repositoryProjectRulesDeployConfig.publishersSupported}"/>
+      <h:panelGroup rendered="#{repositoryProjectRulesDeployConfig.publishersSupported}">
         <h:selectManyCheckbox id="#{prefix}publishers" value="#{rulesDeploy.publishers}" disabled="#{!openedForEditing}"
                               required="true" layout="lineDirection" requiredMessage="Please, select at least one service">
            <f:selectItems value="#{rulesDeploy.availablePublishers}" var="publisher" itemValue="#{publisher}" itemLabel="#{msg['ws.deploy.publisher.'.concat(publisher)]}" />
@@ -63,8 +63,8 @@
           <h:message for="#{prefix}serviceClass" styleClass="error" style="display: block" />
       </h:panelGroup>
       
-      <h:outputLabel for="#{prefix}version" value="Version"/>
-      <h:panelGroup id="#{prefix}version" style="white-space: nowrap;">
+      <h:outputLabel for="#{prefix}version" value="Version" rendered="#{repositoryProjectRulesDeployConfig.versionSupported}"/>
+      <h:panelGroup id="#{prefix}version" style="white-space: nowrap;" rendered="#{repositoryProjectRulesDeployConfig.versionSupported}">
           <oh:inputVersion value="#{rulesDeploy.version}" id="#{prefix}input-version" shortView="true" rendered="#{openedForEditing}"/>
           <h:outputText value="#{rulesDeploy.version}" rendered="#{!openedForEditing}"/>
       </h:panelGroup>

@@ -5,7 +5,10 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.project.impl.local.LocalArtefactAPI;
 import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.xml.RulesDeploySerializerFactory;
+import org.openl.rules.project.xml.SupportedVersion;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.IOUtils;
@@ -29,10 +32,12 @@ public class RepositoryProjectRulesDeployConfig {
 
     @ManagedProperty(value = "#{repositoryTreeState}")
     private RepositoryTreeState repositoryTreeState;
+    @ManagedProperty(value = "#{rulesDeploySerializerFactory}")
+    private RulesDeploySerializerFactory rulesDeploySerializerFactory;
 
     private WebStudio studio = WebStudioUtils.getWebStudio(true);
 
-    private final XmlRulesDeployGuiWrapperSerializer serializer = new XmlRulesDeployGuiWrapperSerializer();
+    private XmlRulesDeployGuiWrapperSerializer serializer;
 
     private RulesDeployGuiWrapper rulesDeploy;
     private UserWorkspaceProject lastProject;
@@ -42,6 +47,11 @@ public class RepositoryProjectRulesDeployConfig {
 
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
         this.repositoryTreeState = repositoryTreeState;
+    }
+
+    public void setRulesDeploySerializerFactory(RulesDeploySerializerFactory rulesDeploySerializerFactory) {
+        this.rulesDeploySerializerFactory = rulesDeploySerializerFactory;
+        serializer = new XmlRulesDeployGuiWrapperSerializer(rulesDeploySerializerFactory);
     }
 
     public RulesDeployGuiWrapper getRulesDeploy() {
@@ -62,7 +72,7 @@ public class RepositoryProjectRulesDeployConfig {
     }
 
     public void createRulesDeploy() {
-        rulesDeploy = new RulesDeployGuiWrapper(new RulesDeploy());
+        rulesDeploy = new RulesDeployGuiWrapper(new RulesDeploy(), getSupportedVersion());
 
         // default values
         rulesDeploy.setProvideRuntimeContext(true);
@@ -87,7 +97,8 @@ public class RepositoryProjectRulesDeployConfig {
     public void saveRulesDeploy() {
         try {
             UserWorkspaceProject project = getProject();
-            InputStream inputStream = IOUtils.toInputStream(serializer.serialize(rulesDeploy));
+
+            InputStream inputStream = IOUtils.toInputStream(serializer.serialize(rulesDeploy, getSupportedVersion(project)));
 
             if (project.hasArtefact(RULES_DEPLOY_CONFIGURATION_FILE)) {
                 AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
@@ -103,6 +114,17 @@ public class RepositoryProjectRulesDeployConfig {
         }
     }
 
+    private SupportedVersion getSupportedVersion() {
+        return getSupportedVersion(getProject());
+    }
+
+    private SupportedVersion getSupportedVersion(UserWorkspaceProject project) {
+        if (project.getAPI() instanceof LocalArtefactAPI) {
+            return rulesDeploySerializerFactory.getSupportedVersion(((LocalArtefactAPI) project.getAPI()).getSource());
+        }
+        return SupportedVersion.getLastVersion();
+    }
+
     private UserWorkspaceProject getProject() {
         return repositoryTreeState.getSelectedProject();
     }
@@ -116,7 +138,7 @@ public class RepositoryProjectRulesDeployConfig {
             AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
             InputStream content = artefact.getContent();
             String sourceString = IOUtils.toStringAndClose(content);
-            return serializer.deserialize(sourceString);
+            return serializer.deserialize(sourceString, getSupportedVersion(project));
         } catch (IOException e) {
             FacesUtils.addErrorMessage("Cannot read " + RULES_DEPLOY_CONFIGURATION_FILE + " file");
             log.error(e.getMessage(), e);
@@ -145,5 +167,13 @@ public class RepositoryProjectRulesDeployConfig {
         if (StringUtils.isNotBlank(className)) {
             FacesUtils.validate(className.matches("([\\w$]+\\.)*[\\w$]+"), "Invalid class name");
         }
+    }
+
+    public boolean isVersionSupported() {
+        return getSupportedVersion().compareTo(SupportedVersion.V5_17) >= 0;
+    }
+
+    public boolean isPublishersSupported() {
+        return getSupportedVersion().compareTo(SupportedVersion.V5_14) >= 0;
     }
 }

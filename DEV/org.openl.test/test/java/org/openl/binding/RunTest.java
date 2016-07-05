@@ -258,15 +258,17 @@ public class RunTest extends TestCase {
     	
         _runNoError("String[] ary = {\"aab\", \"ddd\", \"aac\", \"aaba\"}; ary[*@ substring(0,1)].length", 4, OpenL.OPENL_J_NAME);
         _runNoError("String[] ary = {\"aab\", \"ddd\", \"aac\", \"aaba\"}; ary[*!@ substring(0,1)].length", 2, OpenL.OPENL_J_NAME);
-        
+
         
         //test named element
         
    //     _runNoError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; int x = 3; ary[(String s) @ length() == x][0]", "ddd", OpenL.OPENL_J_NAME);
         _runNoError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[(String s) !@ s.startsWith(\"b\")]", "bb", OpenL.OPENL_J_NAME);
         _runNoError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[( s ) !@ s.startsWith(\"aa\")]", "aaa", OpenL.OPENL_J_NAME);
-        
-        
+        // Index variable in parentheses must not be parsed as aggregate operator
+        _runNoError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; int i = 1; ary[ (i) ]", "ddd", OpenL.OPENL_J_NAME);
+
+
         _runNoError("String[] ary = {\"bbcc\", \"dddee\",\"aaabbe\" ,\"aaabb\",}; ary[!@startsWith (ary[( s ) !@ s.toUpperCase().endsWith(\"BB\")])]", "aaabbe", OpenL.OPENL_J_NAME);
         
         _runNoError("String[] ary = {\"bbccdd\", \"dddee\",\"dddeedd\", \"ddd\" ,\"aaabbdd\",}; ary[(s1)!@ s1.startsWith (ary[( s2 ) !@ s2.toUpperCase().startsWith(\"DD\") && s2 != s1])]", "dddeedd", OpenL.OPENL_J_NAME);
@@ -301,7 +303,10 @@ public class RunTest extends TestCase {
         
         _runNoError("List list = new ArrayList(); list.add(\"AABA\"); list.add(\"ddd\"); list.add( \"aac\"); list.add(\"aab\"); list[(String x) *@ substring(0,1)].length", 4, OpenL.OPENL_J_NAME);
         _runNoError("List list = new ArrayList(); list.add(\"AABA\"); list.add(\"ddd\"); list.add( \"aac\"); list.add(\"aab\"); list[(String x) *!@ substring(0,1).toLowerCase()].length", 2, OpenL.OPENL_J_NAME);
-        
+
+        // Test spaces
+        _runNoError("String[] ary = {\"z\", \"dd\", \"aac\", \"aaba\"}; ary[ order by toString() ][0]", "aaba", OpenL.OPENL_J_NAME);
+        _runNoError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[ !@ startsWith(\"d\") ]", "ddd", OpenL.OPENL_J_NAME);
     }
     
     

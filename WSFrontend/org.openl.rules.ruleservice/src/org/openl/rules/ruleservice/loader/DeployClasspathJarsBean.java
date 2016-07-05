@@ -7,7 +7,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
 
-import org.apache.commons.io.FilenameUtils;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.workspace.deploy.ProductionRepositoryDeployer;
@@ -62,7 +61,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
                 String name = (String) getNameMethod.invoke(jarFile);
                 File tempDir = FileUtils.createTempDirectory();
                 try {
-                    File newProjectDir = new File(tempDir, FilenameUtils.getBaseName(name));
+                    File newProjectDir = new File(tempDir, FileUtils.getBaseName(name));
                     Class<?> VFSUtilsClazz = Thread.currentThread()
                         .getContextClassLoader()
                         .loadClass("org.jboss.vfs.VFSUtils");

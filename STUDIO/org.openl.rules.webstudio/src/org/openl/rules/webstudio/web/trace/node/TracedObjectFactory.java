@@ -27,24 +27,24 @@ public class TracedObjectFactory {
         if (source instanceof OpenMethodDispatcher) {
             return OverloadedMethodChoiceTraceObject.create((OpenMethodDispatcher) source, params, env.getContext());
         } else if (source instanceof WeightAlgorithmExecutor) {
-            return new WScoreTraceObject((ColumnMatch) target, params);
+            return new WScoreTraceObject((ColumnMatch) target, params, env.getContext());
         } else if (source instanceof ColumnMatch) {
             ColumnMatch columnMatch = (ColumnMatch) source;
             if (columnMatch.getAlgorithmExecutor() instanceof WeightAlgorithmExecutor) {
-                return new ATableTracerNode("wcmatch", "WCM", columnMatch, params);
+                return new ATableTracerNode("wcmatch", "WCM", columnMatch, params, env == null ? null : env.getContext());
             } else {
-                return new ATableTracerNode("cmatch", "CM", columnMatch, params);
+                return new ATableTracerNode("cmatch", "CM", columnMatch, params, env == null ? null : env.getContext());
             }
         } else if (source instanceof Algorithm) {
-            return new ATableTracerNode("tbasic", "Algorithm", (Algorithm) source, params);
+            return new ATableTracerNode("tbasic", "Algorithm", (Algorithm) source, params, env == null ? null : env.getContext());
         } else if (source instanceof AlgorithmSubroutineMethod) {
             return new ATableTracerNode("tbasicMethod", "Algorithm Method", (AlgorithmSubroutineMethod) source, null);
         } else if (source instanceof DecisionTable) {
-            return new DecisionTableTraceObject((DecisionTable) source, params);
+            return new DecisionTableTraceObject((DecisionTable) source, params, env == null ? null : env.getContext());
         } else if (source instanceof Spreadsheet) {
-            return new ATableTracerNode("spreadsheet", "SpreadSheet", (Spreadsheet) source, params);
+            return new ATableTracerNode("spreadsheet", "SpreadSheet", (Spreadsheet) source, params, env == null ? null : env.getContext());
         } else if (source instanceof TableMethod) {
-            return new MethodTableTraceObject((TableMethod) source, params);
+            return new MethodTableTraceObject((TableMethod) source, params, env == null ? null : env.getContext());
         } else if (method instanceof SpreadsheetCell) {
             return new SpreadsheetTracerLeaf((SpreadsheetCell) method);
         } else if (method instanceof ActionInvoker) {

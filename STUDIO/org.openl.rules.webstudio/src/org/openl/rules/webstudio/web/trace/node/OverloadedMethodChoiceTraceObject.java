@@ -14,24 +14,18 @@ import org.openl.types.IOpenMethod;
  * @author PUdalau
  */
 public class OverloadedMethodChoiceTraceObject extends ATableTracerNode {
-    private final IRuntimeContext context;
     private final List<IOpenMethod> methodCandidates;
 
     private OverloadedMethodChoiceTraceObject(ExecutableRulesMethod dispatcherTable,
             Object[] params,
             IRuntimeContext context,
             List<IOpenMethod> methodCandidates) {
-        super("overloadedMethodChoice", null, dispatcherTable, params);
-        this.context = context;
+        super("overloadedMethodChoice", null, dispatcherTable, params, context);
         this.methodCandidates = methodCandidates;
     }
 
     public List<IOpenMethod> getMethodCandidates() {
         return methodCandidates;
-    }
-
-    public IRuntimeContext getContext() {
-        return context;
     }
 
     static ATableTracerNode create(OpenMethodDispatcher dispatcher, Object[] params, IRuntimeContext context) {

@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
@@ -168,7 +167,11 @@ public class FileSystemDataSource implements DataSource, InitializingBean {
             listOfFiles = new File[1];
             listOfFiles[0] = folder;
         } else {
-            listOfFiles = folder.listFiles((FileFilter) DirectoryFileFilter.INSTANCE);
+            listOfFiles = folder.listFiles(new FileFilter() {
+                @Override public boolean accept(File file) {
+                    return file.isDirectory();
+                }
+            });
         }
         return listOfFiles;
     }

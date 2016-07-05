@@ -1,8 +1,8 @@
 package org.openl.rules.webstudio.util;
 
-import org.apache.commons.io.FilenameUtils;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.commons.web.util.WebTool;
+import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +24,7 @@ public final class ExportModule {
         try {
             res.setHeader("Pragma", "no-cache");
             res.setDateHeader("Expires", 0);
-            res.setContentType("application/" + FilenameUtils.getExtension(filename));
+            res.setContentType("application/" + FileUtils.getExtension(filename));
             WebTool.setContentDisposition(res, filename);
 
             input = new FileInputStream(content);

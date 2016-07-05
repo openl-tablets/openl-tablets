@@ -19,7 +19,6 @@ package org.openl.rules.maven;
 import java.io.File;
 import java.util.List;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -28,6 +27,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.openl.OpenL;
 import org.openl.conf.ant.JavaAntTask;
 import org.openl.conf.ant.JavaInterfaceAntTask;
+import org.openl.util.FileUtils;
 
 /**
  * Generate OpenL interface, domain classes, project descriptor and unit tests
@@ -239,7 +239,7 @@ public class GenerateMojo extends BaseOpenLMojo {
         }
 
         if (task.getDisplayName() == null) {
-            task.setDisplayName(FilenameUtils.getBaseName(task.getSrcFile()));
+            task.setDisplayName(FileUtils.getBaseName(task.getSrcFile()));
         }
 
         initResourcePath(task);

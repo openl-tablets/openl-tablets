@@ -1,6 +1,6 @@
 package org.openl.rules.webstudio.web.repository.project;
 
-import org.apache.commons.io.FilenameUtils;
+import org.openl.util.FileUtils;
 import org.richfaces.model.UploadedFile;
 
 import java.io.InputStream;
@@ -18,7 +18,7 @@ public class ProjectFile {
     }
 
     public ProjectFile(UploadedFile uploadedFile) {
-        this.name = FilenameUtils.getName(uploadedFile.getName());
+        this.name = FileUtils.getName(uploadedFile.getName());
         this.size = uploadedFile.getSize();
         this.uploadedFile = uploadedFile;
     }

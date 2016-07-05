@@ -33,4 +33,8 @@
         <constructor-arg value="#{systemConfig['default.openl.compatibility.version']}"/>
     </bean>
 
+    <bean id="rulesDeploySerializerFactory" class="org.openl.rules.project.xml.RulesDeploySerializerFactory">
+        <constructor-arg value="#{systemConfig['default.openl.compatibility.version']}"/>
+    </bean>
+
 </beans>

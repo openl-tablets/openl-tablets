@@ -1,11 +1,10 @@
 package org.openl.rules.workspace.lw.impl;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.Date;
 
-import org.apache.commons.io.filefilter.NameFileFilter;
-import org.apache.commons.io.filefilter.NotFileFilter;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.impl.PropertyImpl;
@@ -124,7 +123,11 @@ public class LocalWorkspaceImplPropertiesTestCase extends TestCase {
     private static LocalWorkspaceImpl getFreshWorkspace() throws WorkspaceException {
         LocalWorkspaceManagerImpl workspaceManager = new LocalWorkspaceManagerImpl();
         workspaceManager.setWorkspaceHome(TestHelper.FOLDER_TEST);
-        workspaceManager.setLocalWorkspaceFileFilter(new NotFileFilter(new NameFileFilter(".studioProps")));
+        workspaceManager.setLocalWorkspaceFileFilter(new FileFilter() {
+            @Override public boolean accept(File file) {
+                return !".studioProps".equals(file.getName());
+            }
+        });
         return workspaceManager.createWorkspace(TestHelper.getWorkspaceUser());
     }
 
