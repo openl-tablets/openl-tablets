@@ -1,5 +1,16 @@
 package org.openl.rules.calculation.result.convertor;
 
+/*
+ * #%L
+ * OpenL - DEV - Rules - Calculation Result
+ * %%
+ * Copyright (C) 2015 - 2016 OpenL Tablets
+ * %%
+ * See the file LICENSE.txt for copying permission.
+ * #L%
+ */
+
+
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
