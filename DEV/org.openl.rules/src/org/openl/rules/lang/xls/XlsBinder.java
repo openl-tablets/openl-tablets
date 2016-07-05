@@ -620,7 +620,8 @@ public class XlsBinder implements IOpenBinder {
                         moduleContext.addPrebindMethod(openMethodHeader, new PrebindOpenMethod(openMethodHeader, tableSyntaxNodes[i]));
                     }
                 }catch(Exception e){
-                    //skip
+                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tableSyntaxNodes[i]);
+                    processError(error, tableSyntaxNodes[i], moduleContext);
                 }
             }else{
                 IMemberBoundNode child = beginBind(tableSyntaxNodes[i], module, openl, moduleContext);
