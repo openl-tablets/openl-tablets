@@ -98,9 +98,9 @@
     </modules>
     <distributionManagement>
         <repository>
-            <id>internal-minsk</id>
-            <name>Release Repository</name>
-            <url>https://mnsnexus.exigengroup.com/nexus/content/repositories/openl-release/</url>
+            <id>sonatype-nexus-staging</id>
+            <name>Nexus Release Repository</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
         </repository>
         <snapshotRepository>
             <id>internal-minsk</id>
