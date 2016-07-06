@@ -46,22 +46,29 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
 
         return createNode(tableSyntaxNode, openl, header, module);
     }
-
-    public OpenMethodHeader createHeader(TableSyntaxNode tableSyntaxNode, OpenL openl, IBindingContext bindingContext) throws SyntaxNodeException{
-
+    
+    public IOpenSourceCodeModule createHeaderSource(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) throws SyntaxNodeException{
         IGridTable table = tableSyntaxNode.getGridTable();
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(table, bindingContext);
-
+        
         SubTextSourceCodeModule headerSource = new SubTextSourceCodeModule(source, tableSyntaxNode.getHeader()
             .getHeaderToken()
             .getSourceLocation()
             .getEnd()
             .getAbsolutePosition(new TextInfo(source.getCode())));
+        
+        return headerSource;
+    }
+
+    public OpenMethodHeader createHeader(TableSyntaxNode tableSyntaxNode, OpenL openl, IBindingContext bindingContext) throws SyntaxNodeException{
+        
+        IOpenSourceCodeModule headerSource = createHeaderSource(tableSyntaxNode, bindingContext);
+        
         IBindingContextDelegator bindingContextDelegator = (IBindingContextDelegator) bindingContext;
 
         return (OpenMethodHeader) OpenLManager.makeMethodHeader(openl, headerSource, bindingContextDelegator);
     }
-
+    
     protected abstract IMemberBoundNode createNode(TableSyntaxNode tsn,
             OpenL openl,
             OpenMethodHeader header,

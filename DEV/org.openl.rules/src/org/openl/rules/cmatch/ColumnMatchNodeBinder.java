@@ -43,16 +43,16 @@ public class ColumnMatchNodeBinder extends AExecutableNodeBinder {
 
         return new SubTextSourceCodeModule(src, p1 + 1, p2);
     }
-
+    
     @Override
-    public OpenMethodHeader createHeader(TableSyntaxNode tsn, OpenL openl, IBindingContext cxt) throws SyntaxNodeException {
-        IGridTable table = tsn.getGridTable();
+    public IOpenSourceCodeModule createHeaderSource(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) throws SyntaxNodeException{
+        IGridTable table = tableSyntaxNode.getGridTable();
 
-        IOpenSourceCodeModule src = new GridCellSourceCodeModule(table, cxt);
+        IOpenSourceCodeModule src = new GridCellSourceCodeModule(table, bindingContext);
 
-        int headerTokenLength = tsn.getHeader().getHeaderToken().getIdentifier().length();
+        int headerTokenLength = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier().length();
 
-        nameOfAlgorithm = cutNameOfAlgorithm(tsn, src, headerTokenLength);
+        nameOfAlgorithm = cutNameOfAlgorithm(tableSyntaxNode, src, headerTokenLength);
         if (nameOfAlgorithm != null) {
             String name = nameOfAlgorithm.getCode();
             // TODO
@@ -61,9 +61,7 @@ public class ColumnMatchNodeBinder extends AExecutableNodeBinder {
         }
 
         SubTextSourceCodeModule codeModule = new SubTextSourceCodeModule(src, headerTokenLength);
-        OpenMethodHeader header = (OpenMethodHeader) OpenLManager.makeMethodHeader(openl, codeModule,
-                (IBindingContextDelegator) cxt);
-        return header;
+        return codeModule;
     }
 
     @Override

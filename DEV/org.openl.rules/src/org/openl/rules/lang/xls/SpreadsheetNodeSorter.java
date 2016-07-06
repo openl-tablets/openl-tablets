@@ -6,6 +6,7 @@ import java.util.Queue;
 import org.openl.rules.calc.CellsHeaderExtractor;
 import org.openl.rules.lang.xls.syntax.SpreadsheetHeaderNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNodeHelper;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.util.StringUtils;
 
@@ -25,7 +26,7 @@ public class SpreadsheetNodeSorter {
             //
             CellsHeaderExtractor extractor1 = extractNames(table1);
 
-            String methodName2 = getMethodName(table2);
+            String methodName2 = TableSyntaxNodeHelper.getTableName(table2);
             if (StringUtils.isNotBlank(methodName2)) {
                 if (extractor1.getDependentSpreadsheetTypes().contains(methodName2)) {
                     return true;
@@ -34,8 +35,8 @@ public class SpreadsheetNodeSorter {
         }
         return false;
     }
-    
-    public static TableSyntaxNode[] sort(TableSyntaxNode[] tableSyntaxNodes){
+
+    public static TableSyntaxNode[] sort(TableSyntaxNode[] tableSyntaxNodes) {
         TableSyntaxNode[] result = new TableSyntaxNode[tableSyntaxNodes.length];
         boolean[][] matrix = new boolean[tableSyntaxNodes.length][tableSyntaxNodes.length];
         int[] c = new int[tableSyntaxNodes.length];
@@ -54,19 +55,19 @@ public class SpreadsheetNodeSorter {
                 q.add(i);
             }
         }
-        while (!q.isEmpty()){
+        while (!q.isEmpty()) {
             int t = q.poll();
             result[n++] = tableSyntaxNodes[t];
-            for (int i = 0;i<tableSyntaxNodes.length;i++){
-                if (matrix[t][i]){
+            for (int i = 0; i < tableSyntaxNodes.length; i++) {
+                if (matrix[t][i]) {
                     c[i]--;
-                    if (c[i] == 0){
+                    if (c[i] == 0) {
                         q.add(i);
                     }
                 }
             }
         }
-        if (n < tableSyntaxNodes.length){
+        if (n < tableSyntaxNodes.length) {
             for (int i = 0; i < tableSyntaxNodes.length; i++) {
                 if (c[i] > 0) {
                     result[n++] = tableSyntaxNodes[i];
@@ -74,29 +75,6 @@ public class SpreadsheetNodeSorter {
             }
         }
         return result;
-    }
-
-    // TODO: refactor
-    // extract working with header to helper class
-    // should be simple: Helper.getMethodName(tableHeader)
-    //
-    private static String getMethodName(TableSyntaxNode table) {
-        String methodName = StringUtils.EMPTY;
-
-        String[] tokens = getSignature(table).split(" ");
-        if (tokens != null && tokens.length > 2) {
-            int bracketIndex = tokens[2].indexOf("(");
-            if (bracketIndex >= 0) {
-                methodName = tokens[2].substring(0, bracketIndex);
-            } else {
-                methodName = tokens[2];
-            }
-        }
-        return methodName;
-    }
-
-    private static String getSignature(TableSyntaxNode table) {
-        return table.getHeader().getHeaderToken().getModule().getCode();
     }
 
     private static boolean isSpreadsheet(TableSyntaxNode o1) {
@@ -113,8 +91,9 @@ public class SpreadsheetNodeSorter {
 
         if (extractor == null) {
             ILogicalTable body = tableSyntaxNode.getTableBody();
-            extractor = new CellsHeaderExtractor(getSignature(tableSyntaxNode), body.getRow(0).getColumns(1),
-                    body.getColumn(0).getRows(1));
+            extractor = new CellsHeaderExtractor(TableSyntaxNodeHelper.getSignature(tableSyntaxNode),
+                body.getRow(0).getColumns(1),
+                body.getColumn(0).getRows(1));
             extractor.extract();
 
             // set cells header extractor to the table syntax node, to avoid

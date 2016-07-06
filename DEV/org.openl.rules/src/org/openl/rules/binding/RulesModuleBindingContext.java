@@ -5,7 +5,6 @@ package org.openl.rules.binding;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +18,6 @@ import org.openl.rules.context.RulesRuntimeContextDelegator;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.lang.xls.PrebindOpenMethod;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
@@ -113,20 +111,9 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         internalPrebindMethods.put(openMethodHeader, method);
     }
     
-    /*public void clearPrebindMethods(){
-        for (IOpenMethod openMethod : internalPrebindMethods){
-            PrebindOpenMethod prebindOpenMethod = (PrebindOpenMethod) openMethod;
-            IMethodCaller bindedMethod = findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, prebindOpenMethod.getName(), prebindOpenMethod.getSignature().getParameterTypes());
-            prebindOpenMethod.setMethodCaller(bindedMethod);
-        }
-        
-        internalPrebindMethods.clear();
-    }*/
-    
-    public void removePrebindMethodByHeader(OpenMethodHeader openMethodHeader){
+    public void bindPrebindMethod(OpenMethodHeader openMethodHeader, IOpenMethod openMethod){
         PrebindOpenMethod prebindOpenMethod = (PrebindOpenMethod) internalPrebindMethods.get(openMethodHeader);
-        IMethodCaller bindedMethod = findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, prebindOpenMethod.getName(), prebindOpenMethod.getSignature().getParameterTypes());
-        prebindOpenMethod.setMethodCaller(bindedMethod);
+        prebindOpenMethod.setMethodCaller(openMethod);
     }
 
     public final class CurrentRuntimeContextMethod implements IOpenMethod {

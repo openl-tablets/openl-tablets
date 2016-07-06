@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +35,7 @@ import org.openl.conf.IUserContext;
 import org.openl.conf.OpenConfigurationException;
 import org.openl.conf.OpenLBuilderImpl;
 import org.openl.dependency.CompiledDependency;
+import org.openl.engine.OpenLManager;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.IVocabulary;
@@ -51,6 +53,7 @@ import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.OpenlSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNodeHelper;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.table.MethodTableNodeBinder;
 import org.openl.rules.property.PropertyTableBinder;
@@ -58,6 +61,8 @@ import org.openl.rules.table.properties.PropertiesLoader;
 import org.openl.rules.tbasic.AlgorithmNodeBinder;
 import org.openl.rules.testmethod.TestMethodNodeBinder;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
@@ -66,6 +71,7 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.util.ASelector;
 import org.openl.util.ASelector.StringValueSelector;
@@ -607,22 +613,11 @@ public class XlsBinder implements IOpenBinder {
 
         IMemberBoundNode[] children = new IMemberBoundNode[tableSyntaxNodes.length]; 
         OpenMethodHeader[] openMethodHeaders = new OpenMethodHeader[tableSyntaxNodes.length];
+        Set<String> customSpreadsheetResultTypes = extractCustomSpreadsheetResultTypes(tableSyntaxNodes, moduleContext);
         
         for (int i = 0; i < tableSyntaxNodes.length; i++) {
             if (isExecutableTableSyntaxNode(tableSyntaxNodes[i])){
-                AExecutableNodeBinder aExecutableNodeBinder = (AExecutableNodeBinder) getBinderFactory().get(tableSyntaxNodes[i].getType());
-                try{
-                    OpenMethodHeader openMethodHeader = aExecutableNodeBinder.createHeader(tableSyntaxNodes[i], openl, moduleContext);
-                    openMethodHeaders[i] = openMethodHeader;
-                    if (moduleContext.isExecutionMode()){
-                        moduleContext.addPrebindMethod(openMethodHeader, new PrebindOpenMethod(openMethodHeader, null));
-                    }else{
-                        moduleContext.addPrebindMethod(openMethodHeader, new PrebindOpenMethod(openMethodHeader, tableSyntaxNodes[i]));
-                    }
-                }catch(Exception e){
-                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tableSyntaxNodes[i]);
-                    processError(error, tableSyntaxNodes[i], moduleContext);
-                }
+                openMethodHeaders[i] = bindMethodHeader(tableSyntaxNodes[i], customSpreadsheetResultTypes, openl, moduleContext);
             }else{
                 IMemberBoundNode child = beginBind(tableSyntaxNodes[i], module, openl, moduleContext);
                 children[i] = child;
@@ -656,7 +651,8 @@ public class XlsBinder implements IOpenBinder {
             if (children[i] != null) {
                 finilizeBind(children[i], tableSyntaxNodes[i], moduleContext);
                 if (openMethodHeaders[i] != null){
-                    moduleContext.removePrebindMethodByHeader(openMethodHeaders[i]);
+                    IOpenMethod openMethod = (IOpenMethod) tableSyntaxNodes[i].getMember();
+                    moduleContext.bindPrebindMethod(openMethodHeaders[i], openMethod);
                 }
             }
         }
@@ -666,6 +662,100 @@ public class XlsBinder implements IOpenBinder {
         }
         
         return new ModuleNode(moduleSyntaxNode, moduleContext.getModule());
+    }
+
+    private Set<String> extractCustomSpreadsheetResultTypes(TableSyntaxNode[] tableSyntaxNodes, RulesModuleBindingContext moduleContext) {
+        Set<String> customSpreadsheetResultTypeNames = new HashSet<String>();
+        if (OpenLSystemProperties.isCustomSpreadsheetType(moduleContext.getExternalParams())) {    
+            for (int i = 0; i < tableSyntaxNodes.length; i++) {
+                if (tableSyntaxNodes[i].getNodeType() == XlsNodeTypes.XLS_SPREADSHEET){
+                   customSpreadsheetResultTypeNames.add("SpreadsheetResult" + TableSyntaxNodeHelper.getTableName(tableSyntaxNodes[i])); 
+                }
+            }
+        }
+        return customSpreadsheetResultTypeNames;
+    }
+
+    private OpenMethodHeader bindMethodHeader(TableSyntaxNode tableSyntaxNode, Set<String> customSpreadsheetResultTypes,
+            OpenL openl,
+            RulesModuleBindingContext moduleContext) {
+        IOpenSourceCodeModule source = null;
+        try{
+            AExecutableNodeBinder aExecutableNodeBinder = (AExecutableNodeBinder) getBinderFactory().get(tableSyntaxNode.getType());
+            if (!customSpreadsheetResultTypes.isEmpty()){
+                String headerSource = aExecutableNodeBinder.createHeaderSource(tableSyntaxNode, moduleContext).getCode();
+                String[] tokens = headerSource.split("[ ,()\t\n\r]");
+                List<String> notEmptyTokens = new ArrayList<String>();
+                for (String token : tokens) {
+                    if (!token.isEmpty()) {
+                        notEmptyTokens.add(token);
+                    }
+                }
+                tokens = notEmptyTokens.toArray(new String[] {});
+                StringBuilder sb = new StringBuilder();
+                sb.append(tokens[0]);
+                int j = 1;
+                while (j < tokens.length && (tokens[j].startsWith("[") || tokens[j].startsWith("]"))){
+                    sb.append(tokens[j]);
+                    j++;
+                }
+                sb.append(" ");
+                sb.append(tokens[j++]);
+                sb.append("(");
+                boolean isType = true;
+                while (j < tokens.length) {
+                    if (isType){
+                        int i = tokens[j].indexOf("[");
+                        if (i > 0){
+                            String beginToken = tokens[j].substring(0, i);
+                            String endToken = tokens[j].substring(i);
+                            if (customSpreadsheetResultTypes.contains(beginToken)){
+                                sb.append("SpreadsheetResult"); //Replace CustomspreadsheetResult with SpreadsheetResult in prebind method
+                                sb.append(endToken); //Replace CustomspreadsheetResult with SpreadsheetResult in prebind method
+                            }else{ 
+                                sb.append(tokens[j]);
+                            }
+                        }else{
+                            if (customSpreadsheetResultTypes.contains(tokens[j])){
+                                sb.append("SpreadsheetResult"); //Replace CustomspreadsheetResult with SpreadsheetResult in prebind method
+                            }else{ 
+                                sb.append(tokens[j]);
+                            }
+                        }
+                        j++;
+                        while (j < tokens.length && (tokens[j].startsWith("[") || tokens[j].startsWith("]"))){
+                            sb.append(tokens[j]);
+                            j++;
+                        }
+                        isType = false;
+                        sb.append(" ");
+                    }else{
+                        sb.append(tokens[j]);
+                        j++;
+                        isType = true;
+                        if (j < tokens.length - 1) {
+                           sb.append(", ");
+                        }
+                    }
+                }
+                sb.append(")");
+                headerSource = sb.toString();
+                source = new StringSourceCodeModule(headerSource, tableSyntaxNode.getUri());
+            }else{
+                source = aExecutableNodeBinder.createHeaderSource(tableSyntaxNode, moduleContext);
+            }
+            OpenMethodHeader openMethodHeader = (OpenMethodHeader) OpenLManager.makeMethodHeader(openl, source, moduleContext);
+            if (moduleContext.isExecutionMode()){
+                moduleContext.addPrebindMethod(openMethodHeader, new PrebindOpenMethod(openMethodHeader, null));
+            }else{
+                moduleContext.addPrebindMethod(openMethodHeader, new PrebindOpenMethod(openMethodHeader, tableSyntaxNode));
+            }
+            return openMethodHeader;
+        }catch(Exception e){
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tableSyntaxNode);
+            processError(error, tableSyntaxNode, moduleContext);
+        }
+        return null;
     }
 
     protected void finilizeBind(IMemberBoundNode memberBoundNode,
