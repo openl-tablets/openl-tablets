@@ -129,7 +129,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>2.5</version>
+                    <version>3.0.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -253,6 +253,8 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
                 <configuration>
+                    <timestampPropertyName>build.date</timestampPropertyName>
+                    <timestampFormat>{0,date,yyyy-MM-dd}</timestampFormat>
                     <revisionOnScmFailure>UNKNOWN</revisionOnScmFailure>
                     <format>{0}</format>
                     <items>

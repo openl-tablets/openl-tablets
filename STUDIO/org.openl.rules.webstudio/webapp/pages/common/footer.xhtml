@@ -6,7 +6,8 @@
     xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 
     <div style="text-align: center; padding:11px">
-        &#169; #{versionProperties['openl.copyrightyear']}
+        <c:set var="buildDate" value="#{versionProperties['openl.build.date']}" />
+        &#169; #{fn:substring(buildDate, 0, 4)}
         <a style="text-decoration:none; color:#666" href="#{versionProperties['openl.url']}" target="_blank">OpenL Tablets</a>
         <span style="margin: 0 10px">|</span>
         <a style="text-decoration: none" href="mailto:openltablets@eisgroup.com?subject=OpenL Tablets Feedback">Report a problem</a>
@@ -14,12 +15,12 @@
         <i style="position:absolute;right:13px;">
             <c:set var="version" value="#{versionProperties['openl.version']}" />
             <c:set var="commitHash" value="#{versionProperties['openl.commit.hash']}" />
-            <c:set var="commitHash" value="#{fn:endsWith(commitHash, '+') ? fn:substringBefore(commitHash, '+') : commitHash}" />
+            <c:set var="commitHashId" value="#{fn:endsWith(commitHash, '+') ? fn:substringBefore(commitHash, '+') : commitHash}" />
 
-            v#{version}
+            <span title="Built on #{buildDate}">v#{version}</span>
             <h:panelGroup rendered="#{fn:endsWith(version, 'SNAPSHOT')}">
                 Revision hash:
-                <a href="https://sourceforge.net/p/openl-tablets/openl/ci/#{commitHash}">#{commitHash}</a>
+                <a href="https://sourceforge.net/p/openl-tablets/openl/ci/#{commitHashId}">#{commitHash}</a>
             </h:panelGroup>
         </i>
     </div>
