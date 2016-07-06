@@ -693,7 +693,7 @@ public class XlsBinder implements IOpenBinder {
                 }
                 tokens = notEmptyTokens.toArray(new String[] {});
                 StringBuilder sb = new StringBuilder();
-                sb.append(tokens[0]);
+                addTypeToken(customSpreadsheetResultTypes, tokens[0], sb);
                 int j = 1;
                 while (j < tokens.length && (tokens[j].startsWith("[") || tokens[j].startsWith("]"))){
                     sb.append(tokens[j]);
@@ -705,23 +705,7 @@ public class XlsBinder implements IOpenBinder {
                 boolean isType = true;
                 while (j < tokens.length) {
                     if (isType){
-                        int i = tokens[j].indexOf("[");
-                        if (i > 0){
-                            String beginToken = tokens[j].substring(0, i);
-                            String endToken = tokens[j].substring(i);
-                            if (customSpreadsheetResultTypes.contains(beginToken)){
-                                sb.append("SpreadsheetResult"); //Replace CustomspreadsheetResult with SpreadsheetResult in prebind method
-                                sb.append(endToken); //Replace CustomspreadsheetResult with SpreadsheetResult in prebind method
-                            }else{ 
-                                sb.append(tokens[j]);
-                            }
-                        }else{
-                            if (customSpreadsheetResultTypes.contains(tokens[j])){
-                                sb.append("SpreadsheetResult"); //Replace CustomspreadsheetResult with SpreadsheetResult in prebind method
-                            }else{ 
-                                sb.append(tokens[j]);
-                            }
-                        }
+                        addTypeToken(customSpreadsheetResultTypes, tokens[j], sb);
                         j++;
                         while (j < tokens.length && (tokens[j].startsWith("[") || tokens[j].startsWith("]"))){
                             sb.append(tokens[j]);
@@ -756,6 +740,26 @@ public class XlsBinder implements IOpenBinder {
             processError(error, tableSyntaxNode, moduleContext);
         }
         return null;
+    }
+
+    private void addTypeToken(Set<String> customSpreadsheetResultTypes, String token, StringBuilder sb) {
+        int i = token.indexOf("[");
+        if (i > 0){ // Array type
+            String beginToken = token.substring(0, i);
+            String endToken = token.substring(i);
+            if (customSpreadsheetResultTypes.contains(beginToken)){
+                sb.append("SpreadsheetResult"); //Replace CustomspreadsheetResult with SpreadsheetResult in prebind method
+                sb.append(endToken); //Replace CustomspreadsheetResult with SpreadsheetResult in prebind method
+            }else{ 
+                sb.append(token);
+            }
+        }else{
+            if (customSpreadsheetResultTypes.contains(token)){
+                sb.append("SpreadsheetResult"); //Replace CustomspreadsheetResult with SpreadsheetResult in prebind method
+            }else{ 
+                sb.append(token);
+            }
+        }
     }
 
     protected void finilizeBind(IMemberBoundNode memberBoundNode,
