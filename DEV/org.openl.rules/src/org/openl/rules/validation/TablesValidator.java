@@ -15,15 +15,16 @@ import org.openl.validation.ValidationResult;
 public abstract class TablesValidator implements IOpenLValidator {
 
     private void findAllTableSyntaxNodes(Set<TableSyntaxNode> tableSyntaxNodes, IOpenClass openClass) {
-        for (CompiledDependency compiledDependency : ((XlsModuleOpenClass) openClass).getDependencies()) {
-            IOpenClass dependencyOpenClass = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors();
-            findAllTableSyntaxNodes(tableSyntaxNodes, dependencyOpenClass);
-        }
-
-        XlsMetaInfo xlsMetaInfo = ((XlsModuleOpenClass) openClass).getXlsMetaInfo();
-        TableSyntaxNode[] xlsTableSyntaxNodes = xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodes();
-        for (TableSyntaxNode tableSyntaxNode : xlsTableSyntaxNodes) {
-            tableSyntaxNodes.add(tableSyntaxNode);
+        if (openClass instanceof XlsModuleOpenClass){
+            for (CompiledDependency compiledDependency : ((XlsModuleOpenClass) openClass).getDependencies()) {
+                IOpenClass dependencyOpenClass = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors();
+                findAllTableSyntaxNodes(tableSyntaxNodes, dependencyOpenClass);
+            }
+            XlsMetaInfo xlsMetaInfo = ((XlsModuleOpenClass) openClass).getXlsMetaInfo();
+            TableSyntaxNode[] xlsTableSyntaxNodes = xlsMetaInfo.getXlsModuleNode().getXlsTableSyntaxNodes();
+            for (TableSyntaxNode tableSyntaxNode : xlsTableSyntaxNodes) {
+                tableSyntaxNodes.add(tableSyntaxNode);
+            }
         }
     }
 

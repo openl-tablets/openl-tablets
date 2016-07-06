@@ -4,14 +4,15 @@ package org.openl.rules.calculation.result.convertor2;
  * #%L
  * OpenL - DEV - Rules - Calculation Result
  * %%
- * Copyright (C) 2013 OpenL Tablets
+ * Copyright (C) 2015 - 2016 OpenL Tablets
  * %%
  * See the file LICENSE.txt for copying permission.
  * #L%
  */
 
-import java.util.ArrayList;
+
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.result.SpreadsheetResultHelper;
@@ -30,9 +31,9 @@ public abstract class RowExtractor<T extends CalculationStep> {
 
     public RowExtractor(List<SpreadsheetColumnExtractor<T>> columnExtractors) {
         if (columnExtractors == null) {
-            this.columnExtractors = new ArrayList<SpreadsheetColumnExtractor<T>>();
+            this.columnExtractors = new CopyOnWriteArrayList<SpreadsheetColumnExtractor<T>>();
         } else {
-            this.columnExtractors = new ArrayList<SpreadsheetColumnExtractor<T>>(columnExtractors);
+            this.columnExtractors = new CopyOnWriteArrayList<SpreadsheetColumnExtractor<T>>(columnExtractors);
         }
     }
 

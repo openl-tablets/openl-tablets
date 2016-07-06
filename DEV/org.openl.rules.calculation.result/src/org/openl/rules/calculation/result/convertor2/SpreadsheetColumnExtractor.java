@@ -53,18 +53,21 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
     public void convertAndStoreData(Object valueForStoraging, S spreadsheetRow) {
         if (valueForStoraging != null) {
             Integer minConvertDistance = null;
-            String propertyNameForStore = null;
-            for (String propertyName : column.getPropertyNames()) {
-                Integer d = convertDistance(valueForStoraging, column.getExpectedType(propertyName));
-                if (d != null && (minConvertDistance == null || d < minConvertDistance)){
+            int propertyIndexForStore = -1;
+            String[] propertyNames = column.getPropertyNames();
+            Class<?>[] expectedTypes = column.getExpectedTypes();
+            for (int i = 0; i < expectedTypes.length; i++) {
+                Integer d = convertDistance(valueForStoraging, expectedTypes[i]);
+                if (d != null && (minConvertDistance == null || d < minConvertDistance)) {
                     minConvertDistance = d;
-                    propertyNameForStore = propertyName;
+                    propertyIndexForStore = i;
                 }
             }
-            if (propertyNameForStore != null){
-                Object value = convert(valueForStoraging, column.getExpectedType(propertyNameForStore));
-                if (column.getExpectedType(propertyNameForStore).isAssignableFrom(value.getClass())) {
-                    if (store(value, spreadsheetRow, propertyNameForStore, column.getExpectedType(propertyNameForStore))) {
+            if (propertyIndexForStore >= 0) {
+                Class<?> expectedType = expectedTypes[propertyIndexForStore];
+                Object value = convert(valueForStoraging, expectedType);
+                if (expectedType.isAssignableFrom(value.getClass())) {
+                    if (store(value, spreadsheetRow, propertyNames[propertyIndexForStore], expectedType)) {
                         return;
                     }
                 }

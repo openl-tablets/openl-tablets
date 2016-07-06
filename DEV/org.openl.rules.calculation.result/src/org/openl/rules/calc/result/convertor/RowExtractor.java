@@ -10,9 +10,8 @@ package org.openl.rules.calc.result.convertor;
  * #L%
  */
 
-
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.openl.meta.DoubleValue;
 import org.openl.meta.StringValue;
@@ -33,7 +32,7 @@ public abstract class RowExtractor<T extends CodeStep> {
     private List<SpreadsheetColumnExtractor<T>> columnExtractors;
     
     public RowExtractor(List<SpreadsheetColumnExtractor<T>> columnExtractors) {        
-        this.columnExtractors = new ArrayList<SpreadsheetColumnExtractor<T>>(columnExtractors);
+        this.columnExtractors = new CopyOnWriteArrayList<SpreadsheetColumnExtractor<T>>(columnExtractors);
     }
     
     /**

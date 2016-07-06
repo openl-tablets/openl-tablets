@@ -1,8 +1,5 @@
 package org.openl.rules.calculation.result.convertor2;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.openl.rules.calc.SpreadsheetResult;
 
 /*
@@ -26,7 +23,9 @@ public class ColumnToExtract {
 
     private String columnName;
 
-    private Map<String, Class<?>> mapPropertyNameToType = new LinkedHashMap<String, Class<?>>();
+    private String[] propertyNames;
+    
+    private Class<?>[] propertyTypes;
     
     private int nestedPriority = Integer.MAX_VALUE - 1;
     /**
@@ -76,7 +75,9 @@ public class ColumnToExtract {
             throw new IllegalArgumentException("expectedType can't be null!");
         }
         this.columnName = columnName;
-        this.mapPropertyNameToType.put(propertyName, expectedType);
+        
+        this.propertyNames = new String[]{propertyName};
+        this.propertyTypes = new Class<?>[]{expectedType};
     }
 
     public ColumnToExtract(String columnName, String[] propertyNames, Class<?>[] expectedTypes, int nestedPriority) {
@@ -114,9 +115,9 @@ public class ColumnToExtract {
             if (expectedTypes[i] == null) {
                 throw new IllegalArgumentException("expectedType can't be null!");
             }
-            this.mapPropertyNameToType.put(propertyName, expectedTypes[i]);
-            i++;
         }
+        this.propertyNames = propertyNames;
+        this.propertyTypes = expectedTypes;
     }
 
     /**
@@ -131,8 +132,8 @@ public class ColumnToExtract {
      * Return expected type for property name.
      * @return expected type.
      */
-    public Class<?> getExpectedType(String propertyName) {
-        return mapPropertyNameToType.get(propertyName);
+    public Class<?>[] getExpectedTypes() {
+        return propertyTypes;
     }
 
     /**
@@ -140,7 +141,7 @@ public class ColumnToExtract {
      * @return expected type.
      */
     public String[] getPropertyNames() {
-        return mapPropertyNameToType.keySet().toArray(new String[] {});
+        return propertyNames;
     }
 
     public int getNestedPriority() {
