@@ -42,7 +42,7 @@ public class CachingArgumentsCloner extends OpenLArgumentsCloner {
         }
 
         T t = super.cloneInternal(o, clones);
-        if (t != null && t != o) {
+        if (t != null && t != o && !t.getClass().isArray()) {
             cache.put(t, t);
         }
         return t;
