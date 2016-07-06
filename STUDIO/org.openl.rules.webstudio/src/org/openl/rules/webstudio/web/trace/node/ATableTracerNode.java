@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.trace.node;
 
 import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.runtime.IRuntimeContext;
 
 public class ATableTracerNode extends SimpleTracerObject {
@@ -19,7 +18,7 @@ public class ATableTracerNode extends SimpleTracerObject {
         super(type);
         this.prefix = prefix;
         this.method = method;
-        OpenLArgumentsCloner cloner = new OpenLArgumentsCloner();
+        CachingArgumentsCloner cloner = CachingArgumentsCloner.getInstance();
         if (params != null) {
             Object[] clonedParams;
             try {

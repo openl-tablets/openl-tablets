@@ -16,6 +16,7 @@ import org.openl.rules.calc.SpreadsheetResult;
 
 import com.rits.cloning.Cloner;
 import com.rits.cloning.IInstantiationStrategy;
+import org.slf4j.Logger;
 
 /**
  * Extension for {@link Cloner}. To add OpenL classes to prevent cloning
@@ -54,7 +55,7 @@ public class OpenLArgumentsCloner extends Cloner {
          * children classes
          */
         dontCloneInstanceOf(SpreadsheetResult.class);
-
+        dontCloneInstanceOf(Logger.class);
     }
 
     /* Required for correct working with classloaders. */

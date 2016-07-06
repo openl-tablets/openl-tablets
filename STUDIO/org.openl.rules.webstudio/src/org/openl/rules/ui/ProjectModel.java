@@ -76,6 +76,7 @@ import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
+import org.openl.rules.webstudio.web.trace.node.CachingArgumentsCloner;
 import org.openl.source.SourceHistoryManager;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
@@ -1190,8 +1191,10 @@ public class ProjectModel {
         ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
+            CachingArgumentsCloner.initInstance();
             runTest(testSuite, false);
         } finally {
+            CachingArgumentsCloner.removeInstance();
             Thread.currentThread().setContextClassLoader(currentContextClassLoader);
         }
     }

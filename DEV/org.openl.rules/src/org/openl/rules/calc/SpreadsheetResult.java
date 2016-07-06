@@ -20,9 +20,9 @@ import org.openl.types.java.CustomJavaOpenClass;
 @XmlRootElement
 @CustomJavaOpenClass(type = SpreadsheetResultOpenClass.class, variableInContextFinder = SpreadsheetResultRootDictionaryContext.class)
 public class SpreadsheetResult implements Serializable {
-    
+
     private static final long serialVersionUID = 8704762477153429384L;
-    
+
     private Object[][] results;
     private int height;
     private int width;
@@ -185,40 +185,44 @@ public class SpreadsheetResult implements Serializable {
         return fieldsCoordinates.get(name) != null;
     }
 
-    public ITableAdaptor makeTableAdaptor()
-    {
-        ITableAdaptor asTableAdaptor = new ITableAdaptor() {
-            
+    public ITableAdaptor makeTableAdaptor() {
+        return new ITableAdaptor() {
+            // Huge SpreadSheetResult in text format is not human readable, can crash browser,
+            // slows down and consumes too many memory in IDE while debugging, so we must truncate such tables.
+            private static final int MAX_WIDTH = 10;
+            private static final int MAX_HEIGHT = 10;
+
             public int width(int row) {
-                return getWidth() + 1;
+                return Math.min(MAX_WIDTH, getWidth() + 1);
             }
-            
+
             public int maxWidth() {
-                return getWidth() + 1;
+                return Math.min(MAX_WIDTH, getWidth() + 1);
             }
-            
+
             public int height() {
-                return getHeight() + 1;
+                return Math.min(MAX_HEIGHT, getHeight() + 1);
             }
-            
+
             public Object get(int col, int row) {
                 if (col == 0 && row == 0)
                         return "-X-";
+                if (col == MAX_WIDTH - 1 && MAX_WIDTH <= getWidth() ||
+                        row == MAX_HEIGHT - 1 && MAX_HEIGHT <= getHeight()) {
+                    return "... TRUNCATED ...";
+                }
                 if (col == 0)
                     return getRowName(row-1);
                 if (row == 0)
                     return getColumnName(col-1);
-                
+
                 return getValue(row-1, col-1);
             }
         };
-        
-        return asTableAdaptor;
     }
     
     public String printAsTable() {
-        String res = new TablePrinter(makeTableAdaptor(), null, " | ").print();
-        return res;
+        return new TablePrinter(makeTableAdaptor(), null, " | ").print();
     }
 
     @Override
