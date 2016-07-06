@@ -54,9 +54,7 @@ public class TraceService {
         }
         String name = TraceFormatter.getDisplayName(element);
         node.setTitle(name);
-
-        String title = TraceFormatter.getDisplayName(element);
-        node.setTooltip(title);
+        node.setTooltip(name);
 
         int key = traceHelper.getNodeKey(element);
         node.setKey(key);
