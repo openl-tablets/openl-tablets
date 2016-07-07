@@ -57,10 +57,10 @@ public class StoreLoggingConfigurationFactoryBean implements FactoryBean<Logging
         if (!isLoggingStoreEnable()) {
             return null;
         }
-        if (CASSANDRA_TYPE.equalsIgnoreCase(getType())) {
+        if (CASSANDRA_TYPE.equalsIgnoreCase(getType().trim())) {
             log.info("Cassandra logging store is enabled!");
             return applicationContext.getBean(CASSANDRA_STORING_SERVICE_BEAN_NAME, LoggingInfoStoringService.class);
-        } else if (ELASTICSEARCH_TYPE.equalsIgnoreCase(getType())) {
+        } else if (ELASTICSEARCH_TYPE.equalsIgnoreCase(getType().trim())) {
             log.info("Elastic Search logging store is enabled!");
             LoggingInfoStoringService loggingInfoStoringService = applicationContext.getBean(ELASTICSEARCH_STORING_SERVICE_BEAN_NAME, LoggingInfoStoringService.class);
             if (loggingInfoStoringService == null){
