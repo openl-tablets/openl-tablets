@@ -17,6 +17,7 @@ import org.openl.ie.constrainer.IntExpArray;
 
 public class OverlappingCheckerImpl2 implements OverlappingChecker {
 
+    private static final int MAX_OVERLOADS = 50;
     private CDecisionTable _dt = null;
 
     List<Overlapping> overlappings = new ArrayList<Overlapping>();
@@ -81,11 +82,18 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
         hadBeenRemoved = new boolean[_dt.getRules().length];
     }
 
-    public List<Overlapping> checkInternal() {
+    public void checkInternal() {
+        // User will not see all overloads if there is too many of them.
+        // TODO Optimize algorithm and remove check for MAX_OVERLOADS. Added for EPBDS-5694
+        if (overlappings.size() > MAX_OVERLOADS) {
+            return;
+        }
 
         List<Overlapping> overlappingRules = new ArrayList<Overlapping>();
         IntBoolExp[] rules = _dt.getRules();
         C = rules[0].constrainer();
+        int stackSize = C.getStackSize();
+
         IntExpArray ruleArray = new IntExpArray(C, rules.length - nRemoved);
         for (int i = 0, r =0; i < rules.length; i++) {
             if (!removed[i])
@@ -96,8 +104,9 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
         Goal generate = new GoalGenerate(_dt.getVars());
         Goal target = new GoalAnd(new GoalAnd(overlapping, generate), save);
         boolean flag = C.execute(target, true);
+        C.backtrackStack(stackSize);
+
         testPairOverlappings(overlappingRules);
-        return overlappingRules;
     }
 
     
@@ -107,51 +116,32 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
     
     private void testPairOverlappings(List<Overlapping> overlappingRules) {
 
-        for (int n = 0; n < overlappingRules.size(); n++) {
-            Overlapping ovl = overlappingRules.get(n);
+        for (Overlapping ovl : overlappingRules) {
             int[] rules = ovl.getOverlapped();
 
             for (int i = 0; i < rules.length; i++) {
                 for (int j = i + 1; j < rules.length; j++) {
-                    
-                    
+
                     IntPair pair = new IntPair(rules[i], rules[j]);
                     if (checkedPairs.contains(pair))
                         continue;
                     checkedPairs.add(pair);
-                    
+
                     int A = _dt.isOverrideAscending() ? i : j;
                     int B = _dt.isOverrideAscending() ? j : i;
-                    
-                    boolean blocks = completelyOverlaps(_dt.getRule(rules[A]),_dt.getRule(rules[B]));
 
-                    boolean overrides = completelyOverlaps(_dt.getRule(rules[B]),_dt.getRule(rules[A]));
-
-
-                    if (blocks)
-                    {    
-//                        System.out.println(" +***+ Checking " + rules[A] + " vs " + rules[B] + " = blocks");
+                    if (completelyOverlaps(_dt.getRule(rules[A]), _dt.getRule(rules[B]))) {
+                        //                        System.out.println(" +***+ Checking " + rules[A] + " vs " + rules[B] + " = blocks");
                         this.overlappings.add(new Overlapping(ovl, rules[A], rules[B], Overlapping.OverlappingStatus.BLOCK));
-                        checkWithRemove(rules[A]);
-                        checkWithRemove(rules[B]);
-                    }    
-                    else if (overrides)
-                    {    
-//                        System.out.println(" +***+ Checking " + rules[A] + " vs " + rules[B] + " = overrides");
+                    } else if (completelyOverlaps(_dt.getRule(rules[B]), _dt.getRule(rules[A]))) {
+                        //                        System.out.println(" +***+ Checking " + rules[A] + " vs " + rules[B] + " = overrides");
                         this.overlappings.add(new Overlapping(ovl, rules[A], rules[B], Overlapping.OverlappingStatus.OVERRIDE));
-                        checkWithRemove(rules[A]);
-                        checkWithRemove(rules[B]);
-                        
-                    }    
-
-                    else //if (!blocks && !overrides)
-                    {    
-//                        System.out.println(" +***+ Checking " + rules[A] + " vs " + rules[B] + " = partial overlap");
+                    } else /*if (!blocks && !overrides)*/ {
+                        //                        System.out.println(" +***+ Checking " + rules[A] + " vs " + rules[B] + " = partial overlap");
                         this.overlappings.add(new Overlapping(ovl, rules[A], rules[B], Overlapping.OverlappingStatus.PARTIAL));
-                        checkWithRemove(rules[A]);
-                        checkWithRemove(rules[B]);
-                    }    
-
+                    }
+                    checkWithRemove(rules[A]);
+                    checkWithRemove(rules[B]);
                 }
             }
 
@@ -202,11 +192,13 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
 
     private boolean completelyOverlaps(IntExp exp1, IntExp exp2) {
         C = exp1.constrainer();
+        int stackSize = C.getStackSize();
         Constraint overlaps = (exp1.sub(exp2).lt(0)).asConstraint();
         // GoalCompare compare = new GoalCompare(C, exp1, exp2);
         Goal generate = new GoalGenerate(_dt.getVars());
         Goal target = new GoalAnd(overlaps, generate);
         boolean flag = C.execute(target, true);
+        C.backtrackStack(stackSize);
         // boolean res = compare.result;
         return !flag;
     }

@@ -50,7 +50,7 @@ public class DTCheckerImpl implements DTChecker {
 
         public IntBoolExp getEntry(int i, int j) {
             return _data[i][j];
-        };
+        }
 
         public IntBoolExp getRule(int i) {
             return _rules[i];
@@ -92,6 +92,7 @@ public class DTCheckerImpl implements DTChecker {
         public List<Uncovered> check() {
             IntBoolExp[] rules = _dt.getRules();
             C = rules[0].constrainer();
+            int stackSize = C.getStackSize();
             IntExpArray ruleArray = new IntExpArray(C, rules.length);
             for (int i = 0; i < rules.length; i++) {
                 ruleArray.set(rules[i], i);
@@ -101,6 +102,7 @@ public class DTCheckerImpl implements DTChecker {
             Goal generate = new GoalGenerate(_dt.getVars());
             Goal target = new GoalAnd(new GoalAnd(incompleteness, generate), save);
             C.execute(target, true);
+            C.backtrackStack(stackSize);
             return _uncoveredRegions;
         }
     }

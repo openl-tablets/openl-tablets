@@ -829,6 +829,14 @@ public final class Constrainer implements Serializable {
         return success;
     }
 
+    public int getStackSize() {
+        return _reversibility_stack.size();
+    }
+
+    public void backtrackStack(int newSize) {
+        _reversibility_stack.backtrack(newSize);
+    }
+
     /*
      * ==============================================================================
      * EOF Undo objects
@@ -1225,7 +1233,7 @@ public final class Constrainer implements Serializable {
 
         boolean restoreAnyway = restore_flag || !success;
         if (restoreAnyway) {
-            _reversibility_stack.backtrack(_goal_stack.undoStackSize());
+            backtrackStack(_goal_stack.undoStackSize());
         }
 
         _execution_time += System.currentTimeMillis() - execution_start;
@@ -2062,7 +2070,7 @@ public final class Constrainer implements Serializable {
 
         boolean restoreAnyway = restore_flag || !success;
         if (restoreAnyway) {
-            _reversibility_stack.backtrack(_goal_stack.undoStackSize());
+            backtrackStack(_goal_stack.undoStackSize());
         }
 
         _execution_time += System.currentTimeMillis() - execution_start;
