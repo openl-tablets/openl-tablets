@@ -101,7 +101,7 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
         Goal save = new GoalSaveSolutions(C, overlappingRules);
         Goal generate = new GoalGenerate(_dt.getVars());
         Goal target = new GoalAnd(new GoalAnd(overlapping, generate), save);
-        boolean flag = C.execute(target, true);
+        C.execute(target, true);
         C.backtrackStack(stackSize);
 
         testPairOverlappings(overlappingRules);
