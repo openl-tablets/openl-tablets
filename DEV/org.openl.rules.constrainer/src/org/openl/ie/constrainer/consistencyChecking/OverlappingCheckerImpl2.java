@@ -74,8 +74,6 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
         }
     }
 
-    private Constrainer C = null;
-
     public OverlappingCheckerImpl2(CDecisionTable _dt) {
         this._dt = _dt;
         removed = new boolean[_dt.getRules().length];
@@ -91,7 +89,7 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
 
         List<Overlapping> overlappingRules = new ArrayList<Overlapping>();
         IntBoolExp[] rules = _dt.getRules();
-        C = rules[0].constrainer();
+        Constrainer C = rules[0].constrainer();
         int stackSize = C.getStackSize();
 
         IntExpArray ruleArray = new IntExpArray(C, rules.length - nRemoved);
@@ -191,7 +189,7 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
      */
 
     private boolean completelyOverlaps(IntExp exp1, IntExp exp2) {
-        C = exp1.constrainer();
+        Constrainer C = exp1.constrainer();
         int stackSize = C.getStackSize();
         Constraint overlaps = (exp1.sub(exp2).lt(0)).asConstraint();
         // GoalCompare compare = new GoalCompare(C, exp1, exp2);
