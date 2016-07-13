@@ -8,9 +8,11 @@ import java.net.URL;
 
 import junit.framework.TestCase;
 
+import org.openl.OpenL;
+import org.openl.engine.OpenLManager;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.rules.test.Tools;
+import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.CompositeMethod;
 
@@ -50,6 +52,10 @@ public class TestDependencies extends TestCase {
     private XlsModuleOpenClass _createModule() throws URISyntaxException {
 
         URL url = this.getClass().getClassLoader().getResource(FILE_NAME);
-        return Tools.createModule(url.toURI().getPath());
+
+        OpenL openl = OpenL.getInstance(OpenL.OPENL_JAVA_RULE_NAME);
+
+        XlsModuleOpenClass xmo = (XlsModuleOpenClass) OpenLManager.compileModule(openl, new FileSourceCodeModule(url.toURI().getPath(), null));
+        return xmo;
     }
 }
