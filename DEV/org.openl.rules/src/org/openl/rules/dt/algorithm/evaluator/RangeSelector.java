@@ -58,6 +58,10 @@ public class RangeSelector implements IIntSelector {
                 vTo = adaptor.getMax(realParams[0]);
             }
         }
+
+        if (value == null) {
+            return vFrom == null && vTo == null;
+        }
         
         return (vFrom == null || vFrom.compareTo(value) <= 0) && (vTo == null || ((Comparable<Object>) value).compareTo(vTo) < 0);
     }
