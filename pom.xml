@@ -99,9 +99,9 @@
     </modules>
     <distributionManagement>
         <repository>
-            <id>sonatype-nexus-staging</id>
-            <name>Nexus Release Repository</name>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+            <id>internal-minsk</id>
+            <name>Release Repository</name>
+            <url>https://mnsnexus.exigengroup.com/nexus/content/repositories/openl-release/</url>
         </repository>
         <snapshotRepository>
             <id>internal-minsk</id>
@@ -262,6 +262,30 @@
         </plugins>
     </build>
     <profiles>
+        <profile>
+            <id>gpg-sign</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <configuration>
+                            <skip>${maven.deploy.skip}</skip>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>sources</id>
             <properties>
