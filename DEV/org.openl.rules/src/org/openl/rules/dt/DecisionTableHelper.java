@@ -30,6 +30,7 @@ import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.types.IOpenClass;
+import org.openl.types.impl.DomainOpenClass;
 
 public class DecisionTableHelper {
 
@@ -363,8 +364,10 @@ public class DecisionTableHelper {
            if (maybeIsRange(cellValue.getSource().getCell(0, 0).getStringValue())) {
                 INumberRange range;
 
-                /**try to create range by values**/
-                if (intType.contains(type.getName())) {
+               String typeName = type instanceof DomainOpenClass ? type.getInstanceClass().getCanonicalName() : type.getName();
+
+               /**try to create range by values**/
+               if (intType.contains(typeName)) {
                     try {
                         range = new IntRange(cellValue.getSource().getCell(0, 0).getStringValue());
 
@@ -373,7 +376,7 @@ public class DecisionTableHelper {
                     } catch(Exception e) {
                        continue;
                     }
-                } else if (doubleType.contains(type.getName())) {
+                } else if (doubleType.contains(typeName)) {
                     try {
                         range = new DoubleRange(cellValue.getSource().getCell(0, 0).getStringValue());
                         
