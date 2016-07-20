@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
+       default-autowire="no">
+
+    <import resource="classpath:META-INF/cxf/cxf.xml" />
+    <bean class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean" init-method="create">
+        <property name="address" value=""/>
+        <property name="serviceBeans">
+            <list>
+                <bean class="org.openl.rules.rest.RepositoryService"/>
+                <bean class="org.openl.rules.webstudio.web.trace.TraceService"/>
+            </list>
+        </property>
+        <property name="providers">
+            <bean class="org.apache.cxf.jaxrs.provider.json.JSONProvider">
+                <property name="dropRootElement" value="true"/>
+                <property name="serializeAsArray" value="true"/>
+                <property name="writeXsiType" value="false"/>
+                <property name="readXsiType" value="false"/>
+                <property name="dropCollectionWrapperElement" value="true"/>
+            </bean>
+        </property>
+    </bean>
+</beans>

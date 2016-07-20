@@ -71,6 +71,19 @@ public class StartupListener implements ServletContextListener {
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
             System.setProperty(entry.getKey(), String.valueOf(entry.getValue()));
         }
+
+        // If webstudio.mode isn't defined, use either webstudio-beans.xml or installer-beans.xml.
+        // If webstudio.mode is defined (for example "custom"), use specified custom-beans.xml spring configuration.
+        String webStudioMode = System.getProperty("webstudio.mode");
+        if (webStudioMode == null) {
+            boolean configured = System.getProperty("webstudio.configured") != null
+                    && System.getProperty("webstudio.configured").equals("true");
+            System.setProperty("webstudio.mode", configured ? "webstudio" : "installer");
+        }
+
+        String userMode = new ConfigurationManager(true, System.getProperty("webstudio.home") + "/system-settings/system.properties",
+                System.getProperty("webapp.root") + "/WEB-INF/conf/system.properties").getStringProperty("user.mode");
+        System.setProperty("user.mode", userMode);
     }
 
     public void contextDestroyed(ServletContextEvent event) {

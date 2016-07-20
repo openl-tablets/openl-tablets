@@ -18,15 +18,7 @@
       Location of the XML file that defines the root application context, applied by ContextLoaderListener.
     </description>
     <param-name>contextConfigLocation</param-name>
-    <param-value>/WEB-INF/spring/webstudio-beans.xml</param-value>
-  </context-param>
-
-  <context-param>
-    <description>
-      Config param for which ApplicationContextInitializer classes to use for initializing the web application context
-    </description>
-    <param-name>contextInitializerClasses</param-name>
-    <param-value>org.openl.rules.webstudio.web.servlet.UserModeProfileActivator</param-value>
+    <param-value>/WEB-INF/spring/webstudio.xml</param-value>
   </context-param>
 
   <context-param>

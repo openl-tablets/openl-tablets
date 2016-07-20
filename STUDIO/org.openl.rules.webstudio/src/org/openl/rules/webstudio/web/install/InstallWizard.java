@@ -189,16 +189,8 @@ public class InstallWizard {
 
             destroyRepositoryObjects();
 
+            System.setProperty("webstudio.mode", "webstudio");
             XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils.getWebApplicationContext(FacesUtils.getServletContext());
-
-            context.setConfigLocations(new String[]{"/WEB-INF/spring/webstudio-beans.xml",
-                            "/WEB-INF/spring/system-config-beans.xml",
-                            "/WEB-INF/spring/cache-beans.xml",
-                            "/WEB-INF/spring/repository-beans.xml",
-                            "/WEB-INF/spring/security-beans.xml",
-                            "/WEB-INF/spring/security/security-" + userMode + ".xml"}
-            );
-
             context.refresh();
 
             FacesUtils.redirectToRoot();

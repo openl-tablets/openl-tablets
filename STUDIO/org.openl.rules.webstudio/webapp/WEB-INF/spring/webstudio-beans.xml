@@ -8,6 +8,11 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd"
     default-autowire="no">
 
+    <import resource="system-config-beans.xml" />
+    <import resource="cache-beans.xml" />
+    <import resource="repository-beans.xml" />
+    <import resource="security-beans.xml" />
+
     <bean id="currentUserInfo" class="org.openl.rules.webstudio.security.CurrentUserInfo" />
 
     <util:properties id="versionProperties" location="classpath:org/openl/main/openl.version.properties" />
