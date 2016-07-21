@@ -29,6 +29,9 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
 
         @Override
         public int getLength(Object target) {
+            if (target == null) {
+                return 0;
+            }
             return Array.getLength(target);
         }
     }
