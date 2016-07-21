@@ -75,7 +75,7 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
 
     public IOpenClass getComponentType(IOpenClass aggregateType) {
         if (aggregateType instanceof ArrayOpenClass) {
-            return ((ArrayOpenClass) aggregateType).getComponentClass();
+            return aggregateType.getComponentClass();
         }
 
         return null;
@@ -88,7 +88,7 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
         } else {
             // we support to work with Datatype arrays like this: people["John"]
             // also different object types may be used as indexes : vehicleSymbols[vehicle] 
-            IOpenClass componentClass = ((ArrayOpenClass) aggregateType).getComponentClass();
+            IOpenClass componentClass = aggregateType.getComponentClass();
             IOpenField indexField = componentClass.getIndexField();
 
             if (indexField != null) {
@@ -104,7 +104,7 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
             } 
         }
         return null;        
-    };
+    }
 
     @Override
     public IOpenClass getIndexedAggregateType(IOpenClass componentType, int dim) {
