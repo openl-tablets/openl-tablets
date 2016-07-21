@@ -435,6 +435,9 @@ public class JavaOpenClass extends AOpenClass {
     private static class JavaArrayLengthField extends ArrayLengthOpenField {
         @Override
         public int getLength(Object target) {
+            if (target == null) {
+                return 0;
+            }
             return Array.getLength(target);
         }
     }
