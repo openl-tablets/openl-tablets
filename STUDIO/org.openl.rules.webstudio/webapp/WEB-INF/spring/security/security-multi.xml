@@ -3,7 +3,7 @@
        xmlns:security="http://www.springframework.org/schema/security"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-          http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+          http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
           http://www.springframework.org/schema/security
           http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 
@@ -57,8 +57,8 @@
   <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
     <constructor-arg name="providers">
       <list>
-        <ref local="daoAuthenticationProvider" />
-        <ref local="rememberMeAuthenticationProvider" />
+        <ref bean="daoAuthenticationProvider" />
+        <ref bean="rememberMeAuthenticationProvider" />
       </list>
     </constructor-arg>
   </bean>
