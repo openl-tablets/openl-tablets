@@ -189,6 +189,7 @@ public class InstallWizard {
             appConfig.save();
             System.setProperty("webstudio.home", workingDir);
             System.setProperty("webstudio.configured", "true");
+            System.setProperty("user.mode", userMode);
 
             destroyRepositoryObjects();
 
