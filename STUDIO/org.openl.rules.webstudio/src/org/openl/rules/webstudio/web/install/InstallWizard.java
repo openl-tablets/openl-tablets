@@ -278,7 +278,7 @@ public class InstallWizard {
                          * only' but such folders can have security permissions
                          * 'deny all'
                          */
-                        isWritable(studioDir);
+                        validateIsWritable(studioDir);
                     } else {
                         throw new ValidatorException(FacesUtils.createErrorMessage("There is not enough access rights for installing WebStudio into the folder: '" + studioPath + "'"));
                     }
@@ -301,7 +301,7 @@ public class InstallWizard {
 
                 if (!hasAccess) {
 
-                    isWritable(studioDir);
+                    validateIsWritable(studioDir);
 
                 } else {
                     deleteFolder(existingFolder, studioDir);
@@ -317,14 +317,11 @@ public class InstallWizard {
      * Creates a temp file for validating folder write permissions
      *
      * @param file is a folder where temp file will be created
-     * @return true if specified folder is writable, otherwise returns false
      */
-    public boolean isWritable(File file) {
-        boolean isAccessible;
+    public void validateIsWritable(File file) {
 
         try {
             File tmpFile = File.createTempFile("temp", null, file);
-            isAccessible = true;
             if (!tmpFile.delete()) {
                 log.warn("Can't delete temp file {}", tmpFile.getName());
             }
@@ -332,7 +329,6 @@ public class InstallWizard {
         } catch (IOException ioe) {
             throw new ValidatorException(FacesUtils.createErrorMessage(ioe.getMessage() + " for '" + file.getAbsolutePath() + "'"));
         }
-        return isAccessible;
     }
 
     /**
@@ -343,10 +339,14 @@ public class InstallWizard {
      */
     private void deleteFolder(File existingFolder, File studioFolder) {
 
-        studioFolder.delete();
+        if (!studioFolder.delete()) {
+            log.warn("Can't delete the folder {}", studioFolder.getName());
+        }
 
         while (!studioFolder.getAbsolutePath().equalsIgnoreCase(existingFolder.getAbsolutePath())) {
-            studioFolder.delete();
+            if (!studioFolder.delete()) {
+                log.warn("Can't delete the folder {}", studioFolder.getName());
+            }
             studioFolder = studioFolder.getParentFile();
         }
     }
@@ -359,9 +359,12 @@ public class InstallWizard {
         Collection<File> dbPropFiles = new ArrayList<File>();
 
         if (dbPropFolder.isDirectory()) {
-            for (File file : dbPropFolder.listFiles()) {
-                if (file.getName().startsWith("db-")) {
-                    dbPropFiles.add(file);
+            File[] files = dbPropFolder.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.getName().startsWith("db-")) {
+                        dbPropFiles.add(file);
+                    }
                 }
             }
         }
@@ -631,10 +634,8 @@ public class InstallWizard {
         try {
             ctx = new XmlWebApplicationContext();
             ctx.setServletContext(FacesUtils.getServletContext());
-            ctx.setConfigLocations(new String[]{
-                    "classpath:META-INF/standalone/spring/security-hibernate-beans.xml",
-                    "/WEB-INF/spring/security/db/flyway-bean.xml"
-            });
+            ctx.setConfigLocations("classpath:META-INF/standalone/spring/security-hibernate-beans.xml",
+                    "/WEB-INF/spring/security/db/flyway-bean.xml");
             ctx.addBeanFactoryPostProcessor(new BeanFactoryPostProcessor() {
 
                 @Override
