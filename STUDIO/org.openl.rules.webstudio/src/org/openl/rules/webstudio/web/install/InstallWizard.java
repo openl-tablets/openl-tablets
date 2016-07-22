@@ -231,7 +231,7 @@ public class InstallWizard {
      * If a new database is added to the project, just add new sql error into
      * the file sql-errors.properties
      */
-    public void testDBConnection(String url, String login, String password) {
+    private void testDBConnection(String url, String login, String password) {
         Connection conn = dbUtils.createConnection(dbDriver, dbPrefix, url, login, password);
         try {
             conn.close();
@@ -318,7 +318,7 @@ public class InstallWizard {
      *
      * @param file is a folder where temp file will be created
      */
-    public void validateIsWritable(File file) {
+    private void validateIsWritable(File file) {
 
         try {
             File tmpFile = File.createTempFile("temp", null, file);
@@ -354,7 +354,7 @@ public class InstallWizard {
     /**
      * Returns collection of properties files for external databases
      */
-    public Collection<File> getDBPropetiesFiles() {
+    private Collection<File> getDBPropertiesFiles() {
         File dbPropFolder = new File(System.getProperty("webapp.root") + "/WEB-INF/conf/db");
         Collection<File> dbPropFiles = new ArrayList<File>();
 
@@ -378,7 +378,7 @@ public class InstallWizard {
         List<SelectItem> dbVendors = new ArrayList<SelectItem>();
         Properties dbProps = new Properties();
 
-        for (File propFile : getDBPropetiesFiles()) {
+        for (File propFile : getDBPropertiesFiles()) {
             InputStream is = null;
             try {
                 is = new FileInputStream(propFile);
