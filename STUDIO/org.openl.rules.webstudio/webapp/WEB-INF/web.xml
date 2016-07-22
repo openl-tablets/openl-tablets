@@ -77,23 +77,6 @@
   </context-param>
 
   <filter>
-      <filter-name>InstallerFilter</filter-name>
-      <filter-class>org.openl.rules.webstudio.filter.InstallerFilter</filter-class>
-      <init-param>
-        <param-name>wizardRoot</param-name>
-        <param-value>/faces/pages/modules/install/</param-value>
-    </init-param>
-  </filter>
-  <filter-mapping>
-      <filter-name>InstallerFilter</filter-name>
-      <url-pattern>*.xhtml</url-pattern>
-  </filter-mapping>
-  <filter-mapping>
-      <filter-name>InstallerFilter</filter-name>
-      <url-pattern>/</url-pattern>
-  </filter-mapping>
-
-  <filter>
       <filter-name>SecurityFilter</filter-name>
       <filter-class>org.openl.rules.webstudio.filter.ReloadableDelegatingFilter</filter-class>
       <init-param>

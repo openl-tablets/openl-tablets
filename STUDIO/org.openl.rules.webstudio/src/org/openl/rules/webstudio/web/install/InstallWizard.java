@@ -9,7 +9,9 @@ import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.db.utils.DBUtils;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
 import org.openl.rules.webstudio.web.admin.*;
+import org.openl.rules.webstudio.web.servlet.SessionListener;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +30,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
+import javax.servlet.ServletContext;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -190,8 +193,16 @@ public class InstallWizard {
             destroyRepositoryObjects();
 
             System.setProperty("webstudio.mode", "webstudio");
-            XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils.getWebApplicationContext(FacesUtils.getServletContext());
-            context.refresh();
+            final ServletContext servletContext = FacesUtils.getServletContext();
+            ReloadableDelegatingFilter.reload(new ReloadableDelegatingFilter.ConfigurationReloader() {
+                @Override
+                public void reload() {
+                    XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils.getWebApplicationContext(servletContext);
+                    context.refresh();
+
+                    SessionListener.getSessionCache(servletContext).invalidateAll();
+                }
+            });
 
             FacesUtils.redirectToRoot();
 
