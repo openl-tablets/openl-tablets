@@ -1,7 +1,10 @@
 package org.openl.rules.webstudio.filter;
 
+import org.openl.rules.webstudio.web.servlet.SessionListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.web.context.support.XmlWebApplicationContext;
 
 import javax.servlet.*;
 import java.io.IOException;
@@ -64,6 +67,21 @@ public class ReloadableDelegatingFilter implements Filter {
      */
     public static void reload(ConfigurationReloader reloader) {
         reloaderHolder.set(reloader);
+    }
+
+    /**
+     * Schedule configuration reloader to perform reload of configuration and invalidate all sessions.
+     */
+    public static void reloadApplicationContext(final ServletContext servletContext) {
+        reload(new ConfigurationReloader() {
+            @Override
+            public void reload() {
+                XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils.getWebApplicationContext(servletContext);
+                context.refresh();
+
+                SessionListener.getSessionCache(servletContext).invalidateAll();
+            }
+        });
     }
 
     @Override

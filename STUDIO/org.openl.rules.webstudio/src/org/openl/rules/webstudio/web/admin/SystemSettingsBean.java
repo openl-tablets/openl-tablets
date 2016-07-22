@@ -275,19 +275,7 @@ public class SystemSettingsBean {
 
     private void refreshConfig() throws ServletException {
         WebStudioUtils.getWebStudio().setNeedRestart(true);
-        final ServletContext servletContext = FacesUtils.getServletContext();
-
-        ReloadableDelegatingFilter.reload(new ConfigurationReloader() {
-
-            @Override
-            public void reload() {
-                XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils
-                        .getWebApplicationContext(servletContext);
-                context.refresh();
-
-                SessionListener.getSessionCache(servletContext).invalidateAll();
-            }
-        });
+        ReloadableDelegatingFilter.reloadApplicationContext(FacesUtils.getServletContext());
     }
 
 }

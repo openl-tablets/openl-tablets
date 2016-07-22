@@ -11,14 +11,12 @@ import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
 import org.openl.rules.webstudio.web.admin.*;
-import org.openl.rules.webstudio.web.servlet.SessionListener;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
 import javax.annotation.PreDestroy;
@@ -194,16 +192,7 @@ public class InstallWizard {
             destroyRepositoryObjects();
 
             System.setProperty("webstudio.mode", "webstudio");
-            final ServletContext servletContext = FacesUtils.getServletContext();
-            ReloadableDelegatingFilter.reload(new ReloadableDelegatingFilter.ConfigurationReloader() {
-                @Override
-                public void reload() {
-                    XmlWebApplicationContext context = (XmlWebApplicationContext) WebApplicationContextUtils.getWebApplicationContext(servletContext);
-                    context.refresh();
-
-                    SessionListener.getSessionCache(servletContext).invalidateAll();
-                }
-            });
+            ReloadableDelegatingFilter.reloadApplicationContext(FacesUtils.getServletContext());
 
             FacesUtils.redirectToRoot();
 
