@@ -33,6 +33,7 @@
       <security:filter-chain pattern="/images/**" filters="none" />
       <security:filter-chain pattern="/javascript/**" filters="none" />
       <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none" />
+      <security:filter-chain pattern="/faces/rfRes/**" filters="none" />
       <security:filter-chain pattern="/rest/**" filters="basicAuthenticationFilter,restExceptionTranslationFilter,filterSecurityInterceptor" />
       <security:filter-chain pattern="/**"
         filters="securityContextPersistenceFilter,usernamePasswordAuthenticationFilter,basicAuthenticationFilter,rememberMeAuthenticationFilter,exceptionTranslationFilter,filterSecurityInterceptor,logoutFilter" />
