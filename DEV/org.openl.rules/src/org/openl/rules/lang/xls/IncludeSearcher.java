@@ -74,7 +74,7 @@ public class IncludeSearcher {
 
                 return new URLSourceCodeModule(xurl);
             } catch (Throwable t) {
-                OpenLMessagesUtils.addWarn(String.format("Cannot find '%s' ()", include, t.getMessage()));
+                OpenLMessagesUtils.addWarn(String.format("Cannot find '%s' (%s)", include, t.getMessage()));
             }
         }
 

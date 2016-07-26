@@ -172,7 +172,7 @@ public class AlgorithmCompiler {
         if (!iterableArrayType.isArray()) {
             IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getAction()
                     .asSourceCodeModule();
-            throw SyntaxNodeExceptionUtils.createError(String.format("Compilation failure. The cell should be of the array type", elementName), errorSource);
+            throw SyntaxNodeExceptionUtils.createError("Compilation failure. The cell should be of the array type", errorSource);
         }
         IOpenClass elementType = iterableArrayType.getComponentClass();
         initNewInternalVariable(elementName.getValue(), elementType);
