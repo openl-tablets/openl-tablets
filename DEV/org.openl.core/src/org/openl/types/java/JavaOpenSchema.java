@@ -143,7 +143,7 @@ public class JavaOpenSchema extends AOpenSchema {
                     map.put(className, new JavaOpenClassHolder(className, classLoader));
                 }
             } catch (Exception ex) {
-                RuntimeExceptionWrapper.wrap(ex);
+                throw RuntimeExceptionWrapper.wrap(ex);
             }
         }
 

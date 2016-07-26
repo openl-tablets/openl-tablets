@@ -11,14 +11,14 @@ public final class SimpleRulesRuntimeEnvUtils {
 
     public static IRuntimeEnv getRuntimeEnv(Object instance) {
         if (instance instanceof IEngineWrapper || instance instanceof OpenLWrapper) {
-            IRuntimeEnv runtimeEnv = null;
+            IRuntimeEnv runtimeEnv;
             if (instance instanceof IEngineWrapper) {
                 runtimeEnv = ((IEngineWrapper) instance).getRuntimeEnv();
             } else {
                 try {
                     runtimeEnv = (IRuntimeEnv) instance.getClass().getMethod("getRuntimeEnvironment").invoke(instance);
                 } catch (Exception e) {
-                    new OpenlNotCheckedException(e);
+                    throw new OpenlNotCheckedException(e);
                 }
             }
             return runtimeEnv;
