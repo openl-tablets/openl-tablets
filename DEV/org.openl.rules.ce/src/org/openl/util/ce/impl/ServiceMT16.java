@@ -341,7 +341,12 @@ public class ServiceMT16 extends ServiceMT {
 	
 	@Override
 	protected void finalize() throws Throwable {
-		serviceImpl.shutdown();
+		try {
+			serviceImpl.shutdown();
+		} catch (Exception ignored) {
+		} finally {
+			super.finalize();
+		}
 	}
 
 	@Override

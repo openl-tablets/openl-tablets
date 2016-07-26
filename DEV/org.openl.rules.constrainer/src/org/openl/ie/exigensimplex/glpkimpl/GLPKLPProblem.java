@@ -167,8 +167,13 @@ public class GLPKLPProblem implements LPProblem {
     }
 
     @Override
-    protected void finalize() {
-        _lp.deleteLPX();
+    protected void finalize() throws Throwable {
+        try {
+            _lp.deleteLPX();
+        } catch (Exception ignored) {
+        } finally {
+            super.finalize();
+        }
     }
 
     public int getAlgorithm() {
