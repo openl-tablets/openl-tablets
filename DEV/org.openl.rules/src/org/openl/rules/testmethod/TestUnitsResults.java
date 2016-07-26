@@ -234,7 +234,7 @@ public class TestUnitsResults implements INamedThing {
     }
 
     public void addTestUnits(List<TestUnit> testUnits) {
-        testUnits.addAll(testUnits);
+        this.testUnits.addAll(testUnits);
     }
 
     @Deprecated
