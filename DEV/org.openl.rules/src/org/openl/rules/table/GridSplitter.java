@@ -53,8 +53,9 @@ public class GridSplitter {
     void defineTableBoundaries(int col, int row, int endX) {
         int y, x;
         int stX = col;
-        for (x = endX; containsCell(x, row); ++x) {
-            ;
+        x = endX;
+        while (containsCell(x, row)) {
+            ++x;
         }
         for (y = row; containsRow(col, x, y); ++y) {
             int newX = expandLeft(y, stX);
@@ -90,8 +91,8 @@ public class GridSplitter {
     }
 
     private int expandRight(int y, int x) {
-        for (; containsCell(x, y); ++x) {
-            ;
+        while (containsCell(x, y)) {
+            ++x;
         }
         return x;
     }
