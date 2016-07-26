@@ -119,12 +119,17 @@ public class TablePropertyDefinitionUtils {
     }
     
     /**
-     * Gets list of properties that must me set for particular table type by default. 
+     * Gets list of properties that must me set for particular table type by default.
+     * TODO: remove this method or fix it (see deprecation comment). See also DefaultPropertiesLoadingTest
      * 
      * @param tableType type of the table. see {@link XlsNodeTypes}. 
      * @return list of properties that must me set for particular table type by default. If <b>tableType</b> is <code>null</code>,
      * returns {@link #getPropertiesToBeSetByDefault()}
+     *
+     * @deprecated This method is incorrect (because tableType.equals(propDefinition.getTableType()) compares objects of
+     * inconvertible types). This method is used in unit test only, that test is incorrect and can be outdated.
      */
+    @Deprecated
     public static List<TablePropertyDefinition> getPropertiesToBeSetByDefault(String tableType) {
         if (tableType != null) {
             List<TablePropertyDefinition> result = new ArrayList<TablePropertyDefinition>();
