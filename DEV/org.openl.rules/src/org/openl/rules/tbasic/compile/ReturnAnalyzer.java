@@ -146,7 +146,7 @@ public class ReturnAnalyzer {
     private boolean hasTypeAsReturn(StringValue fieldContent) {
         if (returnType == JavaOpenClass.VOID) {
             // for void functions return must be empty
-            if (fieldContent.equals("")) {
+            if (fieldContent.getValue().equals("")) {
                 return true;
             } else {
                 return false;
