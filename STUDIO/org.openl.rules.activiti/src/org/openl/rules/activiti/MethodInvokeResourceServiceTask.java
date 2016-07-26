@@ -100,7 +100,7 @@ public class MethodInvokeResourceServiceTask extends AbstractOpenLResourceServic
                 parameterNames.append(parameterName);
             }
             throw new MethodNotFoundException(
-                String.format("Not found variables for method with name \"%s\"! Variable names: ",
+                String.format("Not found variables for method with name \"%s\"! Variable names: %s",
                     methodValue,
                     parameterNames.toString()));
         }

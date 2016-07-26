@@ -80,7 +80,7 @@ public class JavaClassRuleServicePublisher extends AbstractRuleServicePublisher 
         frontend.unregisterService(serviceName);
         if (runningServices.remove(serviceName) == null) {
             throw new RuleServiceUndeployException(
-                String.format("Service with name \"{}\" hasn't been deployed.", serviceName));
+                String.format("Service with name \"%s\" hasn't been deployed.", serviceName));
         }
     }
 
