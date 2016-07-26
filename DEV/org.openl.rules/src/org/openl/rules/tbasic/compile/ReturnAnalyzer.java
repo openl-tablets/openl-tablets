@@ -66,7 +66,7 @@ public class ReturnAnalyzer {
         SuitablityAsReturn result = SuitablityAsReturn.RETURN;
         // checks only IF and ELSE branches
         for (int i = 0; i < 2; i++) {
-            SuitablityAsReturn suitablityOfNode = SuitablityAsReturn.NONE;
+            SuitablityAsReturn suitablityOfNode;
             if (isMultiline) {
                 suitablityOfNode = analyzeSequence(nodesToAnalyze.get(i).getChildren());
             } else {
@@ -124,11 +124,7 @@ public class ReturnAnalyzer {
         String currentNodeKeyword = nodeToAnalyze.getSpecificationKeyword();
         String[] operationNamesToGroup = AlgorithmTableParserManager.instance().whatOperationsToGroup(
                 currentNodeKeyword);
-        if (operationNamesToGroup != null) {
-            return true;
-        } else {
-            return false;
-        }
+        return operationNamesToGroup != null;
     }
 
     /**
@@ -146,11 +142,7 @@ public class ReturnAnalyzer {
     private boolean hasTypeAsReturn(StringValue fieldContent) {
         if (returnType == JavaOpenClass.VOID) {
             // for void functions return must be empty
-            if (fieldContent.getValue().equals("")) {
-                return true;
-            } else {
-                return false;
-            }
+            return fieldContent.getValue().equals("");
         }
         IOpenClass typeOfField = getTypeOfField(fieldContent);
         return returnType.equals(typeOfField);
