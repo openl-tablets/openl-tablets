@@ -72,7 +72,7 @@ public class GLPKLPProblem implements LPProblem {
 
     public void addColumns(int num, String[] names, int[] types, double[] ubounds, double[] lbounds) {
         try {
-            if (!((num == names.length) && (num == ubounds.length) && (num == lbounds.length) && (num == ubounds.length))) {
+            if (!(num == names.length && num == ubounds.length && num == lbounds.length)) {
                 throw new IllegalArgumentException("addRows(int, String[], double[], double[])");
             }
             int oldnum = _lp.getNumCols();
@@ -85,7 +85,7 @@ public class GLPKLPProblem implements LPProblem {
         } catch (WrongLPX wrglpx) {
             throw new java.lang.RuntimeException("Internal error");
         }
-    };
+    }
 
     public void addRows(int num) {
         try {
@@ -112,7 +112,7 @@ public class GLPKLPProblem implements LPProblem {
 
     public void addRows(int num, String[] names, int[] types, double[] lbounds, double[] ubounds) {
         try {
-            if (!((num == names.length) && (num == ubounds.length) && (num == lbounds.length) && (num == ubounds.length))) {
+            if (!(num == names.length && num == ubounds.length && num == lbounds.length)) {
                 throw new IllegalArgumentException("addRows(int, String[], double[], double[])");
             }
             int oldnum = _lp.getNumRows();
@@ -182,7 +182,7 @@ public class GLPKLPProblem implements LPProblem {
 
     public boolean getBoolParam(int paramNum) {
         try {
-            return (_lp.getBoolParm(paramNum) == 0 ? false : true);
+            return (_lp.getBoolParm(paramNum) != 0);
         } catch (WrongLPX wrglpx) {
             throw new java.lang.RuntimeException("Internal error");
         }
@@ -433,10 +433,7 @@ public class GLPKLPProblem implements LPProblem {
     public boolean isColumnBoolean(int colnum) {
         try {
             VarType vt = _lp.getColBnds(colnum);
-            if ((vt.getLb() == 0) && (vt.getUb() == 1) && (_lp.isIntVar(colnum))) {
-                return true;
-            }
-            return false;
+            return (vt.getLb() == 0) && (vt.getUb() == 1) && (_lp.isIntVar(colnum));
         } catch (WrongLPX wrglpx) {
             throw new java.lang.RuntimeException("Internal error");
         }
@@ -451,17 +448,11 @@ public class GLPKLPProblem implements LPProblem {
     }
 
     public boolean isFeasibleLPSolutionFound() {
-        if (LPErrorCodes.isFeasible(_lp.getStatus()) || IPSErrorCodes.isOptimal(_lp.getIPSStatus())) {
-            return true;
-        }
-        return false;
+        return LPErrorCodes.isFeasible(_lp.getStatus()) || IPSErrorCodes.isOptimal(_lp.getIPSStatus());
     }
 
     public boolean isFeasibleMIPSolutionFound() {
-        if (MIPErrorCodes.isFeasible(_lp.getMIPStatus())) {
-            return true;
-        }
-        return false;
+        return MIPErrorCodes.isFeasible(_lp.getMIPStatus());
     }
 
     public boolean isMIP() {
@@ -469,17 +460,11 @@ public class GLPKLPProblem implements LPProblem {
     }
 
     public boolean isOptimalLPSolutionFound() {
-        if (LPErrorCodes.isOptimal(_lp.getStatus()) || IPSErrorCodes.isOptimal(_lp.getIPSStatus())) {
-            return true;
-        }
-        return false;
+        return LPErrorCodes.isOptimal(_lp.getStatus()) || IPSErrorCodes.isOptimal(_lp.getIPSStatus());
     }
 
     public boolean isOptimalMIPSolutionFound() {
-        if (MIPErrorCodes.isOptimal(_lp.getMIPStatus())) {
-            return true;
-        }
-        return false;
+        return MIPErrorCodes.isOptimal(_lp.getMIPStatus());
     }
 
     public boolean isRowBoolean(int rownum) {
@@ -594,7 +579,7 @@ public class GLPKLPProblem implements LPProblem {
         } catch (WrongLPX wrglpx) {
             throw new java.lang.RuntimeException("Internal error");
         }
-    };
+    }
 
     public void setColumnCoeff(int num, double value) {
         try {
