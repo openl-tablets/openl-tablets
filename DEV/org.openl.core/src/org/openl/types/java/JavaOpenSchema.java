@@ -122,9 +122,6 @@ public class JavaOpenSchema extends AOpenSchema {
 
     ClassLoader classLoader;
 
-    /**
-     * @param factory
-     */
     public JavaOpenSchema(IOpenFactory factory, String[] classpath, ClassLoader classLoader) {
         super(factory);
         this.classpath = classpath;
@@ -136,9 +133,9 @@ public class JavaOpenSchema extends AOpenSchema {
     protected Map<String, IOpenClassHolder> buildAllClasses() {
         HashMap<String, IOpenClassHolder> map = new HashMap<String, IOpenClassHolder>();
 
-        for (int i = 0; i < classpath.length; i++) {
+        for (String cp : classpath) {
             try {
-                for (Iterator<String> iter = getIterator(classpath[i]); iter.hasNext();) {
+                for (Iterator<String> iter = getIterator(cp); iter.hasNext(); ) {
                     String className = iter.next();
                     map.put(className, new JavaOpenClassHolder(className, classLoader));
                 }
@@ -150,9 +147,6 @@ public class JavaOpenSchema extends AOpenSchema {
         return map;
     }
 
-    /**
-     * @return
-     */
     public String[] getClasspath() {
         return classpath;
     }
@@ -216,9 +210,6 @@ public class JavaOpenSchema extends AOpenSchema {
 
     }
 
-    /**
-     * @param string
-     */
     public void setClasspath(String[] string) {
         classpath = string;
     }
