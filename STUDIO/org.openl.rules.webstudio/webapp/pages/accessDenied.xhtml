@@ -1,8 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ui:composition
-    xmlns:ui="http://java.sun.com/jsf/facelets">
+<!DOCTYPE html>
+<html xmlns:h="http://java.sun.com/jsf/html" xmlns:c="http://java.sun.com/jsp/jstl/core">
+<h:head>
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
 
     <script>
-        location.href = "#{facesContext.externalContext.request.contextPath}";
+        //<![CDATA[
+        if (location.pathname != "#{contextPath}" && location.pathname != "#{contextPath}/") {
+            location.href = "#{contextPath}";
+        }
+        //]]>
     </script>
-</ui:composition>
+</h:head>
+<h:body>
+    <div>Access denied</div>
+</h:body>
+</html>
