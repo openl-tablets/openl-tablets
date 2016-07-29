@@ -80,7 +80,7 @@ public class Session {
     }
 
     public void setChoicePointLabel(ChoicePointLabel label) {
-        label = _label;
+        this._label = label;
     }
 
     public void setConstrainer(Constrainer C) {
