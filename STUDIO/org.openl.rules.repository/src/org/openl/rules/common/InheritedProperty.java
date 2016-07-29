@@ -19,7 +19,7 @@ public class InheritedProperty implements Serializable {
         return value;
     }
 
-    public void setValue(String Object) {
+    public void setValue(String value) {
         this.value = value;
     }
 
