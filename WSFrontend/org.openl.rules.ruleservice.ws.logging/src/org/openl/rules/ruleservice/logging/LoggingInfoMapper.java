@@ -110,20 +110,6 @@ public class LoggingInfoMapper {
         for (Entry<Annotation, Method> entry : annotationMethodMap.entrySet()) {
             Annotation annotation = entry.getKey();
             Method method = entry.getValue();
-            if (Request.class.equals(annotation.annotationType())) {
-                insertValue(loggingInfo,
-                    target,
-                    annotation,
-                    method,
-                    loggingInfo.getRequestMessage().getPayload().toString());
-            }
-            if (Response.class.equals(annotation.annotationType())) {
-                insertValue(loggingInfo,
-                    target,
-                    annotation,
-                    method,
-                    loggingInfo.getResponseMessage().getPayload().toString());
-            }
             if (IncomingTime.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingInfo.getIncomingMessageTime());
             }
@@ -139,12 +125,34 @@ public class LoggingInfoMapper {
             if (Publisher.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingInfo.getPublisherType().toString());
             }
-            if (Url.class.equals(annotation.annotationType())) {
-                insertValue(loggingInfo,
-                    target,
-                    annotation,
-                    method,
-                    loggingInfo.getRequestMessage().getAddress().toString());
+            if (loggingInfo.getRequestMessage() != null){
+                if (Url. class.equals(annotation.annotationType()) && loggingInfo.getRequestMessage().getAddress() != null) {
+                    insertValue(loggingInfo,
+                        target,
+                        annotation,
+                        method,
+                        loggingInfo.getRequestMessage().getAddress().toString());
+                }
+                if (Request.class.equals(annotation.annotationType()) && loggingInfo.getResponseMessage().getPayload() != null) {
+                    insertValue(loggingInfo,
+                        target,
+                        annotation,
+                        method,
+                        loggingInfo.getRequestMessage().getPayload().toString());
+                }
+            }else{
+                log.error("Request message is not present!");
+            }
+            if (loggingInfo.getResponseMessage() != null){
+                if (Response.class.equals(annotation.annotationType()) && loggingInfo.getResponseMessage().getPayload() != null) {
+                    insertValue(loggingInfo,
+                        target,
+                        annotation,
+                        method,
+                        loggingInfo.getResponseMessage().getPayload().toString());
+                }
+            }else{
+                log.error("Response message is not present!");
             }
             if (UseLoggingInfo.class.equals(annotation.annotationType())) {
                 useLoggingInfoInsertValue(loggingInfo, target, annotation, method);
