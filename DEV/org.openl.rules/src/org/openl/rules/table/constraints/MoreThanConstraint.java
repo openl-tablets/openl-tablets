@@ -40,7 +40,7 @@ public class MoreThanConstraint extends AbstractConstraint {
             Object value2 = valuesToCheck[1];
             if (value1 instanceof Comparable && value2 instanceof Comparable) {
                 int compareResult = ((Comparable<Object>) value1).compareTo(value2);
-                return compareResult == 1;
+                return compareResult > 0;
             }
         }
         return false;
