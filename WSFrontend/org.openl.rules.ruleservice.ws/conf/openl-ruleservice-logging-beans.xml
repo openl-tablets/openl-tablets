@@ -10,8 +10,8 @@
 	<!-- Logging request/response feature to external storage feature beans. -->
 
 	<!-- Cassandra logging store service bean. -->
-	<bean id="cassandraLoggingInfoStoreService" class="org.openl.rules.ruleservice.logging.cassandra.CassandraLoggingInfoStoreService" lazy-init="true">
-		<property name="cassandraOperations" ref="cassandraTemplate"/>
+	<bean id="cassandraLoggingInfoStoreService" class="org.openl.rules.ruleservice.logging.cassandra.CassandraStoreLoggingInfoService" lazy-init="true">
+		<property name="cassandraOperations" ref="cassandraOperations"/>
 	</bean>
 	
 	<!-- This is databinding (JSON) access feature in logging store for each service. Not remove commented code bellow. -->

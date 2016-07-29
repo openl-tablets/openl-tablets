@@ -41,14 +41,18 @@
         <!-- RulesService -->
         <dependency>
             <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.ruleservice</artifactId>
+            <artifactId>org.openl.rules.ruleservice.ws.logging.core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.ruleservice.ws</artifactId>
-            <classifier>classes</classifier>
+            <artifactId>org.openl.rules.ruleservice</artifactId>
         </dependency>
-        <!-- Other -->
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-transports-http-jetty</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!--ELasric Search -->
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-elasticsearch</artifactId>
@@ -57,6 +61,7 @@
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
         </dependency>
+        <!-- Other -->
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
