@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.openl.rules.tbasic.compile;
 
 import org.openl.OpenL;
@@ -119,7 +116,7 @@ public class AlgorithmCompiler {
             throws SyntaxNodeException {
         String returnValueInstruction = convertionStep.getOperationParam1();
 
-        IOpenClass returnType = JavaOpenClass.VOID;
+        IOpenClass returnType;
         if (AlgorithmCompilerTool.isOperationFieldInstruction(returnValueInstruction)) {
             returnType = getTypeOfField(AlgorithmCompilerTool.getCellContent(nodesToCompile, returnValueInstruction));
         } else {
@@ -172,7 +169,7 @@ public class AlgorithmCompiler {
         if (!iterableArrayType.isArray()) {
             IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getAction()
                     .asSourceCodeModule();
-            throw SyntaxNodeExceptionUtils.createError(String.format("Compilation failure. The cell should be of the array type", elementName), errorSource);
+            throw SyntaxNodeExceptionUtils.createError("Compilation failure. The cell should be of the array type", errorSource);
         }
         IOpenClass elementType = iterableArrayType.getComponentClass();
         initNewInternalVariable(elementName.getValue(), elementType);
@@ -322,10 +319,7 @@ public class AlgorithmCompiler {
         assert conversionStep != null;
 
         String operationType = conversionStep.getOperationType();
-        if (!operationType.startsWith("!") || operationType.equals(OperationType.CHECK_LABEL.toString())) {
-            // Do nothing
-            //
-        } else {
+        if (operationType.startsWith("!") && !operationType.equals(OperationType.CHECK_LABEL.toString())) {
             OperationPreprocessor preprocessor = operationPreprocessors.get(operationType);
             if (preprocessor == null) {
                 IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation()

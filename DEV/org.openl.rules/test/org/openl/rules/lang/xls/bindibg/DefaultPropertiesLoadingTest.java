@@ -35,6 +35,9 @@ public class DefaultPropertiesLoadingTest extends BaseOpenlBuilderHelper {
 
             List<String> tsnPropNames = getAllTableProperties(resultTsn);
 
+            // FIXME: defaultPropDefinitionsNames is always empty because of a bug in getPropertiesToBeSetByDefault() but test doesn't fail
+            // FIXME: What does this test check?
+
             List<String> defaultPropDefinitionsNames = getDefaultPropDefinitions(resultTsn);
             assertTrue("Tsn contains all properties that must be set by default for this type of table",
                     tsnPropNames.containsAll(defaultPropDefinitionsNames));

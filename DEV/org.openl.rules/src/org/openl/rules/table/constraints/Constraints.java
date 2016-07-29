@@ -51,7 +51,7 @@ public class Constraints {
 
     public void addAll(List<Constraint> constraints) {
         if (CollectionUtils.isNotEmpty(constraints)) {
-            constraints.addAll(constraints);
+            this.constraints.addAll(constraints);
         }
     }
 

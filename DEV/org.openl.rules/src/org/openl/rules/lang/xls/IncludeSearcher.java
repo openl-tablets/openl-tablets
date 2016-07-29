@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.openl.rules.lang.xls;
 
 import java.io.File;
@@ -37,12 +34,12 @@ public class IncludeSearcher {
             searchPath = INCLUDE;
         }
 
-        String[] path = StringTool.tokenize(searchPath, ";");
+        String[] paths = StringTool.tokenize(searchPath, ";");
 
-        for (int i = 0; i < path.length; i++) {
+        for (String path : paths) {
 
             try {
-                String p = PathTool.mergePath(path[i], include);
+                String p = PathTool.mergePath(path, include);
                 URL url = ucxt.findClassPathResource(p);
 
                 if (url != null) {
@@ -56,7 +53,7 @@ public class IncludeSearcher {
                 }
 
                 // let's try simple concat and use url
-                String u2 = path[i] + include;
+                String u2 = path + include;
                 URL xurl = new URL(u2);
 
                 // URLConnection uc;
@@ -74,7 +71,7 @@ public class IncludeSearcher {
 
                 return new URLSourceCodeModule(xurl);
             } catch (Throwable t) {
-                OpenLMessagesUtils.addWarn(String.format("Cannot find '%s' ()", include, t.getMessage()));
+                OpenLMessagesUtils.addWarn(String.format("Cannot find '%s' (%s)", include, t.getMessage()));
             }
         }
 

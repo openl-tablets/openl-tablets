@@ -72,7 +72,7 @@ public class ServiceMT16 extends ServiceMT {
 
 		int splitSize = calcSplitSize(len, durationEstimate);
 
-		int flen = len / splitSize + 1;
+		int flen;
 		List<Future<?>> fres = new ArrayList<Future<?>>();
 
 		for (int i = 0; i < len; i += splitSize) {
@@ -130,7 +130,7 @@ public class ServiceMT16 extends ServiceMT {
 
 		int len = all.length;
 
-		long totalEstimate = calcTotalEstimate((IActivity[]) all);
+		long totalEstimate = calcTotalEstimate(all);
 
 		if (totalEstimate < config.getMinSequenceLengthNs() * 2) {
 			return executeAllSequential(all, null, 0, len);
@@ -281,8 +281,7 @@ public class ServiceMT16 extends ServiceMT {
 		if (errors != null)
 			throw new ArrayExecutionException("Errors:", errors);
 
-		long time = System.nanoTime() - start;
-		return time;
+        return System.nanoTime() - start;
 	}
 
 
@@ -334,14 +333,18 @@ public class ServiceMT16 extends ServiceMT {
 			throw new ArrayExecutionException("Caught " + errors.size()
 					+ " error(s)", errors);
 
-		long time = System.nanoTime() - start;
-		return time;
+        return System.nanoTime() - start;
 	}
 
 	
 	@Override
 	protected void finalize() throws Throwable {
-		serviceImpl.shutdown();
+		try {
+			serviceImpl.shutdown();
+		} catch (Exception ignored) {
+		} finally {
+			super.finalize();
+		}
 	}
 
 	@Override
