@@ -160,8 +160,6 @@ public abstract class FunctionalRowCE implements IDecisionRow {
 	 * </tr>
 	 * </table>
 	 * 
-	 * @param dataTableBody
-	 * @param tableType
 	 * @return <code>TRUE</code> if table is horizontal.
 	 */
 	public ILogicalTable getDecisionTable() {
@@ -468,8 +466,7 @@ public abstract class FunctionalRowCE implements IDecisionRow {
 				IOpenClass type = method.getBodyType();
 
 				if (type instanceof NullOpenClass) {
-					String message = String
-							.format("Cannot recognize type of local parameter for expression");
+					String message = "Cannot recognize type of local parameter for expression";
 					throw SyntaxNodeExceptionUtils.createError(message, null,
 							null, methodSource);
 				}

@@ -491,8 +491,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 				IOpenClass type = method.getBodyType();
 
 				if (type instanceof NullOpenClass) {
-					String message = String
-							.format("Cannot recognize type of local parameter for expression");
+					String message = "Cannot recognize type of local parameter for expression";
 					throw SyntaxNodeExceptionUtils.createError(message, null,
 							null, methodSource);
 				}
