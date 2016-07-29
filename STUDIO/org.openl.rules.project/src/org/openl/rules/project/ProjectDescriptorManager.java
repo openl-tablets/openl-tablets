@@ -73,16 +73,6 @@ public class ProjectDescriptorManager {
         return descriptor;
     }
 
-    public void writeDescriptor(ProjectDescriptor descriptor, String filename) throws IOException, ValidationException {
-        File file = new File(filename);
-        writeDescriptor(descriptor, file);
-    }
-
-    public void writeDescriptor(ProjectDescriptor descriptor, File file) throws IOException, ValidationException {
-        FileOutputStream fileOutputStream = new FileOutputStream(file);
-        writeDescriptor(descriptor, fileOutputStream);
-    }
-
     public void writeDescriptor(ProjectDescriptor descriptor, OutputStream dest) throws IOException,
                                                                                 ValidationException {
         validator.validate(descriptor);

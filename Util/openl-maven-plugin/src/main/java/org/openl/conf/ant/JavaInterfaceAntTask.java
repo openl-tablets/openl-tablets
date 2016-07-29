@@ -12,6 +12,7 @@ import org.openl.rules.project.model.ModuleType;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
+import org.openl.util.IOUtils;
 
 public class JavaInterfaceAntTask extends JavaAntTask {
     
@@ -105,11 +106,14 @@ public class JavaInterfaceAntTask extends JavaAntTask {
         }        
         projectToWrite.setModules(modulesToWrite);
 
+        FileOutputStream fous = null;
         try {
-            FileOutputStream fous = new FileOutputStream(rulesDescriptor);
+            fous = new FileOutputStream(rulesDescriptor);
             manager.writeDescriptor(projectToWrite, fous);
         } catch (Exception e) {
             log("Error while writing project descriptor file " + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME, e, Project.MSG_ERR);
+        } finally {
+            IOUtils.closeQuietly(fous);
         }
     }
     
