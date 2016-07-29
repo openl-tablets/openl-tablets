@@ -1067,11 +1067,8 @@ public class RulesUtilsTest {
     @Test
     public void testIntegerSum() {
         assertEquals(
-                java.lang.Integer.valueOf((java.lang.Integer) 30),
-                instance.testSumInteger(new java.lang.Integer[]{
-                        java.lang.Integer.valueOf((java.lang.Integer) 10),
-                        java.lang.Integer.valueOf((java.lang.Integer) 5),
-                        java.lang.Integer.valueOf((java.lang.Integer) 15)}));
+                (Integer) 30,
+                instance.testSumInteger(new java.lang.Integer[]{ 10, 5, 15 }));
     }
 
     @Test
