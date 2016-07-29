@@ -22,7 +22,7 @@
 		class="org.openl.rules.ruleservice.conf.LazyInitBeanFactoryPostProcessor">
 		<property name="lazyBeanNames">
 			<list>
-				<value>cassandraSingleton</value>
+				<value>cassandraOperations</value>
 			</list>
 		</property>
 	</bean>
