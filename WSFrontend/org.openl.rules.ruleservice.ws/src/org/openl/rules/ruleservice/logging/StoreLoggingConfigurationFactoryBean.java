@@ -8,7 +8,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-public class StoreLoggingConfigurationFactoryBean implements FactoryBean<LoggingInfoStoringService>, ApplicationContextAware, InitializingBean {
+public class StoreLoggingConfigurationFactoryBean implements FactoryBean<StoreLoggingInfoService>, ApplicationContextAware, InitializingBean {
 
     private final Logger log = LoggerFactory.getLogger(StoreLoggingConfigurationFactoryBean.class);
 
@@ -53,16 +53,16 @@ public class StoreLoggingConfigurationFactoryBean implements FactoryBean<Logging
     }
 
     @Override
-    public LoggingInfoStoringService getObject() throws Exception {
+    public StoreLoggingInfoService getObject() throws Exception {
         if (!isLoggingStoreEnable()) {
             return null;
         }
         if (CASSANDRA_TYPE.equalsIgnoreCase(getType().trim())) {
             log.info("Cassandra logging store is enabled!");
-            return applicationContext.getBean(CASSANDRA_STORING_SERVICE_BEAN_NAME, LoggingInfoStoringService.class);
+            return applicationContext.getBean(CASSANDRA_STORING_SERVICE_BEAN_NAME, StoreLoggingInfoService.class);
         } else if (ELASTICSEARCH_TYPE.equalsIgnoreCase(getType().trim())) {
             log.info("Elastic Search logging store is enabled!");
-            LoggingInfoStoringService loggingInfoStoringService = applicationContext.getBean(ELASTICSEARCH_STORING_SERVICE_BEAN_NAME, LoggingInfoStoringService.class);
+            StoreLoggingInfoService loggingInfoStoringService = applicationContext.getBean(ELASTICSEARCH_STORING_SERVICE_BEAN_NAME, StoreLoggingInfoService.class);
             if (loggingInfoStoringService == null){
                 log.error("Elastic Search logging store wasn't configured! Please, refer to OpenL documentation.");
             }
@@ -74,7 +74,7 @@ public class StoreLoggingConfigurationFactoryBean implements FactoryBean<Logging
 
     @Override
     public Class<?> getObjectType() {
-        return LoggingInfoStoringService.class;
+        return StoreLoggingInfoService.class;
     }
 
     @Override
