@@ -286,10 +286,8 @@ public class ProjectModel {
 
         List<TableSyntaxNode> list = new ArrayList<TableSyntaxNode>();
 
-        for (int i = 0; i < nodes.length; i++) {
-            TableSyntaxNode tsn = nodes[i];
-
-            if (tsn.getType() == XlsNodeTypes.XLS_DT.toString()) {
+        for (TableSyntaxNode tsn : nodes) {
+            if (tsn.getType().equals(XlsNodeTypes.XLS_DT.toString())) {
                 if (tsn.getErrors() == null) {
                     if (tsn.getTableProperties() != null) {
                         if (ValidateDTEnum.ON.equals(tsn.getTableProperties().getValidateDT())) {
@@ -1206,8 +1204,7 @@ public class ProjectModel {
 
     public TableEditorModel getTableEditorModel(IOpenLTable table) {
         String tableView = studio.getTableView();
-        TableEditorModel tableModel = new TableEditorModel(table, tableView, false);
-        return tableModel;
+        return new TableEditorModel(table, tableView, false);
     }
 
     public boolean isProjectCompiledSuccessfully() {

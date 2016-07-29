@@ -150,7 +150,7 @@ public class AlgoritmNodesCompiler {
         StringValue content = AlgorithmCompilerTool.getCellContent(nodesToCompile, param);
         RuntimeOperation operation = null;
 
-        if (content.getValue() != null && content.getValue().trim() != "") {
+        if (content.getValue() != null && !content.getValue().trim().isEmpty()) {
             ConversionRuleStep conversionStep = new ConversionRuleStep("Perform", param, null, null, fieldName
                     + " execution");
             operation = operationFactory.createOperation(nodesToCompile, conversionStep);
