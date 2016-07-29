@@ -105,8 +105,8 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
             }
         }
 
-        buf.append("\n@XmlRootElement(namespace=\"" + namespace.toString() + "\")");
-        buf.append("\n@XmlType(namespace=\"" + namespace.toString() + "\")");
+        buf.append("\n@XmlRootElement(namespace=\"").append(namespace.toString()).append("\")");
+        buf.append("\n@XmlType(namespace=\"").append(namespace.toString()).append("\")");
     }
 
     public String generateJavaClass() {
@@ -160,9 +160,13 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
                 }
                 if (getterExists(method, datatypeAllFields.keySet())) {
                     if (defaultFieldValue != null){
-                        buf.append("\n  @XmlElement(name=\"" + fieldName + "\", defaultValue=\"" + defaultFieldValue + "\")");
+                        buf.append("\n  @XmlElement(name=\"")
+                                .append(fieldName)
+                                .append("\", defaultValue=\"")
+                                .append(defaultFieldValue)
+                                .append("\")");
                     } else {
-                        buf.append("\n  @XmlElement(name=\""+ fieldName +"\", nillable=true)");
+                        buf.append("\n  @XmlElement(name=\"").append(fieldName).append("\", nillable=true)");
                     }
                     addGetter(buf, method, datatypeAllFields.keySet());
                 }

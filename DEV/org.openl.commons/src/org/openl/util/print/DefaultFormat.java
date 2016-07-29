@@ -115,7 +115,7 @@ public class DefaultFormat {
         }
 
         if (actualLength > len) {
-            buf.append(", ... " + (actualLength - len) + " more");
+            buf.append(", ... ").append(actualLength - len).append(" more");
         }
 
         buf.append(brackets.charAt(1));

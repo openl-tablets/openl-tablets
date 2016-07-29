@@ -205,7 +205,7 @@ public final class DomainBits2 extends DomainImpl {
             if (to - from == 1) {
                 buf.append(String.valueOf(from));
             } else {
-                buf.append(from + ".." + (to - 1));
+                buf.append(from).append("..").append(to - 1);
             }
 
             i = upperBound(to);

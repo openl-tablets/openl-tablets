@@ -38,7 +38,7 @@ public class FieldNotFoundException extends OpenLCompilationException {
         buf.append("Field ").append(fieldName);
         buf.append(" is not found");
         if (type != null) {
-            buf.append(" in " + type.getName());
+            buf.append(" in ").append(type.getName());
         }
         return buf.toString();
     }

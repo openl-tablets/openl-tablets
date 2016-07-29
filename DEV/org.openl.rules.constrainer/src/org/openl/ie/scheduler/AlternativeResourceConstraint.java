@@ -138,10 +138,10 @@ public class AlternativeResourceConstraint extends ConstraintImpl {
     @Override
     public String toString() {
         StringBuilder out = new StringBuilder();
-        out.append(_job + " requires [ ");
+        out.append(_job).append(" requires [ ");
         for (int i = 0; i < _rset.length; i++) {
             if (_possibleAssignment[i]) {
-                out.append(_rset[i] + " ");
+                out.append(_rset[i]).append(" ");
             }
         }
         out.append("]");

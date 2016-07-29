@@ -56,7 +56,7 @@ public class ComplexVariation extends Variation {
      */
     public static String createVariationID(Variation[] variations) {
         StringBuilder builder = new StringBuilder();
-        builder.append("Complex variation [" + variations.length + "]{");
+        builder.append("Complex variation [").append(variations.length).append("]{");
         for (int i = 0; i < variations.length; i++) {
             builder.append(variations[i].getVariationID());
             if (i != variations.length - 1) {

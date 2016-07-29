@@ -234,7 +234,7 @@ public class Schedule {
             if (job.equals(c.getJob())) {
                 Resource r = c.getResource();
                 if (r != null) {
-                    str.append(r.getName() + "(" + c.getCapacity() + ") ");
+                    str.append(r.getName()).append("(").append(c.getCapacity()).append(") ");
                 }
             }
         }
@@ -252,7 +252,7 @@ public class Schedule {
         for (int i = 0; i < _requirements.size(); i++) {
             AlternativeResourceConstraint c = (AlternativeResourceConstraint) _requirements.elementAt(i);
             if (res.equals(c.getResource())) {
-                str.append(c.getJob().getName() + " ");
+                str.append(c.getJob().getName()).append(" ");
             }
         }
         return str.toString();

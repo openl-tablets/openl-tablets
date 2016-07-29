@@ -141,17 +141,17 @@ public class Bins {
         public String toString() {
             StringBuilder buf = new StringBuilder();
             try {
-                buf.append("Bin#" + id + " (" + binTypes[type.value()] + "):");
+                buf.append("Bin#").append(id).append(" (").append(binTypes[type.value()]).append("):");
 
                 for (int i = 0; i < components.length; ++i) {
                     int c = counts.elementAt(i).value();
                     if (c > 0) {
-                        buf.append(" " + components[i] + "=" + c);
+                        buf.append(" ").append(components[i]).append("=").append(c);
                     }
                 }
             } catch (Failure f) {
                 System.out.println(f);
-                buf.append("Bin-" + id + " is not instantiated");
+                buf.append("Bin-").append(id).append(" is not instantiated");
             }
             return buf.toString();
         }

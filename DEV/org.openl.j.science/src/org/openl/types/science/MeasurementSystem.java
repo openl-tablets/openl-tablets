@@ -132,14 +132,13 @@ public class MeasurementSystem implements IMeasurementSystem, IBasicConstants {
                 printed = true;
                 buf.append(baseUnits[i].getName());
                 if (p > 1) {
-                    buf.append("^" + p);
+                    buf.append("^").append(p);
                 }
 
             }
         }
 
-        if (negCount == 0) {
-        } else {
+        if (negCount != 0) {
             buf.append('/');
             boolean printed = false;
             for (int i = 0; i < powers.length; i++) {
@@ -156,7 +155,7 @@ public class MeasurementSystem implements IMeasurementSystem, IBasicConstants {
                 printed = true;
                 buf.append(baseUnits[i].getName());
                 if (p > 1) {
-                    buf.append("^" + (-p));
+                    buf.append("^").append(-p);
                 }
 
             }
