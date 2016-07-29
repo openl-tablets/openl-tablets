@@ -49,28 +49,23 @@ public class ObjectValue implements IMetaHolder, Comparable<ObjectValue> {
         return value;
     }
 
-    @Override
     /**
-     * Indicates whether some other object is "equal to" obj variable. 
+     * Indicates whether some other object is "equal to" obj variable.
      */
+    @Override
     public boolean equals(Object obj) {
 
         if (obj instanceof ObjectValue) {
             ObjectValue v = (ObjectValue) obj;
             return value.equals(v.value);
         }
-        if (obj instanceof Object) {
-            Object s = (Object) obj;
-            return value.equals(s);
-        }
-
-        return false;
+        return obj != null && value.equals(obj);
     }
 
-    @Override
     /**
      * Returns the hashCode of the current value
      */
+    @Override
     public int hashCode() {
         return value.hashCode();
     }
@@ -111,9 +106,7 @@ public class ObjectValue implements IMetaHolder, Comparable<ObjectValue> {
             Arrays.sort(notNullArray);
 
             /* Filling sortedArray by sorted and null values */
-            for (int i = 0; i < notNullArray.length; i++) {
-                sortedArray[i] = notNullArray[i];
-            }
+            System.arraycopy(notNullArray, 0, sortedArray, 0, notNullArray.length);
 
         }
         return sortedArray;

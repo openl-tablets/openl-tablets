@@ -178,9 +178,7 @@ public final class IntArray extends ConstrainerObjectImpl {
     public IntArray(Constrainer c, int[] arr) {
         this(c, arr.length);
 
-        for (int i = 0; i < _data.length; ++i) {
-            _data[i] = arr[i];
-        }
+        System.arraycopy(arr, 0, _data, 0, _data.length);
     }
 
     /**
@@ -367,9 +365,7 @@ public final class IntArray extends ConstrainerObjectImpl {
 
         int[] sub_data = new int[max_index - min_index + 1];
 
-        for (int i = min_index; i <= max_index; i++) {
-            sub_data[i - min_index] = _data[i];
-        }
+        System.arraycopy(_data, min_index, sub_data, 0, max_index + 1 - min_index);
 
         return new IntArray(constrainer(), sub_data);
     }

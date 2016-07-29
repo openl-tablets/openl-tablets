@@ -198,12 +198,8 @@ public class VariationsResult<T> {
         String[] failedIDs = getFailedVariationIDs();
         String[] calculatedIDs = getCalculatedVariationIDs();
         String[] ids = new String[failedIDs.length + calculatedIDs.length];
-        for (int i = 0; i < calculatedIDs.length; i++) {
-            ids[i] = calculatedIDs[i];
-        }
-        for (int i = 0; i < failedIDs.length; i++) {
-            ids[calculatedIDs.length + i] = failedIDs[i];
-        }
+        System.arraycopy(calculatedIDs, 0, ids, 0, calculatedIDs.length);
+        System.arraycopy(failedIDs, 0, ids, calculatedIDs.length, failedIDs.length);
         return ids;
     }
 }

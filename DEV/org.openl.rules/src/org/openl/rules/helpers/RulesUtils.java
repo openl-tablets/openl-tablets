@@ -1749,9 +1749,7 @@ public class RulesUtils {
             Arrays.sort(notNullArray);
 
             /* Filling sortedArray by sorted and null values */
-            for (int i = 0; i < notNullArray.length; i++) {
-                sortedArray[i] = notNullArray[i];
-            }
+            System.arraycopy(notNullArray, 0, sortedArray, 0, notNullArray.length);
         }
         return sortedArray;
     }
@@ -1765,9 +1763,7 @@ public class RulesUtils {
             Arrays.sort(notNullArray);
 
             /* Filling sortedArray by sorted and null values */
-            for (int i = 0; i < notNullArray.length; i++) {
-                sortedArray[i] = notNullArray[i];
-            }
+            System.arraycopy(notNullArray, 0, sortedArray, 0, notNullArray.length);
         }
         return sortedArray;
     }

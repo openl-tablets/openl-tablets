@@ -171,9 +171,7 @@ public final class FloatExpArray extends ConstrainerObjectImpl {
      */
     FloatExpArray(FloatExpArray ary, int indexStart, int size) {
         this(ary.constrainer(), size);
-        for (int i = 0; i < _data.length; ++i) {
-            _data[i] = ary._data[indexStart + i];
-        }
+        System.arraycopy(ary._data, indexStart, _data, 0, _data.length);
 
     }
 

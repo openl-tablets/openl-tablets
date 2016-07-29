@@ -39,9 +39,7 @@ public final class UndoableBits extends UndoableImpl {
         super(oldbits.constrainer());
         boolean[] bits = oldbits.bits();
         _bits = new boolean[bits.length];
-        for (int j = 0; j < bits.length; j++) {
-            _bits[j] = bits[j];
-        }
+        System.arraycopy(bits, 0, _bits, 0, bits.length);
         _min = oldbits.min();
         object(oldbits.object());
     }

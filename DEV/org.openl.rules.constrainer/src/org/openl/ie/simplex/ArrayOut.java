@@ -64,9 +64,7 @@ public class ArrayOut {
      */
     public ArrayOut(Object[] arr) {
         _arr = new Object[arr.length];
-        for (int i = 0; i < arr.length; i++) {
-            _arr[i] = arr[i];
-        }
+        System.arraycopy(arr, 0, _arr, 0, arr.length);
     }
 
     /**
