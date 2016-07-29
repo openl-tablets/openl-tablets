@@ -415,7 +415,7 @@ public final class OpenLService {
          */
         public OpenLServiceBuilder setModules(Collection<Module> modules) {
             if (modules == null) {
-                modules = new ArrayList<Module>(0);
+                this.modules = new ArrayList<Module>(0);
             } else {
                 this.modules = new ArrayList<Module>(modules);
             }
