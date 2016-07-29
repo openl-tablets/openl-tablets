@@ -7,36 +7,22 @@
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-	<!-- Cassandra connection configuration beans. Main bean is 'cassandraTemplate'. 
-		This is singleton bean for storing data in Cassandra. All beans are has lazy 
-		initialization for prevent bean creation unnecessary beans. -->
-
-	<!-- REQUIRED: The Cassandra Cluster -->
-	<cassandra:cluster id="cassandraCluster" contact-points="${cassandra.contactpoints}"
-		port="${cassandra.port}" />
-
-	<!-- REQUIRED: The Cassandra Session, built from the Cluster, and attaching 
-		to a keyspace -->
-	<cassandra:session id="cassandraSession" keyspace-name="${cassandra.keyspace}"
-		schema-action="${ruleservice.logging.store.type.cassandra.schema.action}" />
-
-	<cassandra:mapping entity-base-packages="org.openl.rules.ruleservice.logging.cassandra" />
-
-	<!-- REQUIRED: The Default Cassandra Converter used by CassandraTemplate -->
-	<cassandra:converter />
-
-	<!-- REQUIRED: The Cassandra Template is the building block of all Spring 
-		Data Cassandra -->
-	<cassandra:template id="cassandraTemplate" />
+	<bean id="cassandraOperations"
+		class="org.openl.rules.ruleservice.logging.cassandra.CassandraOperations">
+		<property name="contactpoints" value="${cassandra.contactpoints}" />
+		<property name="port" value="${cassandra.port}" />
+		<property name="keyspace" value="${cassandra.keyspace}" />
+		<property name="username" value="${cassandra.username}" />
+		<property name="password" value="${cassandra.password}" />
+		<property name="createShemaEnabled" value="${ruleservice.logging.store.type.cassandra.schema.create}"/>
+		<property name="protocolVersion" value="${ruleservice.logging.store.type.cassandra.protocol.version}"/>
+	</bean>
 
 	<bean
 		class="org.openl.rules.ruleservice.conf.LazyInitBeanFactoryPostProcessor">
 		<property name="lazyBeanNames">
 			<list>
-				<value>cassandraCluster</value>
-				<value>cassandraSession</value>
-				<value>cassandraTemplate</value>
-				<value>cqlTemplate</value>
+				<value>cassandraSingleton</value>
 			</list>
 		</property>
 	</bean>
