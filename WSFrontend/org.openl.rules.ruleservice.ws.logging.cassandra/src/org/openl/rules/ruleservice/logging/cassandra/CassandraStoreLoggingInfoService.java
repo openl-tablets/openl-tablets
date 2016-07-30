@@ -16,7 +16,7 @@ public class CassandraStoreLoggingInfoService implements StoreLoggingInfoService
 
     private CassandraOperations cassandraOperations;
 
-    LoggingInfoMapper loggingInfoMapper = new LoggingInfoMapper();
+    private LoggingInfoMapper loggingInfoMapper = new LoggingInfoMapper();
 
     public CassandraOperations getCassandraOperations() {
         return cassandraOperations;
@@ -37,11 +37,14 @@ public class CassandraStoreLoggingInfoService implements StoreLoggingInfoService
 
         Object entity = null;
 
-        if (annotatedMethod.getAnnotation(UseEntity.class) == null) {
+        UseEntity useCassandraEntity = annotatedMethod.getAnnotation(UseEntity.class);
+        if (useCassandraEntity == null){
+            useCassandraEntity = annotatedMethod.getDeclaringClass().getAnnotation(UseEntity.class);
+        }
+        
+        if (useCassandraEntity == null) {
             entity = new LoggingRecord();
         } else {
-            UseEntity useCassandraEntity = (UseEntity) annotatedMethod
-                .getAnnotation(UseEntity.class);
             Class<?> entityClass = useCassandraEntity.value();
             try {
                 entity = entityClass.newInstance();

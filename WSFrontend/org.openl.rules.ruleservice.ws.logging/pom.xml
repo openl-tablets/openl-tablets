@@ -20,9 +20,6 @@
                     <include>**/*.properties</include>
                 </includes>
             </resource>
-            <resource>
-                <directory>conf</directory>
-            </resource>
         </resources>
         <testResources>
             <testResource>
@@ -31,9 +28,6 @@
                     <include>**/*.properties</include>
                     <include>**/*.xml</include>
                 </includes>
-            </testResource>
-            <testResource>
-                <directory>conf_test</directory>
             </testResource>
         </testResources>
     </build>

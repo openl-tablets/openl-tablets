@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.openl.rules.ruleservice.logging.LoggingInfo;
 import org.openl.rules.ruleservice.logging.StoreLoggingInfoService;
-import org.openl.rules.ruleservice.logging.elasticsearch.annotation.UseElasticSearchIndexBuilder;
+import org.openl.rules.ruleservice.logging.elasticsearch.annotation.UseIndexBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -38,30 +38,30 @@ public class ElasticSearchStoreLoggingInfoService implements StoreLoggingInfoSer
             return;
         }
         Method annotatedMethod = operationResourceInfo.getAnnotatedMethod();
-        ElasticSearchIndexBuilder elasticSearchIndexBuilder = null;
+        IndexBuilder elasticSearchIndexBuilder = null;
 
-        UseElasticSearchIndexBuilder useElasticSearchIndexBuilderAnnotation = annotatedMethod
-            .getAnnotation(UseElasticSearchIndexBuilder.class);
+        UseIndexBuilder useElasticSearchIndexBuilderAnnotation = annotatedMethod
+            .getAnnotation(UseIndexBuilder.class);
         if (useElasticSearchIndexBuilderAnnotation == null) {
             useElasticSearchIndexBuilderAnnotation = annotatedMethod.getDeclaringClass()
-                .getAnnotation(UseElasticSearchIndexBuilder.class);
+                .getAnnotation(UseIndexBuilder.class);
         }
         if (useElasticSearchIndexBuilderAnnotation == null) {
-            elasticSearchIndexBuilder = new DefaultElasticSearchIndexBuilderImpl();
+            elasticSearchIndexBuilder = new DefaultIndexBuilderImpl();
         } else {
             try {
-                Class<? extends ElasticSearchIndexBuilder> elasticSearchIndexBuilderClass = useElasticSearchIndexBuilderAnnotation
+                Class<? extends IndexBuilder> elasticSearchIndexBuilderClass = useElasticSearchIndexBuilderAnnotation
                     .value();
                 elasticSearchIndexBuilder = elasticSearchIndexBuilderClass.newInstance();
             } catch (InstantiationException e) {
-                elasticSearchIndexBuilder = new DefaultElasticSearchIndexBuilderImpl();
+                elasticSearchIndexBuilder = new DefaultIndexBuilderImpl();
                 if (log.isErrorEnabled()) {
                     log.error(
                         "Loading CustomLoggingElasticSearchIndexBuilder annotation was failed for method " + annotatedMethod
                             .getName() + ". Used default implementation instead!");
                 }
             } catch (IllegalAccessException e) {
-                elasticSearchIndexBuilder = new DefaultElasticSearchIndexBuilderImpl();
+                elasticSearchIndexBuilder = new DefaultIndexBuilderImpl();
                 if (log.isErrorEnabled()) {
                     log.error(
                         "Loading CustomLoggingElasticSearchIndexBuilder annotation was failed for method " + annotatedMethod

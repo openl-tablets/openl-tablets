@@ -22,9 +22,6 @@
 					<include>**/*.cql</include>
 				</includes>
 			</resource>
-			<resource>
-				<directory>conf</directory>
-			</resource>
 		</resources>
 		<testResources>
 			<testResource>
@@ -34,9 +31,6 @@
 					<include>**/*.xml</include>
 				</includes>
 			</testResource>
-			<testResource>
-				<directory>conf_test</directory>
-			</testResource>
 		</testResources>
 	</build>
 	<dependencies>
@@ -45,7 +39,10 @@
 			<groupId>org.openl.rules</groupId>
 			<artifactId>org.openl.rules.ruleservice.ws.logging</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>org.openl.rules</groupId>
+			<artifactId>org.openl.rules.ruleservice.ws.logging.cassandra.annotation</artifactId>
+		</dependency>
 		<!-- Cassandra -->
 		<dependency>
 			<groupId>com.datastax.cassandra</groupId>
@@ -55,13 +52,11 @@
 			<groupId>com.datastax.cassandra</groupId>
 			<artifactId>cassandra-driver-mapping</artifactId>
 		</dependency>
-
 		<!-- OpenL -->
 		<dependency>
 			<groupId>org.openl.rules</groupId>
 			<artifactId>org.openl.rules.project</artifactId>
 		</dependency>
-
 		<!-- Other -->
 		<dependency>
 			<groupId>log4j</groupId>
