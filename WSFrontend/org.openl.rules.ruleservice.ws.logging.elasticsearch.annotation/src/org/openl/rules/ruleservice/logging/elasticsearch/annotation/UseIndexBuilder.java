@@ -5,11 +5,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.openl.rules.ruleservice.logging.elasticsearch.ElasticSearchIndexBuilder;
+import org.openl.rules.ruleservice.logging.elasticsearch.IndexBuilder;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value={ElementType.METHOD, ElementType.TYPE})
-public @interface UseElasticSearchIndexBuilder {
-    Class<? extends ElasticSearchIndexBuilder> value();
+public @interface UseIndexBuilder {
+    Class<? extends IndexBuilder> value();
 }
 

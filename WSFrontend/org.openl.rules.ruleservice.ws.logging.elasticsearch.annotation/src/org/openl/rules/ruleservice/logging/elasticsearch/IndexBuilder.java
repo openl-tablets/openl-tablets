@@ -2,8 +2,8 @@ package org.openl.rules.ruleservice.logging.elasticsearch;
 
 import org.openl.rules.ruleservice.logging.LoggingInfo;
 
-public interface ElasticSearchIndexBuilder {
-    LoggingRecord withObject(LoggingInfo loggingInfo);
+public interface IndexBuilder {
+    Object withObject(LoggingInfo loggingInfo);
     
     String withSource(LoggingInfo loggingInfo);
     
