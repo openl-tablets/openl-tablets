@@ -10,7 +10,7 @@ import org.openl.rules.ruleservice.logging.LoggingInfoConvertor;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface UseLoggingInfo {
+public @interface UseLoggingInfoConvertor {
     Class<? extends LoggingInfoConvertor<?>> convertor();
     PublisherType[] publisherTypes() default {PublisherType.WEBSERVICE, PublisherType.RESTFUL};
 }
