@@ -23,7 +23,7 @@ import org.openl.rules.ruleservice.logging.annotation.Request;
 import org.openl.rules.ruleservice.logging.annotation.Response;
 import org.openl.rules.ruleservice.logging.annotation.ServiceName;
 import org.openl.rules.ruleservice.logging.annotation.Url;
-import org.openl.rules.ruleservice.logging.annotation.UseLoggingInfo;
+import org.openl.rules.ruleservice.logging.annotation.UseLoggingInfoConvertor;
 
 import com.datastax.driver.mapping.annotations.ClusteringColumn;
 import com.datastax.driver.mapping.annotations.PartitionKey;
@@ -41,6 +41,7 @@ public class LoggingRecord {
     @ClusteringColumn(1)
     private String serviceName;
     private String url;
+    @ClusteringColumn(2)
     private String inputName;
     @ClusteringColumn(0)
     private String publisherType;
@@ -111,7 +112,7 @@ public class LoggingRecord {
         return id;
     }
 
-    @UseLoggingInfo(convertor = TimeBasedUUID.class)
+    @UseLoggingInfoConvertor(convertor = TimeBasedUUID.class)
     public void setId(String id) {
         this.id = id;
     }

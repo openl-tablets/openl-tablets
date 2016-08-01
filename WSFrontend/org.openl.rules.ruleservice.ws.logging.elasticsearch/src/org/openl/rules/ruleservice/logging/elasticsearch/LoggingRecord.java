@@ -24,7 +24,7 @@ import org.openl.rules.ruleservice.logging.annotation.Request;
 import org.openl.rules.ruleservice.logging.annotation.Response;
 import org.openl.rules.ruleservice.logging.annotation.ServiceName;
 import org.openl.rules.ruleservice.logging.annotation.Url;
-import org.openl.rules.ruleservice.logging.annotation.UseLoggingInfo;
+import org.openl.rules.ruleservice.logging.annotation.UseLoggingInfoConvertor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
@@ -214,7 +214,7 @@ public class LoggingRecord {
         return responseBody;
     }
 
-    @UseLoggingInfo(convertor = RandomUUID.class)
+    @UseLoggingInfoConvertor(convertor = RandomUUID.class)
     public void setId(String id) {
         this.id = id;
     }
@@ -239,12 +239,12 @@ public class LoggingRecord {
         this.responseBody = responseBody;
     }
 
-    @UseLoggingInfo(convertor = JSONRequest.class, publisherTypes = PublisherType.RESTFUL)
+    @UseLoggingInfoConvertor(convertor = JSONRequest.class, publisherTypes = PublisherType.RESTFUL)
     public void setRequest(Object request) {
         this.request = request;
     }
 
-    @UseLoggingInfo(convertor = JSONResponse.class, publisherTypes = PublisherType.RESTFUL)
+    @UseLoggingInfoConvertor(convertor = JSONResponse.class, publisherTypes = PublisherType.RESTFUL)
     public void setResponse(Object response) {
         this.response = response;
     }

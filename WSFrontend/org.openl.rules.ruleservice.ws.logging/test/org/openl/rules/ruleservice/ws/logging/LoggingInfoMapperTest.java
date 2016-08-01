@@ -37,7 +37,7 @@ import org.openl.rules.ruleservice.logging.annotation.Request;
 import org.openl.rules.ruleservice.logging.annotation.Response;
 import org.openl.rules.ruleservice.logging.annotation.ServiceName;
 import org.openl.rules.ruleservice.logging.annotation.Url;
-import org.openl.rules.ruleservice.logging.annotation.UseLoggingInfo;
+import org.openl.rules.ruleservice.logging.annotation.UseLoggingInfoConvertor;
 
 public class LoggingInfoMapperTest {
 
@@ -278,7 +278,7 @@ public class LoggingInfoMapperTest {
             return id;
         }
 
-        @UseLoggingInfo(convertor = SomeValueConvertor.class)
+        @UseLoggingInfoConvertor(convertor = SomeValueConvertor.class)
         public void setId(String id) {
             this.id = id;
         }

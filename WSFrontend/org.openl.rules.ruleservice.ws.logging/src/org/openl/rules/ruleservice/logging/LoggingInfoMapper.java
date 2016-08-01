@@ -32,7 +32,7 @@ import org.openl.rules.ruleservice.logging.annotation.Request;
 import org.openl.rules.ruleservice.logging.annotation.Response;
 import org.openl.rules.ruleservice.logging.annotation.ServiceName;
 import org.openl.rules.ruleservice.logging.annotation.Url;
-import org.openl.rules.ruleservice.logging.annotation.UseLoggingInfo;
+import org.openl.rules.ruleservice.logging.annotation.UseLoggingInfoConvertor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +69,7 @@ public class LoggingInfoMapper {
         mappingAnnotations.add(Request.class);
         mappingAnnotations.add(Response.class);
         mappingAnnotations.add(ServiceName.class);
-        mappingAnnotations.add(UseLoggingInfo.class);
+        mappingAnnotations.add(UseLoggingInfoConvertor.class);
 
         MAPPING_ANNOTATIONS = Collections.unmodifiableSet(mappingAnnotations);
     }
@@ -154,7 +154,7 @@ public class LoggingInfoMapper {
             }else{
                 log.error("Response message is not present!");
             }
-            if (UseLoggingInfo.class.equals(annotation.annotationType())) {
+            if (UseLoggingInfoConvertor.class.equals(annotation.annotationType())) {
                 useLoggingInfoInsertValue(loggingInfo, target, annotation, method);
             }
         }
@@ -275,8 +275,8 @@ public class LoggingInfoMapper {
             Object target,
             Annotation annotation,
             Method method) {
-        if (annotation instanceof UseLoggingInfo) {
-            UseLoggingInfo useLoggingInfo = (UseLoggingInfo) annotation;
+        if (annotation instanceof UseLoggingInfoConvertor) {
+            UseLoggingInfoConvertor useLoggingInfo = (UseLoggingInfoConvertor) annotation;
             boolean f = false;
             for (PublisherType publisherType : useLoggingInfo.publisherTypes()) {
                 if (publisherType.equals(loggingInfo.getPublisherType())) {
