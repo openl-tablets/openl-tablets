@@ -21,5 +21,5 @@ CREATE TABLE openl_logging (
     stringvalue4 text,
     stringvalue5 text,
     url text,
-    PRIMARY KEY (id, publishertype, servicename, inputname)
+    PRIMARY KEY (id, publishertype, servicename)
 )
