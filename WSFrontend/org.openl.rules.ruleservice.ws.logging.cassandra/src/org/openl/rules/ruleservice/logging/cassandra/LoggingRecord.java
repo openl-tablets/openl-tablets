@@ -41,7 +41,6 @@ public class LoggingRecord {
     @ClusteringColumn(1)
     private String serviceName;
     private String url;
-    @ClusteringColumn(2)
     private String inputName;
     @ClusteringColumn(0)
     private String publisherType;
