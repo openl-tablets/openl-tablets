@@ -87,7 +87,7 @@ public class CassandraOperations implements InitializingBean {
         }
     }
 
-    private void createShemaIfNeeded(Class<?> entityClass) {
+    public void createShemaIfNeeded(Class<?> entityClass) {
         if (isCreateShemaEnabled()) {
             Table table = entityClass.getAnnotation(Table.class);
             if (table != null) {
