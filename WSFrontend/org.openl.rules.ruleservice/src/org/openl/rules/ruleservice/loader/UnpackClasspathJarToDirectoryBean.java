@@ -30,6 +30,8 @@ import java.util.jar.JarFile;
 public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
     private final Logger log = LoggerFactory.getLogger(UnpackClasspathJarToDirectoryBean.class);
 
+    public final static String DEPLOYMENT_DESCRIPTOR_FILE_NAME = "deployment.xml";
+    
     private String destinationDirectory;
 
     private boolean createAndClearDirectory = true;
@@ -112,10 +114,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
      * return path; }
      */
 
-    private static void unpack(File jarFile, String destDir) throws IOException {
-        File newProjectDir = new File(destDir, FileUtils.getBaseName(jarFile.getCanonicalPath()));
-        newProjectDir.mkdirs();
-
+    private static void unpack(File jarFile, File destDir) throws IOException {
         JarFile jar = null;
         try {
             jar = new JarFile(jarFile);
@@ -123,7 +122,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
             Enumeration<JarEntry> e = jar.entries();
             while (e.hasMoreElements()) {
                 JarEntry file = e.nextElement();
-                File f = new File(newProjectDir, file.getName());
+                File f = new File(destDir, file.getName());
                 if (file.isDirectory()) {
                     f.mkdir();
                     continue;
@@ -168,7 +167,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
         this.enabled = enabled;
     }
 
-    private void extractJarForJboss(URL resourceURL, File desFile) throws IOException,
+    private void extractJarForJboss(URL resourceURL, File desFile, boolean isDeploymentJar) throws IOException,
                                                                   NoSuchMethodException,
                                                                   InvocationTargetException,
                                                                   IllegalAccessException,
@@ -197,14 +196,21 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                     d.mkdirs();
                 }
 
-                File newProjectDir = new File(d, FileUtils.getBaseName(name));
+                File newProjectDir = null;
+                if (!isDeploymentJar){
+                    newProjectDir = new File(d, FileUtils.getBaseName(name));
+                    newProjectDir.mkdirs();
+                }else{
+                    newProjectDir = d;
+                }
+                
                 Class<?> VFSUtilsClazz = Thread.currentThread()
                     .getContextClassLoader()
                     .loadClass("org.jboss.vfs.VFSUtils");
                 java.lang.reflect.Method recursiveCopyMethod = VFSUtilsClazz.getMethod("recursiveCopy",
                     clazz,
                     File.class);
-                newProjectDir.mkdirs();
+
                 for (Object child : children) {
                     recursiveCopyMethod.invoke(VFSUtilsClazz, child, newProjectDir);
                 }
@@ -257,7 +263,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                     file = org.springframework.util.ResourceUtils.getFile(jarUrl);
                 } else if ("vfs".equals(rulesXmlResource.getURL().getProtocol())) {
                     // This reflection implementation for JBoss vfs
-                    extractJarForJboss(resourceURL, desFile);
+                    extractJarForJboss(resourceURL, desFile, false);
                     log.info("Unpacking \"{}\" into \"{}\" was completed", resourceURL, destDirectory);
                     continue;
                 } else {
@@ -281,9 +287,50 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                 d.mkdirs();
             }
 
-            unpack(file, d.getCanonicalPath());
+            File destDir = new File(d, FileUtils.getBaseName(file.getCanonicalPath()));
+            destDir.mkdirs();
+            unpack(file, destDir);
 
             log.info("Unpacking \"{}\" into \"{}\" was completed", file.getAbsolutePath(), destDirectory);
+        }
+        
+        if (!isUnpackAllJarsInOneDeployment()){
+            Resource[] deploymentResources = prpr.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + DEPLOYMENT_DESCRIPTOR_FILE_NAME);
+            for (Resource deploymentResource : deploymentResources) {
+                File file = null;
+                try {
+                    final URL resourceURL = deploymentResource.getURL();
+                    if ("jar".equals(resourceURL.getProtocol()) || "wsjar".equals(resourceURL.getProtocol())) {
+                        URL jarUrl = org.springframework.util.ResourceUtils.extractJarFileURL(resourceURL);
+                        file = org.springframework.util.ResourceUtils.getFile(jarUrl);
+                    } else if ("vfs".equals(deploymentResource.getURL().getProtocol())) {
+                        // This reflection implementation for JBoss vfs
+                        extractJarForJboss(resourceURL, desFile, true);
+                        log.info("Unpacking \"{}\" into \"{}\" was completed", resourceURL, destDirectory);
+                        continue;
+                    } else {
+                        throw new RuleServiceRuntimeException("Protocol for URL doesn't supported! URL: " + resourceURL.toString());
+                    }
+                } catch (Exception e) {
+                    log.error("Invalid resource!", e);
+                    throw new IOException("Invalid resource", e);
+                }
+                if (!file.exists()) {
+                    throw new IOException("File not found. File: " + file.getAbsolutePath());
+                }
+    
+                String folderName = FileUtils.getBaseName(file.getCanonicalPath());
+                if (isSupportDeploymentVersion()) {
+                    folderName = folderName + getDeploymentVersionSuffix();
+                }
+                
+                File d = new File(desFile, folderName);
+                d.mkdirs();
+    
+                unpack(file, d);
+    
+                log.info("Unpacking \"{}\" into \"{}\" was completed", file.getAbsolutePath(), destDirectory);
+            }
         }
     }
 }
