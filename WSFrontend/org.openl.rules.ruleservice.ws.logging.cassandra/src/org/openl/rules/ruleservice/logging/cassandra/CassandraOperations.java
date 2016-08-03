@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -20,6 +22,7 @@ import com.datastax.driver.core.Session;
 import com.datastax.driver.mapping.Mapper;
 import com.datastax.driver.mapping.MappingManager;
 import com.datastax.driver.mapping.annotations.Table;
+import com.google.common.util.concurrent.ListenableFuture;
 
 public class CassandraOperations implements InitializingBean {
     private final Logger log = LoggerFactory.getLogger(CassandraOperations.class);
@@ -74,12 +77,26 @@ public class CassandraOperations implements InitializingBean {
         }
     }
 
+    private ExecutorService sinleThreadExecuror = Executors.newSingleThreadExecutor();
+    
     public void saveAsync(Object entity) {
         try {
             createShemaIfNeeded(entity.getClass());
             @SuppressWarnings("unchecked")
             Mapper<Object> mapper = (Mapper<Object>) mappingManager.mapper(entity.getClass());
-            mapper.saveAsync(entity);
+            final ListenableFuture<Void> listenableFuture = mapper.saveAsync(entity);
+            listenableFuture.addListener(new Runnable() {
+                @Override
+                public void run() {
+                    try{
+                        listenableFuture.get();
+                    }catch (Exception e) {
+                        if (log.isErrorEnabled()) {
+                            log.error("Save operation was failure!", e);
+                        }
+                    }
+                }
+            }, sinleThreadExecuror);
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
                 log.error("Save operation was failure!", e);
