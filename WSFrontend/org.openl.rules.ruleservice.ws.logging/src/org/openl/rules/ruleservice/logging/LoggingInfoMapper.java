@@ -10,28 +10,31 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
-import org.openl.rules.ruleservice.logging.annotation.CustomDateValue1;
-import org.openl.rules.ruleservice.logging.annotation.CustomDateValue2;
-import org.openl.rules.ruleservice.logging.annotation.CustomDateValue3;
-import org.openl.rules.ruleservice.logging.annotation.CustomNumberValue1;
-import org.openl.rules.ruleservice.logging.annotation.CustomNumberValue2;
-import org.openl.rules.ruleservice.logging.annotation.CustomNumberValue3;
-import org.openl.rules.ruleservice.logging.annotation.CustomNumberValue4;
-import org.openl.rules.ruleservice.logging.annotation.CustomNumberValue5;
-import org.openl.rules.ruleservice.logging.annotation.CustomStringValue1;
-import org.openl.rules.ruleservice.logging.annotation.CustomStringValue2;
-import org.openl.rules.ruleservice.logging.annotation.CustomStringValue3;
-import org.openl.rules.ruleservice.logging.annotation.CustomStringValue4;
-import org.openl.rules.ruleservice.logging.annotation.CustomStringValue5;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomDateValue1;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomDateValue2;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomDateValue3;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue1;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue2;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue3;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue4;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue5;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue1;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue2;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue3;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue4;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue5;
+import org.openl.rules.ruleservice.logging.annotation.DefaultDateConvertor;
+import org.openl.rules.ruleservice.logging.annotation.DefaultNumberConvertor;
+import org.openl.rules.ruleservice.logging.annotation.DefaultStringConvertor;
 import org.openl.rules.ruleservice.logging.annotation.DefaultTypeConvertor;
-import org.openl.rules.ruleservice.logging.annotation.IncomingTime;
-import org.openl.rules.ruleservice.logging.annotation.InputName;
-import org.openl.rules.ruleservice.logging.annotation.OutcomingTime;
-import org.openl.rules.ruleservice.logging.annotation.Publisher;
-import org.openl.rules.ruleservice.logging.annotation.Request;
-import org.openl.rules.ruleservice.logging.annotation.Response;
-import org.openl.rules.ruleservice.logging.annotation.ServiceName;
-import org.openl.rules.ruleservice.logging.annotation.Url;
+import org.openl.rules.ruleservice.logging.annotation.SetterIncomingTime;
+import org.openl.rules.ruleservice.logging.annotation.SetterInputName;
+import org.openl.rules.ruleservice.logging.annotation.SetterOutcomingTime;
+import org.openl.rules.ruleservice.logging.annotation.SetterPublisher;
+import org.openl.rules.ruleservice.logging.annotation.SetterRequest;
+import org.openl.rules.ruleservice.logging.annotation.SetterResponse;
+import org.openl.rules.ruleservice.logging.annotation.SetterServiceName;
+import org.openl.rules.ruleservice.logging.annotation.SetterUrl;
 import org.openl.rules.ruleservice.logging.annotation.UseLoggingInfoConvertor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,30 +48,30 @@ public class LoggingInfoMapper {
 
     static {
         Set<Class<?>> customAnnotations = new HashSet<Class<?>>();
-        customAnnotations.add(CustomStringValue1.class);
-        customAnnotations.add(CustomStringValue2.class);
-        customAnnotations.add(CustomStringValue3.class);
-        customAnnotations.add(CustomStringValue4.class);
-        customAnnotations.add(CustomStringValue5.class);
-        customAnnotations.add(CustomNumberValue1.class);
-        customAnnotations.add(CustomNumberValue2.class);
-        customAnnotations.add(CustomNumberValue3.class);
-        customAnnotations.add(CustomNumberValue4.class);
-        customAnnotations.add(CustomNumberValue5.class);
-        customAnnotations.add(CustomDateValue1.class);
-        customAnnotations.add(CustomDateValue2.class);
-        customAnnotations.add(CustomDateValue3.class);
+        customAnnotations.add(SetterCustomStringValue1.class);
+        customAnnotations.add(SetterCustomStringValue2.class);
+        customAnnotations.add(SetterCustomStringValue3.class);
+        customAnnotations.add(SetterCustomStringValue4.class);
+        customAnnotations.add(SetterCustomStringValue5.class);
+        customAnnotations.add(SetterCustomNumberValue1.class);
+        customAnnotations.add(SetterCustomNumberValue2.class);
+        customAnnotations.add(SetterCustomNumberValue3.class);
+        customAnnotations.add(SetterCustomNumberValue4.class);
+        customAnnotations.add(SetterCustomNumberValue5.class);
+        customAnnotations.add(SetterCustomDateValue1.class);
+        customAnnotations.add(SetterCustomDateValue2.class);
+        customAnnotations.add(SetterCustomDateValue3.class);
         CUSTOM_ANNOTATIONS = Collections.unmodifiableSet(customAnnotations);
 
         Set<Class<?>> mappingAnnotations = new HashSet<Class<?>>();
-        mappingAnnotations.add(Publisher.class);
-        mappingAnnotations.add(IncomingTime.class);
-        mappingAnnotations.add(OutcomingTime.class);
-        mappingAnnotations.add(InputName.class);
-        mappingAnnotations.add(Url.class);
-        mappingAnnotations.add(Request.class);
-        mappingAnnotations.add(Response.class);
-        mappingAnnotations.add(ServiceName.class);
+        mappingAnnotations.add(SetterPublisher.class);
+        mappingAnnotations.add(SetterIncomingTime.class);
+        mappingAnnotations.add(SetterOutcomingTime.class);
+        mappingAnnotations.add(SetterInputName.class);
+        mappingAnnotations.add(SetterUrl.class);
+        mappingAnnotations.add(SetterRequest.class);
+        mappingAnnotations.add(SetterResponse.class);
+        mappingAnnotations.add(SetterServiceName.class);
         mappingAnnotations.add(UseLoggingInfoConvertor.class);
 
         MAPPING_ANNOTATIONS = Collections.unmodifiableSet(mappingAnnotations);
@@ -110,30 +113,30 @@ public class LoggingInfoMapper {
         for (Entry<Annotation, Method> entry : annotationMethodMap.entrySet()) {
             Annotation annotation = entry.getKey();
             Method method = entry.getValue();
-            if (IncomingTime.class.equals(annotation.annotationType())) {
+            if (SetterIncomingTime.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingInfo.getIncomingMessageTime());
             }
-            if (OutcomingTime.class.equals(annotation.annotationType())) {
+            if (SetterOutcomingTime.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingInfo.getOutcomingMessageTime());
             }
-            if (InputName.class.equals(annotation.annotationType())) {
+            if (SetterInputName.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingInfo.getInputName());
             }
-            if (ServiceName.class.equals(annotation.annotationType())) {
+            if (SetterServiceName.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingInfo.getServiceName());
             }
-            if (Publisher.class.equals(annotation.annotationType())) {
+            if (SetterPublisher.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingInfo.getPublisherType().toString());
             }
             if (loggingInfo.getRequestMessage() != null){
-                if (Url. class.equals(annotation.annotationType()) && loggingInfo.getRequestMessage().getAddress() != null) {
+                if (SetterUrl. class.equals(annotation.annotationType()) && loggingInfo.getRequestMessage().getAddress() != null) {
                     insertValue(loggingInfo,
                         target,
                         annotation,
                         method,
                         loggingInfo.getRequestMessage().getAddress().toString());
                 }
-                if (Request.class.equals(annotation.annotationType()) && loggingInfo.getResponseMessage().getPayload() != null) {
+                if (SetterRequest.class.equals(annotation.annotationType()) && loggingInfo.getResponseMessage().getPayload() != null) {
                     insertValue(loggingInfo,
                         target,
                         annotation,
@@ -144,7 +147,7 @@ public class LoggingInfoMapper {
                 log.error("Request message is not present!");
             }
             if (loggingInfo.getResponseMessage() != null){
-                if (Response.class.equals(annotation.annotationType()) && loggingInfo.getResponseMessage().getPayload() != null) {
+                if (SetterResponse.class.equals(annotation.annotationType()) && loggingInfo.getResponseMessage().getPayload() != null) {
                     insertValue(loggingInfo,
                         target,
                         annotation,
@@ -162,45 +165,45 @@ public class LoggingInfoMapper {
         for (Entry<Annotation, Method> entry : customAnnotationMethodMap.entrySet()) {
             Annotation annotation = entry.getKey();
             Method method = entry.getValue();
-            if (CustomStringValue1.class.equals(annotation.annotationType())) {
+            if (SetterCustomStringValue1.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingCustomData.getStringValue1());
             }
-            if (CustomStringValue2.class.equals(annotation.annotationType())) {
+            if (SetterCustomStringValue2.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingCustomData.getStringValue2());
             }
-            if (CustomStringValue3.class.equals(annotation.annotationType())) {
+            if (SetterCustomStringValue3.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingCustomData.getStringValue3());
             }
-            if (CustomStringValue4.class.equals(annotation.annotationType())) {
+            if (SetterCustomStringValue4.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingCustomData.getStringValue4());
             }
-            if (CustomStringValue5.class.equals(annotation.annotationType())) {
+            if (SetterCustomStringValue5.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingCustomData.getStringValue5());
             }
 
-            if (CustomNumberValue1.class.equals(annotation.annotationType())) {
+            if (SetterCustomNumberValue1.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingCustomData.getNumberValue1());
             }
-            if (CustomNumberValue2.class.equals(annotation.annotationType())) {
+            if (SetterCustomNumberValue2.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingCustomData.getNumberValue2());
             }
-            if (CustomNumberValue3.class.equals(annotation.annotationType())) {
+            if (SetterCustomNumberValue3.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingCustomData.getNumberValue3());
             }
-            if (CustomNumberValue4.class.equals(annotation.annotationType())) {
+            if (SetterCustomNumberValue4.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingCustomData.getNumberValue4());
             }
-            if (CustomNumberValue5.class.equals(annotation.annotationType())) {
+            if (SetterCustomNumberValue5.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingCustomData.getNumberValue5());
             }
 
-            if (CustomDateValue1.class.equals(annotation.annotationType())) {
+            if (SetterCustomDateValue1.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingCustomData.getDateValue1());
             }
-            if (CustomDateValue2.class.equals(annotation.annotationType())) {
+            if (SetterCustomDateValue2.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingCustomData.getDateValue2());
             }
-            if (CustomDateValue3.class.equals(annotation.annotationType())) {
+            if (SetterCustomDateValue3.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingCustomData.getDateValue3());
             }
         }
@@ -239,7 +242,7 @@ public class LoggingInfoMapper {
                 }
                 return;
             }
-            if (!DefaultTypeConvertor.class.equals(typeConvertorClass)) {
+            if (!(DefaultTypeConvertor.class.equals(typeConvertorClass) || DefaultStringConvertor.class.equals(typeConvertorClass) || DefaultNumberConvertor.class.equals(typeConvertorClass) || DefaultDateConvertor.class.equals(typeConvertorClass))) {
                 TypeConvertor<Object, Object> convertor = null;
                 try {
                     convertor = (TypeConvertor<Object, Object>) typeConvertorClass.newInstance();

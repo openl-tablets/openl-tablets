@@ -10,7 +10,8 @@ import org.openl.rules.ruleservice.logging.TypeConvertor;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface CustomNumberValue2 {
-    Class<? extends TypeConvertor<?, ?>> convertor() default DefaultTypeConvertor.class;
+public @interface SetterPublisher {
+    Class<? extends TypeConvertor<String, ?>> convertor() default DefaultStringConvertor.class;
     PublisherType[] publisherTypes() default {PublisherType.WEBSERVICE, PublisherType.RESTFUL};
 }
+

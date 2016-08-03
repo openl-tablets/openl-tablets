@@ -16,27 +16,27 @@ import org.openl.rules.ruleservice.logging.LoggingInfoConvertor;
 import org.openl.rules.ruleservice.logging.LoggingInfoMapper;
 import org.openl.rules.ruleservice.logging.RuleServiceLoggingInfo;
 import org.openl.rules.ruleservice.logging.TypeConvertor;
-import org.openl.rules.ruleservice.logging.annotation.CustomDateValue1;
-import org.openl.rules.ruleservice.logging.annotation.CustomDateValue2;
-import org.openl.rules.ruleservice.logging.annotation.CustomDateValue3;
-import org.openl.rules.ruleservice.logging.annotation.CustomNumberValue1;
-import org.openl.rules.ruleservice.logging.annotation.CustomNumberValue2;
-import org.openl.rules.ruleservice.logging.annotation.CustomNumberValue3;
-import org.openl.rules.ruleservice.logging.annotation.CustomNumberValue4;
-import org.openl.rules.ruleservice.logging.annotation.CustomNumberValue5;
-import org.openl.rules.ruleservice.logging.annotation.CustomStringValue1;
-import org.openl.rules.ruleservice.logging.annotation.CustomStringValue2;
-import org.openl.rules.ruleservice.logging.annotation.CustomStringValue3;
-import org.openl.rules.ruleservice.logging.annotation.CustomStringValue4;
-import org.openl.rules.ruleservice.logging.annotation.CustomStringValue5;
-import org.openl.rules.ruleservice.logging.annotation.IncomingTime;
-import org.openl.rules.ruleservice.logging.annotation.InputName;
-import org.openl.rules.ruleservice.logging.annotation.OutcomingTime;
-import org.openl.rules.ruleservice.logging.annotation.Publisher;
-import org.openl.rules.ruleservice.logging.annotation.Request;
-import org.openl.rules.ruleservice.logging.annotation.Response;
-import org.openl.rules.ruleservice.logging.annotation.ServiceName;
-import org.openl.rules.ruleservice.logging.annotation.Url;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomDateValue1;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomDateValue2;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomDateValue3;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue1;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue2;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue3;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue4;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue5;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue1;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue2;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue3;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue4;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue5;
+import org.openl.rules.ruleservice.logging.annotation.SetterIncomingTime;
+import org.openl.rules.ruleservice.logging.annotation.SetterInputName;
+import org.openl.rules.ruleservice.logging.annotation.SetterOutcomingTime;
+import org.openl.rules.ruleservice.logging.annotation.SetterPublisher;
+import org.openl.rules.ruleservice.logging.annotation.SetterRequest;
+import org.openl.rules.ruleservice.logging.annotation.SetterResponse;
+import org.openl.rules.ruleservice.logging.annotation.SetterServiceName;
+import org.openl.rules.ruleservice.logging.annotation.SetterUrl;
 import org.openl.rules.ruleservice.logging.annotation.UseLoggingInfoConvertor;
 
 public class LoggingInfoMapperTest {
@@ -287,7 +287,7 @@ public class LoggingInfoMapperTest {
             return incomingTime;
         }
 
-        @IncomingTime
+        @SetterIncomingTime
         public void setIncomingTime(Date incomingTime) {
             this.incomingTime = incomingTime;
         }
@@ -296,7 +296,7 @@ public class LoggingInfoMapperTest {
             return outcomingTime;
         }
 
-        @OutcomingTime
+        @SetterOutcomingTime
         public void setOutcomingTime(Date outcomingTime) {
             this.outcomingTime = outcomingTime;
         }
@@ -305,7 +305,7 @@ public class LoggingInfoMapperTest {
             return request;
         }
 
-        @Request
+        @SetterRequest
         public void setRequest(String request) {
             this.request = request;
         }
@@ -314,7 +314,7 @@ public class LoggingInfoMapperTest {
             return response;
         }
 
-        @Response
+        @SetterResponse
         public void setResponse(String response) {
             this.response = response;
         }
@@ -323,7 +323,7 @@ public class LoggingInfoMapperTest {
             return serviceName;
         }
 
-        @ServiceName
+        @SetterServiceName
         public void setServiceName(String serviceName) {
             this.serviceName = serviceName;
         }
@@ -332,7 +332,7 @@ public class LoggingInfoMapperTest {
             return url;
         }
 
-        @Url
+        @SetterUrl
         public void setUrl(String url) {
             this.url = url;
         }
@@ -341,7 +341,7 @@ public class LoggingInfoMapperTest {
             return inputName;
         }
 
-        @InputName
+        @SetterInputName
         public void setInputName(String inputName) {
             this.inputName = inputName;
         }
@@ -350,7 +350,7 @@ public class LoggingInfoMapperTest {
             return publisherType;
         }
 
-        @Publisher
+        @SetterPublisher
         public void setPublisherType(String publisherType) {
             this.publisherType = publisherType;
         }
@@ -359,7 +359,7 @@ public class LoggingInfoMapperTest {
             return stringValue1;
         }
 
-        @CustomStringValue1
+        @SetterCustomStringValue1
         public void setStringValue1(String stringValue1) {
             this.stringValue1 = stringValue1;
         }
@@ -368,7 +368,7 @@ public class LoggingInfoMapperTest {
             return stringValue2;
         }
 
-        @CustomStringValue2
+        @SetterCustomStringValue2
         public void setStringValue2(String stringValue2) {
             this.stringValue2 = stringValue2;
         }
@@ -377,7 +377,7 @@ public class LoggingInfoMapperTest {
             return stringValue3;
         }
 
-        @CustomStringValue3
+        @SetterCustomStringValue3
         public void setStringValue3(String stringValue3) {
             this.stringValue3 = stringValue3;
         }
@@ -386,7 +386,7 @@ public class LoggingInfoMapperTest {
             return stringValue4;
         }
 
-        @CustomStringValue4
+        @SetterCustomStringValue4
         public void setStringValue4(String stringValue4) {
             this.stringValue4 = stringValue4;
         }
@@ -395,7 +395,7 @@ public class LoggingInfoMapperTest {
             return stringValue5;
         }
 
-        @CustomStringValue5
+        @SetterCustomStringValue5
         public void setStringValue5(String stringValue5) {
             this.stringValue5 = stringValue5;
         }
@@ -404,7 +404,7 @@ public class LoggingInfoMapperTest {
             return numberValue1;
         }
 
-        @CustomNumberValue1
+        @SetterCustomNumberValue1
         public void setNumberValue1(Long numberValue1) {
             this.numberValue1 = numberValue1;
         }
@@ -413,7 +413,7 @@ public class LoggingInfoMapperTest {
             return numberValue2;
         }
 
-        @CustomNumberValue2
+        @SetterCustomNumberValue2
         public void setNumberValue2(Long numberValue2) {
             this.numberValue2 = numberValue2;
         }
@@ -422,7 +422,7 @@ public class LoggingInfoMapperTest {
             return numberValue3;
         }
 
-        @CustomNumberValue3
+        @SetterCustomNumberValue3
         public void setNumberValue3(Long numberValue3) {
             this.numberValue3 = numberValue3;
         }
@@ -431,7 +431,7 @@ public class LoggingInfoMapperTest {
             return numberValue4;
         }
 
-        @CustomNumberValue4
+        @SetterCustomNumberValue4
         public void setNumberValue4(Long numberValue4) {
             this.numberValue4 = numberValue4;
         }
@@ -440,7 +440,7 @@ public class LoggingInfoMapperTest {
             return numberValue5;
         }
 
-        @CustomNumberValue5
+        @SetterCustomNumberValue5
         public void setNumberValue5(Long numberValue5) {
             this.numberValue5 = numberValue5;
         }
@@ -449,7 +449,7 @@ public class LoggingInfoMapperTest {
             return dateValue1;
         }
 
-        @CustomDateValue1
+        @SetterCustomDateValue1
         public void setDateValue1(Date dateValue1) {
             this.dateValue1 = dateValue1;
         }
@@ -458,7 +458,7 @@ public class LoggingInfoMapperTest {
             return dateValue2;
         }
 
-        @CustomDateValue2
+        @SetterCustomDateValue2
         public void setDateValue2(Date dateValue2) {
             this.dateValue2 = dateValue2;
         }
@@ -467,7 +467,7 @@ public class LoggingInfoMapperTest {
             return dateValue3;
         }
 
-        @CustomDateValue3
+        @SetterCustomDateValue3
         public void setDateValue3(Date dateValue3) {
             this.dateValue3 = dateValue3;
         }
@@ -481,7 +481,7 @@ public class LoggingInfoMapperTest {
             return value1;
         }
 
-        @CustomStringValue1(publisherTypes = PublisherType.WEBSERVICE)
+        @SetterCustomStringValue1(publisherTypes = PublisherType.WEBSERVICE)
         public void setValue1(String value1) {
             this.value1 = value1;
         }
@@ -490,7 +490,7 @@ public class LoggingInfoMapperTest {
             return value2;
         }
 
-        @CustomStringValue2(publisherTypes = PublisherType.RESTFUL)
+        @SetterCustomStringValue2(publisherTypes = PublisherType.RESTFUL)
         public void setValue2(String value2) {
             this.value2 = value2;
         }
@@ -499,7 +499,7 @@ public class LoggingInfoMapperTest {
             return value3;
         }
 
-        @CustomStringValue1(convertor = TrimConvertor.class)
+        @SetterCustomStringValue1(convertor = TrimConvertor.class)
         public void setValue3(String value3) {
             this.value3 = value3;
         }
