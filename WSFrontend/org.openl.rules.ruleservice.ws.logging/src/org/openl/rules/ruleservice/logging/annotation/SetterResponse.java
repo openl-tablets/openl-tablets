@@ -10,7 +10,7 @@ import org.openl.rules.ruleservice.logging.TypeConvertor;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Request {
-    Class<? extends TypeConvertor<?, ?>> convertor() default DefaultTypeConvertor.class;
+public @interface SetterResponse {
+    Class<? extends TypeConvertor<String, ?>> convertor() default DefaultStringConvertor.class;
     PublisherType[] publisherTypes() default {PublisherType.WEBSERVICE, PublisherType.RESTFUL};
 }

@@ -3,27 +3,27 @@ package org.openl.rules.ruleservice.logging.elasticsearch;
 import java.util.Date;
 
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
-import org.openl.rules.ruleservice.logging.annotation.CustomDateValue1;
-import org.openl.rules.ruleservice.logging.annotation.CustomDateValue2;
-import org.openl.rules.ruleservice.logging.annotation.CustomDateValue3;
-import org.openl.rules.ruleservice.logging.annotation.CustomNumberValue1;
-import org.openl.rules.ruleservice.logging.annotation.CustomNumberValue2;
-import org.openl.rules.ruleservice.logging.annotation.CustomNumberValue3;
-import org.openl.rules.ruleservice.logging.annotation.CustomNumberValue4;
-import org.openl.rules.ruleservice.logging.annotation.CustomNumberValue5;
-import org.openl.rules.ruleservice.logging.annotation.CustomStringValue1;
-import org.openl.rules.ruleservice.logging.annotation.CustomStringValue2;
-import org.openl.rules.ruleservice.logging.annotation.CustomStringValue3;
-import org.openl.rules.ruleservice.logging.annotation.CustomStringValue4;
-import org.openl.rules.ruleservice.logging.annotation.CustomStringValue5;
-import org.openl.rules.ruleservice.logging.annotation.IncomingTime;
-import org.openl.rules.ruleservice.logging.annotation.InputName;
-import org.openl.rules.ruleservice.logging.annotation.OutcomingTime;
-import org.openl.rules.ruleservice.logging.annotation.Publisher;
-import org.openl.rules.ruleservice.logging.annotation.Request;
-import org.openl.rules.ruleservice.logging.annotation.Response;
-import org.openl.rules.ruleservice.logging.annotation.ServiceName;
-import org.openl.rules.ruleservice.logging.annotation.Url;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomDateValue1;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomDateValue2;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomDateValue3;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue1;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue2;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue3;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue4;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue5;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue1;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue2;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue3;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue4;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue5;
+import org.openl.rules.ruleservice.logging.annotation.SetterIncomingTime;
+import org.openl.rules.ruleservice.logging.annotation.SetterInputName;
+import org.openl.rules.ruleservice.logging.annotation.SetterOutcomingTime;
+import org.openl.rules.ruleservice.logging.annotation.SetterPublisher;
+import org.openl.rules.ruleservice.logging.annotation.SetterRequest;
+import org.openl.rules.ruleservice.logging.annotation.SetterResponse;
+import org.openl.rules.ruleservice.logging.annotation.SetterServiceName;
+import org.openl.rules.ruleservice.logging.annotation.SetterUrl;
 import org.openl.rules.ruleservice.logging.annotation.UseLoggingInfoConvertor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -219,22 +219,22 @@ public class LoggingRecord {
         this.id = id;
     }
 
-    @IncomingTime
+    @SetterIncomingTime
     public void setIncomingTime(Date incomingTime) {
         this.incomingTime = incomingTime;
     }
 
-    @OutcomingTime
+    @SetterOutcomingTime
     public void setOutcomingTime(Date outcomingTime) {
         this.outcomingTime = outcomingTime;
     }
 
-    @Request
+    @SetterRequest
     public void setRequestBody(String requestBody) {
         this.requestBody = requestBody;
     }
 
-    @Response
+    @SetterResponse
     public void setResponseBody(String responseBody) {
         this.responseBody = responseBody;
     }
@@ -249,87 +249,87 @@ public class LoggingRecord {
         this.response = response;
     }
 
-    @ServiceName
+    @SetterServiceName
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
     }
 
-    @InputName
+    @SetterInputName
     public void setInputName(String inputName) {
         this.inputName = inputName;
     }
 
-    @Publisher
+    @SetterPublisher
     public void setPublisherType(String publisherType) {
         this.publisherType = publisherType;
     }
 
-    @CustomStringValue1
+    @SetterCustomStringValue1
     public void setCustomString1(String customString1) {
         this.customString1 = customString1;
     }
 
-    @CustomStringValue2
+    @SetterCustomStringValue2
     public void setCustomString2(String customString2) {
         this.customString2 = customString2;
     }
 
-    @CustomStringValue3
+    @SetterCustomStringValue3
     public void setCustomString3(String customString3) {
         this.customString3 = customString3;
     }
 
-    @CustomStringValue4
+    @SetterCustomStringValue4
     public void setCustomString4(String customString4) {
         this.customString4 = customString4;
     }
 
-    @CustomStringValue5
+    @SetterCustomStringValue5
     public void setCustomString5(String customString5) {
         this.customString5 = customString5;
     }
 
-    @CustomNumberValue1
+    @SetterCustomNumberValue1
     public void setCustomNumber1(Long customNumber1) {
         this.customNumber1 = customNumber1;
     }
 
-    @CustomNumberValue2
+    @SetterCustomNumberValue2
     public void setCustomNumber2(Long customNumber2) {
         this.customNumber2 = customNumber2;
     }
 
-    @CustomNumberValue3
+    @SetterCustomNumberValue3
     public void setCustomNumber3(Long customNumber3) {
         this.customNumber3 = customNumber3;
     }
 
-    @CustomNumberValue4
+    @SetterCustomNumberValue4
     public void setCustomNumber4(Long customNumber4) {
         this.customNumber4 = customNumber4;
     }
 
-    @CustomNumberValue5
+    @SetterCustomNumberValue5
     public void setCustomNumber5(Long customNumber5) {
         this.customNumber5 = customNumber5;
     }
 
-    @CustomDateValue1
+    @SetterCustomDateValue1
     public void setCustomDate1(Date customDate1) {
         this.customDate1 = customDate1;
     }
 
-    @CustomDateValue2
+    @SetterCustomDateValue2
     public void setCustomDate2(Date customDate2) {
         this.customDate2 = customDate2;
     }
 
-    @CustomDateValue3
+    @SetterCustomDateValue3
     public void setCustomDate3(Date customDate3) {
         this.customDate3 = customDate3;
     }
 
-    @Url
+    @SetterUrl
     public void setUrl(String url) {
         this.url = url;
     }

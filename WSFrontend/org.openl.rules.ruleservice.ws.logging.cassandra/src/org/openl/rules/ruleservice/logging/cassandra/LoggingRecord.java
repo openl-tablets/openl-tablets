@@ -2,27 +2,27 @@ package org.openl.rules.ruleservice.logging.cassandra;
 
 import java.util.Date;
 
-import org.openl.rules.ruleservice.logging.annotation.CustomDateValue1;
-import org.openl.rules.ruleservice.logging.annotation.CustomDateValue2;
-import org.openl.rules.ruleservice.logging.annotation.CustomDateValue3;
-import org.openl.rules.ruleservice.logging.annotation.CustomNumberValue1;
-import org.openl.rules.ruleservice.logging.annotation.CustomNumberValue2;
-import org.openl.rules.ruleservice.logging.annotation.CustomNumberValue3;
-import org.openl.rules.ruleservice.logging.annotation.CustomNumberValue4;
-import org.openl.rules.ruleservice.logging.annotation.CustomNumberValue5;
-import org.openl.rules.ruleservice.logging.annotation.CustomStringValue1;
-import org.openl.rules.ruleservice.logging.annotation.CustomStringValue2;
-import org.openl.rules.ruleservice.logging.annotation.CustomStringValue3;
-import org.openl.rules.ruleservice.logging.annotation.CustomStringValue4;
-import org.openl.rules.ruleservice.logging.annotation.CustomStringValue5;
-import org.openl.rules.ruleservice.logging.annotation.IncomingTime;
-import org.openl.rules.ruleservice.logging.annotation.InputName;
-import org.openl.rules.ruleservice.logging.annotation.OutcomingTime;
-import org.openl.rules.ruleservice.logging.annotation.Publisher;
-import org.openl.rules.ruleservice.logging.annotation.Request;
-import org.openl.rules.ruleservice.logging.annotation.Response;
-import org.openl.rules.ruleservice.logging.annotation.ServiceName;
-import org.openl.rules.ruleservice.logging.annotation.Url;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomDateValue1;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomDateValue2;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomDateValue3;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue1;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue2;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue3;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue4;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomNumberValue5;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue1;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue2;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue3;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue4;
+import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue5;
+import org.openl.rules.ruleservice.logging.annotation.SetterIncomingTime;
+import org.openl.rules.ruleservice.logging.annotation.SetterInputName;
+import org.openl.rules.ruleservice.logging.annotation.SetterOutcomingTime;
+import org.openl.rules.ruleservice.logging.annotation.SetterPublisher;
+import org.openl.rules.ruleservice.logging.annotation.SetterRequest;
+import org.openl.rules.ruleservice.logging.annotation.SetterResponse;
+import org.openl.rules.ruleservice.logging.annotation.SetterServiceName;
+import org.openl.rules.ruleservice.logging.annotation.SetterUrl;
 import org.openl.rules.ruleservice.logging.annotation.UseLoggingInfoConvertor;
 
 import com.datastax.driver.mapping.annotations.ClusteringColumn;
@@ -120,7 +120,7 @@ public class LoggingRecord {
         return incomingTime;
     }
 
-    @IncomingTime
+    @SetterIncomingTime
     public void setIncomingTime(Date incomingTime) {
         this.incomingTime = incomingTime;
     }
@@ -129,7 +129,7 @@ public class LoggingRecord {
         return outcomingTime;
     }
 
-    @OutcomingTime
+    @SetterOutcomingTime
     public void setOutcomingTime(Date outcomingTime) {
         this.outcomingTime = outcomingTime;
     }
@@ -138,7 +138,7 @@ public class LoggingRecord {
         return request;
     }
 
-    @Request
+    @SetterRequest
     public void setRequest(String request) {
         this.request = request;
     }
@@ -147,7 +147,7 @@ public class LoggingRecord {
         return response;
     }
 
-    @Response
+    @SetterResponse
     public void setResponse(String response) {
         this.response = response;
     }
@@ -156,7 +156,7 @@ public class LoggingRecord {
         return serviceName;
     }
 
-    @ServiceName
+    @SetterServiceName
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
     }
@@ -165,7 +165,7 @@ public class LoggingRecord {
         return url;
     }
 
-    @Url
+    @SetterUrl
     public void setUrl(String url) {
         this.url = url;
     }
@@ -174,7 +174,7 @@ public class LoggingRecord {
         return inputName;
     }
 
-    @InputName
+    @SetterInputName
     public void setInputName(String inputName) {
         this.inputName = inputName;
     }
@@ -183,7 +183,7 @@ public class LoggingRecord {
         return publisherType;
     }
 
-    @Publisher
+    @SetterPublisher
     public void setPublisherType(String publisherType) {
         this.publisherType = publisherType;
     }
@@ -192,7 +192,7 @@ public class LoggingRecord {
         return stringValue1;
     }
 
-    @CustomStringValue1
+    @SetterCustomStringValue1
     public void setStringValue1(String stringValue1) {
         this.stringValue1 = stringValue1;
     }
@@ -201,7 +201,7 @@ public class LoggingRecord {
         return stringValue2;
     }
 
-    @CustomStringValue2
+    @SetterCustomStringValue2
     public void setStringValue2(String stringValue2) {
         this.stringValue2 = stringValue2;
     }
@@ -210,7 +210,7 @@ public class LoggingRecord {
         return stringValue3;
     }
 
-    @CustomStringValue3
+    @SetterCustomStringValue3
     public void setStringValue3(String stringValue3) {
         this.stringValue3 = stringValue3;
     }
@@ -219,7 +219,7 @@ public class LoggingRecord {
         return stringValue4;
     }
 
-    @CustomStringValue4
+    @SetterCustomStringValue4
     public void setStringValue4(String stringValue4) {
         this.stringValue4 = stringValue4;
     }
@@ -228,7 +228,7 @@ public class LoggingRecord {
         return stringValue5;
     }
 
-    @CustomStringValue5
+    @SetterCustomStringValue5
     public void setStringValue5(String stringValue5) {
         this.stringValue5 = stringValue5;
     }
@@ -237,7 +237,7 @@ public class LoggingRecord {
         return numberValue1;
     }
 
-    @CustomNumberValue1
+    @SetterCustomNumberValue1
     public void setNumberValue1(Long numberValue1) {
         this.numberValue1 = numberValue1;
     }
@@ -246,7 +246,7 @@ public class LoggingRecord {
         return numberValue2;
     }
 
-    @CustomNumberValue2
+    @SetterCustomNumberValue2
     public void setNumberValue2(Long numberValue2) {
         this.numberValue2 = numberValue2;
     }
@@ -255,7 +255,7 @@ public class LoggingRecord {
         return numberValue3;
     }
 
-    @CustomNumberValue3
+    @SetterCustomNumberValue3
     public void setNumberValue3(Long numberValue3) {
         this.numberValue3 = numberValue3;
     }
@@ -264,7 +264,7 @@ public class LoggingRecord {
         return numberValue4;
     }
 
-    @CustomNumberValue4
+    @SetterCustomNumberValue4
     public void setNumberValue4(Long numberValue4) {
         this.numberValue4 = numberValue4;
     }
@@ -273,7 +273,7 @@ public class LoggingRecord {
         return numberValue5;
     }
 
-    @CustomNumberValue5
+    @SetterCustomNumberValue5
     public void setNumberValue5(Long numberValue5) {
         this.numberValue5 = numberValue5;
     }
@@ -282,7 +282,7 @@ public class LoggingRecord {
         return dateValue1;
     }
 
-    @CustomDateValue1
+    @SetterCustomDateValue1
     public void setDateValue1(Date dateValue1) {
         this.dateValue1 = dateValue1;
     }
@@ -291,7 +291,7 @@ public class LoggingRecord {
         return dateValue2;
     }
 
-    @CustomDateValue2
+    @SetterCustomDateValue2
     public void setDateValue2(Date dateValue2) {
         this.dateValue2 = dateValue2;
     }
@@ -300,7 +300,7 @@ public class LoggingRecord {
         return dateValue3;
     }
 
-    @CustomDateValue3
+    @SetterCustomDateValue3
     public void setDateValue3(Date dateValue3) {
         this.dateValue3 = dateValue3;
     }
