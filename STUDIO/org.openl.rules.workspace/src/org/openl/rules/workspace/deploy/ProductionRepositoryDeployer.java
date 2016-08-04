@@ -106,8 +106,8 @@ public class ProductionRepositoryDeployer {
 
             // Calculate version
             RProductionRepository rRepository = repositoryFactoryProxy.getRepositoryInstance(config);
-            // Wait 5 seconds for initializing networking in JGroups.
-            Thread.sleep(5000);
+            // Wait 15 seconds for initializing networking in JGroups.
+            Thread.sleep(15000);
             Collection<FolderAPI> lastDeploymentProjects = rRepository.getLastDeploymentProjects();
             int version = 0;
             for (FolderAPI folder : lastDeploymentProjects) {
@@ -131,7 +131,9 @@ public class ProductionRepositoryDeployer {
             projects.add(project);
             deployer.deploy(project, projects, user);
             // Wait 10 seconds for finalizing networking in JGroups.
-            Thread.sleep(10000);
+            // + 30 seconds for Infinispan.
+            // This time should exceed Infinispan timeouts.
+            Thread.sleep(40000);
         } finally {
             /* Clean up */
             FileUtils.deleteQuietly(tempDirectory);
