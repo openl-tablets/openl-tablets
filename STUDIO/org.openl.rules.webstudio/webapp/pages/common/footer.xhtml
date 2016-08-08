@@ -15,12 +15,12 @@
         <i style="position:absolute;right:13px;">
             <c:set var="version" value="#{versionProperties['openl.version']}" />
             <c:set var="commitHash" value="#{versionProperties['openl.commit.hash']}" />
-            <c:set var="commitHash" value="#{fn:endsWith(commitHash, '+') ? fn:substringBefore(commitHash, '+') : commitHash}" />
+            <c:set var="commitHashId" value="#{fn:endsWith(commitHash, '+') ? fn:substringBefore(commitHash, '+') : commitHash}" />
 
             <span title="Built on #{buildDate}">v#{version}</span>
             <h:panelGroup rendered="#{fn:endsWith(version, 'SNAPSHOT')}">
                 Revision hash:
-                <a href="https://sourceforge.net/p/openl-tablets/openl/ci/#{commitHash}">#{commitHash}</a>
+                <a href="https://sourceforge.net/p/openl-tablets/openl/ci/#{commitHashId}">#{commitHash}</a>
             </h:panelGroup>
         </i>
     </div>
