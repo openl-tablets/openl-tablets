@@ -7,17 +7,20 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  * @author Aliaksandr Antonik.
  */
 public class AllowAllAccessDecisionManager implements AccessDecisionManager {
+
+    private String allowedAuthority;
     /**
      * Resolves an access control decision for the passed parameters.
      *
      * @param authentication the caller invoking the method
      * @param object the secured object being called
-     * @param config the configuration attributes associated with the secured
+     * @param configAttributes the configuration attributes associated with the secured
      *            object being invoked
      * @throws org.springframework.security.access.AccessDeniedException if access is denied as
      *             the authentication does not hold a required authority or ACL
@@ -28,6 +31,14 @@ public class AllowAllAccessDecisionManager implements AccessDecisionManager {
      */
     public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes)
             throws AccessDeniedException, InsufficientAuthenticationException {
+        if (allowedAuthority != null) {
+            for (GrantedAuthority authority : authentication.getAuthorities()) {
+                if (allowedAuthority.equals(authority.getAuthority())) {
+                    return;
+                }
+            }
+            throw new AccessDeniedException("Access is denied. Allowed authority is " + allowedAuthority);
+        }
     }
 
     /**
@@ -61,5 +72,13 @@ public class AllowAllAccessDecisionManager implements AccessDecisionManager {
      */
     public boolean supports(ConfigAttribute attribute) {
         return true;
+    }
+
+    /**
+     * Specifies an authority for full access. If it is empty then any authority is allowed.
+     * @param allowedAuthority
+     */
+    public void setAllowedAuthority(String allowedAuthority) {
+        this.allowedAuthority = allowedAuthority;
     }
 }
