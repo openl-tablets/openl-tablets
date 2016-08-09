@@ -161,7 +161,10 @@
         </constructor-arg>
       </bean>
     -->
-    <bean id="accessDecisionManager" class="org.openl.rules.security.none.AllowAllAccessDecisionManager"/>
+    <bean id="accessDecisionManager" class="org.openl.rules.security.none.AllowAllAccessDecisionManager">
+        <!-- Comment this property to allows a full access for any authenticated users -->
+        <property name="allowedAuthority" value="#{adConfig['security.ad.authority']}"/>
+    </bean>
 
 
     <bean id="securityMetadataSource"
