@@ -1,78 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.openl.rules</groupId>
-        <artifactId>org.openl.rules.ruleservice-pom</artifactId>
-        <version>5.18.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
-    <artifactId>org.openl.rules.ruleservice.ws.logging.elasticsearch</artifactId>
-    <packaging>jar</packaging>
-    <name>OpenL - RuleService - Web Services - Logging ElasticSearch</name>
-    <description>OpenL Rules Webservice(war)</description>
-    <url>//openl-tablets.org</url>
-    <build>
-        <resources>
-            <resource>
-                <directory>src</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>conf</directory>
-            </resource>
-        </resources>
-        <testResources>
-            <testResource>
-                <directory>test</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                    <include>**/*.xml</include>
-                </includes>
-            </testResource>
-            <testResource>
-                <directory>conf_test</directory>
-            </testResource>
-        </testResources>
-    </build>
-    <dependencies>
-        <!-- RulesService -->
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.ruleservice.ws.logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.ruleservice.ws.logging.elasticsearch.annotation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.ruleservice</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-transports-http-jetty</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <!--ELasric Search -->
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-elasticsearch</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch</artifactId>
-        </dependency>
-        <!-- Other -->
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-        </dependency>
-    </dependencies>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.openl.rules</groupId>
+		<artifactId>org.openl.rules.ruleservice-pom</artifactId>
+		<version>5.18.0-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<artifactId>org.openl.rules.ruleservice.ws.logging.elasticsearch</artifactId>
+	<packaging>jar</packaging>
+	<name>OpenL - RuleService - Web Services - Logging ElasticSearch</name>
+	<description>OpenL Rules Webservice(war)</description>
+	<url>//openl-tablets.org</url>
+	<build>
+		<resources>
+			<resource>
+				<directory>src</directory>
+				<includes>
+					<include>**/*.properties</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>conf</directory>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>test</directory>
+				<includes>
+					<include>**/*.properties</include>
+					<include>**/*.xml</include>
+				</includes>
+			</testResource>
+			<testResource>
+				<directory>conf_test</directory>
+			</testResource>
+		</testResources>
+	</build>
+	<dependencies>
+		<!-- CXF -->
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxrs</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxws</artifactId>
+		</dependency>
+
+		<!-- RulesService -->
+		<dependency>
+			<groupId>org.openl.rules</groupId>
+			<artifactId>org.openl.rules.ruleservice</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openl.rules</groupId>
+			<artifactId>org.openl.rules.ruleservice.ws.logging</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.openl.rules</groupId>
+			<artifactId>org.openl.rules.ruleservice.ws.logging.elasticsearch.annotation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.openl.rules</groupId>
+			<artifactId>org.openl.rules.ruleservice</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-transports-http-jetty</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<!--ELasric Search -->
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-elasticsearch</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.elasticsearch</groupId>
+			<artifactId>elasticsearch</artifactId>
+		</dependency>
+		<!-- Other -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+		</dependency>
+	</dependencies>
 </project>
