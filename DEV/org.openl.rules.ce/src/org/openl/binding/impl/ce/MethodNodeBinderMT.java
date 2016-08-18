@@ -12,7 +12,7 @@ import org.openl.util.ce.impl.ServiceMT;
 public class MethodNodeBinderMT extends MethodNodeBinder {
 
 	@Override
-	protected IBoundNode makeArraParametersMethod(ISyntaxNode methodNode,
+	protected IBoundNode makeArrayParametersMethod(ISyntaxNode methodNode,
 			IBindingContext bindingContext, String methodName,
 			IOpenClass[] argumentTypes, IBoundNode[] children) throws Exception {
 

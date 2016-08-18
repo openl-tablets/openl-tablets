@@ -1,6 +1,8 @@
 package org.openl.binding.impl;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
+import java.util.Collections;
 
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -17,7 +19,8 @@ public class MultiCallMethodBoundNodeTest {
 		Mockito.when(methodCaller.getMethod()).thenReturn(method);
 		Mockito.when(method.getType()).thenReturn(JavaOpenClass.VOID);
 		
-		MultiCallMethodBoundNode boundNode = new MultiCallMethodBoundNode(null, null, methodCaller, 2);
+		MultiCallMethodBoundNode boundNode = new MultiCallMethodBoundNode(null, null, methodCaller,
+				Collections.singletonList(2));
 		
 		assertEquals(JavaOpenClass.VOID, boundNode.getType());
 	}
@@ -29,7 +32,7 @@ public class MultiCallMethodBoundNodeTest {
 		Mockito.when(methodCaller.getMethod()).thenReturn(method);
 		Mockito.when(method.getType()).thenReturn(JavaOpenClass.STRING);
 		
-		MultiCallMethodBoundNode boundNode = new MultiCallMethodBoundNode(null, null, methodCaller, 2);
+		MultiCallMethodBoundNode boundNode = new MultiCallMethodBoundNode(null, null, methodCaller, Collections.singletonList(2));
 		
 		assertEquals(JavaOpenClass.STRING.getAggregateInfo().getIndexedAggregateType(JavaOpenClass.STRING, 1), boundNode.getType());
 	}

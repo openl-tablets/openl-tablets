@@ -1,17 +1,16 @@
 package org.openl.binding.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
-import org.openl.util.ArrayTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 // try to bind given method if its single parameter is an array, considering that there is a method with 
 // equal name but for component type of array (e.g. the given method is 'double[] calculate(Premium[] premium)' 
@@ -32,7 +31,7 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
     }
 
     private IBoundNode getMultiCallMethodNode(ISyntaxNode node, IBindingContext bindingContext,
-                                              IOpenClass[] methodArguments, int arrayArgumentIndex) {
+                                              IOpenClass[] methodArguments, List<Integer> arrayArgArguments) {
         // find method with given name and component type parameter.
         //
         IMethodCaller singleParameterMethodCaller = bindingContext.findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, methodArguments);
@@ -46,7 +45,7 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
         // bound node that is going to call the single parameter method by several times on runtime and return an array 
         // of results.
         //
-        return new MultiCallMethodBoundNode(node, children, singleParameterMethodCaller, arrayArgumentIndex);
+        return new MultiCallMethodBoundNode(node, children, singleParameterMethodCaller, arrayArgArguments);
     }
 
     private List<Integer> getIndexesOfArrayArguments() {
@@ -59,25 +58,24 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
         return indexes;
     }
 
-    private IOpenClass[] unwrapArguments(int arrayArgumentIndex) {
-        if (arrayArgumentIndex < argumentsTypes.length) {
-            IOpenClass unwrappedType = argumentsTypes[arrayArgumentIndex].getComponentClass();
-            return replace(arrayArgumentIndex, argumentsTypes, unwrappedType);
-        }
-        log.warn("Can`t find the appropriate argument");
-        return null;
-    }
-
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
         List<Integer> indexesOfArrayArguments = getIndexesOfArrayArguments();
         if (indexesOfArrayArguments.size() > 0) {
+            IOpenClass[] unwrappedArgumentsTypes = new IOpenClass[argumentsTypes.length];
+            System.arraycopy(argumentsTypes, 0, unwrappedArgumentsTypes, 0, argumentsTypes.length);
+
+            List<Integer> arrayArgArguments = new ArrayList<Integer>();
             for (Integer arrayArgumentIndex : indexesOfArrayArguments) {
-                IOpenClass[] unwrappedArgumentsTypes = unwrapArguments(arrayArgumentIndex);
-                if (unwrappedArgumentsTypes != null) {
-                    IBoundNode multiCallMethodNode = getMultiCallMethodNode(node, bindingContext, unwrappedArgumentsTypes, arrayArgumentIndex);
-                    if (multiCallMethodNode != null) {
-                        return multiCallMethodNode;
-                    }
+                unwrappedArgumentsTypes[arrayArgumentIndex] = argumentsTypes[arrayArgumentIndex].getComponentClass();
+
+                arrayArgArguments.add(arrayArgumentIndex);
+
+                IBoundNode multiCallMethodNode = getMultiCallMethodNode(node,
+                        bindingContext,
+                        unwrappedArgumentsTypes,
+                        arrayArgArguments);
+                if (multiCallMethodNode != null) {
+                    return multiCallMethodNode;
                 }
             }
         } else {

@@ -22,6 +22,12 @@ public class MultiArgumentArrayMethodTest {
 
         int[] callMultiArgumentsArray2();
 
+        int[] callMultiArgumentsArray3();
+
+        int[] callMultiArgumentsArray4();
+
+        int[] callMultiArgumentsArray5();
+
         int[] testArrayCall1();
 
         void callVoidMethod();
@@ -64,6 +70,51 @@ public class MultiArgumentArrayMethodTest {
         assertEquals(25, instance.callMultiArgumentsArray2()[0]);
         assertEquals(26, instance.callMultiArgumentsArray2()[1]);
         assertEquals(27, instance.callMultiArgumentsArray2()[2]);
+    }
+
+    @Test
+    public void testMultiArgumentsArrayCall3() {
+        assertEquals(6, instance.callMultiArgumentsArray3().length);
+        assertEquals(24, instance.callMultiArgumentsArray3()[0]);
+        assertEquals(25, instance.callMultiArgumentsArray3()[1]);
+        assertEquals(26, instance.callMultiArgumentsArray3()[2]);
+        assertEquals(25, instance.callMultiArgumentsArray3()[3]);
+        assertEquals(26, instance.callMultiArgumentsArray3()[4]);
+        assertEquals(27, instance.callMultiArgumentsArray3()[5]);
+    }
+
+    @Test
+    public void testMultiArgumentsArrayCall4() {
+        assertEquals(12, instance.callMultiArgumentsArray4().length);
+
+        assertEquals(13, instance.callMultiArgumentsArray4()[0]);
+        assertEquals(14, instance.callMultiArgumentsArray4()[1]);
+        assertEquals(15, instance.callMultiArgumentsArray4()[2]);
+
+        assertEquals(14, instance.callMultiArgumentsArray4()[3]);
+        assertEquals(15, instance.callMultiArgumentsArray4()[4]);
+        assertEquals(16, instance.callMultiArgumentsArray4()[5]);
+
+        assertEquals(22, instance.callMultiArgumentsArray4()[6]);
+        assertEquals(23, instance.callMultiArgumentsArray4()[7]);
+        assertEquals(24, instance.callMultiArgumentsArray4()[8]);
+
+        assertEquals(23, instance.callMultiArgumentsArray4()[9]);
+        assertEquals(24, instance.callMultiArgumentsArray4()[10]);
+        assertEquals(25, instance.callMultiArgumentsArray4()[11]);
+    }
+
+    @Test
+    public void testMultiArgumentsArrayCall5() {
+        assertEquals(6, instance.callMultiArgumentsArray5().length);
+
+        assertEquals(14, instance.callMultiArgumentsArray5()[0]);
+        assertEquals(15, instance.callMultiArgumentsArray5()[1]);
+        assertEquals(16, instance.callMultiArgumentsArray5()[2]);
+
+        assertEquals(23, instance.callMultiArgumentsArray5()[3]);
+        assertEquals(24, instance.callMultiArgumentsArray5()[4]);
+        assertEquals(25, instance.callMultiArgumentsArray5()[5]);
     }
 
     @Test
