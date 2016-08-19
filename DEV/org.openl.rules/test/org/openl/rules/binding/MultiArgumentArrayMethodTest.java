@@ -28,7 +28,11 @@ public class MultiArgumentArrayMethodTest {
 
         int[] callMultiArgumentsArray5();
 
+        int[] callMultiArgumentsArrayWithNullArgument();
+
         int[] testArrayCall1();
+
+        int[] testArrayCall2();
 
         void callVoidMethod();
     }
@@ -118,9 +122,22 @@ public class MultiArgumentArrayMethodTest {
     }
 
     @Test
+    public void testMultiArgumentsArrayWithNullArgument() {
+        assertEquals(0, instance.callMultiArgumentsArrayWithNullArgument().length);
+    }
+
+    @Test
     public void testArrayCall1() {
         // check calling array of arrays
         assertEquals(2, instance.testArrayCall1().length);
+        assertEquals(30, instance.testArrayCall1()[0]);
+        assertEquals(31, instance.testArrayCall1()[1]);
+    }
+
+    @Test
+    public void testArrayCall2() {
+        // check calling array of arrays
+        assertEquals(2, instance.testArrayCall2().length);
         assertEquals(30, instance.testArrayCall1()[0]);
         assertEquals(31, instance.testArrayCall1()[1]);
     }

@@ -52,16 +52,14 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
 
         // gets the values of array parameters
 
-        int paramsLength = 0; // 0 for the case when nulls passed as array parameters
+        int paramsLength = 1;
         for (Integer arrayArgArgument : arrayArgArguments) {
             Object arrayParameters = methodParameters[arrayArgArgument];
-            if (arrayParameters != null) {
-                if (paramsLength == 0) {
-                    paramsLength = Array.getLength(arrayParameters);
-                } else {
-                    paramsLength *= Array.getLength(arrayParameters);
-                }
+            if (arrayParameters == null) {
+                paramsLength = 0;
+                break;
             }
+            paramsLength *= Array.getLength(arrayParameters);
         }
 
         Object results = null;
@@ -74,8 +72,10 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
             //
             results = Array.newInstance(super.getType().getInstanceClass(), paramsLength);
         }
-        // populate the results array by invoking method for single parameter
-        call(target, env, methodParameters, callParameters, 0, results, 0);
+        if (paramsLength > 0) {
+            // populate the results array by invoking method for single parameter
+            call(target, env, methodParameters, callParameters, 0, results, 0);
+        }
 
         return results;
     }

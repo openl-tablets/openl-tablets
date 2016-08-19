@@ -1,6 +1,8 @@
 package org.openl.binding.impl;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 import org.openl.binding.IBindingContext;
@@ -12,8 +14,8 @@ import org.openl.types.IOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// try to bind given method if its single parameter is an array, considering that there is a method with 
-// equal name but for component type of array (e.g. the given method is 'double[] calculate(Premium[] premium)' 
+// try to bind given method if its single parameter is an array, considering that there is a method with
+// equal name but for component type of array (e.g. the given method is 'double[] calculate(Premium[] premium)'
 // try to bind it as 'double calculate(Premium premium)' and call several times on runtime).
 //
 public class ArrayArgumentsMethodBinder extends ANodeBinder {
@@ -31,10 +33,12 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
     }
 
     private IBoundNode getMultiCallMethodNode(ISyntaxNode node, IBindingContext bindingContext,
-                                              IOpenClass[] methodArguments, List<Integer> arrayArgArguments) {
+            IOpenClass[] methodArguments, Deque<Integer> arrayArgArguments) {
         // find method with given name and component type parameter.
         //
-        IMethodCaller singleParameterMethodCaller = bindingContext.findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, methodArguments);
+        IMethodCaller singleParameterMethodCaller = bindingContext.findMethodCaller(ISyntaxConstants.THIS_NAMESPACE,
+                methodName,
+                methodArguments);
 
         // if can`t find, return null.
         //
@@ -42,10 +46,60 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
             return null;
         }
 
-        // bound node that is going to call the single parameter method by several times on runtime and return an array 
+        // bound node that is going to call the single parameter method by several times on runtime and return an array
         // of results.
         //
-        return new MultiCallMethodBoundNode(node, children, singleParameterMethodCaller, arrayArgArguments);
+        return new MultiCallMethodBoundNode(node,
+                children,
+                singleParameterMethodCaller,
+                new ArrayList<Integer>(arrayArgArguments));
+    }
+
+    private IBoundNode getMultiCallMethodNode(ISyntaxNode node,
+            IBindingContext bindingContext,
+            IOpenClass[] unwrappedArgumentsTypes,
+            Deque<Integer> arrayArgArguments,
+            List<Integer> indexesOfArrayArguments,
+            int indexToChange) {
+        int arrayArgumentIndex = indexesOfArrayArguments.get(indexToChange);
+
+        boolean last = indexToChange == indexesOfArrayArguments.size() - 1;
+
+        IBoundNode multiCallMethodNode;
+
+        // Try interpret array argument as is, not multicall
+        unwrappedArgumentsTypes[arrayArgumentIndex] = argumentsTypes[arrayArgumentIndex];
+        multiCallMethodNode = last ?
+                              getMultiCallMethodNode(node, bindingContext, unwrappedArgumentsTypes, arrayArgArguments) :
+                              getMultiCallMethodNode(node,
+                                      bindingContext,
+                                      unwrappedArgumentsTypes,
+                                      arrayArgArguments,
+                                      indexesOfArrayArguments,
+                                      indexToChange + 1);
+
+        if (multiCallMethodNode != null) {
+            return multiCallMethodNode;
+        }
+
+        // Try interpret array argument as multicall
+        arrayArgArguments.addLast(arrayArgumentIndex);
+        unwrappedArgumentsTypes[arrayArgumentIndex] = argumentsTypes[arrayArgumentIndex].getComponentClass();
+        multiCallMethodNode = last ?
+                              getMultiCallMethodNode(node, bindingContext, unwrappedArgumentsTypes, arrayArgArguments) :
+                              getMultiCallMethodNode(node,
+                                      bindingContext,
+                                      unwrappedArgumentsTypes,
+                                      arrayArgArguments,
+                                      indexesOfArrayArguments,
+                                      indexToChange + 1);
+        arrayArgArguments.removeLast();
+
+        if (multiCallMethodNode != null) {
+            return multiCallMethodNode;
+        }
+
+        return null;
     }
 
     private List<Integer> getIndexesOfArrayArguments() {
@@ -64,20 +118,9 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
             IOpenClass[] unwrappedArgumentsTypes = new IOpenClass[argumentsTypes.length];
             System.arraycopy(argumentsTypes, 0, unwrappedArgumentsTypes, 0, argumentsTypes.length);
 
-            List<Integer> arrayArgArguments = new ArrayList<Integer>();
-            for (Integer arrayArgumentIndex : indexesOfArrayArguments) {
-                unwrappedArgumentsTypes[arrayArgumentIndex] = argumentsTypes[arrayArgumentIndex].getComponentClass();
-
-                arrayArgArguments.add(arrayArgumentIndex);
-
-                IBoundNode multiCallMethodNode = getMultiCallMethodNode(node,
-                        bindingContext,
-                        unwrappedArgumentsTypes,
-                        arrayArgArguments);
-                if (multiCallMethodNode != null) {
-                    return multiCallMethodNode;
-                }
-            }
+            ArrayDeque<Integer> arrayArgArguments = new ArrayDeque<Integer>();
+            return getMultiCallMethodNode(node, bindingContext, unwrappedArgumentsTypes,
+                    arrayArgArguments, indexesOfArrayArguments, 0);
         } else {
             log.debug("There is no any array argument in signature for {} method", methodName);
         }
