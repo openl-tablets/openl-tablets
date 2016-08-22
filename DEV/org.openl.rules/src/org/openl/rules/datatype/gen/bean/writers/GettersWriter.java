@@ -14,6 +14,7 @@ import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
+import org.openl.util.generation.DefaultValue;
 
 /**
  * Writes getters to the generated bean class.
@@ -82,7 +83,11 @@ public class GettersWriter extends MethodWriter {
                 Date date = (Date) fieldEntry.getValue().getDefaultValue();
                 defaultFieldValue = ISO8601DateFormater.format(date);
             }
-            av.visit("defaultValue", defaultFieldValue);
+            if (DefaultValue.DEFAULT.equals(defaultFieldValue)){
+                av.visit("nillable", false);
+            }else{
+                av.visit("defaultValue", defaultFieldValue);
+            }
         }else{
             av.visit("nillable", true);    
         }

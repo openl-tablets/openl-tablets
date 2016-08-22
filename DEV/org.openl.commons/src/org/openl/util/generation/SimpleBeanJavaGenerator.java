@@ -56,7 +56,6 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         initializationWriters.put(char.class, new CharInitializationWriter());
         initializationWriters.put(Character.class, new CharInitializationWriter());
         initializationWriters.put(MarkerClass.class, new DefaultConstructorInitWriter());
-        initializationWriters.put(MarkerClass.class, new DefaultConstructorInitWriter());
         initializationWriters.put(EmptyArrayMarkerClass.class, new DefaultEmptyArrayConstructorInitWriter());
     }
 
@@ -149,8 +148,9 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
                 String fieldName = getFieldName(method.getName(), datatypeAllFields.keySet());
                
                 String defaultFieldValue = null;
+                Field field = null;
                 try {
-                    Field field = getClassForGeneration().getDeclaredField(fieldName);
+                    field = getClassForGeneration().getDeclaredField(fieldName);
                     DefaultValue defaultValueAnnotation = field.getAnnotation(DefaultValue.class);
                     if (defaultValueAnnotation != null){
                         defaultFieldValue = defaultValueAnnotation.value();
@@ -159,12 +159,16 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
                     log.error(e.getMessage(), e);
                 }
                 if (getterExists(method, datatypeAllFields.keySet())) {
-                    if (defaultFieldValue != null){
-                        buf.append("\n  @XmlElement(name=\"")
+                    if (defaultFieldValue != null) {
+                        if (DefaultValue.DEFAULT.equals(defaultFieldValue)) {
+                            buf.append("\n  @XmlElement(name=\"").append(fieldName).append("\", nillable=false)");
+                        } else {
+                            buf.append("\n  @XmlElement(name=\"")
                                 .append(fieldName)
                                 .append("\", defaultValue=\"")
                                 .append(defaultFieldValue)
                                 .append("\")");
+                        }
                     } else {
                         buf.append("\n  @XmlElement(name=\"").append(fieldName).append("\", nillable=true)");
                     }
@@ -282,7 +286,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
             if (defaultValueAnnotation != null){
                 defaultFieldValue = defaultValueAnnotation.value();
             }
-            if ("_DEFAULT_".equals(defaultFieldValue)) {
+            if (DefaultValue.DEFAULT.equals(defaultFieldValue)) {
                 if (fieldValueClass.isArray()){
                     writer = initializationWriters.get(EmptyArrayMarkerClass.class);
                 }else{
