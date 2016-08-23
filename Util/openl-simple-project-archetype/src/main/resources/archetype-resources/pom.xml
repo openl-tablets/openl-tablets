@@ -11,13 +11,13 @@
     <packaging>jar</packaging>
     <name>OpenL Simple Project</name>
     <properties>
-        <openl.rules.version>${project.version}</openl.rules.version>
+        <org.openl.version>${project.version}</org.openl.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules</artifactId>
-            <version>${symbol_dollar}{openl.rules.version}</version>
+            <version>${symbol_dollar}{org.openl.version}</version>
         </dependency>
         <!-- The dependency for runtime -->
         <!--
@@ -61,7 +61,7 @@
             <plugin>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>openl-maven-plugin</artifactId>
-                <version>${symbol_dollar}{openl.rules.version}</version>
+                <version>${symbol_dollar}{org.openl.version}</version>
                 <dependencies>
                     <!-- The same dependency for interface generating -->
                     <!--
