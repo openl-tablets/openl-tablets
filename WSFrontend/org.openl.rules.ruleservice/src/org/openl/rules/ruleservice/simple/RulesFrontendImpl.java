@@ -91,7 +91,7 @@ public class RulesFrontendImpl implements RulesFrontend {
                 throw new MethodInvocationException(e);
             }
         } else {
-            throw new MethodInvocationException("Service not found!");
+            throw new MethodInvocationException("Service '" + serviceName + "' not found!");
         }
     }
 
