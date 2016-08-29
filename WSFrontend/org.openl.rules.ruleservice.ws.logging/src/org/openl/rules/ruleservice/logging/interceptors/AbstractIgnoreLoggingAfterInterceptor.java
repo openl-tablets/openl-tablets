@@ -7,18 +7,19 @@ import org.openl.rules.ruleservice.logging.LoggingInfo;
 import org.openl.rules.ruleservice.logging.RuleServiceLoggingInfo;
 import org.openl.rules.ruleservice.logging.RuleServiceLoggingInfoHolder;
 
-public abstract class AbstractIgnoreLoggingAfterInterceptor implements ServiceMethodAfterAdvice<Object> {
+public abstract class AbstractIgnoreLoggingAfterInterceptor<T> implements ServiceMethodAfterAdvice<T> {
+    @SuppressWarnings("unchecked")
     @Override
-    public final Object afterReturning(Method method, Object result, Object... args) throws Exception {
+    public final T afterReturning(Method method, Object result, Object... args) throws Exception {
         RuleServiceLoggingInfo ruleServiceLoggingInfo = RuleServiceLoggingInfoHolder.get();
         if (isIgnorable(args, result, null, new LoggingInfo(ruleServiceLoggingInfo))) {
             ruleServiceLoggingInfo.ignore();
         }
-        return result;
+        return (T) result;
     }
 
     @Override
-    public final Object afterThrowing(Method method, Exception t, Object... args) throws Exception {
+    public final T afterThrowing(Method method, Exception t, Object... args) throws Exception {
         RuleServiceLoggingInfo ruleServiceLoggingInfo = RuleServiceLoggingInfoHolder.get();
         if (isIgnorable(args, null, t, new LoggingInfo(ruleServiceLoggingInfo))) {
             ruleServiceLoggingInfo.ignore();
