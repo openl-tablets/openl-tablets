@@ -75,11 +75,4 @@ public class AProject extends AProjectFolder {
         }
     }
 
-    public AProject getProjectVersion(CommonVersion version) throws ProjectException {
-        return new AProject(getAPI().getVersion(version));
-    }
-
-    public boolean getOpenedForEditing() {
-        return false;
-    }
 }
