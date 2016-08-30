@@ -84,10 +84,11 @@ public class RepositoryService {
     @Path("project/{name}")
     @Produces("application/zip")
     public Response getLastProject(@PathParam("name") String name) throws WorkspaceException {
+        File zipFile = null;
         try {
 
             AProject project = getRepository().getProject(name);
-            File zipFile = ProjectExportHelper.export(getUser(), project);
+            zipFile = ProjectExportHelper.export(getUser(), project);
             String zipFileName = String.format("%s.zip", project.getName());
 
             return Response.ok(zipFile)
@@ -95,6 +96,8 @@ public class RepositoryService {
                 .build();
         } catch (ProjectException ex) {
             return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
+        } finally {
+            FileUtils.deleteQuietly(zipFile);
         }
     }
 
@@ -110,9 +113,10 @@ public class RepositoryService {
     @Path("project/{name}/{version:[0-9]+}")
     @Produces("application/zip")
     public Response getProject(@PathParam("name") String name, @PathParam("version") Integer version) throws WorkspaceException {
+        File zipFile = null;
         try {
             AProject project = getRepository().getProject(name, new CommonVersionImpl(version));
-            File zipFile = ProjectExportHelper.export(getUser(), project);
+            zipFile = ProjectExportHelper.export(getUser(), project);
             String zipFileName = String.format("%s-%s.zip", project.getName(), version);
 
             return Response.ok(zipFile)
@@ -120,6 +124,8 @@ public class RepositoryService {
                 .build();
         } catch (ProjectException ex) {
             return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
+        } finally {
+            FileUtils.deleteQuietly(zipFile);
         }
     }
 
