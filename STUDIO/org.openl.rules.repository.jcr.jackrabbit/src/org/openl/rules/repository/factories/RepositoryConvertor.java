@@ -163,7 +163,7 @@ public class RepositoryConvertor {
             Node node = NodeUtil.createNode(checkPath(rulesProjectsLocation), project.getName(), JcrNT.NT_APROJECT,
                     true);
             checkPath(rulesProjectsLocation).save();
-            JcrFolderAPI jcrProject = new JcrFolderAPI(node, repository.getTransactionManager(), new ArtefactPathImpl(
+            JcrFolderAPI jcrProject = new JcrFolderAPI(node, new ArtefactPathImpl(
                     new String[] { project.getName() }));
             for (RVersion version : project.getVersionHistory()) {
                 if (version.getRevision() != 0) {
@@ -293,7 +293,7 @@ public class RepositoryConvertor {
             Node node = NodeUtil.createNode(checkPath(deploymentProjectsLocation), project.getName(),
                     JcrNT.NT_APROJECT, true);
             checkPath(deploymentProjectsLocation).save();
-            JcrFolderAPI jcrDDproject = new JcrFolderAPI(node, repository.getTransactionManager(),
+            JcrFolderAPI jcrDDproject = new JcrFolderAPI(node,
                     new ArtefactPathImpl(new String[] { project.getName() }));
             for (RVersion version : project.getVersionHistory()) {
                 if (version.getRevision() != 0) {

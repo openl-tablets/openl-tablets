@@ -10,7 +10,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeTypeManager;
 import javax.naming.NamingException;
-import javax.transaction.UserTransaction;
 
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.infinispan.configuration.cache.CacheMode;
@@ -27,7 +26,6 @@ import org.modeshape.jcr.JcrRepository;
 import org.modeshape.jcr.LocalEnvironment;
 import org.modeshape.jcr.RepositoryConfiguration;
 import org.openl.config.ConfigSet;
-import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -246,16 +244,6 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
                 throw new RRepositoryException("Shutdown has failed.", e);
             }
         }
-    }
-
-    @Override
-    public RTransactionManager getTrasactionManager(Session session) {
-        return new RTransactionManager() {
-            @Override
-            public UserTransaction getTransaction() {
-                return NO_TRANSACTION;
-            }
-        };
     }
 
     private void registerDrivers() {

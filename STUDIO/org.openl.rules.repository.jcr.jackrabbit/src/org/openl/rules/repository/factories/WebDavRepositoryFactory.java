@@ -12,7 +12,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  * 
  * @author PUdalau
  */
-public class WebDavRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
+public class WebDavRepositoryFactory extends AbstractJcrRepositoryFactory {
 
     /** {@inheritDoc} */
     @Override

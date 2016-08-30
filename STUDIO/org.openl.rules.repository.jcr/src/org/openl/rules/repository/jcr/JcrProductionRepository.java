@@ -87,8 +87,8 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     private Node deployLocation;
     private List<RDeploymentListener> listeners = new CopyOnWriteArrayList<RDeploymentListener>();
 
-    public JcrProductionRepository(Session session, RTransactionManager transactionManager) throws RepositoryException {
-        super(session, transactionManager);
+    public JcrProductionRepository(Session session) throws RepositoryException {
+        super(session);
 
         deployLocation = checkPath(DEPLOY_ROOT);
         if (deployLocation.isNew()) {
@@ -142,11 +142,11 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
                 ArtefactPath path = new ArtefactPathImpl(new String[]{node.getName()});
                 String type = node.getPrimaryNodeType().getName();
                 if (type.equals(JcrNT.NT_APROJECT)) {
-                    result.add(new JcrFolderAPI(node, getTransactionManager(), path));
+                    result.add(new JcrFolderAPI(node, path));
                 } else if (type.equals(JcrNT.NT_FOLDER)) {
-                    result.add(new JcrFolderAPI(node, getTransactionManager(), path));
+                    result.add(new JcrFolderAPI(node, path));
                 } else if (type.equals(JcrNT.NT_FILE)) {
-                    result.add(new JcrFileAPI(node, getTransactionManager(), path, false));
+                    result.add(new JcrFileAPI(node, path, false));
                 }
             }
 
@@ -294,7 +294,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
             Node node = NodeUtil.createNode(deployLocation, name, JcrNT.NT_APROJECT, true);
             deployLocation.save();
             node.checkin();
-            return new JcrFolderAPI(node, getTransactionManager(), new ArtefactPathImpl(new String[]{name}));
+            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{name}));
         } catch (RepositoryException e) {
             throw new RRepositoryException("", e);
         }
@@ -328,7 +328,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         }
 
         try {
-            return new JcrFolderAPI(node, getTransactionManager(), new ArtefactPathImpl(new String[]{name}));
+            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{name}));
         } catch (RepositoryException e) {
             throw new RRepositoryException("failed to wrap JCR node", e);
         }
@@ -341,7 +341,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
             while (iterator.hasNext()) {
                 Node node = iterator.nextNode();
                 if (node.getPrimaryNodeType().getName().equals(JcrNT.NT_APROJECT)) {
-                    result.add(new JcrFolderAPI(node, getTransactionManager(), new ArtefactPathImpl(new String[]{node.getName()})));
+                    result.add(new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{node.getName()})));
                 }
             }
         } catch (RepositoryException e) {

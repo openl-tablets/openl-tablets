@@ -26,7 +26,6 @@ import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ValueType;
 import org.openl.rules.common.impl.CommonUserImpl;
-import org.openl.rules.jacrkrabbit.transactions.JackrabbitTransactionManager;
 import org.openl.rules.repository.RDeploymentListener;
 import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.ArtefactProperties;
@@ -205,7 +204,7 @@ public class JcrProductionRepositoryTestCase extends TestCase {
         repository = new TransientRepository(fullPath, TEST_FOLDER);
 
         Session session = createSession("admin", "admin", repository);
-        instance = new JcrProductionRepository(session, new JackrabbitTransactionManager(session));
+        instance = new JcrProductionRepository(session);
         initNodeTypes(session.getWorkspace().getNodeTypeManager());
 
         FolderAPI deployment = instance.createDeploymentProject("d1");

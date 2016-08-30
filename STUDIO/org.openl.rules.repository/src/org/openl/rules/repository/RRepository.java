@@ -122,6 +122,5 @@ public interface RRepository {
     void addRepositoryListener(RRepositoryListener listener);
     void removeRepositoryListener(RRepositoryListener listener);
     List<RRepositoryListener> getRepositoryListeners();
-    
-    RTransactionManager getTransactionManager();
+
 }

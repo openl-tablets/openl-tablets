@@ -151,7 +151,7 @@ public class ProductionRepositoryConvertor {
             Node node = NodeUtil.createNode(checkPath(JcrProductionRepository.DEPLOY_ROOT), deployment.getName(),
                     JcrNT.NT_APROJECT, true);
             checkPath(JcrProductionRepository.DEPLOY_ROOT).save();
-            JcrFolderAPI deploymentFolder = new JcrFolderAPI(node, repository.getTransactionManager(),
+            JcrFolderAPI deploymentFolder = new JcrFolderAPI(node,
                     new ArtefactPathImpl(new String[] { deployment.getName() }));
             copyEntity(deployment, deploymentFolder);
             for (RProject project : deployment.getProjects()) {
@@ -168,7 +168,7 @@ public class ProductionRepositoryConvertor {
         try {
             Node node = NodeUtil.createNode(deploymentFolder.node(), project.getName(), JcrNT.NT_APROJECT, true);
             deploymentFolder.node().save();
-            JcrFolderAPI jcrProject = new JcrFolderAPI(node, deploymentFolder.getTransactionManager(),
+            JcrFolderAPI jcrProject = new JcrFolderAPI(node,
                     new ArtefactPathImpl(new String[] { project.getName() }));
             copyFolder(project, jcrProject);
             CommonUser user = system;

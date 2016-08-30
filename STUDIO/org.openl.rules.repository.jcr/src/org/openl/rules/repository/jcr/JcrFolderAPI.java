@@ -13,7 +13,6 @@ import javax.jcr.RepositoryException;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.slf4j.Logger;
@@ -42,17 +41,17 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
         parentNode.save();
         n.save();
 
-        return new JcrFolderAPI(n, parent.getTransactionManager(), path, false);
+        return new JcrFolderAPI(n, path, false);
     }
 
-    public JcrFolderAPI(Node node, RTransactionManager transactionManager, ArtefactPath path, boolean oldVersion) throws RepositoryException {
-        super(node, transactionManager, path, oldVersion);
+    public JcrFolderAPI(Node node, ArtefactPath path, boolean oldVersion) throws RepositoryException {
+        super(node, path, oldVersion);
 
 //        NodeUtil.checkNodeType(node, JcrNT.NT_FOLDER);
     }
 
-    public JcrFolderAPI(Node node, RTransactionManager transactionManager, ArtefactPath path) throws RepositoryException {
-        this(node, transactionManager, path, false);
+    public JcrFolderAPI(Node node, ArtefactPath path) throws RepositoryException {
+        this(node, path, false);
     }
 
     public JcrFileAPI addResource(String name, InputStream content) throws ProjectException {
@@ -115,12 +114,12 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
                 }
                 if (isFolder) {
                     if (!isFiles) {
-                        list2add.add(new JcrFolderAPI(n, getTransactionManager(), getArtefactPath().withSegment(name), isOldVersion()));
+                        list2add.add(new JcrFolderAPI(n, getArtefactPath().withSegment(name), isOldVersion()));
                     }
                 } else if(!n.isNodeType(JcrNT.NT_LOCK)){
                     //FIXME
                     if (isFiles) {
-                        list2add.add(new JcrFileAPI(n, getTransactionManager(), getArtefactPath().withSegment(name), isOldVersion()));
+                        list2add.add(new JcrFileAPI(n, getArtefactPath().withSegment(name), isOldVersion()));
                     }
                 }
             }
@@ -141,9 +140,9 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
                 isFolder = n.isNodeType(JcrNT.NT_FOLDER);
             }
             if (isFolder) {
-                return new JcrFolderAPI(n, getTransactionManager(), getArtefactPath().withSegment(name), isOldVersion());
+                return new JcrFolderAPI(n, getArtefactPath().withSegment(name), isOldVersion());
             } else {
-                return new JcrFileAPI(n, getTransactionManager(), getArtefactPath().withSegment(name), isOldVersion());
+                return new JcrFileAPI(n, getArtefactPath().withSegment(name), isOldVersion());
             }
         } catch (RepositoryException e) {
             throw new ProjectException("Failed to list nodes.", e);
@@ -183,7 +182,7 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
     public JcrFolderAPI getVersion(CommonVersion version) throws RRepositoryException{
         try {
             Node frozenNode = NodeUtil.getNode4Version(node(), version);
-            return new JcrFolderAPI(frozenNode, getTransactionManager(), getArtefactPath(), true);
+            return new JcrFolderAPI(frozenNode, getArtefactPath(), true);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get version for node.", e);
         }

@@ -1,7 +1,6 @@
 package org.openl.rules.repository.jcr;
 
 import org.openl.rules.repository.RRepository;
-import org.openl.rules.repository.RTransactionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,11 +15,9 @@ public abstract class BaseJcrRepository implements RRepository, EventListener {
      * JCR Session
      */
     private final Session session;
-    private final RTransactionManager transactionManager;
 
-    public BaseJcrRepository(Session session, RTransactionManager transactionManager) {
+    public BaseJcrRepository(Session session) {
         this.session = session;
-        this.transactionManager = transactionManager;
     }
 
     protected Node checkPath(String aPath) throws RepositoryException {
@@ -45,10 +42,6 @@ public abstract class BaseJcrRepository implements RRepository, EventListener {
 
     protected Session getSession() {
         return session;
-    }
-
-    public RTransactionManager getTransactionManager() {
-        return transactionManager;
     }
 
     /**

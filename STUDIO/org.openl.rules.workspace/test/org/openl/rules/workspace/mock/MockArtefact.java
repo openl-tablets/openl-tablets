@@ -12,9 +12,7 @@ import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.ValueType;
 import org.openl.rules.common.impl.PropertyImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
-import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.api.ArtefactAPI;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.dtr.impl.LockInfoImpl;
 import org.openl.rules.workspace.props.impl.PropertiesContainerImpl;
 
@@ -22,8 +20,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.transaction.UserTransaction;
 
 public class MockArtefact implements ArtefactAPI {
 
@@ -124,10 +120,6 @@ public class MockArtefact implements ArtefactAPI {
         this.props = props;
     }
 
-    public UserTransaction createTransaction() throws RRepositoryException {
-        return RTransactionManager.NO_TRANSACTION;
-    }
-    
     @Override
     public Map<String, InheritedProperty> getInheritedProps() {
         return new HashMap<String, InheritedProperty>();

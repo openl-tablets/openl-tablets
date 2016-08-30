@@ -124,7 +124,4 @@ public class NullRepository implements RRepository {
         return null;
     }
 
-    public RTransactionManager getTransactionManager() {
-        return null;
-    }
 }

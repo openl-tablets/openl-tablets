@@ -18,7 +18,6 @@ import org.openl.config.ConfigSet;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.repository.RProductionRepository;
 import org.openl.rules.repository.RRepository;
-import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.jcr.JcrNT;
 import org.openl.rules.repository.jcr.JcrProductionRepository;
@@ -35,7 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Aleh Bykhavets
  */
-public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
+public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFactory {
     private final Logger log = LoggerFactory.getLogger(LocalJackrabbitRepositoryFactory.class);
     private static final String LOCK_FILE = ".lock";
 
@@ -187,9 +186,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
             try {
                 Session session = createSession();
 
-                RTransactionManager transactionManager = getTrasactionManager(session);
-                JcrProductionRepository productionRepository = new JcrProductionRepository(session,
-                        transactionManager);
+                JcrProductionRepository productionRepository = new JcrProductionRepository(session);
                 ProductionRepositoryConvertor repositoryConvertor = new ProductionRepositoryConvertor(tempRepoHome);
                 log.info("Converting production repository. Please, be patient.");
                 repositoryConvertor.convert(productionRepository);
@@ -216,8 +213,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJackrabbitReposito
         try {
             // FIXME: do not hardcode credential info
             Session session = createSession();
-            RTransactionManager transactionManager = getTrasactionManager(session);
-            repositoryInstance = new JcrProductionRepository(session, transactionManager);
+            repositoryInstance = new JcrProductionRepository(session);
             tempRepoHome = FileUtils.createTempDirectory();
             // FIXME
             ProductionRepositoryConvertor repositoryConvertor = new ProductionRepositoryConvertor(tempRepoHome);

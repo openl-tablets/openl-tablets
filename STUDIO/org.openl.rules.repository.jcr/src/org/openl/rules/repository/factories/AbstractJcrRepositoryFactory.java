@@ -198,13 +198,12 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
         try {
             session = createSession();
 
-            RTransactionManager transactionManager = getTrasactionManager(session);
             RRepository theRepository;
             if (designRepositoryMode) {
-                theRepository = new JcrRepository(session, transactionManager,
+                theRepository = new JcrRepository(session,
                         confRulesProjectsLocation.getValue(), confDeploymentProjectsLocation.getValue());
             } else {
-                theRepository = new JcrProductionRepository(session, transactionManager);
+                theRepository = new JcrProductionRepository(session);
             }
             return theRepository;
         } catch (RepositoryException e) {
@@ -271,5 +270,4 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
         checkOnStart();
     }
 
-    public abstract RTransactionManager getTrasactionManager(Session session);
 }

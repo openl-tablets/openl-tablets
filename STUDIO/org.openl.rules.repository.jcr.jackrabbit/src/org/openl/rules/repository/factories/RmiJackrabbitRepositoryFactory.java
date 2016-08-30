@@ -15,7 +15,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  * @author Aleh Bykhavets
  *
  */
-public class RmiJackrabbitRepositoryFactory extends AbstractJackrabbitRepositoryFactory {
+public class RmiJackrabbitRepositoryFactory extends AbstractJcrRepositoryFactory {
 
     /** {@inheritDoc} */
     @Override

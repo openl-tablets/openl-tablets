@@ -43,11 +43,10 @@ public class JcrRepository extends BaseJcrRepository {
     private List<RRepositoryListener> listeners = new ArrayList<RRepositoryListener>();
 
     public JcrRepository(Session session,
-            RTransactionManager transactionManager,
             String defRulesPath,
             String defDeploymentsPath)
             throws RepositoryException {
-        super(session, transactionManager);
+        super(session);
 
         defRulesLocation = checkPath(defRulesPath);
         defDeploymentsLocation = checkPath(defDeploymentsPath);
@@ -211,7 +210,7 @@ public class JcrRepository extends BaseJcrRepository {
                     JcrNT.NT_APROJECT, true);
             defDeploymentsLocation.save();
             node.checkin();
-            return new JcrFolderAPI(node, getTransactionManager(), new ArtefactPathImpl(new String[]{name}));
+            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{name}));
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to create deploy configuration.", e);
         }
@@ -223,7 +222,7 @@ public class JcrRepository extends BaseJcrRepository {
                     JcrNT.NT_APROJECT, true);
             defRulesLocation.save();
             node.checkin();
-            return new JcrFolderAPI(node, getTransactionManager(), new ArtefactPathImpl(new String[]{name}));
+            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{name}));
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to create rules project.", e);
         }
@@ -236,7 +235,7 @@ public class JcrRepository extends BaseJcrRepository {
             }
 
             Node n = defDeploymentsLocation.getNode(name);
-            return new JcrFolderAPI(n, getTransactionManager(), new ArtefactPathImpl(new String[]{name}));
+            return new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{name}));
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get DDProject ''{0}''.", e, name);
         }
@@ -255,7 +254,7 @@ public class JcrRepository extends BaseJcrRepository {
             Node n = ni.nextNode();
             try {
                 if (!n.isNodeType(JcrNT.NT_LOCK)) {
-                    result.add(new JcrFolderAPI(n, getTransactionManager(), new ArtefactPathImpl(new String[]{n.getName()})));
+                    result.add(new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{n.getName()})));
                 }
             } catch (RepositoryException e) {
                 log.debug("Failed to add deployment project.");
@@ -272,7 +271,7 @@ public class JcrRepository extends BaseJcrRepository {
             }
 
             Node n = defRulesLocation.getNode(name);
-            return new JcrFolderAPI(n, getTransactionManager(), new ArtefactPathImpl(new String[]{name}));
+            return new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{name}));
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get project ''{0}''", e, name);
         }
@@ -291,7 +290,7 @@ public class JcrRepository extends BaseJcrRepository {
             Node n = ni.nextNode();
             try {
                 if (!n.isNodeType(JcrNT.NT_LOCK)) {
-                    result.add(new JcrFolderAPI(n, getTransactionManager(), new ArtefactPathImpl(new String[]{n.getName()})));
+                    result.add(new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{n.getName()})));
                 }
             } catch (RepositoryException e) {
                 log.debug("Failed to add rules project.");
@@ -309,7 +308,7 @@ public class JcrRepository extends BaseJcrRepository {
         while (ni.hasNext()) {
             Node n = ni.nextNode();
             try {
-                result.add(new JcrFolderAPI(n, getTransactionManager(), new ArtefactPathImpl(new String[]{n.getName()})));
+                result.add(new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{n.getName()})));
             } catch (RepositoryException e) {
                 log.debug("Failed to add rules project for deletion.");
             }

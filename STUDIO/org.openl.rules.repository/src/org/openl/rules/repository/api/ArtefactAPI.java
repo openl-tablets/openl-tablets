@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import javax.transaction.UserTransaction;
-
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
@@ -89,8 +87,6 @@ public interface ArtefactAPI{
     Map<String, Object> getProps();
     void setProps(Map<String, Object> props) throws PropertyException;
     
-    UserTransaction createTransaction() throws RRepositoryException;
-
     Map<String, InheritedProperty> getInheritedProps();
     
     void clearModifyStatus();
