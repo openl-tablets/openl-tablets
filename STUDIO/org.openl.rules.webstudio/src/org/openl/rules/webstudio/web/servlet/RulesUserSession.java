@@ -32,10 +32,6 @@ public class RulesUserSession {
         return userWorkspace;
     }
 
-    public MultiUserWorkspaceManager getWorkspaceManager() {
-        return workspaceManager;
-    }
-
     public void sessionDestroyed() {
         if (userWorkspace != null) {
             userWorkspace.release();
