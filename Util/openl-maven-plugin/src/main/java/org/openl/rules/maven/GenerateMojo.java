@@ -25,8 +25,6 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.openl.OpenL;
-import org.openl.conf.ant.JavaAntTask;
-import org.openl.conf.ant.JavaInterfaceAntTask;
 import org.openl.util.FileUtils;
 
 /**
@@ -35,7 +33,7 @@ import org.openl.util.FileUtils;
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 public class GenerateMojo extends BaseOpenLMojo {
     /**
-     * Tasks that will generate classes.
+     * Tasks that will generate classes or data type.
      * <p>
      * <b>Object Properties</b>
      * <table border="1">
@@ -48,32 +46,38 @@ public class GenerateMojo extends BaseOpenLMojo {
      * <tr>
      * <td>srcFile</td>
      * <td>String</td>
-     * <td>true</td>
-     * <td>Reference to the Excel file for which an interface class must be
-     * generated.</td>
+     * <td>false</td>
+     * <td>*Reference to the Excel file for which an interface class must be generated.</td>
      * </tr>
      * <tr>
      * <td>targetClass</td>
      * <td>String</td>
-     * <td>true</td>
-     * <td>Full name of the interface class to be generated. OpenL Tablets
-     * WebStudio recognizes modules in projects by interface classes and uses
+     * <td>false</td>
+     * <td>*Full name of the interface class to be generated. Optional; if missed interface not generated.
+     * OpenL Tablets WebStudio recognizes modules in projects by interface classes and uses
      * their names in the user interface. If there are multiple wrappers with
      * identical names, only one of them is recognized as a module in OpenL
      * Tablets WebStudio.</td>
      * </tr>
      * <tr>
+     * <td>isUsedRuleXmlForGenerate</td>
+     * <td>boolean (true/false)</td>
+     * <td>false</td>
+     * <td>*Should system generate class and datatypes from rules.xml.
+     * If yes srcFile ignored; targetClass is required.</td>
+     * </tr>
+     * <tr>
      * <td>displayName</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>End user oriented title of the file that appears in OpenL Tablets
+     * <td>*End user oriented title of the file that appears in OpenL Tablets
      * WebStudio. Default value is Excel file name without extension.</td>
      * </tr>
      * <tr>
      * <td>targetSrcDir</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>Folder where the generated interface class must be placed. For
+     * <td>*Folder where the generated interface class must be placed. For
      * example: "src/main/java". Default value is:
      * "${project.build.sourceDirectory}"</td>
      * </tr>
@@ -81,7 +85,7 @@ public class GenerateMojo extends BaseOpenLMojo {
      * <td>openlName</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>OpenL configuration to be used. For OpenL Tablets, the following
+     * <td>*OpenL configuration to be used. For OpenL Tablets, the following
      * value must always be used: org.openl.xls. Default value is:
      * "org.openl.xls"</td>
      * </tr>
@@ -89,14 +93,14 @@ public class GenerateMojo extends BaseOpenLMojo {
      * <td>userHome</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>Location of user-defined resources relative to the current OpenL
+     * <td>*Location of user-defined resources relative to the current OpenL
      * Tablets project. Default value is: "."</td>
      * </tr>
      * <tr>
      * <td>userClassPath</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>Reference to the folder with additional compiled classes imported
+     * <td>*Reference to the folder with additional compiled classes imported
      * by the module when the interface is generated. Default value is:
      * null.</td>
      * </tr>
@@ -104,32 +108,38 @@ public class GenerateMojo extends BaseOpenLMojo {
      * <td>ignoreTestMethods</td>
      * <td>boolean</td>
      * <td>false</td>
-     * <td>If true, test methods will not be added to interface class. Used
-     * only in JavaInterfaceAntTask. Default value is: true.</td>
+     * <td>*If true, test methods will not be added to interface class. Used
+     * only in GenerateInterface. Default value is: true.</td>
      * </tr>
      * <tr>
      * <td>generateUnitTests</td>
      * <td>boolean</td>
      * <td>false</td>
-     * <td>Overwrites base {@link #generateUnitTests} value</td>
+     * <td>*Overwrites base {@link #generateUnitTests} value</td>
      * </tr>
      * <tr>
      * <td>unitTestTemplatePath</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>Overwrites base {@link #unitTestTemplatePath} value</td>
+     * <td>*Overwrites base {@link #unitTestTemplatePath} value</td>
      * </tr>
      * <tr>
      * <td>overwriteUnitTests</td>
      * <td>boolean</td>
      * <td>false</td>
-     * <td>Overwrites base {@link #overwriteUnitTests} value</td>
+     * <td>*Overwrites base {@link #overwriteUnitTests} value</td>
+     * </tr>
+     * <tr>
+     * <td>generateDataType</td>
+     * <td>boolean</td>
+     * <td>false</td>
+     * <td>*Generate or not dataType for current task.</td>
      * </tr>
      * </table>
      * <p>
      */
     @Parameter(required = true)
-    private JavaAntTask[] generateInterfaces;
+    private GenerateInterface[] generateInterfaces;
 
     /**
      * If true, rules.xml will be generated if it doesn't exist. If
@@ -221,16 +231,30 @@ public class GenerateMojo extends BaseOpenLMojo {
         if (getLog().isInfoEnabled()) {
             getLog().info("Running OpenL GenerateMojo...");
         }
-        for (JavaAntTask task : generateInterfaces) {
-            if (getLog().isInfoEnabled()) {
-                getLog().info(String.format("Generating classes for module '%s'...", task.getSrcFile()));
+        boolean isUsedRuleXmlForGenerate = false;
+        for (GenerateInterface task : generateInterfaces) {
+            if (task.isUsedRuleXmlForGenerate()) {
+                isUsedRuleXmlForGenerate = true;
+                break;
             }
-            initDefaultValues(task);
-            task.execute();
+        }
+        for (GenerateInterface task : generateInterfaces) {
+            if (getLog().isInfoEnabled()) {
+                getLog().info(String.format("Generating classes for module '%s'...", task.getDisplayName()));
+            }
+            initDefaultValues(task, isUsedRuleXmlForGenerate);
+            try {
+                task.execute();
+            } catch (Exception e) {
+                throw new MojoExecutionException("Exception during generation: ", e);
+            }
         }
     }
 
-    private void initDefaultValues(JavaAntTask task) {
+    private void initDefaultValues(GenerateInterface task, boolean isUsedRuleXmlForGenerate) {
+        if (!task.isUsedRuleXmlForGenerate() && isUsedRuleXmlForGenerate) {
+            task.setGenerateDataType(false);
+        }
         if (task.getOpenlName() == null) {
             task.setOpenlName(OpenL.OPENL_JAVA_RULE_NAME);
         }
@@ -242,32 +266,28 @@ public class GenerateMojo extends BaseOpenLMojo {
             task.setDisplayName(FileUtils.getBaseName(task.getSrcFile()));
         }
 
-        initResourcePath(task);
+        if (task.getSrcFile() != null) {
+            initResourcePath(task);
+        }
 
-        if (task instanceof JavaInterfaceAntTask) {
-            JavaInterfaceAntTask interfaceTask = (JavaInterfaceAntTask) task;
-            initCreateProjectDescriptorState(interfaceTask);
-            interfaceTask.setDefaultProjectName(projectName);
-            interfaceTask.setDefaultClasspaths(classpaths);
+        initCreateProjectDescriptorState(task);
+        task.setDefaultProjectName(projectName);
+        task.setDefaultClasspaths(classpaths);
 
-            if (task instanceof GenerateInterface) {
-                GenerateInterface generateInterface = (GenerateInterface) task;
-                generateInterface.setLog(getLog());
-                generateInterface.setTestSourceDirectory(project.getBuild().getTestSourceDirectory());
-                if (generateInterface.getGenerateUnitTests() == null) {
-                    generateInterface.setGenerateUnitTests(generateUnitTests);
-                }
-                if (generateInterface.getUnitTestTemplatePath() == null) {
-                    generateInterface.setUnitTestTemplatePath(unitTestTemplatePath);
-                }
-                if (generateInterface.getOverwriteUnitTests() == null) {
-                    generateInterface.setOverwriteUnitTests(overwriteUnitTests);
-                }
-            }
+        task.setLog(getLog());
+        task.setTestSourceDirectory(project.getBuild().getTestSourceDirectory());
+        if (task.getGenerateUnitTests() == null) {
+            task.setGenerateUnitTests(generateUnitTests);
+        }
+        if (task.getUnitTestTemplatePath() == null) {
+            task.setUnitTestTemplatePath(unitTestTemplatePath);
+        }
+        if (task.getOverwriteUnitTests() == null) {
+            task.setOverwriteUnitTests(overwriteUnitTests);
         }
     }
 
-    private void initCreateProjectDescriptorState(JavaInterfaceAntTask task) {
+    private void initCreateProjectDescriptorState(GenerateInterface task) {
         if (createProjectDescriptor) {
             if (new File(task.getResourcesPath(), "rules.xml").exists()) {
                 task.setCreateProjectDescriptor(overwriteProjectDescriptor);
@@ -277,7 +297,7 @@ public class GenerateMojo extends BaseOpenLMojo {
         task.setCreateProjectDescriptor(createProjectDescriptor);
     }
 
-    private void initResourcePath(JavaAntTask task) {
+    private void initResourcePath(GenerateInterface task) {
         String srcFile = task.getSrcFile().replace("\\", "/");
         String baseDir = project.getBasedir().getAbsolutePath();
 
