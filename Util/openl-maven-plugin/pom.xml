@@ -44,10 +44,6 @@
             <artifactId>velocity</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.openl</groupId>
-            <artifactId>org.openl.conf.ant</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.openl.rules</groupId>
             <!-- TODO Move dependent classes to org.openl.rules.project -->
             <artifactId>org.openl.rules.webstudio</artifactId>
