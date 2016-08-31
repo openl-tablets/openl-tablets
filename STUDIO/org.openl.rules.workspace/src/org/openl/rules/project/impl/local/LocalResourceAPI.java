@@ -13,25 +13,11 @@ import org.openl.rules.repository.api.ResourceAPI;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.impl.StateHolder;
 import org.openl.util.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class LocalResourceAPI extends LocalArtefactAPI implements ResourceAPI {
-    private final Logger log = LoggerFactory.getLogger(LocalResourceAPI.class);
-
-    private String resourceType;
 
     public LocalResourceAPI(File source, ArtefactPath path, LocalWorkspace workspace) {
         super(source, path, workspace);
-        resourceType = "unknown";
-    }
-
-    @Override
-    public StateHolder getStateHolder() {
-        ResourceStateHolder state = new ResourceStateHolder();
-        state.resourceType = this.resourceType;
-        state.parent = super.getStateHolder();
-        return state;
     }
 
     @Override
@@ -39,15 +25,9 @@ public class LocalResourceAPI extends LocalArtefactAPI implements ResourceAPI {
         if (stateHolder instanceof ResourceStateHolder) {
             ResourceStateHolder state = (ResourceStateHolder) stateHolder;
             super.applyStateHolder(state.parent);
-            this.resourceType = state.resourceType;
         } else {
-            // TODO consider exception throwing
-            log.error("Incorrect type of stateHolder. Was: '{}', but should be 'ArtefactStateHolder", stateHolder.getClass().getName());
+            super.applyStateHolder(stateHolder);
         }
-    }
-
-    public String getResourceType() {
-        return resourceType;
     }
 
     public InputStream getContent() throws ProjectException {
@@ -71,6 +51,10 @@ public class LocalResourceAPI extends LocalArtefactAPI implements ResourceAPI {
         }
     }
 
+    /**
+     * @deprecated Is kept for backward compatibility to load old repository
+     */
+    @Deprecated
     private static class ResourceStateHolder implements StateHolder {
         private static final long serialVersionUID = -7598752238896061537L;
 

@@ -76,12 +76,6 @@ public class JcrFileAPI extends JcrEntityAPI implements ResourceAPI {
     }
 
     /** {@inheritDoc} */
-    public String getResourceType() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /** {@inheritDoc} */
     public long getSize() {
         return NodeUtil.getFileNodeSize(node());
     }

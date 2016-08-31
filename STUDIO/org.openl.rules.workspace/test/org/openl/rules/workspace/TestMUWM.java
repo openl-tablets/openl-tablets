@@ -59,10 +59,6 @@ public class TestMUWM {
             throw new PropertyException("Not supported", null);
         }
 
-        public String getResourceType() {
-            return "file";
-        }
-
         public boolean hasArtefact(String name) {
             return false;
         }

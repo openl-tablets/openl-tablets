@@ -10,15 +10,10 @@ import org.openl.rules.repository.api.ResourceAPI;
 public class MockResource extends MockArtefact implements ResourceAPI {
     public static final InputStream NULL_STREAM = new ByteArrayInputStream(new byte[0]);
 
-    private String resourceType = "unknown";
     private byte[] content;
 
     public MockResource(String name) {
         super(name);
-    }
-
-    public String getResourceType() {
-        return resourceType;
     }
 
     public InputStream getContent() throws ProjectException {

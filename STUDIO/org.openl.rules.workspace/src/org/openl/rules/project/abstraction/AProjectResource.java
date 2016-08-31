@@ -32,10 +32,6 @@ public class AProjectResource extends AProjectArtefact {
         setContent(resourceTransformer != null ? resourceTransformer.tranform(resource) : resource.getContent());
     }
 
-    public String getResourceType() {
-        return getAPI().getResourceType();
-    }
-
     @Override
     public boolean isFolder() {
     	return false;
