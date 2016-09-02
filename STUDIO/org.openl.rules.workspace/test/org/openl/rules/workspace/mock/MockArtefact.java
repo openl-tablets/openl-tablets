@@ -34,10 +34,6 @@ public class MockArtefact implements ArtefactAPI {
         properties = new PropertiesContainerImpl();
     }
 
-    public boolean isModified() {
-        return false;
-    }
-
     public void addProperty(String name, ValueType type, Object value) throws PropertyException {
         properties.addProperty(new PropertyImpl(name, type, value));
     }
@@ -125,7 +121,4 @@ public class MockArtefact implements ArtefactAPI {
         return new HashMap<String, InheritedProperty>();
     }
 
-    @Override
-    public void clearModifyStatus() {
-    }
 }

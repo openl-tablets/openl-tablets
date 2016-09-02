@@ -15,6 +15,7 @@ import org.openl.rules.common.Property;
 import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.RulesRepositoryArtefact;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
+import org.openl.rules.project.impl.local.LocalArtefactAPI;
 import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -161,7 +162,6 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
             }
         }
 
-        artefact.impl.clearModifyStatus();
         refresh();
     }
 
@@ -181,7 +181,6 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
             }
         }
 
-        artefact.impl.clearModifyStatus();
         refresh();
     }
 
@@ -189,11 +188,9 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
      * As usual update but this update will use only artefacts which is modified.
      * 
      * @param artefact A source artefact to extract data from.
-     * @throws ProjectException
      */
     public void smartUpdate(AProjectArtefact artefact, CommonUser user) throws ProjectException {
-        //if (artefact.isModified()) {
-        if (artefact.impl.isModified()) {
+        if (artefact.isModified()) {
             try {
                 getAPI().removeAllProperties();
                 setProps(artefact.getProps());
@@ -210,7 +207,6 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
                 }
             }
 
-            artefact.impl.clearModifyStatus();
             refresh();
         }
     }
@@ -258,7 +254,7 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
     }
     
     public boolean isModified(){
-        return impl.isModified();
+        return impl instanceof LocalArtefactAPI && ((LocalArtefactAPI) impl).isModified();
     }
 
     public void setVersionComment(String versionComment) throws PropertyException {

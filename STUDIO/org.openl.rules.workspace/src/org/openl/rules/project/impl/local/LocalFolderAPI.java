@@ -110,4 +110,12 @@ public class LocalFolderAPI extends LocalArtefactAPI implements FolderAPI {
         }
         return false;
     }
+
+    @Override
+    public void clearModifyStatus() {
+        super.clearModifyStatus();
+        for (LocalArtefactAPI child : getArtefacts()) {
+            child.clearModifyStatus();
+        }
+    }
 }

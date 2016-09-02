@@ -43,6 +43,7 @@ public class RulesProject extends UserWorkspaceProject {
     @Override
     public void save(CommonUser user) throws ProjectException {
         smartUpdate(local, repository, user);
+        local.clearModifyStatus();
         local.setCurrentVersion(repository.getVersion());
         local.commit(user, 0);// save persistence
         unlock(user);
@@ -172,7 +173,7 @@ public class RulesProject extends UserWorkspaceProject {
     private void update(FolderAPI from, FolderAPI to, CommonUser user) throws ProjectException {
         new AProject(to).update(new AProject(from), user);
     }
-    
+
     private void smartUpdate(FolderAPI from, FolderAPI to, CommonUser user) throws ProjectException {
         new AProject(to).smartUpdate(new AProject(from), user);
     }

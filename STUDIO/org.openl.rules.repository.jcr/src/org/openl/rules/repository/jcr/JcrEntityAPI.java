@@ -497,11 +497,6 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         properties.clear();
     }
 
-    public boolean isModified() {
-        //FIXME always false
-        return node().isModified();
-    }
-
     @Override
     public Map<String, InheritedProperty> getInheritedProps() {
         Map<String, InheritedProperty> inhProps = new HashMap<String, InheritedProperty>();
@@ -548,11 +543,6 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         }
 
         return inhProps;
-    }
-
-    @Override
-    public void clearModifyStatus() {
-
     }
 
 }

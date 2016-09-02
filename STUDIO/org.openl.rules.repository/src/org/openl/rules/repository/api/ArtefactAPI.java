@@ -17,9 +17,6 @@ import org.openl.rules.common.ValueType;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public interface ArtefactAPI{
-    boolean isModified();
-    
-    
     void addProperty(String name, ValueType type, Object value) throws PropertyException;
 
     /**
@@ -88,6 +85,4 @@ public interface ArtefactAPI{
     void setProps(Map<String, Object> props) throws PropertyException;
     
     Map<String, InheritedProperty> getInheritedProps();
-    
-    void clearModifyStatus();
 }
