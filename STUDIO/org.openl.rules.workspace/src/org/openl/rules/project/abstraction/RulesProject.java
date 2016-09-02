@@ -42,7 +42,7 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public void save(CommonUser user) throws ProjectException {
-        smartUpdate(local, repository, user);
+        new AProject(repository).smartUpdate(new AProject(local), user);
         local.clearModifyStatus();
         local.setCurrentVersion(repository.getVersion());
         local.commit(user, 0);// save persistence
@@ -164,18 +164,9 @@ public class RulesProject extends UserWorkspaceProject {
         }
         source.mkdir();
         local.setCurrentVersion(openedProject.getVersion());
-        update(openedProject, local, getUser());
+        new AProject(local).update(new AProject(openedProject), getUser());
         setAPI(local);
         refresh();
-    }
-
-    // FIXME
-    private void update(FolderAPI from, FolderAPI to, CommonUser user) throws ProjectException {
-        new AProject(to).update(new AProject(from), user);
-    }
-
-    private void smartUpdate(FolderAPI from, FolderAPI to, CommonUser user) throws ProjectException {
-        new AProject(to).smartUpdate(new AProject(from), user);
     }
 
     // Is Opened for Editing by me? -- in LW + locked by me
