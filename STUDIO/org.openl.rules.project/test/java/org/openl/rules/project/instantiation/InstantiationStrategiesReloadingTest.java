@@ -26,13 +26,9 @@ import org.openl.util.FileUtils;
 public class InstantiationStrategiesReloadingTest {
     private static final String RULES_ENGINE = "./test/resources/reloading-test/EngineProject/TemplateRules.xls";
     private static final String RULES_API = "./test/resources/reloading-test/SimpleProject/TemplateRules.xls";
-    private static final String RULES_WRAPPER = "./test/resources/reloading-test/WrapperProject/rules/TemplateRules.xls";
     private static final String BEAN_ENGINE = "./test/resources/reloading-test/EngineProject/classes/org/openl/example/TestBean.class";
     private static final String BEAN_API = "./test/resources/reloading-test/SimpleProject/org/openl/example/TestBean.class";
-    private static final String BEAN_WRAPPER = "./test/resources/reloading-test/WrapperProject/bin/org/openl/example/TestBean.class";
     private static final String SERVICE_CLASS_ENGINE = "./test/resources/reloading-test/EngineProject/classes/org/openl/example/ServiceClass.class";
-    private static final String WRAPPER_WRAPPER = "./test/resources/reloading-test/WrapperProject/bin/template/TemplateJavaWrapper.class";
-    private static final String WRAPPER$1_WRAPPER = "./test/resources/reloading-test/WrapperProject/bin/template/TemplateJavaWrapper$1.class";
     private static final String RULES_MODIFIED = "./test/resources/reloading-test/modifications/TemplateRules.xls";
     private static final String BEAN_MODIFIED = "./test/resources/reloading-test/modifications/org/openl/example/TestBean.class";
     private static final String SERVICE_CLASS_MODIFIED = "./test/resources/reloading-test/modifications/org/openl/example/ServiceClass.class";
@@ -58,7 +54,6 @@ public class InstantiationStrategiesReloadingTest {
     private static RulesProjectResolver resolver = RulesProjectResolver.loadProjectResolverFromClassPath();
     private ApiBasedInstantiationStrategy apiStrategy;
     private SingleModuleInstantiationStrategy dynamicStrategy;
-    private WrapperAdjustingInstantiationStrategy wrapperStrategy;
 
     private static SingleModuleInstantiationStrategy resolve(File folder) throws Exception{
         ResolvingStrategy resolvingStrategy = resolver.isRulesProject(folder);
@@ -79,11 +74,9 @@ public class InstantiationStrategiesReloadingTest {
     public void init() throws Exception{
         apiStrategy = (ApiBasedInstantiationStrategy) resolve(new File("./test/resources/reloading-test/SimpleProject"));
         dynamicStrategy = (SingleModuleInstantiationStrategy) resolve(new File("./test/resources/reloading-test/EngineProject"));
-        wrapperStrategy = (WrapperAdjustingInstantiationStrategy) resolve(new File("./test/resources/reloading-test/WrapperProject"));
         List<Module> modules = new ArrayList<Module>(3);
         modules.add(apiStrategy.getModule());
         modules.add(dynamicStrategy.getModule());
-        modules.add(wrapperStrategy.getModule());
     }
 
     public void checkOriginal(Object instance) throws Exception {
@@ -151,13 +144,9 @@ public class InstantiationStrategiesReloadingTest {
         System.out.println("Restoring changes...");
         FileUtils.copy(new File(RULES_ORIGINAL), new File(RULES_ENGINE));
         FileUtils.copy(new File(RULES_ORIGINAL), new File(RULES_API));
-        FileUtils.copy(new File(RULES_ORIGINAL), new File(RULES_WRAPPER));
         FileUtils.copy(new File(BEAN_ORIGINAL), new File(BEAN_ENGINE));
         FileUtils.copy(new File(BEAN_ORIGINAL), new File(BEAN_API));
-        FileUtils.copy(new File(BEAN_ORIGINAL), new File(BEAN_WRAPPER));
         FileUtils.copy(new File(SERVICE_CLASS_ORIGINAL), new File(SERVICE_CLASS_ENGINE));
-        FileUtils.copy(new File(WRAPPER_ORIGINAL), new File(WRAPPER_WRAPPER));
-        FileUtils.copy(new File(WRAPPER$1_ORIGINAL), new File(WRAPPER$1_WRAPPER));
         System.out.println("All files have been successfully restored.");
     }
 
@@ -165,13 +154,9 @@ public class InstantiationStrategiesReloadingTest {
         System.out.println("Modifing files...");
         FileUtils.copy(new File(RULES_MODIFIED), new File(RULES_ENGINE));
         FileUtils.copy(new File(RULES_MODIFIED), new File(RULES_API));
-        FileUtils.copy(new File(RULES_MODIFIED), new File(RULES_WRAPPER));
         FileUtils.copy(new File(BEAN_MODIFIED), new File(BEAN_ENGINE));
         FileUtils.copy(new File(BEAN_MODIFIED), new File(BEAN_API));
-        FileUtils.copy(new File(BEAN_MODIFIED), new File(BEAN_WRAPPER));
         FileUtils.copy(new File(SERVICE_CLASS_MODIFIED), new File(SERVICE_CLASS_ENGINE));
-        FileUtils.copy(new File(WRAPPER_MODIFIED), new File(WRAPPER_WRAPPER));
-        FileUtils.copy(new File(WRAPPER$1_MODIFIED), new File(WRAPPER$1_WRAPPER));
         System.out.println("All files have been successfully changed.");
     }
 
@@ -190,11 +175,6 @@ public class InstantiationStrategiesReloadingTest {
                 getGetIntMethod(dynamicStrategy) }, new MethodDescription[0]);
         checkClass("org.openl.example.TestBean", dynamicStrategy, new MethodDescription[] { GET_INT_FIELD,
                 GET_STRING_FIELD }, new MethodDescription[0]);
-        checkOriginal(wrapperStrategy.instantiate());
-        checkClass(wrapperStrategy.getInstanceClass(), new MethodDescription[] { INVOKE,
-                getGetIntMethod(wrapperStrategy) }, new MethodDescription[0]);
-        checkClass("org.openl.example.TestBean", wrapperStrategy, new MethodDescription[] { GET_INT_FIELD,
-                GET_STRING_FIELD }, new MethodDescription[0]);
         makeChanges();
         apiStrategy.reset();
         checkModified(apiStrategy.instantiate());
@@ -210,12 +190,6 @@ public class InstantiationStrategiesReloadingTest {
         checkClass(dynamicStrategy.getInstanceClass(), new MethodDescription[] { INVOKE,
                 getGetIntMethod(dynamicStrategy) }, new MethodDescription[0]);
         checkClass("org.openl.example.TestBean", dynamicStrategy, new MethodDescription[] { GET_INT_FIELD,
-                GET_STRING_FIELD }, new MethodDescription[0]);
-        wrapperStrategy.reset();
-        checkModified(wrapperStrategy.instantiate());
-        checkClass(wrapperStrategy.getInstanceClass(), new MethodDescription[] { INVOKE,
-                getGetIntMethod(wrapperStrategy) }, new MethodDescription[0]);
-        checkClass("org.openl.example.TestBean", wrapperStrategy, new MethodDescription[] { GET_INT_FIELD,
                 GET_STRING_FIELD }, new MethodDescription[0]);
     }
 
@@ -234,11 +208,6 @@ public class InstantiationStrategiesReloadingTest {
                 getGetIntMethod(dynamicStrategy) }, new MethodDescription[0]);
         checkClass("org.openl.example.TestBean", dynamicStrategy, new MethodDescription[] { GET_INT_FIELD,
                 GET_STRING_FIELD }, new MethodDescription[0]);
-        checkOriginal(wrapperStrategy.instantiate());
-        checkClass(wrapperStrategy.getInstanceClass(), new MethodDescription[] { INVOKE,
-                getGetIntMethod(wrapperStrategy) }, new MethodDescription[0]);
-        checkClass("org.openl.example.TestBean", wrapperStrategy, new MethodDescription[] { GET_INT_FIELD,
-                GET_STRING_FIELD }, new MethodDescription[0]);
         makeChanges();
         apiStrategy.forcedReset();
         checkModified(apiStrategy.instantiate());
@@ -256,15 +225,6 @@ public class InstantiationStrategiesReloadingTest {
             new MethodDescription[] { getGetIntMethod(dynamicStrategy) });
         checkClass("org.openl.example.TestBean",
             dynamicStrategy,
-            new MethodDescription[] { GET_INT_FIELD },
-            new MethodDescription[] { GET_STRING_FIELD });
-        wrapperStrategy.forcedReset();
-        checkModified(wrapperStrategy.instantiate());
-        checkClass(wrapperStrategy.getInstanceClass(),
-            new MethodDescription[] { INVOKE },
-            new MethodDescription[] { getGetIntMethod(wrapperStrategy) });
-        checkClass("org.openl.example.TestBean",
-            wrapperStrategy,
             new MethodDescription[] { GET_INT_FIELD },
             new MethodDescription[] { GET_STRING_FIELD });
     }
