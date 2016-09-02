@@ -171,10 +171,7 @@ public class RulesProject extends UserWorkspaceProject {
 
     // Is Opened for Editing by me? -- in LW + locked by me
     public boolean isOpenedForEditing() {
-        if (isLocalOnly()) {
-            return false;
-        }
-        return isLockedByMe() && local != null;
+        return !isLocalOnly() && isLockedByMe() && local != null;
     }
 
 }
