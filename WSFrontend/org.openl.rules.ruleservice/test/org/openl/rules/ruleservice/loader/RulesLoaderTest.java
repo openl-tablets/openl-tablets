@@ -19,7 +19,6 @@ import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.resolving.EclipseBasedResolvingStrategy;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,9 +38,6 @@ public class RulesLoaderTest {
         RulesProjectResolver projectResolver = new RulesProjectResolver();
         List<ResolvingStrategy> resolvingStrategies = new ArrayList<ResolvingStrategy>();
         resolvingStrategies.add(new org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy());
-        EclipseBasedResolvingStrategy eclipseBasedResolvingStrategy = new org.openl.rules.project.resolving.EclipseBasedResolvingStrategy();
-        eclipseBasedResolvingStrategy.setTreeAdaptor(new org.openl.util.tree.FileTreeIterator.FileTreeAdaptor());
-        resolvingStrategies.add(eclipseBasedResolvingStrategy);
         resolvingStrategies.add(new org.openl.rules.project.resolving.SimpleXlsResolvingStrategy());
         projectResolver.setResolvingStrategies(resolvingStrategies);
         rulesLoader = new RuleServiceLoaderImpl(dataSource, new LocalTemporaryDeploymentsStorage(), projectResolver);

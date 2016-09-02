@@ -3,30 +3,15 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
        default-autowire="no">
 
- 	<!-- Resolves projects that match check descriptor file existing (rule.xml). It is used by projectResolver bean. -->
-	<bean id="descriptorBasedStrategy"
-		class="org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy" />
-	
-	<!-- Resolves projects that match default OpenL Eclipse-based convention. It is used by projectResolver bean. -->
-	<bean id="eclipseBasedStrategy"
-		class="org.openl.rules.project.resolving.EclipseBasedResolvingStrategy">
-		<property name="treeAdaptor" ref="fileTreeAdaptor" />
-	</bean>
-	
-	<!-- Resolver for simple OpenL project with only xls file. It is used by projectResolver bean. -->
-	<bean id="simpleXLSStrategy"
-		class="org.openl.rules.project.resolving.SimpleXlsResolvingStrategy" />
-		
-	<bean id="fileTreeAdaptor" class="org.openl.util.tree.FileTreeIterator$FileTreeAdaptor" />
-
-	<!-- Resolves all OpenL projects in specified workspace folder. Use specified strategies. -->
-	<bean id="projectResolver" class="org.openl.rules.project.resolving.RulesProjectResolver">
-		<property name="resolvingStrategies">
-			<list>
-				<ref bean="descriptorBasedStrategy" />				
-				<ref bean="simpleXLSStrategy" />
-				<ref bean="eclipseBasedStrategy" />
-			</list>
-		</property>
-	</bean>
+    <!-- Resolves all OpenL projects in specified workspace folder. Use specified strategies. -->
+    <bean id="projectResolver" class="org.openl.rules.project.resolving.RulesProjectResolver">
+        <property name="resolvingStrategies">
+            <list>
+                <!-- Resolves projects that match check descriptor file existing (rule.xml). It is used by projectResolver bean. -->
+                <bean class="org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy"/>
+                <!-- Resolver for simple OpenL project with only xls file. It is used by projectResolver bean. -->
+                <bean class="org.openl.rules.project.resolving.SimpleXlsResolvingStrategy"/>
+            </list>
+        </property>
+    </bean>
 </beans>

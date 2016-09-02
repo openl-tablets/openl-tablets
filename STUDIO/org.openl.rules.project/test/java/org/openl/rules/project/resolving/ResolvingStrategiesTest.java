@@ -15,23 +15,6 @@ import org.openl.rules.project.model.ProjectDescriptor;
 public class ResolvingStrategiesTest {
 
     @Test
-    public void testEclipseBased() throws Exception {
-        ResolvingStrategy resolvingStrategy = new EclipseBasedResolvingStrategy();
-        File projectFolder = new File("test/resources/eclipse-based");
-        assertTrue(resolvingStrategy.isRulesProject(projectFolder));
-        ProjectDescriptor descriptor = resolvingStrategy.resolveProject(projectFolder);
-        assertEquals(projectFolder.getName(), descriptor.getName());
-        assertEquals(projectFolder.getCanonicalPath(), descriptor.getProjectFolder().getCanonicalPath());
-        assertEquals(22, descriptor.getClasspath().size());
-        assertEquals(1, descriptor.getModules().size());
-        Module module = descriptor.getModules().get(0);
-        assertEquals("Tutorial 1 - Intro to Decision Tables", module.getName());
-        assertEquals(ModuleType.WRAPPER, module.getType());
-        assertEquals(null, module.getRulesRootPath());
-        assertEquals("org.openl.tablets.tutorial1.Tutorial_1Wrapper", module.getClassname());
-    }
-
-    @Test
     public void testDescriptor() throws Exception{
         ProjectDescriptorBasedResolvingStrategy strategy = new ProjectDescriptorBasedResolvingStrategy();
         File projectFolder = new File("test/resources/descriptor");

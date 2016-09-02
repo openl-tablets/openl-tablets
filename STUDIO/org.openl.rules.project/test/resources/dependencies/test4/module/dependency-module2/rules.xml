@@ -1,0 +1,12 @@
+<project>
+    <name>pr2</name>
+    <modules>
+        <module>
+            <name>Tutorial 10 - Lookup table example - Special form of Rules table</name>
+            <rules-root path="rules/Tutorial_10.xlsx"/>
+        </module>
+    </modules>
+    <classpath>
+        <entry path="bin"/>
+    </classpath>
+</project>

@@ -19,6 +19,5 @@ public class RulesResolverTest {
         RulesProjectResolver resolver = RulesProjectResolver.loadProjectResolverFromClassPath();
         assertTrue(resolver.isRulesProject(new File("test/resources/descriptor")) instanceof ProjectDescriptorBasedResolvingStrategy);
         assertTrue(resolver.isRulesProject(new File("test/resources/excel")) instanceof SimpleXlsResolvingStrategy);
-        assertTrue(resolver.isRulesProject(new File("test/resources/eclipse-based")) instanceof EclipseBasedResolvingStrategy);
     }
 }

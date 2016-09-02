@@ -27,7 +27,6 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.model.*;
 import org.openl.rules.project.model.validation.ValidationException;
-import org.openl.rules.project.resolving.EclipseBasedResolvingStrategy;
 import org.openl.rules.project.resolving.FileNamePatternValidator;
 import org.openl.rules.project.resolving.InvalidFileNamePatternException;
 import org.openl.rules.project.resolving.InvalidFileNameProcessorException;
@@ -35,8 +34,6 @@ import org.openl.rules.project.resolving.NoMatchFileNameException;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.resolving.PropertiesFileNameProcessor;
 import org.openl.rules.project.resolving.PropertiesFileNameProcessorBuilder;
-import org.openl.rules.project.resolving.ResolvingStrategy;
-import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.project.xml.RulesDeploySerializerFactory;
 import org.openl.rules.project.xml.SupportedVersion;
@@ -646,6 +643,7 @@ public class ProjectBean {
 
             Class<? extends PropertiesFileNameProcessor> processorClass = processor.getClass();
             String fileName = "/" + processorClass.getName().replace(".", "/") + ".info";
+
             try {
                 InputStream inputStream = processorClass.getResourceAsStream(fileName);
                 if (inputStream == null) {
@@ -909,23 +907,13 @@ public class ProjectBean {
     }
 
     public boolean isPropertiesFileNamePatternSupported() {
-        return getSupportedVersion().compareTo(SupportedVersion.V5_12) >= 0 && !isOldEclipseBasedProject();
+        return getSupportedVersion().compareTo(SupportedVersion.V5_12) >= 0;
     }
 
     public boolean isProjectDependenciesSupported() {
-        return getSupportedVersion().compareTo(SupportedVersion.V5_12) >= 0 && !isOldEclipseBasedProject();
+        return getSupportedVersion().compareTo(SupportedVersion.V5_12) >= 0;
     }
 
-    private boolean isOldEclipseBasedProject(){
-        RulesProjectResolver rulesProjectResolver = studio.getProjectResolver();
-        for (ResolvingStrategy strategy : rulesProjectResolver.getResolvingStrategies()){
-            if (strategy instanceof EclipseBasedResolvingStrategy){
-                return strategy.isRulesProject(studio.getCurrentProjectDescriptor().getProjectFolder());
-            }
-        }
-        return false;
-    }
-    
     public SupportedVersion[] getPossibleVersions() {
         return SupportedVersion.values();
     }
