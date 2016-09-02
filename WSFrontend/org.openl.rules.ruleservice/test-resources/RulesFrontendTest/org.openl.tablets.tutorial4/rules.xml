@@ -1,0 +1,12 @@
+<project>
+    <name>org.openl.tablets.tutorial4</name>
+    <modules>
+        <module>
+            <name>Tutorial 4 - UServ Product Derby</name>
+            <rules-root path="rules/main/Tutorial_4.xls"/>
+        </module>
+    </modules>
+    <classpath>
+        <entry path="bin"/>
+    </classpath>
+</project>
