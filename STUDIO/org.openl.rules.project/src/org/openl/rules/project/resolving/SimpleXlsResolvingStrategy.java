@@ -70,8 +70,6 @@ public class SimpleXlsResolvingStrategy extends BaseResolvingStrategy {
         Module module = new Module();
         module.setProject(project);
         module.setRulesRootPath(rootPath);
-        // FIXME: classname just for webstudio
-        module.setClassname(name);
         module.setName(name);
         return module;
     }

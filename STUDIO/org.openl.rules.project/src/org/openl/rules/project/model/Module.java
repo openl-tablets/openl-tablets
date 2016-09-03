@@ -55,14 +55,6 @@ public class Module{
         this.name = name;
     }
 
-    public String getClassname() {
-        return classname;
-    }
-
-    public void setClassname(String classname) {
-        this.classname = classname;
-    }
-
     public PathEntry getRulesRootPath() {
         return rulesRootPath;
     }

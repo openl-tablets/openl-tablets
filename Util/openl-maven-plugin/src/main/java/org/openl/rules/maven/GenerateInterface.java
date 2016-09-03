@@ -244,7 +244,6 @@ public class GenerateInterface {
         Module module = new Module();
 
         module.setName(getDisplayName());
-        module.setClassname(getTargetClass());
         module.setRulesRootPath(new PathEntry(getSrcFile()));
         return module;
     }
@@ -314,7 +313,6 @@ public class GenerateInterface {
      */
     private Module copyOf(Module module) {
         Module copy = new Module();
-        copy.setClassname(module.getClassname());
         copy.setName(module.getName());
         copy.setProperties(module.getProperties());
         copy.setRulesRootPath(module.getRulesRootPath());

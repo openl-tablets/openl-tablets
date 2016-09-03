@@ -16,10 +16,6 @@ import org.openl.rules.project.model.ProjectDescriptor;
 
 public class RulesServiceEnhancerTest {
 
-    public interface ITest {
-        String hello1(int hour);
-    }
-
     @Test
     public void dynamicWrapperEnhancementTest1() throws Exception {
 
@@ -29,39 +25,8 @@ public class RulesServiceEnhancerTest {
         Module module = new Module();
         module.setProject(project);
         module.setRulesRootPath(new PathEntry("test/resources/excel/Rules.xls"));
-        module.setClassname(ITest.class.getName());
         ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, false, null);
 
-        RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(strategy);
-        Class<?> serviceClass = enhancer.getServiceClass();
-        Object instance = enhancer.instantiate();
-
-        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-        context.setCountry(CountriesEnum.US);
-        Method method = serviceClass.getMethod("hello1", new Class<?>[] { IRulesRuntimeContext.class, int.class });
-        Object result = method.invoke(instance, new Object[] { context, 10 });
-
-        assertEquals("Good Morning, World!", (String) result);
-
-        context.setCountry(CountriesEnum.RU);
-        result = method.invoke(instance, new Object[] { context, 22 });
-
-        assertEquals("(RU) Good Night, World!", (String) result);
-    }
-
-    @Test
-    public void apiWrapperEnhancementTest1() throws Exception {
-
-        ProjectDescriptor project = new ProjectDescriptor();
-        project.setClasspath(new ArrayList<PathEntry>());
-        project.setProjectFolder(new File("test/resources/excel/"));
-        Module module = new Module();
-        module.setProject(project);
-        module.setRulesRootPath(new PathEntry("test/resources/excel/Rules.xls"));
-        module.setClassname("MyTestClass");
-
-        ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, false, null);
-        
         RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(strategy);
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();

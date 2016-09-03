@@ -2,7 +2,6 @@ package org.openl.rules.project;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
@@ -36,12 +35,10 @@ public class ProjectDescriptorManagerTest {
         Module module1 = descriptor.getModules().get(0);
         assertEquals("MyModule1", module1.getName());
         assertTrue(new File(module1.getRulesRootPath().getPath()).isAbsolute());
-        assertEquals("com.test.MyWrapper", module1.getClassname());
 
         Module module2 = descriptor.getModules().get(1);
         assertEquals("MyModule2", module2.getName());
         assertTrue(new File(module2.getRulesRootPath().getPath()).isAbsolute());
-        assertNull(module2.getClassname());
 
         assertEquals(2, descriptor.getClasspath().size());
 
@@ -107,7 +104,6 @@ public class ProjectDescriptorManagerTest {
         Module module1 = new Module();
         module1.setName("name1");
         module1.setRulesRootPath(new PathEntry("path1"));
-        module1.setClassname("MyWrapper1");
         module1.setMethodFilter(new MethodFilter());
 
         List<PathEntry> classpath = new ArrayList<PathEntry>();
@@ -137,8 +133,7 @@ public class ProjectDescriptorManagerTest {
                         "  <modules>" + "\n" + 
                         "    <module>" + "\n" +
                         "      <name>name1</name>" + "\n" + 
-                        "      <classname>MyWrapper1</classname>" + "\n" + 
-                        "      <rules-root path=\"path1\"/>" + "\n" + 
+                        "      <rules-root path=\"path1\"/>" + "\n" +
                         "      <method-filter>"+ "\n" +
                         "        <includes>"+ "\n" +
                         "          <value>*</value>"+ "\n" +

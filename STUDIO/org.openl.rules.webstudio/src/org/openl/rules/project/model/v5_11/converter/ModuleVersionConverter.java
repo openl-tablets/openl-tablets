@@ -11,7 +11,6 @@ public class ModuleVersionConverter implements ObjectVersionConverter<Module, Mo
         Module module = new Module();
 
         module.setName(oldVersion.getName());
-        module.setClassname(oldVersion.getClassname());
         module.setRulesRootPath(oldVersion.getRulesRootPath());
         module.setMethodFilter(oldVersion.getMethodFilter());
 
@@ -23,7 +22,6 @@ public class ModuleVersionConverter implements ObjectVersionConverter<Module, Mo
         Module_v5_11 module = new Module_v5_11();
 
         module.setName(currentVersion.getName());
-        module.setClassname(currentVersion.getClassname());
         module.setRulesRootPath(currentVersion.getRulesRootPath());
         module.setMethodFilter(currentVersion.getMethodFilter());
 
