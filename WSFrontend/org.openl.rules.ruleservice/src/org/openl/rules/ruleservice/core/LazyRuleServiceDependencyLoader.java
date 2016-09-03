@@ -19,7 +19,6 @@ import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
-import org.openl.rules.project.instantiation.WrapperAdjustingInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.publish.lazy.CompiledOpenClassCache;
 import org.openl.rules.ruleservice.publish.lazy.LazyBinderInvocationHandler;
@@ -116,9 +115,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                     modules);
                 rulesInstantiationStrategy.setExternalParameters(parameters);
                 try {
-                    if (rulesInstantiationStrategy instanceof WrapperAdjustingInstantiationStrategy) {
-                        LazyBinderInvocationHandler.removePrebindHandler();
-                    } else {
+
                         LazyBinderInvocationHandler.setPrebindHandler(new IPrebindHandler() {
                             Module getModuleForMember(IOpenMember member) {
                                 String sourceUrl = member.getDeclaringClass().getMetaInfo().getSourceUrl();
@@ -229,7 +226,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                                 return makeLazyField(field);
                             }
                         });
-                    }
+
                     compiledOpenClass = rulesInstantiationStrategy.compile();// Check
                     // correct
                     // compilation

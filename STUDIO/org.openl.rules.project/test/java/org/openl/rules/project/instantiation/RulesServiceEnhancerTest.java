@@ -50,35 +50,6 @@ public class RulesServiceEnhancerTest {
     }
 
     @Test
-    public void staticWrapperEnhancementTest1() throws Exception {
-
-        ProjectDescriptor project = new ProjectDescriptor();
-        project.setClasspath(new ArrayList<PathEntry>());
-        project.setProjectFolder(new File("."));
-        Module module = new Module();
-        module.setProject(project);
-        module.setClassname(StaticWrapper.class.getName());
-
-        WrapperAdjustingInstantiationStrategy strategy = new WrapperAdjustingInstantiationStrategy(module, false, null);
-
-        RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(strategy);
-        Class<?> serviceClass = enhancer.getServiceClass();
-        Object instance = enhancer.instantiate();
-
-        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-        context.setCountry(CountriesEnum.US);
-        Method method = serviceClass.getMethod("hello1", new Class<?>[] { IRulesRuntimeContext.class, int.class });
-        Object result = method.invoke(instance, new Object[] { context, 10 });
-
-        assertEquals("Good Morning, World!", (String) result);
-
-        context.setCountry(CountriesEnum.RU);
-        result = method.invoke(instance, new Object[] { context, 22 });
-
-        assertEquals("(RU) Good Night, World!", (String) result);
-    }
-    
-    @Test
     public void apiWrapperEnhancementTest1() throws Exception {
 
         ProjectDescriptor project = new ProjectDescriptor();

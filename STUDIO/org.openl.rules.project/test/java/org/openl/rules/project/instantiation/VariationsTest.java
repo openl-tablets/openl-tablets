@@ -35,13 +35,13 @@ public class VariationsTest {
     public static final String YOUNG = "Young Driver";
     public static final String SENOIR = "Senior Driver";
     private RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();;
-    private WrapperAdjustingInstantiationStrategy instantiationStrategy;
+    private ApiBasedInstantiationStrategy instantiationStrategy;
 
     @Before
     public void init() throws Exception {
         File tut4Folder = new File(TEST_PROJECT_FOLDER);
         ProjectDescriptor project = projectResolver.isRulesProject(tut4Folder).resolveProject(tut4Folder);
-        instantiationStrategy = new WrapperAdjustingInstantiationStrategy(project.getModules().get(0), true, null);
+        instantiationStrategy = new ApiBasedInstantiationStrategy(project.getModules().get(0), true, null);
     }
 
     @Test
