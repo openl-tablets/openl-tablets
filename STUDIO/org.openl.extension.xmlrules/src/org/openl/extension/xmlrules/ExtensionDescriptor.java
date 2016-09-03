@@ -55,7 +55,6 @@ public class ExtensionDescriptor implements IExtensionDescriptor {
                 m.setProject(module.getProject());
                 m.setRulesRootPath(rulesRootPath);
                 m.setName(module.getName() + "." + internalModuleName);
-                m.setType(module.getType());
                 m.setMethodFilter(module.getMethodFilter());
                 m.setExtension(module.getExtension());
                 m.setInternalModulePath(xlsFileName);

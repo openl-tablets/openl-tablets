@@ -318,7 +318,6 @@ public class GenerateInterface {
         copy.setName(module.getName());
         copy.setProperties(module.getProperties());
         copy.setRulesRootPath(module.getRulesRootPath());
-        copy.setType(module.getType());
         return copy;
     }
 

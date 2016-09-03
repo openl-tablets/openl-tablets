@@ -6,7 +6,6 @@ import java.util.Map;
 public class Module{
 
     private String name;
-    private ModuleType type;
     private String classname;
     private PathEntry rulesRootPath;
     private ProjectDescriptor project;
@@ -54,14 +53,6 @@ public class Module{
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public ModuleType getType() {
-        return type;
-    }
-    
-    public void setType(ModuleType type) {
-        this.type = type;
     }
 
     public String getClassname() {

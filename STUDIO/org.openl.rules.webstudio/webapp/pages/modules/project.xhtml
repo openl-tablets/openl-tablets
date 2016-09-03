@@ -167,11 +167,6 @@
                                         <span class="path">#{projectBean.getModulePath(matchedModule)}</span>
                                     </div>
                                 </ui:repeat>
-                                <h:panelGroup rendered="#{!empty module.type and module.type != 'API'}">
-                                    <div style="margin-top:4px">
-                                        <span>#{module.classname}</span>
-                                    </div>
-                                </h:panelGroup>
                                 <h:panelGroup rendered="#{!projectBean.isEmptyMethodFilter(module)}">
                                     <div style="margin-top:4px">
                                         <h:panelGroup rendered="#{!empty module.methodFilter.includes}">
