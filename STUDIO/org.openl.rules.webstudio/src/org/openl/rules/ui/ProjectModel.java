@@ -1004,16 +1004,11 @@ public class ProjectModel {
             RulesProjectResolver projectResolver = studio.getProjectResolver();
             ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
             ProjectDescriptor projectDescriptor = resolvingStrategy.resolveProject(projectFolder);
-            Module reloadedModule;
-            reloadedModule = projectDescriptor.getModuleByClassName(moduleInfo.getClassname());
-            // When moduleInfo cannot be found by class name, it is searched by
-            // module name
-            if (reloadedModule == null) {
-                for (Module module : projectDescriptor.getModules()) {
-                    if (moduleInfo.getName().equals(module.getName())) {
-                        reloadedModule = module;
-                        break;
-                    }
+            Module reloadedModule = null;
+            for (Module module : projectDescriptor.getModules()) {
+                if (moduleInfo.getName().equals(module.getName())) {
+                    reloadedModule = module;
+                    break;
                 }
             }
             this.moduleInfo = reloadedModule;

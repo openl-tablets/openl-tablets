@@ -107,17 +107,6 @@ public class ProjectDescriptor {
         this.classpath = classpath;
     }
 
-    public Module getModuleByClassName(String className) {
-        if (modules != null && className != null) {
-            for (Module module : modules) {
-                if (className.equals(module.getClassname())) {
-                    return module;
-                }
-            }
-        }
-        return null;
-    }
-
     /**
      * @param reload Boolean flag that indicates whether classloader must be
      *               reloaded or used existing.
