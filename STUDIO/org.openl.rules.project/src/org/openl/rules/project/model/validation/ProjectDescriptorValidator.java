@@ -1,7 +1,6 @@
 package org.openl.rules.project.model.validation;
 
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ModuleType;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.util.StringUtils;
 
@@ -38,13 +37,6 @@ public class ProjectDescriptorValidator {
         if (module.getRulesRootPath() == null || StringUtils.isEmpty(module.getRulesRootPath().getPath())) {
             throw new ValidationException("Module rules root is not defined");
         }
-
-        if (module.getType() != null && ModuleType.WRAPPER.equals(module.getType())) {
-            if (StringUtils.isEmpty(module.getClassname())) {
-                throw new ValidationException("Module java class is not defined");
-            }
-        }
-
     }
 
     private boolean isModuleWithWildcard(Module module) {

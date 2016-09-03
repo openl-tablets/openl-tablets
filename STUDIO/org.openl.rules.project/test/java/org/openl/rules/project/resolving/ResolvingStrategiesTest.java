@@ -9,7 +9,6 @@ import java.io.File;
 
 import org.junit.Test;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ModuleType;
 import org.openl.rules.project.model.ProjectDescriptor;
 
 public class ResolvingStrategiesTest {
@@ -41,10 +40,8 @@ public class ResolvingStrategiesTest {
         assertEquals(2, descriptor.getModules().size());
         Module moduleFirst = descriptor.getModules().get(0);
         assertEquals("Rules", moduleFirst.getName());
-        assertEquals(ModuleType.API, moduleFirst.getType());
         Module moduleSecond = descriptor.getModules().get(1);
         assertEquals("Rules2", moduleSecond.getName());
-        assertEquals(ModuleType.API, moduleSecond.getType());
     }
 
 }

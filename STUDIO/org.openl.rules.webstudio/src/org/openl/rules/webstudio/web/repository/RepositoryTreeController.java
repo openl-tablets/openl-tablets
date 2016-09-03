@@ -1661,7 +1661,6 @@ public class RepositoryTreeController {
                     }
                     Module module = new Module();
                     module.setName(fileName.substring(0, fileName.lastIndexOf('.')));
-                    module.setType(ModuleType.API);
                     module.setRulesRootPath(new PathEntry(modulePath));
                     projectDescriptor.getModules().add(module);
                     String xmlString = xmlProjectDescriptorSerializer.serialize(projectDescriptor);

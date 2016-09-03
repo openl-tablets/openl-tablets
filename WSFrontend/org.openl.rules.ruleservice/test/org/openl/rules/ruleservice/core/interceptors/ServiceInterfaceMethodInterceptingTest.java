@@ -20,7 +20,6 @@ import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ModuleType;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
@@ -72,7 +71,6 @@ public class ServiceInterfaceMethodInterceptingTest {
 
         Module module = new Module();
         module.setName("Overload");
-        module.setType(ModuleType.API);
         ProjectDescriptor projectDescriptor = new ProjectDescriptor();
         projectDescriptor.setName("service");
         projectDescriptor.setModules(modules);

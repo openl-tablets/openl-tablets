@@ -1,7 +1,6 @@
 package org.openl.rules.project.resolving;
 
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ModuleType;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.util.FileTypeHelper;
@@ -71,7 +70,6 @@ public class SimpleXlsResolvingStrategy extends BaseResolvingStrategy {
         Module module = new Module();
         module.setProject(project);
         module.setRulesRootPath(rootPath);
-        module.setType(ModuleType.API);
         // FIXME: classname just for webstudio
         module.setClassname(name);
         module.setName(name);

@@ -36,7 +36,6 @@ import org.openl.meta.IVocabulary;
 import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ModuleType;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
@@ -245,7 +244,6 @@ public class GenerateInterface {
         Module module = new Module();
 
         module.setName(getDisplayName());
-        module.setType(ModuleType.API);
         module.setClassname(getTargetClass());
         module.setRulesRootPath(new PathEntry(getSrcFile()));
         return module;

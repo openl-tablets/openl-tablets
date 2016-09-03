@@ -120,7 +120,6 @@ public class ProjectDescriptorManager {
             m.setProject(descriptor);
             m.setRulesRootPath(new PathEntry(file.getCanonicalPath()));
             m.setName(FileUtils.getBaseName(file.getName()));
-            m.setType(ModuleType.API);
             m.setMethodFilter(module.getMethodFilter());
             m.setWildcardRulesRootPath(pathPattern);
             m.setWildcardName(module.getName());
@@ -194,7 +193,6 @@ public class ProjectDescriptorManager {
 
         for (Module module : descriptor.getModules()) {
             module.setProject(descriptor);
-            module.setType(ModuleType.API);
             if (module.getMethodFilter() == null) {
                 module.setMethodFilter(new MethodFilter());
             }

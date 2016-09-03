@@ -15,7 +15,6 @@ import java.util.List;
 import org.junit.Test;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ModuleType;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -37,13 +36,11 @@ public class ProjectDescriptorManagerTest {
         Module module1 = descriptor.getModules().get(0);
         assertEquals("MyModule1", module1.getName());
         assertTrue(new File(module1.getRulesRootPath().getPath()).isAbsolute());
-        assertEquals(ModuleType.API, module1.getType());
         assertEquals("com.test.MyWrapper", module1.getClassname());
 
         Module module2 = descriptor.getModules().get(1);
         assertEquals("MyModule2", module2.getName());
         assertTrue(new File(module2.getRulesRootPath().getPath()).isAbsolute());
-        assertEquals(ModuleType.API, module2.getType());
         assertNull(module2.getClassname());
 
         assertEquals(2, descriptor.getClasspath().size());
@@ -110,7 +107,6 @@ public class ProjectDescriptorManagerTest {
         Module module1 = new Module();
         module1.setName("name1");
         module1.setRulesRootPath(new PathEntry("path1"));
-        module1.setType(ModuleType.WRAPPER);// As far as type was deprecated, It is runtime property now.
         module1.setClassname("MyWrapper1");
         module1.setMethodFilter(new MethodFilter());
 
@@ -172,42 +168,6 @@ public class ProjectDescriptorManagerTest {
         ProjectDescriptor descriptor = new ProjectDescriptor();
         descriptor.setName("name1");
 
-        Module module1 = new Module();
-        module1.setName("name1");
-        module1.setRulesRootPath(new PathEntry("path1"));
-        module1.setType(ModuleType.WRAPPER);
-        module1.setClassname("MyWrapper1");
-
-        ProjectDescriptorManager manager = new ProjectDescriptorManager();
-        ByteArrayOutputStream dest = new ByteArrayOutputStream();
-        manager.writeDescriptor(descriptor, dest);
-    }
-
-    @Test(expected = ValidationException.class)
-    public void testWriteDescriptor3() throws IOException, ValidationException {
-
-        ProjectDescriptor descriptor = new ProjectDescriptor();
-        descriptor.setName("name1");
-
-        Module module1 = new Module();
-        module1.setName("name1");
-        module1.setRulesRootPath(new PathEntry("path1"));
-        module1.setType(ModuleType.WRAPPER);
-
-        List<PathEntry> classpath = new ArrayList<PathEntry>();
-        PathEntry entry1 = new PathEntry("path1");
-
-        PathEntry entry2 = new PathEntry("path2");
-
-        classpath.add(entry1);
-        classpath.add(entry2);
-
-        descriptor.setClasspath(classpath);
-
-        List<Module> modules = new ArrayList<Module>();
-        modules.add(module1);
-
-        descriptor.setModules(modules);
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         ByteArrayOutputStream dest = new ByteArrayOutputStream();
         manager.writeDescriptor(descriptor, dest);
