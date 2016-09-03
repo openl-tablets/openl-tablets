@@ -59,10 +59,6 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule {
         return 0;
     }
 
-    public int getTabSize() {
-        throw new UnsupportedOperationException();
-    }
-
     public String getUri() {
         return getUri(0);
     }

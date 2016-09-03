@@ -105,10 +105,6 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule {
         return 0;
     }
 
-    public int getTabSize() {
-        return 2;
-    }
-
     public String getUri() {
         if (uri == null) {
             initUri();

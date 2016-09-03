@@ -23,17 +23,11 @@ public class StringSourceCodeModule implements IOpenSourceCodeModule {
     private String code;
     private String uri;
 
-    private int tabSize = 2;
     private Map<String, Object> params;
 
     public StringSourceCodeModule(String code, String uri) {
         this.code = code;
         this.uri = uri;
-    }
-
-    public StringSourceCodeModule(String code, String uri, int tabSize) {
-        this(code, uri);
-        this.tabSize = tabSize;
     }
 
     public InputStream getByteStream() {
@@ -50,10 +44,6 @@ public class StringSourceCodeModule implements IOpenSourceCodeModule {
 
     public int getStartPosition() {
         return 0;
-    }
-
-    public int getTabSize() {
-        return tabSize;
     }
 
     public String getUri(int textpos) {

@@ -69,10 +69,6 @@ public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
         return 0;
     }
 
-    public int getTabSize() {
-        return 2;
-    }
-
     public String getUri(int textpos) {
         int relPos = textpos;
         int sum = 0;

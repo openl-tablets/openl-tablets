@@ -64,10 +64,6 @@ public class SubTextSourceCodeModule implements IOpenSourceCodeModule {
         return baseModule;
     }
 
-    public int getTabSize() {
-        return baseModule.getTabSize();
-    }
-
     public String getUri(int textpos) {
         return baseModule.getUri(textpos + startPosition);
     }

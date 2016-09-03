@@ -23,8 +23,6 @@ public interface IOpenSourceCodeModule {
 
     int getStartPosition();
 
-    int getTabSize();
-
     String getUri(int textpos);
 
     boolean isModified();

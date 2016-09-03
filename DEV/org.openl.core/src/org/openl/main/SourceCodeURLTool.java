@@ -155,7 +155,7 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
         int end = Math.min(start + 4, lines.length);
 
         for (int i = start; i < end; ++i) {
-            String line = StringTool.untab(lines[i], module.getTabSize());
+            String line = StringTool.untab(lines[i], 2);
             pw.println(line);
             if (i == line1) {
                 StringBuilder buf = new StringBuilder(Math.max(column1, column2) + 5);

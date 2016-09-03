@@ -38,11 +38,6 @@ public class FileSourceCodeModule extends ASourceCodeModule {
         this.externalUri = uri;
     }
 
-    public FileSourceCodeModule(String fileName, String uri, int tabSize) {
-        this(new File(fileName), uri);
-        this.tabSize = tabSize;
-    }
-    
     public File getFile() {
         return file;
     }

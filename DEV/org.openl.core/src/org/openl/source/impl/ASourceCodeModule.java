@@ -19,7 +19,6 @@ public abstract class ASourceCodeModule implements IOpenSourceCodeModule {
 
     protected String code;
     protected String uri;
-    protected int tabSize = 2;
 
     private Map<String, Object> params;
 
@@ -46,13 +45,6 @@ public abstract class ASourceCodeModule implements IOpenSourceCodeModule {
         return 0;
     }
 
-    /**
-     * @return Returns the tabSize.
-     */
-    public int getTabSize() {
-        return tabSize;
-    }
-
     public synchronized String getUri(int textpos) {
 
         if (uri == null) {
@@ -62,13 +54,6 @@ public abstract class ASourceCodeModule implements IOpenSourceCodeModule {
     }
 
     protected abstract String makeUri();
-
-    /**
-     * @param tabSize The tabSize to set.
-     */
-    public void setTabSize(int tabSize) {
-        this.tabSize = tabSize;
-    }
 
     public Map<String, Object> getParams() {
         return params;

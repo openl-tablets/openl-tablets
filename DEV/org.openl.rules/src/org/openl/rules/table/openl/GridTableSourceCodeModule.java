@@ -48,14 +48,6 @@ public class GridTableSourceCodeModule implements IOpenSourceCodeModule {
         return 0;
     }
 
-    /**
-     *
-     */
-
-    public int getTabSize() {
-        return 2;
-    }
-
     public String getUri(int textpos) {
         return table.getUri();
     }

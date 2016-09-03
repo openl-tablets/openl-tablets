@@ -31,10 +31,6 @@ public class SourceCodeModuleDelegator implements IOpenSourceCodeModule {
         return src.getStartPosition();
     }
 
-    public int getTabSize() {
-        return src.getTabSize();
-    }
-
     public String getUri(int textpos) {
         return src.getUri(textpos);
     }
