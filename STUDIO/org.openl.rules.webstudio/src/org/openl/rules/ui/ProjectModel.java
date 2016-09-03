@@ -90,7 +90,6 @@ import org.openl.util.FileUtils;
 import org.openl.util.ISelector;
 import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
-import org.openl.util.StringTool;
 import org.openl.util.tree.ITreeElement;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
@@ -874,23 +873,7 @@ public class ProjectModel {
     }
 
     private ProjectTreeNode makeProjectTreeRoot() {
-        String moduleName = getModuleDisplayName(moduleInfo);
-        return new ProjectTreeNode(new String[]{moduleName, moduleName, moduleName}, "root", null, null, 0, null);
-    }
-
-    /**
-     * Gets module display name.
-     *
-     * @param module OpenL project module
-     * @return display name
-     */
-    public String getModuleDisplayName(Module module) {
-        String displayName = module.getName();
-
-        if (displayName.equals(module.getClassname())) {
-            displayName = StringTool.lastToken(displayName, ".");
-        }
-        return displayName + " (" + module.getClassname() + ")";
+        return new ProjectTreeNode(new String[]{null, null, null}, "root", null, null, 0, null);
     }
 
     private List<TableSyntaxNode> getAllExecutableTables(TableSyntaxNode[] nodes) {
