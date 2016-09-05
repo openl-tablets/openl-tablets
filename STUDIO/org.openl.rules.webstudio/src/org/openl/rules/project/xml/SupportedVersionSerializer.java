@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SupportedVersionSerializer {
-    private static final String OPENL_PROJECT_PROPERTIES_FILE = "openl-project.properties";
+    private static final String OPENL_PROJECT_PROPERTIES_FILE = ".settings";
     private static final String OPENL_COMPATIBILITY_VERSION = "openl.compatibility.version";
     private final Logger log = LoggerFactory.getLogger(SupportedVersionSerializer.class);
     private final SupportedVersion defaultVersion;
@@ -24,10 +24,9 @@ public class SupportedVersionSerializer {
     public SupportedVersion getSupportedVersion(File projectFolder) {
         SupportedVersion version = null;
 
-        File folder = new File(projectFolder, FolderHelper.PROPERTIES_FOLDER);
-        File file = new File(folder, OPENL_PROJECT_PROPERTIES_FILE);
+        File file = new File(projectFolder, OPENL_PROJECT_PROPERTIES_FILE);
 
-        if (folder.isDirectory() && file.isFile()) {
+        if (projectFolder.isDirectory() && file.isFile()) {
             Properties properties = new Properties();
             InputStream is = null;
             try {
@@ -56,13 +55,7 @@ public class SupportedVersionSerializer {
 
         FileOutputStream os = null;
         try {
-            File folder = new File(projectFolder, FolderHelper.PROPERTIES_FOLDER);
-            if (!folder.exists()) {
-                if (!folder.mkdir() && !folder.isDirectory()) {
-                    throw new IOException("Can't create folder " + folder);
-                }
-            }
-            File file = new File(folder, OPENL_PROJECT_PROPERTIES_FILE);
+            File file = new File(projectFolder, OPENL_PROJECT_PROPERTIES_FILE);
             os = new FileOutputStream(file);
             properties.store(os, "Openl project properties");
             os.close();
