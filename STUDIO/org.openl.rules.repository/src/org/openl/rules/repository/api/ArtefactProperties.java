@@ -28,8 +28,6 @@ public interface ArtefactProperties {
     String PROP_RES_LASTMODIFIED = "jcr:lastModified";
 
     // Properties for Project
-    String PROP_PRJ_DESCR = "description";
-    String PROP_PRJ_COMMENT = "comment";
     String PROP_PRJ_MARKED_4_DELETION = "marked4deletion";
     
     // Deployment Descriptor

@@ -43,9 +43,6 @@ public class JcrProject extends JcrEntity implements RProject {
     protected static JcrProject createProject(Node parentNode, String nodeName) throws RepositoryException {
         Node n = NodeUtil.createNode(parentNode, nodeName, JcrNT.NT_PROJECT, true);
 
-        // TODO what should be in default description?
-        n.setProperty(ArtefactProperties.PROP_PRJ_DESCR, "created " + new Date() + " by UNKNOWN");
-
         NodeUtil.createNode(n, NODE_FILES, JcrNT.NT_FILES, true);
 
         parentNode.save();
