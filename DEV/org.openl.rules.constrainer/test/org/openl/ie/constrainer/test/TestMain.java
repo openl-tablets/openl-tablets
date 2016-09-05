@@ -165,7 +165,6 @@ public class TestMain {
         } catch (Exception e) {
             System.out.println("Exception 2:  " + e);
             e.printStackTrace();
-            System.exit(1);
         }
 
         // Constrainer.end();
@@ -316,7 +315,6 @@ public class TestMain {
         } catch (Exception e) {
             System.out.println("Exception:  " + e);
             e.printStackTrace();
-            System.exit(1);
         }
     }
 
@@ -455,7 +453,6 @@ public class TestMain {
      *       : {
      *       :   System.out.println(&quot;Exception:  &quot; + e);
      *       :   e.printStackTrace();
-     *       :   System.exit(1);
      *       : }
      *       :}
      * </pre>

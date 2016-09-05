@@ -832,8 +832,7 @@ public class CccCore implements CccConst {
             // success = false;
             }
         } catch (Exception e) {
-            Log.debug("!postConstraint() exception", e);
-            System.exit(0);
+            Log.error("!postConstraint() exception", e);
         }
         return true;
     }

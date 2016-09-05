@@ -13,6 +13,5 @@ public class WebServicesExposingTest {
         System.out.print("Press enter for server stop:");
         System.in.read();
         System.out.println("Server stoped");
-        System.exit(0);
     }
 }

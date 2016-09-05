@@ -79,6 +79,5 @@ public class WebServicesExposingTest implements ApplicationContextAware {
         System.out.print("Press enter for server stop:");
         System.in.read();
         System.out.println("Server is stoped");
-        System.exit(0);
     }
 }
