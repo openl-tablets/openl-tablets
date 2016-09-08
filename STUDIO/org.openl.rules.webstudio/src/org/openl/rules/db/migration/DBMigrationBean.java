@@ -13,15 +13,10 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DBMigrationBean {
     private static final String SCHEMA_SEPARATOR = ".";
-    private static final String MIGRATE_WITHOUT_FLYWAY_SCRIPT = "/db/without_flyway/Migrate_mysql_first_time.sql";
-    private static final String INITIAL_VERSION_OF_MIGRATION = "2";
 
     private final Logger log = LoggerFactory.getLogger(DBMigrationBean.class);
 
@@ -45,16 +40,11 @@ public class DBMigrationBean {
             Dialect dialect = new StandardDialectResolver().resolveDialect(dialectResolutionInfo);
 
             Flyway flyway = flywayInit(dialect);
-            if (isExistMySQLWithoutFlyway(dbConnection, dbUtils, dialect)) {
-                log.info("Migrate DB to newer version and initialize flyway");
-                migrateMySQLToNewVersion(dbConnection, dbUtils);
-                flyway.setInitVersion(INITIAL_VERSION_OF_MIGRATION);
-                flyway.setInitDescription("Migrated from existed WebStudio without flyway");
+            if (!dbUtils.isTableSchemaVersionExists(dbConnection)) {
+                flyway.setInitVersion("0");
                 flyway.init();
-                log.info("Migration successful");
-            } else {
-                flyway.migrate();
             }
+            flyway.migrate();
             dbConnection.commit();
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
@@ -158,17 +148,6 @@ public class DBMigrationBean {
 
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
-    }
-
-    private boolean isExistMySQLWithoutFlyway(Connection dbConnection, DBUtils dbUtils, Dialect dialect) throws SQLException {
-        return dialect instanceof MySQLDialect
-                && dbUtils.isDatabaseExists(dbConnection)
-                && !dbUtils.isTableSchemaVersionExists(dbConnection)
-                && dbUtils.isTableUsersExists(dbConnection);
-    }
-
-    private void migrateMySQLToNewVersion(Connection dbConnection, DBUtils dbUtils) throws SQLException {
-        dbUtils.executeSQL(MIGRATE_WITHOUT_FLYWAY_SCRIPT, dbConnection);
     }
 
     private String getIdentityColumn(Dialect dialect) {
