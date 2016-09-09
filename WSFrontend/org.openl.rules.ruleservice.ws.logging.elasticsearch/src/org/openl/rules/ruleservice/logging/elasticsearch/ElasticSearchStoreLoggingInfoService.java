@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.logging.elasticsearch;
 
 import java.lang.reflect.Method;
 
-import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.openl.rules.ruleservice.logging.LoggingInfo;
 import org.openl.rules.ruleservice.logging.StoreLoggingInfoService;
 import org.openl.rules.ruleservice.logging.elasticsearch.annotation.UseIndexBuilder;
@@ -32,18 +31,18 @@ public class ElasticSearchStoreLoggingInfoService implements StoreLoggingInfoSer
 
     @Override
     public void store(LoggingInfo loggingInfo) {
-        OperationResourceInfo operationResourceInfo = loggingInfo.getOperationResourceInfo();
-        if (operationResourceInfo == null) {
-            log.error("Operation wasn't found. Logging skipped! Please, see previous errors.");
+        Method serviceMethod = loggingInfo.getServiceMethod();
+        if (serviceMethod == null) {
+            log.error("Service method wasn't found! Please, see previous errors.");
             return;
         }
-        Method annotatedMethod = operationResourceInfo.getAnnotatedMethod();
+        
         IndexBuilder elasticSearchIndexBuilder = null;
 
-        UseIndexBuilder useElasticSearchIndexBuilderAnnotation = annotatedMethod
+        UseIndexBuilder useElasticSearchIndexBuilderAnnotation = serviceMethod
             .getAnnotation(UseIndexBuilder.class);
         if (useElasticSearchIndexBuilderAnnotation == null) {
-            useElasticSearchIndexBuilderAnnotation = annotatedMethod.getDeclaringClass()
+            useElasticSearchIndexBuilderAnnotation = serviceMethod.getDeclaringClass()
                 .getAnnotation(UseIndexBuilder.class);
         }
         if (useElasticSearchIndexBuilderAnnotation == null) {
@@ -57,14 +56,14 @@ public class ElasticSearchStoreLoggingInfoService implements StoreLoggingInfoSer
                 elasticSearchIndexBuilder = new DefaultIndexBuilderImpl();
                 if (log.isErrorEnabled()) {
                     log.error(
-                        "Loading CustomLoggingElasticSearchIndexBuilder annotation was failed for method " + annotatedMethod
+                        "Loading CustomLoggingElasticSearchIndexBuilder annotation was failed for method " + serviceMethod
                             .getName() + ". Used default implementation instead!");
                 }
             } catch (IllegalAccessException e) {
                 elasticSearchIndexBuilder = new DefaultIndexBuilderImpl();
                 if (log.isErrorEnabled()) {
                     log.error(
-                        "Loading CustomLoggingElasticSearchIndexBuilder annotation was failed for method " + annotatedMethod
+                        "Loading CustomLoggingElasticSearchIndexBuilder annotation was failed for method " + serviceMethod
                             .getName() + ". Used default implementation instead!");
                 }
             }

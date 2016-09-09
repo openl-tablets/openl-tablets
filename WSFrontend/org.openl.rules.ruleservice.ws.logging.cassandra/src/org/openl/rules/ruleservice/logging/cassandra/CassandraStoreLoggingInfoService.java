@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.logging.cassandra;
 
 import java.lang.reflect.Method;
 
-import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.openl.rules.ruleservice.logging.LoggingInfo;
 import org.openl.rules.ruleservice.logging.LoggingInfoMapper;
 import org.openl.rules.ruleservice.logging.StoreLoggingInfoService;
@@ -28,18 +27,17 @@ public class CassandraStoreLoggingInfoService implements StoreLoggingInfoService
 
     @Override
     public void store(LoggingInfo loggingInfo) {
-        OperationResourceInfo operationResourceInfo = loggingInfo.getOperationResourceInfo();
-        if (operationResourceInfo == null) {
-            log.error("Operation wasn't found. Please, see previous errors.");
+        Method serviceMethod = loggingInfo.getServiceMethod();
+        if (serviceMethod == null) {
+            log.error("Service method wasn't found! Please, see previous errors.");
             return;
         }
-        Method annotatedMethod = operationResourceInfo.getAnnotatedMethod();
 
         Object entity = null;
 
-        UseEntity useCassandraEntity = annotatedMethod.getAnnotation(UseEntity.class);
+        UseEntity useCassandraEntity = serviceMethod.getAnnotation(UseEntity.class);
         if (useCassandraEntity == null){
-            useCassandraEntity = annotatedMethod.getDeclaringClass().getAnnotation(UseEntity.class);
+            useCassandraEntity = serviceMethod.getDeclaringClass().getAnnotation(UseEntity.class);
         }
         
         if (useCassandraEntity == null) {
