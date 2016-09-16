@@ -39,10 +39,6 @@ public final class ProjectHelper {
         return res.toArray(testSuiteMethods);
     }
 
-    public static boolean isMethodTestedBy(IOpenMethod tested, IOpenMethod tester) {
-        return isTester(tester) && isTestForMethod(tester, tested);
-    }
-
     public static boolean isTestable(IOpenMethod m) {
         return testers(m).length > 0;
     }
@@ -76,7 +72,7 @@ public final class ProjectHelper {
 
         List<IOpenMethod> res = new ArrayList<IOpenMethod>();
         for (IOpenMethod tester : tested.getDeclaringClass().getMethods()) {
-            if (isMethodTestedBy(tested, tester)) {
+            if (isTester(tester) && isTestForMethod(tester, tested)) {
                 res.add(tester);
             }
 
