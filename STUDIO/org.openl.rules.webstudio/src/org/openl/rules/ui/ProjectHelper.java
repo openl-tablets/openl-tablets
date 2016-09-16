@@ -57,17 +57,12 @@ public final class ProjectHelper {
      * @return true if tester is valid {@link TestSuiteMethod}.
      */
     public static boolean isTester(IOpenMethod tester) {
-        return (tester instanceof TestSuiteMethod) && !((TestSuiteMethod) tester).isRunmethod() && ((TestSuiteMethod) tester).isRunmethodTestable() && noErrors((TestSuiteMethod) tester);
-    }
+        if (tester instanceof TestSuiteMethod) {
+            TestSuiteMethod testSuiteMethod = (TestSuiteMethod) tester;
+            return !testSuiteMethod.isRunmethod() && testSuiteMethod.isRunmethodTestable() && !testSuiteMethod.getSyntaxNode().hasErrors();
 
-    /**
-     * Checks if test method doesn`t contain any error.
-     * 
-     * @param testMethod test method
-     * @return true if there is no errors in the test method.
-     */
-    public static boolean noErrors(TestSuiteMethod testMethod) {
-        return testMethod.getSyntaxNode().getErrors() == null || testMethod.getSyntaxNode().getErrors().length == 0;
+        }
+        return false;
     }
 
     /**
