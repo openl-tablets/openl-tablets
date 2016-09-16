@@ -5,7 +5,6 @@ import org.hibernate.dialect.*;
 import org.hibernate.engine.jdbc.dialect.internal.StandardDialectResolver;
 import org.hibernate.engine.jdbc.dialect.spi.DatabaseMetaDataDialectResolutionInfoAdapter;
 import org.openl.rules.db.utils.DBUtils;
-import org.openl.rules.repository.factories.DBConfigurationLoader;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +13,10 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DBMigrationBean {
     private static final String SCHEMA_SEPARATOR = ".";
@@ -50,11 +52,6 @@ public class DBMigrationBean {
                 flyway.setInitDescription("Migrated from existed WebStudio without flyway");
                 flyway.init();
                 log.info("Migration successful");
-            } else if (hasExcludedTablesOnly(dbConnection, dbUtils)) {
-                flyway.setInitOnMigrate(true);
-                flyway.setInitVersion("0");
-                flyway.setInitDescription("Initialized with skipping of predefined OpenL tables");
-                flyway.migrate();
             } else {
                 flyway.migrate();
             }
@@ -168,11 +165,6 @@ public class DBMigrationBean {
                 && dbUtils.isDatabaseExists(dbConnection)
                 && !dbUtils.isTableSchemaVersionExists(dbConnection)
                 && dbUtils.isTableUsersExists(dbConnection);
-    }
-
-    private boolean hasExcludedTablesOnly(Connection dbConnection, DBUtils dbUtils) throws SQLException {
-        String tableName = DBConfigurationLoader.getRepoTableName(dbConnection.getMetaData());
-        return dbUtils.hasExcludedTablesOnly(dbConnection, Collections.singletonList(tableName));
     }
 
     private void migrateMySQLToNewVersion(Connection dbConnection, DBUtils dbUtils) throws SQLException {

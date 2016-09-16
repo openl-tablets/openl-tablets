@@ -12,6 +12,7 @@ import javax.jcr.nodetype.NodeTypeManager;
 import javax.naming.NamingException;
 
 import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
@@ -80,7 +81,8 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         conn = createConnection(dbUrl, user, pwd);
 
         DatabaseMetaData metaData = conn.getMetaData();
-        CompositeConfiguration properties = DBConfigurationLoader.getConfigurationForConnection(metaData);
+        String databaseName = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
+        CompositeConfiguration properties = getConfiguration(databaseName);
         Case namesCase = getCase(metaData);
 
         log.info("Preparing a repository...");
@@ -275,7 +277,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
     }
 
     private void initTable(Connection conn, CompositeConfiguration properties) throws SQLException {
-        String repoTable = DBConfigurationLoader.getRepoTableName(properties);
+        String repoTable = getRepoTableName(properties);
         if (tableExists(conn, properties)) {
             log.info("Table '{}' already exists", repoTable);
             return;
@@ -290,7 +292,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
 
     private boolean tableExists(Connection connection, CompositeConfiguration properties) {
         ResultSet rs = null;
-        String repoTable = DBConfigurationLoader.getRepoTableName(properties);
+        String repoTable = getRepoTableName(properties);
         try {
             DatabaseMetaData metaData = connection.getMetaData();
             repoTable = changeCase(getCase(metaData), repoTable);
@@ -316,7 +318,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
             statement = conn.createStatement();
             statement.executeUpdate(sql);
         } catch (SQLException e) {
-            log.warn("SQLException occurs while checking the table {}", DBConfigurationLoader.getRepoTableName(properties), e);
+            log.warn("SQLException occurs while checking the table {}", getRepoTableName(properties), e);
         } finally {
             safeClose(statement);
         }
@@ -389,6 +391,29 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
                 log.warn("Unexpected sql failure", e);
             }
         }
+    }
+
+    private CompositeConfiguration getConfiguration(String databaseName) {
+        CompositeConfiguration compositeConfiguration = new CompositeConfiguration();
+        compositeConfiguration.addConfiguration(createConfiguration("modeshape-" + databaseName + ".properties"));
+        compositeConfiguration.addConfiguration(createConfiguration("modeshape.properties"));
+        return compositeConfiguration;
+    }
+
+    private PropertiesConfiguration createConfiguration(String configLocation) {
+        PropertiesConfiguration configuration = new PropertiesConfiguration();
+        configuration.setDelimiterParsingDisabled(true);
+        configuration.setFileName(configLocation);
+        try {
+            configuration.load();
+        } catch (org.apache.commons.configuration.ConfigurationException e) {
+            log.error("Error when initializing configuration: {}", configLocation, e);
+        }
+        return configuration;
+    }
+
+    private String getRepoTableName(CompositeConfiguration configuration) {
+        return configuration.getString("table.prefix") + "_" + configuration.getString("table.name");
     }
 
     private String changeCase(Case namesCase, String name) throws SQLException {
