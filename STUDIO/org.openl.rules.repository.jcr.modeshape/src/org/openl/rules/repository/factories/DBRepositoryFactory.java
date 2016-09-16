@@ -12,6 +12,7 @@ import javax.jcr.nodetype.NodeTypeManager;
 import javax.naming.NamingException;
 
 import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
@@ -21,7 +22,6 @@ import org.infinispan.loaders.jdbc.configuration.JdbcStringBasedCacheStoreConfig
 import org.infinispan.schematic.document.ParsingException;
 import org.infinispan.transaction.TransactionMode;
 import org.modeshape.common.collection.Problems;
-import org.modeshape.jcr.ConfigurationException;
 import org.modeshape.jcr.JcrNodeTypeManager;
 import org.modeshape.jcr.JcrRepository;
 import org.modeshape.jcr.LocalEnvironment;
@@ -395,21 +395,28 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
 
     private CompositeConfiguration getConfiguration(String databaseName) {
         CompositeConfiguration compositeConfiguration = new CompositeConfiguration();
-        compositeConfiguration.addConfiguration(createConfiguration("modeshape-" + databaseName + ".properties"));
-        compositeConfiguration.addConfiguration(createConfiguration("modeshape.properties"));
-        return compositeConfiguration;
-    }
-
-    private PropertiesConfiguration createConfiguration(String configLocation) {
+        // Configuration for specific DB. Can be absent
         PropertiesConfiguration configuration = new PropertiesConfiguration();
         configuration.setDelimiterParsingDisabled(true);
-        configuration.setFileName(configLocation);
+        configuration.setFileName("modeshape-" + databaseName + ".properties");
         try {
             configuration.load();
-        } catch (org.apache.commons.configuration.ConfigurationException e) {
-            log.error("Error when initializing configuration: {}", configLocation, e);
+            compositeConfiguration.addConfiguration(configuration);
+        } catch (ConfigurationException e) {
+            log.debug("Configuration: {} file is absent", "modeshape-" + databaseName + ".properties", e);
         }
-        return configuration;
+        // Default configuration
+        configuration = new PropertiesConfiguration();
+        configuration.setDelimiterParsingDisabled(true);
+        configuration.setFileName("modeshape.properties");
+        try {
+            configuration.load();
+        } catch (ConfigurationException e) {
+            log.error("Error when initializing configuration: {}", "modeshape.properties", e);
+        }
+        compositeConfiguration.addConfiguration(configuration);
+
+        return compositeConfiguration;
     }
 
     private String getRepoTableName(CompositeConfiguration configuration) {
@@ -434,7 +441,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
 
     private static class ModeshapeJcrRepo extends JcrRepository {
 
-        private ModeshapeJcrRepo(RepositoryConfiguration configuration) throws ConfigurationException {
+        private ModeshapeJcrRepo(RepositoryConfiguration configuration) {
             super(configuration);
         }
 
