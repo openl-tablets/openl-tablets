@@ -162,28 +162,6 @@ public final class ProjectHelper {
         return info;
     }
 
-    public static String getTestInfo(TestSuite testSuite) {
-        String info = null;
-        TestSuiteMethod testSuiteMethod = testSuite.getTestSuiteMethod();
-        if (testSuiteMethod != null) {
-            if (testSuiteMethod.isRunmethod()) {
-                if (testSuite.getNumberOfTests() < 1) {
-                    info = formatTestInfo(NO, RUNS);
-                } else {
-                    info = formatTestInfo(testSuite.getNumberOfTests(), RUNS);
-                }
-            } else {
-                if (testSuite.getNumberOfTests() < 1) {
-                    info = formatTestInfo(NO, TEST_CASES);
-                } else {
-                    info = formatTestInfo(testSuite.getNumberOfTests(), TEST_CASES);
-                }
-            }
-        }
-
-        return info;
-    }
-
     private static String formatTestInfo(Object param1, Object param2) {
         return String.format("%s %s", param1, param2);
     }
