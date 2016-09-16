@@ -44,17 +44,6 @@ public final class ProjectHelper {
         return res.toArray(testSuiteMethods);
     }
 
-    public static boolean isMethodRunnedBy(IOpenMethod tested, IOpenMethod runner) {
-        if (!(runner instanceof TestSuiteMethod)) {
-            return false;
-        }
-        if (runner == tested) {
-            return true;
-        }
-        IOpenMethod toTest = ((TestSuiteMethod) runner).getTestedMethod();
-        return toTest == tested && ((TestSuiteMethod) runner).isRunmethod();
-    }
-
     public static boolean isMethodTestedBy(IOpenMethod tested, IOpenMethod tester) {
         return isTester(tester) && isTestForMethod(tester, tested);
     }
@@ -89,19 +78,6 @@ public final class ProjectHelper {
      */
     public static boolean noErrors(TestSuiteMethod testMethod) {
         return testMethod.getSyntaxNode().getErrors() == null || testMethod.getSyntaxNode().getErrors().length == 0;
-    }
-
-    public static IOpenMethod[] runners(IOpenMethod tested) {
-
-        List<IOpenMethod> res = new ArrayList<IOpenMethod>();
-        for (IOpenMethod runner : tested.getDeclaringClass().getMethods()) {
-            if (isMethodRunnedBy(tested, runner)) {
-                res.add(runner);
-            }
-
-        }
-
-        return res.toArray(new IOpenMethod[res.size()]);
     }
 
     /**
