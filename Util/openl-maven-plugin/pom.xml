@@ -44,9 +44,12 @@
             <artifactId>velocity</artifactId>
         </dependency>
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.openl.rules</groupId>
-            <!-- TODO Move dependent classes to org.openl.rules.project -->
-            <artifactId>org.openl.rules.webstudio</artifactId>
+            <artifactId>org.openl.rules.project</artifactId>
         </dependency>
     </dependencies>
     <build>
