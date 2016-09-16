@@ -145,10 +145,10 @@ public final class ProjectHelper {
         if (testMethod instanceof TestSuiteMethod) {
             TestSuiteMethod testSuite = (TestSuiteMethod) testMethod;
             if (testSuite.isRunmethod()) {
-                if (testSuite.nUnitRuns() < 1) {
+                if (testSuite.getNumberOfTests() < 1) {
                     info = formatTestInfo(NO, RUNS);
                 } else {
-                    info = formatTestInfo(testSuite.nUnitRuns(), RUNS);
+                    info = formatTestInfo(testSuite.getNumberOfTests(), RUNS);
                 }
             } else {
                 if (testSuite.getNumberOfTests() < 1) {

@@ -183,8 +183,4 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         }
         return false;
     }
-
-    public int nUnitRuns() {
-        return getNumberOfTests();
-    }
 }
