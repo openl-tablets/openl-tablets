@@ -11,7 +11,7 @@ import javax.faces.bean.SessionScoped;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.ui.BenchmarkInfoView;
-import org.openl.rules.ui.ProjectHelper;
+import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.ui.TableSyntaxNodeUtils;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.benchmark.BenchmarkInfo;

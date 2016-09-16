@@ -1,7 +1,7 @@
 /**
  * Created Mar 24, 2007
  */
-package org.openl.rules.ui;
+package org.openl.rules.testmethod;
 
 import java.util.ArrayList;
 import java.util.List;

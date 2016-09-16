@@ -19,7 +19,7 @@ import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
-import org.openl.rules.ui.ProjectHelper;
+import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.types.IOpenClass;
 
 /**
