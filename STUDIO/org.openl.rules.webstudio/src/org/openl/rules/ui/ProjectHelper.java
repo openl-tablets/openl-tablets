@@ -39,10 +39,6 @@ public final class ProjectHelper {
         return res.toArray(testSuiteMethods);
     }
 
-    public static boolean isTestable(IOpenMethod m) {
-        return testers(m).length > 0;
-    }
-
     /**
      * Checks if the tester is instance of {@link TestSuiteMethod}, if it has
      * any parameters for testing(see

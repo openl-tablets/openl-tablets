@@ -708,7 +708,7 @@ public class ProjectModel {
             return false;
         }
 
-        return ProjectHelper.isTestable(m);
+        return ProjectHelper.testers(m).length > 0;
     }
 
     public synchronized void buildProjectTree() {
