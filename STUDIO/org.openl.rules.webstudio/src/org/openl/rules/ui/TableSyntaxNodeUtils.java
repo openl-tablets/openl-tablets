@@ -1,11 +1,13 @@
 package org.openl.rules.ui;
 
+import org.openl.base.INamedThing;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
+import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethod;
 import org.openl.util.StringUtils;
 
@@ -122,5 +124,11 @@ public final class TableSyntaxNodeUtils {
             }
         }
         return false;
+    }
+
+    public static String getTestName(IOpenMethod testMethod) {
+        IMemberMetaInfo mi = testMethod.getInfo();
+        TableSyntaxNode tnode = (TableSyntaxNode) mi.getSyntaxNode();
+        return getTableDisplayValue(tnode)[INamedThing.SHORT];
     }
 }

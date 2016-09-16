@@ -6,11 +6,8 @@ package org.openl.rules.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.base.INamedThing;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodDelegator;
@@ -102,12 +99,6 @@ public final class ProjectHelper {
             return isTestForMethod(tester, ((OpenMethodDispatcher) tested).getTargetMethod());
         }
         return false;
-    }
-
-    public static String getTestName(IOpenMethod testMethod) {
-        IMemberMetaInfo mi = testMethod.getInfo();
-        TableSyntaxNode tnode = (TableSyntaxNode) mi.getSyntaxNode();
-        return TableSyntaxNodeUtils.getTableDisplayValue(tnode)[INamedThing.SHORT];
     }
 
     public static String getTestInfo(IOpenMethod testMethod) {

@@ -29,10 +29,7 @@ import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.*;
-import org.openl.rules.ui.ProjectHelper;
-import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.RecentlyVisitedTables;
-import org.openl.rules.ui.WebStudio;
+import org.openl.rules.ui.*;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.web.test.TestDescriptionWithPreview;
 import org.openl.rules.webstudio.web.util.Constants;
@@ -361,7 +358,7 @@ public class TableBean {
     
     public String getTestName(Object testMethod){
         IOpenMethod method = (IOpenMethod) testMethod;
-        String name = ProjectHelper.getTestName(method);
+        String name = TableSyntaxNodeUtils.getTestName(method);
         String info = ProjectHelper.getTestInfo(method);
         return String.format("%s (%s)", name, info);
     }

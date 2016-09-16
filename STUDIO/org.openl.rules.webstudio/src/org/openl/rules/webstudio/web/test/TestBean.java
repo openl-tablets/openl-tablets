@@ -15,10 +15,7 @@ import org.openl.rules.testmethod.*;
 import org.openl.rules.testmethod.result.BeanResultComparator;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
-import org.openl.rules.ui.ObjectViewer;
-import org.openl.rules.ui.ProjectHelper;
-import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.WebStudio;
+import org.openl.rules.ui.*;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
@@ -313,7 +310,7 @@ public class TestBean {
     }
 
     public String getTestTableName(Object testResults) {
-        return ProjectHelper.getTestName(((TestUnitsResults) testResults).getTestSuite().getTestSuiteMethod());
+        return TableSyntaxNodeUtils.getTestName(((TestUnitsResults) testResults).getTestSuite().getTestSuiteMethod());
     }
 
     public String getTestTableId(Object testResults) {
@@ -327,7 +324,7 @@ public class TestBean {
     }
 
     public String getTestedTableName() {
-        return ProjectHelper.getTestName(WebStudioUtils.getProjectModel().getMethod(uri));
+        return TableSyntaxNodeUtils.getTestName(WebStudioUtils.getProjectModel().getMethod(uri));
     }
 
     public boolean isTest() {

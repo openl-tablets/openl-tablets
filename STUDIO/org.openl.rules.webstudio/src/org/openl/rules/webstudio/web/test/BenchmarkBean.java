@@ -12,6 +12,7 @@ import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.ui.BenchmarkInfoView;
 import org.openl.rules.ui.ProjectHelper;
+import org.openl.rules.ui.TableSyntaxNodeUtils;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.benchmark.BenchmarkInfo;
 import org.openl.rules.ui.benchmark.BenchmarkOrder;
@@ -44,7 +45,7 @@ public class BenchmarkBean {
         WebStudio studio = WebStudioUtils.getWebStudio();
         IOpenMethod table = studio.getModel().getMethod(testSuiteUri);
         String tableId = TableUtils.makeTableId(testSuiteUri);
-        String testName = ProjectHelper.getTestName(table);
+        String testName = TableSyntaxNodeUtils.getTestName(table);
         String testInfo = ProjectHelper.getTestInfo(table);
         if (isTestForOverallTestSuiteMethod(testSuite)) {
             try {
