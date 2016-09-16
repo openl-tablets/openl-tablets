@@ -43,11 +43,6 @@ public final class ProjectHelper {
         return isTester(tester) && isTestForMethod(tester, tested);
     }
 
-    public static boolean isMethodHasParams(IOpenMethod m) {
-        IOpenClass[] par = m.getSignature().getParameterTypes();
-        return par.length > 0;
-    }
-
     public static boolean isTestable(IOpenMethod m) {
         return testers(m).length > 0;
     }

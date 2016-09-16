@@ -702,23 +702,6 @@ public class ProjectModel {
         return compiledOpenClass != null;
     }
 
-    public boolean isMethodHasParams(String tableUri) {
-        IOpenMethod m = getMethod(tableUri);
-        if (m == null) {
-            return false;
-        }
-        return ProjectHelper.isMethodHasParams(m);
-    }
-
-    public boolean isTestable(String tableUri) {
-        IOpenMethod m = getMethod(tableUri);
-        if (m == null) {
-            return false;
-        }
-
-        return ProjectHelper.isTestable(m);
-    }
-
     public boolean isTestable(TableSyntaxNode tsn) {
         IOpenMethod m = getMethod(tsn);
         if (m == null) {
