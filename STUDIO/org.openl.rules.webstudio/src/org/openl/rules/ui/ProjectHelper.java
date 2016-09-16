@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.types.IMemberMetaInfo;
@@ -21,10 +20,6 @@ import org.openl.types.impl.MethodDelegator;
  *
  */
 public final class ProjectHelper {
-
-    private static final String TEST_CASES = "test cases";
-    private static final String NO = "No";
-    private static final String RUNS = "runs";
 
     private ProjectHelper() {
     }
@@ -144,26 +139,22 @@ public final class ProjectHelper {
 
         if (testMethod instanceof TestSuiteMethod) {
             TestSuiteMethod testSuite = (TestSuiteMethod) testMethod;
+            int numberOfTests = testSuite.getNumberOfTests();
             if (testSuite.isRunmethod()) {
-                if (testSuite.getNumberOfTests() < 1) {
-                    info = formatTestInfo(NO, RUNS);
+                if (numberOfTests < 1) {
+                    info = "No runs";
                 } else {
-                    info = formatTestInfo(testSuite.getNumberOfTests(), RUNS);
+                    info = numberOfTests + " runs";
                 }
             } else {
-                if (testSuite.getNumberOfTests() < 1) {
-                    info = formatTestInfo(NO, TEST_CASES);
+                if (numberOfTests < 1) {
+                    info = "No test cases";
                 } else {
-                    info = formatTestInfo(testSuite.getNumberOfTests(), TEST_CASES);
+                    info = numberOfTests + " test cases";
                 }
             }
         }
 
         return info;
     }
-
-    private static String formatTestInfo(Object param1, Object param2) {
-        return String.format("%s %s", param1, param2);
-    }
-
 }
