@@ -117,12 +117,6 @@ public final class ProjectHelper {
         return false;
     }
 
-    public static String createTestName(IOpenMethod testMethod) {
-        String name = getTestName(testMethod);
-        String info = getTestInfo(testMethod);
-        return String.format("%s (%s)", name, info);
-    }
-
     public static String getTestName(IOpenMethod testMethod) {
         IMemberMetaInfo mi = testMethod.getInfo();
         TableSyntaxNode tnode = (TableSyntaxNode) mi.getSyntaxNode();

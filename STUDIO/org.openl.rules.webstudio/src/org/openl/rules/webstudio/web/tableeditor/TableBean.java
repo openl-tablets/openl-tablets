@@ -360,7 +360,10 @@ public class TableBean {
     }
     
     public String getTestName(Object testMethod){
-        return ProjectHelper.createTestName((IOpenMethod) testMethod);
+        IOpenMethod method = (IOpenMethod) testMethod;
+        String name = ProjectHelper.getTestName(method);
+        String info = ProjectHelper.getTestInfo(method);
+        return String.format("%s (%s)", name, info);
     }
 
     public String removeTable() throws Throwable {
