@@ -1,17 +1,17 @@
-<!DOCTYPE html>
-<html xmlns:h="http://java.sun.com/jsf/html" xmlns:c="http://java.sun.com/jsp/jstl/core">
-<h:head>
-    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
+<ui:composition
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        template="/pages/layout/simpleLayout.xhtml">
 
-    <script>
-        //<![CDATA[
-        if (location.pathname != "#{contextPath}" && location.pathname != "#{contextPath}/") {
-            location.href = "#{contextPath}";
-        }
-        //]]>
-    </script>
-</h:head>
-<h:body>
-    <div>Access denied</div>
-</h:body>
-</html>
+    <ui:define name="content">
+
+        <script>
+            //<![CDATA[
+            if (location.pathname != "#{contextPath}" && location.pathname != "#{contextPath}/") {
+                location.href = "#{contextPath}/";
+            }
+            //]]>
+        </script>
+
+        <h1>Access denied. <a href="#{contextPath}/faces/pages/login.xhtml">Log in</a> using another credentials.</h1>
+    </ui:define>
+</ui:composition>
