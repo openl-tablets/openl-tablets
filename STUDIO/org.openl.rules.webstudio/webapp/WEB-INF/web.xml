@@ -252,6 +252,11 @@
   </error-page>
   
   <error-page>
+    <error-code>500</error-code>
+    <location>/faces/pages/internalError.xhtml</location>
+  </error-page>
+
+  <error-page>
     <exception-type>javax.faces.application.ViewExpiredException</exception-type>
     <location>/faces/pages/sessionExpired.xhtml</location>
   </error-page>
