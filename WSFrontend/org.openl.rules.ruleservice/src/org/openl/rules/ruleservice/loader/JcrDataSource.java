@@ -1,5 +1,15 @@
 package org.openl.rules.ruleservice.loader;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.annotation.PreDestroy;
+
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
@@ -10,13 +20,6 @@ import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.PreDestroy;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * JCR repository data source. Uses
@@ -164,17 +167,38 @@ public class JcrDataSource implements DataSource {
     }
 
     private static class DataSourceListenerWrapper implements RDeploymentListener {
-        private DataSourceListener dataSourceListener;
+        private final Logger log = LoggerFactory.getLogger(DataSourceListenerWrapper.class);
+        private final DataSourceListener dataSourceListener;
 
-        public DataSourceListenerWrapper(DataSourceListener dataSourceListener) {
+        public DataSourceListenerWrapper(final DataSourceListener dataSourceListener) {
             if (dataSourceListener == null) {
                 throw new IllegalArgumentException();
             }
             this.dataSourceListener = dataSourceListener;
         }
 
-        public void onEvent() {
-            dataSourceListener.onDeploymentAdded();
+        public synchronized void onEvent() {
+            final Timer timer = new Timer();
+
+            timer.schedule(new TimerTask() {
+                int count = 0;
+
+                @Override
+                public void run() {
+                    try {
+                        log.info("Atempt to deploy # {}", count);
+                        System.gc();
+                        dataSourceListener.onDeploymentAdded();
+                        timer.cancel();
+                    } catch (Exception ex) {
+                        log.error("Unexpected error", ex);
+                        count++;
+                        if (count >= 5) {
+                            timer.cancel();
+                        }
+                    }
+                }
+            }, 1000, 3000);
         }
 
         @Override
