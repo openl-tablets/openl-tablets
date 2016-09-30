@@ -1,5 +1,6 @@
 package org.openl.rules.workspace.deploy;
 
+import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
@@ -28,6 +29,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class allows to deploy a zip-based project to a production repository.
@@ -106,8 +108,13 @@ public class ProductionRepositoryDeployer {
 
             // Calculate version
             RProductionRepository rRepository = repositoryFactoryProxy.getRepositoryInstance(config);
+
+            ConfigurationManagerFactory configManagerFactory = ProductionRepositoryFactoryProxy.DEFAULT_CONFIGURATION_MANAGER_FACTORY;
+            Map<String, Object> properties = configManagerFactory.getConfigurationManager(config).getProperties();
+
             // Wait 15 seconds for initializing networking in JGroups.
-            Thread.sleep(15000);
+            Object initializeTimeout = properties.get("timeout.networking.initialize");
+            Thread.sleep(initializeTimeout == null ? 15000 : Integer.parseInt(initializeTimeout.toString()));
             Collection<FolderAPI> lastDeploymentProjects = rRepository.getLastDeploymentProjects();
             int version = 0;
             for (FolderAPI folder : lastDeploymentProjects) {
@@ -133,7 +140,8 @@ public class ProductionRepositoryDeployer {
             // Wait 10 seconds for finalizing networking in JGroups.
             // + 30 seconds for Infinispan.
             // This time should exceed Infinispan timeouts.
-            Thread.sleep(40000);
+            Object finalizeTimeout = properties.get("timeout.networking.finalize");
+            Thread.sleep(finalizeTimeout == null ? 40000 : Integer.parseInt(finalizeTimeout.toString()));
         } finally {
             /* Clean up */
             FileUtils.deleteQuietly(tempDirectory);
