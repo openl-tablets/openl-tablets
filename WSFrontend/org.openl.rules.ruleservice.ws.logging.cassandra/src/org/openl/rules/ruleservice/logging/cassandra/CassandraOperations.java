@@ -109,12 +109,12 @@ public class CassandraOperations implements InitializingBean {
             Table table = entityClass.getAnnotation(Table.class);
             if (table != null) {
                 String tableName = table.caseSensitiveTable() ? table.name() : table.name().toLowerCase();
-                String ksName = table.caseSensitiveKeyspace() ? table.keyspace() : table.keyspace().toLowerCase();
-                if (ksName == null || ksName.isEmpty()) {
-                    ksName = keyspace;
-                }
                 if (!alreadyCreatedTableNames.contains(tableName)) {
                     synchronized (this) {
+                        String ksName = table.caseSensitiveKeyspace() ? table.keyspace() : table.keyspace().toLowerCase();
+                        if (ksName == null || ksName.isEmpty()) {
+                            ksName = keyspace;
+                        }
                         if (!alreadyCreatedTableNames.contains(tableName)) {
                             if (session.getCluster().getMetadata().getKeyspace(ksName).getTable(tableName) == null) {
                                 try {
