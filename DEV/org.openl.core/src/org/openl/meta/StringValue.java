@@ -178,8 +178,11 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
         return sortedArray;
     }
 
-    public static String autocast(StringValue x, String y) {
-        return x.getValue();
+    public static StringValue autocast(String x, StringValue y) {
+        return new StringValue(x);
     }
 
+    public static String cast(StringValue x, String y) {
+        return x.getValue();
+    }
 }
