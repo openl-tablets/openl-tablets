@@ -612,7 +612,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     }
 
     // Constructors
-    public DoubleValue(double value) {
+    public DoubleValue(double value) { 
         this.value = value;
     }
 
