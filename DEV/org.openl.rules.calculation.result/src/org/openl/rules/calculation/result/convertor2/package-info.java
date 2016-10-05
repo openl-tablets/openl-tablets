@@ -4,6 +4,16 @@
 )
 package org.openl.rules.calculation.result.convertor2;
 
+/*-
+ * #%L
+ * OpenL - STUDIO - Jackson
+ * %%
+ * Copyright (C) 2016 OpenL Tablets
+ * %%
+ * See the file LICENSE.txt for copying permission.
+ * #L%
+ */
+
 /*
  * #%L
  * OpenL - DEV - Rules - Calculation Result
