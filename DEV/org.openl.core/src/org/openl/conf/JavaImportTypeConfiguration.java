@@ -7,7 +7,6 @@
 package org.openl.conf;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.openl.types.ITypeLibrary;
@@ -22,39 +21,27 @@ public class JavaImportTypeConfiguration extends AConfigurationElement implement
     
     private List<String> classes = new ArrayList<String>();
 
-    private List<String> imports = new ArrayList<String>();
+    private List<String> packages = new ArrayList<String>();
 
     private ITypeLibrary library = null;
 
-    public void addConfiguredClassName(String className) {
+    public void addClassImport(String className) {
         if (StringUtils.isNotEmpty(className)) {
             classes.add(className);
         }
     }
 
-    public void addConfiguredImport(String anImport) {
-        if (StringUtils.isNotEmpty(anImport)) {
-            imports.add(anImport);
+    public void addPackageImport(String packageName) {
+        if (StringUtils.isNotEmpty(packageName)) {
+            packages.add(packageName);
         }   
     }
 
     public synchronized ITypeLibrary getLibrary(IConfigurableResourceContext cxt) {
         if (library == null) {
-            library = new JavaImportTypeLibrary(classes, imports, cxt.getClassLoader());
+            library = new JavaImportTypeLibrary(classes, packages, cxt.getClassLoader());
         }
         return library;
-    }
-
-    public void setAllImports(Collection<String> allImports) {
-        if (allImports != null && !allImports.isEmpty()) {
-            imports = new ArrayList<String>(allImports);
-        }
-    }
-    
-    public void setImport(String singleImport) {
-        if (StringUtils.isNotEmpty(singleImport)) {
-            imports.add(singleImport);
-        }
     }
 
     public void validate(IConfigurableResourceContext cxt) throws OpenConfigurationException {

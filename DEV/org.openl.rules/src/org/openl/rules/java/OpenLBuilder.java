@@ -87,20 +87,20 @@ public class OpenLBuilder extends AOpenLBuilder {
         typelibrary.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
 
         JavaImportTypeConfiguration javaimport1 = new JavaImportTypeConfiguration();
-        javaimport1.setImport("org.openl.rules.helpers");
+        javaimport1.addPackageImport("org.openl.rules.helpers");
         typelibrary.addConfiguration(javaimport1);
 
         JavaImportTypeConfiguration javaimport2 = new JavaImportTypeConfiguration();        
-        javaimport2.setImport("org.openl.meta");
+        javaimport1.addPackageImport("org.openl.meta");
         typelibrary.addConfiguration(javaimport2);
 
         JavaImportTypeConfiguration javaimport3 = new JavaImportTypeConfiguration();        
-        javaimport3.setImport("org.openl.rules.helpers.scope");
+        javaimport1.addPackageImport("org.openl.rules.helpers.scope");
         typelibrary.addConfiguration(javaimport3);
 
         JavaImportTypeConfiguration javaimport4 = new JavaImportTypeConfiguration();                
-        javaimport4.setImport("org.openl.rules.calc");
-        javaimport4.setImport("org.openl.rules.calc.result");
+        javaimport1.addPackageImport("org.openl.rules.calc");
+        javaimport1.addPackageImport("org.openl.rules.calc.result");
         typelibrary.addConfiguration(javaimport4);
 
         types.addConfiguredTypeLibrary(typelibrary);

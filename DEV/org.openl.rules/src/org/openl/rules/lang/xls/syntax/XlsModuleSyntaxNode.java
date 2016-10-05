@@ -29,17 +29,20 @@ public class XlsModuleSyntaxNode extends NaryNode {
     private IdentifierNode vocabularyNode;
 
     private Set<String> imports = new HashSet<String>();
+    private Set<String> libraries = new HashSet<String>();
 
     public XlsModuleSyntaxNode(WorkbookSyntaxNode[] nodes,
             IOpenSourceCodeModule module,
             OpenlSyntaxNode openlNode,
             IdentifierNode vocabularyNode,
-            Collection<String> imports) {
+            Collection<String> imports,
+            Collection<String> libraries) {
         super(XlsNodeTypes.XLS_MODULE.toString(), null, nodes, module);
 
         this.openlNode = openlNode;
         this.vocabularyNode = vocabularyNode;
         this.imports.addAll(imports);
+        this.libraries.addAll(libraries);
     }
 
     public Collection<String> getImports() {
@@ -48,6 +51,14 @@ public class XlsModuleSyntaxNode extends NaryNode {
 
     public void addImport(String value) {
         imports.add(value);
+    }
+    
+    public Set<String> getLibraries() {
+        return libraries;
+    }
+    
+    public void addLibrary(String library){
+        libraries.add(library);
     }
 
     public OpenlSyntaxNode getOpenlNode() {

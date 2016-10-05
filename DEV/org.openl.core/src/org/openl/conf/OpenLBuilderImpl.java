@@ -12,9 +12,10 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
 
     private String category;
 
-    private Collection<String> imports = new HashSet<String>();
+    private Collection<String> packageImports = new HashSet<String>();
+    private Collection<String> classImports = new HashSet<String>();
 
-    private String libName;
+    private Collection<String> libraries = new HashSet<String>();
 
     @Override
     public OpenL build(String category) throws OpenConfigurationException {
@@ -37,12 +38,16 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
         return extendsCategory;
     }
 
-    public Collection<String> getImports() {
-        return imports;
+    public Collection<String> getPackageImports() {
+        return packageImports;
     }
 
-    public String getLibName() {
-        return libName;
+    public Collection<String> getClassImports() {
+        return classImports;
+    }
+
+    public Collection<String> getLibraries() {
+        return libraries;
     }
 
     @Override
@@ -52,25 +57,30 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
         op.setExtendsCategory(extendsCategory);
         op.setCategory(category);
 
-        if (libName != null) {
+        if (getLibraries() != null && !getLibraries().isEmpty()) {
             LibraryFactoryConfiguration libraries = op.createLibraries();
             NameSpacedLibraryConfiguration library = new NameSpacedLibraryConfiguration();
             library.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
-            JavaLibraryConfiguration javalib = new JavaLibraryConfiguration();
-            javalib.setClassName(libName);
-            library.addJavalib(javalib);
+            
+            for (String libraryName : getLibraries()){
+                JavaLibraryConfiguration javalib = new JavaLibraryConfiguration();
+                javalib.setClassName(libraryName);
+                library.addJavalib(javalib);
+            }
+            
             libraries.addConfiguredLibrary(library);
         }
-        
+
         /**
          * <libraries>
          * 
-         * <library namespace="org.openl.this"> <javalib
-         * classname="org.openl.rules.helpers.RulesUtils"/> </library>
+         * <library namespace="org.openl.this">
+         * <javalib classname="org.openl.rules.helpers.RulesUtils"/> </library>
          * </libraries>
          */
 
-        if (!getImports().isEmpty()) {
+        if ((getPackageImports() != null && !getPackageImports()
+            .isEmpty()) || (getClassImports() != null && !getClassImports().isEmpty())) {
             TypeFactoryConfiguration types = op.createTypes();
             NameSpacedTypeConfiguration typelibrary = new NameSpacedTypeConfiguration();
             typelibrary.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
@@ -80,7 +90,16 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
             // typelibrary.addJavaImport(javaimport);
 
             javaimport = new JavaImportTypeConfiguration();
-            javaimport.setAllImports(getImports());
+            if (getPackageImports() != null) {
+                for (String packageName : getPackageImports()) {
+                    javaimport.addPackageImport(packageName);
+                }
+            }
+            if (getClassImports() != null) {
+                for (String classeName : getClassImports()) {
+                    javaimport.addClassImport(classeName);
+                }
+            }
 
             typelibrary.addConfiguration(javaimport);
 
@@ -105,12 +124,17 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
         this.extendsCategory = extendsCategory;
     }
 
-    public void setImports(Collection<String> imports) {
-        this.imports = imports;
+    public void setPackageImports(Collection<String> packageNames) {
+        this.packageImports = packageNames;
     }
 
-    public void setLibName(String libName) {
-        this.libName = libName;
+    public void setClassImports(Collection<String> classImports) {
+        this.classImports = classImports;
     }
+    
+    public void setLibraries(Collection<String> libraries) {
+        this.libraries = libraries;
+    }
+
 
 }

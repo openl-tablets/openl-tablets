@@ -145,9 +145,9 @@ public class OpenLBuilder extends AOpenLBuilder {
 
         JavaImportTypeConfiguration javaimport = new JavaImportTypeConfiguration();
 
-        javaimport.addConfiguredImport("java.util");
-        javaimport.addConfiguredImport("java.math");
-
+        javaimport.addPackageImport("java.util");
+        javaimport.addPackageImport("java.math");
+        
         nstc.addConfiguration(javaimport);
 
         types.addConfiguredTypeLibrary(nstc);

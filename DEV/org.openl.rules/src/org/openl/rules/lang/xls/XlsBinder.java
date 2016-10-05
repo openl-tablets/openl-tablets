@@ -466,12 +466,33 @@ public class XlsBinder implements IOpenBinder {
         }
     }
 
+    private void addImports(OpenLBuilderImpl builder, Collection<String> imports){
+        Collection<String> packageNames = new HashSet<String>();
+        Collection<String> classNames = new HashSet<String>();
+        for (String singleImport : imports){
+            if (singleImport.endsWith(".*")){
+                packageNames.add(singleImport.substring(0, singleImport.length() - 2));
+            } else {
+                try{
+                    userContext.getUserClassLoader().loadClass(singleImport); //try load class
+                    classNames.add(singleImport);
+                } catch (ClassNotFoundException e) {
+                    packageNames.add(singleImport);
+                } catch (Exception e) {
+                    packageNames.add(singleImport);
+                }
+            }
+        }
+        builder.setPackageImports(packageNames);
+        builder.setClassImports(classNames);
+    }
+    
     private OpenL makeOpenL(XlsModuleSyntaxNode moduleNode) {
 
         String openlName = getOpenLName(moduleNode.getOpenlNode());
-        Collection<String> allImports = moduleNode.getImports();
+        Collection<String> imports = moduleNode.getImports();
 
-        if (allImports == null) {
+        if (imports == null) {
             return OpenL.getInstance(openlName, userContext);
         }
 
@@ -481,7 +502,11 @@ public class XlsBinder implements IOpenBinder {
 
         String category = openlName + "::" + moduleNode.getModule().getUri(0);
         builder.setCategory(category);
-        builder.setImports(allImports);
+        
+        addImports(builder, imports);
+        
+        builder.setLibraries(moduleNode.getLibraries());
+        
         builder.setContexts(null, userContext);
         builder.setInheritExtendedConfigurationLoader(true);
 
