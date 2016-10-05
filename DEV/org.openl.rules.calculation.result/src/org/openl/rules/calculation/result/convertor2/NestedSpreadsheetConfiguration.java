@@ -69,6 +69,10 @@ public abstract class NestedSpreadsheetConfiguration<T extends CalculationStep, 
      */
     protected abstract RowExtractor<Q> initCompoundRowExtractor(List<SpreadsheetColumnExtractor<Q>> compoundExtractors);
 
+    protected boolean isConvertationMetadataEnabled() {
+        return false;
+    }
+
     /**
      * Initialize the extractor for the column that is compound.
      * 

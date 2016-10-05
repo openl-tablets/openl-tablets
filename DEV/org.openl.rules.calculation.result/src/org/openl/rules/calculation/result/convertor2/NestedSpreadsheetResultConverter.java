@@ -137,12 +137,14 @@ public class NestedSpreadsheetResultConverter<T extends CalculationStep, Q exten
         RowExtractor<? extends CalculationStep> rowExtractor = null;
         if (isNestedRow) {
             rowExtractor = conf.initCompoundRowExtractor(extractors);
+            rowExtractor.setConf(conf);
         } else {
             List<SpreadsheetColumnExtractor<T>> simpleExtractors = new ArrayList<SpreadsheetColumnExtractor<T>>();
             for (ColumnToExtract column : compoundColumns) {
                 simpleExtractors.add(new SpreadsheetColumnExtractor<T>(column));
             }
             rowExtractor = conf.initSimpleRowExtractor(simpleExtractors);
+            rowExtractor.setConf(conf);
         }
 
         step = (T) rowExtractor.extract(spreadsheetResult, row);

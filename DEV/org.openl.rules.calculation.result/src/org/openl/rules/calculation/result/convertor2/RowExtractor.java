@@ -10,7 +10,6 @@ package org.openl.rules.calculation.result.convertor2;
  * #L%
  */
 
-
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -37,6 +36,16 @@ public abstract class RowExtractor<T extends CalculationStep> {
         }
     }
 
+    private NestedSpreadsheetConfiguration<? extends CalculationStep, ? extends CompoundStep> conf;
+    
+    public NestedSpreadsheetConfiguration<? extends CalculationStep, ? extends CompoundStep> getConf() {
+        return conf;
+    }
+    
+    public void setConf(NestedSpreadsheetConfiguration<? extends CalculationStep, ? extends CompoundStep> conf) {
+        this.conf = conf;
+    }
+    
     /**
      * Creates the instance describing the row.
      * 
@@ -60,21 +69,42 @@ public abstract class RowExtractor<T extends CalculationStep> {
      * 
      * @return populated row instance with data from spreadsheet row.
      */
-    public T extract(SpreadsheetResult spreadsheetResult, int rowIndex) {
+    public final T extract(SpreadsheetResult spreadsheetResult, int rowIndex) {
         T rowInstance = makeRowInstance();
+        ConvertationMetadata convertationMetadata = null;
+        if (getConf() != null && getConf().isConvertationMetadataEnabled()) {
+            convertationMetadata = new ConvertationMetadata();
+            convertationMetadata.setSpreadsheetResult(spreadsheetResult);
+        }
+
         for (SpreadsheetColumnExtractor<T> extractor : columnExtractors) {
             String columnName = extractor.getColumn().getColumnName();
             int columnIndex = SpreadsheetResultHelper.getColumnIndexByName(columnName,
                 spreadsheetResult.getColumnNames());
             Object columnValue = spreadsheetResult.getValue(rowIndex, columnIndex);
-            extractor.convertAndStoreData(columnValue, rowInstance);
+            Object v = extractor.convertAndStoreData(columnValue, rowInstance);
+            if (convertationMetadata != null && v != null) {
+                if (v instanceof ConvertationMetadata.NestedType) {
+                    ConvertationMetadata.NestedType nestedType = (ConvertationMetadata.NestedType) v;
+                    convertationMetadata.setNestedMetadata(nestedType, rowIndex, columnIndex);
+                } else {
+                    if (v instanceof String) {
+                        convertationMetadata.addPropertyMetadata((String) v, rowIndex, columnIndex);
+                    }
+                }
+            }
         }
-        
+
         rowInstance.setStepName(spreadsheetResult.getRowName(rowIndex));
-        
+
         // additional processing for the extracted row
         //
         rowInstance = afterExtract(rowInstance);
+
+        if (convertationMetadata != null) {
+            rowInstance.setConvertationMetadata(convertationMetadata);
+        }
+
         return rowInstance;
     }
 }

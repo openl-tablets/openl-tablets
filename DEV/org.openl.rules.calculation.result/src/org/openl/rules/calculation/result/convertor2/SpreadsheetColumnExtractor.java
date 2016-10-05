@@ -48,9 +48,9 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
      * store it to the row instance.
      *
      * @param valueForStoraging
-     * @param spreadsheetRow for population with given data
+     * @param step for population with given data
      */
-    public void convertAndStoreData(Object valueForStoraging, S spreadsheetRow) {
+    public Object convertAndStoreData(Object valueForStoraging, S step) {
         if (valueForStoraging != null) {
             Integer minConvertDistance = null;
             int propertyIndexForStore = -1;
@@ -67,12 +67,13 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
                 Class<?> expectedType = expectedTypes[propertyIndexForStore];
                 Object value = convert(valueForStoraging, expectedType);
                 if (expectedType.isAssignableFrom(value.getClass())) {
-                    if (store(value, spreadsheetRow, propertyNames[propertyIndexForStore], expectedType)) {
-                        return;
+                    if (store(value, step, propertyNames[propertyIndexForStore], expectedType)) {
+                        return propertyNames[propertyIndexForStore];
                     }
                 }
             }
         }
+        return null;
     }
 
     private boolean store(Object value, S step, String propertyName, Class<?> expectedType) {

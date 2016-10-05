@@ -13,6 +13,7 @@ package org.openl.rules.calculation.result.convertor2;
 import java.util.List;
 
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.calculation.result.convertor2.ConvertationMetadata.NestedType;
 
 /**
  * Column extractor for nesting spreadsheet values(e.g. SpreadsheetResult or
@@ -61,7 +62,8 @@ public class NestedSpreadsheedColumnExtractor extends SpreadsheetColumnExtractor
      */
     @SuppressWarnings("unchecked")
     @Override
-    public void convertAndStoreData(Object from, CompoundStep to) {
+    public Object convertAndStoreData(Object from, CompoundStep to) {
+        NestedType nestedType = null;
         if (from != null) {
             if (from.getClass().isArray()) {
                 // process SpreadsheetResult[] as nesting column value.
@@ -74,17 +76,25 @@ public class NestedSpreadsheedColumnExtractor extends SpreadsheetColumnExtractor
                     //
                     postProcess(compoundStep);
 
+                    if (conf.isConvertationMetadataEnabled()){
+                        ConvertationMetadata convertationMetadata = new ConvertationMetadata();
+                        compoundStep.setConvertationMetadata(convertationMetadata);
+                    }
+                    
                     to.addStep(compoundStep);
                 }
+                nestedType = ConvertationMetadata.NestedType.ARRAY;
             } else {
                 // process SpreadsheetResult as nesting column value.
                 //
                 to.setSteps((List<CalculationStep>) convertCompoundPremium((SpreadsheetResult) from));
+                nestedType = ConvertationMetadata.NestedType.SINGLE;
             }
             // additional processing of converted results
             //
             postProcess(to);
         }
+        return nestedType;
     }
 
     /**
@@ -107,5 +117,4 @@ public class NestedSpreadsheedColumnExtractor extends SpreadsheetColumnExtractor
         NestedSpreadsheetResultConverter<? extends CalculationStep, ? extends CompoundStep> converter = createNextLevelConverter(conf);
         return converter.process(result);
     }
-
 }
