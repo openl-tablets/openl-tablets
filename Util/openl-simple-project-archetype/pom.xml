@@ -53,4 +53,11 @@
             </plugins>
         </pluginManagement>
     </build>
+    <dependencies>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>openl-maven-plugin</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>
