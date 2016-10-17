@@ -3,13 +3,15 @@ package org.openl.rules.ruleservice.simple;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Required;
 
-public class OpenLServiceFactoryBean implements FactoryBean<Object> {
-    private Class<?> proxyInterface;
+import javax.annotation.Resource;
+
+public class OpenLServiceFactoryBean<T> implements FactoryBean<T> {
+    private Class<T> proxyInterface;
     private String serviceName;
     private RulesFrontend rulesFrontend;
 
     @Override
-    public Object getObject() throws Exception {
+    public T getObject() throws Exception {
         return rulesFrontend.buildServiceProxy(serviceName, proxyInterface);
     }
 
@@ -23,13 +25,13 @@ public class OpenLServiceFactoryBean implements FactoryBean<Object> {
         return Boolean.TRUE;
     }
 
-    @Required
+    @Resource(name = "frontend")
     public void setRulesFrontend(RulesFrontend rulesFrontend) {
         this.rulesFrontend = rulesFrontend;
     }
 
     @Required
-    public void setProxyInterface(Class<?> proxyInterface) {
+    public void setProxyInterface(Class<T> proxyInterface) {
         this.proxyInterface = proxyInterface;
     }
 
