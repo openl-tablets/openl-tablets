@@ -26,6 +26,8 @@ import org.openl.vm.IRuntimeEnv;
 @Executable
 public class Spreadsheet extends ExecutableRulesMethod {
 
+    public static final String CUSTOMSPREADSHEETRESULT_TYPE_PREFIX = "SpreadsheetResult";
+
     private IResultBuilder resultBuilder;
 
     private SpreadsheetCell[][] cells;
@@ -116,7 +118,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
 
         Map<String, FieldDescription> beanFields = ByteCodeGeneratorHelper.convertFields(spreadsheetOpenClassFields);
         CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(
-                "SpreadsheetResult" + getName(), beanFields, fieldCoordinates);
+                CUSTOMSPREADSHEETRESULT_TYPE_PREFIX + getName(), beanFields, fieldCoordinates);
         Class<?> customSPR = gen.generateAndLoadBeanClass();
         spreadsheetCustomType = JavaOpenClass.getOpenClass(customSPR);
     }

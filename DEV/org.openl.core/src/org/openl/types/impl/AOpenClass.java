@@ -39,14 +39,15 @@ import org.openl.types.java.JavaOpenClass;
  */
 public abstract class AOpenClass implements IOpenClass {
 
-    private static final Map<MethodKey, IOpenMethod> STUB = Collections.unmodifiableMap(Collections.<MethodKey, IOpenMethod>emptyMap());
+    private static final Map<MethodKey, IOpenMethod> STUB = Collections
+        .unmodifiableMap(Collections.<MethodKey, IOpenMethod> emptyMap());
     private IOpenField indexField;
 
     protected IMetaInfo metaInfo;
     protected Map<String, IOpenField> uniqueLowerCaseFieldMap = null;
 
     protected Map<String, List<IOpenField>> nonUniqueLowerCaseFieldMap = null;
-    
+
     protected synchronized void addFieldToLowerCaseMap(IOpenField f) {
         if (uniqueLowerCaseFieldMap == null) {
             return;
@@ -158,14 +159,14 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     private ICastFactory castFactory;
-    
-    private ICastFactory getCastFactory(){
-        if (castFactory == null){
-            castFactory = new CastFactory(); 
+
+    private ICastFactory getCastFactory() {
+        if (castFactory == null) {
+            castFactory = new CastFactory();
         }
         return castFactory;
     }
-    
+
     public IOpenMethod getMethod(String name, IOpenClass[] classes) {
 
         IOpenMethod method = getDeclaredMethod(name, classes);
@@ -239,6 +240,7 @@ public abstract class AOpenClass implements IOpenClass {
     public IOpenField getVar(String name, boolean strictMatch) {
         return getField(name, strictMatch);
     }
+
     private void initNonUniqueMap() {
         if (nonUniqueLowerCaseFieldMap == null) {
             nonUniqueLowerCaseFieldMap = new HashMap<String, List<IOpenField>>();
@@ -259,16 +261,17 @@ public abstract class AOpenClass implements IOpenClass {
     public boolean isSimple() {
         return false;
     }
-    
+
     public boolean isArray() {
         if (getInstanceClass() != null) {
             return getInstanceClass().isArray();
         }
         return false;
     }
-    
+
     public IOpenClass getComponentClass() {
-        // Default implementation. Open classes that can be represented as arrays, should override this method.
+        // Default implementation. Open classes that can be represented as
+        // arrays, should override this method.
         //
         return null;
     }
@@ -288,7 +291,7 @@ public abstract class AOpenClass implements IOpenClass {
 
     private Map<MethodKey, IOpenMethod> methodMap;
 
-    private  Map<MethodKey, IOpenMethod> methodMap() {
+    private Map<MethodKey, IOpenMethod> methodMap() {
         if (methodMap == null) {
             synchronized (this) {
                 if (methodMap == null) {
@@ -326,7 +329,7 @@ public abstract class AOpenClass implements IOpenClass {
             throw new DuplicatedMethodException(
                 "Method '" + key + "' have bean already defined for class '" + getName() + "'", method);
         }
-        methodList = null;
+        invalidateMethodCaches();
     }
 
     protected void overrideMethod(IOpenMethod method) {
@@ -335,22 +338,30 @@ public abstract class AOpenClass implements IOpenClass {
         if (existMethod == null) {
             throw new IllegalStateException("Method '" + key + "' is absent to override in class '" + getName() + "'");
         }
-        methodList = null;
+        invalidateMethodCaches();
     }
 
-    private Collection<IOpenMethod> methodList = null;
-    
+    protected void invalidateMethodCaches() {
+        allMethodsCacheInvalidated = true;
+        allMethodNamesMapInvalidated = true;
+    }
+
+    private Collection<IOpenMethod> allMethodsCache = null;
+    private volatile boolean allMethodsCacheInvalidated = true;
+
     public synchronized Collection<IOpenMethod> getMethods() {
-    	if (methodList == null)
-    		methodList = collectMethods();
-    	return methodList;
+        if (allMethodsCacheInvalidated) {
+            allMethodsCache = buildAllMethods();
+            allMethodsCacheInvalidated = false;
+        }
+        return allMethodsCache;
     }
 
-    private Collection<IOpenMethod> collectMethods() {
+    private Collection<IOpenMethod> buildAllMethods() {
         Map<MethodKey, IOpenMethod> methods = new HashMap<MethodKey, IOpenMethod>();
         Iterable<IOpenClass> superClasses = superClasses();
         for (IOpenClass superClass : superClasses) {
-            for(IOpenMethod method : superClass.getMethods()){
+            for (IOpenMethod method : superClass.getMethods()) {
                 methods.put(new MethodKey(method), method);
             }
         }
@@ -427,43 +438,35 @@ public abstract class AOpenClass implements IOpenClass {
         return new EqualsBuilder().append(getName(), ((IOpenClass) obj).getName()).isEquals();
     }
 
-    
-    Map<String, List<IOpenMethod>> methodNameMap = null;
-    
-	@SuppressWarnings("unchecked")
-	@Override
-	public Iterable<IOpenMethod> methods(String name) {
-		if (methodNameMap == null)
-		{
-			synchronized(this)
-			{
-				methodNameMap = buildMethodNameMap(getMethods());
-			}
-		}	
-		
-		List<IOpenMethod> found = methodNameMap.get(name);
-		
-		return found == null ? Collections.<IOpenMethod>emptyList() : found;
-	}
+    private Map<String, List<IOpenMethod>> allMethodNamesMap = null;
+    private volatile boolean allMethodNamesMapInvalidated = true;
 
-	static public  Map<String, List<IOpenMethod>> buildMethodNameMap(
-			Iterable<IOpenMethod> methods) {
-		
-		Map<String, List<IOpenMethod>> res = new HashMap<String, List<IOpenMethod>>();
+    @Override
+    public synchronized Iterable<IOpenMethod> methods(String name) {
+        if (allMethodNamesMapInvalidated) {
+            synchronized (this) {
+                allMethodNamesMap = buildMethodNameMap(getMethods());
+                allMethodNamesMapInvalidated = false;
+            }
+        }
+        List<IOpenMethod> found = allMethodNamesMap.get(name);
+        return found == null ? Collections.<IOpenMethod> emptyList() : Collections.unmodifiableList(found);
+    }
 
-		for (IOpenMethod m : methods) {
-			String name = m.getName();
-			
-			List<IOpenMethod> list = res.get(name);
-			if (list == null)
-			{	
-				list = new LinkedList<IOpenMethod>();
-				res.put(name, list);
-			}
-			list.add(m);
-		}
-		
-		
-		return res;
-	}
+    public static Map<String, List<IOpenMethod>> buildMethodNameMap(Iterable<IOpenMethod> methods) {
+        Map<String, List<IOpenMethod>> res = new HashMap<String, List<IOpenMethod>>();
+
+        for (IOpenMethod m : methods) {
+            String name = m.getName();
+
+            List<IOpenMethod> list = res.get(name);
+            if (list == null) {
+                list = new LinkedList<IOpenMethod>();
+                res.put(name, list);
+            }
+            list.add(m);
+        }
+
+        return res;
+    }
 }

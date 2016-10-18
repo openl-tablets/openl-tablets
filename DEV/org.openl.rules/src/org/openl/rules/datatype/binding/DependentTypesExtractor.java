@@ -24,7 +24,7 @@ import java.util.*;
  *
  * @author Denis Levchuk
  */
-public class DependentTypesExtractor {
+class DependentTypesExtractor {
     public static final String ALIASDATATYPE_PATTERN = "^.+\\<.+\\>\\s*$";
     
     private boolean isAliasDatatype(TableSyntaxNode node){

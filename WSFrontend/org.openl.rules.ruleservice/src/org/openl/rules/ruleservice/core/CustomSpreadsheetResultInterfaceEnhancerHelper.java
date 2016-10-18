@@ -7,12 +7,11 @@ import java.util.Set;
 
 import net.sf.cglib.core.ReflectUtils;
 import org.objectweb.asm.*;
+import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.util.generation.InterfaceTransformer;
 
 public class CustomSpreadsheetResultInterfaceEnhancerHelper {
-
-    public static final String CUSTOMSPREADSHEETRESULT_PREFIX = "SpreadsheetResult";
 
     /**
      * Special ClassAdapter to generate interface with {@link Object} as the
@@ -70,7 +69,7 @@ public class CustomSpreadsheetResultInterfaceEnhancerHelper {
             Class<?> returnType = method.getReturnType();
             boolean f = false;
             if (SpreadsheetResult.class.isAssignableFrom(returnType) && !SpreadsheetResult.class.equals(returnType)) {
-                if (returnType.getCanonicalName().equals(CUSTOMSPREADSHEETRESULT_PREFIX + method.getName())){
+                if (returnType.getCanonicalName().equals(Spreadsheet.CUSTOMSPREADSHEETRESULT_TYPE_PREFIX + method.getName())){
                     for (Method m : returnType.getDeclaredMethods()) {
                         if (m.getName().startsWith("get$")) {
                             f = true;

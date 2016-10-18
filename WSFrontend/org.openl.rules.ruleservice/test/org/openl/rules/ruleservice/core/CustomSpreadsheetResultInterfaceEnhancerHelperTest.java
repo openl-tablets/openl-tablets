@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
@@ -48,7 +49,7 @@ public class CustomSpreadsheetResultInterfaceEnhancerHelperTest implements Appli
 
         assertTrue("CustomSpreadSheet should be returned by service bean!",
             (result instanceof SpreadsheetResult) && !SpreadsheetResult.class.equals(result.getClass()) && result.getClass().getCanonicalName()
-                .equals(CustomSpreadsheetResultInterfaceEnhancerHelper.CUSTOMSPREADSHEETRESULT_PREFIX + "test"));
+                .equals(Spreadsheet.CUSTOMSPREADSHEETRESULT_TYPE_PREFIX + "test"));
 
         Class<?> serviceClass = ruleServicePublisher.getServiceByName("CustomSpreadsheetResultInterfaceEnhancerHelperTest_TestingSpreadsheet")
             .getServiceClass();
@@ -57,7 +58,7 @@ public class CustomSpreadsheetResultInterfaceEnhancerHelperTest implements Appli
             Class<?> returnType = method.getReturnType();
             if (SpreadsheetResult.class.isAssignableFrom(returnType) && !SpreadsheetResult.class.equals(returnType)) {
                 if (returnType.getCanonicalName()
-                    .equals(CustomSpreadsheetResultInterfaceEnhancerHelper.CUSTOMSPREADSHEETRESULT_PREFIX + method.getName())) {
+                    .equals(Spreadsheet.CUSTOMSPREADSHEETRESULT_TYPE_PREFIX + method.getName())) {
                     for (Method m : returnType.getDeclaredMethods()) {
                         if (m.getName().startsWith("get$")) {
                             fail("Custom spreadsheet result shouldn't be declared in service interface!");
