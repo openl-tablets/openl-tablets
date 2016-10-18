@@ -3,7 +3,6 @@ package org.openl.rules.lang.xls;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-import org.openl.rules.binding.RecursiveMethodPreBindingException;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 /**
@@ -20,12 +19,10 @@ final class TableSyntaxNodeRelationsUtils {
     public static boolean[][] buildRelationsMatrix(TableSyntaxNode[] tableSyntaxNodes,
             TableSyntaxNodeRelationsDeterminer tableSyntaxNodeRelationsDeterminer) {
         boolean[][] matrix = new boolean[tableSyntaxNodes.length][tableSyntaxNodes.length];
-        int[] c = new int[tableSyntaxNodes.length];
         for (int i = 0; i < tableSyntaxNodes.length; i++) {
             for (int j = 0; j < tableSyntaxNodes.length; j++) {
                 if (i != j && tableSyntaxNodeRelationsDeterminer.determine(tableSyntaxNodes[i], tableSyntaxNodes[j])) {
                     matrix[j][i] = true;
-                    c[i]++;
                 }
             }
         }
