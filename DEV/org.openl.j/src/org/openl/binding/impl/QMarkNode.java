@@ -10,6 +10,7 @@ import org.openl.binding.IBoundNode;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -34,8 +35,9 @@ public class QMarkNode extends ABoundNode {
     }
 
     public IOpenClass getType() {
-        // return NullOpenClass.the;
-        // TODO use both branches
+        if (NullOpenClass.the.equals(children[1].getType())){
+            return children[2].getType();
+        }
         return children[1].getType();
     }
 
