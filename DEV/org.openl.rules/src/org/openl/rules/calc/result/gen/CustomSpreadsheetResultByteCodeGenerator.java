@@ -11,6 +11,7 @@ import org.openl.rules.datatype.gen.DefaultFieldDescription;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.datatype.gen.bean.writers.ClassDescriptionWriter;
 import org.openl.rules.datatype.gen.bean.writers.ConstructorWithParametersWriter;
+import org.openl.rules.datatype.gen.bean.writers.CustomSpreadsheetResultAnnotationWriter;
 import org.openl.rules.table.Point;
 import org.openl.util.generation.CustomSpreadsheetResultJavaGenerator;
 
@@ -64,6 +65,9 @@ public class CustomSpreadsheetResultByteCodeGenerator extends BeanByteCodeGenera
     private void initWriters(boolean generateSetters) {  
         /** writer for the class description*/
         addWriter(new ClassDescriptionWriter(getBeanNameWithPackage(), superClass));
+        
+        /** writer for customspreadsheet result open class annotation **/
+        addWriter(new CustomSpreadsheetResultAnnotationWriter());
         
         /** writer for the constructor with parent parameters*/
         addWriter(new ConstructorWithParametersWriter(getBeanNameWithPackage(), superClass, 
