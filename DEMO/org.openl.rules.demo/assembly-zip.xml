@@ -37,11 +37,16 @@
             <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>${tomcat.webapps}</outputDirectory>
+            <outputDirectory>${tomcat.webapps}/webstudio</outputDirectory>
             <includes>
                 <include>org.openl.rules:org.openl.rules.webstudio</include>
             </includes>
-            <outputFileNameMapping>webstudio.war</outputFileNameMapping>
+            <unpack>true</unpack>
+            <unpackOptions>
+                <excludes>
+                    <exclude>WEB-INF/lib/h2-*.jar</exclude>
+                </excludes>
+            </unpackOptions>
             <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
         <dependencySet>
@@ -61,11 +66,10 @@
             <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>${tomcat.webapps}</outputDirectory>
+            <outputDirectory>${tomcat.lib}</outputDirectory>
             <includes>
-                <include>org.openl.rules.demo:org.openl.rules.demo.repository</include>
+                <include>com.h2database:h2</include>
             </includes>
-            <outputFileNameMapping>production-repository-server.war</outputFileNameMapping>
             <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
     </dependencySets>
