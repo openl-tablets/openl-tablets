@@ -24,7 +24,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:openl-ruleservice-beans.xml" })
+@ContextConfiguration(locations = { "classpath:openl-ruleservice-beans.xml", "classpath:openl-ruleservice-logging-beans.xml" })
 public class WebServicesExposingTest implements ApplicationContextAware {
     private ApplicationContext applicationContext;
 
