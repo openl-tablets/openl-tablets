@@ -85,7 +85,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                     return null;
                 }
                 RulesInstantiationStrategy rulesInstantiationStrategy = null;
-                final ClassLoader classLoader = dependencyManager.getClassLoader(modules.iterator().next().getProject());
+                final ClassLoader classLoader = dependencyManager.buildClassLoader(modules.iterator().next().getProject());
                 dependencyManager.getCompilationStack().add(dependencyName);
                 log.debug("Creating lazy for:\n" + " deploymentName=\"{}\",\n" + " deploymentVersion=\"{}\",\n" + " dependencyName=\"{}\"",
                     deployment.getName(),
