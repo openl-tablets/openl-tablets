@@ -161,7 +161,6 @@ public class XmlRulesParser extends BaseParser {
                 null,
                 null,
                 getImports(),
-                getLibraries(),
                 projectData);
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
@@ -179,7 +178,6 @@ public class XmlRulesParser extends BaseParser {
                 null,
                 null,
                 getImports(),
-                getLibraries(),
                 projectData);
         } finally {
             ProjectData.clearUnmarshaller();

@@ -486,17 +486,24 @@ public class XlsBinder implements IOpenBinder {
     private void addImports(OpenLBuilderImpl builder, Collection<String> imports) {
         Collection<String> packageNames = new HashSet<String>();
         Collection<String> classNames = new HashSet<String>();
+        Collection<String> libraries = new HashSet<String>();
         for (String singleImport : imports) {
             if (singleImport.endsWith(".*")) {
-                packageNames.add(singleImport.substring(0, singleImport.length() - 2));
+                try {
+                    String libraryClassName = singleImport.substring(0, singleImport.length() - 2);
+                    userContext.getUserClassLoader().loadClass(libraryClassName); // try
+                                                                              // load
+                                                                              // class
+                    libraries.add(libraryClassName);
+                } catch (Exception e) {
+                    packageNames.add(singleImport.substring(0, singleImport.length() - 2));
+                }
             } else {
                 try {
                     userContext.getUserClassLoader().loadClass(singleImport); // try
                                                                               // load
                                                                               // class
                     classNames.add(singleImport);
-                } catch (ClassNotFoundException e) {
-                    packageNames.add(singleImport);
                 } catch (Exception e) {
                     packageNames.add(singleImport);
                 }
@@ -504,6 +511,7 @@ public class XlsBinder implements IOpenBinder {
         }
         builder.setPackageImports(packageNames);
         builder.setClassImports(classNames);
+        builder.setLibraries(libraries);
     }
 
     private OpenL makeOpenL(XlsModuleSyntaxNode moduleNode) {
@@ -523,8 +531,6 @@ public class XlsBinder implements IOpenBinder {
         builder.setCategory(category);
 
         addImports(builder, imports);
-
-        builder.setLibraries(moduleNode.getLibraries());
 
         builder.setContexts(null, userContext);
         builder.setInheritExtendedConfigurationLoader(true);
