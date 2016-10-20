@@ -3,8 +3,6 @@ package org.openl.rules.ruleservice.publish;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,31 +12,39 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@TestPropertySource(properties = { "ruleservice.datasource.type=local",
+        "ruleservice.datasource.deploy.classpath.jars=false",
+        "ruleservice.isProvideRuntimeContext=false",
+        "ruleservice.datasource.dir=test-resources/DefaultRmiHandlerTest" })
 @ContextConfiguration(locations = { "classpath:DefaultRmiHandlerTest/openl-ruleservice-beans.xml" })
-public class DefaultRmiHandlerTest implements ApplicationContextAware{
+public class DefaultRmiHandlerTest implements ApplicationContextAware {
     private ApplicationContext applicationContext;
 
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
-    
+
     @Test
     public void test() throws Exception {
         Assert.assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         Assert.assertNotNull(serviceManager);
-        
+
         Registry registry = LocateRegistry.getRegistry(61099);
-        DefaultRmiHandler defaultRmiHandler = (DefaultRmiHandler)registry.lookup("DefaultRmiHandlerTest/simpleProject");
-        
+        DefaultRmiHandler defaultRmiHandler = (DefaultRmiHandler) registry
+            .lookup("DefaultRmiHandlerTest/simpleProject");
+
         Assert.assertNotNull(defaultRmiHandler);
-        
-        String result = (String) defaultRmiHandler.execute("baseHello", new Class<?>[]{int.class}, new Object[] { new Integer(10) });
-        
+
+        String result = (String) defaultRmiHandler.execute("baseHello",
+            new Class<?>[] { int.class },
+            new Object[] { new Integer(10) });
+
         Assert.assertEquals("Good Morning", result);
-        
+
     }
 }
