@@ -9,14 +9,6 @@ syntax: glob
 .settings
 .project
 .classpath
-**/target
-**/.studioProps
+target
+overlays
 *.log
-logs
-**/bin/**
-**/gen/**
-**/WEB-INF/classes/**
-DEMO/*/overlays/
-DEV/org.openl.rules/unit_tests/*.xls
-DEV/org.openl.rules.test/*.xls
-STUDIO/org.openl.rules.webstudio/webapps/webstudio/WEB-INF/conf/config.properties

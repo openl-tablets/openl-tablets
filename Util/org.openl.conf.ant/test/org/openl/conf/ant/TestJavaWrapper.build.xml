@@ -8,7 +8,7 @@
 <openlgen openlName="org.openl.j" userHome="." 
 	srcFile="org/openl/conf/ant/Hello.j"
     targetClass="org.openl.gen.Hello"
-	targetSrcDir="gen"
+	targetSrcDir="target"
 >
 </openlgen>	
 
