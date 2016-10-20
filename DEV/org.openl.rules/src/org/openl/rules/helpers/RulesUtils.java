@@ -1700,46 +1700,6 @@ public class RulesUtils {
         return MathUtils.sort(values);
     }
 
-    public static ByteValue[] sort(ByteValue[] values) {
-        return ByteValue.sort(values);
-    }
-
-    public static ShortValue[] sort(ShortValue[] values) {
-        return ShortValue.sort(values);
-    }
-
-    public static IntValue[] sort(IntValue[] values) {
-        return IntValue.sort(values);
-    }
-
-    public static LongValue[] sort(LongValue[] values) {
-        return LongValue.sort(values);
-    }
-
-    public static FloatValue[] sort(FloatValue[] values) {
-        return FloatValue.sort(values);
-    }
-
-    public static DoubleValue[] sort(DoubleValue[] values) {
-        return DoubleValue.sort(values);
-    }
-
-    public static BigDecimalValue[] sort(BigDecimalValue[] values) {
-        return BigDecimalValue.sort(values);
-    }
-
-    public static BigIntegerValue[] sort(BigIntegerValue[] values) {
-        return BigIntegerValue.sort(values);
-    }
-
-    public static StringValue[] sort(StringValue[] values) {
-        return StringValue.sort(values);
-    }
-
-    public static ObjectValue[] sort(ObjectValue[] values) {
-        return ObjectValue.sort(values);
-    }
-
     public static String[] sort(String[] values) {
         String[] sortedArray = null;
 
@@ -6485,7 +6445,7 @@ public class RulesUtils {
     public static String replace(String str, String searchString, String replacement, int max) {
         return StringUtils.replace(str, searchString, replacement, max);
     }
-
+    
     public static Object[] flatten(Object... data) {
         List<Object> values = new ArrayList<Object>();
         Class<?> type = Void.class;

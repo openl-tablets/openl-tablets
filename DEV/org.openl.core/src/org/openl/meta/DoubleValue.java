@@ -1,5 +1,12 @@
 package org.openl.meta;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.meta.DoubleValue.DoubleValueAdapter;
@@ -10,12 +17,6 @@ import org.openl.meta.number.LogicalExpressions;
 import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.math.BigDecimal;
-import java.util.Arrays;
 
 @XmlRootElement
 @XmlJavaTypeAdapter(DoubleValueAdapter.class)
@@ -291,34 +292,12 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     }
 
     //ADD
-    public static DoubleValue add(DoubleValue value1, String value2) {
-        if (value2 == null) {
-            return value1;
-        }
-
-        if (value1 == null) {
-            return new DoubleValue(Double.valueOf(value2));
-        }
-        
-        double v = Double.valueOf(value2);
-
-        return new org.openl.meta.DoubleValue(value1, new DoubleValue(v), Operators.add(value1.getValue(), v),
-            Formulas.ADD);
+    public static String add(DoubleValue value1, String value2) {
+        return value1 + value2;
     }
     
-    public static DoubleValue add(String value1, DoubleValue value2) {
-        if (value1 == null) {
-            return value2;
-        }
-
-        if (value2 == null) {
-            return new DoubleValue(Double.valueOf(value1));
-        }
-        
-        double v = Double.valueOf(value1);
-        
-        return new org.openl.meta.DoubleValue(new DoubleValue(v), value2, Operators.add(v, value2.getValue()),
-            Formulas.ADD);
+    public static String add(String value1, DoubleValue value2) {
+        return value1 + value2;
     } 
     
      /**
@@ -761,29 +740,6 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
             return null;
         }
         return new BigDecimalValue(String.valueOf(x.getValue()), x, true);
-    }
-
-    public static String autocast(DoubleValue x, String y) {
-        if (x == null) {
-            return null;
-        }
-
-        return x.toString();
-    }
-    
-    public static Integer distance(DoubleValue x, String y) {
-        return 11;
-    }
-
-    public static DoubleValue autocast(String x, DoubleValue y) {
-        if (x == null || "".equals(x)) {
-            return null;
-        }
-        return new DoubleValue(Double.valueOf(x));
-    }
-    
-    public static Integer distance(String x, DoubleValue y) {
-        return 10;
     }
 
     // ******* Casts *************

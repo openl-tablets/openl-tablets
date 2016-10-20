@@ -52,8 +52,8 @@ public class MethodSearch {
 
         return maxdiff * 100 + ndiff;
     }
-
-    public static IMethodCaller getCastingMethodCaller(String name,
+    
+    public static IMethodCaller getCastingMethodCaller(final String name,
             IOpenClass[] params,
             ICastFactory casts,
             Iterable<IOpenMethod> methods) throws AmbiguousMethodException {
@@ -66,7 +66,7 @@ public class MethodSearch {
         final int nParams = params.length;
         Iterable<IOpenMethod> filtered = (methods == null) ? Collections.<IOpenMethod>emptyList() : CollectionUtils.findAll(methods, new CollectionUtils.Predicate<IOpenMethod>() {
             @Override public boolean evaluate(IOpenMethod method) {
-                return method.getSignature().getParameterTypes().length == nParams;
+                return method.getName().equals(name) && method.getSignature().getParameterTypes().length == nParams;
             }
         });
         for (IOpenMethod method : filtered) {
@@ -94,7 +94,11 @@ public class MethodSearch {
             case 0:
                 return null;
             case 1:
-                return new CastingMethodCaller(matchingMethods.get(0), bestCastHolder);
+                if (bestMatch > 0){
+                    return new CastingMethodCaller(matchingMethods.get(0), bestCastHolder);
+                }else{
+                    return matchingMethods.get(0);
+                }
             default:
                 IOpenMethod mostSecificMethod = findMostSpecificMethod(name, params, matchingMethods, casts);
                 boolean f = true;

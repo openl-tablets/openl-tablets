@@ -252,34 +252,12 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     }
 
     //ADD
-    public static ByteValue add(ByteValue value1, String value2) {
-        if (value2 == null) {
-            return value1;
-        }
-
-        if (value1 == null) {
-            return new ByteValue(Byte.valueOf(value2));
-        }
-        
-        byte v = Byte.valueOf(value2);
-
-        return new org.openl.meta.ByteValue(value1, new ByteValue(v), Operators.add(value1.getValue(), v),
-            Formulas.ADD);
+    public static String add(ByteValue value1, String value2) {
+        return value1 + value2;
     }
     
-    public static ByteValue add(String value1, ByteValue value2) {
-        if (value1 == null) {
-            return value2;
-        }
-
-        if (value2 == null) {
-            return new ByteValue(Byte.valueOf(value1));
-        }
-        
-        byte v = Byte.valueOf(value1);
-        
-        return new org.openl.meta.ByteValue(new ByteValue(v), value2, Operators.add(v, value2.getValue()),
-            Formulas.ADD);
+    public static String add(String value1, ByteValue value2) {
+        return value1 + value2;
     }
 
      /**
@@ -689,28 +667,6 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
             return null;
         }
         return new BigDecimalValue(String.valueOf(x.getValue()), x, true);
-    }
-
-    public static String autocast(ByteValue x, String y) {
-        if (x == null) {
-            return null;
-        }
-        return x.toString();
-    }
-    
-    public static Integer distance(ByteValue x, String y) {
-        return 11;
-    }
-
-    public static ByteValue autocast(String x, ByteValue y) {
-        if (x == null) {
-            return null;
-        }
-        return new ByteValue(Byte.valueOf(x));
-    }
-    
-    public static Integer distance(String x, ByteValue y) {
-        return 10;
     }
 
     // ******* Casts *************

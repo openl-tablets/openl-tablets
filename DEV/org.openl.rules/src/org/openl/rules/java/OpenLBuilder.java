@@ -23,6 +23,8 @@ public class OpenLBuilder extends AOpenLBuilder {
         org.openl.meta.LongValue.class.getName(), 
         org.openl.meta.FloatValue.class.getName(),
         org.openl.meta.DoubleValue.class.getName(),
+        org.openl.meta.StringValue.class.getName(),
+        org.openl.meta.ObjectValue.class.getName(),
         org.openl.meta.BigIntegerValue.class.getName(),
         org.openl.meta.BigDecimalValue.class.getName()};
     
@@ -34,6 +36,8 @@ public class OpenLBuilder extends AOpenLBuilder {
         org.openl.meta.FloatValue.class.getName(),
         org.openl.meta.DoubleValue.class.getName(),
         org.openl.meta.BigIntegerValue.class.getName(),
+        org.openl.meta.StringValue.class.getName(),
+        org.openl.meta.ObjectValue.class.getName(),
         org.openl.meta.BigDecimalValue.class.getName()};
     
     @Override

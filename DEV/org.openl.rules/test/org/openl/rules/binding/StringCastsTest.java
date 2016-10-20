@@ -1,16 +1,23 @@
-package org.openl.binding.impl.cast;
+package org.openl.rules.binding;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.openl.binding.impl.Operators;
-import org.openl.meta.*;
-import org.openl.types.java.JavaOpenClass;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
+import org.junit.Before;
+import org.junit.Test;
+import org.openl.binding.impl.cast.CastFactory;
+import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.meta.BigDecimalValue;
+import org.openl.meta.BigIntegerValue;
+import org.openl.meta.ByteValue;
+import org.openl.meta.DoubleValue;
+import org.openl.meta.FloatValue;
+import org.openl.meta.IntValue;
+import org.openl.meta.ShortValue;
+import org.openl.types.java.JavaOpenClass;
 
 /**
  * Created by dl on 5/4/15.
@@ -22,7 +29,7 @@ public class StringCastsTest {
     @Before
     public void before() {
         factory  = new CastFactory();
-        factory.setMethodFactory(JavaOpenClass.getOpenClass(Operators.class));
+        factory.setMethodFactory(JavaOpenClass.getOpenClass(StringOperators.class));
     }
 
     @Test

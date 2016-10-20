@@ -253,34 +253,12 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     }
 
     //ADD
-    public static LongValue add(LongValue value1, String value2) {
-        if (value2 == null) {
-            return value1;
-        }
-
-        if (value1 == null) {
-            return new LongValue(Long.valueOf(value2));
-        }
-        
-        long v = Long.valueOf(value2);
-
-        return new org.openl.meta.LongValue(value1, new LongValue(v), Operators.add(value1.getValue(), v),
-            Formulas.ADD);
+    public static String add(LongValue value1, String value2) {
+        return value1 + value2;
     }
     
-    public static LongValue add(String value1, LongValue value2) {
-        if (value1 == null) {
-            return value2;
-        }
-
-        if (value2 == null) {
-            return new LongValue(Long.valueOf(value1));
-        }
-        
-        long v = Long.valueOf(value1);
-        
-        return new org.openl.meta.LongValue(new LongValue(v), value2, Operators.add(v, value2.getValue()),
-            Formulas.ADD);
+    public static String add(String value1, LongValue value2) {
+        return value1 + value2;
     }   
     
      /**
@@ -695,28 +673,6 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         return new BigDecimalValue(String.valueOf(x.getValue()), x, true);
     }
     
-    public static String autocast(LongValue x, String y) {
-        if (x == null) {
-            return null;
-        }
-        return x.toString();
-    }
-    
-    public static Integer distance(LongValue x, String y) {
-        return 11;
-    }
-
-    public static LongValue autocast(String x, LongValue y) {
-        if (x == null) {
-            return null;
-        }
-        return new LongValue(Long.valueOf(x));
-    }
-    
-    public static Integer distance(String x, LongValue y) {
-        return 10;
-    }
-
     // ******* Casts *************
 
     public static byte cast(LongValue x, byte y) {
