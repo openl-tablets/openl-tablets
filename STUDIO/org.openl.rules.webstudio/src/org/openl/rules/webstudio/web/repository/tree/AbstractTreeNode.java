@@ -14,9 +14,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.ArtefactAPI;
-import org.openl.rules.webstudio.web.repository.RepositoryProjectPropsBean;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
-import org.openl.rules.webstudio.web.tableeditor.PropertyRow;
 
 import com.google.common.collect.Iterators;
 
@@ -373,10 +371,4 @@ public abstract class AbstractTreeNode implements TreeNode {
     public void refresh(){
         data.refresh();
     }
-    
-    /*dimension props information*/
-    public List<PropertyRow> getDimensionProps() {
-        return RepositoryProjectPropsBean.getProjectPropsToolTip(this.getData());
-    }
-
 }
