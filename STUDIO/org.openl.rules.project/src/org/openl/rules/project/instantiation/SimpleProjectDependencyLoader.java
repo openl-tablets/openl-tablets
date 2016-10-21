@@ -4,17 +4,14 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.openl.CompiledOpenClass;
-import org.openl.classloader.ClassLoaderCloserFactory;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.engine.OpenLValidationManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
-import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.model.Module;
-import org.openl.types.java.JavaOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,7 +92,7 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
                 }
                 
                 RulesInstantiationStrategy rulesInstantiationStrategy;
-                ClassLoader classLoader = dependencyManager.buildClassLoader(modules.iterator().next().getProject());
+                ClassLoader classLoader = dependencyManager.getClassLoader(modules.iterator().next().getProject());
                 if (modules.size() == 1) {
                     dependencyManager.getCompilationStack().add(dependencyName);
                     log.debug("Creating dependency for dependencyName = {}", dependencyName);
@@ -148,18 +145,7 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
         return dependencyName;
     }
     
-    private void releaseClassLoader(ClassLoader classLoader) {
-        if (classLoader != null) {
-            JavaOpenClass.resetClassloader(classLoader);
-            String2DataConvertorFactory.unregisterClassLoader(classLoader);
-            ClassLoaderCloserFactory.getClassLoaderCloser().close(classLoader);
-        }
-    }
-    
     public void reset() {
-        if (compiledDependency != null){
-            releaseClassLoader(compiledDependency.getClassLoader());
-        }
         compiledDependency = null;
     }
 

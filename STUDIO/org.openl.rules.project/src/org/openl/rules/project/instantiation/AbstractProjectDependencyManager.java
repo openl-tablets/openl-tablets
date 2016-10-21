@@ -127,13 +127,7 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
 
     protected abstract Collection<ProjectDescriptor> getProjectDescriptors();
 
-    public ClassLoader buildClassLoader(ProjectDescriptor project) {
-        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(AbstractProjectDependencyManager.class.getClassLoader());
-        classLoader.addClassLoader(getResourceClassLoader(project));
-        return classLoader;
-    }
-
-    private ClassLoader getResourceClassLoader(ProjectDescriptor project) {
+    public ClassLoader getClassLoader(ProjectDescriptor project) {
         getDependencyLoaders();
         if (classLoaders.get(project.getName()) != null) {
             return classLoaders.get(project.getName());
@@ -147,7 +141,7 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
                 if (getProjectDescriptors() != null) {
                     for (ProjectDescriptor projectDescriptor : getProjectDescriptors()) {
                         if (projectDependencyDescriptor.getName().equals(projectDescriptor.getName())) {
-                            classLoader.addClassLoader(getResourceClassLoader(projectDescriptor));
+                            classLoader.addClassLoader(getClassLoader(projectDescriptor));
                             break;
                         }
                     }
@@ -159,6 +153,8 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
         return classLoader;
     }
     
+    private List<ClassLoader> oldClassLoaders = new ArrayList<ClassLoader>();
+
     public synchronized void reset(IDependency dependency){
         String dependencyName = dependency.getNode().getIdentifier();
         for (ProjectDescriptor projectDescriptor : getProjectDescriptors()){
@@ -171,7 +167,7 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
                 }
                 ClassLoader classLoader = classLoaders.get(projectDescriptor.getName());
                 if (classLoader != null){
-                    releaseClassLoader(classLoader);
+                    oldClassLoaders.add(classLoader);
                 }
                 classLoaders.remove(projectDescriptor.getName());
                 break;
@@ -180,7 +176,7 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
                 if (module.getName().equals(dependencyName)){
                     ClassLoader classLoader = classLoaders.get(projectDescriptor.getName());
                     if (classLoader != null){
-                        releaseClassLoader(classLoader);
+                        oldClassLoaders.add(classLoader);
                     }
                     classLoaders.remove(projectDescriptor.getName());
                 }
@@ -224,6 +220,10 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
     }
 
     public synchronized void resetAll(){
+        for (ClassLoader classLoader : oldClassLoaders){
+            releaseClassLoader(classLoader);
+        }
+        oldClassLoaders.clear();
         for (ClassLoader classLoader : classLoaders.values()){
             releaseClassLoader(classLoader);
         }
@@ -231,6 +231,15 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
         for (IDependencyLoader dependencyLoader : getDependencyLoaders()) {
             ((SimpleProjectDependencyLoader) dependencyLoader).reset();
         }
+    }
+
+    public void replaceClassLoader(ProjectDescriptor project, ClassLoader classLoader) {
+        ClassLoader oldClassloader = classLoaders.get(project.getName());
+        if (oldClassloader != null && oldClassloader != classLoader) {
+            oldClassLoaders.add(oldClassloader);
+        }
+
+        classLoaders.put(project.getName(), classLoader);
     }
 
 }
