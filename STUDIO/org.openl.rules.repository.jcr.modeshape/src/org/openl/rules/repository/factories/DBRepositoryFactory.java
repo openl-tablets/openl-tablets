@@ -26,7 +26,6 @@ import org.modeshape.jcr.JcrNodeTypeManager;
 import org.modeshape.jcr.JcrRepository;
 import org.modeshape.jcr.LocalEnvironment;
 import org.modeshape.jcr.RepositoryConfiguration;
-import org.openl.config.ConfigSet;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -72,9 +71,9 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
     private void init() throws Exception {
         registerDrivers();
 
-        String dbUrl = uri.getValue();
-        String user = login.getValue();
-        String pwd = password.getValue();
+        String dbUrl = uri;
+        String user = login;
+        String pwd = password;
 
         log.info("Checking a connection to DB [{}]", dbUrl);
         Connection conn;
@@ -195,8 +194,8 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
      * {@inheritDoc}
      */
     @Override
-    public void initialize(ConfigSet confSet, boolean designMode) throws RRepositoryException {
-        super.initialize(confSet, designMode);
+    public void initialize(String uri, String login, String password, boolean designMode) throws RRepositoryException {
+        super.initialize(uri, login, password, designMode);
 
         try {
             init();

@@ -7,8 +7,6 @@ import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 import javax.jcr.nodetype.NodeTypeManager;
 
-import org.openl.config.ConfigPropertyString;
-import org.openl.config.ConfigSet;
 import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -33,9 +31,9 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     protected Repository repository;
     private RRepository rulesRepository;
 
-    protected ConfigPropertyString login;
-    protected ConfigPropertyString password;
-    protected ConfigPropertyString uri;
+    protected String login;
+    protected String password;
+    protected String uri;
     boolean designRepositoryMode = false;
 
 
@@ -73,8 +71,8 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
      * @throws RepositoryException if fails or user credentials are not correct
      */
     protected Session createSession() throws RepositoryException {
-        String loginValue = login.getValue();
-        String passwordValue = password.getValue();
+        String loginValue = login;
+        String passwordValue = password;
         if (loginValue == null) {
             loginValue = "";
         }
@@ -114,21 +112,12 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     }
 
     /** {@inheritDoc} */
-    public void initialize(ConfigSet confSet, boolean designMode) throws RRepositoryException {
+    public void initialize(String uri, String login, String password, boolean designMode) throws RRepositoryException {
         designRepositoryMode = designMode;
 
-        String type = designRepositoryMode ? "design" : "production";
-        login = new ConfigPropertyString(type + "-repository.login", null);
-        password = new ConfigPropertyString(type + "-repository.password", null);
-        uri = new ConfigPropertyString(type + "-repository.uri", null);
-
-        confSet.updateProperty(login);
-        confSet.updatePasswordProperty(password);
-        confSet.updateProperty(uri);
-
-        // TODO: add default path support
-        // 1. check path -- create if absent
-        // 2. pass as parameter or property to JcrRepository
+        this.uri = uri;
+        this.login = login;
+        this.password = password;
     }
 
     /**

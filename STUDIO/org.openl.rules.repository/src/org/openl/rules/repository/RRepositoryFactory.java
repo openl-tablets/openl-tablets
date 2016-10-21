@@ -1,6 +1,5 @@
 package org.openl.rules.repository;
 
-import org.openl.config.ConfigSet;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
@@ -22,11 +21,12 @@ public interface RRepositoryFactory {
     /**
      * Initialize factory.
      *
-     * @param confSet configuration data
+     * @param uri
+     * @param login
+     * @param password @throws RRepositoryException if failed
      * @param designMode
-     * @throws RRepositoryException if failed
-     */
-    void initialize(ConfigSet confSet, boolean designMode) throws RRepositoryException;
+     * */
+    void initialize(String uri, String login, String password, boolean designMode) throws RRepositoryException;
 
     void release() throws RRepositoryException;
 

@@ -5,7 +5,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeTypeManager;
 
 import org.apache.jackrabbit.jcr2spi.RepositoryImpl;
-import org.openl.config.ConfigSet;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
@@ -16,12 +15,12 @@ public class WebDavRepositoryFactory extends AbstractJcrRepositoryFactory {
 
     /** {@inheritDoc} */
     @Override
-    public void initialize(ConfigSet confSet, boolean designMode) throws RRepositoryException {
-        super.initialize(confSet, designMode);
+    public void initialize(String uri, String login, String password, boolean designMode) throws RRepositoryException {
+        super.initialize(uri, login, password, designMode);
 
         try {
             Repository repository;
-            String webDavUrl = uri.getValue();
+            String webDavUrl = this.uri;
             try {
                 //FIXME Doesn't work on the secure mode
                 repository = RepositoryImpl.create(new DavexRepositoryConfigImpl(webDavUrl));

@@ -13,7 +13,6 @@ import javax.jcr.nodetype.NodeTypeManager;
 import org.apache.jackrabbit.api.JackrabbitNodeTypeManager;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
-import org.openl.config.ConfigSet;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.utils.UserUtil;
 import org.openl.util.IOUtils;
@@ -88,7 +87,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
     private void init() throws RepositoryException {
         try {
             String jackrabbitConfig;
-            if (StringUtils.isEmpty(login.getValue())) {
+            if (StringUtils.isEmpty(login)) {
                 jackrabbitConfig = "/jackrabbit-repository.xml";
             } else {
                 jackrabbitConfig = "/secure-jackrabbit-repository.xml";
@@ -118,10 +117,10 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
      * {@inheritDoc}
      */
     @Override
-    public void initialize(ConfigSet confSet, boolean designMode) throws RRepositoryException {
-        super.initialize(confSet, designMode);
+    public void initialize(String uri, String login, String password, boolean designMode) throws RRepositoryException {
+        super.initialize(uri, login, password, designMode);
 
-        repHome = new File(uri.getValue());
+        repHome = new File(this.uri);
 
         try {
             init();
