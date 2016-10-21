@@ -7,7 +7,6 @@ import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 import javax.jcr.nodetype.NodeTypeManager;
 
-import org.openl.config.ConfigPropertyBoolean;
 import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
 import org.openl.rules.repository.RRepository;
@@ -31,14 +30,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
     protected static final String DEFAULT_NODETYPE_FILE = "/org/openl/rules/repository/openl_nodetypes.xml";
 
-    /** Default path where new project should be created */
-    protected final ConfigPropertyString confRulesProjectsLocation = new ConfigPropertyString(
-            "design-repository.rules.path", "/rules");
-    protected final ConfigPropertyString confDeploymentProjectsLocation = new ConfigPropertyString(
-            "design-repository.deployments.path", "/deployments");
-
     protected Repository repository;
-//    protected String repositoryName;
     private RRepository rulesRepository;
 
     protected ConfigPropertyString login;
@@ -108,8 +100,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
             RRepository theRepository;
             if (designRepositoryMode) {
-                theRepository = new JcrRepository(session,
-                        confRulesProjectsLocation.getValue(), confDeploymentProjectsLocation.getValue());
+                theRepository = new JcrRepository(session, "/DESIGN/rules", "/DESIGN/deployments");
             } else {
                 theRepository = new JcrProductionRepository(session);
             }
@@ -124,9 +115,6 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
     /** {@inheritDoc} */
     public void initialize(ConfigSet confSet, boolean designMode) throws RRepositoryException {
-        confSet.updateProperty(confRulesProjectsLocation);
-        confSet.updateProperty(confDeploymentProjectsLocation);
-
         designRepositoryMode = designMode;
 
         String type = designRepositoryMode ? "design" : "production";
