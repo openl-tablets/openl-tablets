@@ -40,7 +40,6 @@ import org.openl.rules.lang.xls.binding.wrapper.CompositeMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.DecisionTable2Wrapper;
 import org.openl.rules.lang.xls.binding.wrapper.DeferredMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.JavaOpenMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.MatchingOpenMethodDispatcherWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.OverloadedMethodsDispatcherTableWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.SpreadsheetWrapper;
@@ -73,7 +72,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AMethod;
 import org.openl.types.impl.CompositeMethod;
-import org.openl.types.java.JavaOpenMethod;
 import org.openl.util.Log;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -319,9 +317,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             return new TableMethodWrapper(this, (TableMethod) openMethod);
         }
 
-        if (openMethod instanceof JavaOpenMethod) {
+        /*if (openMethod instanceof JavaOpenMethod) {
             return new JavaOpenMethodWrapper(this, (JavaOpenMethod) openMethod);
-        }
+        }*/
 
         /*
          * if (log.isWarnEnabled()) { log.warn(

@@ -1,33 +1,35 @@
-/*
- * Created on May 20, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.types.java;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-
 import org.openl.binding.MethodUtil;
+import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.IMemberMetaInfo;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.IRuntimeEnv;
 
-/**
- * @author snshor
- *
- */
-public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
-    Method method;
+public class AutoCastResultOpenMethod implements IOpenMethod, IMethodSignature {
+    private IMethodCaller methodCaller;
+    
+    private IOpenCast cast;
 
-    IOpenClass[] parameterTypes;
+    private IOpenClass returnType;
 
-    public JavaOpenMethod(Method method) {
-        this.method = method;
+    public AutoCastResultOpenMethod(IMethodCaller methodCaller, IOpenClass returnType, IOpenCast cast) {
+        if (methodCaller == null){
+            throw new IllegalArgumentException();
+        }
+        if (returnType == null){
+            throw new IllegalArgumentException();
+        }
+        if (cast == null){
+            throw new IllegalArgumentException();
+        }
+        this.methodCaller = methodCaller;
+        this.returnType = returnType;
+        this.cast = cast;
     }
 
     /*
@@ -36,7 +38,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      * @see org.openl.types.IOpenMember#getDeclaringClass()
      */
     public IOpenClass getDeclaringClass() {
-        return JavaOpenClass.getOpenClass(method.getDeclaringClass());
+        return methodCaller.getMethod().getDeclaringClass();
     }
 
     public String getDisplayName(int mode) {
@@ -67,7 +69,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      * @see org.openl.base.INamedThing#getName()
      */
     public String getName() {
-        return method.getName();
+        return methodCaller.getMethod().getName();
     }
 
     /*
@@ -76,7 +78,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      * @see org.openl.types.IMethodSignature#getNumberOfParameters()
      */
     public int getNumberOfParameters() {
-        return getParameterTypes().length;
+        return methodCaller.getMethod().getSignature().getNumberOfParameters();
     }
 
     /*
@@ -85,7 +87,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      * @see org.openl.types.IMethodSignature#getParameterName(int)
      */
     public String getParameterName(int i) {
-        return null;
+        return methodCaller.getMethod().getSignature().getParameterName(i);
     }
     
     /*
@@ -94,18 +96,11 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      * @see org.openl.types.IMethodSignature#getParameterType(int)
      */
     public IOpenClass getParameterType(int i) {
-        return getParameterTypes()[i];
+        return methodCaller.getMethod().getSignature().getParameterType(i);
     }
 
     public IOpenClass[] getParameterTypes() {
-        if (parameterTypes == null) {
-        	synchronized(this){
-            	parameterTypes = JavaOpenClass.getOpenClasses(method.getParameterTypes());
-        	}	
-        	
-        }
-
-        return parameterTypes;
+        return methodCaller.getMethod().getSignature().getParameterTypes();
     }
 
     /*
@@ -123,7 +118,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      * @see org.openl.types.IOpenMember#getType()
      */
     public IOpenClass getType() {
-        return JavaOpenClass.getOpenClass(method.getReturnType());
+        return returnType;
     }
 
     /*
@@ -134,7 +129,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      */
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         try {
-            return method.invoke(target, params);
+            return cast.convert(methodCaller.invoke(target, params, env));
         } catch (Throwable t) {
             throw RuntimeExceptionWrapper.wrap(t);
         }
@@ -146,11 +141,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      * @see org.openl.types.IOpenMember#isStatic()
      */
     public boolean isStatic() {
-        return Modifier.isStatic(method.getModifiers());
-    }
-    
-    public Method getJavaMethod(){
-        return method;
+        return methodCaller.getMethod().isStatic();
     }
 
     @Override
