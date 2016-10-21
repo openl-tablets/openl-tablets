@@ -100,7 +100,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         if (method != null) {
             RecursiveOpenMethodPreBinder openMethodBinder = null;
             if (method instanceof RecursiveOpenMethodPreBinder) {
-                openMethodBinder = (RecursiveOpenMethodPreBinder) openMethodBinder;
+                openMethodBinder = (RecursiveOpenMethodPreBinder) method;
             }
             if (method instanceof CastingMethodCaller) {
                 openMethodBinder = (RecursiveOpenMethodPreBinder) ((CastingMethodCaller) method).getMethod();
