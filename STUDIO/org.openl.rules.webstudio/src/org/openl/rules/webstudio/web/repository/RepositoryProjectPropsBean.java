@@ -39,26 +39,14 @@ public class RepositoryProjectPropsBean {
     private List<PropertyRow> propsStore;
     private String storeProjName;
     private String storeProjVersion;
-    private Map<String, String> attribs;
-    private RepositoryAttributeUtils repoAttrsUtils;
-
     public RepositoryProjectPropsBean() {
         bussinedDimensionProps = TablePropertyDefinitionUtils.getDimensionalTableProperties();
-
-        RepositoryArtefactPropsHolder rap = new RepositoryArtefactPropsHolder();
-        attribs = rap.getProps();
-
-        if (attribs == null) {
-            attribs = new HashMap<String, String>();
-        }
 
         if (repositoryTreeState != null && repositoryTreeState.getSelectedNode() != null
                 && storeProjName == null) {
             storeProjName = repositoryTreeState.getSelectedNode().getData().getName();
             storeProjVersion = repositoryTreeState.getSelectedNode().getData().getVersion().getVersionName();
         }
-
-        repoAttrsUtils = new RepositoryAttributeUtils();
     }
 
     /**
@@ -148,31 +136,6 @@ public class RepositoryProjectPropsBean {
                 props.add(new SelectItem(prop.getName(), prop.getDisplayName()));
             }
         }
-
-        //set attribs
-        Map<String, String> attribs = repoAttrsUtils.getActiveAttribs();
-
-        if (attribs != null) {
-            for (Map.Entry<String, String> entry: attribs.entrySet()) {
-                boolean presents = false;
-
-                String key = entry.getKey();
-                for (PropertyRow row : propsStore) {
-                    if (row.getType().equals(PropertyRowType.PROPERTY)) {
-                        TableProperty tp = (TableProperty) row.getData();
-
-                        if (tp.getName().equals(key)) {
-                            presents = true;
-                        }
-                    }
-                }
-
-                if (!presents) {
-                    props.add(new SelectItem(key, entry.getValue()));
-                }
-            }
-        }
-
         return props;
     }
 
@@ -190,22 +153,6 @@ public class RepositoryProjectPropsBean {
         if (selectProp == null) {
             return;
         }
-
-        if (attribs != null) {
-            if (attribs.containsKey(propertyToAdd)) {
-                int groupHeaderId = getGroupFirstPosition(OTHER_PROP_GROUP_NAME);
-                
-                /*Add group header if needed*/
-                if (propsStore.isEmpty() || groupHeaderId == propsStore.size()) {
-                    //add other props group header
-                    propsStore.add(groupHeaderId, new PropertyRow(PropertyRowType.GROUP, OTHER_PROP_GROUP_NAME));
-                }
-
-                propsStore.add(propsStore.size(), selectProp);
-                return;
-            }
-        }
-
 
         int groupHeaderId = getGroupFirstPosition(DBP_GROUP_NAME);
         
@@ -296,10 +243,6 @@ public class RepositoryProjectPropsBean {
 
                 return new PropertyRow(PropertyRowType.PROPERTY, tp);
             }
-        }
-
-        if (StringUtils.isNotBlank(propertyToAdd) && attribs.containsKey(propertyToAdd)) {
-            return repoAttrsUtils.getPropertyRowByAttrName(propertyToAdd);
         }
 
         return null;
@@ -401,12 +344,9 @@ public class RepositoryProjectPropsBean {
     }
 
     private static List<PropertyRow> makeTableProps(Map<String, InheritedProperty> inheritedProp, Map<String, Object> settedPropsList, boolean onlyBDProps) {
-        RepositoryAttributeUtils repoAttrsUtils = new RepositoryAttributeUtils();
         List<PropertyRow> propsStore = new ArrayList<PropertyRow>();
         List<TablePropertyDefinition> bussinesDimensionProps = TablePropertyDefinitionUtils
                 .getDimensionalTableProperties();
-
-        Map<String, String> customAttrs = repoAttrsUtils.getActiveAttribs();
 
         /*Add inherited Props*/
         boolean firstBDRow = true;
@@ -462,28 +402,6 @@ public class RepositoryProjectPropsBean {
 
                     PropertyRow row = new PropertyRow(PropertyRowType.PROPERTY, prop);
                     propsStore.add(row);
-                }
-            }
-        }
-
-        if (!onlyBDProps && customAttrs != null) {
-            boolean firstRow = true;
-
-            for (String key : customAttrs.keySet()) {
-                if (settedPropsList.containsKey(key)) {
-                    if (firstRow) {
-                        propsStore.add(addGroupHeaderRow(OTHER_PROP_GROUP_NAME));
-                        firstRow = false;
-                    }
-
-                    try {
-                        PropertyRow row = repoAttrsUtils.getPropertyRowByAttrName(key);
-                        ((TableProperty) row.getData()).setValue(settedPropsList.get(key));
-
-                        propsStore.add(row);
-                    } catch (Exception e) {
-
-                    }
                 }
             }
         }
