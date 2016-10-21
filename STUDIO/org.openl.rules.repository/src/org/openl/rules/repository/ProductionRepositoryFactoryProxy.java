@@ -78,7 +78,7 @@ public class ProductionRepositoryFactoryProxy {
         config.updateProperty(confRepositoryFactoryClass);
         String className = confRepositoryFactoryClass.getValue();
 
-        RRepositoryFactory repFactory = RepositoryFactoryInstatiator.newFactory(className, config);
+        RRepositoryFactory repFactory = RepositoryFactoryInstatiator.newFactory(className, config, false);
         return repFactory;
     }
 }

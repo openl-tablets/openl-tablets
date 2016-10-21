@@ -23,9 +23,10 @@ public interface RRepositoryFactory {
      * Initialize factory.
      *
      * @param confSet configuration data
+     * @param designMode
      * @throws RRepositoryException if failed
      */
-    void initialize(ConfigSet confSet) throws RRepositoryException;
+    void initialize(ConfigSet confSet, boolean designMode) throws RRepositoryException;
 
     void release() throws RRepositoryException;
 

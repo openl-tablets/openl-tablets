@@ -195,8 +195,8 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
      * {@inheritDoc}
      */
     @Override
-    public void initialize(ConfigSet confSet) throws RRepositoryException {
-        super.initialize(confSet);
+    public void initialize(ConfigSet confSet, boolean designMode) throws RRepositoryException {
+        super.initialize(confSet, designMode);
 
         try {
             init();

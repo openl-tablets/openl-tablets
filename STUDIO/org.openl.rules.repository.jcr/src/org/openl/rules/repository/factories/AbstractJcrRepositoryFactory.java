@@ -5,25 +5,17 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
-import javax.jcr.Value;
-import javax.jcr.nodetype.NoSuchNodeTypeException;
-import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeManager;
-import javax.jcr.nodetype.PropertyDefinition;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathFactory;
 
 import org.openl.config.ConfigPropertyBoolean;
 import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
 import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.RRepositoryFactory;
-import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.jcr.JcrNT;
 import org.openl.rules.repository.jcr.JcrProductionRepository;
 import org.openl.rules.repository.jcr.JcrRepository;
-import org.xml.sax.InputSource;
 
 /**
  * This is Abstract class with common code for Local and RMI methods of
@@ -131,13 +123,11 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     }
 
     /** {@inheritDoc} */
-    public void initialize(ConfigSet confSet) throws RRepositoryException {
+    public void initialize(ConfigSet confSet, boolean designMode) throws RRepositoryException {
         confSet.updateProperty(confRulesProjectsLocation);
         confSet.updateProperty(confDeploymentProjectsLocation);
 
-        ConfigPropertyBoolean dessignModeProperty = new ConfigPropertyBoolean("dessign-mode", false);
-        confSet.updateProperty(dessignModeProperty);
-        designRepositoryMode = dessignModeProperty.getValue();
+        designRepositoryMode = designMode;
 
         String type = designRepositoryMode ? "design" : "production";
         login = new ConfigPropertyString(type + "-repository.login", null);
