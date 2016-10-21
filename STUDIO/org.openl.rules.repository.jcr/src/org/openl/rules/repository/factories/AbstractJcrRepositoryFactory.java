@@ -68,20 +68,12 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
             systemSession = createSession();
             NodeTypeManager ntm = systemSession.getWorkspace().getNodeTypeManager();
 
-            boolean initNodeTypes = false;
             try {
                 // Does JCR know anything about OpenL?
                 ntm.getNodeType(JcrNT.NT_REPOSITORY);
             } catch (Exception e) {
                 // No, it doesn't.
-                initNodeTypes = true;
-            }
-
-            if (initNodeTypes) {
-                // Add OpenL node definitions
                 initNodeTypes(ntm);
-            } else {
-                checkSchemaVersion(ntm);
             }
         } finally {
             if (systemSession != null) {
@@ -90,23 +82,6 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
         }
     }
 
-    /**
-     * Checks whether schema version of the repository is valid. If check failed
-     * then it throws exception.
-     *
-     * @param ntm Node Type Manager
-     * @throws RepositoryException if check failed
-     */
-    protected void checkSchemaVersion(NodeTypeManager ntm) throws RepositoryException {
-        String schemaVersion = getCurrentSchemaVersion(ntm);
-        // compare expected and repository schema versions
-        String expectedVersion = getExpectedSchemaVersion();
-        if (!expectedVersion.equals(schemaVersion)) {
-            throw new RepositoryException("Schema version is different. Has (" + schemaVersion + ") when ("
-                    + expectedVersion + ") expected.");
-        }
-    }
-    
     /**
      * Creates JCR Session.
      *
@@ -124,65 +99,6 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
         }
         Credentials credencials = new SimpleCredentials(loginValue, passwordValue.toCharArray());
         return repository.login(credencials);
-    }
-
-    // ------ protected methods ------
-
-    protected String getExpectedSchemaVersion() throws RepositoryException {
-        String xPathQ = "/nodeTypes/nodeType[@name = 'openl:repository']"
-                + "/propertyDefinition[@name = 'schema-version']/defaultValues/defaultValue[1]";
-
-        XPathFactory factory = XPathFactory.newInstance();
-        XPath xPath = factory.newXPath();
-
-        try {
-
-            InputSource source = new InputSource(this.getClass().getResourceAsStream(DEFAULT_NODETYPE_FILE));
-            String result = xPath.evaluate(xPathQ, source);
-
-            if (result == null || result.length() == 0) {
-                throw new Exception("Cannot find node.");
-            }
-
-            return result;
-        } catch (Exception e) {
-            throw new RepositoryException("Cannot read schema version from '" + DEFAULT_NODETYPE_FILE + "': " + e.getMessage());
-        }
-    }
-
-    protected String getCurrentSchemaVersion(NodeTypeManager ntm) throws RepositoryException {
-        String schemaVersion = null;
-
-        // check special node
-        NodeType nodeType;
-        try {
-            nodeType = ntm.getNodeType(JcrNT.NT_REPOSITORY);
-        } catch (NoSuchNodeTypeException e) {
-            throw new RepositoryException("Cannot determine scheme version: " + e.getMessage());
-        }
-
-        PropertyDefinition[] propDefs = nodeType.getPropertyDefinitions();
-
-        // retrieve value of schema version
-        for (PropertyDefinition definition : propDefs) {
-            if ("schema-version".equals(definition.getName())) {
-                Value[] defValues = definition.getDefaultValues();
-
-                if (defValues != null && defValues.length > 0) {
-                    // take first only
-                    // Note: multiply values are not supported
-                    schemaVersion = defValues[0].getString();
-                }
-
-                break;
-            }
-        }
-
-        if (schemaVersion == null) {
-            throw new RepositoryException("Cannot determine scheme version: no special property or value!");
-        }
-        return schemaVersion;
-
     }
 
     /** {@inheritDoc} */
