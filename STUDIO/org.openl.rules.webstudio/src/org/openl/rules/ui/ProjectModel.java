@@ -894,7 +894,13 @@ public class ProjectModel {
                 recentlyVisitedTables.clear();
                 break;
             case SINGLE:
-                webStudioWorkspaceDependencyManager.reset(new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, moduleToOpen.getName(), null)));
+                //EPBDS-6332 Old classloaders with generated datatypes and CustomSpreadsheetResults are used after editing
+                //webStudioWorkspaceDependencyManager.reset(new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, moduleToOpen.getName(), null)));
+                if (webStudioWorkspaceDependencyManager != null){
+                    webStudioWorkspaceDependencyManager.resetAll();
+                }
+                webStudioWorkspaceDependencyManager = null;
+                recentlyVisitedTables.clear();
                 break;
         }
         setModuleInfo(moduleToOpen, reloadType);
