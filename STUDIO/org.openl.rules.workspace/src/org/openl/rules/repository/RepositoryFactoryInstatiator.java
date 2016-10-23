@@ -49,27 +49,26 @@ public class RepositoryFactoryInstatiator {
      */
     public static RRepositoryFactory newFactory(String className, ConfigSet config, boolean designMode) throws RRepositoryException {
         String clazz = checkConfig(className, config, designMode);
+        String type = designMode ? "design" : "production";
+        ConfigPropertyString loginProp = new ConfigPropertyString(type + "-repository.login", null);
+        ConfigPropertyString passwordProp = new ConfigPropertyString(type + "-repository.password", null);
+        ConfigPropertyString uriProp = new ConfigPropertyString(type + "-repository.uri", null);
+
+        config.updateProperty(loginProp);
+        config.updatePasswordProperty(passwordProp);
+        config.updateProperty(uriProp);
+
+        String login = loginProp.getValue();
+        String password = passwordProp.getValue();
+        String uri = uriProp.getValue();
+
         RRepositoryFactory repFactory;
         try {
-            Class<?> c = Class.forName(clazz);
-            Object obj = c.newInstance();
-            repFactory = (RRepositoryFactory) obj;
-
-            String type = designMode ? "design" : "production";
-            ConfigPropertyString loginProp = new ConfigPropertyString(type + "-repository.login", null);
-            ConfigPropertyString passwordProp = new ConfigPropertyString(type + "-repository.password", null);
-            ConfigPropertyString uriProp = new ConfigPropertyString(type + "-repository.uri", null);
-
-            config.updateProperty(loginProp);
-            config.updatePasswordProperty(passwordProp);
-            config.updateProperty(uriProp);
-
-            String login = loginProp.getValue();
-            String password = passwordProp.getValue();
-            String uri = uriProp.getValue();
-
             // initialize
-            repFactory.initialize(uri, login, password, designMode);
+            Class<?> c = Class.forName(clazz);
+            Object obj = c.getConstructor(String.class, String.class, String.class, boolean.class).newInstance(uri, login, password, designMode);
+            repFactory = (RRepositoryFactory) obj;
+            repFactory.initialize();
         } catch (Exception e) {
             String message = "Failed to initialize repository: " + className + " , like: " + clazz;
             log().error(message, e);

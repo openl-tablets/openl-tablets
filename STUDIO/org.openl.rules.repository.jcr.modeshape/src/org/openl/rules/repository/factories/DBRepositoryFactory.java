@@ -47,6 +47,10 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
      */
     private ModeshapeJcrRepo repo;
 
+    protected DBRepositoryFactory(String uri, String login, String password, boolean designMode) {
+        super(uri, login, password, designMode);
+    }
+
     @Override
     protected void finalize() throws Throwable {
         try {
@@ -194,9 +198,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
      * {@inheritDoc}
      */
     @Override
-    public void initialize(String uri, String login, String password, boolean designMode) throws RRepositoryException {
-        super.initialize(uri, login, password, designMode);
-
+    public void initialize() throws RRepositoryException {
         try {
             init();
         } catch (Exception e) {

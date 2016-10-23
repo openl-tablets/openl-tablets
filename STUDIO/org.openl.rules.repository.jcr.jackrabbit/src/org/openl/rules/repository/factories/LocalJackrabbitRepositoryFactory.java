@@ -36,6 +36,10 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
     protected TransientRepository repository;
     protected File repHome;
 
+    public LocalJackrabbitRepositoryFactory(String uri, String login, String password, boolean designMode) {
+        super(uri, login, password, designMode);
+    }
+
     @Override
     protected void finalize() throws Throwable {
         try {
@@ -117,9 +121,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
      * {@inheritDoc}
      */
     @Override
-    public void initialize(String uri, String login, String password, boolean designMode) throws RRepositoryException {
-        super.initialize(uri, login, password, designMode);
-
+    public void initialize() throws RRepositoryException {
         repHome = new File(this.uri);
 
         try {

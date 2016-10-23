@@ -20,13 +20,8 @@ public interface RRepositoryFactory {
 
     /**
      * Initialize factory.
-     *
-     * @param uri
-     * @param login
-     * @param password @throws RRepositoryException if failed
-     * @param designMode
-     * */
-    void initialize(String uri, String login, String password, boolean designMode) throws RRepositoryException;
+     *  */
+    void initialize() throws RRepositoryException;
 
     void release() throws RRepositoryException;
 

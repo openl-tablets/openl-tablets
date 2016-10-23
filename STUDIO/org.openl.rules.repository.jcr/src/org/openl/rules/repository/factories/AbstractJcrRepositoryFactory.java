@@ -36,6 +36,13 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     protected String uri;
     boolean designRepositoryMode = false;
 
+    protected AbstractJcrRepositoryFactory(String uri, String login, String password, boolean designMode) {
+        designRepositoryMode = designMode;
+
+        this.uri = uri;
+        this.login = login;
+        this.password = password;
+    }
 
     /**
      * Checks whether the JCR instance is prepared for OpenL. If it is the first
@@ -109,15 +116,6 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
             }
             throw new RRepositoryException("Failed to get Repository Instance", e);
         } 
-    }
-
-    /** {@inheritDoc} */
-    public void initialize(String uri, String login, String password, boolean designMode) throws RRepositoryException {
-        designRepositoryMode = designMode;
-
-        this.uri = uri;
-        this.login = login;
-        this.password = password;
     }
 
     /**

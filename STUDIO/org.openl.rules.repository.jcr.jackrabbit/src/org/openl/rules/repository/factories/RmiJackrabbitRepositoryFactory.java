@@ -16,10 +16,13 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  */
 public class RmiJackrabbitRepositoryFactory extends AbstractJcrRepositoryFactory {
 
+    public RmiJackrabbitRepositoryFactory(String uri, String login, String password, boolean designMode) {
+        super(uri, login, password, designMode);
+    }
+
     /** {@inheritDoc} */
     @Override
-    public void initialize(String uri, String login, String password, boolean designMode) throws RRepositoryException {
-        super.initialize(uri, login, password, designMode);
+    public void initialize() throws RRepositoryException {
         ClientRepositoryFactory clientRepositoryFactory = new ClientRepositoryFactory();
 
         try {
