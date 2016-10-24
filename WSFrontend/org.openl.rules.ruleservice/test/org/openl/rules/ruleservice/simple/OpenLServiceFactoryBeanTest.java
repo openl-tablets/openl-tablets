@@ -16,8 +16,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.Collection;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties={"ruleservice.datasource.dir=test-resources/RulesFrontendTest", "ruleservice.isProvideRuntimeContext=false"})
-@ContextConfiguration({ "classpath:openl-ruleservice-beans.xml", "classpath:OpenLServiceFactoryBeanTest.xml"})
+@TestPropertySource(properties = { "ruleservice.datasource.dir=test-resources/RulesFrontendTest",
+        "ruleservice.isProvideRuntimeContext=false",
+        "ruleservice.datasource.type = local" })
+@ContextConfiguration({ "classpath:openl-ruleservice-beans.xml", "classpath:OpenLServiceFactoryBeanTest.xml" })
 public class OpenLServiceFactoryBeanTest implements ApplicationContextAware {
 
     private ApplicationContext applicationContext;

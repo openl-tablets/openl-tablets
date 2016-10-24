@@ -22,9 +22,12 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties={"ruleservice.datasource.dir=test-resources/VariationsSupportTest", "ruleservice.isProvideRuntimeContext=false", "ruleservice.isSupportVariations=true"})
+@TestPropertySource(properties = { "ruleservice.datasource.dir=test-resources/VariationsSupportTest",
+        "ruleservice.isProvideRuntimeContext=false",
+        "ruleservice.isSupportVariations=true",
+        "ruleservice.datasource.type = local" })
 @ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
-public class VariationsSupportTest implements ApplicationContextAware{
+public class VariationsSupportTest implements ApplicationContextAware {
     public static final String STANDART = "Standard Driver";
     public static final String YOUNG = "Young Driver";
     public static final String SENOIR = "Senior Driver";
@@ -41,12 +44,14 @@ public class VariationsSupportTest implements ApplicationContextAware{
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
-        
-        RuleServicePublisher ruleServicePublisher = applicationContext.getBean("ruleServicePublisher", RuleServicePublisher.class);
+
+        RuleServicePublisher ruleServicePublisher = applicationContext.getBean("ruleServicePublisher",
+            RuleServicePublisher.class);
         assertNotNull(ruleServicePublisher);
-        
+
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
-        Object driver = ruleServicePublisher.getServiceByName("org.openl.rules.tutorial4.Tutorial4WithVariations").getServiceClass()
+        Object driver = ruleServicePublisher.getServiceByName("org.openl.rules.tutorial4.Tutorial4WithVariations")
+            .getServiceClass()
             .getClassLoader()
             .loadClass("org.openl.generated.beans.publisher.test.Driver")
             .newInstance();
@@ -54,8 +59,10 @@ public class VariationsSupportTest implements ApplicationContextAware{
         nameSetter.invoke(driver, "Male");
         Method ageSetter = driver.getClass().getMethod("setAge", int.class);
         ageSetter.invoke(driver, 40);
-        VariationsPack variations = new VariationsPack(new JXPathVariation("young", 0, "age", 18), new JXPathVariation("senior", 0, "age", 71));
-        VariationsResult<String> resultsDrivers = (VariationsResult<String>) frontend.execute("org.openl.rules.tutorial4.Tutorial4WithVariations", "driverAgeType", new Object[] { driver , variations});
+        VariationsPack variations = new VariationsPack(new JXPathVariation("young", 0, "age", 18),
+            new JXPathVariation("senior", 0, "age", 71));
+        VariationsResult<String> resultsDrivers = (VariationsResult<String>) frontend.execute(
+            "org.openl.rules.tutorial4.Tutorial4WithVariations", "driverAgeType", new Object[] { driver, variations });
         assertEquals(resultsDrivers.getResultForVariation("young"), YOUNG);
         assertEquals(resultsDrivers.getResultForVariation("senior"), SENOIR);
         assertEquals(resultsDrivers.getResultForVariation(NoVariation.ORIGINAL_CALCULATION), STANDART);
