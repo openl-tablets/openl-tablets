@@ -211,11 +211,11 @@ public class ModuleOpenClass extends ComponentOpenClass {
     
     protected void addDependencyTypes(CompiledDependency dependency) {
         CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
-        
         for (Entry<String, IOpenClass> entry : compiledOpenClass.getTypes().entrySet()){
-            IOpenClass openClass = dependencyTypes.put(entry.getKey(), entry.getValue());
-            if (openClass != null && !openClass.equals(entry.getValue())){
-                addError(new OpenLCompilationException("Type " + entry.getKey() + " has been defined already"));
+            try{
+                addTypeWithNamespace(entry.getKey(), entry.getValue());
+            } catch (OpenLCompilationException e) {
+                addError(e);
             }
         }
     }
@@ -243,27 +243,26 @@ public class ModuleOpenClass extends ComponentOpenClass {
      *             if an error had occurred.
      */
     @Override
-    public void addType(String namespace, IOpenClass type) throws OpenLCompilationException {        
+    public IOpenClass addType(String namespace, IOpenClass type) throws OpenLCompilationException {        
         String typeNameWithNamespace = StringTool.buildTypeName(namespace, type.getName());
-        
-        add(typeNameWithNamespace, type);
+        addTypeWithNamespace(typeNameWithNamespace, type);
+        return type;
     }
     
-    /**
-     * Adds type to map of internal types.
-     * 
-     * @param typeNameWithNamespace type name with namespace, e.g. see {@link StringTool#buildTypeName(String, String)}.
-     * @param type {@link IOpenClass} for this type
-     * @throws OpenLCompilationException if such type already exists.
-     */
-    private void add(String typeNameWithNamespace, IOpenClass type) throws OpenLCompilationException {
-        if (internalTypes.containsKey(typeNameWithNamespace)) {
-            throw new OpenLCompilationException("The type " + typeNameWithNamespace + " has been already defined.");
+    protected void addTypeWithNamespace(String typeNameWithNamespace, IOpenClass type) throws OpenLCompilationException {
+        IOpenClass openClass = internalTypes.get(typeNameWithNamespace);
+        if (openClass != null && !openClass.equals(type)) {
+            throw new OpenLCompilationException("The type " + type.getName() + " has been already defined.");
         }
-        
         internalTypes.put(typeNameWithNamespace, type);
     }
-
+    
+    @Override
+    public IOpenClass findType(String namespace, String name) {
+        String typeNameWithNamespace = StringTool.buildTypeName(namespace, name);
+        return getTypes().get(typeNameWithNamespace);
+    }
+    
     public IBindingContext makeBindingContext(IBindingContext topLevelContext) {        
         return new ModuleBindingContext(topLevelContext, this);
     }

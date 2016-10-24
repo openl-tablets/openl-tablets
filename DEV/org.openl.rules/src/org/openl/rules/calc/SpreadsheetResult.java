@@ -128,6 +128,14 @@ public class SpreadsheetResult implements Serializable {
         return results[row][column];
     }
     
+    public void setFieldValue(String name, Object value) {
+        Point fieldCoordinates = fieldsCoordinates.get(name);
+        
+        if (fieldCoordinates != null) {
+            setValue(fieldCoordinates.getRow(), fieldCoordinates.getColumn(), value);
+        }
+    }
+
     protected void setValue(int row, int column, Object value) {
         results[row][column] = value;
     }

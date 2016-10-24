@@ -14,6 +14,7 @@ import org.openl.binding.impl.MethodSearch;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLSystemProperties;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextDelegator;
@@ -26,10 +27,10 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.CastingMethodCaller;
 import org.openl.types.impl.MethodSignature;
-import org.openl.types.impl.OpenClassDelegator;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
+import org.openl.util.StringTool;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,11 +138,28 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         return method;
     }
     
+    protected synchronized void add(String nameWithNamespace, IOpenClass type) throws OpenLCompilationException {
+        if (type instanceof CustomDynamicOpenClass) {
+            CustomDynamicOpenClass customDynamicOpenClass = (CustomDynamicOpenClass) type;
+            String namespace = StringTool.getNamespace(nameWithNamespace);
+            String typeName = StringTool.getTypeName(nameWithNamespace);
+            IOpenClass openClass = super.findType(namespace, typeName);
+            if (openClass == null) {
+                IOpenClass t = getModule().addType(namespace, type); 
+                super.add(nameWithNamespace, t);
+            } else {
+                customDynamicOpenClass.updateOpenClass(openClass);
+            }
+        } else {
+            super.add(nameWithNamespace, type);
+        }
+    }
+    
     @Override
     public IOpenClass findType(String namespace, String typeName) {
         if (OpenLSystemProperties.isCustomSpreadsheetType(getExternalParams())) {
-            if (typeName.startsWith(Spreadsheet.CUSTOMSPREADSHEETRESULT_TYPE_PREFIX)){
-                String sprMethodName = typeName.substring(Spreadsheet.CUSTOMSPREADSHEETRESULT_TYPE_PREFIX.length());
+            if (typeName.startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX)){
+                String sprMethodName = typeName.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
                 IOpenMethod method = preBinderMethods.get(sprMethodName);
                 if (method != null){
                     RecursiveOpenMethodPreBinder openMethodBinder = (RecursiveOpenMethodPreBinder) method;
@@ -161,7 +179,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         return super.findType(namespace, typeName);
     }
     
-    public void addBinderMethod(OpenMethodHeader openMethodHeader, IOpenMethod method){
+    public void addBinderMethod(OpenMethodHeader openMethodHeader, RecursiveOpenMethodPreBinder method){
         preBinderMethods.put(openMethodHeader, method);
     }
     

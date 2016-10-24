@@ -408,10 +408,13 @@ public abstract class AOpenClass implements IOpenClass {
      * @param type IOpenClass instance
      * @throws Exception if an error had occurred.
      */
-    public void addType(String namespace, IOpenClass type) throws Exception {
-
-        // Default implementation.
-        // To do nothing. Not everyone has internal types.
+    public IOpenClass addType(String namespace, IOpenClass type) throws Exception {
+        return type;
+    }
+    
+    @Override
+    public IOpenClass findType(String namespace, String name) {
+        return null;
     }
 
     /**
@@ -421,8 +424,7 @@ public abstract class AOpenClass implements IOpenClass {
     public Map<String, IOpenClass> getTypes() {
         // Default implementation.
         // To do nothing. Not everyone has internal types.
-
-        return null;
+        return Collections.EMPTY_MAP;
     }
 
     @Override

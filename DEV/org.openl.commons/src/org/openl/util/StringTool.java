@@ -249,5 +249,13 @@ public class StringTool {
         final StringBuilder builder = new StringBuilder(64);
         return builder.append(namespace).append("::").append(typeName).toString();
     }
+    
+    public static final String getNamespace(String typeNameWithNamespace) {
+        return typeNameWithNamespace.substring(0, typeNameWithNamespace.indexOf("::"));
+    }
+
+    public static final String getTypeName(String typeNameWithNamespace) {
+        return typeNameWithNamespace.substring(typeNameWithNamespace.indexOf("::") + 2);
+    }
 
 }

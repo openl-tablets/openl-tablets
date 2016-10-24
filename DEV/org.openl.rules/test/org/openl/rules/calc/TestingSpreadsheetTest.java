@@ -46,7 +46,7 @@ public class TestingSpreadsheetTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
-    public void testingCustomSpreadsheetResultCall() throws ClassNotFoundException {
+    public void testingSpreadsheetResultCall() throws ClassNotFoundException {
         build(SRC);
         assertNotNull(getJavaWrapper().getOpenClass());
         TestUnitsResults res = (TestUnitsResults)invokeMethod("testing2TestAll");

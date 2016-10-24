@@ -19,16 +19,22 @@ class PreBinderMethods {
         return binderMethods.get(header);
     }
 
-    public void put(IOpenMethodHeader header, IOpenMethod method) {
-        binderMethods.put(header, method);
-        binderMethodsByName.put(header.getName(), method);
+    public void put(IOpenMethodHeader header, RecursiveOpenMethodPreBinder method) {
+        if (binderMethods.containsKey(header)){
+            IOpenMethod m = binderMethods.get(header);
+            RecursiveOpenMethodPreBinder recursiveOpenMethodPreBinder = (RecursiveOpenMethodPreBinder) m;
+            recursiveOpenMethodPreBinder.addRecursiveOpenMethodPreBinderMethod(method);
+        }else{
+            binderMethods.put(header, method);
+            binderMethodsByName.put(header.getName(), method);
+        }
     }
 
     public void remove(IOpenMethodHeader header) {
         binderMethods.remove(header);
         binderMethodsByName.remove(header.getName());
     }
-
+    
     public Collection<IOpenMethod> values() {
         return binderMethods.values();
     }

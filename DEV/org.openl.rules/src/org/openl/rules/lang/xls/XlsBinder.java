@@ -393,7 +393,7 @@ public class XlsBinder implements IOpenBinder {
 
         ((XlsModuleOpenClass) topNode.getType()).setRulesModuleBindingContext(moduleContext);
         ((XlsModuleOpenClass) topNode.getType()).completeOpenClassBuilding();
-
+        
         processErrors(moduleOpenClass.getErrors(), bindingContext);
 
         return topNode;
@@ -728,7 +728,6 @@ public class XlsBinder implements IOpenBinder {
                 openMethodHeader,
                 moduleContext);
             moduleContext.addBinderMethod(openMethodHeader, xlsBinderExecutableMethodBind);
-
             return openMethodHeader;
         } catch (Exception e) {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tableSyntaxNode);
@@ -844,6 +843,7 @@ public class XlsBinder implements IOpenBinder {
         int index;
         OpenMethodHeader openMethodHeader;
         boolean preBindeding = false;
+        List<RecursiveOpenMethodPreBinder> recursiveOpenMethodPreBinderMethods = null;
 
         public XlsBinderExecutableMethodBind(XlsModuleOpenClass module,
                 OpenL openl,
@@ -859,6 +859,14 @@ public class XlsBinder implements IOpenBinder {
             this.childrens = childrens;
             this.index = index;
             this.openMethodHeader = openMethodHeader;
+        }
+        
+        @Override
+        public void addRecursiveOpenMethodPreBinderMethod(RecursiveOpenMethodPreBinder method) {
+            if (recursiveOpenMethodPreBinderMethods == null){
+                recursiveOpenMethodPreBinderMethods = new ArrayList<RecursiveOpenMethodPreBinder>();
+            }
+            recursiveOpenMethodPreBinderMethods.add(method);
         }
 
         @Override
@@ -914,25 +922,34 @@ public class XlsBinder implements IOpenBinder {
         public void preBind() {
             try {
                 preBindeding = true;
-                moduleContext.pushErrors();
-                IMemberBoundNode memberBoundNode = XlsBinder.this.beginBind(tableSyntaxNode,
-                    module,
-                    openl,
-                    moduleContext);
-                childrens[index] = memberBoundNode;
-                if (memberBoundNode != null) {
-                    try {
-                        memberBoundNode.addTo(module);
-                    } catch (OpenlNotCheckedException e) {
-                        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tableSyntaxNode);
-                        processError(error, tableSyntaxNode, moduleContext);
+                try {
+                    moduleContext.pushErrors();
+                    IMemberBoundNode memberBoundNode = XlsBinder.this.beginBind(tableSyntaxNode,
+                        module,
+                        openl,
+                        moduleContext);
+                    childrens[index] = memberBoundNode;
+                    if (memberBoundNode != null) {
+                        try {
+                            memberBoundNode.addTo(module);
+                        } catch (OpenlNotCheckedException e) {
+                            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tableSyntaxNode);
+                            processError(error, tableSyntaxNode, moduleContext);
+                        }
+                    }
+                } finally {
+                    List<SyntaxNodeException> syntaxNodeExceptions = moduleContext.popErrors();
+                    for (SyntaxNodeException e : syntaxNodeExceptions) {
+                        addModuleContextError(e); // Workaround for syntax node
+                                                  // errors
+                    }
+                }
+                if (recursiveOpenMethodPreBinderMethods != null){
+                    for (RecursiveOpenMethodPreBinder recursiveOpenMethodPreBinderMethod : recursiveOpenMethodPreBinderMethods){
+                        recursiveOpenMethodPreBinderMethod.preBind();
                     }
                 }
             } finally {
-                List<SyntaxNodeException> syntaxNodeExceptions = moduleContext.popErrors();
-                for (SyntaxNodeException e : syntaxNodeExceptions){
-                    addModuleContextError(e); //Workaround for syntax node errors
-                }
                 preBindeding = false;
             }
         }
@@ -940,7 +957,6 @@ public class XlsBinder implements IOpenBinder {
         public boolean isPreBinding() {
             return preBindeding;
         }
-        
     }
     
     private List<SyntaxNodeException> syntaxNodeExceptions = new ArrayList<SyntaxNodeException>();
