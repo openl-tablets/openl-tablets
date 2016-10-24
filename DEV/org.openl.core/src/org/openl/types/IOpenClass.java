@@ -17,10 +17,10 @@ import org.openl.vm.IRuntimeEnv;
 /**
  * @author snshor
  *
- * OpenClass represents a generalized abstraction of a "class". Because we want
- * openL to be used in a many different incarnations we have made a decision to
- * keep an OpenClass as general as possible. It should be close in spirit to the
- * RDF:Class and OWL:Class.
+ *         OpenClass represents a generalized abstraction of a "class". Because
+ *         we want openL to be used in a many different incarnations we have
+ *         made a decision to keep an OpenClass as general as possible. It
+ *         should be close in spirit to the RDF:Class and OWL:Class.
  * @TODO put some href here
  *
  */
@@ -123,14 +123,14 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
      *         <code>false</code> otherwise.
      */
     boolean isArray();
-    
+
     /**
      * Returns the <code>IOpenClass</code> representing the component type of an
-     * array.  If this class does not represent an array class this method
+     * array. If this class does not represent an array class this method
      * returns null.
      *
-     * @return the <code>IOpenClass</code> representing the component type of this
-     * class if this class is an array
+     * @return the <code>IOpenClass</code> representing the component type of
+     *         this class if this class is an array
      * 
      * @see {@link IOpenClass#isArray()}
      */
@@ -154,26 +154,24 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
      * not fully supported yet
      */
     Iterable<IOpenClass> superClasses();
-    
-    /**
-	 * Add new type to internal types list. If the type with the same name
-	 * already exists exception will be thrown.
-	 * 
-	 * @param type
-	 *            IOpenClass instance
-	 * @throws Exception
-	 *             if an error had occurred.
-	 */
-	IOpenClass addType(String namespace, IOpenClass type) throws Exception;
-	
-	IOpenClass findType(String namespace, String name);
 
-	/**
-	 * Return the whole map of internal types. Where the key is namespace of the type, 
-	 * the value is {@link IOpenClass}.
-	 * 
-	 * @return map of internal types 
-	 */
-	Map<String, IOpenClass> getTypes();
-	
+    /**
+     * Add new type to internal types list. If the type with the same name
+     * already exists exception will be thrown.
+     * 
+     * @param type IOpenClass instance
+     * @throws Exception if an error had occurred.
+     */
+    IOpenClass addType(String namespace, IOpenClass type) throws Exception;
+
+    IOpenClass findType(String namespace, String name);
+
+    /**
+     * Return the whole map of internal types. Where the key is namespace of the
+     * type, the value is {@link IOpenClass}.
+     * 
+     * @return map of internal types
+     */
+    Map<String, IOpenClass> getTypes();
+
 }
