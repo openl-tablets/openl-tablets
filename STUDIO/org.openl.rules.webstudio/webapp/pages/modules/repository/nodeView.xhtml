@@ -113,24 +113,60 @@
   <rich:tabPanel id="nodeTabPanel" switchType="client"
     rendered="#{node.type == 'file' || node.type == 'folder' || node.type == 'project' || node.type == 'prodproject' || node.type == 'prodfolder' || node.type == 'prodfile'}">
     <rich:tab id="properties" name="Properties" header="Properties" >
-      <h:panelGroup rendered="#{node.type == 'file'}">
-        <ui:include src="/pages/modules/repository/node/fileProps.xhtml" />
-      </h:panelGroup>
-      <h:panelGroup rendered="#{node.type == 'folder'}">
-        <ui:include src="/pages/modules/repository/node/folderProps.xhtml" />
-      </h:panelGroup>
-      <h:panelGroup rendered="#{node.type == 'project'}">
-        <ui:include src="/pages/modules/repository/node/projectProps.xhtml" />
-      </h:panelGroup>
-      <h:panelGroup rendered="#{node.type == 'prodproject'}">
-        <ui:include src="/pages/modules/repository/node/productionProjectProps.xhtml" />
-      </h:panelGroup>
-      <h:panelGroup rendered="#{node.type == 'prodfile'}">
-        <ui:include src="/pages/modules/repository/node/productionFileProps.xhtml" />
-      </h:panelGroup>
-      <h:panelGroup rendered="#{node.type == 'prodfolder'}">
-        <ui:include src="/pages/modules/repository/node/productionFolderProps.xhtml" />
-      </h:panelGroup>
+        <table class="formfields" style="max-width: 500px;">
+            <tr>
+                <td class="label">
+                    <h:outputText value="File Name" rendered="#{node.type == 'file' || node.type == 'prodfile' }"/>
+                    <h:outputText value="Folder Name" rendered="#{node.type == 'folder' || node.type == 'prodfolder' }"/>
+                    <h:outputText value="Name" rendered="#{node.type == 'project' || node.type == 'prodproject' }"/>
+                </td>
+                <td>
+                    <h:outputText value="#{node.name}" style="font-weight: bold" />
+                </td>
+            </tr>
+            <h:panelGroup rendered="#{node.type == 'project' || node.type == 'prodproject' }">
+            <tr>
+                <td class="label">
+                    <h:outputText value="Revision" />
+                </td>
+                <td>
+                    <h:outputText value="#{artefact.version.versionName}" />
+                </td>
+            </tr>
+            <tr>
+                <td class="label">
+                    <h:outputText value="Created At" />
+                </td>
+                <td>
+                    <h:outputText value="#{node.createdAt}">
+                        <f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
+                    </h:outputText>
+                </td>
+            </tr>
+            <tr>
+                <td class="label">Created By</td>
+                <td>
+                    <h:outputText value="#{node.createdBy}" />
+                </td>
+            </tr>
+            <h:panelGroup rendered="#{node.modifiedAt != null}">
+                <tr>
+                    <td class="label">Modified At</td>
+                    <td>
+                        <h:outputText value="#{node.modifiedAt}">
+                            <f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}"/>
+                        </h:outputText>
+                    </td>
+                </tr>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{node.modifiedBy != null}">
+                <tr>
+                    <td class="label">Modified By</td>
+                    <td>#{node.modifiedBy}</td>
+                </tr>
+            </h:panelGroup>
+            </h:panelGroup>
+        </table>
     </rich:tab>
       <ui:remove><!--
          FIXME: because of the bug: https://issues.jboss.org/browse/RF-10961
