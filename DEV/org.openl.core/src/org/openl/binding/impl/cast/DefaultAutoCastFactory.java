@@ -43,9 +43,22 @@ public class DefaultAutoCastFactory implements AutoCastFactory {
                 for (Annotation[] parameterAnnotations : javaMethod.getParameterAnnotations()) {
                     for (Annotation annotation : parameterAnnotations) {
                         if (annotation instanceof ReturnType) {
+                            ReturnType returnType = (ReturnType) annotation;
                             IOpenClass simpleType = parameterTypes[i];
+                            int d = 0;
                             while (simpleType.isArray()) {
                                 simpleType = simpleType.getComponentClass();
+                                d++;
+                            }
+                            if (returnType.strictMatchArray()){
+                                Class<?> type = javaMethod.getParameterTypes()[i];
+                                while (type.isArray()){
+                                    type = type.getComponentType();
+                                    d--;
+                                }
+                                if (d != 0){
+                                    return methodCaller;                        
+                                }
                             }
                             if (!method.getType().isArray()) {
                                 IOpenCast cast = bindingContext.getCast(method.getType(), simpleType);
@@ -59,7 +72,6 @@ public class DefaultAutoCastFactory implements AutoCastFactory {
                                     v = v.getComponentClass();
                                     dimensions++;
                                 }
-
                                 IOpenClass arrayType = JavaOpenClass.getOpenClass(
                                     Array.newInstance(simpleType.getInstanceClass(), dimensions).getClass());
                                 IOpenCast cast = bindingContext.getCast(method.getType(), arrayType);
@@ -80,6 +92,6 @@ public class DefaultAutoCastFactory implements AutoCastFactory {
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.PARAMETER)
     public @interface ReturnType {
-
+        boolean strictMatchArray() default true;
     }
 }

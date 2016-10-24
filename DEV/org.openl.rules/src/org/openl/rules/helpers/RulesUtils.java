@@ -6442,7 +6442,7 @@ public class RulesUtils {
     }
     
     @AutoCastReturnType
-    public static Object[] flatten(@ReturnType Object... data) {
+    public static Object[] flatten(@ReturnType(strictMatchArray = false) Object... data) {
         List<Object> values = new ArrayList<Object>();
         Class<?> type = Void.class;
         for (Object obj : data) {
