@@ -184,7 +184,7 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
         return new StringValue(x);
     }
 
-    public static String cast(StringValue x, String y) {
+    public static String autocast(StringValue x, String y) {
         return x.getValue();
     }
 }
