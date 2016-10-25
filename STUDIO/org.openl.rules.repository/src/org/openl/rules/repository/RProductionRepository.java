@@ -24,7 +24,7 @@ public interface RProductionRepository extends RRepository {
         Date getUpperExpirationDate();
     }
 
-    void addListener(RDeploymentListener listener) throws RRepositoryException;
+    void addListener(RDeploymentListener listener);
 
     /**
      * Creates new deployment in repository.
@@ -59,8 +59,7 @@ public interface RProductionRepository extends RRepository {
     Collection<String> getDeploymentNames() throws RRepositoryException;
 
     Collection<String> getDeploymentProjectNames() throws RRepositoryException;
-    
-    Collection<FolderAPI> getLastDeploymentProjects() throws RRepositoryException;
+
     /**
      * Checks if a deployment with given name exists in the repository.
      *
@@ -71,7 +70,7 @@ public interface RProductionRepository extends RRepository {
     @Deprecated
     boolean hasDeployment(String name) throws RRepositoryException;
 
-    boolean removeListener(RDeploymentListener listener) throws RRepositoryException;
+    boolean removeListener(RDeploymentListener listener);
 
     /**
      * Notify production repository about changes.

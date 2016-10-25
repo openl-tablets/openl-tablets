@@ -1,38 +1,55 @@
 package org.openl.rules.project.abstraction;
 
-import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-import org.openl.rules.common.ArtefactPath;
-import org.openl.rules.common.CommonUser;
-import org.openl.rules.common.CommonVersion;
-import org.openl.rules.common.LockInfo;
-import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.project.impl.local.LocalFolderAPI;
-import org.openl.rules.repository.api.ArtefactAPI;
-import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.common.*;
+import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
+import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.workspace.dtr.impl.LockInfoImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
 public class RulesProject extends UserWorkspaceProject {
-    private LocalFolderAPI local;
-    private FolderAPI repository;
-    private UserWorkspace userWorkspace;
+    private LocalRepository localRepository;
+    private String localFolderName;
+    private Repository designRepository;
+    private String designFolderName;
 
-    public RulesProject(LocalFolderAPI local, FolderAPI repository, UserWorkspace userWorkspace) {
-        super(local != null ? local : repository, userWorkspace.getUser());
-        this.local = local;
-        this.repository = repository;
-        this.userWorkspace = userWorkspace;
+    public RulesProject(UserWorkspace userWorkspace,
+            LocalRepository localRepository,
+            String localFolderName,
+            Repository designRepository, String designFolderName, String version) {
+        super(userWorkspace.getUser(),
+                localFolderName != null ? localRepository : designRepository,
+                localFolderName != null ? localFolderName : designFolderName,
+                version);
+        this.localRepository = localRepository;
+        this.localFolderName = localFolderName;
+        this.designRepository = designRepository;
+        this.designFolderName = designFolderName;
+
+        if (designFolderName != null) {
+            FileData fileData = new FileData();
+            fileData.setName(designFolderName);
+            fileData.setVersion(version);
+            setFileData(fileData);
+        }
     }
 
-    public FolderAPI getRepositoryAPI() {
-        return repository;
-    }
-
-    public LocalFolderAPI getLocalAPI() {
-        return local;
+    public RulesProject(UserWorkspace userWorkspace,
+            LocalRepository localRepository,
+            FileData localFileData,
+            Repository designRepository, FileData designFileData) {
+        super(userWorkspace.getUser(), localFileData != null ? localRepository : designRepository,
+                localFileData != null ? localFileData : designFileData);
+        this.localRepository = localRepository;
+        this.localFolderName = localFileData == null ? null : localFileData.getName();
+        this.designRepository = designRepository;
+        this.designFolderName = designFileData == null ? null : designFileData.getName();
     }
 
     public void edit(CommonUser user) throws ProjectException {
@@ -42,10 +59,10 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public void save(CommonUser user) throws ProjectException {
-        new AProject(repository).smartUpdate(new AProject(local), user);
-        local.clearModifyStatus();
-        local.setCurrentVersion(repository.getVersion());
-        local.commit(user, 0);// save persistence
+        clearModifyStatus();
+        new AProject(designRepository, designFolderName).update(new AProject(localRepository, localFolderName), user);
+//        localRepository.setCurrentVersion(designRepository.getVersion());
+//        localRepository.commit(user, 0);// save persistence
         unlock(user);
         refresh();
     }
@@ -53,7 +70,7 @@ public class RulesProject extends UserWorkspaceProject {
     @Override
     public void delete(CommonUser user) throws ProjectException {
         if (isLocalOnly()) {
-            erase(user);
+            erase();
         } else {
             if (isOpened()) {
                 close();
@@ -63,34 +80,46 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     public void close(CommonUser user) throws ProjectException {
-        if (local != null) {
-            local.delete(user);
+        if (localFolderName != null) {
+            localRepository.delete(localFolderName);
         }
         if (isLockedByUser(user)) {
             unlock(user);
         }
         if (!isLocalOnly()) {
-            setAPI(repository);
+            setRepository(designRepository);
+            setFolderPath(designFolderName);
         }
         refresh();
     }
 
-    public LockInfo getLockInfo() {
-        if (repository != null) {
-            return repository.getLockInfo();
+    @Override
+    public void erase() throws ProjectException {
+        if (designFolderName != null) {
+            designRepository.deleteHistory(designFolderName, null);
         } else {
-            return local.getLockInfo();
+            localRepository.delete(localFolderName);
         }
     }
 
     @Override
+    public void refresh() {
+        super.refresh();
+        setFileData(null);
+    }
+
+    public LockInfo getLockInfo() {
+        return LockInfoImpl.NO_LOCK;
+    }
+
+    @Override
     public void lock(CommonUser user) throws ProjectException {
-        repository.lock(user);
+        // Do nothing
     }
 
     @Override
     public void unlock(CommonUser user) throws ProjectException {
-        repository.unlock(getUserToUnlock(user));
+        // Do nothing
     }
 
     public String getLockedUserName() {
@@ -98,80 +127,113 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     public ProjectVersion getVersion() {
-        // TODO ???
-        if (isOpened()) {
-            return local.getVersion();
-        } else {
-            return repository.getVersion();
+        String historyVersion = getHistoryVersion();
+        if (historyVersion == null) {
+            return getLastVersion();
         }
+        int revision = Integer.parseInt(historyVersion);
+        return new RepositoryProjectVersionImpl(revision, null);
     }
 
+    @Override
+    public ProjectVersion getLastVersion() {
+        List<FileData> fileDatas = getHistoryFileDatas();
+        return fileDatas.isEmpty() ? null : createProjectVersion(fileDatas.get(fileDatas.size() - 1));
+    }
+
+    @Override
     public List<ProjectVersion> getVersions() {
-        if (repository != null) {
-            return repository.getVersions();
-        } else {
-            return local.getVersions();
+        Collection<FileData> fileDatas = getHistoryFileDatas();
+        List<ProjectVersion> versions = new ArrayList<ProjectVersion>();
+        for (FileData data : fileDatas) {
+            versions.add(createProjectVersion(data));
         }
+        return versions;
     }
 
     @Override
     public int getVersionsCount() {
-        return repository != null ? repository.getVersionsCount() : local.getVersionsCount();
+        if (designFolderName != null) {
+            return designRepository.listHistory(designFolderName).size();
+        } else {
+            return localRepository.listHistory(localFolderName).size();
+        }
     }
 
     @Override
     protected ProjectVersion getVersion(int index) throws RRepositoryException {
-        if (repository != null) {
-            return repository.getVersion(index);
-        } else {
-            return local.getVersion(index);
-        }
+        List<FileData> fileDatas = getHistoryFileDatas();
+        return fileDatas.isEmpty() ? null : createProjectVersion(fileDatas.get(index));
     }
 
-    public ArtefactAPI findArtefact(ArtefactPath artefactPath) {
-        ArtefactAPI artefact = repository;
-        try {
-            for (String pathElement : artefactPath.getSegments()) {
-                artefact = ((FolderAPI) artefact).getArtefact(pathElement);
-            }
-            return artefact;
-        } catch (Exception e) {
-            return null;
+    private List<FileData> getHistoryFileDatas() {
+        List<FileData> fileDatas;
+        if (designFolderName != null) {
+            fileDatas = designRepository.listHistory(designFolderName);
+        } else {
+            fileDatas = localRepository.list(localFolderName);
         }
+        return fileDatas;
+    }
+
+    public List<ProjectVersion> getArtefactVersions(ArtefactPath artefactPath) {
+        String subPath = artefactPath.getStringValue();
+        if (!subPath.startsWith("/")) {
+            subPath += "/";
+        }
+        String fullPath = getFolderPath() + subPath;
+        Collection<FileData> fileDatas = getRepository().listHistory(fullPath);
+        List<ProjectVersion> versions = new ArrayList<ProjectVersion>();
+        for (FileData data : fileDatas) {
+            versions.add(createProjectVersion(data));
+        }
+        return versions;
     }
 
     public boolean isLocalOnly() {
-        return repository == null;
+        return designRepository == null;
     }
 
     public boolean isRepositoryOnly() {
-        return local == null;
+        return localFolderName == null;
     }
 
     public boolean isOpened() {
-        return getAPI() == local;
+        return getRepository() == localRepository;
     }
 
-    public void openVersion(CommonVersion version) throws ProjectException {
-        FolderAPI openedProject = repository.getVersion(version);
-        File source;
-        if (local == null) {
-            ArtefactPath path = repository.getArtefactPath();
-            source = new File(userWorkspace.getLocalWorkspace().getLocation(), path.segment(path.segmentCount() - 1));
-            local = new LocalFolderAPI(source, path, userWorkspace.getLocalWorkspace());
-        } else {
-            source = local.getSource();
+    public void openVersion(String version) throws ProjectException {
+        AProject designProject = new AProject(designRepository, designFolderName, version);
+
+        if (localFolderName == null) {
+            localFolderName = designProject.getName();
         }
-        source.mkdir();
-        local.setCurrentVersion(openedProject.getVersion());
-        new AProject(local).update(new AProject(openedProject), getUser());
-        setAPI(local);
+        new AProject(localRepository, localFolderName).update(designProject, getUser());
+        setRepository(localRepository);
+        setFolderPath(localFolderName);
+
+        setHistoryVersion(version);
+
         refresh();
+
+        localRepository.clearModifyStatus(localFolderName);
     }
 
     // Is Opened for Editing by me? -- in LW + locked by me
     public boolean isOpenedForEditing() {
-        return !isLocalOnly() && isLockedByMe() && local != null;
+        return !isLocalOnly() && isLockedByMe() && !isRepositoryOnly();
+    }
+
+    @Override
+    public boolean isModified() {
+        return !isRepositoryOnly() && localRepository.isModified(localFolderName);
+
+    }
+
+    private void clearModifyStatus() {
+        if (!isRepositoryOnly()) {
+            localRepository.clearModifyStatus(localFolderName);
+        }
     }
 
 }

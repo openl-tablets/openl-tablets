@@ -1,8 +1,6 @@
 package org.openl.rules.project.abstraction;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
@@ -14,107 +12,113 @@ import org.openl.rules.common.PropertiesContainer;
 import org.openl.rules.common.Property;
 import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.RulesRepositoryArtefact;
+import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
-import org.openl.rules.project.impl.local.LocalArtefactAPI;
-import org.openl.rules.repository.api.ArtefactAPI;
-import org.openl.rules.repository.api.ArtefactProperties;
+import org.openl.rules.common.impl.RepositoryVersionInfoImpl;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.workspace.dtr.impl.LockInfoImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// TODO: Remove PropertiesContainer interface from the class
 public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArtefact {
     private final Logger log = LoggerFactory.getLogger(AProjectArtefact.class);
 
-    private ArtefactAPI impl;
     private AProject project;
+    private Repository repository;
+    private FileData fileData;
+    private String versionComment;
 
-    public AProjectArtefact(ArtefactAPI api, AProject project) {
-        this.impl = api;
+    private Date modifiedTime;
+
+    public AProjectArtefact(AProject project, Repository repository, FileData fileData) {
         this.project = project;
+        this.repository = repository;
+        this.fileData = fileData;
+        this.modifiedTime = fileData == null ? null : fileData.getModifiedAt();
     }
 
     public AProject getProject() {
         return project;
     }
 
-    public ArtefactAPI getAPI() {
-        return impl;
+    public FileData getFileData() {
+        return fileData;
     }
 
-    public void setAPI(ArtefactAPI impl) {
-        this.impl = impl;
+    public void setFileData(FileData fileData) {
+        this.fileData = fileData;
+    }
+
+    public Repository getRepository() {
+        return repository;
+    }
+
+    public void setRepository(Repository repository) {
+        this.repository = repository;
     }
 
     public Map<String, Object> getProps() {
-        return getAPI().getProps();
+        return Collections.emptyMap();
     }
 
     public Map<String, InheritedProperty> getInheritedProps() {
-        return getAPI().getInheritedProps();
+        return Collections.emptyMap();
     }
 
     public void setProps(Map<String, Object> props) throws PropertyException {
-        getAPI().setProps(props);
     }
 
     public void addProperty(Property property) throws PropertyException {
-        if (property.getValue() == null) {
-            if (hasProperty(property.getName())) {
-                removeProperty(property.getName());
-            }
-        } else {
-            getAPI().addProperty(property.getName(), property.getType(), property.getValue());
-        }
+        throw new UnsupportedOperationException();
     }
 
     public Collection<Property> getProperties() {
-        return getAPI().getProperties();
+        return Collections.emptyList();
     }
 
     public Property getProperty(String name) throws PropertyException {
-        return getAPI().getProperty(name);
+        return null;
     }
 
     public boolean hasProperty(String name) {
-        return getAPI().hasProperty(name);
+        return false;
     }
 
     public Property removeProperty(String name) throws PropertyException {
-        return getAPI().removeProperty(name);
+        throw new UnsupportedOperationException();
     }
 
     public void delete() throws ProjectException {
-        getAPI().delete(null);
+        FileData fileData = getFileData();
+        getRepository().delete(fileData.getName());
     }
 
     public ArtefactPath getArtefactPath() {
-        return getAPI().getArtefactPath();
+        return new ArtefactPathImpl(getFileData().getName());
     }
 
     public String getName() {
-        return getAPI().getName();
+        String name = getFileData().getName();
+        return name.substring(name.lastIndexOf("/") + 1);
     }
 
     public boolean isFolder() {
-        return getAPI().isFolder();
+        return false;
     }
 
     // current version
     public ProjectVersion getVersion() {
-        return getAPI().getVersion();
+        return createProjectVersion(getFileData());
     }
 
     public ProjectVersion getLastVersion() {
-        int versionsCount = getVersionsCount();
-        if (versionsCount == 0) {
-            return new RepositoryProjectVersionImpl(0, null);
-        }
-
-        try {
-            return getVersion(versionsCount - 1);
-        } catch (RRepositoryException e) {
-            return new RepositoryProjectVersionImpl(0, null);
-        }
+        List<FileData> fileDatas = getRepository().listHistory(getFileData().getName());
+        return fileDatas.isEmpty() ?
+               createProjectVersion(null) :
+               createProjectVersion(fileDatas.get(fileDatas.size() - 1));
     }
 
     public ProjectVersion getFirstVersion() {
@@ -135,88 +139,41 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
     }
 
     public List<ProjectVersion> getVersions() {
-        return getAPI().getVersions();
+        if (getFileData() == null) {
+            return Collections.emptyList();
+        }
+        Collection<FileData> fileDatas = getRepository().listHistory(getFileData().getName());
+        List<ProjectVersion> versions = new ArrayList<ProjectVersion>();
+        for (FileData data : fileDatas) {
+            versions.add(createProjectVersion(data));
+        }
+        return versions;
     }
 
     public int getVersionsCount() {
-        return getAPI().getVersionsCount();
+        return getFileData() == null ? 0 : getRepository().listHistory(getFileData().getName()).size();
     }
 
     protected ProjectVersion getVersion(int index) throws RRepositoryException {
-        return getAPI().getVersion(index);
+        List<FileData> fileDatas = getRepository().listHistory(getFileData().getName());
+        return fileDatas.isEmpty() ? null : createProjectVersion(fileDatas.get(index));
+    }
+
+    protected ProjectVersion createProjectVersion(FileData fileData) {
+        if (fileData == null) {
+            return new RepositoryProjectVersionImpl(0, null);
+        }
+        RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(fileData.getModifiedAt(), fileData.getAuthor());
+        String version = fileData.getVersion();
+        return new RepositoryProjectVersionImpl(version == null ? 0 : Integer.parseInt(version), rvii);
     }
 
     public void update(AProjectArtefact artefact, CommonUser user) throws ProjectException {
-        try {
-            getAPI().removeAllProperties();
-
-            setProps(artefact.getProps());
-
-            // set all properties
-            for (Property property : artefact.getProperties()) {
-                addProperty(property);
-            }
-        } catch (PropertyException e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
-        }
-
         refresh();
     }
 
     public void update(AProjectArtefact artefact, CommonUser user, int revision) throws ProjectException {
-        try {
-            getAPI().removeAllProperties();
-
-            setProps(artefact.getProps());
-
-            // set all properties
-            for (Property property : artefact.getProperties()) {
-                addProperty(property);
-            }
-        } catch (PropertyException e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
-        }
-
         refresh();
-    }
-
-    /**
-     * As usual update but this update will use only artefacts which is modified.
-     * 
-     * @param artefact A source artefact to extract data from.
-     */
-    public void smartUpdate(AProjectArtefact artefact, CommonUser user) throws ProjectException {
-        if (artefact.isModified()) {
-            try {
-                getAPI().removeAllProperties();
-                setProps(artefact.getProps());
-                
-                /*
-                for (Property property : artefact.getProperties()) {
-                    if(!artefact.getProps().containsKey(property.getName())){
-                        addProperty(property);
-                    }
-                }*/
-            } catch (PropertyException e) {
-                if (log.isErrorEnabled()) {
-                    log.error(e.getMessage(), e);
-                }
-            }
-
-            refresh();
-        }
-    }
-
-    protected void commit(CommonUser user) throws ProjectException {
-        getAPI().commit(user, getProject().getVersion().getRevision() + 1);
-    }
-
-    protected void commit(CommonUser user, int revision) throws ProjectException {
-        getAPI().commit(user, revision);
     }
 
     public void refresh() {
@@ -224,11 +181,11 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
     }
 
     public void lock(CommonUser user) throws ProjectException {
-        getAPI().lock(user);
+        // Do  nothing
     }
 
     public void unlock(CommonUser user) throws ProjectException {
-        getAPI().unlock(getUserToUnlock(user));
+        // Do  nothing
     }
 
     public boolean isLocked() {
@@ -250,30 +207,32 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
     }
 
     public LockInfo getLockInfo() {
-        return getAPI().getLockInfo();
+        return LockInfoImpl.NO_LOCK;
     }
-    
+
     public boolean isModified(){
-        return impl instanceof LocalArtefactAPI && ((LocalArtefactAPI) impl).isModified();
+        FileData fileData = getFileData();
+        if (fileData == null) {
+            return false;
+        }
+        if (modifiedTime == null) {
+            return true;
+        }
+        return !modifiedTime.equals(fileData.getModifiedAt());
     }
 
     public void setVersionComment(String versionComment) throws PropertyException {
-        //addProperty(new PropertyImpl(ArtefactProperties.VERSION_COMMENT, versionComment));
-        getProps().put(ArtefactProperties.VERSION_COMMENT, versionComment);
+        FileData fileData = getFileData();
+        if (fileData != null) {
+            fileData.setComment(versionComment);
+        } else {
+            this.versionComment = versionComment;
+        }
     }
 
     public String getVersionComment() {
-        /*
-        try {
-            return getProperty(ArtefactProperties.VERSION_COMMENT).getString();
-        } catch (PropertyException e) {
-            return null;
-        }*/
-        if (getProps().containsKey(ArtefactProperties.VERSION_COMMENT)) {
-            return getProps().get(ArtefactProperties.VERSION_COMMENT).toString();
-        } else {
-            return null;
-        }
+        FileData fileData = getFileData();
+        return fileData == null ? versionComment : fileData.getComment();
     }
 
     /**
@@ -304,4 +263,9 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
     private boolean isLockedByDefaultUser(CommonUser lockedUser, CommonUser currentUser) {
         return "LOCAL".equals(lockedUser.getUserName()) && "DEFAULT".equals(currentUser.getUserName());
     }
+
+    public boolean isHistoric() {
+        return getFileData().getVersion() != null;
+    }
+
 }

@@ -18,11 +18,13 @@ public class TestCreateDelete {
         System.out.println(uw.getProjects().size());
 
         String name = "p1";
+        AProject p;
         if (!uw.hasProject(name)) {
-            uw.createProject(name);
+            p = uw.createProject(name);
+        } else {
+            p = uw.getProject(name);
         }
 
-        AProject p = uw.getProject(name);
         p.edit(wu);
 
         try {

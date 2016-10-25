@@ -10,9 +10,9 @@ import org.openl.rules.common.RulesRepositoryArtefact;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
-import org.openl.rules.repository.RProductionRepository;
-import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.deploy.DeployID;
@@ -62,14 +62,14 @@ public class JcrProductionDeployer implements ProductionDeployer {
 
         boolean alreadyDeployed = false;
         try {
-            RProductionRepository rRepository = repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
+            String deployPath = repositoryFactoryProxy.getDeployPath(repositoryConfigName);
+            Repository repository =repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
 
-            if (rRepository.hasDeploymentProject(id.getName()) || rRepository.hasDeploymentProject(getOtherDeploymentProjectName(deploymentProject))) {
+            if (!repository.list(deployPath + "/" + id.getName()).isEmpty() || !repository.list(deployPath + "/" + getOtherDeploymentProjectName(deploymentProject)).isEmpty()) {
                 alreadyDeployed = true;
             } else {
-                FolderAPI deployment = rRepository.createDeploymentProject(id.getName());
-
-                AProject deploymentPRJ = new AProject(deployment);
+                String deploymentPath = deployPath + "/" + id.getName();
+                AProject deploymentPRJ = new AProject(repository, deploymentPath);
                 deploymentPRJ.lock(user);
                 for (AProject p : projects) {
                     deployProject(deploymentPRJ, p, user);
@@ -77,8 +77,9 @@ public class JcrProductionDeployer implements ProductionDeployer {
 
                 copyProperties(deploymentPRJ, deploymentProject);
 
-                deploymentPRJ.save(user);
-                rRepository.notifyChanges();
+                // TODO: Some analogue of notifyChanges() possibly will be needed
+//                deploymentPRJ.save(user);
+//                rRepository.notifyChanges();
             }
         } catch (Exception e) {
             throw new DeploymentException("Failed to deploy: " + e.getMessage(), e);
@@ -105,16 +106,17 @@ public class JcrProductionDeployer implements ProductionDeployer {
      */
     @Override
     public synchronized boolean hasDeploymentProject(ADeploymentProject deployConfiguration) throws RRepositoryException {
-        RProductionRepository repository = repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
+        Repository repository = repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
+        String deployPath = repositoryFactoryProxy.getDeployPath(repositoryConfigName);
         DeployID id = generateDeployID(deployConfiguration);
         String otherPossibleID = this.getOtherDeploymentProjectName(deployConfiguration);
 
-        return repository.hasDeploymentProject(id.getName()) || repository.hasDeploymentProject(otherPossibleID);
+        return !repository.list(deployPath + "/" + id.getName()).isEmpty() || !repository.list(deployPath + "/" + otherPossibleID).isEmpty();
     }
 
     private void deployProject(AProject deployment, AProject project, WorkspaceUser user) throws ProjectException {
-        FolderAPI rProject = deployment.addFolder(project.getName()).getAPI();
-        AProject copiedProject = new AProject(rProject);
+        AProjectFolder projectFolder = deployment.addFolder(project.getName());
+        AProject copiedProject = new AProject(deployment.getRepository(), projectFolder.getArtefactPath().getStringValue(), deployment.getHistoryVersion());
 
         /*Update and set project revision*/
         copiedProject.update(project, user, project.getVersion().getRevision());

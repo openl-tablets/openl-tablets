@@ -76,6 +76,7 @@ public class JcrFileAPI extends JcrEntityAPI implements ResourceAPI {
     }
 
     /** {@inheritDoc} */
+    @Override
     public long getSize() {
         return NodeUtil.getFileNodeSize(node());
     }

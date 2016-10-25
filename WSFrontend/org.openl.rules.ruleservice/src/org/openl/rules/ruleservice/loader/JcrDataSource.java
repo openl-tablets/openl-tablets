@@ -1,22 +1,15 @@
 package org.openl.rules.ruleservice.loader;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 import javax.annotation.PreDestroy;
 
 import org.openl.rules.common.CommonVersion;
-import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
-import org.openl.rules.repository.RDeploymentListener;
-import org.openl.rules.repository.RProductionRepository;
-import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +26,8 @@ public class JcrDataSource implements DataSource {
 
     private static final String SEPARATOR = "#";
 
-    Map<DataSourceListener, RDeploymentListener> listeners = new HashMap<DataSourceListener, RDeploymentListener>();
+    final List<DataSourceListener> listeners = new ArrayList<DataSourceListener>();
+    private DataSourceListenerWrapper wrapper = new DataSourceListenerWrapper(listeners);
 
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
     private String repositoryPropertiesFile = ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE; // For
@@ -43,27 +37,15 @@ public class JcrDataSource implements DataSource {
     /**
      * {@inheritDoc}
      */
-    public Collection<Deployment> getDeployments() { 
-        try {
-            List<FolderAPI> deploymentProjects = getRProductionRepository().getDeploymentProjects();
-            Collection<Deployment> ret = new ArrayList<Deployment>();
-            for (FolderAPI deploymentProject : deploymentProjects) {
-                String deploymentName = deploymentProject.getName();
-                int separatorPosition = deploymentName.lastIndexOf(SEPARATOR);
+    public Collection<Deployment> getDeployments() {
+        Repository repository = getRProductionRepository();
 
-                if (separatorPosition < 0) {
-                    ret.add(new Deployment(deploymentProject));
-                } else {
-                    String name = deploymentName.substring(0, separatorPosition);
-                    String version = deploymentName.substring(separatorPosition + 1);
-                    CommonVersion commonVersion = new CommonVersionImpl(version);
-                    ret.add(new Deployment(deploymentProject, name, commonVersion));
-                }
-            }
-            return ret;
-        } catch (RRepositoryException e) {
-            throw new DataSourceException(e);
+        Collection<FileData> fileDatas = repository.list(getDeployPath());
+        Collection<Deployment> ret = new ArrayList<Deployment>();
+        for (FileData fileData : fileDatas) {
+            ret.add(new Deployment(repository, fileData));
         }
+        return ret;
     }
 
     /**
@@ -81,25 +63,23 @@ public class JcrDataSource implements DataSource {
                 deploymentName,
                 deploymentVersion.getVersionName());
 
-        try {
-            StringBuilder sb = new StringBuilder(deploymentName);
-            sb.append(SEPARATOR);
-            sb.append(deploymentVersion.getVersionName());
-            // FIXME
-            // Should be deploymentNotFoundException or null return
-            FolderAPI deploymentProject = getRProductionRepository().getDeploymentProject(sb.toString());
-            return new Deployment(deploymentProject, deploymentName, deploymentVersion);
-        } catch (RRepositoryException e) {
-            throw new DataSourceException(e);
-        }
+        String name = deploymentName + SEPARATOR + deploymentVersion.getVersionName();
+        // FIXME
+        // Should be deploymentNotFoundException or null return
+        Repository repository = getRProductionRepository();
+        return new Deployment(repository, getDeployPath() + "/" + name, deploymentName, deploymentVersion);
     }
 
-    private RProductionRepository getRProductionRepository() {
+    private Repository getRProductionRepository() {
         try {
             return productionRepositoryFactoryProxy.getRepositoryInstance(repositoryPropertiesFile);
         } catch (RRepositoryException e) {
             throw new DataSourceException(e);
         }
+    }
+
+    private String getDeployPath() {
+        return productionRepositoryFactoryProxy.getDeployPath(repositoryPropertiesFile);
     }
 
     /**
@@ -110,16 +90,12 @@ public class JcrDataSource implements DataSource {
             throw new IllegalArgumentException("dataSourceListener argument can't be null");
         }
         synchronized (listeners) {
-            RDeploymentListener rDeploymentListener = listeners.get(dataSourceListener);
-            if (rDeploymentListener == null) {
-                rDeploymentListener = buildRDeploymentListener(dataSourceListener);
-                try {
-                    getRProductionRepository().addListener(rDeploymentListener);
-                    listeners.put(dataSourceListener, rDeploymentListener);
-                    log.info("{} listener is registered in jcr data source", dataSourceListener.getClass());
-                } catch (RRepositoryException e) {
-                    throw new DataSourceException(e);
+            if (!listeners.contains(dataSourceListener)) {
+                listeners.add(dataSourceListener);
+                if (listeners.size() == 1) {
+                    getRProductionRepository().setListener(wrapper);
                 }
+                log.info("{} listener is registered in jcr data source", dataSourceListener.getClass());
             }
         }
     }
@@ -132,15 +108,9 @@ public class JcrDataSource implements DataSource {
             throw new IllegalArgumentException("dataSourceListener argument can't be null");
         }
         synchronized (listeners) {
-            RDeploymentListener listener = listeners.get(dataSourceListener);
-            if (listener != null) {
-                try {
-                    getRProductionRepository().removeListener(listener);
-                    listeners.remove(dataSourceListener);
-                    log.info("{} listener is unregistered from jcr data source", dataSourceListener.getClass());
-                } catch (RRepositoryException e) {
-                    throw new DataSourceException(e);
-                }
+            listeners.remove(dataSourceListener);
+            if (listeners.isEmpty()) {
+                getRProductionRepository().setListener(null);
             }
         }
     }
@@ -162,57 +132,42 @@ public class JcrDataSource implements DataSource {
         this.repositoryPropertiesFile = repositoryPropertiesFile;
     }
 
-    private RDeploymentListener buildRDeploymentListener(DataSourceListener dataSourceListener) {
-        return new DataSourceListenerWrapper(dataSourceListener);
-    }
-
-    private static class DataSourceListenerWrapper implements RDeploymentListener {
+    private static class DataSourceListenerWrapper implements Listener {
         private final Logger log = LoggerFactory.getLogger(DataSourceListenerWrapper.class);
-        private final DataSourceListener dataSourceListener;
+        private final List<DataSourceListener> dataSourceListeners;
 
-        public DataSourceListenerWrapper(final DataSourceListener dataSourceListener) {
-            if (dataSourceListener == null) {
+        public DataSourceListenerWrapper(List<DataSourceListener> dataSourceListeners) {
+            if (dataSourceListeners == null) {
                 throw new IllegalArgumentException();
             }
-            this.dataSourceListener = dataSourceListener;
+            this.dataSourceListeners = dataSourceListeners;
         }
 
-        public synchronized void onEvent() {
-            final Timer timer = new Timer();
+        @Override
+        public synchronized void onChange() {
+            for (final DataSourceListener dataSourceListener : dataSourceListeners) {
+                final Timer timer = new Timer();
 
-            timer.schedule(new TimerTask() {
-                int count = 0;
+                timer.schedule(new TimerTask() {
+                    int count = 0;
 
-                @Override
-                public void run() {
-                    try {
-                        log.info("Atempt to deploy # {}", count);
-                        System.gc();
-                        dataSourceListener.onDeploymentAdded();
-                        timer.cancel();
-                    } catch (Exception ex) {
-                        log.error("Unexpected error", ex);
-                        count++;
-                        if (count >= 5) {
+                    @Override
+                    public void run() {
+                        try {
+                            log.info("Atempt to deploy # {}", count);
+                            System.gc();
+                            dataSourceListener.onDeploymentAdded();
                             timer.cancel();
+                        } catch (Exception ex) {
+                            log.error("Unexpected error", ex);
+                            count++;
+                            if (count >= 5) {
+                                timer.cancel();
+                            }
                         }
                     }
-                }
-            }, 1000, 3000);
-        }
-
-        @Override
-        public int hashCode() {
-            return dataSourceListener.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof DataSourceListenerWrapper) {
-                DataSourceListenerWrapper dataSourceListenerWrapper = (DataSourceListenerWrapper) obj;
-                return this.dataSourceListener.equals(dataSourceListenerWrapper.dataSourceListener);
+                }, 1000, 3000);
             }
-            return false;
         }
     }
 }

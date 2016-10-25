@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.admin;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.net.ConnectException;
 import java.util.Collections;
 import java.util.List;
@@ -10,8 +12,8 @@ import javax.security.auth.login.FailedLoginException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
-import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.RRepositoryFactory;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
@@ -104,9 +106,13 @@ public final class RepositoryValidators {
             RRepositoryFactory repoFactory = productionRepositoryFactoryProxy.getFactory(
                     repoConfig.getProperties());
             try {
-                RRepository repository = repoFactory.getRepositoryInstance();
+                Repository repository = repoFactory.getRepositoryInstance();
                 /*Close repo connection after validation*/
-                repository.release();
+                if (repository instanceof Closeable) {
+                    ((Closeable) repository).close();
+                }
+            } catch (IOException e) {
+                throw new RRepositoryException("Can't close repository", e);
             } finally {
                 // Release a factory to prevent memory leak
                 repoFactory.release();

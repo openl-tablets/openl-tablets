@@ -8,22 +8,35 @@ import java.util.Map;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.repository.api.ArtefactAPI;
-import org.openl.rules.repository.api.FolderAPI;
-import org.openl.rules.repository.api.ResourceAPI;
+import org.openl.rules.common.impl.ArtefactPathImpl;
+import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.repository.api.*;
 import org.openl.util.IOUtils;
 
 public class AProjectFolder extends AProjectArtefact {
     private Map<String, AProjectArtefact> artefacts;
     private ResourceTransformer resourceTransformer;
+    private String folderPath;
+    private String historyVersion;
 
-    public AProjectFolder(FolderAPI api, AProject project) {
-        super(api, project);
+    public AProjectFolder(AProject project, Repository repository, String folderPath, String historyVersion) {
+        super(project, repository, null);
+        if (folderPath.startsWith("/")) {
+            folderPath = folderPath.substring(1);
+        }
+        this.folderPath = folderPath;
+        this.historyVersion = historyVersion;
     }
 
     @Override
-    public FolderAPI getAPI() {
-        return (FolderAPI) super.getAPI();
+    public String getName() {
+        AProject project = getProject();
+        if (project == null || project == this) {
+            return folderPath.substring(folderPath.lastIndexOf("/") + 1);
+        } else {
+            String parentPath = project.getFolderPath();
+            return folderPath.substring(parentPath.length() + 1);
+        }
     }
 
     public AProjectArtefact getArtefact(String name) throws ProjectException {
@@ -44,20 +57,8 @@ public class AProjectFolder extends AProjectArtefact {
         return getArtefactsInternal().containsKey(name);
     }
 
-    public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
-        AProjectArtefact artefact = this;
-        for (String s : artefactPath.getSegments()) {
-            if (artefact.isFolder()) {
-                artefact = ((AProjectFolder) artefact).getArtefact(s);
-            } else {
-                throw new ProjectException("Wrong path!");
-            }
-        }
-        return artefact;
-    }
-    
     public AProjectFolder addFolder(String name) throws ProjectException {
-        AProjectFolder createdFolder = new AProjectFolder(getAPI().addFolder(name), getProject());
+        AProjectFolder createdFolder = new AProjectFolder(getProject(), getRepository(), folderPath + "/" + name, null);
         getArtefactsInternal().put(name, createdFolder);
         createdFolder.setResourceTransformer(resourceTransformer);
         return createdFolder;
@@ -72,7 +73,10 @@ public class AProjectFolder extends AProjectArtefact {
 
     public AProjectResource addResource(String name, InputStream content) throws ProjectException {
         try {
-            AProjectResource createdResource = new AProjectResource(getAPI().addResource(name, content), getProject());
+            FileData fileData = new FileData();
+            fileData.setName(folderPath + "/" + name);
+            fileData = getRepository().save(fileData, content);
+            AProjectResource createdResource = new AProjectResource(getProject(), getRepository(), fileData);
             getArtefactsInternal().put(name, createdResource);
             return createdResource;
         } finally {
@@ -127,7 +131,6 @@ public class AProjectFolder extends AProjectArtefact {
                 }
             }
         }
-        commit(user);
     }
     
     @Override
@@ -169,50 +172,6 @@ public class AProjectFolder extends AProjectArtefact {
             }
         }
         
-        commit(user,revision);
-    }
-    
-    @Override
-    public void smartUpdate(AProjectArtefact newFolder, CommonUser user) throws ProjectException {
-        if (newFolder.isModified()) {
-            super.smartUpdate(newFolder, user);
-            if (this.isFolder()) {
-
-                AProjectFolder folder = (AProjectFolder) newFolder;
-                // remove absent
-                for (AProjectArtefact artefact : getArtefacts()) {
-                    String name = artefact.getName();
-
-                    if (!folder.hasArtefact(name)) {
-                        // was deleted
-                        artefact.delete();
-                    } else {
-                        AProjectArtefact newArtefact = folder.getArtefact(name);
-
-                        if (newArtefact.isFolder() == artefact.isFolder()) {
-                            // update existing
-                            artefact.smartUpdate(newArtefact, user);
-                        } else {
-                            // the same name but other type
-                            artefact.delete();
-                        }
-                    }
-                }
-
-                // add new
-                for (AProjectArtefact artefact : folder.getArtefacts()) {
-                    String name = artefact.getName();
-                    if (!hasArtefact(name)) {
-                        if (artefact.isFolder()) {
-                            addFolder(name).update(artefact, user);
-                        } else {
-                            addResource(name, (AProjectResource) artefact).update(artefact, user);
-                        }
-                    }
-                }
-            }
-            commit(user);
-        }
     }
 
     private final Object lock = new Object();
@@ -220,22 +179,27 @@ public class AProjectFolder extends AProjectArtefact {
     protected Map<String, AProjectArtefact> getArtefactsInternal() {
         synchronized (lock) {
             if (artefacts == null) {
-                artefacts = new HashMap<String, AProjectArtefact>();
-                for (ArtefactAPI artefactAPI : getAPI().getArtefacts()) {
-                    if (artefactAPI.isFolder()) {
-                        artefacts.put(artefactAPI.getName(), new AProjectFolder((FolderAPI) artefactAPI, getProject()));
-                    } else {
-                        artefacts.put(artefactAPI.getName(), new AProjectResource((ResourceAPI) artefactAPI,
-                                getProject()));
-                    }
-                }
+                this.artefacts = createInternalArtefacts();
             }
         }
         return artefacts;
     }
 
-    protected void setArtefactsInternal(Map<String, AProjectArtefact> artefacts) {
-        this.artefacts = artefacts;
+    protected Map<String, AProjectArtefact> createInternalArtefacts() {
+        HashMap<String, AProjectArtefact> internalArtefacts = new HashMap<String, AProjectArtefact>();
+        Collection<FileData> fileDatas;
+        if (isHistoric()) {
+            fileDatas = getRepository().listHistory(getFolderPath());
+        } else {
+            fileDatas = getRepository().list(getFolderPath());
+        }
+        for (FileData fileData : fileDatas) {
+            if (!fileData.getName().equals(folderPath)) {
+                String artefactName = fileData.getName().substring(folderPath.length() + 1);
+                internalArtefacts.put(artefactName, new AProjectResource(getProject(), getRepository(), fileData));
+            }
+        }
+        return internalArtefacts;
     }
 
     @Override
@@ -258,5 +222,31 @@ public class AProjectFolder extends AProjectArtefact {
                 }
             }
         }
+    }
+
+    public String getFolderPath() {
+        return folderPath;
+    }
+
+    public void setFolderPath(String folderPath) {
+        this.folderPath = folderPath;
+    }
+
+    @Override
+    public boolean isHistoric() {
+        return historyVersion != null && !(getRepository() instanceof LocalRepository);
+    }
+
+    public String getHistoryVersion() {
+        return historyVersion;
+    }
+
+    public void setHistoryVersion(String historyVersion) {
+        this.historyVersion = historyVersion;
+    }
+
+    @Override
+    public ArtefactPath getArtefactPath() {
+        return new ArtefactPathImpl(getFolderPath());
     }
 }
