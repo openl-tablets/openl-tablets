@@ -1,6 +1,7 @@
 package org.openl.rules.repository.jcr;
 
 import org.openl.rules.common.ArtefactPath;
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.repository.*;
 import org.openl.rules.repository.api.ArtefactAPI;
@@ -99,7 +100,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
                 null, null, false);
     }
 
-    public void addListener(RDeploymentListener listener) throws RRepositoryException {
+    public void addListener(RDeploymentListener listener) {
         listeners.add(listener);
     }
 
@@ -285,17 +286,21 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         }
     }
 
-    public boolean removeListener(RDeploymentListener listener) throws RRepositoryException {
+    public boolean removeListener(RDeploymentListener listener) {
         return listeners.remove(listener);
     }
 
     public FolderAPI createDeploymentProject(String name) throws RRepositoryException {
         try {
-            Node node = NodeUtil.createNode(deployLocation, name, JcrNT.NT_APROJECT, true);
+            String path = getDeploymentsRootPath() + "/" + name;
+            Node parent = checkFolder(path.substring(0, path.lastIndexOf("/")));
+            Node node = NodeUtil.createNode(parent, name.substring(name.lastIndexOf("/") + 1), JcrNT.NT_APROJECT, true);
             deployLocation.save();
             node.checkin();
             return new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{name}));
         } catch (RepositoryException e) {
+            throw new RRepositoryException("", e);
+        } catch (ProjectException e) {
             throw new RRepositoryException("", e);
         }
     }
@@ -313,7 +318,6 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
             }
         }
     }
-
 
     public FolderAPI createRulesProject(String name) throws RRepositoryException {
         throw new UnsupportedOperationException();
@@ -350,12 +354,38 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         return result;
     }
 
+    @Override
+    public String getDeploymentConfigRootPath() throws RRepositoryException {
+        return null;
+    }
+
+    @Override
+    public String getDeploymentsRootPath() throws RRepositoryException {
+        try {
+            return removeLeadingSlash(deployLocation.getPath());
+        } catch (RepositoryException e) {
+            throw new RRepositoryException(e.getMessage(), e);
+        }
+    }
+
+    private String removeLeadingSlash(String path) {
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        return path;
+    }
+
     public FolderAPI getRulesProject(String name) throws RRepositoryException {
         throw new UnsupportedOperationException();
     }
 
     public List<FolderAPI> getRulesProjects() throws RRepositoryException {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getRulesProjectsRootPath() throws RRepositoryException {
+        return null;
     }
 
     public List<FolderAPI> getRulesProjectsForDeletion() throws RRepositoryException {
@@ -391,42 +421,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     }
 
     @Override
-    public Collection<FolderAPI> getLastDeploymentProjects()
-            throws RRepositoryException {
-
-        Map<String, FolderAPI> latestDeployments = new HashMap<String, FolderAPI>();
-        Map<String, Integer> versionsList = new HashMap<String, Integer>();
-        for (FolderAPI folder : getDeploymentProjects()) {
-            String deploymentName = folder.getName();
-            Integer versionNum = 0;
-
-            if (deploymentName.contains("#")) {
-                String versionStr;
-
-                if (deploymentName.indexOf('#') > deploymentName.lastIndexOf('.')) {
-                    versionStr = deploymentName.substring(deploymentName.indexOf('#') + 1);
-                } else {
-                    versionStr = deploymentName.substring(deploymentName.lastIndexOf('.') + 1);
-                }
-
-                deploymentName = deploymentName.substring(0, deploymentName.indexOf('#'));
-
-                if (!versionStr.isEmpty()) {
-                    versionNum = Integer.valueOf(versionStr);
-                }
-            }
-
-            if (versionsList.containsKey(deploymentName)) {
-                if (versionNum - versionsList.get(deploymentName) > 0) {
-                    versionsList.put(deploymentName, versionNum);
-                    latestDeployments.put(deploymentName, folder);
-                }
-            } else {
-                versionsList.put(deploymentName, versionNum);
-                latestDeployments.put(deploymentName, folder);
-            }
-        }
-
-        return latestDeployments.values();
+    protected boolean isBaseNode(Node node) {
+        return node == deployLocation;
     }
 }

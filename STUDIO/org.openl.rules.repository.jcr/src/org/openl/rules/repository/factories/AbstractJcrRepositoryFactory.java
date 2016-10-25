@@ -9,6 +9,7 @@ import javax.jcr.nodetype.NodeTypeManager;
 
 import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.RRepositoryFactory;
+import org.openl.rules.repository.jcr.ZipJcrRepository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.jcr.JcrNT;
 import org.openl.rules.repository.jcr.JcrProductionRepository;
@@ -30,6 +31,7 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
     protected Repository repository;
     private RRepository rulesRepository;
+    private ZipJcrRepository apiRepository;
 
     protected String login;
     protected String password;
@@ -91,14 +93,15 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
     }
 
     /** {@inheritDoc} */
-    public RRepository getRepositoryInstance() throws RRepositoryException {
-        if(rulesRepository == null){
+    public org.openl.rules.repository.api.Repository getRepositoryInstance() throws RRepositoryException {
+        if(apiRepository == null){
             rulesRepository = createRepository();
+            apiRepository = new ZipJcrRepository(rulesRepository);
         }
-        return rulesRepository;
+        return apiRepository;
     }
 
-    public RRepository createRepository() throws RRepositoryException {
+    protected RRepository createRepository() throws RRepositoryException {
         Session session = null;
         try {
             session = createSession();

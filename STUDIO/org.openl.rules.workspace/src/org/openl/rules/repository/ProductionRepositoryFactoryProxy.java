@@ -4,6 +4,7 @@ import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 import java.util.HashMap;
@@ -30,7 +31,7 @@ public class ProductionRepositoryFactoryProxy {
 
     private Map<String, RRepositoryFactory> factories = new HashMap<String, RRepositoryFactory>();
 
-    public RProductionRepository getRepositoryInstance(String propertiesFileName) throws RRepositoryException {
+    public Repository getRepositoryInstance(String propertiesFileName) throws RRepositoryException {
         if (!factories.containsKey(propertiesFileName)) {
             synchronized (this) {
                 if (!factories.containsKey(propertiesFileName)) {
@@ -39,8 +40,26 @@ public class ProductionRepositoryFactoryProxy {
             }
         }
 
-        return (RProductionRepository) factories.get(propertiesFileName).getRepositoryInstance();
+        return factories.get(propertiesFileName).getRepositoryInstance();
     }
+
+    public String getDeployPath(String propertiesFileName) {
+        ConfigurationManager configurationManager = configManagerFactory.getConfigurationManager(propertiesFileName);
+        Map<String, Object> properties = configurationManager.getProperties();
+        Object value = properties.get("production-repository.deployments.path");
+        return preparePathPrefix(value == null ? "deploy" : value.toString());
+    }
+
+    private String preparePathPrefix(String path) {
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        if (path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+        return path;
+    }
+
 
     public void releaseRepository(String propertiesFileName) throws RRepositoryException {
         synchronized (this) {
@@ -78,7 +97,6 @@ public class ProductionRepositoryFactoryProxy {
         config.updateProperty(confRepositoryFactoryClass);
         String className = confRepositoryFactoryClass.getValue();
 
-        RRepositoryFactory repFactory = RepositoryFactoryInstatiator.newFactory(className, config, false);
-        return repFactory;
+        return RepositoryFactoryInstatiator.newFactory(className, config, false);
     }
 }

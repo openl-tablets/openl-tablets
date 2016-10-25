@@ -12,6 +12,8 @@ import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.impl.local.LocalFolderAPI;
+import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,7 +155,8 @@ public class FileSystemDataSource implements DataSource, InitializingBean {
                         deploymentFolder.getParentFile(),
                         getLocalWorkspaceFolderFilter(),
                         getLocalWorkspaceFileFilter()));
-                Deployment deployment = new Deployment(localFolderAPI, deploymentName, deploymentVersion);
+                Repository repository = new LocalRepository(deploymentFolder.getParentFile());
+                Deployment deployment = new Deployment(repository, localFolderAPI.getArtefactPath().getStringValue(), deploymentName, deploymentVersion);
                 return deployment;
             }
         }
@@ -237,7 +240,8 @@ public class FileSystemDataSource implements DataSource, InitializingBean {
                     deploymentFolder.getParentFile(),
                     getLocalWorkspaceFolderFilter(),
                     getLocalWorkspaceFileFilter()));
-            Deployment deployment = new Deployment(localFolderAPI, deploymentName, commonVersion);
+            Repository repository = new LocalRepository(deploymentFolder.getParentFile());
+            Deployment deployment = new Deployment(repository, localFolderAPI.getArtefactPath().getStringValue(), deploymentName, commonVersion);
             validateDeployment(deployment, deploymentFolder);
             deployments.add(deployment);
         }

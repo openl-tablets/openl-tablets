@@ -4,27 +4,43 @@ import java.io.InputStream;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.repository.api.ResourceAPI;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.Repository;
 import org.openl.util.IOUtils;
 
 public class AProjectResource extends AProjectArtefact {
     private ResourceTransformer resourceTransformer;
+    private final ContentHandler contentHandler;
 
-    public AProjectResource(ResourceAPI api, AProject project) {
-        super(api, project);
+    public AProjectResource(AProject project, Repository repository, FileData fileData) {
+        super(project, repository, fileData);
+        contentHandler = null;
     }
-    
-    @Override
-    public ResourceAPI getAPI() {
-        return (ResourceAPI)super.getAPI();
+
+    public AProjectResource(AProject project, Repository repository, FileData fileData, ContentHandler contentHandler) {
+        super(project, repository, fileData);
+        this.contentHandler = contentHandler;
     }
 
     public InputStream getContent() throws ProjectException {
-        return getAPI().getContent();
+        if (contentHandler != null) {
+            return contentHandler.loadContent();
+        }
+        else {
+            if (isHistoric()) {
+                return getRepository().readHistory(getFileData().getName(), getFileData().getVersion()).getStream();
+            }
+            else {
+                return getRepository().read(getFileData().getName()).getStream();
+            }
+        }
     }
 
     public void setContent(InputStream inputStream) throws ProjectException {
-        getAPI().setContent(inputStream);
+        if (contentHandler != null) {
+            throw new UnsupportedOperationException("Can't set content if contentHandler is initialized");
+        }
+        setFileData(getRepository().save(getFileData(), inputStream));
         IOUtils.closeQuietly(inputStream);
     }
 
@@ -42,20 +58,22 @@ public class AProjectResource extends AProjectArtefact {
         super.update(artefact, user);
         AProjectResource resource = (AProjectResource)artefact;
         setContent(resource);
-        commit(user);
-    }
-
-    @Override
-    public void smartUpdate(AProjectArtefact artefact, CommonUser user) throws ProjectException {
-        if (artefact.isModified()) {
-            super.smartUpdate(artefact, user);
-            AProjectResource resource = (AProjectResource) artefact;
-            setContent(resource);
-            commit(user);
-        }
     }
 
     public void setResourceTransformer(ResourceTransformer resourceTransformer) {
         this.resourceTransformer = resourceTransformer;
+    }
+
+    @Override
+    public String getName() {
+        String name = getFileData().getName();
+
+        AProject project = getProject();
+        if (project == null) {
+            return name.substring(name.lastIndexOf("/") + 1);
+        } else {
+            String parentPath = getProject().getFolderPath();
+            return name.substring(parentPath.length() + 1);
+        }
     }
 }

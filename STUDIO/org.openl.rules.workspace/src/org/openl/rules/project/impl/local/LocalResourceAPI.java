@@ -38,6 +38,11 @@ public class LocalResourceAPI extends LocalArtefactAPI implements ResourceAPI {
         }
     }
 
+    @Override
+    public long getSize() {
+        return source.length();
+    }
+
     public void setContent(InputStream inputStream) throws ProjectException {
         FileOutputStream fos = null;
         try {

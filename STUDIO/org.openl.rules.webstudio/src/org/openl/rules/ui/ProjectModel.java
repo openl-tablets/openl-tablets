@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.conf.ClassLoaderFactory;
 import org.openl.conf.OpenLConfiguration;
 import org.openl.dependency.CompiledDependency;
@@ -78,6 +79,8 @@ import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.rules.webstudio.web.trace.node.CachingArgumentsCloner;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.source.SourceHistoryManager;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
@@ -773,6 +776,7 @@ public class ProjectModel {
 
                 XlsWorkbookListener historyListener = new XlsWorkbookSourceHistoryListener(getHistoryManager());
                 sourceCodeModule.addListener(historyListener);
+                sourceCodeModule.addListener(new XlsModificationListener());
             }
         }
     }
@@ -1406,4 +1410,16 @@ public class ProjectModel {
         return studio.isSingleModuleModeByDefault();
     }
 
+    private static class XlsModificationListener implements XlsWorkbookListener {
+        @Override
+        public void beforeSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
+
+        }
+
+        @Override
+        public void afterSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
+            UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(FacesUtils.getSession());
+            userWorkspace.getLocalWorkspace().getRepository().notifyModified(workbookSourceCodeModule.getSourceFile().getPath());
+        }
+    }
 }

@@ -1,12 +1,15 @@
 package org.openl.rules.webstudio.web.admin;
 
+import java.io.Closeable;
+
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
-import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.RRepositoryFactory;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.factories.LocalJackrabbitRepositoryFactory;
+import org.openl.util.IOUtils;
 
 /**
  * @author Pavel Tarasevich
@@ -35,7 +38,7 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
                 RepositoryConfiguration adminConfig = this.createAdminRepositoryConfiguration();
 
                 RRepositoryFactory repoFactory = this.getProductionRepositoryFactoryProxy().getFactory(adminConfig.getProperties());
-                RRepository repository = repoFactory.getRepositoryInstance();
+                Repository repository = repoFactory.getRepositoryInstance();
 
                 try {
                     if (repoFactory instanceof LocalJackrabbitRepositoryFactory) {
@@ -46,7 +49,9 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
                     }
                 } finally {
                     if (repository != null) {
-                        repository.release();
+                        if (repository instanceof Closeable) {
+                            IOUtils.closeQuietly((Closeable) repository);
+                        }
                         repoFactory.release();
                     }
                 }

@@ -9,21 +9,18 @@ import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.ResourceTransformer;
-import org.openl.rules.repository.NullRepository;
-import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.RRepositoryFactory;
-import org.openl.rules.repository.RRepositoryListener;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
-import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
-import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener.DTRepositoryEvent;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,20 +31,22 @@ import java.util.Map;
 /**
  * @author Aleh Bykhavets
  */
-public class DesignTimeRepositoryImpl implements DesignTimeRepository, RRepositoryListener {
+public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private final Logger log = LoggerFactory.getLogger(DesignTimeRepositoryImpl.class);
 
-    /**
-     * Rules Repository
-     */
-    private RRepository rulesRepository;
+    private static final String RULES_LOCATION_CONFIG_NAME = "design-repository.rules.path";
+    private static final String DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME = "design-repository.deployments.path";
+
     private RRepositoryFactory repFactory;
+    private Repository repository;
+    private String rulesLocation;
+    private String deploymentConfigurationLocation;
     /**
      * Project Cache
      */
     private HashMap<String, AProject> projects = new HashMap<String, AProject>();
 
-    private List<DesignTimeRepositoryListener> listeners = new ArrayList<DesignTimeRepositoryListener>();
+    private final List<DesignTimeRepositoryListener> listeners = new ArrayList<DesignTimeRepositoryListener>();
 
     private Map<String, Object> config;
 
@@ -55,25 +54,38 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         this.config = config;
     }
 
-    private RRepository getRepo() {
-        if (rulesRepository == null) {
-            init();
-        }
-        return rulesRepository;
-    }
     private synchronized void init() {
-        if (rulesRepository != null) {
+        if (repository != null) {
             return;
         }
+
+
         try {
             repFactory = createConnection(config);
-            rulesRepository = repFactory.getRepositoryInstance();
+            repository = repFactory.getRepositoryInstance();
+
+            Object path;
+            path = config.get(RULES_LOCATION_CONFIG_NAME);
+            rulesLocation = preparePathPrefix(path == null ? "DESIGN/rules" : path.toString());
+
+            path = config.get(DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME);
+            deploymentConfigurationLocation = preparePathPrefix(path == null ? "DESIGN/deployments" : path.toString());
         } catch (RRepositoryException e) {
             log.error("Cannot init DTR! {}", e.getMessage(), e);
-            rulesRepository = new NullRepository();
+            throw new IllegalStateException("Can't initialize Design Repository.", e);
         }
 
-        rulesRepository.addRepositoryListener(this);
+        repository.setListener(new RepositoryListener(listeners));
+    }
+
+    private String preparePathPrefix(String path) {
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        if (path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+        return path;
     }
 
     public RRepositoryFactory createConnection(Map<String, Object> properties) throws RRepositoryException {
@@ -85,15 +97,15 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         config.updateProperty(confRepositoryFactoryClass);
         String className = confRepositoryFactoryClass.getValue();
 
-        RRepositoryFactory repFactory = RepositoryFactoryInstatiator.newFactory(className, config, true);
-
-        return repFactory;
+        return RepositoryFactoryInstatiator.newFactory(className, config, true);
     }
 
     public void copyDDProject(ADeploymentProject project, String name, WorkspaceUser user)
             throws ProjectException {
-        createDDProject(name);
-        ADeploymentProject newProject = getDDProject(name);
+        ADeploymentProject newProject = new ADeploymentProject(null,
+                getRepository(),
+                deploymentConfigurationLocation + "/" + name,
+                null);
         newProject.update(project, user);
     }
 
@@ -103,7 +115,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         }
 
         try {
-            AProject newProject = wrapProject(rulesRepository.createRulesProject(name), false);
+            AProject newProject = new AProject(getRepository(), rulesLocation + "/" + name);
 
             newProject.setResourceTransformer(resourceTransformer);
             newProject.update(project, user);
@@ -118,20 +130,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         }
     }
 
-    public void createDDProject(String name) throws RepositoryException {
-        try {
-            getRepo().createDeploymentProject(name);
-        } catch (RRepositoryException e) {
-            throw new RepositoryException("Failed to create deploy configuration ''{0}''!", e, name);
-        }
+    public ADeploymentProject createDDProject(String name) throws RepositoryException {
+        return new ADeploymentProject(null, getRepository(), deploymentConfigurationLocation + "/" + name, null);
     }
 
-    public void createProject(String name) throws RepositoryException {
-        try {
-            getRepo().createRulesProject(name);
-        } catch (Exception e) {
-            throw new RepositoryException("Failed to create project ''{0}''!", e, name);
-        }
+    public AProject createProject(String name) throws RepositoryException {
+        return new AProject(getRepository(), rulesLocation + "/" + name);
     }
 
     public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
@@ -143,37 +147,19 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
     }
 
     public ADeploymentProject getDDProject(String name) throws RepositoryException {
-        try {
-            return wrapDDProject(getRepo().getDeploymentProject(name));
-        } catch (RRepositoryException e) {
-            throw new RepositoryException("Cannot find project ''{0}''!", e, name);
-        }
+        return new ADeploymentProject(null, getRepository(), deploymentConfigurationLocation + "/" + name, null);
     }
 
     public ADeploymentProject getDDProject(String name, CommonVersion version) throws RepositoryException {
-        try {
-            FolderAPI ralDeploymentProject = getRepo().getDeploymentProject(name);
-            if (ralDeploymentProject.getVersion(ralDeploymentProject.getVersionsCount() - 1).compareTo(version) == 0) {
-                return wrapDDProject(ralDeploymentProject);
-            }
-            return wrapDDProject(ralDeploymentProject.getVersion(version));
-        } catch (Exception e) {
-            throw new RepositoryException("Cannot find project ''{0}'' or its version ''{1}''!", e, name, version
-                    .getVersionName());
-        }
+        return new ADeploymentProject(null, getRepository(), deploymentConfigurationLocation + "/" + name, version.getVersionName());
     }
 
     public List<ADeploymentProject> getDDProjects() throws RepositoryException {
         LinkedList<ADeploymentProject> result = new LinkedList<ADeploymentProject>();
 
-        try {
-            for (FolderAPI ralDeploymentProject : getRepo().getDeploymentProjects()) {
-                ADeploymentProject dtrDeploymentProject = wrapDDProject(ralDeploymentProject);
-                result.add(dtrDeploymentProject);
-            }
-        } catch (RRepositoryException e) {
-            // TODO: re throw exception ?
-            log.error("Cannot list deployments projects!", e);
+        Collection<FileData> fileDatas = getRepository().list(deploymentConfigurationLocation);
+        for (FileData fileData : fileDatas) {
+            result.add(new ADeploymentProject(null, getRepository(), fileData));
         }
         return result;
     }
@@ -188,126 +174,53 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
             return cached;
         }
 
-        try {
-            FolderAPI ralProject = getRepo().getRulesProject(name);
-            return wrapProject(ralProject, true);
-        } catch (RRepositoryException e) {
-            throw new RepositoryException("Cannot find project ''{0}''!", e, name);
-        }
+        AProject project = new AProject(getRepository(), rulesLocation + "/" + name);
+        projects.put(project.getName(), project);
+        return project;
     }
 
     public AProject getProject(String name, CommonVersion version) throws RepositoryException {
-        try {
-            FolderAPI ralProject = getRepo().getRulesProject(name);
-            if (ralProject.getVersion(ralProject.getVersionsCount() - 1).compareTo(version) == 0) {
-                return wrapProject(ralProject, true);
-            }
-            // do not cache old version of project
-            return wrapProject(ralProject.getVersion(version), false);
-        } catch (Exception e) {
-            throw new RepositoryException("Cannot find project ''{0}'' or its version ''{1}''!", e, name, version
-                    .getVersionName());
-        }
+        return new AProject(getRepository(), rulesLocation + "/" + name, version.getVersionName());
     }
 
     public Collection<AProject> getProjects() {
         List<AProject> result = new LinkedList<AProject>();
 
-        try {
-            for (FolderAPI ralProject : getRepo().getRulesProjects()) {
-                String name = ralProject.getName();
-                AProject cached = projects.get(name);
-
-                if (cached != null) {
-                    // use cached
-                    result.add(cached);
-                } else {
-                    // get from the repository
-                    AProject project = wrapProject(ralProject, true);
-                    result.add(project);
-                }
+        Collection<FileData> fileDatas = getRepository().list(rulesLocation);
+        for (FileData fileData : fileDatas) {
+            AProject project = new AProject(getRepository(), fileData);
+            AProject cached = projects.get(project.getName());
+            if (cached != null) {
+                // use cached
+                result.add(cached);
+            } else {
+                // get from the repository
+                result.add(project);
+                projects.put(project.getName(), project);
             }
-        } catch (RRepositoryException e) {
-            // TODO: re throw exception ?
-            log.error("Cannot list projects!", e);
         }
         return result;
     }
 
     public boolean hasDDProject(String name) {
-        try {
-            return getRepo().hasDeploymentProject(name);
-        } catch (RRepositoryException e) {
-            log.error("Failed to check deployment project ''{}'' in the repository!", name, e);
-            return false;
-        }
+        return !getRepository().list(deploymentConfigurationLocation + "/" + name).isEmpty();
     }
 
     public boolean hasProject(String name) {
         AProject cached = projects.get(name);
         boolean inCache = (cached != null);
 
-        try {
-            boolean inRAL = getRepo().hasProject(name);
-            if (inRAL != inCache) {
-                if (!inRAL) {
-                    // ???
-                    projects.remove(name);
-                }
+        boolean inRAL = !getRepository().list(rulesLocation + "/" + name).isEmpty();
+        if (inRAL != inCache) {
+            if (!inRAL) {
+                // ???
+                projects.remove(name);
             }
-            return inRAL;
-        } catch (RRepositoryException e) {
-            log.error("Failed to check project ''{}'' in the repository!", name, e);
         }
-
-        return inCache;
-    }
-
-    public void updateProject(AProject sourceProject, WorkspaceUser user)
-            throws RepositoryException {
-        String name = sourceProject.getName();
-        AProject dest = getProject(name);
-
-        if (!dest.isLocked()) {
-            throw new RepositoryException("Cannot update project ''{0}'' while it is not locked!", null, name);
-        }
-
-        if (!dest.isLockedByUser(user)) {
-            throw new RepositoryException("Project ''{0}'' is locked by other user ({0})!", null, name, dest
-                    .getLockInfo().getLockedBy().getUserName());
-        }
-
-        try {
-            AProject project4Write = wrapProject(rulesRepository.getRulesProject(name), false);
-            /*
-            if (major != 0 || minor != 0) {
-                String msg = MsgHelper.format("Raising project version (''{0}'' -> {1}.{2})...", name, major, minor);
-                log.debug(msg);
-            }
-            */
-            project4Write.update(sourceProject, user);
-        } catch (Exception e) {
-            throw new RepositoryException("Failed to update project ''{0}''.", e, name);
-        } finally {
-            // invalidate cache (rules projects)
-            projects.remove(name);
-        }
+        return inRAL;
     }
 
     // --- private
-
-    private ADeploymentProject wrapDDProject(FolderAPI folder) {
-        return new ADeploymentProject(folder, null);
-    }
-
-    private AProject wrapProject(FolderAPI folder, boolean cacheIt) {
-        AProject dtrRulesProject = new AProject(folder);
-        if (cacheIt) {
-            projects.put(folder.getName(), dtrRulesProject);
-        }
-
-        return dtrRulesProject;
-    }
 
     public void addListener(DesignTimeRepositoryListener listener) {
         listeners.add(listener);
@@ -321,33 +234,44 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository, RReposito
         return listeners;
     }
 
-    public void onEventInRulesProjects(RRepositoryEvent event) {
-        DTRepositoryEvent repositoryEvent = new DTRepositoryEvent(event.getProjectName());
-        for (DesignTimeRepositoryListener listener : listeners) {
-            listener.onRulesProjectModified(repositoryEvent);
-        }
-    }
-
-    public void onEventInDeploymentProjects(RRepositoryEvent event) {
-        DTRepositoryEvent repositoryEvent = new DTRepositoryEvent(event.getProjectName());
-        for (DesignTimeRepositoryListener listener : listeners) {
-            listener.onDeploymentProjectModified(repositoryEvent);
-        }
-    }
-
     /**
      * destroy-method
      */
     public synchronized void destroy() throws Exception {
-        if (rulesRepository != null) {
-            rulesRepository.removeRepositoryListener(this);
-            rulesRepository.release();
-            rulesRepository = null;
+        if (repository != null) {
+            repository.setListener(null);
+            if (repository instanceof Closeable) {
+                ((Closeable) repository).close();
+            }
+            repository = null;
         }
         if (repFactory != null) {
             repFactory.release();
             repFactory = null;
         }
         projects.clear();
+    }
+
+    @Override
+    public Repository getRepository() {
+        if (repository == null) {
+            init();
+        }
+        return repository;
+    }
+
+    private static class RepositoryListener implements Listener {
+        private final List<DesignTimeRepositoryListener> listeners;
+
+        private RepositoryListener(List<DesignTimeRepositoryListener> listeners) {
+            this.listeners = listeners;
+        }
+
+        @Override
+        public void onChange() {
+            for (DesignTimeRepositoryListener listener : listeners) {
+                listener.onRepositoryModified();
+            }
+        }
     }
 }

@@ -63,7 +63,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -297,6 +296,9 @@ public class RepositoryTreeController {
             // workaround to reduce performance drop.
             return Collections.emptyList();
         }
+        if (getSelectedProject() instanceof ADeploymentProject) {
+            return Collections.emptyList();
+        }
         List<String> dependencies = new ArrayList<String>(getDependencies(getSelectedProject(), true));
         Collections.sort(dependencies);
         return dependencies;
@@ -489,8 +491,7 @@ public class RepositoryTreeController {
                 return null;
             }
 
-            userWorkspace.createDDProject(projectName);
-            ADeploymentProject createdProject = userWorkspace.getDDProject(projectName);
+            ADeploymentProject createdProject = userWorkspace.createDDProject(projectName);
             createdProject.edit();
             // Analogous to rules project creation (to change "created by"
             // property and revision)
@@ -1126,7 +1127,7 @@ public class RepositoryTreeController {
                 repositoryTreeState.getSelectedProject().close();
             }
 
-            repositoryTreeState.getSelectedProject().openVersion(new CommonVersionImpl(version));
+            repositoryTreeState.getSelectedProject().openVersion(version);
             openDependenciesIfNeeded();
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
