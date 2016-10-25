@@ -115,12 +115,10 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
     }
 
     public ProjectVersion getLastVersion() {
-        Collection<FileData> fileDatas = getRepository().listHistory(getFileData().getName());
-        FileData data = null;
-        for (FileData fd : fileDatas) {
-            data = fd;
-        }
-        return createProjectVersion(data);
+        List<FileData> fileDatas = getRepository().listHistory(getFileData().getName());
+        return fileDatas.isEmpty() ?
+               createProjectVersion(null) :
+               createProjectVersion(fileDatas.get(fileDatas.size() - 1));
     }
 
     public ProjectVersion getFirstVersion() {

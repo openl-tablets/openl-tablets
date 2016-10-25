@@ -75,13 +75,8 @@ public class AProject extends AProjectFolder {
             return true;
         }
 
-        Collection<FileData> fileDatas = getRepository().listHistory(getFolderPath());
-        FileData data = null;
-        for (FileData fd : fileDatas) {
-            data = fd;
-        }
-
-        return data == null || getHistoryVersion().equals(data.getVersion());
+        List<FileData> fileDatas = getRepository().listHistory(getFolderPath());
+        return fileDatas.isEmpty() || getHistoryVersion().equals(fileDatas.get(fileDatas.size() - 1).getVersion());
     }
 
     @Override
