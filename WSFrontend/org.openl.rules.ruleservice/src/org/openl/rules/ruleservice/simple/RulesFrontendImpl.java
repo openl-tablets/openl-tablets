@@ -107,11 +107,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
                 throw new InternalError(e.toString());
             } catch (InvocationTargetException e) {
                 Throwable t = e.getCause();
-                if (t instanceof RuntimeException) {
-                    throw (RuntimeException) t;
-                } else {
-                    throw new MethodInvocationException(t.toString(), t);
-                }
+                throw new MethodInvocationException(t.toString(), t);
             } 
         } else {
             throw new MethodInvocationException("Service '" + serviceName + "' not found!");
