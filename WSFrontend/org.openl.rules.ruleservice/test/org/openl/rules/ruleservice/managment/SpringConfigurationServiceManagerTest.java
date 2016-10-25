@@ -45,7 +45,7 @@ public class SpringConfigurationServiceManagerTest implements ApplicationContext
         assertEquals(50.0, value.getValue(), 0.01);
     }
 
-    @Test(expected = RuleServiceWrapperException.class) 
+    @Test(expected = MethodInvocationException.class) 
     public void testExceptionFramework() throws Exception {
         assertNotNull(applicationContext);
         ServiceManagerImpl serviceManager = applicationContext.getBean(ServiceManagerImpl.class);

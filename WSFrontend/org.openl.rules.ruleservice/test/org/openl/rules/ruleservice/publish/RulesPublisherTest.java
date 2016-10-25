@@ -21,6 +21,7 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.rules.ruleservice.management.ServiceManager;
+import org.openl.rules.ruleservice.simple.MethodInvocationException;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -90,7 +91,7 @@ public class RulesPublisherTest implements ApplicationContextAware {
         return (Integer) counter.getMethod("getCount").invoke(null);
     }
 
-    @Test(expected = RuleServiceWrapperException.class)
+    @Test(expected = MethodInvocationException.class)
     public void testMethodBeforeInterceptors() throws Exception {
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
