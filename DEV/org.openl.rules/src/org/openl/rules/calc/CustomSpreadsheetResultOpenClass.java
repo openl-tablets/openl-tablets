@@ -14,9 +14,11 @@ import java.util.Set;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.binding.CustomDynamicOpenClass;
 import org.openl.rules.table.Point;
+import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.ADynamicClass;
+import org.openl.types.impl.DynamicArrayAggregateInfo;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -49,6 +51,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
 
     private static IOpenClass spreadsheetResultOpenClass = JavaOpenClass.createNewOpenClass(SpreadsheetResult.class);
 
+    @Override
+    public IAggregateInfo getAggregateInfo() {
+        return DynamicArrayAggregateInfo.aggregateInfo;
+    }
+    
     public synchronized Iterable<IOpenClass> superClasses() {
         if (superClasses == null) {
             Class<?>[] interfaces = SpreadsheetResult.class.getInterfaces();
