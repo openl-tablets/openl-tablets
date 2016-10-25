@@ -1,12 +1,13 @@
 package org.openl.rules.ruleservice.loader;
 
+import java.io.Closeable;
 import java.util.*;
 
 import javax.annotation.PreDestroy;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.abstraction.Deployment;
-import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
+import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
@@ -27,17 +28,12 @@ public class JcrDataSource implements DataSource {
 
     private static final String SEPARATOR = "#";
 
-    private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
-    private String repositoryPropertiesFile = ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE; // For
-    // backward
-    // compatibility
+    private Repository repository;
 
     /**
      * {@inheritDoc}
      */
     public Collection<Deployment> getDeployments() {
-        Repository repository = getRProductionRepository();
-
         Collection<FileData> fileDatas = repository.list(DeployUtils.DEPLOY_PATH);
         Collection<Deployment> ret = new ArrayList<Deployment>();
         for (FileData fileData : fileDatas) {
@@ -64,16 +60,11 @@ public class JcrDataSource implements DataSource {
         String name = deploymentName + SEPARATOR + deploymentVersion.getVersionName();
         // FIXME
         // Should be deploymentNotFoundException or null return
-        Repository repository = getRProductionRepository();
         return new Deployment(repository, DeployUtils.DEPLOY_PATH + name, deploymentName, deploymentVersion);
     }
 
     private Repository getRProductionRepository() {
-        try {
-            return productionRepositoryFactoryProxy.getRepositoryInstance(repositoryPropertiesFile);
-        } catch (RRepositoryException e) {
-            throw new DataSourceException(e);
-        }
+        return repository;
     }
 
     /**
@@ -93,15 +84,13 @@ public class JcrDataSource implements DataSource {
     @PreDestroy
     public void destroy() throws Exception {
         log.debug("JCR data source releasing");
-        productionRepositoryFactoryProxy.releaseRepository(repositoryPropertiesFile);
+        if (repository instanceof Closeable) {
+            ((Closeable) repository).close();
+        }
     }
 
-    public void setProductionRepositoryFactoryProxy(ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy) {
-        this.productionRepositoryFactoryProxy = productionRepositoryFactoryProxy;
-    }
-
-    public void setRepositoryPropertiesFile(String repositoryPropertiesFile) {
-        this.repositoryPropertiesFile = repositoryPropertiesFile;
+    public void setRepository(RRepositoryFactory repository) throws RRepositoryException {
+        this.repository = repository.getRepositoryInstance();
     }
 
     private static class DataSourceListenerWrapper implements Listener {
