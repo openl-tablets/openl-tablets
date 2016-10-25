@@ -28,10 +28,13 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties={"ruleservice.datasource.dir=test-resources/RulesPublisherTest", "ruleservice.isProvideRuntimeContext=false"})
+@TestPropertySource(properties = { "ruleservice.datasource.dir=test-resources/RulesPublisherTest",
+        "ruleservice.isProvideRuntimeContext=false",
+        "ruleservice.datasource.type = local" })
 @ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
-public class RulesPublisherTest implements ApplicationContextAware{
+public class RulesPublisherTest implements ApplicationContextAware {
     private static final String DRIVER = "org.openl.generated.beans.publisher.test.Driver";
     private static final String COVERAGE = "coverage";
     private static final String DATA2 = "data2";
@@ -39,28 +42,27 @@ public class RulesPublisherTest implements ApplicationContextAware{
     private static final String DATA1 = "data1";
     private static final String TUTORIAL4 = "org.openl.rules.tutorial4.Tutorial4Interface";
     private static final String MULTI_MODULE = "RulesPublisherTest_multimodule";
-    
 
     private ApplicationContext applicationContext;
 
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
-    
+
     @Test
     public void testMultiModuleService() throws Exception {
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
-        
+
         assertEquals("World, Good Morning!", frontend.execute(MULTI_MODULE, "worldHello", new Object[] { 10 }));
         assertEquals(2, Array.getLength(frontend.getValue(MULTI_MODULE, DATA1)));
         assertEquals(3, Array.getLength(frontend.getValue(MULTI_MODULE, DATA2)));
     }
 
-    public static interface SimpleInterface{
-    	String worldHello(int hour);
+    public static interface SimpleInterface {
+        String worldHello(int hour);
     }
 
     @Test
@@ -80,8 +82,11 @@ public class RulesPublisherTest implements ApplicationContextAware{
     }
 
     private int getCount(RuleServicePublisher publisher) throws Exception {
-        Class<?> counter = publisher.getServiceByName(TUTORIAL4).getServiceBean().getClass().getClassLoader()
-                .loadClass("org.openl.rules.tutorial4.InvocationCounter");
+        Class<?> counter = publisher.getServiceByName(TUTORIAL4)
+            .getServiceBean()
+            .getClass()
+            .getClassLoader()
+            .loadClass("org.openl.rules.tutorial4.InvocationCounter");
         return (Integer) counter.getMethod("getCount").invoke(null);
     }
 
@@ -99,11 +104,14 @@ public class RulesPublisherTest implements ApplicationContextAware{
         }
         int c = getCount(publisher);
         assertEquals(executedTimes, c - count);
-        Object driver = publisher.getServiceByName(TUTORIAL4).getServiceClass().getClassLoader()
-                .loadClass(DRIVER).newInstance();
+        Object driver = publisher.getServiceByName(TUTORIAL4)
+            .getServiceClass()
+            .getClassLoader()
+            .loadClass(DRIVER)
+            .newInstance();
         frontend.execute(TUTORIAL4, "driverAgeType", new Object[] { driver });
     }
-    
+
     @Test
     public void testMethodAfterInterceptors() throws Exception {
         assertNotNull(applicationContext);
@@ -111,12 +119,15 @@ public class RulesPublisherTest implements ApplicationContextAware{
         assertNotNull(serviceManager);
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         RuleServicePublisher publisher = applicationContext.getBean("ruleServicePublisher", RuleServicePublisher.class);
-        Object driver = publisher.getServiceByName(TUTORIAL4).getServiceClass().getClassLoader()
-                .loadClass(DRIVER).newInstance();
+        Object driver = publisher.getServiceByName(TUTORIAL4)
+            .getServiceClass()
+            .getClassLoader()
+            .loadClass(DRIVER)
+            .newInstance();
         Method nameSetter = driver.getClass().getMethod("setName", String.class);
         nameSetter.invoke(driver, "name");
         Class<? extends Object> returnType = frontend.execute(TUTORIAL4, "driverAgeType", new Object[] { driver })
-                .getClass();
+            .getClass();
         assertTrue(returnType.isEnum());
         assertTrue(returnType.getName().equals("org.openl.rules.tutorial4.DriverAgeType"));
     }
@@ -139,12 +150,14 @@ public class RulesPublisherTest implements ApplicationContextAware{
             dependencyManager.setExecutionMode(true);
             IDependencyLoader loader = new RulesModuleDependencyLoader(modules);
             dependencyManager.setDependencyLoaders(Arrays.asList(loader));
-            RulesInstantiationStrategy instantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(module, true,
-                    dependencyManager);
+            RulesInstantiationStrategy instantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(module,
+                true,
+                dependencyManager);
             Class<?> moduleServiceClass = instantiationStrategy.getInstanceClass();
             for (Method method : moduleServiceClass.getMethods()) {
-                assertNotNull(MethodUtils.getMatchingAccessibleMethod(multiModuleServiceClass, method.getName(),
-                        method.getParameterTypes()));
+                assertNotNull(MethodUtils.getMatchingAccessibleMethod(multiModuleServiceClass,
+                    method.getName(),
+                    method.getParameterTypes()));
             }
         }
 

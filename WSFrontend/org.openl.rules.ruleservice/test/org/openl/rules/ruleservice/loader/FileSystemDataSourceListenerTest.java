@@ -15,13 +15,19 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties={"ruleservice.datasource.dir=test-resources/FileSystemDataSourceListenerTest"})
-@ContextConfiguration({ "classpath:properties.xml", "classpath:openl-ruleservice-datasource-beans.xml", "classpath:openl-ruleservice-loader-beans.xml", "classpath:openl-ruleservice-filesystemdatasource-scheduler-beans.xml" })
+@TestPropertySource(locations = { "classpath:openl-ruleservice-ref.properties" }, properties = {
+        "ruleservice.datasource.dir=test-resources/FileSystemDataSourceListenerTest",
+        "ruleservice.datasource.type = local" })
+@ContextConfiguration({ "classpath:properties.xml",
+        "classpath:openl-ruleservice-datasource-beans.xml",
+        "classpath:openl-ruleservice-loader-beans.xml",
+        "classpath:openl-ruleservice-filesystemdatasource-scheduler-beans.xml" })
 public class FileSystemDataSourceListenerTest {
     private static final long SLEEP_TIME = 15000;
     private boolean flag = false;
 
-    @Qualifier("datasource") @Autowired
+    @Qualifier("datasource")
+    @Autowired
     private DataSource dataSource;
 
     public DataSource getDataSource() {

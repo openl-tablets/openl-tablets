@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.loader;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
+import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -226,6 +227,12 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
         if (!isEnabled()){
             return;
         }
+        PathMatchingResourcePatternResolver prpr = new PathMatchingResourcePatternResolver();
+        Resource[] resources = prpr.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+        if (CollectionUtils.isEmpty(resources)) {
+            log.info("No resources with rules.xml have been detected in the classpath.");
+            return;
+        }
         String destDirectory = getDestinationDirectory();
         if (destDirectory == null) {
             throw new IllegalStateException("Distination directory is null. Please, check bean configuration.");
@@ -249,8 +256,6 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
             }
         }
 
-        PathMatchingResourcePatternResolver prpr = new PathMatchingResourcePatternResolver();
-        Resource[] resources = prpr.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
         if (!FolderHelper.clearFolder(new File(destDirectory))) {
             log.warn("Failed on a folder clear. Path: \"{}\"", destDirectory);
         }

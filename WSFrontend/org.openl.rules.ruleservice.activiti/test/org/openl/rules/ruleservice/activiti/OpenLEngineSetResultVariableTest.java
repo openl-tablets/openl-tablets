@@ -16,7 +16,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource(properties = { "ruleservice.datasource.type=local",
-        "ruleservice.datasource.deploy.classpath.jars=false",
         "ruleservice.isProvideRuntimeContext=false",
         "ruleservice.datasource.dir=test-resources/datasource" })
 @ContextConfiguration(locations = { "classpath:activiti.cfg.xml" })

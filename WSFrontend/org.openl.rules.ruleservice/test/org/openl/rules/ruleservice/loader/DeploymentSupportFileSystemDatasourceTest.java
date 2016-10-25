@@ -14,9 +14,14 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties={"ruleservice.datasource.dir=test-resources/DeploymentSupportFileSystemDatasourceTest", "ruleservice.datasource.filesystem.supportDeployments = true",
-        "ruleservice.datasource.filesystem.supportVersion = true"})
-@ContextConfiguration({ "classpath:properties.xml", "classpath:openl-ruleservice-datasource-beans.xml", "classpath:openl-ruleservice-loader-beans.xml" })
+@TestPropertySource(locations = { "classpath:openl-ruleservice-ref.properties" }, properties = {
+        "ruleservice.datasource.dir=test-resources/DeploymentSupportFileSystemDatasourceTest",
+        "ruleservice.datasource.filesystem.supportDeployments = true",
+        "ruleservice.datasource.filesystem.supportVersion = true",
+        "ruleservice.datasource.type = local" })
+@ContextConfiguration({ "classpath:properties.xml",
+        "classpath:openl-ruleservice-datasource-beans.xml",
+        "classpath:openl-ruleservice-loader-beans.xml" })
 public class DeploymentSupportFileSystemDatasourceTest {
     @Autowired
     private RuleServiceLoader rulesLoader;

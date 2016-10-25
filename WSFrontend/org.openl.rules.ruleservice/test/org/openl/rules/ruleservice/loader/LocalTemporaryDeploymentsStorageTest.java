@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.openl.rules.project.abstraction.Deployment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Collection;
@@ -16,6 +17,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@TestPropertySource("classpath:openl-ruleservice-ref.properties")
 @ContextConfiguration({ "classpath:properties.xml", "classpath:openl-ruleservice-datasource-jcr-beans.xml" })
 public class LocalTemporaryDeploymentsStorageTest {
 

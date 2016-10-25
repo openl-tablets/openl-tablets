@@ -58,6 +58,20 @@ public final class Point implements Serializable {
         return row;
     }
 
+    /**
+     * For converters
+     */
+    public Point moveRight() {
+        return new Point(column + 1, row);
+    }
+
+    /**
+     * For converters
+     */
+    public Point moveDown() {
+        return new Point(column, row + 1);
+    }
+
     @Override
     public boolean equals(Object obj) {
         EqualsBuilder builder = new EqualsBuilder();
