@@ -10,7 +10,6 @@ import org.openl.binding.IBoundNode;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
-import org.openl.types.NullOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -19,12 +18,15 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class QMarkNode extends ABoundNode {
 
+    private IOpenClass type;
+    
     /**
      * @param syntaxNode
      * @param children
      */
-    public QMarkNode(ISyntaxNode syntaxNode, IBoundNode[] children) {
+    public QMarkNode(ISyntaxNode syntaxNode, IBoundNode[] children, IOpenClass type) {
         super(syntaxNode, children);
+        this.type = type;
     }
 
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
@@ -35,10 +37,7 @@ public class QMarkNode extends ABoundNode {
     }
 
     public IOpenClass getType() {
-        if (NullOpenClass.the.equals(children[1].getType())){
-            return children[2].getType();
-        }
-        return children[1].getType();
+       return type;
     }
 
     @Override
