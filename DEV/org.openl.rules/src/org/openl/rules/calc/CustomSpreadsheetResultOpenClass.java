@@ -134,6 +134,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
                     newFieldNames.add(sb.toString());
                 }
             }
+            this.rowNames = nRowNames.toArray(new String[]{});
+            this.columnNames = nColumnNames.toArray(new String[]{});
             for (IOpenField field : fields){
                 if (newFieldNames.contains(field.getName())){
                     addField(field);
