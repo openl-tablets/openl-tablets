@@ -43,24 +43,6 @@ public class ProductionRepositoryFactoryProxy {
         return factories.get(propertiesFileName).getRepositoryInstance();
     }
 
-    public String getDeployPath(String propertiesFileName) {
-        ConfigurationManager configurationManager = configManagerFactory.getConfigurationManager(propertiesFileName);
-        Map<String, Object> properties = configurationManager.getProperties();
-        Object value = properties.get("production-repository.deployments.path");
-        return preparePathPrefix(value == null ? "deploy" : value.toString());
-    }
-
-    private String preparePathPrefix(String path) {
-        if (path.startsWith("/")) {
-            path = path.substring(1);
-        }
-        if (path.endsWith("/")) {
-            path = path.substring(0, path.length() - 1);
-        }
-        return path;
-    }
-
-
     public void releaseRepository(String propertiesFileName) throws RRepositoryException {
         synchronized (this) {
             RRepositoryFactory factory = factories.get(propertiesFileName);

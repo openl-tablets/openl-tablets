@@ -14,6 +14,7 @@ import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.deploy.DeployID;
+import org.openl.rules.workspace.deploy.DeployUtils;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 
 /**
@@ -57,8 +58,7 @@ public class JcrRulesClient {
         AProject fetchedDeployment = new AProject(localRepository, destFolder.getName());
 
         Repository productionRepository = productionRepositoryFactoryProxy.getRepositoryInstance(repositoryPropertiesFile);
-        String deployPath = productionRepositoryFactoryProxy.getDeployPath(repositoryPropertiesFile);
-        final AProject deploymentProject = new AProject(productionRepository, deployPath + "/" + deployID.getName());
+        final AProject deploymentProject = new AProject(productionRepository, DeployUtils.DEPLOY_PATH + deployID.getName());
         // TODO: solve problem with fetching deployment when it is not uploaded
         // completely
         if (deploymentProject.isLocked()) {
@@ -86,8 +86,7 @@ public class JcrRulesClient {
      * @throws RRepositoryException on repository error
      */
     public Collection<String> getDeploymentNames() throws RRepositoryException {
-        String deployPath = productionRepositoryFactoryProxy.getDeployPath(repositoryPropertiesFile);
-        Collection<FileData> fileDatas = productionRepositoryFactoryProxy.getRepositoryInstance(repositoryPropertiesFile) .list(deployPath);
+        Collection<FileData> fileDatas = productionRepositoryFactoryProxy.getRepositoryInstance(repositoryPropertiesFile) .list(DeployUtils.DEPLOY_PATH);
         Collection<String> result = new ArrayList<String>();
         for (FileData fileData : fileDatas) {
             result.add(fileData.getName());

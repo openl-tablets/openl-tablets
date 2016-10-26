@@ -52,6 +52,9 @@ public class ZipJcrRepository implements Repository, Closeable {
 
     @Override
     public List<FileData> list(String path) {
+        if (path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
         try {
             List<FileData> result = new ArrayList<FileData>();
             List<FolderAPI> projects;

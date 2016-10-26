@@ -16,6 +16,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.deploy.DeployID;
+import org.openl.rules.workspace.deploy.DeployUtils;
 import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.deploy.ProductionDeployer;
 
@@ -62,13 +63,12 @@ public class JcrProductionDeployer implements ProductionDeployer {
 
         boolean alreadyDeployed = false;
         try {
-            String deployPath = repositoryFactoryProxy.getDeployPath(repositoryConfigName);
             Repository repository =repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
 
-            if (!repository.list(deployPath + "/" + id.getName()).isEmpty() || !repository.list(deployPath + "/" + getOtherDeploymentProjectName(deploymentProject)).isEmpty()) {
+            if (!repository.list(DeployUtils.DEPLOY_PATH + id.getName()).isEmpty() || !repository.list(DeployUtils.DEPLOY_PATH + getOtherDeploymentProjectName(deploymentProject)).isEmpty()) {
                 alreadyDeployed = true;
             } else {
-                String deploymentPath = deployPath + "/" + id.getName();
+                String deploymentPath = DeployUtils.DEPLOY_PATH + id.getName();
                 AProject deploymentPRJ = new AProject(repository, deploymentPath);
                 deploymentPRJ.lock(user);
                 for (AProject p : projects) {
@@ -107,11 +107,10 @@ public class JcrProductionDeployer implements ProductionDeployer {
     @Override
     public synchronized boolean hasDeploymentProject(ADeploymentProject deployConfiguration) throws RRepositoryException {
         Repository repository = repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
-        String deployPath = repositoryFactoryProxy.getDeployPath(repositoryConfigName);
         DeployID id = generateDeployID(deployConfiguration);
         String otherPossibleID = this.getOtherDeploymentProjectName(deployConfiguration);
 
-        return !repository.list(deployPath + "/" + id.getName()).isEmpty() || !repository.list(deployPath + "/" + otherPossibleID).isEmpty();
+        return !repository.list(DeployUtils.DEPLOY_PATH + id.getName()).isEmpty() || !repository.list(DeployUtils.DEPLOY_PATH + otherPossibleID).isEmpty();
     }
 
     private void deployProject(AProject deployment, AProject project, WorkspaceUser user) throws ProjectException {

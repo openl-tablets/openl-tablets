@@ -110,7 +110,6 @@ public class ProductionRepositoryDeployer {
             AProject projectToDeploy = new AProject(new LocalRepository(workspaceLocation), path.getStringValue());
 
             // Calculate version
-            String deployPath = repositoryFactoryProxy.getDeployPath(config);
             Repository repository = repositoryFactoryProxy.getRepositoryInstance(config);
 
             ConfigurationManagerFactory configManagerFactory = ProductionRepositoryFactoryProxy.DEFAULT_CONFIGURATION_MANAGER_FACTORY;
@@ -119,7 +118,7 @@ public class ProductionRepositoryDeployer {
             // Wait 15 seconds for initializing networking in JGroups.
             Object initializeTimeout = properties.get("timeout.networking.initialize");
             Thread.sleep(initializeTimeout == null ? 15000 : Integer.parseInt(initializeTimeout.toString()));
-            Collection<FileData> lastDeploymentProjects = DeployUtils.getLastDeploymentProjects(repository, deployPath);
+            Collection<FileData> lastDeploymentProjects = DeployUtils.getLastDeploymentProjects(repository);
             int version = 0;
             for (FileData fileData : lastDeploymentProjects) {
                 String p = fileData.getName();

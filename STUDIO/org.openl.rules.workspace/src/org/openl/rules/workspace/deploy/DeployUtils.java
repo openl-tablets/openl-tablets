@@ -9,15 +9,18 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public final class DeployUtils {
+
+    public static final String DEPLOY_PATH = "deploy/";
+
     private DeployUtils() {
     }
 
-    public static Collection<FileData> getLastDeploymentProjects(Repository repository, String deployPath) throws RRepositoryException {
+    public static Collection<FileData> getLastDeploymentProjects(Repository repository) throws RRepositoryException {
 
         Map<String, FileData> latestDeployments = new HashMap<String, FileData>();
         Map<String, Integer> versionsList = new HashMap<String, Integer>();
 
-        Collection<FileData> fileDatas = repository.list(deployPath);
+        Collection<FileData> fileDatas = repository.list(DEPLOY_PATH);
         for (FileData fileData : fileDatas) {
             String path = fileData.getName();
             String deploymentName = path.substring(path.lastIndexOf("/") + 1);

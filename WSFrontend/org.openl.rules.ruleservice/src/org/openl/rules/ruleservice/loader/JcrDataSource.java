@@ -11,6 +11,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.workspace.deploy.DeployUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +41,7 @@ public class JcrDataSource implements DataSource {
     public Collection<Deployment> getDeployments() {
         Repository repository = getRProductionRepository();
 
-        Collection<FileData> fileDatas = repository.list(getDeployPath());
+        Collection<FileData> fileDatas = repository.list(DeployUtils.DEPLOY_PATH);
         Collection<Deployment> ret = new ArrayList<Deployment>();
         for (FileData fileData : fileDatas) {
             ret.add(new Deployment(repository, fileData));
@@ -67,7 +68,7 @@ public class JcrDataSource implements DataSource {
         // FIXME
         // Should be deploymentNotFoundException or null return
         Repository repository = getRProductionRepository();
-        return new Deployment(repository, getDeployPath() + "/" + name, deploymentName, deploymentVersion);
+        return new Deployment(repository, DeployUtils.DEPLOY_PATH + name, deploymentName, deploymentVersion);
     }
 
     private Repository getRProductionRepository() {
@@ -76,10 +77,6 @@ public class JcrDataSource implements DataSource {
         } catch (RRepositoryException e) {
             throw new DataSourceException(e);
         }
-    }
-
-    private String getDeployPath() {
-        return productionRepositoryFactoryProxy.getDeployPath(repositoryPropertiesFile);
     }
 
     /**

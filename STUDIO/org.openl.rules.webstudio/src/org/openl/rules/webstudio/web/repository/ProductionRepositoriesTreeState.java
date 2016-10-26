@@ -90,10 +90,8 @@ public class ProductionRepositoriesTreeState {
     private List<AProjectFolder> getPRepositoryProjects(RepositoryConfiguration repoConfig) {
         try {
             Repository repository = productionRepositoryFactoryProxy.getRepositoryInstance(repoConfig.getConfigName());
-            String deployPath = productionRepositoryFactoryProxy.getDeployPath(repoConfig.getConfigName());
-
             List<AProjectFolder> prjList = new ArrayList<AProjectFolder>();
-            Collection<FileData> fileDatas = DeployUtils.getLastDeploymentProjects(repository, deployPath);
+            Collection<FileData> fileDatas = DeployUtils.getLastDeploymentProjects(repository);
             for (FileData fileData : fileDatas) {
                 prjList.add(new Deployment(repository, fileData));
             }

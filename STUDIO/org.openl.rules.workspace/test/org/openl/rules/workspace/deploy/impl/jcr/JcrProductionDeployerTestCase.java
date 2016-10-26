@@ -23,6 +23,7 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.deploy.DeployID;
+import org.openl.rules.workspace.deploy.DeployUtils;
 import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.mock.MockRepository;
 import org.openl.rules.workspace.mock.MockResource;
@@ -57,7 +58,6 @@ public class JcrProductionDeployerTestCase extends TestCase {
     private AProject project2;
     private AProject project3;
     private List<AProject> projects;
-    private String deploymentsRootPath;
 
     private AProject makeProject() throws ProjectException {
         AProject project = new AProject(repository, PROJECT1_NAME);
@@ -96,7 +96,6 @@ public class JcrProductionDeployerTestCase extends TestCase {
 
         instance = new JcrProductionDeployer(productionRepositoryFactoryProxy, ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE);
         repository = new MockRepository();
-        deploymentsRootPath = productionRepositoryFactoryProxy.getDeployPath(ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE);
         productionRepository = productionRepositoryFactoryProxy.getRepositoryInstance(ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE);
 
         project1 = makeProject();
@@ -124,8 +123,7 @@ public class JcrProductionDeployerTestCase extends TestCase {
         productionRepository = productionRepositoryFactoryProxy.getRepositoryInstance(ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE);
 
         Repository pr = productionRepositoryFactoryProxy.getRepositoryInstance(ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE);
-        String deployPath = productionRepositoryFactoryProxy.getDeployPath(ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE);
-        assertTrue(!pr.list(deployPath + "/" + id.getName()).isEmpty());
+        assertTrue(!pr.list(DeployUtils.DEPLOY_PATH + id.getName()).isEmpty());
 
         // TODO: uncomment lines below
 //        final Collection<String> names = pr.getDeploymentProjectNames();
@@ -136,7 +134,7 @@ public class JcrProductionDeployerTestCase extends TestCase {
 //        assertTrue(deployment.hasArtefact(PROJECT2_NAME));
 //        assertTrue(deployment.hasArtefact(PROJECT3_NAME));
 
-        AProject project = new AProject(productionRepository, deploymentsRootPath + "/" + id.getName() + "/" + PROJECT2_NAME);
+        AProject project = new AProject(productionRepository, DeployUtils.DEPLOY_PATH + id.getName() + "/" + PROJECT2_NAME);
 
 //        AProjectFolder folder1 = (AProjectFolder) project.getArtefact(FOLDER1);
 //
@@ -149,7 +147,7 @@ public class JcrProductionDeployerTestCase extends TestCase {
         AProjectResource theFile2 = (AProjectResource)project.getArtefact(FOLDER1 + "/" + FILE1_2);
         assertNotNull(theFile2);
 
-        AProject project3 = new AProject(productionRepository, deploymentsRootPath + "/" + id.getName() + "/" + PROJECT3_NAME);
+        AProject project3 = new AProject(productionRepository, DeployUtils.DEPLOY_PATH + id.getName() + "/" + PROJECT3_NAME);
 
 //        folder1 = (AProjectFolder) project3.getArtefact(FOLDER1);
 //
