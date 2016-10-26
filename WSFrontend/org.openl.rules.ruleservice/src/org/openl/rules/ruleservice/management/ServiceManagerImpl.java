@@ -34,11 +34,11 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
 
     public void setRuleServiceLoader(RuleServiceLoader ruleServiceLoader) {
         if (this.ruleServiceLoader != null) {
-            this.ruleServiceLoader.removeListener(this);
+            this.ruleServiceLoader.setListener(null);
         }
         this.ruleServiceLoader = ruleServiceLoader;
         if (this.ruleServiceLoader != null) {
-            this.ruleServiceLoader.addListener(this);
+            this.ruleServiceLoader.setListener(this);
         }
     }
 
