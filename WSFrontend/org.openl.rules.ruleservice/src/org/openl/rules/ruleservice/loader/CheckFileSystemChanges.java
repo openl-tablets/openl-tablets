@@ -79,8 +79,8 @@ public final class CheckFileSystemChanges extends TimerTask {
      * Executes once on change if change is detected
      */
     protected synchronized void onChange() {
-        List<DataSourceListener> listeners = fileSystemDataSource.listeners;
-        for (DataSourceListener listener : listeners) {
+        DataSourceListener listener = fileSystemDataSource.listener;
+        if (listener != null) {
             listener.onDeploymentAdded();
         }
         storage.clear();

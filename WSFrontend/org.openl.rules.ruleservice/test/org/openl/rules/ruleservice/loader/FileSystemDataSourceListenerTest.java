@@ -47,7 +47,7 @@ public class FileSystemDataSourceListenerTest {
                 flag = true;
             }
         };
-        dataSource.addListener(dataSourceListener);
+        dataSource.setListener(dataSourceListener);
         String path = ((FileSystemDataSource) dataSource).getLoadDeploymentsFromDirectory();
         File loadDeploymentsFromFolder = new File(path);
         for (File file : loadDeploymentsFromFolder.listFiles()) {

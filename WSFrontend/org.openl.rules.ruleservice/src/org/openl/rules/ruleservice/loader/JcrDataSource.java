@@ -27,9 +27,6 @@ public class JcrDataSource implements DataSource {
 
     private static final String SEPARATOR = "#";
 
-    final List<DataSourceListener> listeners = new ArrayList<DataSourceListener>();
-    private DataSourceListenerWrapper wrapper = new DataSourceListenerWrapper(listeners);
-
     private ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy;
     private String repositoryPropertiesFile = ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE; // For
     // backward
@@ -82,33 +79,11 @@ public class JcrDataSource implements DataSource {
     /**
      * {@inheritDoc}
      */
-    public void addListener(DataSourceListener dataSourceListener) {
+    public void setListener(DataSourceListener dataSourceListener) {
         if (dataSourceListener == null) {
-            throw new IllegalArgumentException("dataSourceListener argument can't be null");
-        }
-        synchronized (listeners) {
-            if (!listeners.contains(dataSourceListener)) {
-                listeners.add(dataSourceListener);
-                if (listeners.size() == 1) {
-                    getRProductionRepository().setListener(wrapper);
-                }
-                log.info("{} listener is registered in jcr data source", dataSourceListener.getClass());
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void removeListener(DataSourceListener dataSourceListener) {
-        if (dataSourceListener == null) {
-            throw new IllegalArgumentException("dataSourceListener argument can't be null");
-        }
-        synchronized (listeners) {
-            listeners.remove(dataSourceListener);
-            if (listeners.isEmpty()) {
-                getRProductionRepository().setListener(null);
-            }
+            getRProductionRepository().setListener(null);
+        } else {
+            getRProductionRepository().setListener(new DataSourceListenerWrapper(dataSourceListener));
         }
     }
 
@@ -131,18 +106,14 @@ public class JcrDataSource implements DataSource {
 
     private static class DataSourceListenerWrapper implements Listener {
         private final Logger log = LoggerFactory.getLogger(DataSourceListenerWrapper.class);
-        private final List<DataSourceListener> dataSourceListeners;
+        private final DataSourceListener dataSourceListener;
 
-        public DataSourceListenerWrapper(List<DataSourceListener> dataSourceListeners) {
-            if (dataSourceListeners == null) {
-                throw new IllegalArgumentException();
-            }
-            this.dataSourceListeners = dataSourceListeners;
+        public DataSourceListenerWrapper(DataSourceListener dataSourceListeners) {
+            this.dataSourceListener = dataSourceListeners;
         }
 
         @Override
         public synchronized void onChange() {
-            for (final DataSourceListener dataSourceListener : dataSourceListeners) {
                 final Timer timer = new Timer();
 
                 timer.schedule(new TimerTask() {
@@ -164,7 +135,6 @@ public class JcrDataSource implements DataSource {
                         }
                     }
                 }, 1000, 3000);
-            }
         }
     }
 }

@@ -70,12 +70,12 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
 
     @Override
     public void addListener(DataSourceListener dataSourceListener) {
-        dataSource.addListener(dataSourceListener);
+        dataSource.setListener(dataSourceListener);
     }
 
     @Override
     public void removeListener(DataSourceListener dataSourceListener) {
-        dataSource.removeListener(dataSourceListener);
+        dataSource.setListener(null);
     }
 
     /**
