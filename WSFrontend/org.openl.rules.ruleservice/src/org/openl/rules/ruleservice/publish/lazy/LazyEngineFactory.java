@@ -4,6 +4,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.dependency.IDependencyManager;
+import org.openl.engine.OpenLSourceManager;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessages;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
@@ -301,12 +302,12 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         if (getExternalParameters() != null) {
             params.putAll(getExternalParameters());
         }
-        if (params.get("external-dependencies") != null) {
+        if (params.get(OpenLSourceManager.EXTERNAL_DEPENDENCIES_KEY) != null) {
             @SuppressWarnings("unchecked")
-            List<IDependency> externalDependencies = (List<IDependency>) params.get("external-dependencies");
+            List<IDependency> externalDependencies = (List<IDependency>) params.get(OpenLSourceManager.EXTERNAL_DEPENDENCIES_KEY);
             dependencies.addAll(externalDependencies);
         }
-        params.put("external-dependencies", dependencies);
+        params.put(OpenLSourceManager.EXTERNAL_DEPENDENCIES_KEY, dependencies);
 
         IOpenSourceCodeModule source = new VirtualSourceCodeModule();
         source.setParams(params);
