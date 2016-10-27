@@ -5,7 +5,7 @@ import org.openl.rules.common.CommonVersion;
 public class CommonVersionImpl implements CommonVersion {
     private int major = MAX_MM_INT;
     private int minor = MAX_MM_INT;
-    private String revision;
+    private String revision = "0";
 
     private transient String versionName;
 
@@ -46,14 +46,14 @@ public class CommonVersionImpl implements CommonVersion {
 
     public int compareTo(CommonVersion o) {
         /*Version with the same Revisions always equal*/
-        if (revision == o.getRevision()) {
+        if (revision.equals(o.getRevision())) {
             return 0;
         }
 
         /*Revision with num 0 always should be at last place*/
-        if (revision == "0") {
+        if (revision.equals("0")) {
             return -1;
-        } else if (o.getRevision() == "0") {
+        } else if (o.getRevision().equals("0")) {
             return 1;
         }
 

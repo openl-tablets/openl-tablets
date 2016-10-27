@@ -93,7 +93,7 @@ public class CommonVersionImplTest {
         CommonVersionImpl version = new CommonVersionImpl("17");
         assertEquals(32767, version.getMajor());
         assertEquals(32767, version.getMinor());
-        assertEquals(17, version.getRevision());
+        assertEquals("17", version.getRevision());
         assertEquals("17", version.getVersionName());
     }
 
@@ -102,7 +102,7 @@ public class CommonVersionImplTest {
         CommonVersionImpl version = new CommonVersionImpl("34.6");
         assertEquals(34, version.getMajor());
         assertEquals(6, version.getMinor());
-        assertEquals(0, version.getRevision());
+        assertEquals("0", version.getRevision());
         assertEquals("34.6.0", version.getVersionName());
     }
 
@@ -111,7 +111,7 @@ public class CommonVersionImplTest {
         CommonVersionImpl version = new CommonVersionImpl("2.7.4");
         assertEquals(2, version.getMajor());
         assertEquals(7, version.getMinor());
-        assertEquals(4, version.getRevision());
+        assertEquals("4", version.getRevision());
         assertEquals("2.7.4", version.getVersionName());
     }
 
@@ -120,7 +120,7 @@ public class CommonVersionImplTest {
         CommonVersionImpl version = new CommonVersionImpl("3.5.7.a11");
         assertEquals(3, version.getMajor());
         assertEquals(5, version.getMinor());
-        assertEquals(7, version.getRevision());
+        assertEquals("7", version.getRevision());
         assertEquals("3.5.7", version.getVersionName());
     }
 }
