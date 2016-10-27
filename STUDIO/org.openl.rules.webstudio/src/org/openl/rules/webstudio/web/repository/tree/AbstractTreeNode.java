@@ -367,6 +367,8 @@ public abstract class AbstractTreeNode implements TreeNode {
     }
 
     public void refresh(){
-        data.refresh();
+        if (data != null) {
+            data.refresh();
+        }
     }
 }
