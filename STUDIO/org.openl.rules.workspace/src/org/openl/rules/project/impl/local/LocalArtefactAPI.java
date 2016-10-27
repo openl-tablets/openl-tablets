@@ -48,7 +48,7 @@ public class LocalArtefactAPI implements ArtefactAPI {
         this.creationDate = source.lastModified();
         this.path = path;
         this.workspace = workspace;
-        currentVersion = new RepositoryProjectVersionImpl(0, null);
+        currentVersion = new RepositoryProjectVersionImpl("0", null);
         properties = new PropertiesContainerImpl();
         load();
     }

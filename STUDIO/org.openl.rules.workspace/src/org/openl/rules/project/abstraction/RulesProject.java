@@ -131,8 +131,7 @@ public class RulesProject extends UserWorkspaceProject {
         if (historyVersion == null) {
             return getLastVersion();
         }
-        int revision = Integer.parseInt(historyVersion);
-        return new RepositoryProjectVersionImpl(revision, null);
+        return new RepositoryProjectVersionImpl(historyVersion, null);
     }
 
     @Override

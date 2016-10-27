@@ -123,7 +123,7 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
 
     public ProjectVersion getFirstVersion() {
         if (getVersionsCount() == 0) {
-            return new RepositoryProjectVersionImpl(0, null);
+            return new RepositoryProjectVersionImpl("0", null);
         }
 
         try {
@@ -132,7 +132,7 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
             try {
                 return getVersion(0);
             } catch (RRepositoryException e1) {
-                return new RepositoryProjectVersionImpl(0, null);
+                return new RepositoryProjectVersionImpl("0", null);
             }
         }
 
@@ -161,18 +161,14 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
 
     protected ProjectVersion createProjectVersion(FileData fileData) {
         if (fileData == null) {
-            return new RepositoryProjectVersionImpl(0, null);
+            return new RepositoryProjectVersionImpl("0", null);
         }
         RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(fileData.getModifiedAt(), fileData.getAuthor());
         String version = fileData.getVersion();
-        return new RepositoryProjectVersionImpl(version == null ? 0 : Integer.parseInt(version), rvii);
+        return new RepositoryProjectVersionImpl(version == null ? "0" : version, rvii);
     }
 
     public void update(AProjectArtefact artefact, CommonUser user) throws ProjectException {
-        refresh();
-    }
-
-    public void update(AProjectArtefact artefact, CommonUser user, int revision) throws ProjectException {
         refresh();
     }
 

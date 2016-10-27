@@ -23,7 +23,7 @@ import java.util.Map;
 
 public class MockArtefact implements ArtefactAPI {
 
-    private final static ProjectVersion INITIAL_VERSION = new RepositoryProjectVersionImpl(0, null);
+    private final static ProjectVersion INITIAL_VERSION = new RepositoryProjectVersionImpl("0", null);
     private String name;
     private PropertiesContainerImpl properties;
     private Map<String, Object> props;

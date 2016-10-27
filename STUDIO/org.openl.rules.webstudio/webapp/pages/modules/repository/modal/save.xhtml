@@ -26,21 +26,10 @@
           
           <h:outputText value="Current Revision" />
           <h:outputText value="#{node.versionName}"/>
-          <h:outputText value="Next Revision" />
-          <h:outputText value="#{repositoryTreeController.revision+1}" id="nextVersion"/>
-    
+
           <h:outputText value="Comment" />
           <h:inputTextarea value="#{repositoryTreeController.versionComment}" type="text" size="35" readonly="false" title="#{repositoryTreeController.versionComment}"/>
         </h:panelGrid>
-
-        <script>
-          function saveDlgAdjustNextVersion() {
-            var major = RichFaces.$("saveForm:major").getValue();
-            var minor = RichFaces.$("saveForm:minor").getValue();
-            var rev = #{repositoryTreeController.revision + 1};
-            #{rich:element("nextVersion")}.innerHTML = major + "." + minor + "." + rev;
-          }
-        </script>
 
       </h:panelGroup>
 

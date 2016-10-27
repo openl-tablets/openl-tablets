@@ -1,7 +1,6 @@
 package org.openl.rules.common.impl;
 
 import java.util.Map;
-import java.util.StringTokenizer;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectVersion;
@@ -14,7 +13,7 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
 
     private int major = MAX_MM_INT;
     private int minor = MAX_MM_INT;
-    private int revision;
+    private String revision;
     private transient String versionName;
     private VersionInfo versionInfo;
     
@@ -29,13 +28,6 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
         this.versionComment = versionComment;
     }
 
-    public RepositoryProjectVersionImpl(String version){
-        StringTokenizer tokenizer = new StringTokenizer(version, DELIMETER);
-        major = Integer.valueOf(tokenizer.nextToken());
-        minor = Integer.valueOf(tokenizer.nextToken());
-        revision = Integer.valueOf(tokenizer.nextToken());
-    }
-
     public RepositoryProjectVersionImpl(CommonVersion version, VersionInfo versionInfo) {
         major = version.getMajor();
         minor = version.getMinor();
@@ -43,13 +35,6 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
         this.versionInfo = versionInfo;
     }
 
-    public RepositoryProjectVersionImpl(int major, int minor, int revision, VersionInfo versionInfo) {
-        this.major = major;
-        this.minor = minor;
-        this.revision = revision;
-        this.versionInfo = versionInfo;
-    }
-    
     public RepositoryProjectVersionImpl(CommonVersion version, VersionInfo versionInfo, String versionComment,
             Map<String, Object> versionProperties) {
         revision = version.getRevision();
@@ -61,18 +46,18 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
         this.versionProperties = versionProperties;
     }
     
-    public RepositoryProjectVersionImpl(int revision, VersionInfo versionInfo) {
+    public RepositoryProjectVersionImpl(String revision, VersionInfo versionInfo) {
         this.revision = revision;
         this.versionInfo = versionInfo;
     }
 
     public int compareTo(CommonVersion o) {
-        if (revision == o.getRevision()) {
+        if (revision.equals(o.getRevision())) {
             return 0;
         }
 
         /*Revision with #0 always should be at last place*/
-        if (revision == 0) {
+        if (revision.equals("0")) {
             return -1;
         }
 
@@ -84,8 +69,8 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
             return minor < o.getMinor() ? -1 : 1;
         }
 
-        if (revision != o.getRevision()) {
-            return revision < o.getRevision() ? -1 : 1;
+        if (!revision.equals(o.getRevision())) {
+            return revision.compareTo(o.getRevision());
         }
 
         return 0;
@@ -104,7 +89,7 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
         return minor;
     }
 
-    public int getRevision() {
+    public String getRevision() {
         return revision;
     }
 
@@ -131,7 +116,7 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
         int result;
         result = major;
         result = 31 * result + minor;
-        result = 31 * result + revision;
+        result = 31 * result + revision.hashCode();
         return result;
     }
 
