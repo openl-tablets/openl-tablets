@@ -118,7 +118,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
         AProject copiedProject = new AProject(deployment.getRepository(), projectFolder.getArtefactPath().getStringValue(), deployment.getHistoryVersion());
 
         /*Update and set project revision*/
-        copiedProject.update(project, user, project.getVersion().getRevision());
+        copiedProject.update(project, user);
     }
 
     private DeployID generateDeployID(ADeploymentProject ddProject) {
