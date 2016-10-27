@@ -51,21 +51,6 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         super(uri, login, password, designMode);
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        try {
-            release();
-        } catch (RRepositoryException e) {
-            try {
-                log.error("finalize", e);
-            } catch (Throwable ignored) {
-            }
-        } catch (Throwable ignored) {
-        } finally {
-            super.finalize();
-        }
-    }
-
     // ------ private methods ------
 
     /**
@@ -95,10 +80,6 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         log.info("The repository for ID=[{}] has been prepared", repoID);
 
         RepositoryConfiguration config = getModeshapeConfiguration(dbUrl, user, pwd, repoID, properties, namesCase);
-
-        // Register shut down hook
-        ShutDownHook shutDownHook = new ShutDownHook(this);
-        Runtime.getRuntime().addShutdownHook(shutDownHook);
 
         log.info("Checking ModeShape configuration...");
         ModeshapeJcrRepo repo = new ModeshapeJcrRepo(config);

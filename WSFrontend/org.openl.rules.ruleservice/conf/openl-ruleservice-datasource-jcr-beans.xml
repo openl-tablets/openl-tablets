@@ -15,7 +15,7 @@
     <!-- This implementation based on JCR repository -->
     <bean id="jcrdatasource" class="org.openl.rules.ruleservice.loader.JcrDataSource" lazy-init="true">
         <property name="repository">
-            <bean class="${production-repository.factory}" init-method="initialize">
+            <bean class="${production-repository.factory}" init-method="initialize" destroy-method="close">
                 <constructor-arg value="${production-repository.uri}"/>
                 <constructor-arg value="${production-repository.login:}"/>
                 <constructor-arg value="${production-repository.password:}"/>

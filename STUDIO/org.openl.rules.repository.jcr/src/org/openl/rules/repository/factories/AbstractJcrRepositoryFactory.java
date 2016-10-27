@@ -14,6 +14,8 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.jcr.JcrNT;
 import org.openl.rules.repository.jcr.JcrProductionRepository;
 import org.openl.rules.repository.jcr.JcrRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is Abstract class with common code for Local and RMI methods of
@@ -27,6 +29,7 @@ import org.openl.rules.repository.jcr.JcrRepository;
  */
 public abstract class AbstractJcrRepositoryFactory extends ZipJcrRepository implements RRepositoryFactory {
 
+    private final Logger log = LoggerFactory.getLogger(AbstractJcrRepositoryFactory.class);
     protected static final String DEFAULT_NODETYPE_FILE = "/org/openl/rules/repository/openl_nodetypes.xml";
 
     protected Repository repository;
@@ -109,7 +112,11 @@ public abstract class AbstractJcrRepositoryFactory extends ZipJcrRepository impl
                 session.logout();
             }
             throw new RRepositoryException("Failed to get Repository Instance", e);
-        } 
+        }
+
+        // Register shut down hook
+        ShutDownHook shutDownHook = new ShutDownHook(this);
+        Runtime.getRuntime().addShutdownHook(shutDownHook);
     }
 
     /**
@@ -123,6 +130,21 @@ public abstract class AbstractJcrRepositoryFactory extends ZipJcrRepository impl
      * @throws RepositoryException if failed
      */
     protected abstract void initNodeTypes(NodeTypeManager ntm) throws RepositoryException;
+
+    @Override
+    protected void finalize() throws Throwable {
+        try {
+            close();
+        } catch (Exception e) {
+            try {
+                log.error("finalize", e);
+            } catch (Throwable ignored) {
+            }
+        } catch (Throwable ignored) {
+        } finally {
+            super.finalize();
+        }
+    }
 
     public void release() throws RRepositoryException {
         // If rulesRepository is not created, we don't need to create it and then release it

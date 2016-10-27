@@ -40,21 +40,6 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
         super(uri, login, password, designMode);
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        try {
-            release();
-        } catch (RRepositoryException e) {
-            try {
-                log.error("finalize", e);
-            } catch (Throwable ignored) {
-            }
-        } catch (Throwable ignored) {
-        } finally {
-            super.finalize();
-        }
-    }
-
     private static boolean isFileLocked(File file) {
         FileInputStream fileInputStream = null;
         try {
@@ -108,10 +93,6 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
             IOUtils.copyAndClose(input, tempRepositorySettingsStream);
 
             createTransientRepo(tempRepositorySettings);
-
-            // Register shut down hook
-            ShutDownHook shutDownHook = new ShutDownHook(this);
-            Runtime.getRuntime().addShutdownHook(shutDownHook);
         } catch (IOException e) {
             throw new RepositoryException("Failed to init: " + e.getMessage(), e);
         }
