@@ -7,7 +7,6 @@ import javax.annotation.PreDestroy;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.abstraction.Deployment;
-import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
@@ -89,8 +88,8 @@ public class JcrDataSource implements DataSource {
         }
     }
 
-    public void setRepository(RRepositoryFactory repository) throws RRepositoryException {
-        this.repository = repository.getRepositoryInstance();
+    public void setRepository(Repository repository) throws RRepositoryException {
+        this.repository = repository;
     }
 
     private static class DataSourceListenerWrapper implements Listener {

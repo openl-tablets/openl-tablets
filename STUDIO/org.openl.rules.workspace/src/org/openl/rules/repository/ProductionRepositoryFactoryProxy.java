@@ -6,7 +6,9 @@ import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.util.IOUtils;
 
+import java.io.Closeable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +31,7 @@ public class ProductionRepositoryFactoryProxy {
     private final ConfigPropertyString confRepositoryFactoryClass = new ConfigPropertyString(
             "production-repository.factory", null);
 
-    private Map<String, RRepositoryFactory> factories = new HashMap<String, RRepositoryFactory>();
+    private Map<String, Repository> factories = new HashMap<String, Repository>();
 
     public Repository getRepositoryInstance(String propertiesFileName) throws RRepositoryException {
         if (!factories.containsKey(propertiesFileName)) {
@@ -40,14 +42,17 @@ public class ProductionRepositoryFactoryProxy {
             }
         }
 
-        return factories.get(propertiesFileName).getRepositoryInstance();
+        return factories.get(propertiesFileName);
     }
 
     public void releaseRepository(String propertiesFileName) throws RRepositoryException {
         synchronized (this) {
-            RRepositoryFactory factory = factories.get(propertiesFileName);
-            if (factory != null) {
-                factory.release();
+            Repository repository = factories.get(propertiesFileName);
+            if (repository != null) {
+                if (repository instanceof Closeable) {
+                    // Close repo connection after validation
+                    IOUtils.closeQuietly((Closeable) repository);
+                }
                 factories.remove(propertiesFileName);
             }
         }
@@ -55,8 +60,11 @@ public class ProductionRepositoryFactoryProxy {
 
     public void destroy() throws RRepositoryException {
         synchronized (this) {
-            for (RRepositoryFactory repFactory : factories.values()) {
-                repFactory.release();
+            for (Repository repository : factories.values()) {
+                if (repository instanceof Closeable) {
+                    // Close repo connection after validation
+                    IOUtils.closeQuietly((Closeable) repository);
+                }
             }
             factories.clear();
         }

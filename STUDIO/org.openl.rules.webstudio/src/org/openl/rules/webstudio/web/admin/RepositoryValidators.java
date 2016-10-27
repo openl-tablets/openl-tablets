@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.admin;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.net.ConnectException;
 import java.util.Collections;
 import java.util.List;
@@ -12,11 +11,11 @@ import javax.security.auth.login.FailedLoginException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
-import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
+import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
 public final class RepositoryValidators {
@@ -86,9 +85,11 @@ public final class RepositoryValidators {
             DesignTimeRepositoryImpl dtr = (DesignTimeRepositoryImpl) designTimeRepository;
             // Close connection to jcr before checking connection
             dtr.destroy();
-            RRepositoryFactory rulesRepositoryInstance = dtr.createConnection(repoConfig.getProperties());
-            // Close repo connection after validation
-            rulesRepositoryInstance.release();
+            Repository repository = dtr.createConnection(repoConfig.getProperties());
+            if (repository instanceof Closeable) {
+                // Close repo connection after validation
+                IOUtils.closeQuietly((Closeable) repository);
+            }
         } catch (Exception e) {
             Throwable resultException = ExceptionUtils.getRootCause(e);
             if (resultException == null) {
@@ -103,19 +104,10 @@ public final class RepositoryValidators {
         try {
             /**Close connection to jcr before checking connection*/
             productionRepositoryFactoryProxy.releaseRepository(repoConfig.getConfigName());
-            RRepositoryFactory repoFactory = productionRepositoryFactoryProxy.getFactory(
-                    repoConfig.getProperties());
-            try {
-                Repository repository = repoFactory.getRepositoryInstance();
-                /*Close repo connection after validation*/
-                if (repository instanceof Closeable) {
-                    ((Closeable) repository).close();
-                }
-            } catch (IOException e) {
-                throw new RRepositoryException("Can't close repository", e);
-            } finally {
-                // Release a factory to prevent memory leak
-                repoFactory.release();
+            Repository repository = productionRepositoryFactoryProxy.getFactory(repoConfig.getProperties());
+            if (repository instanceof Closeable) {
+                // Close repo connection after validation
+                IOUtils.closeQuietly((Closeable) repository);
             }
         } catch (RRepositoryException e) {
             Throwable resultException = ExceptionUtils.getRootCause(e);

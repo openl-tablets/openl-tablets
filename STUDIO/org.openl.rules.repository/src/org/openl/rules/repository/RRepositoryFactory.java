@@ -12,14 +12,6 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 public interface RRepositoryFactory extends Repository {
 
     /**
-     * Gets new instance of JCR Repository.
-     *
-     * @return new instance of JCR Repository
-     * @throws RRepositoryException if failed
-     */
-    Repository getRepositoryInstance() throws RRepositoryException;
-
-    /**
      * Initialize factory.
      *  */
     void initialize() throws RRepositoryException;

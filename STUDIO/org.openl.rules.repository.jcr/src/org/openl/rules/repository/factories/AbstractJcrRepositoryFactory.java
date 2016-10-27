@@ -91,11 +91,6 @@ public abstract class AbstractJcrRepositoryFactory extends ZipJcrRepository impl
         return repository.login(credencials);
     }
 
-    /** {@inheritDoc} */
-    public org.openl.rules.repository.api.Repository getRepositoryInstance() throws RRepositoryException {
-        return this;
-    }
-
     @Override
     public void initialize() throws RRepositoryException {
         Session session = null;
@@ -139,7 +134,7 @@ public abstract class AbstractJcrRepositoryFactory extends ZipJcrRepository impl
 
     /**
      * Sets repository reference. Must be called before invoking
-     * {@link #getRepositoryInstance()} method.
+     * {@link #initialize()} method.
      *
      * @param rep implementation specific repository
      * @throws RepositoryException if fails to check first start

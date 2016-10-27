@@ -9,7 +9,6 @@ import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.ResourceTransformer;
-import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -17,6 +16,7 @@ import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.RepositoryException;
+import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +37,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private static final String RULES_LOCATION_CONFIG_NAME = "design-repository.rules.path";
     private static final String DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME = "design-repository.deployments.path";
 
-    private RRepositoryFactory repFactory;
     private Repository repository;
     private String rulesLocation;
     private String deploymentConfigurationLocation;
@@ -61,8 +60,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
 
         try {
-            repFactory = createConnection(config);
-            repository = repFactory.getRepositoryInstance();
+            repository = createConnection(config);
 
             Object path;
             path = config.get(RULES_LOCATION_CONFIG_NAME);
@@ -88,7 +86,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         return path;
     }
 
-    public RRepositoryFactory createConnection(Map<String, Object> properties) throws RRepositoryException {
+    public Repository createConnection(Map<String, Object> properties) throws RRepositoryException {
         ConfigSet config = new ConfigSet();
         config.addProperties(properties);
 
@@ -245,9 +243,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             }
             repository = null;
         }
-        if (repFactory != null) {
-            repFactory.release();
-            repFactory = null;
+        if (repository instanceof Closeable) {
+            // Close repo connection after validation
+            IOUtils.closeQuietly((Closeable) repository);
         }
         projects.clear();
     }

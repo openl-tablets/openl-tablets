@@ -5,7 +5,6 @@ import java.io.Closeable;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
-import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.factories.LocalJackrabbitRepositoryFactory;
@@ -37,12 +36,11 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
             if (this.isSecure()) {
                 RepositoryConfiguration adminConfig = this.createAdminRepositoryConfiguration();
 
-                RRepositoryFactory repoFactory = this.getProductionRepositoryFactoryProxy().getFactory(adminConfig.getProperties());
-                Repository repository = repoFactory.getRepositoryInstance();
+                Repository repository = this.getProductionRepositoryFactoryProxy().getFactory(adminConfig.getProperties());
 
                 try {
-                    if (repoFactory instanceof LocalJackrabbitRepositoryFactory) {
-                        if (!((LocalJackrabbitRepositoryFactory) repoFactory).configureJCRForOneUser(this.getLogin(), this.getPassword())) {
+                    if (repository instanceof LocalJackrabbitRepositoryFactory) {
+                        if (!((LocalJackrabbitRepositoryFactory) repository).configureJCRForOneUser(this.getLogin(), this.getPassword())) {
                             setErrorMessage("Repository user creation error");
                             return;
                         }
@@ -52,7 +50,6 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
                         if (repository instanceof Closeable) {
                             IOUtils.closeQuietly((Closeable) repository);
                         }
-                        repoFactory.release();
                     }
                 }
             } else {
