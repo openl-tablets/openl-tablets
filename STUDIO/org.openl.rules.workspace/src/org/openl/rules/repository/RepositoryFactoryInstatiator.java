@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +48,7 @@ public class RepositoryFactoryInstatiator {
     /**
      * Create new instance of 'className' repository with defined configuration.
      */
-    public static RRepositoryFactory newFactory(String className, ConfigSet config, boolean designMode) throws RRepositoryException {
+    public static Repository newFactory(String className, ConfigSet config, boolean designMode) throws RRepositoryException {
         String clazz = checkConfig(className, config, designMode);
         String type = designMode ? "design" : "production";
         ConfigPropertyString loginProp = new ConfigPropertyString(type + "-repository.login", null);
