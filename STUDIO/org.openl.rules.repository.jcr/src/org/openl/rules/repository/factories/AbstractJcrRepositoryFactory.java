@@ -25,13 +25,12 @@ import org.openl.rules.repository.jcr.JcrRepository;
  * @author Aleh Bykhavets
  *
  */
-public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory {
+public abstract class AbstractJcrRepositoryFactory extends ZipJcrRepository implements RRepositoryFactory {
 
     protected static final String DEFAULT_NODETYPE_FILE = "/org/openl/rules/repository/openl_nodetypes.xml";
 
     protected Repository repository;
     private RRepository rulesRepository;
-    private ZipJcrRepository apiRepository;
 
     protected String login;
     protected String password;
@@ -94,11 +93,11 @@ public abstract class AbstractJcrRepositoryFactory implements RRepositoryFactory
 
     /** {@inheritDoc} */
     public org.openl.rules.repository.api.Repository getRepositoryInstance() throws RRepositoryException {
-        if(apiRepository == null){
+        if(rulesRepository == null){
             rulesRepository = createRepository();
-            apiRepository = new ZipJcrRepository(rulesRepository);
+            init(rulesRepository);
         }
-        return apiRepository;
+        return this;
     }
 
     protected RRepository createRepository() throws RRepositoryException {

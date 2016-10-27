@@ -20,15 +20,15 @@ import org.openl.util.IOUtils;
 
 public class ZipJcrRepository implements Repository, Closeable {
 
-    private final RRepository rulesRepository;
-    private final String projectsPath;
-    private final String deploymentConfigPath;
-    private final String deploymentsPath;
+    private RRepository rulesRepository;
+    private String projectsPath;
+    private String deploymentConfigPath;
+    private String deploymentsPath;
     // In this case there is no need to store a strong reference to the listener: current field is used only to remove
     // old instance. If it's GC-ed, no need to remove it.
     private WeakReference<Object> listenerReference = new WeakReference<Object>(null);
 
-    public ZipJcrRepository(RRepository rulesRepository) {
+    protected void init(RRepository rulesRepository) {
         this.rulesRepository = rulesRepository;
 
         try {

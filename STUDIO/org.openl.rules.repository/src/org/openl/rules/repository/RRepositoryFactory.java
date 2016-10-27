@@ -9,7 +9,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  * @author Aleh Bykhavets
  *
  */
-public interface RRepositoryFactory {
+public interface RRepositoryFactory extends Repository {
 
     /**
      * Gets new instance of JCR Repository.
