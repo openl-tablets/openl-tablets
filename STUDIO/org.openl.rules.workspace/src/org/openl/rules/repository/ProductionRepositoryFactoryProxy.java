@@ -74,14 +74,14 @@ public class ProductionRepositoryFactoryProxy {
         this.configManagerFactory = configManagerFactory;
     }
 
-    private RRepositoryFactory createFactory(String propertiesFileName) throws RRepositoryException {
+    private Repository createFactory(String propertiesFileName) throws RRepositoryException {
         ConfigurationManager configurationManager = configManagerFactory.getConfigurationManager(propertiesFileName);
         Map<String, Object> properties = configurationManager.getProperties();
 
         return getFactory(properties);
     }
 
-    public RRepositoryFactory getFactory(Map<String, Object> props) throws RRepositoryException {
+    public Repository getFactory(Map<String, Object> props) throws RRepositoryException {
         ConfigSet config = new ConfigSet();
         config.addProperties(props);
         config.updateProperty(confRepositoryFactoryClass);
