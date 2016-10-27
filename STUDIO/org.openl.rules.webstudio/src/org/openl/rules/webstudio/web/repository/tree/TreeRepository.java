@@ -32,4 +32,10 @@ public class TreeRepository extends TreeFolder {
     public String getType() {
         return type;
     }
+
+    @Override
+    public void refresh() {
+        // Don't clear elements. It will make repository node empty because the field "data" for TreeRepository is null.
+        // Content of this class is managed outside.
+    }
 }
