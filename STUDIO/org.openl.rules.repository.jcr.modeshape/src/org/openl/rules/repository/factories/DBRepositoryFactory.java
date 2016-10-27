@@ -113,8 +113,6 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
 
         setRepository(repo);
         log.info("Checking the repository...");
-        getRepositoryInstance();
-        log.info("The repository has loaded");
     }
 
     abstract Connection createConnection(String dbUrl, String user, String pwd);
@@ -204,6 +202,8 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         } catch (Exception e) {
             throw new RRepositoryException("Failed to initialize DataBase: " + e.getMessage(), e);
         }
+        super.initialize();
+        log.info("The repository has loaded");
     }
 
     @Override

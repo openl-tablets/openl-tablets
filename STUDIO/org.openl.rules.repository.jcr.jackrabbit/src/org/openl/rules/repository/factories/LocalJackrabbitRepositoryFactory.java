@@ -130,6 +130,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to initialize JCR: " + e.getMessage(), e);
         }
+        super.initialize();
     }
 
     /**

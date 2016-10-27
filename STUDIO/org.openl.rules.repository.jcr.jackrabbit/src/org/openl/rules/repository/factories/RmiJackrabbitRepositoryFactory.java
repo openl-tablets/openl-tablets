@@ -38,6 +38,7 @@ public class RmiJackrabbitRepositoryFactory extends AbstractJcrRepositoryFactory
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to initialize JCR: " + e.getMessage(), e);
         }
+        super.initialize();
     }
 
     /** {@inheritDoc} */

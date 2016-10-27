@@ -93,14 +93,11 @@ public abstract class AbstractJcrRepositoryFactory extends ZipJcrRepository impl
 
     /** {@inheritDoc} */
     public org.openl.rules.repository.api.Repository getRepositoryInstance() throws RRepositoryException {
-        if(rulesRepository == null){
-            rulesRepository = createRepository();
-            init(rulesRepository);
-        }
         return this;
     }
 
-    protected RRepository createRepository() throws RRepositoryException {
+    @Override
+    public void initialize() throws RRepositoryException {
         Session session = null;
         try {
             session = createSession();
@@ -111,7 +108,7 @@ public abstract class AbstractJcrRepositoryFactory extends ZipJcrRepository impl
             } else {
                 theRepository = new JcrProductionRepository(session);
             }
-            return theRepository;
+            init(theRepository);
         } catch (RepositoryException e) {
             if (session != null){
                 session.logout();
