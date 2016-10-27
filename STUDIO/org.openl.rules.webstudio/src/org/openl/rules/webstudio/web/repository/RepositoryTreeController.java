@@ -1058,12 +1058,12 @@ public class RepositoryTreeController {
         return properties;
     }
 
-    public int getRevision() {
+    public String getRevision() {
         ProjectVersion v = getProjectVersion();
         if (v != null) {
             return v.getRevision();
         }
-        return 0;
+        return "0";
     }
 
     /**
