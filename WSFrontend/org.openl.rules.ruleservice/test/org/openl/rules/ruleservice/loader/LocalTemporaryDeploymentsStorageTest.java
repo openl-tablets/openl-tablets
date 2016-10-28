@@ -17,7 +17,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("classpath:openl-ruleservice-ref.properties")
+@TestPropertySource({"classpath:openl-ruleservice-ref.properties", "classpath:rules-production.properties"})
 @ContextConfiguration({ "classpath:properties.xml", "classpath:openl-ruleservice-datasource-jcr-beans.xml" })
 public class LocalTemporaryDeploymentsStorageTest {
 
