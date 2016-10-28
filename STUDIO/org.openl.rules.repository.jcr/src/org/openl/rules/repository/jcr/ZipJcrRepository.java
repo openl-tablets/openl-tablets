@@ -168,15 +168,15 @@ public class ZipJcrRepository implements Repository, Closeable {
                             artefactProps.put(ArtefactProperties.VERSION_COMMENT, comment);
                             artefact.setProps(artefactProps);
                             ((ResourceAPI) artefact).setContent(in);
-                            artefact.commit(user, Integer.parseInt(artefact.getVersion().getRevision() + 1));
+                            artefact.commit(user, Integer.parseInt(artefact.getVersion().getRevision()) + 1);
                         } else {
                             artefact.delete(user);
                             ResourceAPI resource = rulesRepository.createResource(resourceName, in);
-                            resource.commit(user, Integer.parseInt(resource.getVersion().getRevision() + 1));
+                            resource.commit(user, Integer.parseInt(resource.getVersion().getRevision()) + 1);
                         }
                     } else {
                         ResourceAPI resource = rulesRepository.createResource(resourceName, in);
-                        resource.commit(user, Integer.parseInt(resource.getVersion().getRevision() + 1));
+                        resource.commit(user, Integer.parseInt(resource.getVersion().getRevision()) + 1);
                     }
                 }
 
@@ -185,7 +185,7 @@ public class ZipJcrRepository implements Repository, Closeable {
 
             deleteAbsentFiles(newFiles, project, "");
 
-            project.commit(user, Integer.parseInt(project.getVersion().getRevision() + 1));
+            project.commit(user, Integer.parseInt(project.getVersion().getRevision()) + 1);
 
             return createFileData(data.getName(), project);
         } catch (CommonException e) {

@@ -18,13 +18,13 @@ public final class DeployUtils {
     public static Collection<FileData> getLastDeploymentProjects(Repository repository) throws RRepositoryException {
 
         Map<String, FileData> latestDeployments = new HashMap<String, FileData>();
-        Map<String, Integer> versionsList = new HashMap<String, Integer>();
+        Map<String, String> versionsList = new HashMap<String, String>();
 
         Collection<FileData> fileDatas = repository.list(DEPLOY_PATH);
         for (FileData fileData : fileDatas) {
             String path = fileData.getName();
             String deploymentName = path.substring(path.lastIndexOf("/") + 1);
-            Integer versionNum = 0;
+            String versionNum = "0";
 
             if (deploymentName.contains("#")) {
                 String versionStr;
@@ -38,12 +38,12 @@ public final class DeployUtils {
                 deploymentName = deploymentName.substring(0, deploymentName.indexOf('#'));
 
                 if (!versionStr.isEmpty()) {
-                    versionNum = Integer.valueOf(versionStr);
+                    versionNum = versionStr;
                 }
             }
 
             if (versionsList.containsKey(deploymentName)) {
-                if (versionNum - versionsList.get(deploymentName) > 0) {
+                if (versionNum.compareTo(versionsList.get(deploymentName)) > 0) {
                     versionsList.put(deploymentName, versionNum);
                     latestDeployments.put(deploymentName, fileData);
                 }
