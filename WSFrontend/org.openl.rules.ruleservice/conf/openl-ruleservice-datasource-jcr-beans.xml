@@ -5,10 +5,8 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <context:property-placeholder
-            location="classpath:rules-production.properties,classpath:${ruleservice.datasource.repositoryPropertiesFile}"
-            ignore-resource-not-found="true"
-            ignore-unresolvable="true"/>
+    <context:property-placeholder location="classpath:rules-production.properties"
+                                  ignore-resource-not-found="true" ignore-unresolvable="true"/>
 
     <!-- Data source storage that provides information about deployments, projects
         and their properties and version -->
@@ -17,8 +15,8 @@
         <property name="repository">
             <bean class="${production-repository.factory}" init-method="initialize" destroy-method="close">
                 <constructor-arg value="${production-repository.uri}"/>
-                <constructor-arg value="${production-repository.login:}"/>
-                <constructor-arg value="${production-repository.password:}"/>
+                <constructor-arg value="${production-repository.login}"/>
+                <constructor-arg value="${production-repository.password}"/>
                 <constructor-arg value="false"/>
             </bean>
         </property>
