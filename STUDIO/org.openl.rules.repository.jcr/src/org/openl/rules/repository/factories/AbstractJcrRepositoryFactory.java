@@ -146,14 +146,6 @@ public abstract class AbstractJcrRepositoryFactory extends ZipJcrRepository impl
         }
     }
 
-    public void release() throws RRepositoryException {
-        // If rulesRepository is not created, we don't need to create it and then release it
-        if (rulesRepository != null) {
-            rulesRepository.release();
-            rulesRepository = null;
-        }
-    }
-
     /**
      * Sets repository reference. Must be called before invoking
      * {@link #initialize()} method.

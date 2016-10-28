@@ -215,9 +215,9 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
     }
 
     @Override
-    public void release() throws RRepositoryException {
+    public void close() throws IOException {
         try {
-            super.release();
+            super.close();
         } finally {
             try {
                 if (repo != null) {
@@ -225,7 +225,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
                     repo = null;
                 }
             } catch (Exception e) {
-                throw new RRepositoryException("Shutdown has failed.", e);
+                throw new IOException("Shutdown has failed.", e);
             }
         }
     }

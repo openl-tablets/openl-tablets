@@ -486,6 +486,9 @@ public class ZipJcrRepository implements Repository, Closeable {
     @Override
     public void close() throws IOException {
         setListener(null);
-        rulesRepository.release();
+        // If rulesRepository is not created, we don't need to create it and then release it
+        if (rulesRepository != null) {
+            rulesRepository.release();
+        }
     }
 }
