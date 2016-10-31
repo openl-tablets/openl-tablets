@@ -90,13 +90,7 @@ public class ProductionRepositoriesTreeState {
     private List<AProjectFolder> getPRepositoryProjects(RepositoryConfiguration repoConfig) {
         try {
             Repository repository = productionRepositoryFactoryProxy.getRepositoryInstance(repoConfig.getConfigName());
-            List<AProjectFolder> prjList = new ArrayList<AProjectFolder>();
-            Collection<FileData> fileDatas = DeployUtils.getLastDeploymentProjects(repository);
-            for (FileData fileData : fileDatas) {
-                prjList.add(new Deployment(repository, fileData));
-            }
-
-            return prjList;
+            return new ArrayList<AProjectFolder>(DeployUtils.getLastDeploymentProjects(repository));
         } catch (RRepositoryException e) {
             return new ArrayList<AProjectFolder>();
         }

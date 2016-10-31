@@ -12,6 +12,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
+import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
@@ -19,6 +20,7 @@ import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.DeployUtils;
 import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.deploy.ProductionDeployer;
+import org.openl.util.IOUtils;
 
 /**
  * Implementation of <code>ProductionDeployer</code> that uses <i>JCR</i> as
@@ -59,13 +61,14 @@ public class JcrProductionDeployer implements ProductionDeployer {
      */
 
     public synchronized DeployID deploy(ADeploymentProject deploymentProject, Collection<AProject> projects, WorkspaceUser user) throws DeploymentException {
-        DeployID id = generateDeployID(deploymentProject);
+        DeployID id;
 
         boolean alreadyDeployed = false;
         try {
             Repository repository =repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
+            id = generateDeployID(deploymentProject, repository);
 
-            if (!repository.list(DeployUtils.DEPLOY_PATH + id.getName()).isEmpty() || !repository.list(DeployUtils.DEPLOY_PATH + getOtherDeploymentProjectName(deploymentProject)).isEmpty()) {
+            if (hasDeployment(repository, DeployUtils.DEPLOY_PATH + id.getName()) || hasDeployment(repository,DeployUtils.DEPLOY_PATH + getOtherDeploymentProjectName(deploymentProject))) {
                 alreadyDeployed = true;
             } else {
                 String deploymentPath = DeployUtils.DEPLOY_PATH + id.getName();
@@ -93,6 +96,15 @@ public class JcrProductionDeployer implements ProductionDeployer {
         return id;
     }
 
+    private boolean hasDeployment(Repository repository, String path) {
+        FileItem item = repository.read(path);
+        if (item != null) {
+            IOUtils.closeQuietly(item.getStream());
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Checks if deploymentConfiguration is already deployed to this production
      * repository.
@@ -107,10 +119,10 @@ public class JcrProductionDeployer implements ProductionDeployer {
     @Override
     public synchronized boolean hasDeploymentProject(ADeploymentProject deployConfiguration) throws RRepositoryException {
         Repository repository = repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
-        DeployID id = generateDeployID(deployConfiguration);
+        DeployID id = generateDeployID(deployConfiguration, null);
         String otherPossibleID = this.getOtherDeploymentProjectName(deployConfiguration);
 
-        return !repository.list(DeployUtils.DEPLOY_PATH + id.getName()).isEmpty() || !repository.list(DeployUtils.DEPLOY_PATH + otherPossibleID).isEmpty();
+        return hasDeployment(repository, DeployUtils.DEPLOY_PATH + id.getName()) || hasDeployment(repository, DeployUtils.DEPLOY_PATH + otherPossibleID);
     }
 
     private void deployProject(AProject deployment, AProject project, WorkspaceUser user) throws ProjectException {
@@ -121,7 +133,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
         copiedProject.update(project, user);
     }
 
-    private DeployID generateDeployID(ADeploymentProject ddProject) {
+    private DeployID generateDeployID(ADeploymentProject ddProject, Repository repository) throws RRepositoryException {
         StringBuilder sb = new StringBuilder(ddProject.getName());
         ProjectVersion projectVersion = ddProject.getVersion();
         if (projectVersion != null) {
@@ -132,7 +144,12 @@ public class JcrProductionDeployer implements ProductionDeployer {
                     sb.append('#').append("0.0.").append(projectVersion.getVersionName());
                 }
             } else {
-                sb.append('#').append(projectVersion.getRevision());
+                if (repository != null) {
+                    int version = DeployUtils.getNextDeploymentVersion(repository, ddProject);
+                    sb.append('#').append(version);
+                } else {
+                    sb.append('#').append(projectVersion.getRevision());
+                }
             }
         }
         return new DeployID(sb.toString());

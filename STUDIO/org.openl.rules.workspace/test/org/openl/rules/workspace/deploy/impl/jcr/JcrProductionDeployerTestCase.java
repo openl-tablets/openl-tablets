@@ -1,5 +1,6 @@
 package org.openl.rules.workspace.deploy.impl.jcr;
 
+import static org.junit.Assert.*;
 import static org.openl.rules.workspace.TestHelper.deleteTestFolder;
 import static org.openl.rules.workspace.TestHelper.ensureTestFolderExistsAndClear;
 import static org.openl.rules.workspace.TestHelper.getWorkspaceUser;
@@ -12,8 +13,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.PropertyException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
@@ -28,7 +31,7 @@ import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.mock.MockRepository;
 import org.openl.rules.workspace.mock.MockResource;
 
-public class JcrProductionDeployerTestCase extends TestCase {
+public class JcrProductionDeployerTestCase {
     private static final String PROJECT1_NAME = "project1";
     private static final String PROJECT2_NAME = "project2";
     private static final String PROJECT3_NAME = "project3";
@@ -88,8 +91,8 @@ public class JcrProductionDeployerTestCase extends TestCase {
         return project;
     }
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         ensureTestFolderExistsAndClear();
 
         productionRepositoryFactoryProxy = new ProductionRepositoryFactoryProxy();
@@ -109,12 +112,13 @@ public class JcrProductionDeployerTestCase extends TestCase {
         projects.add(project3);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         productionRepositoryFactoryProxy.destroy();
         deleteTestFolder();
     }
 
+    @Test
     public void testDeploy() throws IOException, ProjectException, PropertyException {
         ADeploymentProject deploymentProject = new ADeploymentProject(null, repository, "deployment project", null);
         DeployID id = instance.deploy(deploymentProject, projects, getWorkspaceUser());
@@ -169,6 +173,9 @@ public class JcrProductionDeployerTestCase extends TestCase {
 //        }
     }
 
+    // TODO: Add support for existing version check and remove @Ignore annotation below
+    @Test
+    @Ignore
     public void testDeploySameId() throws DeploymentException {
         List<AProject> projects = Collections.singletonList(project1);
         instance.deploy(new ADeploymentProject(null, repository, "deployment project", null), projects, getWorkspaceUser());

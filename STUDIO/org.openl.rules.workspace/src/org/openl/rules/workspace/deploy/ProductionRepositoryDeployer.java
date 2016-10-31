@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,7 +19,6 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.impl.local.LocalFolderAPI;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
-import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.WorkspaceUserImpl;
@@ -118,18 +116,7 @@ public class ProductionRepositoryDeployer {
             // Wait 15 seconds for initializing networking in JGroups.
             Object initializeTimeout = properties.get("timeout.networking.initialize");
             Thread.sleep(initializeTimeout == null ? 15000 : Integer.parseInt(initializeTimeout.toString()));
-            Collection<FileData> lastDeploymentProjects = DeployUtils.getLastDeploymentProjects(repository);
-            int version = 0;
-            for (FileData fileData : lastDeploymentProjects) {
-                String p = fileData.getName();
-                String deployed = p.substring(p.lastIndexOf("/") + 1);
-                String prefix = project.getName() + "#";
-                if (deployed.startsWith(prefix)) {
-                    String verStr = deployed.substring(prefix.length());
-                    version = Integer.valueOf(verStr) + 1;
-                    break;
-                }
-            }
+            int version = DeployUtils.getNextDeploymentVersion(repository, project);
             // TODO: Do we really need to explicitly set current version? See commented line below.
 //            ((LocalFolderAPI) project.getAPI()).setCurrentVersion(new RepositoryProjectVersionImpl(version, null));
             project.setHistoryVersion("" + version);

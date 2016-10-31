@@ -1,5 +1,7 @@
 package org.openl.rules.project.abstraction;
 
+import static org.openl.rules.workspace.deploy.DeployUtils.DEPLOY_PATH;
+
 import java.io.File;
 import java.util.*;
 
@@ -13,6 +15,7 @@ import org.openl.rules.common.impl.RepositoryVersionInfoImpl;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.workspace.deploy.DeployUtils;
 
 /**
  * Class representing deployment from ProductionRepository. Deployment is set of
@@ -21,37 +24,37 @@ import org.openl.rules.repository.api.Repository;
  * @author PUdalau
  */
 public class Deployment extends AProjectFolder {
-	private static final String SEPARATOR = "#";
 	private Map<String, AProject> projects;
 
 	private String deploymentName;
 	private CommonVersion commonVersion;
 
-	public Deployment(Repository repository, String folderPath) {
-		super(null, repository, folderPath, null);
-		init();
-	}
-
-	public Deployment(Repository repository, FileData fileData) {
-		super(null, repository, fileData.getName(), fileData.getVersion());
-		setFileData(fileData);
-
-		String path = fileData.getName();
-		String deploymentName = path.substring(path.lastIndexOf("/") + 1);
-		int separatorPosition = deploymentName.lastIndexOf(SEPARATOR);
-
-		if (separatorPosition >= 0) {
-			this.deploymentName = deploymentName.substring(0, separatorPosition);
-			String version = deploymentName.substring(separatorPosition + 1);
-			setHistoryVersion(version);
-			this.commonVersion = new CommonVersionImpl(version);
+	public static List<Deployment> getDeployments(Repository repository, Collection<FileData> fileDatas) {
+		Set<String> deploymentFolderNames = new HashSet<String>();
+		for (FileData fileData : fileDatas) {
+			String deploymentName = fileData.getName().substring(DEPLOY_PATH.length()).split("/")[0];
+			deploymentFolderNames.add(deploymentName);
 		}
 
-		init();
+		List<Deployment> deployments = new ArrayList<Deployment>();
+		for (String deploymentFolderName : deploymentFolderNames) {
+			int separatorPosition = deploymentFolderName.lastIndexOf(DeployUtils.SEPARATOR);
+
+			if (separatorPosition >= 0) {
+				String deploymentName = deploymentFolderName.substring(0, separatorPosition);
+				String version = deploymentFolderName.substring(separatorPosition + 1);
+				CommonVersionImpl commonVersion = new CommonVersionImpl(version);
+				deployments.add(new Deployment(repository, DEPLOY_PATH + deploymentFolderName, deploymentName, commonVersion));
+			} else {
+				deployments.add(new Deployment(repository, DEPLOY_PATH + deploymentFolderName, deploymentFolderName, null));
+			}
+		}
+
+		return deployments;
 	}
 
 	public Deployment(Repository repository, String folderName, String deploymentName, CommonVersion commonVersion) {
-		super(null, repository, folderName, commonVersion.getVersionName());
+		super(null, repository, folderName, commonVersion == null ? null : commonVersion.getVersionName());
 		init();
 		this.commonVersion = commonVersion;
 		this.deploymentName = deploymentName;

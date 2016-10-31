@@ -39,22 +39,17 @@ public class AProject extends AProjectFolder {
         FileData fileData = super.getFileData();
         if (fileData == null) {
             if (!isFolder()) {
-                List<FileData> list;
-
                 if (!isHistoric() || isLastVersion()) {
-                    list = getRepository().list(getFolderPath());
-                    if (list.size() > 1) {
-                        throw new IllegalArgumentException("Found several projects for a single project path");
-                    }
-                    if (!list.isEmpty()) {
-                        fileData = list.get(0);
+                    FileItem fileItem = getRepository().read(getFolderPath());
+                    if (fileItem != null) {
+                        IOUtils.closeQuietly(fileItem.getStream());
+                        fileData = fileItem.getData();
                     } else {
                         fileData = new FileData();
                         fileData.setName(getFolderPath());
                         fileData.setVersion(getHistoryVersion());
                     }
                 } else {
-                    // TODO Don't query fileItem. Only fileData instead
                     FileItem fileItem = getRepository().readHistory(getFolderPath(), getHistoryVersion());
                     IOUtils.closeQuietly(fileItem.getStream());
                     fileData = fileItem.getData();
@@ -179,6 +174,7 @@ public class AProject extends AProjectFolder {
             fileData.setDeleted(false);
             InputStream stream = getRepository().read(fileData.getName()).getStream();
             setFileData(getRepository().save(fileData, stream));
+            setHistoryVersion(getFileData().getVersion());
             IOUtils.closeQuietly(stream);
         }
     }
@@ -206,7 +202,11 @@ public class AProject extends AProjectFolder {
         if (fileItem == null) {
             return internalArtefacts;
         }
-        ZipInputStream zipInputStream = new ZipInputStream(fileItem.getStream());
+        InputStream stream = fileItem.getStream();
+        if (stream == null) {
+            return internalArtefacts;
+        }
+        ZipInputStream zipInputStream = new ZipInputStream(stream);
         try {
             ZipEntry entry;
             while ((entry = zipInputStream.getNextEntry()) != null) {

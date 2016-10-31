@@ -34,11 +34,7 @@ public class JcrDataSource implements DataSource {
      */
     public Collection<Deployment> getDeployments() {
         Collection<FileData> fileDatas = repository.list(DeployUtils.DEPLOY_PATH);
-        Collection<Deployment> ret = new ArrayList<Deployment>();
-        for (FileData fileData : fileDatas) {
-            ret.add(new Deployment(repository, fileData));
-        }
-        return ret;
+        return Deployment.getDeployments(repository, fileDatas);
     }
 
     /**

@@ -63,7 +63,15 @@ public class ZipJcrRepository implements Repository, Closeable {
             } else if (deploymentConfigPath != null && deploymentConfigPath.equals(path)) {
                 projects = rulesRepository.getDeploymentProjects();
             } else if (deploymentsPath != null && deploymentsPath.equals(path)) {
-                projects = rulesRepository.getDeploymentProjects();
+                List<FolderAPI> deployments = rulesRepository.getDeploymentProjects();
+                for (FolderAPI deployment : deployments) {
+                    for (ArtefactAPI artefactAPI : deployment.getArtefacts()) {
+                        if (artefactAPI instanceof FolderAPI) {
+                            result.add(createFileData(path + "/" + deployment.getName() + "/" + artefactAPI.getName(), artefactAPI));
+                        }
+                    }
+                }
+                return result;
             } else {
                 ArtefactAPI artefact = rulesRepository.getArtefact(path);
                 if (artefact == null) {
@@ -84,8 +92,7 @@ public class ZipJcrRepository implements Repository, Closeable {
             }
 
             for (FolderAPI project : projects) {
-                FileData fileData = createFileData(path + "/" + project.getName(), project);
-                result.add(fileData);
+                result.add(createFileData(path + "/" + project.getName(), project));
             }
 
             return result;
