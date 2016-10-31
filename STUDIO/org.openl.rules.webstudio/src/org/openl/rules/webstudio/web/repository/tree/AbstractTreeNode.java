@@ -13,10 +13,7 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.repository.api.ArtefactAPI;
-import org.openl.rules.webstudio.web.repository.RepositoryProjectPropsBean;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
-import org.openl.rules.webstudio.web.tableeditor.PropertyRow;
 
 import com.google.common.collect.Iterators;
 
@@ -293,9 +290,8 @@ public abstract class AbstractTreeNode implements TreeNode {
             RulesProject project = findProjectContainingCurrentArtefact();
             
             List<ProjectVersion> result;
-            if (project != null) {
-                ArtefactAPI artefact = project.findArtefact((getData()).getArtefactPath().withoutFirstSegment());
-                result = artefact == null ? Collections.<ProjectVersion>emptyList() : artefact.getVersions();
+            if (project != data && project != null) {
+                result = project.getArtefactVersions((getData()).getArtefactPath().withoutFirstSegment());
             } else {
                 result = getData().getVersions();
             }
@@ -315,8 +311,8 @@ public abstract class AbstractTreeNode implements TreeNode {
             RulesProject project = findProjectContainingCurrentArtefact();
 
             if (project != null) {
-                ArtefactAPI artefact = project.findArtefact((getData()).getArtefactPath().withoutFirstSegment());
-                return artefact != null && artefact.getVersionsCount() > 0;
+                List<ProjectVersion> versions = project.getArtefactVersions((getData()).getArtefactPath().withoutFirstSegment());
+                return versions.size() > 0;
             } else {
                 return getData().getVersionsCount() > 0;
             }
@@ -373,10 +369,4 @@ public abstract class AbstractTreeNode implements TreeNode {
     public void refresh(){
         data.refresh();
     }
-    
-    /*dimension props information*/
-    public List<PropertyRow> getDimensionProps() {
-        return RepositoryProjectPropsBean.getProjectPropsToolTip(this.getData());
-    }
-
 }

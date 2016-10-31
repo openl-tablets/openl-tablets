@@ -7,7 +7,7 @@ import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls2.XlsDiff2;
 import org.openl.rules.project.abstraction.*;
-import org.openl.rules.project.impl.local.LocalArtefactAPI;
+import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.webstudio.web.diff.AbstractDiffController;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -199,7 +199,7 @@ public class RepositoryDiffController extends AbstractDiffController {
 
         File tempFile = null;
         OutputStream out = null;
-        String filePrefix = ((excelArtefact.getAPI() instanceof LocalArtefactAPI) ? "uw" : selectedVersionRepo) + "_";
+        String filePrefix = ((excelArtefact.getRepository() instanceof LocalRepository) ? "uw" : selectedVersionRepo) + "_";
         try {
             tempFile = new File(filePrefix + excelArtefact.getName());
             out = new FileOutputStream(tempFile);

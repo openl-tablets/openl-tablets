@@ -1,8 +1,12 @@
 package org.openl.rules.repository;
 
+import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.repository.api.ResourceAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
+import java.io.InputStream;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -98,6 +102,16 @@ public class NullRepository implements RRepository {
         return new LinkedList<FolderAPI>();
     }
 
+    @Override
+    public String getDeploymentConfigRootPath() throws RRepositoryException {
+        return null;
+    }
+
+    @Override
+    public String getDeploymentsRootPath() throws RRepositoryException {
+        return null;
+    }
+
     public FolderAPI getRulesProject(String name) throws RRepositoryException {
         fail();
         // will never reach
@@ -106,6 +120,11 @@ public class NullRepository implements RRepository {
 
     public List<FolderAPI> getRulesProjects() throws RRepositoryException {
         return new LinkedList<FolderAPI>();
+    }
+
+    @Override
+    public String getRulesProjectsRootPath() throws RRepositoryException {
+        return null;
     }
 
     public List<FolderAPI> getRulesProjectsForDeletion() throws RRepositoryException {
@@ -121,6 +140,26 @@ public class NullRepository implements RRepository {
     }
 
     public List<RRepositoryListener> getRepositoryListeners() {
+        return null;
+    }
+
+    @Override
+    public List<ResourceAPI> getResources(String path) throws RRepositoryException {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public ArtefactAPI getArtefact(String name) throws RRepositoryException {
+        return null;
+    }
+
+    @Override
+    public ResourceAPI createResource(String name, InputStream inputStream) throws RRepositoryException {
+        return null;
+    }
+
+    @Override
+    public ArtefactAPI rename(String path, String destination) throws RRepositoryException {
         return null;
     }
 

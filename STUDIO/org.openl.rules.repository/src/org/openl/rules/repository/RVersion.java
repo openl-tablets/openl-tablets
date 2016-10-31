@@ -24,8 +24,8 @@ public interface RVersion extends CommonVersion {
             return "NO_VERSION";
         }
         
-        public int getRevision() {
-            return 0;
+        public String getRevision() {
+            return "0";
         }
         
         public int getMinor() {

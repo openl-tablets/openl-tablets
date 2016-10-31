@@ -27,7 +27,7 @@ public class CellKey {
 
     @Override
     public int hashCode() {
-        return col * 37 + row;
+        return col * 773 + row;
     }
 
     @Override

@@ -44,28 +44,7 @@
       <property name="testOnBorrow" value="true" />
     </bean>
 
-    <bean id="dataBase" class="org.openl.rules.security.common.spring.db.HsqlServerBean" >
-      <property name="enabled">
-        <bean class="org.openl.rules.security.common.spring.ChooseObjectFactoryBean">
-          <property name="testValue" value="#{dbConfig['db.hibernate.dialect']}"/>
-          <property name="defaultObject" value="false"/>
-          <property name="casesMap">
-            <map>
-              <entry key="org\.hibernate\.dialect\.HSQLDialect" value="true"/>
-            </map>
-          </property>
-        </bean>
-      </property>
-      <property name="serverProperties">
-        <props>
-          <prop key="server.port">9102</prop>
-          <prop key="server.database.0">mem:webstudio</prop>
-          <prop key="server.dbname.0">webstudiodb</prop>
-        </props>
-      </property>
-    </bean>
-
-    <bean id="openlSessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean" depends-on="dataBase, dbMigration">
+    <bean id="openlSessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean" depends-on="dbMigration">
       <property name="dataSource" ref="openlDataSource"/>
       <property name="configLocation" value="classpath:/org/openl/rules/security/standalone/persistence/hibernate.cfg.xml"/>
       <property name="hibernateProperties">

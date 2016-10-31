@@ -5,7 +5,7 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.project.impl.local.LocalArtefactAPI;
+import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.RulesDeploySerializerFactory;
 import org.openl.rules.project.xml.SupportedVersion;
@@ -119,8 +119,8 @@ public class RepositoryProjectRulesDeployConfig {
     }
 
     private SupportedVersion getSupportedVersion(UserWorkspaceProject project) {
-        if (project.getAPI() instanceof LocalArtefactAPI) {
-            return rulesDeploySerializerFactory.getSupportedVersion(((LocalArtefactAPI) project.getAPI()).getSource());
+        if (project.getRepository() instanceof LocalRepository) {
+            return rulesDeploySerializerFactory.getSupportedVersion(((LocalRepository) project.getRepository()).getLocation());
         }
         return SupportedVersion.getLastVersion();
     }

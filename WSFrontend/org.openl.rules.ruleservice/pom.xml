@@ -47,11 +47,6 @@
                     <forkCount>1</forkCount>
                     <reuseForks>false</reuseForks>
                     <forkMode>always</forkMode>
-                    <additionalClasspathElements>
-                        <additionalClasspathElement>
-                            ${basedir}/test-resources/UnpackClasspathJarToDirectoryBeanTest/jarpackedproject.jar
-                        </additionalClasspathElement>
-                    </additionalClasspathElements>
                 </configuration>
             </plugin>
             <plugin>
@@ -126,8 +121,15 @@
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.repository.jcr.modeshape</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.repository.jcr.jackrabbit</artifactId>
-            <scope>test</scope>
+            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>

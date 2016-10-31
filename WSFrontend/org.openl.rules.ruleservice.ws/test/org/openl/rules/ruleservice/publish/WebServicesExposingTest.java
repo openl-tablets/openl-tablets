@@ -24,7 +24,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:openl-ruleservice-beans.xml" })
+@ContextConfiguration(locations = { "classpath:openl-ruleservice-beans.xml", "classpath:openl-ruleservice-logging-beans.xml" })
 public class WebServicesExposingTest implements ApplicationContextAware {
     private ApplicationContext applicationContext;
 
@@ -55,7 +55,7 @@ public class WebServicesExposingTest implements ApplicationContextAware {
         OpenLService multimoduleService = serviceManager.getRuleService().getServiceByName("multimodule");
         // RuleServiceLoader rulesLoader = serviceManager.getRuleServiceLoader();
         Deployment domainDeployment = null; //rulesLoader.getDeployment("multimodule", new CommonVersionImpl(1));
-        ADeploymentProject testDeploymentProject = new ADeploymentProject(domainDeployment.getAPI(), null);
+        ADeploymentProject testDeploymentProject = null;// FIXME: new ADeploymentProject(null, , );
         ProductionRepositoryFactoryProxy proxy = applicationContext.getBean("productionRepositoryFactoryProxy", ProductionRepositoryFactoryProxy.class);
         new JcrProductionDeployer(proxy, ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE).deploy(testDeploymentProject,
                 domainDeployment.getProjects(), new WorkspaceUserImpl("test"));

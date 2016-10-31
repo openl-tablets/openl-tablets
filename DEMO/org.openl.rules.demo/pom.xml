@@ -16,6 +16,7 @@
         <tomcat.version>7.0.40</tomcat.version>
         <tomcat.root>apache-tomcat-${tomcat.version}</tomcat.root>
         <tomcat.webapps>${tomcat.root}/webapps</tomcat.webapps>
+        <tomcat.lib>${tomcat.root}/lib</tomcat.lib>
     </properties>
     <build>
         <plugins>
@@ -63,9 +64,8 @@
             <type>war</type>
         </dependency>
         <dependency>
-            <groupId>org.openl.rules.demo</groupId>
-            <artifactId>org.openl.rules.demo.repository</artifactId>
-            <type>war</type>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
         </dependency>
     </dependencies>
 </project>

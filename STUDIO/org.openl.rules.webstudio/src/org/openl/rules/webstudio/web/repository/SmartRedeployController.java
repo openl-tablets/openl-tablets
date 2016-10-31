@@ -340,19 +340,24 @@ public class SmartRedeployController {
     private ADeploymentProject update(String deploymentName, AProject project) {
         UserWorkspace workspace = RepositoryUtils.getWorkspace();
         try {
-            if (deploymentName.equals(project.getName())) {
-                // the same name
-                if (!workspace.hasDDProject(deploymentName)) {
-                    // create if absent
-                    workspace.createDDProject(deploymentName);
-                }
-            }
 
             // get latest version
             // FIXME ADeploymentProject should be renamed to
             // ADeployConfiguration, because of the renaming 'Deployment
             // Project' to the 'Deploy configuration'
-            ADeploymentProject deployConfiguration = workspace.getDDProject(deploymentName);
+            ADeploymentProject deployConfiguration = null;
+
+            if (deploymentName.equals(project.getName())) {
+                // the same name
+                if (!workspace.hasDDProject(deploymentName)) {
+                    // create if absent
+                    deployConfiguration = workspace.createDDProject(deploymentName);
+                }
+            }
+
+            if (deployConfiguration == null) {
+                deployConfiguration = workspace.getDDProject(deploymentName);
+            }
 
             boolean sameVersion = deployConfiguration.hasProjectDescriptor(project.getName()) && project.getVersion()
                     .compareTo(deployConfiguration.getProjectDescriptor(project.getName()).getProjectVersion()) == 0;

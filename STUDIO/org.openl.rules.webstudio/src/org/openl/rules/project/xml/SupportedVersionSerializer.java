@@ -10,7 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SupportedVersionSerializer {
-    private static final String OPENL_PROJECT_PROPERTIES_FILE = ".settings";
+    // Filename ".setting" is used instead of ".settings" because the latter is a reserved folder name in old deprecated OpenL projects.
+    private static final String OPENL_PROJECT_PROPERTIES_FILE = ".setting";
     private static final String OPENL_COMPATIBILITY_VERSION = "openl.compatibility.version";
     private final Logger log = LoggerFactory.getLogger(SupportedVersionSerializer.class);
     private final SupportedVersion defaultVersion;

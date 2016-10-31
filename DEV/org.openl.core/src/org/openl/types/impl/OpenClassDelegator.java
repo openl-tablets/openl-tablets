@@ -38,7 +38,7 @@ public class OpenClassDelegator implements IOpenClass {
     public String getDisplayName(int mode) {
         return baseClass.getDisplayName(mode);
     }
-    
+
     public IDomain<?> getDomain() {
         return baseClass.getDomain();
     }
@@ -110,12 +110,12 @@ public class OpenClassDelegator implements IOpenClass {
     public boolean isSimple() {
         return baseClass.isSimple();
     }
-    
+
     public boolean isArray() {
         return baseClass.isArray();
     }
-    
-    public IOpenClass getComponentClass() {        
+
+    public IOpenClass getComponentClass() {
         return baseClass.getComponentClass();
     }
 
@@ -152,22 +152,21 @@ public class OpenClassDelegator implements IOpenClass {
         return (getNameSpace() == null ? "" : getNameSpace() + ":") + getName();
     }
 
-	public void addType(String namespace, IOpenClass type) throws Exception {
-		// Default implementation.
-		
-	}
+    public IOpenClass addType(String namespace, IOpenClass type) throws Exception {
+        return type;
+    }
 
-	public IOpenClass findType(String namespace, String typeName) {
-		// Default implementation.
-		return null;
-	}
+    public IOpenClass findType(String namespace, String typeName) {
+        // Default implementation.
+        return null;
+    }
 
     public Map<String, IOpenClass> getTypes() {
         // Default implementation
         return null;
     }
 
-    public Map<String, IOpenField> getFields() {        
+    public Map<String, IOpenField> getFields() {
         return baseClass.getFields();
     }
 
@@ -178,7 +177,7 @@ public class OpenClassDelegator implements IOpenClass {
     public Collection<IOpenMethod> getMethods() {
         return baseClass.getMethods();
     }
-    
+
     public Collection<IOpenMethod> getDeclaredMethods() {
         return baseClass.getMethods();
     }
@@ -196,8 +195,8 @@ public class OpenClassDelegator implements IOpenClass {
         return new EqualsBuilder().append(getName(), ((IOpenClass) obj).getName()).isEquals();
     }
 
-	public Iterable<IOpenMethod> methods(String name) {
-		return baseClass.methods(name);
-	}
+    public Iterable<IOpenMethod> methods(String name) {
+        return baseClass.methods(name);
+    }
 
 }

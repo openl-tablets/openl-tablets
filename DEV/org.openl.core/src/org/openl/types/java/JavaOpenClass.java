@@ -179,7 +179,17 @@ public class JavaOpenClass extends AOpenClass {
 
         return res;
     }
-
+    
+    public static synchronized JavaOpenClass createNewOpenClass(Class<?> c) {
+        if (c.isInterface()) {
+            return new JavaOpenInterface(c);
+        } else if (c.isEnum()) {
+            return new JavaOpenEnum(c);
+        } else {
+            return new JavaOpenClass(c);
+        }
+    }
+    
     private static JavaOpenClass createOpenClass(Class<?> c, CustomJavaOpenClass annotation) {
         Class<? extends JavaOpenClass> type = annotation.type();
         try {

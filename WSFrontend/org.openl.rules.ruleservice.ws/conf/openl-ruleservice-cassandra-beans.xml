@@ -7,6 +7,7 @@
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
+	<context:property-placeholder location="classpath:cassandra.properties" ignore-unresolvable="true"/>
 	<bean id="cassandraOperations"
 		class="org.openl.rules.ruleservice.logging.cassandra.CassandraOperations">
 		<property name="contactpoints" value="${cassandra.contactpoints}" />
@@ -18,14 +19,11 @@
 		<property name="protocolVersion" value="${ruleservice.logging.store.type.cassandra.protocol.version}"/>
 	</bean>
 
-	<bean
-		class="org.openl.rules.ruleservice.conf.LazyInitBeanFactoryPostProcessor">
+	<bean class="org.openl.rules.ruleservice.conf.LazyInitBeanFactoryPostProcessor">
 		<property name="lazyBeanNames">
 			<list>
 				<value>cassandraOperations</value>
 			</list>
 		</property>
 	</bean>
-
-
 </beans>

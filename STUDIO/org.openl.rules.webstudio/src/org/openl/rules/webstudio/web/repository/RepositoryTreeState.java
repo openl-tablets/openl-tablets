@@ -231,8 +231,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public void deleteSelectedNodeFromTree() {
-        deleteNode(getSelectedNode());
-        moveSelectionToParentNode();
+        TreeNode selectedNode = getSelectedNode();
+        if (selectedNode != root && selectedNode != rulesRepository && selectedNode != deploymentRepository) {
+            deleteNode(selectedNode);
+            moveSelectionToParentNode();
+        }
     }
 
     public void addDeploymentProjectToTree(ADeploymentProject project) {
@@ -342,54 +345,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         }
     }
 
-    public void onRulesProjectModified(DTRepositoryEvent event) {
-        String projectName = event.getProjectName();
-        TreeNode rulesProject = getRulesRepository().getChild(RepositoryUtils.getTreeNodeId(projectName));
-        synchronized (userWorkspace) {
-            if (rulesProject == null) {
-                if (userWorkspace.getDesignTimeRepository().hasProject(projectName)) {
-                    try {
-                        addRulesProjectToTree(userWorkspace.getProject(projectName));
-                    } catch (ProjectException e) {
-                        log.error("Failed to add new project to the repository tree.", e);
-                    }
-                } else if (!userWorkspace.getLocalWorkspace().hasProject(projectName)) {
-                    TreeProject node = getProjectNodeByPhysicalName(projectName);
-                    if (node != null) {
-                        deleteNode(node);
-                    }
-                }
-            } else if (!userWorkspace.getDesignTimeRepository().hasProject(projectName)
-                    && !userWorkspace.getLocalWorkspace().hasProject(projectName)) {
-                deleteNode(rulesProject);
-            } else {
-                try {
-                    rulesProject.setData(userWorkspace.getProject(projectName));
-                    refreshNode(rulesProject);
-                } catch (ProjectException e) {
-                    log.error("Failed to refresh project \"{}\" in the repository tree.", projectName, e);
-                }
-            }
-        }
-    }
-
-    public void onDeploymentProjectModified(DTRepositoryEvent event) {
-        TreeNode deploymentProject = getDeploymentRepository().getChild(RepositoryUtils.getTreeNodeId(event.getProjectName()));
-        if (deploymentProject == null) {
-            if (userWorkspace.getDesignTimeRepository().hasDDProject(event.getProjectName())) {
-                try {
-                    addDeploymentProjectToTree(userWorkspace.getDDProject(event.getProjectName()));
-                } catch (ProjectException e) {
-                    log.error("Failed to add new project to the repository tree.", e);
-                }
-            }
-        } else {
-            if (!userWorkspace.getDesignTimeRepository().hasDDProject(event.getProjectName())) {
-                deleteNode(deploymentProject);
-            } else {
-                refreshNode(deploymentProject);
-            }
-        }
+    @Override
+    public void onRepositoryModified() {
+        invalidateTree();
     }
 
     public boolean isHideDeleted() {

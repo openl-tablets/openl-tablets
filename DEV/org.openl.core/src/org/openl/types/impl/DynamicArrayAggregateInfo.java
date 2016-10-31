@@ -37,7 +37,6 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
     }
 
     static class MyArrayOpenClass extends ArrayOpenClass {
-
         public MyArrayOpenClass(IOpenClass componentClass) {
             super(componentClass, new MyArrayLengthOpenField());
         }
@@ -46,24 +45,8 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
             return aggregateInfo;
         }
 
-        public boolean isAssignableFrom(Class<?> c) {
-            // TODO Auto-generated method stub
-            return false;
-        }
-
-        public boolean isAssignableFrom(IOpenClass ioc) {
-            // TODO Auto-generated method stub
-            return false;
-        }
-
-        public boolean isInstance(Object instance) {
-            // TODO Auto-generated method stub
-            return false;
-        }
-
         public Object newInstance(IRuntimeEnv env) {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         public Iterable<IOpenClass> superClasses() {

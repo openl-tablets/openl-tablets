@@ -6,11 +6,9 @@
 
 package org.openl.conf;
 
-import org.openl.binding.ICastFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
-import org.openl.types.IMethodCaller;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethod;
 import org.openl.util.CategorizedMap;
 
 /**
@@ -32,10 +30,9 @@ public class LibraryFactoryConfiguration extends AConfigurationElement implement
      *      java.lang.String, org.openl.types.IOpenClass[],
      *      org.openl.binding.ICastFactory)
      */
-    public IMethodCaller getMethodCaller(String namespace, String name, IOpenClass[] params, ICastFactory casts,
-            IConfigurableResourceContext cxt) throws AmbiguousMethodException {
+    public IOpenMethod[] getMethods(String namespace, String name, IConfigurableResourceContext cxt) throws AmbiguousMethodException {
         NameSpacedLibraryConfiguration lib = (NameSpacedLibraryConfiguration) map.get(namespace);
-        return lib == null ? null : lib.getMethodCaller(name, params, casts, cxt);
+        return lib == null ? new IOpenMethod[]{} : lib.getMethods(name, cxt);
     }
 
     public IOpenField getVar(String namespace, String name, IConfigurableResourceContext cxt, boolean strictMatch) {

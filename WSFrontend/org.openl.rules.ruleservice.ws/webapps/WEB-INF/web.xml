@@ -79,7 +79,7 @@
 	<context-param>
 		<description>Location of the XML file that defines the root application context applied by ContextLoaderListener.</description>
 		<param-name>contextConfigLocation</param-name>
-		<param-value>WEB-INF/openl-ruleservice-beans.xml</param-value>
+		<param-value>classpath:openl-ruleservice-beans.xml</param-value>
 	</context-param>
 
 	<listener>

@@ -20,14 +20,7 @@ public interface RuleServiceLoader {
      *
      * @param dataSourceListener
      */
-    void addListener(DataSourceListener dataSourceListener);
-
-    /**
-     * Removes a listener from data source.
-     *
-     * @param dataSourceListener
-     */
-    void removeListener(DataSourceListener dataSourceListener);
+    void setListener(DataSourceListener dataSourceListener);
 
     /**
      * Returns deployments

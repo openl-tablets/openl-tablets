@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.servlet;
 import java.lang.reflect.Proxy;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,9 +11,6 @@ import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.transport.http.DestinationRegistry;
 import org.apache.cxf.transport.http.HTTPTransportFactory;
 import org.apache.cxf.transport.servlet.CXFServlet;
-import org.openl.rules.ruleservice.management.ServiceManagerImpl;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * OpenL Web Service CXFServlet extended Servlet.
@@ -29,18 +25,6 @@ public class WSServlet extends CXFServlet {
         ServletConfig servletConfig = getServletConfig();
         loadBus(servletConfig);
         configureDestinationRegistry(servletConfig.getInitParameter("uriEncoding"));
-
-        ServletContext context = getServletContext();
-        WebApplicationContext applicationContext = WebApplicationContextUtils.getWebApplicationContext(context);
-
-        ServiceManagerImpl serviceManager;
-        if (applicationContext.containsBean("serviceManager")) {
-            serviceManager = (ServiceManagerImpl) applicationContext.getBean("serviceManager");
-        } else {
-            throw new ServletException(
-                    "Could not instantiate service manager. Make sure that you have configured bean \"ruleService\"");
-        }
-        serviceManager.start();
     }
     
     @Override

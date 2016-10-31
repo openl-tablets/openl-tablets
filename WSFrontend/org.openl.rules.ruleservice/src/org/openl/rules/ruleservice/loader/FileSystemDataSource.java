@@ -5,13 +5,14 @@ import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.impl.local.LocalFolderAPI;
+import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,7 @@ public class FileSystemDataSource implements DataSource, InitializingBean {
 
     private Object flag = new Object();
 
-    List<DataSourceListener> listeners = new ArrayList<DataSourceListener>();
+    DataSourceListener listener;
 
     private boolean supportDeployments = false;
 
@@ -153,7 +154,8 @@ public class FileSystemDataSource implements DataSource, InitializingBean {
                         deploymentFolder.getParentFile(),
                         getLocalWorkspaceFolderFilter(),
                         getLocalWorkspaceFileFilter()));
-                Deployment deployment = new Deployment(localFolderAPI, deploymentName, deploymentVersion);
+                Repository repository = new LocalRepository(deploymentFolder.getParentFile());
+                Deployment deployment = new Deployment(repository, localFolderAPI.getArtefactPath().getStringValue(), deploymentName, deploymentVersion);
                 return deployment;
             }
         }
@@ -237,7 +239,8 @@ public class FileSystemDataSource implements DataSource, InitializingBean {
                     deploymentFolder.getParentFile(),
                     getLocalWorkspaceFolderFilter(),
                     getLocalWorkspaceFileFilter()));
-            Deployment deployment = new Deployment(localFolderAPI, deploymentName, commonVersion);
+            Repository repository = new LocalRepository(deploymentFolder.getParentFile());
+            Deployment deployment = new Deployment(repository, localFolderAPI.getArtefactPath().getStringValue(), deploymentName, commonVersion);
             validateDeployment(deployment, deploymentFolder);
             deployments.add(deployment);
         }
@@ -256,28 +259,16 @@ public class FileSystemDataSource implements DataSource, InitializingBean {
     /**
      * {@inheritDoc}
      */
-    public void addListener(DataSourceListener dataSourceListener) {
-        if (dataSourceListener == null) {
-            throw new IllegalArgumentException("dataSourceListener argument can't be null");
-        }
-        synchronized (listeners) {
-            listeners.add(dataSourceListener);
-            log.info("{} class listener is registered in file system data source", dataSourceListener.getClass());
-        }
-
+    public void setListener(DataSourceListener dataSourceListener) {
+        listener = dataSourceListener;
     }
 
     /**
      * {@inheritDoc}
+     * @param listener
      */
-    public void removeListener(DataSourceListener dataSourceListener) {
-        if (dataSourceListener == null) {
-            throw new IllegalArgumentException("dataSourceListener argument can't be null");
-        }
-        synchronized (listeners) {
-            listeners.remove(dataSourceListener);
-            log.info("{} class listener is unregistered from file system data source", dataSourceListener.getClass());
-        }
+    public void addListener(Number listener) {
+        addListener(null);
     }
 
     public boolean isSupportDeployments() {

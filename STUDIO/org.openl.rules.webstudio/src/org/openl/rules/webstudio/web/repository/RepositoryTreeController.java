@@ -7,7 +7,6 @@ import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.PropertyException;
-import org.openl.rules.common.RulesRepositoryArtefact;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
@@ -22,7 +21,6 @@ import org.openl.rules.project.model.*;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
-import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportModule;
@@ -65,8 +63,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -90,7 +86,6 @@ import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_UNLOCK_PROJEC
 @ViewScoped
 public class RepositoryTreeController {
 
-    private static final Date SPECIAL_DATE = new Date(0);
     private static final String PROJECT_HISTORY_HOME = "project.history.home";
     private static final String CUSTOM_TEMPLATE_TYPE = "custom";
 
@@ -101,9 +96,6 @@ public class RepositoryTreeController {
 
     @ManagedProperty(value = "#{rulesUserSession.userWorkspace}")
     private volatile UserWorkspace userWorkspace;
-
-    @ManagedProperty(value = "#{repositoryArtefactPropsHolder}")
-    private RepositoryArtefactPropsHolder repositoryArtefactPropsHolder;
 
     @ManagedProperty(value = "#{zipFilter}")
     private PathFilter zipFilter;
@@ -304,6 +296,9 @@ public class RepositoryTreeController {
             // workaround to reduce performance drop.
             return Collections.emptyList();
         }
+        if (getSelectedProject() instanceof ADeploymentProject) {
+            return Collections.emptyList();
+        }
         List<String> dependencies = new ArrayList<String>(getDependencies(getSelectedProject(), true));
         Collections.sort(dependencies);
         return dependencies;
@@ -496,8 +491,7 @@ public class RepositoryTreeController {
                 return null;
             }
 
-            userWorkspace.createDDProject(projectName);
-            ADeploymentProject createdProject = userWorkspace.getDDProject(projectName);
+            ADeploymentProject createdProject = userWorkspace.createDDProject(projectName);
             createdProject.edit();
             // Analogous to rules project creation (to change "created by"
             // property and revision)
@@ -1004,83 +998,6 @@ public class RepositoryTreeController {
         return null;
     }
 
-    public String getAttribute1() {
-        return (String) getProperty(ArtefactProperties.PROP_ATTRIBUTE + 1);
-    }
-
-    public Date getAttribute10() {
-        return getDateProperty(ArtefactProperties.PROP_ATTRIBUTE + 10);
-    }
-
-    public String getAttribute11() {
-        return getNumberProperty(ArtefactProperties.PROP_ATTRIBUTE + 11);
-    }
-
-    public String getAttribute12() {
-        return getNumberProperty(ArtefactProperties.PROP_ATTRIBUTE + 12);
-    }
-
-    public String getAttribute13() {
-        return getNumberProperty(ArtefactProperties.PROP_ATTRIBUTE + 13);
-    }
-
-    public String getAttribute14() {
-        return getNumberProperty(ArtefactProperties.PROP_ATTRIBUTE + 14);
-    }
-
-    public String getAttribute15() {
-        return getNumberProperty(ArtefactProperties.PROP_ATTRIBUTE + 15);
-    }
-
-    public String getAttribute2() {
-        return (String) getProperty(ArtefactProperties.PROP_ATTRIBUTE + 2);
-    }
-
-    public String getAttribute3() {
-        return (String) getProperty(ArtefactProperties.PROP_ATTRIBUTE + 3);
-    }
-
-    public String getAttribute4() {
-        return (String) getProperty(ArtefactProperties.PROP_ATTRIBUTE + 4);
-    }
-
-    public String getAttribute5() {
-        return (String) getProperty(ArtefactProperties.PROP_ATTRIBUTE + 5);
-    }
-
-    public Date getAttribute6() {
-        return getDateProperty(ArtefactProperties.PROP_ATTRIBUTE + 6);
-    }
-
-    public Date getAttribute7() {
-        return getDateProperty(ArtefactProperties.PROP_ATTRIBUTE + 7);
-    }
-
-    public Date getAttribute8() {
-        return getDateProperty(ArtefactProperties.PROP_ATTRIBUTE + 8);
-    }
-
-    public Date getAttribute9() {
-        return getDateProperty(ArtefactProperties.PROP_ATTRIBUTE + 9);
-    }
-
-    /**
-     * Gets date type property from a rules repository.
-     *
-     * @param propName name of property
-     * @return value of property
-     */
-    private Date getDateProperty(String propName) {
-        Object prop = getProperty(propName);
-        if (prop instanceof Date) {
-            return (Date) prop;
-        } else if (prop instanceof Long) {
-            return new Date((Long) prop);
-        } else {
-            return null;
-        }
-    }
-
     public String getDeploymentProjectName() {
         // EPBDS-92 - clear newDProject dialog every time
         return null;
@@ -1116,21 +1033,6 @@ public class RepositoryTreeController {
         return null;
     }
 
-    /**
-     * Gets number type property from a rules repository.
-     *
-     * @param propName name of property
-     * @return value of property
-     */
-    private String getNumberProperty(String propName) {
-        Object prop = getProperty(propName);
-        if (prop instanceof Double) {
-            return String.valueOf(prop);
-        } else {
-            return null;
-        }
-    }
-
     public String getProjectName() {
         // EPBDS-92 - clear newProject dialog every time
         // return null;
@@ -1156,60 +1058,12 @@ public class RepositoryTreeController {
         return properties;
     }
 
-    /**
-     * Gets property from a rules repository.
-     *
-     * @param propName name of property
-     * @return value of property
-     */
-    private Object getProperty(String propName) {
-        Map<String, Object> props = getProps();
-        if (props != null) {
-            return props.get(propName);
-        }
-        return null;
-    }
-
-    /**
-     * Gets all properties from a rules repository.
-     *
-     * @return map of properties
-     */
-    private Map<String, Object> getProps() {
-        RulesRepositoryArtefact dataBean = repositoryTreeState.getSelectedNode().getData();
-        if (dataBean != null) {
-            return dataBean.getProps();
-        }
-        return null;
-    }
-
-    /**
-     * Gets UI name of property.
-     *
-     * @param propName name of property
-     * @return UI name of property
-     */
-    private String getPropUIName(String propName) {
-        if (propName == null) {
-            return StringUtils.EMPTY;
-        }
-        String propUIName = getPropUINames().get(propName);
-        if (StringUtils.isBlank(propUIName)) {
-            propUIName = propName;
-        }
-        return propUIName;
-    }
-
-    public Map<String, String> getPropUINames() {
-        return repositoryArtefactPropsHolder.getProps();
-    }
-
-    public int getRevision() {
+    public String getRevision() {
         ProjectVersion v = getProjectVersion();
         if (v != null) {
             return v.getRevision();
         }
-        return 0;
+        return "0";
     }
 
     /**
@@ -1273,7 +1127,7 @@ public class RepositoryTreeController {
                 repositoryTreeState.getSelectedProject().close();
             }
 
-            repositoryTreeState.getSelectedProject().openVersion(new CommonVersionImpl(version));
+            repositoryTreeState.getSelectedProject().openVersion(version);
             openDependenciesIfNeeded();
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
@@ -1319,80 +1173,6 @@ public class RepositoryTreeController {
         String projectName = FacesUtils.getRequestParameter("projectName");
         selectProject(projectName, repositoryTreeState.getRulesRepository());
         return null;
-    }
-
-    public void setAttribute1(String attribute1) {
-        setProperty(ArtefactProperties.PROP_ATTRIBUTE + 1, attribute1);
-    }
-
-    public void setAttribute10(Date attribute10) {
-        setDateProperty(ArtefactProperties.PROP_ATTRIBUTE + 10, attribute10);
-    }
-
-    public void setAttribute11(String attribute11) {
-        setNumberProperty(ArtefactProperties.PROP_ATTRIBUTE + 11, attribute11);
-    }
-
-    public void setAttribute12(String attribute12) {
-        setNumberProperty(ArtefactProperties.PROP_ATTRIBUTE + 12, attribute12);
-    }
-
-    public void setAttribute13(String attribute13) {
-        setNumberProperty(ArtefactProperties.PROP_ATTRIBUTE + 13, attribute13);
-    }
-
-    public void setAttribute14(String attribute14) {
-        setNumberProperty(ArtefactProperties.PROP_ATTRIBUTE + 14, attribute14);
-    }
-
-    public void setAttribute15(String attribute15) {
-        setNumberProperty(ArtefactProperties.PROP_ATTRIBUTE + 15, attribute15);
-    }
-
-    public void setAttribute2(String attribute2) {
-        setProperty(ArtefactProperties.PROP_ATTRIBUTE + 2, attribute2);
-    }
-
-    public void setAttribute3(String attribute3) {
-        setProperty(ArtefactProperties.PROP_ATTRIBUTE + 3, attribute3);
-    }
-
-    public void setAttribute4(String attribute4) {
-        setProperty(ArtefactProperties.PROP_ATTRIBUTE + 4, attribute4);
-    }
-
-    public void setAttribute5(String attribute5) {
-        setProperty(ArtefactProperties.PROP_ATTRIBUTE + 5, attribute5);
-    }
-
-    public void setAttribute6(Date attribute6) {
-        setDateProperty(ArtefactProperties.PROP_ATTRIBUTE + 6, attribute6);
-    }
-
-    public void setAttribute7(Date attribute7) {
-        setDateProperty(ArtefactProperties.PROP_ATTRIBUTE + 7, attribute7);
-    }
-
-    public void setAttribute8(Date attribute8) {
-        setDateProperty(ArtefactProperties.PROP_ATTRIBUTE + 8, attribute8);
-    }
-
-    public void setAttribute9(Date attribute9) {
-        setDateProperty(ArtefactProperties.PROP_ATTRIBUTE + 9, attribute9);
-    }
-
-    /**
-     * Sets date type property to rules repository.
-     *
-     * @param propName name of property
-     * @param propValue value of property
-     */
-    public void setDateProperty(String propName, Date propValue) {
-        if (!SPECIAL_DATE.equals(propValue)) {
-            setProperty(propName, propValue);
-        } else {
-            FacesUtils.addErrorMessage("Specified " + getPropUIName(propName) + " value is not a valid date.");
-        }
     }
 
     public void uploadListener(FileUploadEvent event) {
@@ -1456,53 +1236,8 @@ public class RepositoryTreeController {
         this.newProjectName = newProjectName;
     }
 
-    /**
-     * Sets number type property to rules repository.
-     *
-     * @param propName name of property
-     * @param propValue value of property
-     */
-    public void setNumberProperty(String propName, String propValue) {
-        Double numberValue = null;
-        try {
-            if (StringUtils.isNotBlank(propValue)) {
-                numberValue = Double.valueOf(propValue);
-            }
-            setProperty(propName, numberValue);
-        } catch (NumberFormatException e) {
-            FacesUtils.addErrorMessage("Specified " + getPropUIName(propName) + " value is not a number.");
-        }
-    }
-
     public void setProjectName(String newProjectName) {
         projectName = newProjectName;
-    }
-
-    /**
-     * Sets property to rules repository.
-     *
-     * @param propName name of property
-     * @param propValue value of property
-     */
-    private void setProperty(String propName, Object propValue) {
-        try {
-            Map<String, Object> props = getProps();
-            if (props == null) {
-                props = new HashMap<String, Object>();
-            } else {
-                props = new HashMap<String, Object>(props);
-            }
-            props.put(propName, propValue);
-            repositoryTreeState.getSelectedNode().getData().setProps(props);
-        } catch (PropertyException e) {
-            String propUIName = getPropUIName(propName);
-            log.error("Failed to set " + propUIName + "!", e);
-            FacesUtils.addErrorMessage("Can not set " + propUIName + ".", e.getMessage());
-        }
-    }
-
-    public void setRepositoryArtefactPropsHolder(RepositoryArtefactPropsHolder repositoryArtefactPropsHolder) {
-        this.repositoryArtefactPropsHolder = repositoryArtefactPropsHolder;
     }
 
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {

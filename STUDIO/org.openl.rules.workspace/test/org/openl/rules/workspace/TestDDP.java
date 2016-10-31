@@ -20,9 +20,7 @@ public class TestDDP {
 
         String name = "ddp1";
         try {
-            uw.createDDProject(name);
-
-            ADeploymentProject ddp = uw.getDDProject(name);
+            ADeploymentProject ddp = uw.createDDProject(name);
             ddp.edit(wu);
 
             ddp.addProjectDescriptor("prj1", new CommonVersionImpl(100));

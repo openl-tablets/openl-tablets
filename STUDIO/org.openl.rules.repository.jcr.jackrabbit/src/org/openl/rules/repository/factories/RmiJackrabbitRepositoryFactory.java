@@ -5,7 +5,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeTypeManager;
 
 import org.apache.jackrabbit.rmi.client.ClientRepositoryFactory;
-import org.openl.config.ConfigSet;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
@@ -17,15 +16,18 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  */
 public class RmiJackrabbitRepositoryFactory extends AbstractJcrRepositoryFactory {
 
+    public RmiJackrabbitRepositoryFactory(String uri, String login, String password, boolean designMode) {
+        super(uri, login, password, designMode);
+    }
+
     /** {@inheritDoc} */
     @Override
-    public void initialize(ConfigSet confSet) throws RRepositoryException {
-        super.initialize(confSet);
+    public void initialize() throws RRepositoryException {
         ClientRepositoryFactory clientRepositoryFactory = new ClientRepositoryFactory();
 
         try {
             Repository repository;
-            String rmiUrl = uri.getValue();
+            String rmiUrl = this.uri;
             try {
                 repository = clientRepositoryFactory.getRepository(rmiUrl);
             } catch (Exception e) {
@@ -36,6 +38,7 @@ public class RmiJackrabbitRepositoryFactory extends AbstractJcrRepositoryFactory
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to initialize JCR: " + e.getMessage(), e);
         }
+        super.initialize();
     }
 
     /** {@inheritDoc} */

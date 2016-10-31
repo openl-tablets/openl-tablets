@@ -20,6 +20,11 @@ public class MockResource extends MockArtefact implements ResourceAPI {
         return new ByteArrayInputStream(content);
     }
 
+    @Override
+    public long getSize() {
+        return content.length;
+    }
+
     public void setContent(InputStream inputStream) throws ProjectException {
         try {
             content = new byte[inputStream.available()];

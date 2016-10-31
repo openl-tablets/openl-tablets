@@ -57,26 +57,22 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
             for (AProject project : deployment.getProjects()) {
                 try {
                     InputStream content = null;
-                    RulesDeploy rulesDeploy = null;
                     try {
                         AProjectArtefact artifact = project.getArtefact(RULES_DEPLOY_XML);
                         if (artifact instanceof AProjectResource) {
                             AProjectResource resource = (AProjectResource) artifact;
                             content = resource.getContent();
-                            rulesDeploy = getRulesDeploySerializer().deserialize(content);
+                            RulesDeploy rulesDeploy = getRulesDeploySerializer().deserialize(content);
                             hasRulesDeployXML = true;
                             String version = null;
                             if (StringUtils.isNotEmpty(rulesDeploy.getVersion())) {
                                 version = rulesDeploy.getVersion();
                             }
-                            if (latestDeployments.containsKey(deploymentName)) {
-                                if (internalMap.containsKey(version)) {
-                                    if (internalMap.get(version)
-                                        .getCommonVersion()
-                                        .compareTo(deployment.getCommonVersion()) < 0) {
-                                        internalMap.put(version, deployment);
-                                    }
-                                } else {
+
+                            if (internalMap.containsKey(version)) {
+                                if (internalMap.get(version)
+                                    .getCommonVersion()
+                                    .compareTo(deployment.getCommonVersion()) < 0) {
                                     internalMap.put(version, deployment);
                                 }
                             } else {
