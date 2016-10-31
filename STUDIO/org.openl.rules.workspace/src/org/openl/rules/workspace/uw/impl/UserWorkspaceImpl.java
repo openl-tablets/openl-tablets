@@ -254,6 +254,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
         localWorkspace.refresh();
 
         synchronized (userRulesProjects) {
+
+            userRulesProjects.clear();
+
             // add new
             Repository designRepository = designTimeRepository.getRepository();
             LocalRepository localRepository = localWorkspace.getRepository();

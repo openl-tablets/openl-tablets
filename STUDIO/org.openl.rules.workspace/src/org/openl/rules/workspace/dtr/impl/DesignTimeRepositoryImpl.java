@@ -68,6 +68,13 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
             path = config.get(DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME);
             deploymentConfigurationLocation = preparePathPrefix(path == null ? "DESIGN/deployments" : path.toString());
+
+            addListener(new DesignTimeRepositoryListener() {
+                @Override
+                public void onRepositoryModified() {
+                    projects.clear();
+                }
+            });
         } catch (RRepositoryException e) {
             log.error("Cannot init DTR! {}", e.getMessage(), e);
             throw new IllegalStateException("Can't initialize Design Repository.", e);
@@ -185,37 +192,27 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         List<AProject> result = new LinkedList<AProject>();
 
         Collection<FileData> fileDatas = getRepository().list(rulesLocation);
+        projects.clear();
         for (FileData fileData : fileDatas) {
             AProject project = new AProject(getRepository(), fileData);
-            AProject cached = projects.get(project.getName());
-            if (cached != null) {
-                // use cached
-                result.add(cached);
-            } else {
-                // get from the repository
-                result.add(project);
-                projects.put(project.getName(), project);
-            }
+            // get from the repository
+            result.add(project);
+            projects.put(project.getName(), project);
         }
         return result;
     }
 
     public boolean hasDDProject(String name) {
-        return !getRepository().list(deploymentConfigurationLocation + "/" + name).isEmpty();
+        FileItem item = getRepository().read(deploymentConfigurationLocation + "/" + name);
+        if (item != null) {
+            IOUtils.closeQuietly(item.getStream());
+            return true;
+        }
+        return false;
     }
 
     public boolean hasProject(String name) {
-        AProject cached = projects.get(name);
-        boolean inCache = (cached != null);
-
-        boolean inRAL = !getRepository().list(rulesLocation + "/" + name).isEmpty();
-        if (inRAL != inCache) {
-            if (!inRAL) {
-                // ???
-                projects.remove(name);
-            }
-        }
-        return inRAL;
+        return projects.containsKey(name);
     }
 
     // --- private
@@ -242,10 +239,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 ((Closeable) repository).close();
             }
             repository = null;
-        }
-        if (repository instanceof Closeable) {
-            // Close repo connection after validation
-            IOUtils.closeQuietly((Closeable) repository);
         }
         projects.clear();
     }
