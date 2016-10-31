@@ -421,7 +421,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     }
 
     @Override
-    protected boolean isBaseNode(Node node) {
-        return node == deployLocation;
+    protected boolean isBaseNode(Node node) throws RepositoryException {
+        return node.getPath().equals(deployLocation.getPath());
     }
 }

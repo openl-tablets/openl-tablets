@@ -53,7 +53,7 @@ public abstract class BaseJcrRepository implements RRepository, EventListener {
         return node;
     }
 
-    protected abstract boolean isBaseNode(Node node);
+    protected abstract boolean isBaseNode(Node node) throws RepositoryException;
 
     protected Node checkFolder(String aPath) throws RepositoryException, ProjectException {
         Node node = session.getRootNode();

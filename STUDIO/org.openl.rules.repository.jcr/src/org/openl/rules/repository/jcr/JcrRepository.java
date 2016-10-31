@@ -400,7 +400,8 @@ public class JcrRepository extends BaseJcrRepository {
     }
 
     @Override
-    protected boolean isBaseNode(Node node) {
-        return node == defRulesLocation || node == defDeploymentConfigLocation;
+    protected boolean isBaseNode(Node node) throws RepositoryException {
+        String path = node.getPath();
+        return path.equals(defRulesLocation.getPath()) || path.equals(defDeploymentConfigLocation.getPath());
     }
 }
