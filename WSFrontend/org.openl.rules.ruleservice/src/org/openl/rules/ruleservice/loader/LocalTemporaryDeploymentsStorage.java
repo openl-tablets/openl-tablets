@@ -166,7 +166,9 @@ public class LocalTemporaryDeploymentsStorage {
         String versionName = deployment.getVersion().getVersionName();
         log.debug("Loading deployement with name=\"{}\" and version=\"{}\"", deploymentName, versionName);
 
-        Deployment loadedDeployment = makeLocalDeployment(deploymentName, version);
+        String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
+        Repository repository = new LocalRepository(getFolderToLoadDeploymentsIn());
+        Deployment loadedDeployment = new Deployment(repository, deploymentFolderName, deploymentName, version);
         try {
             loadedDeployment.update(deployment, null);
             loadedDeployment.refresh();
@@ -178,19 +180,12 @@ public class LocalTemporaryDeploymentsStorage {
             throw new RuleServiceRuntimeException(e);
         }
 
-        String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
         cacheForGetDeployment.put(deploymentFolderName, loadedDeployment);
 
         log.debug("Deployment with name=\"{}\" and version=\"{}\" has been made on local storage and putted to cache.",
             deploymentName,
             versionName);
         return loadedDeployment;
-    }
-
-    private Deployment makeLocalDeployment(String deploymentName, CommonVersion version) {
-        String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
-        Repository repository = new LocalRepository(getFolderToLoadDeploymentsIn());
-        return new Deployment(repository, deploymentFolderName, deploymentName, version);
     }
 
     /**
