@@ -231,8 +231,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public void deleteSelectedNodeFromTree() {
-        deleteNode(getSelectedNode());
-        moveSelectionToParentNode();
+        TreeNode selectedNode = getSelectedNode();
+        if (selectedNode != root && selectedNode != rulesRepository && selectedNode != deploymentRepository) {
+            deleteNode(selectedNode);
+            moveSelectionToParentNode();
+        }
     }
 
     public void addDeploymentProjectToTree(ADeploymentProject project) {
