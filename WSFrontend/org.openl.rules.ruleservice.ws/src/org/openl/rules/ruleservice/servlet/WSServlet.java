@@ -5,6 +5,8 @@ import java.lang.reflect.Proxy;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.transport.http.DestinationRegistry;
@@ -39,6 +41,16 @@ public class WSServlet extends CXFServlet {
                     "Could not instantiate service manager. Make sure that you have configured bean \"ruleService\"");
         }
         serviceManager.start();
+    }
+    
+    @Override
+    protected void redirect(HttpServletRequest request,
+            HttpServletResponse response,
+            String pathInfo) throws ServletException {
+        if (pathInfo == null){ //Fix issue with empty path on linux
+            pathInfo = "/";
+        }
+        super.redirect(request, response, pathInfo);
     }
 
     /**
