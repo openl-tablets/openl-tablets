@@ -69,14 +69,11 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                             if (StringUtils.isNotEmpty(rulesDeploy.getVersion())) {
                                 version = rulesDeploy.getVersion();
                             }
-                            if (latestDeployments.containsKey(deploymentName)) {
-                                if (internalMap.containsKey(version)) {
-                                    if (internalMap.get(version)
-                                        .getCommonVersion()
-                                        .compareTo(deployment.getCommonVersion()) < 0) {
-                                        internalMap.put(version, deployment);
-                                    }
-                                } else {
+
+                            if (internalMap.containsKey(version)) {
+                                if (internalMap.get(version)
+                                    .getCommonVersion()
+                                    .compareTo(deployment.getCommonVersion()) < 0) {
                                     internalMap.put(version, deployment);
                                 }
                             } else {
