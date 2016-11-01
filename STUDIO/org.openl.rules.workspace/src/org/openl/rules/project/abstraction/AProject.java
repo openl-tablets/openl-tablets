@@ -260,6 +260,7 @@ public class AProject extends AProjectFolder {
                 } else {
                     stream = projectFrom.getRepository().read(projectFrom.getFolderPath()).getStream();
                 }
+                fileData.setAuthor(user.getUserName());
                 setFileData(getRepository().save(fileData, stream));
                 IOUtils.closeQuietly(stream);
             } else {
@@ -281,6 +282,7 @@ public class AProject extends AProjectFolder {
                     IOUtils.closeQuietly(zipOutputStream);
                 }
 
+                fileData.setAuthor(user.getUserName());
                 setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
             }
         }

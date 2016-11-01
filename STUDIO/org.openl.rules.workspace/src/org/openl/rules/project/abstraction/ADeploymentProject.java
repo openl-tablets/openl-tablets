@@ -152,6 +152,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
                 IOUtils.closeQuietly(zipOutputStream);
             }
 
+            fileData.setAuthor(user.getUserName());
             setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
         }
 
