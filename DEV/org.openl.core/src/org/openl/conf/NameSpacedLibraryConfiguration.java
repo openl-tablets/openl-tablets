@@ -10,11 +10,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.openl.binding.ICastFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
-import org.openl.binding.impl.MethodSearch;
-import org.openl.types.IMethodCaller;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 
@@ -46,16 +42,8 @@ public class NameSpacedLibraryConfiguration extends AConfigurationElement {
         return null;
     }
 
-    public IMethodCaller getMethodCaller(String name,
-            IOpenClass[] params,
-            ICastFactory casts,
+    public IOpenMethod[] getMethods(String name,
             IConfigurableResourceContext cxt) throws AmbiguousMethodException {
-        for (IMethodFactoryConfigurationElement factory : factories) {
-            IMethodCaller mc = MethodSearch.getMethodCaller(name, params, casts, factory.getLibrary(cxt), true);
-            if (mc != null) {
-                return mc;
-            }
-        }
 
         List<IOpenMethod> methods = new LinkedList<IOpenMethod>();
         for (IMethodFactoryConfigurationElement factory : factories) {
@@ -65,7 +53,7 @@ public class NameSpacedLibraryConfiguration extends AConfigurationElement {
             }
         }
 
-        return MethodSearch.getCastingMethodCaller(name, params, casts, methods);
+        return methods.toArray(new IOpenMethod[]{});
     }
 
     /**

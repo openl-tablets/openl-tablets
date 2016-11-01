@@ -8,5 +8,6 @@ public interface ResourceAPI extends ArtefactAPI {
 
     InputStream getContent() throws ProjectException;
     void setContent(InputStream inputStream) throws ProjectException;
+    long getSize();
 
 }

@@ -1,6 +1,6 @@
 package org.openl.rules.repository;
 
-import org.openl.config.ConfigSet;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
@@ -9,24 +9,10 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  * @author Aleh Bykhavets
  *
  */
-public interface RRepositoryFactory {
-
-    /**
-     * Gets new instance of JCR Repository.
-     *
-     * @return new instance of JCR Repository
-     * @throws RRepositoryException if failed
-     */
-    RRepository getRepositoryInstance() throws RRepositoryException;
+public interface RRepositoryFactory extends Repository {
 
     /**
      * Initialize factory.
-     *
-     * @param confSet configuration data
-     * @throws RRepositoryException if failed
-     */
-    void initialize(ConfigSet confSet) throws RRepositoryException;
-
-    void release() throws RRepositoryException;
-
+     *  */
+    void initialize() throws RRepositoryException;
 }

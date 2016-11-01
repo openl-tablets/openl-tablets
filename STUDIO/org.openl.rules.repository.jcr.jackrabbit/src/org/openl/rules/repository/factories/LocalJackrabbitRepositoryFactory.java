@@ -8,21 +8,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.jcr.RepositoryException;
-import javax.jcr.Session;
 import javax.jcr.nodetype.NodeTypeManager;
 
 import org.apache.jackrabbit.api.JackrabbitNodeTypeManager;
 import org.apache.jackrabbit.core.TransientRepository;
 import org.apache.jackrabbit.core.nodetype.NodeTypeManagerImpl;
-import org.openl.config.ConfigSet;
-import org.openl.rules.common.impl.CommonVersionImpl;
-import org.openl.rules.repository.RProductionRepository;
-import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.repository.jcr.JcrNT;
-import org.openl.rules.repository.jcr.JcrProductionRepository;
 import org.openl.rules.repository.utils.UserUtil;
-import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -43,21 +35,9 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
      */
     protected TransientRepository repository;
     protected File repHome;
-    protected boolean convert = false;
 
-    @Override
-    protected void finalize() throws Throwable {
-        try {
-            release();
-        } catch (RRepositoryException e) {
-            try {
-                log.error("finalize", e);
-            } catch (Throwable ignored) {
-            }
-        } catch (Throwable ignored) {
-        } finally {
-            super.finalize();
-        }
+    public LocalJackrabbitRepositoryFactory(String uri, String login, String password, boolean designMode) {
+        super(uri, login, password, designMode);
     }
 
     private static boolean isFileLocked(File file) {
@@ -96,7 +76,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
     private void init() throws RepositoryException {
         try {
             String jackrabbitConfig;
-            if (StringUtils.isEmpty(login.getValue())) {
+            if (StringUtils.isEmpty(login)) {
                 jackrabbitConfig = "/jackrabbit-repository.xml";
             } else {
                 jackrabbitConfig = "/secure-jackrabbit-repository.xml";
@@ -113,10 +93,6 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
             IOUtils.copyAndClose(input, tempRepositorySettingsStream);
 
             createTransientRepo(tempRepositorySettings);
-
-            // Register shut down hook
-            ShutDownHook shutDownHook = new ShutDownHook(this);
-            Runtime.getRuntime().addShutdownHook(shutDownHook);
         } catch (IOException e) {
             throw new RepositoryException("Failed to init: " + e.getMessage(), e);
         }
@@ -126,10 +102,8 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
      * {@inheritDoc}
      */
     @Override
-    public void initialize(ConfigSet confSet) throws RRepositoryException {
-        super.initialize(confSet);
-
-        repHome = new File(uri.getValue());
+    public void initialize() throws RRepositoryException {
+        repHome = new File(this.uri);
 
         try {
             init();
@@ -137,129 +111,7 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to initialize JCR: " + e.getMessage(), e);
         }
-    }
-
-    @Override
-    protected void checkSchemaVersion(NodeTypeManager ntm) throws RepositoryException {
-        String schemaVersion = getCurrentSchemaVersion(ntm);
-        // compare expected and repository schema versions
-        String expectedVersion = getExpectedSchemaVersion();
-        if (!expectedVersion.equals(schemaVersion)) {
-            // TODO Remove conversion sometimes
-            if (ProductionRepositoryConvertor.from.compareTo(new CommonVersionImpl(schemaVersion)) == 0
-                    && ProductionRepositoryConvertor.to.compareTo(new CommonVersionImpl(expectedVersion)) == 0) {
-                convert = true;
-                return;//success
-            }
-            throw new RepositoryException("Schema version is different. Has (" + schemaVersion + ") when ("
-                    + expectedVersion + ") expected.");
-        }
-    }
-
-    private void convert() throws RRepositoryException {
-        if (designRepositoryMode) {
-            convertDessignRepo();
-        } else {
-            convertProdRepo();
-        }
-    }
-
-    private void convertDessignRepo() throws RRepositoryException {
-        RRepository repositoryInstance = null;
-        File tempRepoHome;
-        try {
-            repositoryInstance = super.getRepositoryInstance();
-            tempRepoHome = FileUtils.createTempDirectory();
-            //FIXME
-            RepositoryConvertor repositoryConvertor = new RepositoryConvertor(confRulesProjectsLocation.getValue(),
-                    confDeploymentProjectsLocation.getValue(), tempRepoHome);
-            log.info("Converting repository. Please, be patient.");
-            repositoryConvertor.convert(repositoryInstance);
-        } catch (Exception e) {
-            throw new RRepositoryException("Failed to convert repository.", e);
-        } finally {
-            if (repositoryInstance != null) {
-                repositoryInstance.release();
-            }
-        }
-        if (isProductionRepository()) {
-            try {
-                Session session = createSession();
-
-                JcrProductionRepository productionRepository = new JcrProductionRepository(session);
-                ProductionRepositoryConvertor repositoryConvertor = new ProductionRepositoryConvertor(tempRepoHome);
-                log.info("Converting production repository. Please, be patient.");
-                repositoryConvertor.convert(productionRepository);
-            } catch (Exception e) {
-                throw new RRepositoryException("Failed to convert repository.", e);
-            } finally {
-                if (repositoryInstance != null) {
-                    repositoryInstance.release();
-                }
-            }
-        }
-        try {
-            FileUtils.delete(repHome);
-            FileUtils.move(tempRepoHome, repHome);
-        } catch (IOException e) {
-            throw new RRepositoryException("Failed to convert repository.", e);
-        }
-
-    }
-
-    private void convertProdRepo() throws RRepositoryException {
-        RProductionRepository repositoryInstance = null;
-        File tempRepoHome;
-        try {
-            // FIXME: do not hardcode credential info
-            Session session = createSession();
-            repositoryInstance = new JcrProductionRepository(session);
-            tempRepoHome = FileUtils.createTempDirectory();
-            // FIXME
-            ProductionRepositoryConvertor repositoryConvertor = new ProductionRepositoryConvertor(tempRepoHome);
-            log.info("Converting production repository. Please, be patient.");
-            repositoryConvertor.convert(repositoryInstance);
-        } catch (Exception e) {
-            throw new RRepositoryException("Failed to convert repository.", e);
-        } finally {
-            if (repositoryInstance != null) {
-                repositoryInstance.release();
-            }
-        }
-
-        try {
-            FileUtils.delete(repHome);
-            FileUtils.move(tempRepoHome, repHome);
-        } catch (IOException e) {
-            throw new RRepositoryException("Failed to convert repository.", e);
-        }
-    }
-
-    private boolean isProductionRepository() {
-        Session systemSession = null;
-        try {
-            systemSession = createSession();
-            NodeTypeManager ntm = systemSession.getWorkspace().getNodeTypeManager();
-
-            // Does JCR know anything about OpenL?
-            return ntm.hasNodeType(JcrNT.NT_PROD_PROJECT);
-        } catch (RepositoryException e) {
-            return false;
-        } finally {
-            if (systemSession != null) {
-                systemSession.logout();
-            }
-        }
-    }
-
-    @Override
-    public RRepository createRepository() throws RRepositoryException {
-        if (convert) {
-            convert();
-            convert = false;
-        }
-
-        return super.createRepository();
+        super.initialize();
     }
 
     /**

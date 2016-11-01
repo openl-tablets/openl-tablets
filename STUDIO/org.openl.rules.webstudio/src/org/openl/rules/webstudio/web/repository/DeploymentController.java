@@ -301,7 +301,7 @@ public class DeploymentController {
                 try {
                     RulesProject project = workspace.getProject(projectName);
                     if (!project.isOpenedForEditing()) {
-                        project.openVersion(item.getVersion());
+                        project.openVersion(item.getVersion().getVersionName());
                     }
                     repositoryTreeState.refreshNode(repositoryTreeState.getRulesRepository().getChild(RepositoryUtils.getTreeNodeId(projectName)));
                 } catch (ProjectException e) {

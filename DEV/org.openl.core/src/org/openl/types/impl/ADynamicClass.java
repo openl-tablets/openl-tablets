@@ -103,13 +103,11 @@ public abstract class ADynamicClass extends AOpenClass {
     }
 
     public boolean isAssignableFrom(IOpenClass ioc) {
-        // TODO Auto-generated method stub
-        return false;
+        return instanceClass.isAssignableFrom(ioc.getInstanceClass());
     }
 
     public boolean isInstance(Object instance) {
-        // TODO Auto-generated method stub
-        return false;
+        return instanceClass.isInstance(instance);
     }
 
     public Iterable<IOpenClass> superClasses() {

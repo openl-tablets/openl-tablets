@@ -88,7 +88,7 @@ public class JcrVersion implements RVersion {
     }
     // --- protected
 
-    public int getRevision() {
+    public String getRevision() {
         return version.getRevision();
     }
 
@@ -131,7 +131,7 @@ public class JcrVersion implements RVersion {
 
     protected void nextRevision() {
         // only project can call this method
-        int newRevision = version.getRevision();
+        int newRevision = Integer.valueOf(version.getRevision());
         newRevision++;
 
         version = new CommonVersionImpl(newRevision);

@@ -1,8 +1,11 @@
 package org.openl.rules.repository;
 
+import java.io.InputStream;
 import java.util.List;
 
+import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.repository.api.ResourceAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
 /**
@@ -92,8 +95,11 @@ public interface RRepository {
     FolderAPI createRulesProject(String name) throws RRepositoryException;
 
     FolderAPI getDeploymentProject(String name) throws RRepositoryException;
- 
+
     List<FolderAPI> getDeploymentProjects() throws RRepositoryException;
+
+    String getDeploymentConfigRootPath() throws RRepositoryException;
+    String getDeploymentsRootPath() throws RRepositoryException;
 
     /**
      * Gets project by name.
@@ -112,6 +118,8 @@ public interface RRepository {
      */
     List<FolderAPI> getRulesProjects() throws RRepositoryException;
 
+    String getRulesProjectsRootPath() throws RRepositoryException;
+
     /**
      * Gets list of projects from the repository that are marked for deletion.
      *
@@ -123,4 +131,11 @@ public interface RRepository {
     void removeRepositoryListener(RRepositoryListener listener);
     List<RRepositoryListener> getRepositoryListeners();
 
+    List<ResourceAPI> getResources(String path) throws RRepositoryException;
+
+    ArtefactAPI getArtefact(String name) throws RRepositoryException;
+
+    ResourceAPI createResource(String name, InputStream inputStream) throws RRepositoryException;
+
+    ArtefactAPI rename(String path, String destination) throws RRepositoryException;
 }

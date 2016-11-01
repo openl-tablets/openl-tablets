@@ -6,12 +6,18 @@
 
 package org.openl.conf;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.INodeBinder;
 import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.binding.impl.MethodSearch;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.cache.GenericKey;
 import org.openl.syntax.ISyntaxNode;
@@ -20,6 +26,8 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenFactory;
 import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethod;
+import org.openl.types.impl.MethodKey;
 
 /**
  * @author snshor
@@ -150,15 +158,53 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     public IMethodCaller getMethodCaller(String namespace, String name, IOpenClass[] params, ICastFactory casts)
             throws AmbiguousMethodException {
-        IMethodCaller mc = methodFactory == null ? null : methodFactory.getMethodCaller(namespace, name, params, casts,
-                configurationContext);
+        
+        IOpenMethod[] mcs = getMethods(namespace, name);
 
-        if (mc != null) {
-            return mc;
+        return MethodSearch.getCastingMethodCaller(name, params, casts, Arrays.asList(mcs));
+    }
+    
+    public IOpenMethod[] getMethods(String namespace, String name) {
+        IOpenMethod[] mcs = methodFactory == null ? new IOpenMethod[] {}
+                                                    : methodFactory.getMethods(namespace,
+                                                        name,
+                                                        configurationContext);
+        IOpenMethod[] pmcs = parent == null ? new IOpenMethod[] {} : parent.getMethods(namespace, name);
+
+        // Shadowing
+        Map<MethodKey, Collection<IOpenMethod>> methods = new HashMap<MethodKey, Collection<IOpenMethod>>();
+        for (IOpenMethod method : pmcs) {
+            MethodKey mk = new MethodKey(method);
+            Collection<IOpenMethod> callers = methods.get(mk);
+            if (callers == null) {
+                callers = new ArrayList<IOpenMethod>();
+                methods.put(mk, callers);
+            }
+            callers.add(method);
         }
 
-        return parent == null ? null : parent.getMethodCaller(namespace, name, params, casts);
-
+        Set<MethodKey> usedKeys = new HashSet<MethodKey>();
+        for (IOpenMethod method : mcs) {
+            MethodKey mk = new MethodKey(method);
+            Collection<IOpenMethod> callers = methods.get(mk);
+            if (callers == null) {
+                usedKeys.add(mk);
+                callers = new ArrayList<IOpenMethod>();
+                methods.put(mk, callers);
+            }
+            if (!usedKeys.contains(mk)) {
+                usedKeys.add(mk);
+                callers = new ArrayList<IOpenMethod>();
+                methods.put(mk, callers);
+            }
+            callers.add(method);
+        }
+        
+        Collection<IOpenMethod> openMethods = new ArrayList<IOpenMethod>();
+        for (Collection<IOpenMethod> m : methods.values()) {
+            openMethods.addAll(m);
+        }
+        return openMethods.toArray(new IOpenMethod[] {});
     }
 
     public LibraryFactoryConfiguration getMethodFactory() {

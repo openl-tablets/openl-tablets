@@ -194,7 +194,7 @@ public final class NodeUtil {
 
         Node versionHistoryNode = node.getProperty("jcr:childVersionHistory").getNode();
 
-        int projectRevision = version.getRevision();
+        int projectRevision = Integer.parseInt(version.getRevision());
 
         int correctVRev = -1;
         Node correctVNode = null;

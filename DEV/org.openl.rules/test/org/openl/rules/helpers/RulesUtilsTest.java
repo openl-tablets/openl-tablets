@@ -1,6 +1,10 @@
 package org.openl.rules.helpers;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -2451,7 +2455,7 @@ public class RulesUtilsTest {
         ByteValue[] expectedArray = {new ByteValue("0"), new ByteValue("1"),
                 new ByteValue("2")};
 
-        assertNull(RulesUtils.sort(nullArray));
+        assertNull(ByteValue.sort(nullArray));
         assertArrayEquals(expectedArray, instance.testSortByteValue(inputArray));
     }
 
@@ -2463,7 +2467,7 @@ public class RulesUtilsTest {
         ShortValue[] expectedArray = {new ShortValue("0"),
                 new ShortValue("1"), new ShortValue("2")};
 
-        assertNull(RulesUtils.sort(nullArray));
+        assertNull(ShortValue.sort(nullArray));
         assertArrayEquals(expectedArray,
                 instance.testSortShortValue(inputArray));
     }
@@ -2476,7 +2480,7 @@ public class RulesUtilsTest {
         IntValue[] expectedArray = {new IntValue(0), new IntValue(1),
                 new IntValue(2)};
 
-        assertNull(RulesUtils.sort(nullArray));
+        assertNull(IntValue.sort(nullArray));
         assertArrayEquals(expectedArray,
                 instance.testSortIntegerValue(inputArray));
     }
@@ -2489,7 +2493,7 @@ public class RulesUtilsTest {
         LongValue[] expectedArray = {new LongValue(0l), new LongValue(1l),
                 new LongValue(2l)};
 
-        assertNull(RulesUtils.sort(nullArray));
+        assertNull(LongValue.sort(nullArray));
         assertArrayEquals(expectedArray, instance.testSortLongValue(inputArray));
     }
 
@@ -2501,7 +2505,7 @@ public class RulesUtilsTest {
         FloatValue[] expectedArray = {new FloatValue(-0.4f),
                 new FloatValue(1.1f), new FloatValue(2.1f)};
 
-        assertNull(RulesUtils.sort(nullArray));
+        assertNull(FloatValue.sort(nullArray));
         assertArrayEquals(expectedArray,
                 instance.testSortFloatValue(inputArray));
     }
@@ -2514,7 +2518,7 @@ public class RulesUtilsTest {
         DoubleValue[] expectedArray = {new DoubleValue(-0.4),
                 new DoubleValue(1.1), new DoubleValue(2.1)};
 
-        assertNull(RulesUtils.sort(nullArray));
+        assertNull(DoubleValue.sort(nullArray));
         assertArrayEquals(expectedArray,
                 instance.testSortDoubleValue(inputArray));
     }
@@ -2553,7 +2557,7 @@ public class RulesUtilsTest {
         BigIntegerValue[] expectedArray = {new BigIntegerValue("-0"),
                 new BigIntegerValue("1"), new BigIntegerValue("2")};
 
-        assertNull(RulesUtils.sort(nullArray));
+        assertNull(BigIntegerValue.sort(nullArray));
         assertArrayEquals(expectedArray,
                 instance.testSortBigIntegerValue(inputArray));
     }
@@ -2566,7 +2570,7 @@ public class RulesUtilsTest {
         BigDecimalValue[] expectedArray = {new BigDecimalValue("-0.1"),
                 new BigDecimalValue("1.9"), new BigDecimalValue("2.2")};
 
-        assertNull(RulesUtils.sort(nullArray));
+        assertNull(BigDecimalValue.sort(nullArray));
         assertArrayEquals(expectedArray,
                 instance.testSortBigDecimalValue(inputArray));
     }

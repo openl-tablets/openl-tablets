@@ -11,20 +11,18 @@ import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.result.DefaultResultBuilder;
 import org.openl.rules.calc.result.IResultBuilder;
-import org.openl.rules.calc.result.gen.CustomSpreadsheetResultByteCodeGenerator;
-import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
-import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.Point;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 @Executable
 public class Spreadsheet extends ExecutableRulesMethod {
+
+    public static final String SPREADSHEETRESULT_TYPE_PREFIX = "SpreadsheetResult";
 
     private IResultBuilder resultBuilder;
 
@@ -106,19 +104,18 @@ public class Spreadsheet extends ExecutableRulesMethod {
         }
         return spreadsheetCustomType;
     }
-
+    
     private void initCustomSpreadsheetResultType() {
         Map<String, IOpenField> spreadsheetOpenClassFields = getSpreadsheetType().getFields();
         spreadsheetOpenClassFields.remove("this");
-
-        /** get fields coordinates */
+        String typeName = SPREADSHEETRESULT_TYPE_PREFIX + getName();
         Map<String, Point> fieldCoordinates = getFieldsCoordinates();
-
-        Map<String, FieldDescription> beanFields = ByteCodeGeneratorHelper.convertFields(spreadsheetOpenClassFields);
-        CustomSpreadsheetResultByteCodeGenerator gen = new CustomSpreadsheetResultByteCodeGenerator(
-                "SpreadsheetResult" + getName(), beanFields, fieldCoordinates);
-        Class<?> customSPR = gen.generateAndLoadBeanClass();
-        spreadsheetCustomType = JavaOpenClass.getOpenClass(customSPR);
+        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(typeName, getRowNames(), getColumnNames(), fieldCoordinates);
+        for (IOpenField field : spreadsheetOpenClassFields.values()) {
+            CustomSpreadsheetResultField customSpreadsheetResultField = new CustomSpreadsheetResultField(spreadsheetCustomType, field.getName(), field.getType());
+            customSpreadsheetResultOpenClass.addField(customSpreadsheetResultField);
+        }
+        spreadsheetCustomType = customSpreadsheetResultOpenClass;
     }
 
     public SpreadsheetCell[][] getCells() {

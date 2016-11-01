@@ -44,8 +44,6 @@ public class XlsLoader {
 
     private Collection<String> imports = new HashSet<String>();
     
-    private Collection<String> libraries = new HashSet<String>();
-
     private IncludeSearcher includeSeeker;
 
     // private IUserContext userContext;
@@ -94,8 +92,7 @@ public class XlsLoader {
                 source,
                 openl,
                 vocabulary,
-                Collections.unmodifiableCollection(imports),
-                Collections.unmodifiableCollection(libraries)
+                Collections.unmodifiableCollection(imports)
         );
 
         SyntaxNodeException[] parsingErrors = errors.toArray(new SyntaxNodeException[errors.size()]);
@@ -127,8 +124,6 @@ public class XlsLoader {
                 preprocessIncludeTable(tableSyntaxNode, row.getSource(), source);
             } else if (IXlsTableNames.IMPORT_PROPERTY.equals(name)) {
                 preprocessImportTable(row.getSource());
-            } else if (IXlsTableNames.LIBRARY_PROPERTY.equals(name)) {
-                preprocessLibraryTable(row.getSource());
             } else if (IXlsTableNames.VOCABULARY_PROPERTY.equals(name)) {
                 preprocessVocabularyTable(row.getSource(), source);
             } else if (ParserUtils.isBlankOrCommented(name)) {
@@ -173,24 +168,10 @@ public class XlsLoader {
         }
     }
     
-    private void preprocessLibraryTable(IGridTable table) {
-        int height = table.getHeight();
-        for (int i = 0; i < height; i++) {
-            String singleLibrary = table.getCell(1, i).getStringValue();
-            if (StringUtils.isNotBlank(singleLibrary)) {
-                addLibrary(singleLibrary.trim());
-            }
-        }
-    }
-
     private void addImport(String singleImport) {
         imports.add(singleImport);
     }
     
-    private void addLibrary(String library) {
-        libraries.add(library);
-    }
-
     private void addInnerImports() {
         addImport("org.openl.rules.enumeration");
     }

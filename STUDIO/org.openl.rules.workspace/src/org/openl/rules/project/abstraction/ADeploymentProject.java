@@ -1,9 +1,12 @@
 package org.openl.rules.project.abstraction;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
@@ -12,13 +15,19 @@ import org.openl.rules.common.ProjectDescriptorHelper;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
+import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.repository.api.ArtefactProperties;
-import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class stores only deployment configuration, not deployed projects!
+ * For the latter see {@link Deployment} class.
+ */
 public class ADeploymentProject extends UserWorkspaceProject {
     private final Logger log = LoggerFactory.getLogger(ADeploymentProject.class);
 
@@ -27,8 +36,12 @@ public class ADeploymentProject extends UserWorkspaceProject {
     /* this button is used for rendering the save button (only for deploy configuration)*/
     private boolean modifiedDescriptors = false;
 
-    public ADeploymentProject(FolderAPI api, WorkspaceUser user) {
-        super(api, user);
+    public ADeploymentProject(WorkspaceUser user, Repository repository, String folderPath, String version) {
+        super(user, repository, folderPath, version);
+    }
+
+    public ADeploymentProject(WorkspaceUser user, Repository repository, FileData fileData) {
+        super(user, repository, fileData);
     }
 
     @Override
@@ -68,10 +81,11 @@ public class ADeploymentProject extends UserWorkspaceProject {
         throw new ProjectException(String.format("Project descriptor with name \"%s\" is not found", name));
     }
 
-    public void openVersion(CommonVersion version) throws ProjectException {
+    public void openVersion(String version) throws ProjectException {
         modifiedDescriptors = false;
-        FolderAPI openedProjectVersion = getAPI().getVersion(version);
-        openedVersion = new ADeploymentProject(openedProjectVersion, getUser());
+        openedVersion = new ADeploymentProject(getUser(), getRepository(), getFolderPath(), version);
+        openedVersion.setHistoryVersion(version);
+        setHistoryVersion(version);
         refresh();
     }
 
@@ -86,14 +100,19 @@ public class ADeploymentProject extends UserWorkspaceProject {
     @Override
     public ProjectVersion getVersion() {
         if (openedVersion == null) {
-            return getAPI().getVersion();
+            if (getHistoryVersion() == null) {
+                return isFolder() ? null : super.getVersion();
+            } else {
+                return new RepositoryProjectVersionImpl(getHistoryVersion(), null);
+
+            }
         } else {
             return openedVersion.getVersion();
         }
     }
 
     public boolean isOpened() {
-        return openedVersion != null || isOpenedForEditing();
+        return openedVersion != null; //|| isOpenedForEditing();
     }
 
     public void edit(CommonUser user) throws ProjectException {
@@ -110,18 +129,35 @@ public class ADeploymentProject extends UserWorkspaceProject {
             }
         } else {
             InputStream inputStream = ProjectDescriptorHelper.serialize(descriptors);
-            AProjectResource resource;
-            if (hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
-                resource = ((AProjectResource) getArtefact(ArtefactProperties.DESCRIPTORS_FILE));
-                resource.setContent(inputStream);
-            } else {
-                resource = addResource(ArtefactProperties.DESCRIPTORS_FILE, inputStream);
+
+            // Archive the folder using zip
+            FileData fileData = getFileData();
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            ZipOutputStream zipOutputStream = null;
+            try {
+                zipOutputStream = new ZipOutputStream(out);
+
+                ZipEntry entry = new ZipEntry(ArtefactProperties.DESCRIPTORS_FILE);
+                zipOutputStream.putNextEntry(entry);
+
+                IOUtils.copy(inputStream, zipOutputStream);
+
+                inputStream.close();
+                zipOutputStream.closeEntry();
+
+                zipOutputStream.close();
+            } catch (IOException e) {
+                throw new ProjectException(e.getMessage(), e);
+            } finally {
+                IOUtils.closeQuietly(zipOutputStream);
             }
-            resource.commit(user);
+
+            fileData.setAuthor(user.getUserName());
+            setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
         }
 
         modifiedDescriptors = false;
-        super.save(user);
+//        super.save(user);
         open();
     }
 

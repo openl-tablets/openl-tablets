@@ -207,7 +207,12 @@ public class RunTest extends TestCase {
 
         _runNoError("int x=5, y=7; x < y ? 'a'+1 : 'b'+1", 'a' + 1, OpenL.OPENL_J_NAME);
         _runNoError("int x=5, y=7; x < y ? 0.7 : 3", 0.7, OpenL.OPENL_J_NAME);
+        _runNoError("int x=5, y=7; x >= y ? 3 : 0.7", 0.7, OpenL.OPENL_J_NAME);
+        _runNoError("int x=5, y=7; x >= y ? null : 0.7", 0.7, OpenL.OPENL_J_NAME);
+        _runNoError("int x=5, y=7; x < y ? 0.7 : null", 0.7, OpenL.OPENL_J_NAME);
         _runNoError("int x=5, y=7; x < y ? 3 : (int)0.7", 3, OpenL.OPENL_J_NAME);
+        _runNoError("Number x=new Integer(5);Integer y = 7; 5 < 4 ? x : y", 7, OpenL.OPENL_J_NAME);
+        
 
         _runNoError("int x=5, y=7; x << y ", 5 << 7, OpenL.OPENL_J_NAME);
         _runNoError("long x=5;int y=7; x << y ", (long) 5 << 7, OpenL.OPENL_J_NAME);

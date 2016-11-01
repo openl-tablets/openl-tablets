@@ -46,7 +46,7 @@ public class DuplicateDatatypesTest {
 			openClass.throwErrorExceptionsIfAny();
 			fail("Should throw exception, as there is datatype duplication");
 		} catch (Exception e) {
-			assertTrue(e.getMessage().contains("Type org.openl.this::TestType2 has been defined already"));			
+			assertTrue(e.getMessage().contains("The type TestType2 has been already defined"));			
 		}
 	}
 }

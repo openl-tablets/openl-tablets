@@ -5,7 +5,6 @@ import org.openl.rules.repository.RDeploymentDescriptorProject;
 import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.RRepositoryListener;
 import org.openl.rules.repository.RRepositoryListener.RRepositoryEvent;
-import org.openl.rules.repository.RTransactionManager;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -38,20 +37,20 @@ public class JcrRepository extends BaseJcrRepository {
     private static final String QUERY_DDPROJECTS = "//element(*, " + JcrNT.NT_DEPLOYMENT_PROJECT + ")";
 
     private Node defRulesLocation;
-    private Node defDeploymentsLocation;
+    private Node defDeploymentConfigLocation;
 
     private List<RRepositoryListener> listeners = new ArrayList<RRepositoryListener>();
 
     public JcrRepository(Session session,
             String defRulesPath,
-            String defDeploymentsPath)
+            String defDeploymentConfigPath)
             throws RepositoryException {
         super(session);
 
         defRulesLocation = checkPath(defRulesPath);
-        defDeploymentsLocation = checkPath(defDeploymentsPath);
+        defDeploymentConfigLocation = checkPath(defDeploymentConfigPath);
 
-        if (defRulesLocation.isNew() || defDeploymentsLocation.isNew()) {
+        if (defRulesLocation.isNew() || defDeploymentConfigLocation.isNew()) {
             // save all at once
             session.save();
         }
@@ -66,7 +65,7 @@ public class JcrRepository extends BaseJcrRepository {
     @Deprecated
     public RDeploymentDescriptorProject createDDProject(String nodeName) throws RRepositoryException {
         try {
-            return JcrDeploymentDescriptorProject.createProject(defDeploymentsLocation, nodeName);
+            return JcrDeploymentDescriptorProject.createProject(defDeploymentConfigLocation, nodeName);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to create DDProject ''{0}''.", e, nodeName);
         }
@@ -84,11 +83,11 @@ public class JcrRepository extends BaseJcrRepository {
     @Deprecated
     public RDeploymentDescriptorProject getDDProject(String name) throws RRepositoryException {
         try {
-            if (!defDeploymentsLocation.hasNode(name)) {
+            if (!defDeploymentConfigLocation.hasNode(name)) {
                 throw new RRepositoryException("Cannot find Project ''{0}''.", null, name);
             }
 
-            Node n = defDeploymentsLocation.getNode(name);
+            Node n = defDeploymentConfigLocation.getNode(name);
             return new JcrDeploymentDescriptorProject(n);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get DDProject ''{0}''.", e, name);
@@ -165,7 +164,7 @@ public class JcrRepository extends BaseJcrRepository {
 
     public boolean hasDeploymentProject(String name) throws RRepositoryException {
         try {
-            return defDeploymentsLocation.hasNode(name);
+            return defDeploymentConfigLocation.hasNode(name);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to check project ''{0}''", e, name);
         }
@@ -206,9 +205,9 @@ public class JcrRepository extends BaseJcrRepository {
 
     public FolderAPI createDeploymentProject(String name) throws RRepositoryException {
         try {
-            Node node = NodeUtil.createNode(defDeploymentsLocation, name,
+            Node node = NodeUtil.createNode(defDeploymentConfigLocation, name,
                     JcrNT.NT_APROJECT, true);
-            defDeploymentsLocation.save();
+            defDeploymentConfigLocation.save();
             node.checkin();
             return new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{name}));
         } catch (RepositoryException e) {
@@ -230,11 +229,11 @@ public class JcrRepository extends BaseJcrRepository {
 
     public FolderAPI getDeploymentProject(String name) throws RRepositoryException {
         try {
-            if (!defDeploymentsLocation.hasNode(name)) {
+            if (!defDeploymentConfigLocation.hasNode(name)) {
                 throw new RRepositoryException("Cannot find Project ''{0}''.", null, name);
             }
 
-            Node n = defDeploymentsLocation.getNode(name);
+            Node n = defDeploymentConfigLocation.getNode(name);
             return new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{name}));
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get DDProject ''{0}''.", e, name);
@@ -244,7 +243,7 @@ public class JcrRepository extends BaseJcrRepository {
     public List<FolderAPI> getDeploymentProjects() throws RRepositoryException {
         NodeIterator ni;
         try {
-            ni = defDeploymentsLocation.getNodes();
+            ni = defDeploymentConfigLocation.getNodes();
         } catch (RepositoryException e) {
             throw new RRepositoryException("Cannot get any deployment project", e);
         }
@@ -300,6 +299,36 @@ public class JcrRepository extends BaseJcrRepository {
         return result;
     }
 
+    @Override
+    public String getRulesProjectsRootPath() throws RRepositoryException {
+        try {
+            return removeLeadingSlash(defRulesLocation.getPath());
+        } catch (RepositoryException e) {
+            throw new RRepositoryException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public String getDeploymentConfigRootPath() throws RRepositoryException {
+        try {
+            return removeLeadingSlash(defDeploymentConfigLocation.getPath());
+        } catch (RepositoryException e) {
+            throw new RRepositoryException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public String getDeploymentsRootPath() throws RRepositoryException {
+        return null;
+    }
+
+    private String removeLeadingSlash(String path) {
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        return path;
+    }
+
     public List<FolderAPI> getRulesProjectsForDeletion() throws RRepositoryException {
         NodeIterator ni = runQuery("//element(*, " + JcrNT.NT_APROJECT + ") [@"
                 + ArtefactProperties.PROP_PRJ_MARKED_4_DELETION + "]");
@@ -344,8 +373,8 @@ public class JcrRepository extends BaseJcrRepository {
                             listener.onEventInRulesProjects(new RRepositoryEvent(extractProjectName(relativePath)));
                         }
                     }
-                } else if (path.startsWith(defDeploymentsLocation.getPath() + "/")) {
-                    String relativePath = path.substring(defDeploymentsLocation.getPath().length() + 1);
+                } else if (path.startsWith(defDeploymentConfigLocation.getPath() + "/")) {
+                    String relativePath = path.substring(defDeploymentConfigLocation.getPath().length() + 1);
                     if (isProjectDeletedEvent(event, relativePath) || isProjectModifiedEvent(event, relativePath)) {
                         for (RRepositoryListener listener : listeners) {
                             listener.onEventInDeploymentProjects(new RRepositoryEvent(extractProjectName(relativePath)));
@@ -368,5 +397,11 @@ public class JcrRepository extends BaseJcrRepository {
 
     public List<RRepositoryListener> getRepositoryListeners() {
         return listeners;
+    }
+
+    @Override
+    protected boolean isBaseNode(Node node) throws RepositoryException {
+        String path = node.getPath();
+        return path.equals(defRulesLocation.getPath()) || path.equals(defDeploymentConfigLocation.getPath());
     }
 }

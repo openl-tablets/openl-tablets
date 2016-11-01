@@ -14,6 +14,10 @@ import org.infinispan.loaders.jdbc.configuration.JdbcStringBasedCacheStoreConfig
  */
 public class JdbcDBRepositoryFactory extends DBRepositoryFactory {
 
+    public JdbcDBRepositoryFactory(String uri, String login, String password, boolean designMode) {
+        super(uri, login, password, designMode);
+    }
+
     Connection createConnection(String url, String user, String password) {
         Connection conn;
         try {

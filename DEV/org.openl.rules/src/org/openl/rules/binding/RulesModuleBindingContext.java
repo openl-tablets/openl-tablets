@@ -13,21 +13,24 @@ import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.MethodSearch;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.engine.OpenLSystemProperties;
+import org.openl.exception.OpenLCompilationException;
+import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextDelegator;
 import org.openl.rules.context.RulesRuntimeContextFactory;
-import org.openl.rules.lang.xls.PrebindOpenMethod;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenMethodHeader;
+import org.openl.types.impl.CastingMethodCaller;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
+import org.openl.util.StringTool;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +53,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
      */
     private List<IOpenMethod> internalMethods;
     
-    private Map<IOpenMethodHeader, IOpenMethod> internalPrebindMethods = new HashMap<IOpenMethodHeader, IOpenMethod>();
+    private PreBinderMethods preBinderMethods = new PreBinderMethods();
     
     public RulesModuleBindingContext(IBindingContext delegate,
             ModuleOpenClass module) {
@@ -87,35 +90,108 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     
     @Override
     public IMethodCaller findMethodCaller(String namespace, final String methodName, IOpenClass[] parTypes) throws AmbiguousMethodException {
-        IMethodCaller method = super.findMethodCaller(namespace, methodName, parTypes);
-        if (method == null) {
-            Iterable<IOpenMethod> select = CollectionUtils.findAll(internalMethods, new CollectionUtils.Predicate<IOpenMethod>() {
-                @Override public boolean evaluate(IOpenMethod method) {
+        Iterable<IOpenMethod> select = CollectionUtils.findAll(preBinderMethods.values(),
+            new CollectionUtils.Predicate<IOpenMethod>() {
+                @Override
+                public boolean evaluate(IOpenMethod method) {
                     return methodName.equals(method.getName());
                 }
             });
-            method = MethodSearch.getCastingMethodCaller(methodName, parTypes, this, select);
+        IMethodCaller method = MethodSearch.getCastingMethodCaller(methodName, parTypes, this, select);
+        if (method != null) {
+            RecursiveOpenMethodPreBinder openMethodBinder = null;
+            if (method instanceof RecursiveOpenMethodPreBinder) {
+                openMethodBinder = (RecursiveOpenMethodPreBinder) method;
+            }
+            if (method instanceof CastingMethodCaller) {
+                openMethodBinder = (RecursiveOpenMethodPreBinder) ((CastingMethodCaller) method).getMethod();
+            }
+            method = null;
+            if (openMethodBinder.isPreBinding()){
+                method = super.findMethodCaller(namespace, methodName, parTypes);
+                if (method == null) {
+                    Iterable<IOpenMethod> internalselect = CollectionUtils.findAll(internalMethods, new CollectionUtils.Predicate<IOpenMethod>() {
+                        @Override public boolean evaluate(IOpenMethod method) {
+                            return methodName.equals(method.getName());
+                        }
+                    });
+                    method = MethodSearch.getCastingMethodCaller(methodName, parTypes, this, internalselect);
+                }
+                if (method != null){
+                    return method;
+                }
+                throw new RecursiveMethodPreBindingException();
+            }
+            openMethodBinder.preBind();
+            preBinderMethods.remove(openMethodBinder.getHeader());
         }
+        
+        method = super.findMethodCaller(namespace, methodName, parTypes);
         if (method == null) {
-            Iterable<IOpenMethod> select = CollectionUtils.findAll(internalPrebindMethods.values(), new CollectionUtils.Predicate<IOpenMethod>() {
+            Iterable<IOpenMethod> internalselect = CollectionUtils.findAll(internalMethods, new CollectionUtils.Predicate<IOpenMethod>() {
                 @Override public boolean evaluate(IOpenMethod method) {
                     return methodName.equals(method.getName());
                 }
             });
-            method = MethodSearch.getCastingMethodCaller(methodName, parTypes, this, select);
+            method = MethodSearch.getCastingMethodCaller(methodName, parTypes, this, internalselect);
         }
         return method;
     }
     
-    public void addPrebindMethod(OpenMethodHeader openMethodHeader, PrebindOpenMethod method){
-        internalPrebindMethods.put(openMethodHeader, method);
+    protected synchronized void add(String nameWithNamespace, IOpenClass type) throws OpenLCompilationException {
+        if (type instanceof CustomDynamicOpenClass) {
+            CustomDynamicOpenClass customDynamicOpenClass = (CustomDynamicOpenClass) type;
+            String namespace = StringTool.getNamespace(nameWithNamespace);
+            String typeName = StringTool.getTypeName(nameWithNamespace);
+            IOpenClass openClass = super.findType(namespace, typeName);
+            if (openClass == null) {
+                IOpenClass t = getModule().addType(namespace, type); 
+                super.add(nameWithNamespace, t);
+            } else {
+                customDynamicOpenClass.updateOpenClass(openClass);
+            }
+        } else {
+            super.add(nameWithNamespace, type);
+        }
     }
     
-    public void bindPrebindMethod(OpenMethodHeader openMethodHeader, IOpenMethod openMethod){
-        PrebindOpenMethod prebindOpenMethod = (PrebindOpenMethod) internalPrebindMethods.get(openMethodHeader);
-        prebindOpenMethod.setMethodCaller(openMethod);
+    @Override
+    public IOpenClass findType(String namespace, String typeName) {
+        if (OpenLSystemProperties.isCustomSpreadsheetType(getExternalParams())) {
+            if (typeName.startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX)){
+                String sprMethodName = typeName.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
+                IOpenMethod method = preBinderMethods.get(sprMethodName);
+                if (method != null){
+                    RecursiveOpenMethodPreBinder openMethodBinder = (RecursiveOpenMethodPreBinder) method;
+                    if (openMethodBinder.isPreBinding()){
+                        IOpenClass type = super.findType(namespace, typeName);
+                        if (type != null){
+                            return type;
+                        }else{
+                            throw new RecursiveMethodPreBindingException();
+                        }
+                    }
+                    openMethodBinder.preBind();
+                    preBinderMethods.remove(openMethodBinder.getHeader());
+                }
+            }
+        }
+        return super.findType(namespace, typeName);
     }
-
+    
+    public void addBinderMethod(OpenMethodHeader openMethodHeader, RecursiveOpenMethodPreBinder method){
+        preBinderMethods.put(openMethodHeader, method);
+    }
+    
+    public void preBindMethod(OpenMethodHeader openMethodHeader){
+        IOpenMethod method = preBinderMethods.get(openMethodHeader);
+        if (method != null){
+            RecursiveOpenMethodPreBinder openMethodBinder = (RecursiveOpenMethodPreBinder) method;
+            openMethodBinder.preBind();
+            preBinderMethods.remove(openMethodBinder.getHeader());
+        }
+    }
+    
     public final class CurrentRuntimeContextMethod implements IOpenMethod {
         public final static  String CURRENT_CONTEXT_METHOD_NAME = "getContext";
         

@@ -184,8 +184,8 @@ public class DBMigrationBean {
             locations.add("db/migration/mysql");
         } else if (dialect instanceof SQLServerDialect) {
             locations.add("db/migration/mssqlserver");
-        } else if (dialect instanceof HSQLDialect) {
-            locations.add("db/migration/hsql");
+        } else if (dialect instanceof H2Dialect) {
+            locations.add("db/migration/h2");
         }
 
         return locations.toArray(new String[locations.size()]);

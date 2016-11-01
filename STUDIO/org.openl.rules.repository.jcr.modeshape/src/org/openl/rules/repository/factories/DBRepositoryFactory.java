@@ -26,7 +26,6 @@ import org.modeshape.jcr.JcrNodeTypeManager;
 import org.modeshape.jcr.JcrRepository;
 import org.modeshape.jcr.LocalEnvironment;
 import org.modeshape.jcr.RepositoryConfiguration;
-import org.openl.config.ConfigSet;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -48,19 +47,8 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
      */
     private ModeshapeJcrRepo repo;
 
-    @Override
-    protected void finalize() throws Throwable {
-        try {
-            release();
-        } catch (RRepositoryException e) {
-            try {
-                log.error("finalize", e);
-            } catch (Throwable ignored) {
-            }
-        } catch (Throwable ignored) {
-        } finally {
-            super.finalize();
-        }
+    protected DBRepositoryFactory(String uri, String login, String password, boolean designMode) {
+        super(uri, login, password, designMode);
     }
 
     // ------ private methods ------
@@ -72,9 +60,9 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
     private void init() throws Exception {
         registerDrivers();
 
-        String dbUrl = uri.getValue();
-        String user = login.getValue();
-        String pwd = password.getValue();
+        String dbUrl = uri;
+        String user = login;
+        String pwd = password;
 
         log.info("Checking a connection to DB [{}]", dbUrl);
         Connection conn;
@@ -93,10 +81,6 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
 
         RepositoryConfiguration config = getModeshapeConfiguration(dbUrl, user, pwd, repoID, properties, namesCase);
 
-        // Register shut down hook
-        ShutDownHook shutDownHook = new ShutDownHook(this);
-        Runtime.getRuntime().addShutdownHook(shutDownHook);
-
         log.info("Checking ModeShape configuration...");
         ModeshapeJcrRepo repo = new ModeshapeJcrRepo(config);
 
@@ -110,8 +94,6 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
 
         setRepository(repo);
         log.info("Checking the repository...");
-        getRepositoryInstance();
-        log.info("The repository has loaded");
     }
 
     abstract Connection createConnection(String dbUrl, String user, String pwd);
@@ -195,14 +177,14 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
      * {@inheritDoc}
      */
     @Override
-    public void initialize(ConfigSet confSet) throws RRepositoryException {
-        super.initialize(confSet);
-
+    public void initialize() throws RRepositoryException {
         try {
             init();
         } catch (Exception e) {
             throw new RRepositoryException("Failed to initialize DataBase: " + e.getMessage(), e);
         }
+        super.initialize();
+        log.info("The repository has loaded");
     }
 
     @Override
@@ -233,9 +215,9 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
     }
 
     @Override
-    public void release() throws RRepositoryException {
+    public void close() throws IOException {
         try {
-            super.release();
+            super.close();
         } finally {
             try {
                 if (repo != null) {
@@ -243,7 +225,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
                     repo = null;
                 }
             } catch (Exception e) {
-                throw new RRepositoryException("Shutdown has failed.", e);
+                throw new IOException("Shutdown has failed.", e);
             }
         }
     }

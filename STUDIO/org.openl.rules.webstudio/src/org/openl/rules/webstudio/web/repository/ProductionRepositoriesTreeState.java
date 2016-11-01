@@ -2,11 +2,12 @@ package org.openl.rules.webstudio.web.repository;
 
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
-import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
-import org.openl.rules.repository.RProductionRepository;
-import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.admin.RepositoryType;
@@ -15,6 +16,7 @@ import org.openl.rules.webstudio.web.repository.tree.TreeProductionDProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.webstudio.filter.AllFilter;
 import org.openl.rules.webstudio.filter.IFilter;
+import org.openl.rules.workspace.deploy.DeployUtils;
 import org.richfaces.component.UITree;
 import org.richfaces.event.TreeSelectionChangeEvent;
 import org.slf4j.Logger;
@@ -70,10 +72,10 @@ public class ProductionRepositoriesTreeState {
 
             /*Get repo's deployment configs*/
             IFilter<AProjectArtefact> filter = this.filter;
-            List<ADeploymentProject> repoList = getPRepositoryProjects(repoConfig);
+            List<AProjectFolder> repoList = getPRepositoryProjects(repoConfig);
             Collections.sort(repoList, RepositoryUtils.ARTEFACT_COMPARATOR);
 
-            for (ADeploymentProject project : repoList) {
+            for (AProjectFolder project : repoList) {
                 TreeProductionDProject tpdp = new TreeProductionDProject("" + project.getName().hashCode(), project.getName(), filter);
                 tpdp.setData(project);
                 tpdp.setParent(productionRepository);
@@ -85,18 +87,12 @@ public class ProductionRepositoriesTreeState {
         log.debug("Finishing buildTree()");
     }
 
-    private List<ADeploymentProject> getPRepositoryProjects(RepositoryConfiguration repoConfig) {
+    private List<AProjectFolder> getPRepositoryProjects(RepositoryConfiguration repoConfig) {
         try {
-            RProductionRepository productRepos = productionRepositoryFactoryProxy.getRepositoryInstance(repoConfig.getConfigName());
-            List<ADeploymentProject> prjList = new ArrayList<ADeploymentProject>();
-
-            for (FolderAPI prj : productRepos.getLastDeploymentProjects()) {
-                prjList.add(new ADeploymentProject(prj, null));
-            }
-
-            return prjList;
+            Repository repository = productionRepositoryFactoryProxy.getRepositoryInstance(repoConfig.getConfigName());
+            return new ArrayList<AProjectFolder>(DeployUtils.getLastDeploymentProjects(repository));
         } catch (RRepositoryException e) {
-            return new ArrayList<ADeploymentProject>();
+            return new ArrayList<AProjectFolder>();
         }
 
     }

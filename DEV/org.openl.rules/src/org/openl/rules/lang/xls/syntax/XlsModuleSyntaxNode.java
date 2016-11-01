@@ -35,8 +35,7 @@ public class XlsModuleSyntaxNode extends NaryNode {
             IOpenSourceCodeModule module,
             OpenlSyntaxNode openlNode,
             IdentifierNode vocabularyNode,
-            Collection<String> imports,
-            Collection<String> libraries) {
+            Collection<String> imports) {
         super(XlsNodeTypes.XLS_MODULE.toString(), null, nodes, module);
 
         this.openlNode = openlNode;
@@ -53,14 +52,6 @@ public class XlsModuleSyntaxNode extends NaryNode {
         imports.add(value);
     }
     
-    public Set<String> getLibraries() {
-        return libraries;
-    }
-    
-    public void addLibrary(String library){
-        libraries.add(library);
-    }
-
     public OpenlSyntaxNode getOpenlNode() {
         return openlNode;
     }

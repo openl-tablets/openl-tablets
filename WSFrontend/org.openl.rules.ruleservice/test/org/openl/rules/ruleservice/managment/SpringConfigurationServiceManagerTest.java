@@ -20,7 +20,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties={"ruleservice.datasource.type=jcr"})
+@TestPropertySource(properties={"ruleservice.datasource.type=jcr"}, locations = {"classpath:rules-production.properties"})
 @ContextConfiguration(locations = { "classpath:openl-ruleservice-beans.xml" })
 @DirtiesContext
 public class SpringConfigurationServiceManagerTest implements ApplicationContextAware {
@@ -45,7 +45,7 @@ public class SpringConfigurationServiceManagerTest implements ApplicationContext
         assertEquals(50.0, value.getValue(), 0.01);
     }
 
-    @Test(expected = RuleServiceWrapperException.class) 
+    @Test(expected = MethodInvocationException.class) 
     public void testExceptionFramework() throws Exception {
         assertNotNull(applicationContext);
         ServiceManagerImpl serviceManager = applicationContext.getBean(ServiceManagerImpl.class);

@@ -1,12 +1,14 @@
 package org.openl.rules.webstudio.web.admin;
 
+import java.io.Closeable;
+
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
-import org.openl.rules.repository.RRepository;
-import org.openl.rules.repository.RRepositoryFactory;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.factories.LocalJackrabbitRepositoryFactory;
+import org.openl.util.IOUtils;
 
 /**
  * @author Pavel Tarasevich
@@ -34,20 +36,20 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
             if (this.isSecure()) {
                 RepositoryConfiguration adminConfig = this.createAdminRepositoryConfiguration();
 
-                RRepositoryFactory repoFactory = this.getProductionRepositoryFactoryProxy().getFactory(adminConfig.getProperties());
-                RRepository repository = repoFactory.getRepositoryInstance();
+                Repository repository = this.getProductionRepositoryFactoryProxy().getFactory(adminConfig.getProperties());
 
                 try {
-                    if (repoFactory instanceof LocalJackrabbitRepositoryFactory) {
-                        if (!((LocalJackrabbitRepositoryFactory) repoFactory).configureJCRForOneUser(this.getLogin(), this.getPassword())) {
+                    if (repository instanceof LocalJackrabbitRepositoryFactory) {
+                        if (!((LocalJackrabbitRepositoryFactory) repository).configureJCRForOneUser(this.getLogin(), this.getPassword())) {
                             setErrorMessage("Repository user creation error");
                             return;
                         }
                     }
                 } finally {
                     if (repository != null) {
-                        repository.release();
-                        repoFactory.release();
+                        if (repository instanceof Closeable) {
+                            IOUtils.closeQuietly((Closeable) repository);
+                        }
                     }
                 }
             } else {

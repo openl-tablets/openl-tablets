@@ -23,9 +23,9 @@ public interface UserWorkspace extends ProjectsContainer {
 
     void copyProject(AProject project, String name, ResourceTransformer resourceTransformer) throws ProjectException;
 
-    void createDDProject(String name) throws RepositoryException;
+    ADeploymentProject createDDProject(String name) throws RepositoryException;
 
-    void createProject(String name) throws ProjectException;
+    AProject createProject(String name) throws ProjectException;
 
     ADeploymentProject getDDProject(String name) throws ProjectException;
 

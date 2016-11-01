@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.openl.OpenL;
+import org.openl.conf.TypeCastFactory.JavaCastComponent;
 import org.openl.syntax.impl.ISyntaxConstants;
 
 public class OpenLBuilderImpl extends AOpenLBuilder {
@@ -59,16 +60,38 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
 
         if (getLibraries() != null && !getLibraries().isEmpty()) {
             LibraryFactoryConfiguration libraries = op.createLibraries();
-            NameSpacedLibraryConfiguration library = new NameSpacedLibraryConfiguration();
-            library.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
-            
-            for (String libraryName : getLibraries()){
+            NameSpacedLibraryConfiguration thisNamespaceLibrary = new NameSpacedLibraryConfiguration();
+            thisNamespaceLibrary.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
+            NameSpacedLibraryConfiguration operationNamespaceLibrary = null;
+            TypeCastFactory typeCastFactory = op.createTypecast();
+
+            for (String libraryName : getLibraries()) {
                 JavaLibraryConfiguration javalib = new JavaLibraryConfiguration();
                 javalib.setClassName(libraryName);
-                library.addJavalib(javalib);
+
+                try {
+                    Class<?> libraryClass = getUserEnvironmentContext().getUserClassLoader().loadClass(libraryName);
+                    if (libraryClass.getAnnotation(OperatorsNamespace.class) != null) {
+                        if (operationNamespaceLibrary == null) {
+                            operationNamespaceLibrary = new NameSpacedLibraryConfiguration();
+                            operationNamespaceLibrary.setNamespace(ISyntaxConstants.OPERATORS_NAMESPACE);
+                        }
+                        operationNamespaceLibrary.addJavalib(javalib);
+                    }
+                } catch (Exception e) {
+                }
+                thisNamespaceLibrary.addJavalib(javalib);
+
+                JavaCastComponent javaCastComponent = new JavaCastComponent();
+                javaCastComponent.setLibraryClassName(libraryName);
+                javaCastComponent.setClassName(org.openl.binding.impl.cast.CastFactory.class.getName());
+                typeCastFactory.addJavaCast(javaCastComponent);
+
             }
-            
-            libraries.addConfiguredLibrary(library);
+            if (operationNamespaceLibrary != null) {
+                libraries.addConfiguredLibrary(operationNamespaceLibrary);
+            }
+            libraries.addConfiguredLibrary(thisNamespaceLibrary);
         }
 
         /**

@@ -25,17 +25,15 @@ public class NullOpenClass implements IOpenClass {
 
     public static final NullOpenClass the = new NullOpenClass();
 
-
-    public static boolean isAnyNull(IOpenClass... args)
-    {
+    public static boolean isAnyNull(IOpenClass... args) {
         for (IOpenClass arg : args) {
-            if (arg == the) return true;
+            if (arg == the)
+                return true;
         }
 
         return false;
     }
-    
-    
+
     private NullOpenClass() {
     }
 
@@ -46,7 +44,7 @@ public class NullOpenClass implements IOpenClass {
     public String getDisplayName(int mode) {
         return getName();
     }
-    
+
     public IDomain<?> getDomain() {
         return null;
     }
@@ -75,7 +73,7 @@ public class NullOpenClass implements IOpenClass {
      * (non-Javadoc)
      *
      * @see org.openl.binding.IMethodFactory#getMatchingMethod(java.lang.String,
-     *      org.openl.types.IOpenClass[])
+     * org.openl.types.IOpenClass[])
      */
     public IOpenMethod getMatchingMethod(String name, IOpenClass[] params) throws AmbiguousMethodException {
         return null;
@@ -117,8 +115,8 @@ public class NullOpenClass implements IOpenClass {
     public boolean isArray() {
         return false;
     }
-    
-    public IOpenClass getComponentClass() {        
+
+    public IOpenClass getComponentClass() {
         return null;
     }
 
@@ -129,7 +127,8 @@ public class NullOpenClass implements IOpenClass {
     /*
      * (non-Javadoc)
      *
-     * @see org.openl.types.IOpenClass#isAssignableFrom(org.openl.types.IOpenClass)
+     * @see
+     * org.openl.types.IOpenClass#isAssignableFrom(org.openl.types.IOpenClass)
      */
     public boolean isAssignableFrom(IOpenClass ioc) {
         return ioc == this;
@@ -167,15 +166,14 @@ public class NullOpenClass implements IOpenClass {
         return Collections.emptyList();
     }
 
-	public void addType(String namespace, IOpenClass type) throws Exception {
-		// Default implementation
-		
-	}
+    public IOpenClass addType(String namespace, IOpenClass type) throws Exception {
+        return type;
+    }
 
-	public IOpenClass findType(String namespace, String typeName) {
-		// Default implementation
-		return null;
-	}
+    public IOpenClass findType(String namespace, String typeName) {
+        // Default implementation
+        return null;
+    }
 
     public Map<String, IOpenClass> getTypes() {
         // Default implementation
@@ -192,20 +190,18 @@ public class NullOpenClass implements IOpenClass {
         return Collections.emptyMap();
     }
 
-
     public Collection<IOpenMethod> getMethods() {
         // Default implementation
         return Collections.emptyList();
     }
-    
+
     public Collection<IOpenMethod> getDeclaredMethods() {
         // Default implementation
         return Collections.emptyList();
     }
 
-
-	@Override
-	public Iterable<IOpenMethod> methods(String name) {
-		return null;
-	}
+    @Override
+    public Iterable<IOpenMethod> methods(String name) {
+        return null;
+    }
 }

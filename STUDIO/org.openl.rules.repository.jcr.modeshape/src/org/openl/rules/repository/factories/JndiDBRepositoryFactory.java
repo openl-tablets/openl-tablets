@@ -16,6 +16,10 @@ import org.infinispan.loaders.jdbc.configuration.JdbcStringBasedCacheStoreConfig
  */
 public class JndiDBRepositoryFactory extends DBRepositoryFactory {
 
+    public JndiDBRepositoryFactory(String uri, String login, String password, boolean designMode) {
+        super(uri, login, password, designMode);
+    }
+
     Connection createConnection(String url, String user, String password) {
         try {
             DataSource datasource = (DataSource) new InitialContext().lookup(url);

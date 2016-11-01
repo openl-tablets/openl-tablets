@@ -10,14 +10,17 @@ import org.openl.rules.common.RulesRepositoryArtefact;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
-import org.openl.rules.repository.RProductionRepository;
-import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.deploy.DeployID;
+import org.openl.rules.workspace.deploy.DeployUtils;
 import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.deploy.ProductionDeployer;
+import org.openl.util.IOUtils;
 
 /**
  * Implementation of <code>ProductionDeployer</code> that uses <i>JCR</i> as
@@ -58,18 +61,18 @@ public class JcrProductionDeployer implements ProductionDeployer {
      */
 
     public synchronized DeployID deploy(ADeploymentProject deploymentProject, Collection<AProject> projects, WorkspaceUser user) throws DeploymentException {
-        DeployID id = generateDeployID(deploymentProject);
+        DeployID id;
 
         boolean alreadyDeployed = false;
         try {
-            RProductionRepository rRepository = repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
+            Repository repository =repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
+            id = generateDeployID(deploymentProject, repository);
 
-            if (rRepository.hasDeploymentProject(id.getName()) || rRepository.hasDeploymentProject(getOtherDeploymentProjectName(deploymentProject))) {
+            if (hasDeployment(repository, DeployUtils.DEPLOY_PATH + id.getName()) || hasDeployment(repository,DeployUtils.DEPLOY_PATH + getOtherDeploymentProjectName(deploymentProject))) {
                 alreadyDeployed = true;
             } else {
-                FolderAPI deployment = rRepository.createDeploymentProject(id.getName());
-
-                AProject deploymentPRJ = new AProject(deployment);
+                String deploymentPath = DeployUtils.DEPLOY_PATH + id.getName();
+                AProject deploymentPRJ = new AProject(repository, deploymentPath);
                 deploymentPRJ.lock(user);
                 for (AProject p : projects) {
                     deployProject(deploymentPRJ, p, user);
@@ -77,8 +80,9 @@ public class JcrProductionDeployer implements ProductionDeployer {
 
                 copyProperties(deploymentPRJ, deploymentProject);
 
-                deploymentPRJ.save(user);
-                rRepository.notifyChanges();
+                // TODO: Some analogue of notifyChanges() possibly will be needed
+//                deploymentPRJ.save(user);
+//                rRepository.notifyChanges();
             }
         } catch (Exception e) {
             throw new DeploymentException("Failed to deploy: " + e.getMessage(), e);
@@ -90,6 +94,15 @@ public class JcrProductionDeployer implements ProductionDeployer {
         }
 
         return id;
+    }
+
+    private boolean hasDeployment(Repository repository, String path) {
+        FileItem item = repository.read(path);
+        if (item != null) {
+            IOUtils.closeQuietly(item.getStream());
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -105,22 +118,22 @@ public class JcrProductionDeployer implements ProductionDeployer {
      */
     @Override
     public synchronized boolean hasDeploymentProject(ADeploymentProject deployConfiguration) throws RRepositoryException {
-        RProductionRepository repository = repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
-        DeployID id = generateDeployID(deployConfiguration);
+        Repository repository = repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
+        DeployID id = generateDeployID(deployConfiguration, null);
         String otherPossibleID = this.getOtherDeploymentProjectName(deployConfiguration);
 
-        return repository.hasDeploymentProject(id.getName()) || repository.hasDeploymentProject(otherPossibleID);
+        return hasDeployment(repository, DeployUtils.DEPLOY_PATH + id.getName()) || hasDeployment(repository, DeployUtils.DEPLOY_PATH + otherPossibleID);
     }
 
     private void deployProject(AProject deployment, AProject project, WorkspaceUser user) throws ProjectException {
-        FolderAPI rProject = deployment.addFolder(project.getName()).getAPI();
-        AProject copiedProject = new AProject(rProject);
+        AProjectFolder projectFolder = deployment.addFolder(project.getName());
+        AProject copiedProject = new AProject(deployment.getRepository(), projectFolder.getArtefactPath().getStringValue(), deployment.getHistoryVersion());
 
         /*Update and set project revision*/
-        copiedProject.update(project, user, project.getVersion().getRevision());
+        copiedProject.update(project, user);
     }
 
-    private DeployID generateDeployID(ADeploymentProject ddProject) {
+    private DeployID generateDeployID(ADeploymentProject ddProject, Repository repository) throws RRepositoryException {
         StringBuilder sb = new StringBuilder(ddProject.getName());
         ProjectVersion projectVersion = ddProject.getVersion();
         if (projectVersion != null) {
@@ -131,7 +144,12 @@ public class JcrProductionDeployer implements ProductionDeployer {
                     sb.append('#').append("0.0.").append(projectVersion.getVersionName());
                 }
             } else {
-                sb.append('#').append(projectVersion.getRevision());
+                if (repository != null) {
+                    int version = DeployUtils.getNextDeploymentVersion(repository, ddProject);
+                    sb.append('#').append(version);
+                } else {
+                    sb.append('#').append(projectVersion.getRevision());
+                }
             }
         }
         return new DeployID(sb.toString());

@@ -26,14 +26,35 @@ public class Operators {
     public static final long SECONDS_IN_DAY = 1000L * 3600 * 24;
 
     // Add
+
+    public static String add(Object x, String y) {
+        return x + y;
+    }
+
+    public static String add(String x, Object y) {
+        return x + y;
+    }
+
+    public static String add(String x, String y) {
+        return x + y;
+    }
+    
     public static String add(boolean x, String y) {
         return x + y;
     }
 
+    public static String add(String x, boolean y) {
+        return x + y;
+    }
+    
     public static String add(char x, String y) {
         return x + y;
     }
-
+    
+    public static String add(String y, char x) {
+        return y + x;
+    }
+    
     public static Date add(Date d, int days) {
         // We should use calendar to take into account daylight saving
         Calendar c = Calendar.getInstance();
@@ -72,91 +93,6 @@ public class Operators {
     
     public static BigDecimal add(BigDecimal x, BigDecimal y) {
         return x.add(y);
-    }
-
-    public static String add(Object x, String y) {
-        return x + y;
-    }
-
-    public static String add(String x, boolean y) {
-        return x + y;
-    }
-
-    public static String add(String x, char y) {
-        return x + y;
-    }
-
-    public static String add(String x, Object y) {
-        return x + y;
-    }
-
-    public static String add(String x, String y) {
-        return x + y;
-    }
-    
-    //Add for Strings
-    public static byte add(byte x, String y) {
-        return (byte) (x + Byte.valueOf(y));
-    }
-    
-    public static byte add(String x, byte y) {
-        return (byte) (y + Byte.valueOf(x));
-    }
-    
-    public static short add(short x, String y) {
-        return (short) (x + Short.valueOf(y));
-    }
-    
-    public static short add(String x, short y) {
-        return (short) (y + Short.valueOf(x));
-    }
-
-    public static int add(int x, String y) {
-        return (int) (x + Integer.valueOf(y));
-    }
-    
-    public static int add(String x, int y) {
-        return (int) (y + Integer.valueOf(x));
-    }
-    
-    public static long add(long x, String y) {
-        return (long) (x + Long.valueOf(y));
-    }
-    
-    public static long add(String x, long y) {
-        return y + Long.valueOf(x);
-    }
-    
-    public static float add(float x, String y) {
-        return x + Float.valueOf(y);
-    }
-    
-    public static float add(String x, float y) {
-        return (y + Float.valueOf(x));
-    }
-
-    public static double add(double x, String y) {
-        return x + Double.valueOf(y);
-    }
-    
-    public static double add(String x, double y) {
-        return y + Double.valueOf(x);
-    }
-    
-    public static BigInteger add(String x, BigInteger y) {
-        return new BigInteger(x).add(y);
-    }
-    
-    public static BigInteger add(BigInteger x, String y) {
-        return new BigInteger(y).add(x);
-    }
-
-    public static BigDecimal add(String x, BigDecimal y) {
-        return new BigDecimal(x).add(y);
-    }
-    
-    public static BigDecimal add(BigDecimal x, String y) {
-        return new BigDecimal(y).add(x);
     }
 
     // Subtract
@@ -1043,134 +979,6 @@ public class Operators {
         return x;
     }
 
-    //AutoCasts to String
-    public static String autocast(byte x, String y) {
-        return Byte.toString(x);
-    }
-
-    public static Integer distance(byte x, String y) {
-        return 11;
-    }
-
-    public static byte autocast(String x, byte y) {
-        return Byte.valueOf(x);
-    }
-
-    public static Integer distance(String x, byte y) {
-        return 10;
-    }
-
-    public static String autocast(short x, String y) {
-        return Short.toString(x);
-    }
-
-    public static Integer distance(short x, String y) {
-        return 11;
-    }
-    
-    public static short autocast(String x, short y) {
-        return Short.valueOf(x);
-    }
-
-    public static Integer distance(String x, short y) {
-        return 10;
-    }
-
-    public static String autocast(int x, String y) {
-        return Integer.toString(x);
-    }
-
-    public static Integer distance(int x, String y) {
-        return 11;
-    }
-
-    public static int autocast(String x, int y) {
-        return Integer.valueOf(x);
-    }
-
-    public static Integer distance(String x, int y) {
-        return 10;
-    }
-    
-    public static String autocast(long x, String y) {
-        return Long.toString(x);
-    }
-
-    public static Integer distance(long x, String y) {
-        return 11;
-    }
-
-    public static long autocast(String x, long y) {
-        return Long.valueOf(x);
-    }
-
-    public static Integer distance(String x, long y) {
-        return 10;
-    }
-
-    public static String autocast(float x, String y) {
-        return Float.toString(x);
-    }
-
-    public static Integer distance(float x, String y) {
-        return 11;
-    }
-
-    public static float autocast(String x, float y) {
-        return Float.valueOf(x);
-    }
-
-    public static Integer distance(String x, float y) {
-        return 10;
-    }
-
-    public static String autocast(double x, String y) {
-        return Double.toString(x);
-    }
-
-    public static Integer distance(double x, String y) {
-        return 11;
-    }
-
-    public static double autocast(String x, double y) {
-        return Double.valueOf(x);
-    }
-
-    public static Integer distance(String x, double y) {
-        return 10;
-    }
-
-    public static String autocast(BigDecimal x, String y) {
-       return x.toString();
-    }
-
-    public static Integer distance(BigDecimal x, String y) {
-        return 11;
-    }
-
-    public static BigDecimal autocast(String x, BigDecimal y) {
-        return new BigDecimal(x);
-    }
-
-    public static Integer distance(String x, BigDecimal y) {
-        return 10;
-    }
-
-    public static String autocast(BigInteger x, String y) {
-        return x.toString();
-    }
-
-    public static Integer distance(BigInteger x, String y) {
-        return 11;
-    }
-    
-    public static BigInteger autocast(String x, BigInteger y) {
-        return new BigInteger(x);
-    }
-
-    public static Integer distance(String x, BigInteger y) {
-        return 10;
-    }
     // Other auto casts
     //
     public static BigDecimal autocast(double x, BigDecimal y) {
@@ -1327,22 +1135,6 @@ public class Operators {
 
     // Other casts
     //
-    public static int cast(String x, int y) {
-        return Integer.parseInt(x);
-    }
-
-    public static double cast(String x, double y) {
-        return Double.parseDouble(x);
-    }
-
-    public static long cast(String x, long y) {
-        return Long.parseLong(x);
-    }
-
-    public static BigDecimal cast(String x, BigDecimal y) {
-        return new BigDecimal(x);
-    }
-
     public static float dec(float x) {
         return x - 1;
     }

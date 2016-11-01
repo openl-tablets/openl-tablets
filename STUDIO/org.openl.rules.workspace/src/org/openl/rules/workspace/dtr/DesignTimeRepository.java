@@ -7,6 +7,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.ResourceTransformer;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
 
@@ -52,7 +53,7 @@ public interface DesignTimeRepository extends ProjectsContainer {
      * @param name name of new deployment project, must be unique
      * @throws RepositoryException if failed
      */
-    void createDDProject(String name) throws RepositoryException;
+    ADeploymentProject createDDProject(String name) throws RepositoryException;
 
     /**
      * Creates new rules project in the Design Time Repository.
@@ -60,7 +61,7 @@ public interface DesignTimeRepository extends ProjectsContainer {
      * @param name name of new rules project, must be unique
      * @throws RepositoryException if failed
      */
-    void createProject(String name) throws RepositoryException;
+    AProject createProject(String name) throws RepositoryException;
 
     /**
      * Gets deployment project from the DTR.
@@ -108,24 +109,10 @@ public interface DesignTimeRepository extends ProjectsContainer {
      */
     boolean hasDDProject(String name);
 
-    /**
-     * Updates rules project in Design Time Repository. WorkspaceUser parameter
-     * should guarantee that project is updated by user who is locking the
-     * project. Project can be of any implementation -- LocalWorkspaceProject,
-     * or even older version of the project. DTR will take name of
-     * <code>project</code> argument and update a DTR project with the same
-     * name.
-     *
-     * @param project new version of rules project
-     * @param user who is updating project
-     * @param major new major version of project
-     * @param minor new minor version of project
-     * @throws RepositoryException if failed
-     */
-    void updateProject(AProject project, WorkspaceUser user) throws RepositoryException;
-
     
     void addListener(DesignTimeRepositoryListener listener);
     void removeListener(DesignTimeRepositoryListener listener);
     List<DesignTimeRepositoryListener> getListeners();
+
+    Repository getRepository();
 }

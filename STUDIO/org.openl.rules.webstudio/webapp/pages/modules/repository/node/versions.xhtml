@@ -34,11 +34,6 @@
     </f:facet>
       <rich:column style="text-align: center;">
         <h:outputText value="#{version.versionName}" />
-        <rich:tooltip showDelay="500" rendered="#{(node.type == 'project' || node.type == 'file' || node.type == 'folder') and (!empty version.versionProperties)}" >
-           <a4j:repeat value="#{repositoryProjectPropsBean.getVersionPropToolTip(version.versionProperties)}" var="prop">
-               <h:outputText value="#{prop.displayName} : #{prop.displayValue}"/><br/>
-           </a4j:repeat>
-        </rich:tooltip>
       </rich:column>
       <rich:column>
         <h:outputText value="#{version.versionInfo.createdBy}" />

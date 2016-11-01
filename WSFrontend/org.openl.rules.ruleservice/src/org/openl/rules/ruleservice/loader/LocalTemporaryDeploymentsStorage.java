@@ -7,12 +7,11 @@ import java.util.Map;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.Deployment;
-import org.openl.rules.project.impl.local.LocalFolderAPI;
+import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
-import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -167,7 +166,9 @@ public class LocalTemporaryDeploymentsStorage {
         String versionName = deployment.getVersion().getVersionName();
         log.debug("Loading deployement with name=\"{}\" and version=\"{}\"", deploymentName, versionName);
 
-        Deployment loadedDeployment = makeLocalDeployment(deploymentName, version);
+        String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
+        Repository repository = new LocalRepository(getFolderToLoadDeploymentsIn());
+        Deployment loadedDeployment = new Deployment(repository, deploymentFolderName, deploymentName, version);
         try {
             loadedDeployment.update(deployment, null);
             loadedDeployment.refresh();
@@ -179,26 +180,12 @@ public class LocalTemporaryDeploymentsStorage {
             throw new RuleServiceRuntimeException(e);
         }
 
-        String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
         cacheForGetDeployment.put(deploymentFolderName, loadedDeployment);
 
         log.debug("Deployment with name=\"{}\" and version=\"{}\" has been made on local storage and putted to cache.",
             deploymentName,
             versionName);
         return loadedDeployment;
-    }
-
-    private Deployment makeLocalDeployment(String deploymentName, CommonVersion version) {
-        String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
-        File deploymentFolder = new File(getFolderToLoadDeploymentsIn(), deploymentFolderName);
-        ArtefactPathImpl path = new ArtefactPathImpl(deploymentFolder.getName());
-        File location = deploymentFolder.getParentFile();
-        LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(null,
-            location,
-            localWorkspaceFolderFilter,
-            localWorkspaceFileFilter);
-        LocalFolderAPI localFolderAPI = new LocalFolderAPI(deploymentFolder, path, workspace);
-        return new Deployment(localFolderAPI);
     }
 
     /**

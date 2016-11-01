@@ -47,12 +47,11 @@ public class ComponentBindingContext extends BindingContextDelegator {
     
     @Override
     public synchronized void addType(String namespace, IOpenClass type) throws OpenLCompilationException {
-
         String nameWithNamespace = StringTool.buildTypeName(namespace, type.getName());
         add(nameWithNamespace, type);
     }
 
-    private synchronized void add(String nameWithNamespace, IOpenClass type) throws OpenLCompilationException {
+    protected synchronized void add(String nameWithNamespace, IOpenClass type) throws OpenLCompilationException {
         Map<String, IOpenClass> map = initInternalTypes();
         
         if (map.containsKey(nameWithNamespace)) {
@@ -115,15 +114,19 @@ public class ComponentBindingContext extends BindingContextDelegator {
     
     @Override
     public IOpenClass findType(String namespace, String typeName) {
-
+        String key = StringTool.buildTypeName(namespace, typeName);
         if (internalTypes != null) {
-            String key = StringTool.buildTypeName(namespace, typeName);
             IOpenClass ioc = internalTypes.get(key);
             if (ioc != null) {
                 return ioc;
             }
         }
-
+        
+        IOpenClass type = componentOpenClass.getTypes().get(key);
+        if (type != null){
+            return type;
+        }
+        
         return super.findType(namespace, typeName);
     }
     

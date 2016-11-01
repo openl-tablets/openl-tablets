@@ -21,10 +21,12 @@ import org.openl.binding.impl.module.DeferredMethod;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.engine.ExtendableModuleOpenClass;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
+import org.openl.rules.binding.CustomDynamicOpenClass;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.cmatch.ColumnMatch;
@@ -40,7 +42,6 @@ import org.openl.rules.lang.xls.binding.wrapper.CompositeMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.DecisionTable2Wrapper;
 import org.openl.rules.lang.xls.binding.wrapper.DeferredMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.JavaOpenMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.MatchingOpenMethodDispatcherWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.OverloadedMethodsDispatcherTableWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.SpreadsheetWrapper;
@@ -73,7 +74,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AMethod;
 import org.openl.types.impl.CompositeMethod;
-import org.openl.types.java.JavaOpenMethod;
 import org.openl.util.Log;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -175,7 +175,23 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                                                               // data tables.
         }
     }
-
+    
+    @Override
+    public IOpenClass addType(String namespace, IOpenClass type) throws OpenLCompilationException {
+        if (type instanceof CustomDynamicOpenClass) {
+            CustomDynamicOpenClass customDynamicOpenClass = (CustomDynamicOpenClass) type;
+            IOpenClass openClass = findType(namespace, type.getName());
+            if (openClass == null) {
+                return super.addType(namespace, customDynamicOpenClass.copy());
+            } else {
+                customDynamicOpenClass.updateOpenClass(openClass);
+                return openClass;
+            }
+        } else {
+            return super.addType(namespace, type);
+        }
+    }
+    
     public Collection<String> getImports() {
         return imports;
     }
@@ -319,9 +335,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             return new TableMethodWrapper(this, (TableMethod) openMethod);
         }
 
-        if (openMethod instanceof JavaOpenMethod) {
+        /*if (openMethod instanceof JavaOpenMethod) {
             return new JavaOpenMethodWrapper(this, (JavaOpenMethod) openMethod);
-        }
+        }*/
 
         /*
          * if (log.isWarnEnabled()) { log.warn(
