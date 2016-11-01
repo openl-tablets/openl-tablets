@@ -264,42 +264,22 @@ public class Operators {
 
     // Equals
     public static boolean eq(byte x, byte y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(byte x, byte y) {
         return x == y;
     }
 
     public static boolean eq(short x, short y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(short x, short y) {
         return x == y;
     }
 
     public static boolean eq(char x, char y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(char x, char y) {
         return x == y;
     }
 
     public static boolean eq(int x, int y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(int x, int y) {
         return x == y;
     }
 
     public static boolean eq(long x, long y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(long x, long y) {
         return x == y;
     }
 
@@ -320,10 +300,6 @@ public class Operators {
     }
 
     public static boolean eq(Byte x, Byte y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(Byte x, Byte y) {
         if (x == y) {
             return false;
         }
@@ -336,10 +312,6 @@ public class Operators {
     }
 
     public static boolean eq(Short x, Short y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(Short x, Short y) {
         if (x == y) {
             return false;
         }
@@ -352,10 +324,6 @@ public class Operators {
     }
 
     public static boolean eq(Character x, Character y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(Character x, Character y) {
         if (x == y) {
             return false;
         }
@@ -368,10 +336,6 @@ public class Operators {
     }
 
     public static boolean eq(Integer x, Integer y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(Integer x, Integer y) {
         if (x == y) {
             return true;
         }
@@ -384,10 +348,6 @@ public class Operators {
     }
 
     public static boolean eq(Long x, Long y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(Long x, Long y) {
         if (x == y) {
             return true;
         }
@@ -464,10 +424,6 @@ public class Operators {
     }
 
     public static boolean eq(String x, String y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(String x, String y) {
         if (x == y) {
             return true;
         }
@@ -478,12 +434,8 @@ public class Operators {
 
         return false;
     }
-    
-    public static boolean eq(BigInteger x, BigInteger y) {
-        return strict_eq(x, y);
-    }
 
-    public static boolean strict_eq(BigInteger x, BigInteger y) {
+    public static boolean eq(BigInteger x, BigInteger y) {
         if (x == y) {
             return true;
         }
@@ -512,18 +464,10 @@ public class Operators {
     }
 
     public static boolean eq(boolean x, boolean y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(boolean x, boolean y) {
         return x == y;
     }
 
     public static boolean eq(Boolean x, Boolean y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(Boolean x, Boolean y) {
         if (x == y) {
             return true;
         }
@@ -537,43 +481,23 @@ public class Operators {
 
     // Not Equals
     public static boolean ne(byte x, byte y) {
-        return strict_ne(x, y);
-    }
-
-    public static boolean strict_ne(byte x, byte y) {
-        return !strict_eq(x, y);
+        return !eq(x, y);
     }
 
     public static boolean ne(char x, char y) {
-        return strict_ne(x, y);
-    }
-
-    public static boolean strict_ne(char x, char y) {
-        return !strict_eq(x, y);
+        return !eq(x, y);
     }
 
     public static boolean ne(short x, short y) {
-        return strict_ne(x, y);
-    }
-
-    public static boolean strict_ne(short x, short y) {
-        return !strict_eq(x, y);
+        return !eq(x, y);
     }
 
     public static boolean ne(int x, int y) {
-        return strict_ne(x, y);
-    }
-
-    public static boolean strict_ne(int x, int y) {
-        return !strict_eq(x, y);
+        return !eq(x, y);
     }
 
     public static boolean ne(long x, long y) {
-        return strict_ne(x, y);
-    }
-
-    public static boolean strict_ne(long x, long y) {
-        return !strict_eq(x, y);
+        return !eq(x, y);
     }
 
     public static boolean ne(float x, float y) {
@@ -596,40 +520,20 @@ public class Operators {
         return !eq(x, y);
     }
 
-    public static boolean strict_ne(Byte x, Byte y) {
-        return !strict_eq(x, y);
-    }
-
     public static boolean ne(Character x, Character y) {
         return !eq(x, y);
-    }
-
-    public static boolean strict_ne(Character x, Character y) {
-        return !strict_eq(x, y);
     }
 
     public static boolean ne(Short x, Short y) {
         return !eq(x, y);
     }
 
-    public static boolean strict_ne(Short x, Short y) {
-        return !strict_eq(x, y);
-    }
-
     public static boolean ne(Integer x, Integer y) {
         return !eq(x, y);
     }
 
-    public static boolean strict_ne(Integer x, Integer y) {
-        return !strict_eq(x, y);
-    }
-
     public static boolean ne(Long x, Long y) {
         return !eq(x, y);
-    }
-
-    public static boolean strict_ne(Long x, Long y) {
-        return !strict_eq(x, y);
     }
 
     public static boolean ne(Float x, Float y) {
@@ -649,32 +553,25 @@ public class Operators {
     }
 
     public static boolean ne(Object x, Object y) {
-        return strict_ne(x, y);
+        return !eq(x, y);
     }
 
     public static boolean strict_ne(Object x, Object y) {
-        return x != y;
+        return !strict_eq(x, y);
     }
 
     public static boolean ne(boolean x, boolean y) {
         return !eq(x, y);
     }
 
-    public static boolean strict_ne(boolean x, boolean y) {
-        return !strict_eq(x, y);
-    }
-
     public static boolean ne(Boolean x, Boolean y) {
         return !eq(x, y);
-    }
-
-    public static boolean strict_ne(Boolean x, Boolean y) {
-        return !strict_eq(x, y);
     }
 
     public static boolean ne(BigDecimal x, BigDecimal y) {
         return !eq(x, y);
     }
+
     public static boolean ne(BigInteger x, BigInteger y) {
         return !eq(x, y);
     }
@@ -687,48 +584,24 @@ public class Operators {
         return !eq(x, y);
     }
 
-    public static boolean strict_ne(String x, String y) {
-        return !strict_eq(x, y);
-    }
-
     // Greater Than
     public static boolean gt(byte x, byte y) {
-        return strict_gt(x, y);
-    }
-
-    public static boolean strict_gt(byte x, byte y) {
         return x > y;
     }
 
     public static boolean gt(char x, char y) {
-        return strict_gt(x, y);
-    }
-
-    public static boolean strict_gt(char x, char y) {
         return x > y;
     }
 
     public static boolean gt(short x, short y) {
-        return strict_gt(x, y);
-    }
-
-    public static boolean strict_gt(short x, short y) {
         return x > y;
     }
 
     public static boolean gt(int x, int y) {
-        return strict_gt(x, y);
-    }
-
-    public static boolean strict_gt(int x, int y) {
         return x > y;
     }
 
     public static boolean gt(long x, long y) {
-        return strict_gt(x, y);
-    }
-
-    public static boolean strict_gt(long x, long y) {
         return x > y;
     }
 
@@ -778,42 +651,22 @@ public class Operators {
 
     // Greater or Equals Than
     public static boolean ge(byte x, byte y) {
-        return strict_ge(x, y);
-    }
-
-    public static boolean strict_ge(byte x, byte y) {
         return x >= y;
     }
 
     public static boolean ge(char x, char y) {
-        return strict_ge(x, y);
-    }
-
-    public static boolean strict_ge(char x, char y) {
         return x >= y;
     }
 
     public static boolean ge(short x, short y) {
-        return strict_ge(x, y);
-    }
-
-    public static boolean strict_ge(short x, short y) {
         return x >= y;
     }
 
     public static boolean ge(int x, int y) {
-        return strict_ge(x, y);
-    }
-
-    public static boolean strict_ge(int x, int y) {
         return x >= y;
     }
 
     public static boolean ge(long x, long y) {
-        return strict_ge(x, y);
-    }
-
-    public static boolean strict_ge(long x, long y) {
         return x >= y;
     }
 
@@ -863,43 +716,23 @@ public class Operators {
 
     // Less Than
     public static boolean lt(byte x, byte y) {
-        return strict_lt(x, y);
-    }
-
-    public static boolean strict_lt(byte x, byte y) {
         return x < y;
     }
 
     public static boolean lt(char x, char y) {
-        return strict_lt(x, y);
-    }
-
-    public static boolean strict_lt(char x, char y) {
         return x < y;
     }
 
     public static boolean lt(short x, short y) {
-        return strict_lt(x, y);
-    }
-
-    public static boolean strict_lt(short x, short y) {
         return x < y;
     }
 
     public static boolean lt(int x, int y) {
-        return strict_lt(x, y);
-    }
-
-    public static boolean strict_lt(int x, int y) {
         return x < y;
     }
 
     public static boolean lt(long x, long y) {
         return strict_lt(x, y);
-    }
-
-    public static boolean strict_lt(long x, long y) {
-        return x < y;
     }
 
     public static boolean lt(float x, float y) {
@@ -948,43 +781,23 @@ public class Operators {
     // Less or Equals Than
 
     public static boolean le(byte x, byte y) {
-        return strict_le(x, y);
-    }
-
-    public static boolean strict_le(byte x, byte y) {
         return x <= y;
     }
 
     public static boolean le(char x, char y) {
-        return strict_le(x, y);
-    }
-
-    public static boolean strict_le(char x, char y) {
         return x <= y;
     }
 
     public static boolean le(short x, short y) {
-        return strict_le(x, y);
-    }
-
-    public static boolean strict_le(short x, short y) {
         return x <= y;
     }
 
     public static boolean le(int x, int y) {
-        return strict_le(x, y);
-    }
-
-    public static boolean strict_le(int x, int y) {
         return x <= y;
     }
 
     public static boolean le(long x, long y) {
         return strict_le(x, y);
-    }
-
-    public static boolean strict_le(long x, long y) {
-        return x <= y;
     }
 
     public static boolean le(float x, float y) {
@@ -1034,15 +847,10 @@ public class Operators {
     // FIXME: is it normal? Why not to use contains(array, element)?
     //
     public static boolean le(String x, String[] y) {
-        return strict_le(x, y);
-    }
-
-    public static boolean strict_le(String x, String[] y) {
         return ArrayTool.contains(y, x);
     }
 
     // Abs
-
     public static byte abs(byte x) {
         return (byte) Math.abs(x);
     }
