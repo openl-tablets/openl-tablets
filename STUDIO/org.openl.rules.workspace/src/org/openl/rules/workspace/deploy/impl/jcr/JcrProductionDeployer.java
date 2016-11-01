@@ -5,11 +5,8 @@ import java.util.Collection;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.common.PropertyException;
-import org.openl.rules.common.RulesRepositoryArtefact;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.api.FileItem;
@@ -42,14 +39,6 @@ public class JcrProductionDeployer implements ProductionDeployer {
         this.deploymentFormatOld = deploymentFormatOld;
     }
 
-    private void copyProperties(AProjectArtefact newArtefact, RulesRepositoryArtefact artefact) throws RRepositoryException {
-        try {
-            newArtefact.setProps(artefact.getProps());
-        } catch (PropertyException e) {
-            throw new RRepositoryException("", e);
-        }
-    }
-
     /**
      * Deploys a collection of <code>Project</code>s to the production
      * repository with given ID. Overwrites deployment with given <i>id</i> if
@@ -77,8 +66,6 @@ public class JcrProductionDeployer implements ProductionDeployer {
                 for (AProject p : projects) {
                     deployProject(deploymentPRJ, p, user);
                 }
-
-                copyProperties(deploymentPRJ, deploymentProject);
 
                 // TODO: Some analogue of notifyChanges() possibly will be needed
 //                deploymentPRJ.save(user);

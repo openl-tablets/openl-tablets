@@ -8,10 +8,7 @@ import static org.openl.rules.workspace.TestHelper.getWorkspaceUser;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
@@ -35,13 +32,7 @@ public class JcrProductionDeployerTestCase {
     private static final String PROJECT1_NAME = "project1";
     private static final String PROJECT2_NAME = "project2";
     private static final String PROJECT3_NAME = "project3";
-    private static final Date EFFECTIVE_DATE = new Date();
-    private static final Date EXPIRATION_DATE = new Date(EFFECTIVE_DATE.getTime() + 2 * 60 * 60 * 1000);
-    private static final String LOB = "management";
-    private static final String ATTRIBUTE = "attribute";
 
-    private static final Object[] propData = { "attr1", "attr2", "attr3", "attr4", "attr5", new Date(6), new Date(7),
-            new Date(8), new Date(9), new Date(10), 11D, 12D, 13D, 14D, 15D, };
     private static final String FOLDER1 = "folder1";
     private static final String FILE1_1 = "file1_1";
 
@@ -55,24 +46,13 @@ public class JcrProductionDeployerTestCase {
     private Repository repository;
     private Repository productionRepository;
 
-    private Map<String, Object> props;
-
     private AProject project1;
     private AProject project2;
     private AProject project3;
     private List<AProject> projects;
 
-    private AProject makeProject() throws ProjectException {
-        AProject project = new AProject(repository, PROJECT1_NAME);
-        AProjectFolder folder1 = project.addFolder(FOLDER1);
-        folder1.addResource(FILE1_1, MockResource.NULL_STREAM);
-        folder1.addResource(FILE1_2, MockResource.NULL_STREAM);
-        project.addFolder(FOLDER2);
-        return project;
-    }
-
-    private AProject makeProject2() throws PropertyException, ProjectException {
-        AProject project = new AProject(repository, PROJECT2_NAME);
+    private AProject makeProject(String name) throws ProjectException {
+        AProject project = new AProject(repository, name);
         AProjectFolder folder1 = project.addFolder(FOLDER1);
         folder1.addResource(FILE1_1, MockResource.NULL_STREAM);
         folder1.addResource(FILE1_2, MockResource.NULL_STREAM);
@@ -81,13 +61,9 @@ public class JcrProductionDeployerTestCase {
     }
 
     private AProject makeProject3() throws ProjectException, PropertyException {
-        props = new HashMap<String, Object>();
-        for (int i = 0; i < propData.length; i++) {
-            props.put(ATTRIBUTE + (i+1), propData[i]);
-        }
         AProject project = new AProject(repository, PROJECT3_NAME);
         AProjectFolder folder1 = project.addFolder(FOLDER1);
-        folder1.addResource(FILE1_1, MockResource.NULL_STREAM).setProps(props);
+        folder1.addResource(FILE1_1, MockResource.NULL_STREAM);
         return project;
     }
 
@@ -101,8 +77,8 @@ public class JcrProductionDeployerTestCase {
         repository = new MockRepository();
         productionRepository = productionRepositoryFactoryProxy.getRepositoryInstance(ProductionRepositoryFactoryProxy.DEFAULT_REPOSITORY_PROPERTIES_FILE);
 
-        project1 = makeProject();
-        project2 = makeProject2();
+        project1 = makeProject(PROJECT1_NAME);
+        project2 = makeProject(PROJECT2_NAME);
 
         project3 = makeProject3();
 
@@ -161,16 +137,6 @@ public class JcrProductionDeployerTestCase {
 
         assertNotNull(theFile1);
         
-        final Map<String, Object> fileProps = theFile1.getProps();
-
-//        if (props != null) {
-//            assertNotNull(fileProps);
-//            assertTrue(!fileProps.isEmpty());
-//            assertEquals(fileProps.size(), props.size());
-//            for (int i = 1; i <= propData.length; i++) {
-//                assertEquals(fileProps.get(ATTRIBUTE + i), props.get(ATTRIBUTE + i));
-//            }
-//        }
     }
 
     // TODO: Add support for existing version check and remove @Ignore annotation below

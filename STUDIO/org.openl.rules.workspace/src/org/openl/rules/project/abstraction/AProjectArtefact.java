@@ -4,14 +4,12 @@ import java.util.*;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
-import org.openl.rules.common.InheritedProperty;
 import org.openl.rules.common.LockInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.PropertiesContainer;
 import org.openl.rules.common.Property;
 import org.openl.rules.common.PropertyException;
-import org.openl.rules.common.RulesRepositoryArtefact;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.common.impl.RepositoryVersionInfoImpl;
@@ -23,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // TODO: Remove PropertiesContainer interface from the class
-public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArtefact {
+public class AProjectArtefact implements PropertiesContainer {
     private final Logger log = LoggerFactory.getLogger(AProjectArtefact.class);
 
     private AProject project;
@@ -58,17 +56,6 @@ public class AProjectArtefact implements PropertiesContainer, RulesRepositoryArt
 
     public void setRepository(Repository repository) {
         this.repository = repository;
-    }
-
-    public Map<String, Object> getProps() {
-        return Collections.emptyMap();
-    }
-
-    public Map<String, InheritedProperty> getInheritedProps() {
-        return Collections.emptyMap();
-    }
-
-    public void setProps(Map<String, Object> props) throws PropertyException {
     }
 
     public void addProperty(Property property) throws PropertyException {
