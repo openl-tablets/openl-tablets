@@ -5,10 +5,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.Date;
-import java.util.List;
-import java.util.UUID;
 
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
@@ -22,6 +20,7 @@ public abstract class DBRepository implements Repository {
     private final Logger log = LoggerFactory.getLogger(DBRepository.class);
 
     private Listener listener;
+    private Timer timer;
 
     @Override
     public List<FileData> list(String path) {
@@ -184,8 +183,50 @@ public abstract class DBRepository implements Repository {
     }
 
     @Override
-    public void setListener(Listener callback) {
+    public void setListener(final Listener callback) {
         this.listener = callback;
+
+        if (callback == null) {
+            timer.cancel();
+            timer = null;
+        } else {
+            if (timer == null) {
+                timer = new Timer(true);
+            }
+
+            timer.schedule(new TimerTask() {
+                private Long maxId = null;
+
+                @Override
+                public void run() {
+                    String sql = "select max(id) as max_id from openl_repository";
+                    PreparedStatement statement = null;
+                    ResultSet rs = null;
+                    try {
+                        statement = getConnection().prepareStatement(sql);
+                        rs = statement.executeQuery();
+
+                        if (rs.next()) {
+                            long newMaxId = rs.getLong("max_id");
+                            if (maxId == null) {
+                                maxId = newMaxId;
+                            } else if (newMaxId > maxId) {
+                                maxId = newMaxId;
+                                callback.onChange();
+                            }
+                        }
+
+                        rs.close();
+                        statement.close();
+                    } catch (SQLException e) {
+                        throw new IllegalStateException(e);
+                    } finally {
+                        safeClose(rs);
+                        safeClose(statement);
+                    }
+                }
+            }, 1000, 1000);
+        }
     }
 
     @Override
@@ -367,6 +408,13 @@ public abstract class DBRepository implements Repository {
     private void invokeListener() {
         if (listener != null) {
             listener.onChange();
+        }
+    }
+
+    public void close() throws IOException {
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
         }
     }
 }

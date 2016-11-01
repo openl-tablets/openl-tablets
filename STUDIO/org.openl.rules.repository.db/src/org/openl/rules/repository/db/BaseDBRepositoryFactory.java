@@ -1,6 +1,5 @@
 package org.openl.rules.repository.db;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -12,7 +11,7 @@ import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class BaseDBRepositoryFactory extends DBRepository implements RRepositoryFactory, Closeable {
+public abstract class BaseDBRepositoryFactory extends DBRepository implements RRepositoryFactory {
     private final Logger log = LoggerFactory.getLogger(JdbcDBRepositoryFactory.class);
 
     protected final String uri;
@@ -80,6 +79,7 @@ public abstract class BaseDBRepositoryFactory extends DBRepository implements RR
 
     @Override
     public void close() throws IOException {
+        super.close();
         if (connection != null) {
             try {
                 connection.close();
