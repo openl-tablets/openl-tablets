@@ -9,7 +9,7 @@
     </parent>
     <artifactId>org.openl.rules.repository.db</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL - STUDIO - Repository SQL</name>
+    <name>OpenL - STUDIO - Repository DB</name>
     <description>JSR 170 based OpenL Repository implementation</description>
     <url>//openl-tablets.org</url>
     <build>
