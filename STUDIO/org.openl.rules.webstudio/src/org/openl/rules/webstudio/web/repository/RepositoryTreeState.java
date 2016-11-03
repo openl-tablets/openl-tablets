@@ -469,7 +469,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public boolean getCanRedeploy() {
         UserWorkspaceProject selectedProject = getSelectedProject();
-        if (selectedProject.isLocalOnly() || selectedProject.isOpenedForEditing()) {
+        if (selectedProject.isLocalOnly() || selectedProject.isModified()) {
             return false;
         }
 
