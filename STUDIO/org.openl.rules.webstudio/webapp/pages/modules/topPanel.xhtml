@@ -87,9 +87,6 @@
                 <h:commandLink styleClass="changes-listener" onclick="openSaveDialog(); return false;" value="Save"
                     title="Save the project changes in Design Repository as a new revision and make it available for editing to other users"
                     rendered="#{!empty rProject and rProject.openedForEditing and rProject.modified and studio.model.editable}" />
-                <h:commandLink action="#{mainBean.editProject}" value="Edit"
-                    title="Make project available for editing in Rules Editor and lock it from editing by other users"
-                    rendered="#{!empty rProject and !rProject.localOnly and !rProject.locked and studio.model.canStartEditing}" />
                 <h:commandLink onclick="openUpdateProjectDialog();return false;"
                                title="Update project" value="Update"
                                rendered="#{!empty rProject and studio.model.editable and empty module}" />

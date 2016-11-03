@@ -25,7 +25,7 @@ public class RulesProjectBuilder {
             AProject createdProject = workspace.createProject(projectName);
             project = new RulesProject(workspace, workspace.getLocalWorkspace().getRepository(), null, createdProject.getRepository(), createdProject.getFileData());
         }
-        project.edit();
+        project.open();
     }
 
     protected RulesProject getProject() {

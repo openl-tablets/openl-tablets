@@ -685,11 +685,6 @@ public class ProjectModel {
         return moduleInfo != null && moduleInfo.getExtension() != null;
     }
 
-    public boolean isCanStartEditing() {
-        RulesProject project = getProject();
-        return project != null && (project.isLocalOnly() || !project.isLocked()) && isGranted(PRIVILEGE_EDIT_PROJECTS);
-    }
-
     public boolean isCanCreateTable() {
         return isEditable() && isGranted(PRIVILEGE_CREATE_TABLES) && !isCurrentModuleLoadedByExtension();
     }

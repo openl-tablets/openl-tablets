@@ -21,7 +21,7 @@ public class TestDDP {
         String name = "ddp1";
         try {
             ADeploymentProject ddp = uw.createDDProject(name);
-            ddp.edit(wu);
+            ddp.open();
 
             ddp.addProjectDescriptor("prj1", new CommonVersionImpl(100));
             ddp.addProjectDescriptor("prj2", new CommonVersionImpl(200));

@@ -36,7 +36,6 @@
     <c:set var="openVersionMessage" value="Open the latest project revision" />
     <c:set var="closeMessage" value="Close the project and make it unavailable in Rules editor" />
     <c:set var="unlockMessage" value="Unlock the project and make it available for editing" />
-    <c:set var="editMessage" value="Make project available for editing in Rules Editor and lock it from editing by other users" />
     <c:set var="saveMessage" value="Save the project changes in Design Repository as a new revision and make it available for editing to other users" />
     <c:set var="copyMessage" value="Create a new project in Design Repository with a different project name but the same content " />
 
@@ -72,8 +71,6 @@
           </h:commandButton>
           <h:commandButton id="closeId1" rendered="#{repositoryTreeState.canClose}" value="Close" action="#{repositoryTreeController.closeProject}" title="#{closeMessage}"
                            onclick="#{repositoryTreeController.hasDependingProjects || repositoryTreeState.selectedProjectModified ? rich:component('modalCloseProject').concat('.show();return false;') : ''}"/>
-          <h:commandButton id="editId1" rendered="#{repositoryTreeState.canEdit}" value="Edit" action="#{repositoryTreeController.editProject}" title="#{editMessage}"
-                           onclick="#{repositoryTreeController.hasDependencies ? rich:component('modalEditProject').concat('.show();return false;') : ''}"/>
         </h:panelGroup>
 
         <h:panelGroup rendered="#{systemConfig['user.mode'] == 'single' and artefact.opened}">
@@ -82,7 +79,6 @@
               <f:ajax listener="#{repositoryTreeController.openVersionDialogListener}" render=":openVersionForm"/>
 	      </h:commandButton>
           <h:commandButton id="closeId2" rendered="#{repositoryTreeState.canClose}" value="Close" onclick="#{rich:component('modalCloseProject')}.show();return false;" title="#{closeMessage}"/>
-          <h:commandButton id="editId2" rendered="#{repositoryTreeState.canEdit}" value="Edit" onclick="#{rich:component('modalEditProject')}.show();return false;" title="#{editMessage}"/>
         </h:panelGroup>
 
         <h:commandButton  id="saveId1" rendered="#{repositoryTreeState.canSaveProject and !repositoryTreeState.localOnly}" value="Save" onclick="openSaveDialog();return false;" title="#{saveMessage}"/>
@@ -219,7 +215,7 @@
 
       <h:commandButton id="closeId3" rendered="#{repositoryTreeState.canClose}" value="Close" action="#{deploymentController.close}" title="Close Deploy Configuration and make it unavailable for editing"
                        onclick="if (#{deploymentController.modified}) {#{rich:component('modalCloseDeployConfiguration')}.show();return false;}" />
-      <h:commandButton id="editDeployId" rendered="#{repositoryTreeState.canEditDeployment}" value="Edit" action="#{deploymentController.edit}" title="Make project available for editing and lock it from editing by other users"/>
+      <h:commandButton id="editDeployId" rendered="#{repositoryTreeState.canEditDeployment}" value="Open" action="#{deploymentController.open}" title="Make project available for editing and lock it from editing by other users"/>
       <h:commandButton id="saveDeployId" rendered="#{repositoryTreeState.canSaveDeployment}" value="Save" action="#{deploymentController.save}" title="#{saveMessage}"/>
       <h:commandButton id="copyId2" rendered="#{repositoryTreeState.canCreateDeployment}" value="Copy" onclick="openCopyDeploymentProjectDialog();return false;" title="#{copyMessage}"/>
       <h:commandButton id="deleteId3" rendered="#{repositoryTreeState.canDeleteDeployment}" value="Delete" onclick="#{rich:component('modalDeleteNode')}.show();return false;" title="#{deleteMessage}"/>

@@ -369,7 +369,7 @@ public class SmartRedeployController {
                 FacesUtils.addWarnMessage("Deploy configuration '" + deploymentName + "' is locked by other user");
                 return null;
             } else {
-                deployConfiguration.edit();
+                deployConfiguration.open();
                 // rewrite project->version
                 deployConfiguration.addProjectDescriptor(project.getName(), project.getVersion());
 

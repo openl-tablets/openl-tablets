@@ -52,10 +52,6 @@ public abstract class UserWorkspaceProject extends AProject {
 
     public abstract void openVersion(String version) throws ProjectException;
 
-    public void edit() throws ProjectException {
-        edit(getUser());
-    }
-    
     public void save() throws ProjectException {
         save(getUser());
     }

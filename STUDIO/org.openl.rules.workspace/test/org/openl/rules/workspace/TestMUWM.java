@@ -93,7 +93,7 @@ public class TestMUWM {
             p = uw.getProject(name);
         }
 
-        p.edit(wu);
+//        p.edit(wu);
 
         AProjectFolder uwpf;
         try {

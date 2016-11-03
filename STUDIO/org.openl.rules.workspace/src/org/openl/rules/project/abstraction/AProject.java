@@ -117,9 +117,6 @@ public class AProject extends AProjectFolder {
         refresh();
     }
 
-    public void edit(CommonUser user) throws ProjectException {
-    }
-
     public void close(CommonUser user) throws ProjectException {
         refresh();
     }

@@ -123,13 +123,13 @@ public class DeploymentController {
         return null;
     }
 
-    public String edit() {
+    public String open() {
         try {
-            getSelectedProject().edit();
+            getSelectedProject().open();
             items = null;
         } catch (ProjectException e) {
-            log.error("Failed to edit", e);
-            FacesUtils.addErrorMessage("Failed to edit", e.getMessage());
+            log.error("Failed to open", e);
+            FacesUtils.addErrorMessage("Failed to open", e.getMessage());
         }
 
         return null;

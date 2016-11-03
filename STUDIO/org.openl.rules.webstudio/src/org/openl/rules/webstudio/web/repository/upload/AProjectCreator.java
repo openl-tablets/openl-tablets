@@ -48,7 +48,7 @@ public abstract class AProjectCreator {
 //                FacesUtils.addErrorMessage("");
 //            }
 
-            projectBuilder.getProject().edit();
+            projectBuilder.getProject().open();
         } catch (Exception e) {
             if (projectBuilder != null) {
                 projectBuilder.cancel();

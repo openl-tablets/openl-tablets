@@ -115,12 +115,6 @@ public class ADeploymentProject extends UserWorkspaceProject {
         return openedVersion != null; //|| isOpenedForEditing();
     }
 
-    public void edit(CommonUser user) throws ProjectException {
-        modifiedDescriptors = false;
-        super.edit(user);
-        open();
-    }
-
     @Override
     public void save(CommonUser user) throws ProjectException {
         if (descriptors == null || descriptors.isEmpty()) {

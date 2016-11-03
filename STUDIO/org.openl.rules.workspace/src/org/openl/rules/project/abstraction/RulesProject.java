@@ -52,11 +52,6 @@ public class RulesProject extends UserWorkspaceProject {
         this.designFolderName = designFileData == null ? null : designFileData.getName();
     }
 
-    public void edit(CommonUser user) throws ProjectException {
-        super.edit(user);
-        open();
-    }
-
     @Override
     public void save(CommonUser user) throws ProjectException {
         clearModifyStatus();

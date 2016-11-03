@@ -25,7 +25,7 @@ public class TestCreateDelete {
             p = uw.getProject(name);
         }
 
-        p.edit(wu);
+//        p.edit(wu);
 
         try {
             AProjectFolder f = (AProjectFolder) p.getArtefact("F1");

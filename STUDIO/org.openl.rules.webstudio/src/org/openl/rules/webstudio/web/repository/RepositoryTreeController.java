@@ -213,20 +213,6 @@ public class RepositoryTreeController {
         return null;
     }
 
-    public String editProject() {
-        try {
-            repositoryTreeState.getSelectedProject().edit();
-            openDependenciesIfNeeded();
-            repositoryTreeState.refreshSelectedNode();
-            resetStudioModel();
-        } catch (ProjectException e) {
-            String msg = "Failed to edit project.";
-            log.error(msg, e);
-            FacesUtils.addErrorMessage(msg, e.getMessage());
-        }
-        return null;
-    }
-
     public String closeProject() {
         try {
             if (repositoryTreeState.getSelectedProject().equals(studio.getModel().getProject())) {
@@ -492,11 +478,11 @@ public class RepositoryTreeController {
             }
 
             ADeploymentProject createdProject = userWorkspace.createDDProject(projectName);
-            createdProject.edit();
+            createdProject.open();
             // Analogous to rules project creation (to change "created by"
             // property and revision)
             createdProject.save();
-            createdProject.edit();
+            createdProject.open();
             repositoryTreeState.addDeploymentProjectToTree(createdProject);
             FacesUtils.addInfoMessage(String.format("Deploy configuration '%s' is successfully created", projectName));
         } catch (ProjectException e) {
@@ -551,7 +537,7 @@ public class RepositoryTreeController {
                 FacesUtils.addInfoMessage("Project was created successfully.");
                 /* Clear the load form */
                 this.clearForm();
-                this.editProject();
+                this.openProject();
             } catch (ProjectException e) {
                 creationMessage = e.getMessage();
             }

@@ -331,10 +331,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     public void uploadLocalProject(String name) throws ProjectException {
         try {
             AProject createdProject = createProject(name);
-            createdProject.lock(user);
             createdProject.update(localWorkspace.getProject(name), user);
-            createdProject.unlock(user);
-            createdProject.edit(user);
             refreshRulesProjects();
         } catch (ProjectException e) {
             if (designTimeRepository.hasProject(name)) {

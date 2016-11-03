@@ -199,20 +199,6 @@ public class WebStudio {
         }
     }
 
-    public void editProject(HttpSession session) {
-        try {
-            RulesProject project = getCurrentProject(session);
-            if (project == null) {
-                return;
-            }
-            project.edit();
-            model.resetSourceModified(); // Because project.edit() rewrite files in the workspace
-        } catch (Exception e) {
-            log.error("Can not Open project in Edit mode", e);
-            // TODO Display message - e.getMessage()
-        }
-    }
-
     public BenchmarkInfoView[] getBenchmarks() {
         return benchmarks.toArray(new BenchmarkInfoView[benchmarks.size()]);
     }
