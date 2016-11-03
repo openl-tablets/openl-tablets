@@ -347,7 +347,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     @Override
     public void onRepositoryModified() {
-        invalidateTree();
+        root = null;
     }
 
     public boolean isHideDeleted() {
