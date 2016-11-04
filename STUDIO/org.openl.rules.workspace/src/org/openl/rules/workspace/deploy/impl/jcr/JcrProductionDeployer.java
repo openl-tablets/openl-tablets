@@ -74,12 +74,8 @@ public class JcrProductionDeployer implements ProductionDeployer {
         StringBuilder sb = new StringBuilder(ddProject.getName());
         ProjectVersion projectVersion = ddProject.getVersion();
         if (projectVersion != null) {
-                if (repository != null) {
                     int version = DeployUtils.getNextDeploymentVersion(repository, ddProject);
                     sb.append('#').append(version);
-                } else {
-                    sb.append('#').append(projectVersion.getRevision());
-                }
         }
         return new DeployID(sb.toString());
     }
