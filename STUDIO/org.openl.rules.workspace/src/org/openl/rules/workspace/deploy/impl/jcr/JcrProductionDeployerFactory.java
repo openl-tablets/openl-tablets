@@ -8,8 +8,8 @@ public class JcrProductionDeployerFactory implements ProductionDeployerFactory {
     private ProductionRepositoryFactoryProxy repositoryFactoryProxy;
 
     @Override
-    public ProductionDeployer getDeployerInstance(String repositoryConfigName, boolean deploymentFormatOld) {
-        return new JcrProductionDeployer(repositoryFactoryProxy, repositoryConfigName, deploymentFormatOld);
+    public ProductionDeployer getDeployerInstance(String repositoryConfigName) {
+        return new JcrProductionDeployer(repositoryFactoryProxy, repositoryConfigName);
     }
 
     public void setRepositoryFactoryProxy(ProductionRepositoryFactoryProxy repositoryFactoryProxy) {

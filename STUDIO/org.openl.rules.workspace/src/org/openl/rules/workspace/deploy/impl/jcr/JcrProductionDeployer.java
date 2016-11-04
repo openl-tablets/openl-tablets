@@ -2,7 +2,6 @@ package org.openl.rules.workspace.deploy.impl.jcr;
 
 import java.util.Collection;
 
-import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.ADeploymentProject;
@@ -24,17 +23,10 @@ import org.openl.rules.workspace.deploy.ProductionDeployer;
 public class JcrProductionDeployer implements ProductionDeployer {
     private final ProductionRepositoryFactoryProxy repositoryFactoryProxy;
     private final String repositoryConfigName;
-    private boolean deploymentFormatOld = false;
 
     public JcrProductionDeployer(ProductionRepositoryFactoryProxy repositoryFactoryProxy, String repositoryConfigName) {
         this.repositoryFactoryProxy = repositoryFactoryProxy;
         this.repositoryConfigName = repositoryConfigName;
-    }
-
-    public JcrProductionDeployer(ProductionRepositoryFactoryProxy repositoryFactoryProxy, String repositoryConfigName, boolean deploymentFormatOld) {
-        this.repositoryFactoryProxy = repositoryFactoryProxy;
-        this.repositoryConfigName = repositoryConfigName;
-        this.deploymentFormatOld = deploymentFormatOld;
     }
 
     /**
@@ -82,20 +74,12 @@ public class JcrProductionDeployer implements ProductionDeployer {
         StringBuilder sb = new StringBuilder(ddProject.getName());
         ProjectVersion projectVersion = ddProject.getVersion();
         if (projectVersion != null) {
-            if (deploymentFormatOld) {
-                if (isOldFormatVersion(projectVersion)) {
-                    sb.append('#').append(projectVersion.getVersionName());
-                } else {
-                    sb.append('#').append("0.0.").append(projectVersion.getVersionName());
-                }
-            } else {
                 if (repository != null) {
                     int version = DeployUtils.getNextDeploymentVersion(repository, ddProject);
                     sb.append('#').append(version);
                 } else {
                     sb.append('#').append(projectVersion.getRevision());
                 }
-            }
         }
         return new DeployID(sb.toString());
     }
@@ -105,9 +89,5 @@ public class JcrProductionDeployer implements ProductionDeployer {
         if (repositoryFactoryProxy != null) {
             repositoryFactoryProxy.releaseRepository(repositoryConfigName);
         }
-    }
-
-    private boolean isOldFormatVersion (ProjectVersion version) {
-        return version.getMajor() != CommonVersion.MAX_MM_INT && version.getMajor() != -1;
     }
 }
