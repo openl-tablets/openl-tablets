@@ -40,11 +40,16 @@ public class JcrProductionDeployer implements ProductionDeployer {
      */
 
     public synchronized DeployID deploy(ADeploymentProject deploymentProject, Collection<AProject> projects, WorkspaceUser user) throws DeploymentException {
-        DeployID id;
 
         try {
             Repository repository =repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
-            id = generateDeployID(deploymentProject, repository);
+            StringBuilder sb = new StringBuilder(deploymentProject.getName());
+            ProjectVersion projectVersion = deploymentProject.getVersion();
+            if (projectVersion != null) {
+                int version = DeployUtils.getNextDeploymentVersion(repository, deploymentProject);
+                sb.append('#').append(version);
+            }
+            DeployID id = new DeployID(sb.toString());
 
                 String deploymentPath = DeployUtils.DEPLOY_PATH + id.getName();
                 AProject deploymentPRJ = new AProject(repository, deploymentPath);
@@ -56,10 +61,10 @@ public class JcrProductionDeployer implements ProductionDeployer {
                 // TODO: Some analogue of notifyChanges() possibly will be needed
 //                deploymentPRJ.save(user);
 //                rRepository.notifyChanges();
+            return id;
         } catch (Exception e) {
             throw new DeploymentException("Failed to deploy: " + e.getMessage(), e);
         }
-        return id;
     }
 
     private void deployProject(AProject deployment, AProject project, WorkspaceUser user) throws ProjectException {
@@ -68,16 +73,6 @@ public class JcrProductionDeployer implements ProductionDeployer {
 
         /*Update and set project revision*/
         copiedProject.update(project, user);
-    }
-
-    private DeployID generateDeployID(ADeploymentProject ddProject, Repository repository) throws RRepositoryException {
-        StringBuilder sb = new StringBuilder(ddProject.getName());
-        ProjectVersion projectVersion = ddProject.getVersion();
-        if (projectVersion != null) {
-                    int version = DeployUtils.getNextDeploymentVersion(repository, ddProject);
-                    sb.append('#').append(version);
-        }
-        return new DeployID(sb.toString());
     }
 
     @Override
