@@ -73,15 +73,6 @@ public class DeploymentManager implements InitializingBean {
         return deployer.deploy(project, projects, user);
     }
 
-    public boolean hasDeploymentProject(ADeploymentProject deploymentConfiguration, String repositoryConfigName) throws ProjectException {
-        ProductionDeployer deployer = deployers.get(repositoryConfigName);
-        if (deployer == null) {
-            throw new IllegalArgumentException("No such repository '" + repositoryConfigName + "'");
-        }
-
-        return deployer.hasDeploymentProject(deploymentConfiguration);
-    }
-
     public void setProductionDeployerFactory(ProductionDeployerFactory productionDeployerFactory) {
         this.productionDeployerFactory = productionDeployerFactory;
     }

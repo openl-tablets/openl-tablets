@@ -116,12 +116,9 @@ public class ProductionRepositoryDeployer {
             // Wait 15 seconds for initializing networking in JGroups.
             Object initializeTimeout = properties.get("timeout.networking.initialize");
             Thread.sleep(initializeTimeout == null ? 15000 : Integer.parseInt(initializeTimeout.toString()));
-            int version = DeployUtils.getNextDeploymentVersion(repository, project);
-            // TODO: Do we really need to explicitly set current version? See commented line below.
-//            ((LocalFolderAPI) project.getAPI()).setCurrentVersion(new RepositoryProjectVersionImpl(version, null));
-            project.setHistoryVersion("" + version);
 
-            if (version != 0 && skipExist) {
+            // FIXME: Add check on exist deployment
+            if (skipExist) {
                 log.info("Project [{}] exists. It has been skipped to deploy.", project.getName());
                 return;
             }

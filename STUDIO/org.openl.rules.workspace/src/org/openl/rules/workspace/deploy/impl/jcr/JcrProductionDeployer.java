@@ -9,7 +9,6 @@ import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
-import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
@@ -17,7 +16,6 @@ import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.DeployUtils;
 import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.deploy.ProductionDeployer;
-import org.openl.util.IOUtils;
 
 /**
  * Implementation of <code>ProductionDeployer</code> that uses <i>JCR</i> as
@@ -52,14 +50,10 @@ public class JcrProductionDeployer implements ProductionDeployer {
     public synchronized DeployID deploy(ADeploymentProject deploymentProject, Collection<AProject> projects, WorkspaceUser user) throws DeploymentException {
         DeployID id;
 
-        boolean alreadyDeployed = false;
         try {
             Repository repository =repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
             id = generateDeployID(deploymentProject, repository);
 
-            if (hasDeployment(repository, DeployUtils.DEPLOY_PATH + id.getName()) || hasDeployment(repository,DeployUtils.DEPLOY_PATH + getOtherDeploymentProjectName(deploymentProject))) {
-                alreadyDeployed = true;
-            } else {
                 String deploymentPath = DeployUtils.DEPLOY_PATH + id.getName();
                 AProject deploymentPRJ = new AProject(repository, deploymentPath);
                 deploymentPRJ.lock(user);
@@ -70,46 +64,10 @@ public class JcrProductionDeployer implements ProductionDeployer {
                 // TODO: Some analogue of notifyChanges() possibly will be needed
 //                deploymentPRJ.save(user);
 //                rRepository.notifyChanges();
-            }
         } catch (Exception e) {
             throw new DeploymentException("Failed to deploy: " + e.getMessage(), e);
         }
-
-        if (alreadyDeployed) {
-            throw new DeploymentException("Configuration is already deployed to production repository, id: " + id.getName(),
-                    null);
-        }
-
         return id;
-    }
-
-    private boolean hasDeployment(Repository repository, String path) {
-        FileItem item = repository.read(path);
-        if (item != null) {
-            IOUtils.closeQuietly(item.getStream());
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Checks if deploymentConfiguration is already deployed to this production
-     * repository.
-     * 
-     * @param deployConfiguration deploy configuration for project
-     *            trying to deploy
-     * @return true if deploymentConfiguration with its id already exists in
-     *         production repository
-     * @throws RRepositoryException if cannot get info from repository for some
-     *             reason
-     */
-    @Override
-    public synchronized boolean hasDeploymentProject(ADeploymentProject deployConfiguration) throws RRepositoryException {
-        Repository repository = repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
-        DeployID id = generateDeployID(deployConfiguration, null);
-        String otherPossibleID = this.getOtherDeploymentProjectName(deployConfiguration);
-
-        return hasDeployment(repository, DeployUtils.DEPLOY_PATH + id.getName()) || hasDeployment(repository, DeployUtils.DEPLOY_PATH + otherPossibleID);
     }
 
     private void deployProject(AProject deployment, AProject project, WorkspaceUser user) throws ProjectException {
@@ -151,29 +109,5 @@ public class JcrProductionDeployer implements ProductionDeployer {
 
     private boolean isOldFormatVersion (ProjectVersion version) {
         return version.getMajor() != CommonVersion.MAX_MM_INT && version.getMajor() != -1;
-    }
-
-    /**
-     * Method for generating other possible version of deployment ID (e.g if we have id like projectName#1 then we will have id like projectName#0.0.1)
-     * 
-     * @param deployConfiguration deploy configuration for project
-     *            trying to deploy
-     * @return other possible version of deployment ID
-     */
-    private String getOtherDeploymentProjectName(ADeploymentProject deployConfiguration) {
-        StringBuilder sb = new StringBuilder(deployConfiguration.getName());
-        ProjectVersion projectVersion = deployConfiguration.getVersion();
-        if (projectVersion != null) {
-            if (!deploymentFormatOld) {
-                if (isOldFormatVersion(projectVersion)) {
-                    sb.append('#').append(projectVersion.getVersionName());
-                } else {
-                    sb.append('#').append("0.0.").append(projectVersion.getVersionName());
-                }
-            } else {
-                sb.append('#').append(projectVersion.getRevision());
-            }
-        }
-        return sb.toString();
     }
 }

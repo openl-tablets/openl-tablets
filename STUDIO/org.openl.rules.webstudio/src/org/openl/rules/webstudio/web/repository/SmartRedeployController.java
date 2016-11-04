@@ -155,13 +155,9 @@ public class SmartRedeployController {
             int cmp = descrVersion.compareTo(project.getVersion());
 
             if (cmp == 0) {
-                try {
                     if (StringUtils.isEmpty(repositoryConfigName)) {
                         item.setDisabled(true);
                         item.setMessages("Repository is not selected");
-                    } else if (deploymentManager.hasDeploymentProject(deploymentProject, repositoryConfigName)) {
-                        item.setDisabled(true);
-                        item.setMessages("Up to date");
                     } else if (deploymentProject.isOpenedForEditing()) {
                         // prevent loosing of user's changes
                         item.setDisabled(true);
@@ -178,11 +174,6 @@ public class SmartRedeployController {
                             item.setDisabled(true);
                         }
                     }
-                } catch (ProjectException e) {
-                    item.setDisabled(true);
-                    item.setMessages("Cannot connect to repository " + getRepositoryName(repositoryConfigName));
-                    item.setStyleForMessages(UiConst.STYLE_ERROR);
-                }
             } else if (cmp < 0) {
                 if (!isGranted(PRIVILEGE_EDIT_DEPLOYMENT)) {
                     // Don't have permission to edit deploy configuration -
