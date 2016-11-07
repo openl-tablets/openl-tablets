@@ -1,5 +1,13 @@
 package org.openl.rules.calc.element;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.openl.binding.impl.NodeType;
+import org.openl.binding.impl.NodeUsage;
+import org.openl.binding.impl.SimpleNodeUsage;
+import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -87,6 +95,31 @@ public class SpreadsheetCell implements Invokable {
             type = JavaOpenClass.getOpenClass(wrapper);
         }
         this.type = type;
+
+        // Add cell type meta info
+        if (sourceCell != null) {
+            String formattedValue = sourceCell.getFormattedValue();
+
+            if (formattedValue.startsWith("=")) {
+                CellMetaInfo metaInfo = sourceCell.getMetaInfo();
+                if (metaInfo == null) {
+                    metaInfo = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE,
+                            null,
+                            JavaOpenClass.STRING,
+                            false,
+                            Collections.<NodeUsage>emptyList());
+                }
+
+                List<NodeUsage> nodeUsages = new ArrayList<NodeUsage>();
+                String description = "Cell type: " + type.getDisplayName(0);
+                int from = formattedValue.indexOf('=');
+                nodeUsages.add(new SimpleNodeUsage(from, from + 1, description, null, NodeType.OTHER));
+                nodeUsages.addAll(metaInfo.getUsedNodes());
+
+                metaInfo.setUsedNodes(nodeUsages);
+                sourceCell.setMetaInfo(metaInfo);
+            }
+        }
     }
 
     public void setValue(Object value) {
