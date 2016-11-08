@@ -11,7 +11,7 @@
     <!-- Data source storage that provides information about deployments, projects
         and their properties and version -->
     <!-- This implementation based on JCR repository -->
-    <bean id="jcrdatasource" class="org.openl.rules.ruleservice.loader.JcrDataSource" lazy-init="true">
+    <bean id="jcrdatasource" class="org.openl.rules.ruleservice.loader.JcrDataSource" lazy-init="true" depends-on="deployClasspathJarsBean">
         <property name="repository">
             <bean class="${production-repository.factory}" init-method="initialize" destroy-method="close">
                 <constructor-arg value="${production-repository.uri}"/>
@@ -20,5 +20,10 @@
                 <constructor-arg value="false"/>
             </bean>
         </property>
+    </bean>
+
+    <bean id="deployClasspathJarsBean" class="org.openl.rules.ruleservice.loader.DeployClasspathJarsBean" lazy-init="true">
+        <property name="configurationFile" value="${ruleservice.datasource.repositoryPropertiesFile}"/>
+        <property name="enabled" value="#{${ruleservice.datasource.deploy.classpath.jars} and '${ruleservice.datasource.type}' eq 'jcr'}"/>
     </bean>
 </beans>
