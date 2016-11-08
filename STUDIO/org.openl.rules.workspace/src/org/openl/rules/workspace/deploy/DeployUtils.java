@@ -20,42 +20,28 @@ public final class DeployUtils {
     public static Collection<Deployment> getLastDeploymentProjects(Repository repository) throws RRepositoryException {
 
         Map<String, Deployment> latestDeployments = new HashMap<String, Deployment>();
-        Map<String, String> versionsList = new HashMap<String, String>();
+        Map<String, Integer> versionsList = new HashMap<String, Integer>();
 
         Collection<FileData> fileDatas = repository.list(DEPLOY_PATH);
-        Set<String> deploymentFolderNames = new HashSet<String>();
         for (FileData fileData : fileDatas) {
-            String deploymentName = fileData.getName().substring(DEPLOY_PATH.length()).split("/")[0];
-            deploymentFolderNames.add(deploymentName);
-        }
-
-        List<Deployment> deployments = new ArrayList<Deployment>();
-        for (String deploymentFolderName : deploymentFolderNames) {
+            String deploymentFolderName = fileData.getName().substring(DEPLOY_PATH.length()).split("/")[0];
             int separatorPosition = deploymentFolderName.lastIndexOf(SEPARATOR);
 
+            String deploymentName = deploymentFolderName;
+            Integer version = 0;
+            CommonVersionImpl commonVersion = null;
             if (separatorPosition >= 0) {
-                String deploymentName = deploymentFolderName.substring(0, separatorPosition);
-                String version = deploymentFolderName.substring(separatorPosition + 1);
-                CommonVersionImpl commonVersion = new CommonVersionImpl(version);
-                deployments.add(new Deployment(repository, DEPLOY_PATH + deploymentFolderName, deploymentName, commonVersion));
-            } else {
-                deployments.add(new Deployment(repository, DEPLOY_PATH + deploymentFolderName, deploymentFolderName, null));
+                deploymentName = deploymentFolderName.substring(0, separatorPosition);
+                version = Integer.valueOf(deploymentFolderName.substring(separatorPosition + 1));
+                commonVersion = new CommonVersionImpl(version);
             }
-        }
-        for (Deployment deployment : deployments) {
-            String deploymentName = deployment.getDeploymentName();
-            String versionNum = deployment.getCommonVersion().getRevision();
-            if (versionNum == null) {
-                versionNum = "0";
-            }
-
-            if (versionsList.containsKey(deploymentName)) {
-                if (versionNum.compareTo(versionsList.get(deploymentName)) > 0) {
-                    versionsList.put(deploymentName, versionNum);
-                    latestDeployments.put(deploymentName, deployment);
-                }
+            Integer previous = versionsList.put(deploymentName, version);
+            if (previous != null && previous > version) {
+                // rollback
+                versionsList.put(deploymentName, previous);
             } else {
-                versionsList.put(deploymentName, versionNum);
+                // put the latest deployment
+                Deployment deployment = new Deployment(repository, DEPLOY_PATH + deploymentFolderName, deploymentName, commonVersion);
                 latestDeployments.put(deploymentName, deployment);
             }
         }
