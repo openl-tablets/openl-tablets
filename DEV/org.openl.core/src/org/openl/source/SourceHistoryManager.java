@@ -21,6 +21,4 @@ public interface SourceHistoryManager<T> {
 
     SortedMap<Long, T> get(String... names);
 
-    SortedMap<Long, T> getAll();
-
 }
