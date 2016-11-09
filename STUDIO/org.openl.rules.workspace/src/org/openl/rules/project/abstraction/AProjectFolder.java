@@ -1,5 +1,6 @@
 package org.openl.rules.project.abstraction;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
@@ -79,6 +80,8 @@ public class AProjectFolder extends AProjectArtefact {
             AProjectResource createdResource = new AProjectResource(getProject(), getRepository(), fileData);
             getArtefactsInternal().put(name, createdResource);
             return createdResource;
+        } catch (IOException ex) {
+            throw new ProjectException("Cannot add a resource", ex);
         } finally {
             IOUtils.closeQuietly(content);
         }

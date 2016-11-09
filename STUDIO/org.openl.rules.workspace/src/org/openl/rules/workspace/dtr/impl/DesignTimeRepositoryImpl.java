@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -203,7 +204,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     public boolean hasDDProject(String name) {
-        FileItem item = getRepository().read(deploymentConfigurationLocation + "/" + name);
+        FileItem item;
+        try {
+            item = getRepository().read(deploymentConfigurationLocation + "/" + name);
+        } catch (IOException ex) {
+            return false;
+        }
         if (item != null) {
             IOUtils.closeQuietly(item.getStream());
             return true;

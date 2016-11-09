@@ -126,9 +126,9 @@ public class ADeploymentProject extends UserWorkspaceProject {
 
             // Archive the folder using zip
             FileData fileData = getFileData();
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
             ZipOutputStream zipOutputStream = null;
             try {
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
                 zipOutputStream = new ZipOutputStream(out);
 
                 ZipEntry entry = new ZipEntry(ArtefactProperties.DESCRIPTORS_FILE);
@@ -140,14 +140,14 @@ public class ADeploymentProject extends UserWorkspaceProject {
                 zipOutputStream.closeEntry();
 
                 zipOutputStream.close();
+                fileData.setAuthor(user == null ? null : user.getUserName());
+                setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
             } catch (IOException e) {
                 throw new ProjectException(e.getMessage(), e);
             } finally {
                 IOUtils.closeQuietly(zipOutputStream);
             }
 
-            fileData.setAuthor(user == null ? null : user.getUserName());
-            setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
         }
 
         modifiedDescriptors = false;

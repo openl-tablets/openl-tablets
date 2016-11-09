@@ -23,9 +23,9 @@ class LazyZipContentHandler implements ContentHandler {
 
     @Override
     public InputStream loadContent() {
-        FileItem fileItem = version == null ? repository.read(folderPath) : repository.readHistory(folderPath, version);
-        ZipInputStream zipInputStream = new ZipInputStream(fileItem.getStream());
         try {
+            FileItem fileItem = version == null ? repository.read(folderPath) : repository.readHistory(folderPath, version);
+            ZipInputStream zipInputStream = new ZipInputStream(fileItem.getStream());
             ZipEntry entry;
             while ((entry = zipInputStream.getNextEntry()) != null) {
                 if (entry.getName().equals(entryName)) {

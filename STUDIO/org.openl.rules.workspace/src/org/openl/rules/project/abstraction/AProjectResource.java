@@ -1,5 +1,6 @@
 package org.openl.rules.project.abstraction;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.openl.rules.common.CommonUser;
@@ -27,11 +28,15 @@ public class AProjectResource extends AProjectArtefact {
             return contentHandler.loadContent();
         }
         else {
+            try {
             if (isHistoric()) {
                 return getRepository().readHistory(getFileData().getName(), getFileData().getVersion()).getStream();
             }
             else {
                 return getRepository().read(getFileData().getName()).getStream();
+            }
+            } catch (IOException ex) {
+                throw new IllegalStateException(ex);
             }
         }
     }
@@ -40,8 +45,13 @@ public class AProjectResource extends AProjectArtefact {
         if (contentHandler != null) {
             throw new UnsupportedOperationException("Can't set content if contentHandler is initialized");
         }
-        setFileData(getRepository().save(getFileData(), inputStream));
-        IOUtils.closeQuietly(inputStream);
+        try {
+            setFileData(getRepository().save(getFileData(), inputStream));
+        } catch (IOException ex) {
+            throw new ProjectException("Cannot set content", ex);
+        } finally {
+            IOUtils.closeQuietly(inputStream);
+        }
     }
 
     private void setContent(AProjectResource resource) throws ProjectException {

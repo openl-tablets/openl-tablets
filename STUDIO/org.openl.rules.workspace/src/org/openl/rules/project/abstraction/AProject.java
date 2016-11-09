@@ -39,6 +39,7 @@ public class AProject extends AProjectFolder {
         FileData fileData = super.getFileData();
         if (fileData == null) {
             if (!isFolder()) {
+                try {
                 if (!isHistoric() || isLastVersion()) {
                     FileItem fileItem = getRepository().read(getFolderPath());
                     if (fileItem != null) {
@@ -53,6 +54,9 @@ public class AProject extends AProjectFolder {
                     FileItem fileItem = getRepository().readHistory(getFolderPath(), getHistoryVersion());
                     IOUtils.closeQuietly(fileItem.getStream());
                     fileData = fileItem.getData();
+                }
+                } catch (IOException ex) {
+                    throw new IllegalStateException(ex);
                 }
             } else {
                 fileData = new FileData();
@@ -105,14 +109,20 @@ public class AProject extends AProjectFolder {
         if (!isFolder()) {
             FileData fileData = getFileData();
             FileItem read;
+            InputStream stream = null;
+            try {
             if (isHistoric()) {
                 read = getRepository().readHistory(fileData.getName(), fileData.getVersion());
             } else {
                 read = getRepository().read(fileData.getName());
             }
-            InputStream stream = read.getStream();
+            stream = read.getStream();
             setFileData(getRepository().save(fileData, stream));
-            IOUtils.closeQuietly(stream);
+            } catch (IOException ex) {
+                throw new ProjectException("Project cannot be saved", ex);
+            } finally {
+                IOUtils.closeQuietly(stream);
+            }
         }
         refresh();
     }
@@ -150,6 +160,7 @@ public class AProject extends AProjectFolder {
     }
 
     public void undelete() throws ProjectException {
+        try {
         if (!isDeleted()) {
             throw new ProjectException("Cannot undelete non-marked project ''{0}''!", null, getName());
         }
@@ -174,6 +185,10 @@ public class AProject extends AProjectFolder {
             setHistoryVersion(getFileData().getVersion());
             IOUtils.closeQuietly(stream);
         }
+        } catch (IOException ex) {
+            throw new ProjectException("Cannot undelete a project", ex);
+        }
+
     }
 
     public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
@@ -191,10 +206,14 @@ public class AProject extends AProjectFolder {
         final String folderPath = getFolderPath();
         final Repository repository = getRepository();
         FileItem fileItem;
+        try {
         if (isHistoric()) {
             fileItem = repository.readHistory(folderPath, getFileData().getVersion());
         } else {
             fileItem = repository.read(folderPath);
+        }
+        } catch (IOException ex) {
+            throw new IllegalArgumentException(ex);
         }
         if (fileItem == null) {
             return internalArtefacts;
@@ -251,7 +270,8 @@ public class AProject extends AProjectFolder {
                 // Just copy a single file
                 FileData fileData = getFileData();
 
-                InputStream stream;
+                InputStream stream = null;
+                try {
                 if (isHistoric()) {
                     stream = projectFrom.getRepository().readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion()).getStream();
                 } else {
@@ -259,7 +279,11 @@ public class AProject extends AProjectFolder {
                 }
                 fileData.setAuthor(user.getUserName());
                 setFileData(getRepository().save(fileData, stream));
-                IOUtils.closeQuietly(stream);
+                } catch (IOException ex) {
+                    throw new IllegalArgumentException("Can't update not from AProject", ex);
+                } finally {
+                    IOUtils.closeQuietly(stream);
+                }
             } else {
                 // Archive the folder using zip
                 FileData fileData = getFileData();
@@ -272,15 +296,14 @@ public class AProject extends AProjectFolder {
                         writeArtefact(zipOutputStream, artefact);
                     }
 
-                    zipOutputStream.close();
+                    fileData.setAuthor(user.getUserName());
+                    setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
                 } catch (IOException e) {
                     throw new ProjectException(e.getMessage(), e);
                 } finally {
                     IOUtils.closeQuietly(zipOutputStream);
                 }
 
-                fileData.setAuthor(user.getUserName());
-                setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
             }
         }
     }
