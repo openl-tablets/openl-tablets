@@ -87,7 +87,7 @@ public abstract class BaseDBRepositoryFactory extends DBRepository implements RR
         }
     }
 
-    private static void initializeTable(Connection connection, DatabaseType databaseType) throws SQLException {
+    private void initializeTable(Connection connection, DatabaseType databaseType) throws SQLException {
         if (!tableExists(connection, databaseType)) {
             switch (databaseType) {
                 case H2:
@@ -111,7 +111,7 @@ public abstract class BaseDBRepositoryFactory extends DBRepository implements RR
         }
     }
 
-    private static void createTable(Connection connection, String... queries) throws SQLException {
+    private void createTable(Connection connection, String... queries) throws SQLException {
         Statement statement = null;
         try {
             statement = connection.createStatement();
@@ -119,19 +119,12 @@ public abstract class BaseDBRepositoryFactory extends DBRepository implements RR
                 statement.execute(query);
             }
         } finally {
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException e) {
-                    Logger log = LoggerFactory.getLogger(DatabaseQueries.class);
-                    log.warn("Unexpected sql failure", e);
-                }
-            }
+            safeClose(statement);
         }
 
     }
 
-    private static boolean tableExists(Connection connection, DatabaseType databaseType) throws SQLException {
+    private boolean tableExists(Connection connection, DatabaseType databaseType) throws SQLException {
         ResultSet rs = null;
         try {
             DatabaseMetaData metaData = connection.getMetaData();
@@ -146,14 +139,7 @@ public abstract class BaseDBRepositoryFactory extends DBRepository implements RR
 
             return rs.next();
         } finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    Logger log = LoggerFactory.getLogger(DatabaseQueries.class);
-                    log.warn("Unexpected sql failure", e);
-                }
-            }
+            safeClose(rs);
         }
     }
 }

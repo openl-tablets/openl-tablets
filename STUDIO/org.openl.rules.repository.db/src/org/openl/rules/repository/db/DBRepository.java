@@ -308,7 +308,7 @@ public abstract class DBRepository implements Repository {
         return fileData;
     }
 
-    private void safeClose(ResultSet rs) {
+    protected void safeClose(ResultSet rs) {
         if (rs != null) {
             try {
                 rs.close();
@@ -322,7 +322,7 @@ public abstract class DBRepository implements Repository {
         return path.replace("$", "$$").replace("%", "$%") + "%";
     }
 
-    private void safeClose(Statement st) {
+    protected void safeClose(Statement st) {
         if (st != null) {
             try {
                 st.close();
