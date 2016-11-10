@@ -16,7 +16,7 @@ final class DatabaseQueries {
     static final String SELECT_ALL_HISTORY_METAINFO_FOR_FILE = "select id, file_name, file_size, author, file_comment, modified_at, version, case when file_data is null then 1 else 0 end as deleted\n"
             + "from openl_repository\n"
             + "where file_name = ?\n"
-            + "order by file_name";
+            + "order by id";
     static final String INSERT_FILE = "insert into openl_repository(file_name, file_size, author, file_comment, modified_at, version, file_data) values(?, ?, ?, ?, ?, ?, ?)";
     static final String READ_ACTUAL_FILE = "select r1.id, r1.file_name, r1.file_size, r1.author, r1.file_comment, r1.modified_at, r1.version, case when r1.file_data is null then 1 else 0 end as deleted, r1.file_data\n"
             + "from openl_repository r1\n"
