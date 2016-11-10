@@ -1,9 +1,7 @@
 package org.openl.rules.repository.db;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
+import java.sql.*;
 
 import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -35,7 +33,7 @@ public abstract class BaseDBRepositoryFactory extends DBRepository implements RR
                     .toLowerCase()
                     .replace(" ", "_"));
 
-            DatabaseQueries.initializeTable(connection, databaseType);
+            initializeTable(connection, databaseType);
         } catch (SQLException e) {
             throw new RRepositoryException("Can't initialize repository", e);
         }
@@ -85,6 +83,76 @@ public abstract class BaseDBRepositoryFactory extends DBRepository implements RR
                 connection.close();
             } catch (SQLException e) {
                 throw new IOException(e);
+            }
+        }
+    }
+
+    private static void initializeTable(Connection connection, DatabaseType databaseType) throws SQLException {
+        if (!tableExists(connection, databaseType)) {
+            switch (databaseType) {
+                case H2:
+                    createTable(connection, DatabaseQueries.H2_TABLE);
+                    break;
+                case MYSQL:
+                    createTable(connection, DatabaseQueries.MYSQL_TABLE);
+                    break;
+                case POSTGRESQL:
+                    createTable(connection, DatabaseQueries.POSTGRESQL_TABLE);
+                    break;
+                case ORACLE:
+                    createTable(connection, DatabaseQueries.ORACLE_TABLE, DatabaseQueries.ORACLE_SEQUENCE, DatabaseQueries.ORACLE_TRIGGER);
+                    break;
+                case SQL_SERVER:
+                    createTable(connection, DatabaseQueries.SQLSERVER_TABLE);
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Unsupported database " + connection.getMetaData().getDatabaseProductName());
+            }
+        }
+    }
+
+    private static void createTable(Connection connection, String... queries) throws SQLException {
+        Statement statement = null;
+        try {
+            statement = connection.createStatement();
+            for (String query : queries) {
+                statement.execute(query);
+            }
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    Logger log = LoggerFactory.getLogger(DatabaseQueries.class);
+                    log.warn("Unexpected sql failure", e);
+                }
+            }
+        }
+
+    }
+
+    private static boolean tableExists(Connection connection, DatabaseType databaseType) throws SQLException {
+        ResultSet rs = null;
+        try {
+            DatabaseMetaData metaData = connection.getMetaData();
+            String repoTable = metaData.storesUpperCaseIdentifiers() ? DatabaseQueries.REPOSITORY_NAME.toUpperCase() : DatabaseQueries.REPOSITORY_NAME;
+            switch (databaseType) {
+                case ORACLE:
+                    rs = metaData.getTables(null, metaData.getUserName(), repoTable, new String[] { "TABLE" });
+                    break;
+                default:
+                    rs = metaData.getTables(null, null, repoTable, new String[] { "TABLE" });
+            }
+
+            return rs.next();
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    Logger log = LoggerFactory.getLogger(DatabaseQueries.class);
+                    log.warn("Unexpected sql failure", e);
+                }
             }
         }
     }
