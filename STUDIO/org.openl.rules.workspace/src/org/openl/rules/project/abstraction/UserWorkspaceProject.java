@@ -72,7 +72,7 @@ public abstract class UserWorkspaceProject extends AProject {
         else if (isDeleted()) {
             return ProjectStatus.ARCHIVED;
         }
-        else if (isOpenedForEditing()) {
+        else if (isModified()) {
             return ProjectStatus.EDITING;
         }
         else if (isOpenedOtherVersion()) {
