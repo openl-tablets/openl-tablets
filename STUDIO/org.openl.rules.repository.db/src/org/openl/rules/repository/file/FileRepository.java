@@ -22,7 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A simple implementation of a file-system-based repository. This repository does not support versioning.
+ * A simple implementation of a file-system-based repository. This repository
+ * does not support versioning.
  *
  * @author Yury Molchan
  */
@@ -38,6 +39,9 @@ public class FileRepository implements Repository {
 
     public void initialize() throws IOException {
         root.mkdirs();
+        if (!root.exists() || !root.isDirectory()) {
+            throw new IOException("Failed to initialize the root directory: [" + root + "]");
+        }
         String rootPath = root.getCanonicalPath();
         rootPathLength = rootPath.length() + 1;
     }
@@ -76,7 +80,7 @@ public class FileRepository implements Repository {
         File file = new File(root, name);
         boolean deleted = file.delete();
         // Delete empty parent folders
-        while (!(file = file.getParentFile()).equals(root) && file.delete()) ;
+        while (!(file = file.getParentFile()).equals(root) && file.delete());
         return deleted;
     }
 
@@ -96,6 +100,8 @@ public class FileRepository implements Repository {
         if (!renamed) {
             throw new IOException("Impossible to rename the file from [" + srcFile + "] to [" + destFile + "]");
         }
+        // Delete empty parent folders
+        while (!(srcFile = srcFile.getParentFile()).equals(root) && srcFile.delete());
         return getFileData(destFile);
     }
 
