@@ -109,9 +109,26 @@ public abstract class DBRepository implements Repository {
     }
 
     @Override
-    public FileData copy(String srcPath, String destPath) {
-        // TODO: implement
-        return null;
+    public FileData copy(String srcName, String destName) throws IOException {
+        PreparedStatement statement = null;
+        try {
+            String newVersion = UUID.randomUUID().toString();
+
+            statement = getConnection().prepareStatement(DatabaseQueries.COPY_FILE);
+            statement.setString(1, destName);
+            statement.setTimestamp(2, new Timestamp(new Date().getTime()));
+            statement.setString(3, newVersion);
+            statement.setString(4, srcName);
+            statement.executeUpdate();
+
+            FileData copy = getHistoryVersionFileData(destName, newVersion);
+            invokeListener();
+            return copy;
+        } catch (SQLException e) {
+            throw new IOException(e);
+        } finally {
+            safeClose(statement);
+        }
     }
 
     @Override
@@ -263,9 +280,31 @@ public abstract class DBRepository implements Repository {
     }
 
     @Override
-    public FileData copyHistory(String srcName, String destName, String version) {
-        // TODO: implement
-        return null;
+    public FileData copyHistory(String srcName, String destName, String version) throws IOException {
+        if (version == null) {
+            return copy(srcName, destName);
+        }
+
+        PreparedStatement statement = null;
+        try {
+            String newVersion = UUID.randomUUID().toString();
+
+            statement = getConnection().prepareStatement(DatabaseQueries.COPY_HISTORY);
+            statement.setString(1, destName);
+            statement.setTimestamp(2, new Timestamp(new Date().getTime()));
+            statement.setString(3, newVersion);
+            statement.setString(4, srcName);
+            statement.setString(5, version);
+            statement.executeUpdate();
+
+            FileData copy = getHistoryVersionFileData(destName, newVersion);
+            invokeListener();
+            return copy;
+        } catch (SQLException e) {
+            throw new IOException(e);
+        } finally {
+            safeClose(statement);
+        }
     }
 
     protected abstract Connection getConnection();
@@ -276,6 +315,32 @@ public abstract class DBRepository implements Repository {
         try {
             statement = getConnection().prepareStatement(DatabaseQueries.READ_ACTUAL_FILE_METAINFO);
             statement.setString(1, name);
+            rs = statement.executeQuery();
+
+            FileData fileData = null;
+            if (rs.next()) {
+                fileData = createFileData(rs);
+            }
+
+            rs.close();
+            statement.close();
+
+            return fileData;
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        } finally {
+            safeClose(rs);
+            safeClose(statement);
+        }
+    }
+
+    private FileData getHistoryVersionFileData(String name, String version) {
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        try {
+            statement = getConnection().prepareStatement(DatabaseQueries.READ_HISTORIC_FILE_METAINFO);
+            statement.setString(1, name);
+            statement.setString(2, version);
             rs = statement.executeQuery();
 
             FileData fileData = null;

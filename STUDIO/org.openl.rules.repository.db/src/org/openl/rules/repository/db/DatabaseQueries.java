@@ -37,9 +37,25 @@ final class DatabaseQueries {
     static final String READ_HISTORIC_FILE = "select id, file_name, file_size, author, file_comment, modified_at, version, case when file_data is null then 1 else 0 end as deleted, file_data\n"
             + "from openl_repository\n"
             + "where file_name = ? and version = ?";
+    static final String READ_HISTORIC_FILE_METAINFO = "select id, file_name, file_size, author, file_comment, modified_at, version, case when file_data is null then 1 else 0 end as deleted\n"
+            + "from openl_repository\n"
+            + "where file_name = ? and version = ?";
     static final String DELETE_ALL_HISTORY = "delete from openl_repository where file_name = ?";
     static final String DELETE_VERSION = "delete from openl_repository where file_name = ? and version = ?";
     static final String SELECT_MAX_ID = "select max(id) as max_id from openl_repository";
+    static final String COPY_FILE = "insert into openl_repository(file_name, file_size, author, file_comment, modified_at, version, file_data)\n"
+            + "select ? as file_name, r1.file_size, r1.author, r1.file_comment, ? as modified_at, ? as version, r1.file_data\n"
+            + "from openl_repository r1\n"
+            + "inner join (\n"
+            + "\tselect max(id) as id\n"
+            + "\tfrom openl_repository\n"
+            + "\twhere file_name = ?\n"
+            + ") r2\n"
+            + "on r1.id = r2.id";
+    static final String COPY_HISTORY = "insert into openl_repository(file_name, file_size, author, file_comment, modified_at, version, file_data)\n"
+            + "select ? as file_name, file_size, author, file_comment, ? as modified_at, ? as version, file_data\n"
+            + "from openl_repository\n"
+            + "where file_name = ? and version = ?";
 
     static final class Initial {
         static final String H2_TABLE = "CREATE TABLE openl_repository (\n"
