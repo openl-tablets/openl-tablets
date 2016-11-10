@@ -1,13 +1,14 @@
 package org.openl.rules.ruleservice.loader;
 
 import java.io.Closeable;
-import java.util.*;
+import java.util.Collection;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.annotation.PreDestroy;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.abstraction.Deployment;
-import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -25,16 +26,13 @@ import org.slf4j.LoggerFactory;
 public class JcrDataSource implements DataSource {
     private final Logger log = LoggerFactory.getLogger(JcrDataSource.class);
 
-    private static final String SEPARATOR = "#";
-
     private Repository repository;
 
     /**
      * {@inheritDoc}
      */
     public Collection<Deployment> getDeployments() {
-        Collection<FileData> fileDatas = repository.list(DeployUtils.DEPLOY_PATH);
-        return Deployment.getDeployments(repository, fileDatas);
+        return DeployUtils.getDeployments(repository);
     }
 
     /**
@@ -49,17 +47,10 @@ public class JcrDataSource implements DataSource {
         }
 
         log.debug("Getting deployement with name=\"{}\" and version=\"{}\"",
-                deploymentName,
-                deploymentVersion.getVersionName());
+            deploymentName,
+            deploymentVersion.getVersionName());
 
-        String name = deploymentName + SEPARATOR + deploymentVersion.getVersionName();
-        // FIXME
-        // Should be deploymentNotFoundException or null return
-        return new Deployment(repository, DeployUtils.DEPLOY_PATH + name, deploymentName, deploymentVersion);
-    }
-
-    private Repository getRProductionRepository() {
-        return repository;
+        return DeployUtils.getDeployment(repository, deploymentName, deploymentVersion);
     }
 
     /**
@@ -67,9 +58,9 @@ public class JcrDataSource implements DataSource {
      */
     public void setListener(DataSourceListener dataSourceListener) {
         if (dataSourceListener == null) {
-            getRProductionRepository().setListener(null);
+            repository.setListener(null);
         } else {
-            getRProductionRepository().setListener(new DataSourceListenerWrapper(dataSourceListener));
+            repository.setListener(new DataSourceListenerWrapper(dataSourceListener));
         }
     }
 
@@ -98,27 +89,27 @@ public class JcrDataSource implements DataSource {
 
         @Override
         public synchronized void onChange() {
-                final Timer timer = new Timer();
+            final Timer timer = new Timer();
 
-                timer.schedule(new TimerTask() {
-                    int count = 0;
+            timer.schedule(new TimerTask() {
+                int count = 0;
 
-                    @Override
-                    public void run() {
-                        try {
-                            log.info("Atempt to deploy # {}", count);
-                            System.gc();
-                            dataSourceListener.onDeploymentAdded();
+                @Override
+                public void run() {
+                    try {
+                        log.info("Atempt to deploy # {}", count);
+                        System.gc();
+                        dataSourceListener.onDeploymentAdded();
+                        timer.cancel();
+                    } catch (Exception ex) {
+                        log.error("Unexpected error", ex);
+                        count++;
+                        if (count >= 5) {
                             timer.cancel();
-                        } catch (Exception ex) {
-                            log.error("Unexpected error", ex);
-                            count++;
-                            if (count >= 5) {
-                                timer.cancel();
-                            }
                         }
                     }
-                }, 1000, 3000);
+                }
+            }, 1000, 3000);
         }
     }
 }
