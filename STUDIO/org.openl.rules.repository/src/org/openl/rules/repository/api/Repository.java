@@ -12,6 +12,25 @@ import java.util.List;
  * that it should support transactions, sessions or concurrent access. This
  * repository must support only the atomicity of file modification, so the file
  * always contains valid data.
+ *
+ * All path names in the repository MUST BE relative and satisfy to the
+ * following rules:
+ * <ol>
+ * <li>Only '/' symbol MUST be used to separate folders</li>
+ * <li>The first symbol of the path MUST NOT be started from '/'</li>
+ * <li>The path to the folder MUST be ended with '/'</li>
+ * <li>The path to the file MUST NOT be ended with '/'</li>
+ * <li>The path to the root folder is the empty path</li>
+ * </ol>
+ * 
+ * Examples:
+ * <ul>
+ * <li>'' - the root folder</li>
+ * <li>'file_name' - file</li>
+ * <li>'folder_name/' - folder</li>
+ * <li>'folder_name/inner_file' - file</li>
+ * <li>'folder_name/inner_folder/' - folder</li>
+ * </ul>
  * 
  * @author Yury Molchan
  */
@@ -20,7 +39,8 @@ public interface Repository {
     /**
      * Return a list of files recursively in the given folder.
      * 
-     * @param path the folder to scan. The path must be ended by '/'.
+     * @param path the folder to scan. The path must be ended by '/' or be
+     *            empty.
      * @return the list of the file descriptors. Invalid files are ignored.
      */
     List<FileData> list(String path);
@@ -83,8 +103,8 @@ public interface Repository {
     /**
      * List a versions of the given file. If the repository does not support
      * file versions, then it will return one record of the given file. The
-     * order of the file descriptions is undefined, but the first element is the actual file
-     * which can be access by {@link #read(String)} method.
+     * order of the file descriptions is undefined, but the first element is the
+     * actual file which can be access by {@link #read(String)} method.
      * 
      * @param name the file name.
      * @return the list of file descriptions.
