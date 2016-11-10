@@ -24,20 +24,10 @@ public abstract class DBRepository implements Repository {
 
     @Override
     public List<FileData> list(String path) {
-        String sql = "select r1.id, r1.file_name, r1.file_size, r1.author, r1.file_comment, r1.modified_at, r1.version, case when r1.file_data is null then 1 else 0 end as deleted\n"
-                + "from openl_repository r1\n"
-                + "inner join (\n"
-                + "\tselect max(id) as id\n"
-                + "\tfrom openl_repository\n"
-                + "\twhere file_name like ? escape '$'\n"
-                + "\tgroup by file_name\n"
-                + ") r2\n"
-                + "on r1.id = r2.id\n"
-                + "order by r1.file_name";
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
-            statement = getConnection().prepareStatement(sql);
+            statement = getConnection().prepareStatement(DatabaseQueries.SELECT_ALL_METAINFO);
             statement.setString(1, makePathPattern(path));
             rs = statement.executeQuery();
 
@@ -61,18 +51,10 @@ public abstract class DBRepository implements Repository {
 
     @Override
     public FileItem read(String name) {
-        String sql = "select r1.id, r1.file_name, r1.file_size, r1.author, r1.file_comment, r1.modified_at, r1.version, case when r1.file_data is null then 1 else 0 end as deleted, r1.file_data\n"
-                + "from openl_repository r1\n"
-                + "inner join (\n"
-                + "\tselect max(id) as id\n"
-                + "\tfrom openl_repository\n"
-                + "\twhere file_name = ?\n"
-                + ") r2\n"
-                + "on r1.id = r2.id";
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
-            statement = getConnection().prepareStatement(sql);
+            statement = getConnection().prepareStatement(DatabaseQueries.READ_ACTUAL_FILE);
             statement.setString(1, name);
             rs = statement.executeQuery();
 
@@ -94,7 +76,7 @@ public abstract class DBRepository implements Repository {
     }
 
     @Override
-    public FileData save(FileData data, InputStream stream) {
+    public FileData save(FileData data, InputStream stream) throws IOException {
         if (!data.isDeleted()) {
             FileData existing = getLatestVersionFileData(data.getName());
 
@@ -106,64 +88,20 @@ public abstract class DBRepository implements Repository {
             }
         }
 
-        String sql = "insert into openl_repository(file_name, file_size, author, file_comment, modified_at, version, file_data)\n"
-                + "values(?, ?, ?, ?, ?, ?, ?)";
-        PreparedStatement statement = null;
-        try {
-            statement = getConnection().prepareStatement(sql);
-
-            String version = UUID.randomUUID().toString();
-
-            statement.setString(1, data.getName());
-            statement.setLong(2, data.getSize());
-            statement.setString(3, data.getAuthor());
-            statement.setString(4, data.getComment());
-            statement.setTimestamp(5, new Timestamp(new Date().getTime()));
-            statement.setString(6, version);
-            statement.setBinaryStream(7, stream);
-
-            statement.executeUpdate();
-
-            data.setVersion(version);
-            invokeListener();
-            return data;
-        } catch (SQLException e) {
-            throw new IllegalStateException(e);
-        } finally {
-            safeClose(statement);
-        }
+        return insertFile(data, stream);
     }
 
     @Override
     public boolean delete(String path) {
         FileData data = getLatestVersionFileData(path);
         if (data != null) {
-            String sql = "insert into openl_repository(file_name, file_size, author, file_comment, modified_at, version, file_data)\n"
-                    + "values(?, ?, ?, ?, ?, ?, ?)";
-            PreparedStatement statement = null;
             try {
-                statement = getConnection().prepareStatement(sql);
-
-                statement.setString(1, data.getName());
-                statement.setLong(2, 0);
-                statement.setString(3, data.getAuthor());
-                statement.setString(4, data.getComment());
-                statement.setTimestamp(5, new Timestamp(new Date().getTime()));
-                statement.setString(6, UUID.randomUUID().toString());
-                statement.setBinaryStream(7, null, 0);
-
-                int rows = statement.executeUpdate();
-
-                if (rows > 0) {
-                    invokeListener();
-                    return true;
-                } else {
-                    return false;
-                }
-            } catch (SQLException e) {
-                throw new IllegalStateException(e);
-            } finally {
-                safeClose(statement);
+                insertFile(data, null);
+                invokeListener();
+                return true;
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+                return false;
             }
         } else {
             return false;
@@ -199,11 +137,10 @@ public abstract class DBRepository implements Repository {
 
                 @Override
                 public void run() {
-                    String sql = "select max(id) as max_id from openl_repository";
                     PreparedStatement statement = null;
                     ResultSet rs = null;
                     try {
-                        statement = getConnection().prepareStatement(sql);
+                        statement = getConnection().prepareStatement(DatabaseQueries.SELECT_MAX_ID);
                         rs = statement.executeQuery();
 
                         if (rs.next()) {
@@ -231,14 +168,10 @@ public abstract class DBRepository implements Repository {
 
     @Override
     public List<FileData> listHistory(String name) {
-        String sql = "select id, file_name, file_size, author, file_comment, modified_at, version, case when file_data is null then 1 else 0 end as deleted\n"
-                + "from openl_repository\n"
-                + "where file_name = ?\n"
-                + "order by file_name";
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
-            statement = getConnection().prepareStatement(sql);
+            statement = getConnection().prepareStatement(DatabaseQueries.SELECT_ALL_HISTORY_METAINFO_FOR_FILE);
             statement.setString(1, name);
             rs = statement.executeQuery();
 
@@ -262,14 +195,10 @@ public abstract class DBRepository implements Repository {
 
     @Override
     public FileItem readHistory(String name, String version) {
-        String sql = "select id, file_name, file_size, author, file_comment, modified_at, version, case when file_data is null then 1 else 0 end as deleted, file_data\n"
-                + "from openl_repository\n"
-                + "where file_name = ? and version = ?\n"
-                + "order by file_name";
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
-            statement = getConnection().prepareStatement(sql);
+            statement = getConnection().prepareStatement(DatabaseQueries.READ_HISTORIC_FILE);
             statement.setString(1, name);
             statement.setString(2, version);
             rs = statement.executeQuery();
@@ -294,10 +223,9 @@ public abstract class DBRepository implements Repository {
     @Override
     public boolean deleteHistory(String name, String version) {
         if (version == null) {
-            String sql = "delete from openl_repository where file_name = ?";
             PreparedStatement statement = null;
             try {
-                statement = getConnection().prepareStatement(sql);
+                statement = getConnection().prepareStatement(DatabaseQueries.DELETE_ALL_HISTORY);
                 statement.setString(1, name);
                 int rows = statement.executeUpdate();
 
@@ -313,10 +241,9 @@ public abstract class DBRepository implements Repository {
                 safeClose(statement);
             }
         } else {
-            String sql = "delete from openl_repository where file_name = ? and version = ?";
             PreparedStatement statement = null;
             try {
-                statement = getConnection().prepareStatement(sql);
+                statement = getConnection().prepareStatement(DatabaseQueries.DELETE_VERSION);
                 statement.setString(1, name);
                 statement.setString(2, version);
                 int rows = statement.executeUpdate();
@@ -415,6 +342,37 @@ public abstract class DBRepository implements Repository {
         if (timer != null) {
             timer.cancel();
             timer = null;
+        }
+    }
+
+    private FileData insertFile(FileData data, InputStream stream) throws IOException {
+        PreparedStatement statement = null;
+        try {
+            statement = getConnection().prepareStatement(DatabaseQueries.INSERT_FILE);
+
+            String version = UUID.randomUUID().toString();
+
+            statement.setString(1, data.getName());
+            statement.setLong(2, stream == null ? 0 : data.getSize());
+            statement.setString(3, data.getAuthor());
+            statement.setString(4, data.getComment());
+            statement.setTimestamp(5, new Timestamp(new Date().getTime()));
+            statement.setString(6, version);
+            if (stream != null) {
+                statement.setBinaryStream(7, stream);
+            } else {
+                statement.setBinaryStream(7, null, 0);
+            }
+
+            statement.executeUpdate();
+
+            data.setVersion(version);
+            invokeListener();
+            return data;
+        } catch (SQLException e) {
+            throw new IOException(e);
+        } finally {
+            safeClose(statement);
         }
     }
 }
