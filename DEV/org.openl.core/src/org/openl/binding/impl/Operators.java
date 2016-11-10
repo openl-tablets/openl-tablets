@@ -166,32 +166,32 @@ public class Operators {
     }
 
     // Divide
-    public static byte divide(byte x, byte y) {
-        return (byte) (x / y);
+    public static double divide(byte x, byte y) {
+        return (double) x / y;
     }
 
-    public static short divide(short x, short y) {
-        return (short) (x / y);
+    public static double divide(short x, short y) {
+        return (double) x / y;
     }
 
-    public static int divide(int x, int y) {
-        return x / y;
+    public static double divide(int x, int y) {
+        return (double) x / y;
     }
 
-    public static long divide(long x, long y) {
-        return x / y;
+    public static double divide(long x, long y) {
+        return (double) x / y;
     }
 
-    public static float divide(float x, float y) {
-        return x / y;
+    public static double divide(float x, float y) {
+        return (double) x / y;
     }
 
     public static double divide(double x, double y) {
         return x / y;
     }
     
-    public static BigInteger divide(BigInteger x, BigInteger y) {
-        return x.divide(y);
+    public static BigDecimal divide(BigInteger x, BigInteger y) {
+        return new BigDecimal(x).divide(new BigDecimal(y), MathContext.DECIMAL128);
     }
     
     public static BigDecimal divide(BigDecimal x, BigDecimal y) {
