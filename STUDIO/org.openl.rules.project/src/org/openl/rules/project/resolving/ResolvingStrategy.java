@@ -23,24 +23,4 @@ public interface ResolvingStrategy {
      */
     ProjectDescriptor resolveProject(File folder) throws ProjectResolvingException;
 
-    List<InitializingModuleListener> getInitializingModuleListeners();
-
-    void addInitializingModuleListener(InitializingModuleListener initializingModuleListener);
-
-    boolean removeInitializingModuleListener(InitializingModuleListener initializingModuleListener);
-
-    void removeAllInitializingModuleListeners();
-    
-    void setInitializingModuleListeners(List<InitializingModuleListener> initializingModuleListeners);
-
-    List<InitializingProjectListener> getInitializingProjectListeners();
-
-    void addInitializingProjectListener(InitializingProjectListener initializingProjectListener);
-
-    boolean removeInitializingProjectListener(InitializingProjectListener initializingProjectListener);
-
-    void removeAllInitializingProjectListeners();
-
-    void setInitializingProjectListeners(List<InitializingProjectListener> initializingProjectListeners);
-
 }

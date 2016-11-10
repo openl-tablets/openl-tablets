@@ -21,7 +21,7 @@ import java.util.TreeMap;
  *
  * @author PUdalau
  */
-public class SimpleXlsResolvingStrategy extends BaseResolvingStrategy {
+public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
 
     private final Logger log = LoggerFactory.getLogger(SimpleXlsResolvingStrategy.class);
 
@@ -40,7 +40,7 @@ public class SimpleXlsResolvingStrategy extends BaseResolvingStrategy {
         return false;
     }
 
-    protected ProjectDescriptor internalResolveProject(File folder) throws ProjectResolvingException {
+    public ProjectDescriptor resolveProject(File folder) throws ProjectResolvingException {
         Map<String, Module> modules = new TreeMap<String, Module>();
         try {
             ProjectDescriptor project = createDescriptor(folder);
