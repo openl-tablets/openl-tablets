@@ -91,19 +91,19 @@ public abstract class BaseDBRepositoryFactory extends DBRepository implements RR
         if (!tableExists(connection, databaseType)) {
             switch (databaseType) {
                 case H2:
-                    createTable(connection, DatabaseQueries.H2_TABLE);
+                    createTable(connection, DatabaseQueries.Initial.H2_TABLE);
                     break;
                 case MYSQL:
-                    createTable(connection, DatabaseQueries.MYSQL_TABLE);
+                    createTable(connection, DatabaseQueries.Initial.MYSQL_TABLE);
                     break;
                 case POSTGRESQL:
-                    createTable(connection, DatabaseQueries.POSTGRESQL_TABLE);
+                    createTable(connection, DatabaseQueries.Initial.POSTGRESQL_TABLE);
                     break;
                 case ORACLE:
-                    createTable(connection, DatabaseQueries.ORACLE_TABLE, DatabaseQueries.ORACLE_SEQUENCE, DatabaseQueries.ORACLE_TRIGGER);
+                    createTable(connection, DatabaseQueries.Initial.ORACLE_TABLE, DatabaseQueries.Initial.ORACLE_SEQUENCE, DatabaseQueries.Initial.ORACLE_TRIGGER);
                     break;
                 case SQL_SERVER:
-                    createTable(connection, DatabaseQueries.SQLSERVER_TABLE);
+                    createTable(connection, DatabaseQueries.Initial.SQLSERVER_TABLE);
                     break;
                 default:
                     throw new UnsupportedOperationException("Unsupported database " + connection.getMetaData().getDatabaseProductName());
