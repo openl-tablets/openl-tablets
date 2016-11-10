@@ -50,7 +50,7 @@ public abstract class DBRepository implements Repository {
     }
 
     @Override
-    public FileItem read(String name) {
+    public FileItem read(String name) throws IOException {
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
@@ -68,7 +68,7 @@ public abstract class DBRepository implements Repository {
 
             return fileItem;
         } catch (SQLException e) {
-            throw new IllegalStateException(e);
+            throw new IOException(e);
         } finally {
             safeClose(rs);
             safeClose(statement);
@@ -93,7 +93,13 @@ public abstract class DBRepository implements Repository {
 
     @Override
     public boolean delete(String path) {
-        FileData data = getLatestVersionFileData(path);
+        FileData data;
+        try {
+            data = getLatestVersionFileData(path);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+
         if (data != null) {
             try {
                 insertFile(data, null);
@@ -132,7 +138,7 @@ public abstract class DBRepository implements Repository {
     }
 
     @Override
-    public FileData rename(String path, String destination) {
+    public FileData rename(String path, String destination) throws IOException {
         // TODO: implement
         return null;
     }
@@ -211,7 +217,7 @@ public abstract class DBRepository implements Repository {
     }
 
     @Override
-    public FileItem readHistory(String name, String version) {
+    public FileItem readHistory(String name, String version) throws IOException {
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
@@ -230,7 +236,7 @@ public abstract class DBRepository implements Repository {
 
             return fileItem;
         } catch (SQLException e) {
-            throw new IllegalStateException(e);
+            throw new IOException(e);
         } finally {
             safeClose(rs);
             safeClose(statement);
@@ -309,7 +315,7 @@ public abstract class DBRepository implements Repository {
 
     protected abstract Connection getConnection();
 
-    private FileData getLatestVersionFileData(String name) {
+    private FileData getLatestVersionFileData(String name) throws IOException {
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
@@ -327,14 +333,14 @@ public abstract class DBRepository implements Repository {
 
             return fileData;
         } catch (SQLException e) {
-            throw new IllegalStateException(e);
+            throw new IOException(e);
         } finally {
             safeClose(rs);
             safeClose(statement);
         }
     }
 
-    private FileData getHistoryVersionFileData(String name, String version) {
+    private FileData getHistoryVersionFileData(String name, String version) throws IOException {
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
@@ -353,7 +359,7 @@ public abstract class DBRepository implements Repository {
 
             return fileData;
         } catch (SQLException e) {
-            throw new IllegalStateException(e);
+            throw new IOException(e);
         } finally {
             safeClose(rs);
             safeClose(statement);
