@@ -28,8 +28,7 @@ final class DatabaseQueries {
             + "on r1.id = r2.id";
     static final String READ_HISTORIC_FILE = "select id, file_name, file_size, author, file_comment, modified_at, version, case when file_data is null then 1 else 0 end as deleted, file_data\n"
             + "from openl_repository\n"
-            + "where file_name = ? and version = ?\n"
-            + "order by file_name";
+            + "where file_name = ? and version = ?";
     static final String DELETE_ALL_HISTORY = "delete from openl_repository where file_name = ?";
     static final String DELETE_VERSION = "delete from openl_repository where file_name = ? and version = ?";
     static final String SELECT_MAX_ID = "select max(id) as max_id from openl_repository";
