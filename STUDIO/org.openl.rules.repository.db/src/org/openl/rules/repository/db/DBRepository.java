@@ -271,12 +271,28 @@ public abstract class DBRepository implements Repository {
     protected abstract Connection getConnection();
 
     private FileData getLatestVersionFileData(String name) {
-        FileItem existingItem = read(name);// TODO: Use separate query instead of querying FileItem
-        if (existingItem != null) {
-            IOUtils.closeQuietly(existingItem.getStream());
-            return existingItem.getData();
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        try {
+            statement = getConnection().prepareStatement(DatabaseQueries.READ_ACTUAL_FILE_METAINFO);
+            statement.setString(1, name);
+            rs = statement.executeQuery();
+
+            FileData fileData = null;
+            if (rs.next()) {
+                fileData = createFileData(rs);
+            }
+
+            rs.close();
+            statement.close();
+
+            return fileData;
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        } finally {
+            safeClose(rs);
+            safeClose(statement);
         }
-        return null;
     }
 
     private FileItem createFileItem(ResultSet rs) throws SQLException {

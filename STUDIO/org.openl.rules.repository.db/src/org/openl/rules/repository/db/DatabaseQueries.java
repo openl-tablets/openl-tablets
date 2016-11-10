@@ -26,6 +26,14 @@ final class DatabaseQueries {
             + "\twhere file_name = ?\n"
             + ") r2\n"
             + "on r1.id = r2.id";
+    static final String READ_ACTUAL_FILE_METAINFO = "select r1.id, r1.file_name, r1.file_size, r1.author, r1.file_comment, r1.modified_at, r1.version, case when r1.file_data is null then 1 else 0 end as deleted\n"
+            + "from openl_repository r1\n"
+            + "inner join (\n"
+            + "\tselect max(id) as id\n"
+            + "\tfrom openl_repository\n"
+            + "\twhere file_name = ?\n"
+            + ") r2\n"
+            + "on r1.id = r2.id";
     static final String READ_HISTORIC_FILE = "select id, file_name, file_size, author, file_comment, modified_at, version, case when file_data is null then 1 else 0 end as deleted, file_data\n"
             + "from openl_repository\n"
             + "where file_name = ? and version = ?";
