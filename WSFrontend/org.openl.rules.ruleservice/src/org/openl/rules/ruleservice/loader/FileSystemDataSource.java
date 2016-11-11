@@ -16,28 +16,23 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 /**
  * File based data source. Thread safe implementation.
  *
  * @author Marat Kamalov
  */
-public class FileSystemDataSource implements DataSource, InitializingBean {
+public class FileSystemDataSource implements DataSource {
 
     private final Logger log = LoggerFactory.getLogger(FileSystemDataSource.class);
 
     private static final CommonVersion FILESYSTEM_COMMON_VERSION = new CommonVersionImpl(0, 0, 1);
 
-    private String loadDeploymentsFromDirectory;
-
-    private File loadDeploymentsFromFolder;
+    private File loadDeploymentsFromDirectory;
 
     private FileFilter localWorkspaceFolderFilter;
 
     private FileFilter localWorkspaceFileFilter;
-
-    private Object flag = new Object();
 
     DataSourceListener listener;
 
@@ -56,13 +51,6 @@ public class FileSystemDataSource implements DataSource, InitializingBean {
     }
 
     /**
-     * Gets localWorkspaceFileFilter.
-     */
-    public FileFilter getLocalWorkspaceFileFilter() {
-        return localWorkspaceFileFilter;
-    }
-
-    /**
      * Sets localWorkspaceFolderFilter @see LocalFolderAPI. Spring bean
      * configuration property.
      *
@@ -72,55 +60,29 @@ public class FileSystemDataSource implements DataSource, InitializingBean {
         this.localWorkspaceFolderFilter = localWorkspaceFolderFilter;
     }
 
-    /**
-     * Gets localWorkspaceFolderFilter.
-     */
-    public FileFilter getLocalWorkspaceFolderFilter() {
-        return localWorkspaceFolderFilter;
+    public void setSupportDeployments(boolean supportDeployments) {
+        this.supportDeployments = supportDeployments;
     }
 
-    public FileSystemDataSource() {
+    public void setSupportVersion(boolean supportVersion) {
+        this.supportVersion = supportVersion;
     }
 
-    public FileSystemDataSource(String loadDeploymentsFromDirectory) {
+    public FileSystemDataSource(File loadDeploymentsFromDirectory) {
         if (loadDeploymentsFromDirectory == null) {
             throw new IllegalArgumentException("loadDeploymentsFromDirectory argument can't be null");
         }
-        this.loadDeploymentsFromDirectory = loadDeploymentsFromDirectory;
-    }
-
-    public void setLoadDeploymentsFromDirectory(String loadDeploymentsFromDirectory) {
-        this.loadDeploymentsFromDirectory = loadDeploymentsFromDirectory;
-    }
-
-    public String getLoadDeploymentsFromDirectory() {
-        return loadDeploymentsFromDirectory;
-    }
-
-    private File getLoadDeploymentsFromFolder() {
-        if (loadDeploymentsFromFolder == null) {
-            synchronized (flag) {
-                if (loadDeploymentsFromFolder == null) {
-                    loadDeploymentsFromFolder = new File(getLoadDeploymentsFromDirectory());
-                    if (!loadDeploymentsFromFolder.exists()) {
-                        if (!loadDeploymentsFromFolder.mkdirs()) {
-                            log.warn("File system data source folder \"{}\" creation was fail!",
-                                getLoadDeploymentsFromDirectory());
-                        } else {
-                            log.info("File system data source \"{}\" was successfully created!",
-                                getLoadDeploymentsFromDirectory());
-                        }
-                    }
-                }
+        if (!loadDeploymentsFromDirectory.exists()) {
+            if (!loadDeploymentsFromDirectory.mkdirs()) {
+                log.warn("File system data source folder \"{}\" creation was fail!", loadDeploymentsFromDirectory);
+            } else {
+                log.info("File system data source \"{}\" was successfully created!", loadDeploymentsFromDirectory);
             }
         }
-        return loadDeploymentsFromFolder;
-    }
-
-    private void validateFileSystemDataSourceFolder(File fileSystemDataSourceFolder) {
-        if (!fileSystemDataSourceFolder.exists() || !fileSystemDataSourceFolder.isDirectory()) {
-            throw new DataSourceException("File system data source folder \"" + getLoadDeploymentsFromDirectory() + "\"  doesn't exist");
+        if (!loadDeploymentsFromDirectory.exists() || !loadDeploymentsFromDirectory.isDirectory()) {
+            throw new DataSourceException("File system data source folder \"" + loadDeploymentsFromDirectory + "\"  doesn't exist");
         }
+        this.loadDeploymentsFromDirectory = loadDeploymentsFromDirectory;
     }
 
     /**
@@ -135,15 +97,17 @@ public class FileSystemDataSource implements DataSource, InitializingBean {
             throw new IllegalArgumentException("deploymentVersion argument can't be null");
         }
 
-        if (!deploymentVersion.equals(FILESYSTEM_COMMON_VERSION) && !isSupportDeployments()) {
+        if (!deploymentVersion.equals(FILESYSTEM_COMMON_VERSION) && !supportDeployments) {
             return null;
         }
 
         File[] listOfDeploymentFolders = getDeploymentFolderList();
 
         String deploymentFolderName = deploymentName;
-        if (isSupportVersion() && isSupportDeployments()) {
-            deploymentFolderName = getDeploymentFolderName(deploymentName, deploymentVersion);
+        if (supportVersion && supportDeployments) {
+            deploymentFolderName = new StringBuilder(deploymentName).append("_v")
+                .append(deploymentVersion.getVersionName())
+                .toString();
         }
 
         for (File deploymentFolder : listOfDeploymentFolders) {
@@ -152,10 +116,13 @@ public class FileSystemDataSource implements DataSource, InitializingBean {
                     new ArtefactPathImpl(deploymentFolder.getName()),
                     new LocalWorkspaceImpl(null,
                         deploymentFolder.getParentFile(),
-                        getLocalWorkspaceFolderFilter(),
-                        getLocalWorkspaceFileFilter()));
+                        localWorkspaceFolderFilter,
+                        localWorkspaceFileFilter));
                 Repository repository = new LocalRepository(deploymentFolder.getParentFile());
-                Deployment deployment = new Deployment(repository, localFolderAPI.getArtefactPath().getStringValue(), deploymentName, deploymentVersion);
+                Deployment deployment = new Deployment(repository,
+                    localFolderAPI.getArtefactPath().getStringValue(),
+                    deploymentName,
+                    deploymentVersion);
                 return deployment;
             }
         }
@@ -163,55 +130,20 @@ public class FileSystemDataSource implements DataSource, InitializingBean {
     }
 
     private File[] getDeploymentFolderList() {
-        File folder = getLoadDeploymentsFromFolder();
+        File folder = loadDeploymentsFromDirectory;
         File[] listOfFiles = null;
-        if (!isSupportDeployments()) {
+        if (!supportDeployments) {
             listOfFiles = new File[1];
             listOfFiles[0] = folder;
         } else {
             listOfFiles = folder.listFiles(new FileFilter() {
-                @Override public boolean accept(File file) {
+                @Override
+                public boolean accept(File file) {
                     return file.isDirectory();
                 }
             });
         }
         return listOfFiles;
-    }
-
-    /**
-     * Generates folder name for deployment by given deployment name and common
-     * version.
-     *
-     * @return folder name
-     */
-    private String getDeploymentFolderName(String deploymentName, CommonVersion version) {
-        return new StringBuilder(deploymentName).append("_v").append(version.getVersionName()).toString();
-    }
-
-    private Object[] getDeploymentNameAndVersionFromFolder(String folderName) {
-        Object[] ret = new Object[2];
-        int index = folderName.lastIndexOf("_v");
-        if (index < 0) {
-            if (log.isErrorEnabled()) {
-                log.error("Deployment folder \"{}\" in file system data source \"{}\" doesn't have version suffix Deployment was skiped!",
-                    folderName, getLoadDeploymentsFromDirectory());
-            }
-            return null;
-        } else {
-            String versionSuffix = folderName.substring(index + 2);
-            try {
-                ret[1] = new CommonVersionImpl(versionSuffix);
-            } catch (Exception e) {
-                if (log.isErrorEnabled()) {
-                    log.error("Deployment folder \"{}\" in file system data source \"{}\" has invalid version suffix. Deployment was skiped!",
-                        folderName, getLoadDeploymentsFromDirectory());
-                }
-                return null;
-            }
-        }
-
-        ret[0] = folderName.substring(0, index);
-        return ret;
     }
 
     /**
@@ -225,35 +157,40 @@ public class FileSystemDataSource implements DataSource, InitializingBean {
         for (File deploymentFolder : listOfDeploymentFolders) {
             String deploymentName = deploymentFolder.getName();
             CommonVersion commonVersion = FILESYSTEM_COMMON_VERSION;
-            if (isSupportVersion() && isSupportDeployments()) {
-                Object[] ret = getDeploymentNameAndVersionFromFolder(deploymentFolder.getName());
-                if (ret == null){
+            if (supportVersion && supportDeployments) {
+                String folderName = deploymentFolder.getName();
+                try {
+                    int index = folderName.lastIndexOf("_v");
+                    String versionSuffix = folderName.substring(index + 2);
+                    deploymentName = folderName.substring(0, index);
+                    commonVersion = new CommonVersionImpl(versionSuffix);
+                } catch (Exception e) {
+                    log.error(
+                        "Deployment folder \"{}\" in file system data source \"{}\" has invalid version suffix. Deployment was skiped!",
+                        folderName,
+                        loadDeploymentsFromDirectory);
                     continue;
                 }
-                deploymentName = (String) ret[0];
-                commonVersion = (CommonVersion) ret[1];
             }
             LocalFolderAPI localFolderAPI = new LocalFolderAPI(deploymentFolder,
                 new ArtefactPathImpl(deploymentFolder.getName()),
                 new LocalWorkspaceImpl(null,
                     deploymentFolder.getParentFile(),
-                    getLocalWorkspaceFolderFilter(),
-                    getLocalWorkspaceFileFilter()));
+                    localWorkspaceFolderFilter,
+                    localWorkspaceFileFilter));
             Repository repository = new LocalRepository(deploymentFolder.getParentFile());
-            Deployment deployment = new Deployment(repository, localFolderAPI.getArtefactPath().getStringValue(), deploymentName, commonVersion);
-            validateDeployment(deployment, deploymentFolder);
+            Deployment deployment = new Deployment(repository,
+                localFolderAPI.getArtefactPath().getStringValue(),
+                deploymentName,
+                commonVersion);
+            if (deployment.getProjects().isEmpty()) {
+                log.warn(
+                    "Deployment in file system data source \"{}\" does not contain projects. Make sure that you have specified correct folder!",
+                    deploymentFolder);
+            }
             deployments.add(deployment);
         }
         return Collections.unmodifiableCollection(deployments);
-    }
-
-    private void validateDeployment(Deployment deployment, File deploymentFolder) {
-        if (deployment.getProjects().isEmpty()) {
-            if (log.isWarnEnabled()) {
-                log.warn("Deployment in file system data source \"{}\" does not contain projects. Make sure that you have specified correct folder!",
-                    deploymentFolder);
-            }
-        }
     }
 
     /**
@@ -261,35 +198,5 @@ public class FileSystemDataSource implements DataSource, InitializingBean {
      */
     public void setListener(DataSourceListener dataSourceListener) {
         listener = dataSourceListener;
-    }
-
-    /**
-     * {@inheritDoc}
-     * @param listener
-     */
-    public void addListener(Number listener) {
-        addListener(null);
-    }
-
-    public boolean isSupportDeployments() {
-        return supportDeployments;
-    }
-
-    public void setSupportDeployments(boolean supportDeployments) {
-        this.supportDeployments = supportDeployments;
-    }
-
-    public boolean isSupportVersion() {
-        return supportVersion;
-    }
-
-    public void setSupportVersion(boolean supportVersion) {
-        this.supportVersion = supportVersion;
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        File folder = getLoadDeploymentsFromFolder();
-        validateFileSystemDataSourceFolder(folder);
     }
 }

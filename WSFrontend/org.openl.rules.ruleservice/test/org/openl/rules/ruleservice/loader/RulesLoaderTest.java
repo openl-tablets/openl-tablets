@@ -42,7 +42,7 @@ public class RulesLoaderTest {
         resolvingStrategies.add(new org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy());
         resolvingStrategies.add(new org.openl.rules.project.resolving.SimpleXlsResolvingStrategy());
         projectResolver.setResolvingStrategies(resolvingStrategies);
-        rulesLoader = new RuleServiceLoaderImpl(dataSource, new LocalTemporaryDeploymentsStorage(), projectResolver);
+        rulesLoader = new RuleServiceLoaderImpl(dataSource, new LocalTemporaryDeploymentsStorage("target/openl-deploy2"), projectResolver);
     }
 
     @Test

@@ -35,25 +35,15 @@ public class LocalTemporaryDeploymentsStorageTest {
 
     @Test
     public void testContainsDeloymentAndLoadDeployment() {
-        LocalTemporaryDeploymentsStorage storage = new LocalTemporaryDeploymentsStorage();
+        LocalTemporaryDeploymentsStorage storage = new LocalTemporaryDeploymentsStorage("target/openl-deploy");
         assertFalse(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
         storage.loadDeployment(deployment);
         assertTrue(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
-    }
-
-    @Test
-    public void testClearStorage() {
-        LocalTemporaryDeploymentsStorage storage = new LocalTemporaryDeploymentsStorage();
-        assertFalse(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
-        storage.loadDeployment(deployment);
-        assertTrue(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
-        storage.clear();
-        assertFalse(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
     }
 
     @Test
     public void testLoadDeployment() {
-        LocalTemporaryDeploymentsStorage storage = new LocalTemporaryDeploymentsStorage();
+        LocalTemporaryDeploymentsStorage storage = new LocalTemporaryDeploymentsStorage("target/openl-deploy");
         assertNull(storage.getDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
         assertFalse(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
         storage.loadDeployment(deployment);
@@ -62,7 +52,7 @@ public class LocalTemporaryDeploymentsStorageTest {
 
     @Test
     public void testGetDeployment() {
-        LocalTemporaryDeploymentsStorage storage = new LocalTemporaryDeploymentsStorage();
+        LocalTemporaryDeploymentsStorage storage = new LocalTemporaryDeploymentsStorage("target/openl-deploy");
         assertNull(storage.getDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
         assertFalse(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
         storage.loadDeployment(deployment);

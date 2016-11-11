@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.util.Collection;
 
 import org.junit.Before;
@@ -17,7 +18,7 @@ public class FileSystemDataSourceTest {
 
     @Before
     public void setDataSource() {
-        dataSource = new FileSystemDataSource(FILE_SYSTEM_DATA_SOURCE_DIRECTORY);
+        dataSource = new FileSystemDataSource(new File(FILE_SYSTEM_DATA_SOURCE_DIRECTORY));
     }
 
     @Test
