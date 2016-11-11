@@ -220,6 +220,9 @@ public class ZipJcrRepository implements Repository, Closeable {
     public boolean delete(String path) {
         try {
             ArtefactAPI artefact = rulesRepository.getArtefact(path);
+            if (artefact == null) {
+                return false;
+            }
             if (artefact.hasProperty(ArtefactProperties.PROP_PRJ_MARKED_4_DELETION)) {
                 throw new ProjectException("Project ''{0}'' is already marked for deletion!", null, path);
             }
@@ -348,6 +351,9 @@ public class ZipJcrRepository implements Repository, Closeable {
     public boolean deleteHistory(String name, String version) {
         try {
             ArtefactAPI artefact = rulesRepository.getArtefact(name);
+            if (artefact == null) {
+                return false;
+            }
             if (version == null) {
                 artefact.delete(getUser());
 
