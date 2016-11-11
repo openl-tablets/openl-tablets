@@ -78,7 +78,6 @@ public final class JsonUtils {
         while (fieldsIterator.hasNext()) {
             Map.Entry<String, JsonNode> field = fieldsIterator.next();
             splitMap.put(field.getKey(), objectMapper.writeValueAsString(field.getValue()));
-            System.out.println("Key: " + field.getKey() + "\tValue:" + field.getValue());
         }
         return splitMap;
     }
