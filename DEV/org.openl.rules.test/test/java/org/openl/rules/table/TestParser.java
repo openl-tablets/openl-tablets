@@ -30,7 +30,7 @@ import org.openl.xls.OpenLBuilder;
  */
 public class TestParser extends TestCase {
 
-    private int testOpenlParse(String fileName) throws Exception {
+    private int testOpenlParse(URL fileName) throws Exception {
 
         System.out.println(OpenLBuilder.class.getName());
 
@@ -51,7 +51,7 @@ public class TestParser extends TestCase {
         return err.length;
     }
 
-    private int testOpenlBind(String fileName) throws Exception {
+    private int testOpenlBind(URL fileName) throws Exception {
 
         OpenL openl = OpenL.getInstance(OpenL.OPENL_JAVA_RULE_NAME);
         IOpenParser parser = openl.getParser();
@@ -92,8 +92,8 @@ public class TestParser extends TestCase {
         URL url1 = this.getClass().getClassLoader().getResource("org/openl/rules/table/Test1.xls");
         URL url2 = this.getClass().getClassLoader().getResource("org/openl/rules/table/Test2.xls");
         
-        Assert.assertEquals(0, testOpenlParse(url1.toURI().getPath()));
-        Assert.assertEquals(0, testOpenlParse(url2.toURI().getPath()));
+        Assert.assertEquals(0, testOpenlParse(url1));
+        Assert.assertEquals(0, testOpenlParse(url2));
     }
 
     public void testOpenlParse2() throws Exception {
@@ -101,19 +101,19 @@ public class TestParser extends TestCase {
         URL url1 = this.getClass().getClassLoader().getResource("org/openl/rules/table/Test1.xls");
         URL url2 = this.getClass().getClassLoader().getResource("org/openl/rules/table/Test2-2.xls");
         
-        Assert.assertEquals(0, testOpenlParse(url1.toURI().getPath()));
-        Assert.assertEquals(0, testOpenlParse(url2.toURI().getPath()));
+        Assert.assertEquals(0, testOpenlParse(url1));
+        Assert.assertEquals(0, testOpenlParse(url2));
     }
 
     public void testOpenlBind1() throws Exception {
         
         URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/Test2.xls");
-        Assert.assertEquals(0, testOpenlBind(url.toURI().getPath()));
+        Assert.assertEquals(0, testOpenlBind(url));
     }
 
     public void testOpenlBind2() throws Exception {
         URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/Test2-2.xls");
-        Assert.assertEquals(0, testOpenlBind(url.toURI().getPath()));
+        Assert.assertEquals(0, testOpenlBind(url));
     }
 
 //    public void testOpenlBind3() throws Exception {
@@ -126,20 +126,20 @@ public class TestParser extends TestCase {
     public void testOpenlRun1() throws Exception {
         
         URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/Test2.xls");
-        aTestMethodFile(url.toURI().getPath(), OpenL.OPENL_JAVA_RULE_NAME, "hello", new Object[] { new Integer(14) }, "Y5");
+        aTestMethodFile(url, OpenL.OPENL_JAVA_RULE_NAME, "hello", new Object[] { new Integer(14) }, "Y5");
     }
 
     public void testOpenlRun2() throws Exception {
         
         URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/Test2-2.xls");
-        aTestMethodFile(url.toURI().getPath(),
+        aTestMethodFile(url,
                 OpenL.OPENL_JAVA_RULE_NAME,
                 "hello",
                 new Object[] { new Integer(10) },
                 null);
     }
 
-    private void aTestMethodFile(String moduleFile, String openl, String methodName, Object[] params,
+    private void aTestMethodFile(URL moduleFile, String openl, String methodName, Object[] params,
             Object expected) throws Exception {
 
         OpenL op = OpenL.getInstance(openl);
