@@ -42,7 +42,7 @@ public class URLSourceCodeModule extends ASourceCodeModule {
         this(toUrl(file));
     }
 
-    private static URL toUrl(File file) {
+    public static URL toUrl(File file) {
         try {
             return file.toURI().toURL();
         } catch (MalformedURLException e) {
