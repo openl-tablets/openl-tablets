@@ -1,6 +1,5 @@
 package org.openl.runtime;
 
-import java.io.File;
 import java.net.URL;
 
 import org.openl.CompiledOpenClass;
@@ -41,10 +40,6 @@ public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
 
     public ASourceCodeEngineFactory(String openlName, String sourceFile, String userHome) {
         this(openlName, new URLSourceCodeModule(sourceFile), userHome);
-    }
-
-    public ASourceCodeEngineFactory(String openlName, File file) {
-        this(openlName, new URLSourceCodeModule(file));
     }
 
     public ASourceCodeEngineFactory(String openlName, URL source) {

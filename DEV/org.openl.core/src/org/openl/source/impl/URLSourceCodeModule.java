@@ -35,11 +35,7 @@ public class URLSourceCodeModule extends ASourceCodeModule {
     }
 
     public URLSourceCodeModule(String file) {
-        this(new File(file));
-    }
-
-    public URLSourceCodeModule(File file) {
-        this(toUrl(file));
+        this(toUrl(new File(file)));
     }
 
     public static URL toUrl(File file) {

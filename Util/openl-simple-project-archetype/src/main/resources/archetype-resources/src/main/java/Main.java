@@ -14,10 +14,8 @@ import java.io.File;
 public class Main {
 
     public static void main(String[] args) {
-        File xlsFile = new File("rules/TemplateRules.xls");
-
         // Wrapper - is generated interface from TemplateRules.xls using maven openl:generate goal.
-        RulesEngineFactory<Wrapper> engineFactory = new RulesEngineFactory<Wrapper>(xlsFile, Wrapper.class);
+        RulesEngineFactory<Wrapper> engineFactory = new RulesEngineFactory<Wrapper>("rules/TemplateRules.xls", Wrapper.class);
 
         Wrapper instance = engineFactory.newEngineInstance();
         String result = instance.hello(10);

@@ -1,6 +1,5 @@
 package org.openl.rules.data;
 
-import java.io.File;
 import java.lang.reflect.Method;
 
 import org.junit.Assert;
@@ -13,9 +12,7 @@ public class EmptyArrayDataTest {
 
     @Test
     public void testMultiRowArrayLoad() throws Exception {
-        File xlsFile = new File(SRC);
-
-        RulesEngineFactory<Object> engineFactory = new RulesEngineFactory<Object>(xlsFile);
+        RulesEngineFactory<Object> engineFactory = new RulesEngineFactory<Object>(SRC);
         engineFactory.setExecutionMode(true);
 
         Object instance = engineFactory.newEngineInstance();

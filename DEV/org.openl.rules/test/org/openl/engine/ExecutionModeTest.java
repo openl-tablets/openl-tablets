@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Calendar;
@@ -145,8 +144,7 @@ public class ExecutionModeTest {
 
     @Test
     public void testOverloaded() {
-        File xlsFile = new File("test/rules/overload/Overload.xls");
-        RulesEngineFactory<ITestI> engineFactory = new RulesEngineFactory<ITestI>(xlsFile, ITestI.class);
+        RulesEngineFactory<ITestI> engineFactory = new RulesEngineFactory<ITestI>("test/rules/overload/Overload.xls", ITestI.class);
         engineFactory.setExecutionMode(true);
 
         ITestI instance = (ITestI) engineFactory.newInstance();
