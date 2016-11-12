@@ -70,36 +70,6 @@ public class PropertiesLocator {
 
     }
 
-    public static String locateFileOrURL(String fileName) {
-        return locateFileOrURL(fileName, Thread.currentThread().getContextClassLoader(), new String[] { "." });
-    }
-
-    public static String locateFileOrURL(String fileName, ClassLoader cl, String[] fileRoots) {
-        ConfigurableResourceContext cxt = new ConfigurableResourceContext(cl, fileRoots);
-        return locateFileOrURL(fileName, cxt);
-    }
-
-    private static String locateFileOrURL(String fileName, IConfigurableResourceContext ucxt) {
-        File f = ucxt.findFileSystemResource(fileName);
-        if (f != null) {
-            return f.getAbsolutePath();
-        }
-
-        URL url = ucxt.findClassPathResource(fileName);
-        if (url != null) {
-            return url.toExternalForm();
-        }
-
-        try {
-            url = new URL(fileName);
-            return fileName;
-
-        } catch (MalformedURLException e) {
-        }
-
-        return null;
-    }
-
     public static URL locateToURL(String fileName) {
         return locateToURL(fileName, Thread.currentThread().getContextClassLoader(), new String[] { "." });
     }
