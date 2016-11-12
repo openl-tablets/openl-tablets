@@ -10,10 +10,8 @@ import org.openl.dependency.IDependencyManager;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.util.PropertiesLocator;
-import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * Common implementation to load dependency as file.
@@ -52,23 +50,11 @@ public abstract class FileDependencyLoader implements IDependencyLoader {
      * @return {@link IOpenSourceCodeModule} for income filename.
      */
     protected IOpenSourceCodeModule getSourceCodeModule(String filename) {
-
-        String fileOrURL = PropertiesLocator.locateFileOrURL(filename);
-
+        URL url = PropertiesLocator.locateToURL(filename);
         IOpenSourceCodeModule source = null;
-
-        if (fileOrURL != null) {
-            try {
-                if (fileOrURL.indexOf(':') < 2) {
-                    source = new FileSourceCodeModule(fileOrURL, null);
-                } else {
-                    source = new URLSourceCodeModule(new URL(fileOrURL));
-                }
-            } catch (MalformedURLException e) {
-                throw RuntimeExceptionWrapper.wrap(e);
-            }
+        if (url != null) {
+            source = new URLSourceCodeModule(url);
         }
-
         return source;
     }
     

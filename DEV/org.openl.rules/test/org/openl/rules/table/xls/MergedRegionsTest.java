@@ -14,7 +14,7 @@ import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.load.SimpleSheetLoader;
 import org.openl.rules.table.*;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
-import org.openl.source.impl.FileSourceCodeModule;
+import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.util.StringUtils;
 
 import static org.junit.Assert.*;
@@ -250,7 +250,7 @@ public class MergedRegionsTest {
 
     @Test
     public void testDeleteRows() {
-        XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new FileSourceCodeModule(__src, null));
+        XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
         XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(new SimpleSheetLoader(workbook.getWorkbook().getSheet("DeleteRows")),
                 workbook);
         XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
@@ -266,7 +266,7 @@ public class MergedRegionsTest {
 
     @Test
     public void testInsertRows() {
-        XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new FileSourceCodeModule(__src, null));
+        XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
         XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(new SimpleSheetLoader(workbook.getWorkbook().getSheet("InsertRows")),
                 workbook);
         XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
@@ -282,7 +282,7 @@ public class MergedRegionsTest {
 
     @Test
     public void testDeleteColumns() {
-        XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new FileSourceCodeModule(__src, null));
+        XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
         XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(new SimpleSheetLoader(workbook.getWorkbook().getSheet("DeleteColumns")),
                 workbook);
         XlsSheetGridModel grid = new XlsSheetGridModel(sheet);
@@ -298,7 +298,7 @@ public class MergedRegionsTest {
 
     @Test
     public void testInsertColumn() {
-        XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new FileSourceCodeModule(__src, null));
+        XlsWorkbookSourceCodeModule workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
         XlsSheetSourceCodeModule sheet = new XlsSheetSourceCodeModule(new SimpleSheetLoader(workbook.getWorkbook().getSheet("InsertColumns")),
                 workbook);
         XlsSheetGridModel grid = new XlsSheetGridModel(sheet);

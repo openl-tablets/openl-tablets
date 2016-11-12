@@ -14,8 +14,7 @@ import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.table.IGridTable;
-import org.openl.source.impl.FileSourceCodeModule;
+import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.types.IOpenClass;
 
 /**
@@ -29,7 +28,7 @@ public class TestMetaInfo extends TestCase {
         URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/TestMeta.xls");
         OpenL openl = OpenL.getInstance(OpenL.OPENL_JAVA_RULE_NAME);
 
-        FileSourceCodeModule src = new FileSourceCodeModule(url.toURI().getPath(), null);
+        URLSourceCodeModule src = new URLSourceCodeModule(url);
         XlsModuleOpenClass module = (XlsModuleOpenClass) OpenLManager.compileModule(openl, src);
 
         TableSyntaxNode[] nodes = nodes(module);

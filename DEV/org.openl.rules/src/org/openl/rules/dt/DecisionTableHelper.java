@@ -28,7 +28,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.source.impl.FileSourceCodeModule;
+import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 
@@ -412,7 +412,7 @@ public class DecisionTableHelper {
         // Pre-2007 excel sheets had a limitation of 256 columns.
         Workbook workbook = (numberOfColumns > 256) ? new XSSFWorkbook() : new HSSFWorkbook();
         final Sheet sheet = workbook.createSheet(poiSheetName);
-        return createVirtualGrid(sheet, "/VIRTUAL_EXCEL_FILE_FOR_DISPATCHER_TABLES.xls");
+        return createVirtualGrid(sheet);
     }
 
     public static boolean isSimpleDecisionTable(TableSyntaxNode tableSyntaxNode) {
@@ -473,18 +473,17 @@ public class DecisionTableHelper {
      */
     public static XlsSheetGridModel createVirtualGrid() {
         Sheet sheet = new HSSFWorkbook().createSheet();
-        return createVirtualGrid(sheet, "/VIRTUAL_EXCEL_FILE.xls");
+        return createVirtualGrid(sheet);
     }
 
     /**
      * Creates virtual {@link XlsSheetGridModel} from poi source sheet.
      *
      * @param sheet poi sheet source
-     * @param virtualExcelFile file name, if null or blank will be used default name.
      * @return virtual grid that wraps sheet
      */
-    private static XlsSheetGridModel createVirtualGrid(Sheet sheet, String virtualExcelFile) {
-        final FileSourceCodeModule sourceCodeModule = new FileSourceCodeModule(virtualExcelFile, null);
+    private static XlsSheetGridModel createVirtualGrid(Sheet sheet) {
+        final StringSourceCodeModule sourceCodeModule = new StringSourceCodeModule("", null);
         final SimpleWorkbookLoader workbookLoader = new SimpleWorkbookLoader(sheet.getWorkbook());
         XlsWorkbookSourceCodeModule mockWorkbookSource = new XlsWorkbookSourceCodeModule(sourceCodeModule, workbookLoader);
         XlsSheetSourceCodeModule mockSheetSource = new XlsSheetSourceCodeModule(new SimpleSheetLoader(sheet), mockWorkbookSource);

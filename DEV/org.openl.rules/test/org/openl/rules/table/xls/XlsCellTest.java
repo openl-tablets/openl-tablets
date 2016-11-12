@@ -13,7 +13,7 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
-import org.openl.source.impl.FileSourceCodeModule;
+import org.openl.source.impl.URLSourceCodeModule;
 
 public class XlsCellTest {
     
@@ -21,7 +21,7 @@ public class XlsCellTest {
     
     @Before
     public void before() {
-        FileSourceCodeModule source = new FileSourceCodeModule("./test/rules/XlsCellTest.xls", null);
+        URLSourceCodeModule source = new URLSourceCodeModule("./test/rules/XlsCellTest.xls");
         XlsWorkbookSourceCodeModule wbSrc = new XlsWorkbookSourceCodeModule(source);
 
         XlsSheetSourceCodeModule sheetSrc = new XlsSheetSourceCodeModule(0, wbSrc);

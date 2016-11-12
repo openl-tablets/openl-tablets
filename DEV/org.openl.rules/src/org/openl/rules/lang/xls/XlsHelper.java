@@ -18,7 +18,6 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.syntax.GridLocation;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.impl.IdentifierNode;
@@ -26,7 +25,6 @@ import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.util.Log;
 import org.openl.util.PropertiesLocator;
-import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
 
 public abstract class XlsHelper {
@@ -68,24 +66,14 @@ public abstract class XlsHelper {
     public static XlsMetaInfo getXlsMetaInfo(String srcFile) {
 
     	UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), ".");
-        String fileOrURL = PropertiesLocator.locateFileOrURL(srcFile, ucxt.getUserClassLoader(), new String[] { ucxt.getUserHome() });
+        URL url = PropertiesLocator.locateToURL(srcFile, ucxt.getUserClassLoader(), new String[] { ucxt.getUserHome() });
         
-        if (fileOrURL == null) {
+        if (url == null) {
             throw new RuntimeException("File " + srcFile + " is not found");
         }
         
-        IOpenSourceCodeModule src = null;
-        
-        try {
-            if (fileOrURL.indexOf(':') < 2) {
-                src = new FileSourceCodeModule(fileOrURL, null);
-            } else {
-                src = new URLSourceCodeModule(new URL(fileOrURL));
-            }
-        } catch (MalformedURLException e) {
-            throw RuntimeExceptionWrapper.wrap(e);
-        }
-        
+        IOpenSourceCodeModule src = new URLSourceCodeModule(url);
+
         IParsedCode pc = new XlsParser(ucxt).parseAsModule(src);
         IBoundCode bc = new XlsBinder(ucxt).bind(pc);
         IOpenClass ioc = bc.getTopNode().getType();

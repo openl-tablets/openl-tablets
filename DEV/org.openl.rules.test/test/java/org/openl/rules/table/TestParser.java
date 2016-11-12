@@ -6,7 +6,6 @@
 
 package org.openl.rules.table;
 
-import java.io.File;
 import java.net.URL;
 
 import junit.framework.TestCase;
@@ -19,7 +18,7 @@ import org.openl.OpenL;
 import org.openl.binding.IBoundCode;
 import org.openl.engine.OpenLManager;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.impl.FileSourceCodeModule;
+import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.java.JavaOpenClass;
@@ -38,7 +37,7 @@ public class TestParser extends TestCase {
         OpenL openl = OpenL.getInstance(OpenL.OPENL_JAVA_RULE_NAME);
         IOpenParser parser = openl.getParser();
 
-        FileSourceCodeModule scm = new FileSourceCodeModule(new File(fileName), null);
+        URLSourceCodeModule scm = new URLSourceCodeModule(fileName);
 
         IParsedCode pc = parser.parseAsModule(scm);
 
@@ -56,7 +55,7 @@ public class TestParser extends TestCase {
 
         OpenL openl = OpenL.getInstance(OpenL.OPENL_JAVA_RULE_NAME);
         IOpenParser parser = openl.getParser();
-        IOpenSourceCodeModule scm = new FileSourceCodeModule(new File(fileName), null);
+        IOpenSourceCodeModule scm = new URLSourceCodeModule(fileName);
         IParsedCode pc = parser.parseAsModule(scm);
         SyntaxNodeException[] err = pc.getErrors();
 
@@ -154,7 +153,7 @@ public class TestParser extends TestCase {
         }
 
         Object res = OpenLManager.runMethod(op,
-                new FileSourceCodeModule(new File(moduleFile), null),
+                new URLSourceCodeModule(moduleFile),
                 methodName, JavaOpenClass.getOpenClasses(cc),
                 params);
 

@@ -9,7 +9,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.source.impl.FileSourceCodeModule;
+import org.openl.source.impl.URLSourceCodeModule;
 
 public class LookupTest extends TestCase {
 
@@ -17,7 +17,7 @@ public class LookupTest extends TestCase {
 
         URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/TestLookup.xls");
 
-        FileSourceCodeModule source = new FileSourceCodeModule(url.toURI().getPath(), null);
+        URLSourceCodeModule source = new URLSourceCodeModule(url);
         XlsWorkbookSourceCodeModule wbsrc = new XlsWorkbookSourceCodeModule(source);
         Workbook wb = wbsrc.getWorkbook();
 

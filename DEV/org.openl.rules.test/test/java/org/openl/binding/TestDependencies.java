@@ -12,7 +12,7 @@ import org.openl.OpenL;
 import org.openl.engine.OpenLManager;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.source.impl.FileSourceCodeModule;
+import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.CompositeMethod;
 
@@ -55,7 +55,7 @@ public class TestDependencies extends TestCase {
 
         OpenL openl = OpenL.getInstance(OpenL.OPENL_JAVA_RULE_NAME);
 
-        XlsModuleOpenClass xmo = (XlsModuleOpenClass) OpenLManager.compileModule(openl, new FileSourceCodeModule(url.toURI().getPath(), null));
+        XlsModuleOpenClass xmo = (XlsModuleOpenClass) OpenLManager.compileModule(openl, new URLSourceCodeModule(url));
         return xmo;
     }
 }

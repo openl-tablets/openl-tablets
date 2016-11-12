@@ -11,10 +11,12 @@ import org.openl.util.RuntimeExceptionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -32,6 +34,21 @@ public class URLSourceCodeModule extends ASourceCodeModule {
         lastModified = getLastModified();
     }
 
+    public URLSourceCodeModule(String file) {
+        this(new File(file));
+    }
+
+    public URLSourceCodeModule(File file) {
+        this(toUrl(file));
+    }
+
+    private static URL toUrl(File file) {
+        try {
+            return file.toURI().toURL();
+        } catch (MalformedURLException e) {
+            throw RuntimeExceptionWrapper.wrap(e);
+        }
+    }
     public URL getUrl() {
         return url;
     }
