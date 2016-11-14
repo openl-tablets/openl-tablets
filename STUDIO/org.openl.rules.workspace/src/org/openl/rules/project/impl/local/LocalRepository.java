@@ -48,6 +48,12 @@ public class LocalRepository implements Repository, FolderRepository {
     }
 
     @Override
+    public FileData check(String name) throws IOException {
+        File file = new File(location, name);
+        return createFileData(file);
+    }
+
+    @Override
     public FileItem read(String name) {
         File file = new File(location, name);
         try {
@@ -118,6 +124,11 @@ public class LocalRepository implements Repository, FolderRepository {
     @Override
     public List<FileData> listHistory(String name) throws IOException {
         return Collections.emptyList();
+    }
+
+    @Override
+    public FileData checkHistory(String name, String version) throws IOException {
+        return null;
     }
 
     @Override

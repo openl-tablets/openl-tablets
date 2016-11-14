@@ -102,6 +102,11 @@ public class ZipJcrRepository implements Repository, Closeable {
     }
 
     @Override
+    public FileData check(String name) throws IOException {
+        return read(name).getData();
+    }
+
+    @Override
     public FileItem read(String name) {
         try {
             FolderAPI project;
@@ -326,6 +331,11 @@ public class ZipJcrRepository implements Repository, Closeable {
         } catch (CommonException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    @Override
+    public FileData checkHistory(String name, String version) throws IOException {
+        return readHistory(name, version).getData();
     }
 
     @Override

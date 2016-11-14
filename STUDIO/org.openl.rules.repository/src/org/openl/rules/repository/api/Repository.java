@@ -48,8 +48,17 @@ public interface Repository {
     List<FileData> list(String path) throws IOException;
 
     /**
-     * Read a file by the given path name.
+     * Read a file descriptor by the given path name.
      * 
+     * @param name the path name of the file to read.
+     * @return the file descriptor or null if the file is absent.
+     * @throws IOException if not possible to read the file descriptor.
+     */
+    FileData check(String name) throws IOException;
+
+    /**
+     * Read a file by the given path name.
+     *
      * @param name the path name of the file to read.
      * @return the file descriptor or null if the file is absent.
      * @throws IOException if not possible to read the file.
@@ -113,6 +122,18 @@ public interface Repository {
      * @throws IOException if not possible to read the directory.
      */
     List<FileData> listHistory(String name) throws IOException;
+
+    /**
+     * Read a file descriptor by the given path name of the given version. If
+     * the version is null, then it will work like {@link #check(String)} method.
+     *
+     * @param name the path name of the file to read.
+     * @param version the version of the file to read, can be null.
+     * @return the file descriptor or null if the file is absent.
+     * @throws IOException if not possible to read the file descriptor.
+     * @see #read(String)
+     */
+    FileData checkHistory(String name, String version) throws IOException;
 
     /**
      * Read a file by the given path name of the given version. If the version

@@ -25,6 +25,11 @@ public class MockRepository implements Repository, FolderRepository {
     }
 
     @Override
+    public FileData check(String name) throws IOException {
+        return read(name).getData();
+    }
+
+    @Override
     public FileItem read(String name) {
         return fileItemMap.get(name);
     }
@@ -66,6 +71,11 @@ public class MockRepository implements Repository, FolderRepository {
 
     @Override
     public List<FileData> listHistory(String name) throws IOException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public FileData checkHistory(String name, String version) throws IOException {
         throw new UnsupportedOperationException();
     }
 

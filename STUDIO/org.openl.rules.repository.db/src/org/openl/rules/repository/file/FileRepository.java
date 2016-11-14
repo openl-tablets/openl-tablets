@@ -55,6 +55,15 @@ public class FileRepository implements Repository {
     }
 
     @Override
+    public FileData check(String name) throws IOException {
+        File file = new File(root, name);
+        if (file.exists()) {
+            return getFileData(file);
+        }
+        return null;
+    }
+
+    @Override
     public FileItem read(String name) throws IOException {
         File file = new File(root, name);
         if (file.exists()) {
@@ -122,6 +131,14 @@ public class FileRepository implements Repository {
             log.warn("The file cannot be resolved: [{}]", file, ex);
         }
         return Collections.emptyList();
+    }
+
+    @Override
+    public FileData checkHistory(String name, String version) throws IOException {
+        if (version == null) {
+            return check(name);
+        }
+        return null;
     }
 
     @Override

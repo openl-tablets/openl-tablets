@@ -50,6 +50,11 @@ public abstract class DBRepository implements Repository {
     }
 
     @Override
+    public FileData check(String name) throws IOException {
+        return read(name).getData();
+    }
+
+    @Override
     public FileItem read(String name) throws IOException {
         PreparedStatement statement = null;
         ResultSet rs = null;
@@ -214,6 +219,11 @@ public abstract class DBRepository implements Repository {
             safeClose(rs);
             safeClose(statement);
         }
+    }
+
+    @Override
+    public FileData checkHistory(String name, String version) throws IOException {
+        return readHistory(name, version).getData();
     }
 
     @Override
