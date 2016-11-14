@@ -1,6 +1,7 @@
 package org.openl.rules.workspace.production.client;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -86,7 +87,12 @@ public class JcrRulesClient {
      * @throws RRepositoryException on repository error
      */
     public Collection<String> getDeploymentNames() throws RRepositoryException {
-        Collection<FileData> fileDatas = productionRepositoryFactoryProxy.getRepositoryInstance(repositoryPropertiesFile) .list(DeployUtils.DEPLOY_PATH);
+        Collection<FileData> fileDatas = null;
+        try {
+            fileDatas = productionRepositoryFactoryProxy.getRepositoryInstance(repositoryPropertiesFile) .list(DeployUtils.DEPLOY_PATH);
+        } catch (IOException e) {
+            throw new RRepositoryException("Cannot read the deploy repository", e);
+        }
         Collection<String> result = new ArrayList<String>();
         for (FileData fileData : fileDatas) {
             result.add(fileData.getName());

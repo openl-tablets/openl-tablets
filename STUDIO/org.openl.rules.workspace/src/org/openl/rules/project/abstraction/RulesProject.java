@@ -1,5 +1,6 @@
 package org.openl.rules.project.abstraction;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.dtr.impl.LockInfoImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.util.RuntimeExceptionWrapper;
 
 public class RulesProject extends UserWorkspaceProject {
     private LocalRepository localRepository;
@@ -147,10 +149,13 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public int getVersionsCount() {
+        try{
         if (designFolderName != null) {
             return designRepository.listHistory(designFolderName).size();
         } else {
             return localRepository.listHistory(localFolderName).size();
+        }} catch (IOException ex) {
+            throw RuntimeExceptionWrapper.wrap(ex);
         }
     }
 
@@ -162,10 +167,14 @@ public class RulesProject extends UserWorkspaceProject {
 
     private List<FileData> getHistoryFileDatas() {
         List<FileData> fileDatas;
+        try {
         if (designFolderName != null) {
             fileDatas = designRepository.listHistory(designFolderName);
         } else {
             fileDatas = localRepository.list(localFolderName);
+        }
+        } catch (IOException ex) {
+            throw RuntimeExceptionWrapper.wrap(ex);
         }
         return fileDatas;
     }
@@ -176,7 +185,12 @@ public class RulesProject extends UserWorkspaceProject {
             subPath += "/";
         }
         String fullPath = getFolderPath() + subPath;
-        Collection<FileData> fileDatas = getRepository().listHistory(fullPath);
+        Collection<FileData> fileDatas = null;
+        try {
+            fileDatas = getRepository().listHistory(fullPath);
+        } catch (IOException ex) {
+            throw RuntimeExceptionWrapper.wrap(ex);
+        }
         List<ProjectVersion> versions = new ArrayList<ProjectVersion>();
         for (FileData data : fileDatas) {
             versions.add(createProjectVersion(data));

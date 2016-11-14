@@ -47,7 +47,7 @@ public class FileRepository implements Repository {
     }
 
     @Override
-    public List<FileData> list(String path) {
+    public List<FileData> list(String path) throws IOException {
         LinkedList<FileData> files = new LinkedList<FileData>();
         File directory = new File(root, path);
         listFiles(files, directory);
@@ -111,7 +111,7 @@ public class FileRepository implements Repository {
     }
 
     @Override
-    public List<FileData> listHistory(String name) {
+    public List<FileData> listHistory(String name) throws IOException {
         File file = new File(root, name);
         try {
             if (file.exists()) {

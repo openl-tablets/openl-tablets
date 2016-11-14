@@ -1,5 +1,6 @@
 package org.openl.rules.workspace.deploy;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +14,7 @@ import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.util.RuntimeExceptionWrapper;
 
 public final class DeployUtils {
     public static final String SEPARATOR = "#";
@@ -27,7 +29,12 @@ public final class DeployUtils {
         Map<String, Deployment> latestDeployments = new HashMap<String, Deployment>();
         Map<String, Integer> versionsList = new HashMap<String, Integer>();
 
-        Collection<FileData> fileDatas = repository.list(DEPLOY_PATH);
+        Collection<FileData> fileDatas;
+        try {
+            fileDatas = repository.list(DEPLOY_PATH);
+        } catch (IOException ex) {
+            throw new RRepositoryException("Cannot read the deploy repository", ex);
+        }
         for (FileData fileData : fileDatas) {
             String deploymentFolderName = fileData.getName().substring(DEPLOY_PATH.length()).split("/")[0];
             int separatorPosition = deploymentFolderName.lastIndexOf(SEPARATOR);
@@ -72,7 +79,12 @@ public final class DeployUtils {
     }
 
     public static Collection<Deployment> getDeployments(Repository repository) {
-        Collection<FileData> fileDatas = repository.list(DEPLOY_PATH);
+        Collection<FileData> fileDatas;
+        try {
+            fileDatas = repository.list(DEPLOY_PATH);
+        } catch (IOException ex) {
+            throw RuntimeExceptionWrapper.wrap(ex);
+        }
         ConcurrentMap<String, Deployment> deployments = new ConcurrentHashMap<String, Deployment>();
         for (FileData fileData : fileDatas) {
             String deploymentFolderName = fileData.getName().substring(DEPLOY_PATH.length()).split("/")[0];

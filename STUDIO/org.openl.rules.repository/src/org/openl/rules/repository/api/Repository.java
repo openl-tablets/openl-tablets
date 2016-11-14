@@ -37,13 +37,15 @@ import java.util.List;
 public interface Repository {
 
     /**
-     * Return a list of files recursively in the given folder.
+     * Return a list of files recursively in the given folder. This method MUST
+     * NOT return deleted files.
      * 
      * @param path the folder to scan. The path must be ended by '/' or be
      *            empty.
      * @return the list of the file descriptors. Invalid files are ignored.
+     * @throws IOException if not possible to read the directory.
      */
-    List<FileData> list(String path);
+    List<FileData> list(String path) throws IOException;
 
     /**
      * Read a file by the given path name.
@@ -108,8 +110,9 @@ public interface Repository {
      * 
      * @param name the file name.
      * @return the list of file descriptions.
+     * @throws IOException if not possible to read the directory.
      */
-    List<FileData> listHistory(String name);
+    List<FileData> listHistory(String name) throws IOException;
 
     /**
      * Read a file by the given path name of the given version. If the version

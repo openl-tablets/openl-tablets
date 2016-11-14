@@ -1,5 +1,6 @@
 package org.openl.rules.workspace.mock;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
@@ -13,7 +14,7 @@ public class MockRepository implements Repository, FolderRepository {
     private Map<String, FileData> fileDataMap = new HashMap<String, FileData>();
     private Map<String, FileItem> fileItemMap = new HashMap<String, FileItem>();
     @Override
-    public List<FileData> list(String path) {
+    public List<FileData> list(String path) throws IOException {
         List<FileData> result = new ArrayList<FileData>();
         for (Map.Entry<String, FileData> entry : fileDataMap.entrySet()) {
             if (entry.getKey().startsWith(path)) {
@@ -64,7 +65,7 @@ public class MockRepository implements Repository, FolderRepository {
     }
 
     @Override
-    public List<FileData> listHistory(String name) {
+    public List<FileData> listHistory(String name) throws IOException {
         throw new UnsupportedOperationException();
     }
 

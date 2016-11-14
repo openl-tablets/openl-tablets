@@ -13,6 +13,7 @@ import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.*;
 import org.openl.util.IOUtils;
+import org.openl.util.RuntimeExceptionWrapper;
 
 public class AProjectFolder extends AProjectArtefact {
     private Map<String, AProjectArtefact> artefacts;
@@ -150,10 +151,14 @@ public class AProjectFolder extends AProjectArtefact {
     protected Map<String, AProjectArtefact> createInternalArtefacts() {
         HashMap<String, AProjectArtefact> internalArtefacts = new HashMap<String, AProjectArtefact>();
         Collection<FileData> fileDatas;
+        try {
         if (isHistoric()) {
             fileDatas = getRepository().listHistory(getFolderPath());
         } else {
             fileDatas = getRepository().list(getFolderPath());
+        }
+        } catch (IOException ex) {
+            throw RuntimeExceptionWrapper.wrap(ex);
         }
         for (FileData fileData : fileDatas) {
             if (!fileData.getName().equals(folderPath)) {

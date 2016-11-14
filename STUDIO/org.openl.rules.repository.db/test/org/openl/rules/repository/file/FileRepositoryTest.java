@@ -85,7 +85,7 @@ public class FileRepositoryTest {
         assertEquals("The deleting of the file has been filed", expected, result);
     }
 
-    private void assertList(Repository repo, String path, int size) {
+    private void assertList(Repository repo, String path, int size) throws IOException {
         List<FileData> list = repo.list(path);
         assertEquals("Unexpected size of the directory [" + path + "]", size, list.size());
     }
@@ -99,6 +99,6 @@ public class FileRepositoryTest {
         long modified = result.getModifiedAt().getTime();
         assertTrue("Unexpected time of modification (early).", modified >= startTime);
         assertTrue("Unexpected time of modification (late).", modified <= System.currentTimeMillis());
-        assertEquals("Wrong file name",name, result.getName());
+        assertEquals("Wrong file name", name, result.getName());
     }
 }

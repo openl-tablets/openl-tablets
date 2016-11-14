@@ -51,7 +51,7 @@ public class ZipJcrRepository implements Repository, Closeable {
     }
 
     @Override
-    public List<FileData> list(String path) {
+    public List<FileData> list(String path) throws IOException {
         if (path.endsWith("/")) {
             path = path.substring(0, path.length() - 1);
         }
@@ -307,7 +307,7 @@ public class ZipJcrRepository implements Repository, Closeable {
     }
 
     @Override
-    public List<FileData> listHistory(String name) {
+    public List<FileData> listHistory(String name) throws IOException {
         try {
             ArtefactAPI artefact = rulesRepository.getArtefact(name);
             if (artefact == null || artefact instanceof ResourceAPI) {

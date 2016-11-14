@@ -26,7 +26,7 @@ public class LocalRepository implements Repository, FolderRepository {
     }
 
     @Override
-    public List<FileData> list(String path) {
+    public List<FileData> list(String path) throws IOException {
         File file = new File(location, path);
         if (!file.exists()) {
             return Collections.emptyList();
@@ -116,7 +116,7 @@ public class LocalRepository implements Repository, FolderRepository {
     }
 
     @Override
-    public List<FileData> listHistory(String name) {
+    public List<FileData> listHistory(String name) throws IOException {
         return Collections.emptyList();
     }
 

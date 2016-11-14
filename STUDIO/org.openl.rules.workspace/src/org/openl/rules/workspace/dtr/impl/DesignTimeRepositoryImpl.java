@@ -17,6 +17,7 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.util.IOUtils;
+import org.openl.util.RuntimeExceptionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -163,7 +164,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     public List<ADeploymentProject> getDDProjects() throws RepositoryException {
         LinkedList<ADeploymentProject> result = new LinkedList<ADeploymentProject>();
 
-        Collection<FileData> fileDatas = getRepository().list(deploymentConfigurationLocation);
+        Collection<FileData> fileDatas;
+        try {
+            fileDatas = getRepository().list(deploymentConfigurationLocation);
+        } catch (IOException e) {
+            throw new RepositoryException("Cannot read the deploy repository", e);
+        }
         for (FileData fileData : fileDatas) {
             result.add(new ADeploymentProject(null, getRepository(), fileData));
         }
@@ -192,7 +198,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     public Collection<AProject> getProjects() {
         List<AProject> result = new LinkedList<AProject>();
 
-        Collection<FileData> fileDatas = getRepository().list(rulesLocation);
+        Collection<FileData> fileDatas = null;
+        try {
+            fileDatas = getRepository().list(rulesLocation);
+        } catch (IOException ex) {
+            throw RuntimeExceptionWrapper.wrap(ex);
+        }
         projects.clear();
         for (FileData fileData : fileDatas) {
             AProject project = new AProject(getRepository(), fileData);

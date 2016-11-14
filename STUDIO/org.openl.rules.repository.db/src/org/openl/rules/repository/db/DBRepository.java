@@ -23,7 +23,7 @@ public abstract class DBRepository implements Repository {
     private Timer timer;
 
     @Override
-    public List<FileData> list(String path) {
+    public List<FileData> list(String path) throws IOException {
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
@@ -190,7 +190,7 @@ public abstract class DBRepository implements Repository {
     }
 
     @Override
-    public List<FileData> listHistory(String name) {
+    public List<FileData> listHistory(String name) throws IOException {
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {

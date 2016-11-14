@@ -19,6 +19,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.util.IOUtils;
+import org.openl.util.RuntimeExceptionWrapper;
 
 public class AProject extends AProjectFolder {
     public AProject(Repository repository, String folderPath) {
@@ -73,7 +74,12 @@ public class AProject extends AProjectFolder {
             return true;
         }
 
-        List<FileData> fileDatas = getRepository().listHistory(getFolderPath());
+        List<FileData> fileDatas = null;
+        try {
+            fileDatas = getRepository().listHistory(getFolderPath());
+        } catch (IOException ex) {
+            throw RuntimeExceptionWrapper.wrap(ex);
+        }
         return fileDatas.isEmpty() || getHistoryVersion().equals(fileDatas.get(fileDatas.size() - 1).getVersion());
     }
 

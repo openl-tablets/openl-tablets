@@ -1,5 +1,6 @@
 package org.openl.rules.project.abstraction;
 
+import java.io.IOException;
 import java.util.*;
 
 import org.openl.rules.common.ArtefactPath;
@@ -17,6 +18,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.dtr.impl.LockInfoImpl;
+import org.openl.util.RuntimeExceptionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,7 +104,12 @@ public class AProjectArtefact implements PropertiesContainer {
     }
 
     public ProjectVersion getLastVersion() {
-        List<FileData> fileDatas = getRepository().listHistory(getFileData().getName());
+        List<FileData> fileDatas = null;
+        try {
+            fileDatas = getRepository().listHistory(getFileData().getName());
+        } catch (IOException ex) {
+            throw RuntimeExceptionWrapper.wrap(ex);
+        }
         return fileDatas.isEmpty() ?
                createProjectVersion(null) :
                createProjectVersion(fileDatas.get(fileDatas.size() - 1));
@@ -129,7 +136,12 @@ public class AProjectArtefact implements PropertiesContainer {
         if (getFileData() == null) {
             return Collections.emptyList();
         }
-        Collection<FileData> fileDatas = getRepository().listHistory(getFileData().getName());
+        Collection<FileData> fileDatas = null;
+        try {
+            fileDatas = getRepository().listHistory(getFileData().getName());
+        } catch (IOException ex) {
+            throw RuntimeExceptionWrapper.wrap(ex);
+        }
         List<ProjectVersion> versions = new ArrayList<ProjectVersion>();
         for (FileData data : fileDatas) {
             versions.add(createProjectVersion(data));
@@ -138,11 +150,20 @@ public class AProjectArtefact implements PropertiesContainer {
     }
 
     public int getVersionsCount() {
-        return getFileData() == null ? 0 : getRepository().listHistory(getFileData().getName()).size();
+        try {
+            return getFileData() == null ? 0 : getRepository().listHistory(getFileData().getName()).size();
+        } catch (IOException ex) {
+            throw RuntimeExceptionWrapper.wrap(ex);
+        }
     }
 
     protected ProjectVersion getVersion(int index) throws RRepositoryException {
-        List<FileData> fileDatas = getRepository().listHistory(getFileData().getName());
+        List<FileData> fileDatas = null;
+        try {
+            fileDatas = getRepository().listHistory(getFileData().getName());
+        } catch (IOException ex) {
+            throw RuntimeExceptionWrapper.wrap(ex);
+        }
         return fileDatas.isEmpty() ? null : createProjectVersion(fileDatas.get(index));
     }
 
