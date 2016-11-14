@@ -32,9 +32,9 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
+import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.project.resolving.ResolvingStrategy;
-import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.ui.tree.view.CategoryDetailedView;
 import org.openl.rules.ui.tree.view.CategoryInversedView;
 import org.openl.rules.ui.tree.view.CategoryView;
@@ -96,7 +96,7 @@ public class WebStudio {
     private ArrayList<BenchmarkInfoView> benchmarks = new ArrayList<BenchmarkInfoView>();
     private String tableUri;
     private ProjectModel model = new ProjectModel(this);
-    private RulesProjectResolver projectResolver;
+    private ProjectResolver projectResolver;
     private List<ProjectDescriptor> projects = null;
     private boolean updateSystemProperties;
 
@@ -132,6 +132,7 @@ public class WebStudio {
         initUserSettings(session);
         updateSystemProperties = systemConfigManager
                 .getBooleanProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES);
+        projectResolver = ProjectResolver.instance();
     }
 
     public WebStudio() {
@@ -146,8 +147,6 @@ public class WebStudio {
         }
 
         workspacePath = userWorkspace.getLocalWorkspace().getLocation().getAbsolutePath();
-        projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
-        projectResolver.setWorkspace(workspacePath);
     }
 
     private void initUserSettings(HttpSession session) {
@@ -274,9 +273,9 @@ public class WebStudio {
     /**
      * DOCUMENT ME!
      *
-     * @return Returns the RulesProjectResolver.
+     * @return Returns the ProjectResolver.
      */
-    public RulesProjectResolver getProjectResolver() {
+    public ProjectResolver getProjectResolver() {
         return projectResolver;
     }
 
@@ -322,7 +321,8 @@ public class WebStudio {
 
     public synchronized List<ProjectDescriptor> getAllProjects() {
         if (projects == null) {
-            projects = projectResolver.listOpenLProjects();
+            File[] files = new File(workspacePath).listFiles();
+            projects = projectResolver.resolve(files);
         }
         return projects;
     }

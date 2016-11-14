@@ -9,7 +9,6 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.project.resolving.ResolvingStrategy;
-import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -183,12 +182,15 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
     protected IDependencyManager buildDependencyManager() throws ProjectResolvingException {
         Collection<ProjectDescriptor> projectDescriptors = new ArrayList<ProjectDescriptor>();
-        RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
+        ProjectResolver projectResolver = ProjectResolver.instance();
+        ProjectDescriptor projectDescriptor = getProjectDescriptor();
         if (workspace != null) {
-            projectResolver.setWorkspace(workspace.getPath());
-            projectDescriptors.addAll(getDependentProjects(getProjectDescriptor(), projectResolver.listOpenLProjects()));
+            File[] files = workspace.listFiles();
+            List<ProjectDescriptor> projects = projectResolver.resolve(files);
+            List<ProjectDescriptor> dependentProjects = getDependentProjects(projectDescriptor, projects);
+            projectDescriptors.addAll(dependentProjects);
         }
-        projectDescriptors.add(getProjectDescriptor());
+        projectDescriptors.add(projectDescriptor);
         return new SimpleProjectDependencyManager(projectDescriptors, isSingleModuleMode(), isExecutionMode());
     }
 

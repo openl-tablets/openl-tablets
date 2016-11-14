@@ -55,8 +55,7 @@ import org.openl.rules.project.instantiation.SimpleProjectDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.ResolvingStrategy;
-import org.openl.rules.project.resolving.RulesProjectResolver;
+import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IGridTable;
@@ -984,9 +983,8 @@ public class ProjectModel {
 
         File projectFolder = moduleInfo.getProject().getProjectFolder();
         if (reloadType == ReloadType.FORCED) {
-            RulesProjectResolver projectResolver = studio.getProjectResolver();
-            ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
-            ProjectDescriptor projectDescriptor = resolvingStrategy.resolveProject(projectFolder);
+            ProjectResolver projectResolver = studio.getProjectResolver();
+            ProjectDescriptor projectDescriptor = projectResolver.resolve(projectFolder);
             Module reloadedModule = null;
             for (Module module : projectDescriptor.getModules()) {
                 if (moduleInfo.getName().equals(module.getName())) {
