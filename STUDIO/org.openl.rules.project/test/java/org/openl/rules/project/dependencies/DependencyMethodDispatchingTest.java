@@ -4,129 +4,91 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 import org.junit.Test;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.enumeration.UsStatesEnum;
-import org.openl.rules.project.instantiation.ApiBasedInstantiationStrategy;
-import org.openl.rules.project.instantiation.RuntimeContextInstantiationStrategyEnhancer;
-import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.ResolvingStrategy;
-import org.openl.rules.project.resolving.SimpleXlsResolvingStrategy;
-import org.openl.rules.runtime.RulesFileDependencyLoader;
+import org.openl.rules.project.instantiation.ProjectEngineFactory;
+import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder;
 
 public class DependencyMethodDispatchingTest {
 
-	/**
-	 * Checks that one module includes another as dependency. Both of them
-	 * contains the identical methods by signatures, without dimension
-	 * properties. The expected result: both methods will be wrapped with
-	 * dispatcher and ambigious method exception will be thrown at runtime.
-	 */
-	@Test
-	public void testAmbigiousMethodException() throws Exception {
-		final String MODULES_FOLDER = "test/resources/dependencies/testMethodDispatching";
-		// AmbigiousMethodException can be retrieved in only the dispatching
-		// mode based on methods selecting in java code
-		ResolvingStrategy strategy = new SimpleXlsResolvingStrategy();
-		ProjectDescriptor descr = strategy.resolveProject(new File(
-				MODULES_FOLDER));
+    /**
+     * Checks that one module includes another as dependency. Both of them
+     * contains the identical methods by signatures, without dimension
+     * properties. The expected result: both methods will be wrapped with
+     * dispatcher and ambigious method exception will be thrown at runtime.
+     */
+    @Test
+    public void testAmbigiousMethodException() throws Exception {
+        // AmbigiousMethodException can be retrieved in only the dispatching
+        // mode based on methods selecting in java code
 
-		RulesProjectDependencyManager dependencyManager = new RulesProjectDependencyManager();
+        ProjectEngineFactory<?> factory = new SimpleProjectEngineFactoryBuilder()
+            .setProject("test/resources/dependencies/testMethodDispatching").build();
+        factory.getCompiledOpenClass();
+        Class<?> interfaceClass = factory.getInterfaceClass();
+        Method method = null;
+        try {
+            method = interfaceClass.getMethod("hello1", new Class[] { int.class });
+        } catch (Throwable e1) {
+            fail("Method should exist.");
+        }
 
-		RulesFileDependencyLoader loader1 = new RulesFileDependencyLoader();
-		ResolvingRulesProjectDependencyLoader loader2 = new ResolvingRulesProjectDependencyLoader(
-				MODULES_FOLDER);
+        try {
+            method.invoke(factory.newInstance(), 10);
+            fail("We are waiting for OpenlRuntimeException");
+        } catch (Exception e) {
+            assertTrue(e.getCause().getMessage().contains("Ambiguous method dispatch"));
+        }
+    }
 
-		dependencyManager.setDependencyLoaders(Arrays.asList(loader1, loader2));
-		boolean executionMode = false;
-		dependencyManager.setExecutionMode(executionMode);
+    /**
+     * Check that main module contains overloaded by property table. Dependency
+     * contains the invokable table(start) that calls the table that is
+     * overloaded by property. Checks, that on invoke the table from dependency
+     * module will work. As it was compiled separately, and know nothing about
+     * the overloaded table in main module.
+     */
+    @Test
+    public void testMethodDispatching() throws Exception {
 
-		ApiBasedInstantiationStrategy s = new ApiBasedInstantiationStrategy(
-				descr.getModules().get(0), executionMode, dependencyManager);
+        ProjectEngineFactory<?> factory = new SimpleProjectEngineFactoryBuilder().setProvideRuntimeContext(true)
+            .setProject("test/resources/dependencies/testMethodDispatching1")
+            .build();
 
-		Class<?> interfaceClass = s.getInstanceClass();
-		Method method = null;
-		try {
-			method = interfaceClass.getMethod("hello1",
-					new Class[] { int.class });
-		} catch (Throwable e1) {
-			fail("Method should exist.");
-		}
+        Class<?> interfaceClass = null;
+        try {
+            factory.getCompiledOpenClass();
+            interfaceClass = factory.getInterfaceClass();
+        } catch (Exception e2) {
+            fail("Should instantiate");
+        }
+        Method method = null;
+        try {
+            // get the method from dependency module for invoke
+            //
+            method = interfaceClass.getMethod("start", new Class[] { IRulesRuntimeContext.class });
+        } catch (Throwable e1) {
+            fail("Method should exist.");
+        }
 
-		try {
-			method.invoke(s.instantiate(), 10);
-			fail("We are waiting for OpenlRuntimeException");
-		} catch (Exception e) {
-			assertTrue(e.getCause().getMessage()
-					.contains("Ambiguous method dispatch"));
-		}
-	}
+        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
 
-	/**
-	 * Check that main module contains overloaded by property table. Dependency
-	 * contains the invokable table(start) that calls the table that is
-	 * overloaded by property. Checks, that on invoke the table from dependency
-	 * module will work. As it was compiled separately, and know nothing about
-	 * the overloaded table in main module.
-	 */
-	@Test
-	public void testMethodDispatching() throws Exception{
-		final String MODULES_FOLDER = "test/resources/dependencies/testMethodDispatching1";
+        // set the state from dependency module
+        //
+        context.setUsState(UsStatesEnum.AZ);
 
-		ResolvingStrategy strategy = new SimpleXlsResolvingStrategy();
-		ProjectDescriptor descr = strategy.resolveProject(new File(
-				MODULES_FOLDER));
-
-		RulesFileDependencyLoader loader1 = new RulesFileDependencyLoader();
-		ResolvingRulesProjectDependencyLoader loader2 = new ResolvingRulesProjectDependencyLoader(
-				MODULES_FOLDER);
-
-		RulesProjectDependencyManager dependencyManager = new RulesProjectDependencyManager();
-		dependencyManager.setDependencyLoaders(Arrays.asList(loader1, loader2));
-		boolean executionMode = true;
-		dependencyManager.setExecutionMode(executionMode);
-
-		ApiBasedInstantiationStrategy s = new ApiBasedInstantiationStrategy(
-				descr.getModules().get(0), executionMode, dependencyManager);
-
-		RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(s);
-
-		Class<?> interfaceClass = null;
-		try {
-			interfaceClass = enhancer.getServiceClass();
-		} catch (Exception e2) {
-			fail("Should instantiate");
-		}
-		Method method = null;
-		try {
-			// get the method from dependency module for invoke
-			//
-			method = interfaceClass.getMethod("start",
-					new Class[] { IRulesRuntimeContext.class });
-		} catch (Throwable e1) {
-			fail("Method should exist.");
-		}
-
-		IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-
-		// set the state from dependency module
-		//
-		context.setUsState(UsStatesEnum.AZ);
-
-		try {
-			// check that method from dependency will be invoked
-			//
-			assertEquals(2,
-					method.invoke(enhancer.instantiate(), context));
-			assertTrue(true);
-		} catch (Exception e) {
-			fail("We should get the right result");
-		}
-	}
+        try {
+            // check that method from dependency will be invoked
+            //
+            assertEquals(2, method.invoke(factory.newInstance(), context));
+            assertTrue(true);
+        } catch (Exception e) {
+            fail("We should get the right result");
+        }
+    }
 
 }
