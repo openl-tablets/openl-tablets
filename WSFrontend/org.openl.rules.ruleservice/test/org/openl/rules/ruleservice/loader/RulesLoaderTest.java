@@ -37,11 +37,7 @@ public class RulesLoaderTest {
 
     @Before
     public void setDataSource() throws Exception {
-        RulesProjectResolver projectResolver = new RulesProjectResolver();
-        List<ResolvingStrategy> resolvingStrategies = new ArrayList<ResolvingStrategy>();
-        resolvingStrategies.add(new org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy());
-        resolvingStrategies.add(new org.openl.rules.project.resolving.SimpleXlsResolvingStrategy());
-        projectResolver.setResolvingStrategies(resolvingStrategies);
+        RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
         rulesLoader = new RuleServiceLoaderImpl(dataSource, new LocalTemporaryDeploymentsStorage("target/openl-deploy2"), projectResolver);
     }
 
