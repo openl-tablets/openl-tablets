@@ -8,16 +8,16 @@ import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.rules.project.dependencies.RulesModuleDependencyLoader;
 import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.project.resolving.ResolvingStrategy;
-import org.openl.rules.project.resolving.RulesProjectResolver;
 
 final class ProjectHelpers {
     private ProjectHelpers() {
     }
 
     public static ProjectDescriptor resolveProject(String openlProjectDirectory) throws ProjectResolvingException {
-        RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
+        ProjectResolver projectResolver = ProjectResolver.instance();
         File projectFolder = new File(openlProjectDirectory);
         ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
         if (resolvingStrategy == null) {

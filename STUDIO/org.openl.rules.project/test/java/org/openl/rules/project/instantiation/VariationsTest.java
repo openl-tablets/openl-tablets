@@ -17,7 +17,7 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.project.instantiation.variation.VariationInstantiationStrategyEnhancer;
 import org.openl.rules.project.instantiation.variation.VariationInstantiationStrategyEnhancerHelper;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.RulesProjectResolver;
+import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.variation.ArgumentReplacementVariation;
 import org.openl.rules.variation.DeepCloningVariation;
 import org.openl.rules.variation.JXPathVariation;
@@ -34,7 +34,7 @@ public class VariationsTest {
     public static final String STANDART = "Standard Driver";
     public static final String YOUNG = "Young Driver";
     public static final String SENOIR = "Senior Driver";
-    private RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();;
+    private ProjectResolver projectResolver = ProjectResolver.instance();
     private ApiBasedInstantiationStrategy instantiationStrategy;
 
     @Before

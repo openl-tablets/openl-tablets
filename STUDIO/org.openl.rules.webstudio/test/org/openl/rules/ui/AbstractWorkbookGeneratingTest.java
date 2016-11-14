@@ -8,9 +8,9 @@ import org.apache.tika.io.IOUtils;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.project.resolving.ResolvingStrategy;
-import org.openl.rules.project.resolving.RulesProjectResolver;
 
 import java.io.*;
 import java.util.List;
@@ -21,7 +21,7 @@ public abstract class AbstractWorkbookGeneratingTest {
 
     protected List<Module> getModules() throws ProjectResolvingException {
         File rulesFolder = tempFolder.getRoot();
-        ResolvingStrategy resolvingStrategy = RulesProjectResolver.loadProjectResolverFromClassPath().isRulesProject(
+        ResolvingStrategy resolvingStrategy = ProjectResolver.instance().isRulesProject(
                 rulesFolder);
         return resolvingStrategy.resolveProject(rulesFolder).getModules();
     }

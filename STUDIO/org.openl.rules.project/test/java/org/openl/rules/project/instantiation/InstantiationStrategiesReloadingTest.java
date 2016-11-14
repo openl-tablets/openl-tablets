@@ -18,8 +18,8 @@ import org.junit.Test;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ResolvingStrategy;
-import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.util.FileUtils;
 
 @Ignore(value = "currently disabled. Problem with OpenL onstances caching and sharing should be fixed.")
@@ -51,7 +51,7 @@ public class InstantiationStrategiesReloadingTest {
             .loadClass("org.openl.example.TestBean") }, int.class);
     }
 
-    private static RulesProjectResolver resolver = RulesProjectResolver.loadProjectResolverFromClassPath();
+    private static ProjectResolver resolver = ProjectResolver.instance();
     private ApiBasedInstantiationStrategy apiStrategy;
     private SingleModuleInstantiationStrategy dynamicStrategy;
 

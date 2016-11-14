@@ -1,6 +1,5 @@
 package org.openl.rules.project.resolving;
 
-import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.lang.xls.main.IRulesLaunchConstants;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.util.ASelector;
@@ -8,7 +7,6 @@ import org.openl.util.ISelector;
 import org.openl.util.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -25,17 +23,18 @@ public class RulesProjectResolver {
 
     private final Logger log = LoggerFactory.getLogger(RulesProjectResolver.class);
 
-
-    private List<ResolvingStrategy> resolvingStrategies;
-
     private String workspace;
 
     private ISelector<String> projectSelector;
+    private ProjectResolver projectResolver;
 
     public static RulesProjectResolver loadProjectResolverFromClassPath() {
-        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext(
-                "project-resolver-beans.xml");
-        return (RulesProjectResolver) applicationContext.getBean("projectResolver");
+        ProjectResolver projectResolver = ProjectResolver.instance();
+        return new RulesProjectResolver(projectResolver);
+    }
+
+    private RulesProjectResolver(ProjectResolver projectResolver) {
+        this.projectResolver = projectResolver;
     }
 
     public String getWorkspace() {
@@ -44,14 +43,6 @@ public class RulesProjectResolver {
 
     public void setWorkspace(String workspace) {
         this.workspace = workspace;
-    }
-
-    public List<ResolvingStrategy> getResolvingStrategies() {
-        return resolvingStrategies;
-    }
-
-    public void setResolvingStrategies(List<ResolvingStrategy> resolvingStrategies) {
-        this.resolvingStrategies = resolvingStrategies;
     }
 
     public void setProjectSelector(ISelector<String> projectSelector) {
@@ -88,15 +79,7 @@ public class RulesProjectResolver {
      * {@link ResolvingStrategy} for this project otherwise.
      */
     public ResolvingStrategy isRulesProject(File folder) {
-        if (resolvingStrategies == null) {
-            throw new OpenlNotCheckedException("Resolving strategies weren't set.");
-        }
-        for (ResolvingStrategy strategy : resolvingStrategies) {
-            if (strategy.isRulesProject(folder)) {
-                return strategy;
-            }
-        }
-        return null;
+        return projectResolver.isRulesProject(folder);
     }
 
     /**

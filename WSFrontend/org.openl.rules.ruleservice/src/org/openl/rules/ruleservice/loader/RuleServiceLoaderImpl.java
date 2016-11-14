@@ -5,9 +5,9 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.project.resolving.ResolvingStrategy;
-import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
 
     private DataSource dataSource;
 
-    private RulesProjectResolver projectResolver;
+    private ProjectResolver projectResolver;
 
     private LocalTemporaryDeploymentsStorage storage;
 
@@ -52,7 +52,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      */
     public RuleServiceLoaderImpl(DataSource dataSource,
             LocalTemporaryDeploymentsStorage storage,
-            RulesProjectResolver projectResolver) {
+            ProjectResolver projectResolver) {
         if (dataSource == null) {
             throw new IllegalArgumentException("dataSource argument can't be null");
         }
@@ -87,7 +87,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     /**
      * Gets rules project resolver.
      */
-    public RulesProjectResolver getProjectResolver() {
+    public ProjectResolver getProjectResolver() {
         return projectResolver;
     }
 
@@ -96,7 +96,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      *
      * @param projectResolver
      */
-    public void setProjectResolver(RulesProjectResolver projectResolver) {
+    public void setProjectResolver(ProjectResolver projectResolver) {
         if (projectResolver == null) {
             throw new IllegalArgumentException("projectResolver argument can't be null");
         }
