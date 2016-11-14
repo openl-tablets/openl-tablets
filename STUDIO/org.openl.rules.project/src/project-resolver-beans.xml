@@ -13,6 +13,5 @@
                 <bean class="org.openl.rules.project.resolving.SimpleXlsResolvingStrategy"/>
             </list>
         </property>
-        <property name="workspace" value=".."/>
     </bean>
 </beans>
