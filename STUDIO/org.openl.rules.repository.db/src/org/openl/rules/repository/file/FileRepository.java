@@ -94,16 +94,18 @@ public class FileRepository implements Repository {
     }
 
     @Override
-    public FileData copy(String srcName, String destName) throws IOException {
+    public FileData copy(String srcName, FileData destData) throws IOException {
         File srcFile = new File(root, srcName);
+        String destName = destData.getName();
         File destFile = new File(root, destName);
         FileUtils.copy(srcFile, destFile);
         return getFileData(destFile);
     }
 
     @Override
-    public FileData rename(String srcName, String destName) throws IOException {
+    public FileData rename(String srcName, FileData destData) throws IOException {
         File srcFile = new File(root, srcName);
+        String destName = destData.getName();
         File destFile = new File(root, destName);
         boolean renamed = srcFile.renameTo(destFile);
         if (!renamed) {
@@ -155,9 +157,9 @@ public class FileRepository implements Repository {
     }
 
     @Override
-    public FileData copyHistory(String srcName, String destName, String version) throws IOException {
+    public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
         if (version == null) {
-            return copy(srcName, destName);
+            return copy(srcName, destData);
         }
         throw new FileNotFoundException("File versions is not supported.");
     }

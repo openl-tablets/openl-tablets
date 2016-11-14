@@ -120,19 +120,19 @@ public abstract class DBRepository implements Repository {
     }
 
     @Override
-    public FileData copy(String srcName, String destName) throws IOException {
+    public FileData copy(String srcName, FileData destData) throws IOException {
         PreparedStatement statement = null;
         try {
             String newVersion = UUID.randomUUID().toString();
 
             statement = getConnection().prepareStatement(DatabaseQueries.COPY_FILE);
-            statement.setString(1, destName);
+            statement.setString(1, destData.getName());
             statement.setTimestamp(2, new Timestamp(new Date().getTime()));
             statement.setString(3, newVersion);
             statement.setString(4, srcName);
             statement.executeUpdate();
 
-            FileData copy = getHistoryVersionFileData(destName, newVersion);
+            FileData copy = getHistoryVersionFileData(destData.getName(), newVersion);
             invokeListener();
             return copy;
         } catch (SQLException e) {
@@ -143,7 +143,7 @@ public abstract class DBRepository implements Repository {
     }
 
     @Override
-    public FileData rename(String path, String destination) throws IOException {
+    public FileData rename(String path, FileData destData) throws IOException {
         // TODO: implement
         return null;
     }
@@ -296,9 +296,9 @@ public abstract class DBRepository implements Repository {
     }
 
     @Override
-    public FileData copyHistory(String srcName, String destName, String version) throws IOException {
+    public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
         if (version == null) {
-            return copy(srcName, destName);
+            return copy(srcName, destData);
         }
 
         PreparedStatement statement = null;
@@ -306,14 +306,14 @@ public abstract class DBRepository implements Repository {
             String newVersion = UUID.randomUUID().toString();
 
             statement = getConnection().prepareStatement(DatabaseQueries.COPY_HISTORY);
-            statement.setString(1, destName);
+            statement.setString(1, destData.getName());
             statement.setTimestamp(2, new Timestamp(new Date().getTime()));
             statement.setString(3, newVersion);
             statement.setString(4, srcName);
             statement.setString(5, version);
             statement.executeUpdate();
 
-            FileData copy = getHistoryVersionFileData(destName, newVersion);
+            FileData copy = getHistoryVersionFileData(destData.getName(), newVersion);
             invokeListener();
             return copy;
         } catch (SQLException e) {

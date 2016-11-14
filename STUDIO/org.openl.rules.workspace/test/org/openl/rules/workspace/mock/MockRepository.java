@@ -47,19 +47,19 @@ public class MockRepository implements Repository, FolderRepository {
     }
 
     @Override
-    public FileData copy(String srcPath, String destPath) {
+    public FileData copy(String srcPath, FileData destData) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public FileData rename(String path, String destination) {
+    public FileData rename(String path, FileData destData) {
         FileData fileData = fileDataMap.remove(path);
         FileItem fileItem = fileItemMap.remove(path);
 
-        fileData.setName(destination);
-        fileItem.getData().setName(destination);
-        fileDataMap.put(destination, fileData);
-        fileItemMap.put(destination, fileItem);
+        fileData.setName(destData.getName());
+        fileItem.getData().setName(destData.getName());
+        fileDataMap.put(destData.getName(), fileData);
+        fileItemMap.put(destData.getName(), fileItem);
 
         return fileData;
     }
@@ -90,7 +90,7 @@ public class MockRepository implements Repository, FolderRepository {
     }
 
     @Override
-    public FileData copyHistory(String srcName, String destName, String version) {
+    public FileData copyHistory(String srcName, FileData destData, String version) {
         throw new UnsupportedOperationException();
     }
 }

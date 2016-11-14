@@ -88,21 +88,21 @@ public interface Repository {
      * Copy a file to the destination file.
      * 
      * @param srcName the file to copy.
-     * @param destName the destination file.
+     * @param destData the destination file descriptor.
      * @return the file descriptor of the resulted file.
      * @throws IOException if not possible to copy the file
      */
-    FileData copy(String srcName, String destName) throws IOException;
+    FileData copy(String srcName, FileData destData) throws IOException;
 
     /**
      * Rename or move a file.
      *
      * @param srcName the file to rename.
-     * @param destName the resulted file name.
+     * @param destData the destination file descriptor.
      * @return the file descriptor of the resulted file.
      * @throws IOException if not possible to rename the file
      */
-    FileData rename(String srcName, String destName) throws IOException;
+    FileData rename(String srcName, FileData destData) throws IOException;
 
     /**
      * Set a listener to monitor changes in the repository.
@@ -161,15 +161,15 @@ public interface Repository {
 
     /**
      * Copy a file of the given version to the destination file. If the version
-     * is null, then it will work like {@link #copy(String, String)} method.
+     * is null, then it will work like {@link #copy(String, FileData)} method.
      * 
      * @param srcName the file to copy.
-     * @param destName the destination file.
+     * @param destData the destination file descriptor.
      * @param version the version of the file to copy
      * @return the file descriptor of the resulted file.
      * @throws IOException if not possible to copy the file
-     * @see #copy(String, String)
+     * @see #copy(String, FileData)
      */
-    FileData copyHistory(String srcName, String destName, String version) throws IOException;
+    FileData copyHistory(String srcName, FileData destData, String version) throws IOException;
 
 }

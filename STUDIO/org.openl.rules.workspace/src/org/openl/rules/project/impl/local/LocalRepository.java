@@ -100,18 +100,18 @@ public class LocalRepository implements Repository, FolderRepository {
     }
 
     @Override
-    public FileData copy(String srcPath, String destPath) {
+    public FileData copy(String srcPath, FileData destData) {
         return null;
     }
 
     @Override
-    public FileData rename(String path, String destination) {
+    public FileData rename(String path, FileData destData) {
         File file = new File(location, path);
-        File dest = new File(location, destination);
+        File dest = new File(location, destData.getName());
         if (!file.renameTo(dest)) {
             throw new IllegalStateException("Can't rename");
         }
-        modificationHandler.notifyModified(destination);
+        modificationHandler.notifyModified(destData.getName());
 
         return createFileData(dest);
     }
@@ -142,7 +142,7 @@ public class LocalRepository implements Repository, FolderRepository {
     }
 
     @Override
-    public FileData copyHistory(String srcName, String destName, String version) {
+    public FileData copyHistory(String srcName, FileData destData, String version) {
         return null;
     }
 

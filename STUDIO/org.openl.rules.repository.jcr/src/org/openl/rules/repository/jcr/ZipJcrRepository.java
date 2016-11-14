@@ -240,30 +240,32 @@ public class ZipJcrRepository implements Repository, Closeable {
     }
 
     @Override
-    public FileData copy(String srcPath, String destPath) {
+    public FileData copy(String srcPath, FileData destData) {
         try {
             if (rulesRepository.getArtefact(srcPath) == null) {
                 throw new ProjectException("Project ''{0}'' is absent in the repository!", null, srcPath);
             }
-            if (rulesRepository.getArtefact(destPath) != null) {
-                throw new ProjectException("Project ''{0}'' is already exist in the repository!", null, destPath);
+            String name = destData.getName();
+            if (rulesRepository.getArtefact(name) != null) {
+                throw new ProjectException("Project ''{0}'' is already exist in the repository!", null, destData);
             }
 
             // TODO Only create
-            FolderAPI srcProject = getOrCreateProject(destPath);
-            FolderAPI destProject = getOrCreateProject(destPath);
+            FolderAPI srcProject = getOrCreateProject(name);
+            FolderAPI destProject = getOrCreateProject(name);
             copy(srcProject, destProject);
 
-            return createFileData(destPath, destProject);
+            return createFileData(name, destProject);
         } catch (CommonException e) {
             throw new IllegalStateException(e);
         }
     }
 
     @Override
-    public FileData rename(String path, String destination) {
+    public FileData rename(String path, FileData destData) {
         try {
-            return createFileData(destination, rulesRepository.rename(path, destination));
+            String name = destData.getName();
+            return createFileData(name, rulesRepository.rename(path, name));
         } catch (CommonException e) {
             throw new IllegalStateException(e);
         }
@@ -378,20 +380,21 @@ public class ZipJcrRepository implements Repository, Closeable {
     }
 
     @Override
-    public FileData copyHistory(String srcName, String destName, String version) {
+    public FileData copyHistory(String srcName, FileData destData, String version) {
         try {
             if (rulesRepository.getArtefact(srcName) == null) {
                 throw new ProjectException("Project ''{0}'' is absent in the repository!", null, srcName);
             }
-            if (rulesRepository.getArtefact(destName) != null) {
-                throw new ProjectException("Project ''{0}'' is already exist in the repository!", null, destName);
+            String name = destData.getName();
+            if (rulesRepository.getArtefact(name) != null) {
+                throw new ProjectException("Project ''{0}'' is already exist in the repository!", null, destData);
             }
 
             FolderAPI sourceProject = getOrCreateProject(srcName).getVersion(new CommonVersionImpl(Integer.parseInt(version)));
-            FolderAPI destProject = getOrCreateProject(destName);// TODO Only create
+            FolderAPI destProject = getOrCreateProject(name);// TODO Only create
             copy(sourceProject, destProject);
 
-            return createFileData(destName, destProject);
+            return createFileData(name, destProject);
         } catch (CommonException e) {
             throw new IllegalStateException(e);
         }
