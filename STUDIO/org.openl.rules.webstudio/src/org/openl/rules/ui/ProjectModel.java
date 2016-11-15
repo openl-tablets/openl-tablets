@@ -1116,15 +1116,14 @@ public class ProjectModel {
                         break;
                     }
                 }
-                if (!found){
-                    if (webStudioWorkspaceDependencyManager != null){
-                        webStudioWorkspaceDependencyManager.resetAll();
-                    }
+                if (!found) {
+                    webStudioWorkspaceDependencyManager.resetAll();
                     webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory.getDependencyManager(this.moduleInfo,
                         singleModuleMode);
                     openedInSingleModuleMode = singleModuleMode;
                 }
-            }else{
+            } else {
+                webStudioWorkspaceDependencyManager.resetAll();
                 webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory.getDependencyManager(this.moduleInfo,
                     singleModuleMode);
                 openedInSingleModuleMode = singleModuleMode;
