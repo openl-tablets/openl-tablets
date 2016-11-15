@@ -215,10 +215,12 @@ public class RepositoryTreeController {
 
     public String closeProject() {
         try {
-            if (repositoryTreeState.getSelectedProject().equals(studio.getModel().getProject())) {
+            RulesProject studioProject = studio.getModel().getProject();
+            UserWorkspaceProject repositoryProject = repositoryTreeState.getSelectedProject();
+            if (studioProject != null && repositoryProject.getFolderPath().equals(studioProject.getFolderPath())) {
                 studio.getModel().clearModuleInfo();
             }
-            repositoryTreeState.getSelectedProject().close();
+            repositoryProject.close();
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
         } catch (Exception e) {
