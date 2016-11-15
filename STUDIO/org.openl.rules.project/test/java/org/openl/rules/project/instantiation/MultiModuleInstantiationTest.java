@@ -15,7 +15,7 @@ import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.RulesProjectResolver;
+import org.openl.rules.project.resolving.ProjectResolver;
 
 public class MultiModuleInstantiationTest {
 
@@ -23,13 +23,10 @@ public class MultiModuleInstantiationTest {
     public void test1() throws Exception {
 
         File root = new File("test/resources/multi-module-support/test1");
-        RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
+        ProjectResolver projectResolver = ProjectResolver.instance();
+        List<ProjectDescriptor> projects = projectResolver.resolve(root.listFiles());
 
         List<Module> modules = new ArrayList<Module>();
-
-        projectResolver.setWorkspace(root.getAbsolutePath());
-        List<ProjectDescriptor> projects = projectResolver.listOpenLProjects();
-
         for (ProjectDescriptor project : projects) {
             modules.addAll(project.getModules());
         }
@@ -50,11 +47,11 @@ public class MultiModuleInstantiationTest {
         assertEquals(new DoubleValue(400), result);
     }
 
-    private List<Module> listModulesInFolder(File folder) {
+    private List<Module> listModulesInFolder(File root) {
+        ProjectResolver projectResolver = ProjectResolver.instance();
+        List<ProjectDescriptor> projects = projectResolver.resolve(root.listFiles());
+
         List<Module> modules = new ArrayList<Module>();
-        RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
-        projectResolver.setWorkspace(folder.getAbsolutePath());
-        List<ProjectDescriptor> projects = projectResolver.listOpenLProjects();
         for (ProjectDescriptor project : projects) {
             for (Module module : project.getModules()) {
                 modules.add(module);
@@ -113,13 +110,10 @@ public class MultiModuleInstantiationTest {
     public void test3() throws Exception {
 
         File root = new File("test/resources/multi-module-support/test3");
+        ProjectResolver projectResolver = ProjectResolver.instance();
+        List<ProjectDescriptor> projects = projectResolver.resolve(root.listFiles());
 
-        RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
         List<Module> modules = new ArrayList<Module>();
-
-        projectResolver.setWorkspace(root.getAbsolutePath());
-        List<ProjectDescriptor> projects = projectResolver.listOpenLProjects();
-
         for (ProjectDescriptor project : projects) {
             modules.addAll(project.getModules());
         }

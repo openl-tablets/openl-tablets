@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.openl.config.ConfigurationManager;
 import org.openl.rules.project.instantiation.ReloadType;
-import org.openl.rules.project.resolving.RulesProjectResolver;
+import org.openl.rules.project.resolving.ProjectResolver;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -40,7 +40,7 @@ public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
 
         WebStudio ws = mock(WebStudio.class);
         when(ws.getSystemConfigManager()).thenReturn(new ConfigurationManager(true, null));
-        when(ws.getProjectResolver()).thenReturn(RulesProjectResolver.loadProjectResolverFromClassPath());
+        when(ws.getProjectResolver()).thenReturn(ProjectResolver.instance());
 
         EhCacheUtils.createCache();
 

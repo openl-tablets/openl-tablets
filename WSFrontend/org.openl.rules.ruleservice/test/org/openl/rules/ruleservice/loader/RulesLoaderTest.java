@@ -8,9 +8,7 @@ import static org.openl.rules.ruleservice.Constants.MODULE_NAME;
 import static org.openl.rules.ruleservice.Constants.PROJECT_NAME;
 import static org.openl.rules.ruleservice.Constants.VERSION;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,8 +17,7 @@ import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.resolving.ResolvingStrategy;
-import org.openl.rules.project.resolving.RulesProjectResolver;
+import org.openl.rules.project.resolving.ProjectResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -37,11 +34,7 @@ public class RulesLoaderTest {
 
     @Before
     public void setDataSource() throws Exception {
-        RulesProjectResolver projectResolver = new RulesProjectResolver();
-        List<ResolvingStrategy> resolvingStrategies = new ArrayList<ResolvingStrategy>();
-        resolvingStrategies.add(new org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy());
-        resolvingStrategies.add(new org.openl.rules.project.resolving.SimpleXlsResolvingStrategy());
-        projectResolver.setResolvingStrategies(resolvingStrategies);
+        ProjectResolver projectResolver = ProjectResolver.instance();
         rulesLoader = new RuleServiceLoaderImpl(dataSource, new LocalTemporaryDeploymentsStorage("target/openl-deploy2"), projectResolver);
     }
 

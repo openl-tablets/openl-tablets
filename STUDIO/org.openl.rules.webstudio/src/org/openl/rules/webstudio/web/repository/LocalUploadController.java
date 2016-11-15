@@ -2,6 +2,8 @@ package org.openl.rules.webstudio.web.repository;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.resolving.ProjectResolver;
+import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
@@ -17,6 +19,8 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 @ManagedBean(name = "localUpload")
@@ -79,11 +83,15 @@ public class LocalUploadController {
                     log.error("Cannot get DTR!", e);
                     return null;
                 }
-
-                List<File> projects = webStudio.getProjectResolver().listOpenLFolders();
+                File workspace = new File(webStudio.getWorkspacePath());
+                File[] projects = workspace.listFiles();
+                Arrays.sort(projects, fileNameComparator);
+                 // All OpenL projects folders in workspace
+                ProjectResolver projectResolver = webStudio.getProjectResolver();
                 for (File f : projects) {
                     try {
-                        if (!dtr.hasProject(f.getName())) {
+                        ResolvingStrategy strategy = projectResolver.isRulesProject(f);
+                        if (strategy != null && !dtr.hasProject(f.getName())) {
                             uploadBeans.add(new UploadBean(f.getName()));
                         }
                     } catch (Exception e) {
@@ -95,6 +103,14 @@ public class LocalUploadController {
         }
         return uploadBeans;
     }
+
+    private static Comparator<File> fileNameComparator = new Comparator<File>() {
+        @Override public int compare(File f1, File f2) {
+            String name1 = f1.getName();
+            String name2 = f2.getName();
+            return name1.compareToIgnoreCase(name2);
+        }
+    };
 
     private RulesUserSession getRules() {
         HttpSession session = FacesUtils.getSession();

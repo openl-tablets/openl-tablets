@@ -1,0 +1,17 @@
+<project>
+    <name>Main</name>
+    <modules>
+        <module>
+            <name>main</name>
+            <rules-root path="main.xls"/>
+        </module>
+    </modules>
+    <dependencies>
+        <dependency>
+            <name>pr1</name>
+        </dependency>
+        <dependency>
+            <name>pr2</name>
+        </dependency>
+    </dependencies>
+</project>

@@ -4,7 +4,7 @@
        default-autowire="no">
 
     <!-- Resolves all OpenL projects in specified workspace folder. Use specified strategies. -->
-    <bean id="projectResolver" class="org.openl.rules.project.resolving.RulesProjectResolver">
+    <bean id="projectResolver" class="org.openl.rules.project.resolving.ProjectResolver">
         <property name="resolvingStrategies">
             <list>
                 <!-- Resolves projects that match check descriptor file existing (rule.xml). It is used by projectResolver bean. -->
@@ -13,6 +13,5 @@
                 <bean class="org.openl.rules.project.resolving.SimpleXlsResolvingStrategy"/>
             </list>
         </property>
-        <property name="workspace" value=".."/>
     </bean>
 </beans>

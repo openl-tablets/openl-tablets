@@ -6,17 +6,16 @@ import java.io.File;
 
 import org.junit.Test;
 
-public class RulesResolverTest {
+public class ProjectResolverTest {
     @Test
     public void testInitialization() {
-        RulesProjectResolver resolver = RulesProjectResolver.loadProjectResolverFromClassPath();
+        ProjectResolver resolver = ProjectResolver.instance();
         assertTrue(resolver.getResolvingStrategies().size() > 0);
-        assertTrue(resolver.listOpenLProjects() != null);
     }
 
     @Test
     public void testStrategySelection() {
-        RulesProjectResolver resolver = RulesProjectResolver.loadProjectResolverFromClassPath();
+        ProjectResolver resolver = ProjectResolver.instance();
         assertTrue(resolver.isRulesProject(new File("test/resources/descriptor")) instanceof ProjectDescriptorBasedResolvingStrategy);
         assertTrue(resolver.isRulesProject(new File("test/resources/excel")) instanceof SimpleXlsResolvingStrategy);
     }
