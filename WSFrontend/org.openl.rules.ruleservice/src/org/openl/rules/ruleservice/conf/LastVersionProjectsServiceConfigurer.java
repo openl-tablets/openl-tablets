@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.abstraction.AProject;
@@ -130,12 +131,14 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
         Collection<ServiceDescription> serviceDescriptions = new HashSet<ServiceDescription>();
         Set<String> serviceURLs = new HashSet<String>();
         for (Deployment deployment : deployments) {
-            DeploymentDescription deploymentDescription = new DeploymentDescription(deployment.getDeploymentName(),
-                deployment.getCommonVersion());
+            String deploymentName = deployment.getDeploymentName();
+            CommonVersion deploymentVersion = deployment.getCommonVersion();
+            DeploymentDescription deploymentDescription = new DeploymentDescription(deploymentName, deploymentVersion);
             for (AProject project : deployment.getProjects()) {
+                String projectName = project.getName();
                 try {
                     Collection<Module> modulesOfProject = ruleServiceLoader.resolveModulesForProject(
-                        deployment.getDeploymentName(), deployment.getCommonVersion(), project.getName());
+                            deploymentName, deploymentVersion, projectName);
                     ServiceDescription.ServiceDescriptionBuilder serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder()
                         .setProvideRuntimeContext(provideRuntimeContext)
                         .setProvideVariations(supportVariations)
@@ -204,8 +207,8 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                                 }
                             }
                         }
-                        serviceDescriptionBuilder.setName(buildServiceName(deployment, project, rulesDeploy));
-                        serviceDescriptionBuilder.setUrl(buildServiceUrl(deployment, project, rulesDeploy));
+                        serviceDescriptionBuilder.setName(buildServiceName(deployment, projectName, rulesDeploy));
+                        serviceDescriptionBuilder.setUrl(buildServiceUrl(deployment, projectName, rulesDeploy));
                         ServiceDescription serviceDescription = serviceDescriptionBuilder.build();
 
                         if (!serviceDescriptions.contains(serviceDescription) && !serviceURLs
@@ -228,8 +231,8 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                 } catch (Throwable e) {
                     log.error(
                         "Project loading from repository was failed! Project with name \"{}\" in deployment \"{}\" was skipped!",
-                        project.getName(),
-                        deployment.getDeploymentName(),
+                            projectName,
+                            deploymentName,
                         e);
                 }
             }
@@ -267,7 +270,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
         return true;
     }
 
-    private String buildServiceName(Deployment deployment, AProject project, RulesDeploy rulesDeploy) {
+    private String buildServiceName(Deployment deployment, String projectName, RulesDeploy rulesDeploy) {
         if (rulesDeploy != null) {
             if (StringUtils.isNotEmpty(rulesDeploy.getServiceName())) {
                 if (StringUtils.isNotEmpty(rulesDeploy.getVersion())) {
@@ -277,15 +280,15 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                 }
             } else {
                 if (StringUtils.isNotEmpty(rulesDeploy.getVersion())) {
-                    return deployment.getDeploymentName() + '_' + project.getName() + "(version=" + rulesDeploy
+                    return deployment.getDeploymentName() + '_' + projectName + "(version=" + rulesDeploy
                         .getVersion() + ")";
                 }
             }
         }
-        return deployment.getDeploymentName() + '_' + project.getName();
+        return deployment.getDeploymentName() + '_' + projectName;
     }
 
-    private String buildServiceUrl(Deployment deployment, AProject project, RulesDeploy rulesDeploy) {
+    private String buildServiceUrl(Deployment deployment, String projectName, RulesDeploy rulesDeploy) {
         if (rulesDeploy != null) {
             if (StringUtils.isNotEmpty(rulesDeploy.getUrl())) {
                 if (StringUtils.isNotEmpty(rulesDeploy.getVersion())) {
@@ -299,12 +302,11 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                 }
             } else {
                 if (StringUtils.isNotEmpty(rulesDeploy.getVersion())) {
-                    return "/" + rulesDeploy.getVersion() + "/" + deployment.getDeploymentName() + '/' + project
-                        .getName();
+                    return "/" + rulesDeploy.getVersion() + "/" + deployment.getDeploymentName() + '/' + projectName;
                 }
             }
         }
-        return deployment.getDeploymentName() + '/' + project.getName();
+        return deployment.getDeploymentName() + '/' + projectName;
     }
 
     public final IRulesDeploySerializer getRulesDeploySerializer() {

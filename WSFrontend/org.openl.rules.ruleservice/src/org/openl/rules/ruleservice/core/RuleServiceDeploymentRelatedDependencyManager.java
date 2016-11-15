@@ -13,6 +13,7 @@ import java.util.concurrent.Semaphore;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.loader.IDependencyLoader;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.abstraction.AProject;
@@ -166,12 +167,14 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
             Collection<Deployment> deployments = ruleServiceLoader.getDeployments();
             for (Deployment deployment : deployments) {
                 String deploymentName = deployment.getDeploymentName();
+                CommonVersion deploymentVersion = deployment.getCommonVersion();
                 if (deploymentDescription.getName().equals(deploymentName) && deploymentDescription.getVersion()
-                    .equals(deployment.getCommonVersion())) {
+                    .equals(deploymentVersion)) {
                     for (AProject project : deployment.getProjects()) {
+                        String projectName = project.getName();
                         try {
                             Collection<Module> modulesOfProject = ruleServiceLoader.resolveModulesForProject(
-                                deployment.getDeploymentName(), deployment.getCommonVersion(), project.getName());
+                                    deploymentName, deploymentVersion, projectName);
                             ProjectDescriptor projectDescriptor = null;
                             Set<String> wildcardPatterns = new HashSet<String>();
                             if (!modulesOfProject.isEmpty()) {
@@ -187,9 +190,9 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
                                         AProjectResource resource = (AProjectResource) artifact;
                                         content = resource.getContent();
                                         rulesDeploy = getRulesDeploySerializer().deserialize(content);
-                                        if (rulesDeploy.getLazyModulesForCompilationPatterns() != null) {
-                                            for (RulesDeploy.WildcardPattern wp : rulesDeploy
-                                                .getLazyModulesForCompilationPatterns()) {
+                                        RulesDeploy.WildcardPattern[] compilationPatterns = rulesDeploy.getLazyModulesForCompilationPatterns();
+                                        if (compilationPatterns != null) {
+                                            for (RulesDeploy.WildcardPattern wp : compilationPatterns) {
                                                 wildcardPatterns.add(wp.getValue());
                                             }
                                         }
@@ -242,7 +245,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
                         } catch (Exception e) {
                             log.error(
                                 "Build dependency manager loaders for project \"{}\" from deployment \"{}\" was failed!",
-                                project.getName(),
+                                    projectName,
                                 deploymentName,
                                 e);
                         }
