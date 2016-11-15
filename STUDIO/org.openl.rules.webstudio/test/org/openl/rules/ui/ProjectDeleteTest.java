@@ -14,9 +14,8 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.openl.config.ConfigurationManager;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.openl.rules.project.resolving.ResolvingStrategy;
-import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.util.FileUtils;
 
 public class ProjectDeleteTest {
@@ -34,7 +33,6 @@ public class ProjectDeleteTest {
 
         WebStudio ws = mock(WebStudio.class);
         when(ws.getSystemConfigManager()).thenReturn(new ConfigurationManager(true, null));
-        when(ws.getProjectResolver()).thenReturn(RulesProjectResolver.loadProjectResolverFromClassPath());
 
         pm = new ProjectModel(ws);
     }
@@ -79,9 +77,7 @@ public class ProjectDeleteTest {
     }
 
     private List<Module> getModules() throws ProjectResolvingException {
-        ResolvingStrategy resolvingStrategy = RulesProjectResolver.loadProjectResolverFromClassPath()
-                .isRulesProject(projectFolder);
-        return resolvingStrategy.resolveProject(projectFolder).getModules();
+        return ProjectResolver.instance().resolve(projectFolder).getModules();
     }
 
 }
