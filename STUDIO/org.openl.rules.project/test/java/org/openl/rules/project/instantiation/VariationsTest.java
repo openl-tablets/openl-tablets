@@ -40,7 +40,7 @@ public class VariationsTest {
     @Before
     public void init() throws Exception {
         File tut4Folder = new File(TEST_PROJECT_FOLDER);
-        ProjectDescriptor project = projectResolver.isRulesProject(tut4Folder).resolveProject(tut4Folder);
+        ProjectDescriptor project = projectResolver.resolve(tut4Folder);
         instantiationStrategy = new ApiBasedInstantiationStrategy(project.getModules().get(0), true, null);
     }
 
@@ -62,7 +62,7 @@ public class VariationsTest {
         // instantiation strategy always has service class that can not be
         // modified
         File folder = new File(new File(TEST_PROJECT_FOLDER, "rules"), "main");
-        ProjectDescriptor project = projectResolver.isRulesProject(folder).resolveProject(folder);
+        ProjectDescriptor project = projectResolver.resolve(folder);
         ApiBasedInstantiationStrategy instantiationStrategy = new ApiBasedInstantiationStrategy(project.getModules()
                 .get(0), true, null);
         VariationInstantiationStrategyEnhancer variationsEnhancerWithWrongInterface = new VariationInstantiationStrategyEnhancer(instantiationStrategy);
@@ -93,7 +93,7 @@ public class VariationsTest {
     @Test
     public void testVariationsFromRules() throws Exception {
         File folder = new File(new File(TEST_PROJECT_FOLDER, "rules"), "main");
-        ProjectDescriptor project = projectResolver.isRulesProject(folder).resolveProject(folder);
+        ProjectDescriptor project = projectResolver.resolve(folder);
         ApiBasedInstantiationStrategy instantiationStrategy = new ApiBasedInstantiationStrategy(project.getModules()
                 .get(0), true, null);
         VariationInstantiationStrategyEnhancer variationsEnhancer = new VariationInstantiationStrategyEnhancer(instantiationStrategy);

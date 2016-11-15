@@ -34,7 +34,6 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.ui.tree.view.CategoryDetailedView;
 import org.openl.rules.ui.tree.view.CategoryInversedView;
 import org.openl.rules.ui.tree.view.CategoryView;
@@ -535,13 +534,10 @@ public class WebStudio {
         model.resetSourceModified(); // Because we rewrite a file in the workspace
 
         ProjectDescriptor newProjectDescriptor = null;
-        ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
-        if (resolvingStrategy != null) {
-            try {
-                newProjectDescriptor = resolvingStrategy.resolveProject(projectFolder);
-            } catch (ProjectResolvingException e) {
-                log.warn(e.getMessage(), e);
-            }
+        try {
+            newProjectDescriptor = projectResolver.resolve(projectFolder);
+        } catch (ProjectResolvingException e) {
+            log.warn(e.getMessage(), e);
         }
 
         // Replace project descriptor in the list of all projects

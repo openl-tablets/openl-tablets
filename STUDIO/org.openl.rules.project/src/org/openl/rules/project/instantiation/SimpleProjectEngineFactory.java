@@ -8,7 +8,6 @@ import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -253,11 +252,10 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
     protected synchronized final ProjectDescriptor getProjectDescriptor() throws ProjectResolvingException {
         if (this.projectDescriptor == null) {
             ProjectResolver projectResolver = ProjectResolver.instance();
-            ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(project);
-            if (resolvingStrategy == null) {
+            ProjectDescriptor pd = projectResolver.resolve(project);
+            if (pd == null) {
                 throw new ProjectResolvingException("Defined location is not a OpenL project.");
             }
-            ProjectDescriptor pd = resolvingStrategy.resolveProject(project);
             this.projectDescriptor = pd;
         }
         return this.projectDescriptor;

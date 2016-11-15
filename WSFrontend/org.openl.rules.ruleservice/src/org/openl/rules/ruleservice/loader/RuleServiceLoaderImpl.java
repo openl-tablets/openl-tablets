@@ -7,7 +7,6 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -159,16 +158,15 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         }
         String artefactPath = storage.getDirectoryToLoadDeploymentsIn() + project.getArtefactPath().getStringValue();
         File projectFolder = new File(artefactPath);
-        ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
         List<Module> result = Collections.emptyList();
-        if (resolvingStrategy != null) {
-            try {
-                ProjectDescriptor projectDescriptor = resolvingStrategy.resolveProject(projectFolder);
+        try {
+            ProjectDescriptor projectDescriptor = projectResolver.resolve(projectFolder);
+            if (projectDescriptor != null) {
                 List<Module> modules = projectDescriptor.getModules();
-                result =  Collections.unmodifiableList(modules);
-            } catch (ProjectResolvingException e) {
-                log.error("Project resolving failed!", e);
+                result = Collections.unmodifiableList(modules);
             }
+        } catch (ProjectResolvingException e) {
+            log.error("Project resolving failed!", e);
         }
         return result;
     }

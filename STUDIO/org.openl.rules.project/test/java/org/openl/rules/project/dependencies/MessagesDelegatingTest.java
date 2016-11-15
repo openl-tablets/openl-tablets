@@ -19,8 +19,8 @@ import org.openl.message.Severity;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
-import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.code.IDependency;
@@ -33,9 +33,8 @@ public class MessagesDelegatingTest {
     @Before
     public void init() throws Exception {
         File rulesFolder = new File("test/resources/modules_with_errors/");
-        ResolvingStrategy resolvingStrategy = ProjectResolver.instance()
-            .isRulesProject(rulesFolder);
-        modules = resolvingStrategy.resolveProject(rulesFolder).getModules();
+        ProjectDescriptor project = ProjectResolver.instance().resolve(rulesFolder);
+        modules = project.getModules();
         dependencyManager = new RulesProjectDependencyManager();
         List<IDependencyLoader> dependencyLoaders = new ArrayList<IDependencyLoader>(1);
         dependencyLoaders.add(new RulesModuleDependencyLoader(modules));

@@ -10,7 +10,6 @@ import org.openl.rules.project.dependencies.RulesProjectDependencyManager;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.openl.rules.project.resolving.ResolvingStrategy;
 
 final class ProjectHelpers {
     private ProjectHelpers() {
@@ -19,11 +18,7 @@ final class ProjectHelpers {
     public static ProjectDescriptor resolveProject(String openlProjectDirectory) throws ProjectResolvingException {
         ProjectResolver projectResolver = ProjectResolver.instance();
         File projectFolder = new File(openlProjectDirectory);
-        ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
-        if (resolvingStrategy == null) {
-            return null;
-        }
-        return resolvingStrategy.resolveProject(projectFolder);
+        return projectResolver.resolve(projectFolder);
     }
 
     public static IDependencyManager getDependencyManager(ProjectDescriptor projectDescriptor) {
