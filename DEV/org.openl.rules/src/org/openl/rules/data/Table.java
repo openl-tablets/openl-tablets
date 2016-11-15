@@ -31,8 +31,8 @@ public class Table implements ITable {
 
     protected Object dataArray;
 
-    protected BiMap<Integer, Object> rowIndexMap = new BiMap<Integer, Object>();
-    protected BiMap<Integer, String> primaryIndexMap = new BiMap<Integer, String>();
+    protected BiMap<Integer, Object> rowIndexMap;
+    protected BiMap<Integer, String> primaryIndexMap;
 
     public Table(ITableModel dataModel, ILogicalTable data) {
         this.dataModel = dataModel;
@@ -116,7 +116,10 @@ public class Table implements ITable {
         return logicalTable.getHeight() - 1;
     }
 
-    public String getPrimaryIndexKey(int row) {
+    public synchronized String getPrimaryIndexKey(int row) {
+        if (primaryIndexMap == null){
+            return null;
+        }
         return primaryIndexMap.get(row);
     }
 
@@ -354,6 +357,9 @@ public class Table implements ITable {
     }
 
     public synchronized void setPrimaryIndexKey(int row, String value) {
+        if (primaryIndexMap == null){
+            primaryIndexMap = new BiMap<Integer, String>();
+        }
         Integer oldRow = primaryIndexMap.getKey(value);
         if (oldRow != null && row != oldRow) {
             throw new OpenLRuntimeException("Duplicated key: " + value + " in rows " + oldRow + " and " + row);
@@ -375,6 +381,9 @@ public class Table implements ITable {
     }
 
     private void addToRowIndex(int rowIndex, Object target) {
+        if (rowIndexMap == null){
+            rowIndexMap = new BiMap<Integer, Object>();
+        }
         rowIndexMap.put(rowIndex, target);
     }
 

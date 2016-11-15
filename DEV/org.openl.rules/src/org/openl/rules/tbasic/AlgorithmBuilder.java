@@ -1,5 +1,12 @@
 package org.openl.rules.tbasic;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.openl.binding.IBindingContext;
 import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
@@ -17,8 +24,6 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringUtils;
-
-import java.util.*;
 
 public class AlgorithmBuilder {
 
@@ -45,7 +50,8 @@ public class AlgorithmBuilder {
 
     private static final String OPERATION = "Operation";
 
-    public static String[] algorithmOperationsArray = null;
+    private static String[] algorithmOperationsArray = null;
+    private static CellMetaInfo cellMetaInfo = null;
 
     static {
         AlgorithmTableParserManager tbasicParser = AlgorithmTableParserManager.instance();
@@ -57,8 +63,9 @@ public class AlgorithmBuilder {
             algorithmOperations.add(specification.getKeyword());
         }
         algorithmOperationsArray = algorithmOperations.toArray(new String[algorithmOperations.size()]);
+        cellMetaInfo = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, new DomainOpenClass("operation",
+            JavaOpenClass.STRING, new EnumDomain<String>(algorithmOperationsArray), null), false);
     }
-
 
     private final IBindingContext bindingContext;
 
@@ -82,12 +89,10 @@ public class AlgorithmBuilder {
      * @param r
      * @param grid
      */
-    private void bindMetaInfo(IGridTable grid, int c, int r) {
-        CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, new DomainOpenClass("operation",
-                JavaOpenClass.STRING, new EnumDomain<String>(algorithmOperationsArray), null), false);
+    private void bindMetaInfo(IGridTable grid, int c, int r) { 
         IWritableGrid wgrid = (IWritableGrid) grid.getGrid();
         wgrid.setCellMetaInfo(IGridRegion.Tool.getAbsoluteColumn(grid.getRegion(), c), IGridRegion.Tool.getAbsoluteRow(
-                grid.getRegion(), r), meta);
+                grid.getRegion(), r), cellMetaInfo);
     }
 
     public void build(ILogicalTable tableBody) throws Exception {

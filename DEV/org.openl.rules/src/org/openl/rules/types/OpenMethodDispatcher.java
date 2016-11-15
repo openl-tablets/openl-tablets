@@ -24,7 +24,11 @@ import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.types.*;
+import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
+import org.openl.types.Invokable;
 import org.openl.types.impl.MethodDelegator;
 import org.openl.types.impl.MethodKey;
 import org.openl.vm.IRuntimeEnv;
@@ -148,7 +152,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         return candidates;
     }
 
-    private Map<UUID, IOpenMethod> cache = new ConcurrentSkipListMap<UUID, IOpenMethod>();
+    private Map<UUID, IOpenMethod> cache = null;
     
     private static final int MAX_ELEMENTS_IN_CAHCE = 1000;
     private static final int MIN_ELEMENTS_IN_CAHCE = 800;
@@ -176,13 +180,18 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
 
         // Get matching method.
         //
-        IOpenMethod method;
+        IOpenMethod method = null;
         
         if (context instanceof IRulesRuntimeContextMutableUUID){
             IRulesRuntimeContextMutableUUID contextMutableUUID = (IRulesRuntimeContextMutableUUID) context;
-            method = cache.get(contextMutableUUID.getUUID());
+            if (cache != null){
+                method = cache.get(contextMutableUUID.getUUID());
+            }
             if (method == null){
                 method = findMatchingMethod(candidates, context);
+                if (cache == null) {
+                    cache = new ConcurrentSkipListMap<UUID, IOpenMethod>();
+                }
                 cache.put(contextMutableUUID.getUUID(), method);
                 if (cache.size() > MAX_ELEMENTS_IN_CAHCE){
                     synchronized (cache) {

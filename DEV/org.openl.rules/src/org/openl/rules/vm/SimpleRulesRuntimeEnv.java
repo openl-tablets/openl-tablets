@@ -1,5 +1,6 @@
 package org.openl.rules.vm;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -171,11 +172,11 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
         this.originalCalculation = originalCalculation;
     }
 
-    List<CalculationStep> originalCalculationSteps = new LinkedList<CalculationStep>();
+    List<CalculationStep> originalCalculationSteps;
     Iterator<CalculationStep> step;
 
     public void resetOriginalCalculationSteps() {
-        this.originalCalculationSteps.clear();
+        this.originalCalculationSteps = null;
         initCurrentStep();
     }
 
@@ -215,16 +216,27 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
 
     public void registerForwardOriginalCalculationStep(Object member) {
         if (!isIgnoreRecalculation() && isOriginalCalculation()) {
+            if (this.originalCalculationSteps == null){
+                this.originalCalculationSteps = new LinkedList<SimpleRulesRuntimeEnv.CalculationStep>();
+            }
             this.originalCalculationSteps.add(new ForwardCalculationStep(member));
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void initCurrentStep() {
-        this.step = originalCalculationSteps.iterator();
+        if (originalCalculationSteps != null){
+            this.step = originalCalculationSteps.iterator();
+        }else{
+            this.step = Collections.EMPTY_LIST.iterator();
+        }
     }
 
     public void registerBackwardOriginalCalculationStep(Object member, Object result) {
         if (!isIgnoreRecalculation() && isOriginalCalculation()) {
+            if (this.originalCalculationSteps == null){
+                this.originalCalculationSteps = new LinkedList<SimpleRulesRuntimeEnv.CalculationStep>();
+            }
             this.originalCalculationSteps.add(new BackwardCalculationStep(member, result));
         }
     }
