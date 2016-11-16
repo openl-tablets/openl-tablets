@@ -9,18 +9,20 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.ExcelLauncher;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.FileTypeHelper;
+import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -122,11 +124,19 @@ public class LaunchFileServlet extends HttpServlet {
 
         } else { // remote mode
 
-            String filePath = new File(wbPath, wbName).getAbsolutePath();
+            File file1 = new File(wbPath, wbName);
 
-            String query = "filename=" + StringTool.encodeURL(filePath);
-            RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/action/download?" + query);
-            dispatcher.forward(request, response);
+
+            if (file1.isFile()) {
+                response.setContentType("application/octet-stream");
+                WebTool.setContentDisposition(response, file1.getName());
+
+                OutputStream outputStream = response.getOutputStream();
+                FileInputStream fis = new FileInputStream(file1);
+                IOUtils.copyAndClose(fis, outputStream);
+            } else {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            }
         }
     }
 

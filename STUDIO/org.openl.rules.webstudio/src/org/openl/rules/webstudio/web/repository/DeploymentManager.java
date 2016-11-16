@@ -31,12 +31,11 @@ public class DeploymentManager implements InitializingBean {
     private ProductionDeployerFactory productionDeployerFactory;
     private String[] initialProductionRepositoryConfigNames;
     private DesignTimeRepository designRepository;
-    private boolean deploymentFormatOld;
 
     private Map<String, ProductionDeployer> deployers = new HashMap<String, ProductionDeployer>();
 
     public void addRepository(String repositoryConfigName) {
-        deployers.put(repositoryConfigName, productionDeployerFactory.getDeployerInstance(repositoryConfigName, deploymentFormatOld));
+        deployers.put(repositoryConfigName, productionDeployerFactory.getDeployerInstance(repositoryConfigName));
     }
 
     public void removeRepository(String repositoryConfigName) throws RRepositoryException {
@@ -73,15 +72,6 @@ public class DeploymentManager implements InitializingBean {
         return deployer.deploy(project, projects, user);
     }
 
-    public boolean hasDeploymentProject(ADeploymentProject deploymentConfiguration, String repositoryConfigName) throws ProjectException {
-        ProductionDeployer deployer = deployers.get(repositoryConfigName);
-        if (deployer == null) {
-            throw new IllegalArgumentException("No such repository '" + repositoryConfigName + "'");
-        }
-
-        return deployer.hasDeploymentProject(deploymentConfiguration);
-    }
-
     public void setProductionDeployerFactory(ProductionDeployerFactory productionDeployerFactory) {
         this.productionDeployerFactory = productionDeployerFactory;
     }
@@ -108,13 +98,4 @@ public class DeploymentManager implements InitializingBean {
             }
         }
     }
-
-    public boolean isDeploymentFormatOld() {
-        return deploymentFormatOld;
-    }
-
-    public void setDeploymentFormatOld(boolean deploymentFormatOld) {
-        this.deploymentFormatOld = deploymentFormatOld;
-    }
-
 }

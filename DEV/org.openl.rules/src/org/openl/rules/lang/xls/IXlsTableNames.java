@@ -35,7 +35,6 @@ public interface IXlsTableNames {
     String INCLUDE_TABLE = "include";
     String IMPORT_MODULE = "module";
     String IMPORT_PROPERTY = "import";
-    String LIBRARY_PROPERTY = "library";
 
     // For module dependencies
     String DEPENDENCY = "dependency";

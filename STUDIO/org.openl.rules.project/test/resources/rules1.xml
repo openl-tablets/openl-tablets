@@ -4,7 +4,7 @@
 	<modules>
 		<module>
 			<name>testmodule</name>
-			<rules-root path="dependencies/test3/module/dependency-module?/dependency?.xls"/>
+			<rules-root path="multi-module-support/test?/project?/Module?_1.xls?"/>
 		</module>	
 	</modules>
 </project>

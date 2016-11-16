@@ -253,34 +253,12 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     }
 
     //ADD
-    public static ShortValue add(ShortValue value1, String value2) {
-        if (value2 == null) {
-            return value1;
-        }
-
-        if (value1 == null) {
-            return new ShortValue(Short.valueOf(value2));
-        }
-        
-        short v = Short.valueOf(value2);
-
-        return new org.openl.meta.ShortValue(value1, new ShortValue(v), Operators.add(value1.getValue(), v),
-            Formulas.ADD);
+    public static String add(ShortValue value1, String value2) {
+        return value1 + value2;
     }
     
-    public static ShortValue add(String value1, ShortValue value2) {
-        if (value1 == null) {
-            return value2;
-        }
-
-        if (value2 == null) {
-            return new ShortValue(Short.valueOf(value1));
-        }
-        
-        short v = Short.valueOf(value1);
-        
-        return new org.openl.meta.ShortValue(new ShortValue(v), value2, Operators.add(v, value2.getValue()),
-            Formulas.ADD);
+    public static String add(String value1, ShortValue value2) {
+        return value1 + value2;
     }    
      /**
      * Adds left hand operand to right hand operand
@@ -362,7 +340,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
      * @param value2 org.openl.meta.ShortValue
      * @return the result of division  operation
      */
-    public static org.openl.meta.ShortValue divide(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+    public static org.openl.meta.DoubleValue divide(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
         // temporary commented to support operations with nulls
         //
         //        validate(value1, value2, Formulas.DIVIDE.toString());
@@ -371,21 +349,21 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         }
 
         if (value1 == null) {
-            if (value2 != null && value2.doubleValue() != 0) {
-                return new org.openl.meta.ShortValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
+            if (value2.doubleValue() != 0) {
+                return new org.openl.meta.DoubleValue(null, new DoubleValue(value2.getValue(), value2, true), divide(ONE, value2).getValue(), Formulas.DIVIDE);
             }
         }
 
         if (value2 == null) {
-            return new org.openl.meta.ShortValue(value1, value2, value1.getValue(), Formulas.DIVIDE);
+            return new org.openl.meta.DoubleValue(new DoubleValue(value1.getValue(), value1, true), null, value1.getValue(), Formulas.DIVIDE);
         }
 
         if (value2.doubleValue() == 0) {
             throw new OpenlNotCheckedException("Division by zero");
         }
 
-        return new org.openl.meta.ShortValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()),
-            Formulas.DIVIDE);
+        return new org.openl.meta.DoubleValue(new DoubleValue(value1.getValue(), value1, true), new DoubleValue(value2.getValue(), value2, true), Operators.divide(value1.getValue(), value2.getValue()),
+                Formulas.DIVIDE);
     }
 
     // QUAOTIENT
@@ -692,28 +670,6 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         return new BigDecimalValue(String.valueOf(x.getValue()), x, true);
     }
     
-    public static String autocast(ShortValue x, String y) {
-        if (x == null) {
-            return null;
-        }
-        return x.toString();
-    }
-    
-    public static Integer distance(ShortValue x, String y) {
-        return 11;
-    }
-
-    public static ShortValue autocast(String x, ShortValue y) {
-        if (x == null) {
-            return null;
-        }
-        return new ShortValue(Short.valueOf(x));
-    }
-    
-    public static Integer distance(String x, ShortValue y) {
-        return 10;
-    }
-
     // ******* Casts*************
 
     public static byte cast(ShortValue x, byte y) {

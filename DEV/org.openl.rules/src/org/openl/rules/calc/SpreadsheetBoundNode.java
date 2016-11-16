@@ -29,7 +29,7 @@ import org.openl.types.impl.CompositeMethod;
 public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBoundNode {
 
     private SpreadsheetBuilder builder;
-    private IBindingContext bindingContext;
+    IBindingContext bindingContext;
 
     public SpreadsheetBoundNode(TableSyntaxNode tableSyntaxNode,
             OpenL openl,
@@ -52,7 +52,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
          * the spreadsheet is SpreadsheetResult and the customspreadsheet
          * property is true
          */
-        boolean isCustomSpreadsheetType = getType().getInstanceClass().equals(SpreadsheetResult.class) && OpenLSystemProperties.isCustomSpreadsheetType(bindingContext
+        boolean isCustomSpreadsheetType = getType().getInstanceClass().equals(SpreadsheetResult.class) && (!(getType() instanceof CustomSpreadsheetResultOpenClass)) &&OpenLSystemProperties.isCustomSpreadsheetType(bindingContext
             .getExternalParams());
 
         return new Spreadsheet(getHeader(), this, isCustomSpreadsheetType);
@@ -62,19 +62,20 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
     protected ExecutableRulesMethod createMethodShell() {
         Spreadsheet spreadsheet = createSpreadsheet();
         spreadsheet.setSpreadsheetType(builder.getPopulatedSpreadsheetOpenClass());
-
         // As custom spreadsheet result is being generated at runtime,
         // call this method to ensure that CSR will be generated during the
         // compilation.
         // Add generated type to be accessible through binding context.
         //
+        builder.populateRowAndColumnNames(spreadsheet);
         if (spreadsheet.isCustomSpreadsheetType()) {
+            
             IOpenClass type = null;
             try {
                 type = spreadsheet.getType(); // Can throw RuntimeException
                 bindingContext.addType(ISyntaxConstants.THIS_NAMESPACE, type);
             } catch (Exception e) {
-                String message = String.format("Cannot add type %s to the binding context",
+                String message = String.format("Can't define type %s",
                     type != null ? type.getName() : spreadsheet.getName());
                 SyntaxNodeException exception = SyntaxNodeExceptionUtils.createError(message, e, getTableSyntaxNode());
                 getTableSyntaxNode().addError(exception);

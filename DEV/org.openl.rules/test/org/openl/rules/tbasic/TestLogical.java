@@ -14,7 +14,7 @@ public class TestLogical {
 
         ITestAlgorithm2 a = testHelper.getInstance();
         int result = a.modification(param);
-        assertEquals(result, expectedResult);
+        assertEquals(expectedResult, result);
     }
 
     @Test

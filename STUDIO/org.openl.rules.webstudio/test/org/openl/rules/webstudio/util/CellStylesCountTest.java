@@ -15,7 +15,7 @@ import org.openl.rules.table.xls.builder.DatatypeAliasTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.table.xls.writers.XlsCellDateWriter;
 import org.openl.rules.ui.tablewizard.util.CellStyleCreator;
-import org.openl.source.impl.FileSourceCodeModule;
+import org.openl.source.impl.URLSourceCodeModule;
 
 /**
  * Tests below check that there are now exceptions for projects with too many styles count.
@@ -31,7 +31,7 @@ public class CellStylesCountTest {
 
     @Before
     public void setUp() throws Exception {
-        wbSrc = new XlsWorkbookSourceCodeModule(new FileSourceCodeModule("test/rules/TooManyStyles.xls", null));
+        wbSrc = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule("test/rules/TooManyStyles.xls"));
     }
 
     @Test

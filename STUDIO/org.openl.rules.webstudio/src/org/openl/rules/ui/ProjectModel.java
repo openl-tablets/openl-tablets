@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.conf.ClassLoaderFactory;
 import org.openl.conf.OpenLConfiguration;
 import org.openl.dependency.CompiledDependency;
@@ -54,8 +55,7 @@ import org.openl.rules.project.instantiation.SimpleProjectDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.ResolvingStrategy;
-import org.openl.rules.project.resolving.RulesProjectResolver;
+import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IGridTable;
@@ -78,6 +78,8 @@ import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.rules.webstudio.web.trace.node.CachingArgumentsCloner;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.source.SourceHistoryManager;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
@@ -682,11 +684,6 @@ public class ProjectModel {
         return moduleInfo != null && moduleInfo.getExtension() != null;
     }
 
-    public boolean isCanStartEditing() {
-        RulesProject project = getProject();
-        return project != null && (project.isLocalOnly() || !project.isLocked()) && isGranted(PRIVILEGE_EDIT_PROJECTS);
-    }
-
     public boolean isCanCreateTable() {
         return isEditable() && isGranted(PRIVILEGE_CREATE_TABLES) && !isCurrentModuleLoadedByExtension();
     }
@@ -773,6 +770,7 @@ public class ProjectModel {
 
                 XlsWorkbookListener historyListener = new XlsWorkbookSourceHistoryListener(getHistoryManager());
                 sourceCodeModule.addListener(historyListener);
+                sourceCodeModule.addListener(new XlsModificationListener());
             }
         }
     }
@@ -985,9 +983,8 @@ public class ProjectModel {
 
         File projectFolder = moduleInfo.getProject().getProjectFolder();
         if (reloadType == ReloadType.FORCED) {
-            RulesProjectResolver projectResolver = studio.getProjectResolver();
-            ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
-            ProjectDescriptor projectDescriptor = resolvingStrategy.resolveProject(projectFolder);
+            ProjectResolver projectResolver = studio.getProjectResolver();
+            ProjectDescriptor projectDescriptor = projectResolver.resolve(projectFolder);
             Module reloadedModule = null;
             for (Module module : projectDescriptor.getModules()) {
                 if (moduleInfo.getName().equals(module.getName())) {
@@ -1117,15 +1114,14 @@ public class ProjectModel {
                         break;
                     }
                 }
-                if (!found){
-                    if (webStudioWorkspaceDependencyManager != null){
-                        webStudioWorkspaceDependencyManager.resetAll();
-                    }
+                if (!found) {
+                    webStudioWorkspaceDependencyManager.resetAll();
                     webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory.getDependencyManager(this.moduleInfo,
                         singleModuleMode);
                     openedInSingleModuleMode = singleModuleMode;
                 }
-            }else{
+            } else {
+                webStudioWorkspaceDependencyManager.resetAll();
                 webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory.getDependencyManager(this.moduleInfo,
                     singleModuleMode);
                 openedInSingleModuleMode = singleModuleMode;
@@ -1400,4 +1396,16 @@ public class ProjectModel {
         return studio.isSingleModuleModeByDefault();
     }
 
+    private static class XlsModificationListener implements XlsWorkbookListener {
+        @Override
+        public void beforeSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
+
+        }
+
+        @Override
+        public void afterSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
+            UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(FacesUtils.getSession());
+            userWorkspace.getLocalWorkspace().getRepository().notifyModified(workbookSourceCodeModule.getSourceFile().getPath());
+        }
+    }
 }

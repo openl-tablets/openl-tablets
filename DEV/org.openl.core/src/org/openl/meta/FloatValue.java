@@ -254,34 +254,12 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     }
 
     //ADD
-    public static FloatValue add(FloatValue value1, String value2) {
-        if (value2 == null) {
-            return value1;
-        }
-
-        if (value1 == null) {
-            return new FloatValue(Float.valueOf(value2));
-        }
-        
-        float v = Float.valueOf(value2);
-
-        return new org.openl.meta.FloatValue(value1, new FloatValue(v), Operators.add(value1.getValue(), v),
-            Formulas.ADD);
+    public static String add(FloatValue value1, String value2) {
+        return value1 + value2;
     }
     
-    public static FloatValue add(String value1, FloatValue value2) {
-        if (value1 == null) {
-            return value2;
-        }
-
-        if (value2 == null) {
-            return new FloatValue(Float.valueOf(value1));
-        }
-        
-        float v = Float.valueOf(value1);
-        
-        return new org.openl.meta.FloatValue(new FloatValue(v), value2, Operators.add(v, value2.getValue()),
-            Formulas.ADD);
+    public static String add(String value1, FloatValue value2) {
+       return value1 + value2;
     }   
     
      /**
@@ -364,7 +342,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
      * @param value2 org.openl.meta.FloatValue
      * @return the result of division  operation
      */
-    public static org.openl.meta.FloatValue divide(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+    public static org.openl.meta.DoubleValue divide(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
         // temporary commented to support operations with nulls
         //
         //        validate(value1, value2, Formulas.DIVIDE.toString());
@@ -373,21 +351,21 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         }
 
         if (value1 == null) {
-            if (value2 != null && value2.doubleValue() != 0) {
-                return new org.openl.meta.FloatValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
+            if (value2.doubleValue() != 0) {
+                return new org.openl.meta.DoubleValue(null, new DoubleValue(value2.getValue(), value2, true), divide(ONE, value2).getValue(), Formulas.DIVIDE);
             }
         }
 
         if (value2 == null) {
-            return new org.openl.meta.FloatValue(value1, value2, value1.getValue(), Formulas.DIVIDE);
+            return new org.openl.meta.DoubleValue(new DoubleValue(value1.getValue(), value1, true), null, value1.getValue(), Formulas.DIVIDE);
         }
 
         if (value2.doubleValue() == 0) {
             throw new OpenlNotCheckedException("Division by zero");
         }
 
-        return new org.openl.meta.FloatValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()),
-            Formulas.DIVIDE);
+        return new org.openl.meta.DoubleValue(new DoubleValue(value1.getValue(), value1, true), new DoubleValue(value2.getValue(), value2, true), Operators.divide(value1.getValue(), value2.getValue()),
+                Formulas.DIVIDE);
     }
 
     // QUAOTIENT
@@ -690,28 +668,6 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         return new BigDecimalValue(String.valueOf(x.getValue()), x, true);
     }
     
-    public static String autocast(FloatValue x, String y) {
-        if (x == null) {
-            return null;
-        }
-        return x.toString();
-    }
-    
-    public static Integer distance(FloatValue x, String y) {
-        return 11;
-    }
-
-    public static FloatValue autocast(String x, FloatValue y) {
-        if (x == null) {
-            return null;
-        }
-        return new FloatValue(Float.valueOf(x));
-    }
-    
-    public static Integer distance(String x, FloatValue y) {
-        return 10;
-    }
-
     // ******* Casts *************
 
     public static byte cast(FloatValue x, byte y) {

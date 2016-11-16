@@ -27,7 +27,7 @@ public class DataTableBuilderTest {
     private static final String CLASS_NAME = "Policy";
     private static final String TABLE_NAME = "testPolicy";
     private static final String FILE_NAME = "MyHello.xls";
-    private static final String TEST_FOLDER = "unit_tests";
+    private static final String TEST_FOLDER = "target/unit_tests";
     private static final String DATA_TABLE_POLICY = "Data " + CLASS_NAME + " " + TABLE_NAME;
     
     @Test

@@ -84,10 +84,10 @@ public class ProjectDescriptorManager {
     }
 
     public boolean isModuleWithWildcard(Module module) {
-        if (module.getRulesRootPath() != null) {
-            return module.getRulesRootPath().getPath().contains("*") || module.getRulesRootPath()
-                .getPath()
-                .contains("?");
+        PathEntry rulesRootPath = module.getRulesRootPath();
+        if (rulesRootPath != null) {
+            String path = rulesRootPath.getPath();
+            return path.contains("*") || path.contains("?");
         }
         return false;
     }

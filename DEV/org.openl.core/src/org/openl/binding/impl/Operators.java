@@ -26,14 +26,35 @@ public class Operators {
     public static final long SECONDS_IN_DAY = 1000L * 3600 * 24;
 
     // Add
+
+    public static String add(Object x, String y) {
+        return x + y;
+    }
+
+    public static String add(String x, Object y) {
+        return x + y;
+    }
+
+    public static String add(String x, String y) {
+        return x + y;
+    }
+    
     public static String add(boolean x, String y) {
         return x + y;
     }
 
+    public static String add(String x, boolean y) {
+        return x + y;
+    }
+    
     public static String add(char x, String y) {
         return x + y;
     }
-
+    
+    public static String add(String y, char x) {
+        return y + x;
+    }
+    
     public static Date add(Date d, int days) {
         // We should use calendar to take into account daylight saving
         Calendar c = Calendar.getInstance();
@@ -72,91 +93,6 @@ public class Operators {
     
     public static BigDecimal add(BigDecimal x, BigDecimal y) {
         return x.add(y);
-    }
-
-    public static String add(Object x, String y) {
-        return x + y;
-    }
-
-    public static String add(String x, boolean y) {
-        return x + y;
-    }
-
-    public static String add(String x, char y) {
-        return x + y;
-    }
-
-    public static String add(String x, Object y) {
-        return x + y;
-    }
-
-    public static String add(String x, String y) {
-        return x + y;
-    }
-    
-    //Add for Strings
-    public static byte add(byte x, String y) {
-        return (byte) (x + Byte.valueOf(y));
-    }
-    
-    public static byte add(String x, byte y) {
-        return (byte) (y + Byte.valueOf(x));
-    }
-    
-    public static short add(short x, String y) {
-        return (short) (x + Short.valueOf(y));
-    }
-    
-    public static short add(String x, short y) {
-        return (short) (y + Short.valueOf(x));
-    }
-
-    public static int add(int x, String y) {
-        return (int) (x + Integer.valueOf(y));
-    }
-    
-    public static int add(String x, int y) {
-        return (int) (y + Integer.valueOf(x));
-    }
-    
-    public static long add(long x, String y) {
-        return (long) (x + Long.valueOf(y));
-    }
-    
-    public static long add(String x, long y) {
-        return y + Long.valueOf(x);
-    }
-    
-    public static float add(float x, String y) {
-        return x + Float.valueOf(y);
-    }
-    
-    public static float add(String x, float y) {
-        return (y + Float.valueOf(x));
-    }
-
-    public static double add(double x, String y) {
-        return x + Double.valueOf(y);
-    }
-    
-    public static double add(String x, double y) {
-        return y + Double.valueOf(x);
-    }
-    
-    public static BigInteger add(String x, BigInteger y) {
-        return new BigInteger(x).add(y);
-    }
-    
-    public static BigInteger add(BigInteger x, String y) {
-        return new BigInteger(y).add(x);
-    }
-
-    public static BigDecimal add(String x, BigDecimal y) {
-        return new BigDecimal(x).add(y);
-    }
-    
-    public static BigDecimal add(BigDecimal x, String y) {
-        return new BigDecimal(y).add(x);
     }
 
     // Subtract
@@ -230,32 +166,32 @@ public class Operators {
     }
 
     // Divide
-    public static byte divide(byte x, byte y) {
-        return (byte) (x / y);
+    public static double divide(byte x, byte y) {
+        return (double) x / y;
     }
 
-    public static short divide(short x, short y) {
-        return (short) (x / y);
+    public static double divide(short x, short y) {
+        return (double) x / y;
     }
 
-    public static int divide(int x, int y) {
-        return x / y;
+    public static double divide(int x, int y) {
+        return (double) x / y;
     }
 
-    public static long divide(long x, long y) {
-        return x / y;
+    public static double divide(long x, long y) {
+        return (double) x / y;
     }
 
-    public static float divide(float x, float y) {
-        return x / y;
+    public static double divide(float x, float y) {
+        return (double) x / y;
     }
 
     public static double divide(double x, double y) {
         return x / y;
     }
     
-    public static BigInteger divide(BigInteger x, BigInteger y) {
-        return x.divide(y);
+    public static BigDecimal divide(BigInteger x, BigInteger y) {
+        return new BigDecimal(x).divide(new BigDecimal(y), MathContext.DECIMAL128);
     }
     
     public static BigDecimal divide(BigDecimal x, BigDecimal y) {
@@ -264,42 +200,22 @@ public class Operators {
 
     // Equals
     public static boolean eq(byte x, byte y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(byte x, byte y) {
         return x == y;
     }
 
     public static boolean eq(short x, short y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(short x, short y) {
         return x == y;
     }
 
     public static boolean eq(char x, char y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(char x, char y) {
         return x == y;
     }
 
     public static boolean eq(int x, int y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(int x, int y) {
         return x == y;
     }
 
     public static boolean eq(long x, long y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(long x, long y) {
         return x == y;
     }
 
@@ -320,10 +236,6 @@ public class Operators {
     }
 
     public static boolean eq(Byte x, Byte y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(Byte x, Byte y) {
         if (x == y) {
             return false;
         }
@@ -336,10 +248,6 @@ public class Operators {
     }
 
     public static boolean eq(Short x, Short y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(Short x, Short y) {
         if (x == y) {
             return false;
         }
@@ -352,10 +260,6 @@ public class Operators {
     }
 
     public static boolean eq(Character x, Character y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(Character x, Character y) {
         if (x == y) {
             return false;
         }
@@ -368,10 +272,6 @@ public class Operators {
     }
 
     public static boolean eq(Integer x, Integer y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(Integer x, Integer y) {
         if (x == y) {
             return true;
         }
@@ -384,10 +284,6 @@ public class Operators {
     }
 
     public static boolean eq(Long x, Long y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(Long x, Long y) {
         if (x == y) {
             return true;
         }
@@ -464,10 +360,6 @@ public class Operators {
     }
 
     public static boolean eq(String x, String y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(String x, String y) {
         if (x == y) {
             return true;
         }
@@ -478,12 +370,8 @@ public class Operators {
 
         return false;
     }
-    
-    public static boolean eq(BigInteger x, BigInteger y) {
-        return strict_eq(x, y);
-    }
 
-    public static boolean strict_eq(BigInteger x, BigInteger y) {
+    public static boolean eq(BigInteger x, BigInteger y) {
         if (x == y) {
             return true;
         }
@@ -512,18 +400,10 @@ public class Operators {
     }
 
     public static boolean eq(boolean x, boolean y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(boolean x, boolean y) {
         return x == y;
     }
 
     public static boolean eq(Boolean x, Boolean y) {
-        return strict_eq(x, y);
-    }
-
-    public static boolean strict_eq(Boolean x, Boolean y) {
         if (x == y) {
             return true;
         }
@@ -537,43 +417,23 @@ public class Operators {
 
     // Not Equals
     public static boolean ne(byte x, byte y) {
-        return strict_ne(x, y);
-    }
-
-    public static boolean strict_ne(byte x, byte y) {
-        return !strict_eq(x, y);
+        return !eq(x, y);
     }
 
     public static boolean ne(char x, char y) {
-        return strict_ne(x, y);
-    }
-
-    public static boolean strict_ne(char x, char y) {
-        return !strict_eq(x, y);
+        return !eq(x, y);
     }
 
     public static boolean ne(short x, short y) {
-        return strict_ne(x, y);
-    }
-
-    public static boolean strict_ne(short x, short y) {
-        return !strict_eq(x, y);
+        return !eq(x, y);
     }
 
     public static boolean ne(int x, int y) {
-        return strict_ne(x, y);
-    }
-
-    public static boolean strict_ne(int x, int y) {
-        return !strict_eq(x, y);
+        return !eq(x, y);
     }
 
     public static boolean ne(long x, long y) {
-        return strict_ne(x, y);
-    }
-
-    public static boolean strict_ne(long x, long y) {
-        return !strict_eq(x, y);
+        return !eq(x, y);
     }
 
     public static boolean ne(float x, float y) {
@@ -596,40 +456,20 @@ public class Operators {
         return !eq(x, y);
     }
 
-    public static boolean strict_ne(Byte x, Byte y) {
-        return !strict_eq(x, y);
-    }
-
     public static boolean ne(Character x, Character y) {
         return !eq(x, y);
-    }
-
-    public static boolean strict_ne(Character x, Character y) {
-        return !strict_eq(x, y);
     }
 
     public static boolean ne(Short x, Short y) {
         return !eq(x, y);
     }
 
-    public static boolean strict_ne(Short x, Short y) {
-        return !strict_eq(x, y);
-    }
-
     public static boolean ne(Integer x, Integer y) {
         return !eq(x, y);
     }
 
-    public static boolean strict_ne(Integer x, Integer y) {
-        return !strict_eq(x, y);
-    }
-
     public static boolean ne(Long x, Long y) {
         return !eq(x, y);
-    }
-
-    public static boolean strict_ne(Long x, Long y) {
-        return !strict_eq(x, y);
     }
 
     public static boolean ne(Float x, Float y) {
@@ -649,32 +489,25 @@ public class Operators {
     }
 
     public static boolean ne(Object x, Object y) {
-        return strict_ne(x, y);
+        return !eq(x, y);
     }
 
     public static boolean strict_ne(Object x, Object y) {
-        return x != y;
+        return !strict_eq(x, y);
     }
 
     public static boolean ne(boolean x, boolean y) {
         return !eq(x, y);
     }
 
-    public static boolean strict_ne(boolean x, boolean y) {
-        return !strict_eq(x, y);
-    }
-
     public static boolean ne(Boolean x, Boolean y) {
         return !eq(x, y);
-    }
-
-    public static boolean strict_ne(Boolean x, Boolean y) {
-        return !strict_eq(x, y);
     }
 
     public static boolean ne(BigDecimal x, BigDecimal y) {
         return !eq(x, y);
     }
+
     public static boolean ne(BigInteger x, BigInteger y) {
         return !eq(x, y);
     }
@@ -687,48 +520,24 @@ public class Operators {
         return !eq(x, y);
     }
 
-    public static boolean strict_ne(String x, String y) {
-        return !strict_eq(x, y);
-    }
-
     // Greater Than
     public static boolean gt(byte x, byte y) {
-        return strict_gt(x, y);
-    }
-
-    public static boolean strict_gt(byte x, byte y) {
         return x > y;
     }
 
     public static boolean gt(char x, char y) {
-        return strict_gt(x, y);
-    }
-
-    public static boolean strict_gt(char x, char y) {
         return x > y;
     }
 
     public static boolean gt(short x, short y) {
-        return strict_gt(x, y);
-    }
-
-    public static boolean strict_gt(short x, short y) {
         return x > y;
     }
 
     public static boolean gt(int x, int y) {
-        return strict_gt(x, y);
-    }
-
-    public static boolean strict_gt(int x, int y) {
         return x > y;
     }
 
     public static boolean gt(long x, long y) {
-        return strict_gt(x, y);
-    }
-
-    public static boolean strict_gt(long x, long y) {
         return x > y;
     }
 
@@ -778,42 +587,22 @@ public class Operators {
 
     // Greater or Equals Than
     public static boolean ge(byte x, byte y) {
-        return strict_ge(x, y);
-    }
-
-    public static boolean strict_ge(byte x, byte y) {
         return x >= y;
     }
 
     public static boolean ge(char x, char y) {
-        return strict_ge(x, y);
-    }
-
-    public static boolean strict_ge(char x, char y) {
         return x >= y;
     }
 
     public static boolean ge(short x, short y) {
-        return strict_ge(x, y);
-    }
-
-    public static boolean strict_ge(short x, short y) {
         return x >= y;
     }
 
     public static boolean ge(int x, int y) {
-        return strict_ge(x, y);
-    }
-
-    public static boolean strict_ge(int x, int y) {
         return x >= y;
     }
 
     public static boolean ge(long x, long y) {
-        return strict_ge(x, y);
-    }
-
-    public static boolean strict_ge(long x, long y) {
         return x >= y;
     }
 
@@ -863,43 +652,23 @@ public class Operators {
 
     // Less Than
     public static boolean lt(byte x, byte y) {
-        return strict_lt(x, y);
-    }
-
-    public static boolean strict_lt(byte x, byte y) {
         return x < y;
     }
 
     public static boolean lt(char x, char y) {
-        return strict_lt(x, y);
-    }
-
-    public static boolean strict_lt(char x, char y) {
         return x < y;
     }
 
     public static boolean lt(short x, short y) {
-        return strict_lt(x, y);
-    }
-
-    public static boolean strict_lt(short x, short y) {
         return x < y;
     }
 
     public static boolean lt(int x, int y) {
-        return strict_lt(x, y);
-    }
-
-    public static boolean strict_lt(int x, int y) {
         return x < y;
     }
 
     public static boolean lt(long x, long y) {
         return strict_lt(x, y);
-    }
-
-    public static boolean strict_lt(long x, long y) {
-        return x < y;
     }
 
     public static boolean lt(float x, float y) {
@@ -948,43 +717,23 @@ public class Operators {
     // Less or Equals Than
 
     public static boolean le(byte x, byte y) {
-        return strict_le(x, y);
-    }
-
-    public static boolean strict_le(byte x, byte y) {
         return x <= y;
     }
 
     public static boolean le(char x, char y) {
-        return strict_le(x, y);
-    }
-
-    public static boolean strict_le(char x, char y) {
         return x <= y;
     }
 
     public static boolean le(short x, short y) {
-        return strict_le(x, y);
-    }
-
-    public static boolean strict_le(short x, short y) {
         return x <= y;
     }
 
     public static boolean le(int x, int y) {
-        return strict_le(x, y);
-    }
-
-    public static boolean strict_le(int x, int y) {
         return x <= y;
     }
 
     public static boolean le(long x, long y) {
         return strict_le(x, y);
-    }
-
-    public static boolean strict_le(long x, long y) {
-        return x <= y;
     }
 
     public static boolean le(float x, float y) {
@@ -1034,15 +783,10 @@ public class Operators {
     // FIXME: is it normal? Why not to use contains(array, element)?
     //
     public static boolean le(String x, String[] y) {
-        return strict_le(x, y);
-    }
-
-    public static boolean strict_le(String x, String[] y) {
         return ArrayTool.contains(y, x);
     }
 
     // Abs
-
     public static byte abs(byte x) {
         return (byte) Math.abs(x);
     }
@@ -1235,134 +979,6 @@ public class Operators {
         return x;
     }
 
-    //AutoCasts to String
-    public static String autocast(byte x, String y) {
-        return Byte.toString(x);
-    }
-
-    public static Integer distance(byte x, String y) {
-        return 11;
-    }
-
-    public static byte autocast(String x, byte y) {
-        return Byte.valueOf(x);
-    }
-
-    public static Integer distance(String x, byte y) {
-        return 10;
-    }
-
-    public static String autocast(short x, String y) {
-        return Short.toString(x);
-    }
-
-    public static Integer distance(short x, String y) {
-        return 11;
-    }
-    
-    public static short autocast(String x, short y) {
-        return Short.valueOf(x);
-    }
-
-    public static Integer distance(String x, short y) {
-        return 10;
-    }
-
-    public static String autocast(int x, String y) {
-        return Integer.toString(x);
-    }
-
-    public static Integer distance(int x, String y) {
-        return 11;
-    }
-
-    public static int autocast(String x, int y) {
-        return Integer.valueOf(x);
-    }
-
-    public static Integer distance(String x, int y) {
-        return 10;
-    }
-    
-    public static String autocast(long x, String y) {
-        return Long.toString(x);
-    }
-
-    public static Integer distance(long x, String y) {
-        return 11;
-    }
-
-    public static long autocast(String x, long y) {
-        return Long.valueOf(x);
-    }
-
-    public static Integer distance(String x, long y) {
-        return 10;
-    }
-
-    public static String autocast(float x, String y) {
-        return Float.toString(x);
-    }
-
-    public static Integer distance(float x, String y) {
-        return 11;
-    }
-
-    public static float autocast(String x, float y) {
-        return Float.valueOf(x);
-    }
-
-    public static Integer distance(String x, float y) {
-        return 10;
-    }
-
-    public static String autocast(double x, String y) {
-        return Double.toString(x);
-    }
-
-    public static Integer distance(double x, String y) {
-        return 11;
-    }
-
-    public static double autocast(String x, double y) {
-        return Double.valueOf(x);
-    }
-
-    public static Integer distance(String x, double y) {
-        return 10;
-    }
-
-    public static String autocast(BigDecimal x, String y) {
-       return x.toString();
-    }
-
-    public static Integer distance(BigDecimal x, String y) {
-        return 11;
-    }
-
-    public static BigDecimal autocast(String x, BigDecimal y) {
-        return new BigDecimal(x);
-    }
-
-    public static Integer distance(String x, BigDecimal y) {
-        return 10;
-    }
-
-    public static String autocast(BigInteger x, String y) {
-        return x.toString();
-    }
-
-    public static Integer distance(BigInteger x, String y) {
-        return 11;
-    }
-    
-    public static BigInteger autocast(String x, BigInteger y) {
-        return new BigInteger(x);
-    }
-
-    public static Integer distance(String x, BigInteger y) {
-        return 10;
-    }
     // Other auto casts
     //
     public static BigDecimal autocast(double x, BigDecimal y) {
@@ -1519,22 +1135,6 @@ public class Operators {
 
     // Other casts
     //
-    public static int cast(String x, int y) {
-        return Integer.parseInt(x);
-    }
-
-    public static double cast(String x, double y) {
-        return Double.parseDouble(x);
-    }
-
-    public static long cast(String x, long y) {
-        return Long.parseLong(x);
-    }
-
-    public static BigDecimal cast(String x, BigDecimal y) {
-        return new BigDecimal(x);
-    }
-
     public static float dec(float x) {
         return x - 1;
     }

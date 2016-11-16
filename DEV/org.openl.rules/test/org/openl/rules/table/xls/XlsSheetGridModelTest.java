@@ -9,7 +9,7 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
-import org.openl.source.impl.FileSourceCodeModule;
+import org.openl.source.impl.URLSourceCodeModule;
 
 public class XlsSheetGridModelTest {
     
@@ -17,7 +17,7 @@ public class XlsSheetGridModelTest {
     
     @Before
     public void before() {
-        FileSourceCodeModule source = new FileSourceCodeModule("./test/rules/XlsSheetGridModelTest.xls", null);
+        URLSourceCodeModule source = new URLSourceCodeModule("./test/rules/XlsSheetGridModelTest.xls");
         XlsWorkbookSourceCodeModule wbSrc = new XlsWorkbookSourceCodeModule(source);
 
         XlsSheetSourceCodeModule sheetSrc = new XlsSheetSourceCodeModule(0, wbSrc);

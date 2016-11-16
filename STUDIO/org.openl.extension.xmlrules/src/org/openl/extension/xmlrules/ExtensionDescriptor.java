@@ -2,6 +2,7 @@ package org.openl.extension.xmlrules;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.util.CollectionUtils;
 import org.openl.util.tree.ITreeElement;
 
@@ -70,7 +72,8 @@ public class ExtensionDescriptor implements IExtensionDescriptor {
     public IOpenSourceCodeModule getSourceCode(Module module) {
         XmlRulesModule m = ((XmlRulesModule) module);
         File sourceFile = new File(m.getRulesRootPath().getPath());
-        return new XmlRulesModuleSourceCodeModule(sourceFile, m);
+        URL url = URLSourceCodeModule.toUrl(sourceFile);
+        return new XmlRulesModuleSourceCodeModule(url, m);
     }
 
     @Override

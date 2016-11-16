@@ -1,14 +1,25 @@
 package org.openl.rules.workspace.deploy;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.common.impl.ArtefactPathImpl;
-import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.impl.local.LocalFolderAPI;
+import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
-import org.openl.rules.repository.RProductionRepository;
-import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.deploy.impl.jcr.JcrProductionDeployer;
@@ -18,18 +29,6 @@ import org.openl.util.ZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
-
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * This class allows to deploy a zip-based project to a production repository.
@@ -78,10 +77,10 @@ public class ProductionRepositoryDeployer {
 
         String name = FileUtils.getBaseName(zipFile.getName());
 
-        File zipFolder = new File(tempDirectory, name);
-        zipFolder.mkdirs();
         File workspaceLocation = new File(tempDirectory, "workspace");
         workspaceLocation.mkdirs();
+        File zipFolder = new File(workspaceLocation, name);
+        zipFolder.mkdirs();
 
         try {
             // Unpack jar to a file system
@@ -93,9 +92,10 @@ public class ProductionRepositoryDeployer {
                 String rulesName = getProjectName(rules);
                 if (rulesName != null && !rulesName.isEmpty()) {
                     // rename project
-                    File renamed = new File(tempDirectory, rulesName);
+                    File renamed = new File(workspaceLocation, rulesName);
                     zipFolder.renameTo(renamed);
                     zipFolder = renamed;
+                    name = rulesName;
                 }
             }
 
@@ -104,10 +104,11 @@ public class ProductionRepositoryDeployer {
             LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(user, workspaceLocation, null, null);
             LocalFolderAPI localFolderAPI = new LocalFolderAPI(zipFolder, path, workspace);
             localFolderAPI.setProps(new HashMap<String, Object>());
-            ADeploymentProject project = new ADeploymentProject(localFolderAPI, user);
+            ADeploymentProject project = new ADeploymentProject(user, new LocalRepository(workspaceLocation), path.getStringValue(), null);
+            AProject projectToDeploy = new AProject(new LocalRepository(workspaceLocation), path.getStringValue());
 
             // Calculate version
-            RProductionRepository rRepository = repositoryFactoryProxy.getRepositoryInstance(config);
+            Repository repository = repositoryFactoryProxy.getRepositoryInstance(config);
 
             ConfigurationManagerFactory configManagerFactory = ProductionRepositoryFactoryProxy.DEFAULT_CONFIGURATION_MANAGER_FACTORY;
             Map<String, Object> properties = configManagerFactory.getConfigurationManager(config).getProperties();
@@ -115,27 +116,16 @@ public class ProductionRepositoryDeployer {
             // Wait 15 seconds for initializing networking in JGroups.
             Object initializeTimeout = properties.get("timeout.networking.initialize");
             Thread.sleep(initializeTimeout == null ? 15000 : Integer.parseInt(initializeTimeout.toString()));
-            Collection<FolderAPI> lastDeploymentProjects = rRepository.getLastDeploymentProjects();
-            int version = 0;
-            for (FolderAPI folder : lastDeploymentProjects) {
-                String deployed = folder.getName();
-                String prefix = project.getName() + "#";
-                if (deployed.startsWith(prefix)) {
-                    String verStr = deployed.substring(prefix.length());
-                    version = Integer.valueOf(verStr) + 1;
-                    break;
-                }
-            }
-            ((LocalFolderAPI) project.getAPI()).setCurrentVersion(new RepositoryProjectVersionImpl(version, null));
 
-            if (version != 0 && skipExist) {
+            // FIXME: Add check on exist deployment
+            if (skipExist) {
                 log.info("Project [{}] exists. It has been skipped to deploy.", project.getName());
                 return;
             }
 
             // Do deploy
             ArrayList<AProject> projects = new ArrayList<AProject>();
-            projects.add(project);
+            projects.add(projectToDeploy);
             deployer.deploy(project, projects, user);
             // Wait 10 seconds for finalizing networking in JGroups.
             // + 30 seconds for Infinispan.

@@ -1,0 +1,16 @@
+<project>
+    <name>Test Project</name>
+
+    <modules>
+        <module>
+            <name>Main</name>
+            <rules-root path="Main.xls"/>
+        </module>
+    </modules>
+
+    <!-- Project's classpath. -->
+    <classpath>
+        <entry path="beans.jar"/>
+    </classpath>
+
+</project>

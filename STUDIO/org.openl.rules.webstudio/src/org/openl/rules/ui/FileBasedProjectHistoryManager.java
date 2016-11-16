@@ -5,6 +5,7 @@ import org.apache.commons.io.filefilter.AgeFileFilter;
 import org.apache.commons.io.filefilter.AndFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.source.SourceHistoryManager;
 import org.slf4j.Logger;
@@ -37,7 +38,7 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
             throw new IllegalArgumentException();
         }
         this.projectModel = projectModel;
-        this.storage = new FileStorage(storagePath, true);
+        this.storage = new FileStorage(storagePath);
         this.unlimitedStorage = unlimitedStorage;
         this.maxFilesInStorage = maxFilesInStorage;
         if (!this.unlimitedStorage) {
@@ -89,19 +90,15 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
     public SortedMap<Long, File> get(String... names) {
         Collection<File> files;
         if (names != null && names.length > 0) {
-            files = storage.list(names);
+            files = storage.list(new NameFileFilter(names));
         } else {
-            files = storage.list();
+            files = storage.list(TrueFileFilter.TRUE);
         }
         SortedMap<Long, File> sources = new TreeMap<Long, File>();
         for (File file : files) {
             sources.put(file.lastModified(), file);
         }
         return sources;
-    }
-
-    public SortedMap<Long, File> getAll() {
-        return get((String[]) null);
     }
 
     public void revert(long date) throws Exception {

@@ -2,20 +2,17 @@ package org.openl.rules.workspace.deploy.impl.jcr;
 
 import java.util.Collection;
 
-import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.common.PropertyException;
-import org.openl.rules.common.RulesRepositoryArtefact;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
-import org.openl.rules.repository.RProductionRepository;
-import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.deploy.DeployID;
+import org.openl.rules.workspace.deploy.DeployUtils;
 import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.deploy.ProductionDeployer;
 
@@ -26,25 +23,10 @@ import org.openl.rules.workspace.deploy.ProductionDeployer;
 public class JcrProductionDeployer implements ProductionDeployer {
     private final ProductionRepositoryFactoryProxy repositoryFactoryProxy;
     private final String repositoryConfigName;
-    private boolean deploymentFormatOld = false;
 
     public JcrProductionDeployer(ProductionRepositoryFactoryProxy repositoryFactoryProxy, String repositoryConfigName) {
         this.repositoryFactoryProxy = repositoryFactoryProxy;
         this.repositoryConfigName = repositoryConfigName;
-    }
-
-    public JcrProductionDeployer(ProductionRepositoryFactoryProxy repositoryFactoryProxy, String repositoryConfigName, boolean deploymentFormatOld) {
-        this.repositoryFactoryProxy = repositoryFactoryProxy;
-        this.repositoryConfigName = repositoryConfigName;
-        this.deploymentFormatOld = deploymentFormatOld;
-    }
-
-    private void copyProperties(AProjectArtefact newArtefact, RulesRepositoryArtefact artefact) throws RRepositoryException {
-        try {
-            newArtefact.setProps(artefact.getProps());
-        } catch (PropertyException e) {
-            throw new RRepositoryException("", e);
-        }
     }
 
     /**
@@ -58,83 +40,39 @@ public class JcrProductionDeployer implements ProductionDeployer {
      */
 
     public synchronized DeployID deploy(ADeploymentProject deploymentProject, Collection<AProject> projects, WorkspaceUser user) throws DeploymentException {
-        DeployID id = generateDeployID(deploymentProject);
 
-        boolean alreadyDeployed = false;
         try {
-            RProductionRepository rRepository = repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
+            Repository repository =repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
+            StringBuilder sb = new StringBuilder(deploymentProject.getName());
+            ProjectVersion projectVersion = deploymentProject.getVersion();
+            if (projectVersion != null) {
+                int version = DeployUtils.getNextDeploymentVersion(repository, deploymentProject);
+                sb.append('#').append(version);
+            }
+            DeployID id = new DeployID(sb.toString());
 
-            if (rRepository.hasDeploymentProject(id.getName()) || rRepository.hasDeploymentProject(getOtherDeploymentProjectName(deploymentProject))) {
-                alreadyDeployed = true;
-            } else {
-                FolderAPI deployment = rRepository.createDeploymentProject(id.getName());
-
-                AProject deploymentPRJ = new AProject(deployment);
+                String deploymentPath = DeployUtils.DEPLOY_PATH + id.getName();
+                AProject deploymentPRJ = new AProject(repository, deploymentPath);
                 deploymentPRJ.lock(user);
                 for (AProject p : projects) {
                     deployProject(deploymentPRJ, p, user);
                 }
 
-                copyProperties(deploymentPRJ, deploymentProject);
-
-                deploymentPRJ.save(user);
-                rRepository.notifyChanges();
-            }
+                // TODO: Some analogue of notifyChanges() possibly will be needed
+//                deploymentPRJ.save(user);
+//                rRepository.notifyChanges();
+            return id;
         } catch (Exception e) {
             throw new DeploymentException("Failed to deploy: " + e.getMessage(), e);
         }
-
-        if (alreadyDeployed) {
-            throw new DeploymentException("Configuration is already deployed to production repository, id: " + id.getName(),
-                    null);
-        }
-
-        return id;
-    }
-
-    /**
-     * Checks if deploymentConfiguration is already deployed to this production
-     * repository.
-     * 
-     * @param deployConfiguration deploy configuration for project
-     *            trying to deploy
-     * @return true if deploymentConfiguration with its id already exists in
-     *         production repository
-     * @throws RRepositoryException if cannot get info from repository for some
-     *             reason
-     */
-    @Override
-    public synchronized boolean hasDeploymentProject(ADeploymentProject deployConfiguration) throws RRepositoryException {
-        RProductionRepository repository = repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
-        DeployID id = generateDeployID(deployConfiguration);
-        String otherPossibleID = this.getOtherDeploymentProjectName(deployConfiguration);
-
-        return repository.hasDeploymentProject(id.getName()) || repository.hasDeploymentProject(otherPossibleID);
     }
 
     private void deployProject(AProject deployment, AProject project, WorkspaceUser user) throws ProjectException {
-        FolderAPI rProject = deployment.addFolder(project.getName()).getAPI();
-        AProject copiedProject = new AProject(rProject);
+        AProjectFolder projectFolder = deployment.addFolder(project.getName());
+        AProject copiedProject = new AProject(deployment.getRepository(), projectFolder.getArtefactPath().getStringValue(), deployment.getHistoryVersion());
 
         /*Update and set project revision*/
-        copiedProject.update(project, user, project.getVersion().getRevision());
-    }
-
-    private DeployID generateDeployID(ADeploymentProject ddProject) {
-        StringBuilder sb = new StringBuilder(ddProject.getName());
-        ProjectVersion projectVersion = ddProject.getVersion();
-        if (projectVersion != null) {
-            if (deploymentFormatOld) {
-                if (isOldFormatVersion(projectVersion)) {
-                    sb.append('#').append(projectVersion.getVersionName());
-                } else {
-                    sb.append('#').append("0.0.").append(projectVersion.getVersionName());
-                }
-            } else {
-                sb.append('#').append(projectVersion.getRevision());
-            }
-        }
-        return new DeployID(sb.toString());
+        copiedProject.update(project, user);
     }
 
     @Override
@@ -142,33 +80,5 @@ public class JcrProductionDeployer implements ProductionDeployer {
         if (repositoryFactoryProxy != null) {
             repositoryFactoryProxy.releaseRepository(repositoryConfigName);
         }
-    }
-
-    private boolean isOldFormatVersion (ProjectVersion version) {
-        return version.getMajor() != CommonVersion.MAX_MM_INT && version.getMajor() != -1;
-    }
-
-    /**
-     * Method for generating other possible version of deployment ID (e.g if we have id like projectName#1 then we will have id like projectName#0.0.1)
-     * 
-     * @param deployConfiguration deploy configuration for project
-     *            trying to deploy
-     * @return other possible version of deployment ID
-     */
-    private String getOtherDeploymentProjectName(ADeploymentProject deployConfiguration) {
-        StringBuilder sb = new StringBuilder(deployConfiguration.getName());
-        ProjectVersion projectVersion = deployConfiguration.getVersion();
-        if (projectVersion != null) {
-            if (!deploymentFormatOld) {
-                if (isOldFormatVersion(projectVersion)) {
-                    sb.append('#').append(projectVersion.getVersionName());
-                } else {
-                    sb.append('#').append("0.0.").append(projectVersion.getVersionName());
-                }
-            } else {
-                sb.append('#').append(projectVersion.getRevision());
-            }
-        }
-        return sb.toString();
     }
 }

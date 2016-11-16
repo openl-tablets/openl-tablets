@@ -7,7 +7,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.source.impl.FileSourceCodeModule;
+import org.openl.source.impl.URLSourceCodeModule;
 
 /**
  * @author snshor
@@ -17,7 +17,7 @@ public class TablesTest extends TestCase {
 
     public void testSplitter() throws Exception {
 
-        FileSourceCodeModule source = new FileSourceCodeModule("./test/rules/Test2.xls", null);
+        URLSourceCodeModule source = new URLSourceCodeModule("./test/rules/Test2.xls");
         XlsWorkbookSourceCodeModule wbSrc = new XlsWorkbookSourceCodeModule(source);
 
         Workbook wb = wbSrc.getWorkbook();

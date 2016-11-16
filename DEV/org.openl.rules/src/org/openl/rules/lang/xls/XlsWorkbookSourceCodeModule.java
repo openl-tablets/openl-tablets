@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
@@ -20,8 +21,8 @@ import org.openl.rules.lang.xls.load.WorkbookLoader;
 import org.openl.rules.lang.xls.load.WorkbookLoaders;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.ASourceCodeModule;
-import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.SourceCodeModuleDelegator;
+import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
@@ -117,15 +118,16 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator {
     public File getSourceFile() {
         synchronized (fileAccessLock) {
             File sourceFile = null;
-            if (src instanceof FileSourceCodeModule) {
-                sourceFile = ((FileSourceCodeModule) src).getFile();
-            } else {
-                try {
+            try {
+                if (src instanceof URLSourceCodeModule) {
+                    URL url = ((URLSourceCodeModule) src).getUrl();
+                    sourceFile = new File(url.toURI());
+                } else {
                     URI uri = new URI(getUri());
                     sourceFile = new File(uri);
-                } catch (URISyntaxException me) {
-                    log.warn("Can not get source file");
                 }
+            } catch (URISyntaxException me) {
+                log.warn("Can not get source file");
             }
             return sourceFile;
         }

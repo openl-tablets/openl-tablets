@@ -18,12 +18,15 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class QMarkNode extends ABoundNode {
 
+    private IOpenClass type;
+    
     /**
      * @param syntaxNode
      * @param children
      */
-    public QMarkNode(ISyntaxNode syntaxNode, IBoundNode[] children) {
+    public QMarkNode(ISyntaxNode syntaxNode, IBoundNode[] children, IOpenClass type) {
         super(syntaxNode, children);
+        this.type = type;
     }
 
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
@@ -34,9 +37,7 @@ public class QMarkNode extends ABoundNode {
     }
 
     public IOpenClass getType() {
-        // return NullOpenClass.the;
-        // TODO use both branches
-        return children[1].getType();
+       return type;
     }
 
     @Override

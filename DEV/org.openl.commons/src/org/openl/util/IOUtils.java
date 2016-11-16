@@ -111,6 +111,7 @@ public class IOUtils {
         while ((n = input.read(buffer)) > 0) {
             output.write(buffer, 0, n);
         }
+        output.flush();
     }
 
     /**
@@ -132,6 +133,7 @@ public class IOUtils {
         while ((n = reader.read(buffer)) > 0) {
             writer.write(buffer, 0, n);
         }
+        writer.flush();
     }
 
     /**

@@ -224,7 +224,7 @@ public class SystemSettingsBean {
         productionRepositoryEditor.revertChanges();
 
         // We cannot invoke configManager.restoreDefaults(): in this case some 
-        // settings (such as user.mode, deployment.format.old etc) not edited in this page
+        // settings (such as user.mode etc) not edited in this page
         // will be reverted too. We should revert only settings edited in Administration page
         for (String setting : AdministrationSettings.getAllSettings()) {
             configManager.removeProperty(setting);

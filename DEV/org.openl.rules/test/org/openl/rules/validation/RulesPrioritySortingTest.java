@@ -2,7 +2,6 @@ package org.openl.rules.validation;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -26,8 +25,7 @@ public class RulesPrioritySortingTest {
     @Test
     public void testStartRequestDate() throws Exception {
         System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_DT);
-        File xlsFile = new File("test/rules/overload/MaxMinOverload.xls");
-        RulesEngineFactory<ITestI> engineFactory = new RulesEngineFactory<ITestI>(xlsFile, ITestI.class);
+        RulesEngineFactory<ITestI> engineFactory = new RulesEngineFactory<ITestI>("test/rules/overload/MaxMinOverload.xls", ITestI.class);
         engineFactory.setExecutionMode(true);
 
         ITestI instance = engineFactory.newEngineInstance();
@@ -57,8 +55,7 @@ public class RulesPrioritySortingTest {
     @Test
     public void testEndRequestDate() throws Exception {
         System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_DT);
-        File xlsFile = new File("test/rules/overload/MaxMinOverload.xls");
-        RulesEngineFactory<ITestI> engineFactory = new RulesEngineFactory<ITestI>(xlsFile, ITestI.class);
+        RulesEngineFactory<ITestI> engineFactory = new RulesEngineFactory<ITestI>("test/rules/overload/MaxMinOverload.xls", ITestI.class);
         engineFactory.setExecutionMode(true);
 
         ITestI instance = engineFactory.newEngineInstance();
@@ -83,8 +80,7 @@ public class RulesPrioritySortingTest {
     @Test
     public void testFilledPropertiesSorting() throws Exception {
         System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_DT);
-        File xlsFile = new File("test/rules/overload/MaxMinOverload.xls");
-        RulesEngineFactory<ITestI> engineFactory = new RulesEngineFactory<ITestI>(xlsFile, ITestI.class);
+        RulesEngineFactory<ITestI> engineFactory = new RulesEngineFactory<ITestI>("test/rules/overload/MaxMinOverload.xls", ITestI.class);
         engineFactory.setExecutionMode(true);
 
         ITestI instance = (ITestI)engineFactory.newEngineInstance();

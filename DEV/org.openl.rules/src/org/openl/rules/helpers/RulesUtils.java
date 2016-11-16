@@ -19,18 +19,10 @@ import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.openl.binding.impl.cast.AutoCastReturnType;
+import org.openl.binding.impl.cast.DefaultAutoCastFactory.ReturnType;
 import org.openl.domain.IDomain;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.meta.BigDecimalValue;
-import org.openl.meta.BigIntegerValue;
-import org.openl.meta.ByteValue;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.FloatValue;
-import org.openl.meta.IntValue;
-import org.openl.meta.LongValue;
-import org.openl.meta.ObjectValue;
-import org.openl.meta.ShortValue;
-import org.openl.meta.StringValue;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.ArrayTool;
@@ -1700,46 +1692,6 @@ public class RulesUtils {
         return MathUtils.sort(values);
     }
 
-    public static ByteValue[] sort(ByteValue[] values) {
-        return ByteValue.sort(values);
-    }
-
-    public static ShortValue[] sort(ShortValue[] values) {
-        return ShortValue.sort(values);
-    }
-
-    public static IntValue[] sort(IntValue[] values) {
-        return IntValue.sort(values);
-    }
-
-    public static LongValue[] sort(LongValue[] values) {
-        return LongValue.sort(values);
-    }
-
-    public static FloatValue[] sort(FloatValue[] values) {
-        return FloatValue.sort(values);
-    }
-
-    public static DoubleValue[] sort(DoubleValue[] values) {
-        return DoubleValue.sort(values);
-    }
-
-    public static BigDecimalValue[] sort(BigDecimalValue[] values) {
-        return BigDecimalValue.sort(values);
-    }
-
-    public static BigIntegerValue[] sort(BigIntegerValue[] values) {
-        return BigIntegerValue.sort(values);
-    }
-
-    public static StringValue[] sort(StringValue[] values) {
-        return StringValue.sort(values);
-    }
-
-    public static ObjectValue[] sort(ObjectValue[] values) {
-        return ObjectValue.sort(values);
-    }
-
     public static String[] sort(String[] values) {
         String[] sortedArray = null;
 
@@ -2854,7 +2806,8 @@ public class RulesUtils {
      * @param array whose null elements should be removed
      * @return new array without null elements
      */
-    public static <T> T[] removeNulls(T[] array) {
+    @AutoCastReturnType
+    public static <T> T[] removeNulls(@ReturnType T[] array) {
         return ArrayTool.removeNulls(array);
     }
 
@@ -5649,7 +5602,8 @@ public class RulesUtils {
      *             || index >= array.length), or if the array is
      *             <code>null</code>.
      */
-    public static Object[] remove(Object[] array, int index) {
+    @AutoCastReturnType
+    public static Object[] remove(@ReturnType Object[] array, int index) {
         return ArrayUtils.remove(array, index);
     }
 
@@ -6012,7 +5966,8 @@ public class RulesUtils {
      * @param element
      * @return the element to be removed
      */
-    public static Object[] removeElement(Object[] array, Object element) {
+    @AutoCastReturnType
+    public static Object[] removeElement(@ReturnType Object[] array, Object element) {
         return ArrayUtils.removeElement(array, element);
     }
 
@@ -6485,8 +6440,9 @@ public class RulesUtils {
     public static String replace(String str, String searchString, String replacement, int max) {
         return StringUtils.replace(str, searchString, replacement, max);
     }
-
-    public static Object[] flatten(Object... data) {
+    
+    @AutoCastReturnType
+    public static Object[] flatten(@ReturnType(strictMatchArray = false) Object... data) {
         List<Object> values = new ArrayList<Object>();
         Class<?> type = Void.class;
         for (Object obj : data) {
@@ -6527,6 +6483,7 @@ public class RulesUtils {
         }
     }
 
+    @AutoCastReturnType(RulesUtilsGetValuesAutoCastFactory.class)
     public static Object[] getValues(DomainOpenClass clazz) {
         IDomain<?> domain = clazz.getDomain();
         List<Object> values = new ArrayList<Object>();

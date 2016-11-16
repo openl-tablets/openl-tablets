@@ -97,6 +97,14 @@ public class CellsHeaderExtractor {
         return columnNames.clone();
     }
     
+    public Set<String> getDependentSignatureSpreadsheetTypes() {
+        if (dependentSpreadsheetTypes == null) {
+            dependentSpreadsheetTypes = new HashSet<String>();
+            dependentSpreadsheetTypes.addAll(getSignatureDependencies(spreadsheetSignature));
+        }
+        return dependentSpreadsheetTypes;
+    }
+    
     public Set<String> getDependentSpreadsheetTypes() {
         if (dependentSpreadsheetTypes == null) {
             dependentSpreadsheetTypes = new HashSet<String>();

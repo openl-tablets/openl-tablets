@@ -172,7 +172,7 @@ public class ProjectDescriptorManagerTest {
     public void testModulePathPatterns() throws Exception {
         ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
         // test ?
-        assertEquals(2, projectDescriptorManager.readDescriptor("./test/resources/rules1.xml").getModules().size());
+        assertEquals(6, projectDescriptorManager.readDescriptor("./test/resources/rules1.xml").getModules().size());
         // test *
         assertEquals(2, projectDescriptorManager.readDescriptor("./test/resources/rules2.xml").getModules().size());
         // test **

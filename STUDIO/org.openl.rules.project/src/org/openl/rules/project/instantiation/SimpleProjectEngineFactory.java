@@ -6,9 +6,8 @@ import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.openl.rules.project.resolving.ResolvingStrategy;
-import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -182,12 +181,15 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
     protected IDependencyManager buildDependencyManager() throws ProjectResolvingException {
         Collection<ProjectDescriptor> projectDescriptors = new ArrayList<ProjectDescriptor>();
-        RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
+        ProjectResolver projectResolver = ProjectResolver.instance();
+        ProjectDescriptor projectDescriptor = getProjectDescriptor();
         if (workspace != null) {
-            projectResolver.setWorkspace(workspace.getPath());
-            projectDescriptors.addAll(getDependentProjects(getProjectDescriptor(), projectResolver.listOpenLProjects()));
+            File[] files = workspace.listFiles();
+            List<ProjectDescriptor> projects = projectResolver.resolve(files);
+            List<ProjectDescriptor> dependentProjects = getDependentProjects(projectDescriptor, projects);
+            projectDescriptors.addAll(dependentProjects);
         }
-        projectDescriptors.add(getProjectDescriptor());
+        projectDescriptors.add(projectDescriptor);
         return new SimpleProjectDependencyManager(projectDescriptors, isSingleModuleMode(), isExecutionMode());
     }
 
@@ -249,12 +251,11 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
     protected synchronized final ProjectDescriptor getProjectDescriptor() throws ProjectResolvingException {
         if (this.projectDescriptor == null) {
-            RulesProjectResolver projectResolver = RulesProjectResolver.loadProjectResolverFromClassPath();
-            ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(project);
-            if (resolvingStrategy == null) {
+            ProjectResolver projectResolver = ProjectResolver.instance();
+            ProjectDescriptor pd = projectResolver.resolve(project);
+            if (pd == null) {
                 throw new ProjectResolvingException("Defined location is not a OpenL project.");
             }
-            ProjectDescriptor pd = resolvingStrategy.resolveProject(project);
             this.projectDescriptor = pd;
         }
         return this.projectDescriptor;

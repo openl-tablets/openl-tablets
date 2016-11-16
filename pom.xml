@@ -95,7 +95,6 @@
         <module>STUDIO</module>
         <module>WSFrontend</module>
         <module>DEMO</module>
-        <module>Util/org.openl.conf.ant</module>
         <module>Util/openl-maven-plugin</module>
         <module>Util/openl-simple-project-archetype</module>
     </modules>
@@ -436,12 +435,6 @@
                 <version>1.10.19</version>
                 <scope>test</scope>
             </dependency>
-            <!-- Build tool -->
-            <dependency>
-                <groupId>org.apache.ant</groupId>
-                <artifactId>ant</artifactId>
-                <version>1.9.4</version>
-            </dependency>
             <!-- Apache Velocity is a general purpose template engine. -->
             <dependency>
                 <groupId>org.apache.velocity</groupId>
@@ -707,6 +700,12 @@
                 <version>${org.slf4j.version}</version>
             </dependency>
             <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>1.1.7</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
                 <version>${org.slf4j.version}</version>
@@ -800,12 +799,6 @@
                 <artifactId>jcr</artifactId>
                 <version>2.0</version>
             </dependency>
-            <!--  JUnit extension targeted for database-driven projects -->
-            <dependency>
-                <groupId>org.dbunit</groupId>
-                <artifactId>dbunit</artifactId>
-                <version>2.5.0</version>
-            </dependency>
             <dependency>
                 <groupId>javax.transaction</groupId>
                 <artifactId>jta</artifactId>
@@ -828,12 +821,6 @@
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-validator</artifactId>
                 <version>5.1.1.Final</version>
-            </dependency>
-            <!-- Lightweight 100% Java SQL Database Engine -->
-            <dependency>
-                <groupId>org.hsqldb</groupId>
-                <artifactId>hsqldb</artifactId>
-                <version>2.3.2</version>
             </dependency>
             <!-- Contains the core Apache Derby database engine, which also includes the embedded JDBC driver. -->
             <dependency>
@@ -1084,6 +1071,7 @@
                 <artifactId>c3p0</artifactId>
                 <version>0.9.1.2</version>
             </dependency>
+            <!-- the Java in-memory SQL DB -->
             <dependency>
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>

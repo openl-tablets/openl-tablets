@@ -252,34 +252,12 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     }
 
     //ADD
-    public static IntValue add(IntValue value1, String value2) {
-        if (value2 == null) {
-            return value1;
-        }
-
-        if (value1 == null) {
-            return new IntValue(Integer.valueOf(value2));
-        }
-        
-        int v = Integer.valueOf(value2);
-
-        return new org.openl.meta.IntValue(value1, new IntValue(v), Operators.add(value1.getValue(), v),
-            Formulas.ADD);
+    public static String add(IntValue value1, String value2) {
+        return value1 + value2;
     }
     
-    public static IntValue add(String value1, IntValue value2) {
-        if (value1 == null) {
-            return value2;
-        }
-
-        if (value2 == null) {
-            return new IntValue(Integer.valueOf(value1));
-        }
-        
-        int v = Integer.valueOf(value1);
-        
-        return new org.openl.meta.IntValue(new IntValue(v), value2, Operators.add(v, value2.getValue()),
-            Formulas.ADD);
+    public static String add(String value1, IntValue value2) {
+        return value1 + value2;
     }    
     
      /**
@@ -362,7 +340,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @param value2 org.openl.meta.IntValue
      * @return the result of division  operation
      */
-    public static org.openl.meta.IntValue divide(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+    public static org.openl.meta.DoubleValue divide(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
         // temporary commented to support operations with nulls
         //
         //        validate(value1, value2, Formulas.DIVIDE.toString());
@@ -371,20 +349,20 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         }
 
         if (value1 == null) {
-            if (value2 != null && value2.doubleValue() != 0) {
-                return new org.openl.meta.IntValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
+            if (value2.doubleValue() != 0) {
+                return new org.openl.meta.DoubleValue(null, new DoubleValue(value2.getValue(), value2, true), divide(ONE, value2).getValue(), Formulas.DIVIDE);
             }
         }
 
         if (value2 == null) {
-            return new org.openl.meta.IntValue(value1, value2, value1.getValue(), Formulas.DIVIDE);
+            return new org.openl.meta.DoubleValue(new DoubleValue(value1.getValue(), value1, true), null, value1.getValue(), Formulas.DIVIDE);
         }
 
         if (value2.doubleValue() == 0) {
             throw new OpenlNotCheckedException("Division by zero");
         }
 
-        return new org.openl.meta.IntValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.DoubleValue(new DoubleValue(value1.getValue(), value1, true), new DoubleValue(value2.getValue(), value2, true), Operators.divide(value1.getValue(), value2.getValue()),
             Formulas.DIVIDE);
     }
 
@@ -691,28 +669,6 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
             return null;
         }
         return new BigDecimalValue(String.valueOf(x.getValue()), x, true);
-    }
-    
-    public static String autocast(IntValue x, String y) {
-        if (x == null) {
-            return null;
-        }
-        return x.toString();
-    }
-    
-    public static Integer distance(IntValue x, String y) {
-        return 11;
-    }
-
-    public static IntValue autocast(String x, IntValue y) {
-        if (x == null) {
-            return null;
-        }
-        return new IntValue(Integer.valueOf(x));
-    }
-    
-    public static Integer distance(String x, IntValue y) {
-        return 10;
     }
     
     // ******* Casts*************

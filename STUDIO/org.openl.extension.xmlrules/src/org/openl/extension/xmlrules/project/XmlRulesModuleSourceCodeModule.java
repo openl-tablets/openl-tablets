@@ -1,14 +1,14 @@
 package org.openl.extension.xmlrules.project;
 
-import java.io.File;
+import java.net.URL;
 
 import org.openl.source.impl.ModuleFileSourceCodeModule;
 
 public class XmlRulesModuleSourceCodeModule extends ModuleFileSourceCodeModule {
     private final XmlRulesModule module;
 
-    public XmlRulesModuleSourceCodeModule(File file, XmlRulesModule module) {
-        super(file, module.getName());
+    public XmlRulesModuleSourceCodeModule(URL url, XmlRulesModule module) {
+        super(url, module.getName());
         this.module = module;
     }
 

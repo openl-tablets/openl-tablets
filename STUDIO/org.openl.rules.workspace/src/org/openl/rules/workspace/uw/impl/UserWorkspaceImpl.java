@@ -4,7 +4,8 @@ import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.*;
-import org.openl.rules.project.impl.local.LocalFolderAPI;
+import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.RepositoryException;
@@ -64,7 +65,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             designTimeRepository.copyProject(project, name, user, resourceTransformer);
         } catch (ProjectException e) {
             if (designTimeRepository.hasProject(name)) {
-                designTimeRepository.getProject(name).erase(user);
+                designTimeRepository.getProject(name).erase();
             }
             throw e;
         } finally {
@@ -72,14 +73,12 @@ public class UserWorkspaceImpl implements UserWorkspace {
         }
     }
 
-    public void createDDProject(String name) throws RepositoryException {
-        designTimeRepository.createDDProject(name);
+    public ADeploymentProject createDDProject(String name) throws RepositoryException {
+        return designTimeRepository.createDDProject(name);
     }
 
-    public void createProject(String name) throws ProjectException {
-        designTimeRepository.createProject(name);
-
-        refresh();
+    public AProject createProject(String name) throws ProjectException {
+        return designTimeRepository.createProject(name);
     }
 
     public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
@@ -231,7 +230,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 ADeploymentProject userDProject = userDProjects.get(name);
 
                 if (userDProject == null) {
-                    userDProject = new ADeploymentProject(ddp.getAPI(), user);
+                    userDProject = new ADeploymentProject(user, ddp.getRepository(), ddp.getFolderPath(), ddp.getHistoryVersion());
                     userDProjects.put(name, userDProject);
                 } else {
                     userDProject.refresh();
@@ -255,7 +254,12 @@ public class UserWorkspaceImpl implements UserWorkspace {
         localWorkspace.refresh();
 
         synchronized (userRulesProjects) {
+
+            userRulesProjects.clear();
+
             // add new
+            Repository designRepository = designTimeRepository.getRepository();
+            LocalRepository localRepository = localWorkspace.getRepository();
             for (AProject rp : designTimeRepository.getProjects()) {
                 String name = rp.getName();
 
@@ -273,13 +277,13 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 if (uwp == null) {
                     // TODO:refactor
                     if (lp == null) {
-                        uwp = new RulesProject(null, rp.getAPI(), this);
+                        uwp = new RulesProject(this, localRepository, null, designRepository, rp.getFileData());
                     } else {
-                        uwp = new RulesProject((LocalFolderAPI) lp.getAPI(), rp.getAPI(), this);
+                        uwp = new RulesProject(this, localRepository, lp.getFileData(), designRepository, rp.getFileData());
                     }
                     userRulesProjects.put(name, uwp);
-                } else if (uwp.isLocalOnly() || (uwp.isRepositoryOnly() && lp != null)) {
-                    userRulesProjects.put(name, new RulesProject((LocalFolderAPI) lp.getAPI(), rp.getAPI(), this));
+                } else if ((uwp.isLocalOnly() || uwp.isRepositoryOnly()) && lp != null) {
+                    userRulesProjects.put(name, new RulesProject(this, localRepository, lp.getFileData(), designRepository, rp.getFileData()));
                 } else {
                     uwp.refresh();
                 }
@@ -291,14 +295,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 String name = lp.getName();
 
                 if (!designTimeRepository.hasProject(name)) {
-
-                    RulesProject uwp = userRulesProjects.get(name);
-                    if (uwp == null) {
-                        uwp = new RulesProject((LocalFolderAPI) lp.getAPI(), null, this);
-                        userRulesProjects.put(name, uwp);
-                    } else {
-                        userRulesProjects.put(name, new RulesProject((LocalFolderAPI) lp.getAPI(), null, this));
-                    }
+                    userRulesProjects.put(name, new RulesProject(this, localRepository, lp.getFileData(), null, null));
                 }
             }
 
@@ -333,15 +330,12 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     public void uploadLocalProject(String name) throws ProjectException {
         try {
-            createProject(name);
-            designTimeRepository.getProject(name).lock(user);
-            designTimeRepository.getProject(name).update(localWorkspace.getProject(name), user);
-            AProject createdProject = getProject(name);
-            designTimeRepository.getProject(name).unlock(user);
-            createdProject.edit(user);
+            AProject createdProject = createProject(name);
+            createdProject.update(localWorkspace.getProject(name), user);
+            refreshRulesProjects();
         } catch (ProjectException e) {
             if (designTimeRepository.hasProject(name)) {
-                designTimeRepository.getProject(name).erase(user);
+                designTimeRepository.getProject(name).erase();
             }
             throw e;
         }

@@ -5,9 +5,8 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.openl.rules.project.resolving.ResolvingStrategy;
-import org.openl.rules.project.resolving.RulesProjectResolver;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +28,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
 
     private DataSource dataSource;
 
-    private RulesProjectResolver projectResolver;
+    private ProjectResolver projectResolver;
 
     private LocalTemporaryDeploymentsStorage storage;
 
@@ -52,7 +51,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      */
     public RuleServiceLoaderImpl(DataSource dataSource,
             LocalTemporaryDeploymentsStorage storage,
-            RulesProjectResolver projectResolver) {
+            ProjectResolver projectResolver) {
         if (dataSource == null) {
             throw new IllegalArgumentException("dataSource argument can't be null");
         }
@@ -69,13 +68,8 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     }
 
     @Override
-    public void addListener(DataSourceListener dataSourceListener) {
-        dataSource.addListener(dataSourceListener);
-    }
-
-    @Override
-    public void removeListener(DataSourceListener dataSourceListener) {
-        dataSource.removeListener(dataSourceListener);
+    public void setListener(DataSourceListener dataSourceListener) {
+        dataSource.setListener(dataSourceListener);
     }
 
     /**
@@ -92,7 +86,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     /**
      * Gets rules project resolver.
      */
-    public RulesProjectResolver getProjectResolver() {
+    public ProjectResolver getProjectResolver() {
         return projectResolver;
     }
 
@@ -101,7 +95,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      *
      * @param projectResolver
      */
-    public void setProjectResolver(RulesProjectResolver projectResolver) {
+    public void setProjectResolver(ProjectResolver projectResolver) {
         if (projectResolver == null) {
             throw new IllegalArgumentException("projectResolver argument can't be null");
         }
@@ -164,16 +158,15 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         }
         String artefactPath = storage.getDirectoryToLoadDeploymentsIn() + project.getArtefactPath().getStringValue();
         File projectFolder = new File(artefactPath);
-        ResolvingStrategy resolvingStrategy = projectResolver.isRulesProject(projectFolder);
         List<Module> result = Collections.emptyList();
-        if (resolvingStrategy != null) {
-            try {
-                ProjectDescriptor projectDescriptor = resolvingStrategy.resolveProject(projectFolder);
+        try {
+            ProjectDescriptor projectDescriptor = projectResolver.resolve(projectFolder);
+            if (projectDescriptor != null) {
                 List<Module> modules = projectDescriptor.getModules();
-                result =  Collections.unmodifiableList(modules);
-            } catch (ProjectResolvingException e) {
-                log.error("Project resolving failed!", e);
+                result = Collections.unmodifiableList(modules);
             }
+        } catch (ProjectResolvingException e) {
+            log.error("Project resolving failed!", e);
         }
         return result;
     }

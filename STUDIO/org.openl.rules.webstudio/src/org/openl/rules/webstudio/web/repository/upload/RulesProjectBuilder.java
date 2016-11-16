@@ -22,10 +22,10 @@ public class RulesProjectBuilder {
     public RulesProjectBuilder(UserWorkspace workspace, String projectName) throws ProjectException {
         this.workspace = workspace;
         synchronized (this.workspace) {
-            workspace.createProject(projectName);
+            AProject createdProject = workspace.createProject(projectName);
+            project = new RulesProject(workspace, workspace.getLocalWorkspace().getRepository(), null, createdProject.getRepository(), createdProject.getFileData());
         }
-        project = workspace.getProject(projectName);
-        project.edit();
+        project.open();
     }
 
     protected RulesProject getProject() {
@@ -78,12 +78,9 @@ public class RulesProjectBuilder {
     }
 
     public void save() throws ProjectException {
-        project.save();
-        ProjectVersion version = project.getVersion();
         WorkspaceUser user = workspace.getUser();
-        if (!version.getVersionInfo().getCreatedBy().equals(user.getUserId())) {
-            project.getRepositoryAPI().commit(user, version.getRevision());
-        }
+        project.save(user);
+        workspace.refresh();
     }
 
     private void checkName(String artefactName) throws ProjectException {

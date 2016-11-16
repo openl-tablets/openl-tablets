@@ -1,7 +1,6 @@
 package org.openl.util.trie;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
@@ -228,8 +227,7 @@ public abstract class MemTest {
 		long start = System.currentTimeMillis();
 		System.out.println();
 		
-		String path = "resources/trie-test/ManyStrings.xlsx";
-		RulesEngineFactory<IData> re = new RulesEngineFactory<IData>(new File(path), IData.class);
+		RulesEngineFactory<IData> re = new RulesEngineFactory<IData>("resources/trie-test/ManyStrings.xlsx", IData.class);
 		Object e = re.newEngineInstance();
 		
 		IData ee = (IData)e;

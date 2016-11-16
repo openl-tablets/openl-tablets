@@ -20,7 +20,7 @@ public class TestHelper<T> {
     private TableSyntaxNode tableSyntaxNode;
 
     public TestHelper(File file, Class<T> tClass) {
-        engineFactory = new RulesEngineFactory<T>(file, tClass);
+        engineFactory = new RulesEngineFactory<T>(URLSourceCodeModule.toUrl(file), tClass);
 
         instance = engineFactory.newEngineInstance();
 
@@ -29,9 +29,9 @@ public class TestHelper<T> {
         XlsMetaInfo xlsMI = (XlsMetaInfo) dObj.getType().getMetaInfo();
         tableSyntaxNode =  xlsMI.getXlsModuleNode().getXlsTableSyntaxNodes()[0];
     }
-    
+
     public TestHelper(File file, Class<T> tClass, boolean executionMode) {
-        engineFactory = new RulesEngineFactory<T>(file, tClass);
+        engineFactory = new RulesEngineFactory<T>(URLSourceCodeModule.toUrl(file), tClass);
         engineFactory.setExecutionMode(executionMode);
 
         instance = engineFactory.newEngineInstance();

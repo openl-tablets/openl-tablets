@@ -1,18 +1,16 @@
 package org.openl.rules.ruleservice.loader;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.Deployment;
-import org.openl.rules.project.impl.local.LocalFolderAPI;
+import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
-import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,67 +24,28 @@ public class LocalTemporaryDeploymentsStorage {
 
     private final Logger log = LoggerFactory.getLogger(LocalTemporaryDeploymentsStorage.class);
 
-    private File folderToLoadDeploymentsIn;
-
     private String directoryToLoadDeploymentsIn;
 
-    private final static Object flag = new Object();
-
-    private FileFilter localWorkspaceFolderFilter;
-
-    private FileFilter localWorkspaceFileFilter;
-
     private Map<String, Deployment> cacheForGetDeployment = new HashMap<String, Deployment>();
+    private Repository repository;
 
     /**
      * Construct a new LocalTemporaryDeploymentsStorage for bean usage.
      */
-    public LocalTemporaryDeploymentsStorage() {
-        directoryToLoadDeploymentsIn = System.getProperty("user.home") + "/.openl/tmp";
-    }
-
-    /**
-     * Construct a new LocalTemporaryDeploymentsStorage for bean usage.
-     *
-     * @see #setLocalWorkspaceFileFilter, #setLocalWorkspaceFolderFilter
-     */
-    public LocalTemporaryDeploymentsStorage(FileFilter localWorkspaceFolderFilter, FileFilter localWorkspaceFileFilter) {
-        this.localWorkspaceFolderFilter = localWorkspaceFolderFilter;
-        this.localWorkspaceFileFilter = localWorkspaceFileFilter;
-    }
-
-    /**
-     * Sets localWorkspaceFileFilter @see LocalFolderAPI. Spring bean
-     * configuration property.
-     *
-     * @param localWorkspaceFileFilter
-     */
-    public void setLocalWorkspaceFileFilter(FileFilter localWorkspaceFileFilter) {
-        this.localWorkspaceFileFilter = localWorkspaceFileFilter;
-    }
-
-    /**
-     * Gets localWorkspaceFileFilter.
-     */
-    public FileFilter getLocalWorkspaceFileFilter() {
-        return localWorkspaceFileFilter;
-    }
-
-    /**
-     * Sets localWorkspaceFolderFilter @see LocalFolderAPI. Spring bean
-     * configuration property.
-     *
-     * @param localWorkspaceFolderFilter
-     */
-    public void setLocalWorkspaceFolderFilter(FileFilter localWorkspaceFolderFilter) {
-        this.localWorkspaceFolderFilter = localWorkspaceFolderFilter;
-    }
-
-    /**
-     * Gets localWorkspaceFolderFilter.
-     */
-    public FileFilter getLocalWorkspaceFolderFilter() {
-        return localWorkspaceFolderFilter;
+    public LocalTemporaryDeploymentsStorage(String directoryToLoadDeploymentsIn) {
+        if (directoryToLoadDeploymentsIn == null) {
+            throw new IllegalArgumentException("directoryToLoadDeploymentsIn argument can't be null");
+        }
+        this.directoryToLoadDeploymentsIn = directoryToLoadDeploymentsIn;
+        File folderToLoadDeploymentsIn = new File(directoryToLoadDeploymentsIn);
+        folderToLoadDeploymentsIn.mkdirs();
+        if (!FolderHelper.clearFolder(folderToLoadDeploymentsIn)) {
+            log.error("Failed to clear a folder \"{}\"!", folderToLoadDeploymentsIn.getAbsolutePath());
+        } else {
+            log.info("Local temporary folder for downloading deployments was cleared.");
+        }
+        log.info("Local temporary folder location is: {}", directoryToLoadDeploymentsIn);
+        repository = new LocalRepository(folderToLoadDeploymentsIn);
     }
 
     /**
@@ -107,13 +66,6 @@ public class LocalTemporaryDeploymentsStorage {
      *
      * @param directoryToLoadDeploymentsIn
      */
-    public void setDirectoryToLoadDeploymentsIn(String directoryToLoadDeploymentsIn) {
-        if (directoryToLoadDeploymentsIn == null) {
-            throw new IllegalArgumentException("directoryToLoadDeploymentsIn argument can't be null");
-        }
-        this.directoryToLoadDeploymentsIn = directoryToLoadDeploymentsIn;
-    }
-
     /**
      * Generates folder name for deployment by given deployment name and common
      * version.
@@ -122,20 +74,6 @@ public class LocalTemporaryDeploymentsStorage {
      */
     private String getDeploymentFolderName(String deploymentName, CommonVersion version) {
         return new StringBuilder(deploymentName).append("_v").append(version.getVersionName()).toString();
-    }
-
-    private File getFolderToLoadDeploymentsIn() {
-        if (folderToLoadDeploymentsIn == null) {
-            synchronized (flag) {
-                if (folderToLoadDeploymentsIn == null) {
-                    folderToLoadDeploymentsIn = new File(getDirectoryToLoadDeploymentsIn());
-                    folderToLoadDeploymentsIn.mkdirs();
-                    clear();
-                }
-            }
-            log.info("Local temporary folder location is: {}", getDirectoryToLoadDeploymentsIn());
-        }
-        return folderToLoadDeploymentsIn;
     }
 
     /**
@@ -167,7 +105,8 @@ public class LocalTemporaryDeploymentsStorage {
         String versionName = deployment.getVersion().getVersionName();
         log.debug("Loading deployement with name=\"{}\" and version=\"{}\"", deploymentName, versionName);
 
-        Deployment loadedDeployment = makeLocalDeployment(deploymentName, version);
+        String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
+        Deployment loadedDeployment = new Deployment(repository, deploymentFolderName, deploymentName, version);
         try {
             loadedDeployment.update(deployment, null);
             loadedDeployment.refresh();
@@ -179,26 +118,12 @@ public class LocalTemporaryDeploymentsStorage {
             throw new RuleServiceRuntimeException(e);
         }
 
-        String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
         cacheForGetDeployment.put(deploymentFolderName, loadedDeployment);
 
         log.debug("Deployment with name=\"{}\" and version=\"{}\" has been made on local storage and putted to cache.",
             deploymentName,
             versionName);
         return loadedDeployment;
-    }
-
-    private Deployment makeLocalDeployment(String deploymentName, CommonVersion version) {
-        String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
-        File deploymentFolder = new File(getFolderToLoadDeploymentsIn(), deploymentFolderName);
-        ArtefactPathImpl path = new ArtefactPathImpl(deploymentFolder.getName());
-        File location = deploymentFolder.getParentFile();
-        LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(null,
-            location,
-            localWorkspaceFolderFilter,
-            localWorkspaceFileFilter);
-        LocalFolderAPI localFolderAPI = new LocalFolderAPI(deploymentFolder, path, workspace);
-        return new Deployment(localFolderAPI);
     }
 
     /**
@@ -208,20 +133,5 @@ public class LocalTemporaryDeploymentsStorage {
      */
     boolean containsDeployment(String deploymentName, CommonVersion version) {
         return cacheForGetDeployment.containsKey(getDeploymentFolderName(deploymentName, version));
-    }
-
-    /**
-     * Clear storage.
-     */
-    public void clear() {
-        synchronized (flag) {
-            cacheForGetDeployment.clear();
-            File folder = getFolderToLoadDeploymentsIn();
-            if (!FolderHelper.clearFolder(folder)) {
-                log.error("Failed to clear a folder \"{}\"!", folder.getAbsolutePath());
-            } else {
-                log.info("Local temporary folder for downloading deployments was cleared.");
-            }
-        }
     }
 }

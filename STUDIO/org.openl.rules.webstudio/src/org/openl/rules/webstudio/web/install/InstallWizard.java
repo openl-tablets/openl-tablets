@@ -146,7 +146,7 @@ public class InstallWizard {
 
                 userMode = systemConfig.getStringProperty("user.mode");
 
-                boolean innerDb = dbConfig.getStringProperty("db.driver").contains("hsqldb");
+                boolean innerDb = "org.h2.Driver".equals(dbConfig.getStringProperty("db.driver"));
                 appMode = innerDb ? "demo" : "production";
 
             }

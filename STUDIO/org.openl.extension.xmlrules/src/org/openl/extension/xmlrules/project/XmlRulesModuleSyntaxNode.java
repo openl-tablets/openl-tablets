@@ -15,8 +15,8 @@ public class XmlRulesModuleSyntaxNode extends XlsModuleSyntaxNode {
             IOpenSourceCodeModule module,
             OpenlSyntaxNode openlNode,
             IdentifierNode vocabularyNode, Collection<String> imports,
-            Collection<String> libraries, ProjectData projectData) {
-        super(nodes, module, openlNode, vocabularyNode, imports, libraries);
+            ProjectData projectData) {
+        super(nodes, module, openlNode, vocabularyNode, imports);
         this.projectData = projectData;
     }
 

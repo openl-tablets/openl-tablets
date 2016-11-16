@@ -16,18 +16,20 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties={"ruleservice.datasource.dir=test-resources/MultiModuleDispatchingTest" })
+@TestPropertySource(properties = { "ruleservice.datasource.dir=test-resources/MultiModuleDispatchingTest",
+        "ruleservice.datasource.type = local" })
 @ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
-public class MultiModuleDispatchingTest implements ApplicationContextAware{
+public class MultiModuleDispatchingTest implements ApplicationContextAware {
     private static final String SERVICE_NAME = "MultiModuleDispatchingTest_multimodule";
-    
+
     private ApplicationContext applicationContext;
 
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
-    
+
     @Test
     public void testMultiModuleService2() throws Exception {
         assertNotNull(applicationContext);
@@ -39,7 +41,8 @@ public class MultiModuleDispatchingTest implements ApplicationContextAware{
         // dispatcher table
         System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_DT);
         cxt.setLob("lob1_1");
-        //assertTrue(publisher.findServiceByName(SERVICE_NAME).getInstantiationStrategy() instanceof LazyMultiModuleInstantiationStrategy);
+        // assertTrue(publisher.findServiceByName(SERVICE_NAME).getInstantiationStrategy()
+        // instanceof LazyMultiModuleInstantiationStrategy);
         assertEquals("Hello1", frontend.execute(SERVICE_NAME, "hello", new Object[] { cxt }));
         cxt.setLob("lob2_1");
         assertEquals("Hello2", frontend.execute(SERVICE_NAME, "hello", new Object[] { cxt }));
@@ -47,15 +50,17 @@ public class MultiModuleDispatchingTest implements ApplicationContextAware{
         assertEquals("Hello3", frontend.execute(SERVICE_NAME, "hello", new Object[] { cxt }));
 
         // dispatching by java code
-        System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_JAVA);
+        System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY,
+            OpenLSystemProperties.DISPATCHING_MODE_JAVA);
         cxt.setLob("lob1_1");
-        //assertTrue(publisher.findServiceByName(SERVICE_NAME).getInstantiationStrategy() instanceof LazyMultiModuleInstantiationStrategy);
+        // assertTrue(publisher.findServiceByName(SERVICE_NAME).getInstantiationStrategy()
+        // instanceof LazyMultiModuleInstantiationStrategy);
         assertEquals("Hello1", frontend.execute(SERVICE_NAME, "hello", new Object[] { cxt }));
         cxt.setLob("lob2_1");
         assertEquals("Hello2", frontend.execute(SERVICE_NAME, "hello", new Object[] { cxt }));
         cxt.setLob("lob3_1");
         assertEquals("Hello3", frontend.execute(SERVICE_NAME, "hello", new Object[] { cxt }));
-        
+
     }
 
 }

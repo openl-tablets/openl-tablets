@@ -26,7 +26,7 @@ public class TestMUWM {
     public static class PR extends AProjectResource {
 
         public PR() {
-            super(null, null);
+            super(null, null, null);
         }
 
         public void addProperty(Property property) throws PropertyException {
@@ -86,12 +86,14 @@ public class TestMUWM {
         System.out.println(uw.getProjects().size());
 
         String name = "p1";
+        AProject p;
         if (!uw.hasProject(name)) {
-            uw.createProject(name);
+            p = uw.createProject(name);
+        } else {
+            p = uw.getProject(name);
         }
 
-        AProject p = uw.getProject(name);
-        p.edit(wu);
+//        p.edit(wu);
 
         AProjectFolder uwpf;
         try {

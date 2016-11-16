@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.openl.rules.project.abstraction.Deployment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Collection;
@@ -16,6 +17,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@TestPropertySource({"classpath:openl-ruleservice-ref.properties", "classpath:rules-production.properties"})
 @ContextConfiguration({ "classpath:properties.xml", "classpath:openl-ruleservice-datasource-jcr-beans.xml" })
 public class LocalTemporaryDeploymentsStorageTest {
 
@@ -33,25 +35,15 @@ public class LocalTemporaryDeploymentsStorageTest {
 
     @Test
     public void testContainsDeloymentAndLoadDeployment() {
-        LocalTemporaryDeploymentsStorage storage = new LocalTemporaryDeploymentsStorage();
+        LocalTemporaryDeploymentsStorage storage = new LocalTemporaryDeploymentsStorage("target/openl-deploy");
         assertFalse(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
         storage.loadDeployment(deployment);
         assertTrue(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
-    }
-
-    @Test
-    public void testClearStorage() {
-        LocalTemporaryDeploymentsStorage storage = new LocalTemporaryDeploymentsStorage();
-        assertFalse(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
-        storage.loadDeployment(deployment);
-        assertTrue(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
-        storage.clear();
-        assertFalse(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
     }
 
     @Test
     public void testLoadDeployment() {
-        LocalTemporaryDeploymentsStorage storage = new LocalTemporaryDeploymentsStorage();
+        LocalTemporaryDeploymentsStorage storage = new LocalTemporaryDeploymentsStorage("target/openl-deploy");
         assertNull(storage.getDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
         assertFalse(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
         storage.loadDeployment(deployment);
@@ -60,7 +52,7 @@ public class LocalTemporaryDeploymentsStorageTest {
 
     @Test
     public void testGetDeployment() {
-        LocalTemporaryDeploymentsStorage storage = new LocalTemporaryDeploymentsStorage();
+        LocalTemporaryDeploymentsStorage storage = new LocalTemporaryDeploymentsStorage("target/openl-deploy");
         assertNull(storage.getDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
         assertFalse(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
         storage.loadDeployment(deployment);

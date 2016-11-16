@@ -91,10 +91,10 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
      * Lists nodes.
      *
      * @param list2add list to which nodes should be added
-     * @param isFiles whether return only files or only folders
+     * @param listFiles whether return only files or only folders
      * @throws RRepositoryException if failed
      */
-    private void listNodes(List<JcrEntityAPI> list2add, boolean isFiles) throws RRepositoryException {
+    private void listNodes(List<JcrEntityAPI> list2add, boolean listFiles) throws RRepositoryException {
         try {
             //FIXME for old
             NodeIterator ni = node().getNodes();
@@ -104,22 +104,23 @@ public class JcrFolderAPI extends JcrEntityAPI implements FolderAPI {
 
                 // TODO: use search? But looking through direct child nodes
                 // seems faster
-                boolean isFolder;
-                if(isOldVersion()){
+                boolean isFile;
+                if (isOldVersion()) {
                     Node frozenNode = NodeUtil.normalizeOldNode(n, getVersion());
-                    isFolder = frozenNode.getProperty("jcr:frozenPrimaryType").getString().equals(JcrNT.NT_FOLDER);
+                    isFile = frozenNode.getProperty("jcr:frozenPrimaryType").getString().equals(JcrNT.NT_FILE);
                     n = frozenNode;
-                }else{
-                    isFolder = n.isNodeType(JcrNT.NT_FOLDER);
+                } else {
+                    isFile = n.isNodeType(JcrNT.NT_FILE);
                 }
-                if (isFolder) {
-                    if (!isFiles) {
-                        list2add.add(new JcrFolderAPI(n, getArtefactPath().withSegment(name), isOldVersion()));
-                    }
-                } else if(!n.isNodeType(JcrNT.NT_LOCK)){
-                    //FIXME
-                    if (isFiles) {
-                        list2add.add(new JcrFileAPI(n, getArtefactPath().withSegment(name), isOldVersion()));
+                if (!n.isNodeType(JcrNT.NT_LOCK)) {
+                    if (isFile) {
+                        if (listFiles) {
+                            list2add.add(new JcrFileAPI(n, getArtefactPath().withSegment(name), isOldVersion()));
+                        }
+                    } else {
+                        if (!listFiles) {
+                            list2add.add(new JcrFolderAPI(n, getArtefactPath().withSegment(name), isOldVersion()));
+                        }
                     }
                 }
             }

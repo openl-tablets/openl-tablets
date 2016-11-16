@@ -12,7 +12,6 @@ import java.util.Map;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
-import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -52,7 +51,22 @@ public abstract class ArrayOpenClass extends AOpenClass {
             return null;
         }
     }
-
+    
+    @Override
+    public boolean isAssignableFrom(IOpenClass ioc) {
+        return getInstanceClass().isAssignableFrom(ioc.getInstanceClass());
+    }
+    
+    @Override
+    public boolean isAssignableFrom(Class<?> c) {
+        return getInstanceClass().isAssignableFrom(c);
+    }
+    
+    @Override
+    public boolean isInstance(Object instance) {
+        return getInstanceClass().isInstance(instance);
+    }
+    
     public String getName() {
         return componentClass.getName() + "[]";
     }

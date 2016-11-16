@@ -118,7 +118,7 @@ public class JcrProductionRepositoryTestCase extends TestCase {
             FolderAPI rProject = deployment.addFolder("p1");
             rProject.addFolder("f1");
 
-            deployment.commit(new CommonUserImpl("sys"), deployment.getVersion().getRevision() +1);
+            deployment.commit(new CommonUserImpl("sys"), Integer.parseInt(deployment.getVersion().getRevision()) + 1);
             productionRepository.notifyChanges();
         }
     }
@@ -229,7 +229,7 @@ public class JcrProductionRepositoryTestCase extends TestCase {
         rFile2.addProperty(ArtefactProperties.PROP_LINE_OF_BUSINESS, ValueType.STRING, LOB_S);
         rFile2.addProperty(ArtefactProperties.PROP_EFFECTIVE_DATE, ValueType.DATE, EFF_DATE3);
         rFile2.addProperty(ArtefactProperties.PROP_EXPIRATION_DATE, ValueType.DATE, EXP_DATE3);
-        deployment.commit(new CommonUserImpl("sys"), deployment.getVersion().getRevision() + 1);
+        deployment.commit(new CommonUserImpl("sys"), Integer.parseInt(deployment.getVersion().getRevision()) + 1);
     }
 
     @Override

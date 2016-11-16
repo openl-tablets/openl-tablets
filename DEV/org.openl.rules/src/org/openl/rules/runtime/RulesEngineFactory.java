@@ -15,7 +15,6 @@ import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -49,12 +48,11 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
     }
 
     public RulesEngineFactory(String sourceFile) {
-        this(new File(sourceFile));
+        super(RULES_XLS_OPENL_NAME, sourceFile);
     }
 
     public RulesEngineFactory(String sourceFile, Class<T> interfaceClass) {
-        this(new File(sourceFile));
-        super.setInterfaceClass(interfaceClass);
+        super(RULES_XLS_OPENL_NAME, sourceFile, interfaceClass);
     }
 
     public RulesEngineFactory(String sourceFile, String userHome) {
@@ -63,15 +61,6 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
 
     public RulesEngineFactory(String sourceFile, String userHome, Class<T> interfaceClass) {
         super(RULES_XLS_OPENL_NAME, sourceFile, userHome);
-        super.setInterfaceClass(interfaceClass);
-    }
-
-    public RulesEngineFactory(File file) {
-        super(RULES_XLS_OPENL_NAME, file);
-    }
-
-    public RulesEngineFactory(File file, Class<T> interfaceClass) {
-        super(RULES_XLS_OPENL_NAME, file);
         super.setInterfaceClass(interfaceClass);
     }
 

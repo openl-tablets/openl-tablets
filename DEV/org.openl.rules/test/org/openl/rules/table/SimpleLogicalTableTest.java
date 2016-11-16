@@ -7,13 +7,13 @@ import org.junit.Test;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.source.impl.FileSourceCodeModule;
+import org.openl.source.impl.URLSourceCodeModule;
 
 
 public class SimpleLogicalTableTest {
     
     private XlsSheetSourceCodeModule getXlsGrid() {
-        FileSourceCodeModule source = new FileSourceCodeModule("./test/rules/SimpleLogicalTableTest.xls", null);
+        URLSourceCodeModule source = new URLSourceCodeModule("./test/rules/SimpleLogicalTableTest.xls");
         XlsWorkbookSourceCodeModule wbSrc = new XlsWorkbookSourceCodeModule(source);
 
         return new XlsSheetSourceCodeModule(0, wbSrc);

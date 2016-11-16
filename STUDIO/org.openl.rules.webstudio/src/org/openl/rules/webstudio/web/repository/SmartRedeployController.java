@@ -155,13 +155,9 @@ public class SmartRedeployController {
             int cmp = descrVersion.compareTo(project.getVersion());
 
             if (cmp == 0) {
-                try {
                     if (StringUtils.isEmpty(repositoryConfigName)) {
                         item.setDisabled(true);
                         item.setMessages("Repository is not selected");
-                    } else if (deploymentManager.hasDeploymentProject(deploymentProject, repositoryConfigName)) {
-                        item.setDisabled(true);
-                        item.setMessages("Up to date");
                     } else if (deploymentProject.isOpenedForEditing()) {
                         // prevent loosing of user's changes
                         item.setDisabled(true);
@@ -178,11 +174,6 @@ public class SmartRedeployController {
                             item.setDisabled(true);
                         }
                     }
-                } catch (ProjectException e) {
-                    item.setDisabled(true);
-                    item.setMessages("Cannot connect to repository " + getRepositoryName(repositoryConfigName));
-                    item.setStyleForMessages(UiConst.STYLE_ERROR);
-                }
             } else if (cmp < 0) {
                 if (!isGranted(PRIVILEGE_EDIT_DEPLOYMENT)) {
                     // Don't have permission to edit deploy configuration -
@@ -340,19 +331,24 @@ public class SmartRedeployController {
     private ADeploymentProject update(String deploymentName, AProject project) {
         UserWorkspace workspace = RepositoryUtils.getWorkspace();
         try {
-            if (deploymentName.equals(project.getName())) {
-                // the same name
-                if (!workspace.hasDDProject(deploymentName)) {
-                    // create if absent
-                    workspace.createDDProject(deploymentName);
-                }
-            }
 
             // get latest version
             // FIXME ADeploymentProject should be renamed to
             // ADeployConfiguration, because of the renaming 'Deployment
             // Project' to the 'Deploy configuration'
-            ADeploymentProject deployConfiguration = workspace.getDDProject(deploymentName);
+            ADeploymentProject deployConfiguration = null;
+
+            if (deploymentName.equals(project.getName())) {
+                // the same name
+                if (!workspace.hasDDProject(deploymentName)) {
+                    // create if absent
+                    deployConfiguration = workspace.createDDProject(deploymentName);
+                }
+            }
+
+            if (deployConfiguration == null) {
+                deployConfiguration = workspace.getDDProject(deploymentName);
+            }
 
             boolean sameVersion = deployConfiguration.hasProjectDescriptor(project.getName()) && project.getVersion()
                     .compareTo(deployConfiguration.getProjectDescriptor(project.getName()).getProjectVersion()) == 0;
@@ -364,7 +360,7 @@ public class SmartRedeployController {
                 FacesUtils.addWarnMessage("Deploy configuration '" + deploymentName + "' is locked by other user");
                 return null;
             } else {
-                deployConfiguration.edit();
+                deployConfiguration.open();
                 // rewrite project->version
                 deployConfiguration.addProjectDescriptor(project.getName(), project.getVersion());
 

@@ -15,7 +15,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 
-public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrategy {
+public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrategy {
 
     private final Logger log = LoggerFactory.getLogger(ProjectDescriptorBasedResolvingStrategy.class);
 
@@ -32,7 +32,7 @@ public class ProjectDescriptorBasedResolvingStrategy extends BaseResolvingStrate
         }
     }
 
-    protected ProjectDescriptor internalResolveProject(File folder) throws ProjectResolvingException {
+    public ProjectDescriptor resolveProject(File folder) throws ProjectResolvingException {
         File descriptorFile = new File(folder, PROJECT_DESCRIPTOR_FILE_NAME);
         ProjectDescriptorManager descriptorManager = new ProjectDescriptorManager();
         Set<String> globalErrorMessages = new LinkedHashSet<String>();

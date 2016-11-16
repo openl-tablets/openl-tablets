@@ -20,6 +20,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
 public class AllExcelTest {
+    public static final String DIR = "test/rules/functionality/";
     private Locale defaultLocale;
     private TimeZone defaultTimeZone;
 
@@ -40,25 +41,25 @@ public class AllExcelTest {
     @Test
     public void testAllExcellFiles() throws NoSuchMethodException {
         boolean hasErrors = false;
-        final File sourceDir = new File("./test/rules/functionality");
-        final File[] files = sourceDir.listFiles();
-        for (File sourceFile : files) {
+        final File sourceDir = new File(DIR);
+        final String[] files = sourceDir.list();
+        for (String sourceFile : files) {
 
             try {
-                new FileInputStream(sourceFile).close();
+                new FileInputStream(new File(sourceDir, sourceFile)).close();
             } catch (Exception ex) {
-                System.out.println("!!! Cannot read file [" + sourceFile.getName() + "]. Because: " + ex.getMessage());
+                System.out.println("!!! Cannot read file [" + sourceFile + "]. Because: " + ex.getMessage());
                 hasErrors = true;
                 continue;
             }
 
-            RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(sourceFile);
+            RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(DIR + sourceFile);
             engineFactory.setExecutionMode(false);
             IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
             final CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
 
             if (compiledOpenClass.hasErrors()) {
-                System.out.println("!!! Compilation errors in [" + sourceFile.getName() + "].");
+                System.out.println("!!! Compilation errors in [" + sourceFile + "].");
                 System.out.println(compiledOpenClass.getMessages());
                 hasErrors = true;
                 continue;
@@ -73,7 +74,7 @@ public class AllExcelTest {
                     final int numberOfFailures = res.getNumberOfFailures();
                     errors += numberOfFailures;
                     if (numberOfFailures != 0) {
-                        System.out.println("!!! Errors in [" + sourceFile.getName() + "]. Failed test: " + res
+                        System.out.println("!!! Errors in [" + sourceFile + "]. Failed test: " + res
                             .getName() + "  Errors #:" + numberOfFailures);
                     }
 
@@ -81,9 +82,9 @@ public class AllExcelTest {
             }
             if (errors != 0) {
                 hasErrors = true;
-                System.out.println("!!! Errors in [" + sourceFile.getName() + "]. Total failures #: " + errors);
+                System.out.println("!!! Errors in [" + sourceFile + "]. Total failures #: " + errors);
             } else {
-                System.out.println("+++ OK in [" + sourceFile.getName() + "]. ");
+                System.out.println("+++ OK in [" + sourceFile + "]. ");
             }
         }
         assertFalse("Failed test", hasErrors);

@@ -17,7 +17,7 @@ public class SpreadsheetResultRootDictionaryContext extends RootDictionaryContex
         List<IOpenField> ff = fields.get(lowerCaseName);
 
         if (ff == null) {
-            IOpenField field = getTypeClass().getField(name);
+            IOpenField field = getRootField().getType().getField(name);
             if (field != null) {
                 initializeField(getRootField(), field, 1);
                 ff = fields.get(lowerCaseName);
@@ -32,10 +32,6 @@ public class SpreadsheetResultRootDictionaryContext extends RootDictionaryContex
         }
 
         return ff.get(0);
-    }
-
-    private SpreadsheetResultOpenClass getTypeClass() {
-        return (SpreadsheetResultOpenClass) getRootField().getType();
     }
 
     private IOpenField getRootField() {

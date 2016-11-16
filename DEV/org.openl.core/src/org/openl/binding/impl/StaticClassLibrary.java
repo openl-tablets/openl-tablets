@@ -51,7 +51,6 @@ public class StaticClassLibrary implements IOpenLibrary {
         openClass = c;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Iterable<IOpenMethod> methods(String name) {
         if (methodNameMap == null) {

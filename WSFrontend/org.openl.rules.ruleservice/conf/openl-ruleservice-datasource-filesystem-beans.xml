@@ -5,7 +5,7 @@
 	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
 	<!-- Data source storage that provides information about deployments, projects and their properties and version --> 
-	<bean id="filesystemdatasource" class="org.openl.rules.ruleservice.loader.FileSystemDataSource" lazy-init="true">
+	<bean id="filesystemdatasource" class="org.openl.rules.ruleservice.loader.FileSystemDataSource" lazy-init="true" depends-on="unpackClasspathAutoJarToDirectoryBean">
 		<constructor-arg name="loadDeploymentsFromDirectory" value="${ruleservice.datasource.dir}"/>
 		<property name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter"/>
 		<property name="localWorkspaceFolderFilter" ref="localWorkspaceFolderFilter"/>
@@ -13,4 +13,10 @@
 		<property name="supportVersion" value="${ruleservice.datasource.filesystem.supportVersion}"/>
 	</bean>
 
+	<bean id="unpackClasspathAutoJarToDirectoryBean" class="org.openl.rules.ruleservice.loader.UnpackClasspathJarToDirectoryBean" lazy-init="true">
+		<property name="destinationDirectory" value="${ruleservice.datasource.dir}"/>
+		<property name="unpackAllJarsInOneDeployment" value="#{!${ruleservice.datasource.filesystem.supportDeployments}}"/>
+		<property name="supportDeploymentVersion" value="${ruleservice.datasource.filesystem.supportVersion}"/>
+		<property name="enabled" value="#{${ruleservice.datasource.deploy.classpath.jars} and '${ruleservice.datasource.type}' eq 'local'}"/>
+	</bean>
 </beans>

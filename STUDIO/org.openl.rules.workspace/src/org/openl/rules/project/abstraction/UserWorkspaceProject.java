@@ -1,16 +1,20 @@
 package org.openl.rules.project.abstraction;
 
-import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
 
 public abstract class UserWorkspaceProject extends AProject {
     private WorkspaceUser user;
 
-    public UserWorkspaceProject(FolderAPI api, WorkspaceUser user) {
-        super(api);
+    public UserWorkspaceProject(WorkspaceUser user, Repository repository, String folderPath, String version) {
+        super(repository, folderPath, version);
+        this.user = user;
+    }
+
+    public UserWorkspaceProject(WorkspaceUser user, Repository repository, FileData fileData) {
+        super(repository, fileData);
         this.user = user;
     }
 
@@ -23,7 +27,8 @@ public abstract class UserWorkspaceProject extends AProject {
     }
 
     public boolean isLockedByMe() {
-        return isLockedByUser(user);
+//        return isLockedByUser(user);
+        return isOpened();
     }
 
     public boolean isLocalOnly() {
@@ -38,23 +43,15 @@ public abstract class UserWorkspaceProject extends AProject {
         if (!isOpened()) {
             return false;
         }
-        ProjectVersion max = getLastVersion();
-        if (max == null) {
-            return false;
-        }
-        return (!getVersion().equals(max));
+        return isHistoric();
     }
 
     public void open() throws ProjectException {
-        openVersion(getLastVersion());
+        openVersion(null);
     }
 
-    public abstract void openVersion(CommonVersion version) throws ProjectException;
+    public abstract void openVersion(String version) throws ProjectException;
 
-    public void edit() throws ProjectException {
-        edit(getUser());
-    }
-    
     public void save() throws ProjectException {
         save(getUser());
     }
@@ -67,10 +64,6 @@ public abstract class UserWorkspaceProject extends AProject {
         delete(user);
     }
 
-    public void erase() throws ProjectException {
-        erase(user);
-    }
-
     // TODO Cache status in the field
     public ProjectStatus getStatus() {
         if (isLocalOnly()) {
@@ -79,7 +72,7 @@ public abstract class UserWorkspaceProject extends AProject {
         else if (isDeleted()) {
             return ProjectStatus.ARCHIVED;
         }
-        else if (isOpenedForEditing()) {
+        else if (isModified()) {
             return ProjectStatus.EDITING;
         }
         else if (isOpenedOtherVersion()) {

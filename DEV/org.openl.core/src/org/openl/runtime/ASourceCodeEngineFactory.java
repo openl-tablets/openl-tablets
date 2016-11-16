@@ -1,6 +1,5 @@
 package org.openl.runtime;
 
-import java.io.File;
 import java.net.URL;
 
 import org.openl.CompiledOpenClass;
@@ -11,7 +10,6 @@ import org.openl.conf.IUserContext;
 import org.openl.dependency.IDependencyManager;
 import org.openl.engine.OpenLManager;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 
 //TODO make builder instead of number of constructors.
@@ -37,15 +35,11 @@ public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
     }
 
     public ASourceCodeEngineFactory(String openlName, String sourceFile) {
-        this(openlName, new FileSourceCodeModule(sourceFile, null));
+        this(openlName, new URLSourceCodeModule(sourceFile));
     }
 
     public ASourceCodeEngineFactory(String openlName, String sourceFile, String userHome) {
-        this(openlName, new FileSourceCodeModule(sourceFile, null), userHome);
-    }
-
-    public ASourceCodeEngineFactory(String openlName, File file) {
-        this(openlName, new FileSourceCodeModule(file, null));
+        this(openlName, new URLSourceCodeModule(sourceFile), userHome);
     }
 
     public ASourceCodeEngineFactory(String openlName, URL source) {

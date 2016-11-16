@@ -252,34 +252,12 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     }
 
     //ADD
-    public static ByteValue add(ByteValue value1, String value2) {
-        if (value2 == null) {
-            return value1;
-        }
-
-        if (value1 == null) {
-            return new ByteValue(Byte.valueOf(value2));
-        }
-        
-        byte v = Byte.valueOf(value2);
-
-        return new org.openl.meta.ByteValue(value1, new ByteValue(v), Operators.add(value1.getValue(), v),
-            Formulas.ADD);
+    public static String add(ByteValue value1, String value2) {
+        return value1 + value2;
     }
     
-    public static ByteValue add(String value1, ByteValue value2) {
-        if (value1 == null) {
-            return value2;
-        }
-
-        if (value2 == null) {
-            return new ByteValue(Byte.valueOf(value1));
-        }
-        
-        byte v = Byte.valueOf(value1);
-        
-        return new org.openl.meta.ByteValue(new ByteValue(v), value2, Operators.add(v, value2.getValue()),
-            Formulas.ADD);
+    public static String add(String value1, ByteValue value2) {
+        return value1 + value2;
     }
 
      /**
@@ -362,7 +340,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * @param value2 org.openl.meta.ByteValue
      * @return the result of division  operation
      */
-    public static org.openl.meta.ByteValue divide(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
+    public static org.openl.meta.DoubleValue divide(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
         // temporary commented to support operations with nulls
         //
         //        validate(value1, value2, Formulas.DIVIDE.toString());
@@ -371,21 +349,21 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         }
 
         if (value1 == null) {
-            if (value2 != null && value2.doubleValue() != 0) {
-                return new org.openl.meta.ByteValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
+            if (value2.doubleValue() != 0) {
+                return new org.openl.meta.DoubleValue(null, new DoubleValue(value2.getValue(), value2, true), divide(ONE, value2).getValue(), Formulas.DIVIDE);
             }
         }
 
         if (value2 == null) {
-            return new org.openl.meta.ByteValue(value1, value2, value1.getValue(), Formulas.DIVIDE);
+            return new org.openl.meta.DoubleValue(new DoubleValue(value1.getValue(), value1, true), null, value1.getValue(), Formulas.DIVIDE);
         }
 
         if (value2.doubleValue() == 0) {
             throw new OpenlNotCheckedException("Division by zero");
         }
 
-        return new org.openl.meta.ByteValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()),
-            Formulas.DIVIDE);
+        return new org.openl.meta.DoubleValue(new DoubleValue(value1.getValue(), value1, true), new DoubleValue(value2.getValue(), value2, true), Operators.divide(value1.getValue(), value2.getValue()),
+                Formulas.DIVIDE);
     }
 
     // QUAOTIENT
@@ -689,28 +667,6 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
             return null;
         }
         return new BigDecimalValue(String.valueOf(x.getValue()), x, true);
-    }
-
-    public static String autocast(ByteValue x, String y) {
-        if (x == null) {
-            return null;
-        }
-        return x.toString();
-    }
-    
-    public static Integer distance(ByteValue x, String y) {
-        return 11;
-    }
-
-    public static ByteValue autocast(String x, ByteValue y) {
-        if (x == null) {
-            return null;
-        }
-        return new ByteValue(Byte.valueOf(x));
-    }
-    
-    public static Integer distance(String x, ByteValue y) {
-        return 10;
     }
 
     // ******* Casts *************

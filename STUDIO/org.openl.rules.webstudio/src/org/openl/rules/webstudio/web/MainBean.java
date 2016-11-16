@@ -57,11 +57,6 @@ public class MainBean {
         studio.saveProject(FacesUtils.getSession());
     }
 
-    public void editProject() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        studio.editProject(FacesUtils.getSession());
-    }
-
     public void reload() {
         try {
             WebStudioUtils.getRulesUserSession(FacesUtils.getSession()).getUserWorkspace().refresh();

@@ -32,7 +32,7 @@ public class TypeBindingContext extends BindingContextDelegator {
                                          null :
                                          instanceClass.getAnnotation(CustomJavaOpenClass.class);
         VariableInContextFinder context;
-        if (annotation != null) {
+        if (annotation != null && annotation.variableInContextFinder() != null) {
             context = createCustomVariableFinder(annotation, localVar);
         } else {
             context = new RootDictionaryContext(new IOpenField[] { localVar }, 1);

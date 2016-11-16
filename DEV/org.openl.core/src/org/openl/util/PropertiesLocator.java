@@ -21,17 +21,6 @@ import org.openl.conf.IConfigurableResourceContext;
  */
 public class PropertiesLocator {
 
-    public static String findPropertyValue(String propertyName, String propertyFileName) {
-        return findPropertyValue(propertyName, propertyFileName, Thread.currentThread().getContextClassLoader(),
-                new String[] { "." });
-    }
-
-    public static String findPropertyValue(String propertyName, String propertyFileName, ClassLoader loader,
-            String[] fileRoots) {
-        ConfigurableResourceContext cxt = new ConfigurableResourceContext(loader, fileRoots);
-        return findPropertyValue(propertyName, propertyFileName, cxt);
-    }
-
     public static String findPropertyValue(String propertyName, String propertyFileName,
             IConfigurableResourceContext ucxt) {
 
@@ -81,33 +70,33 @@ public class PropertiesLocator {
 
     }
 
-    public static String locateFileOrURL(String fileName) {
-        return locateFileOrURL(fileName, Thread.currentThread().getContextClassLoader(), new String[] { "." });
+    public static URL locateToURL(String fileName) {
+        return locateToURL(fileName, Thread.currentThread().getContextClassLoader(), new String[] { "." });
     }
 
-    public static String locateFileOrURL(String fileName, ClassLoader cl, String[] fileRoots) {
+    public static URL locateToURL(String fileName, ClassLoader cl, String[] fileRoots) {
         ConfigurableResourceContext cxt = new ConfigurableResourceContext(cl, fileRoots);
-        return locateFileOrURL(fileName, cxt);
+        return locateToURL(fileName, cxt);
     }
 
-    public static String locateFileOrURL(String fileName, IConfigurableResourceContext ucxt) {
+    private static URL locateToURL(String fileName, IConfigurableResourceContext ucxt) {
         File f = ucxt.findFileSystemResource(fileName);
         if (f != null) {
-            return f.getAbsolutePath();
+            try {
+                return f.toURI().toURL();
+            } catch (MalformedURLException e) {
+            }
         }
 
         URL url = ucxt.findClassPathResource(fileName);
         if (url != null) {
-            return url.toExternalForm();
+            return url;
         }
 
         try {
-            url = new URL(fileName);
-            return fileName;
-
+            return new URL(fileName);
         } catch (MalformedURLException e) {
         }
-
         return null;
     }
 

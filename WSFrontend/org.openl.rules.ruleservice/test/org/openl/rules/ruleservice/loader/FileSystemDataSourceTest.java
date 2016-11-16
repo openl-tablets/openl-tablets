@@ -1,14 +1,15 @@
 package org.openl.rules.ruleservice.loader;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.openl.rules.project.abstraction.Deployment;
-
-import java.util.Collection;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.util.Collection;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.openl.rules.project.abstraction.Deployment;
 
 public class FileSystemDataSourceTest {
     private FileSystemDataSource dataSource;
@@ -17,7 +18,7 @@ public class FileSystemDataSourceTest {
 
     @Before
     public void setDataSource() {
-        dataSource = new FileSystemDataSource(FILE_SYSTEM_DATA_SOURCE_DIRECTORY);
+        dataSource = new FileSystemDataSource(new File(FILE_SYSTEM_DATA_SOURCE_DIRECTORY));
     }
 
     @Test
@@ -40,29 +41,5 @@ public class FileSystemDataSourceTest {
         assertNotNull(deployment);
         assertEquals(tmp.getName(), deployment.getDeploymentName());
         assertEquals(tmp.getCommonVersion(), deployment.getCommonVersion());
-    }
-
-    @Test
-    public void testAddListener() {
-        assertEquals(0, dataSource.listeners.size());
-        DataSourceListener dataSourceListener = new DataSourceListener() {
-            public void onDeploymentAdded() {
-            }
-        };
-        dataSource.addListener(dataSourceListener);
-        assertEquals(1, dataSource.listeners.size());
-    }
-
-    @Test
-    public void testRemoveListener() {
-        assertEquals(0, dataSource.listeners.size());
-        DataSourceListener dataSourceListener = new DataSourceListener() {
-            public void onDeploymentAdded() {
-            }
-        };
-        dataSource.addListener(dataSourceListener);
-        assertEquals(1, dataSource.listeners.size());
-        dataSource.removeListener(dataSourceListener);
-        assertEquals(0, dataSource.listeners.size());
     }
 }

@@ -120,7 +120,9 @@ public class CastFactory implements ICastFactory {
                 return JAVA_UP_CAST;
             }
             IOpenCast arrayElementCast = findCast(from.getComponentClass(), to.getComponentClass());
-            return new ArrayDownCast(to, arrayElementCast);
+            if (arrayElementCast != null){
+                return new ArrayDownCast(to, arrayElementCast);
+            }
         }
 
 

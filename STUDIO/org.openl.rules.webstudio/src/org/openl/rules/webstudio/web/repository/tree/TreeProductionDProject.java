@@ -8,8 +8,10 @@ import java.util.Map;
 
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
-import org.openl.rules.project.abstraction.ADeploymentProject;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.repository.UiConst;
 import org.openl.rules.webstudio.filter.IFilter;
@@ -39,7 +41,7 @@ public class TreeProductionDProject extends TreeProductFolder {
         if (elements == null && !isLeafOnly()) {
             elements = new LinkedHashMap<Object, TreeNode>();
 
-            Collection<AProjectArtefact> prjList = ((ADeploymentProject)getData()).getArtefacts();
+            Collection<AProject> prjList = ((Deployment) getData()).getProjects();
             AProjectArtefact[] sortedArtefacts = new AProjectArtefact[prjList.size()];
             sortedArtefacts = prjList.toArray(sortedArtefacts);
 
@@ -57,7 +59,7 @@ public class TreeProductionDProject extends TreeProductFolder {
     public void addChild(AProjectArtefact childArtefact){
         String name = childArtefact.getName();
         String id = RepositoryUtils.getTreeNodeId(name);
-        if (childArtefact.isFolder()) {
+        if (childArtefact instanceof AProjectFolder) {
             TreeProductProject prj = new TreeProductProject(id, childArtefact.getName(), filter);
             prj.setData(childArtefact);
 
@@ -106,8 +108,8 @@ public class TreeProductionDProject extends TreeProductFolder {
         return (vi != null) ? vi.getCreatedBy() : null;
     }
 
-    private ADeploymentProject getProject() {
-        return (ADeploymentProject) getData();
+    private AProjectFolder getProject() {
+        return (AProjectFolder) getData();
     }
 
 }

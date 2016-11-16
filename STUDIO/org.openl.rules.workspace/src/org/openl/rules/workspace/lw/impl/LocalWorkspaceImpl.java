@@ -5,7 +5,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.impl.local.LocalFolderAPI;
+import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceListener;
@@ -61,7 +61,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             throw new ProjectException(String.format("Can't create the folder '%s'", f.getAbsolutePath()));
         }
 
-        AProject localProject = new AProject(new LocalFolderAPI(f, ap, this));
+        AProject localProject = createLocalProject(ap);
 
         localProject.update(project, user);
 
@@ -70,6 +70,15 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             localProjects.put(name, localProject);
         }
         return localProject;
+    }
+
+    private AProject createLocalProject(ArtefactPath ap) {
+        return new AProject(getRepository(), ap.getStringValue());
+    }
+
+    @Override
+    public LocalRepository getRepository() {
+        return new LocalRepository(location, new LocalProjectModificationHandler(location));
     }
 
     public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
@@ -129,7 +138,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             String name = f.getName();
             ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
 
-            AProject lpi = new AProject(new LocalFolderAPI(f, ap, this));
+            AProject lpi = createLocalProject(ap);
             synchronized (localProjects) {
                 localProjects.put(name, lpi);
             }
@@ -172,7 +181,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
                 if (!localProjects.containsKey(name)) {
                     // new project detected
                     ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
-                    AProject newlyDetected = new AProject(new LocalFolderAPI(folder, ap, this));
+                    AProject newlyDetected = createLocalProject(ap);
 
                     // add it
                     localProjects.put(name, newlyDetected);

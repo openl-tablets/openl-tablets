@@ -57,24 +57,24 @@ public class VariableLengthArgumentsMethodBinderTest {
         assertArrayEquals(getTestArguments(double[].class), varArgs.getModifiedMethodArguments());
 
         varArgs = new CastableTypesVarArgsBuilder(getTestArguments(String.class, double.class, double.class), cf).build();
-        assertEquals(0, varArgs.getFirstVarArgIndex());
-        assertArrayEquals(getTestArguments(double[].class), varArgs.getModifiedMethodArguments());
+        assertEquals(1, varArgs.getFirstVarArgIndex());
+        assertArrayEquals(getTestArguments(String.class, double[].class), varArgs.getModifiedMethodArguments());
 
         varArgs = new CastableTypesVarArgsBuilder(getTestArguments(String.class, double.class, int.class, double.class), cf).build();
-        assertEquals(0, varArgs.getFirstVarArgIndex());
-        assertArrayEquals(getTestArguments(double[].class), varArgs.getModifiedMethodArguments());
+        assertEquals(1, varArgs.getFirstVarArgIndex());
+        assertArrayEquals(getTestArguments(String.class, double[].class), varArgs.getModifiedMethodArguments());
 
         varArgs = new CastableTypesVarArgsBuilder(getTestArguments(String.class, int.class, double.class, int.class), cf).build();
-        assertEquals(0, varArgs.getFirstVarArgIndex());
-        assertArrayEquals(getTestArguments(double[].class), varArgs.getModifiedMethodArguments());
+        assertEquals(1, varArgs.getFirstVarArgIndex());
+        assertArrayEquals(getTestArguments(String.class, double[].class), varArgs.getModifiedMethodArguments());
 
         varArgs = new CastableTypesVarArgsBuilder(getTestArguments(BigDecimal.class, int.class, Double.class, double.class, Integer.class), cf).build();
         assertEquals(0, varArgs.getFirstVarArgIndex());
         assertArrayEquals(getTestArguments(BigDecimal[].class), varArgs.getModifiedMethodArguments());
 
         varArgs = new CastableTypesVarArgsBuilder(getTestArguments(BigDecimal.class, int.class, Double.class, double.class, String.class), cf).build();
-        assertEquals(0, varArgs.getFirstVarArgIndex());
-        assertArrayEquals(getTestArguments(String[].class), varArgs.getModifiedMethodArguments());
+        assertEquals(4, varArgs.getFirstVarArgIndex());
+        assertArrayEquals(getTestArguments(BigDecimal.class, int.class, Double.class, double.class, String[].class), varArgs.getModifiedMethodArguments());
 }
     
     private VarArgsInfo createCastableVarArgs(CastFactory castFactory, Class<?> ... types) {

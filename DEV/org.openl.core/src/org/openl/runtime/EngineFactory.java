@@ -1,6 +1,5 @@
 package org.openl.runtime;
 
-import java.io.File;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URL;
@@ -34,10 +33,6 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
 
     protected Map<Method, IOpenMember> methodMap;
 
-    protected EngineFactory(String openlName, File file) {
-        super(openlName, file);
-    }
-
     protected EngineFactory(String openlName, IOpenSourceCodeModule sourceCode, IUserContext userContext) {
         super(openlName, sourceCode, userContext);
     }
@@ -60,14 +55,6 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
 
     protected EngineFactory(String openlName, URL source) {
         super(openlName, source);
-    }
-
-    public EngineFactory(String openlName, File file, Class<T> interfaceClass) {
-        super(openlName, file);
-        if (interfaceClass == null) {
-            throw new IllegalArgumentException("Interface can't be null!");
-        }
-        this.interfaceClass = interfaceClass;
     }
 
     public EngineFactory(String openlName, IOpenSourceCodeModule sourceCode, IUserContext userContext,

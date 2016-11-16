@@ -1,14 +1,14 @@
 package org.openl.source.impl;
 
-import java.io.File;
+import java.net.URL;
 
 import org.openl.types.IModuleInfo;
 
-public class ModuleFileSourceCodeModule extends FileSourceCodeModule implements IModuleInfo {
+public class ModuleFileSourceCodeModule extends URLSourceCodeModule implements IModuleInfo {
     private final String moduleName;
 
-    public ModuleFileSourceCodeModule(File file, String moduleName) {
-        super(file, null);
+    public ModuleFileSourceCodeModule(URL url, String moduleName) {
+        super(url);
         this.moduleName = moduleName;
     }
 

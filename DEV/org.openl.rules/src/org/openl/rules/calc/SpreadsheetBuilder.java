@@ -32,12 +32,14 @@ public class SpreadsheetBuilder {
     public void populateSpreadsheetOpenClass() {
         structureBuilder.addCellFields(spreadsheetOpenClass);
     }
-
-    public void finalizeBuild(Spreadsheet spreadsheet) {
+    
+    public void populateRowAndColumnNames(Spreadsheet spreadsheet) {
         spreadsheet.setRowNames(structureBuilder.getRowNames());
 
         spreadsheet.setColumnNames(structureBuilder.getColumnNames());
+    }
 
+    public void finalizeBuild(Spreadsheet spreadsheet) {
         spreadsheet.setCells(structureBuilder.getCells());
 
         spreadsheet.setResultBuilder(structureBuilder.getResultBuilder(spreadsheet));

@@ -1,13 +1,18 @@
 package org.openl.rules.project.abstraction;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.repository.api.ArtefactAPI;
-import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.common.ProjectVersion;
+import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
+import org.openl.rules.common.impl.RepositoryVersionInfoImpl;
+import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.repository.api.Repository;
 
 /**
  * Class representing deployment from ProductionRepository. Deployment is set of
@@ -15,68 +20,93 @@ import org.openl.rules.repository.api.FolderAPI;
  * 
  * @author PUdalau
  */
-public class Deployment extends AProject {
-	private Map<String, AProject> projects;
+public class Deployment extends AProjectFolder {
+    private Map<String, AProject> projects;
 
-	private String deploymentName;
-	private CommonVersion commonVersion;
+    private String deploymentName;
+    private CommonVersion commonVersion;
 
-	public Deployment(FolderAPI api) {
-		super(api);
-		init();
-	}
+    public Deployment(Repository repository, String folderName, String deploymentName, CommonVersion commonVersion) {
+        super(null, repository, folderName, commonVersion == null ? null : commonVersion.getVersionName());
+        init();
+        this.commonVersion = commonVersion;
+        this.deploymentName = deploymentName;
+    }
 
-	public Deployment(FolderAPI api, String deploymentName, CommonVersion commonVersion) {
-		super(api);
-		init();
-		this.commonVersion = commonVersion;
-		this.deploymentName = deploymentName;
-	}
+    public CommonVersion getCommonVersion() {
+        if (commonVersion == null)
+            return this.getVersion();
+        return commonVersion;
+    }
 
-	public CommonVersion getCommonVersion() {
-		if (commonVersion == null) return this.getVersion();
-		return commonVersion;
-	}
+    public String getDeploymentName() {
+        if (deploymentName == null)
+            return this.getName();
+        return deploymentName;
+    }
 
-	public String getDeploymentName() {
-		if (deploymentName == null) return this.getName();
-		return deploymentName;
-	}
-	
-	@Override
-	public void refresh() {
-		init();
-	}
+    @Override
+    public void refresh() {
+        init();
+    }
 
-	private void init() {
-		super.refresh();
-		projects = new HashMap<String, AProject>();
-		//Map<String, AProjectArtefact> artefacts = new HashMap<String, AProjectArtefact>();
-		for (ArtefactAPI artefactAPI : getAPI().getArtefacts()) {
-			if (artefactAPI.isFolder()) {
-				AProject project = new AProject((FolderAPI) artefactAPI);
-				projects.put(artefactAPI.getName(), project);
-				//artefacts.put(artefactAPI.getName(), project);
-			} /*else {
-				artefacts.put(artefactAPI.getName(), new AProjectResource(
-						(ResourceAPI) artefactAPI, getProject()));
-			}*/
-		}
-		//setArtefactsInternal(artefacts);
-	}
+    private void init() {
+        super.refresh();
+        projects = new HashMap<String, AProject>();
 
-	public Collection<AProject> getProjects() {
-		return projects.values();
-	}
+        for (AProjectArtefact artefact : getArtefactsInternal().values()) {
+            String projectPath = artefact.getArtefactPath().getStringValue();
+            projects.put(artefact.getName(), new AProject(getRepository(), projectPath));
+        }
+    }
 
-	public AProject getProject(String name) {
-		return projects.get(name);
-	}
+    public Collection<AProject> getProjects() {
+        return projects.values();
+    }
 
-	public void addProject(AProject project) throws ProjectException {
-		String projectName = project.getName();
-		addFolder(projectName);
-		init();
-		getProject(projectName).update(project, null);
-	}
+    public AProject getProject(String name) {
+        return projects.get(name);
+    }
+
+    @Override
+    public ProjectVersion getVersion() {
+        RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(null, null);
+        return new RepositoryProjectVersionImpl(commonVersion, rvii);
+    }
+
+    @Override
+    protected Map<String, AProjectArtefact> createInternalArtefacts() {
+        if (getRepository() instanceof LocalRepository) {
+            LocalRepository repository = (LocalRepository) getRepository();
+            File[] files = new File(repository.getLocation(), getFolderPath()).listFiles();
+            Map<String, AProjectArtefact> result = new HashMap<String, AProjectArtefact>();
+            if (files != null) {
+                for (File file : files) {
+                    result.put(file.getName(), new AProject(repository, getFolderPath() + "/" + file.getName()));
+                }
+            }
+            return result;
+        } else {
+            return super.createInternalArtefacts();
+        }
+    }
+
+    @Override
+    public boolean isHistoric() {
+        return false;
+    }
+
+    @Override
+    public void update(AProjectArtefact newFolder, CommonUser user) throws ProjectException {
+        Deployment other = (Deployment) newFolder;
+        // add new
+        for (AProject otherProject : other.getProjects()) {
+            String name = otherProject.getName();
+            if (!hasArtefact(name)) {
+                AProject newProject = new AProject(getRepository(), getFolderPath() + "/" + name);
+                newProject.update(otherProject, user);
+                projects.put(newProject.getName(), newProject);
+            }
+        }
+    }
 }

@@ -3,12 +3,12 @@ package org.openl.rules.lang.xls;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.openl.conf.IConfigurableResourceContext;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.impl.FileSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.util.PathTool;
 import org.openl.util.StringTool;
@@ -49,7 +49,11 @@ public class IncludeSearcher {
                 File f = ucxt.findFileSystemResource(p);
 
                 if (f != null) {
-                    return new FileSourceCodeModule(f, null);
+                    try {
+                        return new URLSourceCodeModule(f.toURI().toURL());
+                    } catch (MalformedURLException ex) {
+                        //ignore
+                    }
                 }
 
                 // let's try simple concat and use url

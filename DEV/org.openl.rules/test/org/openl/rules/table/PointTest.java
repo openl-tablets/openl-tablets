@@ -25,31 +25,4 @@ public class PointTest {
         assertTrue(point1.hashCode() == point3.hashCode());   
     }
 
-    @Test
-    public void testMoveDown() {
-        Point test = new Point(1, 3);
-        Point moved = test.moveDown(1);
-        assertFalse("New instance is returned", test.equals(moved));
-        assertEquals(4, moved.getRow());
-        assertEquals(1, moved.getColumn());
-    }
-
-    @Test
-    public void testShiftRight() {
-        Point test = new Point(1, 3);
-        Point moved = test.moveRight();
-        assertFalse("New instance is returned", test.equals(moved));
-        assertEquals(2, moved.getColumn());
-        assertEquals(3, moved.getRow());
-    }
-
-    @Test
-    public void testMoveRightAndDown() {
-        Point test = new Point(1, 3);
-        Point moved = test.moveRightAndDown();
-        assertFalse("New instance is returned", test.equals(moved));
-        assertEquals(2, moved.getColumn());
-        assertEquals(4, moved.getRow());
-    }
-
 }

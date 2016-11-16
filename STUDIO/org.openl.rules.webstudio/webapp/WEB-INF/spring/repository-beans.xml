@@ -29,7 +29,6 @@
 
   <bean id="deploymentManager" class="org.openl.rules.webstudio.web.repository.DeploymentManager">
     <property name="initialProductionRepositoryConfigNames" value="#{systemConfig['production-repository-configs']}"/>
-    <property name="deploymentFormatOld" value="#{systemConfig['deployment.format.old'] == null ? false : systemConfig['deployment.format.old']}" />
     <property name="productionDeployerFactory" ref="productionDeployerFactory"/>
     <property name="designRepository" ref="designTimeRepository" />
   </bean>

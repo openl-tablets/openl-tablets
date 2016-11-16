@@ -103,12 +103,21 @@ public class OpenLSourceManager extends OpenLHolder {
             value = value.replaceAll("\\*", "\\\\E.*\\\\Q");
             value = value.replaceAll("\\?", "\\\\E.\\\\Q");
             value = "\\Q" + value + "\\E";
+
+            boolean found = false;
             for (String dependencyName : dependencyNames){
                 if (Pattern.matches(value, dependencyName)){
+                    found = true;
                     result.add(new Dependency(dependency.getType(),
                         new IdentifierNode(dependency.getNode().getType(), null, dependencyName, null)));
                 }
             }
+
+            if (!found) {
+                // Needed to create error message "Dependency wasn't found" later
+                result.add(dependency);
+            }
+
         }
         return result;
     }

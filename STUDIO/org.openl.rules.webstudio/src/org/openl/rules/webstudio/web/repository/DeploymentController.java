@@ -123,13 +123,13 @@ public class DeploymentController {
         return null;
     }
 
-    public String edit() {
+    public String open() {
         try {
-            getSelectedProject().edit();
+            getSelectedProject().open();
             items = null;
         } catch (ProjectException e) {
-            log.error("Failed to edit", e);
-            FacesUtils.addErrorMessage("Failed to edit", e.getMessage());
+            log.error("Failed to open", e);
+            FacesUtils.addErrorMessage("Failed to open", e.getMessage());
         }
 
         return null;
@@ -301,7 +301,7 @@ public class DeploymentController {
                 try {
                     RulesProject project = workspace.getProject(projectName);
                     if (!project.isOpenedForEditing()) {
-                        project.openVersion(item.getVersion());
+                        project.openVersion(item.getVersion().getVersionName());
                     }
                     repositoryTreeState.refreshNode(repositoryTreeState.getRulesRepository().getChild(RepositoryUtils.getTreeNodeId(projectName)));
                 } catch (ProjectException e) {

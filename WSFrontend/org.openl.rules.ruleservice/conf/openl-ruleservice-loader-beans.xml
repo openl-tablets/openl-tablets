@@ -63,10 +63,7 @@
 	<!-- Local storage for all projects that is used in services. -->
 	<bean id="localTemporaryDeploymentsStorage"
 		class="org.openl.rules.ruleservice.loader.LocalTemporaryDeploymentsStorage">
-		<constructor-arg name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter"></constructor-arg>
-		<constructor-arg name="localWorkspaceFolderFilter"
-			ref="localWorkspaceFolderFilter"></constructor-arg>
-		<property name="directoryToLoadDeploymentsIn" value="${ruleservice.tmp.dir}" />
+		<constructor-arg value="${ruleservice.tmp.dir}"/>
 	</bean>
 
 	<!-- Wrapper on data source that gives access to data source and resolves the OpenL projects/modules inside the projects. 

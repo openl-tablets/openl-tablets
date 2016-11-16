@@ -148,6 +148,10 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
     public boolean isStatic() {
         return Modifier.isStatic(method.getModifiers());
     }
+    
+    public Method getJavaMethod(){
+        return method;
+    }
 
     @Override
     public String toString() {
