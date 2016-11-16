@@ -29,6 +29,15 @@ public class RulesDeployGuiWrapper {
         rulesDeploy.setProvideRuntimeContext(provideRuntimeContext);
     }
 
+    public boolean isUseRuleServiceRuntimeContext() {
+        Boolean useRuleServiceRuntimeContext = rulesDeploy.isUseRuleServiceRuntimeContext();
+        return useRuleServiceRuntimeContext != null ? useRuleServiceRuntimeContext : false;
+    }
+
+    public void setUseRuleServiceRuntimeContext(boolean useRuleServiceRuntimeContext) {
+        rulesDeploy.setUseRuleServiceRuntimeContext(useRuleServiceRuntimeContext);
+    }
+
     public boolean isProvideVariations() {
         Boolean provideVariations = rulesDeploy.isProvideVariations();
         return provideVariations != null ? provideVariations : false;
@@ -46,6 +55,23 @@ public class RulesDeployGuiWrapper {
         rulesDeploy.setServiceName(serviceName);
     }
 
+
+    public String getAnnotationTemplateClassName() {
+        return rulesDeploy.getAnnotationTemplateClassName();
+    }
+
+    public void setAnnotationTemplateClassName(String annotationTemplateClassName) {
+        rulesDeploy.setAnnotationTemplateClassName(annotationTemplateClassName);
+    }
+
+    public String getInterceptingTemplateClassName() {
+        return rulesDeploy.getInterceptingTemplateClassName();
+    }
+
+    public void setInterceptingTemplateClassName(String interceptingTemplateClassName) {
+        rulesDeploy.setInterceptingTemplateClassName(interceptingTemplateClassName);
+    }
+
     public String getServiceClass() {
         return rulesDeploy.getServiceClass();
     }
@@ -54,6 +80,14 @@ public class RulesDeployGuiWrapper {
         rulesDeploy.setServiceClass(serviceClass);
     }
     
+    public String getRmiServiceClass() {
+        return rulesDeploy.getRmiServiceClass();
+    }
+
+    public void setRmiServiceClass(String rmiServiceClass) {
+        rulesDeploy.setRmiServiceClass(rmiServiceClass);
+    }
+
     public String getVersion() {
         return rulesDeploy.getVersion();
     }
@@ -68,6 +102,14 @@ public class RulesDeployGuiWrapper {
 
     public void setUrl(String url) {
         rulesDeploy.setUrl(url);
+    }
+
+    public String getGroups() {
+        return rulesDeploy.getGroups();
+    }
+
+    public void setGroups(String groups) {
+        rulesDeploy.setGroups(groups);
     }
 
     public String getConfiguration() {
