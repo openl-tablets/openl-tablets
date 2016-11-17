@@ -354,8 +354,8 @@ public abstract class FunctionalRow implements IDecisionRow {
 			if (StringUtils.equals(e.getMessage(), error.getMessage())
 					&& e.getSourceModule() != null
 					&& error.getSourceModule() != null
-					&& StringUtils.equals(e.getSourceModule().getUri(0), error
-							.getSourceModule().getUri(0))) {
+					&& StringUtils.equals(e.getSourceModule().getUri(), error
+							.getSourceModule().getUri())) {
 				errorAddedAlready = true;
 				break;
 			}

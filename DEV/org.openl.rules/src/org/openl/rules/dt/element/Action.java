@@ -139,7 +139,7 @@ public class Action extends FunctionalRow implements IAction {
         IOpenSourceCodeModule source = super.getExpressionSource(bindingContext);
 
         if (isReturnAction() && StringUtils.isEmpty(source.getCode()) && getParams() == null) {
-            return new StringSourceCodeModule("extraRet", source.getUri(0));
+            return new StringSourceCodeModule("extraRet", source.getUri());
         }
 
         return super.getExpressionSource(bindingContext);

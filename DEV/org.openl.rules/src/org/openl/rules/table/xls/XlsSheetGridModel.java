@@ -252,7 +252,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     }
 
     public String getUri() {
-        String xlsUri = sheetSource == null ? "" : sheetSource.getUri(0);
+        String xlsUri = sheetSource == null ? "" : sheetSource.getUri();
         return xlsUri;// + "#" + name;
 
     }

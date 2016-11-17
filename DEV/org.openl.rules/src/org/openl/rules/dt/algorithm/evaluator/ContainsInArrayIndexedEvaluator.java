@@ -42,7 +42,7 @@ public class ContainsInArrayIndexedEvaluator extends AConditionEvaluator impleme
 
         String code = String.format("containsCtr(%1$s, %2$s)", cparams[0].getName(), conditionSource.getCode());
 
-        return new StringSourceCodeModule(code, conditionSource.getUri(0));
+        return new StringSourceCodeModule(code, conditionSource.getUri());
     }
 
     public IIntSelector getSelector(ICondition condition, Object target, Object[] params, IRuntimeEnv env) {

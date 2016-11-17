@@ -17,7 +17,7 @@ final class WorkbookLoadUtils {
 
     static Workbook loadWorkbook(IOpenSourceCodeModule fileSource) {
         Logger log = LoggerFactory.getLogger(WorkbookLoadUtils.class);
-        log.debug("Loading workbook '{}'...", fileSource.getUri(0));
+        log.debug("Loading workbook '{}'...", fileSource.getUri());
 
         InputStream is = null;
         Workbook workbook;

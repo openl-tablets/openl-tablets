@@ -21,7 +21,7 @@ public class XlsMetaInfo implements IMetaInfo {
     }
 
     public String getSourceUrl() {
-        return xlsModuleNode.getModule().getUri(0);
+        return xlsModuleNode.getModule().getUri();
     }
 
     public XlsModuleSyntaxNode getXlsModuleNode() {

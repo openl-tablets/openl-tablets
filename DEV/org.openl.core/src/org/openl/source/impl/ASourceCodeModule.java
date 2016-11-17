@@ -45,7 +45,7 @@ public abstract class ASourceCodeModule implements IOpenSourceCodeModule {
         return 0;
     }
 
-    public synchronized String getUri(int textpos) {
+    public synchronized String getUri() {
 
         if (uri == null) {
             uri = makeUri();

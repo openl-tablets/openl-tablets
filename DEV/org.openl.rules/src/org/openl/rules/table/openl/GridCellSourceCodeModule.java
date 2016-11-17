@@ -116,10 +116,6 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule {
         uri = table.getUri(column, row);
     }
 
-    public String getUri(int textpos) {
-        return getUri();
-    }
-
     public Map<String, Object> getParams() {
         return params;
     }

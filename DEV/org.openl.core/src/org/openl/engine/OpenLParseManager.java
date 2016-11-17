@@ -73,7 +73,7 @@ public class OpenLParseManager extends OpenLHolder {
      */
     private IParsedCode getInvalidCode(IOpenSourceCodeModule source) {
 
-        String message = String.format("Invalid source type: %s", source.getUri(0));
+        String message = String.format("Invalid source type: %s", source.getUri());
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, source);
 
         OpenLMessagesUtils.addError(error);

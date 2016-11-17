@@ -23,7 +23,6 @@ import org.openl.rules.dt.index.ARuleIndex;
 import org.openl.rules.dt.index.RangeIndex;
 import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.IBaseCondition;
-import org.openl.rules.dt.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.rules.helpers.IntRange;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
@@ -60,7 +59,7 @@ public class RangeIndexedEvaluator extends AConditionEvaluator implements ICondi
             cparams[0].getName(),
             conditionSource.getCode());
 
-        return new StringSourceCodeModule(code, conditionSource.getUri(0));
+        return new StringSourceCodeModule(code, conditionSource.getUri());
     }
 
     public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {

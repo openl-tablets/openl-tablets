@@ -46,7 +46,7 @@ public class EqualsIndexedEvaluator extends AConditionEvaluator implements ICond
     public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
         IOpenSourceCodeModule condSource = condition.getSourceCodeModule();
         return new StringSourceCodeModule("(" + condSource.getCode() + ") == " + condition.getParams()[0].getName(),
-            condSource.getUri(0));
+            condSource.getUri());
     }
 
     public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {

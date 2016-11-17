@@ -74,7 +74,7 @@ public class XmlRulesParser extends BaseParser {
         try {
             // TODO Check the cases when source can be UrlSourceCodeModule or
             // another one.
-            File projectFolder = new File(new File(new URI(source.getUri(0))).getParent());
+            File projectFolder = new File(new File(new URI(source.getUri())).getParent());
 
             return new XlsWorkbookSourceCodeModule(source,
                 new LazyXmlRulesWorkbookLoader(projectFolder, extensionModule));
@@ -140,7 +140,7 @@ public class XmlRulesParser extends BaseParser {
     public IParsedCode parseAsModule(IOpenSourceCodeModule source) {
         XmlRulesModuleSourceCodeModule sourceCodeModule = (XmlRulesModuleSourceCodeModule) source;
         XmlRulesModule openlModule = sourceCodeModule.getModule();
-        ZipFileXmlDeserializer zipFileXmlDeserializer = new ZipFileXmlDeserializer(source.getUri(0));
+        ZipFileXmlDeserializer zipFileXmlDeserializer = new ZipFileXmlDeserializer(source.getUri());
         ExtensionModule module = zipFileXmlDeserializer.deserialize();
 
         ISyntaxNode syntaxNode = null;
@@ -167,7 +167,7 @@ public class XmlRulesParser extends BaseParser {
                 log.error(e.getMessage(), e);
             }
             String message = String.format("Failed to open extension module: %s. Reason: %s",
-                source.getUri(0),
+                source.getUri(),
                 e.getMessage());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, null);
             errors.add(error);

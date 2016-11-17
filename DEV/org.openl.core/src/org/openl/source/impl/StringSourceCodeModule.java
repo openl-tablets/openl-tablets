@@ -46,7 +46,7 @@ public class StringSourceCodeModule implements IOpenSourceCodeModule {
         return 0;
     }
 
-    public String getUri(int textpos) {
+    public String getUri() {
         return uri;
     }
 

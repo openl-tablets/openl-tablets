@@ -69,21 +69,13 @@ public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
         return 0;
     }
 
-    public String getUri(int textpos) {
-        int relPos = textpos;
-        int sum = 0;
-        int pos = -1;
-
+    public String getUri() {
         for (int i = 0; i < modulesCount.length; i++) {
-            if (sum + modulesCount[i] > textpos) {
-                pos = i;
-                relPos = textpos - sum;
-                break;
+            if (modulesCount[i] > 0) {
+                return  modules[i].getUri();
             }
-            sum += modulesCount[i];
         }
-
-        return pos < 0 ? null : modules[pos].getUri(relPos);
+        return null;
     }
 
     public Map<String, Object> getParams() {

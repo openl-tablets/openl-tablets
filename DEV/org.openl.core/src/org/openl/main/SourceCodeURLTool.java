@@ -31,11 +31,9 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
     static public String makeSourceLocationURL(ILocation location, IOpenSourceCodeModule module) {
         final Logger log = LoggerFactory.getLogger(SourceCodeURLTool.class);
 
-        if (module != null && StringUtils.isEmpty(module.getUri(0))) {
+        if (module != null && StringUtils.isEmpty(module.getUri())) {
             return StringUtils.EMPTY;
         }
-
-        int position = 0;
 
         int start = -1, end = -1;
 
@@ -59,7 +57,7 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
             return "NO_MODULE";
         }
 
-        String moduleUri = module.getUri(position);
+        String moduleUri = module.getUri();
 
         String suffix = moduleUri.indexOf(QSTART) < 0 ? QSTART : QSEP;
 

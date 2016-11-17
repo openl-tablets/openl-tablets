@@ -199,7 +199,7 @@ public class XlsLoader {
                     }
                 } else {
                     try {
-                        String newURL = PathTool.mergePath(sheetSource.getWorkbookSource().getUri(0), include);
+                        String newURL = PathTool.mergePath(sheetSource.getWorkbookSource().getUri(), include);
                         src = new URLSourceCodeModule(new URL(newURL));
                     } catch (Throwable t) {
                         registerIncludeError(tableSyntaxNode, table, i, include, t);
@@ -278,7 +278,7 @@ public class XlsLoader {
 
     private WorkbookSyntaxNode preprocessWorkbook(IOpenSourceCodeModule source) {
 
-        String uri = source.getUri(0);
+        String uri = source.getUri();
 
         if (preprocessedWorkBooks.contains(uri)) {
             return null;

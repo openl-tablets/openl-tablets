@@ -60,11 +60,7 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule {
     }
 
     public String getUri() {
-        return getUri(0);
-    }
-
-    public String getUri(int textpos) {
-        return workbookSource.getUri(0) + "?" + XlsURLConstants.SHEET + "=" + StringTool.encodeURL(getSheetName());
+        return workbookSource.getUri() + "?" + XlsURLConstants.SHEET + "=" + StringTool.encodeURL(getSheetName());
     }
 
     public XlsWorkbookSourceCodeModule getWorkbookSource() {
