@@ -82,6 +82,8 @@
                                                 <f:selectItem itemValue="local" itemLabel="Local" />
                                                 <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
                                                 <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
+                                                <f:selectItem itemValue="plain_db" itemLabel="Database (Plain JDBC)" />
+                                                <f:selectItem itemValue="plain_jndi" itemLabel="Database (Plain JNDI)" />
                                             </h:selectOneMenu>
                                             <h:outputText id="designRepositoryPathTitle"
                                                           value="#{designRepository.type == 'local' ? 'Directory' : 'URL'}:" />
@@ -129,8 +131,10 @@
                                                             <f:selectItem itemValue="local" itemLabel="Local" />
                                                             <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
                                                             <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
-                                                            <f:selectItem itemValue="db" itemLabel="Database (JDBC)" />
-                                                            <f:selectItem itemValue="jndi" itemLabel="Database (JNDI)" />
+                                                            <f:selectItem itemValue="db" itemLabel="Database (JCR over JDBC)" />
+                                                            <f:selectItem itemValue="jndi" itemLabel="Database (JCR over JNDI)" />
+                                                            <f:selectItem itemValue="plain_db" itemLabel="Database (Plain JDBC)" />
+                                                            <f:selectItem itemValue="plain_jndi" itemLabel="Database (Plain JNDI)" />
                                                         </h:selectOneMenu>
                                                         <h:outputText id="productionRepositoryPathTitle"
                                                                       value="#{repository.type == 'local' ? 'Directory' : 'URL'}:" />

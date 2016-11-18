@@ -7,7 +7,9 @@ public enum JcrType {
     RMI(org.openl.rules.repository.factories.RmiJackrabbitRepositoryFactory.class),
     WEBDAV(org.openl.rules.repository.factories.WebDavRepositoryFactory.class),
     DB(org.openl.rules.repository.factories.JdbcDBRepositoryFactory.class),
-    JNDI(org.openl.rules.repository.factories.JndiDBRepositoryFactory.class);
+    JNDI(org.openl.rules.repository.factories.JndiDBRepositoryFactory.class),
+    PLAIN_DB(org.openl.rules.repository.db.JdbcDBRepositoryFactory.class),
+    PLAIN_JNDI(org.openl.rules.repository.db.JndiDBRepositoryFactory.class);
 
     public static JcrType findByAccessType(String accessType) {
         for (JcrType jcrType : values()) {
