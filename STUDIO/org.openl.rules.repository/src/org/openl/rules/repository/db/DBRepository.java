@@ -24,10 +24,12 @@ public abstract class DBRepository implements Repository {
 
     @Override
     public List<FileData> list(String path) throws IOException {
+        Connection connection = null;
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
-            statement = getConnection().prepareStatement(DatabaseQueries.SELECT_ALL_METAINFO);
+            connection = getConnection();
+            statement = connection.prepareStatement(DatabaseQueries.SELECT_ALL_METAINFO);
             statement.setString(1, makePathPattern(path));
             rs = statement.executeQuery();
 
@@ -46,6 +48,7 @@ public abstract class DBRepository implements Repository {
         } finally {
             safeClose(rs);
             safeClose(statement);
+            safeClose(connection);
         }
     }
 
@@ -56,10 +59,12 @@ public abstract class DBRepository implements Repository {
 
     @Override
     public FileItem read(String name) throws IOException {
+        Connection connection = null;
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
-            statement = getConnection().prepareStatement(DatabaseQueries.READ_ACTUAL_FILE);
+            connection = getConnection();
+            statement = connection.prepareStatement(DatabaseQueries.READ_ACTUAL_FILE);
             statement.setString(1, name);
             rs = statement.executeQuery();
 
@@ -77,6 +82,7 @@ public abstract class DBRepository implements Repository {
         } finally {
             safeClose(rs);
             safeClose(statement);
+            safeClose(connection);
         }
     }
 
@@ -121,11 +127,13 @@ public abstract class DBRepository implements Repository {
 
     @Override
     public FileData copy(String srcName, FileData destData) throws IOException {
+        Connection connection = null;
         PreparedStatement statement = null;
         try {
             String newVersion = UUID.randomUUID().toString();
 
-            statement = getConnection().prepareStatement(DatabaseQueries.COPY_FILE);
+            connection = getConnection();
+            statement = connection.prepareStatement(DatabaseQueries.COPY_FILE);
             statement.setString(1, destData.getName());
             statement.setTimestamp(2, new Timestamp(new Date().getTime()));
             statement.setString(3, newVersion);
@@ -139,6 +147,7 @@ public abstract class DBRepository implements Repository {
             throw new IOException(e);
         } finally {
             safeClose(statement);
+            safeClose(connection);
         }
     }
 
@@ -162,21 +171,28 @@ public abstract class DBRepository implements Repository {
 
             timer.schedule(new TimerTask() {
                 private Long maxId = null;
+                private Long countId = null;
 
                 @Override
                 public void run() {
+                    Connection connection = null;
                     PreparedStatement statement = null;
                     ResultSet rs = null;
                     try {
-                        statement = getConnection().prepareStatement(DatabaseQueries.SELECT_MAX_ID);
+                        connection = getConnection();
+                        statement = connection.prepareStatement(DatabaseQueries.SELECT_MAX_ID);
                         rs = statement.executeQuery();
 
                         if (rs.next()) {
                             long newMaxId = rs.getLong("max_id");
+                            long newCountId = rs.getLong("count_id");
+
                             if (maxId == null) {
                                 maxId = newMaxId;
-                            } else if (newMaxId > maxId) {
+                                countId = newCountId;
+                            } else if (newMaxId != maxId || newCountId != countId) {
                                 maxId = newMaxId;
+                                countId = newCountId;
                                 callback.onChange();
                             }
                         }
@@ -188,18 +204,21 @@ public abstract class DBRepository implements Repository {
                     } finally {
                         safeClose(rs);
                         safeClose(statement);
+                        safeClose(connection);
                     }
                 }
-            }, 1000, 1000);
+            }, 1000, 10000);
         }
     }
 
     @Override
     public List<FileData> listHistory(String name) throws IOException {
+        Connection connection = null;
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
-            statement = getConnection().prepareStatement(DatabaseQueries.SELECT_ALL_HISTORY_METAINFO_FOR_FILE);
+            connection = getConnection();
+            statement = connection.prepareStatement(DatabaseQueries.SELECT_ALL_HISTORY_METAINFO_FOR_FILE);
             statement.setString(1, name);
             rs = statement.executeQuery();
 
@@ -218,6 +237,7 @@ public abstract class DBRepository implements Repository {
         } finally {
             safeClose(rs);
             safeClose(statement);
+            safeClose(connection);
         }
     }
 
@@ -228,10 +248,12 @@ public abstract class DBRepository implements Repository {
 
     @Override
     public FileItem readHistory(String name, String version) throws IOException {
+        Connection connection = null;
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
-            statement = getConnection().prepareStatement(DatabaseQueries.READ_HISTORIC_FILE);
+            connection = getConnection();
+            statement = connection.prepareStatement(DatabaseQueries.READ_HISTORIC_FILE);
             statement.setString(1, name);
             statement.setString(2, version);
             rs = statement.executeQuery();
@@ -250,15 +272,18 @@ public abstract class DBRepository implements Repository {
         } finally {
             safeClose(rs);
             safeClose(statement);
+            safeClose(connection);
         }
     }
 
     @Override
     public boolean deleteHistory(String name, String version) {
         if (version == null) {
+            Connection connection = null;
             PreparedStatement statement = null;
             try {
-                statement = getConnection().prepareStatement(DatabaseQueries.DELETE_ALL_HISTORY);
+                connection = getConnection();
+                statement = connection.prepareStatement(DatabaseQueries.DELETE_ALL_HISTORY);
                 statement.setString(1, name);
                 int rows = statement.executeUpdate();
 
@@ -272,11 +297,14 @@ public abstract class DBRepository implements Repository {
                 throw new IllegalStateException(e);
             } finally {
                 safeClose(statement);
+                safeClose(connection);
             }
         } else {
+            Connection connection = null;
             PreparedStatement statement = null;
             try {
-                statement = getConnection().prepareStatement(DatabaseQueries.DELETE_VERSION);
+                connection = getConnection();
+                statement = connection.prepareStatement(DatabaseQueries.DELETE_VERSION);
                 statement.setString(1, name);
                 statement.setString(2, version);
                 int rows = statement.executeUpdate();
@@ -291,6 +319,7 @@ public abstract class DBRepository implements Repository {
                 throw new IllegalStateException(e);
             } finally {
                 safeClose(statement);
+                safeClose(connection);
             }
         }
     }
@@ -301,11 +330,13 @@ public abstract class DBRepository implements Repository {
             return copy(srcName, destData);
         }
 
+        Connection connection = null;
         PreparedStatement statement = null;
         try {
             String newVersion = UUID.randomUUID().toString();
 
-            statement = getConnection().prepareStatement(DatabaseQueries.COPY_HISTORY);
+            connection = getConnection();
+            statement = connection.prepareStatement(DatabaseQueries.COPY_HISTORY);
             statement.setString(1, destData.getName());
             statement.setTimestamp(2, new Timestamp(new Date().getTime()));
             statement.setString(3, newVersion);
@@ -320,16 +351,19 @@ public abstract class DBRepository implements Repository {
             throw new IOException(e);
         } finally {
             safeClose(statement);
+            safeClose(connection);
         }
     }
 
-    protected abstract Connection getConnection();
+    protected abstract Connection getConnection() throws SQLException;
 
     private FileData getLatestVersionFileData(String name) throws IOException {
+        Connection connection = null;
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
-            statement = getConnection().prepareStatement(DatabaseQueries.READ_ACTUAL_FILE_METAINFO);
+            connection = getConnection();
+            statement = connection.prepareStatement(DatabaseQueries.READ_ACTUAL_FILE_METAINFO);
             statement.setString(1, name);
             rs = statement.executeQuery();
 
@@ -347,14 +381,17 @@ public abstract class DBRepository implements Repository {
         } finally {
             safeClose(rs);
             safeClose(statement);
+            safeClose(connection);
         }
     }
 
     private FileData getHistoryVersionFileData(String name, String version) throws IOException {
+        Connection connection = null;
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
-            statement = getConnection().prepareStatement(DatabaseQueries.READ_HISTORIC_FILE_METAINFO);
+            connection = getConnection();
+            statement = connection.prepareStatement(DatabaseQueries.READ_HISTORIC_FILE_METAINFO);
             statement.setString(1, name);
             statement.setString(2, version);
             rs = statement.executeQuery();
@@ -373,6 +410,7 @@ public abstract class DBRepository implements Repository {
         } finally {
             safeClose(rs);
             safeClose(statement);
+            safeClose(connection);
         }
     }
 
@@ -415,6 +453,16 @@ public abstract class DBRepository implements Repository {
         }
     }
 
+    protected void safeClose(Connection connection) {
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                log.warn("Unexpected sql failure", e);
+            }
+        }
+    }
+
     private String makePathPattern(String path) {
         return path.replace("$", "$$").replace("%", "$%") + "%";
     }
@@ -443,9 +491,11 @@ public abstract class DBRepository implements Repository {
     }
 
     private FileData insertFile(FileData data, InputStream stream) throws IOException {
+        Connection connection = null;
         PreparedStatement statement = null;
         try {
-            statement = getConnection().prepareStatement(DatabaseQueries.INSERT_FILE);
+            connection = getConnection();
+            statement = connection.prepareStatement(DatabaseQueries.INSERT_FILE);
 
             String version = UUID.randomUUID().toString();
 
@@ -470,6 +520,7 @@ public abstract class DBRepository implements Repository {
             throw new IOException(e);
         } finally {
             safeClose(statement);
+            safeClose(connection);
         }
     }
 }
