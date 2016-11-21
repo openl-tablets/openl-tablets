@@ -9,13 +9,15 @@ public class DTRuleTraceObject extends ATableTracerNode {
     protected boolean successful;
     private String conditionName;
     private final int[] rules;
+    private boolean indexed;
 
-    private DTRuleTraceObject(IBaseCondition condition, int[] rules, boolean successful) {
+    private DTRuleTraceObject(IBaseCondition condition, int[] rules, boolean successful, boolean indexed) {
         super("dtRule", null, null, null);
         this.condition = condition;
         this.successful = successful;
         this.conditionName = condition.getName();
         this.rules = rules;
+        this.indexed = indexed;
     }
 
     public String getConditionName() {
@@ -29,6 +31,10 @@ public class DTRuleTraceObject extends ATableTracerNode {
     public IBaseCondition getCondition() {
         return condition;
     }
+    
+    public boolean isIndexed() {
+        return indexed;
+    }
 
     public boolean isSuccessful() {
         return successful;
@@ -37,8 +43,10 @@ public class DTRuleTraceObject extends ATableTracerNode {
     static DTRuleTraceObject create(Object... args) {
         IBaseCondition condition = (IBaseCondition) args[0];
         int[] rules;
+        boolean indexed = false;
         if (args[1] instanceof DecisionTableRuleNode) {
             rules = ((DecisionTableRuleNode) args[1]).getRules();
+            indexed = ((DecisionTableRuleNode) args[1]).hasIndex();
         } else {
             rules = new int[] { ((Integer) args[1]) };
         }
@@ -47,6 +55,6 @@ public class DTRuleTraceObject extends ATableTracerNode {
             return null;
         }
         boolean arg = (Boolean) args[2];
-        return new DTRuleTraceObject(condition, rules, arg);
+        return new DTRuleTraceObject(condition, rules, arg, indexed);
     }
 }

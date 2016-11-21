@@ -113,8 +113,11 @@ public class TraceFormatter {
         for (int i = 0; i < ruleNames.length; i++) {
             ruleNames[i] = decisionTable.getRuleName(rules[i]);
         }
-
-        return String.format("Condition: %s, Rules: %s", dti.getConditionName(), Arrays.toString(ruleNames));
+        if (dti.isIndexed()){
+            return String.format("Indexed condition: %s, Rules: %s", dti.getConditionName(), Arrays.toString(ruleNames));
+        }else{
+            return String.format("Condition: %s, Rules: %s", dti.getConditionName(), Arrays.toString(ruleNames));
+        }
     }
 
     private static String getDisplayName(SpreadsheetTracerLeaf stl) {
