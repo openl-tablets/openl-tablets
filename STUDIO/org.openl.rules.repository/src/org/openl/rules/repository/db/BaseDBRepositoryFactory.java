@@ -1,6 +1,5 @@
 package org.openl.rules.repository.db;
 
-import java.io.IOException;
 import java.sql.*;
 
 import org.openl.rules.repository.RRepositoryFactory;
@@ -12,22 +11,11 @@ import org.slf4j.LoggerFactory;
 public abstract class BaseDBRepositoryFactory extends DBRepository implements RRepositoryFactory {
     private final Logger log = LoggerFactory.getLogger(JdbcDBRepositoryFactory.class);
 
-    protected final String uri;
-    protected final String login;
-    protected final String password;
-    private Connection connection;
-
-    public BaseDBRepositoryFactory(String uri, String login, String password) {
-        this.uri = uri;
-        this.login = login;
-        this.password = password;
-    }
-
     @Override
     public void initialize() throws RRepositoryException {
         registerDrivers();
-        Connection connection = createConnection(uri, login, password);
         try {
+            Connection connection = getConnection();
             DatabaseMetaData metaData = connection.getMetaData();
             DatabaseType databaseType = DatabaseType.fromString(metaData.getDatabaseProductName()
                     .toLowerCase()
@@ -37,10 +25,7 @@ public abstract class BaseDBRepositoryFactory extends DBRepository implements RR
         } catch (SQLException e) {
             throw new RRepositoryException("Can't initialize repository", e);
         }
-        this.connection = connection;
     }
-
-    protected abstract Connection createConnection(String url, String user, String password);
 
     private void registerDrivers() {
         // Defaults drivers
@@ -66,23 +51,6 @@ public abstract class BaseDBRepositoryFactory extends DBRepository implements RR
                 log.info("JDBC Driver: '{}' - OK.", driver);
             } catch (ClassNotFoundException e) {
                 log.info("JDBC Driver: '{}' - NOT FOUND.", driver);
-            }
-        }
-    }
-
-    @Override
-    protected Connection getConnection() {
-        return connection;
-    }
-
-    @Override
-    public void close() throws IOException {
-        super.close();
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                throw new IOException(e);
             }
         }
     }

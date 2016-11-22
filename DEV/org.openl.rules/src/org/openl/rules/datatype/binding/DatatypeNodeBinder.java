@@ -77,8 +77,8 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 			// Domain values are loaded as elements of array. We are create one
 			// more type for it - array with appropriate type of elements.
 			//
-			IOpenSourceCodeModule aliasTypeSource = new StringSourceCodeModule(type, tableSource.getUri(0));
-			IOpenSourceCodeModule arrayAliasTypeSource = new StringSourceCodeModule(type + "[]", tableSource.getUri(0));
+			IOpenSourceCodeModule aliasTypeSource = new StringSourceCodeModule(type, tableSource.getUri());
+			IOpenSourceCodeModule arrayAliasTypeSource = new StringSourceCodeModule(type + "[]", tableSource.getUri());
 			
 			// Create appropriate OpenL class for type definition.
 			//

@@ -93,12 +93,12 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator {
     }
 
     public String getDisplayName() {
-        String uri = StringTool.decodeURL(src.getUri(0));
+        String uri = StringTool.decodeURL(src.getUri());
         return FileUtils.getName(uri);
     }
 
     public String getUri() {
-        return src.getUri(0);
+        return src.getUri();
     }
 
     public Workbook getWorkbook() {

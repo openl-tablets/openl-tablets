@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.admin;
 
+import java.io.File;
 import java.math.BigInteger;
 import java.util.Comparator;
 import java.util.Map;
@@ -208,7 +209,7 @@ public class RepositoryConfiguration {
         String type = repositoryType == RepositoryType.DESIGN ? "design" : "deployment";
         switch (jcrType) {
             case LOCAL:
-                return defaultLocalUri != null ? defaultLocalUri : "../" + type + "-repository";
+                return defaultLocalUri != null ? defaultLocalUri : System.getProperty("webstudio.home") + File.separator + type + "-repository";
             case RMI:
                 return "//localhost:1099/" + type + "-repository";
             case WEBDAV:

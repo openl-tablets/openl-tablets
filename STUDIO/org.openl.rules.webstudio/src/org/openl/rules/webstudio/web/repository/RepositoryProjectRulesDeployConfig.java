@@ -21,6 +21,8 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -120,7 +122,8 @@ public class RepositoryProjectRulesDeployConfig {
 
     private SupportedVersion getSupportedVersion(UserWorkspaceProject project) {
         if (project.getRepository() instanceof LocalRepository) {
-            return rulesDeploySerializerFactory.getSupportedVersion(((LocalRepository) project.getRepository()).getLocation());
+            File projectFolder = new File(((LocalRepository) project.getRepository()).getLocation(), project.getFolderPath());
+            return rulesDeploySerializerFactory.getSupportedVersion(projectFolder);
         }
         return SupportedVersion.getLastVersion();
     }
@@ -175,5 +178,17 @@ public class RepositoryProjectRulesDeployConfig {
 
     public boolean isPublishersSupported() {
         return getSupportedVersion().compareTo(SupportedVersion.V5_14) >= 0;
+    }
+
+    public boolean isAnnotationTemplateClassNameSupported() {
+        return getSupportedVersion().compareTo(SupportedVersion.V5_16) >= 0;
+    }
+
+    public boolean isRmiServiceClassSupported() {
+        return getSupportedVersion().compareTo(SupportedVersion.V5_16) >= 0;
+    }
+
+    public boolean isGroupsSupported() {
+        return getSupportedVersion().compareTo(SupportedVersion.V5_17) >= 0;
     }
 }

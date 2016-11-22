@@ -48,7 +48,7 @@ public class GridTableSourceCodeModule implements IOpenSourceCodeModule {
         return 0;
     }
 
-    public String getUri(int textpos) {
+    public String getUri() {
         return table.getUri();
     }
 

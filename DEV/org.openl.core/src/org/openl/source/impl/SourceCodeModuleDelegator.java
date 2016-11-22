@@ -31,8 +31,8 @@ public class SourceCodeModuleDelegator implements IOpenSourceCodeModule {
         return src.getStartPosition();
     }
 
-    public String getUri(int textpos) {
-        return src.getUri(textpos);
+    public String getUri() {
+        return src.getUri();
     }
 
     public Map<String, Object> getParams() {

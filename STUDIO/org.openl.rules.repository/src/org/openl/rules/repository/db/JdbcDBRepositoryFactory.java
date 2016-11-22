@@ -5,17 +5,18 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class JdbcDBRepositoryFactory extends BaseDBRepositoryFactory {
+    protected final String uri;
+    protected final String login;
+    protected final String password;
 
     public JdbcDBRepositoryFactory(String uri, String login, String password, boolean designMode) {
-        super(uri, login, password);
+        this.uri = uri;
+        this.login = login;
+        this.password = password;
     }
 
     @Override
-    protected Connection createConnection(String url, String user, String password) {
-        try {
-            return DriverManager.getConnection(url, user, password);
-        } catch (SQLException e) {
-            throw new IllegalStateException("Cannot create a connection to [ " + url + " ] URL", e);
-        }
+    protected Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(uri, login, password);
     }
 }

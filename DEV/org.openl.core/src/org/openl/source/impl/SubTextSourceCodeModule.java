@@ -64,8 +64,8 @@ public class SubTextSourceCodeModule implements IOpenSourceCodeModule {
         return baseModule;
     }
 
-    public String getUri(int textpos) {
-        return baseModule.getUri(textpos + startPosition);
+    public String getUri() {
+        return baseModule.getUri();
     }
 
     public Map<String, Object> getParams() {

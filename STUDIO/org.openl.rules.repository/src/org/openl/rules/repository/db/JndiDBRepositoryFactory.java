@@ -1,26 +1,30 @@
 package org.openl.rules.repository.db;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-public class JndiDBRepositoryFactory extends BaseDBRepositoryFactory {
-    public JndiDBRepositoryFactory(String uri, String login, String password) {
-        super(uri, login, password);
-    }
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-    @Override
-    protected Connection createConnection(String url, String user, String password) {
+public class JndiDBRepositoryFactory extends DatasourceDBRepositoryFactory {
+    public JndiDBRepositoryFactory(String uri, String login, String password) {
+        super(null, login, password);
+        InitialContext initialContext = null;
         try {
-            DataSource datasource = (DataSource) new InitialContext().lookup(url);
-            return datasource.getConnection();
+            initialContext = new InitialContext();
+            this.dataSource = (DataSource) initialContext.lookup(uri);
         } catch (NamingException e) {
-            throw new IllegalStateException("Cannot determine JNDI [ " + url + " ] name", e);
-        } catch (SQLException e) {
-            throw new IllegalStateException("Cannot create a connection using JNDI [ " + url + " ] name", e);
+            throw new IllegalStateException("Cannot determine JNDI [ " + uri + " ] name", e);
+        } finally {
+            if (initialContext != null) {
+                try {
+                    initialContext.close();
+                } catch (NamingException e) {
+                    Logger log = LoggerFactory.getLogger(JndiDBRepositoryFactory.class);
+                    log.error(e.getMessage(), e);
+                }
+            }
         }
     }
 }

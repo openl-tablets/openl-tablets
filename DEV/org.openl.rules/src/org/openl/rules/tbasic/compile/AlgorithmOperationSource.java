@@ -48,6 +48,6 @@ public class AlgorithmOperationSource {
     }
 
     public String getSourceUri() {
-        return sourceNode.getAlgorithmRow().getOperation().asSourceCodeModule().getUri(0);
+        return sourceNode.getAlgorithmRow().getOperation().asSourceCodeModule().getUri();
     }
 }

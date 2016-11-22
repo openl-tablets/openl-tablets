@@ -83,7 +83,7 @@ public abstract class XlsHelper {
     
     public static String getModuleName(XlsModuleSyntaxNode node) {
 
-        String uri = node.getModule().getUri(0);
+        String uri = node.getModule().getUri();
 
         try {
             URL url = new URL(uri);

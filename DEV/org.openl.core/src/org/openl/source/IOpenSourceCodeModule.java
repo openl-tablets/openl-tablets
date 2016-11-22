@@ -23,7 +23,7 @@ public interface IOpenSourceCodeModule {
 
     int getStartPosition();
 
-    String getUri(int textpos);
+    String getUri();
 
     boolean isModified();
 
