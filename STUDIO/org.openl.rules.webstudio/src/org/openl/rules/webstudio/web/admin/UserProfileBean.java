@@ -52,8 +52,8 @@ public class UserProfileBean extends UsersBean {
      * @return org.openl.rules.security.User
      */
     public User getUser() {
-        setUsername(currentUserInfo.getUser().getUsername());
-        user = userManagementService.loadUserByUsername(currentUserInfo.getUser().getUsername());
+        setUsername(currentUserInfo.getUserName());
+        user = userManagementService.loadUserByUsername(currentUserInfo.getUserName());
         setFirstName(user.getFirstName());
         setLastName(user.getLastName());
         setCurrentPassword(user.getPassword());

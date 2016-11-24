@@ -13,14 +13,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class CurrentUserInfo {
     /**
      * Currently logged in user.
-     *
-     * @return userInfo
      */
-    public UserDetails getUser() {
+    public String getUserName() {
         SecurityContext ctx = SecurityContextHolder.getContext();
         if (ctx == null || ctx.getAuthentication() == null) {
             return null;
         }
-        return (UserDetails) ctx.getAuthentication().getPrincipal();
+
+        return ctx.getAuthentication().getName();
     }
 }

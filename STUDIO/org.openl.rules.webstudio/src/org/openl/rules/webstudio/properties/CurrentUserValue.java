@@ -14,8 +14,7 @@ public class CurrentUserValue implements ISystemValue {
 
     public Object getValue() {
         CurrentUserInfo usInfo = new CurrentUserInfo();
-        UserDetails usDet = usInfo.getUser();        
-        return usDet.getUsername();
+        return usInfo.getUserName();
     }
 
 }

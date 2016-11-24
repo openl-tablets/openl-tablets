@@ -37,8 +37,8 @@ public abstract class WebStudioUtils {
         if (rulesUserSession == null && create) {
             rulesUserSession = new RulesUserSession();
 
-            rulesUserSession.setUser(((CurrentUserInfo) WebApplicationContextUtils
-                    .getWebApplicationContext(session.getServletContext()).getBean("currentUserInfo")).getUser());
+            rulesUserSession.setUserName(((CurrentUserInfo) WebApplicationContextUtils
+                    .getWebApplicationContext(session.getServletContext()).getBean("currentUserInfo")).getUserName());
             rulesUserSession.setWorkspaceManager((MultiUserWorkspaceManager) WebApplicationContextUtils
                     .getWebApplicationContext(session.getServletContext()).getBean("workspaceManager"));
             session.setAttribute(Constants.RULES_USER_SESSION, rulesUserSession);

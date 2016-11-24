@@ -10,17 +10,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 public class RulesUserSession {
 
-    private UserDetails user;
+    private String userName;
 
     private UserWorkspace userWorkspace;
 
     private MultiUserWorkspaceManager workspaceManager;
 
     public String getUserName() {
-        if (user == null) {
-            return null;
-        }
-        return user.getUsername();
+        return userName;
     }
 
     public synchronized UserWorkspace getUserWorkspace() throws WorkspaceException, ProjectException {
@@ -50,8 +47,8 @@ public class RulesUserSession {
         userWorkspace.passivate();
     }
 
-    public void setUser(UserDetails user) {
-        this.user = user;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public void setWorkspaceManager(MultiUserWorkspaceManager workspaceManager) {
