@@ -105,6 +105,7 @@
                                     <td><label>Password</label></td>
                                     <td>
                                         <h:inputSecret id="dbPassword" value="#{installWizard.dbPassword}" size="40"
+                                                       redisplay="true"
                                                        binding="#{installWizard.dbPasswordInput}"
                                                        validator="#{installWizard.dbValidator}"/>
                                     </td>

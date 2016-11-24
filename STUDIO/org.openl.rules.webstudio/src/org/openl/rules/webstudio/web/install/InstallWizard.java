@@ -28,7 +28,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
-import javax.servlet.ServletContext;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -78,7 +77,6 @@ public class InstallWizard {
     private ConfigurationManager appConfig;
     private ConfigurationManager systemConfig;
     private ConfigurationManager dbConfig;
-    private ConfigurationManager externalDBConfig;
 
     private DBUtils dbUtils;
 
@@ -95,8 +93,6 @@ public class InstallWizard {
                 System.getProperty("webapp.root") + "/WEB-INF/conf/config.properties");
         workingDir = appConfig.getPath("webstudio.home");
 
-        externalDBConfig = new ConfigurationManager(true,
-                System.getProperty("webapp.root") + "/WEB-INF/conf/db/db-mysql.properties");
         dbUtils = new DBUtils();
     }
 
@@ -127,8 +123,8 @@ public class InstallWizard {
         }
 
         // Go to next step
-        if (++step == 2) {
-
+        ++step;
+        if (step == 2) {
             workingDir = ConfigurationManager.normalizePath(workingDir);
 
             // Get defaults from 'system.properties'
@@ -150,13 +146,75 @@ public class InstallWizard {
                 appMode = innerDb ? "demo" : "production";
 
             }
+        } else if (step == 3) {
+            readDbProperties();
         }
         return PAGE_PREFIX + step + PAGE_POSTFIX;
+    }
+
+    private void readDbProperties() {
+        String propsLocation = workingDir + "/system-settings/db.properties";
+        ConfigurationManager savedConfig = new ConfigurationManager(false, propsLocation);
+
+        String url = savedConfig.getStringProperty("db.url");
+
+        if (StringUtils.isNotEmpty(url)) {
+            String dbUrlSeparator = savedConfig.getStringProperty("db.url.separator");
+            dbUrl = url.split(dbUrlSeparator)[1];
+            dbPrefix = url.split(dbUrlSeparator)[0] + dbUrlSeparator;
+            dbUsername = savedConfig.getStringProperty("db.user");
+            dbPassword = savedConfig.getStringProperty("db.password");
+            dbDriver = savedConfig.getStringProperty("db.driver");
+
+            String propertyFilePathForVendor = getPropertyFilePathForVendor(dbDriver);
+            dbVendor = propertyFilePathForVendor;
+
+            // For Oracle database schema is a username
+            if (StringUtils.containsIgnoreCase(propertyFilePathForVendor, "oracle")) {
+                ConfigurationManager externalDBConfig = new ConfigurationManager(false, propertyFilePathForVendor);
+                dbSchema = externalDBConfig.getStringProperty("db.username");
+            } else {
+                dbSchema = null;
+            }
+        } else {
+            dbUrl = null;
+            dbPrefix = null;
+            dbUsername = null;
+            dbPassword = null;
+            dbDriver = null;
+            dbVendor = null;
+            dbSchema = null;
+        }
+    }
+
+    private String getPropertyFilePathForVendor(String dbDriver) {
+        for (File propFile : getDBPropertiesFiles()) {
+            InputStream is = null;
+            Properties dbProps = new Properties();
+            try {
+                is = new FileInputStream(propFile);
+                dbProps.load(is);
+                is.close();
+
+                if (dbDriver.equals(dbProps.getProperty("db.driver"))) {
+                    return System.getProperty("webapp.root") + "/WEB-INF/conf/db/" + propFile.getName();
+                }
+
+            } catch (FileNotFoundException e) {
+                log.error("The file {} not found", propFile.getAbsolutePath(), e);
+            } catch (IOException e) {
+                log.error("Error while loading file {}", propFile.getAbsolutePath(), e);
+            } finally {
+                IOUtils.closeQuietly(is);
+            }
+        }
+        return dbConfig.getStringProperty("db.vendor");
     }
 
     public String finish() {
         try {
             if (MULTI_USER_MODE.equals(userMode) && appMode.equals("production")) {
+                ConfigurationManager externalDBConfig = new ConfigurationManager(false, dbVendor);
                 dbConfig.setProperty("db.url", dbPrefix + dbUrl);
                 dbConfig.setProperty("db.user", dbUsername);
                 dbConfig.setProperty("db.password", dbPassword);
@@ -398,7 +456,7 @@ public class InstallWizard {
 
         if (uiInput.getLocalValue() != null) {
             String propertyFilePath = uiInput.getValue().toString();
-            externalDBConfig = new ConfigurationManager(false, propertyFilePath);
+            ConfigurationManager externalDBConfig = new ConfigurationManager(false, propertyFilePath);
 
             String url = externalDBConfig.getStringProperty("db.url");
 
@@ -412,10 +470,11 @@ public class InstallWizard {
                 setDbUrl(dbUrl);
                 setDbUsername(dbLogin);
                 setDbDriver(dbDriver);
+                setDbVendor(propertyFilePath);
                 this.dbPrefix = prefix;
 
                 // For Oracle database schema is a username
-                if (StringUtils.containsIgnoreCase(dbVendor, "oracle")) {
+                if (StringUtils.containsIgnoreCase(propertyFilePath, "oracle")) {
                     this.dbSchema = externalDBConfig.getStringProperty("db.username");
                 }
             }
@@ -456,10 +515,6 @@ public class InstallWizard {
     public void appmodeChanged(AjaxBehaviorEvent e) {
         UIInput uiInput = (UIInput) e.getComponent();
         appMode = uiInput.getValue().toString();
-    }
-
-    public ConfigurationManager getExternalDBConfig() {
-        return externalDBConfig;
     }
 
     public int getStep() {
@@ -574,10 +629,6 @@ public class InstallWizard {
 
     public void setDbVendor(String dbVendor) {
         this.dbVendor = dbVendor;
-    }
-
-    public void setExternalDBConfig(ConfigurationManager externalDBConfig) {
-        this.externalDBConfig = externalDBConfig;
     }
 
     public String getDbSchema() {
