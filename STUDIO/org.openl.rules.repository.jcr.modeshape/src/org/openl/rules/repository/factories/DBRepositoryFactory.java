@@ -82,7 +82,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         RepositoryConfiguration config = getModeshapeConfiguration(dbUrl, user, pwd, repoID, properties, namesCase);
 
         log.info("Checking ModeShape configuration...");
-        ModeshapeJcrRepo repo = new ModeshapeJcrRepo(config);
+        repo = new ModeshapeJcrRepo(config);
 
         String repoName = config.getName();
         log.info("Starting ModeShape repository [{}]...", repoName);
