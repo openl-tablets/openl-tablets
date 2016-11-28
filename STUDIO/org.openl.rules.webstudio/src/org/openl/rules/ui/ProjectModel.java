@@ -47,6 +47,7 @@ import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
+import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
@@ -579,7 +580,9 @@ public class ProjectModel {
         WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
         if (workbookNodes != null) {
             for (WorkbookSyntaxNode node : workbookNodes) {
-                if (node.getWorkbookSourceCodeModule().isModified()) {
+                XlsWorkbookSourceCodeModule workbookSourceCodeModule = node.getWorkbookSourceCodeModule();
+                if (workbookSourceCodeModule.isModified()) {
+                    getLocalRepository().notifyModified(workbookSourceCodeModule.getSourceFile().getPath());
                     return true;
                 }
             }
@@ -758,6 +761,8 @@ public class ProjectModel {
     private void initProjectHistory() {
         WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
         if (workbookNodes != null) {
+            LocalRepository repository = getLocalRepository();
+
             for (WorkbookSyntaxNode workbookSyntaxNode : workbookNodes) {
                 XlsWorkbookSourceCodeModule sourceCodeModule = workbookSyntaxNode.getWorkbookSourceCodeModule();
 
@@ -770,9 +775,14 @@ public class ProjectModel {
 
                 XlsWorkbookListener historyListener = new XlsWorkbookSourceHistoryListener(getHistoryManager());
                 sourceCodeModule.addListener(historyListener);
-                sourceCodeModule.addListener(new XlsModificationListener());
+                sourceCodeModule.addListener(new XlsModificationListener(repository));
             }
         }
+    }
+
+    private LocalRepository getLocalRepository() {
+        UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(FacesUtils.getSession());
+        return userWorkspace.getLocalWorkspace().getRepository();
     }
 
     public TableSyntaxNode[] getTableSyntaxNodes() {
@@ -1397,6 +1407,13 @@ public class ProjectModel {
     }
 
     private static class XlsModificationListener implements XlsWorkbookListener {
+
+        private final LocalRepository repository;
+
+        private XlsModificationListener(LocalRepository repository) {
+            this.repository = repository;
+        }
+
         @Override
         public void beforeSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
 
@@ -1404,8 +1421,7 @@ public class ProjectModel {
 
         @Override
         public void afterSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
-            UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(FacesUtils.getSession());
-            userWorkspace.getLocalWorkspace().getRepository().notifyModified(workbookSourceCodeModule.getSourceFile().getPath());
+            repository.notifyModified(workbookSourceCodeModule.getSourceFile().getPath());
         }
     }
 }
