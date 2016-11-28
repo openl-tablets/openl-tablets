@@ -50,7 +50,7 @@ public class LocalRepository implements Repository, FolderRepository {
     @Override
     public FileData check(String name) throws IOException {
         File file = new File(location, name);
-        return createFileData(file);
+        return file.exists() ? createFileData(file) : null;
     }
 
     @Override
