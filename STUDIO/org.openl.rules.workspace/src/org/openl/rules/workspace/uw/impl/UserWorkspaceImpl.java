@@ -204,7 +204,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         refreshDeploymentProjects();
     }
 
-    protected void refreshDeploymentProjects() throws ProjectException {
+    private void refreshDeploymentProjects() throws ProjectException {
         List<ADeploymentProject> dtrProjects = designTimeRepository.getDDProjects();
 
         synchronized (userDProjects) {
@@ -237,7 +237,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         }
     }
 
-    protected void refreshRulesProjects() throws RepositoryException {
+    private void refreshRulesProjects() throws RepositoryException {
         localWorkspace.refresh();
 
         synchronized (userRulesProjects) {
