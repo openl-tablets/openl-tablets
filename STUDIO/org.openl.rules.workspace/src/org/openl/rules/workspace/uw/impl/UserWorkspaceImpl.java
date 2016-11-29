@@ -64,8 +64,12 @@ public class UserWorkspaceImpl implements UserWorkspace {
         try {
             designTimeRepository.copyProject(project, name, user, resourceTransformer);
         } catch (ProjectException e) {
-            if (designTimeRepository.hasProject(name)) {
-                designTimeRepository.getProject(name).erase();
+            try {
+                if (designTimeRepository.hasProject(name)) {
+                    designTimeRepository.getProject(name).erase();
+                }
+            } catch (ProjectException e1) {
+                log.error(e1.getMessage(), e1);
             }
             throw e;
         } finally {
@@ -334,8 +338,12 @@ public class UserWorkspaceImpl implements UserWorkspace {
             createdProject.update(localWorkspace.getProject(name), user);
             refreshRulesProjects();
         } catch (ProjectException e) {
-            if (designTimeRepository.hasProject(name)) {
-                designTimeRepository.getProject(name).erase();
+            try {
+                if (designTimeRepository.hasProject(name)) {
+                    designTimeRepository.getProject(name).erase();
+                }
+            } catch (ProjectException e1) {
+                log.error(e1.getMessage(), e1);
             }
             throw e;
         }
