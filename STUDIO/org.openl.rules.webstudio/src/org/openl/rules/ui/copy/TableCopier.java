@@ -24,6 +24,7 @@ import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.ui.TableSyntaxNodeUtils;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tablewizard.PropertiesBean;
 import org.openl.rules.ui.tablewizard.TableCreationWizard;
@@ -262,7 +263,13 @@ public class TableCopier extends TableCreationWizard {
 
     private void initTableName() {
         if (table != null) {
-            tableTechnicalName = table.getName();
+            String name = table.getName();
+            if (StringUtils.isEmpty(name)) {
+                // If table contains errors, it will not contain compiled name. Try to parse table header instead.
+                String methodHeader = table.getGridTable().getCell(0, 0).getStringValue();
+                name = TableSyntaxNodeUtils.str2name(methodHeader, XlsNodeTypes.getEnumByValue(table.getType()));
+            }
+            tableTechnicalName = name;
         }
     }
 
