@@ -181,11 +181,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 return true;
             }
         }
-        if (designTimeRepository.hasDDProject(name)) {
-            return true;
-        }
-
-        return false;
+        return designTimeRepository.hasDDProject(name);
     }
 
     public boolean hasProject(String name) {
@@ -194,14 +190,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 return true;
             }
         }
-        if (localWorkspace.hasProject(name)) {
-            return true;
-        }
-        if (designTimeRepository.hasProject(name)) {
-            return true;
-        }
-
-        return false;
+        return localWorkspace.hasProject(name) || designTimeRepository.hasProject(name);
     }
 
     public void passivate() {
