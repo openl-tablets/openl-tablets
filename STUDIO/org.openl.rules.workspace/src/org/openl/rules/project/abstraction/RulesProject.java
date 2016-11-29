@@ -167,12 +167,14 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public int getVersionsCount() {
-        try{
-        if (designFolderName != null) {
-            return designRepository.listHistory(designFolderName).size();
-        } else {
-            return localRepository.listHistory(localFolderName).size();
-        }} catch (IOException ex) {
+        try {
+            if (designFolderName != null) {
+                return designRepository.listHistory(designFolderName).size();
+            } else {
+                // Local repository doesn't have versions
+                return 0;
+            }
+        } catch (IOException ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         }
     }

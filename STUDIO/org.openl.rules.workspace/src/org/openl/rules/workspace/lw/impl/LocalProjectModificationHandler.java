@@ -58,6 +58,11 @@ public class LocalProjectModificationHandler implements ModificationHandler {
         }
     }
 
+    @Override
+    public boolean isMarkerFile(String name) {
+        return name.endsWith("/" + MARKER_FILE_NAME);
+    }
+
     private File getMarkerFile(String path) {
         if (!new File(path).isAbsolute()) {
             path = path.replace(File.separatorChar, '/');
