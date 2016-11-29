@@ -47,7 +47,7 @@ public class LocalRepository extends FileRepository implements FolderRepository 
     @Override
     public FileData save(FileData data, InputStream stream) throws IOException {
         FileData fileData = super.save(data, stream);
-        modificationHandler.notifyModified(data.getName());
+        notifyModified(data.getName());
         return fileData;
     }
 
@@ -55,7 +55,7 @@ public class LocalRepository extends FileRepository implements FolderRepository 
     public boolean delete(String name) {
         boolean deleted = super.delete(name);
         if (deleted) {
-            modificationHandler.notifyModified(name);
+            notifyModified(name);
         }
         return deleted;
     }
@@ -63,19 +63,20 @@ public class LocalRepository extends FileRepository implements FolderRepository 
     @Override
     public FileData copy(String srcPath, FileData destData) throws IOException {
         FileData fileData = super.copy(srcPath, destData);
-        modificationHandler.notifyModified(destData.getName());
+        notifyModified(destData.getName());
         return fileData;
     }
 
     @Override
     public FileData rename(String path, FileData destData) throws IOException {
         FileData fileData = super.rename(path, destData);
-        modificationHandler.notifyModified(destData.getName());
+        notifyModified(destData.getName());
         return fileData;
     }
 
     public void notifyModified(String path) {
         modificationHandler.notifyModified(path);
+        // TODO Invoke listener
     }
 
     public void clearModifyStatus(String path) {
