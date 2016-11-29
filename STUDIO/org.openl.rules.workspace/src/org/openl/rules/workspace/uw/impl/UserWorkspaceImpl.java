@@ -1,7 +1,8 @@
 package org.openl.rules.workspace.uw.impl;
 
+import java.util.*;
+
 import org.openl.rules.common.ArtefactPath;
-import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.impl.local.LocalRepository;
@@ -14,8 +15,6 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 public class UserWorkspaceImpl implements UserWorkspace {
     private final Logger log = LoggerFactory.getLogger(UserWorkspaceImpl.class);
@@ -103,11 +102,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
             throw new ProjectException("Cannot find deployment project ''{0}''", null, name);
         }
         return deploymentProject;
-    }
-
-    protected ADeploymentProject getDDProjectFor(ADeploymentProject deploymentProject, CommonVersion version)
-            throws ProjectException {
-        return designTimeRepository.getDDProject(deploymentProject.getName(), version);
     }
 
     public List<ADeploymentProject> getDDProjects() throws ProjectException {
