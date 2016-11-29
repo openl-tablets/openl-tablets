@@ -832,13 +832,6 @@ public class WebStudio {
         userSettingsManager.setProperty("project.dependency.modules.single", singleModuleModeByDefault);
     }
 
-    public String getModuleId(Module module) {
-        if (module != null) {
-            return module.getProject().getName() + " - " + module.getName();
-        }
-        return null;
-    }
-
     public void setNeedRestart(boolean needRestart) {
         this.needRestart = needRestart;
     }
