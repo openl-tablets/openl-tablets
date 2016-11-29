@@ -74,31 +74,46 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     public void close(CommonUser user) throws ProjectException {
-        if (localFolderName != null) {
-            if (!localRepository.delete(localFolderName)) {
-                throw new ProjectException("Can't close project because some resources are used");
+        try {
+            if (localFolderName != null) {
+                deleteFromLocalRepository();
             }
+            if (isLockedByUser(user)) {
+                unlock(user);
+            }
+            if (!isLocalOnly()) {
+                setRepository(designRepository);
+                setFolderPath(designFolderName);
+            }
+        } finally {
+            refresh();
         }
-        if (isLockedByUser(user)) {
-            unlock(user);
+    }
+
+    private void deleteFromLocalRepository() throws ProjectException {
+        try {
+            for (FileData fileData : localRepository.list(localFolderName)) {
+                if (!localRepository.delete(fileData.getName())) {
+                    throw new ProjectException("Can't close project because some resources are used");
+                }
+            }
+        } catch (IOException e) {
+            throw new ProjectException("Not possible to read the directory", e);
         }
-        if (!isLocalOnly()) {
-            setRepository(designRepository);
-            setFolderPath(designFolderName);
-        }
-        refresh();
     }
 
     @Override
     public void erase() throws ProjectException {
-        if (designFolderName != null) {
-            if (!designRepository.deleteHistory(designFolderName, null)) {
-                throw new ProjectException("Can't erase project because it is absent or can't be deleted");
+        try {
+            if (designFolderName != null) {
+                if (!designRepository.deleteHistory(designFolderName, null)) {
+                    throw new ProjectException("Can't erase project because it is absent or can't be deleted");
+                }
+            } else {
+                deleteFromLocalRepository();
             }
-        } else {
-            if (!localRepository.delete(localFolderName)) {
-                throw new ProjectException("Can't erase project because some resources are used");
-            }
+        } finally {
+          refresh();
         }
     }
 
@@ -188,7 +203,7 @@ public class RulesProject extends UserWorkspaceProject {
             subPath += "/";
         }
         String fullPath = getFolderPath() + subPath;
-        Collection<FileData> fileDatas = null;
+        Collection<FileData> fileDatas;
         try {
             fileDatas = getRepository().listHistory(fullPath);
         } catch (IOException ex) {

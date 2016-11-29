@@ -17,10 +17,18 @@ public class LocalProjectModificationHandler implements ModificationHandler {
     public void notifyModified(String path) {
         File marker = getMarkerFile(path);
         File propertiesFolder = marker.getParentFile();
-        if (propertiesFolder.getParentFile().exists()) {
+        File projectFolder = propertiesFolder.getParentFile();
+        if (projectFolder.exists()) {
             if (!propertiesFolder.exists()) {
                 if (!propertiesFolder.mkdir() && !propertiesFolder.exists()) {
                     throw new IllegalStateException("Can't create the folder " + propertiesFolder);
+                }
+            } else {
+                File[] files = projectFolder.listFiles();
+                if (files != null && files.length == 1 && files[0].equals(propertiesFolder)) {
+                    // Project was deleted. Remove marker file and properties folder
+                    clearModifyStatus(path);
+                    return;
                 }
             }
             if (propertiesFolder.exists()) {
@@ -43,6 +51,10 @@ public class LocalProjectModificationHandler implements ModificationHandler {
         File marker = getMarkerFile(path);
         if (!marker.delete() && marker.exists()) {
             throw new IllegalStateException("Can't delete the file " + marker.getAbsolutePath());
+        }
+        File folder = marker.getParentFile();
+        while (!folder.equals(root) && folder.delete()) {
+            folder = folder.getParentFile();
         }
     }
 

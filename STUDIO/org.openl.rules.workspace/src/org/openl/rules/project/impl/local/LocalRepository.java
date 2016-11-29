@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.openl.rules.repository.api.*;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
-import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
 public class LocalRepository implements Repository, FolderRepository {
@@ -87,16 +86,15 @@ public class LocalRepository implements Repository, FolderRepository {
     }
 
     @Override
-    public boolean delete(String path) {
-        File file = new File(location, path);
-        boolean exists = file.exists();
-        if (!exists) {
-            return false;
+    public boolean delete(String name) {
+        File file = new File(location, name);
+        boolean deleted = file.delete();
+        // Delete empty parent folders
+        while (!(file = file.getParentFile()).equals(location) && file.delete());
+        if (deleted) {
+            modificationHandler.notifyModified(name);
         }
-
-        FileUtils.deleteQuietly(file);
-        modificationHandler.notifyModified(path);
-        return !file.exists();
+        return deleted;
     }
 
     @Override
