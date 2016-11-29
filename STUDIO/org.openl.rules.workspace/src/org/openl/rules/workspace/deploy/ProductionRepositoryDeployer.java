@@ -15,9 +15,9 @@ import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.file.FileRepository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.deploy.impl.jcr.JcrProductionDeployer;
@@ -100,8 +100,8 @@ public class ProductionRepositoryDeployer {
             // Create a deployment project
             ArtefactPathImpl path = new ArtefactPathImpl(name);
             LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(user, workspaceLocation, null, null);
-            ADeploymentProject project = new ADeploymentProject(user, new FileRepository(workspaceLocation), path.getStringValue(), null);
-            AProject projectToDeploy = new AProject(new FileRepository(workspaceLocation), path.getStringValue());
+            ADeploymentProject project = new ADeploymentProject(user, new LocalRepository(workspaceLocation), path.getStringValue(), null);
+            AProject projectToDeploy = new AProject(new LocalRepository(workspaceLocation), path.getStringValue());
 
             // Calculate version
             Repository repository = repositoryFactoryProxy.getRepositoryInstance(config);
