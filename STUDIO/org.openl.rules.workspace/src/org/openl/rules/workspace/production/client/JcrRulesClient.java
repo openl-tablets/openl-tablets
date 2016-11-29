@@ -7,13 +7,13 @@ import java.util.Collection;
 import java.util.List;
 
 import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.RDeploymentListener;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.repository.file.FileRepository;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.DeployUtils;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
@@ -55,7 +55,7 @@ public class JcrRulesClient {
         destFolder.mkdirs();
         FolderHelper.clearFolder(destFolder);
         //FIXME: avoid creating LocalWorkspace
-        Repository localRepository = new LocalRepository(destFolder.getParentFile());
+        Repository localRepository = new FileRepository(destFolder.getParentFile());
         AProject fetchedDeployment = new AProject(localRepository, destFolder.getName());
 
         Repository productionRepository = productionRepositoryFactoryProxy.getRepositoryInstance(repositoryPropertiesFile);

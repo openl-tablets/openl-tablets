@@ -29,7 +29,8 @@ import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalFolderAPI;
-import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.file.FileRepository;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
@@ -164,7 +165,7 @@ public class RepositoryService {
             LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(getUser(), workspaceLocation, null, null);
             LocalFolderAPI localFolderAPI = new LocalFolderAPI(zipFolder, path, workspace);
             localFolderAPI.setProps(new HashMap<String, Object>());
-            LocalRepository repository = new LocalRepository(workspaceLocation);
+            Repository repository = new FileRepository(workspaceLocation);
             AProject newProject = new AProject(repository, path.getStringValue());
             newProject.setVersionComment(comment);
 

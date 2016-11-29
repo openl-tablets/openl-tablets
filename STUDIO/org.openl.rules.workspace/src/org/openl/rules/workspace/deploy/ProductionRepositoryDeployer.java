@@ -17,9 +17,9 @@ import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.impl.local.LocalFolderAPI;
-import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.file.FileRepository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.deploy.impl.jcr.JcrProductionDeployer;
@@ -104,8 +104,8 @@ public class ProductionRepositoryDeployer {
             LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(user, workspaceLocation, null, null);
             LocalFolderAPI localFolderAPI = new LocalFolderAPI(zipFolder, path, workspace);
             localFolderAPI.setProps(new HashMap<String, Object>());
-            ADeploymentProject project = new ADeploymentProject(user, new LocalRepository(workspaceLocation), path.getStringValue(), null);
-            AProject projectToDeploy = new AProject(new LocalRepository(workspaceLocation), path.getStringValue());
+            ADeploymentProject project = new ADeploymentProject(user, new FileRepository(workspaceLocation), path.getStringValue(), null);
+            AProject projectToDeploy = new AProject(new FileRepository(workspaceLocation), path.getStringValue());
 
             // Calculate version
             Repository repository = repositoryFactoryProxy.getRepositoryInstance(config);
