@@ -1,7 +1,8 @@
 package org.openl.rules.workspace.uw.impl;
 
+import java.util.*;
+
 import org.openl.rules.common.ArtefactPath;
-import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.impl.local.LocalRepository;
@@ -14,8 +15,6 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 public class UserWorkspaceImpl implements UserWorkspace {
     private final Logger log = LoggerFactory.getLogger(UserWorkspaceImpl.class);
@@ -64,8 +63,12 @@ public class UserWorkspaceImpl implements UserWorkspace {
         try {
             designTimeRepository.copyProject(project, name, user, resourceTransformer);
         } catch (ProjectException e) {
-            if (designTimeRepository.hasProject(name)) {
-                designTimeRepository.getProject(name).erase();
+            try {
+                if (designTimeRepository.hasProject(name)) {
+                    designTimeRepository.getProject(name).erase();
+                }
+            } catch (ProjectException e1) {
+                log.error(e1.getMessage(), e1);
             }
             throw e;
         } finally {
@@ -99,11 +102,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
             throw new ProjectException("Cannot find deployment project ''{0}''", null, name);
         }
         return deploymentProject;
-    }
-
-    protected ADeploymentProject getDDProjectFor(ADeploymentProject deploymentProject, CommonVersion version)
-            throws ProjectException {
-        return designTimeRepository.getDDProject(deploymentProject.getName(), version);
     }
 
     public List<ADeploymentProject> getDDProjects() throws ProjectException {
@@ -177,11 +175,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 return true;
             }
         }
-        if (designTimeRepository.hasDDProject(name)) {
-            return true;
-        }
-
-        return false;
+        return designTimeRepository.hasDDProject(name);
     }
 
     public boolean hasProject(String name) {
@@ -190,14 +184,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 return true;
             }
         }
-        if (localWorkspace.hasProject(name)) {
-            return true;
-        }
-        if (designTimeRepository.hasProject(name)) {
-            return true;
-        }
-
-        return false;
+        return localWorkspace.hasProject(name) || designTimeRepository.hasProject(name);
     }
 
     public void passivate() {
@@ -217,7 +204,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         refreshDeploymentProjects();
     }
 
-    protected void refreshDeploymentProjects() throws ProjectException {
+    private void refreshDeploymentProjects() throws ProjectException {
         List<ADeploymentProject> dtrProjects = designTimeRepository.getDDProjects();
 
         synchronized (userDProjects) {
@@ -250,7 +237,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         }
     }
 
-    protected void refreshRulesProjects() throws RepositoryException {
+    private void refreshRulesProjects() throws RepositoryException {
         localWorkspace.refresh();
 
         synchronized (userRulesProjects) {
@@ -334,8 +321,12 @@ public class UserWorkspaceImpl implements UserWorkspace {
             createdProject.update(localWorkspace.getProject(name), user);
             refreshRulesProjects();
         } catch (ProjectException e) {
-            if (designTimeRepository.hasProject(name)) {
-                designTimeRepository.getProject(name).erase();
+            try {
+                if (designTimeRepository.hasProject(name)) {
+                    designTimeRepository.getProject(name).erase();
+                }
+            } catch (ProjectException e1) {
+                log.error(e1.getMessage(), e1);
             }
             throw e;
         }

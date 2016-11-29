@@ -69,16 +69,15 @@ public class RulesProject extends UserWorkspaceProject {
         if (isLocalOnly()) {
             erase();
         } else {
-            if (isOpened()) {
-                close();
-            }
             super.delete(user);
         }
     }
 
     public void close(CommonUser user) throws ProjectException {
         if (localFolderName != null) {
-            localRepository.delete(localFolderName);
+            if (!localRepository.delete(localFolderName)) {
+                throw new ProjectException("Can't close project because some resources are used");
+            }
         }
         if (isLockedByUser(user)) {
             unlock(user);
@@ -93,9 +92,13 @@ public class RulesProject extends UserWorkspaceProject {
     @Override
     public void erase() throws ProjectException {
         if (designFolderName != null) {
-            designRepository.deleteHistory(designFolderName, null);
+            if (!designRepository.deleteHistory(designFolderName, null)) {
+                throw new ProjectException("Can't erase project because it is absent or can't be deleted");
+            }
         } else {
-            localRepository.delete(localFolderName);
+            if (!localRepository.delete(localFolderName)) {
+                throw new ProjectException("Can't erase project because some resources are used");
+            }
         }
     }
 

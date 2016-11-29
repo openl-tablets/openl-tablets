@@ -141,11 +141,15 @@ public class AProject extends AProjectFolder {
         if (isFolder()) {
             for (AProjectArtefact artefact : getArtefacts()) {
                 if (artefact instanceof AProjectResource) {
-                    getRepository().deleteHistory(artefact.getFileData().getName(), null);
+                    if (!getRepository().deleteHistory(artefact.getFileData().getName(), null)) {
+                        throw new ProjectException("Can't erase project because it is absent or can't be deleted");
+                    }
                 }
             }
         } else {
-            getRepository().deleteHistory(getFileData().getName(), null);
+            if (!getRepository().deleteHistory(getFileData().getName(), null)) {
+                throw new ProjectException("Can't erase project because it is absent or can't be deleted");
+            }
         }
     }
 
