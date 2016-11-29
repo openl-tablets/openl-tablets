@@ -36,6 +36,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.Pattern;
+
+import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -87,7 +89,7 @@ public class TableCopier extends TableCreationWizard {
         ITableProperties tableProperties = table.getProperties();
         for (String possiblePropertyName : propertiesManager.getPossibleToAddProperties()) {
             TablePropertyDefinition propDefinition = TablePropertyDefinitionUtils.getPropertyByName(possiblePropertyName);
-            if (!propDefinition.isSystem() && propDefinition.getDeprecation() == null) {
+            if (propDefinition != null && !propDefinition.isSystem() && propDefinition.getDeprecation() == null) {
                 Object propertyValue = tableProperties.getPropertyValue(possiblePropertyName) != null ?
                         tableProperties.getPropertyValue(possiblePropertyName) : null;
 
@@ -148,7 +150,7 @@ public class TableCopier extends TableCreationWizard {
             if (!propDefinition.isSystem()) {
                 String propertyName = propDefinition.getName();
 
-                // check if the property can be defined in current type of table 
+                // check if the property can be defined in current type of table
                 // and if property can be defined on TABLE level.
                 if (PropertiesChecker.isPropertySuitableForTableType(propertyName, tableType)
                         && PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, propertyName)) {
@@ -162,7 +164,7 @@ public class TableCopier extends TableCreationWizard {
     /**
      * Copies table.
      *
-     * @throws CreateTableException
+     * @throws CreateTableException if unable to create a table
      */
     protected void doCopy() throws CreateTableException {
         WebStudio studio = WebStudioUtils.getWebStudio();
@@ -179,7 +181,7 @@ public class TableCopier extends TableCreationWizard {
      * @param sourceCodeModule excel sheet to save in
      * @param model            table model
      * @return URI of new table.
-     * @throws CreateTableException
+     * @throws CreateTableException if unable to create a table
      */
     protected String buildTable(XlsSheetSourceCodeModule sourceCodeModule, ProjectModel model)
             throws CreateTableException {
@@ -395,7 +397,7 @@ public class TableCopier extends TableCreationWizard {
         } else if (value instanceof String && StringUtils.isEmpty((String) value)) {
             return true;
         } else if (value.getClass().isArray()) {
-            return ((Object[]) value).length <= 0;
+            return Array.getLength(value) <= 0;
         }
         return false;
     }
