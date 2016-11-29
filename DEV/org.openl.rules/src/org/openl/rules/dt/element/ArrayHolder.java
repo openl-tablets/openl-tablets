@@ -8,17 +8,15 @@ import org.openl.vm.IRuntimeEnv;
 
 public class ArrayHolder {
 
-    private Object array;
     private CompositeMethod[] methods;
 
     public ArrayHolder(Object array, CompositeMethod[] methods) {
-        this.array = array;
         this.methods = methods;
     }
 
     public Object invoke(Object target, Object[] dtParams, IRuntimeEnv env) {
         
-    	Object[] res = new Object[Array.getLength(array)];
+    	Object[] res = new Object[methods.length];
     	
         for (int i = 0; i < methods.length; i++) {
             
@@ -30,7 +28,7 @@ public class ArrayHolder {
             }
         }
 
-        return array;
+        return res;
     }
 
 	public void updateDependency(BindingDependencies dependencies) {

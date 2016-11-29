@@ -597,6 +597,9 @@ public abstract class FunctionalRow implements IDecisionRow {
 			if (value instanceof IOpenMethod) {
 				value = ((IOpenMethod) value).invoke(target, tableParams, env);
 			}
+			if (value instanceof ArrayHolder){
+			    value = ((ArrayHolder) value).invoke(target, tableParams, env);
+			}
 			dest[i + offset] = value;
 		}
 
