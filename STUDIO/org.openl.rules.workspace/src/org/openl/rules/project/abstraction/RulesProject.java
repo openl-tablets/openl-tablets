@@ -74,31 +74,46 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     public void close(CommonUser user) throws ProjectException {
-        if (localFolderName != null) {
-            if (!localRepository.delete(localFolderName)) {
-                throw new ProjectException("Can't close project because some resources are used");
+        try {
+            if (localFolderName != null) {
+                deleteFromLocalRepository();
             }
+            if (isLockedByUser(user)) {
+                unlock(user);
+            }
+            if (!isLocalOnly()) {
+                setRepository(designRepository);
+                setFolderPath(designFolderName);
+            }
+        } finally {
+            refresh();
         }
-        if (isLockedByUser(user)) {
-            unlock(user);
+    }
+
+    private void deleteFromLocalRepository() throws ProjectException {
+        try {
+            for (FileData fileData : localRepository.list(localFolderName)) {
+                if (!localRepository.delete(fileData.getName())) {
+                    throw new ProjectException("Can't close project because some resources are used");
+                }
+            }
+        } catch (IOException e) {
+            throw new ProjectException("Not possible to read the directory", e);
         }
-        if (!isLocalOnly()) {
-            setRepository(designRepository);
-            setFolderPath(designFolderName);
-        }
-        refresh();
     }
 
     @Override
     public void erase() throws ProjectException {
-        if (designFolderName != null) {
-            if (!designRepository.deleteHistory(designFolderName, null)) {
-                throw new ProjectException("Can't erase project because it is absent or can't be deleted");
+        try {
+            if (designFolderName != null) {
+                if (!designRepository.deleteHistory(designFolderName, null)) {
+                    throw new ProjectException("Can't erase project because it is absent or can't be deleted");
+                }
+            } else {
+                deleteFromLocalRepository();
             }
-        } else {
-            if (!localRepository.delete(localFolderName)) {
-                throw new ProjectException("Can't erase project because some resources are used");
-            }
+        } finally {
+          refresh();
         }
     }
 
@@ -152,12 +167,14 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public int getVersionsCount() {
-        try{
-        if (designFolderName != null) {
-            return designRepository.listHistory(designFolderName).size();
-        } else {
-            return localRepository.listHistory(localFolderName).size();
-        }} catch (IOException ex) {
+        try {
+            if (designFolderName != null) {
+                return designRepository.listHistory(designFolderName).size();
+            } else {
+                // Local repository doesn't have versions
+                return 0;
+            }
+        } catch (IOException ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         }
     }
@@ -171,11 +188,11 @@ public class RulesProject extends UserWorkspaceProject {
     private List<FileData> getHistoryFileDatas() {
         List<FileData> fileDatas;
         try {
-        if (designFolderName != null) {
-            fileDatas = designRepository.listHistory(designFolderName);
-        } else {
-            fileDatas = localRepository.list(localFolderName);
-        }
+            if (designFolderName != null) {
+                fileDatas = designRepository.listHistory(designFolderName);
+            } else {
+                fileDatas = localRepository.list(localFolderName);
+            }
         } catch (IOException ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         }
@@ -184,11 +201,14 @@ public class RulesProject extends UserWorkspaceProject {
 
     public List<ProjectVersion> getArtefactVersions(ArtefactPath artefactPath) {
         String subPath = artefactPath.getStringValue();
+        if (subPath.isEmpty() || subPath.equals("/")) {
+            return getVersions();
+        }
         if (!subPath.startsWith("/")) {
             subPath += "/";
         }
         String fullPath = getFolderPath() + subPath;
-        Collection<FileData> fileDatas = null;
+        Collection<FileData> fileDatas;
         try {
             fileDatas = getRepository().listHistory(fullPath);
         } catch (IOException ex) {

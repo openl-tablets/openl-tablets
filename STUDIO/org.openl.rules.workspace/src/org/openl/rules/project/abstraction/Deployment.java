@@ -78,7 +78,7 @@ public class Deployment extends AProjectFolder {
     protected Map<String, AProjectArtefact> createInternalArtefacts() {
         if (getRepository() instanceof LocalRepository) {
             LocalRepository repository = (LocalRepository) getRepository();
-            File[] files = new File(repository.getLocation(), getFolderPath()).listFiles();
+            File[] files = new File(repository.getRoot(), getFolderPath()).listFiles();
             Map<String, AProjectArtefact> result = new HashMap<String, AProjectArtefact>();
             if (files != null) {
                 for (File file : files) {

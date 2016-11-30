@@ -6,4 +6,6 @@ public interface ModificationHandler {
     boolean isModified(String path);
 
     void clearModifyStatus(String path);
+
+    boolean isMarkerFile(String name);
 }

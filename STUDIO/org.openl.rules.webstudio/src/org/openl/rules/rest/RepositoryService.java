@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -28,7 +27,6 @@ import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.impl.local.LocalFolderAPI;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceException;
@@ -162,8 +160,6 @@ public class RepositoryService {
 
             ArtefactPathImpl path = new ArtefactPathImpl(name);
             LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(getUser(), workspaceLocation, null, null);
-            LocalFolderAPI localFolderAPI = new LocalFolderAPI(zipFolder, path, workspace);
-            localFolderAPI.setProps(new HashMap<String, Object>());
             LocalRepository repository = new LocalRepository(workspaceLocation);
             AProject newProject = new AProject(repository, path.getStringValue());
             newProject.setVersionComment(comment);

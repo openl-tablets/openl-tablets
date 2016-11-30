@@ -122,7 +122,7 @@ public class RepositoryProjectRulesDeployConfig {
 
     private SupportedVersion getSupportedVersion(UserWorkspaceProject project) {
         if (project.getRepository() instanceof LocalRepository) {
-            File projectFolder = new File(((LocalRepository) project.getRepository()).getLocation(), project.getFolderPath());
+            File projectFolder = new File(((LocalRepository) project.getRepository()).getRoot(), project.getFolderPath());
             return rulesDeploySerializerFactory.getSupportedVersion(projectFolder);
         }
         return SupportedVersion.getLastVersion();

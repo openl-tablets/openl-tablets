@@ -202,4 +202,8 @@ public class FileRepository implements Repository {
         data.setSize(size);
         return data;
     }
+
+    public File getRoot() {
+        return root;
+    }
 }

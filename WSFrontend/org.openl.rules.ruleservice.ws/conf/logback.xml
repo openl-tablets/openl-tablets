@@ -4,6 +4,8 @@
     <insertFromJNDI env-entry-name="java:comp/env/appName" as="appName"/>
     <property name="appName" value="${appName:-ruleservice}"/>
     <property name="logPath" value="${logPath:-${catalina.base}/logs}"/>
+    <property name="logLevel" value="${logLevel:-INFO}"/>
+    <property name="logLevel.console" value="${logLevel.console:-${logLevel}}"/>
     <!-- priority of appName resolving: -->
     <!-- 1. JNDI -->
     <!-- 2. logback.properties -->
@@ -13,9 +15,6 @@
 
     <appender name="File" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
-        </filter>
         <File>${logPath}/${appName}.log</File>
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} %5p [%t] [%c{50}]: %m%n</pattern>
@@ -31,13 +30,13 @@
 
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>WARN</level>
+            <level>${logLevel.console}</level>
         </filter>
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} %5p [%t] [%c{30}]: %m%n</pattern>
         </encoder>
     </appender>
-    <root level="INFO">
+    <root level="${logLevel}">
         <appender-ref ref="Console"/>
         <appender-ref ref="File"/>
     </root>

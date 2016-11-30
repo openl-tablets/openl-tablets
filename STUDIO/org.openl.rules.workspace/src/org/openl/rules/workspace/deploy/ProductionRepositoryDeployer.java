@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.xpath.XPath;
@@ -16,7 +15,6 @@ import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.impl.local.LocalFolderAPI;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.api.Repository;
@@ -102,8 +100,6 @@ public class ProductionRepositoryDeployer {
             // Create a deployment project
             ArtefactPathImpl path = new ArtefactPathImpl(name);
             LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(user, workspaceLocation, null, null);
-            LocalFolderAPI localFolderAPI = new LocalFolderAPI(zipFolder, path, workspace);
-            localFolderAPI.setProps(new HashMap<String, Object>());
             ADeploymentProject project = new ADeploymentProject(user, new LocalRepository(workspaceLocation), path.getStringValue(), null);
             AProject projectToDeploy = new AProject(new LocalRepository(workspaceLocation), path.getStringValue());
 
