@@ -188,11 +188,11 @@ public class RulesProject extends UserWorkspaceProject {
     private List<FileData> getHistoryFileDatas() {
         List<FileData> fileDatas;
         try {
-        if (designFolderName != null) {
-            fileDatas = designRepository.listHistory(designFolderName);
-        } else {
-            fileDatas = localRepository.list(localFolderName);
-        }
+            if (designFolderName != null) {
+                fileDatas = designRepository.listHistory(designFolderName);
+            } else {
+                fileDatas = localRepository.list(localFolderName);
+            }
         } catch (IOException ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         }
@@ -201,6 +201,9 @@ public class RulesProject extends UserWorkspaceProject {
 
     public List<ProjectVersion> getArtefactVersions(ArtefactPath artefactPath) {
         String subPath = artefactPath.getStringValue();
+        if (subPath.isEmpty() || subPath.equals("/")) {
+            return getVersions();
+        }
         if (!subPath.startsWith("/")) {
             subPath += "/";
         }
