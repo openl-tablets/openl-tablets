@@ -113,4 +113,14 @@ public class CompositeMethodWrapper extends CompositeMethod implements IOpenMeth
         return delegate.getSourceUrl();
     }
 
+    @Override
+    public String getModuleName() {
+        return delegate.getModuleName();
+    }
+    
+    @Override
+    public void setModuleName(String dependencyName) {
+        delegate.setModuleName(dependencyName);
+    }
+
 }

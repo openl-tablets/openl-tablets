@@ -77,4 +77,15 @@ public class DeferredMethodWrapper extends DeferredMethod implements IOpenMethod
     public String toString() {
         return delegate.toString();
     }
+    
+    @Override
+    public String getModuleName() {
+        return delegate.getModuleName();
+    }
+    
+    @Override
+    public void setModuleName(String dependencyName) {
+        delegate.setModuleName(dependencyName);
+    }
+
 }

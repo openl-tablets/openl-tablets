@@ -121,4 +121,14 @@ public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod 
         return delegate.getInfo();
     }
     
+    @Override
+    public String getModuleName() {
+        return delegate.getModuleName();
+    }
+    
+    @Override
+    public void setModuleName(String dependencyName) {
+        delegate.setModuleName(dependencyName);
+    }
+
 }

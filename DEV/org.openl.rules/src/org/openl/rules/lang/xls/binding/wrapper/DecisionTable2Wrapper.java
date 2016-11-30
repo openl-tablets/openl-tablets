@@ -202,5 +202,14 @@ public class DecisionTable2Wrapper extends DecisionTable implements IOpenMethodW
         return delegate.getNumberOfConditions();
     }
     
+    @Override
+    public String getModuleName() {
+        return delegate.getModuleName();
+    }
     
+    @Override
+    public void setModuleName(String dependencyName) {
+        delegate.setModuleName(dependencyName);
+    }
+
 }

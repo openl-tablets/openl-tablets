@@ -171,6 +171,14 @@ public class ColumnMatchWrapper extends ColumnMatch implements IOpenMethodWrappe
         return delegate.getSyntaxNode();
     }
     
+    @Override
+    public String getModuleName() {
+        return delegate.getModuleName();
+    }
     
+    @Override
+    public void setModuleName(String dependencyName) {
+        delegate.setModuleName(dependencyName);
+    }
 
 }

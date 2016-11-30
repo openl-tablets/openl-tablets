@@ -119,5 +119,14 @@ public class AlgorithmWrapper extends Algorithm implements IOpenMethodWrapper{
         return delegate.getSyntaxNode();
     }
     
+    @Override
+    public String getModuleName() {
+        return delegate.getModuleName();
+    }
+    
+    @Override
+    public void setModuleName(String dependencyName) {
+        delegate.setModuleName(dependencyName);
+    }
 
 }

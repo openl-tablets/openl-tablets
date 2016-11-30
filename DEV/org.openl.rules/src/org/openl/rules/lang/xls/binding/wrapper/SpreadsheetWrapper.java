@@ -190,5 +190,14 @@ public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrappe
         return delegate.getFieldsCoordinates();
     }
     
+    @Override
+    public String getModuleName() {
+        return delegate.getModuleName();
+    }
+    
+    @Override
+    public void setModuleName(String dependencyName) {
+        delegate.setModuleName(dependencyName);
+    }
 
 }

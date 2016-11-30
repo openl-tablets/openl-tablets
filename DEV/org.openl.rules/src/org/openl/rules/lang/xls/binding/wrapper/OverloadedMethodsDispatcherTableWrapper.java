@@ -89,4 +89,5 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
     public List<IOpenMethod> getCandidates() {
         return delegate.getCandidates();
     }
+    
 }

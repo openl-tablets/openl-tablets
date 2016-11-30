@@ -22,11 +22,11 @@ public abstract class AMethod implements IOpenMethod, IModuleInfo {
     
     private String dependencyName;
     
-    public final String getModuleName() {
+    public String getModuleName() {
         return dependencyName;
     }
     
-    public final void setModuleName(String dependencyName) {
+    public void setModuleName(String dependencyName) {
         this.dependencyName = dependencyName;
     }
 

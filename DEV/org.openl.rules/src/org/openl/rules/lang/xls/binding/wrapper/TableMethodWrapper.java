@@ -115,6 +115,13 @@ public class TableMethodWrapper extends TableMethod implements IOpenMethodWrappe
         return delegate.getSyntaxNode();
     }
     
+    @Override
+    public String getModuleName() {
+        return delegate.getModuleName();
+    }
     
-
+    @Override
+    public void setModuleName(String dependencyName) {
+        delegate.setModuleName(dependencyName);
+    }
 }
