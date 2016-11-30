@@ -8,6 +8,7 @@ package org.openl.rules.dt.element;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.openl.OpenL;
@@ -21,11 +22,11 @@ import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.IDecisionTableConstants;
+import org.openl.rules.dt.IDecisionTableParameterInfo;
 import org.openl.rules.dt.storage.IStorage;
 import org.openl.rules.dt.storage.IStorageBuilder;
 import org.openl.rules.dt.storage.StorageFactory;
 import org.openl.rules.dt.storage.StorageInfo;
-import org.openl.rules.dt.IDecisionTableParameterInfo;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
@@ -305,7 +306,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 
 	private void loadParamsFromColumn(OpenlToolAdaptor ota, RuleRow ruleRow,
 			IParameterDeclaration[] paramDecl, boolean[] paramIndexed,
-			ArrayList<SyntaxNodeException> errors, int ruleN,
+			List<SyntaxNodeException> errors, int ruleN,
 			IStorageBuilder<?>[] builders) {
 		IGridTable paramGridColumn = getValueCell(ruleN).getSource();
 
@@ -314,9 +315,10 @@ public abstract class FunctionalRow implements IDecisionRow {
 		boolean executionMode = ota.getBindingContext().isExecutionMode();
 
 		String ruleName = null;
-		if (!executionMode)
+		if (!executionMode) {
 			ruleName = ruleRow == null ? ("R" + (ruleN + 1)) : ruleRow
 					.getRuleName(ruleN);
+		}
 
 		for (int j = 0; j < paramDecl.length; j++) {
 			if (paramDecl[j] == null) {
@@ -347,7 +349,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 		}
 	}
 
-	private boolean haveSameError(ArrayList<SyntaxNodeException> errors,
+	private boolean haveSameError(List<SyntaxNodeException> errors,
 			SyntaxNodeException error) {
 		boolean errorAddedAlready = false;
 		for (SyntaxNodeException e : errors) {
