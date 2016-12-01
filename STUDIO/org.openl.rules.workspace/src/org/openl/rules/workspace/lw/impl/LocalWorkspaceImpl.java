@@ -52,7 +52,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         listeners.add(listener);
     }
 
-    protected AProject downloadProject(AProject project) throws ProjectException {
+    private AProject downloadProject(AProject project) throws ProjectException {
         String name = project.getName();
 
         ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
@@ -147,7 +147,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         }
     }
 
-    protected void notifyRemoved(AProject project) {
+    private void notifyRemoved(AProject project) {
         synchronized (localProjects) {
             localProjects.remove(project.getName());
         }
