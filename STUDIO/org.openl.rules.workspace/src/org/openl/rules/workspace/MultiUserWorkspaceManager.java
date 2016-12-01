@@ -26,13 +26,9 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
     /** Cache for User Workspaces */
     private Map<String, UserWorkspace> userWorkspaces = new HashMap<String, UserWorkspace>();
 
-    protected UserWorkspace createUserWorkspace(WorkspaceUser user) throws WorkspaceException {
+    private UserWorkspace createUserWorkspace(WorkspaceUser user) throws WorkspaceException {
         LocalWorkspace usersLocalWorkspace = localWorkspaceManager.getWorkspace(user);
         return new UserWorkspaceImpl(user, usersLocalWorkspace, designTimeRepository);
-    }
-
-    public LocalWorkspaceManager getLocalWorkspaceManager() {
-        return localWorkspaceManager;
     }
 
     /**
