@@ -121,17 +121,6 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         }
     }
 
-    private boolean isLocalOnly(AProject lp) {
-        if (userWorkspace == null) {
-            return false;
-        }
-        try {
-            return userWorkspace.getProject(lp.getName()).isLocalOnly();
-        } catch (ProjectException e) {
-            return false;
-        }
-    }
-
     private void loadProjects() {
         File[] folders = location.listFiles(localWorkspaceFolderFilter);
         if (folders != null) {
@@ -215,17 +204,6 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     }
 
     public void saveAll() {
-        /*
-        for (AProject lp : localProjects.values()) {
-            if (!isLocalOnly(lp)) {
-                try {
-                    lp.save(user);
-                } catch (ProjectException e) {
-                    log.error("Error saving local project ''{}''!", lp.getName(), e);
-                }
-            }
-        }
-        */
     }
 
     public void setUserWorkspace(UserWorkspace userWorkspace) {
