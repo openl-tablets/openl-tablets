@@ -134,13 +134,15 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
 
     private void loadProjects() {
         File[] folders = location.listFiles(localWorkspaceFolderFilter);
-        for (File f : folders) {
-            String name = f.getName();
-            ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
+        if (folders != null) {
+            for (File f : folders) {
+                String name = f.getName();
+                ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
 
-            AProject lpi = createLocalProject(ap);
-            synchronized (localProjects) {
-                localProjects.put(name, lpi);
+                AProject lpi = createLocalProject(ap);
+                synchronized (localProjects) {
+                    localProjects.put(name, lpi);
+                }
             }
         }
     }
