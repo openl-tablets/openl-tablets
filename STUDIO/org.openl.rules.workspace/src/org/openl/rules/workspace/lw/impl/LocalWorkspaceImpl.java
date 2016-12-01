@@ -182,7 +182,6 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     }
 
     public void release() {
-        saveAll();
         synchronized (localProjects) {
             localProjects.clear();
         }
@@ -201,9 +200,6 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
 
     public boolean removeWorkspaceListener(LocalWorkspaceListener listener) {
         return listeners.remove(listener);
-    }
-
-    public void saveAll() {
     }
 
     public void setUserWorkspace(UserWorkspace userWorkspace) {

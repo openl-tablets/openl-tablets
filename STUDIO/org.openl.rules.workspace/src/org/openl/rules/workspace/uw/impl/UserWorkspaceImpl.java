@@ -188,8 +188,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public void passivate() {
-        localWorkspace.saveAll();
-
         synchronized (userRulesProjects) {
             userRulesProjects.clear();
         }
