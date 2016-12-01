@@ -9,6 +9,7 @@ import org.openl.rules.repository.file.FileRepository;
 public class LocalRepository extends FileRepository {
     private final ModificationHandler modificationHandler;
 
+    @Deprecated
     public LocalRepository(File location) {
         super(location);
         this.modificationHandler = new DummyModificationHandler();

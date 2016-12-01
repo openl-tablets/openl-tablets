@@ -27,7 +27,7 @@ import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.repository.file.FileRepository;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
@@ -160,7 +160,8 @@ public class RepositoryService {
 
             ArtefactPathImpl path = new ArtefactPathImpl(name);
             LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(getUser(), workspaceLocation, null, null);
-            LocalRepository repository = new LocalRepository(workspaceLocation);
+            FileRepository repository = new FileRepository(workspaceLocation);
+            repository.initialize();
             AProject newProject = new AProject(repository, path.getStringValue(), true);
             newProject.setVersionComment(comment);
 
