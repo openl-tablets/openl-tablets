@@ -49,9 +49,6 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
         if (uw == null) {
             uw = createUserWorkspace(user);
             userWorkspaces.put(user.getUserId(), uw);
-        } else {
-            LocalWorkspace usersLocalWorkspace = localWorkspaceManager.getWorkspace(user);
-            usersLocalWorkspace.setUserWorkspace(uw);
         }
 
         return uw;
@@ -70,6 +67,6 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
      * ended and it must be removed from cache.
      */
     public void workspaceReleased(UserWorkspace workspace) {
-        userWorkspaces.remove(((UserWorkspaceImpl) workspace).getUser().getUserId());
+        userWorkspaces.remove(workspace.getUser().getUserId());
     }
 }

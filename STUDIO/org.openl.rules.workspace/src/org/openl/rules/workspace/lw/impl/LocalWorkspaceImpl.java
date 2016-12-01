@@ -9,7 +9,6 @@ import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceListener;
-import org.openl.rules.workspace.uw.UserWorkspace;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -23,7 +22,6 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     private List<LocalWorkspaceListener> listeners = new ArrayList<LocalWorkspaceListener>();
     private FileFilter localWorkspaceFolderFilter;
     private FileFilter localWorkspaceFileFilter;
-    private UserWorkspace userWorkspace;
 
     public LocalWorkspaceImpl(WorkspaceUser user, File location, FileFilter localWorkspaceFolderFilter,
                               FileFilter localWorkspaceFileFilter) {
@@ -186,7 +184,6 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             localProjects.clear();
         }
 
-        userWorkspace = null;
         for (LocalWorkspaceListener lwl : listeners) {
             lwl.workspaceReleased(this);
         }
@@ -200,10 +197,6 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
 
     public boolean removeWorkspaceListener(LocalWorkspaceListener listener) {
         return listeners.remove(listener);
-    }
-
-    public void setUserWorkspace(UserWorkspace userWorkspace) {
-        this.userWorkspace = userWorkspace;
     }
 
     public FileFilter getLocalWorkspaceFileFilter() {

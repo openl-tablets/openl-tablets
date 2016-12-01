@@ -73,10 +73,4 @@ public interface LocalWorkspace extends ProjectsContainer {
      */
     boolean removeWorkspaceListener(LocalWorkspaceListener listener);
 
-    /**
-     * Sets the user workspace that this local workspace is contained in.
-     *
-     * @param userWorkspace user workspace that contains this local workspace
-     */
-    void setUserWorkspace(UserWorkspace userWorkspace);
 }
