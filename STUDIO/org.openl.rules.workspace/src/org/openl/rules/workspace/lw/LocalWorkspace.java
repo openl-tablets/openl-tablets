@@ -6,7 +6,6 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
-import org.openl.rules.workspace.uw.UserWorkspace;
 
 /**
  * A container for <code>LocalProject</code>s. It is supposed to be able to
