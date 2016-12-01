@@ -73,7 +73,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     }
 
     private AProject createLocalProject(ArtefactPath ap) {
-        return new AProject(getRepository(), ap.getStringValue());
+        return new AProject(getRepository(), ap.getStringValue(), true);
     }
 
     @Override

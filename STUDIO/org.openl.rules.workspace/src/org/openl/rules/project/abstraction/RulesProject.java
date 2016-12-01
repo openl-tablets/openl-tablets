@@ -28,7 +28,7 @@ public class RulesProject extends UserWorkspaceProject {
         super(userWorkspace.getUser(),
                 localFolderName != null ? localRepository : designRepository,
                 localFolderName != null ? localFolderName : designFolderName,
-                version);
+                version, localFolderName != null);
         this.localRepository = localRepository;
         this.localFolderName = localFolderName;
         this.designRepository = designRepository;
@@ -47,7 +47,7 @@ public class RulesProject extends UserWorkspaceProject {
             FileData localFileData,
             Repository designRepository, FileData designFileData) {
         super(userWorkspace.getUser(), localFileData != null ? localRepository : designRepository,
-                localFileData != null ? localFileData : designFileData);
+                localFileData != null ? localFileData : designFileData, localFileData != null);
         this.localRepository = localRepository;
         this.localFolderName = localFileData == null ? null : localFileData.getName();
         this.designRepository = designRepository;
@@ -57,7 +57,7 @@ public class RulesProject extends UserWorkspaceProject {
     @Override
     public void save(CommonUser user) throws ProjectException {
         clearModifyStatus();
-        new AProject(designRepository, designFolderName).update(new AProject(localRepository, localFolderName), user);
+        new AProject(designRepository, designFolderName, false).update(new AProject(localRepository, localFolderName, true), user);
 //        localRepository.setCurrentVersion(designRepository.getVersion());
 //        localRepository.commit(user, 0);// save persistence
         unlock(user);
@@ -84,6 +84,7 @@ public class RulesProject extends UserWorkspaceProject {
             if (!isLocalOnly()) {
                 setRepository(designRepository);
                 setFolderPath(designFolderName);
+                setFolderStructure(false);
             }
         } finally {
             refresh();
@@ -234,14 +235,15 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     public void openVersion(String version) throws ProjectException {
-        AProject designProject = new AProject(designRepository, designFolderName, version);
+        AProject designProject = new AProject(designRepository, designFolderName, version, false);
 
         if (localFolderName == null) {
             localFolderName = designProject.getName();
         }
-        new AProject(localRepository, localFolderName).update(designProject, getUser());
+        new AProject(localRepository, localFolderName, true).update(designProject, getUser());
         setRepository(localRepository);
         setFolderPath(localFolderName);
+        setFolderStructure(true);
 
         setHistoryVersion(version);
 

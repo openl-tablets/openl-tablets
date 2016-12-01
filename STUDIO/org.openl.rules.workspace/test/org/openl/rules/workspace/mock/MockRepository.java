@@ -4,13 +4,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
-import org.openl.rules.project.impl.local.FolderRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 
-public class MockRepository implements Repository, FolderRepository {
+public class MockRepository implements Repository {
     private Map<String, FileData> fileDataMap = new HashMap<String, FileData>();
     private Map<String, FileItem> fileItemMap = new HashMap<String, FileItem>();
     @Override

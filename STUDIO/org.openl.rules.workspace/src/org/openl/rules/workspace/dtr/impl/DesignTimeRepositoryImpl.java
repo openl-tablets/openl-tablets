@@ -122,7 +122,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
 
         try {
-            AProject newProject = new AProject(getRepository(), rulesLocation + "/" + name);
+            AProject newProject = new AProject(getRepository(), rulesLocation + "/" + name, false);
 
             newProject.setResourceTransformer(resourceTransformer);
             newProject.update(project, user);
@@ -142,7 +142,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     public AProject createProject(String name) throws RepositoryException {
-        return new AProject(getRepository(), rulesLocation + "/" + name);
+        return new AProject(getRepository(), rulesLocation + "/" + name, false);
     }
 
     public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
@@ -186,19 +186,19 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             return cached;
         }
 
-        AProject project = new AProject(getRepository(), rulesLocation + "/" + name);
+        AProject project = new AProject(getRepository(), rulesLocation + "/" + name, false);
         projects.put(project.getName(), project);
         return project;
     }
 
     public AProject getProject(String name, CommonVersion version) throws RepositoryException {
-        return new AProject(getRepository(), rulesLocation + "/" + name, version.getVersionName());
+        return new AProject(getRepository(), rulesLocation + "/" + name, version.getVersionName(), false);
     }
 
     public Collection<AProject> getProjects() {
         List<AProject> result = new LinkedList<AProject>();
 
-        Collection<FileData> fileDatas = null;
+        Collection<FileData> fileDatas;
         try {
             fileDatas = getRepository().list(rulesLocation);
         } catch (IOException ex) {
@@ -206,7 +206,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
         projects.clear();
         for (FileData fileData : fileDatas) {
-            AProject project = new AProject(getRepository(), fileData);
+            AProject project = new AProject(getRepository(), fileData, false);
             // get from the repository
             result.add(project);
             projects.put(project.getName(), project);

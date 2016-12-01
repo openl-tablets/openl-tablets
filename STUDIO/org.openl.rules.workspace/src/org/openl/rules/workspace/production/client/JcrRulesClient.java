@@ -56,10 +56,10 @@ public class JcrRulesClient {
         FolderHelper.clearFolder(destFolder);
         //FIXME: avoid creating LocalWorkspace
         Repository localRepository = new LocalRepository(destFolder.getParentFile());
-        AProject fetchedDeployment = new AProject(localRepository, destFolder.getName());
+        AProject fetchedDeployment = new AProject(localRepository, destFolder.getName(), true);
 
         Repository productionRepository = productionRepositoryFactoryProxy.getRepositoryInstance(repositoryPropertiesFile);
-        final AProject deploymentProject = new AProject(productionRepository, DeployUtils.DEPLOY_PATH + deployID.getName());
+        final AProject deploymentProject = new AProject(productionRepository, DeployUtils.DEPLOY_PATH + deployID.getName(), false);
         // TODO: solve problem with fetching deployment when it is not uploaded
         // completely
         if (deploymentProject.isLocked()) {

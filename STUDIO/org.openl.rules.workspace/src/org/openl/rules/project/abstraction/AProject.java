@@ -14,7 +14,6 @@ import java.util.zip.ZipOutputStream;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.impl.local.FolderRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
@@ -22,16 +21,23 @@ import org.openl.util.IOUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 
 public class AProject extends AProjectFolder {
-    public AProject(Repository repository, String folderPath) {
-        this(repository, folderPath, null);
+    /**
+     * true if the project has a folder structure and false if the project is stored as a zip
+     */
+    private boolean folderStructure;
+
+    public AProject(Repository repository, String folderPath, boolean folderStructure) {
+        this(repository, folderPath, null, folderStructure);
     }
 
-    public AProject(Repository repository, String folderPath, String historyVersion) {
+    public AProject(Repository repository, String folderPath, String historyVersion, boolean folderStructure) {
         super(null, repository, folderPath, historyVersion);
+        this.folderStructure = folderStructure;
     }
 
-    public AProject(Repository repository, FileData fileData) {
+    public AProject(Repository repository, FileData fileData, boolean folderStructure) {
         super(null, repository, fileData.getName(), fileData.getVersion());
+        this.folderStructure = folderStructure;
         setFileData(fileData);
     }
 
@@ -74,7 +80,7 @@ public class AProject extends AProjectFolder {
             return true;
         }
 
-        List<FileData> fileDatas = null;
+        List<FileData> fileDatas;
         try {
             fileDatas = getRepository().listHistory(getFolderPath());
         } catch (IOException ex) {
@@ -345,6 +351,10 @@ public class AProject extends AProjectFolder {
 
     @Override
     public boolean isFolder() {
-        return getRepository() instanceof FolderRepository;
+        return folderStructure;
+    }
+
+    protected void setFolderStructure(boolean folderStructure) {
+        this.folderStructure = folderStructure;
     }
 }

@@ -52,7 +52,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
             DeployID id = new DeployID(sb.toString());
 
                 String deploymentPath = DeployUtils.DEPLOY_PATH + id.getName();
-                AProject deploymentPRJ = new AProject(repository, deploymentPath);
+                AProject deploymentPRJ = new AProject(repository, deploymentPath, false);
                 deploymentPRJ.lock(user);
                 for (AProject p : projects) {
                     deployProject(deploymentPRJ, p, user);
@@ -69,7 +69,7 @@ public class JcrProductionDeployer implements ProductionDeployer {
 
     private void deployProject(AProject deployment, AProject project, WorkspaceUser user) throws ProjectException {
         AProjectFolder projectFolder = deployment.addFolder(project.getName());
-        AProject copiedProject = new AProject(deployment.getRepository(), projectFolder.getArtefactPath().getStringValue(), deployment.getHistoryVersion());
+        AProject copiedProject = new AProject(deployment.getRepository(), projectFolder.getArtefactPath().getStringValue(), deployment.getHistoryVersion(), false);
 
         /*Update and set project revision*/
         copiedProject.update(project, user);

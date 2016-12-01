@@ -101,7 +101,7 @@ public class ProductionRepositoryDeployer {
             ArtefactPathImpl path = new ArtefactPathImpl(name);
             LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(user, workspaceLocation, null, null);
             ADeploymentProject project = new ADeploymentProject(user, new LocalRepository(workspaceLocation), path.getStringValue(), null);
-            AProject projectToDeploy = new AProject(new LocalRepository(workspaceLocation), path.getStringValue());
+            AProject projectToDeploy = new AProject(new LocalRepository(workspaceLocation), path.getStringValue(), true);
 
             // Calculate version
             Repository repository = repositoryFactoryProxy.getRepositoryInstance(config);

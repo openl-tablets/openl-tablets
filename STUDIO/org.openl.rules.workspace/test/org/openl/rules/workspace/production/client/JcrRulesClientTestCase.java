@@ -39,7 +39,7 @@ public class JcrRulesClientTestCase extends TestCase {
     }
 
     private AProject makeProject() throws ProjectException {
-        AProject project = new AProject(repository, PROJECT_NAME);
+        AProject project = new AProject(repository, PROJECT_NAME, true);
         AProjectFolder folder1 = project.addFolder(FOLDER1);
         folder1.addResource(FILE1_1, new ByteArrayInputStream(new byte[10]));
         folder1.addResource(FILE1_2, new ByteArrayInputStream(new byte[20]));
@@ -48,7 +48,7 @@ public class JcrRulesClientTestCase extends TestCase {
     }
 
     private AProject makeProject2() throws ProjectException {
-        AProject project = new AProject(repository, PROJECT_NAME2);
+        AProject project = new AProject(repository, PROJECT_NAME2, true);
         AProjectFolder folder1 = project.addFolder(FOLDER1);
         folder1.addResource(FILE1_2, new ByteArrayInputStream(new byte[42]));
         return project;

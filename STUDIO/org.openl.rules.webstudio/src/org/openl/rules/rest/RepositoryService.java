@@ -161,7 +161,7 @@ public class RepositoryService {
             ArtefactPathImpl path = new ArtefactPathImpl(name);
             LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(getUser(), workspaceLocation, null, null);
             LocalRepository repository = new LocalRepository(workspaceLocation);
-            AProject newProject = new AProject(repository, path.getStringValue());
+            AProject newProject = new AProject(repository, path.getStringValue(), true);
             newProject.setVersionComment(comment);
 
             project.update(newProject, getUser());// updateProject(null,

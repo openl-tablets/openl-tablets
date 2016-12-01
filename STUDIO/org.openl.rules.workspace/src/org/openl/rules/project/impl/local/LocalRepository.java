@@ -6,7 +6,7 @@ import java.util.*;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.file.FileRepository;
 
-public class LocalRepository extends FileRepository implements FolderRepository {
+public class LocalRepository extends FileRepository {
     private final ModificationHandler modificationHandler;
 
     public LocalRepository(File location) {

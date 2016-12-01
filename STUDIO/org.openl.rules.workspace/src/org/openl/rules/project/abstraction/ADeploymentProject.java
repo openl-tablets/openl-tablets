@@ -37,11 +37,11 @@ public class ADeploymentProject extends UserWorkspaceProject {
     private boolean modifiedDescriptors = false;
 
     public ADeploymentProject(WorkspaceUser user, Repository repository, String folderPath, String version) {
-        super(user, repository, folderPath, version);
+        super(user, repository, folderPath, version, false);
     }
 
     public ADeploymentProject(WorkspaceUser user, Repository repository, FileData fileData) {
-        super(user, repository, fileData);
+        super(user, repository, fileData, false);
     }
 
     @Override
