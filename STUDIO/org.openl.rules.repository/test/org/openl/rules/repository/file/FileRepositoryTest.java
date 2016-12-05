@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
 
 public class FileRepositoryTest {
     @Test
-    public void test() throws IOException {
+    public void test() throws Exception {
         File root = new File("target/test-file-repository/");
         FileUtils.deleteQuietly(root);
         FileRepository repo = new FileRepository(root);

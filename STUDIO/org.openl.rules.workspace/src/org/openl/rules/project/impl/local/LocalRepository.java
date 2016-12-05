@@ -1,9 +1,13 @@
 package org.openl.rules.project.impl.local;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.List;
 
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.file.FileRepository;
 
 public class LocalRepository extends FileRepository {
@@ -15,7 +19,7 @@ public class LocalRepository extends FileRepository {
         this.modificationHandler = new DummyModificationHandler();
         try {
             initialize();
-        } catch (IOException e) {
+        } catch (RRepositoryException e) {
             throw new IllegalStateException(e);
         }
     }
