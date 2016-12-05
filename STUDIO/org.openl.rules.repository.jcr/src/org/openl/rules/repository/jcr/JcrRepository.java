@@ -95,25 +95,6 @@ public class JcrRepository extends BaseJcrRepository {
     }
 
     @Deprecated
-    public List<RDeploymentDescriptorProject> getDDProjects() throws RRepositoryException {
-        NodeIterator ni = runQuery(QUERY_DDPROJECTS);
-
-        LinkedList<RDeploymentDescriptorProject> result = new LinkedList<RDeploymentDescriptorProject>();
-        while (ni.hasNext()) {
-            Node n = ni.nextNode();
-
-            try {
-                JcrDeploymentDescriptorProject ddp = new JcrDeploymentDescriptorProject(n);
-                result.add(ddp);
-            } catch (RepositoryException e) {
-                log.debug("Failed to add deployment project.");
-            }
-        }
-
-        return result;
-    }
-
-    @Deprecated
     public RProject getProject(String name) throws RRepositoryException {
         try {
             if (!defRulesLocation.hasNode(name)) {
@@ -329,23 +310,6 @@ public class JcrRepository extends BaseJcrRepository {
         return path;
     }
 
-    public List<FolderAPI> getRulesProjectsForDeletion() throws RRepositoryException {
-        NodeIterator ni = runQuery("//element(*, " + JcrNT.NT_APROJECT + ") [@"
-                + ArtefactProperties.PROP_PRJ_MARKED_4_DELETION + "]");
-
-        LinkedList<FolderAPI> result = new LinkedList<FolderAPI>();
-        while (ni.hasNext()) {
-            Node n = ni.nextNode();
-            try {
-                result.add(new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{n.getName()})));
-            } catch (RepositoryException e) {
-                log.debug("Failed to add rules project for deletion.");
-            }
-        }
-
-        return result;
-    }
-
     private static final String CHECKED_OUT_PROPERTY = "jcr:isCheckedOut";
 
     private String extractProjectName(String relativePath) {
@@ -393,10 +357,6 @@ public class JcrRepository extends BaseJcrRepository {
 
     public void removeRepositoryListener(RRepositoryListener listener) {
         listeners.remove(listener);
-    }
-
-    public List<RRepositoryListener> getRepositoryListeners() {
-        return listeners;
     }
 
     @Override

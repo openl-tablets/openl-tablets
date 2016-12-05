@@ -125,26 +125,6 @@ public abstract class BaseJcrRepository implements RRepository, EventListener {
         }
     }
 
-    @Override
-    public List<ResourceAPI> getResources(String path) throws RRepositoryException {
-        ArtefactPathImpl artefactPath = new ArtefactPathImpl(path.split("/"));
-        List<ResourceAPI> resources = new ArrayList<ResourceAPI>();
-        try {
-            Node node = findNode(path);
-            if (node == null) {
-                return Collections.emptyList();
-            }
-            if (node.isNodeType(JcrNT.NT_FILE)) {
-                return Collections.<ResourceAPI>singletonList(new JcrFileAPI(node, artefactPath));
-            } else {
-                findAllFiles(node, artefactPath, resources);
-                return resources;
-            }
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot get artefacts", e);
-        }
-    }
-
     private void findAllFiles(Node node,  ArtefactPath path, List<ResourceAPI> result) throws RRepositoryException {
         NodeIterator ni;
         try {

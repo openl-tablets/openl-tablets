@@ -45,12 +45,6 @@ public class NullRepository implements RRepository {
     }
 
     @Deprecated
-    public List<RDeploymentDescriptorProject> getDDProjects() throws RRepositoryException {
-        // empty list
-        return new LinkedList<RDeploymentDescriptorProject>();
-    }
-
-    @Deprecated
     public RProject getProject(String name) throws RRepositoryException {
         fail();
         // will never reach
@@ -127,25 +121,10 @@ public class NullRepository implements RRepository {
         return null;
     }
 
-    public List<FolderAPI> getRulesProjectsForDeletion() throws RRepositoryException {
-        return new LinkedList<FolderAPI>();
-    }
-
-
-    
     public void addRepositoryListener(RRepositoryListener listener) {
     }
 
     public void removeRepositoryListener(RRepositoryListener listener) {
-    }
-
-    public List<RRepositoryListener> getRepositoryListeners() {
-        return null;
-    }
-
-    @Override
-    public List<ResourceAPI> getResources(String path) throws RRepositoryException {
-        return Collections.emptyList();
     }
 
     @Override
