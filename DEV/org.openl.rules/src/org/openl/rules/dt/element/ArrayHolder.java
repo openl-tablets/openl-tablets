@@ -3,20 +3,23 @@ package org.openl.rules.dt.element;
 import java.lang.reflect.Array;
 
 import org.openl.binding.BindingDependencies;
+import org.openl.types.IOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.vm.IRuntimeEnv;
 
 public class ArrayHolder {
 
     private CompositeMethod[] methods;
-
-    public ArrayHolder(Object array, CompositeMethod[] methods) {
+    private IOpenClass componentType;
+    
+    public ArrayHolder(IOpenClass componentType, CompositeMethod[] methods) {
         this.methods = methods;
+        this.componentType = componentType;
     }
 
     public Object invoke(Object target, Object[] dtParams, IRuntimeEnv env) {
         
-    	Object[] res = new Object[methods.length];
+    	Object res = componentType.getAggregateInfo().makeIndexedAggregate(componentType, new int[] { methods.length });
     	
         for (int i = 0; i < methods.length; i++) {
             
