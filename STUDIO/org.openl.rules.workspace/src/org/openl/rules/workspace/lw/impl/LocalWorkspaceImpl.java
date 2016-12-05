@@ -9,19 +9,24 @@ import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.util.*;
 
 public class LocalWorkspaceImpl implements LocalWorkspace {
+    private final Logger log = LoggerFactory.getLogger(LocalWorkspaceImpl.class);
 
-    private WorkspaceUser user;
+    private final WorkspaceUser user;
     private final File location;
     private final Map<String, AProject> localProjects;
-    private List<LocalWorkspaceListener> listeners = new ArrayList<LocalWorkspaceListener>();
-    private FileFilter localWorkspaceFolderFilter;
-    private FileFilter localWorkspaceFileFilter;
+    private final List<LocalWorkspaceListener> listeners = new ArrayList<LocalWorkspaceListener>();
+    private final FileFilter localWorkspaceFolderFilter;
+    private final FileFilter localWorkspaceFileFilter;
+    private final LocalRepository localRepository;
 
     public LocalWorkspaceImpl(WorkspaceUser user, File location, FileFilter localWorkspaceFolderFilter,
                               FileFilter localWorkspaceFileFilter) {
@@ -31,6 +36,12 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         this.localWorkspaceFileFilter = localWorkspaceFileFilter;
 
         localProjects = new HashMap<String, AProject>();
+        localRepository = new LocalRepository(location, new LocalProjectModificationHandler(location));
+        try {
+            localRepository.initialize();
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
 
         loadProjects();
     }
@@ -76,7 +87,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
 
     @Override
     public LocalRepository getRepository() {
-        return new LocalRepository(location, new LocalProjectModificationHandler(location));
+        return localRepository;
     }
 
     public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
@@ -182,6 +193,12 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     public void release() {
         synchronized (localProjects) {
             localProjects.clear();
+        }
+
+        try {
+            localRepository.close();
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
         }
 
         for (LocalWorkspaceListener lwl : listeners) {

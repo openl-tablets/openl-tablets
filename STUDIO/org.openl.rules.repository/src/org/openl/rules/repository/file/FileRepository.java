@@ -1,16 +1,7 @@
 package org.openl.rules.repository.file;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
@@ -27,11 +18,13 @@ import org.slf4j.LoggerFactory;
  *
  * @author Yury Molchan
  */
-public class FileRepository implements Repository {
+public class FileRepository implements Repository, Closeable {
     private final Logger log = LoggerFactory.getLogger(FileRepository.class);
 
     private File root;
     private int rootPathLength;
+    private Timer timer;
+    private Listener listener;
 
     public FileRepository(File root) {
         this.root = root;
@@ -118,7 +111,17 @@ public class FileRepository implements Repository {
 
     @Override
     public void setListener(Listener callback) {
+        this.listener = callback;
 
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
+
+        if (callback != null) {
+            timer = new Timer(true);
+            timer.schedule(new FileChangesMonitor(getRoot(), callback), 1000, 10000);
+        }
     }
 
     @Override
@@ -205,5 +208,21 @@ public class FileRepository implements Repository {
 
     public File getRoot() {
         return root;
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
+    }
+
+    protected void invokeListener() {
+        if (listener != null) {
+            synchronized (listener) {
+                listener.onChange();
+            }
+        }
     }
 }

@@ -23,11 +23,6 @@ public class LocalRepository extends FileRepository {
     public LocalRepository(File location, ModificationHandler modificationHandler) {
         super(location);
         this.modificationHandler = modificationHandler;
-        try {
-            initialize();
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
     }
 
     @Override
@@ -77,7 +72,7 @@ public class LocalRepository extends FileRepository {
 
     public void notifyModified(String path) {
         modificationHandler.notifyModified(path);
-        // TODO Invoke listener
+        invokeListener();
     }
 
     public void clearModifyStatus(String path) {
