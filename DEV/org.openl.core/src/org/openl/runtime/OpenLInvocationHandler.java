@@ -65,15 +65,13 @@ public class OpenLInvocationHandler implements InvocationHandler, IEngineWrapper
     }
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        if (method.getDeclaringClass() == IEngineWrapper.class) {
-            Method wrapperMethod = OpenLInvocationHandler.class.getDeclaredMethod(method.getName(), new Class<?>[0]);
-            return wrapperMethod.invoke(this, args);
+        if (IEngineWrapper.class.equals(method.getDeclaringClass())) {
+            return method.invoke(this, args);
         }
-        if (method.getDeclaringClass().equals(Object.class)) {
+        if (Object.class.equals(method.getDeclaringClass())) {
             return method.invoke(this, args);
         } else {
             IOpenMember member = methodMap.get(method);
-
             if (member instanceof IOpenMethod) {
                 IOpenMethod openMethod = (IOpenMethod) member;
                 return openMethod.invoke(openlInstance, args, getRuntimeEnv());

@@ -39,9 +39,8 @@ public class OpenLRulesInvocationHandler extends OpenLInvocationHandler implemen
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        if (method.getDeclaringClass().equals(IRulesRuntimeContextProvider.class)) {
-            Method declaredMethod = OpenLRulesInvocationHandler.class.getDeclaredMethod(method.getName(), new Class<?>[0]);
-            return declaredMethod.invoke(this, args);
+        if (IRulesRuntimeContextProvider.class.equals(method.getDeclaringClass())) {
+            return method.invoke(this, args);
         }
         return super.invoke(proxy, method, args);
     }
