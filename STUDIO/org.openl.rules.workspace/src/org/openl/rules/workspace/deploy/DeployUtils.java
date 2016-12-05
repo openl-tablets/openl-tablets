@@ -56,7 +56,7 @@ public final class DeployUtils {
                 Deployment deployment = new Deployment(repository,
                     DEPLOY_PATH + deploymentFolderName,
                     deploymentName,
-                    commonVersion);
+                    commonVersion, false);
                 latestDeployments.put(deploymentName, deployment);
             }
         }
@@ -100,7 +100,7 @@ public final class DeployUtils {
             Deployment deployment = new Deployment(repository,
                 DEPLOY_PATH + deploymentFolderName,
                 deploymentName,
-                commonVersion);
+                commonVersion, false);
             deployments.putIfAbsent(deploymentFolderName, deployment);
         }
 
@@ -111,6 +111,6 @@ public final class DeployUtils {
             String deploymentName,
             CommonVersion deploymentVersion) {
         String name = deploymentName + SEPARATOR + deploymentVersion.getVersionName();
-        return new Deployment(repository, DEPLOY_PATH + name, deploymentName, deploymentVersion);
+        return new Deployment(repository, DEPLOY_PATH + name, deploymentName, deploymentVersion, false);
     }
 }

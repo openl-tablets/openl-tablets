@@ -7,13 +7,13 @@ import java.util.Collection;
 import java.util.List;
 
 import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.RDeploymentListener;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.repository.file.FileRepository;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.DeployUtils;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
@@ -55,11 +55,12 @@ public class JcrRulesClient {
         destFolder.mkdirs();
         FolderHelper.clearFolder(destFolder);
         //FIXME: avoid creating LocalWorkspace
-        Repository localRepository = new LocalRepository(destFolder.getParentFile());
-        AProject fetchedDeployment = new AProject(localRepository, destFolder.getName());
+        FileRepository localRepository = new FileRepository(destFolder.getParentFile());
+        localRepository.initialize();
+        AProject fetchedDeployment = new AProject(localRepository, destFolder.getName(), true);
 
         Repository productionRepository = productionRepositoryFactoryProxy.getRepositoryInstance(repositoryPropertiesFile);
-        final AProject deploymentProject = new AProject(productionRepository, DeployUtils.DEPLOY_PATH + deployID.getName());
+        final AProject deploymentProject = new AProject(productionRepository, DeployUtils.DEPLOY_PATH + deployID.getName(), false);
         // TODO: solve problem with fetching deployment when it is not uploaded
         // completely
         if (deploymentProject.isLocked()) {
@@ -87,7 +88,7 @@ public class JcrRulesClient {
      * @throws RRepositoryException on repository error
      */
     public Collection<String> getDeploymentNames() throws RRepositoryException {
-        Collection<FileData> fileDatas = null;
+        Collection<FileData> fileDatas;
         try {
             fileDatas = productionRepositoryFactoryProxy.getRepositoryInstance(repositoryPropertiesFile) .list(DeployUtils.DEPLOY_PATH);
         } catch (IOException e) {

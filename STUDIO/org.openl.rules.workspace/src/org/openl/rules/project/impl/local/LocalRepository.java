@@ -6,9 +6,10 @@ import java.util.*;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.file.FileRepository;
 
-public class LocalRepository extends FileRepository implements FolderRepository {
+public class LocalRepository extends FileRepository {
     private final ModificationHandler modificationHandler;
 
+    @Deprecated
     public LocalRepository(File location) {
         super(location);
         this.modificationHandler = new DummyModificationHandler();
@@ -22,11 +23,6 @@ public class LocalRepository extends FileRepository implements FolderRepository 
     public LocalRepository(File location, ModificationHandler modificationHandler) {
         super(location);
         this.modificationHandler = modificationHandler;
-        try {
-            initialize();
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
     }
 
     @Override
@@ -76,7 +72,7 @@ public class LocalRepository extends FileRepository implements FolderRepository 
 
     public void notifyModified(String path) {
         modificationHandler.notifyModified(path);
-        // TODO Invoke listener
+        invokeListener();
     }
 
     public void clearModifyStatus(String path) {

@@ -8,13 +8,13 @@ import org.openl.rules.workspace.WorkspaceUser;
 public abstract class UserWorkspaceProject extends AProject {
     private WorkspaceUser user;
 
-    public UserWorkspaceProject(WorkspaceUser user, Repository repository, String folderPath, String version) {
-        super(repository, folderPath, version);
+    public UserWorkspaceProject(WorkspaceUser user, Repository repository, String folderPath, String version, boolean folderStructure) {
+        super(repository, folderPath, version, folderStructure);
         this.user = user;
     }
 
-    public UserWorkspaceProject(WorkspaceUser user, Repository repository, FileData fileData) {
-        super(repository, fileData);
+    public UserWorkspaceProject(WorkspaceUser user, Repository repository, FileData fileData, boolean folderStructure) {
+        super(repository, fileData, folderStructure);
         this.user = user;
     }
 

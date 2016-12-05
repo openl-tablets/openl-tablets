@@ -26,13 +26,9 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
     /** Cache for User Workspaces */
     private Map<String, UserWorkspace> userWorkspaces = new HashMap<String, UserWorkspace>();
 
-    protected UserWorkspace createUserWorkspace(WorkspaceUser user) throws WorkspaceException {
+    private UserWorkspace createUserWorkspace(WorkspaceUser user) throws WorkspaceException {
         LocalWorkspace usersLocalWorkspace = localWorkspaceManager.getWorkspace(user);
         return new UserWorkspaceImpl(user, usersLocalWorkspace, designTimeRepository);
-    }
-
-    public LocalWorkspaceManager getLocalWorkspaceManager() {
-        return localWorkspaceManager;
     }
 
     /**
@@ -49,9 +45,6 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
         if (uw == null) {
             uw = createUserWorkspace(user);
             userWorkspaces.put(user.getUserId(), uw);
-        } else {
-            LocalWorkspace usersLocalWorkspace = localWorkspaceManager.getWorkspace(user);
-            usersLocalWorkspace.setUserWorkspace(uw);
         }
 
         return uw;
@@ -70,6 +63,6 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
      * ended and it must be removed from cache.
      */
     public void workspaceReleased(UserWorkspace workspace) {
-        userWorkspaces.remove(((UserWorkspaceImpl) workspace).getUser().getUserId());
+        userWorkspaces.remove(workspace.getUser().getUserId());
     }
 }

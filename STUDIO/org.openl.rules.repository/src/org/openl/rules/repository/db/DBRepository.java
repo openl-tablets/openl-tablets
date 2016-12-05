@@ -1,9 +1,6 @@
 package org.openl.rules.repository.db;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
@@ -16,7 +13,7 @@ import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class DBRepository implements Repository {
+public abstract class DBRepository implements Repository, Closeable {
     private final Logger log = LoggerFactory.getLogger(DBRepository.class);
 
     private Listener listener;
@@ -161,13 +158,13 @@ public abstract class DBRepository implements Repository {
     public void setListener(final Listener callback) {
         this.listener = callback;
 
-        if (callback == null) {
+        if (timer != null) {
             timer.cancel();
             timer = null;
-        } else {
-            if (timer == null) {
-                timer = new Timer(true);
-            }
+        }
+
+        if (callback != null) {
+            timer = new Timer(true);
 
             timer.schedule(new TimerTask() {
                 private Long maxId = null;
@@ -483,6 +480,7 @@ public abstract class DBRepository implements Repository {
         }
     }
 
+    @Override
     public void close() throws IOException {
         if (timer != null) {
             timer.cancel();

@@ -42,8 +42,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
         userRulesProjects = new HashMap<String, RulesProject>();
         userDProjects = new HashMap<String, ADeploymentProject>();
-
-        localWorkspace.setUserWorkspace(this);
     }
 
     public void activate() throws ProjectException {
@@ -188,8 +186,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public void passivate() {
-        localWorkspace.saveAll();
-
         synchronized (userRulesProjects) {
             userRulesProjects.clear();
         }

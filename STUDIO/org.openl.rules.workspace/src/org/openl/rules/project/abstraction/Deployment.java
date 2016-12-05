@@ -25,9 +25,20 @@ public class Deployment extends AProjectFolder {
 
     private String deploymentName;
     private CommonVersion commonVersion;
+    private final boolean folderStructure;
 
+    @Deprecated
     public Deployment(Repository repository, String folderName, String deploymentName, CommonVersion commonVersion) {
+        this(repository, folderName, deploymentName, commonVersion, true);
+    }
+
+    public Deployment(Repository repository,
+            String folderName,
+            String deploymentName,
+            CommonVersion commonVersion,
+            boolean folderStructure) {
         super(null, repository, folderName, commonVersion == null ? null : commonVersion.getVersionName());
+        this.folderStructure = folderStructure;
         init();
         this.commonVersion = commonVersion;
         this.deploymentName = deploymentName;
@@ -56,7 +67,7 @@ public class Deployment extends AProjectFolder {
 
         for (AProjectArtefact artefact : getArtefactsInternal().values()) {
             String projectPath = artefact.getArtefactPath().getStringValue();
-            projects.put(artefact.getName(), new AProject(getRepository(), projectPath));
+            projects.put(artefact.getName(), new AProject(getRepository(), projectPath, folderStructure));
         }
     }
 
@@ -82,7 +93,7 @@ public class Deployment extends AProjectFolder {
             Map<String, AProjectArtefact> result = new HashMap<String, AProjectArtefact>();
             if (files != null) {
                 for (File file : files) {
-                    result.put(file.getName(), new AProject(repository, getFolderPath() + "/" + file.getName()));
+                    result.put(file.getName(), new AProject(repository, getFolderPath() + "/" + file.getName(), true));
                 }
             }
             return result;
@@ -103,7 +114,7 @@ public class Deployment extends AProjectFolder {
         for (AProject otherProject : other.getProjects()) {
             String name = otherProject.getName();
             if (!hasArtefact(name)) {
-                AProject newProject = new AProject(getRepository(), getFolderPath() + "/" + name);
+                AProject newProject = new AProject(getRepository(), getFolderPath() + "/" + name, folderStructure);
                 newProject.update(otherProject, user);
                 projects.put(newProject.getName(), newProject);
             }

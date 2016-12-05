@@ -52,7 +52,7 @@ public class JcrProductionDeployerTestCase {
     private List<AProject> projects;
 
     private AProject makeProject(String name) throws ProjectException {
-        AProject project = new AProject(repository, name);
+        AProject project = new AProject(repository, name, true);
         AProjectFolder folder1 = project.addFolder(FOLDER1);
         folder1.addResource(FILE1_1, MockResource.NULL_STREAM);
         folder1.addResource(FILE1_2, MockResource.NULL_STREAM);
@@ -61,7 +61,7 @@ public class JcrProductionDeployerTestCase {
     }
 
     private AProject makeProject3() throws ProjectException, PropertyException {
-        AProject project = new AProject(repository, PROJECT3_NAME);
+        AProject project = new AProject(repository, PROJECT3_NAME, true);
         AProjectFolder folder1 = project.addFolder(FOLDER1);
         folder1.addResource(FILE1_1, MockResource.NULL_STREAM);
         return project;
@@ -114,7 +114,7 @@ public class JcrProductionDeployerTestCase {
 //        assertTrue(deployment.hasArtefact(PROJECT2_NAME));
 //        assertTrue(deployment.hasArtefact(PROJECT3_NAME));
 
-        AProject project = new AProject(productionRepository, DeployUtils.DEPLOY_PATH + id.getName() + "/" + PROJECT2_NAME);
+        AProject project = new AProject(productionRepository, DeployUtils.DEPLOY_PATH + id.getName() + "/" + PROJECT2_NAME, false);
 
 //        AProjectFolder folder1 = (AProjectFolder) project.getArtefact(FOLDER1);
 //
@@ -127,7 +127,7 @@ public class JcrProductionDeployerTestCase {
         AProjectResource theFile2 = (AProjectResource)project.getArtefact(FOLDER1 + "/" + FILE1_2);
         assertNotNull(theFile2);
 
-        AProject project3 = new AProject(productionRepository, DeployUtils.DEPLOY_PATH + id.getName() + "/" + PROJECT3_NAME);
+        AProject project3 = new AProject(productionRepository, DeployUtils.DEPLOY_PATH + id.getName() + "/" + PROJECT3_NAME, false);
 
 //        folder1 = (AProjectFolder) project3.getArtefact(FOLDER1);
 //
