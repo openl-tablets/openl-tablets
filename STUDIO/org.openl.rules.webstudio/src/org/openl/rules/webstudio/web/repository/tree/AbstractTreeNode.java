@@ -291,7 +291,11 @@ public abstract class AbstractTreeNode implements TreeNode {
             
             List<ProjectVersion> result;
             if (project != data && project != null) {
-                result = project.getArtefactVersions((getData()).getArtefactPath().withoutFirstSegment());
+                if (data.isFolder()) {
+                    result = Collections.emptyList();
+                } else {
+                    result = project.getArtefactVersions(getData().getArtefactPath().withoutFirstSegment());
+                }
             } else {
                 result = getData().getVersions();
             }
@@ -311,8 +315,12 @@ public abstract class AbstractTreeNode implements TreeNode {
             RulesProject project = findProjectContainingCurrentArtefact();
 
             if (project != null) {
-                List<ProjectVersion> versions = project.getArtefactVersions((getData()).getArtefactPath().withoutFirstSegment());
-                return versions.size() > 0;
+                if (data.isFolder()) {
+                    return false;
+                } else {
+                    List<ProjectVersion> versions = project.getArtefactVersions(getData().getArtefactPath().withoutFirstSegment());
+                    return versions.size() > 0;
+                }
             } else {
                 return getData().getVersionsCount() > 0;
             }
