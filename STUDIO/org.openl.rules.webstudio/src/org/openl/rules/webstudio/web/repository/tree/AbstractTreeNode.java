@@ -200,11 +200,8 @@ public abstract class AbstractTreeNode implements TreeNode {
     }
 
     public List<TreeNode> getChildNodes() {
-        List<TreeNode> list = new ArrayList<TreeNode>(getElements().values());
         // elements are sorted already
-        // Collections.sort(list, CHILD_COMPARATOR);
-
-        return list;
+        return new ArrayList<TreeNode>(getElements().values());
     }
 
     public Iterator<Object> getChildrenKeysIterator() {
@@ -344,15 +341,7 @@ public abstract class AbstractTreeNode implements TreeNode {
     }
 
     public boolean isLeaf() {
-        boolean result;
-
-        if (isLeafOnly) {
-            result = true;
-        } else {
-            result = getElements().isEmpty();
-        }
-
-        return result;
+        return isLeafOnly || getElements().isEmpty();
     }
 
     public void removeChild(Object id) {
