@@ -249,8 +249,8 @@ public class AProject extends AProjectFolder {
                 final String artefactName = entry.getName();
                 fileData.setName(folderPath + "/" + artefactName);
                 String version = isHistoric() ? getFileData().getVersion() : null;
-                ContentHandler contentHandler = new LazyZipContentHandler(repository, folderPath, artefactName, version);
-                AProjectResource resource = new AProjectResource(getProject(), repository, fileData, contentHandler);
+                ZipFolderRepository zipFolderRepository = new ZipFolderRepository(repository, folderPath, version);
+                AProjectResource resource = new AProjectResource(getProject(), zipFolderRepository, fileData);
                 internalArtefacts.put(artefactName, resource);
             }
 
@@ -278,7 +278,7 @@ public class AProject extends AProjectFolder {
             if (newFolder.isFolder()) {
                 super.update(newFolder, user);
             } else {
-                // TODO Optimize copying to reduce using of LazyZipContentHandler
+                // TODO Optimize copying to reduce using of ZipFolderRepository
                 super.update(newFolder, user);
             }
         } else {

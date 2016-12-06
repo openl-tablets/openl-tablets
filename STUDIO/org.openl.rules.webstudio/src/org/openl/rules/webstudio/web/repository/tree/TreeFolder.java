@@ -2,12 +2,13 @@ package org.openl.rules.webstudio.web.repository.tree;
 
 import java.util.*;
 
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
-import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.repository.api.Repository;
+import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.repository.UiConst;
-import org.openl.rules.webstudio.filter.IFilter;
 
 /**
  * Represents OpenL folder in a tree.
@@ -58,29 +59,7 @@ public class TreeFolder extends AbstractTreeNode {
             elements = new LinkedHashMap<Object, TreeNode>();
             if (getData() instanceof AProjectFolder) {
                 AProjectFolder folder = (AProjectFolder) getData();
-                Collection<AProjectArtefact> filteredArtefacts = new ArrayList<AProjectArtefact>();
-                Set<String> folderNames = new HashSet<String>();
-                UserWorkspaceProject project = (UserWorkspaceProject) folder.getProject();
-                for (AProjectArtefact artefact : folder.getArtefacts()) {
-                    if (!(filter.supports(artefact.getClass()) && !filter.select(artefact))) {
-                        String folderPath = folder.getFolderPath();
-                        String artefactPath = artefact.getFileData().getName();
-                        int subFolderNameStart = folderPath.length() + 1;
-                        int slashIndex = artefactPath.indexOf('/', subFolderNameStart);
-                        if (slashIndex > -1 && project.isOpened()) {
-                            // Show folder or resource name if project is opened. Show full path if closed.
-                            folderNames.add(artefactPath.substring(subFolderNameStart, slashIndex));
-                        } else {
-                            filteredArtefacts.add(artefact);
-                        }
-                    }
-                }
-                for (String folderName : folderNames) {
-                    filteredArtefacts.add(new AProjectFolder(project,
-                            folder.getRepository(),
-                            folder.getFolderPath() + "/" + folderName,
-                            null));
-                }
+                Collection<AProjectArtefact> filteredArtefacts = getFilteredArtefacts(folder);
 
                 AProjectArtefact[] sortedArtefacts = new AProjectArtefact[filteredArtefacts.size()];
                 sortedArtefacts = filteredArtefacts.toArray(sortedArtefacts);
@@ -94,13 +73,43 @@ public class TreeFolder extends AbstractTreeNode {
         }
         return elements;
     }
-    
+
+    protected Collection<AProjectArtefact> getFilteredArtefacts(AProjectFolder folder) {
+        Collection<AProjectArtefact> filteredArtefacts = new ArrayList<AProjectArtefact>();
+        Set<String> folderNames = new HashSet<String>();
+        AProject project = folder.getProject();
+        Repository artefactRepository = null;
+        for (AProjectArtefact artefact : folder.getArtefacts()) {
+            if (!(filter.supports(artefact.getClass()) && !filter.select(artefact))) {
+                // Replace with artefact repository because it can differ from folderRepository
+                artefactRepository = artefact.getRepository();
+
+                String folderPath = folder.getFolderPath();
+                String artefactPath = artefact.getFileData().getName();
+
+                int subFolderNameStart = folderPath.length() + 1;
+                int subFolderNameEnd = artefactPath.indexOf('/', subFolderNameStart);
+
+                if (subFolderNameEnd > -1) {
+                    folderNames.add(artefactPath.substring(subFolderNameStart, subFolderNameEnd));
+                } else {
+                    filteredArtefacts.add(artefact);
+                }
+            }
+        }
+        for (String folderName : folderNames) {
+            filteredArtefacts.add(new AProjectFolder(project,
+                    artefactRepository,
+                    folder.getFolderPath() + "/" + folderName,
+                    null));
+        }
+        return filteredArtefacts;
+    }
+
     public void addChild(AProjectArtefact childArtefact){
         String name = childArtefact.getName();
-        if (((UserWorkspaceProject)getData().getProject()).isOpened()) {
-            // Show folder or resource name if project is opened. Show full path if closed.
-            name = name.substring(name.lastIndexOf('/') + 1);
-        }
+        name = name.substring(name.lastIndexOf("/") + 1);
+
         String id = RepositoryUtils.getTreeNodeId(name);
         if (childArtefact.isFolder()) {
             TreeFolder treeFolder = new TreeFolder(id, name, filter);
