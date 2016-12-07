@@ -153,11 +153,14 @@ public class ZipJcrRepository implements Repository, Closeable {
             ZipInputStream zipInputStream = new ZipInputStream(stream);
             ZipEntry entry = zipInputStream.getNextEntry();
             CommonUser user = data.getAuthor() == null ? getUser() : new CommonUserImpl(data.getAuthor());
+            TreeSet<String> folderPaths = new TreeSet<String>();
             while (entry != null) {
                 if (!entry.isDirectory()) {
                     newFiles.add(entry.getName());
 
                     String resourceName = name + "/" + entry.getName();
+                    String path = entry.getName();
+                    addFolderPaths(folderPaths, path);
 
                     // Workaround with byte array because jcr closes input stream
                     ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -171,16 +174,14 @@ public class ZipJcrRepository implements Repository, Closeable {
                             artefactProps.put(ArtefactProperties.VERSION_COMMENT, comment);
                             artefact.setProps(artefactProps);
                             ((ResourceAPI) artefact).setContent(in);
-                            artefact.commit(user, Integer.parseInt(artefact.getVersion().getRevision()) + 1);
                         } else {
                             artefact.delete(user);
-                            ResourceAPI resource = rulesRepository.createResource(resourceName, in);
-                            resource.commit(user, Integer.parseInt(resource.getVersion().getRevision()) + 1);
+                            artefact = rulesRepository.createResource(resourceName, in);
                         }
                     } else {
-                        ResourceAPI resource = rulesRepository.createResource(resourceName, in);
-                        resource.commit(user, Integer.parseInt(resource.getVersion().getRevision()) + 1);
+                        artefact = rulesRepository.createResource(resourceName, in);
                     }
+                    artefact.commit(user, Integer.parseInt(artefact.getVersion().getRevision()) + 1);
                 }
 
                 entry = zipInputStream.getNextEntry();
@@ -188,11 +189,27 @@ public class ZipJcrRepository implements Repository, Closeable {
 
             deleteAbsentFiles(newFiles, project, "");
 
+            Iterator<String> foldersIterator = folderPaths.descendingIterator();
+            while (foldersIterator.hasNext()) {
+                String folder = foldersIterator.next();
+                ArtefactAPI artefact = rulesRepository.getArtefact(name + "/" + folder);
+                artefact.commit(user, Integer.parseInt(artefact.getVersion().getRevision()) + 1);
+            }
+
             project.commit(user, Integer.parseInt(project.getVersion().getRevision()) + 1);
 
             return createFileData(data.getName(), project);
         } catch (CommonException e) {
             throw new IOException(e);
+        }
+    }
+
+    private void addFolderPaths(TreeSet<String> folderPaths, String path) {
+        int slashIndex = path.lastIndexOf('/');
+        if (slashIndex > -1) {
+            String folderPath = path.substring(0, slashIndex);
+            folderPaths.add(folderPath);
+            addFolderPaths(folderPaths, folderPath);
         }
     }
 
