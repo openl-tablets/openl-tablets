@@ -17,8 +17,11 @@ import org.openl.rules.repository.RRepositoryListener;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ZipJcrRepository implements Repository, Closeable {
+    private final Logger log = LoggerFactory.getLogger(ZipJcrRepository.class);
 
     private RRepository rulesRepository;
     private String projectsPath;
@@ -28,26 +31,11 @@ public class ZipJcrRepository implements Repository, Closeable {
     // old instance. If it's GC-ed, no need to remove it.
     private WeakReference<Object> listenerReference = new WeakReference<Object>(null);
 
-    protected void init(RRepository rulesRepository) {
+    protected void init(RRepository rulesRepository) throws RRepositoryException {
         this.rulesRepository = rulesRepository;
-
-        try {
-            projectsPath = rulesRepository.getRulesProjectsRootPath();
-        } catch (RRepositoryException e) {
-            throw new IllegalStateException(e);
-        }
-
-        try {
-            deploymentConfigPath = rulesRepository.getDeploymentConfigRootPath();
-        } catch (RRepositoryException e) {
-            throw new IllegalStateException(e);
-        }
-
-        try {
-            deploymentsPath = rulesRepository.getDeploymentsRootPath();
-        } catch (RRepositoryException e) {
-            throw new IllegalStateException(e);
-        }
+        projectsPath = rulesRepository.getRulesProjectsRootPath();
+        deploymentConfigPath = rulesRepository.getDeploymentConfigRootPath();
+        deploymentsPath = rulesRepository.getDeploymentsRootPath();
     }
 
     @Override
@@ -97,7 +85,7 @@ public class ZipJcrRepository implements Repository, Closeable {
 
             return result;
         } catch (CommonException e) {
-            throw new IllegalStateException(e);
+            throw new IOException(e);
         }
     }
 
@@ -112,7 +100,7 @@ public class ZipJcrRepository implements Repository, Closeable {
     }
 
     @Override
-    public FileItem read(String name) {
+    public FileItem read(String name) throws IOException {
         try {
             FolderAPI project;
             if (projectsPath != null && name.startsWith(projectsPath)) {
@@ -138,14 +126,12 @@ public class ZipJcrRepository implements Repository, Closeable {
             }
             return createFileItem(project, createFileData(name, project));
         } catch (CommonException e) {
-            throw new IllegalStateException(e);
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
+            throw new IOException(e);
         }
     }
 
     @Override
-    public FileData save(FileData data, InputStream stream) {
+    public FileData save(FileData data, InputStream stream) throws IOException {
         try {
 
             String name = data.getName();
@@ -206,9 +192,7 @@ public class ZipJcrRepository implements Repository, Closeable {
 
             return createFileData(data.getName(), project);
         } catch (CommonException e) {
-            throw new IllegalStateException(e);
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
+            throw new IOException(e);
         }
     }
 
@@ -240,12 +224,13 @@ public class ZipJcrRepository implements Repository, Closeable {
 
             return true;
         } catch (CommonException e) {
-            throw new IllegalStateException(e);
+            log.error(e.getMessage(), e);
+            return false;
         }
     }
 
     @Override
-    public FileData copy(String srcPath, FileData destData) {
+    public FileData copy(String srcPath, FileData destData) throws IOException {
         try {
             if (rulesRepository.getArtefact(srcPath) == null) {
                 throw new ProjectException("Project ''{0}'' is absent in the repository!", null, srcPath);
@@ -262,17 +247,17 @@ public class ZipJcrRepository implements Repository, Closeable {
 
             return createFileData(name, destProject);
         } catch (CommonException e) {
-            throw new IllegalStateException(e);
+            throw new IOException(e);
         }
     }
 
     @Override
-    public FileData rename(String path, FileData destData) {
+    public FileData rename(String path, FileData destData) throws IOException {
         try {
             String name = destData.getName();
             return createFileData(name, rulesRepository.rename(path, name));
         } catch (CommonException e) {
-            throw new IllegalStateException(e);
+            throw new IOException(e);
         }
     }
 
@@ -336,7 +321,7 @@ public class ZipJcrRepository implements Repository, Closeable {
             }
             return result;
         } catch (CommonException e) {
-            throw new IllegalStateException(e);
+            throw new IOException(e);
         }
     }
 
@@ -351,7 +336,7 @@ public class ZipJcrRepository implements Repository, Closeable {
     }
 
     @Override
-    public FileItem readHistory(String name, String version) {
+    public FileItem readHistory(String name, String version) throws IOException {
         if (version == null) {
             return read(name);
         }
@@ -366,9 +351,7 @@ public class ZipJcrRepository implements Repository, Closeable {
             FolderAPI history = project.getVersion(new CommonVersionImpl(Integer.parseInt(version)));
             return createFileItem(history, createFileData(name, history));
         } catch (CommonException e) {
-            throw new IllegalStateException(e);
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
+            throw new IOException(e);
         }
     }
 
@@ -388,12 +371,13 @@ public class ZipJcrRepository implements Repository, Closeable {
                 return false;
             }
         } catch (CommonException e) {
-            throw new IllegalStateException(e);
+            log.error(e.getMessage(), e);
+            return false;
         }
     }
 
     @Override
-    public FileData copyHistory(String srcName, FileData destData, String version) {
+    public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
         try {
             if (rulesRepository.getArtefact(srcName) == null) {
                 throw new ProjectException("Project ''{0}'' is absent in the repository!", null, srcName);
@@ -409,7 +393,7 @@ public class ZipJcrRepository implements Repository, Closeable {
 
             return createFileData(name, destProject);
         } catch (CommonException e) {
-            throw new IllegalStateException(e);
+            throw new IOException(e);
         }
     }
 
