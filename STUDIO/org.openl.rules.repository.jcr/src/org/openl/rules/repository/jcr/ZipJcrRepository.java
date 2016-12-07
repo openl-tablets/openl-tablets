@@ -103,7 +103,12 @@ public class ZipJcrRepository implements Repository, Closeable {
 
     @Override
     public FileData check(String name) throws IOException {
-        return read(name).getData();
+        FileItem fileItem = read(name);
+        if (fileItem == null) {
+            return null;
+        }
+        IOUtils.closeQuietly(fileItem.getStream());
+        return fileItem.getData();
     }
 
     @Override
@@ -337,7 +342,12 @@ public class ZipJcrRepository implements Repository, Closeable {
 
     @Override
     public FileData checkHistory(String name, String version) throws IOException {
-        return readHistory(name, version).getData();
+        FileItem fileItem = readHistory(name, version);
+        if (fileItem == null) {
+            return null;
+        }
+        IOUtils.closeQuietly(fileItem.getStream());
+        return fileItem.getData();
     }
 
     @Override
