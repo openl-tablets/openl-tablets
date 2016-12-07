@@ -214,7 +214,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         Iterator<String> it = getSelectedNode().getData().getArtefactPath().getSegments().iterator();
         TreeNode currentNode = getRulesRepository();
         while ((currentNode != null) && it.hasNext()) {
-            currentNode = (TreeNode) currentNode.getChild(it.next());
+            String id = RepositoryUtils.getTreeNodeId(it.next());
+            currentNode = (TreeNode) currentNode.getChild(id);
         }
 
         if (currentNode != null) {
