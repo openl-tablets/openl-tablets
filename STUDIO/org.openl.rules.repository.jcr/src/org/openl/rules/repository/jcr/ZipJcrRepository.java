@@ -352,6 +352,9 @@ public class ZipJcrRepository implements Repository, Closeable {
 
     @Override
     public FileItem readHistory(String name, String version) {
+        if (version == null) {
+            return read(name);
+        }
         try {
             ArtefactAPI artefact = rulesRepository.getArtefact(name);
             if (artefact == null || artefact instanceof ResourceAPI) {
