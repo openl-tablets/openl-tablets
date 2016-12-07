@@ -51,7 +51,7 @@ public abstract class DBRepository implements Repository, Closeable {
 
     @Override
     public FileData check(String name) throws IOException {
-        return read(name).getData();
+        return getLatestVersionFileData(name);
     }
 
     @Override
@@ -240,7 +240,7 @@ public abstract class DBRepository implements Repository, Closeable {
 
     @Override
     public FileData checkHistory(String name, String version) throws IOException {
-        return readHistory(name, version).getData();
+        return version == null ? check(name) : getHistoryVersionFileData(name, version);
     }
 
     @Override
