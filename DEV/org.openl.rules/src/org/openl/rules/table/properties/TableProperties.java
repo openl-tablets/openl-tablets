@@ -477,6 +477,22 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     /**
      * {@inheritDoc}
      */
+    public Map<String, Object> getAllDimensionalProperties() {
+        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> props = getAllProperties();
+        for (Map.Entry<String, Object> property : props.entrySet()) {
+            String propName = property.getKey();
+            TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils.getPropertyByName(propName);
+            if (propertyDefinition.isDimensional()) {
+                result.put(propName, property.getValue());
+            }
+        }
+        return result;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
     public Map<String, Object> getPropertiesDefinedInTableIgnoreSystem() {
         Map<String, Object> result = new HashMap<String, Object>();
         Map<String, Object> propDefinedInTable = getPropertiesDefinedInTable();

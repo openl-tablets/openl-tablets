@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.openl.exception.OpenLRuntimeException;
@@ -74,7 +75,6 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     @Override
     protected IOpenMethod findMatchingMethod(List<IOpenMethod> candidates, IRuntimeContext context) {
-
         Set<IOpenMethod> selected = new HashSet<IOpenMethod>(candidates);
 
         selectCandidates(selected, (IRulesRuntimeContext) context);
@@ -82,25 +82,20 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
         switch (selected.size()) {
             case 0:
-                // TODO add more detailed information about error, consider
-                // context values printout, may be log of constraints that
-                // removed candidates
+                IOpenMethod candidateMethod = candidates.iterator().next();
                 throw new OpenLRuntimeException(
-                    String.format("No matching methods for the context. Details: \n%1$s\nContext: %2$s",
+                    String.format("No matching methods with name '%3$s' for the context. Details: \n%1$s\nContext: %2$s",
                         toString(candidates),
-                        context.toString()));
-
+                        context.toString(), candidateMethod.getName()));
             case 1:
                 IOpenMethod matchingMethod = selected.iterator().next();
                 return matchingMethod;
             default:
-                // TODO add more detailed information about error, consider
-                // context values printout, may be log of constraints,
-                // list of remaining methods with properties
-                throw new OpenLRuntimeException(
-                    String.format("Ambiguous method dispatch. Details: \n%1$s\nContext: %2$s",
+                IOpenMethod method = selected.iterator().next();
+                throw new OpenLRuntimeException( 
+                    String.format("Ambiguous dispatch for method '%3$s'. \n%1$s\nContext: %2$s",
                         toString(selected),
-                        context.toString()));
+                        context.toString(), method.getName()));
         }
 
     }
@@ -273,14 +268,32 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
         StringBuilder builder = new StringBuilder();
         builder.append("Candidates: {\n");
-
+        
+        boolean g = false;
+        
         for (IOpenMethod method : methods) {
+            if (g){
+                builder.append(",\n");
+            }else{
+                g = true;
+            }
+            builder.append("{");
             ITableProperties tableProperties = PropertiesHelper.getTableProperties(method);
-            builder.append(tableProperties.toString());
-            builder.append("\n");
+            boolean f = false;
+            for (Entry<String, Object> entry : tableProperties.getAllDimensionalProperties().entrySet()){
+                if (f){
+                    builder.append(", ");
+                }else{
+                    f = true;
+                }
+                builder.append(entry.getKey());
+                builder.append(": ");
+                builder.append(tableProperties.getPropertyValueAsString(entry.getKey()));
+            }
+            builder.append("}");
         }
 
-        builder.append("}\n");
+        builder.append("\n}\n");
 
         return builder.toString();
     }

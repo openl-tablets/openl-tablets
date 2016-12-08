@@ -38,6 +38,16 @@ public interface ITableProperties {
     Map<String, Object> getPropertiesDefinedInTableIgnoreSystem();
     
     /**
+     * Gets the <code>{@link Map}</code> of properties with name as key and value as value, this map contains 
+     * all dimensional properties defined for table. 
+     * To find out which property is dimensional see property definitions 
+     * {@link TablePropertyDefinitionUtils#getSystemProperties()}.
+     * 
+     * @return <code>{@link Map}</code> of properties defined in table excluding system properties.
+     */
+    Map<String, Object> getAllDimensionalProperties();
+    
+    /**
      * <code>{@link Map}</code> of properties applied to the category this table belongs to.
      * 
      * @return <code>{@link Map}</code> of properties applied to the category this table belongs to.
