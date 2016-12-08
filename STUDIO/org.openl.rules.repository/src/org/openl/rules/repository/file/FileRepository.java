@@ -3,10 +3,12 @@ package org.openl.rules.repository.file;
 import java.io.*;
 import java.util.*;
 
+import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
@@ -18,7 +20,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Yury Molchan
  */
-public class FileRepository implements Repository, Closeable {
+public class FileRepository implements Repository, RRepositoryFactory, Closeable {
     private final Logger log = LoggerFactory.getLogger(FileRepository.class);
 
     private File root;
@@ -26,17 +28,25 @@ public class FileRepository implements Repository, Closeable {
     private Timer timer;
     private Listener listener;
 
+    public FileRepository(String uri, String login, String password, boolean designMode) {
+        this(new File(uri));
+    }
+
     public FileRepository(File root) {
         this.root = root;
     }
 
-    public void initialize() throws IOException {
-        root.mkdirs();
-        if (!root.exists() || !root.isDirectory()) {
-            throw new IOException("Failed to initialize the root directory: [" + root + "]");
+    public void initialize() throws RRepositoryException {
+        try {
+            root.mkdirs();
+            if (!root.exists() || !root.isDirectory()) {
+                throw new IOException("Failed to initialize the root directory: [" + root + "]");
+            }
+            String rootPath = root.getCanonicalPath();
+            rootPathLength = rootPath.length() + 1;
+        } catch (IOException e) {
+            throw new RRepositoryException(e.getMessage(), e);
         }
-        String rootPath = root.getCanonicalPath();
-        rootPathLength = rootPath.length() + 1;
     }
 
     @Override

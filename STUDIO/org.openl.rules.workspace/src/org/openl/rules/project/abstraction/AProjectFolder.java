@@ -130,7 +130,7 @@ public class AProjectFolder extends AProjectArtefact {
                     if (artefact.isFolder()) {
                         addFolder(name).update(artefact, user);
                     } else {
-                        addResource(name, (AProjectResource) artefact).update(artefact, user);
+                        addResource(name, (AProjectResource) artefact);
                     }
                 }
             }

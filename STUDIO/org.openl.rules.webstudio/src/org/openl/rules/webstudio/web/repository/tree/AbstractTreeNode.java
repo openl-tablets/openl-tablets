@@ -200,11 +200,8 @@ public abstract class AbstractTreeNode implements TreeNode {
     }
 
     public List<TreeNode> getChildNodes() {
-        List<TreeNode> list = new ArrayList<TreeNode>(getElements().values());
         // elements are sorted already
-        // Collections.sort(list, CHILD_COMPARATOR);
-
-        return list;
+        return new ArrayList<TreeNode>(getElements().values());
     }
 
     public Iterator<Object> getChildrenKeysIterator() {
@@ -291,7 +288,11 @@ public abstract class AbstractTreeNode implements TreeNode {
             
             List<ProjectVersion> result;
             if (project != data && project != null) {
-                result = project.getArtefactVersions((getData()).getArtefactPath().withoutFirstSegment());
+                if (data.isFolder()) {
+                    result = Collections.emptyList();
+                } else {
+                    result = project.getArtefactVersions(getData().getArtefactPath().withoutFirstSegment());
+                }
             } else {
                 result = getData().getVersions();
             }
@@ -311,8 +312,12 @@ public abstract class AbstractTreeNode implements TreeNode {
             RulesProject project = findProjectContainingCurrentArtefact();
 
             if (project != null) {
-                List<ProjectVersion> versions = project.getArtefactVersions((getData()).getArtefactPath().withoutFirstSegment());
-                return versions.size() > 0;
+                if (data.isFolder()) {
+                    return false;
+                } else {
+                    List<ProjectVersion> versions = project.getArtefactVersions(getData().getArtefactPath().withoutFirstSegment());
+                    return versions.size() > 0;
+                }
             } else {
                 return getData().getVersionsCount() > 0;
             }
@@ -336,15 +341,7 @@ public abstract class AbstractTreeNode implements TreeNode {
     }
 
     public boolean isLeaf() {
-        boolean result;
-
-        if (isLeafOnly) {
-            result = true;
-        } else {
-            result = getElements().isEmpty();
-        }
-
-        return result;
+        return isLeafOnly || getElements().isEmpty();
     }
 
     public void removeChild(Object id) {

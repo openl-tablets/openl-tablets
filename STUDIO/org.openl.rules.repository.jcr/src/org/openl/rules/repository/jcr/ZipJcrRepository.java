@@ -17,8 +17,11 @@ import org.openl.rules.repository.RRepositoryListener;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ZipJcrRepository implements Repository, Closeable {
+    private final Logger log = LoggerFactory.getLogger(ZipJcrRepository.class);
 
     private RRepository rulesRepository;
     private String projectsPath;
@@ -28,26 +31,11 @@ public class ZipJcrRepository implements Repository, Closeable {
     // old instance. If it's GC-ed, no need to remove it.
     private WeakReference<Object> listenerReference = new WeakReference<Object>(null);
 
-    protected void init(RRepository rulesRepository) {
+    protected void init(RRepository rulesRepository) throws RRepositoryException {
         this.rulesRepository = rulesRepository;
-
-        try {
-            projectsPath = rulesRepository.getRulesProjectsRootPath();
-        } catch (RRepositoryException e) {
-            throw new IllegalStateException(e);
-        }
-
-        try {
-            deploymentConfigPath = rulesRepository.getDeploymentConfigRootPath();
-        } catch (RRepositoryException e) {
-            throw new IllegalStateException(e);
-        }
-
-        try {
-            deploymentsPath = rulesRepository.getDeploymentsRootPath();
-        } catch (RRepositoryException e) {
-            throw new IllegalStateException(e);
-        }
+        projectsPath = rulesRepository.getRulesProjectsRootPath();
+        deploymentConfigPath = rulesRepository.getDeploymentConfigRootPath();
+        deploymentsPath = rulesRepository.getDeploymentsRootPath();
     }
 
     @Override
@@ -97,17 +85,22 @@ public class ZipJcrRepository implements Repository, Closeable {
 
             return result;
         } catch (CommonException e) {
-            throw new IllegalStateException(e);
+            throw new IOException(e);
         }
     }
 
     @Override
     public FileData check(String name) throws IOException {
-        return read(name).getData();
+        FileItem fileItem = read(name);
+        if (fileItem == null) {
+            return null;
+        }
+        IOUtils.closeQuietly(fileItem.getStream());
+        return fileItem.getData();
     }
 
     @Override
-    public FileItem read(String name) {
+    public FileItem read(String name) throws IOException {
         try {
             FolderAPI project;
             if (projectsPath != null && name.startsWith(projectsPath)) {
@@ -133,14 +126,12 @@ public class ZipJcrRepository implements Repository, Closeable {
             }
             return createFileItem(project, createFileData(name, project));
         } catch (CommonException e) {
-            throw new IllegalStateException(e);
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
+            throw new IOException(e);
         }
     }
 
     @Override
-    public FileData save(FileData data, InputStream stream) {
+    public FileData save(FileData data, InputStream stream) throws IOException {
         try {
 
             String name = data.getName();
@@ -162,11 +153,14 @@ public class ZipJcrRepository implements Repository, Closeable {
             ZipInputStream zipInputStream = new ZipInputStream(stream);
             ZipEntry entry = zipInputStream.getNextEntry();
             CommonUser user = data.getAuthor() == null ? getUser() : new CommonUserImpl(data.getAuthor());
+            TreeSet<String> folderPaths = new TreeSet<String>();
             while (entry != null) {
                 if (!entry.isDirectory()) {
                     newFiles.add(entry.getName());
 
                     String resourceName = name + "/" + entry.getName();
+                    String path = entry.getName();
+                    addFolderPaths(folderPaths, path);
 
                     // Workaround with byte array because jcr closes input stream
                     ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -180,16 +174,14 @@ public class ZipJcrRepository implements Repository, Closeable {
                             artefactProps.put(ArtefactProperties.VERSION_COMMENT, comment);
                             artefact.setProps(artefactProps);
                             ((ResourceAPI) artefact).setContent(in);
-                            artefact.commit(user, Integer.parseInt(artefact.getVersion().getRevision()) + 1);
                         } else {
                             artefact.delete(user);
-                            ResourceAPI resource = rulesRepository.createResource(resourceName, in);
-                            resource.commit(user, Integer.parseInt(resource.getVersion().getRevision()) + 1);
+                            artefact = rulesRepository.createResource(resourceName, in);
                         }
                     } else {
-                        ResourceAPI resource = rulesRepository.createResource(resourceName, in);
-                        resource.commit(user, Integer.parseInt(resource.getVersion().getRevision()) + 1);
+                        artefact = rulesRepository.createResource(resourceName, in);
                     }
+                    artefact.commit(user, Integer.parseInt(artefact.getVersion().getRevision()) + 1);
                 }
 
                 entry = zipInputStream.getNextEntry();
@@ -197,13 +189,27 @@ public class ZipJcrRepository implements Repository, Closeable {
 
             deleteAbsentFiles(newFiles, project, "");
 
+            Iterator<String> foldersIterator = folderPaths.descendingIterator();
+            while (foldersIterator.hasNext()) {
+                String folder = foldersIterator.next();
+                ArtefactAPI artefact = rulesRepository.getArtefact(name + "/" + folder);
+                artefact.commit(user, Integer.parseInt(artefact.getVersion().getRevision()) + 1);
+            }
+
             project.commit(user, Integer.parseInt(project.getVersion().getRevision()) + 1);
 
             return createFileData(data.getName(), project);
         } catch (CommonException e) {
-            throw new IllegalStateException(e);
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
+            throw new IOException(e);
+        }
+    }
+
+    private void addFolderPaths(TreeSet<String> folderPaths, String path) {
+        int slashIndex = path.lastIndexOf('/');
+        if (slashIndex > -1) {
+            String folderPath = path.substring(0, slashIndex);
+            folderPaths.add(folderPath);
+            addFolderPaths(folderPaths, folderPath);
         }
     }
 
@@ -235,12 +241,13 @@ public class ZipJcrRepository implements Repository, Closeable {
 
             return true;
         } catch (CommonException e) {
-            throw new IllegalStateException(e);
+            log.error(e.getMessage(), e);
+            return false;
         }
     }
 
     @Override
-    public FileData copy(String srcPath, FileData destData) {
+    public FileData copy(String srcPath, FileData destData) throws IOException {
         try {
             if (rulesRepository.getArtefact(srcPath) == null) {
                 throw new ProjectException("Project ''{0}'' is absent in the repository!", null, srcPath);
@@ -257,17 +264,17 @@ public class ZipJcrRepository implements Repository, Closeable {
 
             return createFileData(name, destProject);
         } catch (CommonException e) {
-            throw new IllegalStateException(e);
+            throw new IOException(e);
         }
     }
 
     @Override
-    public FileData rename(String path, FileData destData) {
+    public FileData rename(String path, FileData destData) throws IOException {
         try {
             String name = destData.getName();
             return createFileData(name, rulesRepository.rename(path, name));
         } catch (CommonException e) {
-            throw new IllegalStateException(e);
+            throw new IOException(e);
         }
     }
 
@@ -331,17 +338,25 @@ public class ZipJcrRepository implements Repository, Closeable {
             }
             return result;
         } catch (CommonException e) {
-            throw new IllegalStateException(e);
+            throw new IOException(e);
         }
     }
 
     @Override
     public FileData checkHistory(String name, String version) throws IOException {
-        return readHistory(name, version).getData();
+        FileItem fileItem = readHistory(name, version);
+        if (fileItem == null) {
+            return null;
+        }
+        IOUtils.closeQuietly(fileItem.getStream());
+        return fileItem.getData();
     }
 
     @Override
-    public FileItem readHistory(String name, String version) {
+    public FileItem readHistory(String name, String version) throws IOException {
+        if (version == null) {
+            return read(name);
+        }
         try {
             ArtefactAPI artefact = rulesRepository.getArtefact(name);
             if (artefact == null || artefact instanceof ResourceAPI) {
@@ -353,9 +368,7 @@ public class ZipJcrRepository implements Repository, Closeable {
             FolderAPI history = project.getVersion(new CommonVersionImpl(Integer.parseInt(version)));
             return createFileItem(history, createFileData(name, history));
         } catch (CommonException e) {
-            throw new IllegalStateException(e);
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
+            throw new IOException(e);
         }
     }
 
@@ -375,12 +388,13 @@ public class ZipJcrRepository implements Repository, Closeable {
                 return false;
             }
         } catch (CommonException e) {
-            throw new IllegalStateException(e);
+            log.error(e.getMessage(), e);
+            return false;
         }
     }
 
     @Override
-    public FileData copyHistory(String srcName, FileData destData, String version) {
+    public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
         try {
             if (rulesRepository.getArtefact(srcName) == null) {
                 throw new ProjectException("Project ''{0}'' is absent in the repository!", null, srcName);
@@ -396,7 +410,7 @@ public class ZipJcrRepository implements Repository, Closeable {
 
             return createFileData(name, destProject);
         } catch (CommonException e) {
-            throw new IllegalStateException(e);
+            throw new IOException(e);
         }
     }
 

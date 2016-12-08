@@ -11,40 +11,24 @@ import org.openl.util.IOUtils;
 
 public class AProjectResource extends AProjectArtefact {
     private ResourceTransformer resourceTransformer;
-    private final ContentHandler contentHandler;
 
     public AProjectResource(AProject project, Repository repository, FileData fileData) {
         super(project, repository, fileData);
-        contentHandler = null;
-    }
-
-    public AProjectResource(AProject project, Repository repository, FileData fileData, ContentHandler contentHandler) {
-        super(project, repository, fileData);
-        this.contentHandler = contentHandler;
     }
 
     public InputStream getContent() throws ProjectException {
-        if (contentHandler != null) {
-            return contentHandler.loadContent();
-        }
-        else {
-            try {
+        try {
             if (isHistoric()) {
                 return getRepository().readHistory(getFileData().getName(), getFileData().getVersion()).getStream();
-            }
-            else {
+            } else {
                 return getRepository().read(getFileData().getName()).getStream();
             }
-            } catch (IOException ex) {
-                throw new IllegalStateException(ex);
-            }
+        } catch (IOException ex) {
+            throw new IllegalStateException(ex);
         }
     }
 
     public void setContent(InputStream inputStream) throws ProjectException {
-        if (contentHandler != null) {
-            throw new UnsupportedOperationException("Can't set content if contentHandler is initialized");
-        }
         try {
             setFileData(getRepository().save(getFileData(), inputStream));
         } catch (IOException ex) {

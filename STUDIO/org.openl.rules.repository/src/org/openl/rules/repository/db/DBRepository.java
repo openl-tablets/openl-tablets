@@ -41,7 +41,7 @@ public abstract class DBRepository implements Repository, Closeable {
 
             return fileDatas;
         } catch (SQLException e) {
-            throw new IllegalStateException(e);
+            throw new IOException(e);
         } finally {
             safeClose(rs);
             safeClose(statement);
@@ -51,7 +51,7 @@ public abstract class DBRepository implements Repository, Closeable {
 
     @Override
     public FileData check(String name) throws IOException {
-        return read(name).getData();
+        return getLatestVersionFileData(name);
     }
 
     @Override
@@ -105,7 +105,8 @@ public abstract class DBRepository implements Repository, Closeable {
         try {
             data = getLatestVersionFileData(path);
         } catch (IOException e) {
-            throw new IllegalStateException(e);
+            log.error(e.getMessage(), e);
+            return false;
         }
 
         if (data != null) {
@@ -197,7 +198,7 @@ public abstract class DBRepository implements Repository, Closeable {
                         rs.close();
                         statement.close();
                     } catch (SQLException e) {
-                        throw new IllegalStateException(e);
+                        log.error(e.getMessage(), e);
                     } finally {
                         safeClose(rs);
                         safeClose(statement);
@@ -230,7 +231,7 @@ public abstract class DBRepository implements Repository, Closeable {
 
             return fileDatas;
         } catch (SQLException e) {
-            throw new IllegalStateException(e);
+            throw new IOException(e);
         } finally {
             safeClose(rs);
             safeClose(statement);
@@ -240,7 +241,7 @@ public abstract class DBRepository implements Repository, Closeable {
 
     @Override
     public FileData checkHistory(String name, String version) throws IOException {
-        return readHistory(name, version).getData();
+        return version == null ? check(name) : getHistoryVersionFileData(name, version);
     }
 
     @Override
@@ -291,7 +292,8 @@ public abstract class DBRepository implements Repository, Closeable {
                     return false;
                 }
             } catch (SQLException e) {
-                throw new IllegalStateException(e);
+                log.error(e.getMessage(), e);
+                return false;
             } finally {
                 safeClose(statement);
                 safeClose(connection);
@@ -313,7 +315,8 @@ public abstract class DBRepository implements Repository, Closeable {
                     return false;
                 }
             } catch (SQLException e) {
-                throw new IllegalStateException(e);
+                log.error(e.getMessage(), e);
+                return false;
             } finally {
                 safeClose(statement);
                 safeClose(connection);
