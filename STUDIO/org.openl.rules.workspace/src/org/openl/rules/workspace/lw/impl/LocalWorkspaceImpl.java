@@ -7,7 +7,6 @@ import java.util.*;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.impl.local.LocalRepository;
@@ -37,7 +36,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         this.localWorkspaceFileFilter = localWorkspaceFileFilter;
 
         localProjects = new HashMap<String, AProject>();
-        localRepository = new LocalRepository(location, new LocalProjectModificationHandler(location));
+        localRepository = new LocalRepository(location);
         try {
             localRepository.initialize();
         } catch (RRepositoryException e) {
@@ -65,13 +64,12 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     private AProject downloadProject(AProject project) throws ProjectException {
         String name = project.getName();
 
-        ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
         File f = new File(location, name);
         if (!f.mkdir() && !f.exists()) {
             throw new ProjectException(String.format("Can't create the folder '%s'", f.getAbsolutePath()));
         }
 
-        AProject localProject = createLocalProject(ap);
+        AProject localProject = createLocalProject(name);
 
         localProject.update(project, user);
 
@@ -82,8 +80,9 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         return localProject;
     }
 
-    private AProject createLocalProject(ArtefactPath ap) {
-        return new AProject(getRepository(), ap.getStringValue(), true);
+    private AProject createLocalProject(String path) {
+        String version = localRepository.getProjectState(path).getProjectVersion();
+        return new AProject(getRepository(), path, version, true);
     }
 
     @Override
@@ -136,9 +135,8 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         if (folders != null) {
             for (File f : folders) {
                 String name = f.getName();
-                ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
 
-                AProject lpi = createLocalProject(ap);
+                AProject lpi = createLocalProject(name);
                 synchronized (localProjects) {
                     localProjects.put(name, lpi);
                 }
@@ -155,40 +153,9 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     public void refresh() {
         // check existing
         synchronized (localProjects) {
-            Iterator<AProject> i = localProjects.values().iterator();
-            while (i.hasNext()) {
-                AProject lp = i.next();
-
-                File projectLocation = new File(location, lp.getName());
-                if (projectLocation.exists()) {
-                    // still here
-                    lp.refresh();
-                } else {
-                    // deleted externally
-                    i.remove();
-                }
-            }
+            localProjects.clear();
         }
-
-        // check new
-        File[] folders = location.listFiles(localWorkspaceFolderFilter);
-        if (folders == null) {
-            return;
-        }
-
-        for (File folder : folders) {
-            String name = folder.getName();
-            synchronized (localProjects) {
-                if (!localProjects.containsKey(name)) {
-                    // new project detected
-                    ArtefactPath ap = new ArtefactPathImpl(new String[]{name});
-                    AProject newlyDetected = createLocalProject(ap);
-
-                    // add it
-                    localProjects.put(name, newlyDetected);
-                }
-            }
-        }
+        loadProjects();
     }
 
     public void release() {

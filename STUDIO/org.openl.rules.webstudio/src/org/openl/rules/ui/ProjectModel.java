@@ -582,7 +582,7 @@ public class ProjectModel {
             for (WorkbookSyntaxNode node : workbookNodes) {
                 XlsWorkbookSourceCodeModule workbookSourceCodeModule = node.getWorkbookSourceCodeModule();
                 if (workbookSourceCodeModule.isModified()) {
-                    getLocalRepository().notifyModified(workbookSourceCodeModule.getSourceFile().getPath());
+                    getLocalRepository().getProjectState(workbookSourceCodeModule.getSourceFile().getPath()).notifyModified();
                     return true;
                 }
             }
@@ -1421,7 +1421,7 @@ public class ProjectModel {
 
         @Override
         public void afterSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
-            repository.notifyModified(workbookSourceCodeModule.getSourceFile().getPath());
+            repository.getProjectState(workbookSourceCodeModule.getSourceFile().getPath()).notifyModified();
         }
     }
 }
