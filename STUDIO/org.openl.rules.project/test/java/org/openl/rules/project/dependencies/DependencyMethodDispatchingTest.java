@@ -15,6 +15,7 @@ import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimplePr
 
 public class DependencyMethodDispatchingTest {
 
+    private static final String AMBIGUOUS_METHOD_MESSAGE = "Ambiguous dispatch for method";
     /**
      * Checks that one module includes another as dependency. Both of them
      * contains the identical methods by signatures, without dimension
@@ -41,7 +42,7 @@ public class DependencyMethodDispatchingTest {
             method.invoke(factory.newInstance(), 10);
             fail("We are waiting for OpenlRuntimeException");
         } catch (Exception e) {
-            assertTrue(e.getCause().getMessage().contains("Ambiguous method dispatch"));
+            assertTrue(e.getCause().getMessage().contains(AMBIGUOUS_METHOD_MESSAGE));
         }
     }
 

@@ -29,7 +29,7 @@ import org.openl.vm.IRuntimeEnv;
 public class DispatchingTest {
     private static final String RULES_SOURCE_FILE = "test/rules/dispatching/Dispatching.xls";
     private static final String NO_EXCEPTION = "Exception should be thrown, but was: ";
-    private static final String AMBIGUOUS_METHOD_MESSAGE = "Ambiguous method dispatch.";
+    private static final String AMBIGUOUS_METHOD_MESSAGE = "Ambiguous dispatch for method";
 
     private Rules instance;
 
