@@ -1,9 +1,7 @@
 package org.openl.rules.ruleservice.publish;
 
 import org.junit.Assert;
-
 import org.junit.Test;
-import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 

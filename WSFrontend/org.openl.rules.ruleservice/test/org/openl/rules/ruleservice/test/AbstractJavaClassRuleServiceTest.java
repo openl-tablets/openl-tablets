@@ -28,7 +28,7 @@ public abstract class AbstractJavaClassRuleServiceTest implements ApplicationCon
     @Before
     public void before() {
         if (!initialized) {
-            ServiceManagerImpl serviceManager = applicationContext.getBean("serviceManager", ServiceManagerImpl.class);
+            applicationContext.getBean("serviceManager", ServiceManagerImpl.class);
             initialized = true;
         }
     }
