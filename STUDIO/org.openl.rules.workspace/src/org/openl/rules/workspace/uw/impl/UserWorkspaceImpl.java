@@ -75,7 +75,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public ADeploymentProject createDDProject(String name) throws RepositoryException {
-        return designTimeRepository.createDDProject(name);
+        ADeploymentProject ddProject = designTimeRepository.createDDProject(name);
+        ddProject.setUser(getUser());
+        return ddProject;
     }
 
     public AProject createProject(String name) throws ProjectException {

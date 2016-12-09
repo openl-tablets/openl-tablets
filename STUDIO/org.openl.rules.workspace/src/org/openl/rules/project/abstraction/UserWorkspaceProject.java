@@ -22,6 +22,10 @@ public abstract class UserWorkspaceProject extends AProject {
         return user;
     }
 
+    public void setUser(WorkspaceUser user) {
+        this.user = user;
+    }
+
     public boolean isOpenedForEditing() {
         return isLockedByMe();
     }
