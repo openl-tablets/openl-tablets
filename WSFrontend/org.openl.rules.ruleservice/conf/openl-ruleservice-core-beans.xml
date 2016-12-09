@@ -21,10 +21,11 @@
 		<property name="instantiationStrategyFactory" ref="instantiationStrategyFactory" />
 		<property name="ruleServiceLoader" ref="ruleServiceLoader" />
 		<property name="externalParameters">
-			<bean class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-				<property name="location" value="classpath:system.properties"/>
-				<property name="ignoreResourceNotFound" value="true"/>
-			</bean>
+			<props>
+				<prop key="custom.spreadsheet.type">${custom.spreadsheet.type}</prop>
+				<prop key="dispatching.mode">${dispatching.mode}</prop>
+				<prop key="dispatching.validation">${dispatching.validation}</prop>
+			</props>
 		</property>
 		<property name="serviceCallInterceptorGroups" value="RULESERVICES,WEBSERVICES"/>
 	</bean>
