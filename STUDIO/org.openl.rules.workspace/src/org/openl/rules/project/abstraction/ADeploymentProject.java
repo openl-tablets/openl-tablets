@@ -207,9 +207,15 @@ public class ADeploymentProject extends UserWorkspaceProject {
     @Override
     public void refresh() {
         descriptors = null;
+        modifiedDescriptors = false;
     }
 
     public boolean isModifiedDescriptors() {
+        return modifiedDescriptors;
+    }
+
+    @Override
+    public boolean isModified() {
         return modifiedDescriptors;
     }
 }

@@ -70,7 +70,7 @@ public class TreeDProject extends TreeFile {
             return UiConst.ICON_PROJECT_DELETED;
         }
 
-        if (project.isOpenedForEditing()) {
+        if (project.isModified()) {
             return UiConst.ICON_PROJECT_OPENED_FOR_EDITING;
         }
 
