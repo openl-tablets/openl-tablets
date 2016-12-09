@@ -11,13 +11,13 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.common.impl.RepositoryVersionInfoImpl;
-import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.file.FileRepository;
 
 /**
  * Class representing deployment from ProductionRepository. Deployment is set of
  * logically grouped rules projects.
- * 
+ *
  * @author PUdalau
  */
 public class Deployment extends AProjectFolder {
@@ -87,8 +87,8 @@ public class Deployment extends AProjectFolder {
 
     @Override
     protected Map<String, AProjectArtefact> createInternalArtefacts() {
-        if (getRepository() instanceof LocalRepository) {
-            LocalRepository repository = (LocalRepository) getRepository();
+        if (getRepository() instanceof FileRepository) {
+            FileRepository repository = (FileRepository) getRepository();
             File[] files = new File(repository.getRoot(), getFolderPath()).listFiles();
             Map<String, AProjectArtefact> result = new HashMap<String, AProjectArtefact>();
             if (files != null) {

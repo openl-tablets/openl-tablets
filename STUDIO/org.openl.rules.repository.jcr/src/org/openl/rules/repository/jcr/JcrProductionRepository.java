@@ -109,15 +109,6 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         throw new UnsupportedOperationException();
     }
 
-    @Deprecated
-    public RProductionDeployment createDeployment(String name) throws RRepositoryException {
-        try {
-            return JcrProductionDeployment.createDeployment(deployLocation, name);
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("could not create deployment {0}", e, name);
-        }
-    }
-
     /**
      * Creates a project in the repository. Name of new project must be unique.
      *
@@ -162,44 +153,6 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         throw new UnsupportedOperationException();
     }
 
-    @Deprecated
-    public List<RDeploymentDescriptorProject> getDDProjects() throws RRepositoryException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Deprecated
-    public RProductionDeployment getDeployment(String name) throws RRepositoryException {
-        Node node;
-        try {
-            node = deployLocation.getNode(name);
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("failed to get node", e);
-        }
-
-        try {
-            return new JcrProductionDeployment(node);
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("failed to wrap JCR node", e);
-        }
-    }
-
-    public Collection<String> getDeploymentNames() throws RRepositoryException {
-        List<String> result = new ArrayList<String>();
-        try {
-            NodeIterator iterator = deployLocation.getNodes();
-            while (iterator.hasNext()) {
-                Node node = iterator.nextNode();
-                if (node.getPrimaryNodeType().getName().equals(JcrNT.NT_DEPLOYMENT)) {
-                    result.add(node.getName());
-                }
-            }
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("failed to enumerate deployments", e);
-        }
-
-        return result;
-    }
-
     /**
      * Gets project by name.
      *
@@ -235,14 +188,6 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     }
 
     public boolean hasDeploymentProject(String name) throws RRepositoryException {
-        try {
-            return deployLocation.hasNode(name);
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("failed to check project {0}", e, name);
-        }
-    }
-
-    public boolean hasDeployment(String name) throws RRepositoryException {
         try {
             return deployLocation.hasNode(name);
         } catch (RepositoryException e) {
@@ -388,35 +333,11 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         return null;
     }
 
-    public List<FolderAPI> getRulesProjectsForDeletion() throws RRepositoryException {
-        throw new UnsupportedOperationException();
-    }
-
-    public Collection<String> getDeploymentProjectNames() throws RRepositoryException {
-        List<String> result = new ArrayList<String>();
-        try {
-            NodeIterator iterator = deployLocation.getNodes();
-            while (iterator.hasNext()) {
-                Node node = iterator.nextNode();
-                if (node.getPrimaryNodeType().getName().equals(JcrNT.NT_APROJECT)) {
-                    result.add(node.getName());
-                }
-            }
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("failed to enumerate deployments", e);
-        }
-        return result;
-    }
-
     public void addRepositoryListener(RRepositoryListener listener) {
         throw new UnsupportedOperationException();
     }
 
     public void removeRepositoryListener(RRepositoryListener listener) {
-        throw new UnsupportedOperationException();
-    }
-
-    public List<RRepositoryListener> getRepositoryListeners() {
         throw new UnsupportedOperationException();
     }
 

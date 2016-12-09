@@ -33,9 +33,6 @@ public interface RRepository {
     @Deprecated
     RDeploymentDescriptorProject getDDProject(String name) throws RRepositoryException;
 
-    @Deprecated
-    List<RDeploymentDescriptorProject> getDDProjects() throws RRepositoryException;
-
     /**
      * Gets project by name.
      *
@@ -120,19 +117,8 @@ public interface RRepository {
 
     String getRulesProjectsRootPath() throws RRepositoryException;
 
-    /**
-     * Gets list of projects from the repository that are marked for deletion.
-     *
-     * @return list of projects that are marked for deletion
-     */
-    List<FolderAPI> getRulesProjectsForDeletion() throws RRepositoryException;
-    
     void addRepositoryListener(RRepositoryListener listener);
     void removeRepositoryListener(RRepositoryListener listener);
-    List<RRepositoryListener> getRepositoryListeners();
-
-    List<ResourceAPI> getResources(String path) throws RRepositoryException;
-
     ArtefactAPI getArtefact(String name) throws RRepositoryException;
 
     ResourceAPI createResource(String name, InputStream inputStream) throws RRepositoryException;

@@ -38,15 +38,19 @@ public class FileRepository implements Repository, RRepositoryFactory, Closeable
 
     public void initialize() throws RRepositoryException {
         try {
-            root.mkdirs();
-            if (!root.exists() || !root.isDirectory()) {
-                throw new IOException("Failed to initialize the root directory: [" + root + "]");
-            }
-            String rootPath = root.getCanonicalPath();
-            rootPathLength = rootPath.length() + 1;
+            init();
         } catch (IOException e) {
             throw new RRepositoryException(e.getMessage(), e);
         }
+    }
+
+    private void init() throws IOException {
+        root.mkdirs();
+        if (!root.exists() || !root.isDirectory()) {
+            throw new IOException("Failed to initialize the root directory: [" + root + "]");
+        }
+        String rootPath = root.getCanonicalPath();
+        rootPathLength = rootPath.length() + 1;
     }
 
     @Override
@@ -202,6 +206,9 @@ public class FileRepository implements Repository, RRepositoryFactory, Closeable
         }
         if (!file.isFile()) {
             throw new FileNotFoundException("File [" + file + "] is not a file.");
+        }
+        if (rootPathLength == 0) {
+            init();
         }
         FileData data = new FileData();
         String canonicalPath = file.getCanonicalPath();

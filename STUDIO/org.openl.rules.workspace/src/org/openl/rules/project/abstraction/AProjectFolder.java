@@ -213,6 +213,15 @@ public class AProjectFolder extends AProjectArtefact {
     }
 
     @Override
+    public void setFileData(FileData fileData) {
+        super.setFileData(fileData);
+        if (fileData != null) {
+            setFolderPath(fileData.getName());
+            setHistoryVersion(fileData.getVersion());
+        }
+    }
+
+    @Override
     public ArtefactPath getArtefactPath() {
         return new ArtefactPathImpl(getFolderPath());
     }
