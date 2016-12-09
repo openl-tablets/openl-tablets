@@ -21,7 +21,7 @@ public class TreeDProject extends TreeFile {
     }
 
     public Date getCreatedAt() {
-        ProjectVersion projectVersion = getProject().getVersion();
+        ProjectVersion projectVersion = getProject().getFirstVersion();
         if (projectVersion == null) {
             return null;
         }
