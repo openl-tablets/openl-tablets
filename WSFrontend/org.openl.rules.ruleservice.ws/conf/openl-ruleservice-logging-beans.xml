@@ -7,34 +7,6 @@
 
 	<import resource="classpath:openl-ruleservice-cassandra-beans.xml" />
 
-	<!-- Logging request/response feature to external storage feature beans. -->
-
-	<!-- Cassandra logging store service bean. -->
-	<bean id="cassandraLoggingInfoStoreService" class="org.openl.rules.ruleservice.logging.cassandra.CassandraStoreLoggingInfoService" lazy-init="true">
-		<property name="cassandraOperations" ref="cassandraOperations"/>
-	</bean>
-	
-	<!-- This is databinding (JSON) access feature in logging store for each service. Not remove commented code bellow. -->
-	
-	<!-- <bean id="LoggingJacksonObjectMapperFactoryBean"
-		class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean"
-		scope="prototype">
-		<property name="enableDefaultTyping"
-			value="true" />
-		<property name="overrideTypes"
-			ref="serviceDescriptionConfigurationRootClassNamesBindingFactoryBean" />
-		<property name="supportVariations"
-			ref="serviceDescriptionConfigurationSupportVariationsFactoryBean" />
-	</bean>
-
-	<bean id="loggingJacksonObjectMapper"
-		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
-		scope="prototype">
-		<property name="targetObject" ref="LoggingJacksonObjectMapperFactoryBean" />
-		<property name="targetMethod" value="createJacksonObjectMapper" />
-		<property name="singleton" value="false" />
-	</bean>-->
-	
 	<!-- Bean for configure storages type via openl-ruleservice.properties file. -->
 	<bean id="loggingInfoStoringService" class="org.openl.rules.ruleservice.logging.StoreLoggingConfigurationFactoryBean" lazy-init="false">
 		<property name="loggingStoreEnable" value="${ruleservice.logging.store.enabled}"/>

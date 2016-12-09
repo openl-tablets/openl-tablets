@@ -22,6 +22,9 @@
 					<include>**/*.cql</include>
 				</includes>
 			</resource>
+			<resource>
+				<directory>conf</directory>
+			</resource>
 		</resources>
 		<testResources>
 			<testResource>
