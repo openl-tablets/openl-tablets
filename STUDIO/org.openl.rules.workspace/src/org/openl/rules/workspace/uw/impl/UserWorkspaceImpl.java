@@ -215,7 +215,11 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 ADeploymentProject userDProject = userDProjects.get(name);
 
                 if (userDProject == null) {
-                    userDProject = new ADeploymentProject(user, ddp.getRepository(), ddp.getFolderPath(), ddp.getHistoryVersion());
+                    String historyVersion = ddp.getHistoryVersion();
+                    userDProject = new ADeploymentProject(user, ddp.getRepository(), ddp.getFolderPath(), historyVersion);
+                    if (historyVersion != null) {
+                        userDProject.openVersion(historyVersion);
+                    }
                     userDProjects.put(name, userDProject);
                 } else {
                     userDProject.refresh();
