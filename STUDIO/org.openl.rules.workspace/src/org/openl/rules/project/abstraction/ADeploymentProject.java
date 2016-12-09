@@ -8,12 +8,7 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.openl.rules.common.CommonUser;
-import org.openl.rules.common.CommonVersion;
-import org.openl.rules.common.ProjectDescriptor;
-import org.openl.rules.common.ProjectDescriptorHelper;
-import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.ProjectVersion;
+import org.openl.rules.common.*;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.repository.api.ArtefactProperties;
@@ -100,8 +95,8 @@ public class ADeploymentProject extends UserWorkspaceProject {
     @Override
     public ProjectVersion getVersion() {
         if (openedVersion == null) {
-            if (getHistoryVersion() == null) {
-                return isFolder() ? null : super.getVersion();
+            if (getHistoryVersion() == null || getFileData() != null) {
+                return super.getVersion();
             } else {
                 return new RepositoryProjectVersionImpl(getHistoryVersion(), null);
 
