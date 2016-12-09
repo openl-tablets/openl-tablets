@@ -79,6 +79,8 @@ public class RulesProject extends UserWorkspaceProject {
                     throw new ProjectException("Can't close project because some resources are used");
                 }
             }
+            // Delete properties folder. Workaround for broken empty projects that failed to delete properties folder last time
+            localRepository.getProjectState(localFolderName).notifyModified();
         } catch (IOException e) {
             throw new ProjectException("Not possible to read the directory", e);
         }
