@@ -359,7 +359,7 @@ public class DeploymentController {
     }
 
     public boolean isModified() {
-        return getSelectedProject().isModifiedDescriptors();
+        return getSelectedProject().isModified();
     }
 
     public String getRepositoryConfigName() {

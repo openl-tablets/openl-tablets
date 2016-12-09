@@ -210,10 +210,6 @@ public class ADeploymentProject extends UserWorkspaceProject {
         modifiedDescriptors = false;
     }
 
-    public boolean isModifiedDescriptors() {
-        return modifiedDescriptors;
-    }
-
     @Override
     public boolean isModified() {
         return modifiedDescriptors;
