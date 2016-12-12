@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -161,7 +162,12 @@ public class AProject extends AProjectFolder {
 
     public boolean isDeleted() {
         if (isFolder()) {
-            for (AProjectArtefact artefact : getArtefacts()) {
+            Collection<AProjectArtefact> artefacts = getArtefacts();
+            if (artefacts.isEmpty()) {
+                // Projects can be empty but not deleted. For example revision #0.
+                return false;
+            }
+            for (AProjectArtefact artefact : artefacts) {
                 if (artefact instanceof AProjectResource) {
                     if (!artefact.getFileData().isDeleted()) {
                         return false;
