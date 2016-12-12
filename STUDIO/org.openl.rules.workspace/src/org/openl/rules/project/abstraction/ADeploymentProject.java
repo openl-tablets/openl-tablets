@@ -112,41 +112,33 @@ public class ADeploymentProject extends UserWorkspaceProject {
 
     @Override
     public void save(CommonUser user) throws ProjectException {
-        if (descriptors == null || descriptors.isEmpty()) {
-            if (hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
-                deleteArtefact(ArtefactProperties.DESCRIPTORS_FILE);
-            }
-        } else {
-            InputStream inputStream = ProjectDescriptorHelper.serialize(descriptors);
+        InputStream inputStream = ProjectDescriptorHelper.serialize(descriptors);
 
-            // Archive the folder using zip
-            FileData fileData = getFileData();
-            ZipOutputStream zipOutputStream = null;
-            try {
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                zipOutputStream = new ZipOutputStream(out);
+        // Archive the folder using zip
+        FileData fileData = getFileData();
+        ZipOutputStream zipOutputStream = null;
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            zipOutputStream = new ZipOutputStream(out);
 
-                ZipEntry entry = new ZipEntry(ArtefactProperties.DESCRIPTORS_FILE);
-                zipOutputStream.putNextEntry(entry);
+            ZipEntry entry = new ZipEntry(ArtefactProperties.DESCRIPTORS_FILE);
+            zipOutputStream.putNextEntry(entry);
 
-                IOUtils.copy(inputStream, zipOutputStream);
+            IOUtils.copy(inputStream, zipOutputStream);
 
-                inputStream.close();
-                zipOutputStream.closeEntry();
+            inputStream.close();
+            zipOutputStream.closeEntry();
 
-                zipOutputStream.close();
-                fileData.setAuthor(user == null ? null : user.getUserName());
-                setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
-            } catch (IOException e) {
-                throw new ProjectException(e.getMessage(), e);
-            } finally {
-                IOUtils.closeQuietly(zipOutputStream);
-            }
-
+            zipOutputStream.close();
+            fileData.setAuthor(user == null ? null : user.getUserName());
+            setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
+        } catch (IOException e) {
+            throw new ProjectException(e.getMessage(), e);
+        } finally {
+            IOUtils.closeQuietly(zipOutputStream);
         }
 
         modifiedDescriptors = false;
-//        super.save(user);
         open();
     }
 
@@ -189,6 +181,9 @@ public class ADeploymentProject extends UserWorkspaceProject {
                 try {
                     content = ((AProjectResource) source.getArtefact(ArtefactProperties.DESCRIPTORS_FILE)).getContent();
                     descriptors = ProjectDescriptorHelper.deserialize(content);
+                    if (descriptors == null) {
+                        descriptors = new ArrayList<ProjectDescriptor>();
+                    }
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
                 } finally {
