@@ -75,7 +75,7 @@ public class AProject extends AProjectFolder {
         return fileData;
     }
 
-    private boolean isLastVersion() {
+    protected boolean isLastVersion() {
         if (getHistoryVersion() == null) {
             return true;
         }

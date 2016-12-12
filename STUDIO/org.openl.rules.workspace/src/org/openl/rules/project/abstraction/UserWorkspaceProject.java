@@ -44,10 +44,7 @@ public abstract class UserWorkspaceProject extends AProject {
 
     /** is opened other version? (not last) */
     public boolean isOpenedOtherVersion() {
-        if (!isOpened()) {
-            return false;
-        }
-        return isHistoric();
+        return isOpened() && !isLastVersion();
     }
 
     public void open() throws ProjectException {
