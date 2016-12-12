@@ -77,6 +77,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     public ADeploymentProject createDDProject(String name) throws RepositoryException {
         ADeploymentProject ddProject = designTimeRepository.createDDProject(name);
         ddProject.setUser(getUser());
+        userDProjects.put(name, ddProject);
         return ddProject;
     }
 
@@ -217,9 +218,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 if (userDProject == null) {
                     String historyVersion = ddp.getHistoryVersion();
                     userDProject = new ADeploymentProject(user, ddp.getRepository(), ddp.getFolderPath(), historyVersion);
-                    if (historyVersion != null) {
-                        userDProject.openVersion(historyVersion);
-                    }
                     userDProjects.put(name, userDProject);
                 } else {
                     userDProject.refresh();
