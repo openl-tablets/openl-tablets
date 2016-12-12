@@ -372,7 +372,7 @@ public class HTMLRenderer {
                         if (cellUri != null) {
                             XlsUrlParser uriParser = new XlsUrlParser();
                             uriParser.parse(cellUri);
-                            if (uriParser.range.equals(errorCell)) {
+                            if (errorCell != null && errorCell.equals(uriParser.range)) {
                                 selectErrorCell = true;
                             }
                         }
