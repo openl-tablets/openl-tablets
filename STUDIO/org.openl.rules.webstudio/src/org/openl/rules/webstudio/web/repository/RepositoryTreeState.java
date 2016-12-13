@@ -493,7 +493,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     //for deployment project
     public boolean getCanDeploy() {
-        return !getSelectedProject().isOpenedForEditing() && isGranted(PRIVILEGE_DEPLOY_PROJECTS);
+        return !getSelectedProject().isModified() && isGranted(PRIVILEGE_DEPLOY_PROJECTS);
     }
 
     public String getDefSelectTab() {
