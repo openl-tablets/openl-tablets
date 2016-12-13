@@ -196,6 +196,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
 
     @Override
     public void refresh() {
+        super.refresh();
         descriptors = null;
         modifiedDescriptors = false;
     }
