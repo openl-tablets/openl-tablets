@@ -158,7 +158,7 @@ public class SmartRedeployController {
                     if (StringUtils.isEmpty(repositoryConfigName)) {
                         item.setDisabled(true);
                         item.setMessages("Repository is not selected");
-                    } else if (deploymentProject.isOpenedForEditing()) {
+                    } else if (deploymentProject.isModified()) {
                         // prevent loosing of user's changes
                         item.setDisabled(true);
                         item.setMessages("Opened for Editing");
@@ -180,7 +180,7 @@ public class SmartRedeployController {
                     // skip it
                     continue;
                 }
-                if (deploymentProject.isOpenedForEditing()) {
+                if (deploymentProject.isModified()) {
                     // prevent loosing of user's changes
                     item.setDisabled(true);
                     item.setMessages("Opened for Editing");
