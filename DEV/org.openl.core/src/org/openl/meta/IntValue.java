@@ -340,7 +340,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @param value2 org.openl.meta.IntValue
      * @return the result of division  operation
      */
-    public static org.openl.meta.DoubleValue divide(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+    public static org.openl.meta.IntValue divide(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
         // temporary commented to support operations with nulls
         //
         //        validate(value1, value2, Formulas.DIVIDE.toString());
@@ -349,20 +349,20 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         }
 
         if (value1 == null) {
-            if (value2.doubleValue() != 0) {
-                return new org.openl.meta.DoubleValue(null, new DoubleValue(value2.getValue(), value2, true), divide(ONE, value2).getValue(), Formulas.DIVIDE);
+            if (value2 != null && value2.doubleValue() != 0) {
+                return new org.openl.meta.IntValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
             }
         }
 
         if (value2 == null) {
-            return new org.openl.meta.DoubleValue(new DoubleValue(value1.getValue(), value1, true), null, value1.getValue(), Formulas.DIVIDE);
+            return new org.openl.meta.IntValue(value1, value2, value1.getValue(), Formulas.DIVIDE);
         }
 
         if (value2.doubleValue() == 0) {
             throw new OpenlNotCheckedException("Division by zero");
         }
 
-        return new org.openl.meta.DoubleValue(new DoubleValue(value1.getValue(), value1, true), new DoubleValue(value2.getValue(), value2, true), Operators.divide(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.IntValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()),
             Formulas.DIVIDE);
     }
 

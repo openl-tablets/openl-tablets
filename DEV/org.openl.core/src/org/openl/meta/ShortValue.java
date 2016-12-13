@@ -340,7 +340,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
      * @param value2 org.openl.meta.ShortValue
      * @return the result of division  operation
      */
-    public static org.openl.meta.DoubleValue divide(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+    public static org.openl.meta.ShortValue divide(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
         // temporary commented to support operations with nulls
         //
         //        validate(value1, value2, Formulas.DIVIDE.toString());
@@ -349,21 +349,21 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         }
 
         if (value1 == null) {
-            if (value2.doubleValue() != 0) {
-                return new org.openl.meta.DoubleValue(null, new DoubleValue(value2.getValue(), value2, true), divide(ONE, value2).getValue(), Formulas.DIVIDE);
+            if (value2 != null && value2.doubleValue() != 0) {
+                return new org.openl.meta.ShortValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
             }
         }
 
         if (value2 == null) {
-            return new org.openl.meta.DoubleValue(new DoubleValue(value1.getValue(), value1, true), null, value1.getValue(), Formulas.DIVIDE);
+            return new org.openl.meta.ShortValue(value1, value2, value1.getValue(), Formulas.DIVIDE);
         }
 
         if (value2.doubleValue() == 0) {
             throw new OpenlNotCheckedException("Division by zero");
         }
 
-        return new org.openl.meta.DoubleValue(new DoubleValue(value1.getValue(), value1, true), new DoubleValue(value2.getValue(), value2, true), Operators.divide(value1.getValue(), value2.getValue()),
-                Formulas.DIVIDE);
+        return new org.openl.meta.ShortValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()),
+            Formulas.DIVIDE);
     }
 
     // QUAOTIENT
