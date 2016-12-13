@@ -602,7 +602,6 @@ public class GenerateInterface {
 
     public IOpenClass makeOpenClass() throws Exception {
         CompiledOpenClass compiledOpenClass = null;
-        IOpenClass result = null;
 
         if (usedRuleXmlForGenerate) {
             SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> simpleProjectEngineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
