@@ -120,6 +120,9 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
             } else {
                 recalculateType = getMethodProperties().getRecalculate();
             }
+            if (recalculateType == null){
+            	recalculateType = RecalculateEnum.ALWAYS;
+            }
         }
         return recalculateType;
     }

@@ -21,18 +21,20 @@ public class DeclareIteratorOperation extends RuntimeOperation {
     @Override
     public Result execute(TBasicContextHolderEnv environment, Object param) {
         Iterator iterator = getIterator(param);
-        environment.getTbasicTarget().setFieldValue(IteratorNextOperation.ITERATOR + elementName, iterator);
+        environment.getTbasicTarget().setFieldValue(IteratorNextOperation.ITERATOR + elementName, iterator, true);
 
         return new Result(ReturnType.NEXT, iterator);
     }
 
     private Iterator getIterator(Object param) {
         if (param.getClass().isArray()) {
-            return Arrays.asList((Object[])param).iterator();
+            return Arrays.asList((Object[]) param).iterator();
         }
 
-        // Will never happen, as the type of the variable will be checked at compile time.
-        // See org.openl.rules.tbasic.compile.AlgorithmCompiler.declareArrayElement()
+        // Will never happen, as the type of the variable will be checked at
+        // compile time.
+        // See
+        // org.openl.rules.tbasic.compile.AlgorithmCompiler.declareArrayElement()
         //
         throw new IllegalArgumentException("The parameter should be iterable");
     }
