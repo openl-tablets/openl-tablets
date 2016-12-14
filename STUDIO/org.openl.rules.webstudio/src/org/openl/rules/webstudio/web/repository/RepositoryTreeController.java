@@ -1357,7 +1357,7 @@ public class RepositoryTreeController {
              * the console. This error throw when upload file is exist in the
              * upload folder
              */
-            if (!e.getCause().getClass().equals(java.io.IOException.class)) {
+            if (e.getCause() == null || !e.getCause().getClass().equals(java.io.IOException.class)) {
                 log.error("Error adding file to user workspace.", e);
             }
 
