@@ -67,7 +67,7 @@ public final class DeployUtils {
     public static int getNextDeploymentVersion(Repository repository,
             ADeploymentProject project) throws RRepositoryException {
         Collection<Deployment> lastDeploymentProjects = getLastDeploymentProjects(repository);
-        int version = 0;
+        int version = 1;
         String prefix = project.getName() + SEPARATOR;
         for (Deployment deployment : lastDeploymentProjects) {
             if (deployment.getName().startsWith(prefix)) {

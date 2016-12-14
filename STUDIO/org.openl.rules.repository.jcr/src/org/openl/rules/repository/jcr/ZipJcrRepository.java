@@ -486,16 +486,20 @@ public class ZipJcrRepository implements Repository, Closeable {
     private FileItem createFileItem(FolderAPI project, FileData fileData) throws IOException, ProjectException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ZipOutputStream zipOutputStream = new ZipOutputStream(out);
-        writeFolderToZip(project, zipOutputStream, "");
-        zipOutputStream.close();
+        boolean hasEntries = writeFolderToZip(project, zipOutputStream, "");
+        // In java 6 zip must have at least one entry
+        if (hasEntries) {
+            zipOutputStream.close();
+        }
 
         return new FileItem(fileData, new ByteArrayInputStream(out.toByteArray()));
     }
 
-    private void writeFolderToZip(FolderAPI folder, ZipOutputStream zipOutputStream, String pathPrefix) throws
+    private boolean writeFolderToZip(FolderAPI folder, ZipOutputStream zipOutputStream, String pathPrefix) throws
                                                                                                         IOException,
                                                                                                         ProjectException {
         Collection<? extends ArtefactAPI> artefacts = folder.getArtefacts();
+        boolean hasEntries = false;
         for (ArtefactAPI artefact : artefacts) {
             if (artefact instanceof ResourceAPI) {
                 ZipEntry entry = new ZipEntry(pathPrefix + artefact.getName());
@@ -506,10 +510,14 @@ public class ZipJcrRepository implements Repository, Closeable {
 
                 content.close();
                 zipOutputStream.closeEntry();
+                hasEntries = true;
             } else {
-                writeFolderToZip((FolderAPI) artefact, zipOutputStream, pathPrefix + artefact.getName() + "/");
+                boolean hasFolderEntries = writeFolderToZip((FolderAPI) artefact, zipOutputStream, pathPrefix + artefact.getName() + "/");
+                hasEntries = hasEntries || hasFolderEntries;
             }
         }
+
+        return hasEntries;
     }
 
     private void copy(FolderAPI source, FolderAPI destination) throws ProjectException {

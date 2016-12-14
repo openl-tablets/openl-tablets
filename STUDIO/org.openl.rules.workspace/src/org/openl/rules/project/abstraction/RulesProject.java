@@ -140,6 +140,15 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     @Override
+    protected boolean isLastVersion() {
+        if (getHistoryVersion() == null) {
+            return true;
+        }
+        List<FileData> fileDatas = getHistoryFileDatas();
+        return fileDatas.isEmpty() || getHistoryVersion().equals(fileDatas.get(fileDatas.size() - 1).getVersion());
+    }
+
+    @Override
     public List<ProjectVersion> getVersions() {
         Collection<FileData> fileDatas = getHistoryFileDatas();
         List<ProjectVersion> versions = new ArrayList<ProjectVersion>();

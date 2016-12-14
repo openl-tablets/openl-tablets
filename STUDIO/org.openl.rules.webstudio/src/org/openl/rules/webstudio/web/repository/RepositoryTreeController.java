@@ -693,6 +693,10 @@ public class RepositoryTreeController {
             String nodeType = selectedNode.getType();
             unregisterSelectedNodeInProjectDescriptor();
             projectArtefact.delete();
+            TreeNode parent = selectedNode.getParent();
+            if (parent != null && parent.getData() != null ){
+                parent.refresh();
+            }
             if (selectedNode != activeProjectNode) {
                 boolean wasMarkedForDeletion = UiConst.TYPE_DEPLOYMENT_PROJECT.equals(nodeType) || (UiConst.TYPE_PROJECT
                     .equals(nodeType) && !((UserWorkspaceProject) projectArtefact).isLocalOnly());
@@ -1357,7 +1361,7 @@ public class RepositoryTreeController {
              * the console. This error throw when upload file is exist in the
              * upload folder
              */
-            if (!e.getCause().getClass().equals(java.io.IOException.class)) {
+            if (e.getCause() == null || !e.getCause().getClass().equals(java.io.IOException.class)) {
                 log.error("Error adding file to user workspace.", e);
             }
 

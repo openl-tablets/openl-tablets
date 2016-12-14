@@ -76,9 +76,14 @@ public class AProjectFolder extends AProjectArtefact {
     public AProjectResource addResource(String name, InputStream content) throws ProjectException {
         try {
             FileData fileData = new FileData();
-            fileData.setName(folderPath + "/" + name);
-            fileData = getRepository().save(fileData, content);
-            AProjectResource createdResource = new AProjectResource(getProject(), getRepository(), fileData);
+            String fullName = folderPath + "/" + name;
+            fileData.setName(fullName);
+            Repository repository = getRepository();
+            if (repository.check(fullName) != null) {
+                throw new ProjectException(String.format("The file '%s' exists in the folder.", name), new IOException());
+            }
+            fileData = repository.save(fileData, content);
+            AProjectResource createdResource = new AProjectResource(getProject(), repository, fileData);
             getArtefactsInternal().put(name, createdResource);
             return createdResource;
         } catch (IOException ex) {
@@ -224,5 +229,13 @@ public class AProjectFolder extends AProjectArtefact {
     @Override
     public ArtefactPath getArtefactPath() {
         return new ArtefactPathImpl(getFolderPath());
+    }
+
+    @Override
+    public void delete() throws ProjectException {
+        for (AProjectArtefact artefact : getArtefacts()) {
+            artefact.delete();
+        }
+        refresh();
     }
 }

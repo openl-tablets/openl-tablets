@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +76,7 @@ public class AProject extends AProjectFolder {
         return fileData;
     }
 
-    private boolean isLastVersion() {
+    protected boolean isLastVersion() {
         if (getHistoryVersion() == null) {
             return true;
         }
@@ -102,7 +103,10 @@ public class AProject extends AProjectFolder {
             }
         } else {
             close(null);
-            super.delete();
+            FileData fileData = getFileData();
+            if (!getRepository().delete(fileData.getName())) {
+                throw new ProjectException("Project is absent or can't be deleted");
+            }
         }
         setFileData(null);
     }
@@ -113,7 +117,10 @@ public class AProject extends AProjectFolder {
         }
 
         close(null);
-        super.delete();
+        FileData fileData = getFileData();
+        if (!getRepository().delete(fileData.getName())) {
+            throw new ProjectException("Resource is absent or can't be deleted");
+        }
         setFileData(null);
     }
 
@@ -161,7 +168,12 @@ public class AProject extends AProjectFolder {
 
     public boolean isDeleted() {
         if (isFolder()) {
-            for (AProjectArtefact artefact : getArtefacts()) {
+            Collection<AProjectArtefact> artefacts = getArtefacts();
+            if (artefacts.isEmpty()) {
+                // Projects can be empty but not deleted. For example revision #0.
+                return false;
+            }
+            for (AProjectArtefact artefact : artefacts) {
                 if (artefact instanceof AProjectResource) {
                     if (!artefact.getFileData().isDeleted()) {
                         return false;
