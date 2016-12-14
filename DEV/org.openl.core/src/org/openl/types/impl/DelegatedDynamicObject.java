@@ -33,7 +33,7 @@ public class DelegatedDynamicObject extends DynamicObject {
     public Object getFieldValue(String name) {
         Object value;
 
-        if (isMyField(name)) {
+        if (isMyField(name) || getFieldValues().containsKey(name)) {
             value = super.getFieldValue(name);
         } else {
             value = parent.getFieldValue(name);
@@ -44,10 +44,26 @@ public class DelegatedDynamicObject extends DynamicObject {
 
     @Override
     public void setFieldValue(String name, Object value) {
-        if (isMyField(name)) {
+        if (isMyField(name) || getFieldValues().containsKey(name)) {
             super.setFieldValue(name, value);
         } else {
             parent.setFieldValue(name, value);
+        }
+    }
+    
+    public Object getFieldValue(String name, boolean ignoreDelegate) {
+    	if (ignoreDelegate){
+    		return super.getFieldValue(name);
+    	}else{
+    		return this.getFieldValue(name);            
+        }
+    }
+
+    public void setFieldValue(String name, Object value, boolean ignoreDeligate) {
+    	if (ignoreDeligate){
+    		super.setFieldValue(name, value);
+    	}else{
+    		this.setFieldValue(name, value);    		
         }
     }
 
