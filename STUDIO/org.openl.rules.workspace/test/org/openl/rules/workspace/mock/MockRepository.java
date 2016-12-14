@@ -8,6 +8,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
+import org.openl.util.IOUtils;
 
 public class MockRepository implements Repository {
     private Map<String, FileData> fileDataMap = new HashMap<String, FileData>();
@@ -25,7 +26,12 @@ public class MockRepository implements Repository {
 
     @Override
     public FileData check(String name) throws IOException {
-        return read(name).getData();
+        FileItem fileItem = read(name);
+        if (fileItem == null) {
+            return null;
+        }
+        IOUtils.closeQuietly(fileItem.getStream());
+        return fileItem.getData();
     }
 
     @Override
