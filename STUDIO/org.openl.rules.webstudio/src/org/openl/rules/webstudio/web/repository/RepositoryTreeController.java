@@ -693,6 +693,10 @@ public class RepositoryTreeController {
             String nodeType = selectedNode.getType();
             unregisterSelectedNodeInProjectDescriptor();
             projectArtefact.delete();
+            TreeNode parent = selectedNode.getParent();
+            if (parent != null && parent.getData() != null ){
+                parent.refresh();
+            }
             if (selectedNode != activeProjectNode) {
                 boolean wasMarkedForDeletion = UiConst.TYPE_DEPLOYMENT_PROJECT.equals(nodeType) || (UiConst.TYPE_PROJECT
                     .equals(nodeType) && !((UserWorkspaceProject) projectArtefact).isLocalOnly());

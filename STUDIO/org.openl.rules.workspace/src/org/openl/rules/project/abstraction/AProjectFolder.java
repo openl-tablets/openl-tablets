@@ -230,4 +230,12 @@ public class AProjectFolder extends AProjectArtefact {
     public ArtefactPath getArtefactPath() {
         return new ArtefactPathImpl(getFolderPath());
     }
+
+    @Override
+    public void delete() throws ProjectException {
+        for (AProjectArtefact artefact : getArtefacts()) {
+            artefact.delete();
+        }
+        refresh();
+    }
 }

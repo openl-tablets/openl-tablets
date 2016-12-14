@@ -103,7 +103,10 @@ public class AProject extends AProjectFolder {
             }
         } else {
             close(null);
-            super.delete();
+            FileData fileData = getFileData();
+            if (!getRepository().delete(fileData.getName())) {
+                throw new ProjectException("Project is absent or can't be deleted");
+            }
         }
         setFileData(null);
     }
@@ -114,7 +117,10 @@ public class AProject extends AProjectFolder {
         }
 
         close(null);
-        super.delete();
+        FileData fileData = getFileData();
+        if (!getRepository().delete(fileData.getName())) {
+            throw new ProjectException("Resource is absent or can't be deleted");
+        }
         setFileData(null);
     }
 
