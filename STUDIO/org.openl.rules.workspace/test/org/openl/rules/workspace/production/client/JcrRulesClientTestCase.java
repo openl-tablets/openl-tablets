@@ -1,9 +1,14 @@
 package org.openl.rules.workspace.production.client;
 
-import junit.framework.TestCase;
-
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.TestHelper;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.openl.rules.workspace.TestHelper.ensureTestFolderExistsAndClear;
 import static org.openl.rules.workspace.TestHelper.getWorkspaceUser;
 import static org.openl.rules.workspace.TestHelper.deleteTestFolder;
@@ -21,7 +26,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.Collections;
 
-public class JcrRulesClientTestCase extends TestCase {
+public class JcrRulesClientTestCase {
     private static final String FOLDER1 = "folder1";
     private static final String FILE1_1 = "file1_1";
 
@@ -54,8 +59,8 @@ public class JcrRulesClientTestCase extends TestCase {
         return project;
     }
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         ensureTestFolderExistsAndClear();
         
         productionRepositoryFactoryProxy = new ProductionRepositoryFactoryProxy();
@@ -66,12 +71,13 @@ public class JcrRulesClientTestCase extends TestCase {
         project = makeProject();
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         productionRepositoryFactoryProxy.destroy();
         deleteTestFolder();
     }
 
+    @Test
     public void testFetchProject() throws Exception {
         JcrProductionDeployer deployer = getDeployer();
         DeployID id = deployer.deploy(new ADeploymentProject(null, repository, "deployment project", null),
@@ -84,17 +90,20 @@ public class JcrRulesClientTestCase extends TestCase {
         assertEquals(20L, file1_2.length());
     }
 
+    @Ignore("Not actual anymore. With new API same project can be deployed second time without changes. It won't throw an exception.")
+    @Test
     public void testFetchRedeployedProject() throws Exception {
         JcrProductionDeployer deployer = getDeployer();
+        AProject project2 = makeProject2();
         deployer.deploy(new ADeploymentProject(null, repository, "deployment project", null),
-                Collections.singletonList(makeProject2()), getWorkspaceUser());
+                Collections.singletonList(project2), getWorkspaceUser());
 
         File destDir = new File(TestHelper.FOLDER_TEST);
         TestHelper.clearDirectory(destDir);
 
         try {
             deployer.deploy(new ADeploymentProject(null, repository, "deployment project", null),
-                    Collections.singletonList(makeProject2()), getWorkspaceUser());
+                    Collections.singletonList(project2), getWorkspaceUser());
             fail("exception expected");
         } catch (DeploymentException e) {
             // ok
