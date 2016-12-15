@@ -58,7 +58,7 @@ public final class ProjectExportHelper {
     }
 
     protected static void packFile(ZipOutputStream zipOutputStream, AProjectResource file, String path) throws IOException, ProjectException {
-        ZipEntry entry = new ZipEntry(path + file.getName());
+        ZipEntry entry = new ZipEntry(path + file.getInternalPath());
         zipOutputStream.putNextEntry(entry);
 
         InputStream source = null;
