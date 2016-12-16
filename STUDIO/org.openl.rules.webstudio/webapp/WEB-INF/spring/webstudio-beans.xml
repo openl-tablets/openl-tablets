@@ -9,7 +9,6 @@
     default-autowire="no">
 
     <import resource="system-config-beans.xml" />
-    <import resource="cache-beans.xml" />
     <import resource="repository-beans.xml" />
     <import resource="security-beans.xml" />
 
