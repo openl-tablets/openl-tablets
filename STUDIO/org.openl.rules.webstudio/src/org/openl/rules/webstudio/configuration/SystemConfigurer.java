@@ -1,18 +1,19 @@
 package org.openl.rules.webstudio.configuration;
 
-import org.openl.config.ConfigurationManager;
-import org.openl.rules.testmethod.TestSuiteExecutor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.util.Map;
+
+import org.openl.config.ConfigurationManager;
+import org.openl.rules.testmethod.TestSuiteExecutor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * This class contains system-wide application configuration that needs some java code.
  */
-@Configuration
+@Component
 public class SystemConfigurer {
     @Autowired
     private ConfigurationManager systemConfigManager;
