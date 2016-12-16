@@ -53,7 +53,7 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
         WebStudio ws = mock(WebStudio.class);
         when(ws.getSystemConfigManager()).thenReturn(new ConfigurationManager(true, null));
 
-        EhCacheUtils.createCache();
+        //EhCacheUtils.createCache();
 
         pm = new ProjectModel(ws);
         for (Module module : modules) {
@@ -68,7 +68,7 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
 
     @After
     public void tearDown() throws Exception {
-        EhCacheUtils.shutdownCache();
+        //EhCacheUtils.shutdownCache();
     }
 
     @Test

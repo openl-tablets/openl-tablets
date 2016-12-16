@@ -101,7 +101,6 @@ public final class LazyCompiledOpenClassCache {
     public void reset() {
         Cache cache = OpenLEhCacheHolder.getInstance().getLazyModulesCache();
         cache.removeAll();
-        cache.clearStatistics();
     }
 
     private static class Key {

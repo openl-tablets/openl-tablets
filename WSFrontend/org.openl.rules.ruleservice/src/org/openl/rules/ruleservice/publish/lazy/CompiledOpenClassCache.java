@@ -99,7 +99,6 @@ public final class CompiledOpenClassCache {
     public void reset() {
         Cache cache = OpenLEhCacheHolder.getInstance().getModulesCache();
         cache.removeAll();
-        cache.clearStatistics();
     }
 
     private static class Key {

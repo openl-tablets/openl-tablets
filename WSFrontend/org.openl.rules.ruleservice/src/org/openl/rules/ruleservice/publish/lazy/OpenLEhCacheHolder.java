@@ -44,9 +44,8 @@ public class OpenLEhCacheHolder {
             }
         }
         return modulesCache;
-
     }
-
+    
     public Cache getLazyModulesCache() {
         if (lazyModulesCache == null) {
             synchronized (this) {

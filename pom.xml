@@ -1014,8 +1014,8 @@
             <!-- standards-based cache for boosting performance -->
             <dependency>
                 <groupId>net.sf.ehcache</groupId>
-                <artifactId>ehcache-core</artifactId>
-                <version>2.6.9</version>
+                <artifactId>ehcache</artifactId>
+                <version>2.7.8</version>
             </dependency>
             <!-- Java library which deep-clones objects. -->
             <dependency>

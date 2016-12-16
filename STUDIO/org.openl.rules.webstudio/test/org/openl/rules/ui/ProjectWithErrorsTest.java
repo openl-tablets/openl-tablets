@@ -42,8 +42,6 @@ public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
         when(ws.getSystemConfigManager()).thenReturn(new ConfigurationManager(true, null));
         when(ws.getProjectResolver()).thenReturn(ProjectResolver.instance());
 
-        EhCacheUtils.createCache();
-
         pm = new ProjectModel(ws);
         pm.setModuleInfo(getModules().get(0));
         if (singleModuleMode) {
@@ -51,11 +49,6 @@ public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
         }else {
             pm.useMultiModuleMode();
         }
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        EhCacheUtils.shutdownCache();
     }
 
     @Test
