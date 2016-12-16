@@ -91,6 +91,11 @@ public class AProjectArtefact implements PropertiesContainer {
         return new ArtefactPathImpl(getFileData().getName());
     }
 
+    public String getInternalPath() {
+        String projectPath = getProject().getFileData().getName();
+        return getFileData().getName().substring(projectPath.length() + 1);
+    }
+
     public String getName() {
         String name = getFileData().getName();
         return name.substring(name.lastIndexOf("/") + 1);

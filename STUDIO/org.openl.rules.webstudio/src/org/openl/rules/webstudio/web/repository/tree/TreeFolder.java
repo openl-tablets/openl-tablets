@@ -108,7 +108,6 @@ public class TreeFolder extends AbstractTreeNode {
 
     public void addChild(AProjectArtefact childArtefact){
         String name = childArtefact.getName();
-        name = name.substring(name.lastIndexOf("/") + 1);
 
         String id = RepositoryUtils.getTreeNodeId(name);
         if (childArtefact.isFolder()) {

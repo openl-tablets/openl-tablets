@@ -57,17 +57,4 @@ public class AProjectResource extends AProjectArtefact {
     public void setResourceTransformer(ResourceTransformer resourceTransformer) {
         this.resourceTransformer = resourceTransformer;
     }
-
-    @Override
-    public String getName() {
-        String name = getFileData().getName();
-
-        AProject project = getProject();
-        if (project == null) {
-            return name.substring(name.lastIndexOf("/") + 1);
-        } else {
-            String parentPath = getProject().getFolderPath();
-            return name.substring(parentPath.length() + 1);
-        }
-    }
 }

@@ -32,13 +32,7 @@ public class AProjectFolder extends AProjectArtefact {
 
     @Override
     public String getName() {
-        AProject project = getProject();
-        if (project == null || project == this) {
-            return folderPath.substring(folderPath.lastIndexOf("/") + 1);
-        } else {
-            String parentPath = project.getFolderPath();
-            return folderPath.substring(parentPath.length() + 1);
-        }
+        return folderPath.substring(folderPath.lastIndexOf("/") + 1);
     }
 
     public AProjectArtefact getArtefact(String name) throws ProjectException {
@@ -110,7 +104,7 @@ public class AProjectFolder extends AProjectArtefact {
             AProjectFolder folder = (AProjectFolder) newFolder;
             // remove absent
             for (AProjectArtefact artefact : getArtefacts()) {
-                String name = artefact.getName();
+                String name = artefact.getInternalPath();
 
                 if (!folder.hasArtefact(name)) {
                     // was deleted
@@ -130,7 +124,7 @@ public class AProjectFolder extends AProjectArtefact {
 
             // add new
             for (AProjectArtefact artefact : folder.getArtefacts()) {
-                String name = artefact.getName();
+                String name = artefact.getInternalPath();
                 if (!hasArtefact(name)) {
                     if (artefact.isFolder()) {
                         addFolder(name).update(artefact, user);
@@ -229,6 +223,12 @@ public class AProjectFolder extends AProjectArtefact {
     @Override
     public ArtefactPath getArtefactPath() {
         return new ArtefactPathImpl(getFolderPath());
+    }
+
+    @Override
+    public String getInternalPath() {
+        String projectPath = getProject().getFileData().getName();
+        return getFolderPath().substring(projectPath.length() + 1);
     }
 
     @Override

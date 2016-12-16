@@ -220,7 +220,16 @@ public class AProject extends AProjectFolder {
     }
 
     public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
-        return getArtefactsInternal().get(artefactPath.getStringValue());
+        String path = artefactPath.getStringValue();
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        AProjectArtefact artefact = getArtefactsInternal().get(path);
+        if (artefact == null) {
+            // For backward compatibility throw exception if artefact isn't found
+            throw new ProjectException("Cannot find project artefact ''{0}''", null, path);
+        }
+        return artefact;
     }
 
     @Override
