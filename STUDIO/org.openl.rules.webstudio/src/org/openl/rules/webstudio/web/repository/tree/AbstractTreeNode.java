@@ -288,11 +288,7 @@ public abstract class AbstractTreeNode implements TreeNode {
             
             List<ProjectVersion> result;
             if (project != data && project != null) {
-                if (data.isFolder()) {
-                    result = Collections.emptyList();
-                } else {
-                    result = project.getArtefactVersions(getData().getArtefactPath().withoutFirstSegment());
-                }
+                result = project.getVersions();
             } else {
                 result = getData().getVersions();
             }
