@@ -712,6 +712,13 @@ public class DataTableBindHelper {
                 new org.openl.rules.calc.SpreadsheetResultOpenClass(org.openl.rules.calc.SpreadsheetResult.class));
         }
         
+        if (field == null){
+            String message = String.format("Field '%s' doesn't exists!", arrayName);
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
+            processError(table, error);
+            return null;
+        }
+        
         if (!field.getType().isArray() && !field.getType().getOpenClass().getInstanceClass().equals(Object.class)) {
             String message = String.format("Field '%s' isn't array! The field type is '%s'", arrayName, field.getType()
                 .toString());
