@@ -7,7 +7,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>org.openl.rules.demo.demo</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
     <name>OpenL Tablets - DEMO - Demo</name>
     <description>OpenL Tablets Demo</description>
     <url>//openl-tablets.org</url>
