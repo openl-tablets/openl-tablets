@@ -713,7 +713,7 @@ public class DataTableBindHelper {
         }
         
         if (field == null){
-            String message = String.format("Field '%s' doesn't exists!", arrayName);
+            String message = String.format("Field '%s' not found!", arrayName);
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
             processError(table, error);
             return null;
