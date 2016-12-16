@@ -655,25 +655,16 @@ public class RepositoryTreeController {
         }
     }
 
-    private void unregisterElementInProjectDescriptor() {
-        AProjectFolder projectArtefact = (AProjectFolder) repositoryTreeState.getSelectedNode().getData();
-        String childName = FacesUtils.getRequestParameter("element");
-        try {
-            unregisterArtifactInProjectDescriptor(projectArtefact.getArtefact(childName));
-        } catch (ProjectException ex) {
-            log.error(ex.getMessage(), ex);
-            FacesUtils.addErrorMessage("Error deleting.", ex.getMessage());
-        }
-    }
-
     public String deleteElement() {
         AProjectFolder projectArtefact = (AProjectFolder) repositoryTreeState.getSelectedNode().getData();
         String childName = FacesUtils.getRequestParameter("element");
+        AProjectArtefact childArtefact = ((TreeNode) repositoryTreeState.getSelectedNode()
+                .getChild(RepositoryUtils.getTreeNodeId(childName))).getData();
 
         try {
             studio.getModel().clearModuleInfo(); // Release resources like jars
-            unregisterElementInProjectDescriptor();
-            projectArtefact.deleteArtefact(childName);
+            unregisterArtifactInProjectDescriptor(childArtefact);
+            childArtefact.delete();
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
 
