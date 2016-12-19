@@ -26,12 +26,14 @@ public class SpreadsheetResultHelper {
             throw new IllegalArgumentException("Invalid columnName format");
         }
         for (int index = 0; index < colNames.length; index++) {
-            String trimmedColName = colNames[index].trim();
-            if (trimmedColName.equals(columnName)
-                    || (trimmedColName.startsWith(columnName) && (Character.isSpaceChar(trimmedColName
-                            .charAt(columnName.length())) || Character.valueOf(':').equals(
-                            trimmedColName.charAt(columnName.length())))))
-                return index;
+            if (colNames[index] != null){
+                String trimmedColName = colNames[index].trim();
+                if (trimmedColName.equals(columnName)
+                        || (trimmedColName.startsWith(columnName) && (Character.isSpaceChar(trimmedColName
+                                .charAt(columnName.length())) || Character.valueOf(':').equals(
+                                trimmedColName.charAt(columnName.length())))))
+                    return index;
+            }
         }
         return -1;
     }
