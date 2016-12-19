@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
  * @author Yury Molchan
  */
 public class RepositoryFactoryInstatiator {
+    public static final String DESIGN_REPOSITORY = "design-repository.";
+    public static final String PRODUCTION_REPOSITORY = "production-repository.";
     private static HashMap<String, String> oldClass;
 
     private static final String OLD_LOCAL_PROD = "org.openl.rules.repository.factories.LocalJackrabbitProductionRepositoryFactory";
@@ -90,7 +92,7 @@ public class RepositoryFactoryInstatiator {
 
     // TODO: Remove it in 2017
     private static String checkConfig(String className, ConfigSet config, boolean designMode) {
-        String type =  designMode ? "design" : "production";
+        String type =  designMode ? DESIGN_REPOSITORY : PRODUCTION_REPOSITORY;
         checkUri(className, config, type);
         if (!oldClass.containsKey(className)) {
             // All OK!
@@ -99,7 +101,7 @@ public class RepositoryFactoryInstatiator {
 
         String clazz = oldClass.get(className);
         log().warn(
-            "### Detected deprecated '{}' repository factory!\n### Use '{}' instead of.\n### To define the location of the repository use '{}-repository.uri'",
+            "### Detected deprecated '{}' repository factory!\n### Use '{}' instead of.\n### To define the location of the repository use '{}uri'",
             className,
             clazz,
             type);
@@ -120,25 +122,25 @@ public class RepositoryFactoryInstatiator {
             return;
         }
         log().warn(
-            "### Please check your configuration!\n### Deprecated '{} = {}' is being used instead of\n### '{}-repository.uri = {}'",
+            "### Please check your configuration!\n### Deprecated '{} = {}' is being used instead of\n### '{}uri = {}'",
             oldUri.getName(),
             oldUriValue,
             type,
             oldUriValue);
-        config.addProperty(type + "-repository.uri", oldUriValue);
+        config.addProperty(type + "uri", oldUriValue);
     }
 
     // To support old factory names
     // TODO: Remove it in 2017
     public static String getOldUriProperty(String clazz, String type) {
         if (OLD_LOCAL_DES.equals(clazz) || OLD_LOCAL_PROD.equals(clazz) || NEW_LOCAL.equals(clazz)) {
-            return type + "-repository.local.home";
+            return type + "local.home";
         } else if (OLD_RMI_DES.equals(clazz) || OLD_RMI_PROD.equals(clazz) || NEW_RMI.equals(clazz)) {
-            return type + "-repository.remote.rmi.url";
+            return type + "remote.rmi.url";
         } else if (OLD_WEBDAV_DES.equals(clazz) || OLD_WEBDAV_PROD.equals(clazz) || NEW_WEBDAV.equals(clazz)) {
-            return type + "-repository.remote.webdav.url";
+            return type + "remote.webdav.url";
         } else if (OLD_DB.equals(clazz) || NEW_DB.equals(clazz)) {
-            return type + "-repository.db.url";
+            return type + "db.url";
         }
         return null;
     }
