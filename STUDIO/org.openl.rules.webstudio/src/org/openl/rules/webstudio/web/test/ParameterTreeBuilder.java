@@ -60,7 +60,7 @@ public class ParameterTreeBuilder {
                                                                       IOpenField previewField,
                                                                       String fieldName,
                                                                       ParameterDeclarationTreeNode parent) {
-        if (IRulesRuntimeContext.class.isAssignableFrom(fieldType.getInstanceClass())) {
+        if (fieldType.getInstanceClass() != null && IRulesRuntimeContext.class.isAssignableFrom(fieldType.getInstanceClass())) {
             return new ContextParameterTreeNode(fieldName, value, fieldType, parent);
         }
         if (canConstruct(fieldType)) {

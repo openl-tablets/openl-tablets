@@ -90,7 +90,7 @@ public class SpreadsheetCell implements Invokable {
             type = JavaOpenClass.OBJECT;
         } else if (type == JavaOpenClass.VOID)
             type = JavaOpenClass.getOpenClass(Void.class);
-        else if (type.getInstanceClass().isPrimitive()) {
+        else if (type.getInstanceClass() != null && type.getInstanceClass().isPrimitive()) {
             Class<?> wrapper = NumberUtils.getWrapperType(type.getInstanceClass().getName());
             type = JavaOpenClass.getOpenClass(wrapper);
         }
@@ -113,7 +113,7 @@ public class SpreadsheetCell implements Invokable {
                 List<NodeUsage> nodeUsages = new ArrayList<NodeUsage>();
                 String description = "Cell type: " + type.getDisplayName(0);
                 int from = formattedValue.indexOf('=');
-                nodeUsages.add(new SimpleNodeUsage(from, from + 1, description, null, NodeType.OTHER));
+                nodeUsages.add(new SimpleNodeUsage(from, from, description, null, NodeType.OTHER));
                 nodeUsages.addAll(metaInfo.getUsedNodes());
 
                 metaInfo.setUsedNodes(nodeUsages);

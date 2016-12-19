@@ -1,6 +1,7 @@
 package org.openl.rules.repository;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.openl.config.ConfigPropertyString;
 import org.openl.config.ConfigSet;
@@ -48,21 +49,26 @@ public class RepositoryFactoryInstatiator {
     /**
      * Create new instance of 'className' repository with defined configuration.
      */
-    public static Repository newFactory(String className, ConfigSet config, boolean designMode) throws RRepositoryException {
-        String clazz = checkConfig(className, config, designMode);
+    public static Repository newFactory(Map<String, Object> params, boolean designMode) throws RRepositoryException {
+        ConfigSet config = new ConfigSet();
+        config.addProperties(params);
         String type = designMode ? "design" : "production";
         ConfigPropertyString loginProp = new ConfigPropertyString(type + "-repository.login", null);
         ConfigPropertyString passwordProp = new ConfigPropertyString(type + "-repository.password", null);
         ConfigPropertyString uriProp = new ConfigPropertyString(type + "-repository.uri", null);
+        ConfigPropertyString factoryProp = new ConfigPropertyString(type + "-repository.factory", null);
 
         config.updateProperty(loginProp);
         config.updatePasswordProperty(passwordProp);
         config.updateProperty(uriProp);
+        config.updateProperty(factoryProp);
 
         String login = loginProp.getValue();
         String password = passwordProp.getValue();
         String uri = uriProp.getValue();
+        String className = factoryProp.getValue();
 
+        String clazz = checkConfig(className, config, designMode);
         RRepositoryFactory repFactory;
         try {
             // initialize
