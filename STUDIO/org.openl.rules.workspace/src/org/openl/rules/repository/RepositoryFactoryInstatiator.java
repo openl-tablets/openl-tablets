@@ -57,12 +57,13 @@ public class RepositoryFactoryInstatiator {
         String password = get(cfg, type + "password");
         String uri = get(cfg, type + "uri");
 
-        String oldUriProp = getOldUriProperty(className, type);
+        String oldUriProp = getOldUriProperty(className);
         if (oldUriProp != null) {
-            String oldUriValue = get(cfg, oldUriProp);
+            String oldUriValue = get(cfg, type + oldUriProp);
             if (oldUriValue != null) {
                 log().warn(
-                    "### Please check your configuration!\n### Deprecated '{} = {}' is being used instead of\n### '{}uri = {}'",
+                    "### Please check your configuration!\n### Deprecated '{}{} = {}' is being used instead of\n### '{}uri = {}'",
+                    type,
                     oldUriProp,
                     oldUriValue,
                     type,
@@ -112,15 +113,15 @@ public class RepositoryFactoryInstatiator {
 
     // To support old factory names
     // TODO: Remove it in 2017
-    public static String getOldUriProperty(String clazz, String type) {
+    public static String getOldUriProperty(String clazz) {
         if (OLD_LOCAL_DES.equals(clazz) || OLD_LOCAL_PROD.equals(clazz) || NEW_LOCAL.equals(clazz)) {
-            return type + "local.home";
+            return "local.home";
         } else if (OLD_RMI_DES.equals(clazz) || OLD_RMI_PROD.equals(clazz) || NEW_RMI.equals(clazz)) {
-            return type + "remote.rmi.url";
+            return "remote.rmi.url";
         } else if (OLD_WEBDAV_DES.equals(clazz) || OLD_WEBDAV_PROD.equals(clazz) || NEW_WEBDAV.equals(clazz)) {
-            return type + "remote.webdav.url";
+            return "remote.webdav.url";
         } else if (OLD_DB.equals(clazz) || NEW_DB.equals(clazz)) {
-            return type + "db.url";
+            return "db.url";
         }
         return null;
     }

@@ -59,9 +59,9 @@ public class RepositoryConfiguration {
         String factoryClassName = configManager.getStringProperty(REPOSITORY_FACTORY);
         jcrType = JcrType.findByFactory(factoryClassName);
         name = configManager.getStringProperty(REPOSITORY_NAME);
-        String oldUriProperty = RepositoryFactoryInstatiator.getOldUriProperty(factoryClassName,
-                CONFIG_PREFIX);
+        String oldUriProperty = RepositoryFactoryInstatiator.getOldUriProperty(factoryClassName);
         if (oldUriProperty != null) {
+            oldUriProperty = CONFIG_PREFIX + oldUriProperty;
             uri = jcrType == JcrType.LOCAL ? configManager.getPath(oldUriProperty)
                                            : configManager.getStringProperty(oldUriProperty);
             configManager.removeProperty(oldUriProperty);
