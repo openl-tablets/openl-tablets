@@ -3,8 +3,6 @@ package org.openl.rules.repository;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.config.ConfigPropertyString;
-import org.openl.config.ConfigSet;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.slf4j.Logger;
@@ -12,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Factory class to instantiate repository factories by class name
- * 
+ *
  * @author Yury Molchan
  */
 public class RepositoryFactoryInstatiator {
@@ -51,31 +49,48 @@ public class RepositoryFactoryInstatiator {
     /**
      * Create new instance of 'className' repository with defined configuration.
      */
-    public static Repository newFactory(Map<String, Object> params, boolean designMode) throws RRepositoryException {
-        ConfigSet config = new ConfigSet();
-        config.addProperties(params);
-        String type = designMode ? "design" : "production";
-        ConfigPropertyString loginProp = new ConfigPropertyString(type + "-repository.login", null);
-        ConfigPropertyString passwordProp = new ConfigPropertyString(type + "-repository.password", null);
-        ConfigPropertyString uriProp = new ConfigPropertyString(type + "-repository.uri", null);
-        ConfigPropertyString factoryProp = new ConfigPropertyString(type + "-repository.factory", null);
+    public static Repository newFactory(Map<String, Object> cfg, boolean designMode) throws RRepositoryException {
+        String type = designMode ? DESIGN_REPOSITORY : PRODUCTION_REPOSITORY;
 
-        config.updateProperty(loginProp);
-        config.updatePasswordProperty(passwordProp);
-        config.updateProperty(uriProp);
-        config.updateProperty(factoryProp);
+        String className = get(cfg, type + "factory");
+        String login = get(cfg, type + "login");
+        String password = get(cfg, type + "password");
+        String uri = get(cfg, type + "uri");
 
-        String login = loginProp.getValue();
-        String password = passwordProp.getValue();
-        String uri = uriProp.getValue();
-        String className = factoryProp.getValue();
+        String oldUriProp = getOldUriProperty(className, type);
+        if (oldUriProp != null) {
+            String oldUriValue = get(cfg, oldUriProp);
+            if (oldUriValue != null) {
+                log().warn(
+                    "### Please check your configuration!\n### Deprecated '{} = {}' is being used instead of\n### '{}uri = {}'",
+                    oldUriProp,
+                    oldUriValue,
+                    type,
+                    oldUriValue);
+                uri = oldUriValue;
+            }
+        }
 
-        String clazz = checkConfig(className, config, designMode);
+        String clazz;
+        if (!oldClass.containsKey(className)) {
+            // All OK!
+            clazz = className;
+        } else {
+            clazz = oldClass.get(className);
+            log().warn(
+                "### Detected deprecated '{}' repository factory!\n### Use '{}' instead of.\n### To define the location of the repository use '{}uri'",
+                className,
+                clazz,
+                type);
+        }
         RRepositoryFactory repFactory;
         try {
             // initialize
             Class<?> c = Class.forName(clazz);
-            Object obj = c.getConstructor(String.class, String.class, String.class, boolean.class).newInstance(uri, login, password, designMode);
+            Object obj = c.getConstructor(String.class, String.class, String.class, boolean.class).newInstance(uri,
+                login,
+                password,
+                designMode);
             repFactory = (RRepositoryFactory) obj;
             repFactory.initialize();
         } catch (Exception e) {
@@ -90,44 +105,9 @@ public class RepositoryFactoryInstatiator {
         return repFactory;
     }
 
-    // TODO: Remove it in 2017
-    private static String checkConfig(String className, ConfigSet config, boolean designMode) {
-        String type =  designMode ? DESIGN_REPOSITORY : PRODUCTION_REPOSITORY;
-        checkUri(className, config, type);
-        if (!oldClass.containsKey(className)) {
-            // All OK!
-            return className;
-        }
-
-        String clazz = oldClass.get(className);
-        log().warn(
-            "### Detected deprecated '{}' repository factory!\n### Use '{}' instead of.\n### To define the location of the repository use '{}uri'",
-            className,
-            clazz,
-            type);
-        return clazz;
-    }
-
-    private static void checkUri(String clazz, ConfigSet config, String type) {
-        String oldUriProp = getOldUriProperty(clazz, type);
-        if (oldUriProp == null) {
-            // a unknown factory
-            return;
-        }
-        ConfigPropertyString oldUri = new ConfigPropertyString(oldUriProp, null);
-        config.updateProperty(oldUri);
-        String oldUriValue = oldUri.getValue();
-        if (oldUriValue == null) {
-            // No old configuration
-            return;
-        }
-        log().warn(
-            "### Please check your configuration!\n### Deprecated '{} = {}' is being used instead of\n### '{}uri = {}'",
-            oldUri.getName(),
-            oldUriValue,
-            type,
-            oldUriValue);
-        config.addProperty(type + "uri", oldUriValue);
+    private static String get(Map<String, Object> cfg, String key) {
+        Object value = cfg.get(key);
+        return value == null ? null : value.toString();
     }
 
     // To support old factory names
