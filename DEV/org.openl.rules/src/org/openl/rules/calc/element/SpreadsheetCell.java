@@ -90,7 +90,7 @@ public class SpreadsheetCell implements Invokable {
             type = JavaOpenClass.OBJECT;
         } else if (type == JavaOpenClass.VOID)
             type = JavaOpenClass.getOpenClass(Void.class);
-        else if (type.getInstanceClass().isPrimitive()) {
+        else if (type.getInstanceClass() != null && type.getInstanceClass().isPrimitive()) {
             Class<?> wrapper = NumberUtils.getWrapperType(type.getInstanceClass().getName());
             type = JavaOpenClass.getOpenClass(wrapper);
         }
