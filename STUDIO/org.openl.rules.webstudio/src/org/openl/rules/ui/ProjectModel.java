@@ -1176,6 +1176,8 @@ public class ProjectModel {
             }
         }
 
+        // TODO: Consider the case when there is compilation error. In this case sourceFiles will be empty, it can break history manager.
+
         return sourceFiles;
     }
 
