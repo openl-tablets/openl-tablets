@@ -102,9 +102,17 @@ public final class NameChecker {
             return artefact instanceof AProjectFolder;
 
         } catch (ProjectException e1) {
+            String parentPath = folder.getInternalPath();
+            String prefix = parentPath.isEmpty() ? "" : parentPath + "/";
+            prefix += folderName + "/";
+
+            for (AProjectArtefact artefact : folder.getArtefacts()) {
+                if (artefact.getInternalPath().startsWith(prefix)) {
+                    return true;
+                }
+            }
             //Such folder isn't present
             return false;
         }
     }
-
 }

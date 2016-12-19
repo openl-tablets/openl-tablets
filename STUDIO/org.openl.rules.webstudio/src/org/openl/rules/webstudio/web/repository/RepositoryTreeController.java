@@ -166,11 +166,10 @@ public class RepositoryTreeController {
         String errorMessage = null;
 
         if (projectArtefact instanceof AProjectFolder) {
+            AProjectFolder folder = (AProjectFolder) projectArtefact;
             if (folderName != null && !folderName.isEmpty()) {
                 if (NameChecker.checkName(folderName)) {
-                    if (!NameChecker.checkIsFolderPresent((AProjectFolder) projectArtefact, folderName)) {
-                        AProjectFolder folder = (AProjectFolder) projectArtefact;
-
+                    if (!NameChecker.checkIsFolderPresent(folder, folderName)) {
                         try {
                             AProjectFolder addedFolder = folder.addFolder(folderName);
                             repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFolder);

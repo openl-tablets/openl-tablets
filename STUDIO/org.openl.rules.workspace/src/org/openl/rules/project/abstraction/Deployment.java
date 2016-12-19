@@ -120,4 +120,9 @@ public class Deployment extends AProjectFolder {
             }
         }
     }
+
+    @Override
+    public String getInternalPath() {
+        throw new UnsupportedOperationException("Internal path for deployment has no meaning");
+    }
 }
