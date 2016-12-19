@@ -113,7 +113,7 @@ public class SpreadsheetCell implements Invokable {
                 List<NodeUsage> nodeUsages = new ArrayList<NodeUsage>();
                 String description = "Cell type: " + type.getDisplayName(0);
                 int from = formattedValue.indexOf('=');
-                nodeUsages.add(new SimpleNodeUsage(from, from + 1, description, null, NodeType.OTHER));
+                nodeUsages.add(new SimpleNodeUsage(from, from, description, null, NodeType.OTHER));
                 nodeUsages.addAll(metaInfo.getUsedNodes());
 
                 metaInfo.setUsedNodes(nodeUsages);
