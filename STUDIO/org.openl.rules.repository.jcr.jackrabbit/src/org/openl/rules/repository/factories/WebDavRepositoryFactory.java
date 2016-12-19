@@ -13,10 +13,6 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  */
 public class WebDavRepositoryFactory extends AbstractJcrRepositoryFactory {
 
-    public WebDavRepositoryFactory(String uri, String login, String password, boolean designMode) {
-        super(uri, login, password, designMode);
-    }
-
     /** {@inheritDoc} */
     @Override
     public void initialize() throws RRepositoryException {

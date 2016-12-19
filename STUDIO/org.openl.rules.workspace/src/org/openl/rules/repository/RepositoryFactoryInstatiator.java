@@ -57,6 +57,7 @@ public class RepositoryFactoryInstatiator {
         String password = get(cfg, type + "password");
         String uri = get(cfg, type + "uri");
 
+        // TODO: Remove it in 2017
         String oldUriProp = getOldUriProperty(className);
         if (oldUriProp != null) {
             String oldUriValue = get(cfg, type + oldUriProp);
@@ -72,6 +73,7 @@ public class RepositoryFactoryInstatiator {
             }
         }
 
+        // TODO: Remove it in 2017
         String clazz;
         if (!oldClass.containsKey(className)) {
             // All OK!
@@ -84,26 +86,20 @@ public class RepositoryFactoryInstatiator {
                 clazz,
                 type);
         }
-        RRepositoryFactory repFactory;
+
         try {
-            // initialize
-            Class<?> c = Class.forName(clazz);
-            Object obj = c.getConstructor(String.class, String.class, String.class, boolean.class).newInstance(uri,
-                login,
-                password,
-                designMode);
-            repFactory = (RRepositoryFactory) obj;
-            repFactory.initialize();
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("uri", uri);
+            params.put("login", login);
+            params.put("password", password);
+            params.put("designMode", Boolean.toString(designMode));
+
+            return RepositoryInstatiator.newRepository(clazz, params);
         } catch (Exception e) {
             String message = "Failed to initialize repository: " + className + " , like: " + clazz;
             log().error(message, e);
             throw new RRepositoryException(message, e);
-        } catch (UnsupportedClassVersionError e) {
-            String message = "Library was compiled using newer version of JDK";
-            log().error(message, e);
-            throw new RRepositoryException(message, e);
         }
-        return repFactory;
     }
 
     private static String get(Map<String, Object> cfg, String key) {
