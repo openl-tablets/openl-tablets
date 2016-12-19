@@ -1,7 +1,5 @@
 package org.openl.rules.repository;
 
-import org.openl.config.ConfigPropertyString;
-import org.openl.config.ConfigSet;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.api.Repository;
@@ -24,12 +22,6 @@ public class ProductionRepositoryFactoryProxy {
     public static final ConfigurationManagerFactory DEFAULT_CONFIGURATION_MANAGER_FACTORY = new ConfigurationManagerFactory(true, null, "");
 
     private ConfigurationManagerFactory configManagerFactory = DEFAULT_CONFIGURATION_MANAGER_FACTORY;
-
-    /**
-     * default value is <code>null</code> -- fail first
-     */
-    private final ConfigPropertyString confRepositoryFactoryClass = new ConfigPropertyString(
-            "production-repository.factory", null);
 
     private Map<String, Repository> factories = new HashMap<String, Repository>();
 
@@ -82,11 +74,6 @@ public class ProductionRepositoryFactoryProxy {
     }
 
     public Repository getFactory(Map<String, Object> props) throws RRepositoryException {
-        ConfigSet config = new ConfigSet();
-        config.addProperties(props);
-        config.updateProperty(confRepositoryFactoryClass);
-        String className = confRepositoryFactoryClass.getValue();
-
-        return RepositoryFactoryInstatiator.newFactory(className, config, false);
+        return RepositoryFactoryInstatiator.newFactory(props, false);
     }
 }

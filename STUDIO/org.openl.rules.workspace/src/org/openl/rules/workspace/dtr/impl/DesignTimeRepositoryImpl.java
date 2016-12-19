@@ -1,7 +1,5 @@
 package org.openl.rules.workspace.dtr.impl;
 
-import org.openl.config.ConfigPropertyString;
-import org.openl.config.ConfigSet;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
@@ -96,15 +94,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     public Repository createConnection(Map<String, Object> properties) throws RRepositoryException {
-        ConfigSet config = new ConfigSet();
-        config.addProperties(properties);
-
-        // default value is <code>null</code> -- fail first
-        ConfigPropertyString confRepositoryFactoryClass = new ConfigPropertyString("design-repository.factory", null);
-        config.updateProperty(confRepositoryFactoryClass);
-        String className = confRepositoryFactoryClass.getValue();
-
-        return RepositoryFactoryInstatiator.newFactory(className, config, true);
+        return RepositoryFactoryInstatiator.newFactory(properties, true);
     }
 
     public void copyDDProject(ADeploymentProject project, String name, WorkspaceUser user)
