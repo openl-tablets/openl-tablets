@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JndiDBRepositoryFactory extends DatasourceDBRepositoryFactory {
-    public JndiDBRepositoryFactory(String uri, String login, String password) {
+    public JndiDBRepositoryFactory(String uri, String login, String password, boolean designMode) {
         super(null, login, password);
         InitialContext initialContext = null;
         try {
