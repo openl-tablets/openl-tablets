@@ -14,12 +14,8 @@ public interface SourceCodeURLConstants {
 
     String START = "start",
            END = "end",
-           FILE = "file",
-           HOST = "host",
-           PROTOCOL = "protocol",
            QSEP = "&",
            QSTART = "?",
-           ERROR = "error",
            OPENL = "openl",
            AT_PREFIX = "    at ";
 

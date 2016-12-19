@@ -17,11 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.StringTokenizer;
 
 /**
  * @author snshor
@@ -73,54 +68,6 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
         return url;
     }
 
-    static void parseQuery(String query, Map<String, String> map) {
-        if (query == null) {
-            return;
-        }
-
-        StringTokenizer st = new StringTokenizer(query, QSEP);
-
-        while (st.hasMoreTokens()) {
-            String pair = st.nextToken();
-
-            int idx = pair.indexOf('=');
-
-            if (idx < 0) {
-                map.put(pair, "");
-            } else {
-                String key = pair.substring(0, idx);
-                String value = StringTool.decodeURL(pair.substring(idx + 1, pair.length()));
-                map.put(key, value);
-            }
-        }
-
-    }
-
-    static public Map<String, String> parseUrl(String urls) {
-        Map<String, String> map = new HashMap<String, String>();
-
-        try {
-            URL url = new URL(urls);
-            String file = url.getFile();
-            String protocol = url.getProtocol();
-            String host = url.getHost();
-            String query = url.getQuery();
-
-            int indexQuestionMark = file.indexOf('?');
-            file = indexQuestionMark < 0 ? file : file.substring(0, indexQuestionMark);
-            file = StringTool.decodeURL(file);
-
-            map.put(PROTOCOL, protocol);
-            map.put(HOST, host);
-            map.put(FILE, file);
-
-            parseQuery(query, map);
-        } catch (MalformedURLException e) {
-            map.put(ERROR, e.getMessage());
-        }
-
-        return map;
-    }
 
     static public void printCodeAndError(ILocation location, IOpenSourceCodeModule module, PrintWriter pw) {
 

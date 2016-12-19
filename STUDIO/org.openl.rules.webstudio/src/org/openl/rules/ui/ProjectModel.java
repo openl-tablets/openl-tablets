@@ -32,7 +32,6 @@ import org.openl.message.OpenLMessages;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
-import org.openl.rules.enumeration.ValidateDTEnum;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
@@ -255,7 +254,7 @@ public class ProjectModel {
         return false;
     }
 
-    public TableSyntaxNode findNode(XlsUrlParser p1) {
+    private TableSyntaxNode findNode(XlsUrlParser p1) {
 //        TableSyntaxNode[] nodes = getTableSyntaxNodes();
         TableSyntaxNode[] nodes = getAllTableSyntaxNodes();
 
@@ -278,29 +277,6 @@ public class ProjectModel {
         }
 
         return null;
-    }
-
-    public List<TableSyntaxNode> getAllValidatedNodes() {
-        if (compiledOpenClass == null) {
-            return Collections.emptyList();
-        }
-
-        TableSyntaxNode[] nodes = getTableSyntaxNodes();
-
-        List<TableSyntaxNode> list = new ArrayList<TableSyntaxNode>();
-
-        for (TableSyntaxNode tsn : nodes) {
-            if (tsn.getType().equals(XlsNodeTypes.XLS_DT.toString())) {
-                if (tsn.getErrors() == null) {
-                    if (tsn.getTableProperties() != null) {
-                        if (ValidateDTEnum.ON.equals(tsn.getTableProperties().getValidateDT())) {
-                            list.add(tsn);
-                        }
-                    }
-                }
-            }
-        }
-        return list;
     }
 
     // TODO Cache it
@@ -1199,6 +1175,8 @@ public class ProjectModel {
                 sourceFiles.add(sourceFile);
             }
         }
+
+        // TODO: Consider the case when there is compilation error. In this case sourceFiles will be empty, it can break history manager.
 
         return sourceFiles;
     }

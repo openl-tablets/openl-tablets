@@ -25,12 +25,4 @@ public class XlsUrlUtils {
         return IGridRegion.Tool.intersects(IGridRegion.Tool.makeRegion(p1.range), IGridRegion.Tool
                 .makeRegion(p2.range));
     }
-
-    public static boolean intersectsByLocation(XlsUrlParser parser, String url) {
-        XlsUrlParser p2 = new XlsUrlParser();
-        p2.parse(url);
-
-        return parser.wbPath.equals(p2.wbPath) && parser.wbName.equals(p2.wbName);
-    }
-
 }
