@@ -50,8 +50,6 @@ public interface RRepository {
 
     FolderAPI getDeploymentProject(String name) throws RRepositoryException;
 
-    List<FolderAPI> getDeploymentProjects() throws RRepositoryException;
-
     /**
      * Gets project by name.
      *

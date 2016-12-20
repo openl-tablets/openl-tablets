@@ -104,29 +104,6 @@ public class JcrRepository extends BaseJcrRepository {
         }
     }
 
-    public List<FolderAPI> getDeploymentProjects() throws RRepositoryException {
-        NodeIterator ni;
-        try {
-            ni = defDeploymentConfigLocation.getNodes();
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot get any deployment project", e);
-        }
-
-        LinkedList<FolderAPI> result = new LinkedList<FolderAPI>();
-        while (ni.hasNext()) {
-            Node n = ni.nextNode();
-            try {
-                if (!n.isNodeType(JcrNT.NT_LOCK)) {
-                    result.add(new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{n.getName()})));
-                }
-            } catch (RepositoryException e) {
-                log.debug("Failed to add deployment project.");
-            }
-        }
-
-        return result;
-    }
-
     public FolderAPI getRulesProject(String name) throws RRepositoryException {
         try {
             if (!defRulesLocation.hasNode(name)) {

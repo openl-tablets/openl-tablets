@@ -8,6 +8,7 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.openl.rules.common.*;
+import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonUserImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.repository.RDeploymentListener;
@@ -21,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
@@ -86,9 +88,9 @@ public class ZipJcrRepository implements Repository, Closeable {
             if (designPath != null && designPath.equals(path)) {
                 projects = rulesRepository.getRulesProjects();
             } else if (deployConfigPath != null && deployConfigPath.equals(path)) {
-                projects = rulesRepository.getDeploymentProjects();
+                projects = getDeployConfigs();
             } else if (deployPath != null && deployPath.equals(path)) {
-                List<FolderAPI> deployments = rulesRepository.getDeploymentProjects();
+                List<FolderAPI> deployments = getDeploys();
                 for (FolderAPI deployment : deployments) {
                     for (ArtefactAPI artefactAPI : deployment.getArtefacts()) {
                         if (artefactAPI instanceof FolderAPI) {
@@ -125,6 +127,46 @@ public class ZipJcrRepository implements Repository, Closeable {
             throw new IOException(e);
         }
     }
+
+    private List<FolderAPI> getDeployConfigs() throws RRepositoryException {
+        NodeIterator ni;
+        try {
+            ni = defDeploymentConfigLocation.getNodes();
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Cannot get any deployment project", e);
+        }
+
+        LinkedList<FolderAPI> result = new LinkedList<FolderAPI>();
+        while (ni.hasNext()) {
+            Node n = ni.nextNode();
+            try {
+                if (!n.isNodeType(JcrNT.NT_LOCK)) {
+                    result.add(new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{n.getName()})));
+                }
+            } catch (RepositoryException e) {
+                log.debug("Failed to add deployment project.");
+            }
+        }
+
+        return result;
+    }
+
+    private List<FolderAPI> getDeploys() throws RRepositoryException {
+        List<FolderAPI> result = new ArrayList<FolderAPI>();
+        try {
+            NodeIterator iterator = deployLocation.getNodes();
+            while (iterator.hasNext()) {
+                Node node = iterator.nextNode();
+                if (node.getPrimaryNodeType().getName().equals(JcrNT.NT_APROJECT)) {
+                    result.add(new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{node.getName()})));
+                }
+            }
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("failed to enumerate deployments", e);
+        }
+        return result;
+    }
+
 
     @Override
     public FileData check(String name) throws IOException {

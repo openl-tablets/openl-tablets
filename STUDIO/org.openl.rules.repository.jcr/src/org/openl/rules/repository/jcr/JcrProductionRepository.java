@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.observation.Event;
@@ -132,22 +131,6 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         } catch (RepositoryException e) {
             throw new RRepositoryException("failed to wrap JCR node", e);
         }
-    }
-
-    public List<FolderAPI> getDeploymentProjects() throws RRepositoryException {
-        List<FolderAPI> result = new ArrayList<FolderAPI>();
-        try {
-            NodeIterator iterator = deployLocation.getNodes();
-            while (iterator.hasNext()) {
-                Node node = iterator.nextNode();
-                if (node.getPrimaryNodeType().getName().equals(JcrNT.NT_APROJECT)) {
-                    result.add(new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{node.getName()})));
-                }
-            }
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("failed to enumerate deployments", e);
-        }
-        return result;
     }
 
     public FolderAPI getRulesProject(String name) throws RRepositoryException {

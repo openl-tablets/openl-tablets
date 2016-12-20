@@ -52,11 +52,6 @@ public class NullRepository implements RRepository {
         return null;
     }
 
-    public List<FolderAPI> getDeploymentProjects() throws RRepositoryException {
-        // empty list
-        return new LinkedList<FolderAPI>();
-    }
-
     public FolderAPI getRulesProject(String name) throws RRepositoryException {
         fail();
         // will never reach
