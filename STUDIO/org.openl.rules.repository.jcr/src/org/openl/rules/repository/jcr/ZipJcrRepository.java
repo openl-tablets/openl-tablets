@@ -207,7 +207,7 @@ public class ZipJcrRepository implements Repository, Closeable {
             FolderAPI project;
             if (designPath != null && name.startsWith(designPath)) {
                 String projectName = name.substring(designPath.length() + 1);
-                if (!rulesRepository.hasProject(projectName)) {
+                if (!(defRulesLocation.hasNode(projectName) && !defRulesLocation.getNode(projectName).isNodeType(JcrNT.NT_LOCK))) {
                     return null;
                 }
                 project = rulesRepository.getRulesProject(projectName);
@@ -528,7 +528,7 @@ public class ZipJcrRepository implements Repository, Closeable {
         try {
         if (designPath != null && name.startsWith(designPath)) {
             String projectName = name.substring(designPath.length() + 1);
-            if (rulesRepository.hasProject(projectName)) {
+            if (defRulesLocation.hasNode(projectName) && !defRulesLocation.getNode(projectName).isNodeType(JcrNT.NT_LOCK)) {
                 project = rulesRepository.getRulesProject(projectName);
             } else {
                 project = rulesRepository.createRulesProject(projectName);

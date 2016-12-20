@@ -17,15 +17,6 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 public interface RRepository {
 
     /**
-     * Checks whether project with given name exists in the repository.
-     *
-     * @param name
-     * @return <code>true</code> if project with such name exists
-     * @throws RRepositoryException
-     */
-    boolean hasProject(String name) throws RRepositoryException;
-
-    /**
      * Releases resources allocated by this Rules Repository instance.
      */
     void release();

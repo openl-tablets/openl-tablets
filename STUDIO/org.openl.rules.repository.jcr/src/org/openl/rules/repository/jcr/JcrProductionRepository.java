@@ -37,16 +37,6 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         listeners.add(listener);
     }
 
-    /**
-     * Checks whether project with given name exists in the repository.
-     *
-     * @return <code>true</code> if project with such name exists
-     * @throws org.openl.rules.repository.exceptions.RRepositoryException
-     */
-    public boolean hasProject(String name) throws RRepositoryException {
-        throw new UnsupportedOperationException();
-    }
-
     public void onEvent(EventIterator eventIterator) {
         boolean activate = false;
         while (eventIterator.hasNext()) {
