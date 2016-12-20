@@ -500,14 +500,25 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
         }
     }
 
-    private FolderAPI createArtifact(Node root, String name) throws RRepositoryException {
+    private FolderAPI createArtifact(Node root, String path) throws RRepositoryException {
         try {
-            Node node = NodeUtil.createNode(root, name, JcrNT.NT_APROJECT, true);
+            int lastSeparator = path.lastIndexOf("/");
+            Node parent;
+            String name;
+            if (lastSeparator >=0) {
+                String folder = path.substring(0, lastSeparator);
+                name = path.substring(lastSeparator + 1);
+                parent = checkFolder(root, folder);
+            } else {
+                name = path;
+                parent = root;
+            }
+            Node node = NodeUtil.createNode(parent, name, JcrNT.NT_APROJECT, true);
             root.save();
             node.checkin();
             return new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{name}));
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to create an artifact ''{0}''", e, name);
+            throw new RRepositoryException("Failed to create an artifact ''{0}''", e, path);
         }
     }
 
@@ -593,11 +604,10 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             }
         }
     }
-    private Node checkFolder(String aPath) throws RepositoryException, ProjectException {
-        Node node = session.getRootNode();
+    private Node checkFolder(Node root, String aPath) throws RepositoryException {
+        Node node = root;
         String[] paths = aPath.split("/");
-        String currentPath = "";
-        for (String path : paths) {
+       for (String path : paths) {
             if (path.length() == 0) {
                 continue; // first element (root folder) or illegal path
             }
@@ -607,14 +617,11 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
                 node = node.getNode(path);
             } else {
                 // create new
-                JcrFolderAPI folder = new JcrFolderAPI(node, new ArtefactPathImpl(currentPath));
-                node = folder.addFolder(path).node();
+                Node n = NodeUtil.createNode(node, path, JcrNT.NT_FOLDER, true);
+                node.save();
+                n.save();
+                node = n;
             }
-
-            if (!currentPath.isEmpty()) {
-                currentPath += "/";
-            }
-            currentPath += path;
         }
 
         return node;
@@ -659,7 +666,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
 
     private ResourceAPI createResource(String name, InputStream inputStream) throws RRepositoryException {
         try {
-            Node node = checkFolder(name.substring(0, name.lastIndexOf("/")));
+            Node node = checkFolder(session.getRootNode(), name.substring(0, name.lastIndexOf("/")));
             ArtefactAPI artefact = createArtefactAPI(node, name);
             if (!(artefact instanceof FolderAPI)) {
                 throw new RepositoryException("Incorrect node type");
