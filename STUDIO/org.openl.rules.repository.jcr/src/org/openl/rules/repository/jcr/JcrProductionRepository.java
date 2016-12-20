@@ -168,13 +168,6 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         }
     }
 
-    private String removeLeadingSlash(String path) {
-        if (path.startsWith("/")) {
-            path = path.substring(1);
-        }
-        return path;
-    }
-
     public FolderAPI getRulesProject(String name) throws RRepositoryException {
         throw new UnsupportedOperationException();
     }

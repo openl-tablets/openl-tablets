@@ -204,4 +204,10 @@ public abstract class BaseJcrRepository implements RRepository, EventListener {
         }
     }
 
+    String removeLeadingSlash(String path) {
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        return path;
+    }
 }

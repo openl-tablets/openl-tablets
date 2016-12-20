@@ -192,13 +192,6 @@ public class JcrRepository extends BaseJcrRepository {
         return null;
     }
 
-    private String removeLeadingSlash(String path) {
-        if (path.startsWith("/")) {
-            path = path.substring(1);
-        }
-        return path;
-    }
-
     private static final String CHECKED_OUT_PROPERTY = "jcr:isCheckedOut";
 
     private String extractProjectName(String relativePath) {
