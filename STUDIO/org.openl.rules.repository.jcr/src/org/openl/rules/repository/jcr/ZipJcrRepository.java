@@ -112,11 +112,11 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             List<FileData> result = new ArrayList<FileData>();
             List<FolderAPI> projects;
             if (designPath != null && designPath.equals(path)) {
-                projects = getRulesProjects();
+                projects = getChildren(defRulesLocation);
             } else if (deployConfigPath != null && deployConfigPath.equals(path)) {
-                projects = getDeployConfigs();
+                projects = getChildren(defDeploymentConfigLocation);
             } else if (deployPath != null && deployPath.equals(path)) {
-                List<FolderAPI> deployments = getDeploys();
+                List<FolderAPI> deployments = getChildren(deployLocation);
                 for (FolderAPI deployment : deployments) {
                     for (ArtefactAPI artefactAPI : deployment.getArtefacts()) {
                         if (artefactAPI instanceof FolderAPI) {
@@ -154,12 +154,12 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
         }
     }
 
-    private List<FolderAPI> getRulesProjects() throws RRepositoryException {
+    private List<FolderAPI> getChildren(Node root) throws RRepositoryException {
         NodeIterator ni;
         try {
-            ni = defRulesLocation.getNodes();
+            ni = root.getNodes();
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot get any rules project", e);
+            throw new RRepositoryException("Cannot get children nodes", e);
         }
 
         LinkedList<FolderAPI> result = new LinkedList<FolderAPI>();
@@ -170,52 +170,12 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
                     result.add(new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{n.getName()})));
                 }
             } catch (RepositoryException e) {
-                log.debug("Failed to add rules project.");
+                log.debug("Failed to get a child node.", e);
             }
         }
 
         return result;
     }
-
-    private List<FolderAPI> getDeployConfigs() throws RRepositoryException {
-        NodeIterator ni;
-        try {
-            ni = defDeploymentConfigLocation.getNodes();
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot get any deployment project", e);
-        }
-
-        LinkedList<FolderAPI> result = new LinkedList<FolderAPI>();
-        while (ni.hasNext()) {
-            Node n = ni.nextNode();
-            try {
-                if (!n.isNodeType(JcrNT.NT_LOCK)) {
-                    result.add(new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{n.getName()})));
-                }
-            } catch (RepositoryException e) {
-                log.debug("Failed to add deployment project.");
-            }
-        }
-
-        return result;
-    }
-
-    private List<FolderAPI> getDeploys() throws RRepositoryException {
-        List<FolderAPI> result = new ArrayList<FolderAPI>();
-        try {
-            NodeIterator iterator = deployLocation.getNodes();
-            while (iterator.hasNext()) {
-                Node node = iterator.nextNode();
-                if (node.getPrimaryNodeType().getName().equals(JcrNT.NT_APROJECT)) {
-                    result.add(new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{node.getName()})));
-                }
-            }
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("failed to enumerate deployments", e);
-        }
-        return result;
-    }
-
 
     @Override
     public FileData check(String name) throws IOException {
