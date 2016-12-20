@@ -31,8 +31,6 @@ public abstract class BaseJcrRepository implements RRepository, EventListener {
         this.session = session;
     }
 
-    protected abstract boolean isBaseNode(Node node) throws RepositoryException;
-
     protected Node checkFolder(String aPath) throws RepositoryException, ProjectException {
         Node node = session.getRootNode();
         String[] paths = aPath.split("/");
@@ -45,11 +43,6 @@ public abstract class BaseJcrRepository implements RRepository, EventListener {
             if (node.hasNode(path)) {
                 // go deeper
                 node = node.getNode(path);
-            } else if (isBaseNode(node)) {
-                Node n = NodeUtil.createNode(node, path, JcrNT.NT_APROJECT, true);
-                node.save();
-                n.save();
-                node = n;
             } else {
                 // create new
                 JcrFolderAPI folder = new JcrFolderAPI(node, new ArtefactPathImpl(currentPath));

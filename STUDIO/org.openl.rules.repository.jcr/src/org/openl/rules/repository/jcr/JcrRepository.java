@@ -78,9 +78,4 @@ public class JcrRepository extends BaseJcrRepository {
         this.listener = listener;
     }
 
-    @Override
-    protected boolean isBaseNode(Node node) throws RepositoryException {
-        String path = node.getPath();
-        return path.equals(defRulesLocation.getPath()) || path.equals(defDeploymentConfigLocation.getPath());
-    }
 }

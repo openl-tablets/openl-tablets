@@ -4,7 +4,6 @@ import org.openl.rules.repository.api.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.observation.Event;
@@ -16,12 +15,10 @@ public class JcrProductionRepository extends BaseJcrRepository {
     final static String PROPERTY_NOTIFICATION = "deploymentReady";
     public static final String DEPLOY_ROOT = "/deploy";
 
-    private Node deployLocation;
     private Listener listener;
 
-    public JcrProductionRepository(Session session, Node deployLocation) throws RepositoryException {
+    public JcrProductionRepository(Session session) throws RepositoryException {
         super(session);
-        this.deployLocation = deployLocation;
 
         session.getWorkspace().getObservationManager().addEventListener(this, Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED | Event.PROPERTY_REMOVED, DEPLOY_ROOT, false,
                 null, null, false);
@@ -54,8 +51,4 @@ public class JcrProductionRepository extends BaseJcrRepository {
         }
     }
 
-    @Override
-    protected boolean isBaseNode(Node node) throws RepositoryException {
-        return node.getPath().equals(deployLocation.getPath());
-    }
 }

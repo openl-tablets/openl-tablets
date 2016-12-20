@@ -44,7 +44,7 @@ public class ZipJcrRepository implements Repository, Closeable {
         } else {
             deployPath = "deploy";
             deployLocation = getNode(session, deployPath);
-            rulesRepository = new JcrProductionRepository(session, deployLocation);
+            rulesRepository = new JcrProductionRepository(session);
         }
     }
 
