@@ -489,73 +489,38 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
 
     private FolderAPI getOrCreateProject(String name) throws RRepositoryException {
         FolderAPI project;
-        try {
         if (designPath != null && name.startsWith(designPath)) {
             String projectName = name.substring(designPath.length() + 1);
-            if (defRulesLocation.hasNode(projectName) && !defRulesLocation.getNode(projectName).isNodeType(JcrNT.NT_LOCK)) {
-                project = getArtifact(defRulesLocation, projectName);
-            } else {
-                project = createRulesProject(projectName);
+            project = getArtifact(defRulesLocation, projectName);
+            if (project == null) {
+                project = createArtifact(defRulesLocation, projectName);
             }
         } else if (deployConfigPath != null && name.startsWith(deployConfigPath)) {
             String projectName = name.substring(deployConfigPath.length() + 1);
-            if (defDeploymentConfigLocation.hasNode(projectName)) {
-                project = getArtifact(defDeploymentConfigLocation, projectName);
-            } else {
-                project = createDeployConfig(projectName);
+            project = getArtifact(defDeploymentConfigLocation, projectName);
+            if (project == null) {
+                project = createArtifact(defDeploymentConfigLocation, projectName);
             }
         } else if (deployPath != null && name.startsWith(deployPath)) {
             String projectName = name.substring(deployPath.length() + 1);
-            if (deployLocation.hasNode(projectName)) {
-                project = getArtifact(deployLocation, projectName);
-            } else {
-                project = createDeploy(projectName);
+            project = getArtifact(deployLocation, projectName);
+            if (project == null) {
+                project = createArtifact(deployLocation, projectName);
             }
         } else {
             project = null;
         }
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("failed to check project {0}", e, name);
-        }
         return project;
     }
 
-    private FolderAPI createRulesProject(String name) throws RRepositoryException {
+    private FolderAPI createArtifact(Node root, String name) throws RRepositoryException {
         try {
-            Node node = NodeUtil.createNode(defRulesLocation, name,
-                    JcrNT.NT_APROJECT, true);
-            defRulesLocation.save();
+            Node node = NodeUtil.createNode(root, name, JcrNT.NT_APROJECT, true);
+            root.save();
             node.checkin();
             return new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{name}));
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to create rules project.", e);
-        }
-    }
-
-    public FolderAPI createDeployConfig(String name) throws RRepositoryException {
-        try {
-            Node node = NodeUtil.createNode(defDeploymentConfigLocation, name,
-                    JcrNT.NT_APROJECT, true);
-            defDeploymentConfigLocation.save();
-            node.checkin();
-            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{name}));
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to create deploy configuration.", e);
-        }
-    }
-
-    private FolderAPI createDeploy(String name) throws RRepositoryException {
-        try {
-            String path = "deploy/" + name;
-            Node parent = checkFolder(path.substring(0, path.lastIndexOf("/")));
-            Node node = NodeUtil.createNode(parent, name.substring(name.lastIndexOf("/") + 1), JcrNT.NT_APROJECT, true);
-            deployLocation.save();
-            node.checkin();
-            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{name}));
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("", e);
-        } catch (ProjectException e) {
-            throw new RRepositoryException("", e);
+            throw new RRepositoryException("Failed to create an artifact ''{0}''", e, name);
         }
     }
 
