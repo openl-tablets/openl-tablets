@@ -572,7 +572,7 @@ public class ZipJcrRepository implements Repository, Closeable {
             if (defRulesLocation.hasNode(projectName) && !defRulesLocation.getNode(projectName).isNodeType(JcrNT.NT_LOCK)) {
                 project = getRulesProject(projectName);
             } else {
-                project = rulesRepository.createRulesProject(projectName);
+                project = createRulesProject(projectName);
             }
         } else if (deployConfigPath != null && name.startsWith(deployConfigPath)) {
             String projectName = name.substring(deployConfigPath.length() + 1);
@@ -595,6 +595,18 @@ public class ZipJcrRepository implements Repository, Closeable {
             throw new RRepositoryException("failed to check project {0}", e, name);
         }
         return project;
+    }
+
+    private FolderAPI createRulesProject(String name) throws RRepositoryException {
+        try {
+            Node node = NodeUtil.createNode(defRulesLocation, name,
+                    JcrNT.NT_APROJECT, true);
+            defRulesLocation.save();
+            node.checkin();
+            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{name}));
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Failed to create rules project.", e);
+        }
     }
 
     private void deleteAbsentFiles(List<String> newFiles, FolderAPI folder, String prefix) throws ProjectException {

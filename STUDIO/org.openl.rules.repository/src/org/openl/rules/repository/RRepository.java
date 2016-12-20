@@ -27,15 +27,6 @@ public interface RRepository {
     
     FolderAPI createDeploymentProject(String name) throws RRepositoryException;
 
-    /**
-     * Creates a project in the repository. Name of new project must be unique.
-     *
-     * @param name name of new project
-     * @return newly created project
-     * @throws RRepositoryException if failed
-     */
-    FolderAPI createRulesProject(String name) throws RRepositoryException;
-
     void addRepositoryListener(RRepositoryListener listener);
     void removeRepositoryListener(RRepositoryListener listener);
     ArtefactAPI getArtefact(String name) throws RRepositoryException;

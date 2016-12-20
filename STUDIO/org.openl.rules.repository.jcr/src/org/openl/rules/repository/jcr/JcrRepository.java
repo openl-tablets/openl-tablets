@@ -58,18 +58,6 @@ public class JcrRepository extends BaseJcrRepository {
         }
     }
 
-    public FolderAPI createRulesProject(String name) throws RRepositoryException {
-        try {
-            Node node = NodeUtil.createNode(defRulesLocation, name,
-                    JcrNT.NT_APROJECT, true);
-            defRulesLocation.save();
-            node.checkin();
-            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{name}));
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to create rules project.", e);
-        }
-    }
-
     private static final String CHECKED_OUT_PROPERTY = "jcr:isCheckedOut";
 
     private String extractProjectName(String relativePath) {
