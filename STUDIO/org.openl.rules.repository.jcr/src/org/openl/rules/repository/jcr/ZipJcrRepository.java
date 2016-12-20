@@ -20,6 +20,7 @@ import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
@@ -28,21 +29,50 @@ public class ZipJcrRepository implements Repository, Closeable {
 
     private RRepository rulesRepository;
     private String designPath;
+    private Node defRulesLocation;
     private String deployConfigPath;
+    private Node defDeploymentConfigLocation;
     private String deployPath;
+    private Node deployLocation;
     // In this case there is no need to store a strong reference to the listener: current field is used only to remove
     // old instance. If it's GC-ed, no need to remove it.
     private WeakReference<Object> listenerReference = new WeakReference<Object>(null);
 
     protected void init(Session session, boolean designRepositoryMode) throws RRepositoryException, RepositoryException {
         if (designRepositoryMode) {
-            rulesRepository = new JcrRepository(session, "/DESIGN/rules", "/DESIGN/deployments");
             designPath = "DESIGN/rules";
+            defRulesLocation = getNode(session, designPath);
             deployConfigPath = "DESIGN/deployments";
+            defDeploymentConfigLocation = getNode(session, deployConfigPath);
+            rulesRepository = new JcrRepository(session, defRulesLocation, defDeploymentConfigLocation);
         } else {
-            rulesRepository = new JcrProductionRepository(session);
             deployPath = "deploy";
+            deployLocation = getNode(session, deployPath);
+            rulesRepository = new JcrProductionRepository(session, deployLocation);
         }
+    }
+
+    private Node getNode(Session session, String aPath) throws RepositoryException {
+        Node node = session.getRootNode();
+        String[] paths = aPath.split("/");
+        for (String path : paths) {
+            if (path.length() == 0) {
+                continue; // first element (root folder) or illegal path
+            }
+
+            if (node.hasNode(path)) {
+                // go deeper
+                node = node.getNode(path);
+            } else {
+                // create new
+                node = node.addNode(path);
+            }
+        }
+        if (node.isNew()) {
+            session.save();
+        }
+
+        return node;
     }
 
     @Override

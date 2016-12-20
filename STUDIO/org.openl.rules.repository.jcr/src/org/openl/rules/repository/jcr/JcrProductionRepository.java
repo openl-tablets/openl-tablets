@@ -26,13 +26,9 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     private Node deployLocation;
     private List<RDeploymentListener> listeners = new CopyOnWriteArrayList<RDeploymentListener>();
 
-    public JcrProductionRepository(Session session) throws RepositoryException {
+    public JcrProductionRepository(Session session, Node deployLocation) throws RepositoryException {
         super(session);
-
-        deployLocation = checkPath(DEPLOY_ROOT);
-        if (deployLocation.isNew()) {
-            session.save();
-        }
+        this.deployLocation = deployLocation;
 
         session.getWorkspace().getObservationManager().addEventListener(this, Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED | Event.PROPERTY_REMOVED, DEPLOY_ROOT, false,
                 null, null, false);

@@ -31,26 +31,6 @@ public abstract class BaseJcrRepository implements RRepository, EventListener {
         this.session = session;
     }
 
-    protected Node checkPath(String aPath) throws RepositoryException {
-        Node node = session.getRootNode();
-        String[] paths = aPath.split("/");
-        for (String path : paths) {
-            if (path.length() == 0) {
-                continue; // first element (root folder) or illegal path
-            }
-
-            if (node.hasNode(path)) {
-                // go deeper
-                node = node.getNode(path);
-            } else {
-                // create new
-                node = node.addNode(path);
-            }
-        }
-
-        return node;
-    }
-
     protected abstract boolean isBaseNode(Node node) throws RepositoryException;
 
     protected Node checkFolder(String aPath) throws RepositoryException, ProjectException {

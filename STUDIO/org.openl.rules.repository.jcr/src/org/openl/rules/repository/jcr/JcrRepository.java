@@ -32,18 +32,12 @@ public class JcrRepository extends BaseJcrRepository {
     private List<RRepositoryListener> listeners = new ArrayList<RRepositoryListener>();
 
     public JcrRepository(Session session,
-            String defRulesPath,
-            String defDeploymentConfigPath)
+                         Node defRulesLocation,
+                         Node defDeploymentConfigLocation)
             throws RepositoryException {
         super(session);
-
-        defRulesLocation = checkPath(defRulesPath);
-        defDeploymentConfigLocation = checkPath(defDeploymentConfigPath);
-
-        if (defRulesLocation.isNew() || defDeploymentConfigLocation.isNew()) {
-            // save all at once
-            session.save();
-        }
+        this.defRulesLocation = defRulesLocation;
+        this.defDeploymentConfigLocation = defDeploymentConfigLocation;
 
         session.getWorkspace()
                 .getObservationManager()
