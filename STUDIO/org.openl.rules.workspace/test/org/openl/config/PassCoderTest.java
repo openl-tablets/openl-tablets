@@ -1,8 +1,7 @@
 package org.openl.config;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -22,10 +21,10 @@ public class PassCoderTest {
         try {
             codedPass = PassCoder.encode(pass, key);
         } catch (Exception e) {
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
 
-        Assert.assertNotNull(codedPass);
+        assertNotNull(codedPass);
 
         String decodedPass = null;
 
@@ -35,12 +34,12 @@ public class PassCoderTest {
             // skip exception which wrong key
         }
 
-        Assert.assertNull(decodedPass);
+        assertNull(decodedPass);
 
         try {
             decodedPass = PassCoder.decode(codedPass, key);
         } catch (Exception e) {
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
 
         assertEquals(pass, decodedPass);
