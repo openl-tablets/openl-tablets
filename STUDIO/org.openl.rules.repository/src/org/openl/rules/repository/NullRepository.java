@@ -25,10 +25,7 @@ public class NullRepository implements RRepository {
         // Do nothing
     }
 
-    public void addRepositoryListener(RRepositoryListener listener) {
-    }
-
-    public void removeRepositoryListener(RRepositoryListener listener) {
+    public void setListener(RRepositoryListener listener) {
     }
 
     @Override

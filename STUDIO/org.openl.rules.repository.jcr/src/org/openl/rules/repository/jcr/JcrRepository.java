@@ -11,8 +11,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.observation.Event;
 import javax.jcr.observation.EventIterator;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Implementation for JCR Repository. One JCR Repository instance per user.
@@ -25,7 +23,7 @@ public class JcrRepository extends BaseJcrRepository {
     private Node defRulesLocation;
     private Node defDeploymentConfigLocation;
 
-    private List<RRepositoryListener> listeners = new ArrayList<RRepositoryListener>();
+    private RRepositoryListener listeners;
 
     public JcrRepository(Session session,
                          Node defRulesLocation,
@@ -60,23 +58,19 @@ public class JcrRepository extends BaseJcrRepository {
     }
 
     public void onEvent(EventIterator eventIterator) {
-        while (eventIterator.hasNext()) {
+        while (listeners != null && eventIterator.hasNext()) {
             Event event = eventIterator.nextEvent();
             try {
                 String path = event.getPath();
                 if (path.startsWith(defRulesLocation.getPath() + "/")) {
                     String relativePath = path.substring(defRulesLocation.getPath().length() + 1);
                     if (isProjectDeletedEvent(event, relativePath) || isProjectModifiedEvent(event, relativePath)) {
-                        for (RRepositoryListener listener : listeners) {
-                            listener.onEventInRulesProjects(new RRepositoryEvent(extractProjectName(relativePath)));
-                        }
+                        listeners.onEventInRulesProjects(new RRepositoryEvent(extractProjectName(relativePath)));
                     }
                 } else if (path.startsWith(defDeploymentConfigLocation.getPath() + "/")) {
                     String relativePath = path.substring(defDeploymentConfigLocation.getPath().length() + 1);
                     if (isProjectDeletedEvent(event, relativePath) || isProjectModifiedEvent(event, relativePath)) {
-                        for (RRepositoryListener listener : listeners) {
-                            listener.onEventInDeploymentProjects(new RRepositoryEvent(extractProjectName(relativePath)));
-                        }
+                        listeners.onEventInDeploymentProjects(new RRepositoryEvent(extractProjectName(relativePath)));
                     }
                 }
             } catch (RepositoryException e) {
@@ -85,12 +79,8 @@ public class JcrRepository extends BaseJcrRepository {
         }
     }
 
-    public void addRepositoryListener(RRepositoryListener listener) {
-        listeners.add(listener);
-    }
-
-    public void removeRepositoryListener(RRepositoryListener listener) {
-        listeners.remove(listener);
+    public void setListener(RRepositoryListener listener) {
+        listeners = listener;
     }
 
     @Override

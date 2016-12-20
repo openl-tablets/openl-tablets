@@ -3,7 +3,6 @@ package org.openl.rules.repository;
 import java.io.InputStream;
 
 import org.openl.rules.repository.api.ArtefactAPI;
-import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.api.ResourceAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
@@ -25,8 +24,8 @@ public interface RRepository {
     //TODO new method names and comments
 
 
-    void addRepositoryListener(RRepositoryListener listener);
-    void removeRepositoryListener(RRepositoryListener listener);
+    void setListener(RRepositoryListener listener);
+
     ArtefactAPI getArtefact(String name) throws RRepositoryException;
 
     ResourceAPI createResource(String name, InputStream inputStream) throws RRepositoryException;

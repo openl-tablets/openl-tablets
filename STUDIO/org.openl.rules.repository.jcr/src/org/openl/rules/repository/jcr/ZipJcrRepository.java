@@ -1,7 +1,6 @@
 package org.openl.rules.repository.jcr;
 
 import java.io.*;
-import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -37,7 +36,6 @@ public class ZipJcrRepository implements Repository, Closeable {
     private Node deployLocation;
     // In this case there is no need to store a strong reference to the listener: current field is used only to remove
     // old instance. If it's GC-ed, no need to remove it.
-    private WeakReference<Object> listenerReference = new WeakReference<Object>(null);
 
     protected void init(Session session, boolean designRepositoryMode) throws RRepositoryException, RepositoryException {
         if (designRepositoryMode) {
@@ -424,18 +422,6 @@ public class ZipJcrRepository implements Repository, Closeable {
 
     @Override
     public void setListener(final Listener callback) {
-        Object listener = listenerReference.get();
-        if (listener != null) {
-            // Remove previous listener
-            if (rulesRepository instanceof JcrRepository) {
-                rulesRepository.removeRepositoryListener((RRepositoryListener) listener);
-                listenerReference.clear();
-            } else if (rulesRepository instanceof RProductionRepository) {
-                ((RProductionRepository) rulesRepository).removeListener((RDeploymentListener) listener);
-                listenerReference.clear();
-            }
-        }
-
         if (callback != null) {
             if (rulesRepository instanceof JcrRepository) {
                 RRepositoryListener repositoryListener = new RRepositoryListener() {
@@ -449,8 +435,7 @@ public class ZipJcrRepository implements Repository, Closeable {
                         callback.onChange();
                     }
                 };
-                listenerReference = new WeakReference<Object>(repositoryListener);
-                rulesRepository.addRepositoryListener(repositoryListener);
+                rulesRepository.setListener(repositoryListener);
             } else if (rulesRepository instanceof RProductionRepository) {
                 RDeploymentListener deploymentListener = new RDeploymentListener() {
                     @Override
@@ -458,8 +443,14 @@ public class ZipJcrRepository implements Repository, Closeable {
                         callback.onChange();
                     }
                 };
-                listenerReference = new WeakReference<Object>(deploymentListener);
-                ((RProductionRepository) rulesRepository).addListener(deploymentListener);
+                ((RProductionRepository) rulesRepository).setListener(deploymentListener);
+            }
+        } else {
+            // Remove previous listener
+            if (rulesRepository instanceof JcrRepository) {
+                rulesRepository.setListener(null);
+            } else if (rulesRepository instanceof RProductionRepository) {
+                ((RProductionRepository) rulesRepository).setListener((RDeploymentListener)null);
             }
         }
     }
