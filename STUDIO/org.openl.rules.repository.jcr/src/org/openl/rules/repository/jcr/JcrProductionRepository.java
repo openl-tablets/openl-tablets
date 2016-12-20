@@ -1,8 +1,6 @@
 package org.openl.rules.repository.jcr;
 
-import org.openl.rules.repository.*;
 import org.openl.rules.repository.api.Listener;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +10,7 @@ import javax.jcr.Session;
 import javax.jcr.observation.Event;
 import javax.jcr.observation.EventIterator;
 
-public class JcrProductionRepository extends BaseJcrRepository implements RProductionRepository {
+public class JcrProductionRepository extends BaseJcrRepository {
     private final Logger log = LoggerFactory.getLogger(JcrProductionRepository.class);
 
     final static String PROPERTY_NOTIFICATION = "deploymentReady";
@@ -53,20 +51,6 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
                 } catch (Exception e) {
                     log.error("onEvent-2", e);
                 }
-        }
-    }
-
-    //FIXME
-    private static final Object lock = new Object();
-
-    public void notifyChanges() throws RRepositoryException {
-        synchronized (lock) {
-            try {
-                deployLocation.setProperty(JcrProductionRepository.PROPERTY_NOTIFICATION, System.currentTimeMillis());
-                deployLocation.save();
-            } catch (RepositoryException e) {
-                throw new RRepositoryException("Failed to notify changes", e);
-            }
         }
     }
 
