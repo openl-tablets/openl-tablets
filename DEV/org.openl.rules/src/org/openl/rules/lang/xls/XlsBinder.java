@@ -331,11 +331,12 @@ public class XlsBinder implements IOpenBinder {
             .and(dataTypeSelector.not());
 
         ISelector<ISyntaxNode> spreadsheetSelector = getSelector(XlsNodeTypes.XLS_SPREADSHEET);
+        ISelector<ISyntaxNode> dtSelector = getSelector(XlsNodeTypes.XLS_DT);
         ISelector<ISyntaxNode> testMethodSelector = getSelector(XlsNodeTypes.XLS_TEST_METHOD);
         ISelector<ISyntaxNode> runMethodSelector = getSelector(XlsNodeTypes.XLS_RUN_METHOD);
 
         ISelector<ISyntaxNode> commonTablesSelector = notPropertiesAndNotDatatypeSelector
-            .and(spreadsheetSelector.not().and(testMethodSelector.not().and(runMethodSelector.not())));
+            .and(spreadsheetSelector.not().and(testMethodSelector.not().and(runMethodSelector.not().and(dtSelector.not()))));
 
         // Bind property node at first.
         //
@@ -355,7 +356,7 @@ public class XlsBinder implements IOpenBinder {
          * step.
          */
         TableSyntaxNode[] processedDatatypeNodes = new DatatypesSorter().sort(datatypeNodes, moduleContext); //Rewrite this sorter with TableSyntaxNodeRelationsUtils
-
+        
         bindInternal(moduleNode, moduleOpenClass, processedDatatypeNodes, openl, moduleContext);
 
         // Select nodes excluding Properties, Datatype, Spreadsheet, Test,
@@ -375,7 +376,9 @@ public class XlsBinder implements IOpenBinder {
             }
         }
 
-        TableSyntaxNode[] commonAndSpreadsheetTables = ArrayUtils.addAll(commonTables, spreadsheets);
+        TableSyntaxNode[] dts = selectSpreadsheetNodes(moduleNode, dtSelector);
+        
+        TableSyntaxNode[] commonAndSpreadsheetTables = ArrayUtils.addAll(ArrayUtils.addAll(dts, spreadsheets), commonTables);
         bindInternal(moduleNode, moduleOpenClass, commonAndSpreadsheetTables, openl, moduleContext);
 
         // Select Test and RunMethod tables
@@ -707,7 +710,7 @@ public class XlsBinder implements IOpenBinder {
         return new ModuleNode(moduleSyntaxNode, moduleContext.getModule());
     }
 
-    private OpenMethodHeader addMethodHeaderToContext(XlsModuleOpenClass module,
+    private OpenMethodHeader addMethodHeaderToContext(XlsModuleOpenClass module, 
             TableSyntaxNode tableSyntaxNode,
             OpenL openl,
             RulesModuleBindingContext moduleContext,

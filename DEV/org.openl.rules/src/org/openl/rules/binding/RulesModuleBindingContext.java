@@ -158,7 +158,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     @Override
     public IOpenClass findType(String namespace, String typeName) {
         if (OpenLSystemProperties.isCustomSpreadsheetType(getExternalParams())) {
-            if (typeName.startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX)){
+            if (typeName.startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX) && typeName.length() > Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()){
                 String sprMethodName = typeName.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
                 IOpenMethod method = preBinderMethods.get(sprMethodName);
                 if (method != null){
