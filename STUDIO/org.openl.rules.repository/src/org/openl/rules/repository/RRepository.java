@@ -38,15 +38,6 @@ public interface RRepository {
 
     FolderAPI getDeploymentProject(String name) throws RRepositoryException;
 
-    /**
-     * Gets project by name.
-     *
-     * @param name
-     * @return project
-     * @throws RRepositoryException if failed or no project with specified name
-     */
-    FolderAPI getRulesProject(String name) throws RRepositoryException;
-
     void addRepositoryListener(RRepositoryListener listener);
     void removeRepositoryListener(RRepositoryListener listener);
     ArtefactAPI getArtefact(String name) throws RRepositoryException;

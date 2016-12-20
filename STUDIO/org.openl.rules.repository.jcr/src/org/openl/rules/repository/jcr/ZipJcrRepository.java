@@ -210,7 +210,7 @@ public class ZipJcrRepository implements Repository, Closeable {
                 if (!(defRulesLocation.hasNode(projectName) && !defRulesLocation.getNode(projectName).isNodeType(JcrNT.NT_LOCK))) {
                     return null;
                 }
-                project = rulesRepository.getRulesProject(projectName);
+                project = getRulesProject(projectName);
             } else if (deployConfigPath != null && name.startsWith(deployConfigPath)) {
                 String projectName = name.substring(deployConfigPath.length() + 1);
                 if (!defDeploymentConfigLocation.hasNode(projectName)) {
@@ -231,6 +231,19 @@ public class ZipJcrRepository implements Repository, Closeable {
             throw new IOException(e);
         } catch (RepositoryException e) {
             throw new IOException(e);
+        }
+    }
+
+    private FolderAPI getRulesProject(String name) throws RRepositoryException {
+        try {
+            if (!defRulesLocation.hasNode(name)) {
+                throw new RRepositoryException("Cannot find project ''{0}''", null, name);
+            }
+
+            Node n = defRulesLocation.getNode(name);
+            return new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{name}));
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Failed to get project ''{0}''", e, name);
         }
     }
 
@@ -529,7 +542,7 @@ public class ZipJcrRepository implements Repository, Closeable {
         if (designPath != null && name.startsWith(designPath)) {
             String projectName = name.substring(designPath.length() + 1);
             if (defRulesLocation.hasNode(projectName) && !defRulesLocation.getNode(projectName).isNodeType(JcrNT.NT_LOCK)) {
-                project = rulesRepository.getRulesProject(projectName);
+                project = getRulesProject(projectName);
             } else {
                 project = rulesRepository.createRulesProject(projectName);
             }
@@ -647,4 +660,5 @@ public class ZipJcrRepository implements Repository, Closeable {
             rulesRepository.release();
         }
     }
+
 }

@@ -44,12 +44,6 @@ public class NullRepository implements RRepository {
         return null;
     }
 
-    public FolderAPI getRulesProject(String name) throws RRepositoryException {
-        fail();
-        // will never reach
-        return null;
-    }
-
     public void addRepositoryListener(RRepositoryListener listener) {
     }
 

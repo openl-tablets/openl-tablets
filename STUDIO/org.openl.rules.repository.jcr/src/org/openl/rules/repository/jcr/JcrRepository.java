@@ -83,19 +83,6 @@ public class JcrRepository extends BaseJcrRepository {
         }
     }
 
-    public FolderAPI getRulesProject(String name) throws RRepositoryException {
-        try {
-            if (!defRulesLocation.hasNode(name)) {
-                throw new RRepositoryException("Cannot find project ''{0}''", null, name);
-            }
-
-            Node n = defRulesLocation.getNode(name);
-            return new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{name}));
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to get project ''{0}''", e, name);
-        }
-    }
-
     private static final String CHECKED_OUT_PROPERTY = "jcr:isCheckedOut";
 
     private String extractProjectName(String relativePath) {
