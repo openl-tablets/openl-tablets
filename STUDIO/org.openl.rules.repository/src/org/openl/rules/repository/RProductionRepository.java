@@ -7,8 +7,6 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  * are deployed to.
  */
 public interface RProductionRepository extends RRepository {
-    void setListener(RDeploymentListener listener);
-
     /**
      * Notify production repository about changes.
      * 

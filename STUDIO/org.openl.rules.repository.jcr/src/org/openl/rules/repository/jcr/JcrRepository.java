@@ -1,8 +1,7 @@
 package org.openl.rules.repository.jcr;
 
 import org.openl.rules.common.impl.ArtefactPathImpl;
-import org.openl.rules.repository.RRepositoryListener;
-import org.openl.rules.repository.RRepositoryListener.RRepositoryEvent;
+import org.openl.rules.repository.api.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +22,7 @@ public class JcrRepository extends BaseJcrRepository {
     private Node defRulesLocation;
     private Node defDeploymentConfigLocation;
 
-    private RRepositoryListener listeners;
+    private Listener listener;
 
     public JcrRepository(Session session,
                          Node defRulesLocation,
@@ -44,10 +43,6 @@ public class JcrRepository extends BaseJcrRepository {
 
     private static final String CHECKED_OUT_PROPERTY = "jcr:isCheckedOut";
 
-    private String extractProjectName(String relativePath) {
-        return new ArtefactPathImpl(relativePath).segment(0);
-    }
-
     private boolean isProjectDeletedEvent(Event event, String relativePath) {
         ArtefactPathImpl path = new ArtefactPathImpl(relativePath);
         return path.segmentCount() == 1 && event.getType() == Event.NODE_REMOVED;
@@ -58,19 +53,19 @@ public class JcrRepository extends BaseJcrRepository {
     }
 
     public void onEvent(EventIterator eventIterator) {
-        while (listeners != null && eventIterator.hasNext()) {
+        while (listener != null && eventIterator.hasNext()) {
             Event event = eventIterator.nextEvent();
             try {
                 String path = event.getPath();
                 if (path.startsWith(defRulesLocation.getPath() + "/")) {
                     String relativePath = path.substring(defRulesLocation.getPath().length() + 1);
                     if (isProjectDeletedEvent(event, relativePath) || isProjectModifiedEvent(event, relativePath)) {
-                        listeners.onEventInRulesProjects(new RRepositoryEvent(extractProjectName(relativePath)));
+                        listener.onChange();
                     }
                 } else if (path.startsWith(defDeploymentConfigLocation.getPath() + "/")) {
                     String relativePath = path.substring(defDeploymentConfigLocation.getPath().length() + 1);
                     if (isProjectDeletedEvent(event, relativePath) || isProjectModifiedEvent(event, relativePath)) {
-                        listeners.onEventInDeploymentProjects(new RRepositoryEvent(extractProjectName(relativePath)));
+                        listener.onChange();
                     }
                 }
             } catch (RepositoryException e) {
@@ -79,8 +74,8 @@ public class JcrRepository extends BaseJcrRepository {
         }
     }
 
-    public void setListener(RRepositoryListener listener) {
-        listeners = listener;
+    public void setListener(Listener listener) {
+        this.listener = listener;
     }
 
     @Override

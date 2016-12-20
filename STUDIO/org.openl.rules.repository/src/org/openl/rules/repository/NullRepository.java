@@ -1,6 +1,7 @@
 package org.openl.rules.repository;
 
 import org.openl.rules.repository.api.ArtefactAPI;
+import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.ResourceAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
@@ -25,7 +26,7 @@ public class NullRepository implements RRepository {
         // Do nothing
     }
 
-    public void setListener(RRepositoryListener listener) {
+    public void setListener(Listener listener) {
     }
 
     @Override

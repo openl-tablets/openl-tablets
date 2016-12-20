@@ -10,9 +10,6 @@ import org.openl.rules.common.*;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonUserImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
-import org.openl.rules.repository.RDeploymentListener;
-import org.openl.rules.repository.RProductionRepository;
-import org.openl.rules.repository.RRepositoryListener;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.IOUtils;
@@ -422,37 +419,7 @@ public class ZipJcrRepository implements Repository, Closeable {
 
     @Override
     public void setListener(final Listener callback) {
-        if (callback != null) {
-            if (rulesRepository instanceof JcrRepository) {
-                RRepositoryListener repositoryListener = new RRepositoryListener() {
-                    @Override
-                    public void onEventInRulesProjects(RRepositoryEvent event) {
-                        callback.onChange();
-                    }
-
-                    @Override
-                    public void onEventInDeploymentProjects(RRepositoryEvent event) {
-                        callback.onChange();
-                    }
-                };
-                rulesRepository.setListener(repositoryListener);
-            } else if (rulesRepository instanceof RProductionRepository) {
-                RDeploymentListener deploymentListener = new RDeploymentListener() {
-                    @Override
-                    public void onEvent() {
-                        callback.onChange();
-                    }
-                };
-                ((RProductionRepository) rulesRepository).setListener(deploymentListener);
-            }
-        } else {
-            // Remove previous listener
-            if (rulesRepository instanceof JcrRepository) {
-                rulesRepository.setListener(null);
-            } else if (rulesRepository instanceof RProductionRepository) {
-                ((RProductionRepository) rulesRepository).setListener((RDeploymentListener)null);
-            }
-        }
+        rulesRepository.setListener(callback);
     }
 
     @Override

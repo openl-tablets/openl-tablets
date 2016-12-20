@@ -1,6 +1,7 @@
 package org.openl.rules.repository.jcr;
 
 import org.openl.rules.repository.*;
+import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
     public static final String DEPLOY_ROOT = "/deploy";
 
     private Node deployLocation;
-    private RDeploymentListener listener;
+    private Listener listener;
 
     public JcrProductionRepository(Session session, Node deployLocation) throws RepositoryException {
         super(session);
@@ -28,7 +29,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
                 null, null, false);
     }
 
-    public void setListener(RDeploymentListener listener) {
+    public void setListener(Listener listener) {
         this.listener = listener;
     }
 
@@ -48,7 +49,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
 
         if (activate) {
                 try {
-                    listener.onEvent();
+                    listener.onChange();
                 } catch (Exception e) {
                     log.error("onEvent-2", e);
                 }
@@ -67,10 +68,6 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
                 throw new RRepositoryException("Failed to notify changes", e);
             }
         }
-    }
-
-    public void setListener(RRepositoryListener listener) {
-        throw new UnsupportedOperationException();
     }
 
     @Override
