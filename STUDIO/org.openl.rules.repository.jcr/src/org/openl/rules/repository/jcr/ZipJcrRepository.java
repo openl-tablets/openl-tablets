@@ -20,6 +20,9 @@ import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+
 public class ZipJcrRepository implements Repository, Closeable {
     private final Logger log = LoggerFactory.getLogger(ZipJcrRepository.class);
 
@@ -31,8 +34,12 @@ public class ZipJcrRepository implements Repository, Closeable {
     // old instance. If it's GC-ed, no need to remove it.
     private WeakReference<Object> listenerReference = new WeakReference<Object>(null);
 
-    protected void init(RRepository rulesRepository) throws RRepositoryException {
-        this.rulesRepository = rulesRepository;
+    protected void init(Session session, boolean designRepositoryMode) throws RRepositoryException, RepositoryException {
+        if (designRepositoryMode) {
+            rulesRepository = new JcrRepository(session, "/DESIGN/rules", "/DESIGN/deployments");
+        } else {
+            rulesRepository = new JcrProductionRepository(session);
+        }
         projectsPath = rulesRepository.getRulesProjectsRootPath();
         deploymentConfigPath = rulesRepository.getDeploymentConfigRootPath();
         deploymentsPath = rulesRepository.getDeploymentsRootPath();
