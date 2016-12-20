@@ -3,6 +3,7 @@ package org.openl.rules.repository.jcr;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -190,74 +191,35 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     @Override
     public FileItem read(String name) throws IOException {
         try {
-            FolderAPI project;
+            FolderAPI project = null;
             if (designPath != null && name.startsWith(designPath)) {
                 String projectName = name.substring(designPath.length() + 1);
-                if (!(defRulesLocation.hasNode(projectName) && !defRulesLocation.getNode(projectName).isNodeType(JcrNT.NT_LOCK))) {
-                    return null;
-                }
-                project = getRulesProject(projectName);
+                project = getArtifact(defRulesLocation, projectName);
             } else if (deployConfigPath != null && name.startsWith(deployConfigPath)) {
                 String projectName = name.substring(deployConfigPath.length() + 1);
-                if (!defDeploymentConfigLocation.hasNode(projectName)) {
-                    return null;
-                }
-                project = getDeployConfig(projectName);
+                project = getArtifact(defDeploymentConfigLocation, projectName);
             } else if (deployPath != null && name.startsWith(deployPath)) {
                 String projectName = name.substring(deployPath.length() + 1);
-                if (!deployLocation.hasNode(projectName)) {
-                    return null;
-                }
-                project = getDeploy(projectName);
-            } else {
-                return null;
+                project = getArtifact(deployLocation, projectName);
+            }
+            if (project == null) {
+                throw new FileNotFoundException("File [" + name + "] not found." );
             }
             return createFileItem(project, createFileData(name, project));
         } catch (CommonException e) {
             throw new IOException(e);
-        } catch (RepositoryException e) {
-            throw new IOException(e);
         }
     }
 
-    private FolderAPI getRulesProject(String name) throws RRepositoryException {
+    private FolderAPI getArtifact(Node root, String name) throws RRepositoryException {
         try {
-            if (!defRulesLocation.hasNode(name)) {
-                throw new RRepositoryException("Cannot find project ''{0}''", null, name);
+            if (!root.hasNode(name)) {
+                return null;
             }
-
-            Node n = defRulesLocation.getNode(name);
-            return new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{name}));
+            Node n = root.getNode(name);
+            return new JcrFolderAPI(n, new ArtefactPathImpl(new String[] { name }));
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to get project ''{0}''", e, name);
-        }
-    }
-
-    private FolderAPI getDeployConfig(String name) throws RRepositoryException {
-        try {
-            if (!defDeploymentConfigLocation.hasNode(name)) {
-                throw new RRepositoryException("Cannot find Project ''{0}''.", null, name);
-            }
-
-            Node n = defDeploymentConfigLocation.getNode(name);
-            return new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{name}));
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to get DDProject ''{0}''.", e, name);
-        }
-    }
-
-    private FolderAPI getDeploy(String name) throws RRepositoryException {
-        Node node;
-        try {
-            node = deployLocation.getNode(name);
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("failed to get node", e);
-        }
-
-        try {
-            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{name}));
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("failed to wrap JCR node", e);
+            throw new RRepositoryException("Failed to get an artifact ''{0}''", e, name);
         }
     }
 
@@ -531,21 +493,21 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
         if (designPath != null && name.startsWith(designPath)) {
             String projectName = name.substring(designPath.length() + 1);
             if (defRulesLocation.hasNode(projectName) && !defRulesLocation.getNode(projectName).isNodeType(JcrNT.NT_LOCK)) {
-                project = getRulesProject(projectName);
+                project = getArtifact(defRulesLocation, projectName);
             } else {
                 project = createRulesProject(projectName);
             }
         } else if (deployConfigPath != null && name.startsWith(deployConfigPath)) {
             String projectName = name.substring(deployConfigPath.length() + 1);
             if (defDeploymentConfigLocation.hasNode(projectName)) {
-                project = getDeployConfig(projectName);
+                project = getArtifact(defDeploymentConfigLocation, projectName);
             } else {
                 project = createDeployConfig(projectName);
             }
         } else if (deployPath != null && name.startsWith(deployPath)) {
             String projectName = name.substring(deployPath.length() + 1);
             if (deployLocation.hasNode(projectName)) {
-                project = getDeploy(projectName);
+                project = getArtifact(deployLocation, projectName);
             } else {
                 project = createDeploy(projectName);
             }
