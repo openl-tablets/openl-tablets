@@ -1,11 +1,8 @@
 package org.openl.rules.repository.jcr;
 
-import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.repository.*;
-import org.openl.rules.repository.api.ArtefactAPI;
-import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.slf4j.Logger;
@@ -17,70 +14,11 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.observation.Event;
 import javax.jcr.observation.EventIterator;
-import javax.jcr.query.Query;
-import javax.jcr.query.QueryResult;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class JcrProductionRepository extends BaseJcrRepository implements RProductionRepository {
     private final Logger log = LoggerFactory.getLogger(JcrProductionRepository.class);
-
-    public static class JCR_SQL2QueryBuilder {
-        private boolean firstCondition = true;
-
-        private void appendDateCondition(String propertyName, Date date, String condition, StringBuilder sb) {
-            if (date != null) {
-                if (firstCondition) {
-                    firstCondition = false;
-                    sb.append(" WHERE ");
-                } else {
-                    sb.append(" AND ");
-                }
-
-                sb.append('[').append(propertyName).append(']').append(condition).append(getDateString(date, condition));
-            }
-        }
-
-        private String getDateString(Date date, String condition) {
-            DateFormat format;
-
-            if (condition.contains(">")) {
-                format = new SimpleDateFormat("yyyy-MM-dd'T'00:00:00.000'Z'");
-            } else if (condition.contains("<")) {
-                format = new SimpleDateFormat("yyyy-MM-dd'T'23:59:59.999'Z'");
-            } else {
-                format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-            }
-
-            String dateString = format.format(date);
-
-            return "CAST('" + dateString + "' AS DATE)";
-        }
-
-        public String buildQuery(SearchParams params) {
-            StringBuilder sb = new StringBuilder("SELECT * FROM [nt:base]");
-            String lineOfBusiness = params.getLineOfBusiness();
-            if (lineOfBusiness != null && !lineOfBusiness.isEmpty()) {
-                if (firstCondition) {
-                    firstCondition = false;
-                    sb.append(" WHERE ");
-                } else {
-                    sb.append(" AND ");
-                }
-                // todo: check for injection
-                sb.append("[" + ArtefactProperties.PROP_LINE_OF_BUSINESS + "]").append("=\"").append(lineOfBusiness).append("\"");
-            }
-
-            appendDateCondition(ArtefactProperties.PROP_EFFECTIVE_DATE, params.getLowerEffectiveDate(), ">=", sb);
-            appendDateCondition(ArtefactProperties.PROP_EFFECTIVE_DATE, params.getUpperEffectiveDate(), "<=", sb);
-            appendDateCondition(ArtefactProperties.PROP_EXPIRATION_DATE, params.getLowerExpirationDate(), ">=", sb);
-            appendDateCondition(ArtefactProperties.PROP_EXPIRATION_DATE, params.getUpperExpirationDate(), "<=", sb);
-
-            return sb.toString();
-        }
-    }
 
     final static String PROPERTY_NOTIFICATION = "deploymentReady";
     public static final String DEPLOY_ROOT = "/deploy";
@@ -102,89 +40,6 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
 
     public void addListener(RDeploymentListener listener) {
         listeners.add(listener);
-    }
-
-    @Deprecated
-    public RDeploymentDescriptorProject createDDProject(String name) throws RRepositoryException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Creates a project in the repository. Name of new project must be unique.
-     *
-     * @param name name of new project
-     * @return newly created project
-     * @throws org.openl.rules.repository.exceptions.RRepositoryException if
-     *                                                                    failed
-     */
-    @Deprecated
-    public RProject createProject(String name) throws RRepositoryException {
-        throw new UnsupportedOperationException();
-    }
-
-    public Collection<ArtefactAPI> findNodes(SearchParams params) throws RRepositoryException {
-        try {
-            Query query = getSession().getWorkspace().getQueryManager().createQuery(new JCR_SQL2QueryBuilder().buildQuery(params), Query.JCR_SQL2);
-            QueryResult queryResult = query.execute();
-
-            NodeIterator nodeIterator = queryResult.getNodes();
-            List<ArtefactAPI> result = new ArrayList<ArtefactAPI>();
-            while (nodeIterator.hasNext()) {
-                Node node = nodeIterator.nextNode();
-                ArtefactPath path = new ArtefactPathImpl(new String[]{node.getName()});
-                String type = node.getPrimaryNodeType().getName();
-                if (type.equals(JcrNT.NT_APROJECT)) {
-                    result.add(new JcrFolderAPI(node, path));
-                } else if (type.equals(JcrNT.NT_FOLDER)) {
-                    result.add(new JcrFolderAPI(node, path));
-                } else if (type.equals(JcrNT.NT_FILE)) {
-                    result.add(new JcrFileAPI(node, path, false));
-                }
-            }
-
-            return result;
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("failed to run query", e);
-        }
-    }
-
-    @Deprecated
-    public RDeploymentDescriptorProject getDDProject(String name) throws RRepositoryException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Gets project by name.
-     *
-     * @return project
-     * @throws org.openl.rules.repository.exceptions.RRepositoryException if
-     *                                                                    failed or no project with specified name
-     */
-    @Deprecated
-    public RProject getProject(String name) throws RRepositoryException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Gets list of projects from the repository.
-     *
-     * @return list of projects
-     * @throws org.openl.rules.repository.exceptions.RRepositoryException if
-     *                                                                    failed
-     */
-    @Deprecated
-    public List<RProject> getProjects() throws RRepositoryException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Gets list of projects from the repository that are marked for deletion.
-     *
-     * @return list of projects that are marked for deletion
-     */
-    @Deprecated
-    public List<RProject> getProjects4Deletion() throws RRepositoryException {
-        throw new UnsupportedOperationException();
     }
 
     public boolean hasDeploymentProject(String name) throws RRepositoryException {
@@ -311,13 +166,6 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         } catch (RepositoryException e) {
             throw new RRepositoryException(e.getMessage(), e);
         }
-    }
-
-    private String removeLeadingSlash(String path) {
-        if (path.startsWith("/")) {
-            path = path.substring(1);
-        }
-        return path;
     }
 
     public FolderAPI getRulesProject(String name) throws RRepositoryException {

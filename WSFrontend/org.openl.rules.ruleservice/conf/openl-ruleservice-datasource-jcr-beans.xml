@@ -14,10 +14,9 @@
     <bean id="jcrdatasource" class="org.openl.rules.ruleservice.loader.JcrDataSource" lazy-init="true" depends-on="deployClasspathJarsBean">
         <property name="repository">
             <bean class="${production-repository.factory}" init-method="initialize" destroy-method="close">
-                <constructor-arg value="${production-repository.uri}"/>
-                <constructor-arg value="${production-repository.login}"/>
-                <constructor-arg value="${production-repository.password}"/>
-                <constructor-arg value="false"/>
+                <property name="uri" value="${production-repository.uri}"/>
+                <property name="login" value="${production-repository.login}"/>
+                <property name="password" value="${production-repository.password}"/>
             </bean>
         </property>
     </bean>

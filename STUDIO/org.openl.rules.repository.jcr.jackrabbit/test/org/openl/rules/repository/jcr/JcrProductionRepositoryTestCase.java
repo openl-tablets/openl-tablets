@@ -51,13 +51,6 @@ public class JcrProductionRepositoryTestCase extends TestCase {
     private JcrProductionRepository instance;
     private TransientRepository repository;
 
-    private static boolean check(Collection<String> collection, String... names) {
-        Set<String> s1 = new HashSet<String>(collection);
-        Set<String> s2 = new HashSet<String>(Arrays.asList(names));
-
-        return s1.equals(s2);
-    }
-
     protected static Session createSession(String user, String pass, TransientRepository repository)
             throws RepositoryException {
         char[] password = pass.toCharArray();
@@ -65,52 +58,6 @@ public class JcrProductionRepositoryTestCase extends TestCase {
         return repository.login(sc);
     }
 
-    private static Collection<String> entities2names(Collection<ArtefactAPI> entities) {
-        List<String> result = new ArrayList<String>();
-        for (ArtefactAPI entity : entities) {
-            result.add(entity.getName());
-        }
-        return result;
-    }
-
-    public void _testEffectiveDate() throws RRepositoryException {
-        JcrProductionSearchParams params = new JcrProductionSearchParams();
-        params.setLowerEffectiveDate(EFF_DATE2);
-        Collection<ArtefactAPI> entityCollection = instance.findNodes(params);
-
-        assertEquals(3, entityCollection.size());
-        assertTrue(check(entities2names(entityCollection), "f1", "f2", "folder2"));
-
-        params.setUpperEffectiveDate(EFF_DATE3);
-        entityCollection = instance.findNodes(params);
-        assertEquals(2, entityCollection.size());
-        assertTrue(check(entities2names(entityCollection), "f1", "f2"));
-/*
-        params.setUpperEffectiveDate(new Date(EFF_DATE3.getTime() - 1));
-        entityCollection = instance.findNodes(params);
-        assertEquals(1, entityCollection.size());
-        assertTrue(check(entities2names(entityCollection), "f1"));*/
-    }
-
-    public void _testExpirationDate() throws RRepositoryException {
-        JcrProductionSearchParams params = new JcrProductionSearchParams();
-        params.setLowerExpirationDate(EXP_DATE2);
-       
-        Collection<ArtefactAPI> entityCollection = instance.findNodes(params);
-        assertEquals(3, entityCollection.size());
-        assertTrue(check(entities2names(entityCollection), "f1", "f2", "folder2"));
-
-        params.setUpperExpirationDate(EXP_DATE3);
-        entityCollection = instance.findNodes(params);
-        assertEquals(2, entityCollection.size());
-        assertTrue(check(entities2names(entityCollection), "f1", "f2"));
-/*
-        params.setUpperExpirationDate(new Date(EXP_DATE3.getTime() - 1));
-        entityCollection = instance.findNodes(params);
-        assertEquals(1, entityCollection.size());
-        assertTrue(check(entities2names(entityCollection), "f1"));*/
-    }
-    
     private static class TestDeployer{
         public static void deploy(JcrProductionRepository productionRepository) throws ProjectException {
             FolderAPI deployment = productionRepository.createDeploymentProject("lis");
@@ -141,35 +88,6 @@ public class JcrProductionRepositoryTestCase extends TestCase {
         }
 
         assertTrue(flag[0]);
-    }
-
-    public void _testLob() throws RRepositoryException {
-        JcrProductionSearchParams params = new JcrProductionSearchParams();
-
-        params.setLineOfBusiness(LOB_M);
-        Collection<ArtefactAPI> entityCollection = instance.findNodes(params);
-        assertEquals(3, entityCollection.size());
-        assertTrue(check(entities2names(entityCollection), "prj1", "f1", "folder2"));
-
-        params.setLineOfBusiness(LOB_S);
-        entityCollection = instance.findNodes(params);
-        assertEquals(1, entityCollection.size());
-        assertTrue(check(entities2names(entityCollection), "f2"));
-    }
-
-    public void _testSeveralProperties() throws RRepositoryException {
-        JcrProductionSearchParams params = new JcrProductionSearchParams();
-        params.setLowerEffectiveDate(new Date(EFF_DATE1.getTime() + 1));
-        params.setLineOfBusiness(LOB_M);
-        Collection<ArtefactAPI> entityCollection = instance.findNodes(params);
-        assertEquals(2, entityCollection.size());
-        assertTrue(check(entities2names(entityCollection), "folder2", "f1"));
-
-        params.setUpperExpirationDate(EXP_DATE3);
-        entityCollection = instance.findNodes(params);
-
-        assertEquals(01, entityCollection.size());
-        assertTrue(check(entities2names(entityCollection), "f1"));
     }
 
     protected void initNodeTypes(NodeTypeManager ntm) throws RepositoryException {
@@ -248,11 +166,6 @@ public class JcrProductionRepositoryTestCase extends TestCase {
      * @throws RRepositoryException if an error occures
      */
     public void testIt() throws ProjectException, InterruptedException {
-        _testLob();
-        _testEffectiveDate();
-        _testExpirationDate();
-        _testSeveralProperties();
-
         _testListeners();
     }
 }

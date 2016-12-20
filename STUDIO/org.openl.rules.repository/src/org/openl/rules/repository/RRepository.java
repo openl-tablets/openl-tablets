@@ -17,49 +17,6 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  */
 public interface RRepository {
 
-    @Deprecated
-    RDeploymentDescriptorProject createDDProject(String name) throws RRepositoryException;
-
-    /**
-     * Creates a project in the repository. Name of new project must be unique.
-     *
-     * @param name name of new project
-     * @return newly created project
-     * @throws RRepositoryException if failed
-     */
-    @Deprecated
-    RProject createProject(String name) throws RRepositoryException;
-
-    @Deprecated
-    RDeploymentDescriptorProject getDDProject(String name) throws RRepositoryException;
-
-    /**
-     * Gets project by name.
-     *
-     * @param name
-     * @return project
-     * @throws RRepositoryException if failed or no project with specified name
-     */
-    @Deprecated
-    RProject getProject(String name) throws RRepositoryException;
-
-    /**
-     * Gets list of projects from the repository.
-     *
-     * @return list of projects
-     * @throws RRepositoryException if failed
-     */
-    @Deprecated
-    List<RProject> getProjects() throws RRepositoryException;
-
-    /**
-     * Gets list of projects from the repository that are marked for deletion.
-     *
-     * @return list of projects that are marked for deletion
-     */
-    @Deprecated
-    List<RProject> getProjects4Deletion() throws RRepositoryException;
-
     boolean hasDeploymentProject(String name) throws RRepositoryException;
 
     /**

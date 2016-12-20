@@ -378,4 +378,10 @@ public class AProject extends AProjectFolder {
     protected void setFolderStructure(boolean folderStructure) {
         this.folderStructure = folderStructure;
     }
+
+    @Override
+    public String getInternalPath() {
+        // The root of the project
+        return "";
+    }
 }

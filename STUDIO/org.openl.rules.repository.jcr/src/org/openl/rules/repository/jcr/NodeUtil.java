@@ -14,7 +14,6 @@ import javax.jcr.version.VersionIterator;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Calendar;
-import java.util.Date;
 
 /**
  * JCR Node Utility
@@ -25,33 +24,10 @@ public final class NodeUtil {
     private NodeUtil() {
     }
 
-    /**
-     * Checks whether type of the JCR node is correct.
-     *
-     * @param nodeType expected node type
-     * @throws RepositoryException if failed
-     */
-    protected static void checkNodeType(Node node, String nodeType) throws RepositoryException {
-        if (!node.isNodeType(nodeType)) {
-            String actualNodeType = node.getPrimaryNodeType().getName();
-            throw new RepositoryException("Invalid NodeType '" + actualNodeType + "'. Expects '" + nodeType + "'!");
-        }
-    }
-
     public static boolean isVersionable(Node node) throws RepositoryException {
         return node.isNodeType(JcrNT.MIX_VERSIONABLE);
     }
 
-    public static Calendar convertDate2Calendar(Date date) {
-
-        if (date == null) {
-            return null;
-        }
-
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        return c;
-    }
 
     protected static Node createFileNode(Node parentNode, String nodeName) throws RepositoryException {
         Node n = createNode(parentNode, nodeName, JcrNT.NT_FILE, true);
@@ -94,12 +70,6 @@ public final class NodeUtil {
             n.addMixin(JcrNT.MIX_VERSIONABLE);
         }
 
-        return n;
-    }
-
-    protected static Node createProdFileNode(Node parentNode, String nodeName) throws RepositoryException {
-        Node n = createNode(parentNode, nodeName, JcrNT.NT_PROD_FILE, false);
-        setupFileNode(n);
         return n;
     }
 
@@ -168,19 +138,6 @@ public final class NodeUtil {
         return "jcr:rootVersion".equals(name);
     }
 
-    public static boolean isSame(Object o1, Object o2) {
-        // both are null (the same)
-        if (o1 == null && o2 == null) {
-            return true;
-        }
-        // at least one is null (other is not)
-        if (o1 == null || o2 == null) {
-            return false;
-        }
-        // equals or not?
-        return o1.equals(o2);
-    }
-
     protected static Node normalizeOldNode(Node node, CommonVersion version) throws RepositoryException {
         if (node.isNodeType(JcrNT.NT_FROZEN_NODE)) {
             // all is OK
@@ -226,29 +183,6 @@ public final class NodeUtil {
         }
 
         return correctVNode;
-    }
-
-    protected static void printNode(Node node) throws RepositoryException {
-        System.out.println("Node: " + node.getName());
-
-        PropertyIterator pi = node.getProperties();
-        while (pi.hasNext()) {
-            Property p = pi.nextProperty();
-
-            boolean isProtected = p.getDefinition().isProtected();
-            boolean isMultiple = p.getDefinition().isMultiple();
-
-            String status = "";
-            if (isProtected) {
-                status = "protected";
-            }
-
-            if (isMultiple) {
-                System.out.println(" p " + p.getName() + " multiple " + status);
-            } else {
-                System.out.println(" p " + p.getName() + " " + status + " =" + p.getString());
-            }
-        }
     }
 
     private static void setupFileNode(Node n) throws RepositoryException {

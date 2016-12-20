@@ -47,10 +47,6 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
      */
     private ModeshapeJcrRepo repo;
 
-    protected DBRepositoryFactory(String uri, String login, String password, boolean designMode) {
-        super(uri, login, password, designMode);
-    }
-
     // ------ private methods ------
 
     /**

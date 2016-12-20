@@ -33,19 +33,26 @@ public abstract class AbstractJcrRepositoryFactory extends ZipJcrRepository impl
     protected static final String DEFAULT_NODETYPE_FILE = "/org/openl/rules/repository/openl_nodetypes.xml";
 
     protected Repository repository;
-    private RRepository rulesRepository;
 
+    protected String uri;
     protected String login;
     protected String password;
-    protected String uri;
     boolean designRepositoryMode = false;
 
-    protected AbstractJcrRepositoryFactory(String uri, String login, String password, boolean designMode) {
-        designRepositoryMode = designMode;
-
+    public void setUri(String uri) {
         this.uri = uri;
+    }
+
+    public void setLogin(String login) {
         this.login = login;
+    }
+
+    public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void setDesignMode(String designMode) {
+        this.designRepositoryMode = Boolean.valueOf(designMode);
     }
 
     /**

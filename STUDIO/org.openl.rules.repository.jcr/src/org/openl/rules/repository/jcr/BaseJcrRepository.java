@@ -1,8 +1,6 @@
 package org.openl.rules.repository.jcr;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.jcr.Node;
@@ -206,4 +204,10 @@ public abstract class BaseJcrRepository implements RRepository, EventListener {
         }
     }
 
+    String removeLeadingSlash(String path) {
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        return path;
+    }
 }

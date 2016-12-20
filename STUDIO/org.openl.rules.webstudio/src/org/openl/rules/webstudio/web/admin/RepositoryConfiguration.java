@@ -34,6 +34,7 @@ public class RepositoryConfiguration {
     private final String REPOSITORY_URI;
     private final String REPOSITORY_LOGIN;
     private final String REPOSITORY_PASS;
+    private final String CONFIG_PREFIX;
 
     public RepositoryConfiguration(String configName,
             ConfigurationManager configManager,
@@ -42,13 +43,14 @@ public class RepositoryConfiguration {
         this.configManager = configManager;
         this.repositoryType = repositoryType;
 
-        String repoType = repositoryType.toString();
-        REPOSITORY_FACTORY = repoType + "-repository.factory";
-        REPOSITORY_NAME = repoType + "-repository.name";
+        CONFIG_PREFIX = repositoryType == RepositoryType.DESIGN ? RepositoryFactoryInstatiator.DESIGN_REPOSITORY
+                                                                : RepositoryFactoryInstatiator.PRODUCTION_REPOSITORY;
+        REPOSITORY_FACTORY = CONFIG_PREFIX + "factory";
+        REPOSITORY_NAME = CONFIG_PREFIX + "name";
 
-        REPOSITORY_URI = repoType + "-repository.uri";
-        REPOSITORY_LOGIN = repoType + "-repository.login";
-        REPOSITORY_PASS = repoType + "-repository.password";
+        REPOSITORY_URI = CONFIG_PREFIX + "uri";
+        REPOSITORY_LOGIN = CONFIG_PREFIX + "login";
+        REPOSITORY_PASS = CONFIG_PREFIX + "password";
 
         load();
     }
@@ -57,9 +59,9 @@ public class RepositoryConfiguration {
         String factoryClassName = configManager.getStringProperty(REPOSITORY_FACTORY);
         jcrType = JcrType.findByFactory(factoryClassName);
         name = configManager.getStringProperty(REPOSITORY_NAME);
-        String oldUriProperty = RepositoryFactoryInstatiator.getOldUriProperty(factoryClassName,
-            repositoryType.toString());
+        String oldUriProperty = RepositoryFactoryInstatiator.getOldUriProperty(factoryClassName);
         if (oldUriProperty != null) {
+            oldUriProperty = CONFIG_PREFIX + oldUriProperty;
             uri = jcrType == JcrType.LOCAL ? configManager.getPath(oldUriProperty)
                                            : configManager.getStringProperty(oldUriProperty);
             configManager.removeProperty(oldUriProperty);

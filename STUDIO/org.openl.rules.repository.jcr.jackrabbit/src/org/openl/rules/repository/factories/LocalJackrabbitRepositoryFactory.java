@@ -36,10 +36,6 @@ public class LocalJackrabbitRepositoryFactory extends AbstractJcrRepositoryFacto
     protected TransientRepository repository;
     protected File repHome;
 
-    public LocalJackrabbitRepositoryFactory(String uri, String login, String password, boolean designMode) {
-        super(uri, login, password, designMode);
-    }
-
     private static boolean isFileLocked(File file) {
         FileInputStream fileInputStream = null;
         try {

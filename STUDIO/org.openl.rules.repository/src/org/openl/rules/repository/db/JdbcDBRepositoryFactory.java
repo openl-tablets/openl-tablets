@@ -5,14 +5,24 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class JdbcDBRepositoryFactory extends BaseDBRepositoryFactory {
-    protected final String uri;
-    protected final String login;
-    protected final String password;
+    private String uri;
+    private String login;
+    private String password;
 
-    public JdbcDBRepositoryFactory(String uri, String login, String password, boolean designMode) {
-        this.uri = uri;
+    public void setLogin(String login) {
         this.login = login;
+    }
+
+    public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+
+    public void setDesignMode(String designMode) {
+        // Empty. It needs for compatibility.
     }
 
     @Override
