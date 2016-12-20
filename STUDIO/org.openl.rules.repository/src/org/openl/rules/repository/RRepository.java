@@ -36,8 +36,6 @@ public interface RRepository {
      */
     FolderAPI createRulesProject(String name) throws RRepositoryException;
 
-    FolderAPI getDeploymentProject(String name) throws RRepositoryException;
-
     void addRepositoryListener(RRepositoryListener listener);
     void removeRepositoryListener(RRepositoryListener listener);
     ArtefactAPI getArtefact(String name) throws RRepositoryException;

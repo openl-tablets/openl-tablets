@@ -38,12 +38,6 @@ public class NullRepository implements RRepository {
         return null;
     }
 
-    public FolderAPI getDeploymentProject(String name) throws RRepositoryException {
-        fail();
-        // will never reach
-        return null;
-    }
-
     public void addRepositoryListener(RRepositoryListener listener) {
     }
 

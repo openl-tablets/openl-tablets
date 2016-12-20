@@ -70,19 +70,6 @@ public class JcrRepository extends BaseJcrRepository {
         }
     }
 
-    public FolderAPI getDeploymentProject(String name) throws RRepositoryException {
-        try {
-            if (!defDeploymentConfigLocation.hasNode(name)) {
-                throw new RRepositoryException("Cannot find Project ''{0}''.", null, name);
-            }
-
-            Node n = defDeploymentConfigLocation.getNode(name);
-            return new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{name}));
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to get DDProject ''{0}''.", e, name);
-        }
-    }
-
     private static final String CHECKED_OUT_PROPERTY = "jcr:isCheckedOut";
 
     private String extractProjectName(String relativePath) {

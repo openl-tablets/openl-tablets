@@ -100,21 +100,6 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         throw new UnsupportedOperationException();
     }
 
-    public FolderAPI getDeploymentProject(String name) throws RRepositoryException {
-        Node node;
-        try {
-            node = deployLocation.getNode(name);
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("failed to get node", e);
-        }
-
-        try {
-            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{name}));
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("failed to wrap JCR node", e);
-        }
-    }
-
     public void addRepositoryListener(RRepositoryListener listener) {
         throw new UnsupportedOperationException();
     }

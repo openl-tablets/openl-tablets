@@ -216,13 +216,13 @@ public class ZipJcrRepository implements Repository, Closeable {
                 if (!defDeploymentConfigLocation.hasNode(projectName)) {
                     return null;
                 }
-                project = rulesRepository.getDeploymentProject(projectName);
+                project = getDeployConfig(projectName);
             } else if (deployPath != null && name.startsWith(deployPath)) {
                 String projectName = name.substring(deployPath.length() + 1);
                 if (!deployLocation.hasNode(projectName)) {
                     return null;
                 }
-                project = rulesRepository.getDeploymentProject(projectName);
+                project = getDeploy(projectName);
             } else {
                 return null;
             }
@@ -244,6 +244,34 @@ public class ZipJcrRepository implements Repository, Closeable {
             return new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{name}));
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get project ''{0}''", e, name);
+        }
+    }
+
+    private FolderAPI getDeployConfig(String name) throws RRepositoryException {
+        try {
+            if (!defDeploymentConfigLocation.hasNode(name)) {
+                throw new RRepositoryException("Cannot find Project ''{0}''.", null, name);
+            }
+
+            Node n = defDeploymentConfigLocation.getNode(name);
+            return new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{name}));
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Failed to get DDProject ''{0}''.", e, name);
+        }
+    }
+
+    private FolderAPI getDeploy(String name) throws RRepositoryException {
+        Node node;
+        try {
+            node = deployLocation.getNode(name);
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("failed to get node", e);
+        }
+
+        try {
+            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{name}));
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("failed to wrap JCR node", e);
         }
     }
 
@@ -549,14 +577,14 @@ public class ZipJcrRepository implements Repository, Closeable {
         } else if (deployConfigPath != null && name.startsWith(deployConfigPath)) {
             String projectName = name.substring(deployConfigPath.length() + 1);
             if (defDeploymentConfigLocation.hasNode(projectName)) {
-                project = rulesRepository.getDeploymentProject(projectName);
+                project = getDeployConfig(projectName);
             } else {
                 project = rulesRepository.createDeploymentProject(projectName);
             }
         } else if (deployPath != null && name.startsWith(deployPath)) {
             String projectName = name.substring(deployPath.length() + 1);
             if (deployLocation.hasNode(projectName)) {
-                project = rulesRepository.getDeploymentProject(projectName);
+                project = getDeploy(projectName);
             } else {
                 project = rulesRepository.createDeploymentProject(projectName);
             }
