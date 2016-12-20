@@ -67,21 +67,6 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         return listeners.remove(listener);
     }
 
-    public FolderAPI createDeploymentProject(String name) throws RRepositoryException {
-        try {
-            String path = "deploy/" + name;
-            Node parent = checkFolder(path.substring(0, path.lastIndexOf("/")));
-            Node node = NodeUtil.createNode(parent, name.substring(name.lastIndexOf("/") + 1), JcrNT.NT_APROJECT, true);
-            deployLocation.save();
-            node.checkin();
-            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{name}));
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("", e);
-        } catch (ProjectException e) {
-            throw new RRepositoryException("", e);
-        }
-    }
-
     //FIXME
     private static final Object lock = new Object();
 

@@ -1,7 +1,6 @@
 package org.openl.rules.repository;
 
 import org.openl.rules.repository.api.ArtefactAPI;
-import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.api.ResourceAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 
@@ -24,12 +23,6 @@ public class NullRepository implements RRepository {
 
     public void release() {
         // Do nothing
-    }
-
-    public FolderAPI createDeploymentProject(String name) throws RRepositoryException {
-        fail();
-        // will never reach
-        return null;
     }
 
     public void addRepositoryListener(RRepositoryListener listener) {

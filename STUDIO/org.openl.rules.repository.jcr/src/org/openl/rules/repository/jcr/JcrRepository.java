@@ -3,8 +3,6 @@ package org.openl.rules.repository.jcr;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.repository.RRepositoryListener;
 import org.openl.rules.repository.RRepositoryListener.RRepositoryEvent;
-import org.openl.rules.repository.api.FolderAPI;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,18 +43,6 @@ public class JcrRepository extends BaseJcrRepository {
     }
 
     // ------ protected methods ------
-
-    public FolderAPI createDeploymentProject(String name) throws RRepositoryException {
-        try {
-            Node node = NodeUtil.createNode(defDeploymentConfigLocation, name,
-                    JcrNT.NT_APROJECT, true);
-            defDeploymentConfigLocation.save();
-            node.checkin();
-            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{name}));
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to create deploy configuration.", e);
-        }
-    }
 
     private static final String CHECKED_OUT_PROPERTY = "jcr:isCheckedOut";
 

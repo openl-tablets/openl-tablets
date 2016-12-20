@@ -23,9 +23,7 @@ public interface RRepository {
 
 
     //TODO new method names and comments
-    
-    
-    FolderAPI createDeploymentProject(String name) throws RRepositoryException;
+
 
     void addRepositoryListener(RRepositoryListener listener);
     void removeRepositoryListener(RRepositoryListener listener);

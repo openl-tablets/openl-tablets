@@ -13,7 +13,6 @@ import org.openl.rules.common.impl.CommonUserImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.repository.RDeploymentListener;
 import org.openl.rules.repository.RProductionRepository;
-import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.RRepositoryListener;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -29,7 +28,7 @@ import javax.jcr.Session;
 public class ZipJcrRepository implements Repository, Closeable {
     private final Logger log = LoggerFactory.getLogger(ZipJcrRepository.class);
 
-    private RRepository rulesRepository;
+    private BaseJcrRepository rulesRepository;
     private String designPath;
     private Node defRulesLocation;
     private String deployConfigPath;
@@ -579,14 +578,14 @@ public class ZipJcrRepository implements Repository, Closeable {
             if (defDeploymentConfigLocation.hasNode(projectName)) {
                 project = getDeployConfig(projectName);
             } else {
-                project = rulesRepository.createDeploymentProject(projectName);
+                project = createDeployConfig(projectName);
             }
         } else if (deployPath != null && name.startsWith(deployPath)) {
             String projectName = name.substring(deployPath.length() + 1);
             if (deployLocation.hasNode(projectName)) {
                 project = getDeploy(projectName);
             } else {
-                project = rulesRepository.createDeploymentProject(projectName);
+                project = createDeploy(projectName);
             }
         } else {
             project = null;
@@ -606,6 +605,33 @@ public class ZipJcrRepository implements Repository, Closeable {
             return new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{name}));
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to create rules project.", e);
+        }
+    }
+
+    public FolderAPI createDeployConfig(String name) throws RRepositoryException {
+        try {
+            Node node = NodeUtil.createNode(defDeploymentConfigLocation, name,
+                    JcrNT.NT_APROJECT, true);
+            defDeploymentConfigLocation.save();
+            node.checkin();
+            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{name}));
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Failed to create deploy configuration.", e);
+        }
+    }
+
+    private FolderAPI createDeploy(String name) throws RRepositoryException {
+        try {
+            String path = "deploy/" + name;
+            Node parent = rulesRepository.checkFolder(path.substring(0, path.lastIndexOf("/")));
+            Node node = NodeUtil.createNode(parent, name.substring(name.lastIndexOf("/") + 1), JcrNT.NT_APROJECT, true);
+            deployLocation.save();
+            node.checkin();
+            return new JcrFolderAPI(node, new ArtefactPathImpl(new String[]{name}));
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("", e);
+        } catch (ProjectException e) {
+            throw new RRepositoryException("", e);
         }
     }
 
