@@ -52,9 +52,6 @@ public interface RRepository {
 
     List<FolderAPI> getDeploymentProjects() throws RRepositoryException;
 
-    String getDeploymentConfigRootPath() throws RRepositoryException;
-    String getDeploymentsRootPath() throws RRepositoryException;
-
     /**
      * Gets project by name.
      *
@@ -71,8 +68,6 @@ public interface RRepository {
      * @throws RRepositoryException if failed
      */
     List<FolderAPI> getRulesProjects() throws RRepositoryException;
-
-    String getRulesProjectsRootPath() throws RRepositoryException;
 
     void addRepositoryListener(RRepositoryListener listener);
     void removeRepositoryListener(RRepositoryListener listener);

@@ -37,12 +37,12 @@ public class ZipJcrRepository implements Repository, Closeable {
     protected void init(Session session, boolean designRepositoryMode) throws RRepositoryException, RepositoryException {
         if (designRepositoryMode) {
             rulesRepository = new JcrRepository(session, "/DESIGN/rules", "/DESIGN/deployments");
+            projectsPath = "DESIGN/rules";
+            deploymentConfigPath = "DESIGN/deployments";
         } else {
             rulesRepository = new JcrProductionRepository(session);
+            deploymentsPath = "deploy";
         }
-        projectsPath = rulesRepository.getRulesProjectsRootPath();
-        deploymentConfigPath = rulesRepository.getDeploymentConfigRootPath();
-        deploymentsPath = rulesRepository.getDeploymentsRootPath();
     }
 
     @Override

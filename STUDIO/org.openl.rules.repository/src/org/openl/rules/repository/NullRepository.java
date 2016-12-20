@@ -57,16 +57,6 @@ public class NullRepository implements RRepository {
         return new LinkedList<FolderAPI>();
     }
 
-    @Override
-    public String getDeploymentConfigRootPath() throws RRepositoryException {
-        return null;
-    }
-
-    @Override
-    public String getDeploymentsRootPath() throws RRepositoryException {
-        return null;
-    }
-
     public FolderAPI getRulesProject(String name) throws RRepositoryException {
         fail();
         // will never reach
@@ -75,11 +65,6 @@ public class NullRepository implements RRepository {
 
     public List<FolderAPI> getRulesProjects() throws RRepositoryException {
         return new LinkedList<FolderAPI>();
-    }
-
-    @Override
-    public String getRulesProjectsRootPath() throws RRepositoryException {
-        return null;
     }
 
     public void addRepositoryListener(RRepositoryListener listener) {

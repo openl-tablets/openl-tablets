@@ -169,29 +169,6 @@ public class JcrRepository extends BaseJcrRepository {
         return result;
     }
 
-    @Override
-    public String getRulesProjectsRootPath() throws RRepositoryException {
-        try {
-            return removeLeadingSlash(defRulesLocation.getPath());
-        } catch (RepositoryException e) {
-            throw new RRepositoryException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public String getDeploymentConfigRootPath() throws RRepositoryException {
-        try {
-            return removeLeadingSlash(defDeploymentConfigLocation.getPath());
-        } catch (RepositoryException e) {
-            throw new RRepositoryException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public String getDeploymentsRootPath() throws RRepositoryException {
-        return null;
-    }
-
     private static final String CHECKED_OUT_PROPERTY = "jcr:isCheckedOut";
 
     private String extractProjectName(String relativePath) {

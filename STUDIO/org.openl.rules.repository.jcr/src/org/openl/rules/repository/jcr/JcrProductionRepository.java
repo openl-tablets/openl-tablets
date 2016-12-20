@@ -92,7 +92,7 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
 
     public FolderAPI createDeploymentProject(String name) throws RRepositoryException {
         try {
-            String path = getDeploymentsRootPath() + "/" + name;
+            String path = "deploy/" + name;
             Node parent = checkFolder(path.substring(0, path.lastIndexOf("/")));
             Node node = NodeUtil.createNode(parent, name.substring(name.lastIndexOf("/") + 1), JcrNT.NT_APROJECT, true);
             deployLocation.save();
@@ -154,31 +154,12 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         return result;
     }
 
-    @Override
-    public String getDeploymentConfigRootPath() throws RRepositoryException {
-        return null;
-    }
-
-    @Override
-    public String getDeploymentsRootPath() throws RRepositoryException {
-        try {
-            return removeLeadingSlash(deployLocation.getPath());
-        } catch (RepositoryException e) {
-            throw new RRepositoryException(e.getMessage(), e);
-        }
-    }
-
     public FolderAPI getRulesProject(String name) throws RRepositoryException {
         throw new UnsupportedOperationException();
     }
 
     public List<FolderAPI> getRulesProjects() throws RRepositoryException {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getRulesProjectsRootPath() throws RRepositoryException {
-        return null;
     }
 
     public void addRepositoryListener(RRepositoryListener listener) {
