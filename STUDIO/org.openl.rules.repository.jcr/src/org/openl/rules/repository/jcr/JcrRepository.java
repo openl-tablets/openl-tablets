@@ -1,11 +1,8 @@
 package org.openl.rules.repository.jcr;
 
 import org.openl.rules.common.impl.ArtefactPathImpl;
-import org.openl.rules.repository.RDeploymentDescriptorProject;
-import org.openl.rules.repository.RProject;
 import org.openl.rules.repository.RRepositoryListener;
 import org.openl.rules.repository.RRepositoryListener.RRepositoryEvent;
-import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.slf4j.Logger;
@@ -17,9 +14,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.observation.Event;
 import javax.jcr.observation.EventIterator;
-import javax.jcr.query.Query;
-import javax.jcr.query.QueryManager;
-import javax.jcr.query.QueryResult;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,10 +25,6 @@ import java.util.List;
  */
 public class JcrRepository extends BaseJcrRepository {
     private final Logger log = LoggerFactory.getLogger(JcrRepository.class);
-    private static final String QUERY_PROJECTS = "//element(*, " + JcrNT.NT_PROJECT + ")";
-    private static final String QUERY_PROJECTS_4_DEL = "//element(*, " + JcrNT.NT_PROJECT + ") [@"
-            + ArtefactProperties.PROP_PRJ_MARKED_4_DELETION + "]";
-    private static final String QUERY_DDPROJECTS = "//element(*, " + JcrNT.NT_DEPLOYMENT_PROJECT + ")";
 
     private Node defRulesLocation;
     private Node defDeploymentConfigLocation;
@@ -62,87 +52,6 @@ public class JcrRepository extends BaseJcrRepository {
 
     }
 
-    @Deprecated
-    public RDeploymentDescriptorProject createDDProject(String nodeName) throws RRepositoryException {
-        try {
-            return JcrDeploymentDescriptorProject.createProject(defDeploymentConfigLocation, nodeName);
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to create DDProject ''{0}''.", e, nodeName);
-        }
-    }
-
-    @Deprecated
-    public RProject createProject(String nodeName) throws RRepositoryException {
-        try {
-            return JcrProject.createProject(defRulesLocation, nodeName);
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to create Project ''{0}''.", e, nodeName);
-        }
-    }
-
-    @Deprecated
-    public RDeploymentDescriptorProject getDDProject(String name) throws RRepositoryException {
-        try {
-            if (!defDeploymentConfigLocation.hasNode(name)) {
-                throw new RRepositoryException("Cannot find Project ''{0}''.", null, name);
-            }
-
-            Node n = defDeploymentConfigLocation.getNode(name);
-            return new JcrDeploymentDescriptorProject(n);
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to get DDProject ''{0}''.", e, name);
-        }
-    }
-
-    @Deprecated
-    public RProject getProject(String name) throws RRepositoryException {
-        try {
-            if (!defRulesLocation.hasNode(name)) {
-                throw new RRepositoryException("Cannot find project ''{0}''", null, name);
-            }
-
-            Node n = defRulesLocation.getNode(name);
-            return new JcrProject(n);
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to get project ''{0}''", e, name);
-        }
-    }
-
-    @Deprecated
-    public List<RProject> getProjects() throws RRepositoryException {
-        // TODO list all or only that are active (not marked4deletion)?
-        NodeIterator ni = runQuery(QUERY_PROJECTS);
-        LinkedList<RProject> result = new LinkedList<RProject>();
-        while (ni.hasNext()) {
-            Node n = ni.nextNode();
-            try {
-                JcrProject p = new JcrProject(n);
-                result.add(p);
-            } catch (RepositoryException e) {
-                log.debug("Failed to add rules project.");
-            }
-        }
-
-        return result;
-    }
-
-    @Deprecated
-    public List<RProject> getProjects4Deletion() throws RRepositoryException {
-        NodeIterator ni = runQuery(QUERY_PROJECTS_4_DEL);
-        LinkedList<RProject> result = new LinkedList<RProject>();
-        while (ni.hasNext()) {
-            Node n = ni.nextNode();
-            try {
-                JcrProject p = new JcrProject(n);
-                result.add(p);
-            } catch (RepositoryException e) {
-                log.debug("Failed to add rules project for deletion.");
-            }
-        }
-
-        return result;
-    }
-
     public boolean hasDeploymentProject(String name) throws RRepositoryException {
         try {
             return defDeploymentConfigLocation.hasNode(name);
@@ -161,26 +70,6 @@ public class JcrRepository extends BaseJcrRepository {
             return defRulesLocation.hasNode(name) && !defRulesLocation.getNode(name).isNodeType(JcrNT.NT_LOCK);
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to check project ''{0}''", e, name);
-        }
-    }
-
-    /**
-     * Runs query in JCR.
-     *
-     * @param statement query statement
-     * @return list of OpenL projects
-     * @throws RRepositoryException if failed
-     */
-    protected NodeIterator runQuery(String statement) throws RRepositoryException {
-        try {
-            QueryManager qm = getSession().getWorkspace().getQueryManager();
-            Query query = qm.createQuery(statement, Query.XPATH);
-
-            QueryResult qr = query.execute();
-            return qr.getNodes();
-
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to run query.", e);
         }
     }
 

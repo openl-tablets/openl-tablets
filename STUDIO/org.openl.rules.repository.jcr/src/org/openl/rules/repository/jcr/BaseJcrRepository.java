@@ -1,8 +1,6 @@
 package org.openl.rules.repository.jcr;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.jcr.Node;
