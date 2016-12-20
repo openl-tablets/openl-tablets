@@ -1,18 +1,13 @@
 package org.openl.rules.repository.jcr;
 
 import java.io.InputStream;
-import java.util.List;
 
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.observation.EventListener;
 
-import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
-import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.FolderAPI;
 import org.openl.rules.repository.api.ResourceAPI;
@@ -20,7 +15,7 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class BaseJcrRepository implements RRepository, EventListener {
+public class BaseJcrRepository {
     private final Logger log = LoggerFactory.getLogger(BaseJcrRepository.class);
     /**
      * JCR Session
@@ -81,46 +76,6 @@ public abstract class BaseJcrRepository implements RRepository, EventListener {
         return session;
     }
 
-    /**
-     * Releases resources allocated by this Rules Repository instance.
-     */
-    public void release() {
-        try {
-            session.getWorkspace().getObservationManager().removeEventListener(this);
-        } catch (RepositoryException e) {
-            log.debug("release", e);
-        }
-
-        if (session.isLive()) {
-            session.logout();
-        }
-    }
-
-    private void findAllFiles(Node node,  ArtefactPath path, List<ResourceAPI> result) throws RRepositoryException {
-        NodeIterator ni;
-        try {
-            ni = node.getNodes();
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot get any rules project", e);
-        }
-
-        while (ni.hasNext()) {
-            Node n = ni.nextNode();
-            try {
-                if (!n.isNodeType(JcrNT.NT_LOCK)) {
-                    if (node.isNodeType(JcrNT.NT_FILE)) {
-                        result.add(new JcrFileAPI(node, path.withSegment(n.getName())));
-                    } else {
-                        findAllFiles(n, path.withSegment(n.getName()), result);
-                    }
-                }
-            } catch (RepositoryException e) {
-                log.error("Failed to add JCR file.");
-            }
-        }
-    }
-
-    @Override
     public ArtefactAPI getArtefact(String name) throws RRepositoryException {
         try {
             Node node = findNode(name);
@@ -135,7 +90,6 @@ public abstract class BaseJcrRepository implements RRepository, EventListener {
         }
     }
 
-    @Override
     public ResourceAPI createResource(String name, InputStream inputStream) throws RRepositoryException {
         try {
             Node node = checkFolder(name.substring(0, name.lastIndexOf("/")));
@@ -167,7 +121,6 @@ public abstract class BaseJcrRepository implements RRepository, EventListener {
         }
     }
 
-    @Override
     public ArtefactAPI rename(String path, String destination) throws RRepositoryException {
         try {
             session.move(path, destination);
@@ -175,12 +128,5 @@ public abstract class BaseJcrRepository implements RRepository, EventListener {
         } catch (RepositoryException e) {
             throw new RRepositoryException(e.getMessage(), e);
         }
-    }
-
-    String removeLeadingSlash(String path) {
-        if (path.startsWith("/")) {
-            path = path.substring(1);
-        }
-        return path;
     }
 }

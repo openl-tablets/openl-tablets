@@ -1,29 +1,57 @@
 package org.openl.rules.repository.jcr;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
-import org.openl.rules.common.*;
-import org.openl.rules.common.impl.ArtefactPathImpl;
-import org.openl.rules.common.impl.CommonUserImpl;
-import org.openl.rules.common.impl.CommonVersionImpl;
-import org.openl.rules.repository.api.*;
-import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.util.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.observation.Event;
+import javax.jcr.observation.EventIterator;
+import javax.jcr.observation.EventListener;
 
-public class ZipJcrRepository implements Repository, Closeable {
+import org.openl.rules.common.CommonException;
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ProjectVersion;
+import org.openl.rules.common.Property;
+import org.openl.rules.common.PropertyException;
+import org.openl.rules.common.ValueType;
+import org.openl.rules.common.impl.ArtefactPathImpl;
+import org.openl.rules.common.impl.CommonUserImpl;
+import org.openl.rules.common.impl.CommonVersionImpl;
+import org.openl.rules.repository.api.ArtefactAPI;
+import org.openl.rules.repository.api.ArtefactProperties;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderAPI;
+import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.ResourceAPI;
+import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.util.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class ZipJcrRepository implements Repository, Closeable, EventListener {
     private final Logger log = LoggerFactory.getLogger(ZipJcrRepository.class);
 
+    private Session session;
     private BaseJcrRepository rulesRepository;
     private String designPath;
     private Node defRulesLocation;
@@ -31,21 +59,27 @@ public class ZipJcrRepository implements Repository, Closeable {
     private Node defDeploymentConfigLocation;
     private String deployPath;
     private Node deployLocation;
+    private Listener listener;
     // In this case there is no need to store a strong reference to the listener: current field is used only to remove
     // old instance. If it's GC-ed, no need to remove it.
 
     protected void init(Session session, boolean designRepositoryMode) throws RRepositoryException, RepositoryException {
+        this.session = session;
+        String root;
         if (designRepositoryMode) {
             designPath = "DESIGN/rules";
             defRulesLocation = getNode(session, designPath);
             deployConfigPath = "DESIGN/deployments";
             defDeploymentConfigLocation = getNode(session, deployConfigPath);
-            rulesRepository = new JcrRepository(session, defRulesLocation, defDeploymentConfigLocation);
+            root = "/DESIGN/";
         } else {
             deployPath = "deploy";
             deployLocation = getNode(session, deployPath);
-            rulesRepository = new JcrProductionRepository(session);
+            root = "/deploy/";
         }
+        rulesRepository = new BaseJcrRepository(session);
+        int eventTypes = Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED | Event.PROPERTY_REMOVED | Event.PROPERTY_CHANGED | Event.NODE_REMOVED;
+        session.getWorkspace().getObservationManager().addEventListener(this, eventTypes, root, true, null, null, false);
     }
 
     private Node getNode(Session session, String aPath) throws RepositoryException {
@@ -419,7 +453,19 @@ public class ZipJcrRepository implements Repository, Closeable {
 
     @Override
     public void setListener(final Listener callback) {
-        rulesRepository.setListener(callback);
+        this.listener = callback;
+    }
+
+    @Override
+    public void onEvent(EventIterator events) {
+        while (listener != null && events.hasNext()) {
+            try {
+                listener.onChange();
+                break;
+            } catch (Exception e) {
+                log.error("onEvent", e);
+            }
+        }
     }
 
     @Override
@@ -679,10 +725,14 @@ public class ZipJcrRepository implements Repository, Closeable {
     @Override
     public void close() throws IOException {
         setListener(null);
-        // If rulesRepository is not created, we don't need to create it and then release it
-        if (rulesRepository != null) {
-            rulesRepository.release();
+        try {
+            session.getWorkspace().getObservationManager().removeEventListener(this);
+        } catch (RepositoryException e) {
+            log.debug("release", e);
+        }
+
+        if (session.isLive()) {
+            session.logout();
         }
     }
-
 }
