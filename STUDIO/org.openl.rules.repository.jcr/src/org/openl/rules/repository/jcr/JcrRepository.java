@@ -9,13 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.observation.Event;
 import javax.jcr.observation.EventIterator;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -115,29 +113,6 @@ public class JcrRepository extends BaseJcrRepository {
         } catch (RepositoryException e) {
             throw new RRepositoryException("Failed to get project ''{0}''", e, name);
         }
-    }
-
-    public List<FolderAPI> getRulesProjects() throws RRepositoryException {
-        NodeIterator ni;
-        try {
-            ni = defRulesLocation.getNodes();
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Cannot get any rules project", e);
-        }
-
-        LinkedList<FolderAPI> result = new LinkedList<FolderAPI>();
-        while (ni.hasNext()) {
-            Node n = ni.nextNode();
-            try {
-                if (!n.isNodeType(JcrNT.NT_LOCK)) {
-                    result.add(new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{n.getName()})));
-                }
-            } catch (RepositoryException e) {
-                log.debug("Failed to add rules project.");
-            }
-        }
-
-        return result;
     }
 
     private static final String CHECKED_OUT_PROPERTY = "jcr:isCheckedOut";

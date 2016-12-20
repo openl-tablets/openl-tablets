@@ -137,10 +137,6 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         throw new UnsupportedOperationException();
     }
 
-    public List<FolderAPI> getRulesProjects() throws RRepositoryException {
-        throw new UnsupportedOperationException();
-    }
-
     public void addRepositoryListener(RRepositoryListener listener) {
         throw new UnsupportedOperationException();
     }

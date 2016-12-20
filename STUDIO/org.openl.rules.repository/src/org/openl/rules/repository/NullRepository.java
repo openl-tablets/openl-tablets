@@ -58,10 +58,6 @@ public class NullRepository implements RRepository {
         return null;
     }
 
-    public List<FolderAPI> getRulesProjects() throws RRepositoryException {
-        return new LinkedList<FolderAPI>();
-    }
-
     public void addRepositoryListener(RRepositoryListener listener) {
     }
 

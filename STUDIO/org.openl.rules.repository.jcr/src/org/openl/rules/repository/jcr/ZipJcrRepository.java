@@ -86,7 +86,7 @@ public class ZipJcrRepository implements Repository, Closeable {
             List<FileData> result = new ArrayList<FileData>();
             List<FolderAPI> projects;
             if (designPath != null && designPath.equals(path)) {
-                projects = rulesRepository.getRulesProjects();
+                projects = getRulesProjects();
             } else if (deployConfigPath != null && deployConfigPath.equals(path)) {
                 projects = getDeployConfigs();
             } else if (deployPath != null && deployPath.equals(path)) {
@@ -126,6 +126,29 @@ public class ZipJcrRepository implements Repository, Closeable {
         } catch (CommonException e) {
             throw new IOException(e);
         }
+    }
+
+    private List<FolderAPI> getRulesProjects() throws RRepositoryException {
+        NodeIterator ni;
+        try {
+            ni = defRulesLocation.getNodes();
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Cannot get any rules project", e);
+        }
+
+        LinkedList<FolderAPI> result = new LinkedList<FolderAPI>();
+        while (ni.hasNext()) {
+            Node n = ni.nextNode();
+            try {
+                if (!n.isNodeType(JcrNT.NT_LOCK)) {
+                    result.add(new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{n.getName()})));
+                }
+            } catch (RepositoryException e) {
+                log.debug("Failed to add rules project.");
+            }
+        }
+
+        return result;
     }
 
     private List<FolderAPI> getDeployConfigs() throws RRepositoryException {

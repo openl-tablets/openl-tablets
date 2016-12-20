@@ -1,7 +1,6 @@
 package org.openl.rules.repository;
 
 import java.io.InputStream;
-import java.util.List;
 
 import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.FolderAPI;
@@ -58,14 +57,6 @@ public interface RRepository {
      * @throws RRepositoryException if failed or no project with specified name
      */
     FolderAPI getRulesProject(String name) throws RRepositoryException;
-
-    /**
-     * Gets list of projects from the repository.
-     *
-     * @return list of projects
-     * @throws RRepositoryException if failed
-     */
-    List<FolderAPI> getRulesProjects() throws RRepositoryException;
 
     void addRepositoryListener(RRepositoryListener listener);
     void removeRepositoryListener(RRepositoryListener listener);
