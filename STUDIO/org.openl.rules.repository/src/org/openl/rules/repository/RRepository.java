@@ -16,8 +16,6 @@ import org.openl.rules.repository.exceptions.RRepositoryException;
  */
 public interface RRepository {
 
-    boolean hasDeploymentProject(String name) throws RRepositoryException;
-
     /**
      * Checks whether project with given name exists in the repository.
      *

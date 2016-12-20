@@ -213,13 +213,13 @@ public class ZipJcrRepository implements Repository, Closeable {
                 project = rulesRepository.getRulesProject(projectName);
             } else if (deployConfigPath != null && name.startsWith(deployConfigPath)) {
                 String projectName = name.substring(deployConfigPath.length() + 1);
-                if (!rulesRepository.hasDeploymentProject(projectName)) {
+                if (!defDeploymentConfigLocation.hasNode(projectName)) {
                     return null;
                 }
                 project = rulesRepository.getDeploymentProject(projectName);
             } else if (deployPath != null && name.startsWith(deployPath)) {
                 String projectName = name.substring(deployPath.length() + 1);
-                if (!rulesRepository.hasDeploymentProject(projectName)) {
+                if (!deployLocation.hasNode(projectName)) {
                     return null;
                 }
                 project = rulesRepository.getDeploymentProject(projectName);
@@ -228,6 +228,8 @@ public class ZipJcrRepository implements Repository, Closeable {
             }
             return createFileItem(project, createFileData(name, project));
         } catch (CommonException e) {
+            throw new IOException(e);
+        } catch (RepositoryException e) {
             throw new IOException(e);
         }
     }
@@ -523,6 +525,7 @@ public class ZipJcrRepository implements Repository, Closeable {
 
     private FolderAPI getOrCreateProject(String name) throws RRepositoryException {
         FolderAPI project;
+        try {
         if (designPath != null && name.startsWith(designPath)) {
             String projectName = name.substring(designPath.length() + 1);
             if (rulesRepository.hasProject(projectName)) {
@@ -532,20 +535,23 @@ public class ZipJcrRepository implements Repository, Closeable {
             }
         } else if (deployConfigPath != null && name.startsWith(deployConfigPath)) {
             String projectName = name.substring(deployConfigPath.length() + 1);
-            if (rulesRepository.hasDeploymentProject(projectName)) {
+            if (defDeploymentConfigLocation.hasNode(projectName)) {
                 project = rulesRepository.getDeploymentProject(projectName);
             } else {
                 project = rulesRepository.createDeploymentProject(projectName);
             }
         } else if (deployPath != null && name.startsWith(deployPath)) {
             String projectName = name.substring(deployPath.length() + 1);
-            if (rulesRepository.hasDeploymentProject(projectName)) {
+            if (deployLocation.hasNode(projectName)) {
                 project = rulesRepository.getDeploymentProject(projectName);
             } else {
                 project = rulesRepository.createDeploymentProject(projectName);
             }
         } else {
             project = null;
+        }
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("failed to check project {0}", e, name);
         }
         return project;
     }

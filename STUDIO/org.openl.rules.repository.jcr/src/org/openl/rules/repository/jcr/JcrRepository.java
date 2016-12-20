@@ -44,14 +44,6 @@ public class JcrRepository extends BaseJcrRepository {
 
     }
 
-    public boolean hasDeploymentProject(String name) throws RRepositoryException {
-        try {
-            return defDeploymentConfigLocation.hasNode(name);
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to check project ''{0}''", e, name);
-        }
-    }
-
     // ------ protected methods ------
 
     /**

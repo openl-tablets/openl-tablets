@@ -22,10 +22,6 @@ public class NullRepository implements RRepository {
         throw new RRepositoryException("Failed to initialize repository!", null);
     }
 
-    public boolean hasDeploymentProject(String name) throws RRepositoryException {
-        return false;
-    }
-
     public boolean hasProject(String name) throws RRepositoryException {
         return false;
     }

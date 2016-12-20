@@ -37,14 +37,6 @@ public class JcrProductionRepository extends BaseJcrRepository implements RProdu
         listeners.add(listener);
     }
 
-    public boolean hasDeploymentProject(String name) throws RRepositoryException {
-        try {
-            return deployLocation.hasNode(name);
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("failed to check project {0}", e, name);
-        }
-    }
-
     /**
      * Checks whether project with given name exists in the repository.
      *
