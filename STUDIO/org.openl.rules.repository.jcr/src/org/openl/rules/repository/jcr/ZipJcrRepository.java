@@ -191,35 +191,13 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     @Override
     public FileItem read(String name) throws IOException {
         try {
-            FolderAPI project = null;
-            if (designPath != null && name.startsWith(designPath)) {
-                String projectName = name.substring(designPath.length() + 1);
-                project = getArtifact(defRulesLocation, projectName);
-            } else if (deployConfigPath != null && name.startsWith(deployConfigPath)) {
-                String projectName = name.substring(deployConfigPath.length() + 1);
-                project = getArtifact(defDeploymentConfigLocation, projectName);
-            } else if (deployPath != null && name.startsWith(deployPath)) {
-                String projectName = name.substring(deployPath.length() + 1);
-                project = getArtifact(deployLocation, projectName);
-            }
+            FolderAPI project = getOrCreateProject(name, false);
             if (project == null) {
-                throw new FileNotFoundException("File [" + name + "] not found." );
+                return null;
             }
             return createFileItem(project, createFileData(name, project));
         } catch (CommonException e) {
             throw new IOException(e);
-        }
-    }
-
-    private FolderAPI getArtifact(Node root, String name) throws RRepositoryException {
-        try {
-            if (!root.hasNode(name)) {
-                return null;
-            }
-            Node n = root.getNode(name);
-            return new JcrFolderAPI(n, new ArtefactPathImpl(new String[] { name }));
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to get an artifact ''{0}''", e, name);
         }
     }
 
@@ -228,7 +206,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
         try {
 
             String name = data.getName();
-            FolderAPI project = getOrCreateProject(name);
+            FolderAPI project = getOrCreateProject(name, true);
 
             if (undeleteIfNeeded(data, project)) {
                 return createFileData(name, project);
@@ -351,8 +329,8 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             }
 
             // TODO Only create
-            FolderAPI srcProject = getOrCreateProject(name);
-            FolderAPI destProject = getOrCreateProject(name);
+            FolderAPI srcProject = getOrCreateProject(name, true);
+            FolderAPI destProject = getOrCreateProject(name, true);
             copy(srcProject, destProject);
 
             return createFileData(name, destProject);
@@ -472,8 +450,8 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
                 throw new ProjectException("Project ''{0}'' is already exist in the repository!", null, destData);
             }
 
-            FolderAPI sourceProject = getOrCreateProject(srcName).getVersion(new CommonVersionImpl(Integer.parseInt(version)));
-            FolderAPI destProject = getOrCreateProject(name);// TODO Only create
+            FolderAPI sourceProject = getOrCreateProject(srcName, true).getVersion(new CommonVersionImpl(Integer.parseInt(version)));
+            FolderAPI destProject = getOrCreateProject(name, true);// TODO Only create
             copy(sourceProject, destProject);
 
             return createFileData(name, destProject);
@@ -487,30 +465,39 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
         return new CommonUserImpl("system");
     }
 
-    private FolderAPI getOrCreateProject(String name) throws RRepositoryException {
-        FolderAPI project;
+    private FolderAPI getOrCreateProject(String name, boolean create) throws RRepositoryException, FileNotFoundException {
+        String rootPath;
+        Node root;
         if (designPath != null && name.startsWith(designPath)) {
-            String projectName = name.substring(designPath.length() + 1);
-            project = getArtifact(defRulesLocation, projectName);
-            if (project == null) {
-                project = createArtifact(defRulesLocation, projectName);
-            }
+            rootPath = designPath;
+            root = defRulesLocation;
         } else if (deployConfigPath != null && name.startsWith(deployConfigPath)) {
-            String projectName = name.substring(deployConfigPath.length() + 1);
-            project = getArtifact(defDeploymentConfigLocation, projectName);
-            if (project == null) {
-                project = createArtifact(defDeploymentConfigLocation, projectName);
-            }
+            rootPath = deployConfigPath;
+            root = defDeploymentConfigLocation;
         } else if (deployPath != null && name.startsWith(deployPath)) {
-            String projectName = name.substring(deployPath.length() + 1);
-            project = getArtifact(deployLocation, projectName);
-            if (project == null) {
-                project = createArtifact(deployLocation, projectName);
-            }
+            rootPath = deployPath;
+            root = deployLocation;
         } else {
-            project = null;
+            throw new IllegalArgumentException("File [" + name + "] is not allowed." );
+        }
+        String projectName = name.substring(rootPath.length() + 1);
+        FolderAPI project = getArtifact(root, projectName);
+        if (project == null && create) {
+            project = createArtifact(root, projectName);
         }
         return project;
+    }
+
+    private FolderAPI getArtifact(Node root, String name) throws RRepositoryException {
+        try {
+            if (!root.hasNode(name)) {
+                return null;
+            }
+            Node n = root.getNode(name);
+            return new JcrFolderAPI(n, new ArtefactPathImpl(new String[] { name }));
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Failed to get an artifact ''{0}''", e, name);
+        }
     }
 
     private FolderAPI createArtifact(Node root, String name) throws RRepositoryException {
