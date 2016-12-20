@@ -1,5 +1,7 @@
 package org.openl.config;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -41,6 +43,25 @@ public class PassCoderTest {
             Assert.fail(e.getMessage());
         }
 
-        Assert.assertEquals(pass, decodedPass);
+        assertEquals(pass, decodedPass);
+    }
+
+    @Test
+    public void testEmpty() throws Exception {
+        assertEquals("password", PassCoder.encode("password", ""));
+        assertEquals("password", PassCoder.encode("password", " "));
+        assertEquals("password", PassCoder.encode("password", null));
+        assertEquals("", PassCoder.encode("", "key"));
+        assertEquals("", PassCoder.encode(" ", "key"));
+        assertEquals("", PassCoder.encode(null, "key"));
+        assertEquals("", PassCoder.encode("", ""));
+
+        assertEquals("password", PassCoder.decode("password", ""));
+        assertEquals("password", PassCoder.decode("password", " "));
+        assertEquals("password", PassCoder.decode("password", null));
+        assertEquals("", PassCoder.decode("", "key"));
+        assertEquals("", PassCoder.decode(" ", "key"));
+        assertEquals("", PassCoder.decode(null, "key"));
+        assertEquals("", PassCoder.decode("", ""));
     }
 }

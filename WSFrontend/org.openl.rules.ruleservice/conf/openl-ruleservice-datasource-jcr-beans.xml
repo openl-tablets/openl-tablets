@@ -16,7 +16,12 @@
             <bean class="${production-repository.factory}" init-method="initialize" destroy-method="close">
                 <property name="uri" value="${production-repository.uri}"/>
                 <property name="login" value="${production-repository.login}"/>
-                <property name="password" value="${production-repository.password}"/>
+                <property name="password">
+                    <bean class="org.openl.config.PassCoder" factory-method="decode">
+                        <constructor-arg name="strToDecrypt" value="${production-repository.password}"/>
+                        <constructor-arg name="privateKey" value="${repository.encode.decode.key}"/>
+                    </bean>
+                </property>
             </bean>
         </property>
     </bean>
