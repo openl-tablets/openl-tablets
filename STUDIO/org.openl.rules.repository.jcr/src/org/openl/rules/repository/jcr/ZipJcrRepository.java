@@ -27,9 +27,9 @@ public class ZipJcrRepository implements Repository, Closeable {
     private final Logger log = LoggerFactory.getLogger(ZipJcrRepository.class);
 
     private RRepository rulesRepository;
-    private String projectsPath;
-    private String deploymentConfigPath;
-    private String deploymentsPath;
+    private String designPath;
+    private String deployConfigPath;
+    private String deployPath;
     // In this case there is no need to store a strong reference to the listener: current field is used only to remove
     // old instance. If it's GC-ed, no need to remove it.
     private WeakReference<Object> listenerReference = new WeakReference<Object>(null);
@@ -37,11 +37,11 @@ public class ZipJcrRepository implements Repository, Closeable {
     protected void init(Session session, boolean designRepositoryMode) throws RRepositoryException, RepositoryException {
         if (designRepositoryMode) {
             rulesRepository = new JcrRepository(session, "/DESIGN/rules", "/DESIGN/deployments");
-            projectsPath = "DESIGN/rules";
-            deploymentConfigPath = "DESIGN/deployments";
+            designPath = "DESIGN/rules";
+            deployConfigPath = "DESIGN/deployments";
         } else {
             rulesRepository = new JcrProductionRepository(session);
-            deploymentsPath = "deploy";
+            deployPath = "deploy";
         }
     }
 
@@ -53,11 +53,11 @@ public class ZipJcrRepository implements Repository, Closeable {
         try {
             List<FileData> result = new ArrayList<FileData>();
             List<FolderAPI> projects;
-            if (projectsPath != null && projectsPath.equals(path)) {
+            if (designPath != null && designPath.equals(path)) {
                 projects = rulesRepository.getRulesProjects();
-            } else if (deploymentConfigPath != null && deploymentConfigPath.equals(path)) {
+            } else if (deployConfigPath != null && deployConfigPath.equals(path)) {
                 projects = rulesRepository.getDeploymentProjects();
-            } else if (deploymentsPath != null && deploymentsPath.equals(path)) {
+            } else if (deployPath != null && deployPath.equals(path)) {
                 List<FolderAPI> deployments = rulesRepository.getDeploymentProjects();
                 for (FolderAPI deployment : deployments) {
                     for (ArtefactAPI artefactAPI : deployment.getArtefacts()) {
@@ -71,7 +71,7 @@ public class ZipJcrRepository implements Repository, Closeable {
                 ArtefactAPI artefact = rulesRepository.getArtefact(path);
                 if (artefact == null) {
                     return result;
-                } else if (deploymentsPath != null && path.startsWith(deploymentsPath)) {
+                } else if (deployPath != null && path.startsWith(deployPath)) {
                     projects = new ArrayList<FolderAPI>();
                     FolderAPI deploymentProject = (FolderAPI) artefact;
                     for (ArtefactAPI artefactAPI : deploymentProject.getArtefacts()) {
@@ -110,20 +110,20 @@ public class ZipJcrRepository implements Repository, Closeable {
     public FileItem read(String name) throws IOException {
         try {
             FolderAPI project;
-            if (projectsPath != null && name.startsWith(projectsPath)) {
-                String projectName = name.substring(projectsPath.length() + 1);
+            if (designPath != null && name.startsWith(designPath)) {
+                String projectName = name.substring(designPath.length() + 1);
                 if (!rulesRepository.hasProject(projectName)) {
                     return null;
                 }
                 project = rulesRepository.getRulesProject(projectName);
-            } else if (deploymentConfigPath != null && name.startsWith(deploymentConfigPath)) {
-                String projectName = name.substring(deploymentConfigPath.length() + 1);
+            } else if (deployConfigPath != null && name.startsWith(deployConfigPath)) {
+                String projectName = name.substring(deployConfigPath.length() + 1);
                 if (!rulesRepository.hasDeploymentProject(projectName)) {
                     return null;
                 }
                 project = rulesRepository.getDeploymentProject(projectName);
-            } else if (deploymentsPath != null && name.startsWith(deploymentsPath)) {
-                String projectName = name.substring(deploymentsPath.length() + 1);
+            } else if (deployPath != null && name.startsWith(deployPath)) {
+                String projectName = name.substring(deployPath.length() + 1);
                 if (!rulesRepository.hasDeploymentProject(projectName)) {
                     return null;
                 }
@@ -428,22 +428,22 @@ public class ZipJcrRepository implements Repository, Closeable {
 
     private FolderAPI getOrCreateProject(String name) throws RRepositoryException {
         FolderAPI project;
-        if (projectsPath != null && name.startsWith(projectsPath)) {
-            String projectName = name.substring(projectsPath.length() + 1);
+        if (designPath != null && name.startsWith(designPath)) {
+            String projectName = name.substring(designPath.length() + 1);
             if (rulesRepository.hasProject(projectName)) {
                 project = rulesRepository.getRulesProject(projectName);
             } else {
                 project = rulesRepository.createRulesProject(projectName);
             }
-        } else if (deploymentConfigPath != null && name.startsWith(deploymentConfigPath)) {
-            String projectName = name.substring(deploymentConfigPath.length() + 1);
+        } else if (deployConfigPath != null && name.startsWith(deployConfigPath)) {
+            String projectName = name.substring(deployConfigPath.length() + 1);
             if (rulesRepository.hasDeploymentProject(projectName)) {
                 project = rulesRepository.getDeploymentProject(projectName);
             } else {
                 project = rulesRepository.createDeploymentProject(projectName);
             }
-        } else if (deploymentsPath != null && name.startsWith(deploymentsPath)) {
-            String projectName = name.substring(deploymentsPath.length() + 1);
+        } else if (deployPath != null && name.startsWith(deployPath)) {
+            String projectName = name.substring(deployPath.length() + 1);
             if (rulesRepository.hasDeploymentProject(projectName)) {
                 project = rulesRepository.getDeploymentProject(projectName);
             } else {
