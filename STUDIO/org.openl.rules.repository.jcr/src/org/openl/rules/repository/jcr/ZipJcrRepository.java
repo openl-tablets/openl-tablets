@@ -52,7 +52,6 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     private final Logger log = LoggerFactory.getLogger(ZipJcrRepository.class);
 
     private Session session;
-    private BaseJcrRepository rulesRepository;
     private String designPath;
     private Node defRulesLocation;
     private String deployConfigPath;
@@ -77,7 +76,6 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             deployLocation = getNode(session, deployPath);
             root = "/deploy/";
         }
-        rulesRepository = new BaseJcrRepository(session);
         int eventTypes = Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED | Event.PROPERTY_REMOVED | Event.PROPERTY_CHANGED | Event.NODE_REMOVED;
         session.getWorkspace().getObservationManager().addEventListener(this, eventTypes, root, true, null, null, false);
     }
@@ -128,7 +126,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
                 }
                 return result;
             } else {
-                ArtefactAPI artefact = rulesRepository.getArtefact(path);
+                ArtefactAPI artefact = getArtefact(path);
                 if (artefact == null) {
                     return result;
                 } else if (deployPath != null && path.startsWith(deployPath)) {
@@ -340,7 +338,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
                     IOUtils.copy(zipInputStream, out);
                     ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 
-                    ArtefactAPI artefact = rulesRepository.getArtefact(resourceName);
+                    ArtefactAPI artefact = getArtefact(resourceName);
                     if (artefact != null) {
                         if (artefact instanceof ResourceAPI) {
                             Map<String, Object> artefactProps = artefact.getProps();
@@ -349,10 +347,10 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
                             ((ResourceAPI) artefact).setContent(in);
                         } else {
                             artefact.delete(user);
-                            artefact = rulesRepository.createResource(resourceName, in);
+                            artefact = createResource(resourceName, in);
                         }
                     } else {
-                        artefact = rulesRepository.createResource(resourceName, in);
+                        artefact = createResource(resourceName, in);
                     }
                     artefact.commit(user, Integer.parseInt(artefact.getVersion().getRevision()) + 1);
                 }
@@ -365,7 +363,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             Iterator<String> foldersIterator = folderPaths.descendingIterator();
             while (foldersIterator.hasNext()) {
                 String folder = foldersIterator.next();
-                ArtefactAPI artefact = rulesRepository.getArtefact(name + "/" + folder);
+                ArtefactAPI artefact = getArtefact(name + "/" + folder);
                 artefact.commit(user, Integer.parseInt(artefact.getVersion().getRevision()) + 1);
             }
 
@@ -403,7 +401,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     @Override
     public boolean delete(String path) {
         try {
-            ArtefactAPI artefact = rulesRepository.getArtefact(path);
+            ArtefactAPI artefact = getArtefact(path);
             if (artefact == null) {
                 return false;
             }
@@ -422,11 +420,11 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     @Override
     public FileData copy(String srcPath, FileData destData) throws IOException {
         try {
-            if (rulesRepository.getArtefact(srcPath) == null) {
+            if (getArtefact(srcPath) == null) {
                 throw new ProjectException("Project ''{0}'' is absent in the repository!", null, srcPath);
             }
             String name = destData.getName();
-            if (rulesRepository.getArtefact(name) != null) {
+            if (getArtefact(name) != null) {
                 throw new ProjectException("Project ''{0}'' is already exist in the repository!", null, destData);
             }
 
@@ -445,7 +443,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     public FileData rename(String path, FileData destData) throws IOException {
         try {
             String name = destData.getName();
-            return createFileData(name, rulesRepository.rename(path, name));
+            return createFileData(name, rename(path, name));
         } catch (CommonException e) {
             throw new IOException(e);
         }
@@ -471,7 +469,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     @Override
     public List<FileData> listHistory(String name) throws IOException {
         try {
-            ArtefactAPI artefact = rulesRepository.getArtefact(name);
+            ArtefactAPI artefact = getArtefact(name);
             if (artefact == null || artefact instanceof ResourceAPI) {
                 return Collections.emptyList();
             }
@@ -506,7 +504,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             return read(name);
         }
         try {
-            ArtefactAPI artefact = rulesRepository.getArtefact(name);
+            ArtefactAPI artefact = getArtefact(name);
             if (artefact == null || artefact instanceof ResourceAPI) {
                 return null;
             }
@@ -523,7 +521,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     @Override
     public boolean deleteHistory(String name, String version) {
         try {
-            ArtefactAPI artefact = rulesRepository.getArtefact(name);
+            ArtefactAPI artefact = getArtefact(name);
             if (artefact == null) {
                 return false;
             }
@@ -544,11 +542,11 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     @Override
     public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
         try {
-            if (rulesRepository.getArtefact(srcName) == null) {
+            if (getArtefact(srcName) == null) {
                 throw new ProjectException("Project ''{0}'' is absent in the repository!", null, srcName);
             }
             String name = destData.getName();
-            if (rulesRepository.getArtefact(name) != null) {
+            if (getArtefact(name) != null) {
                 throw new ProjectException("Project ''{0}'' is already exist in the repository!", null, destData);
             }
 
@@ -627,7 +625,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     private FolderAPI createDeploy(String name) throws RRepositoryException {
         try {
             String path = "deploy/" + name;
-            Node parent = rulesRepository.checkFolder(path.substring(0, path.lastIndexOf("/")));
+            Node parent = checkFolder(path.substring(0, path.lastIndexOf("/")));
             Node node = NodeUtil.createNode(parent, name.substring(name.lastIndexOf("/") + 1), JcrNT.NT_APROJECT, true);
             deployLocation.save();
             node.checkin();
@@ -719,6 +717,109 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             } else {
                 destination.addResource(name, ((ResourceAPI) artefact).getContent());
             }
+        }
+    }
+    private Node checkFolder(String aPath) throws RepositoryException, ProjectException {
+        Node node = session.getRootNode();
+        String[] paths = aPath.split("/");
+        String currentPath = "";
+        for (String path : paths) {
+            if (path.length() == 0) {
+                continue; // first element (root folder) or illegal path
+            }
+
+            if (node.hasNode(path)) {
+                // go deeper
+                node = node.getNode(path);
+            } else {
+                // create new
+                JcrFolderAPI folder = new JcrFolderAPI(node, new ArtefactPathImpl(currentPath));
+                node = folder.addFolder(path).node();
+            }
+
+            if (!currentPath.isEmpty()) {
+                currentPath += "/";
+            }
+            currentPath += path;
+        }
+
+        return node;
+    }
+
+    private Node findNode(String aPath) throws RepositoryException {
+        Node node = session.getRootNode();
+        String[] paths = aPath.split("/");
+        for (String path : paths) {
+            if (path.length() == 0) {
+                continue; // first element (root folder) or illegal path
+            }
+
+            if (node.hasNode(path)) {
+                // go deeper
+                node = node.getNode(path);
+            } else {
+                return null;
+            }
+        }
+
+        return node;
+    }
+
+    protected Session getSession() {
+        return session;
+    }
+
+    private ArtefactAPI getArtefact(String name) throws RRepositoryException {
+        try {
+            Node node = findNode(name);
+            if (node == null) {
+                return null;
+            }
+
+            return createArtefactAPI(node, name);
+        } catch (RepositoryException e) {
+            log.debug("Cannot get artefact " + name, e);
+            return null;
+        }
+    }
+
+    private ResourceAPI createResource(String name, InputStream inputStream) throws RRepositoryException {
+        try {
+            Node node = checkFolder(name.substring(0, name.lastIndexOf("/")));
+            ArtefactAPI artefact = createArtefactAPI(node, name);
+            if (!(artefact instanceof FolderAPI)) {
+                throw new RepositoryException("Incorrect node type");
+            }
+
+            FolderAPI folder = (FolderAPI) artefact;
+            return folder.addResource(name.substring(name.lastIndexOf("/") + 1), inputStream);
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Cannot add resource " + name, e);
+        } catch (ProjectException e) {
+            throw new RRepositoryException("Cannot add resource " + name, e);
+        }
+    }
+
+    private ArtefactAPI createArtefactAPI(Node node, String name) throws RepositoryException {
+        if (node.isNodeType(JcrNT.NT_LOCK)) {
+            log.error("Incorrect node type " + JcrNT.NT_LOCK);
+            return null;
+        } else {
+            ArtefactPathImpl path = new ArtefactPathImpl(name.split("/"));
+            if (node.isNodeType(JcrNT.NT_FILE)) {
+                return new JcrFileAPI(node, path);
+            } else {
+                return new JcrFolderAPI(node, path);
+            }
+        }
+    }
+
+    private ArtefactAPI rename(String path, String destination) throws RRepositoryException {
+        try {
+            session.move(path, destination);
+            return getArtefact(destination);
+        } catch (RepositoryException e) {
+            throw new RRepositoryException(e.getMessage(), e);
         }
     }
 
