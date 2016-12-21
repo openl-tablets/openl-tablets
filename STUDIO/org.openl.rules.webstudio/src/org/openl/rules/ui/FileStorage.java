@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -48,8 +49,11 @@ public class FileStorage {
 
     public synchronized void delete(int count) {
         File[] files = new File(storagePath).listFiles();
-        if (files != null && files.length > count) {
-            for (int i = 0; i < files.length - count; i++) {
+        // Initial version must always exist
+        if (files != null && files.length > count + 1) {
+            Arrays.sort(files);
+            // Don't delete initial version
+            for (int i = 1; i < files.length - count; i++) {
                 File file = files[i];
                 try {
                     FileUtils.deleteDirectory(file);
