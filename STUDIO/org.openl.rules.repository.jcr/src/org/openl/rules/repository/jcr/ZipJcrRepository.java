@@ -428,33 +428,19 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     }
 
     private FolderAPI getOrCreateProject(String name, boolean create) throws RRepositoryException, FileNotFoundException {
-        String rootPath;
-        Node root;
-        if (designPath != null && name.startsWith(designPath)) {
-            rootPath = designPath;
-            root = defRulesLocation;
-        } else if (deployConfigPath != null && name.startsWith(deployConfigPath)) {
-            rootPath = deployConfigPath;
-            root = defDeploymentConfigLocation;
-        } else if (deployPath != null && name.startsWith(deployPath)) {
-            rootPath = deployPath;
-            root = deployLocation;
-        } else {
-            throw new IllegalArgumentException("File [" + name + "] is not allowed." );
-        }
-        String projectName = name.substring(rootPath.length() + 1);
         FolderAPI project;
         try {
-            Node n = checkFolder(root, projectName, false);
+            Node root = session.getRootNode();
+            Node n = checkFolder(root, name, false);
             if (n != null) {
-                project = new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{projectName}));
+                project = new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{name.substring(name.lastIndexOf("/") + 1)}));
             } else if (create) {
-                project = createArtifact(root, projectName);
+                project = createArtifact(root, name);
             } else {
                 project = null;
             }
         } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to get an artifact ''{0}''", e, projectName);
+            throw new RRepositoryException("Failed to get an artifact ''{0}''", e, name);
         }
         return project;
     }
