@@ -32,7 +32,6 @@ import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.StringTool;
@@ -159,8 +158,8 @@ public class RepositoryService {
             ZipUtils.extractAll(zipFile, zipFolder);
 
             ArtefactPathImpl path = new ArtefactPathImpl(name);
-            LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(getUser(), workspaceLocation, null, null);
-            FileRepository repository = new FileRepository(workspaceLocation);
+            FileRepository repository = new FileRepository();
+            repository.setRoot(workspaceLocation);
             repository.initialize();
             AProject newProject = new AProject(repository, path.getStringValue(), true);
             newProject.setVersionComment(comment);

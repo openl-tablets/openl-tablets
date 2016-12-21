@@ -23,7 +23,8 @@ public class FileRepositoryTest {
     public void test() throws Exception {
         File root = new File("target/test-file-repository/");
         FileUtils.deleteQuietly(root);
-        FileRepository repo = new FileRepository(root);
+        FileRepository repo = new FileRepository();
+        repo.setRoot(root);
         repo.initialize();
         testRepo(repo);
     }

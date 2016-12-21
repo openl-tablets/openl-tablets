@@ -28,11 +28,7 @@ public class FileRepository implements Repository, RRepositoryFactory, Closeable
     private Timer timer;
     private Listener listener;
 
-    public FileRepository(String uri, String login, String password, boolean designMode) {
-        this(new File(uri));
-    }
-
-    public FileRepository(File root) {
+    public void setRoot(File root) {
         this.root = root;
     }
 

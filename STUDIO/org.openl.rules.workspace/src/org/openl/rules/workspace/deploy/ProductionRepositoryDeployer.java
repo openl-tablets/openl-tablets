@@ -21,7 +21,6 @@ import org.openl.rules.repository.file.FileRepository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.deploy.impl.jcr.JcrProductionDeployer;
-import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 import org.openl.util.FileUtils;
 import org.openl.util.ZipUtils;
 import org.slf4j.Logger;
@@ -99,8 +98,8 @@ public class ProductionRepositoryDeployer {
 
             // Create a deployment project
             ArtefactPathImpl path = new ArtefactPathImpl(name);
-            LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(user, workspaceLocation, null, null);
-            FileRepository localRepository = new FileRepository(workspaceLocation);
+            FileRepository localRepository = new FileRepository();
+            localRepository.setRoot(workspaceLocation);
             localRepository.initialize();
             ADeploymentProject project = new ADeploymentProject(user, localRepository, path.getStringValue(), null);
             AProject projectToDeploy = new AProject(localRepository, path.getStringValue(), true);

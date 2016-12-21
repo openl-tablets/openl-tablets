@@ -13,7 +13,7 @@ public class LocalRepository extends FileRepository {
     private final PropertiesEngine propertiesEngine;
 
     public LocalRepository(File location) {
-        super(location);
+        setRoot(location);
         propertiesEngine = new PropertiesEngine(location);
     }
 
