@@ -34,7 +34,6 @@ public abstract class AbstractJcrRepositoryFactory extends ZipJcrRepository impl
     protected String uri;
     protected String login;
     protected String password;
-    boolean designRepositoryMode = false;
 
     public void setUri(String uri) {
         this.uri = uri;
@@ -46,10 +45,6 @@ public abstract class AbstractJcrRepositoryFactory extends ZipJcrRepository impl
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public void setDesignMode(String designMode) {
-        this.designRepositoryMode = Boolean.valueOf(designMode);
     }
 
     /**
@@ -103,7 +98,7 @@ public abstract class AbstractJcrRepositoryFactory extends ZipJcrRepository impl
         Session session = null;
         try {
             session = createSession();
-            init(session, designRepositoryMode);
+            init(session);
         } catch (RepositoryException e) {
             if (session != null){
                 session.logout();

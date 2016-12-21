@@ -21,10 +21,6 @@ public class JdbcDBRepositoryFactory extends BaseDBRepositoryFactory {
         this.uri = uri;
     }
 
-    public void setDesignMode(String designMode) {
-        // Empty. It needs for compatibility.
-    }
-
     @Override
     protected Connection getConnection() throws SQLException {
         return DriverManager.getConnection(uri, login, password);

@@ -57,7 +57,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     // In this case there is no need to store a strong reference to the listener: current field is used only to remove
     // old instance. If it's GC-ed, no need to remove it.
 
-    protected void init(Session session, boolean designRepositoryMode) throws RRepositoryException, RepositoryException {
+    protected void init(Session session) throws RRepositoryException, RepositoryException {
         this.session = session;
         int eventTypes = Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED | Event.PROPERTY_REMOVED | Event.PROPERTY_CHANGED | Event.NODE_REMOVED;
         String[] nodeTypeName = {JcrNT.NT_COMMON_ENTITY};

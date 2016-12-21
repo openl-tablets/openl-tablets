@@ -104,7 +104,6 @@ public class RepositoryFactoryInstatiator {
             params.put("uri", uri);
             params.put("login", login);
             params.put("password", password);
-            params.put("designMode", Boolean.toString(designMode));
 
             return RepositoryInstatiator.newRepository(clazz, params);
         } catch (Exception e) {

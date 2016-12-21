@@ -33,10 +33,6 @@ public class DatasourceDBRepositoryFactory extends BaseDBRepositoryFactory {
         this.password = password;
     }
 
-    public void setDesignMode(String designMode) {
-        // Empty. It needs for compatibility.
-    }
-
     @Override
     protected Connection getConnection() throws SQLException {
         if (StringUtils.isBlank(login)) {
