@@ -62,7 +62,7 @@ public class DeploymentManager implements InitializingBean {
             StringBuilder sb = new StringBuilder(project.getName());
             ProjectVersion projectVersion = project.getVersion();
             if (projectVersion != null) {
-                int version = DeployUtils.getNextDeploymentVersion(deployRepo, project);
+                int version = DeployUtils.getNextDeploymentVersion(deployRepo, project.getName());
                 sb.append('#').append(version);
             }
             DeployID id = new DeployID(sb.toString());
