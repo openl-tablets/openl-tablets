@@ -92,8 +92,8 @@ public class FileRepository implements Repository, RRepositoryFactory, Closeable
     }
 
     @Override
-    public boolean delete(String name) {
-        File file = new File(root, name);
+    public boolean delete(FileData data) {
+        File file = new File(root, data.getName());
         boolean deleted = file.delete();
         // Delete empty parent folders
         while (!(file = file.getParentFile()).equals(root) && file.delete());
@@ -170,7 +170,9 @@ public class FileRepository implements Repository, RRepositoryFactory, Closeable
 
     @Override
     public boolean deleteHistory(String name, String version) {
-        return version == null && delete(name);
+        FileData fileData = new FileData();
+        fileData.setName(name);
+        return version == null && delete(fileData);
     }
 
     @Override

@@ -82,7 +82,7 @@ public class AProjectArtefact implements PropertiesContainer {
 
     public void delete() throws ProjectException {
         FileData fileData = getFileData();
-        if (!getRepository().delete(fileData.getName())) {
+        if (!getRepository().delete(fileData)) {
             throw new ProjectException("Resource is absent or can't be deleted");
         }
     }

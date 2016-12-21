@@ -76,7 +76,7 @@ public class RulesProject extends UserWorkspaceProject {
     private void deleteFromLocalRepository() throws ProjectException {
         try {
             for (FileData fileData : localRepository.list(localFolderName)) {
-                if (!localRepository.delete(fileData.getName())) {
+                if (!localRepository.delete(fileData)) {
                     throw new ProjectException("Can't close project because some resources are used");
                 }
             }

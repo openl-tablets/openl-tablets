@@ -47,8 +47,8 @@ public class MockRepository implements Repository {
     }
 
     @Override
-    public boolean delete(String path) {
-        return fileDataMap.remove(path) != null || fileItemMap.remove(path) != null;
+    public boolean delete(FileData path) {
+        return fileDataMap.remove(path.getName()) != null || fileItemMap.remove(path.getName()) != null;
     }
 
     @Override

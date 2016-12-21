@@ -100,10 +100,10 @@ public abstract class DBRepository implements Repository, Closeable {
     }
 
     @Override
-    public boolean delete(String path) {
+    public boolean delete(FileData path) {
         FileData data;
         try {
-            data = getLatestVersionFileData(path);
+            data = getLatestVersionFileData(path.getName());
         } catch (IOException e) {
             log.error(e.getMessage(), e);
             return false;

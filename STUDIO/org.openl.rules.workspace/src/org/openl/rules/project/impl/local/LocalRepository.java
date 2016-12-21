@@ -40,10 +40,10 @@ public class LocalRepository extends FileRepository {
     }
 
     @Override
-    public boolean delete(String name) {
-        boolean deleted = super.delete(name);
+    public boolean delete(FileData data) {
+        boolean deleted = super.delete(data);
         if (deleted) {
-            notifyModified(name);
+            notifyModified(data.getName());
         }
         return deleted;
     }
