@@ -319,34 +319,12 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
 
     @Override
     public FileData copy(String srcPath, FileData destData) throws IOException {
-        try {
-            if (getArtefact(srcPath) == null) {
-                throw new ProjectException("Project ''{0}'' is absent in the repository!", null, srcPath);
-            }
-            String name = destData.getName();
-            if (getArtefact(name) != null) {
-                throw new ProjectException("Project ''{0}'' is already exist in the repository!", null, destData);
-            }
-
-            // TODO Only create
-            FolderAPI srcProject = getOrCreateProject(name, true);
-            FolderAPI destProject = getOrCreateProject(name, true);
-            copy(srcProject, destProject);
-
-            return createFileData(name, destProject);
-        } catch (CommonException e) {
-            throw new IOException(e);
-        }
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public FileData rename(String path, FileData destData) throws IOException {
-        try {
-            String name = destData.getName();
-            return createFileData(name, rename(path, name));
-        } catch (CommonException e) {
-            throw new IOException(e);
-        }
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -441,23 +419,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
 
     @Override
     public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
-        try {
-            if (getArtefact(srcName) == null) {
-                throw new ProjectException("Project ''{0}'' is absent in the repository!", null, srcName);
-            }
-            String name = destData.getName();
-            if (getArtefact(name) != null) {
-                throw new ProjectException("Project ''{0}'' is already exist in the repository!", null, destData);
-            }
-
-            FolderAPI sourceProject = getOrCreateProject(srcName, true).getVersion(new CommonVersionImpl(Integer.parseInt(version)));
-            FolderAPI destProject = getOrCreateProject(name, true);// TODO Only create
-            copy(sourceProject, destProject);
-
-            return createFileData(name, destProject);
-        } catch (CommonException e) {
-            throw new IOException(e);
-        }
+        throw new UnsupportedOperationException();
     }
 
     private CommonUser getUser() {
@@ -594,16 +556,6 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
         return hasEntries;
     }
 
-    private void copy(FolderAPI source, FolderAPI destination) throws ProjectException {
-        for (ArtefactAPI artefact : source.getArtefacts()) {
-            String name = artefact.getName();
-            if (artefact.isFolder()) {
-                copy((FolderAPI) artefact, destination.addFolder(name));
-            } else {
-                destination.addResource(name, ((ResourceAPI) artefact).getContent());
-            }
-        }
-    }
     private Node checkFolder(Node root, String aPath) throws RepositoryException {
         Node node = root;
         String[] paths = aPath.split("/");
@@ -692,15 +644,6 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             } else {
                 return new JcrFolderAPI(node, path);
             }
-        }
-    }
-
-    private ArtefactAPI rename(String path, String destination) throws RRepositoryException {
-        try {
-            session.move(path, destination);
-            return getArtefact(destination);
-        } catch (RepositoryException e) {
-            throw new RRepositoryException(e.getMessage(), e);
         }
     }
 
