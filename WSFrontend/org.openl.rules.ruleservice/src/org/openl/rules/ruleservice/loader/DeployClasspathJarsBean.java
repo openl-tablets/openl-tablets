@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
+import java.util.Map;
 
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
@@ -23,7 +24,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
     private final Logger log = LoggerFactory.getLogger(DeployClasspathJarsBean.class);
 
     private boolean enabled = false;
-    private String configurationFile;
+    private Map<String, Object> configuration;
 
     public boolean isEnabled() {
         return enabled;
@@ -36,12 +37,8 @@ public class DeployClasspathJarsBean implements InitializingBean {
     public DeployClasspathJarsBean() {
     }
 
-    public String getConfigurationFile() {
-        return configurationFile;
-    }
-
-    public void setConfigurationFile(String configurationFile) {
-        this.configurationFile = configurationFile;
+    public void setConfiguration(Map<String, Object> configuration) {
+        this.configuration = configuration;
     }
     
     private void deployJarForJboss(URL resourceURL,
@@ -75,7 +72,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
 
                     File tmpJarFile = new File(tempDir, name);
                     ZipUtils.archive(newProjectDir, tmpJarFile);
-                    productionRepositoryDeployer.deploy(tmpJarFile, configurationFile);
+                    productionRepositoryDeployer.deployInternal(tmpJarFile, configuration, true);
                 } finally {
                     /* Clean up */
                     FileUtils.deleteQuietly(tempDir);
@@ -123,7 +120,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
                 throw new IOException("File not found. File: " + file.getAbsolutePath());
             }
 
-            productionRepositoryDeployer.deploy(file, configurationFile);
+            productionRepositoryDeployer.deployInternal(file, configuration, true);
         }
     }
 }

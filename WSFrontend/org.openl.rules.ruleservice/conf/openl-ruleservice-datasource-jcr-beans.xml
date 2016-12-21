@@ -27,7 +27,14 @@
     </bean>
 
     <bean id="deployClasspathJarsBean" class="org.openl.rules.ruleservice.loader.DeployClasspathJarsBean" lazy-init="true">
-        <property name="configurationFile" value="${ruleservice.datasource.repositoryPropertiesFile}"/>
+        <property name="configuration">
+            <map>
+                <entry key="production-repository.factory" value="${production-repository.factory}"/>
+                <entry key="production-repository.uri" value="${production-repository.uri}"/>
+                <entry key="production-repository.login" value="${production-repository.login}"/>
+                <entry key="production-repository.password" value="${production-repository.password}"/>
+            </map>
+        </property>
         <property name="enabled" value="#{${ruleservice.datasource.deploy.classpath.jars} and '${ruleservice.datasource.type}' eq 'jcr'}"/>
     </bean>
 </beans>
