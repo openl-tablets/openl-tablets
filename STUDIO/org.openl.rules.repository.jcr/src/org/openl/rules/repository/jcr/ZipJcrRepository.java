@@ -564,32 +564,13 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
         return node;
     }
 
-    private Node findNode(String aPath) throws RepositoryException {
-        Node node = session.getRootNode();
-        String[] paths = aPath.split("/");
-        for (String path : paths) {
-            if (path.length() == 0) {
-                continue; // first element (root folder) or illegal path
-            }
-
-            if (node.hasNode(path)) {
-                // go deeper
-                node = node.getNode(path);
-            } else {
-                return null;
-            }
-        }
-
-        return node;
-    }
-
     protected Session getSession() {
         return session;
     }
 
     private ArtefactAPI getArtefact(String name) throws RRepositoryException {
         try {
-            Node node = findNode(name);
+            Node node = checkFolder(session.getRootNode(), name, false);
             if (node == null) {
                 return null;
             }
