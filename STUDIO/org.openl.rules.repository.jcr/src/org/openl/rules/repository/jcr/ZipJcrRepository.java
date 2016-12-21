@@ -53,55 +53,15 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     private final Logger log = LoggerFactory.getLogger(ZipJcrRepository.class);
 
     private Session session;
-    private String designPath;
-    private Node defRulesLocation;
-    private String deployConfigPath;
-    private Node defDeploymentConfigLocation;
-    private String deployPath;
-    private Node deployLocation;
     private Listener listener;
     // In this case there is no need to store a strong reference to the listener: current field is used only to remove
     // old instance. If it's GC-ed, no need to remove it.
 
     protected void init(Session session, boolean designRepositoryMode) throws RRepositoryException, RepositoryException {
         this.session = session;
-        String root;
-        if (designRepositoryMode) {
-            designPath = "DESIGN/rules";
-            defRulesLocation = getNode(session, designPath);
-            deployConfigPath = "DESIGN/deployments";
-            defDeploymentConfigLocation = getNode(session, deployConfigPath);
-            root = "/DESIGN/";
-        } else {
-            deployPath = "deploy";
-            deployLocation = getNode(session, deployPath);
-            root = "/deploy/";
-        }
         int eventTypes = Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED | Event.PROPERTY_REMOVED | Event.PROPERTY_CHANGED | Event.NODE_REMOVED;
-        session.getWorkspace().getObservationManager().addEventListener(this, eventTypes, root, true, null, null, false);
-    }
-
-    private Node getNode(Session session, String aPath) throws RepositoryException {
-        Node node = session.getRootNode();
-        String[] paths = aPath.split("/");
-        for (String path : paths) {
-            if (path.length() == 0) {
-                continue; // first element (root folder) or illegal path
-            }
-
-            if (node.hasNode(path)) {
-                // go deeper
-                node = node.getNode(path);
-            } else {
-                // create new
-                node = node.addNode(path);
-            }
-        }
-        if (node.isNew()) {
-            session.save();
-        }
-
-        return node;
+        String[] nodeTypeName = {JcrNT.NT_COMMON_ENTITY};
+        session.getWorkspace().getObservationManager().addEventListener(this, eventTypes, "/", true, null, nodeTypeName, false);
     }
 
     @Override
@@ -110,15 +70,15 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             path = path.substring(0, path.length() - 1);
         }
         try {
+            Node node = checkFolder(session.getRootNode(), path, false);
             List<FileData> result = new ArrayList<FileData>();
-            List<FolderAPI> projects;
-            if (designPath != null && designPath.equals(path)) {
-                projects = getChildren(defRulesLocation);
-            } else if (deployConfigPath != null && deployConfigPath.equals(path)) {
-                projects = getChildren(defDeploymentConfigLocation);
-            } else if (deployPath != null && deployPath.equals(path)) {
-                List<FolderAPI> deployments = getChildren(deployLocation);
-                for (FolderAPI deployment : deployments) {
+            if (node == null) {
+                return result;
+            }
+            List<FolderAPI> projects = getChildren(node);
+
+            if (path.equals("deploy")) {
+                for (FolderAPI deployment : projects) {
                     for (ArtefactAPI artefactAPI : deployment.getArtefacts()) {
                         if (artefactAPI instanceof FolderAPI) {
                             result.add(createFileData(path + "/" + deployment.getName() + "/" + artefactAPI.getName(), artefactAPI));
@@ -127,30 +87,15 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
                 }
                 return result;
             } else {
-                ArtefactAPI artefact = getArtefact(path);
-                if (artefact == null) {
-                    return result;
-                } else if (deployPath != null && path.startsWith(deployPath)) {
-                    projects = new ArrayList<FolderAPI>();
-                    FolderAPI deploymentProject = (FolderAPI) artefact;
-                    for (ArtefactAPI artefactAPI : deploymentProject.getArtefacts()) {
-                        if (artefactAPI instanceof FolderAPI) {
-                            projects.add((FolderAPI) artefactAPI);
-                        }
-                    }
-                } else {
-                    result.add(createFileData(path, artefact));
-                    return result;
+                for (FolderAPI project : projects) {
+                    result.add(createFileData(path + "/" + project.getName(), project));
                 }
-
-            }
-
-            for (FolderAPI project : projects) {
-                result.add(createFileData(path + "/" + project.getName(), project));
             }
 
             return result;
         } catch (CommonException e) {
+            throw new IOException(e);
+        } catch (RepositoryException e) {
             throw new IOException(e);
         }
     }
