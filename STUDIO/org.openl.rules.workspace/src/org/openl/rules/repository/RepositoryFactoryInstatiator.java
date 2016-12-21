@@ -1,8 +1,11 @@
 package org.openl.rules.repository;
 
+import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openl.config.PassCoder;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.slf4j.Logger;
@@ -57,6 +60,15 @@ public class RepositoryFactoryInstatiator {
         String password = get(cfg, type + "password");
         String uri = get(cfg, type + "uri");
 
+        String privateKay = get(cfg, "repository.encode.decode.key");
+        try {
+            password = PassCoder.decode(password, privateKay);
+        } catch (GeneralSecurityException e) {
+            throw new RRepositoryException("Can't decode the password", e);
+        } catch (UnsupportedEncodingException e) {
+            throw new RRepositoryException(e.getMessage(), e);
+        }
+
         // TODO: Remove it in 2017
         String oldUriProp = getOldUriProperty(className);
         if (oldUriProp != null) {
@@ -92,7 +104,6 @@ public class RepositoryFactoryInstatiator {
             params.put("uri", uri);
             params.put("login", login);
             params.put("password", password);
-            params.put("designMode", Boolean.toString(designMode));
 
             return RepositoryInstatiator.newRepository(clazz, params);
         } catch (Exception e) {

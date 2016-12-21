@@ -1,6 +1,7 @@
 package org.openl.config;
 
-import org.junit.Assert;
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 
 /**
@@ -20,10 +21,10 @@ public class PassCoderTest {
         try {
             codedPass = PassCoder.encode(pass, key);
         } catch (Exception e) {
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
 
-        Assert.assertNotNull(codedPass);
+        assertNotNull(codedPass);
 
         String decodedPass = null;
 
@@ -33,14 +34,33 @@ public class PassCoderTest {
             // skip exception which wrong key
         }
 
-        Assert.assertNull(decodedPass);
+        assertNull(decodedPass);
 
         try {
             decodedPass = PassCoder.decode(codedPass, key);
         } catch (Exception e) {
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
 
-        Assert.assertEquals(pass, decodedPass);
+        assertEquals(pass, decodedPass);
+    }
+
+    @Test
+    public void testEmpty() throws Exception {
+        assertEquals("password", PassCoder.encode("password", ""));
+        assertEquals("password", PassCoder.encode("password", " "));
+        assertEquals("password", PassCoder.encode("password", null));
+        assertEquals("", PassCoder.encode("", "key"));
+        assertEquals("", PassCoder.encode(" ", "key"));
+        assertEquals("", PassCoder.encode(null, "key"));
+        assertEquals("", PassCoder.encode("", ""));
+
+        assertEquals("password", PassCoder.decode("password", ""));
+        assertEquals("password", PassCoder.decode("password", " "));
+        assertEquals("password", PassCoder.decode("password", null));
+        assertEquals("", PassCoder.decode("", "key"));
+        assertEquals("", PassCoder.decode(" ", "key"));
+        assertEquals("", PassCoder.decode(null, "key"));
+        assertEquals("", PassCoder.decode("", ""));
     }
 }

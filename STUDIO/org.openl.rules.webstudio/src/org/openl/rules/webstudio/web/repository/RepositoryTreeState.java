@@ -211,7 +211,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
      * Refreshes repositoryTreeState.selectedNode after rebuilding tree.
      */
     public void updateSelectedNode() {
-        Iterator<String> it = getSelectedNode().getData().getArtefactPath().getSegments().iterator();
+        AProjectArtefact artefact = getSelectedNode().getData();
+        if (artefact == null) {
+            return;
+        }
+        Iterator<String> it = artefact.getArtefactPath().getSegments().iterator();
         TreeNode currentNode = getRulesRepository();
         while ((currentNode != null) && it.hasNext()) {
             String id = RepositoryUtils.getTreeNodeId(it.next());

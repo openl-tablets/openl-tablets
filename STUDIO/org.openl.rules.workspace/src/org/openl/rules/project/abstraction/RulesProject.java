@@ -3,6 +3,7 @@ package org.openl.rules.project.abstraction;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.openl.rules.common.*;
@@ -184,7 +185,8 @@ public class RulesProject extends UserWorkspaceProject {
             if (designFolderName != null) {
                 fileDatas = designRepository.listHistory(designFolderName);
             } else {
-                fileDatas = localRepository.list(localFolderName);
+                // Local repository doesn't have versions
+                fileDatas = Collections.emptyList();
             }
         } catch (IOException ex) {
             throw RuntimeExceptionWrapper.wrap(ex);

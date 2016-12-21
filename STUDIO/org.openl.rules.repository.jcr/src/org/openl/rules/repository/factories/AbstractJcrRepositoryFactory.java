@@ -7,13 +7,10 @@ import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 import javax.jcr.nodetype.NodeTypeManager;
 
-import org.openl.rules.repository.RRepository;
 import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.jcr.ZipJcrRepository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.jcr.JcrNT;
-import org.openl.rules.repository.jcr.JcrProductionRepository;
-import org.openl.rules.repository.jcr.JcrRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +34,6 @@ public abstract class AbstractJcrRepositoryFactory extends ZipJcrRepository impl
     protected String uri;
     protected String login;
     protected String password;
-    boolean designRepositoryMode = false;
 
     public void setUri(String uri) {
         this.uri = uri;
@@ -49,10 +45,6 @@ public abstract class AbstractJcrRepositoryFactory extends ZipJcrRepository impl
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public void setDesignMode(String designMode) {
-        this.designRepositoryMode = Boolean.valueOf(designMode);
     }
 
     /**
@@ -106,14 +98,7 @@ public abstract class AbstractJcrRepositoryFactory extends ZipJcrRepository impl
         Session session = null;
         try {
             session = createSession();
-
-            RRepository theRepository;
-            if (designRepositoryMode) {
-                theRepository = new JcrRepository(session, "/DESIGN/rules", "/DESIGN/deployments");
-            } else {
-                theRepository = new JcrProductionRepository(session);
-            }
-            init(theRepository);
+            init(session);
         } catch (RepositoryException e) {
             if (session != null){
                 session.logout();

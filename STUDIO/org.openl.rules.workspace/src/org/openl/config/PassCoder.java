@@ -15,36 +15,49 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
+import org.openl.util.StringUtils;
 
 /**
  * @author Pavel Tarasevich
  * 
  */
+public final class PassCoder {
+    private static byte[] bytes = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    private static IvParameterSpec algorithmParameterSpec = new IvParameterSpec(bytes);
+    private static String encoding = "UTF-8";
 
-class PassCoder {
-    static byte[] iv = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    static IvParameterSpec ivspec = new IvParameterSpec(iv);
-    static private String encoding = "UTF-8";
+    private PassCoder() {
+    }
 
-    static String encode(String strToEncrypt, String privateKey) throws NoSuchAlgorithmException,
+    public static String encode(String strToEncrypt, String privateKey) throws NoSuchAlgorithmException,
             NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
             UnsupportedEncodingException, InvalidAlgorithmParameterException {
+        if (StringUtils.isBlank(strToEncrypt)) {
+            return "";
+        }
+        if (StringUtils.isBlank(privateKey)) {
+            return strToEncrypt;
+        }
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 
         SecretKeySpec secretKey = getKey(privateKey);
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivspec);
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey, algorithmParameterSpec);
         return new String(Base64.encodeBase64(cipher.doFinal(strToEncrypt.getBytes(encoding))));
     }
 
-    static String decode(String strToDecrypt, String privateKey) throws NoSuchAlgorithmException,
+    public static String decode(String strToDecrypt, String privateKey) throws NoSuchAlgorithmException,
             NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
             UnsupportedEncodingException, InvalidAlgorithmParameterException {
-        byte[] iv = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-        IvParameterSpec ivspec = new IvParameterSpec(iv);
+        if (StringUtils.isBlank(strToDecrypt)) {
+            return "";
+        }
+        if (StringUtils.isBlank(privateKey)) {
+            return strToDecrypt;
+        }
 
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         SecretKeySpec secretKey = getKey(privateKey);
-        cipher.init(Cipher.DECRYPT_MODE, secretKey, ivspec);
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, algorithmParameterSpec);
         return new String(cipher.doFinal(Base64.decodeBase64(strToDecrypt.getBytes(encoding))));
     }
 
