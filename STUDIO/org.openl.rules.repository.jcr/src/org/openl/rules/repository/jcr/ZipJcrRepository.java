@@ -443,23 +443,20 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             throw new IllegalArgumentException("File [" + name + "] is not allowed." );
         }
         String projectName = name.substring(rootPath.length() + 1);
-        FolderAPI project = getArtifact(root, projectName);
-        if (project == null && create) {
-            project = createArtifact(root, projectName);
+        FolderAPI project;
+        try {
+            Node n = checkFolder(root, projectName, false);
+            if (n != null) {
+                project = new JcrFolderAPI(n, new ArtefactPathImpl(new String[]{projectName}));
+            } else if (create) {
+                project = createArtifact(root, projectName);
+            } else {
+                project = null;
+            }
+        } catch (RepositoryException e) {
+            throw new RRepositoryException("Failed to get an artifact ''{0}''", e, projectName);
         }
         return project;
-    }
-
-    private FolderAPI getArtifact(Node root, String name) throws RRepositoryException {
-        try {
-            if (!root.hasNode(name)) {
-                return null;
-            }
-            Node n = root.getNode(name);
-            return new JcrFolderAPI(n, new ArtefactPathImpl(new String[] { name }));
-        } catch (RepositoryException e) {
-            throw new RRepositoryException("Failed to get an artifact ''{0}''", e, name);
-        }
     }
 
     private FolderAPI createArtifact(Node root, String path) throws RRepositoryException {
@@ -470,7 +467,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             if (lastSeparator >=0) {
                 String folder = path.substring(0, lastSeparator);
                 name = path.substring(lastSeparator + 1);
-                parent = checkFolder(root, folder);
+                parent = checkFolder(root, folder, true);
             } else {
                 name = path;
                 parent = root;
@@ -556,7 +553,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
         return hasEntries;
     }
 
-    private Node checkFolder(Node root, String aPath) throws RepositoryException {
+    private Node checkFolder(Node root, String aPath, boolean create) throws RepositoryException {
         Node node = root;
         String[] paths = aPath.split("/");
        for (String path : paths) {
@@ -567,12 +564,14 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             if (node.hasNode(path)) {
                 // go deeper
                 node = node.getNode(path);
-            } else {
+            } else if (create) {
                 // create new
                 Node n = NodeUtil.createNode(node, path, JcrNT.NT_FOLDER, true);
                 node.save();
                 n.save();
                 node = n;
+            } else {
+                return null;
             }
         }
 
@@ -618,7 +617,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
 
     private ResourceAPI createResource(String name, InputStream inputStream) throws RRepositoryException {
         try {
-            Node node = checkFolder(session.getRootNode(), name.substring(0, name.lastIndexOf("/")));
+            Node node = checkFolder(session.getRootNode(), name.substring(0, name.lastIndexOf("/")), true);
             ArtefactAPI artefact = createArtefactAPI(node, name);
             if (!(artefact instanceof FolderAPI)) {
                 throw new RepositoryException("Incorrect node type");
