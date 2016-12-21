@@ -1,192 +1,230 @@
 <!DOCTYPE html>
-<html
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:f="http://java.sun.com/jsf/core">
+<html xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core">
 
-    <h:head>
-        <title>Web Services Client Demo</title>
+<h:head>
+	<title>Web Services Client Demo</title>
 
-        <style>
-            body {
-                margin: 0;
-                color: #444;
-                font-family: Verdana, Helvetica, Arial;
-                font-size: 12px;
-            }
-            #header {
-                border-bottom: 1px solid #ccc;
-                font-family: Georgia, Verdana, Helvetica, Arial;
-                font-size: 20px;
-                color: #777;
-                padding: 11px 15px;
-            }
-            #main {
-                padding: 20px 20px 60px;
-                text-align: center;
-            }
-            #main > div {
-                display: inline-block;
-                text-align: left;
-                width: 700px;
-            }
-            #footer {
-                border-top: 1px solid #ccc;
-                font-size: 11px;
-                color: #666;
-                padding: 11px;
-                text-align: center;
-                background: #fff;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-            }
-            #footer a {
-                color: #666;
-            }
-            .description {
-                padding: 15px 0 32px;
-                border-bottom: 1px dashed #ddd;
-                line-height: 21px;
-            }
-            .description a {
-                color: #28b;
-                text-decoration: none;
-            }
-            h2 {
-                font-weight: normal;
-                font-size: 16px;
-                color: #28b;
-                margin: 29px 0 16px;
-            }
-            .methods > tbody > tr > td {
-                padding: 11px 5px;
-            }
-            .method-desc {
-                color: #9a9a9a;
-                line-height: 23px;
-            }
-            .methods input[type="submit"] {
-                border: 0;
-                border-left: 1px solid #ff8111;
-                padding: 6px 10px;
-                margin: 1px 81px;
-                color: #ff8111;
-                background: #fff;
-            }
-            .methods input[type="submit"]:hover {
-                cursor: pointer;
-            }
-            .methods > tbody > tr:hover input[type="submit"] {
-                color: #fff;
-                background: #ff8111;
-            }
-            .method-params td {
-                padding: 0 5px;
-                width: 110px;
-            }
-            .method-params input[type="text"] {
-                padding: 2px 3px;
-                border: 0;
-                border-bottom: 1px solid #bbb;
-                color: #444;
-            }
-            .result {
-                margin-top: 10px;
-                border-top: 1px solid #eee;
-            }
-            .result table td {
-                padding: 6px 5px;
-            }
-            .messages ul {
-                margin: 0 0 10px 5px;
-                padding: 0;
-                list-style-type: none;
-            }
-            .error {
-                color: red;
-            }
-        </style>
-    </h:head>
+	<style>
+body {
+	margin: 0;
+	color: #444;
+	font-family: Verdana, Helvetica, Arial;
+	font-size: 12px;
+}
 
-    <h:body>
-        <div id="header">Web Services Demo Client</div>
-        <div id="main">
-            <div>
-                <div class="description">
-                    This demo allows you to call rules from "Example 3 - Auto Policy Calculation" that are deployed as <a href="#{wSBean.address}?wsdl" target="_blank">web services</a> on the remote server.
-                    Keep in mind that the demo shows only the rules listed below. Any new added rules will not be displayed.
-                </div>
-                <h:form>
-                    <div>
-                        <h2>Rules to call</h2>
-                        <table class="methods">
-                            <tr>
-                                <td>DriverAgeType 
-                                    <div class="method-desc">Returns a type of driver by age and gender</div>
-                                    <table class="method-params">
-                                        <tr>
-                                            <td>Age</td>
-                                            <td><h:inputText size="4" value="#{wSBean.age}" /></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Gender</td>
-                                            <td><h:inputText size="6" value="#{wSBean.gender}" /></td>
-                                        </tr>
-                                    </table>
-                                </td>
-                                <td><h:commandButton value="Execute" action="#{wSBean.driverAgeType}" /></td>
-                            </tr>
-                            <tr>
-                                <td>AccidentPremium
-                                    <div class="method-desc">Returns auto accident premium</div>
-                                </td>
-                                <td><h:commandButton value="Execute" action="#{wSBean.accidentPremium}" immediate="true" /></td>
-                            </tr>
-                            <tr>
-                                <td>DriverRisk
-                                    <div class="method-desc">Returns a type of driver risk by number of incidents</div>
-                                    <table class="method-params">
-                                        <tr>
-                                            <td>DUI</td>
-                                            <td><h:inputText size="4" value="#{wSBean.numDUI}" /></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Accidents</td>
-                                            <td><h:inputText size="4" value="#{wSBean.numAccidents}" /></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Moving Violations</td>
-                                            <td><h:inputText size="4" value="#{wSBean.numMovingViolations}" /></td>
-                                        </tr>
-                                    </table>
-                                </td>
-                                <td><h:commandButton value="Execute" action="#{wSBean.driverRisk}" /></td>
-                            </tr>
-                        </table>
-                    </div>
+#header {
+	border-bottom: 1px solid #ccc;
+	font-family: Georgia, Verdana, Helvetica, Arial;
+	font-size: 20px;
+	color: #777;
+	padding: 11px 15px;
+}
 
-                    <h:panelGroup rendered="#{!empty wSBean.methodName}" layout="block" styleClass="result">
-                        <div>
-                            <h2>Result of calling <i style="color:#444"><h:outputText value="#{wSBean.methodName}" escape="false" /></i> rule</h2>
+#main {
+	padding: 20px 20px 60px;
+	text-align: center;
+}
 
-                            <h:dataTable value="#{wSBean.result}" var="res">
-                                <h:column>#{res}</h:column>
-                            </h:dataTable>
-                        </div>
+#main>div {
+	display: inline-block;
+	text-align: left;
+	width: 700px;
+}
 
-                        <div class="messages">
-                            <h:messages errorClass="error" />
-                        </div>
-                        <script>
-                            document.getElementsByClassName('result')[0].scrollIntoView();
-                        </script>
-                    </h:panelGroup>
-                </h:form>
-            </div>
-        </div>
-        <div id="footer">
-            &#169; 2016 <a style="text-decoration: none" href="http://openl-tablets.org" target="_blank">OpenL Tablets</a>
-        </div>
-    </h:body>
+#footer {
+	border-top: 1px solid #ccc;
+	font-size: 11px;
+	color: #666;
+	padding: 11px;
+	text-align: center;
+	background: #fff;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+
+#footer a {
+	color: #666;
+}
+
+.description {
+	padding: 15px 0 32px;
+	border-bottom: 1px dashed #ddd;
+	line-height: 21px;
+}
+
+.description a {
+	color: #28b;
+	text-decoration: none;
+}
+
+h2 {
+	font-weight: normal;
+	font-size: 16px;
+	color: #28b;
+	margin: 29px 0 16px;
+}
+
+.methods>tbody>tr>td {
+	padding: 11px 5px;
+}
+
+.method-desc {
+	color: #9a9a9a;
+	line-height: 23px;
+}
+
+.methods input[type="submit"] {
+	border: 0;
+	border-left: 1px solid #ff8111;
+	padding: 6px 10px;
+	margin: 1px 1px;
+	color: #ff8111;
+	background: #fff;
+}
+
+.methods input[type="submit"]:hover {
+	cursor: pointer;
+}
+
+.methods>tbody>tr:hover input[type="submit"] {
+	color: #fff;
+	background: #ff8111;
+}
+
+.method-params td {
+	padding: 0 5px;
+	
+}
+
+.method-params input[type="text"] {
+	padding: 2px 3px;
+	border: 0;
+	border-bottom: 1px solid #bbb;
+	color: #444;
+}
+
+.result {
+	margin-top: 10px;
+	border-top: 1px solid #eee;
+}
+
+.result table td {
+	padding: 6px 5px;
+}
+
+.messages ul {
+	margin: 0 0 10px 5px;
+	padding: 0;
+	list-style-type: none;
+}
+
+.error {
+	color: red;
+}
+</style>
+</h:head>
+
+<h:body>
+	<div id="header">Web Services Demo Client</div>
+	<div id="main">
+		<div>
+			<div class="description">
+				This demo allows you to call rules from "Example 3 - Auto Policy
+				Calculation" that are deployed as <a href="#{wSBean.address}?wsdl"
+					target="_blank">web services</a> on the remote server. Keep in mind
+				that the demo shows only the rules listed below. Any new added rules
+				will not be displayed.
+			</div>
+			<div>
+				<h2>Rules to call</h2>
+				<table class="methods">
+					<tr>
+						<td>DriverAgeType
+							<div class="method-desc">Returns a type of driver by age and gender</div>
+							<h:form>
+								<table class="method-params">
+									<tr>
+										<td>Age</td>
+										<td><h:inputText id="age" size="4" value="#{wSBean.age}" required="true" requiredMessage="The field is required" validatorMessage="Must be a nonnegative integer"><f:validateRegex pattern="[0-9]+"/></h:inputText></td>
+										<td><h:message errorClass="error" for="age" /></td>
+									</tr>
+									<tr>
+										<td>Gender</td>
+										<td><h:selectOneMenu value="#{wSBean.gender}">
+												<f:selectItem itemValue="Male" itemLabel="Male" />
+												<f:selectItem itemValue="Female" itemLabel="Female" />
+											</h:selectOneMenu></td>
+										<td></td>
+									</tr>
+								</table>
+								<h:commandButton value="Execute" action="#{wSBean.driverAgeType}" />
+							</h:form>
+						</td>
+					</tr>
+					<tr>
+						<td>AccidentPremium
+							<div class="method-desc">Returns auto accident premium</div>
+							<h:form><h:commandButton value="Execute" action="#{wSBean.accidentPremium}" immediate="true" /></h:form>
+						</td>
+					</tr>
+					<tr>
+						<td>DriverRisk
+							<div class="method-desc">Returns a type of driver risk by number of incidents</div>
+							<h:form>
+								<table class="method-params">
+									<tr>
+										<td>DUI</td>
+										<td><h:inputText id="numDUI" size="4" value="#{wSBean.numDUI}" required="true" requiredMessage="The field is required" validatorMessage="Must be a nonnegative integer"><f:validateRegex pattern="[0-9]+"/></h:inputText></td>
+										<td><h:message errorClass="error" for="numDUI" /></td>
+									</tr>
+									<tr>
+										<td>Accidents</td>
+										<td><h:inputText id="numAccidents" size="4" value="#{wSBean.numAccidents}" required="true" requiredMessage="The field is required" validatorMessage="Must be a nonnegative integer"><f:validateRegex pattern="[0-9]+"/></h:inputText></td>
+										<td><h:message errorClass="error" for="numAccidents" /></td>
+									</tr>
+									<tr>
+										<td>Moving Violations</td>
+										<td><h:inputText id="numMovingViolations" size="4" value="#{wSBean.numMovingViolations}" required="true" requiredMessage="The field is required" validatorMessage="Must be a nonnegative integer"><f:validateRegex pattern="[0-9]+"/></h:inputText></td>
+										<td><h:message errorClass="error" for="numMovingViolations" /></td>
+									</tr>
+								</table>
+								<h:commandButton value="Execute" action="#{wSBean.driverRisk}" />
+							</h:form>
+						</td>
+						
+					</tr>
+				</table>
+			</div>
+
+			<h:panelGroup rendered="#{!empty wSBean.methodName}" layout="block"
+				styleClass="result">
+				<div>
+					<h2>
+						Result of calling <i style="color: #444"><h:outputText
+								value="#{wSBean.methodName}" escape="false" /></i> rule
+					</h2>
+
+					<h:dataTable value="#{wSBean.result}" var="res">
+						<h:column>#{res}</h:column>
+					</h:dataTable>
+				</div>
+
+				<div class="messages">
+					<h:messages errorClass="error" />
+				</div>
+				<script>
+					document.getElementsByClassName('result')[0]
+							.scrollIntoView();
+				</script>
+			</h:panelGroup>
+		</div>
+	</div>
+	<div id="footer">
+		&#169; 2016 <a style="text-decoration: none"
+			href="http://openl-tablets.org" target="_blank">OpenL Tablets</a>
+	</div>
+</h:body>
 </html>

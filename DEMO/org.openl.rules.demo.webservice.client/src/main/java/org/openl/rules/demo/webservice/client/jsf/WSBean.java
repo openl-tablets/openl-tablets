@@ -12,59 +12,59 @@ import org.openl.rules.demo.webservice.client.WebServiceTemplate;
 public class WSBean {
 
     private String[] result;
-	private String methodName;
+    private String methodName;
 
-	private int age = 20;
-	private String gender = "Male";
+    private String age = "20";
+    private String gender = "Male";
 
-	private int numDUI;
-	private int numAccidents;
-	private int numMovingViolations;
+    private String numDUI = "0";
+    private String numAccidents = "0";
+    private String numMovingViolations = "0";
 
     // In future it can be changed to dynamic client
     private boolean useStaticClient = true;
 
-	public int getNumDUI() {
+    public String getNumDUI() {
         return numDUI;
     }
-	
-	public int getNumAccidents() {
+
+    public String getNumAccidents() {
         return numAccidents;
     }
-	
-	public int getNumMovingViolations() {
+
+    public String getNumMovingViolations() {
         return numMovingViolations;
     }
-	
-	public void setNumDUI(int numDUI) {
+
+    public void setNumDUI(String numDUI) {
         this.numDUI = numDUI;
     }
-	
-	public void setNumAccidents(int numAccidents) {
+
+    public void setNumAccidents(String numAccidents) {
         this.numAccidents = numAccidents;
     }
-	
-	public void setNumMovingViolations(int numMovingViolations) {
+
+    public void setNumMovingViolations(String numMovingViolations) {
         this.numMovingViolations = numMovingViolations;
     }
-	
-	public String[] getResult() {
-		return result;
-	}
 
-	public String getMethodName() {
-		return methodName;
-	}
+    public String[] getResult() {
+        return result;
+    }
 
-	public int getAge() {
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public String getAge() {
         return age;
     }
-	
-	public String getGender() {
+
+    public String getGender() {
         return gender;
     }
-	
-	public void setAge(int age) {
+
+    public void setAge(String age) {
         this.age = age;
     }
 
@@ -83,13 +83,16 @@ public class WSBean {
 
         if (useStaticClient) {
             try {
-                ret = WebServiceTemplate.getInstance().getStaticClientInterface().DriverRisk(numDUI, numAccidents, numMovingViolations);
+                ret = WebServiceTemplate.getInstance().getStaticClientInterface().DriverRisk(Integer.valueOf(numDUI),
+                    Integer.valueOf(numAccidents),
+                    Integer.valueOf(numMovingViolations));
             } catch (Exception e) {
                 e.printStackTrace();
-                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), null));
+                FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), null));
             }
         } else {
-            ret = (String) invoke(methodName, new Object[]{null, numDUI, numAccidents, numMovingViolations});
+            ret = (String) invoke(methodName, new Object[] { null, numDUI, numAccidents, numMovingViolations });
         }
 
         result = new String[] { ret };
@@ -104,10 +107,11 @@ public class WSBean {
             try {
                 ret = WebServiceTemplate.getInstance().getStaticClientInterface().AccidentPremium();
             } catch (Exception e) {
-                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), null));
+                FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), null));
             }
         } else {
-            ret = (Number) invoke(methodName, new Object[]{null});
+            ret = (Number) invoke(methodName, new Object[] { null });
         }
 
         result = new String[] { ret != null ? String.valueOf(ret.doubleValue()) : null };
@@ -119,9 +123,11 @@ public class WSBean {
         String ret = null;
         if (useStaticClient) {
             try {
-                ret = WebServiceTemplate.getInstance().getStaticClientInterface().DriverAgeType(gender, age);
+                ret = WebServiceTemplate.getInstance().getStaticClientInterface().DriverAgeType(gender,
+                    Integer.valueOf(age));
             } catch (Exception e) {
-                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), null));
+                FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), null));
             }
         } else {
             ret = (String) invoke(methodName, new Object[] { null, gender, age });
@@ -135,7 +141,8 @@ public class WSBean {
             WebServiceTemplate ws = WebServiceTemplate.getInstance();
             return ws.getClientInterface().invoke(method, params)[0];
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), null));
+            FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), null));
             return null;
         }
     }
