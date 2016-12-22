@@ -3,59 +3,18 @@ package org.openl.rules.repository.db;
 final class DatabaseQueries {
     static final String REPOSITORY_NAME = "openl_repository";
 
-    static final String SELECT_ALL_METAINFO = "select r1.id, r1.file_name, r1.file_size, r1.author, r1.file_comment, r1.modified_at, r1.version, case when r1.file_data is null then 1 else 0 end as deleted\n"
-            + "from openl_repository r1\n"
-            + "inner join (\n"
-            + "\tselect max(id) as id\n"
-            + "\tfrom openl_repository\n"
-            + "\twhere file_name like ? escape '$'\n"
-            + "\tgroup by file_name\n"
-            + ") r2\n"
-            + "on r1.id = r2.id\n"
-            + "order by r1.file_name";
-    static final String SELECT_ALL_HISTORY_METAINFO_FOR_FILE = "select id, file_name, file_size, author, file_comment, modified_at, version, case when file_data is null then 1 else 0 end as deleted\n"
-            + "from openl_repository\n"
-            + "where file_name = ?\n"
-            + "order by id";
-    static final String INSERT_FILE = "insert into openl_repository(file_name, file_size, author, file_comment, modified_at, version, file_data) values(?, ?, ?, ?, ?, ?, ?)";
-    static final String READ_ACTUAL_FILE = "select r1.id, r1.file_name, r1.file_size, r1.author, r1.file_comment, r1.modified_at, r1.version, case when r1.file_data is null then 1 else 0 end as deleted, r1.file_data\n"
-            + "from openl_repository r1\n"
-            + "inner join (\n"
-            + "\tselect max(id) as id\n"
-            + "\tfrom openl_repository\n"
-            + "\twhere file_name = ?\n"
-            + ") r2\n"
-            + "on r1.id = r2.id";
-    static final String READ_ACTUAL_FILE_METAINFO = "select r1.id, r1.file_name, r1.file_size, r1.author, r1.file_comment, r1.modified_at, r1.version, case when r1.file_data is null then 1 else 0 end as deleted\n"
-            + "from openl_repository r1\n"
-            + "inner join (\n"
-            + "\tselect max(id) as id\n"
-            + "\tfrom openl_repository\n"
-            + "\twhere file_name = ?\n"
-            + ") r2\n"
-            + "on r1.id = r2.id";
-    static final String READ_HISTORIC_FILE = "select id, file_name, file_size, author, file_comment, modified_at, version, case when file_data is null then 1 else 0 end as deleted, file_data\n"
-            + "from openl_repository\n"
-            + "where file_name = ? and version = ?";
-    static final String READ_HISTORIC_FILE_METAINFO = "select id, file_name, file_size, author, file_comment, modified_at, version, case when file_data is null then 1 else 0 end as deleted\n"
-            + "from openl_repository\n"
-            + "where file_name = ? and version = ?";
-    static final String DELETE_ALL_HISTORY = "delete from openl_repository where file_name = ?";
-    static final String DELETE_VERSION = "delete from openl_repository where file_name = ? and version = ?";
-    static final String SELECT_MAX_ID = "select max(id) as max_id, count(id) as count_id from openl_repository";
-    static final String COPY_FILE = "insert into openl_repository(file_name, file_size, author, file_comment, modified_at, version, file_data)\n"
-            + "select ? as file_name, r1.file_size, r1.author, r1.file_comment, ? as modified_at, ? as version, r1.file_data\n"
-            + "from openl_repository r1\n"
-            + "inner join (\n"
-            + "\tselect max(id) as id\n"
-            + "\tfrom openl_repository\n"
-            + "\twhere file_name = ?\n"
-            + ") r2\n"
-            + "on r1.id = r2.id";
-    static final String COPY_HISTORY = "insert into openl_repository(file_name, file_size, author, file_comment, modified_at, version, file_data)\n"
-            + "select ? as file_name, file_size, author, file_comment, ? as modified_at, ? as version, file_data\n"
-            + "from openl_repository\n"
-            + "where file_name = ? and version = ?";
+    static final String SELECT_ALL_METAINFO = "query.select-all-metainfo";
+    static final String SELECT_ALL_HISTORY_METAINFO = "query.select-all-history-metainfo";
+    static final String INSERT_FILE = "query.insert-file";
+    static final String READ_ACTUAL_FILE = "query.read-actual-file";
+    static final String READ_ACTUAL_FILE_METAINFO = "query.read-actual-file-metainfo";
+    static final String READ_HISTORIC_FILE = "query.read-historic-file";
+    static final String READ_HISTORIC_FILE_METAINFO = "query.read-historic-file-metainfo";
+    static final String DELETE_ALL_HISTORY = "query.delete-all-history";
+    static final String DELETE_VERSION = "query.delete-version";
+    static final String SELECT_MAX_ID = "query.select-max-id";
+    static final String COPY_FILE = "query.copy-file";
+    static final String COPY_HISTORY = "query.copy-history";
 
     static final class Initial {
         static final String H2_TABLE = "CREATE TABLE openl_repository (\n"

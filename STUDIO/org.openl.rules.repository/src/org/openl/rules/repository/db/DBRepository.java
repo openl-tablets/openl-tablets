@@ -22,6 +22,8 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
     private Listener listener;
     private Timer timer;
 
+    private Map<String, String> queries;
+
     @Override
     public List<FileData> list(String path) throws IOException {
         Connection connection = null;
@@ -29,7 +31,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(DatabaseQueries.SELECT_ALL_METAINFO);
+            statement = connection.prepareStatement(queries.get(DatabaseQueries.SELECT_ALL_METAINFO));
             statement.setString(1, makePathPattern(path));
             rs = statement.executeQuery();
 
@@ -64,7 +66,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(DatabaseQueries.READ_ACTUAL_FILE);
+            statement = connection.prepareStatement(queries.get(DatabaseQueries.READ_ACTUAL_FILE));
             statement.setString(1, name);
             rs = statement.executeQuery();
 
@@ -134,7 +136,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             String newVersion = UUID.randomUUID().toString();
 
             connection = getConnection();
-            statement = connection.prepareStatement(DatabaseQueries.COPY_FILE);
+            statement = connection.prepareStatement(queries.get(DatabaseQueries.COPY_FILE));
             statement.setString(1, destData.getName());
             statement.setTimestamp(2, new Timestamp(new Date().getTime()));
             statement.setString(3, newVersion);
@@ -181,7 +183,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                     ResultSet rs = null;
                     try {
                         connection = getConnection();
-                        statement = connection.prepareStatement(DatabaseQueries.SELECT_MAX_ID);
+                        statement = connection.prepareStatement(queries.get(DatabaseQueries.SELECT_MAX_ID));
                         rs = statement.executeQuery();
 
                         if (rs.next()) {
@@ -219,7 +221,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(DatabaseQueries.SELECT_ALL_HISTORY_METAINFO_FOR_FILE);
+            statement = connection.prepareStatement(queries.get(DatabaseQueries.SELECT_ALL_HISTORY_METAINFO));
             statement.setString(1, name);
             rs = statement.executeQuery();
 
@@ -254,7 +256,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(DatabaseQueries.READ_HISTORIC_FILE);
+            statement = connection.prepareStatement(queries.get(DatabaseQueries.READ_HISTORIC_FILE));
             statement.setString(1, name);
             statement.setString(2, version);
             rs = statement.executeQuery();
@@ -284,7 +286,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             PreparedStatement statement = null;
             try {
                 connection = getConnection();
-                statement = connection.prepareStatement(DatabaseQueries.DELETE_ALL_HISTORY);
+                statement = connection.prepareStatement(queries.get(DatabaseQueries.DELETE_ALL_HISTORY));
                 statement.setString(1, name);
                 int rows = statement.executeUpdate();
 
@@ -306,7 +308,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             PreparedStatement statement = null;
             try {
                 connection = getConnection();
-                statement = connection.prepareStatement(DatabaseQueries.DELETE_VERSION);
+                statement = connection.prepareStatement(queries.get(DatabaseQueries.DELETE_VERSION));
                 statement.setString(1, name);
                 statement.setString(2, version);
                 int rows = statement.executeUpdate();
@@ -339,7 +341,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             String newVersion = UUID.randomUUID().toString();
 
             connection = getConnection();
-            statement = connection.prepareStatement(DatabaseQueries.COPY_HISTORY);
+            statement = connection.prepareStatement(queries.get(DatabaseQueries.COPY_HISTORY));
             statement.setString(1, destData.getName());
             statement.setTimestamp(2, new Timestamp(new Date().getTime()));
             statement.setString(3, newVersion);
@@ -366,7 +368,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(DatabaseQueries.READ_ACTUAL_FILE_METAINFO);
+            statement = connection.prepareStatement(queries.get(DatabaseQueries.READ_ACTUAL_FILE_METAINFO));
             statement.setString(1, name);
             rs = statement.executeQuery();
 
@@ -394,7 +396,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(DatabaseQueries.READ_HISTORIC_FILE_METAINFO);
+            statement = connection.prepareStatement(queries.get(DatabaseQueries.READ_HISTORIC_FILE_METAINFO));
             statement.setString(1, name);
             statement.setString(2, version);
             rs = statement.executeQuery();
@@ -499,7 +501,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         PreparedStatement statement = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(DatabaseQueries.INSERT_FILE);
+            statement = connection.prepareStatement(queries.get(DatabaseQueries.INSERT_FILE));
 
             String version = UUID.randomUUID().toString();
 
@@ -539,7 +541,13 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                     .replace(" ", "_"));
 
             initializeTable(connection, databaseType);
+
+            queries = new HashMap<String, String>();
+            fillQueries(queries, "/openl-db-repository.properties");
+            fillQueries(queries, "/openl-db-repository-" + databaseType.getCode() + ".properties");
         } catch (SQLException e) {
+            throw new RRepositoryException("Can't initialize repository", e);
+        } catch (IOException e) {
             throw new RRepositoryException("Can't initialize repository", e);
         }
     }
@@ -625,6 +633,23 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             return rs.next();
         } finally {
             safeClose(rs);
+        }
+    }
+
+    private void fillQueries(Map<String, String> queries, String propertiesFileName) throws IOException {
+        InputStream is = getClass().getResourceAsStream(propertiesFileName);
+        if (is == null) {
+            return;
+        }
+        try {
+            Properties properties = new Properties();
+            properties.load(is);
+            for (String key : properties.stringPropertyNames()) {
+                queries.put(key, properties.getProperty(key));
+            }
+            is.close();
+        } finally {
+            IOUtils.closeQuietly(is);
         }
     }
 }
