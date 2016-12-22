@@ -10,7 +10,7 @@ import javax.sql.DataSource;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.StringUtils;
 
-public class DatasourceDBRepositoryFactory extends BaseDBRepositoryFactory {
+public class DatasourceDBRepositoryFactory extends DBRepository {
 
     private DataSource dataSource;
     private String uri;
