@@ -540,11 +540,11 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                     .toLowerCase()
                     .replace(" ", "_"));
 
-            initializeTable(connection, databaseType);
-
             queries = new HashMap<String, String>();
             fillQueries(queries, "/openl-db-repository.properties");
             fillQueries(queries, "/openl-db-repository-" + databaseType.getCode() + ".properties");
+
+            initializeTable(connection, databaseType);
         } catch (SQLException e) {
             throw new RRepositoryException("Can't initialize repository", e);
         } catch (IOException e) {
@@ -582,35 +582,29 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
 
     private void initializeTable(Connection connection, DatabaseType databaseType) throws SQLException {
         if (!tableExists(connection, databaseType)) {
-            switch (databaseType) {
-                case H2:
-                    createTable(connection, DatabaseQueries.Initial.H2_TABLE);
-                    break;
-                case MYSQL:
-                    createTable(connection, DatabaseQueries.Initial.MYSQL_TABLE);
-                    break;
-                case POSTGRESQL:
-                    createTable(connection, DatabaseQueries.Initial.POSTGRESQL_TABLE);
-                    break;
-                case ORACLE:
-                    createTable(connection, DatabaseQueries.Initial.ORACLE_TABLE, DatabaseQueries.Initial.ORACLE_SEQUENCE, DatabaseQueries.Initial.ORACLE_TRIGGER);
-                    break;
-                case SQL_SERVER:
-                    createTable(connection, DatabaseQueries.Initial.SQLSERVER_TABLE);
-                    break;
-                default:
-                    throw new UnsupportedOperationException("Unsupported database " + connection.getMetaData().getDatabaseProductName());
+            List<String> queryKeys = new ArrayList<String>();
+            for (String key : queries.keySet()) {
+                if (key.startsWith(DatabaseQueries.INIT_PREFIX)) {
+                    queryKeys.add(key);
+                }
+            }
+
+            Collections.sort(queryKeys);
+
+            for (String key : queryKeys) {
+                String query = queries.get(key);
+                if (!StringUtils.isBlank(query)) {
+                    createTable(connection, query);
+                }
             }
         }
     }
 
-    private void createTable(Connection connection, String... queries) throws SQLException {
+    private void createTable(Connection connection, String query) throws SQLException {
         Statement statement = null;
         try {
             statement = connection.createStatement();
-            for (String query : queries) {
-                statement.execute(query);
-            }
+            statement.execute(query);
         } finally {
             safeClose(statement);
         }
