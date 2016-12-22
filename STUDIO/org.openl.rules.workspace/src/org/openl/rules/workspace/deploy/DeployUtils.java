@@ -107,10 +107,4 @@ public final class DeployUtils {
         return deployments.values();
     }
 
-    public static Deployment getDeployment(Repository repository,
-            String deploymentName,
-            CommonVersion deploymentVersion) {
-        String name = deploymentName + SEPARATOR + deploymentVersion.getVersionName();
-        return new Deployment(repository, DEPLOY_PATH + name, deploymentName, deploymentVersion, false);
-    }
 }

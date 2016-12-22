@@ -50,7 +50,8 @@ public class JcrDataSource implements DataSource {
             deploymentName,
             deploymentVersion.getVersionName());
 
-        return DeployUtils.getDeployment(repository, deploymentName, deploymentVersion);
+        String name = deploymentName + DeployUtils.SEPARATOR + deploymentVersion.getVersionName();
+        return new Deployment(repository, DeployUtils.DEPLOY_PATH + name, deploymentName, deploymentVersion, false);
     }
 
     /**
