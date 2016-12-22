@@ -32,6 +32,10 @@ public class FileRepository implements Repository, RRepositoryFactory, Closeable
         this.root = root;
     }
 
+    public void setUri(String path) {
+        this.root = new File(path);
+    }
+
     public void initialize() throws RRepositoryException {
         try {
             init();
