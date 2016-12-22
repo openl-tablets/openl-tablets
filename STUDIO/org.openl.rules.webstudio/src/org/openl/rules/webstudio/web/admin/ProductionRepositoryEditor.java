@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
-import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
+import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.StringUtils;
 

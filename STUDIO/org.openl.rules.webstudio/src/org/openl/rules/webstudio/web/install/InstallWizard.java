@@ -7,7 +7,7 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.db.utils.DBUtils;
-import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
+import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
 import org.openl.rules.webstudio.web.admin.*;

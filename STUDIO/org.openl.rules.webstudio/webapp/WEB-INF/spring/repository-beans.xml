@@ -19,7 +19,7 @@
     <property name="designTimeRepository" ref="designTimeRepository" />
   </bean>
 
-  <bean id="productionRepositoryFactoryProxy" class="org.openl.rules.repository.ProductionRepositoryFactoryProxy" destroy-method="destroy">
+  <bean id="productionRepositoryFactoryProxy" class="org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy" destroy-method="destroy">
     <property name="configManagerFactory" ref="productionRepositoryConfigManagerFactory"/>
   </bean>
 

@@ -1,7 +1,8 @@
-package org.openl.rules.repository;
+package org.openl.rules.webstudio.web.repository;
 
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
+import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.IOUtils;

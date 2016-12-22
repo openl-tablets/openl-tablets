@@ -9,7 +9,6 @@ import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.ADeploymentProject;
-import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
