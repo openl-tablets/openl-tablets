@@ -18,7 +18,6 @@ import java.util.Map;
  */
 public class ProductionRepositoryFactoryProxy {
 
-    public static final String DEFAULT_REPOSITORY_PROPERTIES_FILE = "rules-production.properties";
     public static final ConfigurationManagerFactory DEFAULT_CONFIGURATION_MANAGER_FACTORY = new ConfigurationManagerFactory(true, null, "");
 
     private ConfigurationManagerFactory configManagerFactory = DEFAULT_CONFIGURATION_MANAGER_FACTORY;
@@ -70,10 +69,7 @@ public class ProductionRepositoryFactoryProxy {
         ConfigurationManager configurationManager = configManagerFactory.getConfigurationManager(propertiesFileName);
         Map<String, Object> properties = configurationManager.getProperties();
 
-        return getFactory(properties);
+        return RepositoryFactoryInstatiator.newFactory(properties, false);
     }
 
-    public Repository getFactory(Map<String, Object> props) throws RRepositoryException {
-        return RepositoryFactoryInstatiator.newFactory(props, false);
-    }
 }

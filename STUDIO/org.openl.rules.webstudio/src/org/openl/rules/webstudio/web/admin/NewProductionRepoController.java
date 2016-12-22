@@ -5,6 +5,7 @@ import java.io.Closeable;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
+import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.factories.LocalJackrabbitRepositoryFactory;
@@ -36,7 +37,7 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
             if (this.isSecure()) {
                 RepositoryConfiguration adminConfig = this.createAdminRepositoryConfiguration();
 
-                Repository repository = this.getProductionRepositoryFactoryProxy().getFactory(adminConfig.getProperties());
+                Repository repository = RepositoryFactoryInstatiator.newFactory(adminConfig.getProperties(), false);
 
                 try {
                     if (repository instanceof LocalJackrabbitRepositoryFactory) {
