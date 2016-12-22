@@ -610,15 +610,11 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         try {
             DatabaseMetaData metaData = connection.getMetaData();
             String repoTable = metaData.storesUpperCaseIdentifiers() ? DatabaseQueries.REPOSITORY_NAME.toUpperCase() : DatabaseQueries.REPOSITORY_NAME;
-            DatabaseType databaseType = DatabaseType.fromString(databaseCode);
-            switch (databaseType) {
-                case ORACLE:
-                    rs = metaData.getTables(null, metaData.getUserName(), repoTable, new String[] { "TABLE" });
-                    break;
-                default:
-                    rs = metaData.getTables(null, null, repoTable, new String[] { "TABLE" });
+            if ("oracle".equals(databaseCode)) {
+                rs = metaData.getTables(null, metaData.getUserName(), repoTable, new String[] { "TABLE" });
+            } else {
+                rs = metaData.getTables(null, null, repoTable, new String[] { "TABLE" });
             }
-
             return rs.next();
         } finally {
             safeClose(rs);
