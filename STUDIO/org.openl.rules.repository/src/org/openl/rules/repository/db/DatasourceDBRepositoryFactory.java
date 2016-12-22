@@ -43,7 +43,7 @@ public class DatasourceDBRepositoryFactory extends DBRepository {
     }
 
     @Override
-    public void initialize() throws RRepositoryException {
+    public void initialize() {
         init();
         super.initialize();
     }

@@ -1,9 +1,19 @@
 package org.openl.rules.repository.db;
 
-import java.io.*;
-import java.sql.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.*;
-import java.util.Date;
 
 import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.api.FileData;
@@ -426,7 +436,8 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             return new FileItem(fileData, null);
         }
 
-        // ResultSet will be closed, so InputStream can be closed too, that's why copy it to byte array before.
+        // ResultSet will be closed, so InputStream can be closed too, that's
+        // why copy it to byte array before.
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             IOUtils.copy(data, out);
@@ -531,22 +542,36 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
     }
 
     @Override
-    public void initialize() throws RRepositoryException {
+    public void initialize() {
         registerDrivers();
+        Throwable actualException = null;
         try {
             Connection connection = getConnection();
-            DatabaseMetaData metaData = connection.getMetaData();
-            String databaseCode = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
+            try {
+                DatabaseMetaData metaData = connection.getMetaData();
+                String databaseCode = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
+                log.info("Database product name is [{}]", databaseCode);
+                queries = new HashMap<String, String>();
+                fillQueries(queries, "/openl-db-repository.properties");
+                fillQueries(queries, "/openl-db-repository-" + databaseCode + ".properties");
 
-            queries = new HashMap<String, String>();
-            fillQueries(queries, "/openl-db-repository.properties");
-            fillQueries(queries, "/openl-db-repository-" + databaseCode + ".properties");
-
-            initializeDatabase(connection, databaseCode);
+                initializeDatabase(connection, databaseCode);
+            } catch (Throwable e) {
+                actualException = e;
+            } finally {
+                try {
+                    connection.close();
+                } catch (Throwable e) {
+                    if (actualException == null) {
+                        actualException = e;
+                    }
+                }
+            }
         } catch (SQLException e) {
-            throw new RRepositoryException("Can't initialize repository", e);
-        } catch (IOException e) {
-            throw new RRepositoryException("Can't initialize repository", e);
+            throw new IllegalStateException("Failed to initialize repository", e);
+        }
+        if (actualException != null) {
+            throw new IllegalStateException("Failed to initialize repository", actualException);
         }
     }
 
@@ -623,10 +648,13 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
     }
 
     private void fillQueries(Map<String, String> queries, String propertiesFileName) throws IOException {
-        InputStream is = getClass().getResourceAsStream(propertiesFileName);
-        if (is == null) {
+        URL resource = getClass().getResource(propertiesFileName);
+        if (resource == null) {
+            log.info("File [{}] not found.", propertiesFileName);
             return;
         }
+        log.info("Load configuration from [{}].", resource);
+        InputStream is = resource.openStream();
         try {
             Properties properties = new Properties();
             properties.load(is);
