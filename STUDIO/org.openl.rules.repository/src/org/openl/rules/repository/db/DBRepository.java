@@ -544,7 +544,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             fillQueries(queries, "/openl-db-repository.properties");
             fillQueries(queries, "/openl-db-repository-" + databaseType.getCode() + ".properties");
 
-            initializeTable(connection, databaseType);
+            initializeDatabase(connection, databaseType);
         } catch (SQLException e) {
             throw new RRepositoryException("Can't initialize repository", e);
         } catch (IOException e) {
@@ -580,7 +580,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         }
     }
 
-    private void initializeTable(Connection connection, DatabaseType databaseType) throws SQLException {
+    private void initializeDatabase(Connection connection, DatabaseType databaseType) throws SQLException {
         if (!tableExists(connection, databaseType)) {
             List<String> queryKeys = new ArrayList<String>();
             for (String key : queries.keySet()) {
@@ -594,21 +594,17 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             for (String key : queryKeys) {
                 String query = queries.get(key);
                 if (!StringUtils.isBlank(query)) {
-                    createTable(connection, query);
+                    Statement statement = null;
+                    try {
+                        statement = connection.createStatement();
+                        statement.execute(query);
+                    } finally {
+                        safeClose(statement);
+                    }
+
                 }
             }
         }
-    }
-
-    private void createTable(Connection connection, String query) throws SQLException {
-        Statement statement = null;
-        try {
-            statement = connection.createStatement();
-            statement.execute(query);
-        } finally {
-            safeClose(statement);
-        }
-
     }
 
     private boolean tableExists(Connection connection, DatabaseType databaseType) throws SQLException {
