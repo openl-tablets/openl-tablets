@@ -18,9 +18,7 @@ import java.util.Map;
  */
 public class ProductionRepositoryFactoryProxy {
 
-    public static final ConfigurationManagerFactory DEFAULT_CONFIGURATION_MANAGER_FACTORY = new ConfigurationManagerFactory(true, null, "");
-
-    private ConfigurationManagerFactory configManagerFactory = DEFAULT_CONFIGURATION_MANAGER_FACTORY;
+    private ConfigurationManagerFactory configManagerFactory;
 
     private Map<String, Repository> factories = new HashMap<String, Repository>();
 
