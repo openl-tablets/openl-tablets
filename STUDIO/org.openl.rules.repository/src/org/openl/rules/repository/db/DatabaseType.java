@@ -11,7 +11,7 @@ public enum DatabaseType {
     public static DatabaseType fromString(String name) {
         String lowerName = name.toLowerCase();
         for (DatabaseType databaseType : values()) {
-            if (databaseType.name.equals(lowerName)) {
+            if (databaseType.code.equals(lowerName)) {
                 return databaseType;
             }
         }
@@ -19,9 +19,9 @@ public enum DatabaseType {
         return DEFAULT;
     }
 
-    private final String name;
+    private final String code;
 
-    DatabaseType(String name) {
-        this.name = name;
+    DatabaseType(String code) {
+        this.code = code;
     }
 }
