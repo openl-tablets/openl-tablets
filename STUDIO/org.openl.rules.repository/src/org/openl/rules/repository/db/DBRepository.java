@@ -607,9 +607,10 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
 
     private boolean tableExists(Connection connection, String databaseCode) throws SQLException {
         ResultSet rs = null;
+        String tableName = queries.get(DatabaseQueries.REPOSITORY_NAME);
         try {
             DatabaseMetaData metaData = connection.getMetaData();
-            String repoTable = metaData.storesUpperCaseIdentifiers() ? DatabaseQueries.REPOSITORY_NAME.toUpperCase() : DatabaseQueries.REPOSITORY_NAME;
+            String repoTable = metaData.storesUpperCaseIdentifiers() ? tableName.toUpperCase() : tableName;
             if ("oracle".equals(databaseCode)) {
                 rs = metaData.getTables(null, metaData.getUserName(), repoTable, new String[] { "TABLE" });
             } else {
