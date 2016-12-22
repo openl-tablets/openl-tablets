@@ -536,15 +536,13 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         try {
             Connection connection = getConnection();
             DatabaseMetaData metaData = connection.getMetaData();
-            DatabaseType databaseType = DatabaseType.fromString(metaData.getDatabaseProductName()
-                    .toLowerCase()
-                    .replace(" ", "_"));
+            String databaseCode = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
 
             queries = new HashMap<String, String>();
             fillQueries(queries, "/openl-db-repository.properties");
-            fillQueries(queries, "/openl-db-repository-" + databaseType.getCode() + ".properties");
+            fillQueries(queries, "/openl-db-repository-" + databaseCode + ".properties");
 
-            initializeDatabase(connection, databaseType);
+            initializeDatabase(connection, databaseCode);
         } catch (SQLException e) {
             throw new RRepositoryException("Can't initialize repository", e);
         } catch (IOException e) {
@@ -580,8 +578,8 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         }
     }
 
-    private void initializeDatabase(Connection connection, DatabaseType databaseType) throws SQLException {
-        if (!tableExists(connection, databaseType)) {
+    private void initializeDatabase(Connection connection, String databaseCode) throws SQLException {
+        if (!tableExists(connection, databaseCode)) {
             List<String> queryKeys = new ArrayList<String>();
             for (String key : queries.keySet()) {
                 if (key.startsWith(DatabaseQueries.INIT_PREFIX)) {
@@ -607,11 +605,12 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         }
     }
 
-    private boolean tableExists(Connection connection, DatabaseType databaseType) throws SQLException {
+    private boolean tableExists(Connection connection, String databaseCode) throws SQLException {
         ResultSet rs = null;
         try {
             DatabaseMetaData metaData = connection.getMetaData();
             String repoTable = metaData.storesUpperCaseIdentifiers() ? DatabaseQueries.REPOSITORY_NAME.toUpperCase() : DatabaseQueries.REPOSITORY_NAME;
+            DatabaseType databaseType = DatabaseType.fromString(databaseCode);
             switch (databaseType) {
                 case ORACLE:
                     rs = metaData.getTables(null, metaData.getUserName(), repoTable, new String[] { "TABLE" });
