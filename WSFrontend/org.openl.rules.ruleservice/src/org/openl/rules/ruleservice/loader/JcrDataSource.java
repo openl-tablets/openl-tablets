@@ -1,18 +1,24 @@
 package org.openl.rules.ruleservice.loader;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.PreDestroy;
 
 import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
+import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.deploy.DeployUtils;
+import org.openl.util.RuntimeExceptionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +38,32 @@ public class JcrDataSource implements DataSource {
      * {@inheritDoc}
      */
     public Collection<Deployment> getDeployments() {
-        return DeployUtils.getDeployments(repository);
+        Collection<FileData> fileDatas;
+        try {
+            fileDatas = repository.list(DeployUtils.DEPLOY_PATH);
+        } catch (IOException ex) {
+            throw RuntimeExceptionWrapper.wrap(ex);
+        }
+        ConcurrentMap<String, Deployment> deployments = new ConcurrentHashMap<String, Deployment>();
+        for (FileData fileData : fileDatas) {
+            String deploymentFolderName = fileData.getName().substring(DeployUtils.DEPLOY_PATH.length()).split("/")[0];
+            int separatorPosition = deploymentFolderName.lastIndexOf(DeployUtils.SEPARATOR);
+
+            String deploymentName = deploymentFolderName;
+            CommonVersionImpl commonVersion = null;
+            if (separatorPosition >= 0) {
+                deploymentName = deploymentFolderName.substring(0, separatorPosition);
+                int version = Integer.valueOf(deploymentFolderName.substring(separatorPosition + 1));
+                commonVersion = new CommonVersionImpl(version);
+            }
+            Deployment deployment = new Deployment(repository,
+                DeployUtils.DEPLOY_PATH + deploymentFolderName,
+                deploymentName,
+                commonVersion, false);
+            deployments.putIfAbsent(deploymentFolderName, deployment);
+        }
+
+        return deployments.values();
     }
 
     /**

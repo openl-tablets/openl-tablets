@@ -78,33 +78,4 @@ public final class DeployUtils {
         return version;
     }
 
-    public static Collection<Deployment> getDeployments(Repository repository) {
-        Collection<FileData> fileDatas;
-        try {
-            fileDatas = repository.list(DEPLOY_PATH);
-        } catch (IOException ex) {
-            throw RuntimeExceptionWrapper.wrap(ex);
-        }
-        ConcurrentMap<String, Deployment> deployments = new ConcurrentHashMap<String, Deployment>();
-        for (FileData fileData : fileDatas) {
-            String deploymentFolderName = fileData.getName().substring(DEPLOY_PATH.length()).split("/")[0];
-            int separatorPosition = deploymentFolderName.lastIndexOf(SEPARATOR);
-
-            String deploymentName = deploymentFolderName;
-            CommonVersionImpl commonVersion = null;
-            if (separatorPosition >= 0) {
-                deploymentName = deploymentFolderName.substring(0, separatorPosition);
-                int version = Integer.valueOf(deploymentFolderName.substring(separatorPosition + 1));
-                commonVersion = new CommonVersionImpl(version);
-            }
-            Deployment deployment = new Deployment(repository,
-                DEPLOY_PATH + deploymentFolderName,
-                deploymentName,
-                commonVersion, false);
-            deployments.putIfAbsent(deploymentFolderName, deployment);
-        }
-
-        return deployments.values();
-    }
-
 }
