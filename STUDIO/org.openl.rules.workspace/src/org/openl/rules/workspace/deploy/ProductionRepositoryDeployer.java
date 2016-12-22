@@ -15,8 +15,6 @@ import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.workspace.WorkspaceUser;
-import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.ZipUtils;
@@ -32,8 +30,6 @@ import org.xml.sax.InputSource;
  * @author Yury Molchan
  */
 public class ProductionRepositoryDeployer {
-    // Some user name for JCR
-    private static WorkspaceUser user = new WorkspaceUserImpl("OpenL_Deployer");
     private final Logger log = LoggerFactory.getLogger(ProductionRepositoryDeployer.class);
 
     /**
