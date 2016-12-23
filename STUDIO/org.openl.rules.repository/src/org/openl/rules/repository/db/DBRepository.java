@@ -514,15 +514,14 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             String version = UUID.randomUUID().toString();
 
             statement.setString(1, data.getName());
-            statement.setLong(2, stream == null ? 0 : data.getSize());
-            statement.setString(3, data.getAuthor());
-            statement.setString(4, data.getComment());
-            statement.setTimestamp(5, new Timestamp(new Date().getTime()));
-            statement.setString(6, version);
+            statement.setString(2, data.getAuthor());
+            statement.setString(3, data.getComment());
+            statement.setTimestamp(4, new Timestamp(new Date().getTime()));
+            statement.setString(5, version);
             if (stream != null) {
-                statement.setBinaryStream(7, stream);
+                statement.setBinaryStream(6, stream);
             } else {
-                statement.setBinaryStream(7, null, 0);
+                statement.setBinaryStream(6, null, 0);
             }
 
             statement.executeUpdate();
