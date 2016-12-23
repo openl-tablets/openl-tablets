@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 
+import org.apache.commons.lang3.text.StrSubstitutor;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,7 @@ final class Settings {
         fillQueries(queries, "/openl-db-repository-ext.properties");
 
         timerPeriod = getIntValue(queries, "setting.timerPeriod", 10000);
-        tableName = getRequired(queries, "query.tablename");
+        tableName = getRequired(queries, "setting.tablename");
 
         selectAllMetainfo = getRequired(queries, "query.select-all-metainfo");
         selectAllHistoryMetainfo = getRequired(queries, "query.select-all-history-metainfo");
@@ -78,7 +79,7 @@ final class Settings {
     }
 
     private int getIntValue(Map<String, String> queries, String prop, int defValue) {
-        String stringValue = queries.get(prop);
+        String stringValue = resolve(queries, prop);
         int value = defValue;
         if (stringValue != null) {
             try {
@@ -91,9 +92,17 @@ final class Settings {
     }
 
     private String getRequired(Map<String, String> queries, String prop) {
-        String value = queries.get(prop);
+        String value = resolve(queries, prop);
         if (value == null) {
             throw new IllegalArgumentException("Cannot get value for " + prop + " property.");
+        }
+        return value;
+    }
+
+    private String resolve(Map<String, String> queries, String prop) {
+        String value = queries.get(prop);
+        if (value != null) {
+            value = new StrSubstitutor(queries).replace(value);
         }
         return value;
     }
