@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -28,11 +27,9 @@ import org.slf4j.LoggerFactory;
 public abstract class DBRepository implements Repository, Closeable, RRepositoryFactory {
     private final Logger log = LoggerFactory.getLogger(DBRepository.class);
 
+    private Settings settings;
     private Listener listener;
     private Timer timer;
-    private int timerPeriod = 10000;
-
-    private Map<String, String> queries;
 
     @Override
     public List<FileData> list(String path) throws IOException {
@@ -41,7 +38,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(queries.get(DatabaseQueries.SELECT_ALL_METAINFO));
+            statement = connection.prepareStatement(settings.selectAllMetainfo);
             statement.setString(1, makePathPattern(path));
             rs = statement.executeQuery();
 
@@ -76,7 +73,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(queries.get(DatabaseQueries.READ_ACTUAL_FILE));
+            statement = connection.prepareStatement(settings.readActualFile);
             statement.setString(1, name);
             rs = statement.executeQuery();
 
@@ -146,7 +143,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             String newVersion = UUID.randomUUID().toString();
 
             connection = getConnection();
-            statement = connection.prepareStatement(queries.get(DatabaseQueries.COPY_FILE));
+            statement = connection.prepareStatement(settings.copyFile);
             statement.setString(1, destData.getName());
             statement.setTimestamp(2, new Timestamp(new Date().getTime()));
             statement.setString(3, newVersion);
@@ -193,7 +190,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                     ResultSet rs = null;
                     try {
                         connection = getConnection();
-                        statement = connection.prepareStatement(queries.get(DatabaseQueries.SELECT_MAX_ID));
+                        statement = connection.prepareStatement(settings.selectMaxId);
                         rs = statement.executeQuery();
 
                         if (rs.next()) {
@@ -220,7 +217,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                         safeClose(connection);
                     }
                 }
-            }, 1000, timerPeriod);
+            }, 1000, settings.timerPeriod);
         }
     }
 
@@ -231,7 +228,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(queries.get(DatabaseQueries.SELECT_ALL_HISTORY_METAINFO));
+            statement = connection.prepareStatement(settings.selectAllHistoryMetainfo);
             statement.setString(1, name);
             rs = statement.executeQuery();
 
@@ -266,7 +263,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(queries.get(DatabaseQueries.READ_HISTORIC_FILE));
+            statement = connection.prepareStatement(settings.readHistoricFile);
             statement.setString(1, name);
             statement.setString(2, version);
             rs = statement.executeQuery();
@@ -296,7 +293,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             PreparedStatement statement = null;
             try {
                 connection = getConnection();
-                statement = connection.prepareStatement(queries.get(DatabaseQueries.DELETE_ALL_HISTORY));
+                statement = connection.prepareStatement(settings.deleteAllHistory);
                 statement.setString(1, name);
                 int rows = statement.executeUpdate();
 
@@ -318,7 +315,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             PreparedStatement statement = null;
             try {
                 connection = getConnection();
-                statement = connection.prepareStatement(queries.get(DatabaseQueries.DELETE_VERSION));
+                statement = connection.prepareStatement(settings.deleteVersion);
                 statement.setString(1, name);
                 statement.setString(2, version);
                 int rows = statement.executeUpdate();
@@ -351,7 +348,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             String newVersion = UUID.randomUUID().toString();
 
             connection = getConnection();
-            statement = connection.prepareStatement(queries.get(DatabaseQueries.COPY_HISTORY));
+            statement = connection.prepareStatement(settings.copyHistory);
             statement.setString(1, destData.getName());
             statement.setTimestamp(2, new Timestamp(new Date().getTime()));
             statement.setString(3, newVersion);
@@ -378,7 +375,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(queries.get(DatabaseQueries.READ_ACTUAL_FILE_METAINFO));
+            statement = connection.prepareStatement(settings.readActualFileMetainfo);
             statement.setString(1, name);
             rs = statement.executeQuery();
 
@@ -406,7 +403,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(queries.get(DatabaseQueries.READ_HISTORIC_FILE_METAINFO));
+            statement = connection.prepareStatement(settings.readHistoricFileMetainfo);
             statement.setString(1, name);
             statement.setString(2, version);
             rs = statement.executeQuery();
@@ -512,7 +509,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         PreparedStatement statement = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(queries.get(DatabaseQueries.INSERT_FILE));
+            statement = connection.prepareStatement(settings.insertFile);
 
             String version = UUID.randomUUID().toString();
 
@@ -551,19 +548,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                 DatabaseMetaData metaData = connection.getMetaData();
                 String databaseCode = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
                 log.info("Database product name is [{}]", databaseCode);
-                queries = new HashMap<String, String>();
-                fillQueries(queries, "/openl-db-repository.properties");
-                fillQueries(queries, "/openl-db-repository-" + databaseCode + ".properties");
-                fillQueries(queries, "/openl-db-repository-ext.properties");
-
-                String timerPeriod = queries.get(DatabaseQueries.SETTING_TIMER_PERIOD);
-                if (timerPeriod != null) {
-                    try {
-                        this.timerPeriod = Integer.parseInt(timerPeriod);
-                    } catch (Exception e) {
-                        log.warn("Cannot parse value from {} = {}! Default value is used.", DatabaseQueries.SETTING_TIMER_PERIOD, timerPeriod, e);
-                    }
-                }
+                settings = new Settings(databaseCode);
                 initializeDatabase(connection, databaseCode);
             } catch (Throwable e) {
                 actualException = e;
@@ -613,35 +598,24 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
     }
 
     private void initializeDatabase(Connection connection, String databaseCode) throws SQLException {
-        if (!tableExists(connection, databaseCode)) {
-            List<String> queryKeys = new ArrayList<String>();
-            for (String key : queries.keySet()) {
-                if (key.startsWith(DatabaseQueries.INIT_PREFIX)) {
-                    queryKeys.add(key);
+        if (tableExists(connection, databaseCode)) {
+            return;
+        }
+        Statement statement = connection.createStatement();
+        try {
+            for (String query : settings.initStatements) {
+                if (StringUtils.isNotBlank(query)) {
+                    statement.execute(query);
                 }
             }
-
-            Collections.sort(queryKeys);
-
-            for (String key : queryKeys) {
-                String query = queries.get(key);
-                if (!StringUtils.isBlank(query)) {
-                    Statement statement = null;
-                    try {
-                        statement = connection.createStatement();
-                        statement.execute(query);
-                    } finally {
-                        safeClose(statement);
-                    }
-
-                }
-            }
+        } finally {
+            safeClose(statement);
         }
     }
 
     private boolean tableExists(Connection connection, String databaseCode) throws SQLException {
         ResultSet rs = null;
-        String tableName = queries.get(DatabaseQueries.REPOSITORY_NAME);
+        String tableName = settings.tableName;
         try {
             DatabaseMetaData metaData = connection.getMetaData();
             String repoTable = metaData.storesUpperCaseIdentifiers() ? tableName.toUpperCase() : tableName;
@@ -653,26 +627,6 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             return rs.next();
         } finally {
             safeClose(rs);
-        }
-    }
-
-    private void fillQueries(Map<String, String> queries, String propertiesFileName) throws IOException {
-        URL resource = getClass().getResource(propertiesFileName);
-        if (resource == null) {
-            log.info("File [{}] not found.", propertiesFileName);
-            return;
-        }
-        log.info("Load configuration from [{}].", resource);
-        InputStream is = resource.openStream();
-        try {
-            Properties properties = new Properties();
-            properties.load(is);
-            for (String key : properties.stringPropertyNames()) {
-                queries.put(key, properties.getProperty(key));
-            }
-            is.close();
-        } finally {
-            IOUtils.closeQuietly(is);
         }
     }
 }
