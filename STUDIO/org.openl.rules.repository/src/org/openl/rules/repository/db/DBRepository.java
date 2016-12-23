@@ -30,6 +30,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
 
     private Listener listener;
     private Timer timer;
+    private int timerPeriod = 10000;
 
     private Map<String, String> queries;
 
@@ -219,7 +220,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                         safeClose(connection);
                     }
                 }
-            }, 1000, 10000);
+            }, 1000, timerPeriod);
         }
     }
 
@@ -553,7 +554,16 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                 queries = new HashMap<String, String>();
                 fillQueries(queries, "/openl-db-repository.properties");
                 fillQueries(queries, "/openl-db-repository-" + databaseCode + ".properties");
+                fillQueries(queries, "/openl-db-repository-ext.properties");
 
+                String timerPeriod = queries.get(DatabaseQueries.SETTING_TIMER_PERIOD);
+                if (timerPeriod != null) {
+                    try {
+                        this.timerPeriod = Integer.parseInt(timerPeriod);
+                    } catch (Exception e) {
+                        log.warn("Cannot parse value from {} = {}! Default value is used.", DatabaseQueries.SETTING_TIMER_PERIOD, timerPeriod, e);
+                    }
+                }
                 initializeDatabase(connection, databaseCode);
             } catch (Throwable e) {
                 actualException = e;

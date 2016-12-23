@@ -1,6 +1,7 @@
 package org.openl.rules.repository.db;
 
 final class DatabaseQueries {
+    static final String SETTING_TIMER_PERIOD = "setting.timerPeriod";
     static final String REPOSITORY_NAME = "query.tablename";
     static final String INIT_PREFIX = "init.";
 
