@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.lang3.text.StrSubstitutor;
@@ -21,6 +22,7 @@ final class Settings {
         fillQueries(queries, "/openl-db-repository.properties");
         fillQueries(queries, "/openl-db-repository-" + databaseCode + ".properties");
         fillQueries(queries, "/openl-db-repository-ext.properties");
+        resolve(queries);
 
         timerPeriod = getIntValue(queries, "setting.timerPeriod", 10000);
         tableName = getRequired(queries, "setting.tablename");
@@ -79,7 +81,8 @@ final class Settings {
     }
 
     private int getIntValue(Map<String, String> queries, String prop, int defValue) {
-        String stringValue = resolve(queries, prop);
+
+        String stringValue = queries.get(prop);
         int value = defValue;
         if (stringValue != null) {
             try {
@@ -92,18 +95,22 @@ final class Settings {
     }
 
     private String getRequired(Map<String, String> queries, String prop) {
-        String value = resolve(queries, prop);
+
+        String value = queries.get(prop);
         if (value == null) {
             throw new IllegalArgumentException("Cannot get value for " + prop + " property.");
         }
         return value;
     }
 
-    private String resolve(Map<String, String> queries, String prop) {
-        String value = queries.get(prop);
-        if (value != null) {
-            value = new StrSubstitutor(queries).replace(value);
+    private void resolve(TreeMap<String, String> queries) {
+        Set<String> keys = queries.keySet();
+        for (String key : keys) {
+            String value = queries.get(key);
+            if (value != null) {
+                value = new StrSubstitutor(queries).replace(value);
+                queries.put(key, value);
+            }
         }
-        return value;
     }
 }
