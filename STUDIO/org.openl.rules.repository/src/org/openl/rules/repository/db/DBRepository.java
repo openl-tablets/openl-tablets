@@ -451,7 +451,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         fileData.setSize(rs.getLong("file_size"));
         fileData.setAuthor(rs.getString("author"));
         fileData.setComment(rs.getString("file_comment"));
-        fileData.setModifiedAt(rs.getDate("modified_at"));
+        fileData.setModifiedAt(rs.getTimestamp("modified_at"));
         fileData.setVersion(rs.getString("version"));
         fileData.setDeleted(rs.getBoolean("deleted"));
         return fileData;
