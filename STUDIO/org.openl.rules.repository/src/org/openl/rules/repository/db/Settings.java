@@ -36,7 +36,7 @@ final class Settings {
         readHistoricFileMetainfo = getRequired(queries, "query.read-historic-file-metainfo");
         deleteAllHistory = getRequired(queries, "query.delete-all-history");
         deleteVersion = getRequired(queries, "query.delete-version");
-        selectMaxId = getRequired(queries, "query.select-max-id");
+        selectLastChange = getRequired(queries, "query.select-last-change");
         copyFile = getRequired(queries, "query.copy-file");
         copyHistory = getRequired(queries, "query.copy-history");
 
@@ -56,7 +56,7 @@ final class Settings {
     String readHistoricFileMetainfo;
     String deleteAllHistory;
     String deleteVersion;
-    String selectMaxId;
+    String selectLastChange;
     String copyFile;
     String copyHistory;
 

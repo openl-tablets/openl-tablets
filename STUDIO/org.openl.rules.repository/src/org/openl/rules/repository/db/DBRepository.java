@@ -180,45 +180,46 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             timer = new Timer(true);
 
             timer.schedule(new TimerTask() {
-                private Long maxId = null;
-                private Long countId = null;
+                private String lastChange = null;
 
                 @Override
                 public void run() {
-                    Connection connection = null;
-                    PreparedStatement statement = null;
-                    ResultSet rs = null;
-                    try {
-                        connection = getConnection();
-                        statement = connection.prepareStatement(settings.selectMaxId);
-                        rs = statement.executeQuery();
+                    String currentChange = getLastChange();
 
-                        if (rs.next()) {
-                            long newMaxId = rs.getLong("max_id");
-                            long newCountId = rs.getLong("count_id");
-
-                            if (maxId == null) {
-                                maxId = newMaxId;
-                                countId = newCountId;
-                            } else if (newMaxId != maxId || newCountId != countId) {
-                                maxId = newMaxId;
-                                countId = newCountId;
-                                callback.onChange();
-                            }
-                        }
-
-                        rs.close();
-                        statement.close();
-                    } catch (SQLException e) {
-                        log.error(e.getMessage(), e);
-                    } finally {
-                        safeClose(rs);
-                        safeClose(statement);
-                        safeClose(connection);
+                    boolean hasChanges = lastChange != null && !lastChange.equals(currentChange);
+                    lastChange = currentChange;
+                    if (hasChanges) {
+                        callback.onChange();
                     }
                 }
             }, 1000, settings.timerPeriod);
         }
+    }
+
+    private String getLastChange() {
+        String changeSet = null;
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        try {
+            connection = getConnection();
+            statement = connection.prepareStatement(settings.selectLastChange);
+            rs = statement.executeQuery();
+
+            if (rs.next()) {
+                changeSet = rs.getString(1);
+            }
+
+            rs.close();
+            statement.close();
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            safeClose(rs);
+            safeClose(statement);
+            safeClose(connection);
+        }
+        return changeSet;
     }
 
     @Override
