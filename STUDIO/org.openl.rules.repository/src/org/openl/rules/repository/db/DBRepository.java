@@ -518,7 +518,12 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             statement.setString(2, data.getAuthor());
             statement.setString(3, data.getComment());
             statement.setString(4, version);
-            statement.setBinaryStream(5, stream);
+            if (stream != null) {
+                statement.setBinaryStream(5, stream);
+            } else {
+                // Workaround for PostreSQL
+                statement.setBinaryStream(5, null, 0);
+            }
 
             statement.executeUpdate();
 
