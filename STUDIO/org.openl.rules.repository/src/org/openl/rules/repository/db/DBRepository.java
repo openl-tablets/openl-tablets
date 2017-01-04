@@ -139,21 +139,17 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         Connection connection = null;
         PreparedStatement statement = null;
         try {
-            String newVersion = UUID.randomUUID().toString();
-
             connection = getConnection();
             statement = connection.prepareStatement(settings.copyFile);
             statement.setString(1, destData.getName());
             statement.setString(2, destData.getAuthor());
             statement.setString(3, destData.getComment());
-            statement.setString(4, newVersion);
 
-            statement.setString(5, srcName);
+            statement.setString(4, srcName);
             statement.executeUpdate();
 
-            FileData copy = getHistoryVersionFileData(destData.getName(), newVersion);
             invokeListener();
-            return copy;
+            return destData;
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
@@ -266,8 +262,8 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         try {
             connection = getConnection();
             statement = connection.prepareStatement(settings.readHistoricFile);
-            statement.setString(1, name);
-            statement.setString(2, version);
+            statement.setLong(1, Long.valueOf(version));
+            statement.setString(2, name);
             rs = statement.executeQuery();
 
             FileItem fileItem = null;
@@ -318,8 +314,8 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             try {
                 connection = getConnection();
                 statement = connection.prepareStatement(settings.deleteVersion);
-                statement.setString(1, name);
-                statement.setString(2, version);
+                statement.setLong(1, Long.valueOf(version));
+                statement.setString(2, name);
                 int rows = statement.executeUpdate();
 
                 if (rows > 0) {
@@ -347,22 +343,18 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         Connection connection = null;
         PreparedStatement statement = null;
         try {
-            String newVersion = UUID.randomUUID().toString();
-
             connection = getConnection();
             statement = connection.prepareStatement(settings.copyHistory);
             statement.setString(1, destData.getName());
             statement.setString(2, destData.getAuthor());
             statement.setString(3, destData.getComment());
-            statement.setString(4, newVersion);
 
+            statement.setLong(4, Long.valueOf(version));
             statement.setString(5, srcName);
-            statement.setString(6, version);
             statement.executeUpdate();
 
-            FileData copy = getHistoryVersionFileData(destData.getName(), newVersion);
             invokeListener();
-            return copy;
+            return destData;
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
@@ -408,8 +400,8 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         try {
             connection = getConnection();
             statement = connection.prepareStatement(settings.readHistoricFileMetainfo);
-            statement.setString(1, name);
-            statement.setString(2, version);
+            statement.setLong(1, Long.valueOf(version));
+            statement.setString(2, name);
             rs = statement.executeQuery();
 
             FileData fileData = null;
@@ -455,7 +447,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         fileData.setAuthor(rs.getString("author"));
         fileData.setComment(rs.getString("file_comment"));
         fileData.setModifiedAt(rs.getTimestamp("modified_at"));
-        fileData.setVersion(rs.getString("version"));
+        fileData.setVersion(rs.getString("id"));
         fileData.setDeleted(rs.getBoolean("deleted"));
         return fileData;
     }
@@ -514,23 +506,19 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         try {
             connection = getConnection();
             statement = connection.prepareStatement(settings.insertFile);
-
-            String version = UUID.randomUUID().toString();
-
             statement.setString(1, data.getName());
             statement.setString(2, data.getAuthor());
             statement.setString(3, data.getComment());
-            statement.setString(4, version);
             if (stream != null) {
-                statement.setBinaryStream(5, stream);
+                statement.setBinaryStream(4, stream);
             } else {
                 // Workaround for PostreSQL
-                statement.setBinaryStream(5, null, 0);
+                statement.setBinaryStream(4, null, 0);
             }
 
             statement.executeUpdate();
 
-            data.setVersion(version);
+            data.setVersion(null);
             invokeListener();
             return data;
         } catch (SQLException e) {
