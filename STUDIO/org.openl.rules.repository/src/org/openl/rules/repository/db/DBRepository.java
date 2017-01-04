@@ -144,8 +144,11 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             connection = getConnection();
             statement = connection.prepareStatement(settings.copyFile);
             statement.setString(1, destData.getName());
-            statement.setString(2, newVersion);
-            statement.setString(3, srcName);
+            statement.setString(2, destData.getAuthor());
+            statement.setString(3, destData.getComment());
+            statement.setString(4, newVersion);
+
+            statement.setString(5, srcName);
             statement.executeUpdate();
 
             FileData copy = getHistoryVersionFileData(destData.getName(), newVersion);
@@ -349,9 +352,12 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             connection = getConnection();
             statement = connection.prepareStatement(settings.copyHistory);
             statement.setString(1, destData.getName());
-            statement.setString(2, newVersion);
-            statement.setString(3, srcName);
-            statement.setString(4, version);
+            statement.setString(2, destData.getAuthor());
+            statement.setString(3, destData.getComment());
+            statement.setString(4, newVersion);
+
+            statement.setString(5, srcName);
+            statement.setString(6, version);
             statement.executeUpdate();
 
             FileData copy = getHistoryVersionFileData(destData.getName(), newVersion);
