@@ -27,18 +27,18 @@ final class Settings {
         timerPeriod = getIntValue(queries, "setting.timerPeriod", 10000);
         tableName = getRequired(queries, "setting.tablename");
 
-        selectAllMetainfo = getRequired(queries, "query.select-all-metainfo");
-        selectAllHistoryMetainfo = getRequired(queries, "query.select-all-history-metainfo");
-        insertFile = getRequired(queries, "query.insert-file");
-        readActualFile = getRequired(queries, "query.read-actual-file");
-        readActualFileMetainfo = getRequired(queries, "query.read-actual-file-metainfo");
-        readHistoricFile = getRequired(queries, "query.read-historic-file");
-        readHistoricFileMetainfo = getRequired(queries, "query.read-historic-file-metainfo");
+        insertFile =  getRequired(queries, "query.insert-new-file");
+        copyFile =    getRequired(queries, "query.copy-last-file");
+        copyHistory = getRequired(queries, "query.copy-exact-file");
+        deleteVersion =    getRequired(queries, "query.delete-exact-file");
         deleteAllHistory = getRequired(queries, "query.delete-all-history");
-        deleteVersion = getRequired(queries, "query.delete-version");
+        readActualFile =   getRequired(queries, "query.read-last-file");
+        readHistoricFile = getRequired(queries, "query.read-exact-file");
+        readActualFileMetainfo =   getRequired(queries, "query.read-last-metainfo");
+        readHistoricFileMetainfo = getRequired(queries, "query.read-exact-metainfo");
+        selectAllMetainfo = getRequired(queries, "query.list-last-metainfo");
+        selectAllHistoryMetainfo = getRequired(queries, "query.list-all-metainfo");
         selectLastChange = getRequired(queries, "query.select-last-change");
-        copyFile = getRequired(queries, "query.copy-file");
-        copyHistory = getRequired(queries, "query.copy-history");
 
         initStatements = queries.subMap("init.", "init." + Character.MAX_VALUE).values();
     }
