@@ -11,7 +11,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.util.*;
 
 import org.openl.rules.repository.RRepositoryFactory;
@@ -145,9 +144,8 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             connection = getConnection();
             statement = connection.prepareStatement(settings.copyFile);
             statement.setString(1, destData.getName());
-            statement.setTimestamp(2, new Timestamp(new Date().getTime()));
-            statement.setString(3, newVersion);
-            statement.setString(4, srcName);
+            statement.setString(2, newVersion);
+            statement.setString(3, srcName);
             statement.executeUpdate();
 
             FileData copy = getHistoryVersionFileData(destData.getName(), newVersion);
@@ -351,10 +349,9 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             connection = getConnection();
             statement = connection.prepareStatement(settings.copyHistory);
             statement.setString(1, destData.getName());
-            statement.setTimestamp(2, new Timestamp(new Date().getTime()));
-            statement.setString(3, newVersion);
-            statement.setString(4, srcName);
-            statement.setString(5, version);
+            statement.setString(2, newVersion);
+            statement.setString(3, srcName);
+            statement.setString(4, version);
             statement.executeUpdate();
 
             FileData copy = getHistoryVersionFileData(destData.getName(), newVersion);
