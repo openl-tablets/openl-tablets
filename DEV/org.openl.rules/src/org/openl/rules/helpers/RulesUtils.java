@@ -2619,6 +2619,14 @@ public class RulesUtils {
         return org.openl.util.BooleanUtils.and(values);
     }
 
+    public static boolean allFalse(boolean[] values) {
+        return !anyTrue(values);
+    }
+
+    public static boolean allFalse(Boolean[] values) {
+        return !anyTrue(values);
+    }
+
     // Exclusive or
     public static boolean xor(boolean[] values) {
         return org.openl.util.BooleanUtils.xor(values);
@@ -2635,6 +2643,14 @@ public class RulesUtils {
 
     public static boolean anyTrue(Boolean[] values) {
         return org.openl.util.BooleanUtils.or(values);
+    }
+
+    public static boolean anyFalse(boolean[] values) {
+        return !allTrue(values);
+    }
+
+    public static boolean anyFalse(Boolean[] values) {
+        return !allTrue(values);
     }
 
     /**
