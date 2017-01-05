@@ -177,19 +177,23 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             timer = new Timer(true);
 
             timer.schedule(new TimerTask() {
-                private String lastChange = null;
+                private String lastChange = getLastChange();
 
                 @Override
                 public void run() {
                     String currentChange = getLastChange();
-
-                    boolean hasChanges = lastChange != null && !lastChange.equals(currentChange);
-                    lastChange = currentChange;
-                    if (hasChanges) {
-                        callback.onChange();
+                    if (currentChange == null) {
+                        // Ignore unknown changes
+                        return;
                     }
+                    if (currentChange.equals(lastChange)) {
+                        // Ignore no changes
+                        return;
+                    }
+                    lastChange = currentChange;
+                    callback.onChange();
                 }
-            }, 1000, settings.timerPeriod);
+            }, settings.timerPeriod, settings.timerPeriod);
         }
     }
 
@@ -206,11 +210,8 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             if (rs.next()) {
                 changeSet = rs.getString(1);
             }
-
-            rs.close();
-            statement.close();
-        } catch (SQLException e) {
-            log.error(e.getMessage(), e);
+        } catch (Exception e) {
+            log.warn(e.getMessage(), e);
         } finally {
             safeClose(rs);
             safeClose(statement);
