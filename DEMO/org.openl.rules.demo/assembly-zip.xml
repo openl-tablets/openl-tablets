@@ -37,16 +37,11 @@
             <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>${tomcat.webapps}/webstudio</outputDirectory>
+            <outputDirectory>${tomcat.webapps}</outputDirectory>
             <includes>
                 <include>org.openl.rules:org.openl.rules.webstudio</include>
             </includes>
-            <unpack>true</unpack>
-            <unpackOptions>
-                <excludes>
-                    <exclude>WEB-INF/lib/h2-*.jar</exclude>
-                </excludes>
-            </unpackOptions>
+            <outputFileNameMapping>webstudio.war</outputFileNameMapping>
             <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
         <dependencySet>
