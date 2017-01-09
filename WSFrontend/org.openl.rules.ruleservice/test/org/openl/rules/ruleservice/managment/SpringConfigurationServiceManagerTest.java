@@ -19,7 +19,9 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties={"ruleservice.datasource.type=jcr"}, locations = {"classpath:rules-production.properties"})
+@TestPropertySource(properties = { "ruleservice.datasource.type=jcr",
+        "production-repository.factory = org.openl.rules.repository.file.FileRepository",
+        "production-repository.uri = test-resources/openl-repository" })
 @ContextConfiguration(locations = { "classpath:openl-ruleservice-beans.xml" })
 @DirtiesContext
 public class SpringConfigurationServiceManagerTest implements ApplicationContextAware {
@@ -38,20 +40,22 @@ public class SpringConfigurationServiceManagerTest implements ApplicationContext
         RulesFrontend frontend = applicationContext.getBean(RulesFrontend.class);
         assertNotNull(frontend);
         Object object = frontend.execute("org.openl.tablets.tutorial4_org.openl.tablets.tutorial4",
-                "vehicleEligibilityScore", new Object[] { RulesRuntimeContextFactory.buildRulesRuntimeContext(), "Provisional" });
+            "vehicleEligibilityScore",
+            new Object[] { RulesRuntimeContextFactory.buildRulesRuntimeContext(), "Provisional" });
         assertTrue(object instanceof org.openl.meta.DoubleValue);
         org.openl.meta.DoubleValue value = (org.openl.meta.DoubleValue) object;
         assertEquals(50.0, value.getValue(), 0.01);
     }
 
-    @Test(expected = MethodInvocationException.class) 
+    @Test(expected = MethodInvocationException.class)
     public void testExceptionFramework() throws Exception {
         assertNotNull(applicationContext);
         ServiceManagerImpl serviceManager = applicationContext.getBean(ServiceManagerImpl.class);
         assertNotNull(serviceManager);
         RulesFrontend frontend = applicationContext.getBean(RulesFrontend.class);
         assertNotNull(frontend);
-        frontend.execute("ErrorTest_ErrorTest", "vehicleEligibilityScore", new Object[] {
-                RulesRuntimeContextFactory.buildRulesRuntimeContext(), "test" });
+        frontend.execute("ErrorTest_ErrorTest",
+            "vehicleEligibilityScore",
+            new Object[] { RulesRuntimeContextFactory.buildRulesRuntimeContext(), "test" });
     }
 }

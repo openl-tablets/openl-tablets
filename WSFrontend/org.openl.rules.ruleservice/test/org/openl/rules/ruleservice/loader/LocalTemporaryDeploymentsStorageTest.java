@@ -17,8 +17,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource({"classpath:openl-default.properties", "classpath:rules-production.properties"})
-@ContextConfiguration({ "classpath:openl-ruleservice-datasource-jcr-beans.xml" })
+@TestPropertySource(properties = { "production-repository.factory = org.openl.rules.repository.file.FileRepository",
+        "production-repository.uri = test-resources/openl-repository" })
+@ContextConfiguration({ "classpath:openl-ruleservice-property-placeholder.xml",
+        "classpath:openl-ruleservice-datasource-jcr-beans.xml" })
 public class LocalTemporaryDeploymentsStorageTest {
 
     @Autowired
