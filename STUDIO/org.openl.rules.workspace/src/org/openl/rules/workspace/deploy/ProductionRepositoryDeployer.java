@@ -1,9 +1,9 @@
 package org.openl.rules.workspace.deploy;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.Map;
 
 import javax.xml.xpath.XPath;
@@ -12,17 +12,11 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.openl.config.ConfigurationManagerFactory;
-import org.openl.rules.common.impl.ArtefactPathImpl;
-import org.openl.rules.project.abstraction.ADeploymentProject;
-import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
+import org.openl.rules.repository.RepositoryFactoryInstatiator;
+import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.file.FileRepository;
-import org.openl.rules.workspace.WorkspaceUser;
-import org.openl.rules.workspace.WorkspaceUserImpl;
-import org.openl.rules.workspace.deploy.impl.jcr.JcrProductionDeployer;
-import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 import org.openl.util.FileUtils;
+import org.openl.util.IOUtils;
 import org.openl.util.ZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,57 +24,66 @@ import org.xml.sax.InputSource;
 
 /**
  * This class allows to deploy a zip-based project to a production repository.
- * By default configuration of destination repository is get from "deployer.properties" file.
+ * By default configuration of destination repository is get from
+ * "deployer.properties" file.
  *
  * @author Yury Molchan
  */
 public class ProductionRepositoryDeployer {
-    // Some user name for JCR
-    private static WorkspaceUser user = new WorkspaceUserImpl("OpenL_Deployer");
     private final Logger log = LoggerFactory.getLogger(ProductionRepositoryDeployer.class);
 
     /**
-     * Deploys a new project to the production repository. If the project exists then it will be skipped to deploy.
+     * Deploys a new project to the production repository. If the project exists
+     * then it will be skipped to deploy.
      *
      * @param zipFile the project to deploy
-     * @param config  the configuration file name
+     * @param config the configuration file name
      * @throws Exception
      */
     public void deploy(File zipFile, String config) throws Exception {
-        deployInternal(zipFile, config, true);
-    }
-
-    /**
-     * Deploys a new or redeploys an existing project to the production repository.
-     *
-     * @param zipFile the project to deploy
-     * @param config  the configuration file name
-     * @throws Exception
-     */
-    public void redeploy(File zipFile, String config) throws Exception {
-        deployInternal(zipFile, config, false);
-    }
-
-    private void deployInternal(File zipFile, String config, boolean skipExist) throws Exception {
         if (config == null || config.isEmpty()) {
             config = "deployer.properties";
         }
+        ConfigurationManagerFactory configManagerFactory = new ConfigurationManagerFactory(true, null, "");
+        ;
+        Map<String, Object> properties = configManagerFactory.getConfigurationManager(config).getProperties();
+        deployInternal(zipFile, properties, true);
+    }
 
-        // Initialize repo
-        ProductionRepositoryFactoryProxy repositoryFactoryProxy = new ProductionRepositoryFactoryProxy();
-        JcrProductionDeployer deployer = new JcrProductionDeployer(repositoryFactoryProxy, config);
+    /**
+     * Deploys a new or redeploys an existing project to the production
+     * repository.
+     *
+     * @param zipFile the project to deploy
+     * @param config the configuration file name
+     * @throws Exception
+     */
+    public void redeploy(File zipFile, String config) throws Exception {
+        if (config == null || config.isEmpty()) {
+            config = "deployer.properties";
+        }
+        ConfigurationManagerFactory configManagerFactory = new ConfigurationManagerFactory(true, null, "");
+        ;
+        Map<String, Object> properties = configManagerFactory.getConfigurationManager(config).getProperties();
+        deployInternal(zipFile, properties, false);
+    }
+
+    public void deployInternal(File zipFile, Map<String, Object> properties, boolean skipExist) throws Exception {
 
         // Temp folders
-        File tempDirectory = FileUtils.createTempDirectory();
-
-        String name = FileUtils.getBaseName(zipFile.getName());
-
-        File workspaceLocation = new File(tempDirectory, "workspace");
-        workspaceLocation.mkdirs();
-        File zipFolder = new File(workspaceLocation, name);
-        zipFolder.mkdirs();
-
+        File zipFolder = FileUtils.createTempDirectory();
+        Repository deployRepo = null;
         try {
+            // Initialize repo
+            deployRepo = RepositoryFactoryInstatiator.newFactory(properties, false);
+            ;
+
+            // Wait 15 seconds for initializing networking in JGroups.
+            Object initializeTimeout = properties.get("timeout.networking.initialize");
+            Thread.sleep(initializeTimeout == null ? 15000 : Integer.parseInt(initializeTimeout.toString()));
+
+            String name = FileUtils.getBaseName(zipFile.getName());
+
             // Unpack jar to a file system
             ZipUtils.extractAll(zipFile, zipFolder);
 
@@ -89,42 +92,28 @@ public class ProductionRepositoryDeployer {
             if (rules.exists()) {
                 String rulesName = getProjectName(rules);
                 if (rulesName != null && !rulesName.isEmpty()) {
-                    // rename project
-                    File renamed = new File(workspaceLocation, rulesName);
-                    zipFolder.renameTo(renamed);
-                    zipFolder = renamed;
                     name = rulesName;
                 }
             }
 
-            // Create a deployment project
-            ArtefactPathImpl path = new ArtefactPathImpl(name);
-            LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(user, workspaceLocation, null, null);
-            FileRepository localRepository = new FileRepository(workspaceLocation);
-            localRepository.initialize();
-            ADeploymentProject project = new ADeploymentProject(user, localRepository, path.getStringValue(), null);
-            AProject projectToDeploy = new AProject(localRepository, path.getStringValue(), true);
-
-            // Calculate version
-            Repository repository = repositoryFactoryProxy.getRepositoryInstance(config);
-
-            ConfigurationManagerFactory configManagerFactory = ProductionRepositoryFactoryProxy.DEFAULT_CONFIGURATION_MANAGER_FACTORY;
-            Map<String, Object> properties = configManagerFactory.getConfigurationManager(config).getProperties();
-
-            // Wait 15 seconds for initializing networking in JGroups.
-            Object initializeTimeout = properties.get("timeout.networking.initialize");
-            Thread.sleep(initializeTimeout == null ? 15000 : Integer.parseInt(initializeTimeout.toString()));
-
-            // FIXME: Add check on exist deployment
-            if (skipExist) {
-                log.info("Project [{}] exists. It has been skipped to deploy.", project.getName());
+            int version = DeployUtils.getNextDeploymentVersion(deployRepo, name);
+            if (version > 1 && skipExist) {
+                log.info("Project [{}] exists. It has been skipped to deploy.", name);
                 return;
             }
 
             // Do deploy
-            ArrayList<AProject> projects = new ArrayList<AProject>();
-            projects.add(projectToDeploy);
-            deployer.deploy(project, projects, user);
+            String target = new StringBuilder(DeployUtils.DEPLOY_PATH).append(name)
+                .append('#')
+                .append(version)
+                .append('/')
+                .append(name)
+                .toString();
+            FileData dest = new FileData();
+            dest.setName(target);
+            dest.setAuthor("OpenL_Deployer");
+            deployRepo.save(dest, new FileInputStream(zipFile));
+
             // Wait 10 seconds for finalizing networking in JGroups.
             // + 30 seconds for Infinispan.
             // This time should exceed Infinispan timeouts.
@@ -132,9 +121,14 @@ public class ProductionRepositoryDeployer {
             Thread.sleep(finalizeTimeout == null ? 40000 : Integer.parseInt(finalizeTimeout.toString()));
         } finally {
             /* Clean up */
-            FileUtils.deleteQuietly(tempDirectory);
+            FileUtils.deleteQuietly(zipFolder);
             // Close repo
-            deployer.destroy();
+            if (deployRepo != null) {
+                if (deployRepo instanceof Closeable) {
+                    // Close repo connection after validation
+                    IOUtils.closeQuietly((Closeable) deployRepo);
+                }
+            }
         }
     }
 

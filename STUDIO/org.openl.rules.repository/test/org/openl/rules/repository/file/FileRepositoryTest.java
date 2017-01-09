@@ -23,7 +23,8 @@ public class FileRepositoryTest {
     public void test() throws Exception {
         File root = new File("target/test-file-repository/");
         FileUtils.deleteQuietly(root);
-        FileRepository repo = new FileRepository(root);
+        FileRepository repo = new FileRepository();
+        repo.setRoot(root);
         repo.initialize();
         testRepo(repo);
     }
@@ -81,7 +82,9 @@ public class FileRepositoryTest {
     }
 
     private void assertDelete(Repository repo, String name, boolean expected) {
-        boolean result = repo.delete(name);
+        FileData fileData = new FileData();
+        fileData.setName(name);
+        boolean result = repo.delete(fileData);
         assertEquals("The deleting of the file has been filed", expected, result);
     }
 

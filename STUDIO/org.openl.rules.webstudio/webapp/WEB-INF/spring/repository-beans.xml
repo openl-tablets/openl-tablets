@@ -19,17 +19,13 @@
     <property name="designTimeRepository" ref="designTimeRepository" />
   </bean>
 
-  <bean id="productionRepositoryFactoryProxy" class="org.openl.rules.repository.ProductionRepositoryFactoryProxy" destroy-method="destroy">
+  <bean id="productionRepositoryFactoryProxy" class="org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy" destroy-method="destroy">
     <property name="configManagerFactory" ref="productionRepositoryConfigManagerFactory"/>
-  </bean>
-
-  <bean id="productionDeployerFactory" class="org.openl.rules.workspace.deploy.impl.jcr.JcrProductionDeployerFactory">
-    <property name="repositoryFactoryProxy" ref="productionRepositoryFactoryProxy" />
   </bean>
 
   <bean id="deploymentManager" class="org.openl.rules.webstudio.web.repository.DeploymentManager">
     <property name="initialProductionRepositoryConfigNames" value="#{systemConfig['production-repository-configs']}"/>
-    <property name="productionDeployerFactory" ref="productionDeployerFactory"/>
+    <property name="repositoryFactoryProxy" ref="productionRepositoryFactoryProxy" />
     <property name="designRepository" ref="designTimeRepository" />
   </bean>
 

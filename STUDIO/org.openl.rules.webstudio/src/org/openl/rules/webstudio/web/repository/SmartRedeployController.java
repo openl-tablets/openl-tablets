@@ -174,7 +174,7 @@ public class SmartRedeployController {
                             item.setDisabled(true);
                         }
                     }
-            } else if (cmp < 0) {
+            } else {
                 if (!isGranted(PRIVILEGE_EDIT_DEPLOYMENT)) {
                     // Don't have permission to edit deploy configuration -
                     // skip it
@@ -203,9 +203,6 @@ public class SmartRedeployController {
                         item.setCanDeploy(false);
                     }
                 }
-            } else {
-                item.setDisabled(true);
-                item.setMessages("Deployment uses newer version " + descrVersion.getVersionName());
             }
 
             result.add(item);

@@ -78,11 +78,11 @@ public interface Repository {
     /**
      * Delete a file or mark it as deleted.
      * 
-     * @param name the file to delete.
+     * @param data the file descriptor to delete.
      * @return true if file has been deleted successfully or false if the file
      *         is absent or cannot be deleted.
      */
-    boolean delete(String name);
+    boolean delete(FileData data);
 
     /**
      * Copy a file to the destination file.
@@ -149,13 +149,13 @@ public interface Repository {
 
     /**
      * Delete a file from the history. If the version is null, then it will work
-     * like {@link #delete(String)} method.
+     * like {@link #delete(FileData)} method.
      *
      * @param name the file to delete.
      * @param version the version of the file to delete, can be null.
      * @return true if file has been deleted successfully or false if the file
      *         is absent or cannot be deleted.
-     * @see #delete(String)
+     * @see #delete(FileData)
      */
     boolean deleteHistory(String name, String version);
 

@@ -1,10 +1,12 @@
 package org.openl.rules.repository.db;
 
+import org.openl.util.StringUtils;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class JdbcDBRepositoryFactory extends BaseDBRepositoryFactory {
+public class JdbcDBRepositoryFactory extends DBRepository {
     private String uri;
     private String login;
     private String password;
@@ -23,6 +25,10 @@ public class JdbcDBRepositoryFactory extends BaseDBRepositoryFactory {
 
     @Override
     protected Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(uri, login, password);
+        if (StringUtils.isBlank(login)) {
+            return DriverManager.getConnection(uri);
+        } else {
+            return DriverManager.getConnection(uri, login, password);
+        }
     }
 }

@@ -1,21 +1,32 @@
 package org.openl.rules.repository.db;
 
-import java.io.*;
-import java.sql.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
-import java.util.Date;
 
+import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.util.IOUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class DBRepository implements Repository, Closeable {
+public abstract class DBRepository implements Repository, Closeable, RRepositoryFactory {
     private final Logger log = LoggerFactory.getLogger(DBRepository.class);
 
+    private Settings settings;
     private Listener listener;
     private Timer timer;
 
@@ -26,7 +37,7 @@ public abstract class DBRepository implements Repository, Closeable {
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(DatabaseQueries.SELECT_ALL_METAINFO);
+            statement = connection.prepareStatement(settings.selectAllMetainfo);
             statement.setString(1, makePathPattern(path));
             rs = statement.executeQuery();
 
@@ -61,7 +72,7 @@ public abstract class DBRepository implements Repository, Closeable {
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(DatabaseQueries.READ_ACTUAL_FILE);
+            statement = connection.prepareStatement(settings.readActualFile);
             statement.setString(1, name);
             rs = statement.executeQuery();
 
@@ -100,10 +111,10 @@ public abstract class DBRepository implements Repository, Closeable {
     }
 
     @Override
-    public boolean delete(String path) {
+    public boolean delete(FileData path) {
         FileData data;
         try {
-            data = getLatestVersionFileData(path);
+            data = getLatestVersionFileData(path.getName());
         } catch (IOException e) {
             log.error(e.getMessage(), e);
             return false;
@@ -128,19 +139,17 @@ public abstract class DBRepository implements Repository, Closeable {
         Connection connection = null;
         PreparedStatement statement = null;
         try {
-            String newVersion = UUID.randomUUID().toString();
-
             connection = getConnection();
-            statement = connection.prepareStatement(DatabaseQueries.COPY_FILE);
+            statement = connection.prepareStatement(settings.copyFile);
             statement.setString(1, destData.getName());
-            statement.setTimestamp(2, new Timestamp(new Date().getTime()));
-            statement.setString(3, newVersion);
+            statement.setString(2, destData.getAuthor());
+            statement.setString(3, destData.getComment());
+
             statement.setString(4, srcName);
             statement.executeUpdate();
 
-            FileData copy = getHistoryVersionFileData(destData.getName(), newVersion);
             invokeListener();
-            return copy;
+            return destData;
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
@@ -168,45 +177,47 @@ public abstract class DBRepository implements Repository, Closeable {
             timer = new Timer(true);
 
             timer.schedule(new TimerTask() {
-                private Long maxId = null;
-                private Long countId = null;
+                private String lastChange = getLastChange();
 
                 @Override
                 public void run() {
-                    Connection connection = null;
-                    PreparedStatement statement = null;
-                    ResultSet rs = null;
-                    try {
-                        connection = getConnection();
-                        statement = connection.prepareStatement(DatabaseQueries.SELECT_MAX_ID);
-                        rs = statement.executeQuery();
-
-                        if (rs.next()) {
-                            long newMaxId = rs.getLong("max_id");
-                            long newCountId = rs.getLong("count_id");
-
-                            if (maxId == null) {
-                                maxId = newMaxId;
-                                countId = newCountId;
-                            } else if (newMaxId != maxId || newCountId != countId) {
-                                maxId = newMaxId;
-                                countId = newCountId;
-                                callback.onChange();
-                            }
-                        }
-
-                        rs.close();
-                        statement.close();
-                    } catch (SQLException e) {
-                        log.error(e.getMessage(), e);
-                    } finally {
-                        safeClose(rs);
-                        safeClose(statement);
-                        safeClose(connection);
+                    String currentChange = getLastChange();
+                    if (currentChange == null) {
+                        // Ignore unknown changes
+                        return;
                     }
+                    if (currentChange.equals(lastChange)) {
+                        // Ignore no changes
+                        return;
+                    }
+                    lastChange = currentChange;
+                    callback.onChange();
                 }
-            }, 1000, 10000);
+            }, settings.timerPeriod, settings.timerPeriod);
         }
+    }
+
+    private String getLastChange() {
+        String changeSet = null;
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        try {
+            connection = getConnection();
+            statement = connection.prepareStatement(settings.selectLastChange);
+            rs = statement.executeQuery();
+
+            if (rs.next()) {
+                changeSet = rs.getString(1);
+            }
+        } catch (Exception e) {
+            log.warn(e.getMessage(), e);
+        } finally {
+            safeClose(rs);
+            safeClose(statement);
+            safeClose(connection);
+        }
+        return changeSet;
     }
 
     @Override
@@ -216,7 +227,7 @@ public abstract class DBRepository implements Repository, Closeable {
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(DatabaseQueries.SELECT_ALL_HISTORY_METAINFO_FOR_FILE);
+            statement = connection.prepareStatement(settings.selectAllHistoryMetainfo);
             statement.setString(1, name);
             rs = statement.executeQuery();
 
@@ -251,9 +262,9 @@ public abstract class DBRepository implements Repository, Closeable {
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(DatabaseQueries.READ_HISTORIC_FILE);
-            statement.setString(1, name);
-            statement.setString(2, version);
+            statement = connection.prepareStatement(settings.readHistoricFile);
+            statement.setLong(1, Long.valueOf(version));
+            statement.setString(2, name);
             rs = statement.executeQuery();
 
             FileItem fileItem = null;
@@ -281,7 +292,7 @@ public abstract class DBRepository implements Repository, Closeable {
             PreparedStatement statement = null;
             try {
                 connection = getConnection();
-                statement = connection.prepareStatement(DatabaseQueries.DELETE_ALL_HISTORY);
+                statement = connection.prepareStatement(settings.deleteAllHistory);
                 statement.setString(1, name);
                 int rows = statement.executeUpdate();
 
@@ -303,9 +314,9 @@ public abstract class DBRepository implements Repository, Closeable {
             PreparedStatement statement = null;
             try {
                 connection = getConnection();
-                statement = connection.prepareStatement(DatabaseQueries.DELETE_VERSION);
-                statement.setString(1, name);
-                statement.setString(2, version);
+                statement = connection.prepareStatement(settings.deleteVersion);
+                statement.setLong(1, Long.valueOf(version));
+                statement.setString(2, name);
                 int rows = statement.executeUpdate();
 
                 if (rows > 0) {
@@ -333,20 +344,18 @@ public abstract class DBRepository implements Repository, Closeable {
         Connection connection = null;
         PreparedStatement statement = null;
         try {
-            String newVersion = UUID.randomUUID().toString();
-
             connection = getConnection();
-            statement = connection.prepareStatement(DatabaseQueries.COPY_HISTORY);
+            statement = connection.prepareStatement(settings.copyHistory);
             statement.setString(1, destData.getName());
-            statement.setTimestamp(2, new Timestamp(new Date().getTime()));
-            statement.setString(3, newVersion);
-            statement.setString(4, srcName);
-            statement.setString(5, version);
+            statement.setString(2, destData.getAuthor());
+            statement.setString(3, destData.getComment());
+
+            statement.setLong(4, Long.valueOf(version));
+            statement.setString(5, srcName);
             statement.executeUpdate();
 
-            FileData copy = getHistoryVersionFileData(destData.getName(), newVersion);
             invokeListener();
-            return copy;
+            return destData;
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
@@ -363,7 +372,7 @@ public abstract class DBRepository implements Repository, Closeable {
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(DatabaseQueries.READ_ACTUAL_FILE_METAINFO);
+            statement = connection.prepareStatement(settings.readActualFileMetainfo);
             statement.setString(1, name);
             rs = statement.executeQuery();
 
@@ -391,9 +400,9 @@ public abstract class DBRepository implements Repository, Closeable {
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(DatabaseQueries.READ_HISTORIC_FILE_METAINFO);
-            statement.setString(1, name);
-            statement.setString(2, version);
+            statement = connection.prepareStatement(settings.readHistoricFileMetainfo);
+            statement.setLong(1, Long.valueOf(version));
+            statement.setString(2, name);
             rs = statement.executeQuery();
 
             FileData fileData = null;
@@ -421,7 +430,8 @@ public abstract class DBRepository implements Repository, Closeable {
             return new FileItem(fileData, null);
         }
 
-        // ResultSet will be closed, so InputStream can be closed too, that's why copy it to byte array before.
+        // ResultSet will be closed, so InputStream can be closed too, that's
+        // why copy it to byte array before.
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             IOUtils.copy(data, out);
@@ -437,8 +447,8 @@ public abstract class DBRepository implements Repository, Closeable {
         fileData.setSize(rs.getLong("file_size"));
         fileData.setAuthor(rs.getString("author"));
         fileData.setComment(rs.getString("file_comment"));
-        fileData.setModifiedAt(rs.getDate("modified_at"));
-        fileData.setVersion(rs.getString("version"));
+        fileData.setModifiedAt(rs.getTimestamp("modified_at"));
+        fileData.setVersion(rs.getString("id"));
         fileData.setDeleted(rs.getBoolean("deleted"));
         return fileData;
     }
@@ -496,25 +506,20 @@ public abstract class DBRepository implements Repository, Closeable {
         PreparedStatement statement = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(DatabaseQueries.INSERT_FILE);
-
-            String version = UUID.randomUUID().toString();
-
+            statement = connection.prepareStatement(settings.insertFile);
             statement.setString(1, data.getName());
-            statement.setLong(2, stream == null ? 0 : data.getSize());
-            statement.setString(3, data.getAuthor());
-            statement.setString(4, data.getComment());
-            statement.setTimestamp(5, new Timestamp(new Date().getTime()));
-            statement.setString(6, version);
+            statement.setString(2, data.getAuthor());
+            statement.setString(3, data.getComment());
             if (stream != null) {
-                statement.setBinaryStream(7, stream);
+                statement.setBinaryStream(4, stream);
             } else {
-                statement.setBinaryStream(7, null, 0);
+                // Workaround for PostreSQL
+                statement.setBinaryStream(4, null, 0);
             }
 
             statement.executeUpdate();
 
-            data.setVersion(version);
+            data.setVersion(null);
             invokeListener();
             return data;
         } catch (SQLException e) {
@@ -522,6 +527,98 @@ public abstract class DBRepository implements Repository, Closeable {
         } finally {
             safeClose(statement);
             safeClose(connection);
+        }
+    }
+
+    @Override
+    public void initialize() {
+        registerDrivers();
+        Throwable actualException = null;
+        try {
+            Connection connection = getConnection();
+            try {
+                DatabaseMetaData metaData = connection.getMetaData();
+                String databaseCode = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
+                log.info("Database product name is [{}]", databaseCode);
+                settings = new Settings(databaseCode);
+                initializeDatabase(connection, databaseCode);
+            } catch (Throwable e) {
+                actualException = e;
+            } finally {
+                try {
+                    connection.close();
+                } catch (Throwable e) {
+                    if (actualException == null) {
+                        actualException = e;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException("Failed to initialize repository", e);
+        }
+        if (actualException != null) {
+            throw new IllegalStateException("Failed to initialize repository", actualException);
+        }
+    }
+
+    private void registerDrivers() {
+        // Defaults drivers
+        String[] drivers = { "com.mysql.jdbc.Driver",
+                "com.ibm.db2.jcc.DB2Driver",
+                "oracle.jdbc.OracleDriver",
+                "org.postgresql.Driver",
+                "org.hsqldb.jdbcDriver",
+                "org.h2.Driver",
+                "com.microsoft.sqlserver.jdbc.SQLServerDriver" };
+        registerDrivers(drivers);
+        drivers = StringUtils.split(System.getProperty("jdbc.drivers"), ':');
+        registerDrivers(drivers);
+    }
+
+    private void registerDrivers(String... drivers) {
+        if (drivers == null) {
+            return;
+        }
+        for (String driver : drivers) {
+            try {
+                Class.forName(driver);
+                log.info("JDBC Driver: '{}' - OK.", driver);
+            } catch (ClassNotFoundException e) {
+                log.info("JDBC Driver: '{}' - NOT FOUND.", driver);
+            }
+        }
+    }
+
+    private void initializeDatabase(Connection connection, String databaseCode) throws SQLException {
+        if (tableExists(connection, databaseCode)) {
+            return;
+        }
+        Statement statement = connection.createStatement();
+        try {
+            for (String query : settings.initStatements) {
+                if (StringUtils.isNotBlank(query)) {
+                    statement.execute(query);
+                }
+            }
+        } finally {
+            safeClose(statement);
+        }
+    }
+
+    private boolean tableExists(Connection connection, String databaseCode) throws SQLException {
+        ResultSet rs = null;
+        String tableName = settings.tableName;
+        try {
+            DatabaseMetaData metaData = connection.getMetaData();
+            String repoTable = metaData.storesUpperCaseIdentifiers() ? tableName.toUpperCase() : tableName;
+            if ("oracle".equals(databaseCode)) {
+                rs = metaData.getTables(null, metaData.getUserName(), repoTable, new String[] { "TABLE" });
+            } else {
+                rs = metaData.getTables(null, null, repoTable, new String[] { "TABLE" });
+            }
+            return rs.next();
+        } finally {
+            safeClose(rs);
         }
     }
 }

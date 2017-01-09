@@ -65,10 +65,10 @@ public final class DeployUtils {
     }
 
     public static int getNextDeploymentVersion(Repository repository,
-            ADeploymentProject project) throws RRepositoryException {
+            String project) throws RRepositoryException {
         Collection<Deployment> lastDeploymentProjects = getLastDeploymentProjects(repository);
         int version = 1;
-        String prefix = project.getName() + SEPARATOR;
+        String prefix = project + SEPARATOR;
         for (Deployment deployment : lastDeploymentProjects) {
             if (deployment.getName().startsWith(prefix)) {
                 version = Integer.valueOf(deployment.getCommonVersion().getRevision()) + 1;
@@ -78,39 +78,4 @@ public final class DeployUtils {
         return version;
     }
 
-    public static Collection<Deployment> getDeployments(Repository repository) {
-        Collection<FileData> fileDatas;
-        try {
-            fileDatas = repository.list(DEPLOY_PATH);
-        } catch (IOException ex) {
-            throw RuntimeExceptionWrapper.wrap(ex);
-        }
-        ConcurrentMap<String, Deployment> deployments = new ConcurrentHashMap<String, Deployment>();
-        for (FileData fileData : fileDatas) {
-            String deploymentFolderName = fileData.getName().substring(DEPLOY_PATH.length()).split("/")[0];
-            int separatorPosition = deploymentFolderName.lastIndexOf(SEPARATOR);
-
-            String deploymentName = deploymentFolderName;
-            CommonVersionImpl commonVersion = null;
-            if (separatorPosition >= 0) {
-                deploymentName = deploymentFolderName.substring(0, separatorPosition);
-                int version = Integer.valueOf(deploymentFolderName.substring(separatorPosition + 1));
-                commonVersion = new CommonVersionImpl(version);
-            }
-            Deployment deployment = new Deployment(repository,
-                DEPLOY_PATH + deploymentFolderName,
-                deploymentName,
-                commonVersion, false);
-            deployments.putIfAbsent(deploymentFolderName, deployment);
-        }
-
-        return deployments.values();
-    }
-
-    public static Deployment getDeployment(Repository repository,
-            String deploymentName,
-            CommonVersion deploymentVersion) {
-        String name = deploymentName + SEPARATOR + deploymentVersion.getVersionName();
-        return new Deployment(repository, DEPLOY_PATH + name, deploymentName, deploymentVersion, false);
-    }
 }

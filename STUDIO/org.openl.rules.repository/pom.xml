@@ -12,6 +12,16 @@
     <name>OpenL - STUDIO - Repository</name>
     <description>OpenL Repostory API</description>
     <url>//openl-tablets.org</url>
+    <build>
+        <resources>
+            <resource>
+                <directory>src</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
     <dependencies>
         <dependency>
             <groupId>org.openl</groupId>
@@ -20,10 +30,6 @@
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.transaction</groupId>
-            <artifactId>jta</artifactId>
         </dependency>
     </dependencies>
 </project>

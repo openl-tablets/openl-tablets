@@ -244,8 +244,9 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     }
 
     @Override
-    public boolean delete(String path) {
+    public boolean delete(FileData data) {
         try {
+            String path = data.getName();
             ArtefactAPI artefact = getArtefact(path);
             if (artefact == null) {
                 return false;

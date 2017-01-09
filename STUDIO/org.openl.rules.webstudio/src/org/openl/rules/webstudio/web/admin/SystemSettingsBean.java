@@ -8,27 +8,22 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.engine.OpenLSystemProperties;
-import org.openl.rules.repository.ProductionRepositoryFactoryProxy;
+import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
-import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter.ConfigurationReloader;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoriesTreeController;
-import org.openl.rules.webstudio.web.servlet.SessionListener;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.context.support.WebApplicationContextUtils;
-import org.springframework.web.context.support.XmlWebApplicationContext;
 
 /**
  * TODO Remove property getters/setters when migrating to EL 2.2

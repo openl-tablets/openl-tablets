@@ -24,8 +24,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource({"classpath:openl-ruleservice-ref.properties", "classpath:rules-production.properties"})
-@ContextConfiguration({ "classpath:properties.xml", "classpath:openl-ruleservice-datasource-jcr-beans.xml" })
+@TestPropertySource({"classpath:openl-default.properties", "classpath:rules-production.properties"})
+@ContextConfiguration({ "classpath:openl-ruleservice-datasource-jcr-beans.xml" })
 public class RulesLoaderTest {
 
     @Autowired
