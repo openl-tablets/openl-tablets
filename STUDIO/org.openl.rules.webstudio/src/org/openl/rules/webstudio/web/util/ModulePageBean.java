@@ -1,10 +1,14 @@
 package org.openl.rules.webstudio.web.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
@@ -18,10 +22,11 @@ public class ModulePageBean {
     private WebStudio studio = WebStudioUtils.getWebStudio();
 
     /**
-     * @return Map &lt;String, List&lt;String&gt;&gt; of the imports from Environment table
+     * @return Map &lt;String, List&lt;String&gt;&gt; of the imports from
+     *         Environment table
      */
-    public Map<String, List<String>> getTableSyntaxNodes() {
-        List<String> importValues;
+    public Map<String, Set<String>> getTableSyntaxNodes() {
+        Set<String> values;
         String key;
         String value;
         // Getting nodes from Model
@@ -30,7 +35,7 @@ public class ModulePageBean {
         // Creating a list of environment tables. If tables more than 1
         List<TableSyntaxNode> envNodesTables = new LinkedList<TableSyntaxNode>();
 
-        Map<String, List<String>> imports = new HashMap<String, List<String>>();
+        Map<String, Set<String>> ret = new HashMap<String, Set<String>>();
 
         // Filling the envNodesTables List by TableSyntaxNodes
         for (TableSyntaxNode node : nodes) {
@@ -44,68 +49,71 @@ public class ModulePageBean {
                 key = node.getGridTable().getCell(0, row).getStringValue();
                 value = node.getGridTable().getCell(1, row).getStringValue();
 
-                if (imports.containsKey(key)) {
-                    imports.get(key).add(value);
+                if (ret.containsKey(key)) {
+                    ret.get(key).add(value);
                 } else {
-                    importValues = new ArrayList<String>();
-                    importValues.add(value);
-                    imports.put(key, importValues);
+                    values = new LinkedHashSet<String>();
+                    values.add(value);
+                    ret.put(key, values);
                 }
             }
         }
 
-        return imports;
+        return ret;
     }
-/**
- * 
- * @return List of all imoirts
- */
+
+    /**
+     * 
+     * @return List of all imoirts
+     */
     public List<String> getImports() {
-        return getTableSyntaxNodes().get("import");
+        Set<String> imports = getTableSyntaxNodes().get("import");
+        if (imports != null) {
+            return new ArrayList<String>(imports);
+        }
+        return Collections.emptyList();
     }
 
-/**
- * 
- * @return List of all includes
- */
+    /**
+     * 
+     * @return List of all includes
+     */
     public List<String> getIncludes() {
-        List<String> includeList = getTableSyntaxNodes().get("include");
-        List<String> includedModulesList = null;//= new ArrayList<String>();
+        Set<String> includes = getTableSyntaxNodes().get("include");
 
-        if (includeList != null) {
-
-            includedModulesList = removeXLSExtention(includeList);
+        if (includes != null) {
+            return removeXLSExtention(includes);
         }
 
-        return includedModulesList;
+        return Collections.emptyList();
     }
 
-    public List<String> getDependencies () {
-        List<String> dependencyList = getTableSyntaxNodes().get("dependency");
-        List<String> dependencyFilesList = null; // = new ArrayList<String>();
-        
-        if (dependencyList != null) {
+    public List<String> getDependencies() {
+        Set<String> dependencies = getTableSyntaxNodes().get("dependency");
 
-            dependencyFilesList = removeXLSExtention(dependencyList);
+        if (dependencies != null) {
+            return new ArrayList<String>(dependencies);
         }
-        return dependencyFilesList;
+        return Collections.emptyList();
     }
+
     /**
      * Removes .xls into include or dependency file/module
+     * 
      * @param lists
      * @return
      */
-    private List<String> removeXLSExtention (List<String> lists) {
+    private List<String> removeXLSExtention(Collection<String> lists) {
         String[] dependencyFiles;
         List<String> dependencyFilesList = new ArrayList<String>();
-        
+
         for (String dependency : lists) {
-            if (dependency != null){
+            if (dependency != null) {
                 dependencyFiles = dependency.split("/");
                 dependencyFilesList.add(dependencyFiles[dependencyFiles.length - 1].split(".xls")[0]);
             }
         }
-        
+
         return dependencyFilesList;
     }
 
