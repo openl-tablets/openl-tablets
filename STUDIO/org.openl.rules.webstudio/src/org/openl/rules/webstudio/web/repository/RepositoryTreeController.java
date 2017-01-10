@@ -571,10 +571,11 @@ public class RepositoryTreeController {
 
         try {
             ADeploymentProject project = userWorkspace.getDDProject(projectName);
+            // projectInTree must be initialized before project was deleted
+            TreeNode projectInTree = repositoryTreeState.getDeploymentRepository()
+                    .getChild(RepositoryUtils.getTreeNodeId(project.getName()));
             project.delete(userWorkspace.getUser());
             if (repositoryTreeState.isHideDeleted()) {
-                TreeNode projectInTree = repositoryTreeState.getDeploymentRepository()
-                    .getChild(RepositoryUtils.getTreeNodeId(project.getName()));
                 repositoryTreeState.deleteNode(projectInTree);
             }
 
