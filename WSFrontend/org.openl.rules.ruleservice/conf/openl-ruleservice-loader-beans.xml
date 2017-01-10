@@ -69,7 +69,7 @@
 	<!-- Wrapper on data source that gives access to data source and resolves the OpenL projects/modules inside the projects. 
 	Contains own storage for all projects that is used in services. -->
 	<bean id="ruleServiceLoader" class="org.openl.rules.ruleservice.loader.RuleServiceLoaderImpl">
-		<constructor-arg name="dataSource" ref="datasource" />
+		<constructor-arg name="dataSource" ref="${ruleservice.datasource.type}datasource" />
 		<constructor-arg name="projectResolver" ref="projectResolver" />
 		<constructor-arg name="storage"
 			ref="localTemporaryDeploymentsStorage" />

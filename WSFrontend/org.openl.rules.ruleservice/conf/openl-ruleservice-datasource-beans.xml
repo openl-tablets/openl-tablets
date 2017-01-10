@@ -22,7 +22,7 @@
     </bean>
 
     <!-- Data source storage that provides information about deployments, projects and their properties and version -->
-    <bean id="filesystemdatasource" class="org.openl.rules.ruleservice.loader.FileSystemDataSource"
+    <bean id="localdatasource" class="org.openl.rules.ruleservice.loader.FileSystemDataSource"
           depends-on="unpackClasspathAutoJarToDirectoryBean">
         <constructor-arg name="loadDeploymentsFromDirectory" value="${ruleservice.datasource.dir}"/>
         <property name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter"/>
@@ -54,12 +54,4 @@
         <property name="enabled"
                   value="#{${ruleservice.datasource.deploy.classpath.jars} and '${ruleservice.datasource.type}' eq 'jcr'}"/>
     </bean>
-
-    <!-- Data source storage that provides information about deployments, projects
-        and their properties and version. Uses ruleservice.jcr.datasource.enabled
-        property for datasource implementation select -->
-    <bean id="datasource" class="org.openl.rules.ruleservice.conf.DataSourceConfigurationFactoryBean">
-        <property name="datasourceType" value="${ruleservice.datasource.type}"/>
-    </bean>
-
 </beans>
