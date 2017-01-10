@@ -74,14 +74,7 @@ public class ProductionRepositoryDeployer {
             // Initialize repo
             deployRepo = RepositoryFactoryInstatiator.newFactory(properties, false);
 
-            // Wait 15 seconds for initializing networking in JGroups.
-            Object initializeTimeout = properties.get("timeout.networking.initialize");
-            Thread.sleep(initializeTimeout == null ? 15000 : Integer.parseInt(initializeTimeout.toString()));
-
             deployInternal(zipFile, deployRepo, skipExist);
-
-            Object finalizeTimeout = properties.get("timeout.networking.finalize");
-            Thread.sleep(finalizeTimeout == null ? 40000 : Integer.parseInt(finalizeTimeout.toString()));
         } finally {
             // Close repo
             if (deployRepo != null) {

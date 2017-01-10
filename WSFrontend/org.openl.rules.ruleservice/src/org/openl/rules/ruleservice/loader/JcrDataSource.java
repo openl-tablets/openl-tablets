@@ -3,8 +3,6 @@ package org.openl.rules.ruleservice.loader;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -88,11 +86,16 @@ public class JcrDataSource implements DataSource {
     /**
      * {@inheritDoc}
      */
-    public void setListener(DataSourceListener dataSourceListener) {
+    public void setListener(final DataSourceListener dataSourceListener) {
         if (dataSourceListener == null) {
             repository.setListener(null);
         } else {
-            repository.setListener(new DataSourceListenerWrapper(dataSourceListener));
+            repository.setListener(new Listener() {
+                @Override
+                public void onChange() {
+                    dataSourceListener.onDeploymentAdded();
+                }
+            });
         }
     }
 
@@ -111,37 +114,4 @@ public class JcrDataSource implements DataSource {
         this.repository = repository;
     }
 
-    private static class DataSourceListenerWrapper implements Listener {
-        private final Logger log = LoggerFactory.getLogger(DataSourceListenerWrapper.class);
-        private final DataSourceListener dataSourceListener;
-
-        public DataSourceListenerWrapper(DataSourceListener dataSourceListeners) {
-            this.dataSourceListener = dataSourceListeners;
-        }
-
-        @Override
-        public synchronized void onChange() {
-            final Timer timer = new Timer();
-
-            timer.schedule(new TimerTask() {
-                int count = 0;
-
-                @Override
-                public void run() {
-                    try {
-                        log.info("Atempt to deploy # {}", count);
-                        System.gc();
-                        dataSourceListener.onDeploymentAdded();
-                        timer.cancel();
-                    } catch (Exception ex) {
-                        log.error("Unexpected error", ex);
-                        count++;
-                        if (count >= 5) {
-                            timer.cancel();
-                        }
-                    }
-                }
-            }, 1000, 3000);
-        }
-    }
 }

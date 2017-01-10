@@ -4,6 +4,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import javax.jcr.RepositoryException;
@@ -26,6 +28,7 @@ import org.modeshape.jcr.JcrNodeTypeManager;
 import org.modeshape.jcr.JcrRepository;
 import org.modeshape.jcr.LocalEnvironment;
 import org.modeshape.jcr.RepositoryConfiguration;
+import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -41,6 +44,17 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
     private final Logger log = LoggerFactory.getLogger(DBRepositoryFactory.class);
 
     private static final String OPENL_JCR_REPO_ID_KEY = "openl-jcr-repo-id";
+
+    private long initializeTime = 15000;
+    private long finalizeTime = 10000;
+
+    public void setInitializeTime(long initializeTime) {
+        this.initializeTime = initializeTime;
+    }
+
+    public void setFinalizeTime(long finalizeTime) {
+        this.finalizeTime = finalizeTime;
+    }
 
     /**
      * Jackrabbit local repository
@@ -88,8 +102,8 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         }
         log.info("ModeShape repository ID=[{}] has been started", repoName);
 
-        setRepository(repo);
         log.info("Checking the repository...");
+        setRepository(repo);
     }
 
     abstract Connection createConnection(String dbUrl, String user, String pwd);
@@ -184,6 +198,13 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
             }
             throw new RRepositoryException("Failed to initialize DataBase: " + e.getMessage(), e);
         }
+        log.info("Networking...");
+        try {
+            Thread.sleep(initializeTime);
+        } catch (InterruptedException e) {
+            log.info(e.getMessage(), e);
+        }
+        log.info("Configuring JCR session...");
         super.initialize();
         log.info("The repository has loaded");
     }
@@ -217,6 +238,12 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
 
     @Override
     public void close() throws IOException {
+        log.info("Closing the connection to the repository...");
+        try {
+            Thread.sleep(finalizeTime);
+        } catch (InterruptedException e) {
+            log.info(e.getMessage(), e);
+        }
         try {
             super.close();
         } finally {
@@ -229,6 +256,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
                 throw new IOException("Shutdown has failed.", e);
             }
         }
+        log.info("The connection has been closed");
     }
 
     private void registerDrivers() {
@@ -437,5 +465,48 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         UPPER,
         LOWER,
         MIXED
+    }
+
+    @Override
+    public void setListener(Listener callback) {
+        if (callback == null) {
+            super.setListener(null);
+        } else {
+            super.setListener(new MultiAttemptListenerWrapper(callback));
+        }
+    }
+
+    private static class MultiAttemptListenerWrapper implements Listener {
+        private final Logger log = LoggerFactory.getLogger(MultiAttemptListenerWrapper.class);
+        private final Listener listener;
+
+        public MultiAttemptListenerWrapper(Listener listener) {
+            this.listener = listener;
+        }
+
+        @Override
+        public synchronized void onChange() {
+            final Timer timer = new Timer();
+
+            timer.schedule(new TimerTask() {
+                int count = 0;
+
+                @Override
+                public void run() {
+                    try {
+                        log.info("Atempt # {}", count);
+                        System.gc();
+                        listener.onChange();
+                        timer.cancel();
+                    } catch (Exception ex) {
+                        log.error("Unexpected error", ex);
+                        count++;
+                        if (count >= 5) {
+                            timer.cancel();
+                        }
+                    }
+                }
+            }, 3000, 5000);
+        }
     }
 }
