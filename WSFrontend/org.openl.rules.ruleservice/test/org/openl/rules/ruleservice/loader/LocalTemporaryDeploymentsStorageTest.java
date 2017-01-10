@@ -4,11 +4,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.project.abstraction.Deployment;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.annotation.Resource;
 import java.util.Collection;
 
 import static org.junit.Assert.assertFalse;
@@ -20,10 +20,10 @@ import static org.junit.Assert.assertTrue;
 @TestPropertySource(properties = { "production-repository.factory = org.openl.rules.repository.file.FileRepository",
         "production-repository.uri = test-resources/openl-repository" })
 @ContextConfiguration({ "classpath:openl-ruleservice-property-placeholder.xml",
-        "classpath:openl-ruleservice-datasource-jcr-beans.xml" })
+        "classpath:openl-ruleservice-datasource-beans.xml" })
 public class LocalTemporaryDeploymentsStorageTest {
 
-    @Autowired
+    @Resource(name = "jcrdatasource")
     private DataSource dataSource;
 
     private Deployment deployment;
