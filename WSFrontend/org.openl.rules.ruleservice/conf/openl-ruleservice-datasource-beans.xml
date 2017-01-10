@@ -4,6 +4,23 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
        default-lazy-init="true">
 
+    <bean name="repository" class="org.openl.rules.repository.RepositoryInstatiator" factory-method="newRepository"
+          destroy-method="close">
+        <constructor-arg name="factory" value="${production-repository.factory}"/>
+        <constructor-arg name="params">
+            <map>
+                <entry key="uri" value="${production-repository.uri}"/>
+                <entry key="login" value="${production-repository.login}"/>
+                <entry key="password">
+                    <bean class="org.openl.config.PassCoder" factory-method="decode">
+                        <constructor-arg name="strToDecrypt" value="${production-repository.password}"/>
+                        <constructor-arg name="privateKey" value="${repository.encode.decode.key}"/>
+                    </bean>
+                </entry>
+            </map>
+        </constructor-arg>
+    </bean>
+
     <!-- Data source storage that provides information about deployments, projects and their properties and version -->
     <bean id="filesystemdatasource" class="org.openl.rules.ruleservice.loader.FileSystemDataSource"
           depends-on="unpackClasspathAutoJarToDirectoryBean">
@@ -29,35 +46,11 @@
     <!-- This implementation based on JCR repository -->
     <bean id="jcrdatasource" class="org.openl.rules.ruleservice.loader.JcrDataSource"
           depends-on="deployClasspathJarsBean">
-        <property name="repository">
-            <bean class="org.openl.rules.repository.RepositoryInstatiator" factory-method="newRepository"
-                  destroy-method="close">
-                <constructor-arg name="factory" value="${production-repository.factory}"/>
-                <constructor-arg name="params">
-                    <map>
-                        <entry key="uri" value="${production-repository.uri}"/>
-                        <entry key="login" value="${production-repository.login}"/>
-                        <entry key="password">
-                            <bean class="org.openl.config.PassCoder" factory-method="decode">
-                                <constructor-arg name="strToDecrypt" value="${production-repository.password}"/>
-                                <constructor-arg name="privateKey" value="${repository.encode.decode.key}"/>
-                            </bean>
-                        </entry>
-                    </map>
-                </constructor-arg>
-            </bean>
-        </property>
+        <property name="repository" ref="repository"/>
     </bean>
 
     <bean id="deployClasspathJarsBean" class="org.openl.rules.ruleservice.loader.DeployClasspathJarsBean">
-        <property name="configuration">
-            <map>
-                <entry key="production-repository.factory" value="${production-repository.factory}"/>
-                <entry key="production-repository.uri" value="${production-repository.uri}"/>
-                <entry key="production-repository.login" value="${production-repository.login}"/>
-                <entry key="production-repository.password" value="${production-repository.password}"/>
-            </map>
-        </property>
+        <property name="repository" ref="repository"/>
         <property name="enabled"
                   value="#{${ruleservice.datasource.deploy.classpath.jars} and '${ruleservice.datasource.type}' eq 'jcr'}"/>
     </bean>
