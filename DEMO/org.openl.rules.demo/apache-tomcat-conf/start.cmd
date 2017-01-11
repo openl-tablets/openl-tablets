@@ -75,12 +75,12 @@ rem SUBROUTINES
 @echo.
 @echo ### Starting OpenL Tablets DEMO ...
 @echo.
-@if "%JAVA_OPTS%" neq ""     @echo Using JAVA_OPTS:       "%JAVA_OPTS%"
-@if "%CATALINA_OPTS%" neq "" @echo Using CATALINA_OPTS:   "%CATALINA_OPTS%"
-@set CATALINA_OPTS=%CATALINA_OPTS% -DDEMO=DEMO
+@set JAVA_OPTS=%JAVA_OPTS% -Xms512m -Xmx2g -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:PermSize=128m -XX:MaxPermSize=512m
+@set CATALINA_OPTS=%CATALINA_OPTS% -DDEMO=DEMO -Dwebstudio.home=openl-demo -Dwebstudio.configured=true -Dws.port=8080
+@echo Using JAVA_OPTS:       "%JAVA_OPTS%"
+@echo Using CATALINA_OPTS:   "%CATALINA_OPTS%"
 @pushd %~dp0
-@cd bin
-@call startup.bat
+@call bin\startup.bat
 @popd
 @exit /b 0 & endlocal
 

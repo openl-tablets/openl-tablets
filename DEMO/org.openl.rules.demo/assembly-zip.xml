@@ -18,7 +18,7 @@
         </fileSet>
         <fileSet>
             <directory>data</directory>
-            <outputDirectory>${tomcat.root}/bin</outputDirectory>
+            <outputDirectory>${tomcat.root}</outputDirectory>
         </fileSet>
     </fileSets>
     <dependencySets>
