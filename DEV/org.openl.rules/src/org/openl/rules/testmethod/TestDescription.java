@@ -167,7 +167,6 @@ public class TestDescription {
                 for (int j = 0; j < ntimes; j++) {
                     res = testedMethod.invoke(target, args, env);
                 }
-                env.setContext(oldContext);
             } catch (Throwable t) {
                 Log.error("Testing " + this, t);
                 exception = t;

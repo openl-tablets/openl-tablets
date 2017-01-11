@@ -40,9 +40,11 @@ class TableValueFilter extends AGridFilter {
         int row = cell.getRow() - startY - rowOffset;
         if (row >= 0 && col >= 0 && res.getWidth() > col && res.getHeight() > row) {
             Object v = res.getValue(row, col);
+            cell.setObjectValue(v);
             if (v != null) {
-                cell.setObjectValue(v);
                 cell.setFormattedValue(String.valueOf(v));
+            }else{
+                cell.setFormattedValue("null");
             }
         }
 
