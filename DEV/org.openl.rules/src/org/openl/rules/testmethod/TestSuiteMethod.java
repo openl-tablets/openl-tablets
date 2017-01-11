@@ -30,7 +30,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         initProperties(getSyntaxNode().getTableProperties());
     }
 
-    protected TestDescription[] initTests() {
+    private TestDescription[] initTestsAndIndexes() {
         DynamicObject[] testObjects = getTestObjects();
         TestDescription[] tests = new TestDescription[testObjects.length];
         indeces = new HashMap<String, Integer>(tests.length);
@@ -42,7 +42,10 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         return tests;
     }
 
-    public int[] getIndices(String ids) {
+    public synchronized int[] getIndices(String ids) {
+        if (tests == null){
+            initTestsAndIndexes();
+        }
         TreeSet<Integer> result = new TreeSet<Integer>();
 
         String ranges[] = ids.trim().split(" *, *");
@@ -95,9 +98,9 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         return (DynamicObject[]) testArray;
     }
 
-    public TestDescription[] getTests() {
+    public synchronized TestDescription[] getTests() {
         if (tests == null) {
-            this.tests = initTests();
+            this.tests = initTestsAndIndexes();
         }
         return tests;
     }
