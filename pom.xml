@@ -1114,6 +1114,11 @@
             </dependency>
             <dependency>
                 <groupId>org.openl</groupId>
+                <artifactId>org.openl.spring</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl</groupId>
                 <artifactId>org.openl.core</artifactId>
                 <version>${project.version}</version>
             </dependency>
