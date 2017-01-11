@@ -6,9 +6,9 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
-import java.util.Map;
 
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.workspace.deploy.ProductionRepositoryDeployer;
 import org.openl.util.FileUtils;
@@ -24,7 +24,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
     private final Logger log = LoggerFactory.getLogger(DeployClasspathJarsBean.class);
 
     private boolean enabled = false;
-    private Map<String, Object> configuration;
+    private Repository repository;
 
     public boolean isEnabled() {
         return enabled;
@@ -37,10 +37,10 @@ public class DeployClasspathJarsBean implements InitializingBean {
     public DeployClasspathJarsBean() {
     }
 
-    public void setConfiguration(Map<String, Object> configuration) {
-        this.configuration = configuration;
+    public void setRepository(Repository repository) {
+        this.repository = repository;
     }
-    
+
     private void deployJarForJboss(URL resourceURL,
             ProductionRepositoryDeployer productionRepositoryDeployer) throws Exception {
         // This reflection implementation for JBoss vfs
@@ -72,7 +72,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
 
                     File tmpJarFile = new File(tempDir, name);
                     ZipUtils.archive(newProjectDir, tmpJarFile);
-                    productionRepositoryDeployer.deployInternal(tmpJarFile, configuration, true);
+                    productionRepositoryDeployer.deployInternal(tmpJarFile, repository, true);
                 } finally {
                     /* Clean up */
                     FileUtils.deleteQuietly(tempDir);
@@ -120,7 +120,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
                 throw new IOException("File not found. File: " + file.getAbsolutePath());
             }
 
-            productionRepositoryDeployer.deployInternal(file, configuration, true);
+            productionRepositoryDeployer.deployInternal(file, repository, true);
         }
     }
 }

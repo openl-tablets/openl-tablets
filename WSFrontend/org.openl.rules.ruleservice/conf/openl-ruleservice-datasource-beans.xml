@@ -1,17 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-	                    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+       default-lazy-init="true">
 
-	<import resource="classpath:openl-ruleservice-datasource-jcr-beans.xml" />
-	<import resource="classpath:openl-ruleservice-datasource-filesystem-beans.xml" />
+    <bean name="repository" class="org.openl.rules.repository.RepositoryInstatiator" factory-method="newRepository"
+          destroy-method="close">
+        <constructor-arg name="factory" value="${production-repository.factory}"/>
+        <constructor-arg name="params">
+            <map>
+                <entry key="uri" value="${production-repository.uri}"/>
+                <entry key="login" value="${production-repository.login}"/>
+                <entry key="password">
+                    <bean class="org.openl.config.PassCoder" factory-method="decode">
+                        <constructor-arg name="strToDecrypt" value="${production-repository.password}"/>
+                        <constructor-arg name="privateKey" value="${repository.encode.decode.key}"/>
+                    </bean>
+                </entry>
+            </map>
+        </constructor-arg>
+    </bean>
 
-	<!-- Data source storage that provides information about deployments, projects 
-		and their properties and version. Uses ruleservice.jcr.datasource.enabled 
-		property for datasource implementation select -->
-	<bean id="datasource" class="org.openl.rules.ruleservice.conf.DataSourceConfigurationFactoryBean">
-		<property name="datasourceType" value="${ruleservice.datasource.type}" />
-	</bean>
+    <!-- Data source storage that provides information about deployments, projects and their properties and version -->
+    <bean id="localdatasource" class="org.openl.rules.ruleservice.loader.FileSystemDataSource"
+          depends-on="unpackClasspathAutoJarToDirectoryBean">
+        <constructor-arg name="loadDeploymentsFromDirectory" value="${ruleservice.datasource.dir}"/>
+        <property name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter"/>
+        <property name="localWorkspaceFolderFilter" ref="localWorkspaceFolderFilter"/>
+        <property name="supportDeployments" value="${ruleservice.datasource.filesystem.supportDeployments}"/>
+        <property name="supportVersion" value="${ruleservice.datasource.filesystem.supportVersion}"/>
+    </bean>
 
+    <bean id="unpackClasspathAutoJarToDirectoryBean"
+          class="org.openl.rules.ruleservice.loader.UnpackClasspathJarToDirectoryBean">
+        <property name="destinationDirectory" value="${ruleservice.datasource.dir}"/>
+        <property name="unpackAllJarsInOneDeployment"
+                  value="#{!${ruleservice.datasource.filesystem.supportDeployments}}"/>
+        <property name="supportDeploymentVersion" value="${ruleservice.datasource.filesystem.supportVersion}"/>
+        <property name="enabled"
+                  value="#{${ruleservice.datasource.deploy.classpath.jars} and '${ruleservice.datasource.type}' eq 'local'}"/>
+    </bean>
+
+    <!-- Data source storage that provides information about deployments, projects
+        and their properties and version -->
+    <!-- This implementation based on JCR repository -->
+    <bean id="jcrdatasource" class="org.openl.rules.ruleservice.loader.JcrDataSource"
+          depends-on="deployClasspathJarsBean">
+        <property name="repository" ref="repository"/>
+    </bean>
+
+    <bean id="deployClasspathJarsBean" class="org.openl.rules.ruleservice.loader.DeployClasspathJarsBean">
+        <property name="repository" ref="repository"/>
+        <property name="enabled"
+                  value="#{${ruleservice.datasource.deploy.classpath.jars} and '${ruleservice.datasource.type}' eq 'jcr'}"/>
+    </bean>
 </beans>

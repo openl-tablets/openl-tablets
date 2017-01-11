@@ -6,5 +6,5 @@
 	                    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<import resource="classpath:openl-configuration-beans.xml"/>
-	<context:property-placeholder properties-ref="openlDefaultConfiguration" location="classpath:openl-ruleservice.properties, classpath*:*-ruleservice-ext.properties" ignore-unresolvable="true" system-properties-mode="OVERRIDE"/>
+	<context:property-placeholder properties-ref="openlDefaultConfiguration" location="classpath:openl-ruleservice.properties, classpath*:*-ruleservice-ext.properties" ignore-unresolvable="true"/>
 </beans>

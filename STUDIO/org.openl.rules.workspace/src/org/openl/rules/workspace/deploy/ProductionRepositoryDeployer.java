@@ -69,19 +69,29 @@ public class ProductionRepositoryDeployer {
     }
 
     public void deployInternal(File zipFile, Map<String, Object> properties, boolean skipExist) throws Exception {
-
-        // Temp folders
-        File zipFolder = FileUtils.createTempDirectory();
         Repository deployRepo = null;
         try {
             // Initialize repo
             deployRepo = RepositoryFactoryInstatiator.newFactory(properties, false);
-            ;
 
-            // Wait 15 seconds for initializing networking in JGroups.
-            Object initializeTimeout = properties.get("timeout.networking.initialize");
-            Thread.sleep(initializeTimeout == null ? 15000 : Integer.parseInt(initializeTimeout.toString()));
+            deployInternal(zipFile, deployRepo, skipExist);
+        } finally {
+            // Close repo
+            if (deployRepo != null) {
+                if (deployRepo instanceof Closeable) {
+                    // Close repo connection after validation
+                    IOUtils.closeQuietly((Closeable) deployRepo);
+                }
+            }
+        }
 
+    }
+    public void deployInternal(File zipFile, Repository deployRepo, boolean skipExist) throws Exception {
+
+        // Temp folders
+        File zipFolder = FileUtils.createTempDirectory();
+
+        try {
             String name = FileUtils.getBaseName(zipFile.getName());
 
             // Unpack jar to a file system
@@ -113,22 +123,9 @@ public class ProductionRepositoryDeployer {
             dest.setName(target);
             dest.setAuthor("OpenL_Deployer");
             deployRepo.save(dest, new FileInputStream(zipFile));
-
-            // Wait 10 seconds for finalizing networking in JGroups.
-            // + 30 seconds for Infinispan.
-            // This time should exceed Infinispan timeouts.
-            Object finalizeTimeout = properties.get("timeout.networking.finalize");
-            Thread.sleep(finalizeTimeout == null ? 40000 : Integer.parseInt(finalizeTimeout.toString()));
         } finally {
             /* Clean up */
             FileUtils.deleteQuietly(zipFolder);
-            // Close repo
-            if (deployRepo != null) {
-                if (deployRepo instanceof Closeable) {
-                    // Close repo connection after validation
-                    IOUtils.closeQuietly((Closeable) deployRepo);
-                }
-            }
         }
     }
 

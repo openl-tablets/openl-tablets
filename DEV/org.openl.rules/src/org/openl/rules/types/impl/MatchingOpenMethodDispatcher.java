@@ -93,7 +93,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
             default:
                 IOpenMethod method = selected.iterator().next();
                 throw new OpenLRuntimeException( 
-                    String.format("Ambiguous dispatch for method '%3$s'. \n%1$s\nContext: %2$s",
+                    String.format("Ambiguous dispatch for method '%3$s'. Details: \n%1$s\nContext: %2$s",
                         toString(selected),
                         context.toString(), method.getName()));
         }

@@ -13,18 +13,21 @@ import org.junit.runner.RunWith;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.annotation.Resource;
+
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource({"classpath:openl-default.properties", "classpath:rules-production.properties"})
-@ContextConfiguration({ "classpath:openl-ruleservice-datasource-jcr-beans.xml" })
+@TestPropertySource(properties = { "production-repository.factory = org.openl.rules.repository.file.FileRepository",
+        "production-repository.uri = test-resources/openl-repository" })
+@ContextConfiguration({ "classpath:openl-ruleservice-property-placeholder.xml",
+        "classpath:openl-ruleservice-datasource-beans.xml" })
 public class JcrDataSourceTest {
 
-    @Autowired
-    private JcrDataSource dataSource;
+    @Resource(name = "jcrdatasource")
+    private DataSource dataSource;
 
     @Test
     public void testJcrDataSource() {
