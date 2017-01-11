@@ -60,16 +60,6 @@
     <param-value>false</param-value>
   </context-param>
 
-  <context-param>
-    <param-name>log4jConfigLocation</param-name>
-    <param-value>/WEB-INF/conf/log4j.properties</param-value>
-  </context-param>
-
-  <context-param>
-    <param-name>log4jRefreshInterval</param-name>
-    <param-value>5000</param-value> <!-- every 5 seconds -->
-  </context-param>
-
   <!-- Disable the built-in JBoss AS JSF -->
   <context-param>
     <param-name>org.jboss.jbossfaces.WAR_BUNDLES_JSF_IMPL</param-name>
