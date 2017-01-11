@@ -199,7 +199,7 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
 
             List<Resource> resources = getResources();
             addResources(propertySources, OPENL_APPLICATION_PROPS, resources);
-            log.info("openl.home = {}", propertyResolver.resolvePlaceholders("openl.home"));
+            log.info("openl.home = {}", propertyResolver.getProperty("openl.home"));
         } catch (IOException ex) {
             throw new IllegalStateException("Could not load properties", ex);
         }
