@@ -1,4 +1,4 @@
-package org.openl.spring;
+package org.openl.spring.env;
 
 import java.util.ArrayList;
 import java.util.Collections;

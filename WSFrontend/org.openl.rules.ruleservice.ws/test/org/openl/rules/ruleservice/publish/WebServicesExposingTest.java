@@ -7,7 +7,7 @@ import org.apache.cxf.frontend.ServerFactoryBean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.ruleservice.management.ServiceManagerImpl;
-import org.openl.spring.PropertySourcesLoader;
+import org.openl.spring.env.PropertySourcesLoader;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;

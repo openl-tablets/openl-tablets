@@ -1,4 +1,4 @@
-package org.openl.spring;
+package org.openl.spring.env;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -62,7 +62,7 @@ import org.springframework.util.StringValueResolver;
  * {@linkplain org.springframework.web.context.ContextLoader#CONTEXT_INITIALIZER_CLASSES_PARAM
  * "contextInitializerClasses"} context parameter.</li>
  * <li>In Spring configuration, declaring
- * {@code <bean class="org.openl.spring.PropertySourcesLoader"/>} bean.</li>
+ * {@code <bean class="org.openl.spring.env.PropertySourcesLoader"/>} bean.</li>
  * </ul>
  * Default resolving order (next resource overides previous):
  * <ul>
