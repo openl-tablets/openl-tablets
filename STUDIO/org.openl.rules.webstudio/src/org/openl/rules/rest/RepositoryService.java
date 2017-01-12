@@ -1,7 +1,7 @@
 package org.openl.rules.rest;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -21,21 +21,17 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 import org.openl.rules.common.LockInfo;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.PropertyException;
+import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
-import org.openl.rules.common.impl.ArtefactPathImpl;
-import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.repository.file.FileRepository;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
-import org.openl.util.FileUtils;
-import org.openl.util.StringTool;
-import org.openl.util.ZipUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -62,7 +58,7 @@ public class RepositoryService {
     @GET
     @Path("projects")
     public List<ProjectDescription> getProjects() throws WorkspaceException {
-        Collection<? extends AProject> projects = getRepository().getProjects();
+        Collection<? extends AProject> projects = getDesignTimeRepository().getProjects();
         List<ProjectDescription> result = new ArrayList<ProjectDescription>(projects.size());
         for (AProject prj : projects) {
             ProjectDescription projectDescription = getProjectDescription(prj);
@@ -82,20 +78,15 @@ public class RepositoryService {
     @Path("project/{name}")
     @Produces("application/zip")
     public Response getLastProject(@PathParam("name") String name) throws WorkspaceException {
-        File zipFile = null;
         try {
+            FileItem fileItem = getRepository().read(getFileName(name));
+            String zipFileName = String.format("%s-%s.zip", name, fileItem.getData().getVersion());
 
-            AProject project = getRepository().getProject(name);
-            zipFile = ProjectExportHelper.export(getUser(), project);
-            String zipFileName = String.format("%s.zip", project.getName());
-
-            return Response.ok(zipFile)
-                .header("Content-Disposition", "attachment;filename=\"" + StringTool.encodeURL(zipFileName) + "\"")
-                .build();
-        } catch (ProjectException ex) {
+            return Response.ok(fileItem.getStream())
+                    .header("Content-Disposition", "attachment;filename=\"" + zipFileName + "\"")
+                    .build();
+        } catch (IOException ex) {
             return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
-        } finally {
-            FileUtils.deleteQuietly(zipFile);
         }
     }
 
@@ -110,20 +101,16 @@ public class RepositoryService {
     @GET
     @Path("project/{name}/{version:[0-9]+}")
     @Produces("application/zip")
-    public Response getProject(@PathParam("name") String name, @PathParam("version") Integer version) throws WorkspaceException {
-        File zipFile = null;
+    public Response getProject(@PathParam("name") String name, @PathParam("version") String version) throws WorkspaceException {
         try {
-            AProject project = getRepository().getProject(name, new CommonVersionImpl(version));
-            zipFile = ProjectExportHelper.export(getUser(), project);
-            String zipFileName = String.format("%s-%s.zip", project.getName(), version);
+            FileItem fileItem = getRepository().readHistory(getFileName(name), version);
+            String zipFileName = String.format("%s-%s.zip", name, version);
 
-            return Response.ok(zipFile)
-                .header("Content-Disposition", "attachment;filename=\"" + StringTool.encodeURL(zipFileName) + "\"")
+            return Response.ok(fileItem.getStream())
+                .header("Content-Disposition", "attachment;filename=\"" + zipFileName + "\"")
                 .build();
-        } catch (ProjectException ex) {
+        } catch (IOException ex) {
             return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
-        } finally {
-            FileUtils.deleteQuietly(zipFile);
         }
     }
 
@@ -142,43 +129,30 @@ public class RepositoryService {
     @Path("project/{name}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response putProject(@PathParam("name") String name,
-            @Multipart(value = "file") File zipFile,
+            @Multipart(value = "file") InputStream zipFile,
             @Multipart(value = "comment", required = false) String comment) throws WorkspaceException {
-        String destPath = zipFile.getPath() + "fld";
-        File zipFolder = new File(destPath);
-        File workspaceLocation = new File(zipFile.getPath() + "wrk");
-        workspaceLocation.mkdir();
         try {
-            AProject project = getRepository().getProject(name);
+            AProject project = getDesignTimeRepository().getProject(name);
             if (project.isLocked() && !project.isLockedByUser(getUser())) {
                 String lockedBy = project.getLockInfo().getLockedBy().getUserName();
                 return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
             }
 
-            ZipUtils.extractAll(zipFile, zipFolder);
-
-            ArtefactPathImpl path = new ArtefactPathImpl(name);
-            FileRepository repository = new FileRepository();
-            repository.setRoot(workspaceLocation);
-            repository.initialize();
-            AProject newProject = new AProject(repository, path.getStringValue(), true);
-            newProject.setVersionComment(comment);
-
-            project.update(newProject, getUser());// updateProject(null,
-
+            FileData data = new FileData();
+            data.setName(getFileName(name));
+            data.setComment("[REST] " + comment != null ? comment : "");
+            data.setAuthor(getUserName());
+            getRepository().save(data, zipFile);
             return Response.noContent().build();
         } catch (IOException ex) {
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
-        } catch (PropertyException ex) {
-            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         } catch (ProjectException ex) {
             return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
-        } finally {
-            /* Clean up */
-            FileUtils.deleteQuietly(zipFile);
-            FileUtils.deleteQuietly(zipFolder);
-            FileUtils.deleteQuietly(workspaceLocation);
         }
+    }
+
+    private String getFileName(String name) {
+        return "DESIGN/rules/" + name;
     }
 
     /**
@@ -225,15 +199,20 @@ public class RepositoryService {
         return Response.ok().build();
     }
 
-    private DesignTimeRepository getRepository() throws WorkspaceException {
+    private Repository getRepository() throws WorkspaceException {
+        return getDesignTimeRepository().getRepository();
+    }
+
+    private DesignTimeRepository getDesignTimeRepository() throws WorkspaceException {
         return workspaceManager.getUserWorkspace(getUser()).getDesignTimeRepository();
     }
 
     private ProjectDescription getProjectDescription(AProject project) {
         ProjectDescription description = new ProjectDescription();
         description.setName(project.getName());
-        description.setVersion(project.getVersionsCount() - 1);
-        VersionInfo versionInfo = project.getVersion().getVersionInfo();
+        ProjectVersion version = project.getVersion();
+        description.setVersion(version.getRevision());
+        VersionInfo versionInfo = version.getVersionInfo();
         description.setModifiedBy(versionInfo.getCreatedBy());
         description.setModifiedAt(versionInfo.getCreatedAt());
         boolean locked = project.isLocked();
@@ -247,9 +226,13 @@ public class RepositoryService {
     }
 
     private WorkspaceUserImpl getUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String name = auth.getName(); // get logged in username
+        String name = getUserName();
         return new WorkspaceUserImpl(name);
+    }
+
+    private String getUserName() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth.getName();
     }
 
     public void setWorkspaceManager(MultiUserWorkspaceManager workspaceManager) {

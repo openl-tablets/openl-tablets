@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class ProjectDescription {
     private String name; // A project name
-    private int version; // Last version of the project
+    private String version; // Last version of the project
     private Date modifiedAt; // When was the project modified
     private String modifiedBy; // Who modified the project
     private boolean locked; // Is the project locked for editing?
@@ -27,11 +27,11 @@ public class ProjectDescription {
         this.name = name;
     }
 
-    public int getVersion() {
+    public String getVersion() {
         return version;
     }
 
-    public void setVersion(int version) {
+    public void setVersion(String version) {
         this.version = version;
     }
 
