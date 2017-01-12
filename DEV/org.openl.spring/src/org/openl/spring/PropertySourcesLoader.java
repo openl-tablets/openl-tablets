@@ -142,7 +142,7 @@ import org.springframework.util.StringValueResolver;
  * @see org.springframework.context.ApplicationContextInitializer
  * @see PropertyResourceResolver
  */
-public class PropertySourcesLoader extends PlaceholderConfigurerSupport implements ApplicationContextInitializer, ApplicationContextAware {
+public class PropertySourcesLoader extends PlaceholderConfigurerSupport implements ApplicationContextInitializer<ConfigurableApplicationContext>, ApplicationContextAware {
     public static final String OPENL_INIT_PROPS = "openlInitProps";
     public static final String OPENL_DEFAULT_PROPS = "openlDefaultProps";
     public static final String OPENL_APPLICATION_PROPS = "openlApplicationProps";

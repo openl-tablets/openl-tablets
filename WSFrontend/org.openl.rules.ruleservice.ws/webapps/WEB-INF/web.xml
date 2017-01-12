@@ -77,6 +77,11 @@
 	</servlet-mapping>
 	<!-- Other stuff -->
 	<context-param>
+		<description>Load default and application properties to the Spring application environment.</description>
+		<param-name>contextInitializerClasses</param-name>
+		<param-value>org.openl.spring.PropertySourcesLoader</param-value>
+	</context-param>
+	<context-param>
 		<description>Location of the XML file that defines the root application context applied by ContextLoaderListener.</description>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>classpath:openl-ruleservice-beans.xml classpath:openl-ruleservice-logging-beans.xml classpath:openl-ruleservice-override-beans.xml</param-value>

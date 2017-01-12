@@ -1,10 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
+    <!-- START Old properties support -->
+    <bean id="log" class="org.slf4j.LoggerFactory" factory-method="getLogger">
+        <constructor-arg value="Spring"/>
+    </bean>
+    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject" ref="log"/>
+        <property name="targetMethod" value="warn"/>
+        <property name="arguments"
+                  value="Remove old properties locations from openl-ruleservice-property-placeholder.xml !"/>
+    </bean>
+    <!-- This way does not allow to use system properties to override values from *-ruleservice-ext.properties -->
+    <context:property-placeholder
+            location="classpath:openl-ruleservice.properties, classpath*:*-ruleservice-ext.properties"
+            ignore-unresolvable="true" ignore-resource-not-found="true" local-override="true"/>
+
+    <!-- Another way to load properties which can be overridden by system properties,
+         but it requires to remove 'contextInitializerClasses' context-param from web.xml descriptor. -->
+    <!--
     <bean class="org.openl.spring.PropertySourcesLoader">
         <property name="locations"
                   value="${openl.config.location}, classpath:openl-ruleservice.properties, classpath*:*-ruleservice-ext.properties"/>
     </bean>
+    -->
+    <!-- END Old properties support -->
+
+    <!-- or just use only the following string without any modifications in web.xml
+    <context:property-placeholder/>
+    -->
 </beans>
