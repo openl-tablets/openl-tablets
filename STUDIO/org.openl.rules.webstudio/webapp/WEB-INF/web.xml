@@ -14,6 +14,11 @@
   <description>OpenL Tablets WebStudio</description>
 
   <context-param>
+    <description>Load default and application properties to the Spring application environment.</description>
+    <param-name>contextInitializerClasses</param-name>
+    <param-value>org.openl.spring.PropertySourcesLoader</param-value>
+  </context-param>
+  <context-param>
     <description>
       Location of the XML file that defines the root application context, applied by ContextLoaderListener.
     </description>
