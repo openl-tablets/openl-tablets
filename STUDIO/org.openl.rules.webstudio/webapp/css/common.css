@@ -309,6 +309,11 @@ fieldset {
     font-weight: bold !important;
 }
 
+/* Workaround for a bug in FF: it doesn't repaint table's low border when table is regenerated dynamically */
+.table tr:last-child > td {
+    border-bottom: 0;
+}
+
 .badge {
     background: #999;
     border-radius: 1px;
