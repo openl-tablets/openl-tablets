@@ -21,7 +21,7 @@
             ignore-unresolvable="true" ignore-resource-not-found="true" local-override="true"/>
 
     <!-- Another way to load properties which can be overridden by system properties,
-         but it requires to remove 'contextInitializerClasses' context-param from web.xml descriptor. -->
+         but be aware that this class also registered in 'contextInitializerClasses' context-param in web.xml descriptor. -->
     <!--
     <bean class="org.openl.spring.PropertySourcesLoader">
         <property name="locations"
