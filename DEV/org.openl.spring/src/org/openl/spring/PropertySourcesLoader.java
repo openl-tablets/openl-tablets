@@ -286,11 +286,19 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
         }
         for (Resource resource : resources) {
             if (resource.exists()) {
-                log.info("+         Add: '{}'", resource);
+                log.info("+         Add: [{}] '{}'", location, getInfo(resource));
                 result.add(resource);
             } else {
-                debug("-   Not exist: '{}'", resource);
+                debug("-   Not exist: [{}] '{}'", location, resource);
             }
+        }
+    }
+
+    private Object getInfo(Resource resource) {
+        try {
+            return resource.getURL();
+        } catch (Exception e) {
+            return resource;
         }
     }
 
