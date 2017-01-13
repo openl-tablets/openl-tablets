@@ -24,18 +24,6 @@
                     <attachClasses>true</attachClasses>
                     <warSourceDirectory>webapps</warSourceDirectory>
                     <warName>${war.name}-${project.version}</warName>
-                    <packagingExcludes>
-                        WEB-INF/lib/geronimo-servlet*.jar,
-                        WEB-INF/lib/poi-2.5.1-*.jar
-                    </packagingExcludes>
-                    <webResources>
-                        <resource>
-                            <directory>conf</directory>
-                            <includes>
-                                <exclude>openl-ruleservice-beans.xml</exclude>
-                            </includes>
-                        </resource>
-                    </webResources>
                 </configuration>
             </plugin>
             <plugin>
