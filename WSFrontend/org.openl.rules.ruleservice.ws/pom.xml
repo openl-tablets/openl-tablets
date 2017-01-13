@@ -214,10 +214,5 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.openl</groupId>
-            <artifactId>org.openl.spring</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 </project>
