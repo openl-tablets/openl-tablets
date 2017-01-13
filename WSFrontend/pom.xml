@@ -7,7 +7,6 @@
         <version>5.19.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.ruleservice-pom</artifactId>
     <packaging>pom</packaging>
     <name>OpenL - RuleService</name>
@@ -27,36 +26,4 @@
 	<module>org.openl.rules.ruleservice.ws.logging.elasticsearch</module>
         <module>org.openl.rules.ruleservice.ws</module>
     </modules>
-    <repositories>
-        <repository>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </snapshots>
-            <id>local-wsfrontend-repo</id>
-            <url>file:///${basedir}/org.openl.rules.ruleservice-pom/m2_repo</url>
-        </repository>
-        <repository>
-            <id>apache-incubating</id>
-            <url>http://people.apache.org/repo/m2-incubating-repository/</url>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </snapshots>
-            <id>local-wsfrontend-plugin-repo</id>
-            <url>file:///${basedir}/org.openl.rules.ruleservice-pom/m2_repo</url>
-        </pluginRepository>
-    </pluginRepositories>
 </project>
