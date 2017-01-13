@@ -25,7 +25,7 @@
     <!--
     <bean class="org.openl.spring.env.PropertySourcesLoader">
         <property name="locations"
-                  value="${openl.config.location}, classpath:openl-ruleservice.properties, classpath*:*-ruleservice-ext.properties"/>
+                  value="classpath:openl-ruleservice.properties, classpath*:*-ruleservice-ext.properties"/>
     </bean>
     -->
     <!-- END Old properties support -->

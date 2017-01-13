@@ -1,11 +1,9 @@
 package org.openl.spring.env;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-import org.openl.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -22,7 +20,6 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.PropertySources;
 import org.springframework.core.env.PropertySourcesPropertyResolver;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.ResourcePropertySource;
 import org.springframework.util.StringValueResolver;
 
 /**
@@ -115,6 +112,13 @@ import org.springframework.util.StringValueResolver;
  * <li>file:${openl.home}/{appName}-{profile}.properties</li>
  * </ol>
  * </li>
+ * <li>OpenL init config. It is used to load initial configurations of this
+ * class.
+ * <ol>
+ * <li>classpath:openl-init-config.properties</li>
+ * <li>${openl.config.init}</li>
+ * </ol>
+ * </li>
  * <li>Spring environment.
  * <ol>
  * <li>OS environment variables. {@link System#getenv()}</li>
@@ -175,11 +179,23 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
 
     @Override
     public void initialize(ConfigurableApplicationContext appContext) {
-        log.info("!   The initialization of properties from web.xml");
+        log.info("The initialization of properties from 'contextInitializerClasses' context-param in web.xml");
         setApplicationContext(appContext);
         ConfigurableEnvironment env = appContext.getEnvironment();
         MutablePropertySources propertySources = env.getPropertySources();
-        load(propertySources, env);
+        init(propertySources, env);
+
+        CompositePropertySource initProps = createCompositPropertySource(OPENL_INIT_PROPS);
+        CompositePropertySource defaultProps = createCompositPropertySource(OPENL_INIT_DEFAULT_PROPS);
+        CompositePropertySource applicationProps = createCompositPropertySource(OPENL_INIT_APPLICATION_PROPS);
+
+        propertySources.addLast(initProps);
+        propertySources.addAfter(OPENL_INIT_PROPS, defaultProps);
+        propertySources.addAfter(OPENL_INIT_PROPS, applicationProps);
+
+        addInitProps(initProps);
+        addDefaultProps(defaultProps, false);
+        addApplicationProps(applicationProps, false);
     }
 
     @Override
@@ -187,44 +203,30 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
         this.appContext = appContext;
     }
 
-    private void load(MutablePropertySources propertySources, Environment env) {
-        try {
-            PropertySourcesPropertyResolver propertyResolver = new PropertySourcesPropertyResolver(propertySources);
-            String[] profiles = env == null ? null : env.getActiveProfiles();
-            resolver = new PropertyResourceResolver(propertyResolver, getAppName(appContext), profiles);
-            resolver.debug = debug;
-            boolean alreadyInit = propertySources.contains(OPENL_INIT_PROPS);
-            CompositePropertySource defaultProps;
-            CompositePropertySource applicationProps;
-            if (!alreadyInit) {
-                log.info("!   The first initialization of properties.");
-                Resource initConfig = appContext.getResource("classpath:openl-default-config.properties");
-                propertySources.addLast(new ResourcePropertySource(OPENL_INIT_PROPS, initConfig));
-                defaultProps = new CompositePropertySource(OPENL_INIT_DEFAULT_PROPS);
-                propertySources.addAfter(OPENL_INIT_PROPS, defaultProps);
-                applicationProps = new CompositePropertySource(OPENL_INIT_APPLICATION_PROPS);
-                propertySources.addAfter(OPENL_INIT_PROPS, applicationProps);
-            } else {
-                log.info("!   The seconds initialization of properties. Does it override the first initialization ? - {}.", localOverride);
-                defaultProps = new CompositePropertySource(OPENL_DEFAULT_PROPS);
-                propertySources.addBefore(OPENL_INIT_DEFAULT_PROPS, defaultProps);
-                applicationProps = new CompositePropertySource(OPENL_APPLICATION_PROPS);
-                if (localOverride) {
-                    propertySources.addBefore(OPENL_INIT_APPLICATION_PROPS, applicationProps);
-                } else {
-                    propertySources.addAfter(OPENL_INIT_APPLICATION_PROPS, applicationProps);
-                }
-            }
+    private void init(MutablePropertySources propertySources, Environment env) {
+        PropertySourcesPropertyResolver propertyResolver = new PropertySourcesPropertyResolver(propertySources);
+        String[] profiles = env == null ? null : env.getActiveProfiles();
+        resolver = new PropertyResourceResolver(propertyResolver, getAppName(appContext), profiles);
+        resolver.debug = debug;
+    }
 
-            addDefaultProps(defaultProps, alreadyInit);
-            addApplicationProps(applicationProps, alreadyInit);
-            log.info("openl.home = {}", propertyResolver.getProperty("openl.home"));
-        } catch (IOException ex) {
-            throw new IllegalStateException("Could not load properties", ex);
+    private CompositePropertySource createCompositPropertySource(String name) {
+        CompositePropertySource propertySource = new CompositePropertySource(name);
+        propertySource.debug = this.debug;
+        return propertySource;
+    }
+
+    private void addInitProps(CompositePropertySource propertySource) {
+        log.info("Loading initial properties...");
+        List<String> locations = resolver.resolvePlaceholders("classpath:openl-init-config.properties",
+            "${openl.config.init}");
+        for (String location : locations) {
+            addResource(propertySource, location);
         }
     }
 
-    private void addDefaultProps(CompositePropertySource propertySource, boolean alreadyInit) throws IOException {
+    private void addDefaultProps(CompositePropertySource propertySource, boolean alreadyInit) {
+        log.info("Loading default properties...");
         List<String> locations = resolvePlaceholders(defaults, DEFAULT_DEFAULTS, alreadyInit);
         for (String location : locations) {
             addResource(propertySource, location);
@@ -232,6 +234,7 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
     }
 
     private void addApplicationProps(CompositePropertySource propertySource, boolean alreadyInit) {
+        log.info("Loading application properties...");
         List<String> lc = resolvePlaceholders(locations, DEFAULT_LOCATIONS, alreadyInit);
         List<String> nm = resolvePlaceholders(names, DEFAULT_NAMES, alreadyInit);
         for (String location : lc) {
@@ -269,45 +272,10 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
     private void addResource(CompositePropertySource propertySource, String location) {
         List<String> list = resolver.resolvePlaceholders(location);
         for (String value : list) {
-            PropertySource resources = loadResource(value);
             // To preserve overriding order we iterate from the end.
             // The next resource should override the previous.
-            propertySource.addFirst(resources);
+            propertySource.addFirst(appContext, value);
         }
-    }
-
-    private PropertySource loadResource(String location) {
-        if (location == null) {
-            return null;
-        }
-        if (location.matches("[\\{\\}]")) {
-            log.info("!  Unresolved: '{}'", location);
-        }
-        Resource[] resources;
-        try {
-            resources = appContext.getResources(location);
-        } catch (IOException e) {
-            debug("!       Error: '{}'", location, e);
-            return null;
-        }
-        if (CollectionUtils.isEmpty(resources)) {
-            debug("-   Not found: '{}'", location);
-            return null;
-        }
-        CompositePropertySource propertySource = new CompositePropertySource(location);
-        for (Resource resource : resources) {
-            try {
-                if (resource.exists()) {
-                    propertySource.addFirst(new ResourcePropertySource(resource));
-                    log.info("+         Add: [{}] '{}'", location, getInfo(resource));
-                } else {
-                    debug("-   Not exist: [{}] '{}'", location, resource);
-                }
-            } catch (Exception ex) {
-                debug("!       Error: [{}] '{}'", location, resource, ex);
-            }
-        }
-        return propertySource.get();
     }
 
     private Object getInfo(Resource resource) {
@@ -321,7 +289,7 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         if (propertySources == null) {
-            log.info("!   The initialization of properties from the Spring configuration.");
+            log.info("The initialization of properties from the Spring configuration.");
             Environment env = appContext.getEnvironment();
             if (env instanceof ConfigurableEnvironment) {
                 propertySources = ((ConfigurableEnvironment) env).getPropertySources();
@@ -336,9 +304,42 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
                     });
                 }
             }
-            load(propertySources, env);
+            init(propertySources, env);
+            load(propertySources);
         }
         processProperties(beanFactory, propertySources);
+    }
+
+    private void load(MutablePropertySources propertySources) {
+        CompositePropertySource defaultProps = createCompositPropertySource(OPENL_DEFAULT_PROPS);
+        CompositePropertySource applicationProps = createCompositPropertySource(OPENL_APPLICATION_PROPS);
+
+        boolean alreadyInit = true;
+        if (propertySources.contains(OPENL_DEFAULT_PROPS)) {
+            log.info("The second initialization of properties. Reload previous properties.");
+            propertySources.replace(OPENL_DEFAULT_PROPS, defaultProps);
+            propertySources.replace(OPENL_APPLICATION_PROPS, applicationProps);
+        } else if (!propertySources.contains(OPENL_INIT_PROPS)) {
+            alreadyInit = false;
+            log.info("The first initialization of properties. Create new.");
+            CompositePropertySource initProps = createCompositPropertySource(OPENL_INIT_PROPS);
+            propertySources.addLast(initProps);
+            addInitProps(initProps);
+
+            propertySources.addAfter(OPENL_INIT_PROPS, defaultProps);
+            propertySources.addAfter(OPENL_INIT_PROPS, applicationProps);
+        } else if (localOverride) {
+            log.info("The first initialization of properties. Override application properties.");
+            propertySources.addBefore(OPENL_INIT_DEFAULT_PROPS, defaultProps);
+            propertySources.addBefore(OPENL_INIT_APPLICATION_PROPS, applicationProps);
+        } else {
+            log.info("The first initialization of properties. Append to application properties.");
+            propertySources.addBefore(OPENL_INIT_DEFAULT_PROPS, defaultProps);
+            propertySources.addAfter(OPENL_INIT_APPLICATION_PROPS, applicationProps);
+
+        }
+        addDefaultProps(defaultProps, alreadyInit);
+        addApplicationProps(applicationProps, alreadyInit);
     }
 
     @Override
@@ -350,7 +351,7 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
 
     protected void processProperties(ConfigurableListableBeanFactory beanFactory,
             PropertySources propertySources) throws BeansException {
-        log.info("!   Apply properties.");
+        log.info("Apply properties.");
         final PropertySourcesPropertyResolver propertyResolver = new PropertySourcesPropertyResolver(propertySources);
         propertyResolver.setPlaceholderPrefix(this.placeholderPrefix);
         propertyResolver.setPlaceholderSuffix(this.placeholderSuffix);
