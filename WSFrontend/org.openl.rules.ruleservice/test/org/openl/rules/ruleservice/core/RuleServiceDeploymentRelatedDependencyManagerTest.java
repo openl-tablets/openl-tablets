@@ -19,7 +19,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource(properties={"ruleservice.datasource.dir=test-resources/RuleServiceDeploymentRelatedDependencyManagerTest", "ruleservice.isProvideRuntimeContext=false"})
 @ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
-@Ignore
+//@Ignore
 public class RuleServiceDeploymentRelatedDependencyManagerTest implements ApplicationContextAware {
 
     private ApplicationContext applicationContext;

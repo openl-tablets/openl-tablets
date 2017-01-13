@@ -28,7 +28,7 @@ import org.openl.rules.variation.VariationsFactory;
 import org.openl.rules.variation.VariationsFromRules;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.rules.variation.VariationsResult;
-@Ignore
+//@Ignore
 public class VariationsTest {
     private static final String TEST_PROJECT_FOLDER = "test/resources/dependencies/test4/module/dependency-module1";
     public static final String STANDART = "Standard Driver";

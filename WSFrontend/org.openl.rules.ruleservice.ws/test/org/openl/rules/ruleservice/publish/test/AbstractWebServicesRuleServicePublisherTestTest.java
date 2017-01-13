@@ -12,12 +12,13 @@ import org.junit.runner.RunWith;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.spring.env.PropertySourcesLoader;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:openl-ruleservice-beans.xml" })
+@ContextConfiguration(initializers = PropertySourcesLoader.class, locations = { "classpath:openl-ruleservice-logging-beans.xml", "classpath:openl-ruleservice-beans.xml", "classpath:openl-ruleservice-override-beans.xml"})
 @DirtiesContext
 @Ignore
 public class AbstractWebServicesRuleServicePublisherTestTest extends AbstractWebServicesRuleServicePublisherTest {

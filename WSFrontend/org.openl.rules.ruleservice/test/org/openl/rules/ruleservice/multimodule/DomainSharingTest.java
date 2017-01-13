@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.ruleservice.management.ServiceManager;
@@ -18,8 +17,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource(properties={"ruleservice.datasource.dir=test-resources/DomainSharingTest", "ruleservice.isProvideRuntimeContext=false"})
-@ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
-@Ignore
+@ContextConfiguration(value={ "classpath:openl-ruleservice-beans.xml" })
+//@Ignore
 public class DomainSharingTest implements ApplicationContextAware {
     private ApplicationContext applicationContext;
 
