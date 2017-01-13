@@ -11,6 +11,7 @@
 
     <groupId>org.openl</groupId>
     <artifactId>org.openl.spring</artifactId>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
@@ -26,19 +27,4 @@
             <artifactId>spring-context</artifactId>
         </dependency>
     </dependencies>
-    <build>
-        <resources>
-            <resource>
-                <directory>resources</directory>
-            </resource>
-            <resource>
-                <directory>src</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>
-
-
 </project>

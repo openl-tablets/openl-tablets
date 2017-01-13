@@ -1,0 +1,28 @@
+<project>
+	<!--  Project identifier. String value which defines project uniquely. -->
+	<id>engine-project</id>
+	<!-- Project name. -->
+	<name>Engine Project</name>
+
+	<!-- OpenL project includes one or more modules.  -->
+	<modules>
+
+		<module>
+			<name>main module</name>
+			<type>dynamic</type>
+			<classname>org.openl.example.ServiceClass</classname>
+			<!-- 
+				Rules root document. Usually excel file on file system. 
+			-->
+			<rules-root path="TemplateRules.xlsx"/>
+
+		</module>	
+
+	</modules>
+	
+	<!-- Project's classpath. -->
+	<classpath>
+		<entry path="classes"/>
+	</classpath>
+	
+</project>

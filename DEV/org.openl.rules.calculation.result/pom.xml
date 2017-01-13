@@ -19,14 +19,6 @@
         <license.inceptionYear>2015</license.inceptionYear>
     </properties>
     <build>
-        <resources>
-            <resource>
-                <directory>src</directory>
-                <includes>
-                    <include>**/*.xls</include>
-                </includes>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

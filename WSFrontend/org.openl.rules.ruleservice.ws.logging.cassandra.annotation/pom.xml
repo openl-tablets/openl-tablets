@@ -1,36 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.openl.rules</groupId>
-		<artifactId>org.openl.rules.ruleservice-pom</artifactId>
-		<version>5.19.0-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
-	<artifactId>org.openl.rules.ruleservice.ws.logging.cassandra.annotation</artifactId>
-	<packaging>jar</packaging>
-	<name>OpenL - RuleService - Web Services - Logging Cassandra Annotation</name>
-	<description>OpenL Rules Webservice Logging Cassandra</description>
-	<url>//openl-tablets.org</url>
-	<build>
-		<resources>
-			<resource>
-				<directory>src</directory>
-				<includes>
-					<include>**/*.properties</include>
-					<include>**/*.cql</include>
-				</includes>
-			</resource>
-		</resources>
-		<testResources>
-			<testResource>
-				<directory>test</directory>
-				<includes>
-					<include>**/*.properties</include>
-					<include>**/*.xml</include>
-				</includes>
-			</testResource>
-		</testResources>
-	</build>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.ruleservice-pom</artifactId>
+        <version>5.19.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>org.openl.rules.ruleservice.ws.logging.cassandra.annotation</artifactId>
+    <packaging>jar</packaging>
+    <name>OpenL - RuleService - Web Services - Logging Cassandra Annotation</name>
+    <description>OpenL Rules Webservice Logging Cassandra</description>
+    <url>//openl-tablets.org</url>
 </project>

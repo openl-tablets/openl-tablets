@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!-- This file is for releasing OpenL version wIth maven-release-plugin -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
@@ -87,7 +88,7 @@
         <org.apache.jackrabbit.version>2.8.0</org.apache.jackrabbit.version>
         <com.fasterxml.jackson.version>2.6.5</com.fasterxml.jackson.version>
         <!-- Empty for building without JaCoCo agent -->
-        <jacococ.argLine />
+        <jacococ.argLine/>
     </properties>
 
     <modules>
@@ -113,6 +114,22 @@
     <build>
         <sourceDirectory>src</sourceDirectory>
         <testSourceDirectory>test</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>resources</directory>
+            </resource>
+            <resource>
+                <directory>src</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>test-resources</directory>
+            </testResource>
+        </testResources>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -182,6 +199,9 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
                     <version>2.4</version>
+                    <configuration>
+                        <warSourceDirectory>webapp</warSourceDirectory>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

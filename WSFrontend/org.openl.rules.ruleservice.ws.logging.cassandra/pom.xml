@@ -13,29 +13,6 @@
 	<name>OpenL - RuleService - Web Services - Logging Cassandra</name>
 	<description>OpenL Rules Webservice Logging Cassandra</description>
 	<url>//openl-tablets.org</url>
-	<build>
-		<resources>
-			<resource>
-				<directory>src</directory>
-				<includes>
-					<include>**/*.properties</include>
-					<include>**/*.cql</include>
-				</includes>
-			</resource>
-			<resource>
-				<directory>conf</directory>
-			</resource>
-		</resources>
-		<testResources>
-			<testResource>
-				<directory>test</directory>
-				<includes>
-					<include>**/*.properties</include>
-					<include>**/*.xml</include>
-				</includes>
-			</testResource>
-		</testResources>
-	</build>
 	<dependencies>
 		<!-- CXF -->
 		<dependency>

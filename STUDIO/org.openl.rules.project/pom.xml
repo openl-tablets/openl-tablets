@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openl.rules</groupId>
@@ -26,23 +27,13 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>test/resources/dependencies/test4/module/dependency-module1/gen</source>
+                                <source>test-resources/dependencies/test4/module/dependency-module1/gen</source>
                             </sources>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
-        <resources>
-            <resource>
-                <directory>src</directory>
-                <includes>
-                    <include>project-resolver-beans.xml</include>
-                    <include>org/openl/rules/project/resolving/DefaultPropertiesFileNameProcessor.info</include>
-                </includes>
-            </resource>
-        </resources>
-        <testSourceDirectory>test/java</testSourceDirectory>
     </build>
     <dependencies>
         <dependency>
