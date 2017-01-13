@@ -1,6 +1,6 @@
 package org.openl.example;
 
-public class TestBean {
+public class JavaBean {
 
     private String stringField;
     private int intField;

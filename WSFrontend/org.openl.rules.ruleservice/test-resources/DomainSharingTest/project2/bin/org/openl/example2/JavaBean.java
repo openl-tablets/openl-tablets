@@ -1,12 +1,9 @@
 package org.openl.example2;
 
-public class TestBean {
+public class JavaBean {
 
     private String stringField;
     private double doubleField;
-
-    public TestBean() {
-    }
 
     public String getStringField() {
         return stringField;
