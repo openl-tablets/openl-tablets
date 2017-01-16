@@ -159,7 +159,7 @@
 
   <listener>
     <!-- Set webapp.root property -->
-    <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+    <listener-class>org.springframework.web.util.WebAppRootListener</listener-class>
   </listener>
 
   <listener>
