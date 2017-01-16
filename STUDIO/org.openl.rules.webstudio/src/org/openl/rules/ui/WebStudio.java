@@ -27,6 +27,7 @@ import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
@@ -34,6 +35,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
+import org.openl.rules.repository.api.FileData;
 import org.openl.rules.ui.tree.view.CategoryDetailedView;
 import org.openl.rules.ui.tree.view.CategoryInversedView;
 import org.openl.rules.ui.tree.view.CategoryView;
@@ -468,6 +470,12 @@ public class WebStudio {
                 throw new ValidationException(errorMessage);
             }
 
+            RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(FacesUtils.getSession());
+            final String userName = rulesUserSession.getUserName();
+            UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
+            final LocalRepository repository = userWorkspace.getLocalWorkspace().getRepository();
+            final String name = projectDescriptor.getName();
+
             // Release resources that can be deleted or replaced
             getModel().clearModuleInfo();
 
@@ -497,17 +505,12 @@ public class WebStudio {
                     File outputFile = new File(projectFolder, filePath);
                     historyListener.beforeSave(outputFile);
 
-                    OutputStream outputStream = null;
-                    try {
-                        File folder = outputFile.getParentFile();
-                        if (folder != null && !folder.mkdirs() && !folder.isDirectory()) {
-                            throw new IOException("Can't create parent folder");
-                        }
-                        outputStream = new FileOutputStream(outputFile);
-                        IOUtils.copy(inputStream, outputStream);
-                    } finally {
-                        IOUtils.closeQuietly(outputStream);
-                    }
+                    FileData data = new FileData();
+                    data.setAuthor(userName);
+                    data.setComment("Uploaded from external source");
+                    data.setName(name + "/" + filePath);
+                    repository.save(data, inputStream);
+
                     historyListener.afterSave(outputFile);
 
                     return true;

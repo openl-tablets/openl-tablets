@@ -8,7 +8,9 @@ import org.openl.util.IOUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FilterInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
@@ -37,7 +39,7 @@ public class ZipWalker {
                         break;
                     }
                 } else {
-                    if (!command.execute(fileName, zipInputStream)) {
+                    if (!command.execute(fileName, new NotClosableInputStream(zipInputStream))) {
                         break;
                     }
                 }
@@ -66,6 +68,18 @@ public class ZipWalker {
             return new RootFolderExtractor(names, zipFilter);
         } finally {
             IOUtils.closeQuietly(zipInputStream);
+        }
+    }
+
+    private class NotClosableInputStream extends FilterInputStream {
+
+        protected NotClosableInputStream(InputStream in) {
+            super(in);
+        }
+
+        @Override
+        public void close() throws IOException {
+            // Skip closing
         }
     }
 }
