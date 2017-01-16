@@ -16,18 +16,22 @@
                   value="Remove old properties locations from openl-ruleservice-property-placeholder.xml !"/>
     </bean>
     <!-- This way does not allow to use system properties to override values from *-ruleservice-ext.properties -->
+    <!--
     <context:property-placeholder
             location="classpath:openl-ruleservice.properties, classpath*:*-ruleservice-ext.properties"
             ignore-unresolvable="true" ignore-resource-not-found="true" local-override="true"/>
-
+    -->
     <!-- Another way to load properties which can be overridden by system properties,
          but be aware that this class also registered in 'contextInitializerClasses' context-param in web.xml descriptor. -->
-    <!--
     <bean class="org.openl.spring.env.PropertySourcesLoader">
-        <property name="locations"
-                  value="classpath:openl-ruleservice.properties, classpath*:*-ruleservice-ext.properties"/>
+        <property name="locations">
+            <array>
+                <value>classpath:openl-ruleservice.properties</value>
+                <value>classpath:rules-production.properties</value>
+                <value>classpath*:*-ruleservice-ext.properties</value>
+            </array>
+        </property>
     </bean>
-    -->
     <!-- END Old properties support -->
 
     <!-- or just use only the following string without any modifications in web.xml
