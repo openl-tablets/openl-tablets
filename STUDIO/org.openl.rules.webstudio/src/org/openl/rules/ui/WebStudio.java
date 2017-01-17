@@ -151,12 +151,10 @@ public class WebStudio {
     }
 
     private void initUserSettings(HttpSession session) {
-        String userMode = systemConfigManager.getStringProperty("user.mode");
         String settingsLocation = systemConfigManager.getStringProperty("user.settings.home")
-                + (!userMode.equals("single") ? (File.separator + WebStudioUtils.getRulesUserSession(session)
-                .getUserName()) : "") + File.separator + USER_SETTINGS_FILENAME;
-        String defaultSettingsLocation = session.getServletContext().getRealPath(
-                "/WEB-INF/conf/" + USER_SETTINGS_FILENAME);
+                + File.separator + WebStudioUtils.getRulesUserSession(session).getUserName()
+                + File.separator + USER_SETTINGS_FILENAME;
+        String defaultSettingsLocation = session.getServletContext().getRealPath("/WEB-INF/conf/" + USER_SETTINGS_FILENAME);
 
         userSettingsManager = new ConfigurationManager(false, settingsLocation, defaultSettingsLocation, true);
 
