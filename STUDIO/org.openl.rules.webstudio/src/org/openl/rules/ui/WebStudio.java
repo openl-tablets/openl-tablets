@@ -472,7 +472,8 @@ public class WebStudio {
             final String userName = rulesUserSession.getUserName();
             UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
             final LocalRepository repository = userWorkspace.getLocalWorkspace().getRepository();
-            final String name = projectDescriptor.getName();
+            // project folder is not the same as project name
+            final String projectPath = projectDescriptor.getProjectFolder().getName();
 
             // Release resources that can be deleted or replaced
             getModel().clearModuleInfo();
@@ -506,7 +507,7 @@ public class WebStudio {
                     FileData data = new FileData();
                     data.setAuthor(userName);
                     data.setComment("Uploaded from external source");
-                    data.setName(name + "/" + filePath);
+                    data.setName(projectPath + "/" + filePath);
                     repository.save(data, inputStream);
 
                     historyListener.afterSave(outputFile);
@@ -714,20 +715,18 @@ public class WebStudio {
         HttpSession session = FacesUtils.getSession();
         UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
 
-        if (userWorkspace.hasProject(name)) {
-            try {
-                if (getCurrentProject() != userWorkspace.getProject(name)) {
-                    return true;
-                }
-            } catch (ProjectException e) {
-                // Should not occur
-                log.error(e.getMessage(), e);
-            }
+        // The order of getting projects is important!
+        Collection<RulesProject> projects = userWorkspace.getProjects(); // #1
+        RulesProject project = getProject(name); // #2
+        RulesProject currentProject = getCurrentProject(); // #3
+
+        if (project != currentProject) {
+            return true;
         }
 
         ProjectDescriptorArtefactResolver projectDescriptorResolver = getProjectDescriptorResolver();
-        for (RulesProject rulesProject : userWorkspace.getProjects()) {
-            if (getCurrentProject() == rulesProject) {
+        for (RulesProject rulesProject : projects) {
+            if (currentProject == rulesProject) {
                 continue;
             }
             if (projectDescriptorResolver.getLogicalName(rulesProject).equals(name)) {
@@ -736,6 +735,21 @@ public class WebStudio {
         }
 
         return false;
+    }
+
+    private RulesProject getProject(String name) {
+        HttpSession session = FacesUtils.getSession();
+        UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
+        RulesProject project = null;
+        if (userWorkspace.hasProject(name)) {
+            try {
+                project = userWorkspace.getProject(name);
+            } catch (ProjectException e) {
+                // Should not occur
+                log.error(e.getMessage(), e);
+            }
+        }
+        return project;
     }
 
     public void setTreeView(RulesTreeView treeView) throws Exception {
