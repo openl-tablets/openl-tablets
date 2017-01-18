@@ -1,33 +1,38 @@
 package org.openl.rules.db.utils;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.faces.validator.ValidatorException;
 
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.config.ConfigurationManager;
 import org.openl.rules.webstudio.web.install.InstallWizard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DBUtils {
-    private static final String SQL_ERRORS_FILE_PATH = "db/sql-errors.properties";
+    private static final String SQL_ERRORS_FILE_PATH = "/WEB-INF/conf/db/sql-errors.properties";
     private static final String TABLE_FOR_VALIDATION = "schema_version";
 
     private final Logger log = LoggerFactory.getLogger(InstallWizard.class);
 
-    private Map<String, Object> dbErrors;
+    private Map<Object, Object> dbErrors;
 
     public DBUtils() {
-        ConfigurationManager sqlErrorsConfig = new ConfigurationManager(false,
-            null,
-            System.getProperty("webapp.root") + "/WEB-INF/conf/" + SQL_ERRORS_FILE_PATH);
-        dbErrors = sqlErrorsConfig.getProperties();
+        Properties properties = new Properties();
+        try {
+            properties.load(FacesUtils.getServletContext().getResourceAsStream(SQL_ERRORS_FILE_PATH));
+        } catch (IOException e) {
+            log.error("Cannot to load {} file.", SQL_ERRORS_FILE_PATH, e);
+        }
+
+        dbErrors = properties;
     }
 
     /**

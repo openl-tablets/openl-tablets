@@ -259,8 +259,8 @@ public class ConfigurationManager {
         }
     }
 
-    public static String REPO_PASS_KEY = "repository.encode.decode.key";
-    public String getRepoPassKey() {
+    private static String REPO_PASS_KEY = "repository.encode.decode.key";
+    private String getRepoPassKey() {
         return compositeConfiguration.containsKey(REPO_PASS_KEY) ? compositeConfiguration.getString(REPO_PASS_KEY) : "";
     }
 
