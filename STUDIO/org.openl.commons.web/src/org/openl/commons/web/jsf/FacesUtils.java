@@ -166,7 +166,7 @@ public abstract class FacesUtils {
     }
 
     public static ServletContext getServletContext() {
-        return getRequest().getServletContext();
+        return (ServletContext) getExternalContext().getContext();
     }
 
     public static Map<String, Object> getSessionMap() {

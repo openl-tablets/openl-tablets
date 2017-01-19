@@ -87,7 +87,7 @@ public final class AcegiFunctions {
     }
 
     private static WebInvocationPrivilegeEvaluator getPrivilegeEvaluator() {
-        ApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext((ServletContext) FacesUtils.getExternalContext().getContext());
+        ApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(FacesUtils.getServletContext());
         Map<String, WebInvocationPrivilegeEvaluator> wipes = ctx.getBeansOfType(WebInvocationPrivilegeEvaluator.class);
 
         if (wipes.size() == 0) {
