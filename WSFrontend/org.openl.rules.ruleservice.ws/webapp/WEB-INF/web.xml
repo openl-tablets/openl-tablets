@@ -4,16 +4,6 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 	<display-name>Openl Web Service</display-name>
 
-	<!-- Filters -->
-	<filter>
-		<!-- Should be the first in the order -->
-		<filter-name>LoggerContextFilter</filter-name>
-		<filter-class>ch.qos.logback.classic.selector.servlet.LoggerContextFilter</filter-class>
-	</filter>
-	<filter-mapping>
-		<filter-name>LoggerContextFilter</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
 	<filter>
 		<filter-name>CharacterEncodingFilter</filter-name>
 		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
@@ -86,6 +76,10 @@
 	</servlet-mapping>
 	<!-- Other stuff -->
 	<context-param>
+		<param-name>log4jRefreshInterval</param-name>
+		<param-value>5000</param-value> <!-- every 5 seconds -->
+	</context-param>
+	<context-param>
 		<description>Load default and application properties to the Spring application environment.</description>
 		<param-name>contextInitializerClasses</param-name>
 		<param-value>org.openl.spring.env.PropertySourcesLoader</param-value>
@@ -97,8 +91,8 @@
 	</context-param>
 
 	<listener>
-		<!-- Should be the first in the order -->
-		<listener-class>ch.qos.logback.classic.selector.servlet.ContextDetachingSCL</listener-class>
+		<!-- Set webapp.root property -->
+		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
 	</listener>
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>

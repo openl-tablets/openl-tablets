@@ -14,6 +14,10 @@
   <description>OpenL Tablets WebStudio</description>
 
   <context-param>
+    <param-name>log4jRefreshInterval</param-name>
+    <param-value>5000</param-value> <!-- every 5 seconds -->
+  </context-param>
+  <context-param>
     <description>Load default and application properties to the Spring application environment.</description>
     <param-name>contextInitializerClasses</param-name>
     <param-value>org.openl.spring.env.PropertySourcesLoader</param-value>
@@ -71,15 +75,6 @@
     <param-value>true</param-value>
   </context-param>
 
-  <filter>
-    <!-- Should be the first in the order -->
-    <filter-name>LoggerContextFilter</filter-name>
-    <filter-class>ch.qos.logback.classic.selector.servlet.LoggerContextFilter</filter-class>
-  </filter>
-  <filter-mapping>
-    <filter-name>LoggerContextFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
   <filter>
       <filter-name>SecurityFilter</filter-name>
       <filter-class>org.openl.rules.webstudio.filter.ReloadableDelegatingFilter</filter-class>
@@ -151,15 +146,9 @@
     <url-pattern>/*</url-pattern>
   </filter-mapping>
 
-  <!-- Listeners, that does all the startup work (configuration, init). -->
-  <listener>
-    <!-- Should be the first in the order -->
-    <listener-class>ch.qos.logback.classic.selector.servlet.ContextDetachingSCL</listener-class>
-  </listener>
-
   <listener>
     <!-- Set webapp.root property -->
-    <listener-class>org.springframework.web.util.WebAppRootListener</listener-class>
+    <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
   </listener>
 
   <listener>
