@@ -126,8 +126,7 @@ public class WebStudio {
     private List<ProjectFile> uploadedFiles = new ArrayList<ProjectFile>();
 
     public WebStudio(HttpSession session) {
-        systemConfigManager = (ConfigurationManager) WebApplicationContextUtils.getWebApplicationContext(
-                session.getServletContext()).getBean("configManager");
+        systemConfigManager = WebStudioUtils.getBean("configManager", ConfigurationManager.class);
 
         initWorkspace(session);
         initUserSettings(session);

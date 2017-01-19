@@ -10,8 +10,10 @@ import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -108,4 +110,9 @@ public abstract class WebStudioUtils {
         return userWorkspace;
     }
 
+    public static <T> T getBean(String name, Class<T> clazz) {
+        ServletContext servletContext = FacesUtils.getServletContext();
+        WebApplicationContext appContext = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
+        return appContext.getBean(name, clazz);
+    }
 }
