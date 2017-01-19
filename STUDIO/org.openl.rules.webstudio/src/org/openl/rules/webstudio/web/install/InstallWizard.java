@@ -28,6 +28,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
+import javax.servlet.ServletContext;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -93,7 +94,8 @@ public class InstallWizard {
                 System.getProperty("webapp.root") + "/WEB-INF/conf/config.properties");
         workingDir = appConfig.getPath("webstudio.home");
 
-        dbUtils = new DBUtils();
+        ServletContext servletContext = FacesUtils.getServletContext();
+        dbUtils = new DBUtils(servletContext);
     }
 
     public String getPreviousPage() {

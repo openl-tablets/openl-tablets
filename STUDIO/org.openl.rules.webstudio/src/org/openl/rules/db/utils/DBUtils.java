@@ -10,9 +10,9 @@ import java.util.Map;
 import java.util.Properties;
 
 import javax.faces.validator.ValidatorException;
+import javax.servlet.ServletContext;
 
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.webstudio.web.install.InstallWizard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,14 +20,14 @@ public class DBUtils {
     private static final String SQL_ERRORS_FILE_PATH = "/WEB-INF/conf/db/sql-errors.properties";
     private static final String TABLE_FOR_VALIDATION = "schema_version";
 
-    private final Logger log = LoggerFactory.getLogger(InstallWizard.class);
+    private final Logger log = LoggerFactory.getLogger(DBUtils.class);
 
     private Map<Object, Object> dbErrors;
 
-    public DBUtils() {
+    public DBUtils(ServletContext servletContext) {
         Properties properties = new Properties();
         try {
-            properties.load(FacesUtils.getServletContext().getResourceAsStream(SQL_ERRORS_FILE_PATH));
+            properties.load(servletContext.getResourceAsStream(SQL_ERRORS_FILE_PATH));
         } catch (IOException e) {
             log.error("Cannot to load {} file.", SQL_ERRORS_FILE_PATH, e);
         }

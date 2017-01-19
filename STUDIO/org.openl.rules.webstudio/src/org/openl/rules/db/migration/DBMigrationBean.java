@@ -8,7 +8,9 @@ import org.openl.rules.db.utils.DBUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.servlet.ServletContext;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -20,6 +22,8 @@ public class DBMigrationBean {
 
     private final Logger log = LoggerFactory.getLogger(DBMigrationBean.class);
 
+    @Autowired
+    ServletContext servletContext;
     private String dbDriver;
     private String dbLogin;
     private String dbPassword;
@@ -29,10 +33,14 @@ public class DBMigrationBean {
     private String dbUrlSeparator;
     private DataSource dataSource;
 
+    public void setServletContext(ServletContext servletContext) {
+        this.servletContext = servletContext;
+    }
+
     public String init() {
         String prefix = dbUrl.split(dbUrlSeparator)[0] + dbUrlSeparator;
         String url = dbUrl.split(dbUrlSeparator)[1];
-        DBUtils dbUtils = new DBUtils();
+        DBUtils dbUtils = new DBUtils(servletContext);
         Connection dbConnection = dbUtils.createConnection(dbDriver, prefix, url, dbLogin, dbPassword);
         try {
             dbConnection.setAutoCommit(false);
