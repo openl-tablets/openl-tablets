@@ -15,9 +15,9 @@ public class Main {
 
     public static void main(String[] args) {
         // Wrapper - is generated interface from TemplateRules.xls using maven openl:generate goal.
-        RulesEngineFactory<Wrapper> engineFactory = new RulesEngineFactory<Wrapper>("rules/TemplateRules.xls", Wrapper.class);
+        RulesEngineFactory<Service> engineFactory = new RulesEngineFactory<Service>("rules/TemplateRules.xls", Service.class);
 
-        Wrapper instance = engineFactory.newEngineInstance();
+        Service instance = engineFactory.newEngineInstance();
         String result = instance.hello(10);
         System.out.println(result);
     }
