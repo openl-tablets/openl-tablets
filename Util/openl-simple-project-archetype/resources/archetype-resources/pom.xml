@@ -11,6 +11,9 @@
     <packaging>jar</packaging>
     <name>OpenL Simple Project</name>
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.source.version>${java.source.version}</java.source.version>
+        <java.target.version>${java.target.version}</java.target.version>
         <org.openl.version>${project.version}</org.openl.version>
     </properties>
     <dependencies>
@@ -54,8 +57,9 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.3</version>
                 <configuration>
-                    <source>${java.source.version}</source>
-                    <target>${java.target.version}</target>
+                    <encoding>UTF-8</encoding>
+                    <source>${symbol_dollar}{java.source.version}</source>
+                    <target>${symbol_dollar}{java.target.version}</target>
                 </configuration>
             </plugin>
             <plugin>
