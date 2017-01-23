@@ -193,7 +193,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         } catch (Exception e) {
             try {
                 close();
-            } catch (IOException e1) {
+            } catch (Exception e1) {
                 log.error(e1.getMessage(), e1);
             }
             throw new RRepositoryException("Failed to initialize DataBase: " + e.getMessage(), e);
