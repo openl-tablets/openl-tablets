@@ -33,6 +33,7 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.meta.IVocabulary;
+import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.model.Module;
@@ -42,7 +43,6 @@ import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.FileTool;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
@@ -719,7 +719,7 @@ public class GenerateInterface {
                 // types).
                 //
                 IOpenClass datatypeOpenClass = datatype.getValue();
-                if (!(datatypeOpenClass instanceof DomainOpenClass)) {
+                if (datatypeOpenClass instanceof DatatypeOpenClass) {
                     Class<?> datatypeClass = datatypeOpenClass.getInstanceClass();
                     SimpleBeanJavaGenerator beanJavaGenerator = new SimpleBeanJavaGenerator(datatypeClass);
                     String javaClass = beanJavaGenerator.generateJavaClass();
