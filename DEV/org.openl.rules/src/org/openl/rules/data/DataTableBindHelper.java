@@ -683,7 +683,7 @@ public class DataTableBindHelper {
                 new org.openl.rules.calc.SpreadsheetResultOpenClass(org.openl.rules.calc.SpreadsheetResult.class));
         }
         if (field == null) {
-            String errorMessage = String.format("Field \"%s\" not found in %s", fieldName, loadedFieldType.getName());
+            String errorMessage = String.format("Field \"%s\" is not found in %s", fieldName, loadedFieldType.getName());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(errorMessage, currentFieldNameNode);
             processError(table, error);
             return null;
@@ -713,7 +713,7 @@ public class DataTableBindHelper {
         }
         
         if (field == null){
-            String message = String.format("Field '%s' not found!", arrayName);
+            String message = String.format("Field '%s' is not found!", arrayName);
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
             processError(table, error);
             return null;

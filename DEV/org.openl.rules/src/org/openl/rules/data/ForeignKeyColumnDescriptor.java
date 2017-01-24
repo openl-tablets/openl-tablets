@@ -209,7 +209,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
     private void throwIndexNotFound(ITable foreignTable, ILogicalTable valuesTable, String src, Exception ex, IBindingContext bindingContext) throws SyntaxNodeException {
 
-        String message = String.format("Index Key %s not found in the foreign table %s", src, foreignTable.getName());
+        String message = String.format("Index Key %s is not found in the foreign table %s", src, foreignTable.getName());
 
         throw SyntaxNodeExceptionUtils.createError(message,
             ex,
@@ -232,7 +232,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         Object result = null;
 
         if (foreignTable == null) {
-            String message = String.format("Table '%s' not found", foreignKeyTableName);
+            String message = String.format("Table '%s' is not found", foreignKeyTableName);
             throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
         } else if (foreignTable.getTableSyntaxNode().hasErrors()) {
             String message = String.format("Foreign table '%s' has errors", foreignKeyTableName);
@@ -248,7 +248,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         }
 
         if (foreignKeyIndex == -1) {
-            String message = "Column " + columnName + " not found";
+            String message = "Column '" + columnName + "' is not found";
             throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
         }
 
@@ -316,7 +316,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 //foreignTable.findObject(columnIndex, key, bindingContext)
 
                 if (foreignTable == null) {
-                    String message = String.format("Table '%s' not found", foreignKeyTableName);
+                    String message = String.format("Table '%s' is not found", foreignKeyTableName);
                     throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
                 } else if (foreignTable.getTableSyntaxNode().hasErrors()) {
                     String message = String.format("Foreign table '%s' has errors", foreignKeyTableName);
@@ -332,7 +332,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 }
 
                 if (foreignKeyIndex == -1) {
-                    String message = "Column " + columnName + " not found";
+                    String message = "Column '" + columnName + "' is not found";
                     throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
                 }
 
