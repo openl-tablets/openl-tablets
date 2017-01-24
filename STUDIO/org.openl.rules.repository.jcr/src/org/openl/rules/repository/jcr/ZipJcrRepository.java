@@ -22,9 +22,11 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.Workspace;
 import javax.jcr.observation.Event;
 import javax.jcr.observation.EventIterator;
 import javax.jcr.observation.EventListener;
+import javax.jcr.observation.ObservationManager;
 
 import org.openl.rules.common.CommonException;
 import org.openl.rules.common.CommonUser;
@@ -563,7 +565,9 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     public void close() throws IOException {
         setListener(null);
         try {
-            session.getWorkspace().getObservationManager().removeEventListener(this);
+            Workspace workspace = session.getWorkspace();
+            ObservationManager manager = workspace.getObservationManager();
+            manager.removeEventListener(this);
         } catch (RepositoryException e) {
             log.debug("release", e);
         }

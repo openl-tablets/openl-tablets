@@ -719,7 +719,7 @@ public class WebStudio {
         RulesProject project = getProject(name); // #2
         RulesProject currentProject = getCurrentProject(); // #3
 
-        if (project != currentProject) {
+        if (project != null && project != currentProject) {
             return true;
         }
 
@@ -742,7 +742,7 @@ public class WebStudio {
         RulesProject project = null;
         if (userWorkspace.hasProject(name)) {
             try {
-                project = userWorkspace.getProject(name);
+                project = userWorkspace.getProject(name, false);
             } catch (ProjectException e) {
                 // Should not occur
                 log.error(e.getMessage(), e);

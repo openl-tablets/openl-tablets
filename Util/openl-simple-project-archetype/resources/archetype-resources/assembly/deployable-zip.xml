@@ -14,8 +14,18 @@
     <fileSet>
       <directory>src/main/openl</directory>
       <outputDirectory>/</outputDirectory>
+      <excludes>
+        <exclude>rules.xml</exclude>
+      </excludes>
     </fileSet>
   </fileSets>
+  <files>
+    <file>
+      <source>src/main/openl/rules.xml</source>
+      <outputDirectory>/</outputDirectory>
+      <filtered>true</filtered>
+    </file>
+  </files>
   <dependencySets>
     <dependencySet>
       <outputDirectory>/lib/</outputDirectory>

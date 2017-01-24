@@ -19,7 +19,7 @@
     <fileSet encoding="UTF-8">
       <directory>src/main/openl</directory>
       <includes>
-        <include>**/*.xls</include>
+        <include>**/*.*</include>
       </includes>
     </fileSet>
     <fileSet filtered="true" encoding="UTF-8">

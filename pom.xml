@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?><!-- This file is for releasing OpenL version wIth maven-release-plugin -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
     <packaging>pom</packaging>
-    <version>5.19.0-SNAPSHOT</version>
+    <version>5.20.0-SNAPSHOT</version>
     <name>OpenL Tablets - General POM</name>
     <url>//openl-tablets.org</url>
     <description>OpenL Tablets rules engine and related frameworks</description>
@@ -88,7 +87,7 @@
         <org.apache.jackrabbit.version>2.8.0</org.apache.jackrabbit.version>
         <com.fasterxml.jackson.version>2.6.5</com.fasterxml.jackson.version>
         <!-- Empty for building without JaCoCo agent -->
-        <jacococ.argLine/>
+        <jacococ.argLine />
     </properties>
 
     <modules>
