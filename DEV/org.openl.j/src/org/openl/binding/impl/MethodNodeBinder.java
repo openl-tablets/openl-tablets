@@ -191,7 +191,7 @@ public class MethodNodeBinder extends ANodeBinder {
             String methodName,
             IOpenClass[] parameterTypes) {
 
-        String message = String.format("Method '%s' not found", MethodUtil.printMethod(methodName, parameterTypes));
+        String message = String.format("Method '%s' is not found", MethodUtil.printMethod(methodName, parameterTypes));
         BindHelper.processError(message, node, bindingContext, false);
 
         return new ErrorBoundNode(node);
@@ -221,7 +221,7 @@ public class MethodNodeBinder extends ANodeBinder {
 
             StringBuilder buf = new StringBuilder("Method ");
             MethodUtil.printMethod(methodName, types, buf);
-            buf.append(" not found in '").append(target.getType().getName()).append("'");
+            buf.append(" is not found in '").append(target.getType().getName()).append("'");
 
             BindHelper.processError(buf.toString(), node, bindingContext, false);
 

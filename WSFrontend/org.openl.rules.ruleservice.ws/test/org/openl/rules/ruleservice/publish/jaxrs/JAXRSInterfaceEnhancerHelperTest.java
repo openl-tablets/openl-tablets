@@ -233,7 +233,7 @@ public class JAXRSInterfaceEnhancerHelperTest {
             }
         }
 
-        Assert.assertTrue("Method not found!", i == 4);
+        Assert.assertTrue("Method is not found!", i == 4);
     }
 
     @Test
@@ -267,6 +267,6 @@ public class JAXRSInterfaceEnhancerHelperTest {
             }
         }
 
-        Assert.assertTrue("Method not found!", i == 3);
+        Assert.assertTrue("Method is not found!", i == 3);
     }
 }

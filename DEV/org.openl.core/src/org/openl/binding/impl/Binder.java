@@ -123,7 +123,7 @@ public class Binder implements IOpenBinder {
         INodeBinder nodeBinder = bindingContext.findBinder(syntaxNode);
 
         if (nodeBinder == null) {
-            throw new OpenlNotCheckedException(String.format("Binder not found for node '%s'", syntaxNode.getType()));
+            throw new OpenlNotCheckedException(String.format("Binder is not found for node '%s'", syntaxNode.getType()));
         }
 
         return nodeBinder.bind(syntaxNode, bindingContext);

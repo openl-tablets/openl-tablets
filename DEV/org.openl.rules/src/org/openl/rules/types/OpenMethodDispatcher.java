@@ -219,7 +219,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
             sb.append("Context: ");
             sb.append(context.toString());
 
-            String message = String.format("Appropriate overloaded method for '%1$s' not found. Details: \n%2$s",
+            String message = String.format("Appropriate overloaded method for '%1$s' is not found. Details: \n%2$s",
                 getName(),
                 sb.toString());
 

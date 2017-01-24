@@ -164,7 +164,7 @@ public class SyntaxTreeBuilder implements ISyntaxConstants {
             }
         }
 
-        throw new RuntimeException("Marker not found");
+        throw new RuntimeException("Marker is not found");
     };
 
 }

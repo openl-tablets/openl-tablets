@@ -231,7 +231,7 @@ public class JAXRSInterfaceEnhancerHelper {
         public MethodVisitor visitMethod(int arg0, String methodName, String arg2, String arg3, String[] arg4) {
             Method originalMethod = findOriginalMethod(methodName, arg2);
             if (originalMethod == null) {
-                throw new OpenLRuntimeException("Method not found in original class!");
+                throw new OpenLRuntimeException("Method is not found in the original class!");
             }
 
             boolean skip = false;
@@ -538,7 +538,7 @@ public class JAXRSInterfaceEnhancerHelper {
                     }
                 }
                 if (!found) {
-                   throw new IllegalStateException("Method not found!");
+                   throw new IllegalStateException("Method is not found!");
                 }
             }
         }

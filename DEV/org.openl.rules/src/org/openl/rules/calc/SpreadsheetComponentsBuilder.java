@@ -228,7 +228,7 @@ public class SpreadsheetComponentsBuilder {
                     if (type == null) {
                         // error case, can`t find type.
                         //
-                        String message = "Type not found: " + typeIdentifier;
+                        String message = "Type is not found: " + typeIdentifier;
                         error = SyntaxNodeExceptionUtils.createError(message, typeIdentifierNode);
                     } else if (headerType == null) {
                         // initialize header type

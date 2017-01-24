@@ -37,7 +37,7 @@ public class LocalFolderAPI extends LocalArtefactAPI implements FolderAPI {
                 }
             }
         }
-        throw new ProjectException(String.format("Artefact with name \"%s\" is" + " not found", name));
+        throw new ProjectException(String.format("Artefact with name '%s' is" + " not found", name));
     }
 
     public boolean hasArtefact(String name) {

@@ -221,7 +221,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                     sb.append(clazz.getCanonicalName());
                 }
                 throw new OpenLRuntimeException(
-                        "Called method not found in service bean. Please, check that excel file contains method with name \""
+                        "Called method is not found in service bean. Please, check that excel file contains method with name \""
                                 + calledMethod.getName() + "\" and  arguments (" + sb.toString() + ").");
             }
             try {

@@ -46,7 +46,7 @@ class DefaultRmiInvocationHandler implements InvocationHandler {
         }
         List<Method> methods = methodMap.get(ruleName);
         if (methods == null){
-            throw new IllegalArgumentException("Method not found with requested ruleName!");
+            throw new IllegalArgumentException("Method with requested ruleName is not found!");
         }
         
         int match = 0;
@@ -74,9 +74,9 @@ class DefaultRmiInvocationHandler implements InvocationHandler {
             return matchedMethod.invoke(target, params);
         }else{
             if (match > 1){
-                throw new IllegalArgumentException("More than one method found with requested ruleName and parameters!");
+                throw new IllegalArgumentException("More than one method found with requested ruleName and parameters");
             }else{
-                throw new IllegalArgumentException("Method not found with requested ruleName and parameters!");
+                throw new IllegalArgumentException("Method with requested ruleName and parameters is not found");
             }
         }
     }

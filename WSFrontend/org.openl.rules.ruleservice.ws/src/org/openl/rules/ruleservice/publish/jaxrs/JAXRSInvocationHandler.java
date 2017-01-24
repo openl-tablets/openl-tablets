@@ -63,7 +63,7 @@ public class JAXRSInvocationHandler implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Method m = methodMap.get(method);
         if (m == null) {
-            throw new IllegalStateException("Method not found in methods map!");
+            throw new IllegalStateException("Method is not found in the map of methods");
         }
         try {
             PropertyDescriptor[] propertyDescriptors = methodMapToPropertyDescriptors.get(method);

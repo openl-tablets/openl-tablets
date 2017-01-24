@@ -114,6 +114,6 @@ public class JAXWSInterfaceEnchancerHelperTest {
             }
         }
 
-        Assert.assertTrue("Method not found!", i == 3);
+        Assert.assertTrue("Method is not found!", i == 3);
     }
 }

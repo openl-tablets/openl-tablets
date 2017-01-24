@@ -66,7 +66,7 @@ public class JacksonObjectMapperFactoryBean {
                         Class<?> clazz = loadClass(className);
                         clazzes.add(clazz);
                     } catch (ClassNotFoundException e) {
-                        log.warn("Class \"{}\" not found!", className, e);
+                        log.warn("Class '{}' is not found!", className, e);
                     }
                 }
                 
@@ -141,7 +141,7 @@ public class JacksonObjectMapperFactoryBean {
         try {
             mapper.addMixInAnnotations(loadClass(className), annotationClass);
         } catch (ClassNotFoundException e) {
-            log.warn("Class \"{}\" not found!", className, e);
+            log.warn("Class '{}' is not found!", className, e);
         }
     }
 

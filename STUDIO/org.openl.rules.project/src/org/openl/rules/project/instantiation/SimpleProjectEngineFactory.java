@@ -173,7 +173,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                     }
                 }
                 if (!found) {
-                    log.warn("Dependency '{}' for project '{}' not found", dependencyDescriptor.getName(), project.getName());
+                    log.warn("Dependency '{}' for project '{}' is not found", dependencyDescriptor.getName(), project.getName());
                 }
             }
         }

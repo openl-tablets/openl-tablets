@@ -257,7 +257,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
         }
 
         if (!FolderHelper.clearFolder(new File(destDirectory))) {
-            log.warn("Failed on a folder clear. Path: \"{}\"", destDirectory);
+            log.warn("Failed on a folder clear. Path: '{}'", destDirectory);
         }
         for (Resource rulesXmlResource : resources) {
             File file = null;
@@ -279,7 +279,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                 throw new IOException("Invalid resource", e);
             }
             if (!file.exists()) {
-                throw new IOException("File not found. File: " + file.getAbsolutePath());
+                throw new IOException("File is not found. File: " + file.getAbsolutePath());
             }
 
             File d = desFile;
@@ -296,7 +296,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
             destDir.mkdirs();
             unpack(file, destDir);
 
-            log.info("Unpacking \"{}\" into \"{}\" was completed", file.getAbsolutePath(), destDirectory);
+            log.info("Unpacking '{}' into '{}' was completed", file.getAbsolutePath(), destDirectory);
         }
         
         if (!isUnpackAllJarsInOneDeployment()){
@@ -311,7 +311,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                     } else if ("vfs".equals(deploymentResource.getURL().getProtocol())) {
                         // This reflection implementation for JBoss vfs
                         extractJarForJboss(resourceURL, desFile, true);
-                        log.info("Unpacking \"{}\" into \"{}\" was completed", resourceURL, destDirectory);
+                        log.info("Unpacking '{}' into '{}' was completed", resourceURL, destDirectory);
                         continue;
                     } else {
                         throw new RuleServiceRuntimeException("Protocol for URL doesn't supported! URL: " + resourceURL.toString());
@@ -334,7 +334,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
     
                 unpack(file, d);
     
-                log.info("Unpacking \"{}\" into \"{}\" was completed", file.getAbsolutePath(), destDirectory);
+                log.info("Unpacking '{}' into '{}' was completed", file.getAbsolutePath(), destDirectory);
             }
         }
     }

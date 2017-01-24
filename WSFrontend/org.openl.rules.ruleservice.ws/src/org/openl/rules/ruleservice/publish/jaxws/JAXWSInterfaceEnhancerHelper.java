@@ -82,7 +82,7 @@ public class JAXWSInterfaceEnhancerHelper {
         public MethodVisitor visitMethod(int arg0, String methodName, String arg2, String arg3, String[] arg4) {
             Method originalMethod = findOriginalMethod(methodName, arg2);
             if (originalMethod == null) {
-                throw new OpenLRuntimeException("Method not found in original class!");
+                throw new OpenLRuntimeException("Method is not found in the original class");
             }
 
             MethodVisitor mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);

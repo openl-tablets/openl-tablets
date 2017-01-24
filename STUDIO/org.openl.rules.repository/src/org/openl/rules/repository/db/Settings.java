@@ -63,10 +63,10 @@ final class Settings {
     private void fillQueries(Map<String, String> queries, String propertiesFileName) throws IOException {
         URL resource = getClass().getResource(propertiesFileName);
         if (resource == null) {
-            log.info("File [{}] not found.", propertiesFileName);
+            log.info("File '{}' is not found.", propertiesFileName);
             return;
         }
-        log.info("Load configuration from [{}].", resource);
+        log.info("Load configuration from '{}'.", resource);
         InputStream is = resource.openStream();
         try {
             Properties properties = new Properties();
