@@ -3,6 +3,7 @@
  */
 
 package org.openl.rules.datatype.binding;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -44,6 +45,7 @@ import org.openl.types.NullOpenClass;
 import org.openl.types.impl.DatatypeOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
+import org.openl.util.StringTool;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
 
@@ -111,6 +113,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         if (beanClassCanBeGenerated(cxt)) {
             Class<?> beanClass = createBeanForDatatype(fields);
             dataType.setInstanceClass(beanClass);
+            validateBeanForDatatype(beanClass, fields);
         }
     }
     
@@ -151,6 +154,68 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         } catch (RuntimeException e) {
             String errorMessage = String.format("Can't generate bean for datatype '%s': %s", datatypeName, e.getMessage());
             throw SyntaxNodeExceptionUtils.createError(errorMessage, e, tableSyntaxNode);
+        }
+    }
+    
+    private void validateBeanForDatatype(Class<?> beanClass,
+            Map<String, FieldDescription> fields) throws SyntaxNodeException {
+        String datatypeName = dataType.getName();
+        String beanName = getDatatypeBeanNameWithNamespace(datatypeName);
+        IOpenClass superClass = dataType.getSuperClass();
+        if (superClass != null) {
+            if (!beanClass.getSuperclass().equals(superClass.getInstanceClass())) {
+                String errorMessage = String.format(
+                    "Class '%s' is found in classloader. This class has invalid parent class. Please, regenerate your datatype classes.",
+                    datatypeName);
+                throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
+            }
+        }
+
+        for (Entry<String, FieldDescription> fieldEntry : fields.entrySet()) {
+            String fieldName = fieldEntry.getKey();
+            FieldDescription fieldDescription = fieldEntry.getValue();
+            try {
+                beanClass.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e) {
+                String errorMessage = String.format(
+                    "Class '%s' is found in classloader. Field '%s' is missed. Please, regenerate your datatype classes.", beanName, fieldName);
+                throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
+            }
+
+            String getterMethodName = StringTool.getGetterName(fieldName);
+            try {
+                Method getterMethod = beanClass.getMethod(getterMethodName);
+                if (!getterMethod.getReturnType().getCanonicalName().equals(fieldDescription.getCanonicalTypeName())) {
+                    String errorMessage = String.format(
+                        "Class '%s' is found in classloader. Method '%s' returns invalid type. Please, regenerate your datatype classes.", beanName, getterMethodName);
+                    throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
+                }
+            } catch (NoSuchMethodException e) {
+                String errorMessage = String.format(
+                    "Class '%s' is found in classloader. Method '%s' is missed. Please, regenerate your datatype classes.", beanName, getterMethodName);
+                throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
+            }
+
+            String setterMethodName = StringTool.getSetterName(fieldName);
+            Method[] methods = beanClass.getMethods();
+            boolean found = false;
+            for (Method method : methods) {
+                if (method.getName().equals(setterMethodName)) {
+                    if ((method.getParameterCount() == 1) && method.getParameterTypes()[0].getCanonicalName()
+                        .equals(fieldDescription.getCanonicalTypeName())) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            if (!found) {
+                String errorMessage = String.format(
+                    "Class '%s' is found in classloader. Method '%s(%s)' is missed. Please, regenerate your datatype classes.",
+                    beanName,
+                    setterMethodName,
+                    fieldDescription.getCanonicalTypeName());
+                throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
+            }
         }
     }
     
