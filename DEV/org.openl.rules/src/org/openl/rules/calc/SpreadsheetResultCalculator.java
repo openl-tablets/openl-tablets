@@ -98,7 +98,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
                 return i;
         }
 
-        throw new OpenLRuntimeException("Row name <" + name + "> not found", spreadsheet.getBoundNode());
+        throw new OpenLRuntimeException("Row name <" + name + "> is not found", spreadsheet.getBoundNode());
     }
 
     public int getColumnIndex(String name) {
@@ -110,7 +110,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
                 return i;
         }
 
-        throw new OpenLRuntimeException("Column name <" + name + "> not found", spreadsheet.getBoundNode());
+        throw new OpenLRuntimeException("Column name <" + name + "> is not found", spreadsheet.getBoundNode());
     }
 
     public Spreadsheet getSpreadsheet() {
