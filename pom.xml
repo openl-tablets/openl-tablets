@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!-- This file is for releasing OpenL version wIth maven-release-plugin -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
@@ -66,7 +65,7 @@
         <connection>scm:hg:${staging.hg.repo.url}</connection>
         <developerConnection>scm:hg:${staging.hg.repo.url}</developerConnection>
         <url>scm:git:git://github.com/openl-tablets/openl-tablets.git</url>
-        <tag>HEAD</tag>
+        <tag>5.19.x</tag>
     </scm>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -88,7 +87,7 @@
         <org.apache.jackrabbit.version>2.8.0</org.apache.jackrabbit.version>
         <com.fasterxml.jackson.version>2.6.5</com.fasterxml.jackson.version>
         <!-- Empty for building without JaCoCo agent -->
-        <jacococ.argLine/>
+        <jacococ.argLine />
     </properties>
 
     <modules>
