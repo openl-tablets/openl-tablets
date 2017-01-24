@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
+import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.datatype.gen.DefaultFieldDescription;
 import org.openl.rules.datatype.gen.FieldDescription;
@@ -193,9 +194,16 @@ public class SimpleBeanByteCodeGeneratorTest {
     }
     
     private Class<?> getBeanClass(String className, Map<String, FieldDescription> fields) {
-        SimpleBeanByteCodeGenerator beanGenerator = new SimpleBeanByteCodeGenerator(className, fields);
-        Class<?> beanClass = beanGenerator.generateAndLoadBeanClass();
-        return beanClass;
+        SimpleBundleClassLoader simpleBundleClassLoader = new SimpleBundleClassLoader(Thread.currentThread().getContextClassLoader());
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        try{
+            Thread.currentThread().setContextClassLoader(simpleBundleClassLoader);
+            SimpleBeanByteCodeGenerator beanGenerator = new SimpleBeanByteCodeGenerator(className, fields);
+            Class<?> beanClass = beanGenerator.generateAndLoadBeanClass();
+            return beanClass;
+        }finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
     }
 
     private Map<String, FieldDescription> getFields(FieldDescription fieldsType) {

@@ -1,28 +1,32 @@
 package org.openl.rules.lang.xls.syntax;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openl.OpenL;
-import org.openl.conf.UserContext;
-import org.openl.impl.OpenClassJavaWrapper;
+import org.openl.CompiledOpenClass;
+import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.types.IOpenMethod;
 
-public class TestTableSyntaxNodeKey {
+public class TestTableSyntaxNodeKey extends BaseOpenlBuilderHelper{
     private final static String SRC = "test/rules/OverloadedTables_Test.xls";
     private XlsModuleSyntaxNode xsn = null;
     private List<TableSyntaxNode> driverAgeTypeTables = new ArrayList<TableSyntaxNode>();
     private List<TableSyntaxNode> driverEligibilityTables = new ArrayList<TableSyntaxNode>();
 
+    public TestTableSyntaxNodeKey() {
+        super(SRC);
+    }
+    
     @Before
     public void getTables() {
-        OpenClassJavaWrapper wrapper = getJavaWrapper();
-        XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClassWithErrors().getMetaInfo();
+        CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
+        XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
         xsn = xmi.getXlsModuleNode();
         TableSyntaxNode[] tsns = xsn.getXlsTableSyntaxNodes();
         for (TableSyntaxNode tsn : tsns) {
@@ -34,12 +38,6 @@ public class TestTableSyntaxNodeKey {
                 }
             }
         }
-    }
-
-    private OpenClassJavaWrapper getJavaWrapper() {
-        UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), ".");
-        OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(OpenL.OPENL_JAVA_RULE_NAME, ucxt, SRC);
-        return wrapper;
     }
 
     @Test

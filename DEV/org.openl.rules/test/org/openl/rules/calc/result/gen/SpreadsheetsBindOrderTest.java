@@ -35,6 +35,6 @@ public class SpreadsheetsBindOrderTest extends BaseOpenlBuilderHelper {
         // Inside there is a usage of custom spreadsheet result in the other spreadsheet
         //
         assertTrue(OpenLSystemProperties.isCustomSpreadsheetType());
-        assertNotNull(getJavaWrapper().getCompiledClass().getOpenClass());
+        assertNotNull(getCompiledOpenClass().getOpenClass());
     }
 }

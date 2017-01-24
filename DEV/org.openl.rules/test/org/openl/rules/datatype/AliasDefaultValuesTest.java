@@ -25,9 +25,9 @@ public class AliasDefaultValuesTest extends BaseOpenlBuilderHelper {
 
     @SuppressWarnings("deprecation")
     private void testNoErrors() {
-        Assert.assertTrue("No binding errors", getJavaWrapper().getCompiledClass().getBindingErrors().length == 0);
-        Assert.assertTrue("No parsing errors", getJavaWrapper().getCompiledClass().getParsingErrors().length == 0);
-        Assert.assertTrue("No warnings", getJavaWrapper().getCompiledClass().getMessages().size() == 0);
+        Assert.assertTrue("No binding errors", getCompiledOpenClass().getBindingErrors().length == 0);
+        Assert.assertTrue("No parsing errors", getCompiledOpenClass().getParsingErrors().length == 0);
+        Assert.assertTrue("No warnings", getCompiledOpenClass().getMessages().size() == 0);
     }
 
     @Test
@@ -73,11 +73,5 @@ public class AliasDefaultValuesTest extends BaseOpenlBuilderHelper {
         assertNotNull(method);
         Object result = method.invoke(instance, new Object[0]);
         assertEquals(expectedResult, result);
-    }
-
-    private Class<?> getClass(String name) throws ClassNotFoundException {
-        Class<?> clazz = Class.forName(name, true, Thread.currentThread().getContextClassLoader());
-        assertNotNull(clazz);
-        return clazz;
     }
 }

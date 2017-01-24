@@ -18,10 +18,10 @@ public class DatatypePackageGenerationTest extends BaseOpenlBuilderHelper {
     @Test
     public void testPackageGen() {
         try {
-            assertNotNull("Check that there is class Driver with appropriate package", Class.forName("org.table.Driver"));
-            assertNotNull("Check that there is class Policy with appropriate package", Class.forName("org.modue.package.Policy"));
-            assertNotNull("Check that there is class Vehicle with appropriate package", Class.forName("org.modue.package.Vehicle"));
-            assertNotNull("Check that there is class Vehicle with appropriate package", Class.forName("Org.Table.TEST.ContainsCapitalLetters"));
+            assertNotNull("Check that there is class Driver with appropriate package", getClass("org.table.Driver"));
+            assertNotNull("Check that there is class Policy with appropriate package", getClass("org.modue.package.Policy"));
+            assertNotNull("Check that there is class Vehicle with appropriate package", getClass("org.modue.package.Vehicle"));
+            assertNotNull("Check that there is class Vehicle with appropriate package", getClass("Org.Table.TEST.ContainsCapitalLetters"));
         } catch (ClassNotFoundException e) {
            fail();
         }

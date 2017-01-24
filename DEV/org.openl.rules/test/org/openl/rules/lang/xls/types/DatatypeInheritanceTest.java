@@ -32,7 +32,7 @@ public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void testFieldsAccess() {
-        XlsModuleOpenClass moduleOpenClass = (XlsModuleOpenClass) getJavaWrapper().getOpenClassWithErrors();
+        XlsModuleOpenClass moduleOpenClass = (XlsModuleOpenClass) getCompiledOpenClass().getOpenClassWithErrors();
         Map<String, IOpenClass> types = moduleOpenClass.getTypes();
         assertNotNull(types.get(PARENT_TYPE_NAME).getField("field2"));
 
@@ -78,7 +78,7 @@ public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void testToStringMethod() {
-        XlsModuleOpenClass moduleOpenClass = (XlsModuleOpenClass) getJavaWrapper().getOpenClassWithErrors();
+        XlsModuleOpenClass moduleOpenClass = (XlsModuleOpenClass) getCompiledOpenClass().getOpenClassWithErrors();
         Map<String, IOpenClass> types = moduleOpenClass.getTypes();
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         IOpenClass childType = types.get(CHILD_TYPE_NAME);

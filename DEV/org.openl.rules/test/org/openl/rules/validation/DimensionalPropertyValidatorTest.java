@@ -61,8 +61,8 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void testHello() {
-        CompiledOpenClass compiledOpenClass = getJavaWrapper().getCompiledClass();
-        IOpenClass openClass = getJavaWrapper().getOpenClassWithErrors();
+        CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
+        IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
         Collection<IOpenMethod> methods = findMethods(openClass, "Hello");
         Assert.assertEquals(2, methods.size());
         for (IOpenMethod method : methods) {
@@ -77,8 +77,8 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void testHello2() {
-        CompiledOpenClass compiledOpenClass = getJavaWrapper().getCompiledClass();
-        IOpenClass openClass = getJavaWrapper().getOpenClassWithErrors();
+        CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
+        IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
         Collection<IOpenMethod> methods = findMethods(openClass, "Hello2");
         Assert.assertEquals(2, methods.size());
         for (IOpenMethod method : methods) {
@@ -93,8 +93,8 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void testHello3() {
-        CompiledOpenClass compiledOpenClass = getJavaWrapper().getCompiledClass();
-        IOpenClass openClass = getJavaWrapper().getOpenClassWithErrors();
+        CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
+        IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
         Collection<IOpenMethod> methods = findMethods(openClass, "Hello3");
         Assert.assertEquals(3, methods.size());
         for (IOpenMethod method : methods) {

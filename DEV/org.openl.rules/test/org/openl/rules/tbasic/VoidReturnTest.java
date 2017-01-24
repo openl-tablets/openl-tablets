@@ -14,8 +14,8 @@ public class VoidReturnTest extends BaseOpenlBuilderHelper {
 	
 	@Test
 	public void test() {
-		assertEquals(1, getJavaWrapper().getCompiledClass().getBindingErrors().length);
-		assertEquals("Can not convert from void to int", getJavaWrapper().getCompiledClass().getBindingErrors()[0].getMessage());
-		assertTrue(getJavaWrapper().getCompiledClass().getParsingErrors().length == 0);
+		assertEquals(1, getCompiledOpenClass().getBindingErrors().length);
+		assertEquals("Can not convert from void to int", getCompiledOpenClass().getBindingErrors()[0].getMessage());
+		assertTrue(getCompiledOpenClass().getParsingErrors().length == 0);
 	}
 }

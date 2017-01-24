@@ -32,9 +32,9 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
     
     @SuppressWarnings("deprecation")
     private void testNoErrors() {
-        Assert.assertTrue("No binding errors", getJavaWrapper().getCompiledClass().getBindingErrors().length == 0);
-        Assert.assertTrue("No parsing errors", getJavaWrapper().getCompiledClass().getParsingErrors().length == 0);
-        Assert.assertTrue("No warnings", getJavaWrapper().getCompiledClass().getMessages().size() == 0);        
+        Assert.assertTrue("No binding errors", getCompiledOpenClass().getBindingErrors().length == 0);
+        Assert.assertTrue("No parsing errors", getCompiledOpenClass().getParsingErrors().length == 0);
+        Assert.assertTrue("No warnings", getCompiledOpenClass().getMessages().size() == 0);        
     }
     
     @Test    
@@ -42,7 +42,7 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
         Class<?> clazz = null;
         
         try {
-            clazz = Class.forName("org.openl.generated.beans.TestType", true, Thread.currentThread().getContextClassLoader());
+            clazz = getClass("org.openl.generated.beans.TestType");
             checkTestTypeClass(clazz);           
         } catch (Throwable e) {            
             fail(e.getMessage());        
@@ -53,7 +53,7 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
     public void testDefaultValues2() {
         Class<?> clazz = null;
         try {
-        	clazz = Class.forName("org.openl.generated.beans.TypeWithLong", true, Thread.currentThread().getContextClassLoader());
+        	clazz = getClass("org.openl.generated.beans.TypeWithLong");
             checkTypeWithLong(clazz);
         } catch (Throwable e) {            
             fail(e.getMessage());        
@@ -65,7 +65,7 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
     	Class<?> clazz = null;
         
         try {
-        	clazz = Class.forName("org.openl.generated.beans.TestType2", true, Thread.currentThread().getContextClassLoader());
+        	clazz = getClass("org.openl.generated.beans.TestType2");
             checkTestType2(clazz);
         } catch (Throwable e) {            
             fail(e.getMessage());        
@@ -77,7 +77,7 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
         Class<?> clazz = null;
         
         try {
-        	clazz = Class.forName("org.openl.generated.beans.TestType3", true, Thread.currentThread().getContextClassLoader());
+        	clazz = getClass("org.openl.generated.beans.TestType3");
             checkTestType3(clazz);
         } catch (Throwable e) {            
             fail(e.getMessage());        
@@ -89,7 +89,7 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
         Class<?> clazz = null;
         
         try {
-        	clazz = Class.forName("org.openl.generated.beans.TestBigTypes", true, Thread.currentThread().getContextClassLoader());
+        	clazz = getClass("org.openl.generated.beans.TestBigTypes");
             checkTestBigTypes(clazz);
         } catch (Throwable e) {            
             fail(e.getMessage());        
@@ -101,7 +101,7 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
         Class<?> clazz = null;
         
         try {
-        	clazz = Class.forName("org.openl.generated.beans.TestOpenLGrammar", true, Thread.currentThread().getContextClassLoader());
+        	clazz = getClass("org.openl.generated.beans.TestOpenLGrammar");
         	checkTestOpenLGramar(clazz);
         } catch (Throwable e) {   
             e.printStackTrace();
@@ -112,7 +112,7 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
     @Test
     public void testDefaultValue_Bean() {
         try {
-            Class<?> clazz = Class.forName("org.openl.generated.beans.BeanType1", true, Thread.currentThread().getContextClassLoader());
+            Class<?> clazz = getClass("org.openl.generated.beans.BeanType1");
             checkTestDefaultBean(clazz);
         } catch (Throwable e) {
             e.printStackTrace();
@@ -260,7 +260,7 @@ public class DatatypeDefaultValuesTest extends BaseOpenlBuilderHelper {
         testValue(clazz, instance, methodName, "Test surname");
 
         methodName = "getObj";
-        Class<?> clazz1 = Class.forName("org.openl.generated.beans.BeanType2", true, Thread.currentThread().getContextClassLoader());
+        Class<?> clazz1 = getClass("org.openl.generated.beans.BeanType2");
         Object defaultInstance = getInstance(clazz1);
         testValue(clazz, instance, methodName, defaultInstance);
     }

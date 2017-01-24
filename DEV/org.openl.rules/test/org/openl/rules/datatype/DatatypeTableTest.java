@@ -23,7 +23,7 @@ public class DatatypeTableTest extends BaseOpenlBuilderHelper {
     
     @Test
     public void testCanAccessDatatype() {
-        Map<String, IOpenClass> internalTypes = getJavaWrapper().getCompiledClass().getTypes();
+        Map<String, IOpenClass> internalTypes = getCompiledOpenClass().getTypes();
         assertTrue("There is Driver datatype", 
             internalTypes.containsKey(StringTool.buildTypeName(ISyntaxConstants.THIS_NAMESPACE, "Driver")));
     }

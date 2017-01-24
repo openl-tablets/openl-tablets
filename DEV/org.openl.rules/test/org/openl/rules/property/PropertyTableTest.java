@@ -57,7 +57,7 @@ public class PropertyTableTest extends BaseOpenlBuilderHelper{
 
     @Test
     public void testFielsInOpenClass() {
-        CompiledOpenClass compiledOpenClass = getJavaWrapper().getCompiledClass();
+        CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
         Map<String, IOpenField> fields = compiledOpenClass.getOpenClassWithErrors().getFields();
         //properties table with name will be represented as field
         assertTrue(fields.containsKey("categoryProp"));

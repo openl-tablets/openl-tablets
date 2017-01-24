@@ -1,8 +1,8 @@
 package org.openl.rules.data;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -178,7 +178,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
     @Test
     public void testDataTableWithClass() {
         //TODO: Fix it. There should be no error messages
-        List<OpenLMessage> messages = getJavaWrapper().getCompiledClass().getMessages();
+        List<OpenLMessage> messages = getCompiledOpenClass().getMessages();
         assertEquals(1, messages.size());
         assertEquals("Cannot parse cell value '1 < 2'", messages.get(0).getSummary());
     }
