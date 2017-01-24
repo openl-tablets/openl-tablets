@@ -13,8 +13,7 @@ public class DefaultDimensionalPropertyTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void testError() {
-        getJavaWrapper().getCompiledClass();
-        getJavaWrapper().getOpenClass();
+        getCompiledOpenClass().getOpenClass();
     }
 
 }

@@ -16,7 +16,7 @@ public class TypeInExpressionTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void test() {
-        SyntaxNodeException[] exceptions = getJavaWrapper().getCompiledClass().getBindingErrors();
+        SyntaxNodeException[] exceptions = getCompiledOpenClass().getBindingErrors();
         assertTrue(exceptions.length == 1);
         assertEquals("Cannot execute expression with only type definition Double", exceptions[0].getMessage());
     }

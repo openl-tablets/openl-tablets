@@ -17,7 +17,7 @@ public class ArraysInSpreadsheetTest extends BaseOpenlBuilderHelper {
     public void testWorkingWithDatatypeArrayInSpreadsheet() throws ClassNotFoundException {
         Object result = invokeMethod("start");
         assertTrue(result.getClass().isArray());
-        Class<?> clazz = Class.forName("org.openl.generated.beans.Driver");        
+        Class<?> clazz = getClass("org.openl.generated.beans.Driver");
         assertTrue(result.getClass().getComponentType().equals(clazz));        
     }
     

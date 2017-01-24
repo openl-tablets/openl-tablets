@@ -79,23 +79,23 @@ public class IntRangeRulesParsingTest extends BaseOpenlBuilderHelper {
     @Test    
     public void testtestRange() {
         assertEquals("rule1", invokeMethod("ClassifyIncome", 
-            new IOpenClass[]{OpenClassHelper.getOpenClass(getJavaWrapper().getCompiledClass().getOpenClass(), String.class), 
-                OpenClassHelper.getOpenClass(getJavaWrapper().getCompiledClass().getOpenClass(), short.class)}, 
+            new IOpenClass[]{OpenClassHelper.getOpenClass(getCompiledOpenClass().getOpenClass(), String.class), 
+                OpenClassHelper.getOpenClass(getCompiledOpenClass().getOpenClass(), short.class)}, 
                 new Object[]{"Type 1", -300}));
     }
     
     @Test    
     public void testtestRange0() {
         assertEquals("rule3", invokeMethod("ClassifyIncome", 
-            new IOpenClass[]{OpenClassHelper.getOpenClass(getJavaWrapper().getCompiledClass().getOpenClass(), String.class), 
-                OpenClassHelper.getOpenClass(getJavaWrapper().getCompiledClass().getOpenClass(), short.class)}, 
+            new IOpenClass[]{OpenClassHelper.getOpenClass(getCompiledOpenClass().getOpenClass(), String.class), 
+                OpenClassHelper.getOpenClass(getCompiledOpenClass().getOpenClass(), short.class)}, 
                 new Object[]{"Type 2", -80}));
     }
     
     private Object invoke(String methodName, boolean param1, int param2) {
         return invokeMethod(methodName, 
-            new IOpenClass[]{OpenClassHelper.getOpenClass(getJavaWrapper().getCompiledClass().getOpenClass(), boolean.class), 
-              OpenClassHelper.getOpenClass(getJavaWrapper().getCompiledClass().getOpenClass(), int.class)}, 
+            new IOpenClass[]{OpenClassHelper.getOpenClass(getCompiledOpenClass().getOpenClass(), boolean.class), 
+              OpenClassHelper.getOpenClass(getCompiledOpenClass().getOpenClass(), int.class)}, 
               new Object[]{param1, param2});
     }
 

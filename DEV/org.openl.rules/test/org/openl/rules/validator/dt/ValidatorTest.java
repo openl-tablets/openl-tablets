@@ -94,13 +94,13 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
         if (resultTsn != null) {
             ITableProperties tableProperties = resultTsn.getTableProperties();
             assertNotNull(tableProperties);
-            assertTrue(getJavaWrapper().getCompiledClass().getBindingErrors().length == 0);
-            assertTrue(getJavaWrapper().getCompiledClass().getParsingErrors().length == 0);
+            assertTrue(getCompiledOpenClass().getBindingErrors().length == 0);
+            assertTrue(getCompiledOpenClass().getParsingErrors().length == 0);
 
             IDecisionTable dt = (IDecisionTable) resultTsn.getMember();
             try {
                 // System.out.println("Validating <" + tableName+ ">");
-                result = DecisionTableValidator.validateTable(dt, domains, getJavaWrapper().getOpenClass());
+                result = DecisionTableValidator.validateTable(dt, domains, getCompiledOpenClass().getOpenClass());
 
                 if (result.hasProblems()) {
                     resultTsn.setValidationResult(result);

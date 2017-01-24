@@ -18,7 +18,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.SimpleVM;
 
 public class ContextManaginFromRulesTest extends BaseOpenlBuilderHelper {
 
@@ -30,45 +29,45 @@ public class ContextManaginFromRulesTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void testContextModifying() {
-        IOpenMethod testMethod = getJavaWrapper().getOpenClass().getMethod("modifyContextTest", new IOpenClass[] {});
-        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        Object instance = getJavaWrapper().getOpenClass().newInstance(env);
+        IOpenMethod testMethod = getCompiledOpenClass().getOpenClass().getMethod("modifyContextTest", new IOpenClass[] {});
+        Object instance = newInstance();
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setUsState(UsStatesEnum.DC);
         context.setLob("home");
+        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         env.setContext(context);
         assertEquals(true, testMethod.invoke(instance, new Object[] {}, env));
     }
 
     @Test
     public void testContextSetter() {
-        IOpenMethod testMethod = getJavaWrapper().getOpenClass().getMethod("setContextTest", new IOpenClass[] {});
-        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        Object instance = getJavaWrapper().getOpenClass().newInstance(env);
+        IOpenMethod testMethod = getCompiledOpenClass().getOpenClass().getMethod("setContextTest", new IOpenClass[] {});
+        Object instance = newInstance();
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setUsState(UsStatesEnum.DC);
         context.setLob("home");
+        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         env.setContext(context);
         assertEquals(true, testMethod.invoke(instance, new Object[] {}, env));
     }
 
     @Test
     public void testCurrentContextGetter() {
-        IOpenMethod testMethod = getJavaWrapper().getOpenClass().getMethod("getContextPropery",
+        IOpenMethod testMethod = getCompiledOpenClass().getOpenClass().getMethod("getContextPropery",
                 new IOpenClass[] { JavaOpenClass.STRING });
-        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        Object instance = getJavaWrapper().getOpenClass().newInstance(env);
+        Object instance = newInstance();
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setUsState(UsStatesEnum.MO);
+        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         env.setContext(context);
         assertEquals(UsStatesEnum.MO, testMethod.invoke(instance, new Object[] { "usState" }, env));
     }
 
     @Test
     public void testEmptyContextGetter() throws Exception {
-        IOpenMethod testMethod = getJavaWrapper().getOpenClass().getMethod("emptyContextTest", new IOpenClass[] {});
+        IOpenMethod testMethod = getCompiledOpenClass().getOpenClass().getMethod("emptyContextTest", new IOpenClass[] {});
         IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        Object instance = getJavaWrapper().getOpenClass().newInstance(env);
+        Object instance = newInstance();
         Object result = testMethod.invoke(instance, new Object[] {}, env);
         assertTrue(result instanceof IRulesRuntimeContext);
         BeanInfo info = Introspector.getBeanInfo(IRulesRuntimeContext.class);
@@ -80,24 +79,24 @@ public class ContextManaginFromRulesTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void testContextRestoring() {
-        IOpenMethod testMethod = getJavaWrapper().getOpenClass().getMethod("restoreContextTest", new IOpenClass[] {});
-        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        Object instance = getJavaWrapper().getOpenClass().newInstance(env);
+        IOpenMethod testMethod = getCompiledOpenClass().getOpenClass().getMethod("restoreContextTest", new IOpenClass[] {});
+        Object instance = newInstance();
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setUsState(UsStatesEnum.DC);
         context.setLob("home");
+        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         env.setContext(context);
         assertEquals(true, testMethod.invoke(instance, new Object[] {}, env));
     }
 
     @Test
     public void testTBasicContext() {
-        IOpenMethod testMethod = getJavaWrapper().getOpenClass().getMethod("tbasicCaller", new IOpenClass[] {});
-        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        Object instance = getJavaWrapper().getOpenClass().newInstance(env);
+        IOpenMethod testMethod = getCompiledOpenClass().getOpenClass().getMethod("tbasicCaller", new IOpenClass[] {});
+        Object instance = newInstance();
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setUsState(UsStatesEnum.DC);
         context.setLob("home");
+        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         env.setContext(context);
         assertEquals(true, testMethod.invoke(instance, new Object[] {}, env));
     }

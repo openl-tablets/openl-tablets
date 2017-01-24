@@ -50,7 +50,7 @@ public class DispatcherTableBuildingTest extends BaseOpenlBuilderHelper {
         TableSyntaxNode dispatcherTable = findDispatcherForMethod("arraysTest");
         assertNotNull(dispatcherTable);
         assertFalse(dispatcherTable.hasErrors());
-        assertTrue(getWarningsForTable(getJavaWrapper().getCompiledClass().getMessages(), dispatcherTable).size() == 0);
+        assertTrue(getWarningsForTable(getCompiledOpenClass().getMessages(), dispatcherTable).size() == 0);
     }
 
     @Test
@@ -58,6 +58,6 @@ public class DispatcherTableBuildingTest extends BaseOpenlBuilderHelper {
         TableSyntaxNode dispatcherTable = findDispatcherForMethod("keywordsTest");
         assertNotNull(dispatcherTable);
         assertFalse(dispatcherTable.hasErrors());
-        assertTrue(getWarningsForTable(getJavaWrapper().getCompiledClass().getMessages(), dispatcherTable).size() == 0);
+        assertTrue(getWarningsForTable(getCompiledOpenClass().getMessages(), dispatcherTable).size() == 0);
     }
 }
