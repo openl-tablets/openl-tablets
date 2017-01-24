@@ -30,7 +30,7 @@ public class OpenLVersion {
             	propertiesFile = OpenLVersion.class.getResourceAsStream(PROP_FILE_NAME);
                 props.load(propertiesFile);
             } catch (Throwable t) {
-                Log.warn(PROP_FILE_NAME + " not found", t);
+                Log.warn(PROP_FILE_NAME + " is not found", t);
             } finally {
             	if (propertiesFile != null) {
             		IOUtils.closeQuietly(propertiesFile);

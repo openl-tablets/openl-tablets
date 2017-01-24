@@ -152,7 +152,7 @@ public class TestExecutionControl extends TestCase {
                     in.close();
                 } catch (java.lang.ClassNotFoundException cnfEx) {
                     cnfEx.printStackTrace();
-                    fail("Class not found!");
+                    fail("Class is not found!");
                 } catch (java.io.IOException ioEx) {
                     ioEx.printStackTrace();
                     fail("IOException has occured");

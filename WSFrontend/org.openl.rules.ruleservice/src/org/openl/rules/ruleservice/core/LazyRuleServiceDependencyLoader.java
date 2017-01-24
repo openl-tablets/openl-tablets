@@ -123,7 +123,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                                 if (module != null) {
                                     return module;
                                 }
-                                throw new OpenlNotCheckedException("Module not found");
+                                throw new OpenlNotCheckedException("Module is not found");
                             }
 
                             private Module getModuleForSourceUrl(String sourceUrl, Collection<Module> modules) {

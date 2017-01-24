@@ -160,7 +160,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             return bestCaseTestMethodBoundNode;
         }
 
-        String message = String.format("Type not found: '%s'", typeName);
+        String message = String.format("Type '%s' is not found", typeName);
         throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
     }
 

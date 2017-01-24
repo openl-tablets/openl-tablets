@@ -98,8 +98,8 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
                     sb.append(param.getCanonicalName());
                 }
 
-                throw new MethodInvocationException("Method with name '" + ruleName + "(" + sb
-                    .toString() + ")' not found in service '" + serviceName + "'!");
+                throw new MethodInvocationException("Method '" + ruleName + "(" + sb
+                    .toString() + ")' is not found in service '" + serviceName + "'!");
             }
             try {
                 return serviceMethod.invoke(service.getServiceBean(), params);
@@ -110,7 +110,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
                 throw new MethodInvocationException(t.toString(), t);
             } 
         } else {
-            throw new MethodInvocationException("Service '" + serviceName + "' not found!");
+            throw new MethodInvocationException("Service '" + serviceName + "' is not found");
         }
     }
 

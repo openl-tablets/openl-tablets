@@ -81,7 +81,7 @@ public class AbstractWebServicesRuleServicePublisherTest implements ApplicationC
         }
         OpenLService service = getRuleServicePublisher().getServiceByName(serviceName);
         if (service == null) {
-            throw new ServiceNotFoundException(String.format("Service with name=\"%s\" was not found", serviceName));
+            throw new ServiceNotFoundException(String.format("Service '%' is not found", serviceName));
         }
         return service;
     }

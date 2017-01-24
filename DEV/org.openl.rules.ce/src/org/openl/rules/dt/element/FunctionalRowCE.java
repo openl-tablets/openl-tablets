@@ -490,7 +490,7 @@ public abstract class FunctionalRowCE implements IDecisionRow {
 		IOpenClass type = RuleRowHelper.getType(typeCode, bindingContext);
 
 		if (type == null) {
-			throw SyntaxNodeExceptionUtils.createError("Type not found: "
+			throw SyntaxNodeExceptionUtils.createError("Type ''is not found: "
 					+ typeCode, nodes[0]);
 		}
 

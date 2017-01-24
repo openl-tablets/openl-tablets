@@ -61,7 +61,7 @@ public class IndexNodeBinder extends ANodeBinder {
         }
 
         String message = String.format(
-                "Index operator %s[%s] not found", targetNode.getType(), indexExprType.getName());
+                "Index operator %s[%s] is not found", targetNode.getType(), indexExprType.getName());
         BindHelper.processError(message, node, bindingContext, false);
 
         return new ErrorBoundNode(node);

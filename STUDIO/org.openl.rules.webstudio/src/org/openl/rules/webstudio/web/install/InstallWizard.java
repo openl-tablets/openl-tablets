@@ -203,7 +203,7 @@ public class InstallWizard {
                 }
 
             } catch (FileNotFoundException e) {
-                log.error("The file {} not found", propFile.getAbsolutePath(), e);
+                log.error("The file {} is not found", propFile.getAbsolutePath(), e);
             } catch (IOException e) {
                 log.error("Error while loading file {}", propFile.getAbsolutePath(), e);
             } finally {
@@ -438,7 +438,7 @@ public class InstallWizard {
 
                 dbVendors.add(new SelectItem(propertyFilePath, dbVendor));
             } catch (FileNotFoundException e) {
-                log.error("The file {} not found", propFile.getAbsolutePath(), e);
+                log.error("The file {} is not found", propFile.getAbsolutePath(), e);
             } catch (IOException e) {
                 log.error("Error while loading file {}", propFile.getAbsolutePath(), e);
             } finally {

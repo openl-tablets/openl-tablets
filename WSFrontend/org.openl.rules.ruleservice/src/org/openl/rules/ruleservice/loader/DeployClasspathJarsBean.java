@@ -117,7 +117,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
                 throw new IOException("Invalid resource", e);
             }
             if (!file.exists()) {
-                throw new IOException("File not found. File: " + file.getAbsolutePath());
+                throw new IOException("File is not found. File: " + file.getAbsolutePath());
             }
 
             productionRepositoryDeployer.deployInternal(file, repository, true);

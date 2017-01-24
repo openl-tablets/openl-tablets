@@ -45,12 +45,12 @@ public class MethodInvokeResourceServiceTask extends AbstractOpenLResourceServic
         }
 
         if (methodCount == 0) {
-            throw new MethodNotFoundException(String.format("Method with name \"%s\" not found!", methodValue));
+            throw new MethodNotFoundException(String.format("Method '%s' is not found", methodValue));
         }
 
         if (methodCount > 1) {
             throw new MultipleMethodsFoundException(
-                String.format("Found multiple methods with name \"%s\"!", methodValue));
+                String.format("Found multiple methods with name '%s'", methodValue));
         }
 
         int n = openMethod.getSignature().getNumberOfParameters();
@@ -100,7 +100,7 @@ public class MethodInvokeResourceServiceTask extends AbstractOpenLResourceServic
                 parameterNames.append(parameterName);
             }
             throw new MethodNotFoundException(
-                String.format("Not found variables for method with name \"%s\"! Variable names: %s",
+                String.format("Variables for method '%s' is not found. Variable names: %s",
                     methodValue,
                     parameterNames.toString()));
         }

@@ -517,8 +517,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 		IOpenClass type = RuleRowHelper.getType(typeCode, bindingContext);
 
 		if (type == null) {
-			throw SyntaxNodeExceptionUtils.createError("Type not found: "
-					+ typeCode, nodes[0]);
+			throw SyntaxNodeExceptionUtils.createError("Type '" +typeCode+ "'is not found", nodes[0]);
 		}
 
 		if (!bindingContext.isExecutionMode()) {

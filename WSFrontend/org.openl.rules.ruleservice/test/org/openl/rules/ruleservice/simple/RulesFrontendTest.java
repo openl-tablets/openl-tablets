@@ -96,7 +96,7 @@ public class RulesFrontendTest implements ApplicationContextAware {
             try {
                 proxy.notExustedMethod(10);
             } catch (MethodInvocationRuntimeException e) {
-                assertTrue(e.getMessage().contains("Service 'RulesFrontendTest_multimodule' not found!"));
+                assertTrue(e.getMessage().contains("Service 'RulesFrontendTest_multimodule' is not found"));
                 throw e;
             }
         } finally {

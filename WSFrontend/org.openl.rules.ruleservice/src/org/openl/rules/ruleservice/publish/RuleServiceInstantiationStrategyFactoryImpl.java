@@ -40,7 +40,7 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
     public RulesInstantiationStrategy getStrategy(Collection<Module> modules, IDependencyManager dependencyManager) {
         ServiceDescription serviceDescription = ServiceDescriptionHolder.getInstance().getServiceDescription();
         if (serviceDescription == null) {
-            throw new IllegalStateException("ServiceDescription not found!");
+            throw new IllegalStateException("ServiceDescription is not found");
         }
         int moduleSize = modules.size();
         if (moduleSize == 0) {

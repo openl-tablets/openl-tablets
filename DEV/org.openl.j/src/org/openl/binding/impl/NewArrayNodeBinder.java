@@ -75,7 +75,7 @@ public class NewArrayNodeBinder extends ANodeBinder {
 
         if (componentType == null) {
 
-            String message = String.format("Type '%s' not found", typeName);
+            String message = String.format("Type '%s' is not found", typeName);
             BindHelper.processError(message, typeNode, bindingContext);
 
             return new ErrorBoundNode(node);

@@ -40,7 +40,7 @@ public class NewNodeBinder extends ANodeBinder {
 
         if (type == null) {
 
-            String message = String.format("Type '%s' not found", typeName);
+            String message = String.format("Type '%s' is not found", typeName);
             BindHelper.processError(message, typeNode, bindingContext, false);
 
             return new ErrorBoundNode(node);
@@ -53,7 +53,7 @@ public class NewNodeBinder extends ANodeBinder {
 
         if (methodCaller == null) {
 
-            String errMsg = "Constructor not found: " + MethodUtil.printMethod(type.getName(), types);
+            String errMsg = "Constructor is not found: " + MethodUtil.printMethod(type.getName(), types);
             BindHelper.processError(errMsg, typeNode, bindingContext);
 
             return new ErrorBoundNode(node);

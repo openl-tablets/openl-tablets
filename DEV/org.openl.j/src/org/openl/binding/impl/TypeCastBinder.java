@@ -38,7 +38,7 @@ public class TypeCastBinder extends ANodeBinder {
 			String code = ((IdentifierNode) nullNode.getSyntaxNode()
 					.getChild(0)).getIdentifier();
 
-			String message = String.format("Type '%s' not found", code);
+			String message = String.format("Type '%s' is not found", code);
 			BindHelper.processError(message, node, bindingContext, false);
 
 			return new ErrorBoundNode(node);
