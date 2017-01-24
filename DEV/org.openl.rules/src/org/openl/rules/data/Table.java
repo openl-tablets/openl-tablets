@@ -266,7 +266,15 @@ public class Table implements ITable {
                                     bindingContext);
                             }
                         } catch (SyntaxNodeException e) {
-                            errorSyntaxNodeExceptions.add(e);
+                            boolean found = false;
+                            for (SyntaxNodeException syntaxNodeException : errorSyntaxNodeExceptions){
+                                if (syntaxNodeException.getMessage().equals(e.getMessage()) && syntaxNodeException.getSyntaxNode() == e.getSyntaxNode()){
+                                    found = true;
+                                }
+                            }
+                            if (!found){
+                                errorSyntaxNodeExceptions.add(e);
+                            }
                         }
                     }
                 }
