@@ -364,7 +364,7 @@ public class XlsBinder implements IOpenBinder {
         TableSyntaxNode[] commonTables = selectNodes(moduleNode, commonTablesSelector);
 
         // Select and sort Spreadsheet tables
-        TableSyntaxNode[] spreadsheets = selectSpreadsheetNodes(moduleNode, spreadsheetSelector);
+        TableSyntaxNode[] spreadsheets = selectTableSyntaxNodes(moduleNode, spreadsheetSelector);
         if (OpenLSystemProperties.isCustomSpreadsheetType(bindingContext.getExternalParams())) {
             try{
                 spreadsheets = TableSyntaxNodeRelationsUtils.sort(spreadsheets, new SpreadsheetTableSyntaxNodeRelationsDeterminer());
@@ -376,11 +376,11 @@ public class XlsBinder implements IOpenBinder {
             }
         }
 
-        TableSyntaxNode[] dts = selectSpreadsheetNodes(moduleNode, dtSelector);
+        TableSyntaxNode[] dts = selectTableSyntaxNodes(moduleNode, dtSelector);
         
         TableSyntaxNode[] commonAndSpreadsheetTables = ArrayUtils.addAll(ArrayUtils.addAll(dts, spreadsheets), commonTables);
         bindInternal(moduleNode, moduleOpenClass, commonAndSpreadsheetTables, openl, moduleContext);
-
+ 
         // Select Test and RunMethod tables
         TableSyntaxNode[] runTables = selectNodes(moduleNode, runMethodSelector);
         bindInternal(moduleNode, moduleOpenClass, runTables, openl, moduleContext);
@@ -632,7 +632,7 @@ public class XlsBinder implements IOpenBinder {
         return tableSyntaxNodes;
     }
 
-    private TableSyntaxNode[] selectSpreadsheetNodes(XlsModuleSyntaxNode moduleSyntaxNode,
+    private TableSyntaxNode[] selectTableSyntaxNodes(XlsModuleSyntaxNode moduleSyntaxNode,
             ISelector<ISyntaxNode> childSelector) {
 
         ArrayList<TableSyntaxNode> childSyntaxNodes = new ArrayList<TableSyntaxNode>();
