@@ -188,7 +188,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
                 }
                 sb.append(errorMessage);
             }
-            throw new OpenlNotCheckedException("Incompatible type usage in custom spreadsheet fields: " + sb.toString());
+            throw new OpenlNotCheckedException("Incompatible type usage in spreadsheet fields: " + sb.toString());
         }
     }
     

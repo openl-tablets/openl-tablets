@@ -13,7 +13,7 @@ public class RecursiveMethodPreBindingException extends OpenlNotCheckedException
     public String getMessage() {
         StringBuilder buf = new StringBuilder();
 
-        buf.append("Сustom Spreadsheet Type can't be defined correctly with the circular reference. Please, define manually common SpreadsheetResult type for the cell.");
+        buf.append("Automatically type definition for Spreadsheet with the circular reference is failed. Please, define manually common 'SpreadsheetResult' type for the cell.");
 
         return buf.toString();
     }
