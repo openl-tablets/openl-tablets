@@ -105,16 +105,6 @@ public class CellsHeaderExtractor {
         return dependentSpreadsheetTypes;
     }
     
-    public Set<String> getDependentSpreadsheetTypes() {
-        if (dependentSpreadsheetTypes == null) {
-            dependentSpreadsheetTypes = new HashSet<String>();
-            dependentSpreadsheetTypes.addAll(getSignatureDependencies(spreadsheetSignature));
-            dependentSpreadsheetTypes.addAll(getDependencies(columnNames));
-            dependentSpreadsheetTypes.addAll(getDependencies(rowNames));
-        }
-        return dependentSpreadsheetTypes;
-    }
-    
     public StringValue getRowNameForHeader(String value, int row, IBindingContext bindingContext) {
         StringValue sv = null;
         if (value != null) {
