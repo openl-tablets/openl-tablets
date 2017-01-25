@@ -201,7 +201,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             boolean found = false;
             for (Method method : methods) {
                 if (method.getName().equals(setterMethodName)) {
-                    if ((method.getParameterCount() == 1) && method.getParameterTypes()[0].getCanonicalName()
+                    if ((method.getParameters().length == 1) && method.getParameterTypes()[0].getCanonicalName()
                         .equals(fieldDescription.getCanonicalTypeName())) {
                         found = true;
                         break;
