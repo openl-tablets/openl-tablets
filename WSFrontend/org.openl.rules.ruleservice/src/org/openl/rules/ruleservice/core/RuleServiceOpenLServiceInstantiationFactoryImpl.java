@@ -163,7 +163,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 resultClass);
             return interfaceForInstantiationStrategy;
         } catch (Exception e) {
-            log.error("Failed to applying custom spreadsheet result convertor for class with name \"{}\"",
+            log.error("Failed to applying intercepting template class for '{}'",
                 resultClass.getCanonicalName(),
                 e);
         }
