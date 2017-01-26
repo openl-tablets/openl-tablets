@@ -166,7 +166,7 @@ public class SmartRedeployController {
                         item.setStyleForName(UiConst.STYLE_WARNING);
                     } else {
                         if (checker.check()) {
-                            item.setMessages("Can be deployed");
+                            item.setMessages("This project revision is already deployed");
                         } else {
                             item.setMessages("Dependent projects should be added to deploy configuration!");
                             item.setStyleForMessages(UiConst.STYLE_ERROR);
