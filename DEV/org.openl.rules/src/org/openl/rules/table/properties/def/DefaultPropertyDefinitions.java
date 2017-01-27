@@ -482,7 +482,7 @@ public class DefaultPropertyDefinitions
 		definitions[35].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_TEST_METHOD, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[35].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[36] = new TablePropertyDefinition();
-		definitions[36].setDefaultValue("false");
+		definitions[36].setDefaultValue("true");
 		definitions[36].setDescription("Controls new Spreadsheet Auto Type Discovery feature. By default = false (old be"
 		 + "haviour)");
 		definitions[36].setDimensional(false);
