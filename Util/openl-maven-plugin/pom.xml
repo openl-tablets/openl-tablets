@@ -51,6 +51,11 @@
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.project</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
