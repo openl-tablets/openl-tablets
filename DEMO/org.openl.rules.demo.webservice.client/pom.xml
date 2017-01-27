@@ -39,8 +39,13 @@
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
+            <artifactId>slf4j-api</artifactId>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 </project>
