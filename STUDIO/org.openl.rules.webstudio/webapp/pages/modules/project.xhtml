@@ -301,16 +301,13 @@
                     <td style="padding-top: 0">OpenL version compatibility</td>
                     <td class="aligned-property" style="padding-top: 0">
                         <span id="version-compatibility-short" class="expandable-link">
-                            <h:outputText value="#{projectBean.supportedVersion.version}+" />
-                            <h:panelGroup rendered="#{projectBean.supportedVersion.lastVersion}">
-                                (Latest version)
-                            </h:panelGroup>
+                            <h:outputText value="#{projectBean.supportedVersion.lastVersion ? 'Latest version ('.concat(projectBean.supportedVersion.version).concat('+)') : projectBean.supportedVersion.version.concat('+')}" />
                         </span>
 
                         <span id="version-compatibility-full">
                             <h:selectOneMenu id="supportedVersion" value="#{projectBean.supportedVersion}">
                                 <f:selectItems value="#{projectBean.possibleVersions}" var="version"
-                                               itemLabel="#{version.version}+#{version.lastVersion ? ' (Latest version)' : ''}"
+                                               itemLabel="#{version.lastVersion ? 'Latest version ('.concat(version.version).concat('+)') : version.version.concat('+')}"
                                                itemValue="#{version}"/>
                                 <a4j:ajax event="change" execute="@this" render="propertiesFileNamePatternSettings" oncomplete="onPropertiesFileNameProcessorCheckboxClick()" />
                             </h:selectOneMenu>

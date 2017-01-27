@@ -277,10 +277,6 @@
                 <configuration>
                     <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
                     <argLine>${jacococ.argLine} -XX:MaxPermSize=128m -Xms512m -Xmx2048m</argLine>
-                    <classpathDependencyExcludes>
-                        <!-- To resolve conflict with org.slf4j:slf4j-simple in the test scope. -->
-                        <exclude>org.slf4j:slf4j-log4j12</exclude>
-                    </classpathDependencyExcludes>
                 </configuration>
             </plugin>
         </plugins>
@@ -727,6 +723,7 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${org.slf4j.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
@@ -745,6 +742,7 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl-over-slf4j</artifactId>
                 <version>${org.slf4j.version}</version>
+                <scope>test</scope>
             </dependency>
             <!-- Jackrabbit content repository implementation -->
             <dependency>
@@ -1385,6 +1383,11 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

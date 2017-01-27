@@ -7,7 +7,7 @@ public enum ProjectStatus {
 
     LOCAL ("Local"),
     ARCHIVED ("Archived"),
-    VIEWING ("Viewing"),
+    VIEWING ("No Changes"),
     VIEWING_VERSION ("Viewing Revision"),
     EDITING ("In Editing"),
     CLOSED ("Closed");

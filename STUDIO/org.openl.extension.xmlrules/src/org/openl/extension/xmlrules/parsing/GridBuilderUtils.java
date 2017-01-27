@@ -13,6 +13,7 @@ import org.openl.extension.xmlrules.model.lazy.LazyWorkbook;
 import org.openl.extension.xmlrules.model.single.*;
 import org.openl.extension.xmlrules.model.single.node.Node;
 import org.openl.extension.xmlrules.model.single.node.RangeNode;
+import org.openl.extension.xmlrules.model.single.node.StringNode;
 import org.openl.extension.xmlrules.model.single.node.expression.ExpressionContext;
 import org.openl.extension.xmlrules.syntax.StringGridBuilder;
 import org.openl.extension.xmlrules.utils.CellReference;
@@ -170,18 +171,30 @@ public final class GridBuilderUtils {
     }
 
     public static Cell getCell(ExtensionModule module, CellReference cellReference) {
+        String workbookToFind = cellReference.getWorkbook();
+        String sheetToFind = cellReference.getSheet();
+
         for (LazyWorkbook workbook : module.getInternalWorkbooks()) {
             for (Sheet sheet : workbook.getSheets()) {
                 String workbookName = sheet.getWorkbookName();
                 String sheetName = sheet.getName();
 
-                for (LazyCells cells : sheet.getCells()) {
-                    for (Cell c : cells.getCells()) {
-                        if (CellReference.parse(workbookName, sheetName, c.getAddress()).equals(cellReference)) {
-                            return c;
+                if (workbookToFind.equals(workbookName) && sheetToFind.equals(sheetName)) {
+                    for (LazyCells cells : sheet.getCells()) {
+                        for (Cell c : cells.getCells()) {
+                            if (CellReference.parse(workbookName, sheetName, c.getAddress()).equals(cellReference)) {
+                                return c;
+                            }
                         }
                     }
+
+                    Cell cell = new Cell();
+                    RangeNode address = new RangeNode();
+                    cell.setAddress(address);
+                    cell.setNode(new StringNode());
+                    return cell;
                 }
+
             }
         }
         throw new IllegalStateException("Can't find the cell declaration: " + cellReference.getStringValue());
