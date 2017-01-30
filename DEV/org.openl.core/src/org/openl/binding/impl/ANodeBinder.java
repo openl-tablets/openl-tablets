@@ -36,11 +36,21 @@ public abstract class ANodeBinder implements INodeBinder {
             return new ErrorBoundNode(node);
         }
     }
+    
+    protected static boolean hasErrorBoundNode(IBoundNode[] boundNodes){
+        for (IBoundNode boundNode : boundNodes){
+            if (boundNode instanceof ErrorBoundNode){
+                return true;
+            }
+        }
+        return false;
+    }
 
     public static IBoundNode bindTargetNode(ISyntaxNode node, IBindingContext bindingContext, IBoundNode targetNode) {
     	
-    	if (targetNode.getClass() == ErrorBoundNode.class)
+    	if (targetNode instanceof ErrorBoundNode){
             return new ErrorBoundNode(node);
+    	}
 
         INodeBinder binder = findBinder(node, bindingContext);
 

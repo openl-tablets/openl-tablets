@@ -58,6 +58,9 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
         String methodName = ((IdentifierNode) lastNode).getIdentifier();
 
         IBoundNode[] children = bindChildren(node, bindingContext, 0, childrenCount - 1);
+        if (hasErrorBoundNode(children)){
+            return new ErrorBoundNode(node);
+        }
         IOpenClass[] parameterTypes = getTypes(children);
         IOpenClass[] singleCallParameterTypes = new IOpenClass[parameterTypes.length];
         System.arraycopy(parameterTypes, 0, singleCallParameterTypes, 0, parameterTypes.length);
