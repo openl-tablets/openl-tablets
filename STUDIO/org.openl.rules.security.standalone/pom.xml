@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.studio-pom</artifactId>
-        <version>5.19.0-SNAPSHOT</version>
+        <version>5.20.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>org.openl.rules.security.standalone</artifactId>
@@ -13,11 +13,6 @@
     <description>Internal OpenL security implementation</description>
     <url>//openl-tablets.org</url>
     <dependencies>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.security</artifactId>

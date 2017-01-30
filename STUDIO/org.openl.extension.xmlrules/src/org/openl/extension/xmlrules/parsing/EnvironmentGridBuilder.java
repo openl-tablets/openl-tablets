@@ -33,6 +33,10 @@ public final class EnvironmentGridBuilder {
                 gridBuilder.nextRow();
             }
 
+            gridBuilder.addCell("import");
+            gridBuilder.addCell("org.openl.rules.binding.StringOperators.*");
+            gridBuilder.nextRow();
+
             gridBuilder.nextRow();
         } catch (RuntimeException e) {
             Logger log = LoggerFactory.getLogger(EnvironmentGridBuilder.class);

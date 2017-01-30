@@ -7,6 +7,7 @@ import org.openl.rules.table.*;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsUtil;
+import org.openl.util.StringUtils;
 import org.openl.util.formatters.IFormatter;
 
 public class SimpleCell implements ICell {
@@ -96,7 +97,11 @@ public class SimpleCell implements ICell {
     }
 
     public String getFormattedValue() {
-        return getStringValue();
+        String value = getStringValue();
+        if (value == null) {
+            value = StringUtils.EMPTY;
+        }
+        return value;
     }
 
     public ICellFont getFont() {

@@ -363,5 +363,5 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         return propNames;
     }
 
-    // <<< END INSERT MatchingProperties >>>
+// <<< END INSERT MatchingProperties >>>
 }
