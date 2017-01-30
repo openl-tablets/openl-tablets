@@ -47,6 +47,9 @@ public class NewNodeBinder extends ANodeBinder {
         }
 
         IBoundNode[] children = bindChildren(node, bindingContext, 1, childrenCount);
+        if (hasErrorBoundNode(children)){
+            return new ErrorBoundNode(node);
+        }
         IOpenClass[] types = getTypes(children);
 
         IMethodCaller methodCaller = MethodSearch.getMethodCaller(type.getName(), types, bindingContext, type);

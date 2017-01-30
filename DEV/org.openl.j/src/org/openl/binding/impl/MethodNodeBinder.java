@@ -16,7 +16,6 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 import org.openl.types.impl.CastingMethodCaller;
 import org.openl.types.java.JavaOpenMethod;
 import org.openl.util.StringUtils;
@@ -73,7 +72,7 @@ public class MethodNodeBinder extends ANodeBinder {
 
         return methodCaller;
     }
-
+    
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         int childrenCount = node.getNumberOfChildren();
@@ -89,6 +88,9 @@ public class MethodNodeBinder extends ANodeBinder {
         String methodName = ((IdentifierNode) lastNode).getIdentifier();
 
         IBoundNode[] children = bindChildren(node, bindingContext, 0, childrenCount - 1);
+        if (hasErrorBoundNode(children)){
+            return new ErrorBoundNode(node);
+        }
         IOpenClass[] parameterTypes = getTypes(children);
 
         IMethodCaller methodCaller = bindingContext.findMethodCaller(ISyntaxConstants.THIS_NAMESPACE,
