@@ -1,5 +1,6 @@
 package org.openl.rules.repository;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 
@@ -68,11 +69,38 @@ public class RepositoryInstatiator {
                 try {
                     Method setMethod = clazz.getMethod(setter, String.class);
                     setMethod.invoke(instance, value);
+                } catch (NoSuchMethodException e) {
+                    Method[] methods = clazz.getMethods();
+                    for (Method method : methods) {
+                        if (method.getName().equals(setter)) {
+                            Class<?>[] parameterTypes = method.getParameterTypes();
+                            if (parameterTypes.length == 1) {
+                                try {
+                                    method.invoke(instance, convert(parameterTypes[0], value));
+                                    // Found needed setter
+                                    break;
+                                } catch (NoSuchMethodException ignore) {
+                                    // Can't convert using this method. Skip.
+                                } catch (IllegalAccessException ignore) {
+                                    // Can't convert using this method. Skip.
+                                } catch (InvocationTargetException e1) {
+                                    // The underlying method throws an exception
+                                    throw new IllegalStateException("Failed to invoke " + setter + "(" + parameterTypes[0].getSimpleName() +") method in: " + clazz, e1);
+                                }
+                            }
+                        }
+                    }
+                    // Didn't find setter, skip this param. For example not always exists setUri(String).
                 } catch (Exception e) {
                     throw new IllegalStateException("Failed to invoke " + setter + "(String) method in: " + clazz, e);
                 }
             }
         }
+    }
+
+    private static Object convert(Class<?> parameterType, String value) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        Method valueOfMethod = parameterType.getMethod("valueOf", String.class);
+        return valueOfMethod.invoke(null, value);
     }
 
     private static void initialize(Object instance) {
