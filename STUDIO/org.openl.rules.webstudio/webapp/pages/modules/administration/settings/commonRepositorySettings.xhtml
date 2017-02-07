@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+>
+
+    <ui:param name="settings" value="#{repository.settings}" />
+
+    <h:panelGrid id="repoSettings" columns="2" columnClasses="titleColumn">
+        <h:outputText value="#{repository.type == 'local' ? 'Directory' : 'URL'}:" />
+        <h:inputText value="#{settings.path}" styleClass="pathInput" disabled="#{settings.repositoryPathSystem}" />
+        <h:outputLabel value="Secure connection" for="repositorySecureConnection" />
+        <h:selectBooleanCheckbox id="repositorySecureConnection" value="#{settings.secure}"
+                                 onmousedown="if($j(this).attr('checked')){if(!window.confirm('Login and password will be deleted. Do you want to continue?')) {return false;}} return this.click()">
+            <f:ajax event="change" execute="@form" render="repoSettings" />
+        </h:selectBooleanCheckbox>
+        <h:outputText value="Login:" rendered="#{settings.secure || !empty settings.login}"/>
+        <h:inputText value="#{settings.login}" rendered="#{settings.secure || !empty settings.login}"/>
+        <h:outputText value="Password:" rendered="#{settings.secure || !empty settings.login}"/>
+        <h:inputSecret value="#{settings.password}" rendered="#{settings.secure || !empty settings.login}"/>
+    </h:panelGrid>
+
+</ui:composition>

@@ -120,6 +120,10 @@ public class ConfigurationManager {
         return compositeConfiguration.getInt(key);
     }
 
+    public Long getLongProperty(String key, Long defaultValue) {
+        return compositeConfiguration.getLong(key, defaultValue);
+    }
+
     public Map<String, Object> getProperties() {
         return getProperties(false);
     }
@@ -145,7 +149,7 @@ public class ConfigurationManager {
         if (key != null && value != null) {
             if (!(value instanceof Collection) && !value.getClass().isArray()) {
                 String defaultValue = compositeConfiguration.getString(key);
-                if (defaultValue != null && !defaultValue.equals(value.toString())) {
+                if (defaultValue == null || !defaultValue.equals(value.toString())) {
                     getConfigurationToSave().setProperty(key, value.toString());
                 }
             } else {

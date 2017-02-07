@@ -1074,6 +1074,11 @@
                 <artifactId>modeshape-common</artifactId>
                 <version>3.8.1.Final</version>
             </dependency>
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-s3</artifactId>
+                <version>1.11.86</version>
+            </dependency>
             <!--This examples uses Infinispan's JDBC cache store, which requires C3P0 and a JDBC database driver -->
             <dependency>
                 <groupId>org.infinispan</groupId>
@@ -1215,6 +1220,11 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.repository.jcr.modeshape</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.repository.aws</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

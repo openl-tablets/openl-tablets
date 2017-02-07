@@ -34,18 +34,10 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
         clearForm();
     }
 
-    @Override
-    public void setType(String type) {
-        super.setType(type);
-        if (isLocal()) {
-            setSecure(false);
-        }
-    }
-
     private boolean checkConnection(RepositoryConfiguration repoConfig) {
         setErrorMessage("");
 
-        if (this.getType().equals("local")) {
+        if (getRepositoryConfiguration().getType().equals("local")) {
             return checkLocalRepo(repoConfig);
         } else {
             return checkRemoteConnection(repoConfig);
@@ -63,11 +55,12 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
     }
 
     private boolean checkLocalRepo(RepositoryConfiguration repoConfig) {
-        File repoDir = new File(repoConfig.getPath());
+        CommonRepositorySettings settings = (CommonRepositorySettings) repoConfig.getSettings();
+        File repoDir = new File(settings.getPath());
         String errorMessage = "There is no repository in this folder. Please, correct folder path";
         if (repoDir.exists()) {
             File[] files = repoDir.listFiles();
-            RepoDirChecker checker = new RepoDirChecker(repoConfig.getPath());
+            RepoDirChecker checker = new RepoDirChecker(settings.getPath());
             if (files == null) {
                 setErrorMessage(errorMessage);
                 return false;
@@ -87,7 +80,7 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
                 return false;
             }
 
-            if (StringUtils.isNotEmpty(repoConfig.getLogin())) {
+            if (StringUtils.isNotEmpty(settings.getLogin())) {
                 try {
                     RepositoryValidators.validateConnection(repoConfig, getProductionRepositoryFactoryProxy());
                 } catch (RepositoryValidationException e) {

@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.admin;
 
-import java.io.File;
 import java.math.BigInteger;
 import java.util.Comparator;
 import java.util.Map;
@@ -14,15 +13,10 @@ import org.openl.util.StringUtils;
 public class RepositoryConfiguration {
     public static final Comparator<RepositoryConfiguration> COMPARATOR = new NameWithNumbersComparator();
 
-    private String login;
-    private String password;
-    private String uri;
     private String name;
     private JcrType jcrType;
 
-    private boolean secure = false;
     private String oldName = null;
-    private String defaultLocalUri = null;
 
     private String configName;
     private final ConfigurationManager configManager;
@@ -31,10 +25,9 @@ public class RepositoryConfiguration {
     private final String REPOSITORY_FACTORY;
     private final String REPOSITORY_NAME;
 
-    private final String REPOSITORY_URI;
-    private final String REPOSITORY_LOGIN;
-    private final String REPOSITORY_PASS;
     private final String CONFIG_PREFIX;
+
+    private RepositorySettings settings;
 
     public RepositoryConfiguration(String configName,
             ConfigurationManager configManager,
@@ -48,9 +41,6 @@ public class RepositoryConfiguration {
         REPOSITORY_FACTORY = CONFIG_PREFIX + "factory";
         REPOSITORY_NAME = CONFIG_PREFIX + "name";
 
-        REPOSITORY_URI = CONFIG_PREFIX + "uri";
-        REPOSITORY_LOGIN = CONFIG_PREFIX + "login";
-        REPOSITORY_PASS = CONFIG_PREFIX + "password";
 
         load();
     }
@@ -59,53 +49,36 @@ public class RepositoryConfiguration {
         String factoryClassName = configManager.getStringProperty(REPOSITORY_FACTORY);
         jcrType = JcrType.findByFactory(factoryClassName);
         name = configManager.getStringProperty(REPOSITORY_NAME);
-        String oldUriProperty = RepositoryFactoryInstatiator.getOldUriProperty(factoryClassName);
-        if (oldUriProperty != null) {
-            oldUriProperty = CONFIG_PREFIX + oldUriProperty;
-            uri = jcrType == JcrType.LOCAL ? configManager.getPath(oldUriProperty)
-                                           : configManager.getStringProperty(oldUriProperty);
-            configManager.removeProperty(oldUriProperty);
-        }
-        if (uri == null) {
-            uri = jcrType == JcrType.LOCAL ? configManager.getPath(REPOSITORY_URI)
-                                           : configManager.getStringProperty(REPOSITORY_URI);
-        }
 
-        if (jcrType == JcrType.LOCAL) {
-            defaultLocalUri = configManager.getPath(oldUriProperty);
-            if (defaultLocalUri == null) {
-                defaultLocalUri = configManager.getPath(REPOSITORY_URI);
-            }
-        }
-
-        login = configManager.getStringProperty(REPOSITORY_LOGIN);
+        settings = createSettings(jcrType);
 
         fixState();
     }
 
+    private RepositorySettings createSettings(JcrType jcrType) {
+        String factoryClassName = configManager.getStringProperty(REPOSITORY_FACTORY);
+        RepositorySettings newSettings;
+        switch (jcrType) {
+            case AWS_S3:
+                newSettings = new AWSS3RepositorySettings(configManager, CONFIG_PREFIX);
+                break;
+            default:
+                newSettings = new CommonRepositorySettings(configManager, CONFIG_PREFIX, factoryClassName, repositoryType, jcrType);
+                break;
+        }
+
+        return newSettings;
+    }
+
     private void fixState() {
-        secure = StringUtils.isNotEmpty(login);
         oldName = name;
+        settings.fixState();
     }
 
     private void store() {
         configManager.setProperty(REPOSITORY_NAME, StringUtils.trimToEmpty(name));
         configManager.setProperty(REPOSITORY_FACTORY, jcrType.getFactoryClassName());
-        if (jcrType == JcrType.LOCAL) {
-            configManager.setPath(REPOSITORY_URI, uri);
-        } else {
-            configManager.setProperty(REPOSITORY_URI, uri);
-        }
-
-        if (!secure) {
-            configManager.removeProperty(REPOSITORY_LOGIN);
-            configManager.removeProperty(REPOSITORY_PASS);
-        } else {
-            if (StringUtils.isNotEmpty(password)) {
-                configManager.setProperty(REPOSITORY_LOGIN, login);
-                configManager.setPassword(REPOSITORY_PASS, password);
-            }
-        }
+        settings.store(configManager);
     }
 
     void commit() {
@@ -121,6 +94,21 @@ public class RepositoryConfiguration {
         this.name = name;
     }
 
+    public String getFormType() {
+        switch (jcrType) {
+            case LOCAL:
+            case RMI:
+            case WEBDAV:
+            case DB:
+            case JNDI:
+            case PLAIN_DB:
+            case PLAIN_JNDI:
+                return "common";
+            default:
+                return getType();
+        }
+    }
+
     public String getType() {
         return jcrType.name().toLowerCase();
     }
@@ -129,22 +117,11 @@ public class RepositoryConfiguration {
         JcrType newJcrType = JcrType.findByAccessType(accessType);
         if (jcrType != newJcrType) {
             jcrType = newJcrType;
-            uri = getDefaultPath(newJcrType);
+            RepositorySettings newSettings = createSettings(newJcrType);
+            newSettings.copyContent(settings);
+            settings = newSettings;
+            settings.onTypeChanged(newJcrType);
         }
-    }
-
-    public String getPath() {
-        // Default values
-        if (StringUtils.isEmpty(uri)) {
-            String defaultPath = getDefaultPath(jcrType);
-            if (defaultPath != null)
-                return defaultPath;
-        }
-        return uri;
-    }
-
-    public void setPath(String path) {
-        this.uri = StringUtils.trimToEmpty(path);
     }
 
     public String getConfigName() {
@@ -164,9 +141,7 @@ public class RepositoryConfiguration {
         // do not copy configName, only content
         setName(other.getName());
         setType(other.getType());
-        setPath(other.getPath());
-        setLogin(other.getLogin());
-        setPassword(other.configManager.getPassword(REPOSITORY_PASS));
+        settings.copyContent(other.getSettings());
         fixState();
     }
 
@@ -174,58 +149,13 @@ public class RepositoryConfiguration {
         return name != null && !name.equalsIgnoreCase(oldName) || name == null && oldName != null;
     }
 
-    public boolean isRepositoryPathSystem() {
-        return configManager.isSystemProperty(REPOSITORY_URI);
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public String getPassword() {
-        return "";
-    }
-
-    public void setPassword(String pass) {
-        this.password = pass;
-    }
-
     public Map<String, Object> getProperties() {
         store();
         return configManager.getProperties();
     }
 
-    public boolean isSecure() {
-        return secure;
-    }
-
-    public void setSecure(boolean secure) {
-        this.secure = secure;
-    }
-
-    private String getDefaultPath(JcrType jcrType) {
-        String type = repositoryType == RepositoryType.DESIGN ? "design" : "deployment";
-        switch (jcrType) {
-            case LOCAL:
-                return defaultLocalUri != null ? defaultLocalUri : System.getProperty("webstudio.home") + File.separator + type + "-repository";
-            case RMI:
-                return "//localhost:1099/" + type + "-repository";
-            case WEBDAV:
-                return "http://localhost:8080/" + type + "-repository";
-            case PLAIN_DB:
-                return "jdbc:mysql://localhost:3306/" + type + "-repository";
-            case PLAIN_JNDI:
-                return "java:comp/env/jdbc/" + type + "DB";
-            case DB:
-                return "jdbc:mysql://localhost:3306/" + type + "-repository";
-            case JNDI:
-                return "java:comp/env/jdbc/" + type + "DB";
-        }
-        return null;
+    public RepositorySettings getSettings() {
+        return settings;
     }
 
     protected static class NameWithNumbersComparator implements Comparator<RepositoryConfiguration> {

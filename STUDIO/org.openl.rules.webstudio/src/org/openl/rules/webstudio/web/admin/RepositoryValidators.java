@@ -48,20 +48,12 @@ public final class RepositoryValidators {
             String msg = "Repository name is empty. Please, enter repository name";
             throw new RepositoryValidationException(msg);
         }
-        if (StringUtils.isEmpty(prodConfig.getPath())) {
-            String msg = "Repository path is empty. Please, enter repository path";
-            throw new RepositoryValidationException(msg);
-        }
-
         if (PROHIBITED_CHARACTERS.matcher(prodConfig.getName()).find()) {
             String msg = String.format(
                     "Repository name '%s' contains illegal characters. Please, correct repository name",
                     prodConfig.getName());
             throw new RepositoryValidationException(msg);
         }
-
-        // workingDirValidator(prodConfig.getPath(),
-        // "Production Repository directory");
 
         // Check for name uniqueness.
         for (RepositoryConfiguration other : productionRepositoryConfigurations) {
@@ -71,11 +63,40 @@ public final class RepositoryValidators {
                             prodConfig.getName());
                     throw new RepositoryValidationException(msg);
                 }
+            }
+        }
 
-                if (prodConfig.getPath().equals(other.getPath())) {
-                    String msg = String.format("Repository path '%s' already exists. Please, insert a new one",
-                            prodConfig.getPath());
+        RepositorySettings settings = prodConfig.getSettings();
+
+        if (settings instanceof CommonRepositorySettings) {
+            validateCommonRepository(prodConfig, productionRepositoryConfigurations);
+        }
+
+    }
+
+    private static void validateCommonRepository(RepositoryConfiguration prodConfig,
+            List<RepositoryConfiguration> productionRepositoryConfigurations) throws RepositoryValidationException {
+        String path = ((CommonRepositorySettings) prodConfig.getSettings()).getPath();
+        if (StringUtils.isEmpty(path)) {
+            String msg = "Repository path is empty. Please, enter repository path";
+            throw new RepositoryValidationException(msg);
+        }
+
+        // Check for path uniqueness.
+        for (RepositoryConfiguration other : productionRepositoryConfigurations) {
+            if (other != prodConfig) {
+                if (prodConfig.getName().equals(other.getName())) {
+                    String msg = String.format("Repository name '%s' already exists. Please, insert a new one",
+                            prodConfig.getName());
                     throw new RepositoryValidationException(msg);
+                }
+
+                if (other.getSettings() instanceof CommonRepositorySettings) {
+                    CommonRepositorySettings otherSettings = (CommonRepositorySettings) other.getSettings();
+                    if (path.equals(otherSettings.getPath())) {
+                        String msg = String.format("Repository path '%s' already exists. Please, insert a new one", path);
+                        throw new RepositoryValidationException(msg);
+                    }
                 }
             }
         }
@@ -116,19 +137,23 @@ public final class RepositoryValidators {
                 resultException = e;
             }
 
-            if (resultException instanceof LoginException) {
-                if (!repoConfig.isSecure()) {
-                    throw new RepositoryValidationException("Repository \"" + repoConfig.getName()
-                            + "\" : Connection is secure. Please, insert login and password");
-                } else {
+            if (repoConfig.getSettings() instanceof CommonRepositorySettings) {
+                CommonRepositorySettings settings = (CommonRepositorySettings) repoConfig.getSettings();
+
+                if (resultException instanceof LoginException) {
+                    if (!settings.isSecure()) {
+                        throw new RepositoryValidationException("Repository \"" + repoConfig.getName()
+                                + "\" : Connection is secure. Please, insert login and password");
+                    } else {
+                        throw new RepositoryValidationException("Repository \"" + repoConfig.getName()
+                                + "\" : Invalid login or password. Please, check login and password");
+                    }
+                } else if (resultException instanceof FailedLoginException) {
                     throw new RepositoryValidationException("Repository \"" + repoConfig.getName()
                             + "\" : Invalid login or password. Please, check login and password");
+                } else if (resultException instanceof ConnectException) {
+                    throw new RepositoryValidationException("Connection refused. Please, check repository URL");
                 }
-            } else if (resultException instanceof FailedLoginException) {
-                throw new RepositoryValidationException("Repository \"" + repoConfig.getName()
-                        + "\" : Invalid login or password. Please, check login and password");
-            } else if (resultException instanceof ConnectException) {
-                throw new RepositoryValidationException("Connection refused. Please, check repository URL");
             }
 
             throw new RepositoryValidationException("Repository \"" + repoConfig.getName() + "\" : "

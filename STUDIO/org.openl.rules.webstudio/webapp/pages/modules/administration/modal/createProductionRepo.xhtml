@@ -25,20 +25,20 @@
                     rendered="#{!empty newProductionRepoController.errorMessage}"/>
             </h:panelGroup>
             <h:outputText value="Name:" />
-            <h:inputText value="#{newProductionRepoController.name}" styleClass="repoFieldWidth"/>
+            <h:inputText value="#{newProductionRepoController.repositoryConfiguration.name}" styleClass="repoFieldWidth"/>
             <h:outputText id="productionRepositoryPathTitle"
                 value="Directory:" />
             <h:inputText id="productionRepositoryPath"
-                value="#{newProductionRepoController.path}" styleClass="pathInput"/>
+                value="#{newProductionRepoController.repositoryConfiguration.settings.path}" styleClass="pathInput"/>
             <h:outputLabel value="Secure connection" for="secureConnection" />
-            <h:selectBooleanCheckbox id="secureConnection" value="#{newProductionRepoController.secure}">
+            <h:selectBooleanCheckbox id="secureConnection" value="#{newProductionRepoController.repositoryConfiguration.settings.secure}">
                 <f:ajax event="change" execute="@form" render="modalCreateRepoPanel" />
             </h:selectBooleanCheckbox>
-            <h:outputText value="Login:" rendered="#{newProductionRepoController.secure}"/>
-            <h:inputText value="#{newProductionRepoController.login}" rendered="#{newProductionRepoController.secure}"
+            <h:outputText value="Login:" rendered="#{newProductionRepoController.repositoryConfiguration.settings.secure}"/>
+            <h:inputText value="#{newProductionRepoController.repositoryConfiguration.settings.login}" rendered="#{newProductionRepoController.repositoryConfiguration.settings.secure}"
             styleClass="repoFieldWidth"/>
-            <h:outputText value="Password:" rendered="#{newProductionRepoController.secure}"/>
-            <h:inputSecret value="#{newProductionRepoController.password}" rendered="#{newProductionRepoController.secure}"
+            <h:outputText value="Password:" rendered="#{newProductionRepoController.repositoryConfiguration.settings.secure}"/>
+            <h:inputSecret value="#{newProductionRepoController.repositoryConfiguration.settings.password}" rendered="#{newProductionRepoController.repositoryConfiguration.settings.secure}"
             styleClass="repoFieldWidth"/>
         </h:panelGrid>
 

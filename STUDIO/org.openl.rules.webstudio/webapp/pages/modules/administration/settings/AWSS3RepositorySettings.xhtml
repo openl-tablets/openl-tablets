@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+>
+
+    <ui:param name="settings" value="#{repository.settings}" />
+
+    <h:panelGrid columns="2" columnClasses="titleColumn">
+        <h:outputText value="Bucket name:"/>
+        <h:inputText value="#{settings.bucketName}"/>
+        <h:outputText value="Region name:"/>
+        <h:selectOneMenu value="#{settings.regionName}">
+            <f:selectItem itemValue="us-east-1" itemLabel="US East (N. Virginia)"/>
+            <f:selectItem itemValue="us-east-2" itemLabel="US East (Ohio)"/>
+            <f:selectItem itemValue="us-west-1" itemLabel="US West (N. California)"/>
+            <f:selectItem itemValue="us-west-2" itemLabel="US West (Oregon)"/>
+            <f:selectItem itemValue="ca-central-1" itemLabel="Canada (Central)"/>
+            <f:selectItem itemValue="eu-west-1" itemLabel="EU (Ireland)"/>
+            <f:selectItem itemValue="eu-central-1" itemLabel="EU (Frankfurt)"/>
+            <f:selectItem itemValue="eu-west-2" itemLabel="EU (London)"/>
+            <f:selectItem itemValue="ap-northeast-1" itemLabel="Asia Pacific (Tokyo)"/>
+            <f:selectItem itemValue="ap-northeast-2" itemLabel="Asia Pacific (Seoul)"/>
+            <f:selectItem itemValue="ap-southeast-1" itemLabel="Asia Pacific (Singapore)"/>
+            <f:selectItem itemValue="ap-southeast-2" itemLabel="Asia Pacific (Sydney)"/>
+            <f:selectItem itemValue="ap-south-1" itemLabel="Asia Pacific (Mumbai)"/>
+            <f:selectItem itemValue="sa-east-1" itemLabel="South America (São Paulo)"/>
+        </h:selectOneMenu>
+        <h:outputText value="Access key"/>
+        <h:inputText value="#{settings.accessKey}"/>
+        <h:outputText value="Secret key"/>
+        <h:inputText value="#{settings.secretKey}"/>
+        <h:outputText value="Listener period (ms)"/>
+        <h:inputText value="#{settings.listenerTimerPeriod}"/>
+    </h:panelGrid>
+
+</ui:composition>

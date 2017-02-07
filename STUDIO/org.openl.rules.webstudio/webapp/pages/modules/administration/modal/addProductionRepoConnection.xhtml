@@ -30,10 +30,10 @@
                     rendered="#{!empty connectionProductionRepoController.errorMessage}"/>
             </h:panelGroup>
             <h:outputText value="Name:"/>
-            <h:inputText id="productionRepositoryName" value="#{connectionProductionRepoController.name}" styleClass="repoFieldWidth"/>
+            <h:inputText id="productionRepositoryName" value="#{connectionProductionRepoController.repositoryConfiguration.name}" styleClass="repoFieldWidth"/>
             <h:outputText value="Type:"/>
-            <h:selectOneMenu value="#{connectionProductionRepoController.type}">
-                <f:ajax event="change" execute="@this productionRepositoryName" render="modalAddRepoConnectionPanel" />
+            <h:selectOneMenu value="#{connectionProductionRepoController.repositoryConfiguration.type}">
+                <f:ajax event="change" execute="@this productionRepositoryName" render="modalAddRepoConnectionPanel productionParameters" />
                 <f:selectItem itemValue="local" itemLabel="Local" />
                 <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
                 <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
@@ -41,27 +41,21 @@
                 <f:selectItem itemValue="plain_jndi" itemLabel="Database (Plain JNDI)" />
                 <f:selectItem itemValue="db" itemLabel="Database (JCR over JDBC)" />
                 <f:selectItem itemValue="jndi" itemLabel="Database (JCR over JNDI)" />
+                <f:selectItem itemValue="aws_s3" itemLabel="AWS S3" />
             </h:selectOneMenu>
-            <h:outputText id="productionRepositoryPathTitle"
-                value="#{connectionProductionRepoController.local ? 'Directory' : 'URL'}:" />
-            <h:inputText id="productionRepositoryPath"
-                value="#{connectionProductionRepoController.path}" styleClass="pathInput"
-                disabled="#{repository.productionRepositoryPathSystem}"/>
-        
-            <h:outputLabel id="secureConnectionTitle" value="Secure connection" for="secureConnection"
-                           rendered="#{!connectionProductionRepoController.local}"/>
-            <h:selectBooleanCheckbox id="secureConnection" value="#{connectionProductionRepoController.secure}"
-                                     rendered="#{!connectionProductionRepoController.local}">
-                <f:ajax event="change" execute="@form" render="modalAddRepoConnectionPanel" />
-            </h:selectBooleanCheckbox>
-            <h:outputText value="Login:" rendered="#{connectionProductionRepoController.secure}"/>
-            <h:inputText value="#{connectionProductionRepoController.login}"
-            rendered="#{connectionProductionRepoController.secure}" styleClass="repoFieldWidth"/>
-            <h:outputText value="Password:" rendered="#{connectionProductionRepoController.secure}"/>
-            <h:inputSecret value="#{connectionProductionRepoController.password}"
-            rendered="#{connectionProductionRepoController.secure}" styleClass="repoFieldWidth"/>
         </h:panelGrid>
-
+        <h:panelGroup id="productionParameters">
+            <h:panelGroup rendered="#{connectionProductionRepoController.repositoryConfiguration.formType == 'common'}">
+                <ui:include src="/pages/modules/administration/settings/commonRepositorySettings.xhtml">
+                    <ui:param name="repository" value="#{connectionProductionRepoController.repositoryConfiguration}" />
+                </ui:include>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{connectionProductionRepoController.repositoryConfiguration.formType == 'aws_s3'}">
+                <ui:include src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
+                    <ui:param name="repository" value="#{connectionProductionRepoController.repositoryConfiguration}" />
+                </ui:include>
+            </h:panelGroup>
+        </h:panelGroup>
         <footer>
             <a4j:commandButton action="#{connectionProductionRepoController.save}"
                          styleClass="button-primary" process="@form" value="Connect" render="modalAddRepoConnectionPanel securePanel repositoryProps messagePanel errorMessage"

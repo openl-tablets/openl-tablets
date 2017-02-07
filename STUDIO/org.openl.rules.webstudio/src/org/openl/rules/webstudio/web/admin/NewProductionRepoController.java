@@ -25,7 +25,7 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
     @Override
     public void save() {
         /*Only local repo can be created*/
-        this.setType(PRODUCTION_PEPOSITORY_TYPE);
+        getRepositoryConfiguration().setType(PRODUCTION_PEPOSITORY_TYPE);
 
         RepositoryConfiguration repoConfig = createRepositoryConfiguration();
 
@@ -34,14 +34,17 @@ public class NewProductionRepoController extends AbstractProductionRepoControlle
         }
 
         try {
-            if (this.isSecure()) {
+            RepositorySettings settings = getRepositoryConfiguration().getSettings();
+
+            if (settings instanceof CommonRepositorySettings && ((CommonRepositorySettings) settings).isSecure()) {
+                CommonRepositorySettings s = (CommonRepositorySettings) settings;
                 RepositoryConfiguration adminConfig = this.createAdminRepositoryConfiguration();
 
                 Repository repository = RepositoryFactoryInstatiator.newFactory(adminConfig.getProperties(), false);
 
                 try {
                     if (repository instanceof LocalJackrabbitRepositoryFactory) {
-                        if (!((LocalJackrabbitRepositoryFactory) repository).configureJCRForOneUser(this.getLogin(), this.getPassword())) {
+                        if (!((LocalJackrabbitRepositoryFactory) repository).configureJCRForOneUser(s.getLogin(), s.getPassword())) {
                             setErrorMessage("Repository user creation error");
                             return;
                         }

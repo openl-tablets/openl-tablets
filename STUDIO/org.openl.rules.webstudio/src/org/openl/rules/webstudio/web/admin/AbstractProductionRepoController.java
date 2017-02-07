@@ -16,12 +16,9 @@ import org.openl.util.StringUtils;
  */
 public abstract class AbstractProductionRepoController {
     private static final String LOCAL = "local";
-    private String name;
-    private String type = LOCAL;
-    private String path;
-    private boolean secure = false;
-    private String login;
-    private String password;
+
+    private RepositoryConfiguration repositoryConfiguration;
+
     private boolean checked = false;
     private String errorMessage = "";
 
@@ -40,6 +37,7 @@ public abstract class AbstractProductionRepoController {
     @PostConstruct
     public void afterPropertiesSet() {
         setProductionRepositoryConfigurations(systemSettingsBean.getProductionRepositoryConfigurations());
+        repositoryConfiguration = createDummyRepositoryConfiguration();
         systemSettingsBean = null;
     }
 
@@ -55,7 +53,7 @@ public abstract class AbstractProductionRepoController {
         this.productionRepositoryConfigurations = productionRepositoryConfigurations;
     }
 
-    public String getConfigurationName(String name) {
+    private String getConfigurationName(String name) {
         String configName = "rules-";
         if (name != null) {
             configName += name.toLowerCase();
@@ -65,68 +63,64 @@ public abstract class AbstractProductionRepoController {
         return configName;
     }
 
+    public RepositoryConfiguration getRepositoryConfiguration() {
+        return repositoryConfiguration;
+    }
+
     protected RepositoryConfiguration createRepositoryConfiguration() {
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration(getConfigurationName(getName()), getProductionConfigManager(getName()),
+        String name = repositoryConfiguration.getName();
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration(getConfigurationName(name), getProductionConfigManager(name),
                 RepositoryType.PRODUCTION);
 
-        repoConfig.setName(getName());
-        repoConfig.setType(getType());
-        repoConfig.setPath(getPath());
-
-        if (this.isSecure()) {
-            repoConfig.setLogin(getLogin());
-            repoConfig.setPassword(getPassword());
-        }
-
+        repoConfig.copyContent(repositoryConfiguration);
         repoConfig.commit();
         return repoConfig;
     }
 
     protected RepositoryConfiguration createAdminRepositoryConfiguration() {
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration(this.getName(), getProductionConfigManager(getName()),
+        String name = repositoryConfiguration.getName();
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration(name, getProductionConfigManager(name),
                 RepositoryType.PRODUCTION);
 
-        repoConfig.setName(getName());
-        repoConfig.setType(getType());
-        repoConfig.setPath(getPath());
+        repoConfig.copyContent(repositoryConfiguration);
 
+        RepositorySettings settings = repoConfig.getSettings();
+        if (settings instanceof CommonRepositorySettings) {
+            CommonRepositorySettings repoSettings = (CommonRepositorySettings) settings;
 
-        if (this.isSecure()) {
+            if (repoSettings.isSecure()) {
             /*Default Admin credentials for creating new admin user in repo*/
-            repoConfig.setLogin("admin");
-            repoConfig.setPassword("admin");
+                repoSettings.setLogin("admin");
+                repoSettings.setPassword("admin");
+            }
         }
 
         return repoConfig;
     }
 
-    protected RepositoryConfiguration getDefaultRepositoryConfiguration() {
-        if (defaultRepoConfig == null) {
-            defaultRepoConfig = new RepositoryConfiguration("def", getProductionConfigManager("def"),
-                    RepositoryType.PRODUCTION);
-        }
-        
-        return defaultRepoConfig;
+    public void clearForm() {
+        repositoryConfiguration = createDummyRepositoryConfiguration();
+        errorMessage = "";
     }
 
-    public void clearForm() {
-        name = "";
-        type = LOCAL;
-        path = "";
-        secure = false;
-        login = "";
-        password = "";
-        checked = false;
-        errorMessage = "";
+    private RepositoryConfiguration createDummyRepositoryConfiguration() {
+        RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration("def", getProductionConfigManager("def"),
+                RepositoryType.PRODUCTION);
+        repositoryConfiguration.setType(JcrType.LOCAL.name().toLowerCase());
+        return repositoryConfiguration;
     }
 
     public boolean isInputParamValid(RepositoryConfiguration prodConfig) {
         try {
             RepositoryValidators.validate(prodConfig, getProductionRepositoryConfigurations());
 
-            if (this.secure) {
-                if (StringUtils.isEmpty(this.login) || StringUtils.isEmpty(this.password)) {
-                    throw new RepositoryValidationException("Invalid login or password. Please, check login and password");
+            RepositorySettings settings = repositoryConfiguration.getSettings();
+            if (settings instanceof CommonRepositorySettings) {
+                CommonRepositorySettings s = (CommonRepositorySettings) settings;
+                if (s.isSecure()) {
+                    if (StringUtils.isEmpty(s.getLogin()) || StringUtils.isEmpty(s.getPassword())) {
+                        throw new RepositoryValidationException("Invalid login or password. Please, check login and password");
+                    }
                 }
             }
 
@@ -139,64 +133,11 @@ public abstract class AbstractProductionRepoController {
 
     public abstract void save();
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getPath() {
-        if (StringUtils.isEmpty(path)) {
-            this.getDefaultRepositoryConfiguration().setType(this.getType());
-            return this.getDefaultRepositoryConfiguration().getPath();
-        }
-
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public boolean isSecure() {
-        return secure;
-    }
-
-    public void setSecure(boolean secure) {
-        this.secure = secure;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public void setProductionConfigManagerFactory(ConfigurationManagerFactory productionConfigManagerFactory) {
         this.productionConfigManagerFactory = productionConfigManagerFactory;
     }
 
-    protected ConfigurationManager getProductionConfigManager(String name) {
+    private ConfigurationManager getProductionConfigManager(String name) {
         return productionConfigManagerFactory.getConfigurationManager(getConfigurationName(name));
     }
 
@@ -226,9 +167,5 @@ public abstract class AbstractProductionRepoController {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
-    }
-
-    public boolean isLocal() {
-        return LOCAL.equals(getType());
     }
 }

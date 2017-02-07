@@ -714,11 +714,13 @@ public class InstallWizard {
         connectionProductionRepoController.setProductionConfigManagerFactory(productionConfigManagerFactory);
         connectionProductionRepoController.setProductionRepositoryFactoryProxy(productionRepositoryFactoryProxy);
         connectionProductionRepoController.setProductionRepositoryConfigurations(getProductionRepositoryConfigurations());
+        connectionProductionRepoController.clearForm();
 
         newProductionRepoController = new NewProductionRepoController();
         newProductionRepoController.setProductionConfigManagerFactory(productionConfigManagerFactory);
         newProductionRepoController.setProductionRepositoryFactoryProxy(productionRepositoryFactoryProxy);
         newProductionRepoController.setProductionRepositoryConfigurations(getProductionRepositoryConfigurations());
+        newProductionRepoController.clearForm();
     }
 
     private void destroyRepositoryObjects() {

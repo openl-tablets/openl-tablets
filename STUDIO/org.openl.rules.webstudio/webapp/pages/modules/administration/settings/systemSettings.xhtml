@@ -279,30 +279,27 @@
                                         <h:inputText value="#{designRepository.name}" disabled="true"/>
                                         <h:outputText value="Type:" />
                                         <h:selectOneMenu value="#{designRepository.type}">
-                                            <f:ajax event="change" render="designRepositoryPathTitle designRepositoryPath" />
+                                            <f:ajax event="change" render="designParameters" />
                                             <f:selectItem itemValue="local" itemLabel="Local" />
                                             <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
                                             <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
                                             <f:selectItem itemValue="plain_db" itemLabel="Database (Plain JDBC)" />
                                             <f:selectItem itemValue="plain_jndi" itemLabel="Database (Plain JNDI)" />
+                                            <f:selectItem itemValue="aws_s3" itemLabel="AWS S3" />
                                         </h:selectOneMenu>
-                                        <h:outputText id="designRepositoryPathTitle"
-                                            value="#{designRepository.type == 'local' ? 'Directory' : 'URL'}:" />
-                                        <h:inputText id="designRepositoryPath"
-                                            value="#{designRepository.path}" styleClass="pathInput"
-                                                disabled="#{designRepository.repositoryPathSystem}" />
-                                        <h:outputLabel value="Secure connection" for="designRepositorySecureConnection" />
-                                        <h:selectBooleanCheckbox id="designRepositorySecureConnection" value="#{designRepository.secure}"
-                                        onmousedown="if($j(this).attr('checked')){if(!window.confirm('Login and password will be deleted. Do you want to continue?')) {return false;}} return this.click()">
-                                            <f:ajax event="change" execute="@form" render="designInfoPanel" />
-                                        </h:selectBooleanCheckbox>
-                                        <h:outputText value="Login:" rendered="#{designRepository.secure}"/>
-                                        <h:inputText value="#{designRepository.login}"
-                                            rendered="#{designRepository.secure}"/>
-                                        <h:outputText value="Password:" rendered="#{designRepository.secure}"/>
-                                        <h:inputSecret value="#{designRepository.password}"
-                                            rendered="#{designRepository.secure}"/>
                                     </h:panelGrid>
+                                    <h:panelGroup id="designParameters">
+                                        <h:panelGroup rendered="#{designRepository.formType == 'common'}">
+                                            <ui:include src="/pages/modules/administration/settings/commonRepositorySettings.xhtml">
+                                                <ui:param name="repository" value="#{designRepository}" />
+                                            </ui:include>
+                                        </h:panelGroup>
+                                        <h:panelGroup rendered="#{designRepository.formType == 'aws_s3'}">
+                                            <ui:include src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
+                                                <ui:param name="repository" value="#{designRepository}" />
+                                            </ui:include>
+                                        </h:panelGroup>
+                                    </h:panelGroup>
                                 </td></tr></table>
                                 </div>
                             </section>
@@ -320,7 +317,7 @@
                                             <h:inputText value="#{repository.name}"/>
                                             <h:outputText value="Type:" />
                                             <h:selectOneMenu value="#{repository.type}">
-                                                <f:ajax event="change" render="productionRepositoryPathTitle productionRepositoryPath" />
+                                                <f:ajax event="change" render="productionParameters" />
                                                 <f:selectItem itemValue="local" itemLabel="Local" />
                                                 <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
                                                 <f:selectItem itemValue="webdav" itemLabel="Remote - WebDav" />
@@ -328,22 +325,21 @@
                                                 <f:selectItem itemValue="plain_jndi" itemLabel="Database (Plain JNDI)" />
                                                 <f:selectItem itemValue="db" itemLabel="Database (JCR over JDBC)" />
                                                 <f:selectItem itemValue="jndi" itemLabel="Database (JCR over JNDI)" />
+                                                <f:selectItem itemValue="aws_s3" itemLabel="AWS S3" />
                                             </h:selectOneMenu>
-                                            <h:outputText id="productionRepositoryPathTitle"
-                                                value="#{repository.type == 'local' ? 'Directory' : 'URL'}:" />
-                                            <h:inputText id="productionRepositoryPath"
-                                                value="#{repository.path}" styleClass="pathInput"
-                                                disabled="#{repository.repositoryPathSystem}" />
-                                            <h:outputLabel value="Secure connection" for="productionRepositorySecureConnection" />
-                                            <h:selectBooleanCheckbox id="productionRepositorySecureConnection" value="#{repository.secure}"
-                                            onmousedown="if($j(this).attr('checked')){if(!window.confirm('Login and password will be deleted. Do you want to continue?')) {return false;}} return this.click()">
-                                                <f:ajax event="change" execute="@form" render="repoInfoPanel" />
-                                            </h:selectBooleanCheckbox>
-                                            <h:outputText value="Login:" rendered="#{repository.secure || !empty repository.login}"/>
-                                            <h:inputText value="#{repository.login}" rendered="#{repository.secure || !empty repository.login}"/>
-                                            <h:outputText value="Password:" rendered="#{repository.secure || !empty repository.login}"/>
-                                            <h:inputSecret value="#{repository.password}" rendered="#{repository.secure || !empty repository.login}"/>
                                         </h:panelGrid>
+                                        <h:panelGroup id="productionParameters">
+                                            <h:panelGroup rendered="#{repository.formType == 'common'}">
+                                                <ui:include src="/pages/modules/administration/settings/commonRepositorySettings.xhtml">
+                                                    <ui:param name="repository" value="#{repository}" />
+                                                </ui:include>
+                                            </h:panelGroup>
+                                            <h:panelGroup rendered="#{repository.formType == 'aws_s3'}">
+                                                <ui:include src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
+                                                    <ui:param name="repository" value="#{repository}" />
+                                                </ui:include>
+                                            </h:panelGroup>
+                                        </h:panelGroup>
                                         </td>
                                         <td class="repositoryConfigButton">
                                             <a4j:commandLink action="#{systemSettingsBean.deleteProductionRepository(repository.configName)}"
