@@ -49,11 +49,8 @@ public class AProject extends AProjectFolder {
             if (!isFolder()) {
                 try {
                 if (!isHistoric() || isLastVersion()) {
-                    FileItem fileItem = getRepository().read(getFolderPath());
-                    if (fileItem != null) {
-                        IOUtils.closeQuietly(fileItem.getStream());
-                        fileData = fileItem.getData();
-                    } else {
+                    fileData = getRepository().check(getFolderPath());
+                    if (fileData == null) {
                         fileData = new FileData();
                         fileData.setName(getFolderPath());
                         fileData.setVersion(getHistoryVersion());
