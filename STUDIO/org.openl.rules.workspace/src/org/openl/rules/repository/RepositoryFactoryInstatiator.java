@@ -75,12 +75,12 @@ public class RepositoryFactoryInstatiator {
             String oldUriValue = get(cfg, type + oldUriProp);
             if (oldUriValue != null) {
                 log().warn(
-                    "### Please check your configuration!\n### Deprecated '{}{} = {}' is being used instead of\n### '{}uri = {}'",
-                    type,
-                    oldUriProp,
-                    oldUriValue,
-                    type,
-                    oldUriValue);
+                        "### Please check your configuration!\n### Deprecated '{}{} = {}' is being used instead of\n### '{}uri = {}'",
+                        type,
+                        oldUriProp,
+                        oldUriValue,
+                        type,
+                        oldUriValue);
                 uri = oldUriValue;
             }
         }
@@ -93,14 +93,20 @@ public class RepositoryFactoryInstatiator {
         } else {
             clazz = oldClass.get(className);
             log().warn(
-                "### Detected deprecated '{}' repository factory!\n### Use '{}' instead of.\n### To define the location of the repository use '{}uri'",
-                className,
-                clazz,
-                type);
+                    "### Detected deprecated '{}' repository factory!\n### Use '{}' instead of.\n### To define the location of the repository use '{}uri'",
+                    className,
+                    clazz,
+                    type);
         }
 
         try {
             Map<String, String> params = new HashMap<String, String>();
+            for (Map.Entry<String, Object> entry : cfg.entrySet()) {
+                if (entry.getKey().startsWith(type)) {
+                    String key = entry.getKey().substring(type.length());
+                    params.put(toCamelCase(key), entry.getValue().toString());
+                }
+            }
             params.put("uri", uri);
             params.put("login", login);
             params.put("password", password);
@@ -111,6 +117,26 @@ public class RepositoryFactoryInstatiator {
             log().error(message, e);
             throw new RRepositoryException(message, e);
         }
+    }
+
+    /**
+     * Convert parameters from "param-name" style to "paramName" style
+     *
+     * @param key hyphen-cased parameter name
+     * @return camelCased parameter name
+     */
+    private static String toCamelCase(String key) {
+        StringBuilder sb = new StringBuilder();
+        char[] chars = key.toCharArray();
+        for (int i = 0; i < chars.length; i++) {
+            char c = chars[i];
+            if (c == '-' && chars.length > i + 1) {
+                i++;
+                c = Character.toUpperCase(chars[i]);
+            }
+            sb.append(c);
+        }
+        return sb.toString();
     }
 
     private static String get(Map<String, Object> cfg, String key) {
