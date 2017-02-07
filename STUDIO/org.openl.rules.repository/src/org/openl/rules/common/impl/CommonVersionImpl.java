@@ -1,8 +1,11 @@
 package org.openl.rules.common.impl;
 
+import java.util.regex.Pattern;
+
 import org.openl.rules.common.CommonVersion;
 
 public class CommonVersionImpl implements CommonVersion {
+    private static final Pattern ONLY_DIGITS = Pattern.compile("\\d+");
     private int major = MAX_MM_INT;
     private int minor = MAX_MM_INT;
     private String revision = "0";
@@ -69,7 +72,18 @@ public class CommonVersionImpl implements CommonVersion {
             return minor < o.getMinor() ? -1 : 1;
         }
 
-        return revision.compareTo(o.getRevision());
+        return compareRevision(o);
+    }
+
+    private int compareRevision(CommonVersion other) {
+        String otherRevision = other.getRevision();
+
+        if (ONLY_DIGITS.matcher(revision).matches() && ONLY_DIGITS.matcher(otherRevision).matches()) {
+            return Integer.parseInt(revision) - Integer.parseInt(otherRevision);
+        }
+
+        // Can't be parsed as int. Compare as Strings.
+        return revision.compareTo(otherRevision);
     }
 
     @Override
