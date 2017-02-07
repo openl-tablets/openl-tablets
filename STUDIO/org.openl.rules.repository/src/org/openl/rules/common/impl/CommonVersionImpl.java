@@ -31,6 +31,10 @@ public class CommonVersionImpl implements CommonVersion {
      * x.y.z -> major.minor.revision
      */
     public CommonVersionImpl(String s) {
+        if (!s.matches("\\d+\\.\\d+(\\.\\d+.*)?")) {
+            revision = s;
+            return;
+        }
         String[] version = s.split("\\.");
 
         if (version.length == 1) {
