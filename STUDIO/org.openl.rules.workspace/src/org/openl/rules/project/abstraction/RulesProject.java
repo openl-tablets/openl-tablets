@@ -21,6 +21,7 @@ public class RulesProject extends UserWorkspaceProject {
     private String localFolderName;
     private Repository designRepository;
     private String designFolderName;
+    private List<FileData> historyFileDatas;
 
     public RulesProject(UserWorkspace userWorkspace,
             LocalRepository localRepository,
@@ -161,16 +162,7 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public int getVersionsCount() {
-        try {
-            if (designFolderName != null) {
-                return designRepository.listHistory(designFolderName).size();
-            } else {
-                // Local repository doesn't have versions
-                return 0;
-            }
-        } catch (IOException ex) {
-            throw RuntimeExceptionWrapper.wrap(ex);
-        }
+        return getHistoryFileDatas().size();
     }
 
     @Override
@@ -180,18 +172,25 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     private List<FileData> getHistoryFileDatas() {
-        List<FileData> fileDatas;
-        try {
-            if (designFolderName != null) {
-                fileDatas = designRepository.listHistory(designFolderName);
-            } else {
-                // Local repository doesn't have versions
-                fileDatas = Collections.emptyList();
+        if (historyFileDatas == null) {
+            try {
+                if (designFolderName != null) {
+                    historyFileDatas = designRepository.listHistory(designFolderName);
+                } else {
+                    // Local repository doesn't have versions
+                    historyFileDatas = Collections.emptyList();
+                }
+            } catch (IOException ex) {
+                throw RuntimeExceptionWrapper.wrap(ex);
             }
-        } catch (IOException ex) {
-            throw RuntimeExceptionWrapper.wrap(ex);
         }
-        return fileDatas;
+        return historyFileDatas;
+    }
+
+    @Override
+    public void setFileData(FileData fileData) {
+        super.setFileData(fileData);
+        historyFileDatas = null;
     }
 
     public List<ProjectVersion> getArtefactVersions(ArtefactPath artefactPath) {
