@@ -205,17 +205,11 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     public boolean hasDDProject(String name) {
-        FileItem item;
         try {
-            item = getRepository().read(deploymentConfigurationLocation + "/" + name);
+            return getRepository().check(deploymentConfigurationLocation + "/" + name) != null;
         } catch (IOException ex) {
             return false;
         }
-        if (item != null) {
-            IOUtils.closeQuietly(item.getStream());
-            return true;
-        }
-        return false;
     }
 
     public boolean hasProject(String name) {
