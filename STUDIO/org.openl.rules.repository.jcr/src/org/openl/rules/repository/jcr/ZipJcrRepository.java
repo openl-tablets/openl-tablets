@@ -127,12 +127,15 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
 
     @Override
     public FileData check(String name) throws IOException {
-        FileItem fileItem = read(name);
-        if (fileItem == null) {
-            return null;
+        try {
+            FolderAPI project = getOrCreateProject(name, false);
+            if (project == null) {
+                return null;
+            }
+            return createFileData(name, project);
+        } catch (CommonException e) {
+            throw new IOException(e);
         }
-        IOUtils.closeQuietly(fileItem.getStream());
-        return fileItem.getData();
     }
 
     @Override
@@ -232,12 +235,10 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     }
 
     private boolean undeleteIfNeeded(FileData data, FolderAPI project) throws IOException, PropertyException {
-        FileItem existingFileItem = read(data.getName());
-        if (existingFileItem == null) {
+        FileData existingData = check(data.getName());
+        if (existingData == null) {
             return false;
         }
-        existingFileItem.getStream().close();
-        FileData existingData = existingFileItem.getData();
         if (existingData.isDeleted() && !data.isDeleted()) {
             project.removeProperty(ArtefactProperties.PROP_PRJ_MARKED_4_DELETION);
             return true;
@@ -316,12 +317,22 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
 
     @Override
     public FileData checkHistory(String name, String version) throws IOException {
-        FileItem fileItem = readHistory(name, version);
-        if (fileItem == null) {
-            return null;
+        if (version == null) {
+            return check(name);
         }
-        IOUtils.closeQuietly(fileItem.getStream());
-        return fileItem.getData();
+        try {
+            ArtefactAPI artefact = getArtefact(name);
+            if (artefact == null || artefact instanceof ResourceAPI) {
+                return null;
+            }
+
+            FolderAPI project = (FolderAPI) artefact;
+
+            FolderAPI history = project.getVersion(new CommonVersionImpl(Integer.parseInt(version)));
+            return createFileData(name, history);
+        } catch (CommonException e) {
+            throw new IOException(e);
+        }
     }
 
     @Override

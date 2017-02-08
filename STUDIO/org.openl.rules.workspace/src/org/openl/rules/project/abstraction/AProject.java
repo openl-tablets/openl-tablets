@@ -56,9 +56,7 @@ public class AProject extends AProjectFolder {
                         fileData.setVersion(getHistoryVersion());
                     }
                 } else {
-                    FileItem fileItem = getRepository().readHistory(getFolderPath(), getHistoryVersion());
-                    IOUtils.closeQuietly(fileItem.getStream());
-                    fileData = fileItem.getData();
+                    fileData = getRepository().checkHistory(getFolderPath(), getHistoryVersion());
                 }
                 } catch (IOException ex) {
                     throw new IllegalStateException(ex);
