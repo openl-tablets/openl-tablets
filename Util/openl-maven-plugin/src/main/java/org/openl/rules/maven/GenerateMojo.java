@@ -162,6 +162,7 @@ public class GenerateMojo extends BaseOpenLMojo {
      * </table>
      * <p>
      */
+    @Deprecated
     private GenerateInterface[] generateInterfaces;
 
     /**
@@ -171,6 +172,7 @@ public class GenerateMojo extends BaseOpenLMojo {
      * @see #overwriteProjectDescriptor
      */
     @Parameter(defaultValue = "true")
+    @Deprecated
     private boolean createProjectDescriptor;
 
     /**
@@ -181,6 +183,7 @@ public class GenerateMojo extends BaseOpenLMojo {
      * @see #createProjectDescriptor
      */
     @Parameter(defaultValue = "true")
+    @Deprecated
     private boolean overwriteProjectDescriptor;
 
     /**
@@ -189,6 +192,7 @@ public class GenerateMojo extends BaseOpenLMojo {
      * true.
      */
     @Parameter
+    @Deprecated
     private String projectName;
 
     /**
@@ -196,6 +200,7 @@ public class GenerateMojo extends BaseOpenLMojo {
      * if createProjectDescriptor == true.
      */
     @Parameter
+    @Deprecated
     private String[] classpaths = { "." };
 
     /**
@@ -203,6 +208,7 @@ public class GenerateMojo extends BaseOpenLMojo {
      * Default value is "false"
      */
     @Parameter(defaultValue = "false")
+    @Deprecated
     private Boolean generateUnitTests;
 
     /**
@@ -241,6 +247,7 @@ public class GenerateMojo extends BaseOpenLMojo {
      * </table>
      */
     @Parameter(defaultValue = "org/openl/rules/maven/JUnitTestTemplate.vm")
+    @Deprecated
     private String unitTestTemplatePath;
 
     /**
@@ -248,6 +255,7 @@ public class GenerateMojo extends BaseOpenLMojo {
      * tests will be generated, others will be skipped.
      */
     @Parameter(defaultValue = "false")
+    @Deprecated
     private Boolean overwriteUnitTests;
 
     @Override
@@ -277,6 +285,7 @@ public class GenerateMojo extends BaseOpenLMojo {
         project.addCompileSourceRoot(outputDirectory.getPath());
     }
 
+    @Deprecated
     private void useGenerateInterface() throws MojoExecutionException {
         boolean isUsedRuleXmlForGenerate = false;
         for (GenerateInterface task : generateInterfaces) {
