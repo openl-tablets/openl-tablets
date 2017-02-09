@@ -49,6 +49,7 @@ import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.openl.util.generation.SimpleBeanJavaGenerator;
 
+@Deprecated
 public class GenerateInterface {
     public static final String GOAL_MAKE_WRAPPER = "make wrapper";
     public static final String GOAL_UPDATE_PROPERTIES = "update properties";
