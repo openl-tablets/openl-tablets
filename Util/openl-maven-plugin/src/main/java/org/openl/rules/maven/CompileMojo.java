@@ -119,13 +119,13 @@ public class CompileMojo extends BaseOpenLMojo {
     }
 
     private void copyOpenLFiles() throws IOException {
-        if (new File(openlResourcesDirectory).exists()) {
+        if (getSourceDirectory().exists()) {
             FileFilter openlFilter = or(directoryFileFilter(),
                 makeFileOnly(or(suffixFileFilter(".xml"), suffixFileFilter(".xls"), suffixFileFilter(".xlsx"))));
-            FileUtils.copyDirectory(new File(openlResourcesDirectory), new File(openlOutputDirectory), openlFilter);
+            FileUtils.copyDirectory(getSourceDirectory(), new File(openlOutputDirectory), openlFilter);
         } else {
             if (getLog().isWarnEnabled()) {
-                getLog().warn(String.format("Can't find openl resources directory %s", openlResourcesDirectory));
+                getLog().warn(String.format("Can't find openl resources directory %s", getSourceDirectory()));
             }
         }
 
