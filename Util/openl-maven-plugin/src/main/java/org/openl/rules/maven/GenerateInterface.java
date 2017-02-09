@@ -47,7 +47,7 @@ import org.openl.util.FileTool;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
-import org.openl.util.generation.SimpleBeanJavaGenerator;
+import org.openl.rules.maven.gen.SimpleBeanJavaGenerator;
 
 @Deprecated
 public class GenerateInterface {

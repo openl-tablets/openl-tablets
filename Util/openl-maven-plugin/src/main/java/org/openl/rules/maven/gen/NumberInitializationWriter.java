@@ -1,4 +1,6 @@
-package org.openl.util.generation;
+package org.openl.rules.maven.gen;
+
+import org.openl.util.generation.JavaClassGeneratorHelper;
 
 public class NumberInitializationWriter extends CommonInitializationWriter {
 

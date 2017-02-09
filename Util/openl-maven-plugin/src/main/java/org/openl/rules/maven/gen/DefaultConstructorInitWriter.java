@@ -1,4 +1,4 @@
-package org.openl.util.generation;
+package org.openl.rules.maven.gen;
 
 /**
  * Created by dl on 11/27/14.

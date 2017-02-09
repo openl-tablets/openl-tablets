@@ -1,4 +1,4 @@
-package org.openl.util.generation;
+package org.openl.rules.maven.gen;
 
 /**
  * This interface should be implemented by any class whose instances are

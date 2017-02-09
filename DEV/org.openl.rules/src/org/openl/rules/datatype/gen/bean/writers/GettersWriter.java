@@ -14,7 +14,6 @@ import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
-import org.openl.util.generation.DefaultValue;
 
 /**
  * Writes getters to the generated bean class.

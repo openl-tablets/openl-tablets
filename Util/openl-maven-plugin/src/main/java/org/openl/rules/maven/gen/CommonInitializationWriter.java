@@ -1,4 +1,4 @@
-package org.openl.util.generation;
+package org.openl.rules.maven.gen;
 
 /**
  * The most common implementation. For initializing the income value returns its

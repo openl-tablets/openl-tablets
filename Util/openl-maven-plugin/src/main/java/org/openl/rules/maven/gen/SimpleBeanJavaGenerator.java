@@ -1,4 +1,4 @@
-package org.openl.util.generation;
+package org.openl.rules.maven.gen;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -18,6 +18,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.openl.util.ClassUtils;
+import org.openl.rules.datatype.gen.bean.writers.DefaultValue;
+import org.openl.util.generation.JavaClassGeneratorHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

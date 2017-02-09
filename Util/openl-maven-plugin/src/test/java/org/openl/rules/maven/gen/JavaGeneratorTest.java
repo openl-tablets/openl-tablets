@@ -1,11 +1,12 @@
-package org.openl.util.generation;
+package org.openl.rules.maven.gen;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
+
 import org.openl.util.StringUtils;
 
 public class JavaGeneratorTest {
