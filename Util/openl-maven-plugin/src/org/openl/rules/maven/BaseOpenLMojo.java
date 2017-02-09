@@ -51,7 +51,7 @@ abstract class BaseOpenLMojo extends AbstractMojo {
         }
         CompiledOpenClass openLRules;
         try {
-            String openlRoot = getSourceDirectory().getPath();
+            String openlRoot = getSourceDirectory().getCanonicalPath();
             info("Compiling the OpenL project from " + openlRoot);
 
             SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactoryBuilder<Object>();
