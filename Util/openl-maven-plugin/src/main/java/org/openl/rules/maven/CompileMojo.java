@@ -1,11 +1,15 @@
 package org.openl.rules.maven;
 
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
+import java.util.List;
+
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 
 import org.openl.CompiledOpenClass;
+import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.Severity;
+import org.openl.types.IOpenClass;
 
 /**
  * Compile and validate OpenL project
@@ -14,40 +18,22 @@ import org.openl.CompiledOpenClass;
  */
 @Mojo(name = "compile", defaultPhase = LifecyclePhase.COMPILE)
 public class CompileMojo extends BaseOpenLMojo {
-    private static final String SEPARATOR = "-------------------------------------------------------------";
 
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
-        CompiledOpenClass openLRules;
-        try {
-            openLRules = compileOpenLRules();
-        } catch (Exception e) {
-            throw new MojoFailureException("Failed to compile OpenL project", e);
-        }
-
-        boolean hasErrors = openLRules.hasErrors();
-
-        if (hasErrors) {
-            logHeader();
-            try {
-                openLRules.getOpenClass();
-            } catch (Exception e) {
-                getLog().error(e);
-            }
-            logFooter();
-            throw new MojoFailureException("There are OpenL errors");
-        }
+    public String execute(CompiledOpenClass openLRules) throws Exception {
+        IOpenClass openClass = openLRules.getOpenClass();
+        List<OpenLMessage> messages = openLRules.getMessages();
+        List<OpenLMessage> warnings = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
+        info("Compilation has finished.");
+        info("DataTypes: " + openClass.getTypes().size());
+        info("Methods  : " + openClass.getMethods().size());
+        info("Fields   : " + openClass.getFields().size());
+        info("Warnings : " + warnings.size());
+        return null;
     }
 
-    private void logHeader() {
-        if (getLog().isErrorEnabled()) {
-            getLog().error(SEPARATOR);
-            getLog().error("OPENL COMPILATION ERROR");
-            getLog().error(SEPARATOR);
-        }
-    }
-
-    private void logFooter() {
-        getLog().error(SEPARATOR);
+    @Override
+    String getHeader() {
+        return "OPENL COMPILATION";
     }
 }

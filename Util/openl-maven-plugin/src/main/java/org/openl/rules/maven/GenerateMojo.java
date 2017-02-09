@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -32,6 +33,7 @@ import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.types.IOpenClass;
+import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -259,34 +261,40 @@ public class GenerateMojo extends BaseOpenLMojo {
     private Boolean overwriteUnitTests;
 
     @Override
-    public void execute() throws MojoExecutionException {
-        if (getLog().isInfoEnabled()) {
-            getLog().info("Running OpenL GenerateMojo...");
-        }
+    @Deprecated
+    public void execute() throws MojoExecutionException, MojoFailureException {
         if (generateInterfaces != null) {
             useGenerateInterface();
         } else {
-            try {
-                CompiledOpenClass openLRules = compileOpenLRules();
+            super.execute();
+        }
+    }
 
-                // Generate Java beans from OpenL dataTypes
-                Map<String, IOpenClass> dataTypes = openLRules.getTypes();
-                writeJavaBeans(dataTypes);
+    @Override
+    String execute(CompiledOpenClass openLRules) throws Exception {
+        // Generate Java beans from OpenL dataTypes
+        Map<String, IOpenClass> dataTypes = openLRules.getTypes();
+        writeJavaBeans(dataTypes);
 
-                // Generate interface is optional.
-                if (interfaceClass != null) {
-                    IOpenClass openClass = openLRules.getOpenClassWithErrors();
-                    writeInterface(openClass);
-                }
-            } catch (Exception e) {
-                throw new MojoExecutionException("Exception during generation: ", e);
-            }
+        // Generate interface is optional.
+        if (interfaceClass != null) {
+            IOpenClass openClass = openLRules.getOpenClassWithErrors();
+            writeInterface(openClass);
         }
         project.addCompileSourceRoot(outputDirectory.getPath());
+        return null;
+    }
+
+    @Override
+    String getHeader() {
+        return "OPENL JAVA SOURCES GENERATION";
     }
 
     @Deprecated
     private void useGenerateInterface() throws MojoExecutionException {
+        if (getLog().isInfoEnabled()) {
+            getLog().info("Running OpenL GenerateMojo...");
+        }
         boolean isUsedRuleXmlForGenerate = false;
         for (GenerateInterface task : generateInterfaces) {
             if (task.isUsedRuleXmlForGenerate()) {
@@ -305,6 +313,7 @@ public class GenerateMojo extends BaseOpenLMojo {
                 throw new MojoExecutionException("Exception during generation: ", e);
             }
         }
+        project.addCompileSourceRoot(outputDirectory.getPath());
     }
 
     private void initDefaultValues(GenerateInterface task, boolean isUsedRuleXmlForGenerate) {
@@ -399,7 +408,7 @@ public class GenerateMojo extends BaseOpenLMojo {
     }
 
     private void writeJavaBeans(Map<String, IOpenClass> types) throws Exception {
-        if (types != null) {
+        if (CollectionUtils.isNotEmpty(types)) {
             for (Map.Entry<String, IOpenClass> datatype : types.entrySet()) {
 
                 // Skip java code generation for types what is defined
@@ -409,9 +418,10 @@ public class GenerateMojo extends BaseOpenLMojo {
                 IOpenClass datatypeOpenClass = datatype.getValue();
                 if (datatypeOpenClass instanceof DatatypeOpenClass) {
                     Class<?> datatypeClass = datatypeOpenClass.getInstanceClass();
+                    String dataType = datatypeClass.getName();
+                    info("Java Bean: " + dataType);
                     SimpleBeanJavaGenerator beanJavaGenerator = new SimpleBeanJavaGenerator(datatypeClass);
                     String generatedSource = beanJavaGenerator.generateJavaClass();
-                    String dataType = datatypeClass.getName();
                     writeClassToFile(dataType, generatedSource);
                 }
             }
@@ -419,6 +429,7 @@ public class GenerateMojo extends BaseOpenLMojo {
     }
 
     private void writeInterface(IOpenClass openClass) throws IOException {
+        info("Interface: " + interfaceClass);
         JavaInterfaceGenerator javaGenerator = new JavaInterfaceGenerator.Builder(openClass, interfaceClass)
             .methodsToGenerate(null).fieldsToGenerate(null).ignoreNonJavaTypes(false).ignoreTestMethods(true).build();
 
