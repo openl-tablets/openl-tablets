@@ -26,12 +26,20 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.openl.OpenL;
 import org.openl.util.FileUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Generate OpenL interface, domain classes, project descriptor and unit tests
  */
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 public class GenerateMojo extends BaseOpenLMojo {
+
+    /**
+     * An output directory of generated Java beans and OpenL java interface.
+     */
+    @Parameter(defaultValue = "${project.build.directory}/generated-sources/openl")
+    private File outputDirectory;
+
     /**
      * Tasks that will generate classes or data type.
      * <p>
@@ -249,9 +257,13 @@ public class GenerateMojo extends BaseOpenLMojo {
                 throw new MojoExecutionException("Exception during generation: ", e);
             }
         }
+        project.addCompileSourceRoot(outputDirectory.getPath());
     }
 
     private void initDefaultValues(GenerateInterface task, boolean isUsedRuleXmlForGenerate) {
+        if (StringUtils.isBlank(task.getResourcesPath())) {
+            task.setResourcesPath(getSourceDirectory().getPath());
+        }
         if (!task.isUsedRuleXmlForGenerate() && isUsedRuleXmlForGenerate) {
             task.setGenerateDataType(false);
         }
@@ -259,7 +271,7 @@ public class GenerateMojo extends BaseOpenLMojo {
             task.setOpenlName(OpenL.OPENL_JAVA_RULE_NAME);
         }
         if (task.getTargetSrcDir() == null) {
-            task.setTargetSrcDir(project.getBuild().getSourceDirectory());
+            task.setTargetSrcDir(outputDirectory.getPath());
         }
 
         if (task.getDisplayName() == null) {
@@ -301,7 +313,7 @@ public class GenerateMojo extends BaseOpenLMojo {
         String srcFile = task.getSrcFile().replace("\\", "/");
         String baseDir = project.getBasedir().getAbsolutePath();
 
-        String directory = getSubDirectory(baseDir, openlResourcesDirectory).replace("\\", "/");
+        String directory = getSubDirectory(baseDir, getSourceDirectory().getPath()).replace("\\", "/");
         if (srcFile.startsWith(directory)) {
             srcFile = getSubDirectory(directory, srcFile);
             task.setResourcesPath(directory);

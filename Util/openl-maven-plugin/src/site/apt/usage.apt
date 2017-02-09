@@ -31,7 +31,7 @@ Usage
 +--------------------------------------
 
   Note that OpenL-related resources are located in the <<<src/main/openl>>> directory.
-  But it can be changed to fit user's needs by changing the <<<openlResourcesDirectory>>> parameter in maven plugin configuration.
+  But it can be changed to fit user's needs by changing the <<<sourceDirectory>>> parameter in maven plugin configuration.
 
   <<Note:>> It is not recommended to put OpenL-related resources to the <<<src/main/resources>>> folder. In this case, OpenL resources
   will be inside the JAR file alongside with the compiled Java classes - most probably not what was expected to do in production.
