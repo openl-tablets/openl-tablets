@@ -24,7 +24,6 @@
     <ui:define name="special">
         <ui:include src="/pages/modules/repository/modal/copyProject.xhtml" />
         <ui:include src="/pages/modules/repository/modal/copyDeploymentProject.xhtml" />
-        <ui:include src="/pages/modules/repository/modal/closeDeployConfiguration.xhtml" />
         <ui:include src="/pages/modules/repository/modal/deleteNode.xhtml" />
         <ui:include src="/pages/modules/repository/modal/unlockNode.xhtml" />
         <ui:include src="/pages/modules/repository/modal/closeProject.xhtml" />
@@ -35,7 +34,6 @@
         <ui:include src="/pages/modules/repository/modal/addFolder.xhtml" />
         <ui:include src="/pages/modules/repository/modal/createProject.xhtml" />
         <ui:include src="/pages/modules/repository/modal/updateFile.xhtml" />
-        <ui:include src="/pages/modules/repository/modal/addDeploymentItem.xhtml" />
         <ui:include src="/pages/modules/repository/modal/openProject.xhtml" />
         <ui:include src="/pages/modules/repository/modal/openVersion.xhtml" />
         <ui:include src="/pages/modules/repository/modal/save.xhtml" />
@@ -44,7 +42,12 @@
         <ui:include src="/pages/modules/repository/modal/exportVersion.xhtml" />
         <ui:include src="/pages/modules/repository/modal/exportFile.xhtml" />
         <ui:include src="/pages/modules/repository/modal/copyFile.xhtml" />
-        <ui:include src="/pages/modules/repository/modal/selectProductionRepository.xhtml" />
+
+        <h:panelGroup rendered="#{node.type == 'deployment'}">
+            <ui:include src="/pages/modules/repository/modal/closeDeployConfiguration.xhtml" />
+            <ui:include src="/pages/modules/repository/modal/addDeploymentItem.xhtml" />
+            <ui:include src="/pages/modules/repository/modal/selectProductionRepository.xhtml" />
+        </h:panelGroup>
     </ui:define>
 
 </ui:composition>
