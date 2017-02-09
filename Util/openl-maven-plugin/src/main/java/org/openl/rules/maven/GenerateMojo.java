@@ -37,7 +37,7 @@ import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
-import org.openl.util.generation.SimpleBeanJavaGenerator;
+import org.openl.rules.maven.gen.SimpleBeanJavaGenerator;
 
 /**
  * Generate OpenL interface, domain classes, project descriptor and unit tests

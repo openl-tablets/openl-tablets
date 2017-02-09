@@ -1,4 +1,4 @@
-package org.openl.util.generation;
+package org.openl.rules.maven.gen;
 
 /**
  * Initialization writer for values that are of type char or Character.

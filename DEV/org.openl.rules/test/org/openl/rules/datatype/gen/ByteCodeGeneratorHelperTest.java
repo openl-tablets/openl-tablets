@@ -3,6 +3,7 @@ package org.openl.rules.datatype.gen;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+import org.openl.rules.datatype.gen.bean.writers.DefaultValue;
 
 public class ByteCodeGeneratorHelperTest {
     
@@ -20,7 +21,7 @@ public class ByteCodeGeneratorHelperTest {
                 ByteCodeGeneratorHelper.getTypeWriter(new DefaultFieldDescription(String.class)).getClass().getName());
 
         DefaultFieldDescription field = new DefaultFieldDescription(DriverTest.class);
-        field.setDefaultValueAsString(FieldDescription.DEFAULT_KEY_WORD);
+        field.setDefaultValueAsString(DefaultValue.DEFAULT);
         assertEquals("org.openl.rules.datatype.gen.types.writers.DefaultConstructorTypeWriter",
                 ByteCodeGeneratorHelper.getTypeWriter(field).getClass().getName());
 

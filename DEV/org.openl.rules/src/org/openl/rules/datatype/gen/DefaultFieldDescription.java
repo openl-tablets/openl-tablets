@@ -2,6 +2,7 @@ package org.openl.rules.datatype.gen;
 
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
+import org.openl.rules.datatype.gen.bean.writers.DefaultValue;
 import org.openl.types.IOpenField;
 import org.openl.util.StringUtils;
 
@@ -90,10 +91,10 @@ public class DefaultFieldDescription implements FieldDescription {
     public Object getDefaultValue() {
         if (defaultValue == null) {
             if (defaultValueAsString != null) {
-                if (DEFAULT_KEY_WORD.equals(defaultValueAsString)) {
+                if (DefaultValue.DEFAULT.equals(defaultValueAsString)) {
                     // Keep the default value key word for all the types of the field as the default value.
                     //
-                    defaultValue = DEFAULT_KEY_WORD;
+                    defaultValue = DefaultValue.DEFAULT;
                 } else {
                     IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(getType());
                     defaultValue = convertor.parse(defaultValueAsString, null);
@@ -117,7 +118,7 @@ public class DefaultFieldDescription implements FieldDescription {
 
     @Override
     public boolean hasDefaultKeyWord() {
-        return hasDefaultValue() && DEFAULT_KEY_WORD.equals(getDefaultValue());
+        return hasDefaultValue() && DefaultValue.DEFAULT.equals(getDefaultValue());
     }
 
 }

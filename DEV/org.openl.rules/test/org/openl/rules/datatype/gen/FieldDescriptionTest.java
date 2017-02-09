@@ -3,6 +3,7 @@ package org.openl.rules.datatype.gen;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+import org.openl.rules.datatype.gen.bean.writers.DefaultValue;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DatatypeOpenField;
@@ -41,16 +42,16 @@ public class FieldDescriptionTest {
     @Test
     public void testDefaultValue_DefaultBean() {
         DefaultFieldDescription field = new DefaultFieldDescription(String.class);
-        field.setDefaultValueAsString(FieldDescription.DEFAULT_KEY_WORD);
-        assertEquals("Return the default keyword itself", FieldDescription.DEFAULT_KEY_WORD, field.getDefaultValue());
+        field.setDefaultValueAsString(DefaultValue.DEFAULT);
+        assertEquals("Return the default keyword itself", DefaultValue.DEFAULT, field.getDefaultValue());
 
         DefaultFieldDescription field1 = new DefaultFieldDescription(Boolean.class);
-        field1.setDefaultValueAsString(FieldDescription.DEFAULT_KEY_WORD);
-        assertEquals("Return the default keyword itself", FieldDescription.DEFAULT_KEY_WORD, field1.getDefaultValue());
+        field1.setDefaultValueAsString(DefaultValue.DEFAULT);
+        assertEquals("Return the default keyword itself", DefaultValue.DEFAULT, field1.getDefaultValue());
 
         DefaultFieldDescription field2 = new DefaultFieldDescription(Integer.class);
-        field2.setDefaultValueAsString(FieldDescription.DEFAULT_KEY_WORD);
-        assertEquals("Return the default keyword itself", FieldDescription.DEFAULT_KEY_WORD, field2.getDefaultValue());
+        field2.setDefaultValueAsString(DefaultValue.DEFAULT);
+        assertEquals("Return the default keyword itself", DefaultValue.DEFAULT, field2.getDefaultValue());
     }
 
     @Test
