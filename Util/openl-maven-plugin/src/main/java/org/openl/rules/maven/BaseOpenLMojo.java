@@ -30,18 +30,12 @@ abstract class BaseOpenLMojo extends AbstractMojo {
     @Parameter
     private String openlResourcesDirectory;
 
-    /**
-     * Folder used by OpenL to compile rules. For example:
-     * ${project.build.directory}/openl".
-     */
-    @Parameter(defaultValue = "${project.build.directory}/openl")
-    String openlOutputDirectory;
-
     @Component
     protected MavenProject project;
 
     File getSourceDirectory() {
         if (openlResourcesDirectory != null) {
+            getLog().warn("<openlResourcesDirectory> parameter is deprecated. Use <sourceDirectory> instead");
             return new File(openlResourcesDirectory);
         }
         return sourceDirectory;
@@ -49,9 +43,12 @@ abstract class BaseOpenLMojo extends AbstractMojo {
 
     CompiledOpenClass compileOpenLRules() throws Exception {
         String openlRoot = getSourceDirectory().getPath();
+        if (getLog().isInfoEnabled()) {
+            getLog().info("Compiling the OpenL project from " + openlRoot);
+        }
 
         SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactoryBuilder<Object>();
-        SimpleProjectEngineFactory<?> factory = builder.setProject(openlRoot).build();
+        SimpleProjectEngineFactory<?> factory = builder.setProject(openlRoot).setExecutionMode(false).build();
 
         return factory.getCompiledOpenClass();
     }
