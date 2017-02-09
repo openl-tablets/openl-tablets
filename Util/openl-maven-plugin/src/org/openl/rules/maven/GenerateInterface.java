@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.velocity.Template;
@@ -44,6 +43,7 @@ import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.util.FileTool;
+import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
@@ -704,9 +704,9 @@ public class GenerateInterface {
             File f = new File(tokens[i]);
 
             if (f.isDirectory()) {
-                FileUtils.copyDirectory(f, new File(classes_target));
+                FileUtils.copy(f, new File(classes_target));
             } else {
-                FileUtils.copyFileToDirectory(f, new File(lib_target));
+                FileUtils.copy(f, new File(lib_target));
             }
         }
     }
