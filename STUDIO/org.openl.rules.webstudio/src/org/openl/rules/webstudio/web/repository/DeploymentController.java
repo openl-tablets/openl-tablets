@@ -220,7 +220,9 @@ public class DeploymentController {
 
     public SelectItem[] getProjects() {
         UserWorkspace workspace = RepositoryUtils.getWorkspace();
-        Collection<RulesProject> workspaceProjects = workspace.getProjects();
+        // Because of JSF this method can be invoked up to 24 times during 1 HTTP request.
+        // That's why we must not refresh projects list every time, instead get cached projects only.
+        Collection<RulesProject> workspaceProjects = workspace.getProjects(false);
         List<SelectItem> selectItems = new ArrayList<SelectItem>();
 
         List<DeploymentDescriptorItem> existingItems = getItems();
@@ -267,7 +269,7 @@ public class DeploymentController {
 
         if (projectName != null) {
             try {
-                AProject project = workspace.getProject(projectName);
+                AProject project = workspace.getProject(projectName, false);
                 // sort project versions in descending order (1.1 -> 0.0)
                 List<ProjectVersion> versions = new ArrayList<ProjectVersion>(project.getVersions());
                 Collections.sort(versions, RepositoryUtils.VERSIONS_REVERSE_COMPARATOR);
@@ -299,7 +301,7 @@ public class DeploymentController {
             if (item.isSelected()) {
                 String projectName = item.getName();
                 try {
-                    RulesProject project = workspace.getProject(projectName);
+                    RulesProject project = workspace.getProject(projectName, false);
                     if (!project.isOpenedForEditing()) {
                         project.openVersion(item.getVersion().getVersionName());
                     }

@@ -149,11 +149,18 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public Collection<RulesProject> getProjects() {
-        try {
-            refreshRulesProjects();
-        } catch (ProjectException e) {
-            // ignore
-            log.error("Failed to resfresh projects!", e);
+        return getProjects(true);
+    }
+
+    @Override
+    public Collection<RulesProject> getProjects(boolean refreshBefore) {
+        if (refreshBefore || userRulesProjects.isEmpty()) {
+            try {
+                refreshRulesProjects();
+            } catch (ProjectException e) {
+                // ignore
+                log.error("Failed to resfresh projects!", e);
+            }
         }
 
         ArrayList<RulesProject> result;
