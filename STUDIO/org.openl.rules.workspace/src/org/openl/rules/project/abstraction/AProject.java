@@ -131,6 +131,7 @@ public class AProject extends AProjectFolder {
                 read = getRepository().read(fileData.getName());
             }
             stream = read.getStream();
+            fileData.setSize(read.getData().getSize());
             setFileData(getRepository().save(fileData, stream));
             } catch (IOException ex) {
                 throw new ProjectException("Project cannot be saved", ex);
@@ -196,6 +197,7 @@ public class AProject extends AProjectFolder {
 
                     FileItem read = getRepository().read(fileData.getName());
                     InputStream stream = read.getStream();
+                    fileData.setSize(read.getData().getSize());
                     getRepository().save(fileData, stream);
                     IOUtils.closeQuietly(stream);
                 }
@@ -203,7 +205,9 @@ public class AProject extends AProjectFolder {
         } else {
             FileData fileData = getFileData();
             fileData.setDeleted(false);
-            InputStream stream = getRepository().read(fileData.getName()).getStream();
+            FileItem read = getRepository().read(fileData.getName());
+            fileData.setSize(read.getData().getSize());
+            InputStream stream = read.getStream();
             setFileData(getRepository().save(fileData, stream));
             setHistoryVersion(getFileData().getVersion());
             IOUtils.closeQuietly(stream);
@@ -305,9 +309,13 @@ public class AProject extends AProjectFolder {
                 InputStream stream = null;
                 try {
                 if (isHistoric()) {
-                    stream = projectFrom.getRepository().readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion()).getStream();
+                    FileItem fileItem = projectFrom.getRepository().readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
+                    fileData.setSize(fileItem.getData().getSize());
+                    stream = fileItem.getStream();
                 } else {
-                    stream = projectFrom.getRepository().read(projectFrom.getFolderPath()).getStream();
+                    FileItem fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
+                    fileData.setSize(fileItem.getData().getSize());
+                    stream = fileItem.getStream();
                 }
                 fileData.setAuthor(user.getUserName());
                 setFileData(getRepository().save(fileData, stream));
@@ -329,6 +337,7 @@ public class AProject extends AProjectFolder {
                     }
 
                     fileData.setAuthor(user.getUserName());
+                    fileData.setSize(out.size());
                     setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
                 } catch (IOException e) {
                     throw new ProjectException(e.getMessage(), e);
