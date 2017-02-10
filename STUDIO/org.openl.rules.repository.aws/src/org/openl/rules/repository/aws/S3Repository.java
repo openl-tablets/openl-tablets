@@ -303,6 +303,11 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
                 }
             } while (versionListing.isTruncated());
 
+            // OpenL expects that the last element in the list is last version.
+            // AWS S3 returns last version first and older versions later.
+            // So we reverse result to convert AWS S3 order to OpenL.
+            Collections.reverse(result);
+
             return result;
         } catch (SdkClientException e) {
             throw new IOException(e);
