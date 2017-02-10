@@ -43,6 +43,7 @@ public class RulesProject extends UserWorkspaceProject {
         clearModifyStatus();
         AProject designProject = new AProject(designRepository, designFolderName, false);
         AProject localProject = new AProject(localRepository, localFolderName, true);
+        designProject.getFileData().setComment(getFileData().getComment());
         designProject.update(localProject, user);
         setHistoryVersion(designProject.getFileData().getVersion());
         unlock();
