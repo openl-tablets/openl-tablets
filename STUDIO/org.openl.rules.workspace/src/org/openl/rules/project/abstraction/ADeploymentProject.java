@@ -142,6 +142,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
 
             zipOutputStream.close();
             fileData.setAuthor(user == null ? null : user.getUserName());
+            fileData.setSize(out.size());
             setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
         } catch (IOException e) {
             throw new ProjectException(e.getMessage(), e);
