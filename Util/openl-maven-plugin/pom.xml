@@ -11,7 +11,6 @@
     <packaging>maven-plugin</packaging>
     <name>OpenL - Util - OpenL Maven Plugin</name>
     <properties>
-        <openlOutputDirectory>${project.build.directory}/openl</openlOutputDirectory>
         <mavenVersion>2.2.1</mavenVersion>
         <mavenPluginPluginVersion>3.2</mavenPluginPluginVersion>
     </properties>
