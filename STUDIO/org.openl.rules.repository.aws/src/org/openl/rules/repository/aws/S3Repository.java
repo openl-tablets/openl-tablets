@@ -4,10 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -22,6 +19,7 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,14 +109,12 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
     }
 
     private FileData createFileData(S3VersionSummary latest) {
-        FileData data = new FileData();
+        FileData data = latest.isDeleteMarker() ? new FileData() : new LazyFileData(s3, bucketName);
         data.setName(latest.getKey());
         data.setSize(latest.getSize());
         data.setModifiedAt(latest.getLastModified());
         data.setVersion(latest.getVersionId());
         data.setDeleted(latest.isDeleteMarker());
-//        data.setAuthor(latest.getOwner().getDisplayName());
-//        data.setComment();
         return data;
     }
 
@@ -196,6 +192,13 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
             if (data.getSize() != 0) {
                 metaData.setContentLength(data.getSize());
             }
+            if (!StringUtils.isBlank(data.getAuthor())) {
+                metaData.addUserMetadata(LazyFileData.METADATA_AUTHOR, data.getAuthor());
+            }
+            if (!StringUtils.isBlank(data.getComment())) {
+                metaData.addUserMetadata(LazyFileData.METADATA_COMMENT, data.getComment());
+            }
+
             s3.putObject(bucketName, data.getName(), stream, metaData);
 
             onModified();
@@ -299,6 +302,11 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
                     result.add(createFileData(versionSummary));
                 }
             } while (versionListing.isTruncated());
+
+            // OpenL expects that the last element in the list is last version.
+            // AWS S3 returns last version first and older versions later.
+            // So we reverse result to convert AWS S3 order to OpenL.
+            Collections.reverse(result);
 
             return result;
         } catch (SdkClientException e) {

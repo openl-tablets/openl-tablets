@@ -17,21 +17,47 @@ package org.openl.rules.maven;
  */
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+
+import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
+import org.openl.rules.lang.xls.types.DatatypeOpenClass;
+import org.openl.types.IOpenClass;
+import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
+import org.openl.util.IOUtils;
+import org.openl.util.StringUtils;
+import org.openl.rules.maven.gen.SimpleBeanJavaGenerator;
 
 /**
  * Generate OpenL interface, domain classes, project descriptor and unit tests
  */
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 public class GenerateMojo extends BaseOpenLMojo {
+
+    /**
+     * An output directory of generated Java beans and OpenL java interface.
+     */
+    @Parameter(defaultValue = "${project.build.directory}/generated-sources/openl")
+    private File outputDirectory;
+
+    /**
+     * A generated Java interface from an OpenL project. If it is empty then
+     * generation will be skipped.
+     */
+    @Parameter
+    private String interfaceClass;
+
     /**
      * Tasks that will generate classes or data type.
      * <p>
@@ -47,24 +73,25 @@ public class GenerateMojo extends BaseOpenLMojo {
      * <td>srcFile</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>*Reference to the Excel file for which an interface class must be generated.</td>
+     * <td>*Reference to the Excel file for which an interface class must be
+     * generated.</td>
      * </tr>
      * <tr>
      * <td>targetClass</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>*Full name of the interface class to be generated. Optional; if missed interface not generated.
-     * OpenL Tablets WebStudio recognizes modules in projects by interface classes and uses
-     * their names in the user interface. If there are multiple wrappers with
-     * identical names, only one of them is recognized as a module in OpenL
-     * Tablets WebStudio.</td>
+     * <td>*Full name of the interface class to be generated. Optional; if
+     * missed interface not generated. OpenL Tablets WebStudio recognizes
+     * modules in projects by interface classes and uses their names in the user
+     * interface. If there are multiple wrappers with identical names, only one
+     * of them is recognized as a module in OpenL Tablets WebStudio.</td>
      * </tr>
      * <tr>
      * <td>isUsedRuleXmlForGenerate</td>
      * <td>boolean (true/false)</td>
      * <td>false</td>
-     * <td>*Should system generate class and datatypes from rules.xml.
-     * If yes srcFile ignored; targetClass is required.</td>
+     * <td>*Should system generate class and datatypes from rules.xml. If yes
+     * srcFile ignored; targetClass is required.</td>
      * </tr>
      * <tr>
      * <td>displayName</td>
@@ -100,9 +127,8 @@ public class GenerateMojo extends BaseOpenLMojo {
      * <td>userClassPath</td>
      * <td>String</td>
      * <td>false</td>
-     * <td>*Reference to the folder with additional compiled classes imported
-     * by the module when the interface is generated. Default value is:
-     * null.</td>
+     * <td>*Reference to the folder with additional compiled classes imported by
+     * the module when the interface is generated. Default value is: null.</td>
      * </tr>
      * <tr>
      * <td>ignoreTestMethods</td>
@@ -138,25 +164,28 @@ public class GenerateMojo extends BaseOpenLMojo {
      * </table>
      * <p>
      */
-    @Parameter(required = true)
+    @Deprecated
     private GenerateInterface[] generateInterfaces;
 
     /**
-     * If true, rules.xml will be generated if it doesn't exist. If
-     * false, rules.xml will not be generated. Default value is "true".
+     * If true, rules.xml will be generated if it doesn't exist. If false,
+     * rules.xml will not be generated. Default value is "true".
+     * 
      * @see #overwriteProjectDescriptor
      */
     @Parameter(defaultValue = "true")
+    @Deprecated
     private boolean createProjectDescriptor;
 
     /**
-     * If true, rules.xml will be overwritten on each run. If
-     * false, rules.xml generation will be skipped if it exists.
-     * Makes sense only if {@link #createProjectDescriptor} == true.
-     * Default value is "true".
+     * If true, rules.xml will be overwritten on each run. If false, rules.xml
+     * generation will be skipped if it exists. Makes sense only if
+     * {@link #createProjectDescriptor} == true. Default value is "true".
+     * 
      * @see #createProjectDescriptor
      */
     @Parameter(defaultValue = "true")
+    @Deprecated
     private boolean overwriteProjectDescriptor;
 
     /**
@@ -165,6 +194,7 @@ public class GenerateMojo extends BaseOpenLMojo {
      * true.
      */
     @Parameter
+    @Deprecated
     private String projectName;
 
     /**
@@ -172,6 +202,7 @@ public class GenerateMojo extends BaseOpenLMojo {
      * if createProjectDescriptor == true.
      */
     @Parameter
+    @Deprecated
     private String[] classpaths = { "." };
 
     /**
@@ -179,12 +210,12 @@ public class GenerateMojo extends BaseOpenLMojo {
      * Default value is "false"
      */
     @Parameter(defaultValue = "false")
+    @Deprecated
     private Boolean generateUnitTests;
 
     /**
-     * Path to Velocity template for generated unit tests.
-     * If omitted, default template will be used.
-     * Available in template variables:
+     * Path to Velocity template for generated unit tests. If omitted, default
+     * template will be used. Available in template variables:
      * <table border="1">
      * <tr>
      * <th>Name</th>
@@ -218,16 +249,49 @@ public class GenerateMojo extends BaseOpenLMojo {
      * </table>
      */
     @Parameter(defaultValue = "org/openl/rules/maven/JUnitTestTemplate.vm")
+    @Deprecated
     private String unitTestTemplatePath;
 
     /**
-     * If true, existing JUnit tests will be overwritten. If false, only absent tests will be generated, others will be skipped.
+     * If true, existing JUnit tests will be overwritten. If false, only absent
+     * tests will be generated, others will be skipped.
      */
     @Parameter(defaultValue = "false")
+    @Deprecated
     private Boolean overwriteUnitTests;
 
     @Override
-    public void execute() throws MojoExecutionException {
+    @Deprecated
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        if (generateInterfaces != null) {
+            useGenerateInterface();
+        } else {
+            super.execute();
+        }
+    }
+
+    @Override
+    String execute(CompiledOpenClass openLRules) throws Exception {
+        // Generate Java beans from OpenL dataTypes
+        Map<String, IOpenClass> dataTypes = openLRules.getTypes();
+        writeJavaBeans(dataTypes);
+
+        // Generate interface is optional.
+        if (interfaceClass != null) {
+            IOpenClass openClass = openLRules.getOpenClassWithErrors();
+            writeInterface(openClass);
+        }
+        project.addCompileSourceRoot(outputDirectory.getPath());
+        return null;
+    }
+
+    @Override
+    String getHeader() {
+        return "OPENL JAVA SOURCES GENERATION";
+    }
+
+    @Deprecated
+    private void useGenerateInterface() throws MojoExecutionException {
         if (getLog().isInfoEnabled()) {
             getLog().info("Running OpenL GenerateMojo...");
         }
@@ -249,9 +313,13 @@ public class GenerateMojo extends BaseOpenLMojo {
                 throw new MojoExecutionException("Exception during generation: ", e);
             }
         }
+        project.addCompileSourceRoot(outputDirectory.getPath());
     }
 
     private void initDefaultValues(GenerateInterface task, boolean isUsedRuleXmlForGenerate) {
+        if (StringUtils.isBlank(task.getResourcesPath())) {
+            task.setResourcesPath(getSourceDirectory().getPath());
+        }
         if (!task.isUsedRuleXmlForGenerate() && isUsedRuleXmlForGenerate) {
             task.setGenerateDataType(false);
         }
@@ -259,7 +327,7 @@ public class GenerateMojo extends BaseOpenLMojo {
             task.setOpenlName(OpenL.OPENL_JAVA_RULE_NAME);
         }
         if (task.getTargetSrcDir() == null) {
-            task.setTargetSrcDir(project.getBuild().getSourceDirectory());
+            task.setTargetSrcDir(outputDirectory.getPath());
         }
 
         if (task.getDisplayName() == null) {
@@ -301,7 +369,7 @@ public class GenerateMojo extends BaseOpenLMojo {
         String srcFile = task.getSrcFile().replace("\\", "/");
         String baseDir = project.getBasedir().getAbsolutePath();
 
-        String directory = getSubDirectory(baseDir, openlResourcesDirectory).replace("\\", "/");
+        String directory = getSubDirectory(baseDir, getSourceDirectory().getPath()).replace("\\", "/");
         if (srcFile.startsWith(directory)) {
             srcFile = getSubDirectory(directory, srcFile);
             task.setResourcesPath(directory);
@@ -337,5 +405,55 @@ public class GenerateMojo extends BaseOpenLMojo {
             resourceDirectory = resourceDirectory.substring(1);
         }
         return resourceDirectory;
+    }
+
+    private void writeJavaBeans(Map<String, IOpenClass> types) throws Exception {
+        if (CollectionUtils.isNotEmpty(types)) {
+            for (Map.Entry<String, IOpenClass> datatype : types.entrySet()) {
+
+                // Skip java code generation for types what is defined
+                // thru DomainOpenClass (skip java code generation for alias
+                // types).
+                //
+                IOpenClass datatypeOpenClass = datatype.getValue();
+                if (datatypeOpenClass instanceof DatatypeOpenClass) {
+                    Class<?> datatypeClass = datatypeOpenClass.getInstanceClass();
+                    String dataType = datatypeClass.getName();
+                    info("Java Bean: " + dataType);
+                    SimpleBeanJavaGenerator beanJavaGenerator = new SimpleBeanJavaGenerator(datatypeClass);
+                    String generatedSource = beanJavaGenerator.generateJavaClass();
+                    writeClassToFile(dataType, generatedSource);
+                }
+            }
+        }
+    }
+
+    private void writeInterface(IOpenClass openClass) throws IOException {
+        info("Interface: " + interfaceClass);
+        JavaInterfaceGenerator javaGenerator = new JavaInterfaceGenerator.Builder(openClass, interfaceClass)
+            .methodsToGenerate(null).fieldsToGenerate(null).ignoreNonJavaTypes(false).ignoreTestMethods(true).build();
+
+        String generatedSource = javaGenerator.generateJava();
+        writeClassToFile(interfaceClass, generatedSource);
+    }
+
+    private void writeClassToFile(String clazz, String source) throws IOException {
+        File file = new File(outputDirectory, clazz.replace('.', '/') + ".java");
+        FileWriter fw = null;
+        try {
+            if (file.exists()) {
+                if (getLog().isInfoEnabled()) {
+                    getLog().info(String.format("File '%s' exists already. Overwrite it.", file));
+                }
+            }
+            File folder = file.getParentFile();
+            if (folder != null && !folder.mkdirs() && !folder.isDirectory()) {
+                throw new IOException("Can't create folder " + folder.getAbsolutePath());
+            }
+            fw = new FileWriter(file);
+            fw.write(source);
+        } finally {
+            IOUtils.closeQuietly(fw);
+        }
     }
 }

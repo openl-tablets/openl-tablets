@@ -122,6 +122,7 @@ public class ProductionRepositoryDeployer {
             FileData dest = new FileData();
             dest.setName(target);
             dest.setAuthor("OpenL_Deployer");
+            dest.setSize(zipFile.length());
             deployRepo.save(dest, new FileInputStream(zipFile));
         } finally {
             /* Clean up */

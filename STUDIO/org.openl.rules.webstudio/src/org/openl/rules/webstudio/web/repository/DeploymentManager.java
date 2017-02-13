@@ -76,6 +76,7 @@ public class DeploymentManager implements InitializingBean {
                 dest.setName(deploymentPath + "/" + projectName);
                 dest.setAuthor(userName);
                 dest.setComment(srcPrj.getData().getComment());
+                dest.setSize(srcPrj.getData().getSize());
                 deployRepo.save(dest, srcPrj.getStream());
             }
 

@@ -1,10 +1,11 @@
-package org.openl.util.generation;
+package org.openl.rules.maven.gen;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
+import org.openl.util.generation.JavaClassGeneratorHelper;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;

@@ -54,4 +54,6 @@ public interface UserWorkspace extends ProjectsContainer {
     RulesProject getProject(String name, boolean refreshBefore) throws ProjectException;
 
     Collection<RulesProject> getProjects();
+
+    Collection<RulesProject> getProjects(boolean refreshBefore);
 }

@@ -11,8 +11,6 @@
     <packaging>maven-plugin</packaging>
     <name>OpenL - Util - OpenL Maven Plugin</name>
     <properties>
-        <openlResourcesDirectory>${project.basedir}/src/main/openl</openlResourcesDirectory>
-        <openlOutputDirectory>${project.build.directory}/openl</openlOutputDirectory>
         <mavenVersion>2.2.1</mavenVersion>
         <mavenPluginPluginVersion>3.2</mavenPluginPluginVersion>
     </properties>
@@ -44,10 +42,6 @@
             <artifactId>velocity</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.project</artifactId>
         </dependency>
@@ -63,12 +57,6 @@
         </dependency>
     </dependencies>
     <build>
-        <sourceDirectory>src/main/java</sourceDirectory>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -97,6 +85,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pdf-plugin</artifactId>
+                <configuration>
+                    <siteDirectory>${basedir}/site</siteDirectory>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>

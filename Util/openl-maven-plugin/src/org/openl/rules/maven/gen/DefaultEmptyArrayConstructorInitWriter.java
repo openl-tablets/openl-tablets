@@ -1,4 +1,4 @@
-package org.openl.util.generation;
+package org.openl.rules.maven.gen;
 
 public class DefaultEmptyArrayConstructorInitWriter implements TypeInitializationWriter {
     @Override

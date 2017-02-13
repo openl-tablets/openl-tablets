@@ -13,6 +13,7 @@ import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
+import org.openl.util.RuntimeExceptionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     private final HashMap<String, RulesProject> userRulesProjects;
     private final HashMap<String, ADeploymentProject> userDProjects;
+
+    private boolean projectsRefreshNeeded = true;
+    private boolean deploymentsRefreshNeeded = true;
 
     private final List<UserWorkspaceListener> listeners = new ArrayList<UserWorkspaceListener>();
 
@@ -75,6 +79,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public ADeploymentProject createDDProject(String name) throws RepositoryException {
+        if (deploymentsRefreshNeeded) {
+            refreshDeploymentProjects();
+        }
         ADeploymentProject ddProject = designTimeRepository.createDDProject(name);
         ddProject.setUser(getUser());
         userDProjects.put(name, ddProject);
@@ -132,7 +139,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public RulesProject getProject(String name, boolean refreshBefore) throws ProjectException {
-        if (refreshBefore || userRulesProjects.isEmpty()) {
+        if (refreshBefore || projectsRefreshNeeded) {
             refreshRulesProjects();
         }
 
@@ -149,11 +156,13 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public Collection<RulesProject> getProjects() {
-        try {
+        return getProjects(true);
+    }
+
+    @Override
+    public Collection<RulesProject> getProjects(boolean refreshBefore) {
+        if (refreshBefore || projectsRefreshNeeded) {
             refreshRulesProjects();
-        } catch (ProjectException e) {
-            // ignore
-            log.error("Failed to resfresh projects!", e);
         }
 
         ArrayList<RulesProject> result;
@@ -171,6 +180,14 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public boolean hasDDProject(String name) {
+        if (deploymentsRefreshNeeded) {
+            try {
+                refreshDeploymentProjects();
+            } catch (RepositoryException e) {
+                // FIXME Don't wrap checked exception
+                throw RuntimeExceptionWrapper.wrap(e);
+            }
+        }
         synchronized (userDProjects) {
             if (userDProjects.get(name) != null) {
                 return true;
@@ -181,6 +198,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     public boolean hasProject(String name) {
         synchronized (userRulesProjects) {
+            if (projectsRefreshNeeded) {
+                refreshRulesProjects();
+            }
             if (userRulesProjects.get(name) != null) {
                 return true;
             }
@@ -196,14 +216,23 @@ public class UserWorkspaceImpl implements UserWorkspace {
         synchronized (userDProjects) {
             userDProjects.clear();
         }
+        scheduleProjectsRefresh();
+        scheduleDeploymentsRefresh();
     }
 
     public void refresh() throws ProjectException {
-        refreshRulesProjects();
-        refreshDeploymentProjects();
+        localWorkspace.refresh();
+        scheduleProjectsRefresh();
+        scheduleDeploymentsRefresh();
     }
 
-    private void refreshDeploymentProjects() throws ProjectException {
+    private void scheduleDeploymentsRefresh()  {
+        synchronized (userDProjects) {
+            deploymentsRefreshNeeded = true;
+        }
+    }
+
+    private void refreshDeploymentProjects() throws RepositoryException {
         List<ADeploymentProject> dtrProjects = designTimeRepository.getDDProjects();
 
         synchronized (userDProjects) {
@@ -234,10 +263,18 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     i.remove();
                 }
             }
+
+            deploymentsRefreshNeeded = false;
         }
     }
 
-    private void refreshRulesProjects() throws RepositoryException {
+    private void scheduleProjectsRefresh()  {
+        synchronized (userRulesProjects) {
+            projectsRefreshNeeded = true;
+        }
+    }
+
+    private void refreshRulesProjects() {
         localWorkspace.refresh();
 
         synchronized (userRulesProjects) {
@@ -293,6 +330,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     entryIterator.remove();
                 }
             }
+
+            projectsRefreshNeeded = false;
         }
     }
 
@@ -305,6 +344,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
         synchronized (userDProjects) {
             userDProjects.clear();
         }
+        scheduleProjectsRefresh();
+        scheduleDeploymentsRefresh();
 
         for (UserWorkspaceListener listener : listeners) {
             listener.workspaceReleased(this);

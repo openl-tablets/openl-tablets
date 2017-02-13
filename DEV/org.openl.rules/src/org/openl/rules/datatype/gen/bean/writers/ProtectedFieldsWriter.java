@@ -11,7 +11,6 @@ import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.util.StringUtils;
-import org.openl.util.generation.DefaultValue;
 
 /**
  * Write fields declarations to the generated bean class.
