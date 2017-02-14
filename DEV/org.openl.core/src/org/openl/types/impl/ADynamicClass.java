@@ -6,6 +6,10 @@
 
 package org.openl.types.impl;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +22,8 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaNoAggregateInfo;
+import org.openl.types.java.JavaOpenConstructor;
+import org.openl.types.java.JavaOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -41,13 +47,6 @@ public abstract class ADynamicClass extends AOpenClass {
         this.name = name;
         this.instanceClass = instanceClass;
         this.fieldMap = fieldMap();
-
-        // adding defailt constructor
-        /**
-         * TODO: fixme. Calling method in constructor that is overloaded in childs.
-         * At this time childs are not built yet.
-         */
-        addMethod(new OpenConstructor(this));
     }
 
     public void addField(IOpenField field) {
@@ -64,6 +63,41 @@ public abstract class ADynamicClass extends AOpenClass {
         fieldMap().put(field.getName(), field);
 
         addFieldToLowerCaseMap(field);
+    }
+    
+    @Override
+    protected Map<MethodKey, IOpenMethod> initMethodMap() {
+        Map<MethodKey, IOpenMethod> methodMap = super.initMethodMap();
+        if (methodMap == STUB){
+            methodMap = new HashMap<MethodKey, IOpenMethod>(4);
+        }
+        OpenConstructor openConstructor = new OpenConstructor(this);
+        MethodKey key = new MethodKey(openConstructor);
+        methodMap.put(key, openConstructor);
+        
+        if (instanceClass != null && !DynamicObject.class.isAssignableFrom(instanceClass)){
+            Method[] mm = instanceClass.getDeclaredMethods();
+            if (isPublic(instanceClass)) {
+                for (int i = 0; i < mm.length; i++) {
+                    if (isPublic(mm[i])) {
+                        JavaOpenMethod om = new JavaOpenMethod(mm[i]);
+                        MethodKey kom = new MethodKey(om);
+                        methodMap.put(kom, om);
+                    }
+                }
+            }
+
+            Constructor<?>[] cc = instanceClass.getDeclaredConstructors();
+            for (int i = 0; i < cc.length; i++) {
+                if (isPublic(cc[i])) {
+                    IOpenMethod om = new JavaOpenConstructor(cc[i]);
+                    MethodKey kom = new MethodKey(om);
+                    methodMap.put(kom, om);
+                }
+            }
+        }
+        
+        return methodMap;
     }
 
     public void addMethod(IOpenMethod method) {
@@ -90,8 +124,17 @@ public abstract class ADynamicClass extends AOpenClass {
         return instanceClass;
     }
     
+    protected boolean isPublic(Class<?> declaringClass) {
+        return Modifier.isPublic(declaringClass.getModifiers());
+    }
+
+    protected boolean isPublic(Member member) {
+        return Modifier.isPublic(member.getModifiers());
+    }
+    
     public void setInstanceClass(Class<?> instanceClass) {
         this.instanceClass = instanceClass;
+        invalidateMethodCaches();
     }
 
     public String getName() {

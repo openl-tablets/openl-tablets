@@ -6,20 +6,29 @@
 
 package org.openl.rules.lang.xls.types;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.rules.lang.xls.XlsBinder;
-import org.openl.types.*;
+import org.openl.types.IAggregateInfo;
+import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
+import org.openl.types.impl.MethodKey;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
-import java.util.Map.Entry;
 
 /**
  * Open class for types represented as datatype table components in openl.
@@ -45,10 +54,25 @@ public class DatatypeOpenClass extends ADynamicClass {
         // @author Denis Levchuk
         //
         super(name, null);
-        addMethod(new EqualsMethod(this));
-        addMethod(new HashCodeMethod(this));
-        addMethod(new ToStringMethod(this));
         this.packageName = packageName;
+    }
+    
+    private void addMethodToMap(Map<MethodKey, IOpenMethod> methodMap, IOpenMethod method){
+        MethodKey key = new MethodKey(method);
+        methodMap.put(key, method);
+    }
+    
+    @Override
+    protected Map<MethodKey, IOpenMethod> initMethodMap() {
+        Map<MethodKey, IOpenMethod> methodMap = super.initMethodMap();
+        if (methodMap == STUB){
+            methodMap = new HashMap<MethodKey, IOpenMethod>(4);
+        }
+        addMethodToMap(methodMap, new EqualsMethod(this));
+        addMethodToMap(methodMap, new HashCodeMethod(this));
+        addMethodToMap(methodMap, new ToStringMethod(this));
+        
+        return methodMap;
     }
 
     @Override

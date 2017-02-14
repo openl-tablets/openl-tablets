@@ -39,7 +39,7 @@ import org.openl.types.java.JavaOpenClass;
  */
 public abstract class AOpenClass implements IOpenClass {
 
-    private static final Map<MethodKey, IOpenMethod> STUB = Collections
+    protected static final Map<MethodKey, IOpenMethod> STUB = Collections
         .unmodifiableMap(Collections.<MethodKey, IOpenMethod> emptyMap());
     private IOpenField indexField;
 
@@ -341,15 +341,15 @@ public abstract class AOpenClass implements IOpenClass {
         invalidateMethodCaches();
     }
 
-    protected void invalidateMethodCaches() {
-        allMethodsCacheInvalidated = true;
+    protected final void invalidateMethodCaches() {
+        allMethodsCacheInvalidated = true; 
         allMethodNamesMapInvalidated = true;
     }
 
     private Collection<IOpenMethod> allMethodsCache = null;
     private volatile boolean allMethodsCacheInvalidated = true;
 
-    public synchronized Collection<IOpenMethod> getMethods() {
+    public final synchronized Collection<IOpenMethod> getMethods() {
         if (allMethodsCacheInvalidated) {
             allMethodsCache = buildAllMethods();
             allMethodsCacheInvalidated = false;
@@ -444,11 +444,13 @@ public abstract class AOpenClass implements IOpenClass {
     private volatile boolean allMethodNamesMapInvalidated = true;
 
     @Override
-    public synchronized Iterable<IOpenMethod> methods(String name) {
+    public final synchronized Iterable<IOpenMethod> methods(String name) {
         if (allMethodNamesMapInvalidated) {
             synchronized (this) {
-                allMethodNamesMap = buildMethodNameMap(getMethods());
-                allMethodNamesMapInvalidated = false;
+                if (allMethodNamesMapInvalidated){
+                    allMethodNamesMap = buildMethodNameMap(getMethods());
+                    allMethodNamesMapInvalidated = false;
+                }
             }
         }
         List<IOpenMethod> found = allMethodNamesMap.get(name);
