@@ -1136,8 +1136,8 @@ public class ProjectModel {
             CachingArgumentsCloner.initInstance();
             runTest(testSuite, false);
         } finally {
-            CachingArgumentsCloner.removeInstance();
             Thread.currentThread().setContextClassLoader(currentContextClassLoader);
+            CachingArgumentsCloner.removeInstance();
         }
     }
 
