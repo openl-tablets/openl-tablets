@@ -551,28 +551,33 @@ public class XlsBinder implements IOpenBinder {
             return null;
         }
 
-        final ClassLoader userClassLoader = userContext.getUserClassLoader();
-        Thread.currentThread().setContextClassLoader(userClassLoader);
+        ClassLoader previous = Thread.currentThread().getContextClassLoader();
+        try {
+            final ClassLoader userClassLoader = userContext.getUserClassLoader();
+            Thread.currentThread().setContextClassLoader(userClassLoader);
 
-        IVocabulary vocabulary = (IVocabulary) userContext.execute(new IExecutable() {
+            IVocabulary vocabulary = (IVocabulary) userContext.execute(new IExecutable() {
 
-            public Object execute() {
+                public Object execute() {
 
-                String vocabularyClassName = vocabularyNode.getIdentifier();
+                    String vocabularyClassName = vocabularyNode.getIdentifier();
 
-                try {
-                    Class<?> vClass = userClassLoader.loadClass(vocabularyClassName);
+                    try {
+                        Class<?> vClass = userClassLoader.loadClass(vocabularyClassName);
 
-                    return vClass.newInstance();
-                } catch (Throwable t) {
-                    String message = String.format("Vocabulary type '%s' cannot be loaded", vocabularyClassName);
-                    BindHelper.processError(message, vocabularyNode, t);
+                        return vClass.newInstance();
+                    } catch (Throwable t) {
+                        String message = String.format("Vocabulary type '%s' cannot be loaded", vocabularyClassName);
+                        BindHelper.processError(message, vocabularyNode, t);
 
-                    return null;
+                        return null;
+                    }
                 }
-            }
-        });
-        return vocabulary;
+            });
+            return vocabulary;
+        } finally {
+            Thread.currentThread().setContextClassLoader(previous);
+        }
     }
 
     private IMemberBoundNode preBindXlsNode(ISyntaxNode syntaxNode,
