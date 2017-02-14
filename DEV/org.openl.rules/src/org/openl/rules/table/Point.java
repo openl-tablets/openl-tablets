@@ -42,13 +42,15 @@ public final class Point implements Serializable {
      
     }
     
-    private final int column;
-    private final int row;
+    private int column;
+    private int row;
 
     public Point(int column, int row) {
         this.column = column;
         this.row = row;
     }
+
+    public Point() {}
 
     public int getColumn() {
         return column;
