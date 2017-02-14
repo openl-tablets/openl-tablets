@@ -45,8 +45,9 @@ public abstract class RulesInstantiationStrategyDelegator implements RulesInstan
     }
 
     protected OpenLBundleClassLoader initClassLoader() throws RulesInstantiationException {
+        ClassLoader parentClassLoader = RulesInstantiationStrategyDelegator.class.getClassLoader();
+        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(parentClassLoader);
         ClassLoader originalClassLoader = getOriginalInstantiationStrategy().getClassLoader();
-        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader();
         classLoader.addClassLoader(originalClassLoader);
         try {
             Class<?> serviceClass = instantiationStrategy.getServiceClass();
