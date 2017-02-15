@@ -11,6 +11,7 @@ public final class Constants {
     public static final String ATTRIBUTE_EDITABLE = "editable";
     public static final String ATTRIBUTE_SHOW_FORMULAS = "showFormulas";
     public static final String ATTRIBUTE_COLLAPSE_PROPS = "collapseProps";
+    public static final String ATTRIBUTE_BEFORE_EDIT_ACTION = "beforeEditAction";
     public static final String ATTRIBUTE_BEFORE_SAVE_ACTION = "beforeSaveAction";
     public static final String ATTRIBUTE_AFTER_SAVE_ACTION = "afterSaveAction";
     public static final String ATTRIBUTE_ON_BEFORE_SAVE = "onBeforeSave";

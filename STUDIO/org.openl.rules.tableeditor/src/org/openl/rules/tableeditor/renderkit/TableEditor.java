@@ -26,6 +26,7 @@ public class TableEditor {
     private boolean showFormulas;
     private boolean collapseProps;
     private IGridFilter[] filters;
+    private String beforeEditAction;
     private String beforeSaveAction;
     private String afterSaveAction;
     private String onBeforeSave;
@@ -49,6 +50,7 @@ public class TableEditor {
         showFormulas = BooleanUtils.toBoolean(attributes.get(Constants.ATTRIBUTE_SHOW_FORMULAS));
         collapseProps = BooleanUtils.toBoolean(attributes.get(Constants.ATTRIBUTE_COLLAPSE_PROPS));
         castToFilters(component.getAttributes().get(Constants.ATTRIBUTE_FILTERS));
+        beforeEditAction = FacesUtils.getValueExpressionString(component, Constants.ATTRIBUTE_BEFORE_EDIT_ACTION);
         beforeSaveAction = FacesUtils.getValueExpressionString(component, Constants.ATTRIBUTE_BEFORE_SAVE_ACTION);
         afterSaveAction = FacesUtils.getValueExpressionString(component, Constants.ATTRIBUTE_AFTER_SAVE_ACTION);
         onBeforeSave = (String) attributes.get(Constants.ATTRIBUTE_ON_BEFORE_SAVE);
@@ -137,6 +139,14 @@ public class TableEditor {
 
     public void setFilters(IGridFilter[] filters) {
         this.filters = filters;
+    }
+
+    public String getBeforeEditAction() {
+        return beforeEditAction;
+    }
+
+    public void setBeforeEditAction(String beforeEditAction) {
+        this.beforeEditAction = beforeEditAction;
     }
 
     public String getBeforeSaveAction() {

@@ -15,10 +15,12 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.OpenLWarnMessage;
 import org.openl.message.Severity;
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.TableUriMethod;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
@@ -34,9 +36,14 @@ import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder
 import org.openl.rules.webstudio.web.test.TestDescriptionWithPreview;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenMethod;
 import org.openl.util.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Request scope managed bean for Table page.
@@ -44,6 +51,7 @@ import org.openl.util.CollectionUtils;
 @ManagedBean
 @RequestScoped
 public class TableBean {
+    private final Logger log = LoggerFactory.getLogger(TableBean.class);
 
     private IOpenMethod method;
 
@@ -378,6 +386,34 @@ public class TableBean {
             throw e.getCause();
         }
         return null;
+    }
+
+    public boolean beforeEditAction() {
+        final WebStudio studio = WebStudioUtils.getWebStudio();
+        RulesProject currentProject = studio.getCurrentProject();
+        if (currentProject != null) {
+            try {
+                if (currentProject.isLocked()) {
+                    return currentProject.isLockedByMe();
+                }
+                currentProject.lock(getUser());
+            } catch (ProjectException e) {
+                log.error(e.getMessage(), e);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private WorkspaceUserImpl getUser() {
+        String name = getUserName();
+        return new WorkspaceUserImpl(name);
+    }
+
+    private String getUserName() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth.getName();
     }
 
     public boolean beforeSaveAction() {

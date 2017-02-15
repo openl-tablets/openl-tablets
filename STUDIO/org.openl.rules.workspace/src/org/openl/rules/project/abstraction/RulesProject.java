@@ -1,5 +1,6 @@
 package org.openl.rules.project.abstraction;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,10 +10,10 @@ import java.util.List;
 import org.openl.rules.common.*;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.project.impl.local.LockEngine;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.workspace.dtr.impl.LockInfoImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.RuntimeExceptionWrapper;
 
@@ -22,6 +23,7 @@ public class RulesProject extends UserWorkspaceProject {
     private Repository designRepository;
     private String designFolderName;
     private List<FileData> historyFileDatas;
+    private final LockEngine lockEngine;
 
     public RulesProject(UserWorkspace userWorkspace,
             LocalRepository localRepository,
@@ -33,6 +35,9 @@ public class RulesProject extends UserWorkspaceProject {
         this.localFolderName = localFileData == null ? null : localFileData.getName();
         this.designRepository = designRepository;
         this.designFolderName = designFileData == null ? null : designFileData.getName();
+        File locksRoot = new File(userWorkspace.getLocalWorkspace().getLocation().getParentFile(), ".locks");
+        File projectLocksRoot = new File(locksRoot, "rules");
+        lockEngine = new LockEngine(projectLocksRoot);
     }
 
     @Override
@@ -109,18 +114,19 @@ public class RulesProject extends UserWorkspaceProject {
         setFileData(null);
     }
 
+    @Override
     public LockInfo getLockInfo() {
-        return LockInfoImpl.NO_LOCK;
+        return lockEngine.getLockInfo(getName());
     }
 
     @Override
     public void lock(CommonUser user) throws ProjectException {
-        // Do nothing
+        lockEngine.lock(getName(), user.getUserName());
     }
 
     @Override
     public void unlock(CommonUser user) throws ProjectException {
-        // Do nothing
+        lockEngine.unlock(getName());
     }
 
     public String getLockedUserName() {
