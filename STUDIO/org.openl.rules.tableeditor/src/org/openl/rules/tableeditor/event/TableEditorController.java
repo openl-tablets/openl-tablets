@@ -93,6 +93,14 @@ public class TableEditorController extends BaseTableEditorController {
     public String getCellEditor() {
         TableEditorModel editorModel = getEditorModel(getEditorId());
         if (editorModel != null) {
+            String beforeEditAction = editorModel.getBeforeEditAction();
+            if (beforeEditAction != null) {
+                boolean successful = (Boolean) FacesUtils.invokeMethodExpression(beforeEditAction);
+                if (!successful) {
+                    return "";
+                }
+            }
+
             ICell cell = editorModel.getOriginalGridTable().getCell(getCol(), getRow());
             ICellEditor editor = new CellEditorSelector().selectEditor(cell);
             EditorTypeResponse editorResponse = editor.getEditorTypeAndMetadata();

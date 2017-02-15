@@ -559,11 +559,12 @@
             </form>
 
             <rules:tableEditor id="t" table="#{tableBean.table}" view="#{studio.tableView}" rowIndex="#{tableBean.rowIndex}"
-                linkBuilder="#{studio.linkBuilder}" mode="#{tableBean.mode}" editable="#{tableBean.canEdit}"
-                showFormulas="#{studio.showFormulas}"
-                beforeSaveAction="#{tableBean.beforeSaveAction}" afterSaveAction="#{tableBean.afterSaveAction}"
-                onBeforeSave="javascript:onBeforeSave();" onAfterSave="javascript:onAfterSave(data);"
-                onError="javascript:onError(data);" excludeScripts="prototype">
+                               linkBuilder="#{studio.linkBuilder}" mode="#{tableBean.mode}" editable="#{tableBean.canEdit}"
+                               showFormulas="#{studio.showFormulas}"
+                               beforeEditAction="#{tableBean.beforeEditAction}"
+                               beforeSaveAction="#{tableBean.beforeSaveAction}" afterSaveAction="#{tableBean.afterSaveAction}"
+                               onBeforeSave="javascript:onBeforeSave();" onAfterSave="javascript:onAfterSave(data);"
+                               onError="javascript:onError(data);" excludeScripts="prototype">
 
                 <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)"
                     rendered="#{tableBean.canEdit}">Edit in Excel</h:outputLink>

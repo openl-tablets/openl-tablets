@@ -630,7 +630,7 @@ public class ProjectModel {
             RulesProject project = getProject();
 
             if (project != null) {
-                return project.isLocalOnly() || project.isOpenedForEditing();
+                return project.isLocalOnly() || !project.isLocked() || project.isOpenedForEditing();
             }
         }
         return false;

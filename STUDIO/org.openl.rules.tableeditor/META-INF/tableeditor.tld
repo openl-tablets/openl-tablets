@@ -157,6 +157,13 @@
             </deferred-value>
         </attribute>
         <attribute>
+            <description>Before Edit action.</description>
+            <name>beforeEditAction</name>
+            <deferred-method>
+                <method-signature>boolean beforeEditAction()</method-signature>
+            </deferred-method>
+        </attribute>
+        <attribute>
             <description>Before Save action.</description>
             <name>beforeSaveAction</name>
             <deferred-method>

@@ -10,6 +10,7 @@ public class TableEditorTag extends TableViewerTag {
 
     private ValueExpression mode = null;
     private ValueExpression editable = null;
+    private MethodExpression beforeEditAction = null;
     private MethodExpression beforeSaveAction = null;
     private MethodExpression afterSaveAction = null;
     private ValueExpression onBeforeSave = null;
@@ -27,6 +28,10 @@ public class TableEditorTag extends TableViewerTag {
 
     public void setEditable(ValueExpression editable) {
         this.editable = editable;
+    }
+
+    public void setBeforeEditAction(MethodExpression beforeEditAction) {
+        this.beforeEditAction = beforeEditAction;
     }
 
     public void setBeforeSaveAction(MethodExpression beforeSaveAction) {
@@ -64,6 +69,7 @@ public class TableEditorTag extends TableViewerTag {
         super.setProperties(component);
         component.setValueExpression(Constants.ATTRIBUTE_MODE, mode);
         component.setValueExpression(Constants.ATTRIBUTE_EDITABLE, editable);
+        component.getAttributes().put(Constants.ATTRIBUTE_BEFORE_EDIT_ACTION, beforeEditAction);
         component.getAttributes().put(Constants.ATTRIBUTE_BEFORE_SAVE_ACTION, beforeSaveAction);
         component.getAttributes().put(Constants.ATTRIBUTE_AFTER_SAVE_ACTION, afterSaveAction);
         component.setValueExpression(Constants.ATTRIBUTE_ON_BEFORE_SAVE, onBeforeSave);
@@ -77,6 +83,7 @@ public class TableEditorTag extends TableViewerTag {
         super.release();
         mode = null;
         editable = null;
+        beforeEditAction = null;
         beforeSaveAction = null;
         afterSaveAction = null;
     }

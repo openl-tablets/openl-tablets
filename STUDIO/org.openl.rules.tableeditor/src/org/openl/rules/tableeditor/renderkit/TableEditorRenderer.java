@@ -12,6 +12,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.ActionLink;
 
@@ -34,7 +35,25 @@ public class TableEditorRenderer extends TableViewerRenderer {
         if (tableEditor.isEditable()) {
             initEditorModel(externalContext, tableEditor);
         }
+        beforeRender(tableEditor);
         writer.write(new HTMLRenderer().render(tableEditor, cellToEdit, actionLinks, errorCell));
+    }
+
+    private void beforeRender(TableEditor editor) {
+        String mode = editor.getMode();
+        boolean editing = Constants.MODE_EDIT.equals(mode);
+
+        String action = editor.getBeforeEditAction();
+        if (action != null) {
+            if (editing) {
+                Boolean successful = (Boolean) FacesUtils.invokeMethodExpression(action);
+
+                if (!successful) {
+                    editor.setEditable(false);
+                    editor.setMode(Constants.MODE_VIEW);
+                }
+            }
+        }
     }
 
     private List<ActionLink> getActionLinks(UIComponent component) {
@@ -80,6 +99,7 @@ public class TableEditorRenderer extends TableViewerRenderer {
             }
             editorModel = new TableEditorModel(tableEditor);
             editorModel.setCollapseProps(tableEditor.isCollapseProps());
+            editorModel.setBeforeEditAction(tableEditor.getBeforeEditAction());
             editorModel.setBeforeSaveAction(tableEditor.getBeforeSaveAction());
             editorModel.setAfterSaveAction(tableEditor.getAfterSaveAction());
             editorModelMap.put(tableEditor.getId(), editorModel);
