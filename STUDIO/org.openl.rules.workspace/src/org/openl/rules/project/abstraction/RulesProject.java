@@ -254,7 +254,7 @@ public class RulesProject extends UserWorkspaceProject {
 
     // Is Opened for Editing by me? -- in LW + locked by me
     public boolean isOpenedForEditing() {
-        return !isLocalOnly() && isLockedByMe() && !isRepositoryOnly();
+        return !isLocalOnly() && super.isOpenedForEditing() && !isRepositoryOnly();
     }
 
     @Override
