@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -19,8 +18,8 @@ import org.openl.util.IOUtils;
 public class LockEngine {
     private static final String USER_NAME = "user";
     private static final String DATE = "date";
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
     private final File locksRoot;
-    private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     public LockEngine(File locksRoot) {
         this.locksRoot = locksRoot;
@@ -29,7 +28,7 @@ public class LockEngine {
     public void lock(String projectName, String userName) throws ProjectException {
         Properties properties = new Properties();
         properties.setProperty(USER_NAME, userName);
-        properties.setProperty(DATE, dateFormat.format(new Date()));
+        properties.setProperty(DATE, new SimpleDateFormat(DATE_FORMAT).format(new Date()));
 
         if (!locksRoot.mkdirs() && !locksRoot.exists()) {
             throw new IllegalStateException("Can't create a folder for locks");
@@ -66,7 +65,7 @@ public class LockEngine {
             is = new FileInputStream(file);
             properties.load(is);
             final String userName = properties.getProperty(USER_NAME);
-            final Date date = dateFormat.parse(properties.getProperty(DATE));
+            final Date date = new SimpleDateFormat(DATE_FORMAT).parse(properties.getProperty(DATE));
 
             return new SimpleLockInfo(true, date, userName);
         } catch (IOException e) {
