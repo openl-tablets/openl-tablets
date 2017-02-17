@@ -730,7 +730,7 @@ public class RepositoryTreeController {
     public String unlockNode() {
         AProjectArtefact projectArtefact = repositoryTreeState.getSelectedNode().getData();
         try {
-            projectArtefact.unlock(userWorkspace.getUser());
+            projectArtefact.unlock();
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
 
@@ -748,7 +748,7 @@ public class RepositoryTreeController {
 
         try {
             RulesProject project = userWorkspace.getProject(projectName);
-            project.unlock(userWorkspace.getUser());
+            project.unlock();
             resetStudioModel();
         } catch (ProjectException e) {
             log.error("Cannot unlock rules project '{}'.", projectName, e);
@@ -762,7 +762,7 @@ public class RepositoryTreeController {
 
         try {
             ADeploymentProject deploymentProject = userWorkspace.getDDProject(deploymentProjectName);
-            deploymentProject.unlock(userWorkspace.getUser());
+            deploymentProject.unlock();
             resetStudioModel();
         } catch (ProjectException e) {
             log.error("Cannot unlock deployment project '{}'.", deploymentProjectName, e);

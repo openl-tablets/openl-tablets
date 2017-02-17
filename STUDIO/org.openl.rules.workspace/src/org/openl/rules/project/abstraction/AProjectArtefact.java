@@ -195,7 +195,7 @@ public class AProjectArtefact implements PropertiesContainer {
         // Do  nothing
     }
 
-    public void unlock(CommonUser user) throws ProjectException {
+    public void unlock() throws ProjectException {
         // Do  nothing
     }
 

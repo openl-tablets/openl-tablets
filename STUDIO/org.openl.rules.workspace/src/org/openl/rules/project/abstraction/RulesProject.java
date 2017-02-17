@@ -47,7 +47,7 @@ public class RulesProject extends UserWorkspaceProject {
         designProject.getFileData().setComment(getFileData().getComment());
         designProject.update(localProject, user);
         setHistoryVersion(designProject.getFileData().getVersion());
-        unlock(user);
+        unlock();
         refresh();
     }
 
@@ -66,7 +66,7 @@ public class RulesProject extends UserWorkspaceProject {
                 deleteFromLocalRepository();
             }
             if (isLockedByUser(user)) {
-                unlock(user);
+                unlock();
             }
             if (!isLocalOnly()) {
                 setRepository(designRepository);
@@ -125,7 +125,7 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     @Override
-    public void unlock(CommonUser user) throws ProjectException {
+    public void unlock() throws ProjectException {
         lockEngine.unlock(getName());
     }
 
