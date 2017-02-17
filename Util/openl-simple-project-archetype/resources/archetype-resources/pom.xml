@@ -22,7 +22,18 @@
             <artifactId>org.openl.rules</artifactId>
             <version>${symbol_dollar}{org.openl.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.project</artifactId>
+            <version>${symbol_dollar}{org.openl.version}</version>
+        </dependency>
         <!-- The dependency for runtime -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>runtime</scope>
+            <version>1.7.21</version>
+        </dependency>
         <!--
         <dependency>
             <groupId>com.example</groupId>
