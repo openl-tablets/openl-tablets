@@ -11,10 +11,12 @@ import java.util.zip.ZipOutputStream;
 import org.openl.rules.common.*;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
+import org.openl.rules.project.impl.local.LockEngine;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
+import org.openl.rules.workspace.dtr.impl.LockInfoImpl;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,17 +33,25 @@ public class ADeploymentProject extends UserWorkspaceProject {
     /* this button is used for rendering the save button (only for deploy configuration)*/
     private boolean modifiedDescriptors = false;
 
+    private final LockEngine lockEngine;
+
     // TODO Remove this constructor in the future. Always pass user to deployment
     public ADeploymentProject(Repository repository, String folderPath, String version) {
-        this(null, repository, folderPath, version);
+        this(null, repository, folderPath, version, null);
     }
 
-    public ADeploymentProject(WorkspaceUser user, Repository repository, String folderPath, String version) {
+    public ADeploymentProject(WorkspaceUser user,
+            Repository repository,
+            String folderPath,
+            String version,
+            LockEngine lockEngine) {
         super(user, repository, folderPath, version, false);
+        this.lockEngine = lockEngine;
     }
 
     public ADeploymentProject(WorkspaceUser user, Repository repository, FileData fileData) {
         super(user, repository, fileData, false);
+        lockEngine = null;
     }
 
     @Override
@@ -83,7 +93,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
 
     public void openVersion(String version) throws ProjectException {
         modifiedDescriptors = false;
-        openedVersion = new ADeploymentProject(getUser(), getRepository(), getFolderPath(), version);
+        openedVersion = new ADeploymentProject(getUser(), getRepository(), getFolderPath(), version, lockEngine);
         openedVersion.setHistoryVersion(version);
         setHistoryVersion(version);
         refresh();
@@ -91,6 +101,9 @@ public class ADeploymentProject extends UserWorkspaceProject {
 
     @Override
     public void close(CommonUser user) throws ProjectException {
+        if (isLockedByUser(user)) {
+            unlock();
+        }
         modifiedDescriptors = false;
         super.close(user);
         openedVersion = null;
@@ -145,6 +158,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
 
         modifiedDescriptors = false;
         open();
+        unlock();
     }
 
     public void removeProjectDescriptor(String name) throws ProjectException {
@@ -164,10 +178,34 @@ public class ADeploymentProject extends UserWorkspaceProject {
     }
 
     public void setProjectDescriptors(Collection<ProjectDescriptor> projectDescriptors) throws ProjectException {
+        lock();
+
         getDescriptors().clear();
         getDescriptors().addAll(projectDescriptors);
 
         modifiedDescriptors = true;
+    }
+
+    @Override
+    public LockInfo getLockInfo() {
+        if (lockEngine == null) {
+            return LockInfoImpl.NO_LOCK;
+        }
+        return lockEngine.getLockInfo(getName());
+    }
+
+    @Override
+    public void lock() throws ProjectException {
+        if (lockEngine != null) {
+            lockEngine.lock(getName());
+        }
+    }
+
+    @Override
+    public void unlock() {
+        if (lockEngine != null) {
+            lockEngine.unlock(getName());
+        }
     }
 
     @Override
