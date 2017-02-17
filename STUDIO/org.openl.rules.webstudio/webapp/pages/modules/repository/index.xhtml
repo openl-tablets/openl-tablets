@@ -43,11 +43,11 @@
         <ui:include src="/pages/modules/repository/modal/exportFile.xhtml" />
         <ui:include src="/pages/modules/repository/modal/copyFile.xhtml" />
 
+        <ui:include src="/pages/modules/repository/modal/closeDeployConfiguration.xhtml" />
+        <ui:include src="/pages/modules/repository/modal/selectProductionRepository.xhtml" />
         <h:panelGroup id="specialDeployForms" layout="block" >
             <h:panelGroup layout="block" rendered="#{node.type == 'deployment'}">
-                <ui:include src="/pages/modules/repository/modal/closeDeployConfiguration.xhtml" />
                 <ui:include src="/pages/modules/repository/modal/addDeploymentItem.xhtml" />
-                <ui:include src="/pages/modules/repository/modal/selectProductionRepository.xhtml" />
             </h:panelGroup>
         </h:panelGroup>
     </ui:define>
