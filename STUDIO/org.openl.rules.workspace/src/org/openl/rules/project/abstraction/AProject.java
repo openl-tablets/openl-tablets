@@ -97,6 +97,7 @@ public class AProject extends AProjectFolder {
                 artefact.delete();
             }
         } else {
+            unlock();
             close(null);
             FileData fileData = getFileData();
             if (!getRepository().delete(fileData)) {
@@ -111,7 +112,8 @@ public class AProject extends AProjectFolder {
             throw new ProjectException("Project ''{0}'' is already marked for deletion!", null, getName());
         }
 
-        close(null);
+        unlock();
+        close(user);
         FileData fileData = getFileData();
         if (!getRepository().delete(fileData)) {
             throw new ProjectException("Resource is absent or can't be deleted");
