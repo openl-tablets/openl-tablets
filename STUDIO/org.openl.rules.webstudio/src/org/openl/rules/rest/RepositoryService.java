@@ -137,7 +137,7 @@ public class RepositoryService {
                 String lockedBy = project.getLockInfo().getLockedBy().getUserName();
                 return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
             }
-            project.lock(getUser());
+            project.lock();
 
             FileData data = new FileData();
             data.setName(getFileName(name));
@@ -173,7 +173,7 @@ public class RepositoryService {
             String lockedBy = project.getLockInfo().getLockedBy().getUserName();
             return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
         }
-        project.lock(getUser());
+        project.lock();
         return Response.ok().build();
     }
 

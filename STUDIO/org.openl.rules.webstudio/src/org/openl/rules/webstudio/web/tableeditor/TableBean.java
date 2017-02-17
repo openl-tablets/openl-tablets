@@ -36,14 +36,11 @@ import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder
 import org.openl.rules.webstudio.web.test.TestDescriptionWithPreview;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenMethod;
 import org.openl.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Request scope managed bean for Table page.
@@ -396,7 +393,7 @@ public class TableBean {
                 if (currentProject.isLocked()) {
                     return currentProject.isLockedByMe();
                 }
-                currentProject.lock(getUser());
+                currentProject.lock();
             } catch (ProjectException e) {
                 log.error(e.getMessage(), e);
                 return false;
@@ -404,16 +401,6 @@ public class TableBean {
         }
 
         return true;
-    }
-
-    private WorkspaceUserImpl getUser() {
-        String name = getUserName();
-        return new WorkspaceUserImpl(name);
-    }
-
-    private String getUserName() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return auth.getName();
     }
 
     public boolean beforeSaveAction() {
