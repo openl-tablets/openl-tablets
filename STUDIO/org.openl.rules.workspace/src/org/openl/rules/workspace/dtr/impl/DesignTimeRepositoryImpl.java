@@ -99,7 +99,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     public void copyDDProject(ADeploymentProject project, String name, WorkspaceUser user)
             throws ProjectException {
-        ADeploymentProject newProject = new ADeploymentProject(null,
+        ADeploymentProject newProject = new ADeploymentProject(
                 getRepository(),
                 deploymentConfigurationLocation + "/" + name,
                 null);
@@ -128,7 +128,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     public ADeploymentProject createDDProject(String name) throws RepositoryException {
-        return new ADeploymentProject(null, getRepository(), deploymentConfigurationLocation + "/" + name, null);
+        return new ADeploymentProject(getRepository(), deploymentConfigurationLocation + "/" + name, null);
     }
 
     public AProject createProject(String name) throws RepositoryException {
@@ -144,11 +144,11 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     public ADeploymentProject getDDProject(String name) throws RepositoryException {
-        return new ADeploymentProject(null, getRepository(), deploymentConfigurationLocation + "/" + name, null);
+        return new ADeploymentProject(getRepository(), deploymentConfigurationLocation + "/" + name, null);
     }
 
     public ADeploymentProject getDDProject(String name, CommonVersion version) throws RepositoryException {
-        return new ADeploymentProject(null, getRepository(), deploymentConfigurationLocation + "/" + name, version.getVersionName());
+        return new ADeploymentProject(getRepository(), deploymentConfigurationLocation + "/" + name, version.getVersionName());
     }
 
     public List<ADeploymentProject> getDDProjects() throws RepositoryException {
