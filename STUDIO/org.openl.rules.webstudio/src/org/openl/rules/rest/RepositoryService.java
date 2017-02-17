@@ -196,7 +196,7 @@ public class RepositoryService {
             String lockedBy = project.getLockInfo().getLockedBy().getUserName();
             return Response.status(Status.FORBIDDEN).entity("Locked by '" + lockedBy + "'").build();
         }
-        project.unlock(getUser());
+        project.unlock();
         return Response.ok().build();
     }
 
