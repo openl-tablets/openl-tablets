@@ -45,6 +45,8 @@ public class AProjectFolder extends AProjectArtefact {
     }
 
     public void deleteArtefact(String name) throws ProjectException {
+        getProject().lock();
+
         getArtefact(name).delete();
         getArtefactsInternal().remove(name);
     }
