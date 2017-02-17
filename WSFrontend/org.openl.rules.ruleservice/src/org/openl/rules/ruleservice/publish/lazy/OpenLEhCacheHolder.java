@@ -2,15 +2,11 @@ package org.openl.rules.ruleservice.publish.lazy;
 
 import java.io.IOException;
 
-import org.ehcache.Cache;
-import org.ehcache.CacheManager;
-import org.ehcache.config.Configuration;
-import org.ehcache.core.EhcacheManager;
-import org.ehcache.xml.XmlConfiguration;
-import org.openl.CompiledOpenClass;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
 
 public class OpenLEhCacheHolder {
 
@@ -18,8 +14,8 @@ public class OpenLEhCacheHolder {
     private static final String CACHE_NAME = "modulesCache";
     private static final String OPENL_EHCACHE_FILE_NAME = "openl-ehcache.xml";
 
-    private volatile Cache<Key, CompiledOpenClass> lazyModulesCache = null;
-    private volatile Cache<Key, CompiledOpenClass> modulesCache = null;
+    private volatile Cache lazyModulesCache = null;
+    private volatile Cache modulesCache = null;
 
     private static class OpenLEhCacheHolderHolder {
         public static final OpenLEhCacheHolder INSTANCE = new OpenLEhCacheHolder();
@@ -34,13 +30,13 @@ public class OpenLEhCacheHolder {
         return OpenLEhCacheHolderHolder.INSTANCE;
     }
 
-    public Cache<Key, CompiledOpenClass> getModulesCache() {
+    public Cache getModulesCache() {
         if (modulesCache == null) {
             synchronized (this) {
                 if (modulesCache == null) {
                     try {
                         CacheManager cacheManager = getCacheManager();
-                        modulesCache = cacheManager.getCache(CACHE_NAME, Key.class, CompiledOpenClass.class);
+                        modulesCache = cacheManager.getCache(CACHE_NAME);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -50,13 +46,13 @@ public class OpenLEhCacheHolder {
         return modulesCache;
     }
     
-    public Cache<Key, CompiledOpenClass> getLazyModulesCache() {
+    public Cache getLazyModulesCache() {
         if (lazyModulesCache == null) {
             synchronized (this) {
                 if (lazyModulesCache == null) {
                     try {
                         CacheManager cacheManager = getCacheManager();
-                        lazyModulesCache = cacheManager.getCache(LAZY_CACHE_NAME, Key.class, CompiledOpenClass.class);
+                        lazyModulesCache = cacheManager.getCache(LAZY_CACHE_NAME);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -83,12 +79,9 @@ public class OpenLEhCacheHolder {
             if (resources != null && resources.length > 1) {
                 throw new IllegalStateException("Multiple " + OPENL_EHCACHE_FILE_NAME + " found in classpath!");
             }
-            Configuration config = new XmlConfiguration(resources[0].getURL());
-            config.getCacheConfigurations().get(LAZY_CACHE_NAME);
-            cacheManager = new EhcacheManager(config);
-            cacheManager.init();
+            cacheManager = new CacheManager(resources[0].getURL());
         }
         return cacheManager;
     }
-    
+
 }
