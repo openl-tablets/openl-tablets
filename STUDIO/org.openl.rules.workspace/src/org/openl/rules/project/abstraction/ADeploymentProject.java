@@ -31,6 +31,11 @@ public class ADeploymentProject extends UserWorkspaceProject {
     /* this button is used for rendering the save button (only for deploy configuration)*/
     private boolean modifiedDescriptors = false;
 
+    // TODO Remove this constructor in the future. Always pass user to deployment
+    public ADeploymentProject(Repository repository, String folderPath, String version) {
+        this(null, repository, folderPath, version);
+    }
+
     public ADeploymentProject(WorkspaceUser user, Repository repository, String folderPath, String version) {
         super(user, repository, folderPath, version, false);
     }
