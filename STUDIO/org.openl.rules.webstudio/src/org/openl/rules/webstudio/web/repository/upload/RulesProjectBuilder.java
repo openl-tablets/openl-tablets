@@ -1,18 +1,19 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
+import java.io.File;
+import java.io.InputStream;
+
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.impl.local.LockEngine;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
 
 public class RulesProjectBuilder {
     private final Logger log = LoggerFactory.getLogger(RulesProjectBuilder.class);
@@ -22,8 +23,11 @@ public class RulesProjectBuilder {
     public RulesProjectBuilder(UserWorkspace workspace, String projectName) throws ProjectException {
         this.workspace = workspace;
         synchronized (this.workspace) {
+            // TODO: workspace.createProject() should return RulesProject instance initialized with LockEngine
             AProject createdProject = workspace.createProject(projectName);
-            project = new RulesProject(workspace, workspace.getLocalWorkspace().getRepository(), null, createdProject.getRepository(), createdProject.getFileData());
+            File workspacesRoot = workspace.getLocalWorkspace().getLocation().getParentFile();
+            LockEngine lockEngine = LockEngine.create(workspacesRoot, "rules", workspace.getUser().getUserName());
+            project = new RulesProject(workspace, workspace.getLocalWorkspace().getRepository(), null, createdProject.getRepository(), createdProject.getFileData(), lockEngine);
         }
         project.open();
     }

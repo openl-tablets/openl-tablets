@@ -1,5 +1,6 @@
 package org.openl.rules.workspace.uw.impl;
 
+import java.io.File;
 import java.util.*;
 
 import org.openl.rules.common.ArtefactPath;
@@ -38,6 +39,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private boolean deploymentsRefreshNeeded = true;
 
     private final List<UserWorkspaceListener> listeners = new ArrayList<UserWorkspaceListener>();
+    private final LockEngine projectsLockEngine;
     private final LockEngine deploymentsLockEngine;
 
     public UserWorkspaceImpl(WorkspaceUser user, LocalWorkspace localWorkspace,
@@ -48,7 +50,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
         userRulesProjects = new HashMap<String, RulesProject>();
         userDProjects = new HashMap<String, ADeploymentProject>();
-        deploymentsLockEngine = LockEngine.create(localWorkspace.getLocation().getParentFile(), "deployments", user.getUserName());
+        File workspacesRoot = localWorkspace.getLocation().getParentFile();
+        String userName = user.getUserName();
+        projectsLockEngine = LockEngine.create(workspacesRoot, "rules", userName);
+        deploymentsLockEngine = LockEngine.create(workspacesRoot, "deployments", userName);
     }
 
     public void activate() throws ProjectException {
@@ -313,13 +318,13 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 if (uwp == null) {
                     // TODO:refactor
                     if (lp == null) {
-                        uwp = new RulesProject(this, localRepository, null, designRepository, rp.getFileData());
+                        uwp = new RulesProject(this, localRepository, null, designRepository, rp.getFileData(), projectsLockEngine);
                     } else {
-                        uwp = new RulesProject(this, localRepository, lp.getFileData(), designRepository, rp.getFileData());
+                        uwp = new RulesProject(this, localRepository, lp.getFileData(), designRepository, rp.getFileData(), projectsLockEngine);
                     }
                     userRulesProjects.put(name, uwp);
                 } else if ((uwp.isLocalOnly() || uwp.isRepositoryOnly()) && lp != null) {
-                    userRulesProjects.put(name, new RulesProject(this, localRepository, lp.getFileData(), designRepository, rp.getFileData()));
+                    userRulesProjects.put(name, new RulesProject(this, localRepository, lp.getFileData(), designRepository, rp.getFileData(), projectsLockEngine));
                 } else {
                     uwp.refresh();
                 }
@@ -331,7 +336,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 String name = lp.getName();
 
                 if (!designTimeRepository.hasProject(name)) {
-                    userRulesProjects.put(name, new RulesProject(this, localRepository, lp.getFileData(), null, null));
+                    userRulesProjects.put(name, new RulesProject(this, localRepository, lp.getFileData(), null, null, projectsLockEngine));
                 }
             }
 

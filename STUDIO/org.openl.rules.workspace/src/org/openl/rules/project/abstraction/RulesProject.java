@@ -28,15 +28,14 @@ public class RulesProject extends UserWorkspaceProject {
     public RulesProject(UserWorkspace userWorkspace,
             LocalRepository localRepository,
             FileData localFileData,
-            Repository designRepository, FileData designFileData) {
+            Repository designRepository, FileData designFileData, LockEngine lockEngine) {
         super(userWorkspace.getUser(), localFileData != null ? localRepository : designRepository,
                 localFileData != null ? localFileData : designFileData, localFileData != null);
         this.localRepository = localRepository;
         this.localFolderName = localFileData == null ? null : localFileData.getName();
         this.designRepository = designRepository;
         this.designFolderName = designFileData == null ? null : designFileData.getName();
-        File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
-        lockEngine = LockEngine.create(workspacesRoot, "rules", userWorkspace.getUser().getUserName());
+        this.lockEngine = lockEngine;
     }
 
     @Override
