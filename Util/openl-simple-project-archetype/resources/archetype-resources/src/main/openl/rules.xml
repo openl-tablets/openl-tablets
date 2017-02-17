@@ -3,7 +3,7 @@
   <modules>
     <module>
       <name>Template Rules</name>
-      <rules-root path="rules/TemplateRules.xls"/>
+      <rules-root path="rules/TemplateRules.xlsx"/>
     </module>
   </modules>
   <classpath>
