@@ -171,8 +171,11 @@ public class JavaInterfaceGenerator {
             boolean ignoreTestMethods) {
         if (ignoreTestMethods && field instanceof DataOpenField) {
             ITable table = ((DataOpenField) field).getTable();
-            if (table != null && table.getTableSyntaxNode().getType().equals(XlsNodeTypes.XLS_TEST_METHOD.toString())) {
-                return false;
+            if (table != null) {
+                String type = table.getTableSyntaxNode().getType();
+                if (type.equals(XlsNodeTypes.XLS_TEST_METHOD.toString()) || type.equals(XlsNodeTypes.XLS_RUN_METHOD.toString())) {
+                    return false;
+                }
             }
         }
         if (fieldToGenerate != null && !ArrayTool.contains(fieldToGenerate, field.getName())) {
