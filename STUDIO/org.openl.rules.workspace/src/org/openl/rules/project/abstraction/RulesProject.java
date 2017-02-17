@@ -35,9 +35,8 @@ public class RulesProject extends UserWorkspaceProject {
         this.localFolderName = localFileData == null ? null : localFileData.getName();
         this.designRepository = designRepository;
         this.designFolderName = designFileData == null ? null : designFileData.getName();
-        File locksRoot = new File(userWorkspace.getLocalWorkspace().getLocation().getParentFile(), ".locks");
-        File projectLocksRoot = new File(locksRoot, "rules");
-        lockEngine = new LockEngine(projectLocksRoot);
+        File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
+        lockEngine = LockEngine.create(workspacesRoot, "rules", userWorkspace.getUser().getUserName());
     }
 
     @Override
@@ -121,8 +120,8 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     @Override
-    public void lock(CommonUser user) throws ProjectException {
-        lockEngine.lock(getName(), user.getUserName());
+    public void lock() throws ProjectException {
+        lockEngine.lock(getName());
     }
 
     @Override
