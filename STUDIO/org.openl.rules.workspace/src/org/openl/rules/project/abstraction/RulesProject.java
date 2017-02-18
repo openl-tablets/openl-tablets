@@ -1,6 +1,5 @@
 package org.openl.rules.project.abstraction;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openl.rules.common.*;
+import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.LockEngine;
@@ -272,6 +272,16 @@ public class RulesProject extends UserWorkspaceProject {
         super.setHistoryVersion(historyVersion);
         if (isOpened()) {
             localRepository.getProjectState(localFolderName).setProjectVersion(historyVersion);
+        }
+    }
+
+    @Override
+    public ArtefactPath getArtefactPath() {
+        // Return artefact name inside the project including project name. In the case of project it's just project name.
+        if (isOpened()) {
+            return super.getArtefactPath();
+        } else {
+            return new ArtefactPathImpl(getName());
         }
     }
 }
