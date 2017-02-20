@@ -69,7 +69,9 @@
                            type="button" onclick="openOpenVersionDialog()" title="#{openVersionMessage}">
               <f:ajax listener="#{repositoryTreeController.openVersionDialogListener}" render=":openVersionForm"/>
           </h:commandButton>
+            <!-- We don't need forms validation when we are closing the project. So use immediate="true" to bypass validation -->
           <h:commandButton id="closeId1" rendered="#{repositoryTreeState.canClose}" value="Close" action="#{repositoryTreeController.closeProject}" title="#{closeMessage}"
+                           immediate="true"
                            onclick="#{repositoryTreeController.hasDependingProjects || repositoryTreeState.selectedProjectModified ? rich:component('modalCloseProject').concat('.show();return false;') : ''}"/>
         </h:panelGroup>
 
