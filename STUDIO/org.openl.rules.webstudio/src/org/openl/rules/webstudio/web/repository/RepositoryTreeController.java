@@ -214,12 +214,8 @@ public class RepositoryTreeController {
 
     public String closeProject() {
         try {
-            RulesProject studioProject = studio.getModel().getProject();
             UserWorkspaceProject repositoryProject = repositoryTreeState.getSelectedProject();
-            if (studioProject != null && repositoryProject.getFolderPath().equals(studioProject.getFolderPath())) {
-                studio.getModel().clearModuleInfo();
-            }
-            repositoryProject.close();
+            closeProjectAndReleaseResources(repositoryProject);
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
         } catch (Exception e) {
@@ -1106,11 +1102,13 @@ public class RepositoryTreeController {
 
     public String openProjectVersion() {
         try {
-            if (repositoryTreeState.getSelectedProject().isOpenedForEditing()) {
-                repositoryTreeState.getSelectedProject().close();
+            UserWorkspaceProject repositoryProject = repositoryTreeState.getSelectedProject();
+
+            if (repositoryProject.isOpenedForEditing()) {
+                closeProjectAndReleaseResources(repositoryProject);
             }
 
-            repositoryTreeState.getSelectedProject().openVersion(version);
+            repositoryProject.openVersion(version);
             openDependenciesIfNeeded();
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
@@ -1120,6 +1118,14 @@ public class RepositoryTreeController {
             FacesUtils.addErrorMessage(msg, e.getMessage());
         }
         return null;
+    }
+
+    private void closeProjectAndReleaseResources(UserWorkspaceProject repositoryProject) throws ProjectException {
+        RulesProject studioProject = studio.getModel().getProject();
+        if (studioProject != null && repositoryProject.getFolderPath().equals(studioProject.getFolderPath())) {
+            studio.getModel().clearModuleInfo();
+        }
+        repositoryProject.close();
     }
 
     public String openProjectVersion(String version) {
