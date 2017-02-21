@@ -180,6 +180,6 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         //TODO: Fix it. There should be no error messages
         List<OpenLMessage> messages = getCompiledOpenClass().getMessages();
         assertEquals(1, messages.size());
-        assertEquals("Cannot parse cell value '1 < 2'", messages.get(0).getSummary());
+        assertEquals("Cannot parse cell value '1 < 2'. Expected value of type 'ClassForStringConstructorLoadingTests'.", messages.get(0).getSummary());
     }
 }

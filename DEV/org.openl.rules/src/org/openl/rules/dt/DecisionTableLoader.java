@@ -113,9 +113,9 @@ public class DecisionTableLoader {
         // add virtual headers to the table body.
         //
         try {
-            tableBody = preprocessSimpleDecisionTable(tableSyntaxNode, decisionTable, tableBody);
+            tableBody = preprocessSimpleDecisionTable(tableSyntaxNode, decisionTable, tableBody, bindingContext);
         } catch (OpenLCompilationException e) {
-            throw SyntaxNodeExceptionUtils.createError("Cannot create a header for a Simple Rules or Lookup Table", e, tableSyntaxNode);
+            throw SyntaxNodeExceptionUtils.createError("Can't create a header for a Simple Rules or Lookup Table", e, tableSyntaxNode);
         }
 
         ILogicalTable toParse = tableBody;
@@ -135,7 +135,7 @@ public class DecisionTableLoader {
                 info = new DTInfo(nHConditions, nVConditions, dtlc.getScale());
                 
             } catch (Exception e) {
-                throw SyntaxNodeExceptionUtils.createError("Cannot convert table", e, tableSyntaxNode);
+                throw SyntaxNodeExceptionUtils.createError("Can't convert table", e, tableSyntaxNode);
             }
 
         } else if (DecisionTableHelper.looksLikeVertical(tableBody)) {
@@ -189,7 +189,7 @@ public class DecisionTableLoader {
     private void putTableForBusinessView(TableSyntaxNode tableSyntaxNode) {
         ILogicalTable tableBody = tableSyntaxNode.getTableBody();
         
-        if (DecisionTableHelper.isSimpleDecisionTable(tableSyntaxNode) || DecisionTableHelper.isSimpleLookupTable(tableSyntaxNode)) {
+        if (DecisionTableHelper.isSimpleDecisionTableOrSmartDecisionTable(tableSyntaxNode) || DecisionTableHelper.isSimpleLookupTable(tableSyntaxNode)) {
             // if DT is simple, its body doesn`t contain conditions and return headers.
             // so put the body as it is.
             tableSyntaxNode.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
@@ -219,13 +219,13 @@ public class DecisionTableLoader {
      * @return table body with added conditions and return headers.
      */
     private ILogicalTable preprocessSimpleDecisionTable(TableSyntaxNode tableSyntaxNode, DecisionTable decisionTable,
-            ILogicalTable tableBody) throws OpenLCompilationException {
+            ILogicalTable tableBody, IBindingContext bindingContext) throws OpenLCompilationException {
         
-        if (DecisionTableHelper.isSimpleDecisionTable(tableSyntaxNode)) {
-            tableBody = DecisionTableHelper.preprocessSimpleDecisionTable(decisionTable, tableBody, 0);
+        if (DecisionTableHelper.isSimpleDecisionTableOrSmartDecisionTable(tableSyntaxNode)) {
+            tableBody = DecisionTableHelper.preprocessSimpleDecisionTable(decisionTable, tableBody, 0, DecisionTableHelper.isSmartSimpleDecisionTable(tableSyntaxNode), bindingContext);
         } else if (DecisionTableHelper.isSimpleLookupTable(tableSyntaxNode)) {
             tableBody = DecisionTableHelper.preprocessSimpleDecisionTable(decisionTable, tableBody, tableBody.getSource()
-                    .getCell(0, 0).getHeight());
+                    .getCell(0, 0).getHeight(), DecisionTableHelper.isSmartSimpleLookupTable(tableSyntaxNode), bindingContext);
         }
         
         return tableBody;

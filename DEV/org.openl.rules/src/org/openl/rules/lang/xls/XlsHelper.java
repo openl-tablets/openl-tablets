@@ -38,7 +38,9 @@ public abstract class XlsHelper {
             XlsHelper.tableHeaders.put(IXlsTableNames.DECISION_TABLE, XlsNodeTypes.XLS_DT.toString());
             XlsHelper.tableHeaders.put(IXlsTableNames.DECISION_TABLE2, XlsNodeTypes.XLS_DT.toString());
             XlsHelper.tableHeaders.put(IXlsTableNames.SIMPLE_DECISION_TABLE, XlsNodeTypes.XLS_DT.toString());
+            XlsHelper.tableHeaders.put(IXlsTableNames.SMART_DECISION_TABLE, XlsNodeTypes.XLS_DT.toString());
             XlsHelper.tableHeaders.put(IXlsTableNames.SIMPLE_DECISION_LOOKUP, XlsNodeTypes.XLS_DT.toString());
+            XlsHelper.tableHeaders.put(IXlsTableNames.SMART_DECISION_LOOKUP, XlsNodeTypes.XLS_DT.toString());
 
             XlsHelper.tableHeaders.put(IXlsTableNames.SPREADSHEET_TABLE, XlsNodeTypes.XLS_SPREADSHEET.toString());
             XlsHelper.tableHeaders.put(IXlsTableNames.SPREADSHEET_TABLE2, XlsNodeTypes.XLS_SPREADSHEET.toString());

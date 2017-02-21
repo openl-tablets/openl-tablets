@@ -349,7 +349,7 @@ public class RuleRowHelper {
                 // As a result various exception types can be thrown (e.g.
                 // CompositeSyntaxNodeException) with not user-friendly message.
                 // 
-                String message = String.format("Cannot parse cell value '%s'", source);
+                String message = String.format("Cannot parse cell value '%s'. Expected value of type '%s'.", source, expectedType.getSimpleName());
                 IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
                     openlAdapter.getBindingContext());
                 if (e instanceof CompositeSyntaxNodeException ) {
@@ -399,6 +399,11 @@ public class RuleRowHelper {
     public static void setCellMetaInfo(ILogicalTable logicalCell, String paramName, IOpenClass paramType, boolean isMultiValue) {
         CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType, isMultiValue);
         ICell cell = logicalCell.getSource().getCell(0, 0);
+        
+        if (cell.getMetaInfo() != null && cell.getMetaInfo().getUsedNodes() != null){
+            meta.setUsedNodes(cell.getMetaInfo().getUsedNodes());
+        }
+        
         cell.setMetaInfo(meta);
     }
 
