@@ -20,12 +20,6 @@ import java.util.Comparator;
  * @author Aleh Bykhavets
  */
 public final class RepositoryUtils {
-    public static final Comparator<ProjectVersion> VERSIONS_REVERSE_COMPARATOR = new Comparator<ProjectVersion>() {
-        public int compare(ProjectVersion o1, ProjectVersion o2) {
-            return o2.compareTo(o1);
-        }
-    };
-
     public static final Comparator<AProjectArtefact> ARTEFACT_COMPARATOR = new Comparator<AProjectArtefact>() {
         public int compare(AProjectArtefact o1, AProjectArtefact o2) {
             if (o1.isFolder() == o2.isFolder()) {
