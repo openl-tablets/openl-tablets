@@ -200,10 +200,10 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
                 metaData.setContentLength(data.getSize());
             }
             if (!StringUtils.isBlank(data.getAuthor())) {
-                metaData.addUserMetadata(LazyFileData.METADATA_AUTHOR, data.getAuthor());
+                metaData.addUserMetadata(LazyFileData.METADATA_AUTHOR, LazyFileData.encode(data.getAuthor()));
             }
             if (!StringUtils.isBlank(data.getComment())) {
-                metaData.addUserMetadata(LazyFileData.METADATA_COMMENT, data.getComment());
+                metaData.addUserMetadata(LazyFileData.METADATA_COMMENT, LazyFileData.encode(data.getComment()));
             }
 
             s3.putObject(bucketName, data.getName(), stream, metaData);

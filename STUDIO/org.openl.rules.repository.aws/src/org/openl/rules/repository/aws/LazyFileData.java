@@ -1,11 +1,17 @@
 package org.openl.rules.repository.aws;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.Map;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GetObjectMetadataRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.openl.rules.repository.api.FileData;
+import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class LazyFileData extends FileData {
     static final String METADATA_AUTHOR = "author";
@@ -50,10 +56,38 @@ class LazyFileData extends FileData {
             ObjectMetadata metadata = api.getObjectMetadata(request);
 
             Map<String, String> userMetadata = metadata.getUserMetadata();
-            super.setAuthor(userMetadata.get(METADATA_AUTHOR));
-            super.setComment(userMetadata.get(METADATA_COMMENT));
+            super.setAuthor(decode(userMetadata.get(METADATA_AUTHOR)));
+            super.setComment(decode(userMetadata.get(METADATA_COMMENT)));
 
             s3 = null;
         }
+    }
+
+    static String encode(String url) {
+        String encodedUrl = null;
+        if (StringUtils.isBlank(url)) {
+            return url;
+        }
+        try {
+            encodedUrl = URLEncoder.encode(url, "UTF-8").replaceAll("\\+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            Logger log = LoggerFactory.getLogger(LazyFileData.class);
+            log.error(e.getMessage(), e);
+        }
+        return encodedUrl;
+    }
+
+    static String decode(String url) {
+        String decodedUrl = null;
+        if (StringUtils.isBlank(url)) {
+            return url;
+        }
+        try {
+            decodedUrl = URLDecoder.decode(url, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            Logger log = LoggerFactory.getLogger(LazyFileData.class);
+            log.error(e.getMessage(), e);
+        }
+        return decodedUrl;
     }
 }
