@@ -73,10 +73,17 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
                 .withRegion(Regions.fromName(regionName))
                 .build();
 
-        if (!s3.doesBucketExist(bucketName)) {
-            s3.createBucket(bucketName);
-            s3.setBucketVersioningConfiguration(new SetBucketVersioningConfigurationRequest(bucketName,
-                    new BucketVersioningConfiguration(BucketVersioningConfiguration.ENABLED)));
+        try {
+            if (!s3.doesBucketExist(bucketName)) {
+                s3.createBucket(bucketName);
+                s3.setBucketVersioningConfiguration(new SetBucketVersioningConfigurationRequest(bucketName,
+                        new BucketVersioningConfiguration(BucketVersioningConfiguration.ENABLED)));
+            }
+
+            // Check the connection
+            s3.listObjectsV2(bucketName);
+        } catch (SdkClientException e) {
+            throw new RRepositoryException(e.getMessage(), e);
         }
     }
 
