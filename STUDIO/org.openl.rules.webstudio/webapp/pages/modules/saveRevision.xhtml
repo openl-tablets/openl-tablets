@@ -19,22 +19,28 @@
         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
           <h:outputText value="Project Name" />
           <h:outputText value="#{artefact.name}"/>
-          
+
           <ui:remove>
             <input value="#{artefact.name}" type="text" size="35" readonly="true" title="#{artefact.name}"/>
           </ui:remove>
-          
+
           <h:outputText value="Current Revision" />
           <h:outputText value="#{artefact.version.versionName}"/>
 
           <h:outputText value="Comment" />
-          <h:inputTextarea value="#{artefact.versionComment}" type="text" size="35" readonly="false" title="#{artefact.versionComment}"/>
+          <h:inputTextarea id="comment" value="#{artefact.versionComment}" type="text" size="35" readonly="false"
+                           title="#{artefact.versionComment}"
+                           validatorMessage="Length is greater than allowable maximum of '255'">
+            <f:validateLength maximum="255"/>
+          </h:inputTextarea>
+          <h:outputText value="" />
+          <h:message for="comment" styleClass="error" />
         </h:panelGrid>
 
       </h:panelGroup>
 
       <footer>
-        <a4j:commandButton value="Save" action="#{mainBean.saveProject}" styleClass="button-primary" oncomplete="#{rich:component('modalSave')}.hide();ws.nav.reload(true);" />
+        <a4j:commandButton value="Save" action="#{mainBean.saveProject}" render="@form" styleClass="button-primary" oncomplete="if (#{!facesContext.validationFailed}) {#{rich:component('modalSave')}.hide();ws.nav.reload(true);}" />
         <input class="restore-changed-state" type="button" value="Cancel" onclick="#{rich:component('modalSave')}.hide();" />
       </footer>
     </h:form>
