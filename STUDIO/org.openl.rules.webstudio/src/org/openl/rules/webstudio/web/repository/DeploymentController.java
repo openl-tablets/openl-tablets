@@ -272,7 +272,7 @@ public class DeploymentController {
                 AProject project = workspace.getProject(projectName, false);
                 // sort project versions in descending order (1.1 -> 0.0)
                 List<ProjectVersion> versions = new ArrayList<ProjectVersion>(project.getVersions());
-                Collections.sort(versions, RepositoryUtils.VERSIONS_REVERSE_COMPARATOR);
+                Collections.reverse(versions);
 
                 return versions;
             } catch (ProjectException e) {
