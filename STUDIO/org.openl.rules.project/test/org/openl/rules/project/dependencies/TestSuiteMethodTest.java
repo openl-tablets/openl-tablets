@@ -11,7 +11,7 @@ import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
-public class TestSuiteMethoTest {
+public class TestSuiteMethodTest {
 
     private static final String PROJECT_LOCATION = "test-resources/dependencies/test5/project1";
     private static final String WORKSPACE_LOCATION = "test-resources/dependencies/test5";
