@@ -307,9 +307,9 @@ public class DecisionTableHelper {
             for (int i = 0; i < numberOfConditions; i++) {
                 String descriptionOfCondition = conditions[i].getDescription();
                 try{
-                    IOpenMethod methodForCondition = findBestMatchOpenMethod(descriptionOfCondition, compoundType, fuzzyTokensCache);
+                    IOpenMethod bestMatchConditionMethod = findBestMatchOpenMethod(descriptionOfCondition, compoundType, fuzzyTokensCache);
                     sb.append("ret.");
-                    sb.append(methodForCondition.getName());
+                    sb.append(bestMatchConditionMethod.getName());
                     sb.append("(");
                     sb.append(
                     String.valueOf(decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex())));
@@ -350,6 +350,9 @@ public class DecisionTableHelper {
                 previoush = h;
                 h = h + originalTable.getSource().getCell(column, h).getHeight();
                 type = m.getSignature().getParameterType(0); //Use setter parameter as type for next row
+                /*if (type.isArray()){
+                    throw new OpenLCompilationException(String.format("Found array type for field in the return type for the title '%s'. Current version doesn't support arrays in the return type.", description));
+                }*/
                 if (h < numberOfMergedRows){
                     validateCompoundReturnType(type);
                     
@@ -357,7 +360,7 @@ public class DecisionTableHelper {
                     String var = null;
                     if (vm == null || vm.get(m) == null){
                         var = RandomStringUtils.random(8, true, false);
-                        while (generatedNames.contains(var)){ //Prevent variable dublication
+                        while (generatedNames.contains(var)){ //Prevent variable duplication
                             var = RandomStringUtils.random(8, true, false);
                         }
                         generatedNames.add(var);
