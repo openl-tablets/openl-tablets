@@ -378,18 +378,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
     public boolean deleteHistory(String name, String version) {
         try {
             if (version == null) {
-                VersionListing versionListing = null;
-
-                do {
-                    versionListing = versionListing == null ?
-                                     s3.listVersions(bucketName, name) :
-                                     s3.listNextBatchOfVersions(versionListing);
-                    for (S3VersionSummary versionSummary : versionListing.getVersionSummaries()) {
-                        if (versionSummary.getKey().equals(name)) {
-                            s3.deleteVersion(bucketName, name, versionSummary.getVersionId());
-                        }
-                    }
-                } while (versionListing.isTruncated());
+                deleteAllVersions(name);
 
                 onModified();
                 return true;
@@ -420,18 +409,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
 
     private void onModified() {
         // Delete previous versions of modification marker file
-        VersionListing versionListing = null;
-
-        do {
-            versionListing = versionListing == null ?
-                             s3.listVersions(bucketName, MODIFICATION_FILE) :
-                             s3.listNextBatchOfVersions(versionListing);
-            for (S3VersionSummary versionSummary : versionListing.getVersionSummaries()) {
-                if (versionSummary.getKey().equals(MODIFICATION_FILE)) {
-                    s3.deleteVersion(bucketName, MODIFICATION_FILE, versionSummary.getVersionId());
-                }
-            }
-        } while (versionListing.isTruncated());
+        deleteAllVersions(MODIFICATION_FILE);
 
         // Create new version of modification marker file with new id
         ObjectMetadata metaData = new ObjectMetadata();
@@ -442,5 +420,20 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
         if (listener != null) {
             listener.onChange();
         }
+    }
+
+    private void deleteAllVersions(String name) {
+        VersionListing versionListing = null;
+
+        do {
+            versionListing = versionListing == null ?
+                             s3.listVersions(bucketName, name) :
+                             s3.listNextBatchOfVersions(versionListing);
+            for (S3VersionSummary versionSummary : versionListing.getVersionSummaries()) {
+                if (versionSummary.getKey().equals(name)) {
+                    s3.deleteVersion(bucketName, name, versionSummary.getVersionId());
+                }
+            }
+        } while (versionListing.isTruncated());
     }
 }
