@@ -31,7 +31,12 @@
         <h:outputText value="Secret key:"/>
         <h:inputText value="#{settings.secretKey}"/>
         <h:outputText value="Listener period (sec):"/>
-        <h:inputText value="#{settings.listenerTimerPeriod}"/>
+        <h:inputText value="#{settings.listenerTimerPeriod}" id="listenerTimerPeriod"
+                     validatorMessage="Please enter a value greater than 0">
+            <f:validateLongRange minimum="1"/>
+        </h:inputText>
+        <h:outputText value=""/>
+        <h:message for="listenerTimerPeriod" styleClass="error"/>
     </h:panelGrid>
 
 </ui:composition>

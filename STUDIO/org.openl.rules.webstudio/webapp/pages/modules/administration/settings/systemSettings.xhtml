@@ -417,7 +417,7 @@
                     execute="@this" render="commonProps repositoryProps javaProps restartMessage"
                     onclick="if(!confirm('All users working with WebStudio now will lose all unsaved changes. Are you sure you want to restore default settings?'))return false;" title="Restore the default settings"/>
                 <h:outputText value=" " />
-                <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}" render="restartMessage"
+                <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}" render="commonProps repositoryProps javaProps restartMessage"
                     onclick="if(!confirm('All users working with WebStudio now will lose all unsaved changes. Are you sure you want to apply these settings now?'))return false;"
                     styleClass="button-primary" title = "Apply changes"/>
             </h:panelGroup>
@@ -426,7 +426,7 @@
                     execute="@this" render="commonProps repositoryProps javaProps restartMessage"
                     title="Restore the default settings"/>
                 <h:outputText value=" " />
-                <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}" render="restartMessage"
+                <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}" render="commonProps repositoryProps javaProps restartMessage"
                     styleClass="button-primary" title = "Apply changes"/>
             </h:panelGroup>
 
