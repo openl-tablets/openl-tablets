@@ -1,11 +1,13 @@
 package org.openl.rules.workspace.uw.impl;
 
+import java.io.File;
 import java.util.*;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.project.impl.local.LockEngine;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -37,6 +39,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private boolean deploymentsRefreshNeeded = true;
 
     private final List<UserWorkspaceListener> listeners = new ArrayList<UserWorkspaceListener>();
+    private final LockEngine projectsLockEngine;
+    private final LockEngine deploymentsLockEngine;
 
     public UserWorkspaceImpl(WorkspaceUser user, LocalWorkspace localWorkspace,
                              DesignTimeRepository designTimeRepository) {
@@ -46,6 +50,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
         userRulesProjects = new HashMap<String, RulesProject>();
         userDProjects = new HashMap<String, ADeploymentProject>();
+        File workspacesRoot = localWorkspace.getLocation().getParentFile();
+        String userName = user.getUserName();
+        projectsLockEngine = LockEngine.create(workspacesRoot, "rules", userName);
+        deploymentsLockEngine = LockEngine.create(workspacesRoot, "deployments", userName);
     }
 
     public void activate() throws ProjectException {
@@ -246,7 +254,16 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
                 if (userDProject == null || ddp.isDeleted() != userDProject.isDeleted()) {
                     String historyVersion = ddp.getHistoryVersion();
-                    userDProject = new ADeploymentProject(user, ddp.getRepository(), ddp.getFolderPath(), historyVersion);
+                    userDProject = new ADeploymentProject(user, ddp.getRepository(), ddp.getFolderPath(), historyVersion,
+                            deploymentsLockEngine);
+                    if (!userDProject.isOpened()) {
+                        // Closed project can't be locked.
+                        // DeployConfiguration changes aren't persisted. If it closed, it means changes are lost. We can safely unlock it
+                        if (userDProject.isLockedByMe()) {
+                            userDProject.unlock();
+                        }
+                    }
+
                     userDProjects.put(name, userDProject);
                 } else {
                     userDProject.refresh();
@@ -301,13 +318,13 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 if (uwp == null) {
                     // TODO:refactor
                     if (lp == null) {
-                        uwp = new RulesProject(this, localRepository, null, designRepository, rp.getFileData());
+                        uwp = new RulesProject(this, localRepository, null, designRepository, rp.getFileData(), projectsLockEngine);
                     } else {
-                        uwp = new RulesProject(this, localRepository, lp.getFileData(), designRepository, rp.getFileData());
+                        uwp = new RulesProject(this, localRepository, lp.getFileData(), designRepository, rp.getFileData(), projectsLockEngine);
                     }
                     userRulesProjects.put(name, uwp);
                 } else if ((uwp.isLocalOnly() || uwp.isRepositoryOnly()) && lp != null) {
-                    userRulesProjects.put(name, new RulesProject(this, localRepository, lp.getFileData(), designRepository, rp.getFileData()));
+                    userRulesProjects.put(name, new RulesProject(this, localRepository, lp.getFileData(), designRepository, rp.getFileData(), projectsLockEngine));
                 } else {
                     uwp.refresh();
                 }
@@ -319,7 +336,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 String name = lp.getName();
 
                 if (!designTimeRepository.hasProject(name)) {
-                    userRulesProjects.put(name, new RulesProject(this, localRepository, lp.getFileData(), null, null));
+                    userRulesProjects.put(name, new RulesProject(this, localRepository, lp.getFileData(), null, null, projectsLockEngine));
                 }
             }
 

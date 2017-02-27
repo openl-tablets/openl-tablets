@@ -180,7 +180,9 @@ public class AProjectArtefact implements PropertiesContainer {
         }
         RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(fileData.getModifiedAt(), fileData.getAuthor());
         String version = fileData.getVersion();
-        return new RepositoryProjectVersionImpl(version == null ? "0" : version, rvii);
+        RepositoryProjectVersionImpl projectVersion = new RepositoryProjectVersionImpl(version == null ? "0" : version, rvii);
+        projectVersion.setVersionComment(fileData.getComment());
+        return projectVersion;
     }
 
     public void update(AProjectArtefact artefact, CommonUser user) throws ProjectException {
@@ -191,11 +193,11 @@ public class AProjectArtefact implements PropertiesContainer {
         // TODO
     }
 
-    public void lock(CommonUser user) throws ProjectException {
+    public void lock() throws ProjectException {
         // Do  nothing
     }
 
-    public void unlock(CommonUser user) throws ProjectException {
+    public void unlock() throws ProjectException {
         // Do  nothing
     }
 

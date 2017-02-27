@@ -11,10 +11,6 @@ import java.util.Set;
  */
 public class SimpleBundleClassLoader extends OpenLBundleClassLoader {
 
-    public SimpleBundleClassLoader() {
-        super();
-    }
-
     public SimpleBundleClassLoader(ClassLoader parent) {
         super(parent);
     }

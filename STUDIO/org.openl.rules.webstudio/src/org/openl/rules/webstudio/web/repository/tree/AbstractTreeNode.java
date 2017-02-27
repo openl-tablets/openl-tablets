@@ -293,7 +293,7 @@ public abstract class AbstractTreeNode implements TreeNode {
                 result = getData().getVersions();
             }
             
-            Collections.sort(result, RepositoryUtils.VERSIONS_REVERSE_COMPARATOR);
+            Collections.reverse(result);
             return result;
         } else {
             return new LinkedList<ProjectVersion>();

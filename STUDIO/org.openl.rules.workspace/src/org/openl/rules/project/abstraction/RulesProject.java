@@ -7,12 +7,13 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openl.rules.common.*;
+import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.project.impl.local.LockEngine;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.workspace.dtr.impl.LockInfoImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.RuntimeExceptionWrapper;
 
@@ -22,17 +23,19 @@ public class RulesProject extends UserWorkspaceProject {
     private Repository designRepository;
     private String designFolderName;
     private List<FileData> historyFileDatas;
+    private final LockEngine lockEngine;
 
     public RulesProject(UserWorkspace userWorkspace,
             LocalRepository localRepository,
             FileData localFileData,
-            Repository designRepository, FileData designFileData) {
+            Repository designRepository, FileData designFileData, LockEngine lockEngine) {
         super(userWorkspace.getUser(), localFileData != null ? localRepository : designRepository,
                 localFileData != null ? localFileData : designFileData, localFileData != null);
         this.localRepository = localRepository;
         this.localFolderName = localFileData == null ? null : localFileData.getName();
         this.designRepository = designRepository;
         this.designFolderName = designFileData == null ? null : designFileData.getName();
+        this.lockEngine = lockEngine;
     }
 
     @Override
@@ -43,7 +46,7 @@ public class RulesProject extends UserWorkspaceProject {
         designProject.getFileData().setComment(getFileData().getComment());
         designProject.update(localProject, user);
         setHistoryVersion(designProject.getFileData().getVersion());
-        unlock(user);
+        unlock();
         refresh();
     }
 
@@ -62,7 +65,7 @@ public class RulesProject extends UserWorkspaceProject {
                 deleteFromLocalRepository();
             }
             if (isLockedByUser(user)) {
-                unlock(user);
+                unlock();
             }
             if (!isLocalOnly()) {
                 setRepository(designRepository);
@@ -110,18 +113,19 @@ public class RulesProject extends UserWorkspaceProject {
         setFileData(null);
     }
 
+    @Override
     public LockInfo getLockInfo() {
-        return LockInfoImpl.NO_LOCK;
+        return lockEngine.getLockInfo(getName());
     }
 
     @Override
-    public void lock(CommonUser user) throws ProjectException {
-        // Do nothing
+    public void lock() throws ProjectException {
+        lockEngine.lock(getName());
     }
 
     @Override
-    public void unlock(CommonUser user) throws ProjectException {
-        // Do nothing
+    public void unlock() throws ProjectException {
+        lockEngine.unlock(getName());
     }
 
     public String getLockedUserName() {
@@ -248,7 +252,7 @@ public class RulesProject extends UserWorkspaceProject {
 
     // Is Opened for Editing by me? -- in LW + locked by me
     public boolean isOpenedForEditing() {
-        return !isLocalOnly() && isLockedByMe() && !isRepositoryOnly();
+        return !isLocalOnly() && super.isOpenedForEditing() && !isRepositoryOnly();
     }
 
     @Override
@@ -268,6 +272,16 @@ public class RulesProject extends UserWorkspaceProject {
         super.setHistoryVersion(historyVersion);
         if (isOpened()) {
             localRepository.getProjectState(localFolderName).setProjectVersion(historyVersion);
+        }
+    }
+
+    @Override
+    public ArtefactPath getArtefactPath() {
+        // Return artefact name inside the project including project name. In the case of project it's just project name.
+        if (isOpened()) {
+            return super.getArtefactPath();
+        } else {
+            return new ArtefactPathImpl(getName());
         }
     }
 }

@@ -132,15 +132,16 @@ public class RepositoryService {
             @Multipart(value = "file") InputStream zipFile,
             @Multipart(value = "comment", required = false) String comment) throws WorkspaceException {
         try {
-            AProject project = getDesignTimeRepository().getProject(name);
+            RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(name);
             if (project.isLocked() && !project.isLockedByUser(getUser())) {
                 String lockedBy = project.getLockInfo().getLockedBy().getUserName();
                 return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
             }
+            project.lock();
 
             FileData data = new FileData();
             data.setName(getFileName(name));
-            data.setComment("[REST] " + comment != null ? comment : "");
+            data.setComment("[REST] " + (comment != null ? comment : ""));
             data.setAuthor(getUserName());
             getRepository().save(data, zipFile);
             return Response.noContent().build();
@@ -172,7 +173,7 @@ public class RepositoryService {
             String lockedBy = project.getLockInfo().getLockedBy().getUserName();
             return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
         }
-        project.lock(getUser());
+        project.lock();
         return Response.ok().build();
     }
 
@@ -195,7 +196,7 @@ public class RepositoryService {
             String lockedBy = project.getLockInfo().getLockedBy().getUserName();
             return Response.status(Status.FORBIDDEN).entity("Locked by '" + lockedBy + "'").build();
         }
-        project.unlock(getUser());
+        project.unlock();
         return Response.ok().build();
     }
 

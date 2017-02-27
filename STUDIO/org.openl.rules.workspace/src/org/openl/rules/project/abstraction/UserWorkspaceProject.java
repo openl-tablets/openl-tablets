@@ -27,12 +27,11 @@ public abstract class UserWorkspaceProject extends AProject {
     }
 
     public boolean isOpenedForEditing() {
-        return isLockedByMe();
+        return isOpened() && (!isLocked() || isLockedByMe());
     }
 
     public boolean isLockedByMe() {
-//        return isLockedByUser(user);
-        return isOpened();
+        return isLockedByUser(user);
     }
 
     public boolean isLocalOnly() {

@@ -61,8 +61,8 @@ public final class WrapperLogic {
                 Thread.currentThread().setContextClassLoader(xlsModuleOpenClass.getClassLoader());
                 return wrapper.getDelegate().invoke(target, params, env);
             } finally {
-                simpleRulesRuntimeEnv.setTopClass(null);
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
+                simpleRulesRuntimeEnv.setTopClass(null);
             }
         } else {
             if (topClass != xlsModuleOpenClass) {

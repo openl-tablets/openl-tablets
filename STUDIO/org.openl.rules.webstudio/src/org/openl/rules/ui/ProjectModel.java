@@ -630,7 +630,7 @@ public class ProjectModel {
             RulesProject project = getProject();
 
             if (project != null) {
-                return project.isLocalOnly() || project.isOpenedForEditing();
+                return project.isLocalOnly() || !project.isLocked() || project.isOpenedForEditing();
             }
         }
         return false;
@@ -1136,8 +1136,8 @@ public class ProjectModel {
             CachingArgumentsCloner.initInstance();
             runTest(testSuite, false);
         } finally {
-            CachingArgumentsCloner.removeInstance();
             Thread.currentThread().setContextClassLoader(currentContextClassLoader);
+            CachingArgumentsCloner.removeInstance();
         }
     }
 

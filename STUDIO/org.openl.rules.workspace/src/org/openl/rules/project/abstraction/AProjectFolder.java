@@ -45,6 +45,8 @@ public class AProjectFolder extends AProjectArtefact {
     }
 
     public void deleteArtefact(String name) throws ProjectException {
+        getProject().lock();
+
         getArtefact(name).delete();
         getArtefactsInternal().remove(name);
     }
@@ -54,6 +56,8 @@ public class AProjectFolder extends AProjectArtefact {
     }
 
     public AProjectFolder addFolder(String name) throws ProjectException {
+        getProject().lock();
+
         AProjectFolder createdFolder = new AProjectFolder(getProject(), getRepository(), folderPath + "/" + name, null);
         getArtefactsInternal().put(name, createdFolder);
         createdFolder.setResourceTransformer(resourceTransformer);
@@ -69,6 +73,8 @@ public class AProjectFolder extends AProjectArtefact {
 
     public AProjectResource addResource(String name, InputStream content) throws ProjectException {
         try {
+            getProject().lock();
+
             FileData fileData = new FileData();
             String fullName = folderPath + "/" + name;
             fileData.setName(fullName);

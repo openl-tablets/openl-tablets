@@ -73,10 +73,17 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
                 .withRegion(Regions.fromName(regionName))
                 .build();
 
-        if (!s3.doesBucketExist(bucketName)) {
-            s3.createBucket(bucketName);
-            s3.setBucketVersioningConfiguration(new SetBucketVersioningConfigurationRequest(bucketName,
-                    new BucketVersioningConfiguration(BucketVersioningConfiguration.ENABLED)));
+        try {
+            if (!s3.doesBucketExist(bucketName)) {
+                s3.createBucket(bucketName);
+                s3.setBucketVersioningConfiguration(new SetBucketVersioningConfigurationRequest(bucketName,
+                        new BucketVersioningConfiguration(BucketVersioningConfiguration.ENABLED)));
+            }
+
+            // Check the connection
+            s3.listObjectsV2(bucketName);
+        } catch (SdkClientException e) {
+            throw new RRepositoryException(e.getMessage(), e);
         }
     }
 
@@ -193,10 +200,10 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
                 metaData.setContentLength(data.getSize());
             }
             if (!StringUtils.isBlank(data.getAuthor())) {
-                metaData.addUserMetadata(LazyFileData.METADATA_AUTHOR, data.getAuthor());
+                metaData.addUserMetadata(LazyFileData.METADATA_AUTHOR, LazyFileData.encode(data.getAuthor()));
             }
             if (!StringUtils.isBlank(data.getComment())) {
-                metaData.addUserMetadata(LazyFileData.METADATA_COMMENT, data.getComment());
+                metaData.addUserMetadata(LazyFileData.METADATA_COMMENT, LazyFileData.encode(data.getComment()));
             }
 
             s3.putObject(bucketName, data.getName(), stream, metaData);

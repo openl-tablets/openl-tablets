@@ -46,6 +46,7 @@ public class TableEditorModel {
     private String view;
     private boolean showFormulas = false;
     private boolean collapseProps = false;
+    private String beforeEditAction;
     private String beforeSaveAction;
     private String afterSaveAction;
 
@@ -373,6 +374,14 @@ public class TableEditorModel {
 
     public void setCollapseProps(boolean collapseProps) {
         this.collapseProps = collapseProps;
+    }
+
+    public String getBeforeEditAction() {
+        return beforeEditAction;
+    }
+
+    public void setBeforeEditAction(String beforeEditAction) {
+        this.beforeEditAction = beforeEditAction;
     }
 
     public void setBeforeSaveAction(String beforeSaveAction) {
