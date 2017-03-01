@@ -25,6 +25,7 @@ import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.fuzzy.OpenLFuzzySearch;
+import org.openl.rules.fuzzy.Token;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.helpers.IntRange;
@@ -209,7 +210,7 @@ public class DecisionTableHelper {
             originalTable,
             decisionTable,
             numberOfHcondition,
-            numberOfMergedRows, 
+            numberOfMergedRows,
             smartDecisionTable,
             bindingContext);
 
@@ -266,10 +267,19 @@ public class DecisionTableHelper {
 
     private static boolean isCompoundReturnType(ILogicalTable originalTable,
             DecisionTable decisionTable,
-            int numberOfConditions) {
-        int compoundTypeParameters = originalTable.getWidth() - numberOfConditions;
+            int firstColumnAfterConditionColumns) {
+        int c = firstColumnAfterConditionColumns;
+        int compoundTypeParameterCount = 0;
+        while (c < originalTable.getSource().getWidth()){
+            if (originalTable.getSource().getCell(c, 0).getStringValue() == null || originalTable.getSource().getCell(c, 0).getStringValue().trim().isEmpty()){
+                break;
+            }
+            c = c + originalTable.getSource().getCell(c, 0).getWidth();
+            compoundTypeParameterCount++;
+        }
+        
         IOpenClass returnType = decisionTable.getType();
-        return compoundTypeParameters > 1 && !returnType.isArray();
+        return compoundTypeParameterCount > 1 && !returnType.isArray();
     }
 
     private static void validateCompoundReturnType(IOpenClass compoundType) throws OpenLCompilationException {
@@ -281,7 +291,7 @@ public class DecisionTableHelper {
                     compoundType.getDisplayName(0)));
         }
     }
-    
+
     private static void writeCompoundReturnColumns(IWritableGrid grid,
             ILogicalTable originalTable,
             DecisionTable decisionTable,
@@ -291,43 +301,42 @@ public class DecisionTableHelper {
             boolean smartDecisionTable,
             IBindingContext bindingContext) throws OpenLCompilationException {
         int numberOfConditions = conditions.length;
-        int compoundReturnColumnsCount = calculateCompoundReturnColumnsCount(originalTable, numberOfConditions, numberOfMergedRows);
-        
-        IOpenClass compoundType = decisionTable.getType(); 
+        int compoundReturnColumnsCount = calculateCompoundReturnColumnsCount(originalTable,
+            numberOfConditions,
+            numberOfMergedRows);
+
+        IOpenClass compoundType = decisionTable.getType();
         validateCompoundReturnType(compoundType);
-        
-        Map<IOpenClass, Map<String, IOpenMethod>> fuzzyTokensCache = new HashMap<IOpenClass, Map<String,IOpenMethod>>();
-        fuzzyTokensCache.put(compoundType, OpenLFuzzySearch.tokensMapToOpenClassSetterMethods(compoundType));
-        
+
         StringBuilder sb = new StringBuilder();
         sb.append(compoundType.getName() + " ret = new " + compoundType.getName() + "();");
 
         if (smartDecisionTable) {
-            //Set conditions parameters to compound type
+            // Set conditions parameters to compound type
             for (int i = 0; i < numberOfConditions; i++) {
                 String descriptionOfCondition = conditions[i].getDescription();
-                try{
-                    IOpenMethod bestMatchConditionMethod = findBestMatchOpenMethod(descriptionOfCondition, compoundType, fuzzyTokensCache);
+                try {
+                    IOpenMethod bestMatchConditionMethod = findBestMatchOpenMethod(descriptionOfCondition,
+                        compoundType);
                     sb.append("ret.");
                     sb.append(bestMatchConditionMethod.getName());
                     sb.append("(");
-                    sb.append(
-                    String.valueOf(decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex())));
+                    sb.append(String
+                        .valueOf(decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex())));
                     sb.append(");");
-                }catch (Exception e) {
+                } catch (OpenLCompilationException e) {
                 }
             }
         }
-        
+
         Set<String> generatedNames = new HashSet<String>();
-        while (generatedNames.size() < compoundReturnColumnsCount){
+        while (generatedNames.size() < compoundReturnColumnsCount) {
             generatedNames.add(RandomStringUtils.random(8, true, false));
         }
-        String[] compoundColumnParamNames = generatedNames.toArray(new String[]{});
+        String[] compoundColumnParamNames = generatedNames.toArray(new String[] {});
         int column = firstColumnAfterConditionColumns;
-        Map<String, Map<IOpenMethod, String>> variables = new HashMap<String, Map<IOpenMethod,String>>();
+        Map<String, Map<IOpenMethod, String>> variables = new HashMap<String, Map<IOpenMethod, String>>();
         for (int i = 0; i < compoundReturnColumnsCount; i++) {
-            String stringValue = originalTable.getSource().getCell(column, numberOfMergedRows - 1).getStringValue();
             StringBuilder fieldChainSb = null;
             IOpenClass type = compoundType;
             int h = 0;
@@ -335,57 +344,74 @@ public class DecisionTableHelper {
             int previoush = h;
             while (h < numberOfMergedRows) {
                 String description = originalTable.getSource().getCell(column, h).getStringValue();
-                IOpenMethod m = findBestMatchOpenMethod(description, type, fuzzyTokensCache);
 
-                if (!bindingContext.isExecutionMode()) {
-                    if (fieldChainSb == null){
-                        fieldChainSb = new StringBuilder();
-                    }else{
-                        fieldChainSb.append(".");
-                    }
-                    IOpenField openField = type.getField(m.getName().substring(3), false);
-                    fieldChainSb.append(openField.getDisplayName(0));
-                }
-                
                 previoush = h;
                 h = h + originalTable.getSource().getCell(column, h).getHeight();
-                type = m.getSignature().getParameterType(0); //Use setter parameter as type for next row
-                /*if (type.isArray()){
-                    throw new OpenLCompilationException(String.format("Found array type for field in the return type for the title '%s'. Current version doesn't support arrays in the return type.", description));
-                }*/
-                if (h < numberOfMergedRows){
-                    validateCompoundReturnType(type);
-                    
-                    Map<IOpenMethod, String> vm = variables.get(currentVariable);
-                    String var = null;
-                    if (vm == null || vm.get(m) == null){
-                        var = RandomStringUtils.random(8, true, false);
-                        while (generatedNames.contains(var)){ //Prevent variable duplication
-                            var = RandomStringUtils.random(8, true, false);
-                        }
-                        generatedNames.add(var);
-                        sb.append(type.getName() + " " + var + " = new " + type.getName() + "();");
-                        vm = new HashMap<IOpenMethod, String>();
-                        vm.put(m, var);
-                        variables.put(currentVariable, vm);
+                
+                IOpenMethod[] m = null;
+                if (h < numberOfMergedRows) {
+                    m = new IOpenMethod[] { findBestMatchOpenMethod(description, type) };
+                } else {
+                    m = findBestMatchOpenMethodRecursively(description, type);
+                }
+                
+                if (!bindingContext.isExecutionMode()) {
+                    if (fieldChainSb == null) {
+                        fieldChainSb = new StringBuilder();
                     } else {
-                        var = vm.get(m);
+                        fieldChainSb.append(".");
+                    }
+                    IOpenClass t = type;
+                    for (int j = 0; j < m.length; j++) {
+                        IOpenField openField = t.getField(m[j].getName().substring(3), false);
+                        fieldChainSb.append(openField.getDisplayName(0));
+                        if (j < m.length - 1){
+                            fieldChainSb.append(".");
+                        }
+                        t = m[j].getSignature().getParameterType(0);
+                    }
+                }
+                
+                /*
+                 * if (type.isArray()){ throw new
+                 * OpenLCompilationException(String.
+                 * format("Found array type for field in the return type for the title '%s'. Current version doesn't support arrays in the return type."
+                 * , description)); }
+                 */
+                for (int j = 0; j < m.length; j++) {
+                    String var = null;
+                    type = m[j].getSignature().getParameterType(0);
+                    if (h < numberOfMergedRows || j < m.length - 1){
+                        Map<IOpenMethod, String> vm = variables.get(currentVariable);
+                        if (vm == null || vm.get(m[j]) == null) {
+                            var = RandomStringUtils.random(8, true, false);
+                            while (generatedNames.contains(var)) { // Prevent
+                                                                   // variable
+                                                                   // duplication
+                                var = RandomStringUtils.random(8, true, false);
+                            }
+                            generatedNames.add(var);
+                            sb.append(type.getName() + " " + var + " = new " + type.getName() + "();");
+                            vm = new HashMap<IOpenMethod, String>();
+                            vm.put(m[j], var);
+                            variables.put(currentVariable, vm);
+                        } else {
+                            var = vm.get(m[j]);
+                        }
                     }
                     sb.append(currentVariable + ".");
-                    sb.append(m.getName());
+                    sb.append(m[j].getName());
                     sb.append("(");
-                    sb.append(var);
-                    sb.append(");");
-                    currentVariable = var;
-                }else{
-                    sb.append(currentVariable +".");
-                    sb.append(m.getName());
-                    sb.append("(");
-                    sb.append(compoundColumnParamNames[i]);
+                    if (h < numberOfMergedRows || j < m.length - 1) {
+                        sb.append(var);
+                        currentVariable = var;
+                    } else {
+                        sb.append(compoundColumnParamNames[i]);
+                    }
                     sb.append(");");
                 }
             }
-            
+
             grid.setCellValue(column, 2, type.getName() + " " + compoundColumnParamNames[i]);
 
             int mergedColumnsCounts = originalTable.getSource().getCell(column, numberOfMergedRows).getWidth();
@@ -394,6 +420,7 @@ public class DecisionTableHelper {
             }
 
             if (!bindingContext.isExecutionMode()) {
+                String stringValue = originalTable.getSource().getCell(column, numberOfMergedRows - 1).getStringValue();
                 String description = "Return: " + type.getDisplayName(0) + " " + fieldChainSb.toString();
                 ICell cell = originalTable.getSource().getCell(column, previoush);
                 SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
@@ -408,10 +435,10 @@ public class DecisionTableHelper {
                     Collections.singletonList(simpleNodeUsage));
                 cell.setMetaInfo(meta);
             }
-            
+
             column += mergedColumnsCounts;
         }
-        
+
         sb.append("ret;");
         grid.setCellValue(firstColumnAfterConditionColumns, 1, sb.toString());
 
@@ -420,32 +447,67 @@ public class DecisionTableHelper {
         }
     }
 
-    private static int calculateCompoundReturnColumnsCount(
-            ILogicalTable originalTable,
+    private static int calculateCompoundReturnColumnsCount(ILogicalTable originalTable,
             int numberOfConditions,
             int numberOfMergedRows) {
         return originalTable.getRow(numberOfMergedRows).getWidth() - numberOfConditions;
     }
 
-    private static IOpenMethod findBestMatchOpenMethod(String description, IOpenClass openClass, Map<IOpenClass, Map<String, IOpenMethod>> fuzzyTokensCache) throws OpenLCompilationException {
-        Map<String, IOpenMethod> openClassFuzzyTokens = fuzzyTokensCache.get(openClass);
-        if (openClassFuzzyTokens == null){
-            openClassFuzzyTokens = OpenLFuzzySearch.tokensMapToOpenClassSetterMethods(openClass);
-            fuzzyTokensCache.put(openClass, openClassFuzzyTokens);
-        }
-        String tokenizedDescriptionString = OpenLFuzzySearch.toTokensString(description);
-        String[] fuzzyBestMatches = OpenLFuzzySearch.openlFuzzyExtract(tokenizedDescriptionString, openClassFuzzyTokens.keySet().toArray(new String[]{}));
-        
+    private static IOpenMethod findBestMatchOpenMethod(String description,
+            IOpenClass openClass) throws OpenLCompilationException {
+        Map<Token, IOpenMethod[]> openClassFuzzyTokens = OpenLFuzzySearch.tokensMapToOpenClassSetterMethods(openClass);
+
+        String tokenizedDescriptionString = OpenLFuzzySearch.toTokenString(description);
+        Token[] fuzzyBestMatches = OpenLFuzzySearch.openlFuzzyExtract(tokenizedDescriptionString,
+            openClassFuzzyTokens.keySet().toArray(new Token[] {}));
+
         if (fuzzyBestMatches.length == 0) {
-            throw new OpenLCompilationException(String.format(
-                "Change title: No field match in the return type for the title '%s'.", description));
+            throw new OpenLCompilationException(
+                String.format("Change title: No field match in the return type for the title '%s'.", description));
         }
         if (fuzzyBestMatches.length > 1) {
-            throw new OpenLCompilationException(String.format(
-                "Change title: More than one field match in the return type for the title '%s'.",
-                description));
+            throw new OpenLCompilationException(String
+                .format("Change title: More than one field match in the return type for the title '%s'.", description));
         }
-        return openClassFuzzyTokens.get(fuzzyBestMatches[0]);
+        if (openClassFuzzyTokens
+            .get(fuzzyBestMatches[0]) == null || openClassFuzzyTokens.get(fuzzyBestMatches[0]).length == 0) {
+            throw new OpenLCompilationException(
+                String.format("Change title: No field match in the return type for the title '%s'.", description));
+        }
+        if (openClassFuzzyTokens.get(fuzzyBestMatches[0]).length > 1) {
+            throw new OpenLCompilationException(String
+                .format("Change title: More than one field match in the return type for the title '%s'.", description));
+        }
+
+        return openClassFuzzyTokens.get(fuzzyBestMatches[0])[0];
+    }
+    
+    private static IOpenMethod[] findBestMatchOpenMethodRecursively(String description,
+            IOpenClass openClass) throws OpenLCompilationException {
+        Map<Token, IOpenMethod[][]> openClassFuzzyTokens = OpenLFuzzySearch.tokensMapToOpenClassSetterMethodsRecursively(openClass);
+
+        String tokenizedDescriptionString = OpenLFuzzySearch.toTokenString(description);
+        Token[] fuzzyBestMatches = OpenLFuzzySearch.openlFuzzyExtract(tokenizedDescriptionString,
+            openClassFuzzyTokens.keySet().toArray(new Token[] {}));
+
+        if (fuzzyBestMatches.length == 0) {
+            throw new OpenLCompilationException(
+                String.format("Change title: No field match in the return type for the title '%s'.", description));
+        }
+        if (fuzzyBestMatches.length > 1) {
+            throw new OpenLCompilationException(String
+                .format("Change title: More than one field match in the return type for the title '%s'.", description));
+        }
+        if (openClassFuzzyTokens
+            .get(fuzzyBestMatches[0]) == null || openClassFuzzyTokens.get(fuzzyBestMatches[0]).length == 0) {
+            throw new OpenLCompilationException(
+                String.format("Change title: No field match in the return type for the title '%s'.", description));
+        }
+        if (openClassFuzzyTokens.get(fuzzyBestMatches[0]).length > 1) {
+            throw new OpenLCompilationException(String
+                .format("Change title: More than one field match in the return type for the title '%s'.", description));
+        }
+        return openClassFuzzyTokens.get(fuzzyBestMatches[0])[0];
     }
 
     private static void writeReturn(IWritableGrid grid,
@@ -463,13 +525,13 @@ public class DecisionTableHelper {
 
         if (!isLookupTable) {
             if (originalTable.getWidth() > conditions.length) {
-                boolean isCompoundReturnType = isCompoundReturnType(originalTable, decisionTable, conditions.length);
+                boolean isCompoundReturnType = isCompoundReturnType(originalTable, decisionTable, firstColumnAfterConditionColumns);
                 if (isCompoundReturnType) {
                     writeCompoundReturnColumns(grid,
                         originalTable,
                         decisionTable,
                         firstColumnAfterConditionColumns,
-                        numberOfMergedRows, 
+                        numberOfMergedRows,
                         conditions,
                         smartDecisionTable,
                         bindingContext);
@@ -491,7 +553,7 @@ public class DecisionTableHelper {
                 //
                 throw new OpenLCompilationException("Wrong table structure: There is no column for return values");
             }
-        } 
+        }
     }
 
     private static Pair<Condition[], Integer> writeConditions(IWritableGrid grid,
@@ -507,10 +569,12 @@ public class DecisionTableHelper {
             numberOfConditions = conditions.length;
         } else {
             numberOfConditions = getNumberOfConditions(decisionTable);
-            
-            /*if (numberOfConditions - numberOfHcondition <= 0){
-                throw new OpenLCompilationException("Wrong table structure: At least one vertical column in table was expected.");
-            }*/
+
+            /*
+             * if (numberOfConditions - numberOfHcondition <= 0){ throw new
+             * OpenLCompilationException("Wrong table structure: At least one vertical column in table was expected."
+             * ); }
+             */
 
             conditions = new Condition[numberOfConditions];
             for (int i = 0; i < numberOfConditions; i++) {
@@ -523,7 +587,7 @@ public class DecisionTableHelper {
         int hColumn = -1;
 
         for (int i = 0; i < numberOfConditions; i++) {
-            if (column > originalTable.getWidth()) {
+            if (column >= originalTable.getSource().getWidth()) {
                 String message = "Wrong table structure: Columns count is less than parameters count";
                 throw new OpenLCompilationException(message);
             }
@@ -546,7 +610,7 @@ public class DecisionTableHelper {
                         (DecisionTableColumnHeaders.CONDITION.getHeaderKey() + (i + 1)).intern());
                 }
             } else {
-                if (hColumn < 0){
+                if (hColumn < 0) {
                     hColumn = column;
                 }
                 // write horizontal condition
@@ -570,7 +634,10 @@ public class DecisionTableHelper {
             grid.setCellValue(column, 2, typeOfValue.getLeft());
 
             if (!bindingContext.isExecutionMode()) {
-                writeMetaInfoForCondition(originalTable, column, decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex()), typeOfValue.getRight());
+                writeMetaInfoForCondition(originalTable,
+                    column,
+                    decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex()),
+                    typeOfValue.getRight());
             }
 
             // merge columns
@@ -589,9 +656,14 @@ public class DecisionTableHelper {
                 column++;
             }
         }
-        
-        if (!bindingContext.isExecutionMode()){
-            writeMetaInfoForHConditions(originalTable, decisionTable, conditions, numberOfHcondition, numberOfConditions, hColumn);
+
+        if (!bindingContext.isExecutionMode()) {
+            writeMetaInfoForHConditions(originalTable,
+                decisionTable,
+                conditions,
+                numberOfHcondition,
+                numberOfConditions,
+                hColumn);
         }
 
         return new ImmutablePair<Condition[], Integer>(conditions, column);
@@ -605,10 +677,11 @@ public class DecisionTableHelper {
             int hColumn) {
         int j = 0;
         for (int i = numberOfConditions - numberOfHcondition; i < numberOfConditions; i++) {
-            int c = hColumn; 
-            while (c <= originalTable.getWidth()){
+            int c = hColumn;
+            while (c <= originalTable.getWidth()) {
                 String cellValue = originalTable.getSource().getCell(c, j).getFormattedValue();
-                String text = String.format("Condition for %s", decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex()));
+                String text = String.format("Condition for %s",
+                    decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex()));
                 ICell cell = originalTable.getSource().getCell(c, j);
                 SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
                     cellValue.length() - 1,
@@ -621,7 +694,7 @@ public class DecisionTableHelper {
                     false,
                     Collections.singletonList(simpleNodeUsage));
                 cell.setMetaInfo(meta);
-                c++;
+                c = c + originalTable.getSource().getCell(c, j).getWidth();
             }
             j++;
         }
@@ -634,11 +707,7 @@ public class DecisionTableHelper {
         String cellValue = originalTable.getSource().getCell(column, 0).getFormattedValue();
         String text = String.format("Condition for %s: %s", parameterName, typeOfValue);
         ICell cell = originalTable.getSource().getCell(column, 0);
-        SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
-            cellValue.length() - 1,
-            text,
-            null,
-            NodeType.OTHER);
+        SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0, cellValue.length() - 1, text, null, NodeType.OTHER);
         CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE,
             null,
             JavaOpenClass.STRING,
@@ -696,7 +765,7 @@ public class DecisionTableHelper {
                 return false;
             return true;
         }
-        
+
     }
 
     private static Condition[] findConditionsForParameters(ILogicalTable originalTable,
@@ -705,32 +774,46 @@ public class DecisionTableHelper {
         int numberOfParameters = decisionTable.getSignature().getNumberOfParameters();
         int column = 0;
         List<List<Condition>> vConditions = new ArrayList<List<Condition>>();
-        
-        BidiMap<String, Integer> parameterTokens = new DualHashBidiMap<String, Integer>();
+
+        BidiMap<String, Integer> parameterTokensMap = new DualHashBidiMap<String, Integer>();
+        Token[] parameterTokens = new Token[numberOfParameters - numberOfHcondition];
         for (int i = 0; i < numberOfParameters - numberOfHcondition; i++) {
-            parameterTokens.put(OpenLFuzzySearch.toTokensString(decisionTable.getSignature().getParameterName(i)), Integer.valueOf(i));
+            String tokenString = OpenLFuzzySearch.toTokenString(decisionTable.getSignature().getParameterName(i));
+            parameterTokensMap.put(tokenString,
+                Integer.valueOf(i));
+            parameterTokens[i] = new Token(tokenString, 0);
         }
-        
-        while (column + numberOfHcondition < originalTable.getWidth()) {
+        int j = 0;
+        int firstColumnHeight = originalTable.getCell(0, 0).getHeight();
+        while (j < numberOfParameters - numberOfHcondition) {
+            if (originalTable.getCell(column, 0).getHeight() != firstColumnHeight) {
+                break;
+            }
             String description = originalTable.getCell(column, 0).getStringValue();
-            String tokenizedDescriptionString = OpenLFuzzySearch.toTokensString(description);
-            String[] bestMatchedTokens = OpenLFuzzySearch.openlFuzzyExtract(tokenizedDescriptionString, parameterTokens.keySet().toArray(new String[]{}));
             
+            column += originalTable.getColumnWidth(column);
+            
+            if (column >= originalTable.getWidth()){
+                break;
+            }
+            
+            String tokenizedDescriptionString = OpenLFuzzySearch.toTokenString(description);
+            Token[] bestMatchedTokens = OpenLFuzzySearch.openlFuzzyExtract(tokenizedDescriptionString, parameterTokens);
             if (bestMatchedTokens.length == 0) {
                 break;
             }
 
-            column += originalTable.getColumnWidth(column);
-
             if (bestMatchedTokens.length > 1) {
                 List<Condition> conditions = new ArrayList<Condition>();
-                for (String token : bestMatchedTokens){
-                    conditions.add(new Condition(parameterTokens.get(token), description, false));
+                for (Token token : bestMatchedTokens) {
+                    conditions.add(new Condition(parameterTokensMap.get(token.getValue()), description, false));
                 }
-                
+
                 vConditions.add(conditions);
             } else {
-                Condition currentConditionDescrition = new Condition(parameterTokens.get(bestMatchedTokens[0]), description, false);
+                Condition currentConditionDescrition = new Condition(parameterTokensMap.get(bestMatchedTokens[0].getValue()),
+                    description,
+                    false);
                 boolean alreadyExists = false;
                 for (List<Condition> vConditionDescriptionList : vConditions) {
                     if (vConditionDescriptionList.size() == 1) {
@@ -747,33 +830,36 @@ public class DecisionTableHelper {
                 for (List<Condition> vConditionDescriptionList : vConditions) {
                     if (vConditionDescriptionList.size() > 1) {
                         vConditionDescriptionList.remove(currentConditionDescrition);
-                        if (vConditionDescriptionList.size() == 1){
+                        if (vConditionDescriptionList.size() == 1) {
                             Integer index = vConditionDescriptionList.get(0).getParameterIndex();
-                            parameterTokens.removeValue(index);
+                            parameterTokensMap.removeValue(index);
                         }
                     }
                 }
                 vConditions.add(Collections.singletonList(currentConditionDescrition));
             }
+            j++;
         }
-        
-        /*if (vConditions.isEmpty()){
-            throw new OpenLCompilationException("Wrong table structure: At least one vertical column in table was expected.");
-        }*/
 
-        Condition[] conditions = new Condition[vConditions.size() + numberOfHcondition]; 
+        /*
+         * if (vConditions.isEmpty()){ throw new
+         * OpenLCompilationException("Wrong table structure: At least one vertical column in table was expected."
+         * ); }
+         */
+
+        Condition[] conditions = new Condition[vConditions.size() + numberOfHcondition];
         int v = 0;
         for (List<Condition> vConditionDescriptionList : vConditions) {
-            if (vConditionDescriptionList.size() > 1){ 
+            if (vConditionDescriptionList.size() > 1) {
                 throw new OpenLCompilationException(
                     String.format("Change title: More than one input parameter match the title '%s'.",
                         vConditionDescriptionList.get(0).getDescription()));
-            }else{
-                conditions[v] = vConditionDescriptionList.get(0); 
+            } else {
+                conditions[v] = vConditionDescriptionList.get(0);
             }
             v++;
         }
-        
+
         for (int i = numberOfParameters - numberOfHcondition; i < numberOfParameters; i++) {
             conditions[vConditions.size() + i - (numberOfParameters - numberOfHcondition)] = new Condition(i, true);
         }
@@ -872,7 +958,8 @@ public class DecisionTableHelper {
                         range = new IntRange(cellValue.getSource().getCell(0, 0).getStringValue());
 
                         /** Return name of a class without a package prefix **/
-                        return new ImmutablePair<String, String>(range.getClass().getSimpleName(), range.getClass().getSimpleName());
+                        return new ImmutablePair<String, String>(range.getClass().getSimpleName(),
+                            range.getClass().getSimpleName());
                     } catch (Exception e) {
                         continue;
                     }
@@ -881,7 +968,8 @@ public class DecisionTableHelper {
                         range = new DoubleRange(cellValue.getSource().getCell(0, 0).getStringValue());
 
                         /** Return name of a class without a package prefix **/
-                        return new ImmutablePair<String, String>(range.getClass().getSimpleName(), range.getClass().getSimpleName());
+                        return new ImmutablePair<String, String>(range.getClass().getSimpleName(),
+                            range.getClass().getSimpleName());
                     } catch (Exception e) {
                         continue;
                     }

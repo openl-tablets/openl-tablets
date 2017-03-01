@@ -48,6 +48,7 @@ import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
 import org.openl.rules.datatype.binding.DatatypesSorter;
+import org.openl.rules.fuzzy.OpenLFuzzySearch;
 import org.openl.rules.lang.xls.binding.AExecutableNodeBinder;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
@@ -316,92 +317,95 @@ public class XlsBinder implements IOpenBinder {
             RulesModuleBindingContext moduleContext,
             XlsModuleOpenClass moduleOpenClass,
             IBindingContext bindingContext) {
-
-        IVocabulary vocabulary = makeVocabulary(moduleNode);
-
-        if (vocabulary != null) {
-            processVocabulary(vocabulary, moduleContext);
-        }
-
-        //
-        // Selectors
-        //
-        ASelector<ISyntaxNode> propertiesSelector = getSelector(XlsNodeTypes.XLS_PROPERTIES);
-        ASelector<ISyntaxNode> dataTypeSelector = getSelector(XlsNodeTypes.XLS_DATATYPE);
-        
-        ISelector<ISyntaxNode> notPropertiesAndNotDatatypeSelector = propertiesSelector.not()
-            .and(dataTypeSelector.not());
-
-        ISelector<ISyntaxNode> spreadsheetSelector = getSelector(XlsNodeTypes.XLS_SPREADSHEET);
-        ISelector<ISyntaxNode> dtSelector = getSelector(XlsNodeTypes.XLS_DT);
-        ISelector<ISyntaxNode> testMethodSelector = getSelector(XlsNodeTypes.XLS_TEST_METHOD);
-        ISelector<ISyntaxNode> runMethodSelector = getSelector(XlsNodeTypes.XLS_RUN_METHOD);
-
-        ISelector<ISyntaxNode> commonTablesSelector = notPropertiesAndNotDatatypeSelector
-            .and(spreadsheetSelector.not().and(testMethodSelector.not().and(runMethodSelector.not().and(dtSelector.not()))));
-
-        // Bind property node at first.
-        //
-        TableSyntaxNode[] propertiesNodes = selectNodes(moduleNode, propertiesSelector);
-        bindInternal(moduleNode, moduleOpenClass, propertiesNodes, openl, moduleContext);
-
-        bindPropertiesForAllTables(moduleNode, moduleOpenClass, openl, moduleContext);
-
-        IBoundNode topNode = null;
-        
-        // Bind datatype nodes.
-        TableSyntaxNode[] datatypeNodes = selectNodes(moduleNode, dataTypeSelector);
-
-        /*
-         * Processes datatype table nodes before the bind operation. Checks type
-         * declarations and finds invalid using of inheritance feature at this
-         * step.
-         */
-        TableSyntaxNode[] processedDatatypeNodes = new DatatypesSorter().sort(datatypeNodes, moduleContext); //Rewrite this sorter with TableSyntaxNodeRelationsUtils
-        
-        bindInternal(moduleNode, moduleOpenClass, processedDatatypeNodes, openl, moduleContext);
-
-        // Select nodes excluding Properties, Datatype, Spreadsheet, Test,
-        // RunMethod tables
-        TableSyntaxNode[] commonTables = selectNodes(moduleNode, commonTablesSelector);
-
-        // Select and sort Spreadsheet tables
-        TableSyntaxNode[] spreadsheets = selectTableSyntaxNodes(moduleNode, spreadsheetSelector);
-        if (OpenLSystemProperties.isCustomSpreadsheetType(bindingContext.getExternalParams())) {
-            try{
-                spreadsheets = TableSyntaxNodeRelationsUtils.sort(spreadsheets, new SpreadsheetTableSyntaxNodeRelationsDeterminer());
-            }catch (TableSyntaxNodeCircularDependencyException e) {
-                for (TableSyntaxNode tsn : e.getTableSyntaxNodes()){
-                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tsn);
-                    processError(error, tsn, moduleContext);
+        try{
+            IVocabulary vocabulary = makeVocabulary(moduleNode);
+    
+            if (vocabulary != null) {
+                processVocabulary(vocabulary, moduleContext);
+            }
+    
+            //
+            // Selectors
+            //
+            ASelector<ISyntaxNode> propertiesSelector = getSelector(XlsNodeTypes.XLS_PROPERTIES);
+            ASelector<ISyntaxNode> dataTypeSelector = getSelector(XlsNodeTypes.XLS_DATATYPE);
+            
+            ISelector<ISyntaxNode> notPropertiesAndNotDatatypeSelector = propertiesSelector.not()
+                .and(dataTypeSelector.not());
+    
+            ISelector<ISyntaxNode> spreadsheetSelector = getSelector(XlsNodeTypes.XLS_SPREADSHEET);
+            ISelector<ISyntaxNode> dtSelector = getSelector(XlsNodeTypes.XLS_DT);
+            ISelector<ISyntaxNode> testMethodSelector = getSelector(XlsNodeTypes.XLS_TEST_METHOD);
+            ISelector<ISyntaxNode> runMethodSelector = getSelector(XlsNodeTypes.XLS_RUN_METHOD);
+    
+            ISelector<ISyntaxNode> commonTablesSelector = notPropertiesAndNotDatatypeSelector
+                .and(spreadsheetSelector.not().and(testMethodSelector.not().and(runMethodSelector.not().and(dtSelector.not()))));
+    
+            // Bind property node at first.
+            //
+            TableSyntaxNode[] propertiesNodes = selectNodes(moduleNode, propertiesSelector);
+            bindInternal(moduleNode, moduleOpenClass, propertiesNodes, openl, moduleContext);
+    
+            bindPropertiesForAllTables(moduleNode, moduleOpenClass, openl, moduleContext);
+    
+            IBoundNode topNode = null;
+            
+            // Bind datatype nodes.
+            TableSyntaxNode[] datatypeNodes = selectNodes(moduleNode, dataTypeSelector);
+    
+            /*
+             * Processes datatype table nodes before the bind operation. Checks type
+             * declarations and finds invalid using of inheritance feature at this
+             * step.
+             */
+            TableSyntaxNode[] processedDatatypeNodes = new DatatypesSorter().sort(datatypeNodes, moduleContext); //Rewrite this sorter with TableSyntaxNodeRelationsUtils
+            
+            bindInternal(moduleNode, moduleOpenClass, processedDatatypeNodes, openl, moduleContext);
+    
+            // Select nodes excluding Properties, Datatype, Spreadsheet, Test,
+            // RunMethod tables
+            TableSyntaxNode[] commonTables = selectNodes(moduleNode, commonTablesSelector);
+    
+            // Select and sort Spreadsheet tables
+            TableSyntaxNode[] spreadsheets = selectTableSyntaxNodes(moduleNode, spreadsheetSelector);
+            if (OpenLSystemProperties.isCustomSpreadsheetType(bindingContext.getExternalParams())) {
+                try{
+                    spreadsheets = TableSyntaxNodeRelationsUtils.sort(spreadsheets, new SpreadsheetTableSyntaxNodeRelationsDeterminer());
+                }catch (TableSyntaxNodeCircularDependencyException e) {
+                    for (TableSyntaxNode tsn : e.getTableSyntaxNodes()){
+                        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tsn);
+                        processError(error, tsn, moduleContext);
+                    }
                 }
             }
+    
+            TableSyntaxNode[] dts = selectTableSyntaxNodes(moduleNode, dtSelector);
+            
+            TableSyntaxNode[] commonAndSpreadsheetTables = ArrayUtils.addAll(ArrayUtils.addAll(dts, spreadsheets), commonTables);
+            bindInternal(moduleNode, moduleOpenClass, commonAndSpreadsheetTables, openl, moduleContext);
+     
+            // Select Test and RunMethod tables
+            TableSyntaxNode[] runTables = selectNodes(moduleNode, runMethodSelector); 
+            bindInternal(moduleNode, moduleOpenClass, runTables, openl, moduleContext);
+    
+            TableSyntaxNode[] testTables = selectNodes(moduleNode, testMethodSelector);
+            topNode =  bindInternal(moduleNode, moduleOpenClass, testTables, openl, moduleContext);
+    
+            if (moduleOpenClass.isUseDescisionTableDispatcher()) {
+                DispatcherTablesBuilder dispTableBuilder = new DispatcherTablesBuilder(
+                    (XlsModuleOpenClass) topNode.getType(), moduleContext);
+                dispTableBuilder.build();
+            }
+    
+            ((XlsModuleOpenClass) topNode.getType()).setRulesModuleBindingContext(moduleContext);
+            ((XlsModuleOpenClass) topNode.getType()).completeOpenClassBuilding();
+            
+            processErrors(moduleOpenClass.getErrors(), bindingContext);
+    
+            return topNode;
+        }finally {
+            OpenLFuzzySearch.clearCaches();
         }
-
-        TableSyntaxNode[] dts = selectTableSyntaxNodes(moduleNode, dtSelector);
-        
-        TableSyntaxNode[] commonAndSpreadsheetTables = ArrayUtils.addAll(ArrayUtils.addAll(dts, spreadsheets), commonTables);
-        bindInternal(moduleNode, moduleOpenClass, commonAndSpreadsheetTables, openl, moduleContext);
- 
-        // Select Test and RunMethod tables
-        TableSyntaxNode[] runTables = selectNodes(moduleNode, runMethodSelector); 
-        bindInternal(moduleNode, moduleOpenClass, runTables, openl, moduleContext);
-
-        TableSyntaxNode[] testTables = selectNodes(moduleNode, testMethodSelector);
-        topNode =  bindInternal(moduleNode, moduleOpenClass, testTables, openl, moduleContext);
-
-        if (moduleOpenClass.isUseDescisionTableDispatcher()) {
-            DispatcherTablesBuilder dispTableBuilder = new DispatcherTablesBuilder(
-                (XlsModuleOpenClass) topNode.getType(), moduleContext);
-            dispTableBuilder.build();
-        }
-
-        ((XlsModuleOpenClass) topNode.getType()).setRulesModuleBindingContext(moduleContext);
-        ((XlsModuleOpenClass) topNode.getType()).completeOpenClassBuilding();
-        
-        processErrors(moduleOpenClass.getErrors(), bindingContext);
-
-        return topNode;
     }
 
     private StringValueSelector<ISyntaxNode> getSelector(XlsNodeTypes selectorValue) {
