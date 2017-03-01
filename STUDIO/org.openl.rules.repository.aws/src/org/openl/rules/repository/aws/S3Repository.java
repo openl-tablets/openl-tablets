@@ -141,7 +141,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
                     return null;
                 }
                 for (S3VersionSummary versionSummary : versionSummaries) {
-                    if (versionSummary.isLatest()) {
+                    if (versionSummary.getKey().equals(name) && versionSummary.isLatest()) {
                         latest = versionSummary;
                         break;
                     }
@@ -306,7 +306,9 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
                                  s3.listVersions(bucketName, name) :
                                  s3.listNextBatchOfVersions(versionListing);
                 for (S3VersionSummary versionSummary : versionListing.getVersionSummaries()) {
-                    result.add(createFileData(versionSummary));
+                    if (versionSummary.getKey().equals(name)) {
+                        result.add(createFileData(versionSummary));
+                    }
                 }
             } while (versionListing.isTruncated());
 
@@ -332,7 +334,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
                                  s3.listVersions(bucketName, name) :
                                  s3.listNextBatchOfVersions(versionListing);
                 for (S3VersionSummary versionSummary : versionListing.getVersionSummaries()) {
-                    if (versionSummary.getVersionId().equals(version)) {
+                    if (versionSummary.getKey().equals(name) && versionSummary.getVersionId().equals(version)) {
                         return createFileData(versionSummary);
                     }
                 }
@@ -355,7 +357,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
                                  s3.listVersions(bucketName, name) :
                                  s3.listNextBatchOfVersions(versionListing);
                 for (S3VersionSummary versionSummary : versionListing.getVersionSummaries()) {
-                    if (versionSummary.getVersionId().equals(version)) {
+                    if (versionSummary.getKey().equals(name) && versionSummary.getVersionId().equals(version)) {
                         InputStream content = null;
                         if (!versionSummary.isDeleteMarker()) {
                             S3Object object = s3.getObject(new GetObjectRequest(bucketName, name, version));
@@ -376,16 +378,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
     public boolean deleteHistory(String name, String version) {
         try {
             if (version == null) {
-                VersionListing versionListing = null;
-
-                do {
-                    versionListing = versionListing == null ?
-                                     s3.listVersions(bucketName, name) :
-                                     s3.listNextBatchOfVersions(versionListing);
-                    for (S3VersionSummary versionSummary : versionListing.getVersionSummaries()) {
-                        s3.deleteVersion(bucketName, name, versionSummary.getVersionId());
-                    }
-                } while (versionListing.isTruncated());
+                deleteAllVersions(name);
 
                 onModified();
                 return true;
@@ -416,16 +409,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
 
     private void onModified() {
         // Delete previous versions of modification marker file
-        VersionListing versionListing = null;
-
-        do {
-            versionListing = versionListing == null ?
-                             s3.listVersions(bucketName, MODIFICATION_FILE) :
-                             s3.listNextBatchOfVersions(versionListing);
-            for (S3VersionSummary versionSummary : versionListing.getVersionSummaries()) {
-                s3.deleteVersion(bucketName, MODIFICATION_FILE, versionSummary.getVersionId());
-            }
-        } while (versionListing.isTruncated());
+        deleteAllVersions(MODIFICATION_FILE);
 
         // Create new version of modification marker file with new id
         ObjectMetadata metaData = new ObjectMetadata();
@@ -436,5 +420,20 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
         if (listener != null) {
             listener.onChange();
         }
+    }
+
+    private void deleteAllVersions(String name) {
+        VersionListing versionListing = null;
+
+        do {
+            versionListing = versionListing == null ?
+                             s3.listVersions(bucketName, name) :
+                             s3.listNextBatchOfVersions(versionListing);
+            for (S3VersionSummary versionSummary : versionListing.getVersionSummaries()) {
+                if (versionSummary.getKey().equals(name)) {
+                    s3.deleteVersion(bucketName, name, versionSummary.getVersionId());
+                }
+            }
+        } while (versionListing.isTruncated());
     }
 }

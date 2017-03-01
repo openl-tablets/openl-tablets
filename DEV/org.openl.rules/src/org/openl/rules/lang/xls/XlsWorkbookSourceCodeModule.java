@@ -66,7 +66,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator {
         }
         Workbook workbook = getWorkbook();
         int numStyles = workbook.getNumCellStyles();
-        for (short i = 0; i < numStyles; i++) {
+        for (int i = 0; i < numStyles; i++) {
             CellStyle cellStyle = workbook.getCellStyleAt(i);
 
             wbColors.add(cellStyle.getFillForegroundColor());

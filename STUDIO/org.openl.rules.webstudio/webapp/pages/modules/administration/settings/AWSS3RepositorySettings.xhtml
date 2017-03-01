@@ -8,9 +8,9 @@
 
     <h:panelGrid columns="2" columnClasses="titleColumn">
         <h:outputText value="Bucket name:"/>
-        <h:inputText value="#{settings.bucketName}"/>
+        <h:inputText value="#{settings.bucketName}" title="A bucket is a logical unit of storage in AWS object storage service, is used to store objects. Bucket names are globally unique, regardless of the AWS Region in which you create the bucket."/>
         <h:outputText value="Region name:"/>
-        <h:selectOneMenu value="#{settings.regionName}">
+        <h:selectOneMenu value="#{settings.regionName}" title="You can choose any AWS Region that is geographically close to you to optimize latency, minimize costs, or address regulatory requirements.">
             <f:selectItem itemValue="us-east-1" itemLabel="US East (N. Virginia)"/>
             <f:selectItem itemValue="us-east-2" itemLabel="US East (Ohio)"/>
             <f:selectItem itemValue="us-west-1" itemLabel="US West (N. California)"/>
@@ -26,12 +26,18 @@
             <f:selectItem itemValue="ap-south-1" itemLabel="Asia Pacific (Mumbai)"/>
             <f:selectItem itemValue="sa-east-1" itemLabel="South America (São Paulo)"/>
         </h:selectOneMenu>
-        <h:outputText value="Access key"/>
-        <h:inputText value="#{settings.accessKey}"/>
-        <h:outputText value="Secret key"/>
-        <h:inputText value="#{settings.secretKey}"/>
-        <h:outputText value="Listener period (ms)"/>
-        <h:inputText value="#{settings.listenerTimerPeriod}"/>
+        <h:outputText value="Access key:"/>
+        <h:inputText value="#{settings.accessKey}" title="Alphanumeric text string that is used to identify the user who owns the account."/>
+        <h:outputText value="Secret key:"/>
+        <h:inputText value="#{settings.secretKey}" title="Plays the role of a password."/>
+        <h:outputText value="Listener period (sec):"/>
+        <h:inputText value="#{settings.listenerTimerPeriod}" id="listenerTimerPeriod"
+                     title="Repository changes check interval. Must be greater than 0."
+                     validatorMessage="Please enter a value greater than 0">
+            <f:validateLongRange minimum="1"/>
+        </h:inputText>
+        <h:outputText value=""/>
+        <h:message for="listenerTimerPeriod" styleClass="error"/>
     </h:panelGrid>
 
 </ui:composition>

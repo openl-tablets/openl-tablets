@@ -31,7 +31,7 @@ public class AllowAllAccessDecisionManager implements AccessDecisionManager {
      */
     public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes)
             throws AccessDeniedException, InsufficientAuthenticationException {
-        if (allowedAuthority != null) {
+        if (allowedAuthority != null && !allowedAuthority.trim().isEmpty()) {
             for (GrantedAuthority authority : authentication.getAuthorities()) {
                 if (allowedAuthority.equals(authority.getAuthority())) {
                     return;
@@ -76,7 +76,7 @@ public class AllowAllAccessDecisionManager implements AccessDecisionManager {
 
     /**
      * Specifies an authority for full access. If it is empty then any authority is allowed.
-     * @param allowedAuthority
+     * @param allowedAuthority an authority for full access.
      */
     public void setAllowedAuthority(String allowedAuthority) {
         this.allowedAuthority = allowedAuthority;
