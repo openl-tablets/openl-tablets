@@ -17,6 +17,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
 import javax.annotation.PreDestroy;
@@ -24,6 +29,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
@@ -44,6 +50,7 @@ import java.util.*;
 public class InstallWizard {
 
     private static final String MULTI_USER_MODE = "multi";
+    private static final String AD_USER_MODE = "ad";
 
     private final Logger log = LoggerFactory.getLogger(InstallWizard.class);
 
@@ -75,9 +82,18 @@ public class InstallWizard {
     private UIInput dbLoginInput;
     private UIInput dbPasswordInput;
 
+    @NotBlank
+    private String adDomain;
+    @NotBlank
+    private String adUrl;
+    private String adAuthority;
+    private String adUsername;
+    private String adPassword;
+
     private ConfigurationManager appConfig;
     private ConfigurationManager systemConfig;
     private ConfigurationManager dbConfig;
+    private ConfigurationManager adConfig;
 
     private DBUtils dbUtils;
 
@@ -142,6 +158,10 @@ public class InstallWizard {
                         workingDir + "/system-settings/db.properties",
                         System.getProperty("webapp.root") + "/WEB-INF/conf/db.properties");
 
+                adConfig = new ConfigurationManager(true,
+                        workingDir + "/system-settings/security-ad.properties",
+                        System.getProperty("webapp.root") + "/WEB-INF/conf/security-ad.properties");
+
                 userMode = systemConfig.getStringProperty("user.mode");
 
                 boolean innerDb = "org.h2.Driver".equals(dbConfig.getStringProperty("db.driver"));
@@ -150,6 +170,7 @@ public class InstallWizard {
             }
         } else if (step == 3) {
             readDbProperties();
+            readAdProperties();
         }
         return PAGE_PREFIX + step + PAGE_POSTFIX;
     }
@@ -187,6 +208,12 @@ public class InstallWizard {
             dbVendor = null;
             dbSchema = null;
         }
+    }
+
+    private void readAdProperties() {
+        adDomain = adConfig.getStringProperty("security.ad.domain");
+        adUrl = adConfig.getStringProperty("security.ad.url");
+        adAuthority = adConfig.getStringProperty("security.ad.authority");
     }
 
     private String getPropertyFilePathForVendor(String dbDriver) {
@@ -232,6 +259,13 @@ public class InstallWizard {
                 dbConfig.save();
             } else {
                 dbConfig.restoreDefaults();
+
+                if (AD_USER_MODE.equals(userMode)) {
+                    adConfig.setProperty("security.ad.domain", adDomain);
+                    adConfig.setProperty("security.ad.url", adUrl);
+                    adConfig.setProperty("security.ad.authority", adAuthority);
+                    adConfig.save();
+                }
             }
 
             productionRepositoryEditor.save();
@@ -302,6 +336,66 @@ public class InstallWizard {
             }
         }
 
+    }
+
+    public void adValidator(FacesContext context, UIComponent toValidate, Object value) {
+        UIViewRoot viewRoot = context.getViewRoot();
+
+        String domain = (String) ((UIInput) viewRoot.findComponent("step3Form:adDomain")).getValue();
+        String url = (String) ((UIInput) viewRoot.findComponent("step3Form:adUrl")).getValue();
+        String authority = (String) ((UIInput) viewRoot.findComponent("step3Form:adAuthority")).getValue();
+        String username = (String) ((UIInput) viewRoot.findComponent("step3Form:adUsername")).getValue();
+        String password = (String) ((UIInput)toValidate).getSubmittedValue();
+
+        if (StringUtils.isBlank(domain)) {
+            throw new ValidatorException(FacesUtils.createErrorMessage("Active Directory domain can not be blank"));
+        } else if (StringUtils.isEmpty(url)) {
+            throw new ValidatorException(FacesUtils.createErrorMessage("Active Directory URL can not be blank"));
+        } else {
+            try {
+                ActiveDirectoryLdapAuthenticationProvider ldapAuthenticationProvider = new ActiveDirectoryLdapAuthenticationProvider(
+                        domain,
+                        url);
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                        username,
+                        password);
+                Authentication authentication = ldapAuthenticationProvider.authenticate(authenticationToken);
+                if (!StringUtils.isBlank(authority)) {
+                    boolean hasAccess = false;
+                    for (GrantedAuthority grantedAuthority : authentication.getAuthorities()) {
+                        if (grantedAuthority.getAuthority().equals(authority)) {
+                            hasAccess = true;
+                            break;
+                        }
+                    }
+
+                    if (!hasAccess) {
+                        throw new ValidatorException(FacesUtils.createErrorMessage("User '" + username + "' doesn't have authority '" + authority + "'"));
+                    }
+                }
+            } catch (AuthenticationException e) {
+                throw new ValidatorException(FacesUtils.createErrorMessage(e.getMessage()));
+            } catch (RuntimeException e) {
+                throw new ValidatorException(FacesUtils.createErrorMessage(getCauseExceptionMessage(e)));
+            }
+        }
+    }
+
+    private String getCauseExceptionMessage(Exception e) {
+        String errorMessage = e.getMessage();
+        Throwable cause = e.getCause();
+
+        if (cause != null) {
+            while (cause.getCause() != null) {
+                cause = cause.getCause();
+            }
+
+            if (cause.getMessage() != null) {
+                errorMessage = cause.getMessage();
+            }
+        }
+
+        return errorMessage;
     }
 
     /**
@@ -610,6 +704,46 @@ public class InstallWizard {
 
     public void setDbPasswordInput(UIInput dbPasswordInput) {
         this.dbPasswordInput = dbPasswordInput;
+    }
+
+    public String getAdDomain() {
+        return adDomain;
+    }
+
+    public void setAdDomain(String adDomain) {
+        this.adDomain = adDomain;
+    }
+
+    public String getAdUrl() {
+        return adUrl;
+    }
+
+    public void setAdUrl(String adUrl) {
+        this.adUrl = adUrl;
+    }
+
+    public String getAdAuthority() {
+        return adAuthority;
+    }
+
+    public void setAdAuthority(String adAuthority) {
+        this.adAuthority = adAuthority;
+    }
+
+    public String getAdUsername() {
+        return adUsername;
+    }
+
+    public void setAdUsername(String adUsername) {
+        this.adUsername = adUsername;
+    }
+
+    public String getAdPassword() {
+        return adPassword;
+    }
+
+    public void setAdPassword(String adPassword) {
+        this.adPassword = adPassword;
     }
 
     public boolean isShowErrorMessage() {
