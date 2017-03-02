@@ -16,7 +16,7 @@ import org.openl.types.IOpenMethod;
 
 public final class OpenLFuzzySearch {
 
-    private static final int ACCEPTABLE_LEVENSTAIN_DISTANCE = 90;
+    private static final double ACCEPTABLE_SIMILARITY_VALUE = 0.85;
     private static final int DEEP_LEVEL = 5;
 
     public static ThreadLocal<Map<IOpenClass, Map<Token, IOpenMethod[][]>>> openlClassRecursivelyCacheForSetterMethods = new ThreadLocal<Map<IOpenClass, Map<Token, IOpenMethod[][]>>>() {
@@ -32,12 +32,6 @@ public final class OpenLFuzzySearch {
             return new HashMap<IOpenClass, Map<Token, IOpenMethod[]>>();
         }
     };
-
-    private static int calculateLevensteinDistance(String s1, String s2) {
-        int distance = StringUtils.getLevenshteinDistance(s1, s2);
-        double ratio = ((double) distance) / (Math.max(s1.length(), s2.length()));
-        return 100 - new Double(ratio * 100).intValue();
-    }
 
     public static void clearCaches() {
         openlClassCacheForSetterMethods.remove();
@@ -175,6 +169,30 @@ public final class OpenLFuzzySearch {
         }
         return ret;
     }
+    
+    private static String[] concatTokens(String[] tokens, String pattern) {
+        List<String> t = new ArrayList<String>();
+        StringBuilder sbBuilder = new StringBuilder();
+        boolean g = false;
+        for (String s : tokens){
+            if (s.length() == 1 && s.matches(pattern)){
+                g = true;
+                sbBuilder.append(s);
+            } else {
+                if (g){
+                    t.add(sbBuilder.toString());
+                    g = false;
+                    sbBuilder = new StringBuilder();
+                } else {
+                    t.add(s);
+                }
+            }
+        }
+        if (g){
+            t.add(sbBuilder.toString());
+        }
+        return t.toArray(new String[]{});
+    }
 
     private static String[] cleanUpTokens(String[] tokens) {
         List<String> t = new ArrayList<String>();
@@ -192,8 +210,15 @@ public final class OpenLFuzzySearch {
     }
 
     public static String toTokenString(String source) {
+        if (source == null){
+            return StringUtils.EMPTY;
+        }
         String[] tokens = source.split("(?<=.)(?=\\p{Lu}|\\d|\\s|[_])");
+        
+        tokens = concatTokens(tokens, "\\p{Lu}+");
+        tokens = concatTokens(tokens, "\\d+");
         tokens = cleanUpTokens(tokens);
+        
         StringBuilder sb = new StringBuilder();
         boolean f = false;
         for (String s : tokens) {
@@ -228,8 +253,8 @@ public final class OpenLFuzzySearch {
             int r = 0;
             int c = 0;
             while (l < sortedSourceTokens.length && r < sortedTokens.length) {
-                int d = calculateLevensteinDistance(sortedSourceTokens[l], sortedTokens[r]);
-                if (d > ACCEPTABLE_LEVENSTAIN_DISTANCE) {
+                double d = StringUtils.getJaroWinklerDistance(sortedSourceTokens[l], sortedTokens[r]);
+                if (d > ACCEPTABLE_SIMILARITY_VALUE) {
                     l++;
                     r++;
                     c++;

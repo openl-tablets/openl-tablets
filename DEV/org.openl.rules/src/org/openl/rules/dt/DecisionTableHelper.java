@@ -317,7 +317,7 @@ public class DecisionTableHelper {
                 String descriptionOfCondition = conditions[i].getDescription();
                 try {
                     IOpenMethod bestMatchConditionMethod = findBestMatchOpenMethod(descriptionOfCondition,
-                        compoundType);
+                        compoundType, true);
                     sb.append("ret.");
                     sb.append(bestMatchConditionMethod.getName());
                     sb.append("(");
@@ -349,9 +349,14 @@ public class DecisionTableHelper {
                 h = h + originalTable.getSource().getCell(column, h).getHeight();
                 
                 IOpenMethod[] m = null;
+                
                 if (h < numberOfMergedRows) {
-                    m = new IOpenMethod[] { findBestMatchOpenMethod(description, type) };
-                } else {
+                    IOpenMethod bestMatchMethod = findBestMatchOpenMethod(description, type, false);
+                    if (bestMatchMethod != null){
+                        m = new IOpenMethod[] { bestMatchMethod };
+                    }
+                } 
+                if (m == null){
                     m = findBestMatchOpenMethodRecursively(description, type);
                 }
                 
@@ -454,7 +459,7 @@ public class DecisionTableHelper {
     }
 
     private static IOpenMethod findBestMatchOpenMethod(String description,
-            IOpenClass openClass) throws OpenLCompilationException {
+            IOpenClass openClass, boolean validateEmptyResult) throws OpenLCompilationException {
         Map<Token, IOpenMethod[]> openClassFuzzyTokens = OpenLFuzzySearch.tokensMapToOpenClassSetterMethods(openClass);
 
         String tokenizedDescriptionString = OpenLFuzzySearch.toTokenString(description);
@@ -462,8 +467,12 @@ public class DecisionTableHelper {
             openClassFuzzyTokens.keySet().toArray(new Token[] {}));
 
         if (fuzzyBestMatches.length == 0) {
-            throw new OpenLCompilationException(
-                String.format("Change title: No field match in the return type for the title '%s'.", description));
+            if (validateEmptyResult){
+                throw new OpenLCompilationException(
+                    String.format("Change title: No field match in the return type for the title '%s'.", description));
+            }else{
+                return null;
+            }
         }
         if (fuzzyBestMatches.length > 1) {
             throw new OpenLCompilationException(String
@@ -471,8 +480,12 @@ public class DecisionTableHelper {
         }
         if (openClassFuzzyTokens
             .get(fuzzyBestMatches[0]) == null || openClassFuzzyTokens.get(fuzzyBestMatches[0]).length == 0) {
-            throw new OpenLCompilationException(
-                String.format("Change title: No field match in the return type for the title '%s'.", description));
+            if (validateEmptyResult){
+                throw new OpenLCompilationException(
+                    String.format("Change title: No field match in the return type for the title '%s'.", description));
+            }else{
+                return null;
+            }
         }
         if (openClassFuzzyTokens.get(fuzzyBestMatches[0]).length > 1) {
             throw new OpenLCompilationException(String
@@ -719,17 +732,14 @@ public class DecisionTableHelper {
     private final static class Condition {
         int parameterIndex;
         String description;
-        boolean hCondition;
 
         public Condition(int parameterIndex, boolean hCondition) {
             this.parameterIndex = parameterIndex;
-            this.hCondition = hCondition;
         }
 
-        public Condition(int parameterIndex, String description, boolean hCondition) {
+        public Condition(int parameterIndex, String description) {
             this.parameterIndex = parameterIndex;
             this.description = description;
-            this.hCondition = false;
         }
 
         public String getDescription() {
@@ -738,10 +748,6 @@ public class DecisionTableHelper {
 
         public int getParameterIndex() {
             return parameterIndex;
-        }
-
-        public boolean isHCondition() {
-            return hCondition;
         }
 
         @Override
@@ -806,14 +812,13 @@ public class DecisionTableHelper {
             if (bestMatchedTokens.length > 1) {
                 List<Condition> conditions = new ArrayList<Condition>();
                 for (Token token : bestMatchedTokens) {
-                    conditions.add(new Condition(parameterTokensMap.get(token.getValue()), description, false));
+                    conditions.add(new Condition(parameterTokensMap.get(token.getValue()), description));
                 }
 
                 vConditions.add(conditions);
             } else {
                 Condition currentConditionDescrition = new Condition(parameterTokensMap.get(bestMatchedTokens[0].getValue()),
-                    description,
-                    false);
+                    description);
                 boolean alreadyExists = false;
                 for (List<Condition> vConditionDescriptionList : vConditions) {
                     if (vConditionDescriptionList.size() == 1) {
