@@ -312,7 +312,7 @@ public class DecisionTableHelper {
         sb.append(compoundType.getName() + " ret = new " + compoundType.getName() + "();");
 
         if (smartDecisionTable) {
-            // Set conditions parameters to compound type
+            // Set conditions parameters to compound type. Recursively search is not supported.
             for (int i = 0; i < numberOfConditions; i++) {
                 String descriptionOfCondition = conditions[i].getDescription();
                 try {
@@ -591,7 +591,7 @@ public class DecisionTableHelper {
 
             conditions = new Condition[numberOfConditions];
             for (int i = 0; i < numberOfConditions; i++) {
-                conditions[i] = new Condition(i, i >= numberOfConditions - numberOfHcondition);
+                conditions[i] = new Condition(i);
             }
         }
 
@@ -733,7 +733,7 @@ public class DecisionTableHelper {
         int parameterIndex;
         String description;
 
-        public Condition(int parameterIndex, boolean hCondition) {
+        public Condition(int parameterIndex){
             this.parameterIndex = parameterIndex;
         }
 
@@ -866,7 +866,7 @@ public class DecisionTableHelper {
         }
 
         for (int i = numberOfParameters - numberOfHcondition; i < numberOfParameters; i++) {
-            conditions[vConditions.size() + i - (numberOfParameters - numberOfHcondition)] = new Condition(i, true);
+            conditions[vConditions.size() + i - (numberOfParameters - numberOfHcondition)] = new Condition(i);
         }
 
         return conditions;

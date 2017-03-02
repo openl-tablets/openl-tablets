@@ -183,9 +183,8 @@ public final class OpenLFuzzySearch {
                     t.add(sbBuilder.toString());
                     g = false;
                     sbBuilder = new StringBuilder();
-                } else {
-                    t.add(s);
                 }
+                t.add(s);
             }
         }
         if (g){
