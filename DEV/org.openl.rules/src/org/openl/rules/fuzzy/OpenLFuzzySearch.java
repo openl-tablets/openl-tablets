@@ -200,7 +200,7 @@ public final class OpenLFuzzySearch {
             if (s.isEmpty()) {
                 continue;
             }
-            if (!s.matches("[a-z0-9_]*")) {
+            if (!s.matches("[\\p{IsAlphabetic}\\d]*")) {
                 continue;
             }
             t.add(token);
