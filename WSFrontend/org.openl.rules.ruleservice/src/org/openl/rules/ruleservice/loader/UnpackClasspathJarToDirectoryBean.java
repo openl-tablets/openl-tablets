@@ -5,6 +5,7 @@ import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
+import org.openl.util.ZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -16,10 +17,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 /**
  * Bean to unpack jar with rules.xml to defined folder. This bean is used by
@@ -101,55 +99,6 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
 
     public void setSupportDeploymentVersion(boolean supportDeploymentVersion) {
         this.supportDeploymentVersion = supportDeploymentVersion;
-    }
-
-    /*
-     * private static String getPathJar(Resource resource) throws
-     * IllegalStateException, IOException { URL location = resource.getURL();
-     * String jarPath = location.getPath(); if (jarPath.lastIndexOf("!") == -1)
-     * { return null; } String path = jarPath.substring("file:".length(),
-     * jarPath.lastIndexOf("!"));
-     * 
-     * // Workaround for WebSphere 8.5 path = path.replaceAll("%20", " ");
-     * 
-     * return path; }
-     */
-
-    private static void unpack(File jarFile, File destDir) throws IOException {
-        JarFile jar = null;
-        try {
-            jar = new JarFile(jarFile);
-
-            Enumeration<JarEntry> e = jar.entries();
-            while (e.hasMoreElements()) {
-                JarEntry file = e.nextElement();
-                File f = new File(destDir, file.getName());
-                if (file.isDirectory()) {
-                    f.mkdir();
-                    continue;
-                }
-
-                InputStream is = jar.getInputStream(file);
-                InputStream bufferedInputStream = new BufferedInputStream(is);
-
-                FileOutputStream fos = new FileOutputStream(f);
-                BufferedOutputStream bos = new BufferedOutputStream(fos);
-                int data;
-                while ((data = bufferedInputStream.read()) != -1) {
-                    bos.write(data);
-                }
-                bos.close();
-                bufferedInputStream.close();
-            }
-        } finally {
-            if (jar != null) {
-                try {
-                    jar.close();
-                } catch (IOException e) {
-
-                }
-            }
-        }
     }
 
     private static boolean checkOrCreateFolder(File location) {
@@ -294,7 +243,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
 
             File destDir = new File(d, FileUtils.getBaseName(file.getCanonicalPath()));
             destDir.mkdirs();
-            unpack(file, destDir);
+            ZipUtils.extractAll(file, destDir);
 
             log.info("Unpacking '{}' into '{}' was completed", file.getAbsolutePath(), destDirectory);
         }
@@ -332,7 +281,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                 File d = new File(desFile, folderName);
                 d.mkdirs();
     
-                unpack(file, d);
+                ZipUtils.extractAll(file, d);
     
                 log.info("Unpacking '{}' into '{}' was completed", file.getAbsolutePath(), destDirectory);
             }
