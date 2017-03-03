@@ -691,7 +691,7 @@ public class DecisionTableHelper {
         int j = 0;
         for (int i = numberOfConditions - numberOfHcondition; i < numberOfConditions; i++) {
             int c = hColumn;
-            while (c <= originalTable.getWidth()) {
+            while (c <= originalTable.getSource().getWidth()) {
                 String cellValue = originalTable.getSource().getCell(c, j).getFormattedValue();
                 String text = String.format("Condition for %s: %s",
                     decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex()), decisionTable.getSignature().getParameterType(i).getDisplayName(0));
