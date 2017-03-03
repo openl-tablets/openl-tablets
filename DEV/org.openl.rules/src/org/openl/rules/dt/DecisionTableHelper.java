@@ -693,8 +693,8 @@ public class DecisionTableHelper {
             int c = hColumn;
             while (c <= originalTable.getWidth()) {
                 String cellValue = originalTable.getSource().getCell(c, j).getFormattedValue();
-                String text = String.format("Condition for %s",
-                    decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex()));
+                String text = String.format("Condition for %s: %s",
+                    decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex()), decisionTable.getSignature().getParameterType(i).getDisplayName(0));
                 ICell cell = originalTable.getSource().getCell(c, j);
                 SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
                     cellValue.length() - 1,
