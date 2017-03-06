@@ -6,13 +6,11 @@ import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.dt.IBaseAction;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethodHeader;
 
 public interface IAction extends IBaseAction, IDecisionRow {
 
-
-    boolean isReturnAction();
-
-    void prepareAction(IOpenClass methodType,
+    void prepareAction(IOpenMethodHeader header,
             IMethodSignature signature,
             OpenL openl,
             ComponentOpenClass componentOpenClass,

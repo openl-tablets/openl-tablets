@@ -148,6 +148,16 @@ public class DecisionTableHelper {
         return s.length() >= 3 && s.startsWith(
             DecisionTableColumnHeaders.RETURN.getHeaderKey()) && (s.length() == 3 || Character.isDigit(s.charAt(3)));
     }
+    
+    public static boolean isValidKeyHeader(String s) {
+        return s.length() >= 3 && s.startsWith(
+            DecisionTableColumnHeaders.KEY.getHeaderKey()) && (s.length() == 3 || Character.isDigit(s.charAt(3)));
+    }
+    
+    public static boolean isValidCRetHeader(String s) {
+        return s.length() >= 4 && s.startsWith(
+            DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey()) && (s.length() == 4 || Character.isDigit(s.charAt(4)));
+    }
 
     public static boolean isValidRuleHeader(String s) {
         return s.equals(DecisionTableColumnHeaders.RULE.getHeaderKey());

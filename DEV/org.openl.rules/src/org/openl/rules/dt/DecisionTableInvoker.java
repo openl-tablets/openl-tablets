@@ -1,5 +1,8 @@
 package org.openl.rules.dt;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openl.binding.MethodUtil;
 import org.openl.domain.IIntIterator;
 import org.openl.rules.dt.algorithm.FailOnMissException;
@@ -26,20 +29,25 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
     @Override
     public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {
         IDecisionTableAlgorithm algorithm = getInvokableMethod().getAlgorithm();
-        IIntIterator rules = algorithm.checkedRules(target, params, env);
+        IIntIterator rulesIntIterator = algorithm.checkedRules(target, params, env);
 
-        Object returnValue;
         boolean atLeastOneRuleFired = false;
-        IBaseAction[] actions = getInvokableMethod().getActionRows();
-
-        while (rules.hasNext()) {
+        List<Integer> r = new ArrayList<Integer>();
+        while (rulesIntIterator.hasNext()){
             atLeastOneRuleFired = true;
-            int ruleN = rules.nextInt();
-
-            returnValue = Tracer.invoke(new ActionInvoker(ruleN, actions), target, params, env, this);
-            if (returnValue != null) {
-                return returnValue;
-            }
+            r.add(rulesIntIterator.nextInt());
+        }
+        int[] rules = new int[r.size()];
+        int i = 0;
+        for (Integer v : r){
+            rules[i++] = v;
+        }
+        
+        IBaseAction[] actions = getInvokableMethod().getActionRows();
+        
+        Object returnValue = Tracer.invoke(new ActionInvoker(rules, actions), target, params, env, this);
+        if (returnValue != null) {
+            return returnValue;
         }
 
         if (!atLeastOneRuleFired && getInvokableMethod().shouldFailOnMiss()) {

@@ -33,9 +33,6 @@ public class DecisionTableAlgorithmBuilder2 extends
 			IBindingContextDelegator bindingContextDelegator) {
 		super(decisionTable, header, openl, module, bindingContextDelegator);
 	}
-	
-	
-	
 
 	protected DecisionTableSearchTree buildSearchTree(IndexInfo info)
 			throws SyntaxNodeException {

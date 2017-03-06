@@ -6,7 +6,9 @@ public enum DecisionTableColumnHeaders {
     MERGED_CONDITION("MC"),
     ACTION("A"),
     RULE("RULE"),
-    RETURN("RET");
+    RETURN("RET"),
+    COLLECT_RETURN("CRET"),
+    KEY("KEY"),;
     
     private String key;
     

@@ -63,8 +63,12 @@ public class RegionsExtractor {
     private static List<IGridRegion> getiGridRegions(OverloadedMethodChoiceTraceObject omc) {
         Iterator<ITracerObject> iterator = omc.getChildren().iterator();
         if (iterator.hasNext()) {
-            ILogicalTable table = ((DTRuleTracerLeaf) iterator.next()).getRuleTable();
-            return GridTableUtils.getGridRegions(table);
+            List<IGridRegion> gridRegions = new ArrayList<IGridRegion>();
+            ILogicalTable[] tables = ((DTRuleTracerLeaf) iterator.next()).getRuleTables();
+            for (ILogicalTable table : tables){
+                gridRegions.addAll(GridTableUtils.getGridRegions(table));
+            }
+            return gridRegions;
         } else {
             return Collections.emptyList();
         }
@@ -88,8 +92,12 @@ public class RegionsExtractor {
     }
 
     private static List<IGridRegion> getiGridRegions(DTRuleTracerLeaf dtr) {
-        ILogicalTable table = dtr.getRuleTable();
-        return GridTableUtils.getGridRegions(table);
+        List<IGridRegion> gridRegions = new ArrayList<IGridRegion>();
+        ILogicalTable[] tables = dtr.getRuleTables();
+        for (ILogicalTable table : tables){
+            gridRegions.addAll(GridTableUtils.getGridRegions(table));
+        }
+        return gridRegions;
     }
 
     private static List<IGridRegion> getiGridRegions(DTRuleTraceObject dti) {

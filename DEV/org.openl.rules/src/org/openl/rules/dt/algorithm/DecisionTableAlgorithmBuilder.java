@@ -1,6 +1,7 @@
 package org.openl.rules.dt.algorithm;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.openl.OpenL;
@@ -9,6 +10,7 @@ import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.impl.TypeBoundNode;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
@@ -59,7 +61,6 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         this.bindingContextDelegator = bindingContextDelegator;
         this.ruleRow = table.getRuleRow();
     }
-
 
     public IDecisionTableAlgorithm buildAlgorithm() throws SyntaxNodeException {
         if (isTwoDimensional(table)) {
@@ -123,13 +124,13 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
             prepareAction(action, actionBindingContextDelegator, ruleExecutionType);
         }
     }
+    
 
     protected void prepareAction(IAction action,
             IBindingContextDelegator actionBindingContextDelegator,
             DecisionTableDataType ruleExecutionType) throws Exception {
-        IOpenClass methodType = action.isReturnAction() ? header.getType() : JavaOpenClass.VOID;
-
-        action.prepareAction(methodType,
+       
+        action.prepareAction(header,
             signature,
             openl,
             componentOpenClass,

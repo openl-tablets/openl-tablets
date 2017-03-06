@@ -1,5 +1,8 @@
 package org.openl.rules.dt.element;
 
+import java.util.Collection;
+import java.util.Map;
+
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
@@ -14,22 +17,25 @@ import org.openl.types.IDynamicObject;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.ParameterDeclaration;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public class Action extends FunctionalRow implements IAction {
 
-    private boolean isReturnAction = false;
     private boolean isSingleReturnParam = false;
     private IOpenClass ruleExecutionType;
+    private IOpenClass returnType;
+    private ActionType actionType;
 
-    public Action(String name, int row, ILogicalTable decisionTable, boolean isReturnAction, DTScale.RowScale scale) {
+    public Action(String name, int row, ILogicalTable decisionTable, ActionType actionType, DTScale.RowScale scale) {
         super(name, row, decisionTable, scale);
-        this.isReturnAction = isReturnAction;
+        this.actionType = actionType;
     }
 
     public boolean isAction() {
@@ -41,7 +47,15 @@ public class Action extends FunctionalRow implements IAction {
     }
 
     public boolean isReturnAction() {
-        return isReturnAction;
+        return ActionType.RETURN.equals(actionType);
+    }
+    
+    public boolean isCollectReturnKeyAction() {
+        return ActionType.COLLECT_RETURN_KEY.equals(actionType);
+    }
+    
+    public boolean isCollectReturnAction() {
+        return ActionType.COLLECT_RETURN.equals(actionType);
     }
 
     public Object executeAction(int ruleN, Object target, Object[] params, IRuntimeEnv env) {
@@ -51,8 +65,6 @@ public class Action extends FunctionalRow implements IAction {
         }
 
         if (isSingleReturnParam) {
-
-
             if (isEmpty(ruleN)) {
                 return null;
             }
@@ -85,23 +97,44 @@ public class Action extends FunctionalRow implements IAction {
     }
 
     private Object executeActionInternal(int ruleN, Object target, Object[] params, IRuntimeEnv env) {
-
-
         if (isEmpty(ruleN)) {
             return null;
         }
 
-
         return getMethod().invoke(target, mergeParams(target, params, env, ruleN), env);
     }
 
-    public void prepareAction(IOpenClass methodType,
+    private IOpenClass exctractMethodTypeForCollectReturnAction(IOpenClass type) throws Exception {
+        if (type.isArray()){
+            return type.getComponentClass();
+        }
+        if (Collection.class.isAssignableFrom(type.getInstanceClass())){
+            return JavaOpenClass.OBJECT;
+        }
+        if (Map.class.isAssignableFrom(type.getInstanceClass())){
+            return JavaOpenClass.OBJECT;
+        }
+        return type;
+    }
+
+    public void prepareAction(IOpenMethodHeader header,
             IMethodSignature signature,
             OpenL openl,
             ComponentOpenClass componentOpenClass,
             IBindingContextDelegator bindingContextDelegator,
             RuleRow ruleRow, IOpenClass ruleExecutionType) throws Exception {
-
+        
+        this.returnType = header.getType();
+        
+        IOpenClass methodType = JavaOpenClass.VOID;
+        if (isCollectReturnAction()){
+            methodType = exctractMethodTypeForCollectReturnAction(header.getType());
+        }else{
+            if (isReturnAction()){
+                methodType = header.getType();
+            }
+        }
+        
         prepare(methodType, signature, openl, componentOpenClass, bindingContextDelegator, ruleRow);
         this.ruleExecutionType = ruleExecutionType;
 
@@ -111,6 +144,11 @@ public class Action extends FunctionalRow implements IAction {
 
         isSingleReturnParam = params.length == 1 && params[0].getName().equals(code);
     }
+    
+    @Override
+    public IOpenClass getType() {
+        return returnType;
+    }
 
     @Override
     protected IParameterDeclaration[] getParams(
@@ -118,7 +156,7 @@ public class Action extends FunctionalRow implements IAction {
             IOpenClass declaringClass, IOpenClass methodType, OpenL openl,
             IBindingContext bindingContext) throws Exception {
 
-        if ("extraRet".equals(methodSource.getCode()) && isReturnAction() && getParams() == null) {
+        if ("extraRet".equals(methodSource.getCode()) && (isReturnAction() || isCollectReturnAction() || isCollectReturnKeyAction()) && getParams() == null) {
             if (!bindingContext.isExecutionMode()) {
                 setCellMetaInfo(0, methodType);
             }
@@ -138,7 +176,7 @@ public class Action extends FunctionalRow implements IAction {
 
         IOpenSourceCodeModule source = super.getExpressionSource(bindingContext);
 
-        if (isReturnAction() && StringUtils.isEmpty(source.getCode()) && getParams() == null) {
+        if ((isReturnAction() || isCollectReturnAction() || isCollectReturnKeyAction()) && StringUtils.isEmpty(source.getCode()) && getParams() == null) {
             return new StringSourceCodeModule("extraRet", source.getUri());
         }
 

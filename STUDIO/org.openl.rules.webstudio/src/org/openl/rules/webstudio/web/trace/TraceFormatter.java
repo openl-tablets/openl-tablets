@@ -43,7 +43,7 @@ public class TraceFormatter {
             return "Overloaded method choice for method " + MethodUtil
                 .printSignature(((OverloadedMethodChoiceTraceObject) obj).getMethodCandidates().get(0), 0);
         } else if (obj instanceof DTRuleTracerLeaf) {
-            return "Returned rule: " + ((DTRuleTracerLeaf) obj).getRuleName();
+            return "Returned rule: " + Arrays.toString(((DTRuleTracerLeaf) obj).getRuleNames());
         } else if (obj instanceof ATableTracerNode) {
             return getDisplayName((ATableTracerNode) obj);
         }

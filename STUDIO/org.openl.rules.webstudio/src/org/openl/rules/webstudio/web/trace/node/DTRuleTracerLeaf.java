@@ -10,18 +10,26 @@ import org.openl.rules.table.ILogicalTable;
  */
 public class DTRuleTracerLeaf extends ATableTracerNode {
 
-    private int ruleIndex;
+    private int[] ruleIndexes;
 
-    DTRuleTracerLeaf(int ruleIdx) {
+    DTRuleTracerLeaf(int[] ruleIndexes) {
         super("rule", null, null, null);
-        this.ruleIndex = ruleIdx;
+        this.ruleIndexes = ruleIndexes;
     }
 
-    public String getRuleName() {
-        return ((IDecisionTable) getTraceObject()).getRuleName(ruleIndex);
+    public String[] getRuleNames() {
+        String[] ruleNames = new String[ruleIndexes.length];
+        for (int i = 0; i < ruleIndexes.length; i++) {
+            ruleNames[i] = ((IDecisionTable) getTraceObject()).getRuleName(ruleIndexes[i]);
+        }
+        return ruleNames;
     }
 
-    public ILogicalTable getRuleTable() {
-        return ((IDecisionTable) getTraceObject()).getRuleTable(ruleIndex);
+    public ILogicalTable[] getRuleTables() {
+        ILogicalTable[] logicalTables = new ILogicalTable[ruleIndexes.length];
+        for (int i = 0; i < ruleIndexes.length; i++) {
+            logicalTables[i] = ((IDecisionTable) getTraceObject()).getRuleTable(ruleIndexes[i]);
+        }
+        return logicalTables;
     }
 }

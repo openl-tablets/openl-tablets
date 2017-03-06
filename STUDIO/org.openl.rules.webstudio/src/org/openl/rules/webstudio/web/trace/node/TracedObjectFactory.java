@@ -48,7 +48,7 @@ public class TracedObjectFactory {
         } else if (method instanceof SpreadsheetCell) {
             return new SpreadsheetTracerLeaf((SpreadsheetCell) method);
         } else if (method instanceof ActionInvoker) {
-            return new DTRuleTracerLeaf(((ActionInvoker) method).getRule());
+            return new DTRuleTracerLeaf(((ActionInvoker) method).getRules());
         } else if (method instanceof RuntimeOperation) {
             RuntimeOperation operation = (RuntimeOperation) method;
             String nameForDebug = operation.getNameForDebug();
@@ -77,7 +77,7 @@ public class TracedObjectFactory {
             tr.setResult(args[0]);
             trObj = tr;
         } else if (source instanceof OpenMethodDispatcher) {
-            trObj = new DTRuleTracerLeaf(((OpenMethodDispatcher) source).getCandidates().indexOf(args[0]));
+            trObj = new DTRuleTracerLeaf(new int[]{((OpenMethodDispatcher) source).getCandidates().indexOf(args[0])});
         } else {
             trObj = null;
         }

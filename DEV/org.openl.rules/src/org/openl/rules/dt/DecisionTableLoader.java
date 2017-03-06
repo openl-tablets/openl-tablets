@@ -7,7 +7,9 @@
 package org.openl.rules.dt;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -16,12 +18,11 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.dt.DTScale.RowScale;
 import org.openl.rules.dt.element.Action;
+import org.openl.rules.dt.element.ActionType;
 import org.openl.rules.dt.element.Condition;
 import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.RuleRow;
-import org.openl.rules.dt.IBaseAction;
-import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
@@ -31,6 +32,7 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.utils.ParserUtils;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.types.IOpenClass;
 
 /**
  * @author snshor
@@ -47,14 +49,17 @@ public class DecisionTableLoader {
 
     private RuleRow ruleRow;
     
-   DTInfo info;
-    
+    DTInfo info;
 
     private List<IBaseCondition> conditions = new ArrayList<IBaseCondition>();
     private List<IBaseAction> actions = new ArrayList<IBaseAction>();
+    private boolean hasReturnAction = false;
+    private boolean hasCollectReturnAction = false;
+    private boolean hasCollectReturnKeyAction = false;
+    private String firstUsedReturnActionHeader = null;
 
     private void addAction(String name, int row, ILogicalTable table) {
-        actions.add(new Action(name, row, table, false, DTScale.getStandardScale()));
+        actions.add(new Action(name, row, table, ActionType.ACTION, DTScale.getStandardScale()));
     }
 
     private void addCondition(String name, int row, ILogicalTable table) {
@@ -68,7 +73,15 @@ public class DecisionTableLoader {
 	}
 
 	private void addReturnAction(String name, int row, ILogicalTable table) {
-        actions.add(new Action(name, row, table, true, DTScale.getStandardScale()));
+        actions.add(new Action(name, row, table, ActionType.RETURN, DTScale.getStandardScale()));
+    }
+	
+	private void addCollectReturnKeyAction(String name, int row, ILogicalTable table) {
+        actions.add(new Action(name, row, table, ActionType.COLLECT_RETURN_KEY, DTScale.getStandardScale()));
+    }
+	
+	private void addCollectReturnAction(String name, int row, ILogicalTable table) {
+        actions.add(new Action(name, row, table, ActionType.COLLECT_RETURN, DTScale.getStandardScale()));
     }
 
     private void addRule(int row, ILogicalTable table, IBindingContext bindingContext) throws SyntaxNodeException {
@@ -164,10 +177,28 @@ public class DecisionTableLoader {
         putTableForBusinessView(tableSyntaxNode);
 
         for (int i = 0; i < toParse.getHeight(); i++) {
-            loadRow(i, toParse, bindingContext);
+            loadRow(i, toParse, decisionTable, bindingContext);
         }
+        
+        validateMapReturnType(decisionTable, tableSyntaxNode);
     }
     
+    
+    private void validateMapReturnType(DecisionTable decisionTable, TableSyntaxNode tableSyntaxNode) throws SyntaxNodeException{
+        if (Map.class.isAssignableFrom(decisionTable.getType().getInstanceClass())) {
+            if (hasCollectReturnAction && !hasCollectReturnKeyAction){
+                throw SyntaxNodeExceptionUtils.createError(
+                    "Invalid Decision Table headers: At least one KEY header is required.",
+                    tableSyntaxNode);
+            }
+            if (hasCollectReturnKeyAction && !hasCollectReturnAction){
+                throw SyntaxNodeExceptionUtils.createError(
+                    "Invalid Decision Table headers: At least one CRET header is required.",
+                    tableSyntaxNode);
+            }
+        }
+    }
+
     private ILogicalTable unmergeFirstRow(ILogicalTable toParse) {
     	ILogicalTable unmerged  = LogicalTableHelper.unmergeColumns(toParse, IDecisionTableConstants.SERVICE_COLUMNS_NUMBER, toParse.getWidth());
     	 
@@ -255,7 +286,7 @@ public class DecisionTableLoader {
     }
     
     
-    private void loadRow(int row, ILogicalTable table, IBindingContext bindingContext) throws SyntaxNodeException {
+    private void loadRow(int row, ILogicalTable table, DecisionTable decisionTable, IBindingContext bindingContext) throws SyntaxNodeException {
 
         String header = getHeaderStr(row, table);
 
@@ -265,17 +296,71 @@ public class DecisionTableLoader {
             addAction(header, row, table);
         } else if (DecisionTableHelper.isValidRuleHeader(header)) {
             addRule(row, table, bindingContext);
+        } else if (DecisionTableHelper.isValidKeyHeader(header)) {
+            addCollectReturnKeyAction(header, row, table);
+            hasCollectReturnKeyAction = true;
         } else if (DecisionTableHelper.isValidRetHeader(header)) {
+            if (hasCollectReturnAction){
+                throw SyntaxNodeExceptionUtils.createError(
+                    "Invalid Decision Table header: " + header + ". Headers '" + firstUsedReturnActionHeader + "' and '" + header + "' can't be used together.",
+                    new GridCellSourceCodeModule(table.getRow(row).getSource(),
+                        IDecisionTableConstants.INFO_COLUMN_INDEX,
+                        0,
+                        bindingContext));
+            }
             addReturnAction(header, row, table);
+            saveFirstUsedReturnActionHeader(header);
+            hasReturnAction = true;
+        } else if (DecisionTableHelper.isValidCRetHeader(header)) {
+            if (hasReturnAction){
+                throw SyntaxNodeExceptionUtils.createError(
+                    "Invalid Decision Table header: " + header + ". Headers '" + firstUsedReturnActionHeader + "' and '" + header + "' can't be used together.",
+                    new GridCellSourceCodeModule(table.getRow(row).getSource(),
+                        IDecisionTableConstants.INFO_COLUMN_INDEX,
+                        0,
+                        bindingContext));
+            }
+            hasCollectReturnAction = true;
+            saveFirstUsedReturnActionHeader(header);
+            if (validateCollectReturnType(decisionTable)){
+                addCollectReturnAction(header, row, table);
+            }else{
+                throw SyntaxNodeExceptionUtils.createError("Incompatible method return type for '" + header + "' header.",
+                    new GridCellSourceCodeModule(table.getRow(row).getSource(),
+                        IDecisionTableConstants.INFO_COLUMN_INDEX,
+                        0, bindingContext));
+            }
         } else if (ParserUtils.isBlankOrCommented(header)) {
             // do nothing
         } else {
-            throw SyntaxNodeExceptionUtils.createError("Invalid Decision Table header:" + header,
+            throw SyntaxNodeExceptionUtils.createError("Invalid Decision Table header: " + header,
                 new GridCellSourceCodeModule(table.getRow(row).getSource(),
                     IDecisionTableConstants.INFO_COLUMN_INDEX,
                     0, bindingContext));
 
         }
+    }
+
+    private void saveFirstUsedReturnActionHeader(String header) {
+        if (firstUsedReturnActionHeader == null) {
+            firstUsedReturnActionHeader = header;
+        }
+    }
+
+    private boolean validateCollectReturnType(DecisionTable decisionTable) {
+        IOpenClass type = decisionTable.getType();
+
+        if (type.isArray()) {
+            return true;
+        }
+        if (Collection.class.isAssignableFrom(type.getInstanceClass())) {
+            return true;
+        }
+        if (Map.class.isAssignableFrom(type.getInstanceClass())) {
+            return true;
+        }
+
+        return false;
     }
 
 }
