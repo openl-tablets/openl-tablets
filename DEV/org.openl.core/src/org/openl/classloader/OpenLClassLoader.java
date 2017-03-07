@@ -17,9 +17,4 @@ public class OpenLClassLoader extends URLClassLoader{
         super(urls, parent);
     }
 
-    @Override
-    public void addURL(URL url) {
-        super.addURL(url);
-    }
-    
 }

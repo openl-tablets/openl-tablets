@@ -1,6 +1,5 @@
 package org.openl.rules.project.instantiation;
 
-import java.net.URL;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.classloader.ClassLoaderCloserFactory;
-import org.openl.classloader.OpenLClassLoaderHelper;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.DependencyManager;
@@ -132,10 +130,8 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
         if (classLoaders.get(project.getName()) != null) {
             return classLoaders.get(project.getName());
         }
-        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(AbstractProjectDependencyManager.class.getClassLoader());
-        URL[] urls = project.getClassPathUrls();
+        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(project.getClassPathUrls(), AbstractProjectDependencyManager.class.getClassLoader());
         classLoader.addClassLoader(project.getClassLoader(false));
-        OpenLClassLoaderHelper.extendClasspath(classLoader, urls);
         if (project.getDependencies() != null) {
             for (ProjectDependencyDescriptor projectDependencyDescriptor : project.getDependencies()) {
                 if (getProjectDescriptors() != null) {

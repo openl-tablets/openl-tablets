@@ -1,5 +1,6 @@
 package org.openl.classloader;
 
+import java.net.URL;
 import java.util.Set;
 
 /**
@@ -12,7 +13,11 @@ import java.util.Set;
 public class SimpleBundleClassLoader extends OpenLBundleClassLoader {
 
     public SimpleBundleClassLoader(ClassLoader parent) {
-        super(parent);
+        this(new URL[0], parent);
+    }
+
+    public SimpleBundleClassLoader(URL[] urls, ClassLoader parent) {
+        super(urls, parent);
     }
 
     @Override

@@ -4,7 +4,6 @@ import java.net.URL;
 
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLBundleClassLoader;
-import org.openl.classloader.OpenLClassLoaderHelper;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.conf.IUserContext;
 import org.openl.dependency.IDependencyManager;

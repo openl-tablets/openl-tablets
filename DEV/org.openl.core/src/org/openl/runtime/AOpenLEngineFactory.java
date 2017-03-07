@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.openl.OpenL;
-import org.openl.classloader.OpenLClassLoaderHelper;
 import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.types.IOpenMember;
@@ -66,7 +65,7 @@ public abstract class AOpenLEngineFactory extends AEngineFactory {
     }
 
     private ClassLoader getDefaultUserClassLoader() {
-        ClassLoader userClassLoader = OpenLClassLoaderHelper.getContextClassLoader();
+        ClassLoader userClassLoader = Thread.currentThread().getContextClassLoader();
 
         try {
             // checking if classloader has openl, sometimes it does not
