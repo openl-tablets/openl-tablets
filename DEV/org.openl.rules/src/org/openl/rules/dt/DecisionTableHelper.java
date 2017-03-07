@@ -164,7 +164,7 @@ public class DecisionTableHelper {
     }
 
     public static boolean isActionHeader(String s) {
-        return isValidActionHeader(s) || isValidRetHeader(s);
+        return isValidActionHeader(s) || isValidRetHeader(s) || isValidCRetHeader(s) || isValidKeyHeader(s);
     }
 
     public static boolean isConditionHeader(String s) {

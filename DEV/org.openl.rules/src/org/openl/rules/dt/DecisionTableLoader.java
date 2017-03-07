@@ -325,7 +325,7 @@ public class DecisionTableLoader {
             if (validateCollectReturnType(decisionTable)){
                 addCollectReturnAction(header, row, table);
             }else{
-                throw SyntaxNodeExceptionUtils.createError("Incompatible method return type for '" + header + "' header.",
+                throw SyntaxNodeExceptionUtils.createError("Incompatible method return type with '" + header + "' header.",
                     new GridCellSourceCodeModule(table.getRow(row).getSource(),
                         IDecisionTableConstants.INFO_COLUMN_INDEX,
                         0, bindingContext));

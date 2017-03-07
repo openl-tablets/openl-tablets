@@ -127,11 +127,15 @@ public class Action extends FunctionalRow implements IAction {
         this.returnType = header.getType();
         
         IOpenClass methodType = JavaOpenClass.VOID;
-        if (isCollectReturnAction()){
-            methodType = exctractMethodTypeForCollectReturnAction(header.getType());
-        }else{
-            if (isReturnAction()){
-                methodType = header.getType();
+        if (isReturnAction()) {
+            methodType = header.getType();
+        } else {
+            if (isCollectReturnAction()) {
+                methodType = exctractMethodTypeForCollectReturnAction(header.getType());
+            } else {
+                if (isCollectReturnKeyAction()) {
+                    methodType = JavaOpenClass.OBJECT;
+                }
             }
         }
         
