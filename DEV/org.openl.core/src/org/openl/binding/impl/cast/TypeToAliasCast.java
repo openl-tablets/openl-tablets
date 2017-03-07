@@ -1,7 +1,5 @@
 package org.openl.binding.impl.cast;
 
-import java.lang.reflect.Array;
-
 import org.openl.domain.IDomain;
 import org.openl.types.IOpenClass;
 
@@ -37,29 +35,6 @@ public class TypeToAliasCast implements IOpenCast {
     }
 
     public Object convert(Object from) {
-        if (from == null) {
-            return null;
-        }
-
-        if (toClass.isArray()) {
-            Object[] fromArray = (Object[]) from;
-            // create an array of results
-            //
-            Object results = Array.newInstance(fromArray.getClass().getComponentType(), fromArray.length);
-
-            // populate the results array by converting single value
-            //
-            for (int i = 0; i < fromArray.length; i++) {
-                Array.set(results, i, convertSingle(fromArray[i]));
-            }
-            return results;
-        } else {
-            return convertSingle(from);
-        }
-    }
-
-    @SuppressWarnings("rawtypes")
-	protected Object convertSingle(Object from) {
         if (from == null) {
             return null;
         }
