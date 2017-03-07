@@ -169,17 +169,17 @@ public final class OpenLFuzzySearch {
         }
         return ret;
     }
-    
+
     private static String[] concatTokens(String[] tokens, String pattern) {
         List<String> t = new ArrayList<String>();
         StringBuilder sbBuilder = new StringBuilder();
         boolean g = false;
-        for (String s : tokens){
-            if (s.length() == 1 && s.matches(pattern)){
+        for (String s : tokens) {
+            if (s.length() == 1 && s.matches(pattern)) {
                 g = true;
                 sbBuilder.append(s);
             } else {
-                if (g){
+                if (g) {
                     t.add(sbBuilder.toString());
                     g = false;
                     sbBuilder = new StringBuilder();
@@ -187,10 +187,10 @@ public final class OpenLFuzzySearch {
                 t.add(s);
             }
         }
-        if (g){
+        if (g) {
             t.add(sbBuilder.toString());
         }
-        return t.toArray(new String[]{});
+        return t.toArray(new String[] {});
     }
 
     private static String[] cleanUpTokens(String[] tokens) {
@@ -200,7 +200,14 @@ public final class OpenLFuzzySearch {
             if (s.isEmpty()) {
                 continue;
             }
-            if (!s.matches("[\\p{IsAlphabetic}\\d]*")) {
+            boolean f = false;
+            for (int i = 0; i < s.length(); i++) {
+                if (!Character.isLetterOrDigit(s.charAt(i))) {
+                    f = true;
+                    break;
+                }
+            }
+            if (f) {
                 continue;
             }
             t.add(token);
@@ -209,15 +216,15 @@ public final class OpenLFuzzySearch {
     }
 
     public static String toTokenString(String source) {
-        if (source == null){
+        if (source == null) {
             return StringUtils.EMPTY;
         }
         String[] tokens = source.split("(?<=.)(?=\\p{Lu}|\\d|\\s|[_])");
-        
+
         tokens = concatTokens(tokens, "\\p{Lu}+");
         tokens = concatTokens(tokens, "\\d+");
         tokens = cleanUpTokens(tokens);
-        
+
         StringBuilder sb = new StringBuilder();
         boolean f = false;
         for (String s : tokens) {
@@ -230,7 +237,7 @@ public final class OpenLFuzzySearch {
         }
         return sb.toString();
     }
-    
+
     public static Token[] openlFuzzyExtract(String source, Token[] tokens) {
         String[] sourceTokens = source.split(" ");
 
@@ -272,7 +279,7 @@ public final class OpenLFuzzySearch {
         }
 
         if (max == 0) {
-            return new Token[]{};
+            return new Token[] {};
         }
 
         int min = Integer.MAX_VALUE;
