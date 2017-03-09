@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -179,5 +180,14 @@ public class ProjectDescriptorManagerTest {
         assertEquals(2, projectDescriptorManager.readDescriptor("./test-resources/rules3.xml").getModules().size());
         // test complex
         assertEquals(2, projectDescriptorManager.readDescriptor("./test-resources/rules4.xml").getModules().size());
+    }
+
+    @Test
+    public void testClassPathUrls() throws Exception {
+        ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
+        ProjectDescriptor projectDescriptor = projectDescriptorManager.readDescriptor("./test-resources/descriptor/rules-clspth.xml");
+        URL[] classPathUrls = projectDescriptor.getClassPathUrls();
+        assertEquals(9, classPathUrls.length);
+
     }
 }
