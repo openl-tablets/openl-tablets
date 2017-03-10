@@ -38,6 +38,10 @@ public class URLSourceCodeModule extends ASourceCodeModule {
         this(toUrl(new File(file)));
     }
 
+    /**
+     * @deprecated Don't use it. Implemented for migration from File sources to URL sources.
+     */
+    @Deprecated
     public static URL toUrl(File file) {
         try {
             return file.toURI().toURL();
