@@ -9,12 +9,14 @@ import org.openl.runtime.EngineFactory;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.runtime.IRuntimeEnvBuilder;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -45,6 +47,23 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
 
     public InterfaceClassGenerator getInterfaceClassGenerator() {
         return interfaceClassGenerator;
+    }
+
+    /**
+     * @deprecated use {@link #RulesEngineFactory(URL)},
+     */
+    @Deprecated
+    public RulesEngineFactory(File file) {
+        super(RULES_XLS_OPENL_NAME, URLSourceCodeModule.toUrl(file));
+    }
+
+    /**
+     * @deprecated use {@link #RulesEngineFactory(URL, Class)}
+     */
+    @Deprecated
+    public RulesEngineFactory(File file, Class<T> interfaceClass) {
+        super(RULES_XLS_OPENL_NAME, URLSourceCodeModule.toUrl(file));
+        super.setInterfaceClass(interfaceClass);
     }
 
     public RulesEngineFactory(String sourceFile) {
