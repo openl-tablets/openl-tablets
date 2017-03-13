@@ -1,13 +1,11 @@
 package org.openl.rules.project.dependencies;
 
-import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLClassLoader;
-import org.openl.classloader.OpenLClassLoaderHelper;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
@@ -17,6 +15,7 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.instantiation.SingleModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
 
 public class RulesModuleDependencyLoader implements IDependencyLoader {
 
@@ -33,14 +32,13 @@ public class RulesModuleDependencyLoader implements IDependencyLoader {
         if(dependencyModule != null) {
      
             try {
-                URL[] urls = dependencyModule.getProject().getClassPathUrls();
-                ClassLoader oldClassLoader = OpenLClassLoaderHelper.getContextClassLoader();
+                ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
                 
                 // create classloader for the dependency. With the parent for current module.
                 //
-                OpenLClassLoader moduleClassLoader = new SimpleBundleClassLoader(oldClassLoader);
-                OpenLClassLoaderHelper.extendClasspath(moduleClassLoader, urls);
-                
+                ProjectDescriptor project = dependencyModule.getProject();
+                SimpleBundleClassLoader moduleClassLoader = new SimpleBundleClassLoader(project.getClassPathUrls(), oldClassLoader);
+
                 SingleModuleInstantiationStrategy strategy = RulesInstantiationStrategyFactory.getStrategy(dependencyModule, 
                     dependencyManager.isExecutionMode(), dependencyManager, moduleClassLoader);
                 strategy.setExternalParameters(dependencyManager.getExternalParameters());

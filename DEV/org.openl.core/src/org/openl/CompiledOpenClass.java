@@ -6,7 +6,6 @@ package org.openl;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.classloader.OpenLClassLoaderHelper;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
@@ -41,7 +40,7 @@ public class CompiledOpenClass {
         this.parsingErrors = parsingErrors;
         this.bindingErrors = bindingErrors;
         this.messages = messages;
-        this.classLoader = OpenLClassLoaderHelper.getContextClassLoader();
+        this.classLoader = Thread.currentThread().getContextClassLoader();
     }
 
     @Deprecated

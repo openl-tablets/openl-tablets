@@ -9,12 +9,8 @@ public abstract class OpenLBundleClassLoader extends OpenLClassLoader {
 
     private Set<ClassLoader> bundleClassLoaders = new LinkedHashSet<ClassLoader>();
     
-    protected OpenLBundleClassLoader() {
-        super(new URL[0]);
-    }
-    
-    protected OpenLBundleClassLoader(ClassLoader parent) {
-        super(new URL[0], parent);
+    OpenLBundleClassLoader(URL[] urls, ClassLoader parent) {
+        super(urls, parent);
     }
 
     public void addClassLoader(ClassLoader classLoader) {

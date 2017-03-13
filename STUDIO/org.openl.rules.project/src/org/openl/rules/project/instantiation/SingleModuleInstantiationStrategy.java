@@ -1,15 +1,14 @@
 package org.openl.rules.project.instantiation;
 
-import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.classloader.OpenLClassLoaderHelper;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
 
 /**
  * Instantiation strategy for single module.
@@ -51,10 +50,9 @@ public abstract class SingleModuleInstantiationStrategy extends CommonRulesInsta
 
     @SuppressWarnings("deprecation")
     protected ClassLoader initClassLoader() {
-        ClassLoader parent = getModule().getProject().getClassLoader(false);
-        URL[] urls = getModule().getProject().getClassPathUrls();
-        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(parent);
-        OpenLClassLoaderHelper.extendClasspath(classLoader, urls);
+        ProjectDescriptor project = getModule().getProject();
+        ClassLoader parent = project.getClassLoader(false);
+        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(project.getClassPathUrls(), parent);
         return classLoader;
     }
 
