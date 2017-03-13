@@ -253,10 +253,10 @@ public class DecisionTableLoader {
             ILogicalTable tableBody, IBindingContext bindingContext) throws OpenLCompilationException {
         
         if (DecisionTableHelper.isSimpleDecisionTableOrSmartDecisionTable(tableSyntaxNode)) {
-            tableBody = DecisionTableHelper.preprocessSimpleDecisionTable(decisionTable, tableBody, 0, tableBody.getSource().getCell(0, 0).getHeight(), DecisionTableHelper.isSmartSimpleDecisionTable(tableSyntaxNode), bindingContext);
+            tableBody = DecisionTableHelper.preprocessSimpleDecisionTable(tableSyntaxNode, decisionTable, tableBody, 0, tableBody.getSource().getCell(0, 0).getHeight(), DecisionTableHelper.isSmartDecisionTable(tableSyntaxNode), DecisionTableHelper.isCollectDecisionTable(tableSyntaxNode), bindingContext);
         } else if (DecisionTableHelper.isSimpleLookupTable(tableSyntaxNode)) {
-            tableBody = DecisionTableHelper.preprocessSimpleDecisionTable(decisionTable, tableBody, tableBody.getSource()
-                    .getCell(0, 0).getHeight(), tableBody.getSource().getCell(0, 0).getHeight(), DecisionTableHelper.isSmartSimpleLookupTable(tableSyntaxNode), bindingContext);
+            tableBody = DecisionTableHelper.preprocessSimpleDecisionTable(tableSyntaxNode, decisionTable, tableBody, tableBody.getSource()
+                    .getCell(0, 0).getHeight(), tableBody.getSource().getCell(0, 0).getHeight(), DecisionTableHelper.isSmartSimpleLookupTable(tableSyntaxNode), DecisionTableHelper.isCollectDecisionTable(tableSyntaxNode), bindingContext);
         }
         
         return tableBody;

@@ -2,6 +2,7 @@ package org.openl.rules.dt;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,6 +48,9 @@ import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.StringSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.impl.ISyntaxConstants;
+import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -209,19 +213,23 @@ public class DecisionTableHelper {
      *            SimpleRules it == 0 in SimpleLookups > 0
      * @return prepared usual Decision Table.
      */
-    public static ILogicalTable preprocessSimpleDecisionTable(DecisionTable decisionTable,
+    public static ILogicalTable preprocessSimpleDecisionTable(TableSyntaxNode tableSyntaxNode,
+            DecisionTable decisionTable,
             ILogicalTable originalTable,
             int numberOfHcondition,
             int numberOfMergedRows,
-            boolean smartDecisionTable,
+            boolean isSmartDecisionTable,
+            boolean isCollectTable,
             IBindingContext bindingContext) throws OpenLCompilationException {
         IWritableGrid virtualGrid = createVirtualGrid();
-        writeVirtualHeadersForSimpleDecisionTable(virtualGrid,
+        writeVirtualHeadersForSimpleDecisionTable(tableSyntaxNode,
+            virtualGrid,
             originalTable,
             decisionTable,
             numberOfHcondition,
             numberOfMergedRows,
-            smartDecisionTable,
+            isSmartDecisionTable,
+            isCollectTable,
             bindingContext);
 
         // If the new table header size bigger than the size of the old table we
@@ -248,37 +256,44 @@ public class DecisionTableHelper {
             grid));
     }
 
-    private static void writeVirtualHeadersForSimpleDecisionTable(IWritableGrid grid,
+    private static void writeVirtualHeadersForSimpleDecisionTable(TableSyntaxNode tableSyntaxNode, 
+            IWritableGrid grid,
             ILogicalTable originalTable,
             DecisionTable decisionTable,
             int numberOfHcondition,
             int numberOfMergedRows,
-            boolean smartDecisionTable,
+            boolean isSmartDecisionTable,
+            boolean isCollectTable,
             IBindingContext bindingContext) throws OpenLCompilationException {
         Pair<Condition[], Integer> c = writeConditions(grid,
             originalTable,
             decisionTable,
             numberOfHcondition,
-            smartDecisionTable,
+            isSmartDecisionTable,
+            isCollectTable,
             bindingContext);
 
-        writeReturn(grid,
+        writeReturn(tableSyntaxNode,
+            grid,
             originalTable,
             decisionTable,
             c.getRight(),
             c.getLeft(),
             numberOfMergedRows,
             numberOfHcondition > 0,
-            smartDecisionTable,
+            isSmartDecisionTable,
+            isCollectTable,
             bindingContext);
     }
 
     private final static String RET1_COLUMN_NAME = DecisionTableColumnHeaders.RETURN.getHeaderKey() + "1";
+    private final static String CRET1_COLUMN_NAME = DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + "1";
+    private final static String KEY1_COLUMN_NAME = DecisionTableColumnHeaders.KEY.getHeaderKey() + "1";
 
     private static boolean isCompoundReturnType(ILogicalTable originalTable,
             DecisionTable decisionTable,
-            int firstColumnAfterConditionColumns) {
-        int c = firstColumnAfterConditionColumns;
+            int firstReturnColumn) {
+        int c = firstReturnColumn;
         int compoundTypeParameterCount = 0;
         while (c < originalTable.getSource().getWidth()){
             if (originalTable.getSource().getCell(c, 0).getStringValue() == null || originalTable.getSource().getCell(c, 0).getStringValue().trim().isEmpty()){
@@ -305,10 +320,10 @@ public class DecisionTableHelper {
     private static void writeCompoundReturnColumns(IWritableGrid grid,
             ILogicalTable originalTable,
             DecisionTable decisionTable,
-            int firstColumnAfterConditionColumns,
+            int firstReturnColumn,
             int numberOfMergedRows,
             Condition[] conditions,
-            boolean smartDecisionTable,
+            boolean isSmartDecisionTable,
             IBindingContext bindingContext) throws OpenLCompilationException {
         int numberOfConditions = conditions.length;
         int compoundReturnColumnsCount = calculateCompoundReturnColumnsCount(originalTable,
@@ -321,7 +336,7 @@ public class DecisionTableHelper {
         StringBuilder sb = new StringBuilder();
         sb.append(compoundType.getName() + " ret = new " + compoundType.getName() + "();");
 
-        if (smartDecisionTable) {
+        if (isSmartDecisionTable) {
             // Set conditions parameters to compound type. Recursively search is not supported.
             for (int i = 0; i < numberOfConditions; i++) {
                 String descriptionOfCondition = conditions[i].getDescription();
@@ -344,7 +359,7 @@ public class DecisionTableHelper {
             generatedNames.add(RandomStringUtils.random(8, true, false));
         }
         String[] compoundColumnParamNames = generatedNames.toArray(new String[] {});
-        int column = firstColumnAfterConditionColumns;
+        int column = firstReturnColumn;
         Map<String, Map<IOpenMethod, String>> variables = new HashMap<String, Map<IOpenMethod, String>>();
         for (int i = 0; i < compoundReturnColumnsCount; i++) {
             StringBuilder fieldChainSb = null;
@@ -455,10 +470,10 @@ public class DecisionTableHelper {
         }
 
         sb.append("ret;");
-        grid.setCellValue(firstColumnAfterConditionColumns, 1, sb.toString());
+        grid.setCellValue(firstReturnColumn, 1, sb.toString());
 
         for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1; row++) {
-            grid.addMergedRegion(new GridRegion(row, firstColumnAfterConditionColumns, row, column - 1));
+            grid.addMergedRegion(new GridRegion(row, firstReturnColumn, row, column - 1));
         }
     }
 
@@ -532,40 +547,116 @@ public class DecisionTableHelper {
         }
         return openClassFuzzyTokens.get(fuzzyBestMatches[0])[0];
     }
+    
+    private static void validateCollectSyntaxNode(TableSyntaxNode tableSyntaxNode,
+            DecisionTable decisionTable,
+            ILogicalTable originalTable,
+            IBindingContext bindingContext) throws OpenLCompilationException {
+        int parametersCount = tableSyntaxNode.getHeader().getCollectParameters().length;
+        IOpenClass type = decisionTable.getType();
+        if ((type.isArray() || Collection.class.isAssignableFrom(type.getInstanceClass())) && parametersCount > 1) {
+            throw new OpenLCompilationException(
+                String.format("Error: Cannot bind node: '%s'. Cannot bind more than one parameter for '%s'.",
+                    Tokenizer.firstToken(tableSyntaxNode.getHeader().getModule(), "").getIdentifier(),
+                    type.getComponentClass().getDisplayName(0)));
+        }
+        if (Map.class.isAssignableFrom(type.getInstanceClass())) {
+            if (parametersCount > 2){
+                throw new OpenLCompilationException(
+                    String.format("Error: Cannot bind node: '%s'. Cannot bind more than two parameter for '%s'.",
+                        Tokenizer.firstToken(tableSyntaxNode.getHeader().getModule(), "").getIdentifier(),
+                        type.getDisplayName(0)));
+            }
+            if (parametersCount == 1){
+                throw new OpenLCompilationException(
+                    String.format("Error: Cannot bind node: '%s'. Cannot bind only one parameter for '%s'.",
+                        Tokenizer.firstToken(tableSyntaxNode.getHeader().getModule(), "").getIdentifier(),
+                        type.getDisplayName(0)));
+            }
+        }
+        for (String parameterType : tableSyntaxNode.getHeader().getCollectParameters()) {
+            IOpenClass t = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, parameterType);
+            if (t == null) {
+                throw new OpenLCompilationException(String.format(
+                    "Error: Cannot bind node: '%s'. Cannot find type: '%s'.",
+                    Tokenizer.firstToken(tableSyntaxNode.getHeader().getModule(), "").getIdentifier(),
+                    parameterType));
+            } else {
+                if (type
+                    .isArray() && !type.getComponentClass().getInstanceClass().isAssignableFrom(t.getInstanceClass())) {
+                    throw new OpenLCompilationException(
+                        String.format("Error: Cannot bind node: '%s'. Incompatible types: '%s' and '%s'.",
+                            Tokenizer.firstToken(tableSyntaxNode.getHeader().getModule(), "").getIdentifier(),
+                            type.getComponentClass().getDisplayName(0),
+                            t.getDisplayName(0)));
+                }
+            }
+        }
+    }
 
-    private static void writeReturn(IWritableGrid grid,
+    private static void writeReturn(TableSyntaxNode tableSyntaxNode,
+            IWritableGrid grid,
             ILogicalTable originalTable,
             DecisionTable decisionTable,
             int firstColumnAfterConditionColumns,
             Condition[] conditions,
             int numberOfMergedRows,
             boolean isLookupTable,
-            boolean smartDecisionTable,
+            boolean isSmartDecisionTable,
+            boolean isCollectTable,
             IBindingContext bindingContext) throws OpenLCompilationException {
         // write return column
         //
-        grid.setCellValue(firstColumnAfterConditionColumns, 0, RET1_COLUMN_NAME);
+        int firstReturnColumn = firstColumnAfterConditionColumns;
+        if (isCollectTable) {
+            validateCollectSyntaxNode(tableSyntaxNode, decisionTable, originalTable, bindingContext);
+            int retParameterIndex = 0;
+            
+            if (Map.class.isAssignableFrom(decisionTable.getType().getInstanceClass())){
+                grid.setCellValue(firstReturnColumn, 0, KEY1_COLUMN_NAME);
+                if (tableSyntaxNode.getHeader().getCollectParameters().length > 0){
+                    grid.setCellValue(firstReturnColumn, 1, "keyRet");
+                    grid.setCellValue(firstReturnColumn, 2, tableSyntaxNode.getHeader().getCollectParameters()[retParameterIndex] + " " + "keyRet");
+                    retParameterIndex++;
+                }
+                int mergedColumnsCounts = originalTable.getSource().getCell(firstReturnColumn, numberOfMergedRows).getWidth();
+                firstReturnColumn = firstReturnColumn + mergedColumnsCounts;
+            }
+            
+            grid.setCellValue(firstReturnColumn, 0, CRET1_COLUMN_NAME);
+            if (tableSyntaxNode.getHeader().getCollectParameters().length > 0){
+                grid.setCellValue(firstReturnColumn, 1, "extraRet");
+                grid.setCellValue(firstReturnColumn, 2, tableSyntaxNode.getHeader().getCollectParameters()[retParameterIndex] + " " + "extraRet");
+            } else {
+                if (decisionTable.getType().isArray()){
+                    grid.setCellValue(firstReturnColumn, 1, "extraRet");
+                    grid.setCellValue(firstReturnColumn, 2, decisionTable.getType().getComponentClass().getName() + " " + "extraRet");
+                }
+            }
+        } else {
+            grid.setCellValue(firstReturnColumn, 0, RET1_COLUMN_NAME);
+        }
 
         if (!isLookupTable) {
             if (originalTable.getWidth() > conditions.length) {
-                boolean isCompoundReturnType = isCompoundReturnType(originalTable, decisionTable, firstColumnAfterConditionColumns);
+                boolean isCompoundReturnType = isCompoundReturnType(originalTable, decisionTable, firstReturnColumn);
                 if (isCompoundReturnType) {
                     writeCompoundReturnColumns(grid,
                         originalTable,
                         decisionTable,
-                        firstColumnAfterConditionColumns,
+                        firstReturnColumn,
                         numberOfMergedRows,
                         conditions,
-                        smartDecisionTable,
+                        isSmartDecisionTable,
                         bindingContext);
                 } else {
                     int mergedColumnsCounts = originalTable.getColumnWidth(conditions.length);
                     if (mergedColumnsCounts > 1) {
                         for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT; row++) {
                             grid.addMergedRegion(new GridRegion(row,
-                                firstColumnAfterConditionColumns,
+                                firstReturnColumn,
                                 row,
-                                firstColumnAfterConditionColumns + mergedColumnsCounts - 1));
+                                firstReturnColumn + mergedColumnsCounts - 1));
                         }
                     }
                 }
@@ -583,12 +674,13 @@ public class DecisionTableHelper {
             ILogicalTable originalTable,
             DecisionTable decisionTable,
             int numberOfHcondition,
-            boolean smartDecisionTable,
+            boolean isSmartDecisionTable,
+            boolean isCollectTable,
             IBindingContext bindingContext) throws OpenLCompilationException {
         int numberOfConditions;
         Condition[] conditions;
-        if (smartDecisionTable) {
-            conditions = findConditionsForParameters(originalTable, decisionTable, numberOfHcondition);
+        if (isSmartDecisionTable) {
+            conditions = findConditionsForParameters(originalTable, decisionTable, numberOfHcondition, isCollectTable);
             numberOfConditions = conditions.length;
         } else {
             numberOfConditions = getNumberOfConditions(decisionTable);
@@ -786,7 +878,8 @@ public class DecisionTableHelper {
 
     private static Condition[] findConditionsForParameters(ILogicalTable originalTable,
             DecisionTable decisionTable,
-            int numberOfHcondition) throws OpenLCompilationException {
+            int numberOfHcondition,
+            boolean isCollectTable) throws OpenLCompilationException {
         int numberOfParameters = decisionTable.getSignature().getNumberOfParameters();
         int column = 0;
         List<List<Condition>> vConditions = new ArrayList<List<Condition>>();
@@ -811,6 +904,12 @@ public class DecisionTableHelper {
             
             if (column >= originalTable.getWidth()){
                 break;
+            }
+            
+            if (isCollectTable && Map.class.isAssignableFrom(decisionTable.getType().getInstanceClass())) { //Collect with Map uses 2 last columns
+                if (column + originalTable.getColumnWidth(column) >= originalTable.getWidth()){
+                    break;
+                }
             }
             
             String tokenizedDescriptionString = OpenLFuzzySearch.toTokenString(description);
@@ -1019,12 +1118,20 @@ public class DecisionTableHelper {
     }
 
     public static boolean isSimpleDecisionTableOrSmartDecisionTable(TableSyntaxNode tableSyntaxNode) {
-        String dtType = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier();
-
-        return IXlsTableNames.SIMPLE_DECISION_TABLE.equals(dtType) || isSmartSimpleDecisionTable(tableSyntaxNode);
+        return isSimpleDecisionTable(tableSyntaxNode) || isSmartDecisionTable(tableSyntaxNode);
     }
 
-    public static boolean isSmartSimpleDecisionTable(TableSyntaxNode tableSyntaxNode) {
+    public static boolean isCollectDecisionTable(TableSyntaxNode tableSyntaxNode) {
+        return tableSyntaxNode.getHeader().isCollect();
+    }
+    
+    public static boolean isSimpleDecisionTable(TableSyntaxNode tableSyntaxNode) {
+        String dtType = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier();
+
+        return IXlsTableNames.SIMPLE_DECISION_TABLE.equals(dtType);
+    }
+    
+    public static boolean isSmartDecisionTable(TableSyntaxNode tableSyntaxNode) {
         String dtType = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier();
 
         return IXlsTableNames.SMART_DECISION_TABLE.equals(dtType);

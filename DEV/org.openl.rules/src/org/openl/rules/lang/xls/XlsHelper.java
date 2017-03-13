@@ -2,7 +2,9 @@ package org.openl.rules.lang.xls;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.IBoundCode;
@@ -26,6 +28,8 @@ import org.openl.types.IOpenClass;
 import org.openl.util.Log;
 import org.openl.util.PropertiesLocator;
 import org.openl.util.StringTool;
+import org.openl.util.text.ILocation;
+import org.openl.util.text.TextInterval;
 
 public abstract class XlsHelper {
 
@@ -116,19 +120,45 @@ public abstract class XlsHelper {
     public static TableSyntaxNode createTableSyntaxNode(IGridTable table, XlsSheetSourceCodeModule source) throws
                                                                                                            OpenLCompilationException {
         GridCellSourceCodeModule src = new GridCellSourceCodeModule(table);
-        IdentifierNode headerToken = Tokenizer.firstToken(src, " \n\r");
-        String header = headerToken.getIdentifier();
+        IdentifierNode[] headerTokens = Tokenizer.tokenize(src, " \n\r");
+        if (headerTokens.length == 0){
+            headerTokens = new IdentifierNode[]{Tokenizer.firstToken(src, " \n\r")};
+        }
+        IdentifierNode headerToken = headerTokens[0];
+        String header = headerTokens[0].getIdentifier();
         String xls_type = tableHeaders.get(header);
 
         if (xls_type == null) {
             xls_type = XlsNodeTypes.XLS_OTHER.toString();
+        }
+        
+        //Collect token concatenation
+        List<String> collectParameters = new ArrayList<String>();
+        boolean isCollect = false;
+        if (header.equals(IXlsTableNames.SIMPLE_DECISION_TABLE) || header.equals(IXlsTableNames.SMART_DECISION_TABLE)){
+            if (headerTokens.length > 1 && headerTokens[1].getIdentifier().equals(IXlsTableNames.COLLECT)){
+                isCollect = true;
+                if (headerTokens.length > 2 && headerTokens[2].getIdentifier().equals(IXlsTableNames.COLLECT_AS)){
+                    int i = 3;
+                    collectParameters.add(headerTokens[i].getIdentifier());
+                    if (i < headerTokens.length && headerTokens[i + 1].getIdentifier().equals(IXlsTableNames.COLLECT_AND)){
+                        i = i + 2;
+                        collectParameters.add(headerTokens[i].getIdentifier());
+                    }
+                    ILocation location = new TextInterval(headerToken.getLocation().getStart(), headerTokens[i].getLocation().getEnd());
+                    headerToken = new IdentifierNode(headerToken.getType(), location, header, headerToken.getModule());
+                }else{
+                    ILocation location = new TextInterval(headerToken.getLocation().getStart(), headerTokens[1].getLocation().getEnd());
+                    headerToken = new IdentifierNode(headerToken.getType(), location, header, headerToken.getModule());
+                }
+            }
         }
 
         HeaderSyntaxNode headerNode;
         if (XlsNodeTypes.XLS_SPREADSHEET.toString().equals(xls_type)) {
             headerNode = new SpreadsheetHeaderNode(src, headerToken);
         } else {
-            headerNode = new HeaderSyntaxNode(src, headerToken);
+            headerNode = new HeaderSyntaxNode(src, headerToken, isCollect, collectParameters.toArray(new String[]{}));
         }
 
         GridLocation pos = new GridLocation(table);

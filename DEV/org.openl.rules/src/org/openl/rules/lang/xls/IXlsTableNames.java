@@ -32,6 +32,9 @@ public interface IXlsTableNames {
     String RUN_METHOD_TABLE = "Runmethod";
     String RUN_TABLE = "Run";
     String TABLE_PART = "TablePart";
+    String COLLECT = "Collect";
+    String COLLECT_AS = "as";
+    String COLLECT_AND = "and";
 
     String LANG_PROPERTY = "language";
     String INCLUDE_TABLE = "include";

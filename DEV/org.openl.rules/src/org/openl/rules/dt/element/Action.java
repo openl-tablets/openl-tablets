@@ -28,6 +28,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public class Action extends FunctionalRow implements IAction {
 
+    private static final String EXTRA_RET = "e$x$t$r$a$R$e$t";
     private boolean isSingleReturnParam = false;
     private IOpenClass ruleExecutionType;
     private IOpenClass returnType;
@@ -160,11 +161,11 @@ public class Action extends FunctionalRow implements IAction {
             IOpenClass declaringClass, IOpenClass methodType, OpenL openl,
             IBindingContext bindingContext) throws Exception {
 
-        if ("extraRet".equals(methodSource.getCode()) && (isReturnAction() || isCollectReturnAction() || isCollectReturnKeyAction()) && getParams() == null) {
+        if (EXTRA_RET.equals(methodSource.getCode()) && (isReturnAction() || isCollectReturnAction() || isCollectReturnKeyAction()) && getParams() == null) {
             if (!bindingContext.isExecutionMode()) {
                 setCellMetaInfo(0, methodType);
             }
-            ParameterDeclaration extraParam = new ParameterDeclaration(methodType, "extraRet");
+            ParameterDeclaration extraParam = new ParameterDeclaration(methodType, EXTRA_RET);
 
             IParameterDeclaration[] parameterDeclarations = new IParameterDeclaration[] { extraParam };
             setParams(parameterDeclarations);
@@ -181,7 +182,7 @@ public class Action extends FunctionalRow implements IAction {
         IOpenSourceCodeModule source = super.getExpressionSource(bindingContext);
 
         if ((isReturnAction() || isCollectReturnAction() || isCollectReturnKeyAction()) && StringUtils.isEmpty(source.getCode()) && getParams() == null) {
-            return new StringSourceCodeModule("extraRet", source.getUri());
+            return new StringSourceCodeModule(EXTRA_RET, source.getUri());
         }
 
         return super.getExpressionSource(bindingContext);
