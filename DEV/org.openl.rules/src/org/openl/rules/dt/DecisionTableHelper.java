@@ -24,6 +24,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.SimpleNodeUsage;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.fuzzy.OpenLFuzzySearch;
 import org.openl.rules.fuzzy.Token;
@@ -48,7 +49,6 @@ import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.StringSourceCodeModule;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
@@ -292,7 +292,8 @@ public class DecisionTableHelper {
 
     private static boolean isCompoundReturnType(ILogicalTable originalTable,
             DecisionTable decisionTable,
-            int firstReturnColumn) {
+            int firstReturnColumn,
+            boolean isCollectTable) {
         int c = firstReturnColumn;
         int compoundTypeParameterCount = 0;
         while (c < originalTable.getSource().getWidth()){
@@ -304,7 +305,11 @@ public class DecisionTableHelper {
         }
         
         IOpenClass returnType = decisionTable.getType();
-        return compoundTypeParameterCount > 1 && !returnType.isArray();
+        if (isCollectTable){
+            return compoundTypeParameterCount > 1;
+        }else{
+            return compoundTypeParameterCount > 1 && !returnType.isArray();
+        }
     }
 
     private static void validateCompoundReturnType(IOpenClass compoundType) throws OpenLCompilationException {
@@ -317,20 +322,35 @@ public class DecisionTableHelper {
         }
     }
 
-    private static void writeCompoundReturnColumns(IWritableGrid grid,
+    private static void writeCompoundReturnColumns(TableSyntaxNode tableSyntaxNode, 
+            IWritableGrid grid,
             ILogicalTable originalTable,
             DecisionTable decisionTable,
             int firstReturnColumn,
             int numberOfMergedRows,
             Condition[] conditions,
             boolean isSmartDecisionTable,
+            boolean isCollectTable,
+            int retParameterIndex,
             IBindingContext bindingContext) throws OpenLCompilationException {
         int numberOfConditions = conditions.length;
         int compoundReturnColumnsCount = calculateCompoundReturnColumnsCount(originalTable,
             numberOfConditions,
             numberOfMergedRows);
-
-        IOpenClass compoundType = decisionTable.getType();
+        IOpenClass compoundType = null;
+        if (isCollectTable){
+            if (tableSyntaxNode.getHeader().getCollectParameters().length > 0){
+                compoundType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, tableSyntaxNode.getHeader().getCollectParameters()[retParameterIndex]);
+            }else{
+                if (decisionTable.getType().isArray()){
+                    compoundType = decisionTable.getType().getComponentClass();
+                }else{
+                    compoundType = decisionTable.getType();
+                }
+            }
+        }else{
+            compoundType = decisionTable.getType();
+        }
         validateCompoundReturnType(compoundType);
 
         StringBuilder sb = new StringBuilder();
@@ -556,20 +576,20 @@ public class DecisionTableHelper {
         IOpenClass type = decisionTable.getType();
         if ((type.isArray() || Collection.class.isAssignableFrom(type.getInstanceClass())) && parametersCount > 1) {
             throw new OpenLCompilationException(
-                String.format("Error: Cannot bind node: '%s'. Cannot bind more than one parameter for '%s'.",
+                String.format("Error: Cannot bind node: '%s'. Found more than one parameter for '%s'.",
                     Tokenizer.firstToken(tableSyntaxNode.getHeader().getModule(), "").getIdentifier(),
                     type.getComponentClass().getDisplayName(0)));
         }
         if (Map.class.isAssignableFrom(type.getInstanceClass())) {
             if (parametersCount > 2){
                 throw new OpenLCompilationException(
-                    String.format("Error: Cannot bind node: '%s'. Cannot bind more than two parameter for '%s'.",
+                    String.format("Error: Cannot bind node: '%s'. Found more than two parameter for '%s'.",
                         Tokenizer.firstToken(tableSyntaxNode.getHeader().getModule(), "").getIdentifier(),
                         type.getDisplayName(0)));
             }
             if (parametersCount == 1){
                 throw new OpenLCompilationException(
-                    String.format("Error: Cannot bind node: '%s'. Cannot bind only one parameter for '%s'.",
+                    String.format("Error: Cannot bind node: '%s'. Found only one parameter for '%s'.",
                         Tokenizer.firstToken(tableSyntaxNode.getHeader().getModule(), "").getIdentifier(),
                         type.getDisplayName(0)));
             }
@@ -582,12 +602,14 @@ public class DecisionTableHelper {
                     Tokenizer.firstToken(tableSyntaxNode.getHeader().getModule(), "").getIdentifier(),
                     parameterType));
             } else {
+                IOpenClass componentType = decisionTable.getType().getComponentClass();
+                IOpenCast openCast = bindingContext.getCast(t, componentType);
                 if (type
-                    .isArray() && !type.getComponentClass().getInstanceClass().isAssignableFrom(t.getInstanceClass())) {
+                    .isArray() && openCast == null) {
                     throw new OpenLCompilationException(
                         String.format("Error: Cannot bind node: '%s'. Incompatible types: '%s' and '%s'.",
                             Tokenizer.firstToken(tableSyntaxNode.getHeader().getModule(), "").getIdentifier(),
-                            type.getComponentClass().getDisplayName(0),
+                            componentType.getDisplayName(0),
                             t.getDisplayName(0)));
                 }
             }
@@ -608,9 +630,9 @@ public class DecisionTableHelper {
         // write return column
         //
         int firstReturnColumn = firstColumnAfterConditionColumns;
+        int retParameterIndex = 0;
         if (isCollectTable) {
             validateCollectSyntaxNode(tableSyntaxNode, decisionTable, originalTable, bindingContext);
-            int retParameterIndex = 0;
             
             if (Map.class.isAssignableFrom(decisionTable.getType().getInstanceClass())){
                 grid.setCellValue(firstReturnColumn, 0, KEY1_COLUMN_NAME);
@@ -639,15 +661,18 @@ public class DecisionTableHelper {
 
         if (!isLookupTable) {
             if (originalTable.getWidth() > conditions.length) {
-                boolean isCompoundReturnType = isCompoundReturnType(originalTable, decisionTable, firstReturnColumn);
+                boolean isCompoundReturnType = isCompoundReturnType(originalTable, decisionTable, firstReturnColumn, isCollectTable);
                 if (isCompoundReturnType) {
-                    writeCompoundReturnColumns(grid,
+                    writeCompoundReturnColumns(tableSyntaxNode,
+                        grid,
                         originalTable,
                         decisionTable,
                         firstReturnColumn,
                         numberOfMergedRows,
                         conditions,
                         isSmartDecisionTable,
+                        isCollectTable,
+                        retParameterIndex,
                         bindingContext);
                 } else {
                     int mergedColumnsCounts = originalTable.getColumnWidth(conditions.length);
