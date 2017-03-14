@@ -10,6 +10,8 @@ import java.util.Map;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -33,6 +35,7 @@ import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.*;
 import org.openl.rules.ui.*;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
+import org.openl.rules.webstudio.util.XSSFOptimizer;
 import org.openl.rules.webstudio.web.test.TestDescriptionWithPreview;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -411,6 +414,11 @@ public class TableBean {
                 org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
 
         TableEditorModel editorModel = (TableEditorModel) editorModelMap.get(editorId);
+
+        Workbook workbook = editorModel.getSheetSource().getWorkbookSource().getWorkbook();
+        if (workbook instanceof XSSFWorkbook) {
+            XSSFOptimizer.removeUnusedStyles((XSSFWorkbook) workbook);
+        }
 
         if (WebStudioUtils.getWebStudio().isUpdateSystemProperties()) {
             return EditHelper.updateSystemProperties(table, editorModel,
