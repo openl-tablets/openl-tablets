@@ -3,7 +3,6 @@ package org.openl.rules.dt;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.junit.Test;
@@ -22,10 +21,7 @@ public class SimpleDTCompoundResultTest extends BaseOpenlBuilderHelper {
     }
     
     @Test
-    public void test1() throws ClassNotFoundException,
-                                        NoSuchMethodException,
-                                        InvocationTargetException,
-                                        IllegalAccessException {
+    public void test1() throws Exception {
         IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("test1",
             new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
         Object instance = newInstance();
@@ -53,10 +49,7 @@ public class SimpleDTCompoundResultTest extends BaseOpenlBuilderHelper {
     }
     
     @Test
-    public void test2() throws ClassNotFoundException,
-                                        NoSuchMethodException,
-                                        InvocationTargetException,
-                                        IllegalAccessException {
+    public void test2() throws Exception {
         IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("test2",
             new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
         Object instance = newInstance();
@@ -93,10 +86,7 @@ public class SimpleDTCompoundResultTest extends BaseOpenlBuilderHelper {
     }
     
     @Test
-    public void test3() throws ClassNotFoundException,
-                                        NoSuchMethodException,
-                                        InvocationTargetException,
-                                        IllegalAccessException {
+    public void test3() throws Exception {
         IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("test3",
             new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
         Object instance = newInstance();
@@ -131,10 +121,7 @@ public class SimpleDTCompoundResultTest extends BaseOpenlBuilderHelper {
     }
     
     @Test
-    public void test4() throws ClassNotFoundException,
-                                        NoSuchMethodException,
-                                        InvocationTargetException,
-                                        IllegalAccessException {
+    public void test4() throws Exception {
         IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("test4",
             new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
         Object instance = newInstance();
@@ -169,10 +156,7 @@ public class SimpleDTCompoundResultTest extends BaseOpenlBuilderHelper {
     }
     
     @Test
-    public void test5() throws ClassNotFoundException,
-                                        NoSuchMethodException,
-                                        InvocationTargetException,
-                                        IllegalAccessException {
+    public void test5() throws Exception {
         IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("test5",
             new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
         Object instance = newInstance();
