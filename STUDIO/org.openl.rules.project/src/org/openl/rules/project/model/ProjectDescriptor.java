@@ -4,13 +4,18 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.openl.classloader.ClassLoaderCloserFactory;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.types.java.JavaOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.AntPathMatcher;
 
 public class ProjectDescriptor {
     private final Logger log = LoggerFactory.getLogger(ProjectDescriptor.class);
@@ -132,26 +137,78 @@ public class ProjectDescriptor {
         if (classpath == null) {
             return new URL[]{};
         }
-        URL[] urls = new URL[classpath.size()];
+        URL projectUrl;
+        try {
+            projectUrl = projectFolder.toURI().toURL();
+        } catch (MalformedURLException e) {
+            log.error("Bad URL for the project folder \"{}\"", projectFolder, e);
+            return new URL[]{};
+        }
+        Set<String> classpaths = processClasspathPathPatterns();
+        ArrayList<URL> urls = new ArrayList<URL>(classpaths.size());
 
-        int i = 0;
-
-        for (PathEntry entry : classpath) {
-            File f = new File(entry.getPath());
-
+        for (String clspth : classpaths) {
+            URL url;
             try {
-                if (f.isAbsolute()) {
-                    urls[i] = f.toURI().toURL();
-                } else {
-                    urls[i] = new File(projectFolder, entry.getPath()).toURI().toURL();
+                // absolute
+                url = new URL(clspth);
+            } catch (MalformedURLException e1) {
+                try {
+                    url = new URL(projectUrl, clspth);
+                } catch (MalformedURLException e2) {
+                    log.error("Bad URL in classpath \"{}\"", clspth, e2);
+                    continue;
                 }
-                i++;
-            } catch (MalformedURLException e) {
-                log.error("Bad URL in classpath \"{}\"", entry.getPath());
+            }
+            urls.add(url);
+        }
+        return urls.toArray(new URL[0]);
+    }
+
+    private Set<String> processClasspathPathPatterns() {
+        Set<String> processedClasspath = new HashSet<String>(classpath.size());
+        for (PathEntry pathEntry : classpath) {
+            String path = pathEntry.getPath().replace('\\','/').trim();
+            if (path.contains("*") || path.contains("?")) {
+                check(projectFolder, processedClasspath, path, projectFolder);
+            } else {
+                // without wildcard path
+                if (path.endsWith("/")) {
+                    // it is a folder
+                    processedClasspath.add(path);
+                } else {
+                    File file = new File(path);
+                    if (file.isAbsolute() && file.isDirectory()){
+                        // it is a folder
+                        processedClasspath.add(path + "/");
+                    } else if (new File(projectFolder, path).isDirectory()) {
+                        // it is a folder
+                        processedClasspath.add(path + "/");
+                    } else {
+                        // it is a file
+                        processedClasspath.add(path);
+                    }
+                }
             }
         }
-        return urls;
+        return processedClasspath;
     }
+
+    private void check(File folder, Collection<String> matched, String pathPattern, File rootFolder) {
+        File[] files = folder.listFiles();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                check(file, matched, pathPattern, rootFolder);
+            } else {
+                String relativePath = file.getAbsolutePath().substring(rootFolder.getAbsolutePath().length() + 1);
+                relativePath = relativePath.replace('\\', '/');
+                if (new AntPathMatcher().match(pathPattern, relativePath)) {
+                    matched.add(relativePath);
+                }
+            }
+        }
+    }
+
 
     /**
      * Class loader of current project have to be unregistered if it is not in
