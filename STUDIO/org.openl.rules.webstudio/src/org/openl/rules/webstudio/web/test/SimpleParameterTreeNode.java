@@ -1,20 +1,21 @@
 package org.openl.rules.webstudio.web.test;
 
+import org.openl.domain.IDomain;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IOpenClass;
+import org.openl.types.impl.DomainOpenClass;
+import org.openl.types.java.JavaEnumDomain;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.LinkedHashMap;
+import java.util.*;
 
 public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
     private final Logger log = LoggerFactory.getLogger(SimpleParameterTreeNode.class);
-
-    public static final String SIMPLE_TYPE = "simple";
 
     public SimpleParameterTreeNode(String fieldName,
                                    Object value,
@@ -44,7 +45,46 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
 
     @Override
     public String getNodeType() {
-        return SIMPLE_TYPE;
+        IOpenClass type = getType();
+        Class<?> instanceClass = type.getInstanceClass();
+        if (boolean.class.isAssignableFrom(instanceClass)) {
+            return "boolean";
+        } else if (Boolean.class.isAssignableFrom(instanceClass) ||
+                type instanceof DomainOpenClass ||
+                type instanceof JavaEnumDomain) {
+            return "selection";
+        } else if (Date.class.isAssignableFrom(instanceClass)) {
+            return "date";
+        } else if (Number.class.isAssignableFrom(instanceClass) ||
+                byte.class.isAssignableFrom(instanceClass) ||
+                short.class.isAssignableFrom(instanceClass) ||
+                int.class.isAssignableFrom(instanceClass) ||
+                long.class.isAssignableFrom(instanceClass) ||
+                float.class.isAssignableFrom(instanceClass) ||
+                double.class.isAssignableFrom(instanceClass)) {
+            return "number";
+        } else {
+            return "string";
+        }
+    }
+
+    public List<String> getValuesForSelect() {
+        IOpenClass type = getType();
+        if (Boolean.class.isAssignableFrom(type.getInstanceClass())) {
+            return Arrays.asList("", "true", "false");
+        }
+
+        IDomain<?> domain = type.getDomain();
+        if (domain != null) {
+            List<String> result = new ArrayList<String>();
+            result.add("");
+            for (Object o : domain) {
+                result.add(o.toString());
+            }
+            return result;
+        }
+
+        return Collections.emptyList();
     }
 
     public void setValueForEdit(String value) {

@@ -43,7 +43,7 @@ public class PoiExcelHelper {
                 cellTo.setCellValue(cellFrom.getNumericCellValue());
                 break;
             case Cell.CELL_TYPE_STRING:
-                cellTo.setCellValue(cellFrom.getStringCellValue());
+                cellTo.setCellValue(cellFrom.getRichStringCellValue());
                 break;
             default:
                 throw new RuntimeException("Unknown cell type: " + cellFrom.getCellType());
