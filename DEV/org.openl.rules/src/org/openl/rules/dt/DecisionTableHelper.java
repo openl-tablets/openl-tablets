@@ -602,14 +602,11 @@ public class DecisionTableHelper {
                     Tokenizer.firstToken(tableSyntaxNode.getHeader().getModule(), "").getIdentifier(),
                     parameterType));
             } else {
-                IOpenClass componentType = decisionTable.getType().getComponentClass();
-                IOpenCast openCast = bindingContext.getCast(t, componentType);
-                if (type
-                    .isArray() && openCast == null) {
+                if (type.isArray() && bindingContext.getCast(t, type.getComponentClass()) == null) {
                     throw new OpenLCompilationException(
                         String.format("Error: Cannot bind node: '%s'. Incompatible types: '%s' and '%s'.",
                             Tokenizer.firstToken(tableSyntaxNode.getHeader().getModule(), "").getIdentifier(),
-                            componentType.getDisplayName(0),
+                            type.getComponentClass().getDisplayName(0),
                             t.getDisplayName(0)));
                 }
             }

@@ -1,7 +1,13 @@
 package org.openl.rules.dt;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Test;
 import org.openl.meta.DoubleValue;
@@ -45,6 +51,526 @@ public class DTTest extends BaseOpenlBuilderHelper {
         assertEquals("Good Night, World!", result);
         result = method.invoke(instance, new Object[] { new Integer(23) }, env);
         assertEquals("Good Night, World!", result);
+    }
+
+    @Test
+    public void greeting7() throws Exception {
+        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("Greeting7",
+            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
+        Object instance = newInstance();
+        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        String[] result = (String[]) method.invoke(instance, new Object[] { new Integer(0) }, env);
+        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(11) }, env);
+        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(12) }, env);
+        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(15) }, env);
+        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(17) }, env);
+        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(18) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(20) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(21) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(22) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(23) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+    }
+
+    @Test
+    public void greeting8() throws Exception {
+        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("Greeting8",
+            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
+        Object instance = newInstance();
+        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        String[] result = (String[]) method.invoke(instance, new Object[] { new Integer(0) }, env);
+        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(11) }, env);
+        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(12) }, env);
+        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(15) }, env);
+        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(17) }, env);
+        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(18) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(20) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(21) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(22) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(23) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+    }
+
+    @Test
+    public void greeting9() throws Exception {
+        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("Greeting9",
+            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
+        Object instance = newInstance();
+        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        String[] result = (String[]) method.invoke(instance, new Object[] { new Integer(0) }, env);
+        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(11) }, env);
+        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(12) }, env);
+        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(15) }, env);
+        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(17) }, env);
+        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(18) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(20) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(21) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(22) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(23) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+    }
+
+    @Test
+    public void greeting10() throws Exception {
+        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("Greeting10",
+            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
+        Object instance = newInstance();
+        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        Object[] result = (Object[]) method.invoke(instance, new Object[] { new Integer(0) }, env);
+        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        result = (Object[]) method.invoke(instance, new Object[] { new Integer(11) }, env);
+        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        result = (Object[]) method.invoke(instance, new Object[] { new Integer(12) }, env);
+        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        result = (Object[]) method.invoke(instance, new Object[] { new Integer(15) }, env);
+        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        result = (Object[]) method.invoke(instance, new Object[] { new Integer(17) }, env);
+        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        result = (Object[]) method.invoke(instance, new Object[] { new Integer(18) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        result = (Object[]) method.invoke(instance, new Object[] { new Integer(20) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        result = (Object[]) method.invoke(instance, new Object[] { new Integer(21) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        result = (Object[]) method.invoke(instance, new Object[] { new Integer(22) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        result = (Object[]) method.invoke(instance, new Object[] { new Integer(23) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+    }
+
+    @Test
+    public void greeting11() throws Exception {
+        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("Greeting11",
+            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
+        Object instance = newInstance();
+        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        Object[] result = (Object[]) method.invoke(instance, new Object[] { new Integer(0) }, env);
+        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        result = (Object[]) method.invoke(instance, new Object[] { new Integer(11) }, env);
+        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        result = (Object[]) method.invoke(instance, new Object[] { new Integer(12) }, env);
+        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        result = (Object[]) method.invoke(instance, new Object[] { new Integer(15) }, env);
+        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        result = (Object[]) method.invoke(instance, new Object[] { new Integer(17) }, env);
+        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        result = (Object[]) method.invoke(instance, new Object[] { new Integer(18) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        result = (Object[]) method.invoke(instance, new Object[] { new Integer(20) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        result = (Object[]) method.invoke(instance, new Object[] { new Integer(21) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        result = (Object[]) method.invoke(instance, new Object[] { new Integer(22) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        result = (Object[]) method.invoke(instance, new Object[] { new Integer(23) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+    }
+
+    private static Collection<Object> buildCollection(Object... values) {
+        Collection<Object> ret = new ArrayList<Object>();
+        for (Object o : values) {
+            ret.add(o);
+        }
+        return ret;
+    }
+
+    private static Set<Object> buildSet(Object... values) {
+        Set<Object> ret = new HashSet<Object>();
+        for (Object o : values) {
+            ret.add(o);
+        }
+        return ret;
+    }
+
+    @Test
+    public void greeting12() throws Exception {
+        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("Greeting12",
+            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
+        Object instance = newInstance();
+        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        Collection result = (Collection) method.invoke(instance, new Object[] { new Integer(0) }, env);
+        assertEquals(buildCollection("Good Morning, World!", "Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(11) }, env);
+        assertEquals(buildCollection("Good Morning, World!", "Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(12) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(15) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(17) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(18) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(20) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(21) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(22) }, env);
+        assertEquals(buildCollection("Good Evening, World!", "Good Night, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(23) }, env);
+        assertEquals(buildCollection("Good Evening, World!", "Good Night, World!"), result);
+    }
+
+    @Test
+    public void greeting15() throws Exception {
+        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("Greeting15",
+            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
+        Object instance = newInstance();
+        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        Collection result = (Collection) method.invoke(instance, new Object[] { new Integer(0) }, env);
+        assertEquals(buildCollection("Good Morning, World!", "Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(11) }, env);
+        assertEquals(buildCollection("Good Morning, World!", "Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(12) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(15) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(17) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(18) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(20) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(21) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(22) }, env);
+        assertEquals(buildCollection("Good Evening, World!", "Good Night, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(23) }, env);
+        assertEquals(buildCollection("Good Evening, World!", "Good Night, World!"), result);
+    }
+
+    @Test
+    public void greeting20() throws Exception {
+        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("Greeting20",
+            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
+        Object instance = newInstance();
+        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        Collection result = (Collection) method.invoke(instance, new Object[] { new Integer(0) }, env);
+        assertEquals(buildCollection("Good Morning, World!", "Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(11) }, env);
+        assertEquals(buildCollection("Good Morning, World!", "Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(12) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(15) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(17) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(18) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(20) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(21) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(22) }, env);
+        assertEquals(buildCollection("Good Evening, World!", "Good Night, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(23) }, env);
+        assertEquals(buildCollection("Good Evening, World!", "Good Night, World!"), result);
+    }
+
+    @Test
+    public void greeting21() throws Exception {
+        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("Greeting21",
+            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
+        Object instance = newInstance();
+        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        Collection result = (Collection) method.invoke(instance, new Object[] { new Integer(0) }, env);
+        assertEquals(buildCollection("Good Morning, World!", "Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(11) }, env);
+        assertEquals(buildCollection("Good Morning, World!", "Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(12) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(15) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(17) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(18) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(20) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(21) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(22) }, env);
+        assertEquals(buildCollection("Good Evening, World!", "Good Night, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(23) }, env);
+        assertEquals(buildCollection("Good Evening, World!", "Good Night, World!"), result);
+    }
+
+    @Test
+    public void greeting22() throws Exception {
+        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("Greeting22",
+            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
+        Object instance = newInstance();
+        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        Collection result = (Collection) method.invoke(instance, new Object[] { new Integer(0) }, env);
+        assertEquals(buildCollection("Good Morning, World!", "Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(11) }, env);
+        assertEquals(buildCollection("Good Morning, World!", "Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(12) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(15) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(17) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(18) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(20) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(21) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(22) }, env);
+        assertEquals(buildCollection("Good Evening, World!", "Good Night, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(23) }, env);
+        assertEquals(buildCollection("Good Evening, World!", "Good Night, World!"), result);
+    }
+
+    @Test
+    public void greeting23() throws Exception {
+        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("Greeting23",
+            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
+        Object instance = newInstance();
+        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        Collection result = (Collection) method.invoke(instance, new Object[] { new Integer(0) }, env);
+        assertEquals(buildCollection("Good Morning, World!", "Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(11) }, env);
+        assertEquals(buildCollection("Good Morning, World!", "Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(12) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(15) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(17) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(18) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(20) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(21) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(22) }, env);
+        assertEquals(buildCollection("Good Evening, World!", "Good Night, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(23) }, env);
+        assertEquals(buildCollection("Good Evening, World!", "Good Night, World!"), result);
+    }
+
+    @Test
+    public void greeting16() throws Exception {
+        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("Greeting16",
+            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
+        Object instance = newInstance();
+        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        Set result = (Set) method.invoke(instance, new Object[] { new Integer(0) }, env);
+        assertEquals(buildSet("Good Morning, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(11) }, env);
+        assertEquals(buildSet("Good Morning, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(12) }, env);
+        assertEquals(buildSet("Good Morning, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(15) }, env);
+        assertEquals(buildSet("Good Morning, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(17) }, env);
+        assertEquals(buildSet("Good Morning, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(18) }, env);
+        assertEquals(buildSet("Good Evening, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(20) }, env);
+        assertEquals(buildSet("Good Evening, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(21) }, env);
+        assertEquals(buildSet("Good Evening, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(22) }, env);
+        assertEquals(buildSet("Good Evening, World!", "Good Night, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(23) }, env);
+        assertEquals(buildSet("Good Evening, World!", "Good Night, World!"), result);
+    }
+
+    @Test
+    public void greeting17() throws Exception {
+        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("Greeting17",
+            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
+        Object instance = newInstance();
+        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        Set result = (Set) method.invoke(instance, new Object[] { new Integer(0) }, env);
+        assertEquals(buildSet("Good Morning, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(11) }, env);
+        assertEquals(buildSet("Good Morning, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(12) }, env);
+        assertEquals(buildSet("Good Morning, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(15) }, env);
+        assertEquals(buildSet("Good Morning, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(17) }, env);
+        assertEquals(buildSet("Good Morning, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(18) }, env);
+        assertEquals(buildSet("Good Evening, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(20) }, env);
+        assertEquals(buildSet("Good Evening, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(21) }, env);
+        assertEquals(buildSet("Good Evening, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(22) }, env);
+        assertEquals(buildSet("Good Evening, World!", "Good Night, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(23) }, env);
+        assertEquals(buildSet("Good Evening, World!", "Good Night, World!"), result);
+    }
+
+    @Test
+    public void greeting18() throws Exception {
+        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("Greeting18",
+            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
+        Object instance = newInstance();
+        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        Set result = (Set) method.invoke(instance, new Object[] { new Integer(0) }, env);
+        assertEquals(buildSet("Good Morning, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(11) }, env);
+        assertEquals(buildSet("Good Morning, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(12) }, env);
+        assertEquals(buildSet("Good Morning, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(15) }, env);
+        assertEquals(buildSet("Good Morning, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(17) }, env);
+        assertEquals(buildSet("Good Morning, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(18) }, env);
+        assertEquals(buildSet("Good Evening, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(20) }, env);
+        assertEquals(buildSet("Good Evening, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(21) }, env);
+        assertEquals(buildSet("Good Evening, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(22) }, env);
+        assertEquals(buildSet("Good Evening, World!", "Good Night, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(23) }, env);
+        assertEquals(buildSet("Good Evening, World!", "Good Night, World!"), result);
+    }
+
+    @Test
+    public void greeting19() throws Exception {
+        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("Greeting19",
+            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
+        Object instance = newInstance();
+        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        Set result = (Set) method.invoke(instance, new Object[] { new Integer(0) }, env);
+        assertEquals(buildSet("Good Morning, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(11) }, env);
+        assertEquals(buildSet("Good Morning, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(12) }, env);
+        assertEquals(buildSet("Good Morning, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(15) }, env);
+        assertEquals(buildSet("Good Morning, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(17) }, env);
+        assertEquals(buildSet("Good Morning, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(18) }, env);
+        assertEquals(buildSet("Good Evening, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(20) }, env);
+        assertEquals(buildSet("Good Evening, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(21) }, env);
+        assertEquals(buildSet("Good Evening, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(22) }, env);
+        assertEquals(buildSet("Good Evening, World!", "Good Night, World!"), result);
+        result = (Set) method.invoke(instance, new Object[] { new Integer(23) }, env);
+        assertEquals(buildSet("Good Evening, World!", "Good Night, World!"), result);
+    }
+
+    @Test
+    public void greeting14() throws Exception {
+        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("Greeting14",
+            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
+        Object instance = newInstance();
+        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        Collection result = (Collection) method.invoke(instance, new Object[] { new Integer(0) }, env);
+        assertEquals(buildCollection("Good Morning, World!", "Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(11) }, env);
+        assertEquals(buildCollection("Good Morning, World!", "Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(12) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(15) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(17) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(18) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(20) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(21) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(22) }, env);
+        assertEquals(buildCollection("Good Evening, World!", "Good Night, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(23) }, env);
+        assertEquals(buildCollection("Good Evening, World!", "Good Night, World!"), result);
+    }
+
+    @Test
+    public void greeting13() throws Exception {
+        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("Greeting13",
+            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
+        Object instance = newInstance();
+        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        Collection result = (Collection) method.invoke(instance, new Object[] { new Integer(0) }, env);
+        assertEquals(buildCollection("Good Morning, World!", "Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(11) }, env);
+        assertEquals(buildCollection("Good Morning, World!", "Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(12) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(15) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(17) }, env);
+        assertEquals(buildCollection("Good Afternoon, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(18) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(20) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(21) }, env);
+        assertEquals(buildCollection("Good Evening, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(22) }, env);
+        assertEquals(buildCollection("Good Evening, World!", "Good Night, World!"), result);
+        result = (Collection) method.invoke(instance, new Object[] { new Integer(23) }, env);
+        assertEquals(buildCollection("Good Evening, World!", "Good Night, World!"), result);
+    }
+
+    @Test
+    public void greetingTwoRet3() throws Exception {
+        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("GreetingTwoRet3",
+            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
+        Object instance = newInstance();
+        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        String[] result = (String[]) method.invoke(instance, new Object[] { new Integer(0) }, env);
+        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(11) }, env);
+        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(12) }, env);
+        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(15) }, env);
+        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(17) }, env);
+        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(18) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(20) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(21) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(22) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        result = (String[]) method.invoke(instance, new Object[] { new Integer(23) }, env);
+        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
     }
 
     @Test
