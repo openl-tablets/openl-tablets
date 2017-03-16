@@ -73,39 +73,27 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
     }
     
     public void extendSpreadsheetResult(String[] rowNames, String[] columnNames, Map<String, Point> fieldCoordinates, Collection<IOpenField> fields){
-        String[] vRowNames = new String[this.rowNames.length];
-        String[] vColumnNames = new String[this.columnNames.length];
-        
-        for (Entry<String, Point> entry : this.fieldCoordinates.entrySet()) {
-            Point p = entry.getValue();
-            if (p.getRow() == 0 && vColumnNames[p.getColumn()] == null) {
-                String fieldName = entry.getKey();
-                vColumnNames[p.getColumn()] = fieldName.substring(fieldName.indexOf(SpreadsheetStructureBuilder.DOLLAR_SIGN) + 1, fieldName.lastIndexOf(SpreadsheetStructureBuilder.DOLLAR_SIGN));
-            }
-            if (p.getColumn() == 0 && vRowNames[p.getRow()] == null) {
-                String fieldName = entry.getKey();
-                vRowNames[p.getRow()] = fieldName.substring(fieldName.lastIndexOf(SpreadsheetStructureBuilder.DOLLAR_SIGN) + 1);
-            }
-        }
-        
-        List<String> nRowNames = new ArrayList<String>(Arrays.asList(vRowNames));
-        List<String> nColumnNames = new ArrayList<String>(Arrays.asList(vColumnNames));
+        List<String> nRowNames = new ArrayList<String>(Arrays.asList(this.rowNames));
+        Set<String> existedRowNamesSet = new HashSet<String>(Arrays.asList(this.rowNames));
+        List<String> nColumnNames = new ArrayList<String>(Arrays.asList(this.columnNames));
+        Set<String> existedColumnNamesSet = new HashSet<String>(Arrays.asList(this.columnNames));
         
         boolean fieldCoordinatesRequresUpdate = false;
          
-        for (Entry<String, Point> entry : fieldCoordinates.entrySet()) {
-            String fieldName = entry.getKey();
-            String columnName = fieldName.substring(fieldName.indexOf(SpreadsheetStructureBuilder.DOLLAR_SIGN) + 1, fieldName.lastIndexOf(SpreadsheetStructureBuilder.DOLLAR_SIGN));
-            if (!nColumnNames.contains(columnName)){
-                 nColumnNames.add(columnName);
-                 fieldCoordinatesRequresUpdate = true;
-            }
-            String rowName = fieldName.substring(fieldName.lastIndexOf(SpreadsheetStructureBuilder.DOLLAR_SIGN) + 1);
-            if (!nRowNames.contains(rowName)){
-                 nRowNames.add(rowName);
-                 fieldCoordinatesRequresUpdate = true;
+        for (String rowName : rowNames) {
+            if (!existedRowNamesSet.contains(rowName)){
+                nRowNames.add(rowName);
+                fieldCoordinatesRequresUpdate = true;
             }
         }
+
+        for (String columnName : columnNames) {
+            if (!existedColumnNamesSet.contains(columnName)){
+                nRowNames.add(columnName);
+                fieldCoordinatesRequresUpdate = true;
+            }
+        }
+
         if (fieldCoordinatesRequresUpdate) {
             Set<String> newFieldNames = new HashSet<String>();
             for (int i = 0; i < nRowNames.size(); i++) {
