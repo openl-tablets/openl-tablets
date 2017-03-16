@@ -4776,7 +4776,8 @@ public class RulesUtils {
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
      *             || index > array.length).
      */
-    public static Object[] add(Object[] array, int index, Object element) {
+    @AutoCastReturnType
+    public static Object[] add(@ReturnType Object[] array, int index, Object element) {
         return ArrayUtils.add(array, index, element);
     }
 
@@ -4813,7 +4814,8 @@ public class RulesUtils {
      *         The returned array type will be that of the input array (unless
      *         null), in which case it will have the same type as the element.
      */
-    public static Object[] add(Object[] array, Object element) {
+    @AutoCastReturnType
+    public static Object[] add(@ReturnType Object[] array, Object element) {
         return ArrayUtils.add(array, element);
     }
 
@@ -4985,7 +4987,8 @@ public class RulesUtils {
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
      *             || index > array.length).
      */
-    public static Object[] addIgnoreNull(Object[] array, int index, Object element) {
+    @AutoCastReturnType
+    public static Object[] addIgnoreNull(@ReturnType Object[] array, int index, Object element) {
         if (element != null) {
             return ArrayUtils.add(array, index, element);
         }
@@ -5025,7 +5028,8 @@ public class RulesUtils {
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
      *             || index > array.length).
      */
-    public static Object[] addIgnoreNull(Object[] array, Object element) {
+    @AutoCastReturnType
+    public static Object[] addIgnoreNull(@ReturnType Object[] array, Object element) {
         if (element != null) {
             return ArrayUtils.add(array, element);
         }
@@ -5253,7 +5257,8 @@ public class RulesUtils {
      *         type is the same as the second array.
      * @throws IllegalArgumentException if the array types are incompatible
      */
-    public static Object[] addAll(Object[] array1, Object[] array2) {
+    @AutoCastReturnType
+    public static Object[] addAll(@ReturnType Object[] array1, Object[] array2) {
         return ArrayUtils.addAll(array1, array2);
     }
 
