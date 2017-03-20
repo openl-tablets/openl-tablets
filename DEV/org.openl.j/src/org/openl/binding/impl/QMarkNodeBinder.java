@@ -35,38 +35,41 @@ public class QMarkNodeBinder extends ANodeBinder {
 
         children[1] = bindChildNode(node.getChild(1), bindingContext);
         children[2] = bindChildNode(node.getChild(2), bindingContext);
-        IOpenClass type = children[1].getType();
-        if (NullOpenClass.the.equals(children[1].getType())) {
-            type = children[2].getType();
+        IOpenClass type1 = children[1].getType();
+        IOpenClass type2 = children[2].getType();
+
+        IOpenClass type = type1;
+        if (NullOpenClass.the.equals(type1)) {
+            type = type2;
         } else {
-            IOpenCast cast1To2 = bindingContext.getCast(children[1].getType(), children[2].getType());
-            IOpenCast cast2To1 = bindingContext.getCast(children[2].getType(), children[1].getType());
+            IOpenCast cast1To2 = bindingContext.getCast(type1, type2);
+            IOpenCast cast2To1 = bindingContext.getCast(type2, type1);
 
             if (cast1To2 == null && cast2To1 == null) {
                 // Find parent class for cast both nodes
-                IOpenClass parentClass = findParentClass(children[1].getType(), children[2].getType());
+                IOpenClass parentClass = findParentClass(type1, type2);
                 if (parentClass != null) {
                     type = parentClass;
-                    IOpenCast castToParent1 = bindingContext.getCast(children[1].getType(), parentClass);
+                    IOpenCast castToParent1 = bindingContext.getCast(type1, parentClass);
                     children[1] = new CastNode(null, children[1], castToParent1, parentClass);
-                    IOpenCast castToParent2 = bindingContext.getCast(children[2].getType(), parentClass);
+                    IOpenCast castToParent2 = bindingContext.getCast(type2, parentClass);
                     children[2] = new CastNode(null, children[2], castToParent2, parentClass);
                 }
             } else {
                 if ((cast1To2 == null || !cast1To2.isImplicit()) && cast2To1 != null && cast2To1.isImplicit()) {
-                    children[2] = new CastNode(null, children[2], cast2To1, children[1].getType());
+                    children[2] = new CastNode(null, children[2], cast2To1, type1);
                 } else {
                     if ((cast2To1 == null || !cast2To1.isImplicit()) && cast1To2 != null && cast1To2.isImplicit()) {
-                        children[1] = new CastNode(null, children[1], cast1To2, children[2].getType());
-                        type = children[2].getType();
+                        children[1] = new CastNode(null, children[1], cast1To2, type2);
+                        type = type2;
                     } else {
                         if (cast1To2 != null && cast2To1 != null && cast1To2.isImplicit() && cast2To1.isImplicit()) {
-                            if (cast1To2.getDistance(children[1].getType(), children[2].getType()) < cast2To1
-                                .getDistance(children[2].getType(), children[1].getType())) {
-                                children[1] = new CastNode(null, children[1], cast1To2, children[2].getType());
-                                type = children[2].getType();
+                            if (cast1To2.getDistance(type1, type2) < cast2To1
+                                .getDistance(type2, type1)) {
+                                children[1] = new CastNode(null, children[1], cast1To2, type2);
+                                type = type2;
                             } else {
-                                children[2] = new CastNode(null, children[2], cast2To1, children[1].getType());
+                                children[2] = new CastNode(null, children[2], cast2To1, type1);
                             }
                         }
                     }
