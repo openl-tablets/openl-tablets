@@ -3,6 +3,7 @@ package org.openl.rules.calc;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.FieldNotFoundException;
+import org.openl.binding.impl.CastToWiderType;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
@@ -52,7 +53,9 @@ public class SpreadsheetContext extends ComponentBindingContext {
         int w = ex - sx + 1;
         int h = ey - sy + 1;
 
-        IOpenClass rangeType = ((SpreadsheetCellField) fstart).getType();
+        RangeTypeCollector rangeTypeCollector = new RangeTypeCollector(fstart.getType());
+        iterateThroughTheRange(sx, sy, w, h, rangeTypeCollector);
+        IOpenClass rangeType = rangeTypeCollector.getRangeType();
 
         CastsCollector castsCollector = new CastsCollector(rangeType, w, h);
         iterateThroughTheRange(sx, sy, w, h, castsCollector);
@@ -64,6 +67,7 @@ public class SpreadsheetContext extends ComponentBindingContext {
         return new SpreadsheetRangeField(key,
                 (SpreadsheetCellField) fstart,
                 (SpreadsheetCellField) fend,
+                rangeType,
                 castsCollector.getCasts());
     }
 
@@ -124,6 +128,23 @@ public class SpreadsheetContext extends ComponentBindingContext {
 
         boolean isImplicitCastNotSupported() {
             return implicitCastNotSupported;
+        }
+    }
+
+    private class RangeTypeCollector implements SpreadsheetFieldCollector {
+        private IOpenClass rangeType;
+
+        private RangeTypeCollector(IOpenClass initialRangeType) {
+            this.rangeType = initialRangeType;
+        }
+
+        @Override
+        public void collect(int columnInRange, int rowInRange, SpreadsheetCellField field) {
+            rangeType = CastToWiderType.create(SpreadsheetContext.this, rangeType, field.getType()).getWiderType();
+        }
+
+        IOpenClass getRangeType() {
+            return rangeType;
         }
     }
 }
