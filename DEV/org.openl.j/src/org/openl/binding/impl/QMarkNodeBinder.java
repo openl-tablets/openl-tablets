@@ -17,7 +17,7 @@ import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class QMarkNodeBinder extends ANodeBinder {
 
@@ -44,7 +44,7 @@ public class QMarkNodeBinder extends ANodeBinder {
 
             if (cast1To2 == null && cast2To1 == null) {
                 // Find parent class for cast both nodes
-                IOpenClass parentClass = findParentClass(children[1], children[2]);
+                IOpenClass parentClass = findParentClass(children[1].getType(), children[2].getType());
                 if (parentClass != null) {
                     type = parentClass;
                     IOpenCast castToParent1 = bindingContext.getCast(children[1].getType(), parentClass);
@@ -77,9 +77,9 @@ public class QMarkNodeBinder extends ANodeBinder {
         return new QMarkNode(node, children, type);
     }
 
-    private IOpenClass findParentClass(IBoundNode children1, IBoundNode children2) {
+    private IOpenClass findParentClass(IOpenClass child1Type, IOpenClass child2Type) {
         Set<IOpenClass> superClasses = new HashSet<IOpenClass>();
-        IOpenClass openClass = children1.getType();
+        IOpenClass openClass = child1Type;
         while (!openClass.equals(JavaOpenClass.OBJECT)) {
             Iterable<IOpenClass> itr = openClass.superClasses();
             boolean f = false;
@@ -95,7 +95,7 @@ public class QMarkNodeBinder extends ANodeBinder {
                 break;
             }
         }
-        openClass = children2.getType();
+        openClass = child2Type;
         while (!openClass.equals(JavaOpenClass.OBJECT)) {
             Iterable<IOpenClass> itr = openClass.superClasses();
             boolean f = false;
