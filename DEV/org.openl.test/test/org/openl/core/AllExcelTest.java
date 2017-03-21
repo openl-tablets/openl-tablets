@@ -39,7 +39,7 @@ public class AllExcelTest {
     }
 
     @Test
-    public void testAllExcellFiles() throws NoSuchMethodException {
+    public void testAllExcelFiles() throws NoSuchMethodException {
         boolean hasErrors = false;
         final File sourceDir = new File(DIR);
         final String[] files = sourceDir.list();
