@@ -3,6 +3,7 @@ package org.openl.rules.calc;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.FieldNotFoundException;
+import org.openl.binding.impl.CastToWiderType;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
@@ -52,30 +53,36 @@ public class SpreadsheetContext extends ComponentBindingContext {
         int w = ex - sx + 1;
         int h = ey - sy + 1;
 
-        IOpenCast[][] casts = new IOpenCast[w][h];
+        RangeTypeCollector rangeTypeCollector = new RangeTypeCollector(fstart.getType());
+        iterateThroughTheRange(sx, sy, w, h, rangeTypeCollector);
+        IOpenClass rangeType = rangeTypeCollector.getRangeType();
 
-        IOpenClass rangeType = ((SpreadsheetCellField) fstart).getType();
+        CastsCollector castsCollector = new CastsCollector(rangeType, w, h);
+        iterateThroughTheRange(sx, sy, w, h, castsCollector);
 
+        if (castsCollector.isImplicitCastNotSupported()) {
+            throw new OpenLCompilationException("Types in range " + rangeStartName + ":" + rangeEndName + " can't be implicit casted to '" + rangeType.getDisplayName(0) + "'.");
+        }
+
+        return new SpreadsheetRangeField(key,
+                (SpreadsheetCellField) fstart,
+                (SpreadsheetCellField) fend,
+                rangeType,
+                castsCollector.getCasts());
+    }
+
+    private void iterateThroughTheRange(int startColumn, int startRow, int columnsInRange, int rowsInRange, SpreadsheetFieldCollector collector) {
         ComponentOpenClass componentOpenClass = getComponentOpenClass();
         ComponentBindingContext componentBindingContext = this;
-        boolean implicitCastNotSupported = false;
         while (componentOpenClass != null) {
             for (IOpenField f : componentOpenClass.getDeclaredFields().values()) {
                 if (f instanceof SpreadsheetCellField) {
                     SpreadsheetCellField field = (SpreadsheetCellField) f;
-                    int x = field.getCell().getColumnIndex() - sx;
-                    int y = field.getCell().getRowIndex() - sy;
+                    int columnInRange = field.getCell().getColumnIndex() - startColumn;
+                    int rowInRange = field.getCell().getRowIndex() - startRow;
 
-                    if (x >= 0 && x < w && y >= 0 && y < h && casts[x][y] == null) {
-                        if (!rangeType.equals(f.getType())){
-                            casts[x][y] = getCast(f.getType(), rangeType);
-                            if (!casts[x][y].isImplicit()){
-                                casts[x][y] = null;
-                            }
-                            if (casts[x][y] == null) {
-                                implicitCastNotSupported = true;
-                            }
-                        }
+                    if (columnInRange >= 0 && columnInRange < columnsInRange && rowInRange >= 0 && rowInRange < rowsInRange) {
+                        collector.collect(columnInRange, rowInRange, field);
                     }
                 }
             }
@@ -86,17 +93,58 @@ public class SpreadsheetContext extends ComponentBindingContext {
                 componentOpenClass = null;
             }
         }
-
-        if (implicitCastNotSupported) {
-            throw new OpenLCompilationException("Types in range " + rangeStartName + ":" + rangeEndName + " can't be implicit casted to '" + rangeType.getDisplayName(0) + "'.");
-        }
-
-        IOpenField res = new SpreadsheetRangeField(key,
-            (SpreadsheetCellField) fstart,
-            (SpreadsheetCellField) fend,
-            casts);
-
-        return res;
     }
 
+    private interface SpreadsheetFieldCollector {
+        void collect(int columnInRange, int rowInRange, SpreadsheetCellField field);
+    }
+
+    private class CastsCollector implements SpreadsheetFieldCollector {
+        private final IOpenClass rangeType;
+        private final IOpenCast[][] casts;
+        private boolean implicitCastNotSupported = false;
+
+        private CastsCollector(IOpenClass rangeType, int columnsInRange, int rowsInRange) {
+            this.rangeType = rangeType;
+            this.casts = new IOpenCast[columnsInRange][rowsInRange];
+        }
+
+        @Override
+        public void collect(int columnInRange, int rowInRange, SpreadsheetCellField field) {
+            if (casts[columnInRange][rowInRange] == null && !rangeType.equals(field.getType())){
+                casts[columnInRange][rowInRange] = getCast(field.getType(), rangeType);
+                if (!casts[columnInRange][rowInRange].isImplicit()){
+                    casts[columnInRange][rowInRange] = null;
+                }
+                if (casts[columnInRange][rowInRange] == null) {
+                    implicitCastNotSupported = true;
+                }
+            }
+        }
+
+        IOpenCast[][] getCasts() {
+            return casts;
+        }
+
+        boolean isImplicitCastNotSupported() {
+            return implicitCastNotSupported;
+        }
+    }
+
+    private class RangeTypeCollector implements SpreadsheetFieldCollector {
+        private IOpenClass rangeType;
+
+        private RangeTypeCollector(IOpenClass initialRangeType) {
+            this.rangeType = initialRangeType;
+        }
+
+        @Override
+        public void collect(int columnInRange, int rowInRange, SpreadsheetCellField field) {
+            rangeType = CastToWiderType.create(SpreadsheetContext.this, rangeType, field.getType()).getWiderType();
+        }
+
+        IOpenClass getRangeType() {
+            return rangeType;
+        }
+    }
 }

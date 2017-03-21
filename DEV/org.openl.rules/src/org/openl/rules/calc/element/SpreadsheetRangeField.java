@@ -14,6 +14,7 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.calc.ASpreadsheetField;
 import org.openl.rules.calc.SpreadsheetResultCalculator;
+import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -40,13 +41,14 @@ public class SpreadsheetRangeField extends ASpreadsheetField {
     public SpreadsheetRangeField(String name,
             SpreadsheetCellField fstart,
             SpreadsheetCellField fend,
+            IOpenClass rangeType,
             IOpenCast[][] casts) {
         super(fstart.getDeclaringClass(), name, JavaOpenClass.getOpenClass(SpreadsheetRangeObject.class));
         this.fstart = fstart;
         this.fend = fend;
         this.casts = casts;
         try {
-            Class<?> toClass = fstart.getType().getInstanceClass();
+            Class<?> toClass = rangeType.getInstanceClass();
             typeClass = generateClass(GENERATED_CLASS_NAME_PREFIX + toClass.getName().replaceAll("\\.", "\\$"),
                 toClass,
                 Thread.currentThread().getContextClassLoader());
