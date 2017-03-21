@@ -113,17 +113,11 @@ public class CastFactory implements ICastFactory {
             return JAVA_UP_CAST;
         }
         
-        if (from.isArray() && to.isArray()){
-            if (to.getInstanceClass().isAssignableFrom(from.getInstanceClass())) { //Improve for up cast
-                return JAVA_UP_CAST;
-            }
-            IOpenCast arrayElementCast = findCast(from.getComponentClass(), to.getComponentClass());
-            if (arrayElementCast != null){
-                return new ArrayDownCast(to, arrayElementCast);
-            }
+        IOpenCast typeCast = findArrayCast(from, to);
+        if (typeCast != null){
+            return typeCast;
         }
-
-        IOpenCast typeCast = findAliasCast(from, to);
+        typeCast = findAliasCast(from, to);
         IOpenCast javaCast = findJavaCast(from, to);
         // Select minimum between alias cast and java cast
         if (typeCast == null) {
@@ -147,6 +141,36 @@ public class CastFactory implements ICastFactory {
         }
 
         return typeCast;
+    }
+
+    private IOpenCast findArrayCast(IOpenClass from, IOpenClass to) {
+        if ((from.isArray() || Object.class.equals(from.getInstanceClass())) && to.isArray()){
+            if (to.getInstanceClass().isAssignableFrom(from.getInstanceClass())) { //Improve for up cast
+                return JAVA_UP_CAST;
+            }
+            int dimf = 0;
+            IOpenClass f = from;
+            while (f.isArray()){
+                f = f.getComponentClass();
+                dimf++;
+            }
+            IOpenClass t = to;
+            int dimt = 0;
+            while (t.isArray()){
+                t = t.getComponentClass();
+                dimt++;
+            }
+            if (dimf == dimt || Object.class.equals(from.getInstanceClass())){
+                IOpenCast arrayElementCast = findCast(f, t);
+                if (arrayElementCast == null && Object.class.equals(from.getInstanceClass())){
+                    arrayElementCast = JAVA_NO_CAST;
+                }
+                if (arrayElementCast != null){
+                    return new ArrayDownCast(t, arrayElementCast, dimt);
+                }
+            }
+        }
+        return null;
     }
     
     /**
@@ -277,7 +301,7 @@ public class CastFactory implements ICastFactory {
 
             if (from instanceof DomainOpenClass && !(to instanceof DomainOpenClass) && to.getInstanceClass()
                 .isAssignableFrom(from.getInstanceClass())) {
-                return new AliasToTypeCast(from, to);
+                return new AliasToTypeCast(from, to); 
             }
 
             if (to instanceof DomainOpenClass && !(from instanceof DomainOpenClass) && from.getInstanceClass()
