@@ -11,6 +11,7 @@ import java.util.HashMap;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.binding.impl.cast.ThrowableVoidCast.ThrowableVoid;
 import org.openl.cache.GenericKey;
 import org.openl.ie.constrainer.ConstrainerObject;
 import org.openl.types.IMethodCaller;
@@ -42,6 +43,7 @@ public class CastFactory implements ICastFactory {
     private static final JavaBoxingCast JAVA_BOXING_CAST = new JavaBoxingCast();
     private static final JavaUnboxingCast JAVA_UNBOXING_CAST = new JavaUnboxingCast();
     private static final JavaBoxingCast JAVA_BOXING_UP_CAST = new JavaBoxingCast(JavaUpCast.UP_CAST_DISTANCE);
+    private static final ThrowableVoidCast THROWABLE_VOID_CAST = new ThrowableVoidCast(); //for error("message") method
 
     /**
      * Method factory object. This factory allows to define cast operations thru
@@ -111,6 +113,10 @@ public class CastFactory implements ICastFactory {
 
         if (from == NullOpenClass.the && !isPrimitive(to)) {
             return JAVA_UP_CAST;
+        }
+        
+        if (ThrowableVoid.class.equals(from.getInstanceClass())){ 
+            return THROWABLE_VOID_CAST;
         }
         
         IOpenCast typeCast = findArrayCast(from, to);
