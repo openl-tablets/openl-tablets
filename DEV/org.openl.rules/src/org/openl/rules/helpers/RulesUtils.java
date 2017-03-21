@@ -21,6 +21,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.impl.cast.AutoCastReturnType;
 import org.openl.binding.impl.cast.DefaultAutoCastFactory.ReturnType;
+import org.openl.binding.impl.cast.ThrowableVoidCast.ThrowableVoid;
 import org.openl.domain.IDomain;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
@@ -2302,11 +2303,11 @@ public class RulesUtils {
         return CollectionUtils.isNotEmpty(values) && !CollectionUtils.hasNull(values);
     }
 
-    public static void error(String msg) {
+    public static ThrowableVoid error(String msg) {
         throw new OpenLUserRuntimeException(msg);
     }
 
-    public static void error(Throwable t) throws Throwable {
+    public static ThrowableVoid error(Throwable t) throws Throwable {
         throw new OpenLUserRuntimeException(t);
     }
 
