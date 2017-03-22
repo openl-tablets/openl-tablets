@@ -34,6 +34,14 @@ public abstract class AbstractRuleServicePublisher implements RuleServicePublish
         }
     }
 
+    protected String processURL(String url) {
+        String ret = url;
+        while (ret.charAt(0) == '/') {
+            ret = ret.substring(1);
+        }
+        return ret;
+    }
+    
     public void setListeners(Collection<RuleServicePublisherListener> listeners) {
         this.listeners = listeners;
     }

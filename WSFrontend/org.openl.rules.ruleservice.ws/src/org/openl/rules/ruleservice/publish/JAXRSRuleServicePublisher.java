@@ -28,6 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
 
+import com.ibm.icu.text.Transliterator;
+
 /**
  * DeploymentAdmin to expose services via HTTP using JAXRS.
  *
@@ -106,8 +108,12 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
 
     @Override
     protected void deployService(final OpenLService service) throws RuleServiceDeployException {
-        if (service.getServiceClass().getMethods().length == 0){ //Skip deploy if service doesn't have methods.
-            if (log.isWarnEnabled()){
+        if (service.getServiceClass().getMethods().length == 0) { // Skip deploy
+                                                                  // if service
+                                                                  // doesn't
+                                                                  // have
+                                                                  // methods.
+            if (log.isWarnEnabled()) {
                 log.warn("Service \"{}\" with URL \"{}{}\" doens't have method and wasn't deployed.",
                     service.getName(),
                     getBaseAddress(),
@@ -119,14 +125,14 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
         Thread.currentThread().setContextClassLoader(service.getClassLoader());
         try {
             JAXRSServerFactoryBean svrFactory = getServerFactoryBean();
-            String url = URLHelper.processURL(service.getUrl());
+            String url = processURL(service.getUrl());
             if (service.getPublishers().size() != 1) {
                 url = getBaseAddress() + REST_PREFIX + url;
             } else {
                 url = getBaseAddress() + url;
             }
             svrFactory.setAddress(url);
-            if (isLoggingStoreEnable()){
+            if (isLoggingStoreEnable()) {
                 svrFactory.getFeatures().add(getStoreLoggingFeatureBean());
                 svrFactory.getInInterceptors().add(new CollectOpenLServiceIntercepror(service));
                 svrFactory.getInInterceptors().add(new CollectPublisherTypeInterceptor(getPublisherType()));
@@ -137,7 +143,10 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
             }
             Class<?> serviceClass = enhanceServiceClassWithJAXRSAnnotations(service.getServiceClass(), service, url);
             svrFactory.setResourceClasses(serviceClass);
-            Object target = createWrappedBean(service.getServiceBean(), service, serviceClass, service.getServiceClass());
+            Object target = createWrappedBean(service.getServiceBean(),
+                service,
+                serviceClass,
+                service.getServiceClass());
             svrFactory.setResourceProvider(serviceClass, new SingletonResourceProvider(target));
             ClassLoader origClassLoader = svrFactory.getBus().getExtension(ClassLoader.class);
             try {
@@ -153,7 +162,8 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
             }
         } catch (Throwable t) {
-            throw new RuleServiceDeployException(String.format("Failed to deploy service \"%s\"", service.getName()), t);
+            throw new RuleServiceDeployException(String.format("Failed to deploy service \"%s\"", service.getName()),
+                t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
@@ -210,6 +220,17 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
         return services;
     }
 
+    protected String processURL(String url) {
+        String id = "Any-Latin; NFD;";
+        url = Transliterator.getInstance(id).transform(url);
+        String ret = url.replaceAll(" ", "_");
+        while (ret.charAt(0) == '/') {
+            ret = ret.substring(1);
+        }
+
+        return ret;
+    }
+
     private ServiceInfo createServiceInfo(OpenLService service) {
         List<String> methodNames = new ArrayList<String>();
         for (Method method : service.getServiceClass().getMethods()) {
@@ -221,7 +242,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 return o1.compareToIgnoreCase(o2);
             }
         });
-        String url = URLHelper.processURL(service.getUrl());
+        String url = processURL(service.getUrl());
         url = url + "?_wadl";
         if (service.getPublishers().size() != 1) {
             url = REST_PREFIX + url;

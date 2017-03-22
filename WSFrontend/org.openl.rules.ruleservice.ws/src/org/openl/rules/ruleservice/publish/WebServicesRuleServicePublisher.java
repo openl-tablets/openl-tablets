@@ -1,8 +1,6 @@
 package org.openl.rules.ruleservice.publish;
 
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -92,31 +90,6 @@ public class WebServicesRuleServicePublisher extends AbstractRuleServicePublishe
             return (ServerFactoryBean) serverFactory.getObject();
         }
         return new ServerFactoryBean();
-    }
-
-    protected String processURL(String url) {
-        String[] parts = url.split("/");
-        StringBuilder sb = new StringBuilder();
-        boolean first = true;
-        for (String s : parts) {
-            if (first) {
-                first = false;
-            } else {
-                sb.append("/");
-            }
-            try {
-                sb.append(URLEncoder.encode(s, "UTF-8").replaceAll("\\+", "%20"));
-            } catch (UnsupportedEncodingException e) {
-                sb.append(s);
-            }
-        }
-
-        String ret = sb.toString();
-        while (ret.charAt(0) == '/') {
-            ret = ret.substring(1);
-        }
-
-        return ret;
     }
 
     @Override
@@ -228,7 +201,7 @@ public class WebServicesRuleServicePublisher extends AbstractRuleServicePublishe
                 return o1.compareToIgnoreCase(o2);
             }
         });
-        String url = service.getUrl() + "?wsdl";
+        String url = processURL(service.getUrl()) + "?wsdl";
         return new ServiceInfo(new Date(), service.getName(), methodNames, url, "WSDL");
     }
 

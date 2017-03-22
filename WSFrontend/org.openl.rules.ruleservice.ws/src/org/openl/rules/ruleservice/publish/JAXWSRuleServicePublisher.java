@@ -104,8 +104,7 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
             ServerFactoryBean svrFactory = getServerFactoryBean();
             ClassLoader origClassLoader = svrFactory.getBus().getExtension(ClassLoader.class);
             try {
-                String url = URLHelper.processURL(service.getUrl());
-                String serviceAddress = getBaseAddress() + url;
+                String serviceAddress = getBaseAddress() + service.getUrl();
                 svrFactory.setAddress(serviceAddress);
                 svrFactory.setServiceClass(enhanceServiceClassWithJAXWSAnnotations(service.getServiceClass(), service));
                 svrFactory.setServiceBean(service.getServiceBean());
@@ -201,8 +200,7 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 return o1.compareToIgnoreCase(o2);
             }
         });
-        String url = URLHelper.processURL(service.getUrl());
-        url = url + "?wsdl";
+        String url = processURL(service.getUrl()) + "?wsdl";
         return new ServiceInfo(new Date(), service.getName(), methodNames, url, "WSDL");
     }
 
