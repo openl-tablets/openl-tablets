@@ -327,8 +327,10 @@ public class TableViewer {
         int w = 0;
 
         gr = IGridRegion.Tool.intersect(gr, reg);
-        for (int c = gr.getLeft(); c <= gr.getRight(); c++) {
-            w += grid.getColumnWidth(c);
+        if (gr != null) {
+            for (int c = gr.getLeft(); c <= gr.getRight(); c++) {
+                w += grid.getColumnWidth(c);
+            }
         }
 
         return w;
