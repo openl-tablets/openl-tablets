@@ -115,13 +115,17 @@ public class TableViewer {
             String content;
             if (Constants.MODE_EDIT.equals(mode)) {
                 // In edit mode there should be no links: it's difficult to start cell editing.
-                content = escapeHtml4(formattedValue);
+                if (CellMetaInfo.isCellContainsNodeUsages(cell)) {
+                    content = createCellWithMetaInfo(formattedValue, cell.getMetaInfo(), false);
+                } else {
+                    content = escapeHtml4(formattedValue);
+                }
             } else if (link(formattedValue)) {
                 // has Explanation link
                 content = formattedValue;
             } else if (isShowLinks() && CellMetaInfo.isCellContainsNodeUsages(cell)) {
                 // has method call
-                content = createFormulaCellWithLinks(cell, formattedValue);
+                content = createCellWithMetaInfo(formattedValue, cell.getMetaInfo(), true);
             } else if (image(formattedValue)) {
                 // has image
                 content = formattedValue;
@@ -149,33 +153,28 @@ public class TableViewer {
         return formattedValue.matches(".*<a href.*</a>.*");
     }
 
-    private String createFormulaCellWithLinks(ICell cell, String formattedValue) {
+    private String createCellWithMetaInfo(String formattedValue, CellMetaInfo metaInfo, boolean addUri) {
         try {
             int nextSymbolIndex = 0;
             StringBuilder buff = new StringBuilder();
-            if (isShowLinks()) {
-                for (NodeUsage nodeUsage : cell.getMetaInfo().getUsedNodes()) {
-                    int pstart = nodeUsage.getStart();
-                    int pend = nodeUsage.getEnd();
-                    String tableUri = nodeUsage.getUri();
-                    buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex, pstart)));
-                    // add link to used table with signature in tooltip
-                    buff.append("<span class=\"title")
-                            .append(" title-")
-                            .append(nodeUsage.getNodeType().toString().toLowerCase())
-                            .append(" ").append(Constants.TABLE_EDITOR_META_INFO_CLASS)
-                            .append("\">");
-                    if (tableUri != null) {
-                        buff.append(linkBuilder.createLinkForTable(tableUri, formattedValue.substring(pstart, pend + 1)));
-                    } else {
-                        buff.append(escapeHtml4(formattedValue.substring(pstart, pend + 1)));
-                    }
-                    buff.append("<em>").append(escapeHtml4(nodeUsage.getDescription())).append("</em></span>");
-                    buff.append("<span class='").append(Constants.TABLE_EDITOR_ACTUAL_VALUE_CLASS).append(" te_hidden'>");
+            for (NodeUsage nodeUsage : metaInfo.getUsedNodes()) {
+                int pstart = nodeUsage.getStart();
+                int pend = nodeUsage.getEnd();
+                String tableUri = nodeUsage.getUri();
+                buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex, pstart)));
+                // add link to used table with signature in tooltip
+                buff.append("<span class=\"title")
+                        .append(" title-")
+                        .append(nodeUsage.getNodeType().toString().toLowerCase())
+                        .append(" ").append(Constants.TABLE_EDITOR_META_INFO_CLASS)
+                        .append("\">");
+                if (addUri && tableUri != null) {
+                    buff.append(linkBuilder.createLinkForTable(tableUri, formattedValue.substring(pstart, pend + 1)));
+                } else {
                     buff.append(escapeHtml4(formattedValue.substring(pstart, pend + 1)));
-                    buff.append("</span>");
-                    nextSymbolIndex = pend + 1;
                 }
+                buff.append("<em>").append(escapeHtml4(nodeUsage.getDescription())).append("</em></span>");
+                nextSymbolIndex = pend + 1;
             }
             buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex)));
             return buff.toString();
