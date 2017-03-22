@@ -52,13 +52,13 @@
                                     <h:graphicImage value="/images/close.gif" />
                                 </a4j:commandLink>
                                 <a4j:commandLink action="#{inputArgsBean.addToCollection}"
-                                    rendered="#{not item.valueNull and not item.javaList}" render="dynamicTreePanel" styleClass="addButton"
+                                    rendered="#{not item.valueNull and not item.javaCollection}" render="dynamicTreePanel" styleClass="addButton"
                                     oncomplete="createDatePickers()"
                                     title="Add new element to collection">
                                     <h:graphicImage value="/images/add_obj.gif" />
                                 </a4j:commandLink>
                                 <a4j:commandLink action="#{inputArgsBean.addToCollection}"
-                                    rendered="#{not item.valueNull and item.javaList}" render="dynamicTreePanel" styleClass="addButton"
+                                    rendered="#{not item.valueNull and item.javaCollection}" render="dynamicTreePanel" styleClass="addButton"
                                     title="Java collections are not supported. If you want to edit this field please rework you rules to use arrays." disabled="true">
                                     <img style="opacity: 0.1; background-color: #000;" src="webresource/images/add_obj.gif" />
                                 </a4j:commandLink>

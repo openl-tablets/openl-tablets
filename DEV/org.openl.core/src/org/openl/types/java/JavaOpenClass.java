@@ -293,11 +293,17 @@ public class JavaOpenClass extends AOpenClass {
     public synchronized IAggregateInfo getAggregateInfo() {
         if (aggregateInfo != null)
             return aggregateInfo;
-        
-        if (List.class.isAssignableFrom(getInstanceClass())) {
+
+        Class<?> instanceClass = getInstanceClass();
+        if (List.class.isAssignableFrom(instanceClass)) {
             aggregateInfo = JavaListAggregateInfo.LIST_AGGREGATE;
+        } else if (Map.class.isAssignableFrom(instanceClass)) {
+            aggregateInfo = JavaMapAggregateInfo.MAP_AGGREGATE;
+        } else if (Collection.class.isAssignableFrom(instanceClass)) {
+            aggregateInfo = JavaCollectionAggregateInfo.COLLECTION_AGGREGATE;
+        } else {
+            aggregateInfo = JavaArrayAggregateInfo.ARRAY_AGGREGATE;
         }
-        else aggregateInfo = JavaArrayAggregateInfo.ARRAY_AGGREGATE;
         return aggregateInfo;
     }
 

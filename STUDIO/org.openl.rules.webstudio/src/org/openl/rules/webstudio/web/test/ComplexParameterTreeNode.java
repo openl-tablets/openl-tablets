@@ -47,7 +47,7 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
             IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
             for (Entry<String, IOpenField> fieldEntry : getType().getFields().entrySet()) {
                 IOpenField field = fieldEntry.getValue();
-                if (!field.isConst() && field.isReadable() && field.isWritable()) {
+                if (!field.isConst() && field.isReadable()) {
                     String fieldName = fieldEntry.getKey();
                     Object fieldValue;
                     IOpenClass fieldType = field.getType();
@@ -61,6 +61,10 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
                         log.debug("Exception while trying to get a value of a field:", e);
                         fieldType = JavaOpenClass.getOpenClass(String.class);
                         fieldValue = "Exception while trying to get a value of a field: " + e;
+                    }
+
+                    if (fieldType == JavaOpenClass.OBJECT) {
+                        fieldType = JavaOpenClass.getOpenClass(fieldValue.getClass());
                     }
 
                     String reference = getReferenceNameToParent(fieldValue, this, "this");

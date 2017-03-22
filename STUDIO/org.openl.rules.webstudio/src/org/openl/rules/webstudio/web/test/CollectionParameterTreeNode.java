@@ -8,9 +8,7 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
-import org.openl.types.java.JavaListAggregateInfo;
-import org.openl.types.java.JavaOpenClass;
-import org.openl.types.java.OpenClassHelper;
+import org.openl.types.java.*;
 
 public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
     public static final String COLLECTION_TYPE = "collection";
@@ -76,8 +74,11 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
         }
         return ary;
     }
-    
-    public boolean isJavaList() {
-        return getType().getAggregateInfo() instanceof JavaListAggregateInfo;
+
+    public boolean isJavaCollection() {
+        IAggregateInfo aggregateInfo = getType().getAggregateInfo();
+        return aggregateInfo instanceof JavaListAggregateInfo
+                || aggregateInfo instanceof JavaCollectionAggregateInfo
+                || aggregateInfo instanceof JavaMapAggregateInfo;
     }
 }
