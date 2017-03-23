@@ -2616,16 +2616,32 @@ public class RulesUtils {
         return org.openl.util.BooleanUtils.and(values);
     }
 
+    public static boolean allYes(boolean[] values) {
+        return allTrue(values);
+    }
+
     public static boolean allTrue(Boolean[] values) {
         return org.openl.util.BooleanUtils.and(values);
+    }
+
+    public static boolean allYes(Boolean[] values) {
+        return allTrue(values);
     }
 
     public static boolean allFalse(boolean[] values) {
         return !anyTrue(values);
     }
 
+    public static boolean allNo(boolean[] values) {
+        return allFalse(values);
+    }
+
     public static boolean allFalse(Boolean[] values) {
         return !anyTrue(values);
+    }
+
+    public static boolean allNo(Boolean[] values) {
+        return allFalse(values);
     }
 
     // Exclusive or
@@ -2642,16 +2658,32 @@ public class RulesUtils {
         return org.openl.util.BooleanUtils.or(values);
     }
 
+    public static boolean anyYes(boolean[] values) {
+        return anyTrue(values);
+    }
+
     public static boolean anyTrue(Boolean[] values) {
         return org.openl.util.BooleanUtils.or(values);
+    }
+
+    public static boolean anyYes(Boolean[] values) {
+        return anyTrue(values);
     }
 
     public static boolean anyFalse(boolean[] values) {
         return !allTrue(values);
     }
 
+    public static boolean anyNo(boolean[] values) {
+        return anyFalse(values);
+    }
+
     public static boolean anyFalse(Boolean[] values) {
         return !allTrue(values);
+    }
+
+    public static boolean anyNo(Boolean[] values) {
+        return anyFalse(values);
     }
 
     /**
