@@ -2629,7 +2629,7 @@ public class RulesUtils {
     }
 
     public static boolean allFalse(boolean[] values) {
-        return !anyTrue(values);
+        return !ArrayUtils.isEmpty(values) && !anyTrue(values);
     }
 
     public static boolean allNo(boolean[] values) {
@@ -2637,7 +2637,7 @@ public class RulesUtils {
     }
 
     public static boolean allFalse(Boolean[] values) {
-        return !anyTrue(values);
+        return !ArrayUtils.isEmpty(removeNulls(values)) && !anyTrue(values);
     }
 
     public static boolean allNo(Boolean[] values) {
@@ -2671,7 +2671,7 @@ public class RulesUtils {
     }
 
     public static boolean anyFalse(boolean[] values) {
-        return !allTrue(values);
+        return !ArrayUtils.isEmpty(values) && !allTrue(values);
     }
 
     public static boolean anyNo(boolean[] values) {
@@ -2679,7 +2679,7 @@ public class RulesUtils {
     }
 
     public static boolean anyFalse(Boolean[] values) {
-        return !allTrue(values);
+        return !ArrayUtils.isEmpty(removeNulls(values)) && !allTrue(values);
     }
 
     public static boolean anyNo(Boolean[] values) {
