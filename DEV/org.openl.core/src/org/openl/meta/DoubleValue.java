@@ -237,6 +237,9 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
      */
     public static org.openl.meta.DoubleValue max(org.openl.meta.DoubleValue[] values) {
         org.openl.meta.DoubleValue result = (org.openl.meta.DoubleValue) MathUtils.max(values);
+        if (result == null) {
+            return null;
+        }
 
         return new org.openl.meta.DoubleValue((org.openl.meta.DoubleValue) getAppropriateValue(values, result),
             NumberOperations.MAX_IN_ARRAY, values);
@@ -248,6 +251,9 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
      */
     public static org.openl.meta.DoubleValue min(org.openl.meta.DoubleValue[] values) {
         org.openl.meta.DoubleValue result = (org.openl.meta.DoubleValue) MathUtils.min(values);
+        if (result == null) {
+            return null;
+        }
 
         return new org.openl.meta.DoubleValue((org.openl.meta.DoubleValue) getAppropriateValue(values, result),
             NumberOperations.MIN_IN_ARRAY, values);

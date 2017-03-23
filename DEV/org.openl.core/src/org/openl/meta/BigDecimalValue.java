@@ -197,6 +197,9 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
      */
     public static org.openl.meta.BigDecimalValue max(org.openl.meta.BigDecimalValue[] values) {
         org.openl.meta.BigDecimalValue result = (org.openl.meta.BigDecimalValue) MathUtils.max(values);
+        if (result == null) {
+            return null;
+        }
 
         return new org.openl.meta.BigDecimalValue((org.openl.meta.BigDecimalValue) getAppropriateValue(values, result),
             NumberOperations.MAX_IN_ARRAY, values);
@@ -208,6 +211,9 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
      */
     public static org.openl.meta.BigDecimalValue min(org.openl.meta.BigDecimalValue[] values) {
         org.openl.meta.BigDecimalValue result = (org.openl.meta.BigDecimalValue) MathUtils.min(values);
+        if (result == null) {
+            return null;
+        }
 
         return new org.openl.meta.BigDecimalValue((org.openl.meta.BigDecimalValue) getAppropriateValue(values, result),
             NumberOperations.MIN_IN_ARRAY, values);

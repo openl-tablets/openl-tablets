@@ -1641,11 +1641,10 @@ public class MathUtils {
 
     /**
      * Divide one BigDecimal to another. When providing a result of divide
-     * operation, the precision '5' and {@link RoundingMode.HALF_UP} settings
+     * operation, the precision '5' and {@link RoundingMode#HALF_UP} settings
      * are used.
      * 
-     * @param values
-     * @return rounded to 5 values after comma and {@link RoundingMode.HALF_UP}
+     * @return rounded to 5 values after comma and {@link RoundingMode#HALF_UP}
      *         value.
      */
     public static BigDecimal divide(BigDecimal number, BigDecimal divisor) {
@@ -1699,11 +1698,11 @@ public class MathUtils {
     @SuppressWarnings("unchecked")
     public static Object max(Object[] values) {
         if (values == null) {
-            throw new IllegalArgumentException("The Array must not be null");
+            return null;
         }
         values = ArrayTool.removeNulls(values);
         if (values.length == 0) {
-            throw new IllegalArgumentException("Array cannot be empty.");
+            return null;
         }
         if (!(ClassUtils.isAssignable(values.getClass().getComponentType(), Number.class) && ClassUtils.isAssignable(values.getClass()
             .getComponentType(),
@@ -1751,11 +1750,11 @@ public class MathUtils {
     @SuppressWarnings("unchecked")
     public static Object min(Object[] values) {
         if (values == null) {
-            throw new IllegalArgumentException("The Array must not be null");
+            return null;
         }
         values = ArrayTool.removeNulls(values);
         if (values.length == 0) {
-            throw new IllegalArgumentException("Array cannot be empty.");
+            return null;
         }
         if (!(ClassUtils.isAssignable(values.getClass().getComponentType(), Number.class) && ClassUtils.isAssignable(values.getClass()
             .getComponentType(),

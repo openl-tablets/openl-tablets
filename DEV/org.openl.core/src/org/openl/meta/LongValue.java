@@ -198,6 +198,9 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
      */
     public static org.openl.meta.LongValue max(org.openl.meta.LongValue[] values) {
         org.openl.meta.LongValue result = (org.openl.meta.LongValue) MathUtils.max(values);
+        if (result == null) {
+            return null;
+        }
 
         return new org.openl.meta.LongValue((org.openl.meta.LongValue) getAppropriateValue(values, result),
             NumberOperations.MAX_IN_ARRAY, values);
@@ -209,6 +212,9 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
      */
     public static org.openl.meta.LongValue min(org.openl.meta.LongValue[] values) {
         org.openl.meta.LongValue result = (org.openl.meta.LongValue) MathUtils.min(values);
+        if (result == null) {
+            return null;
+        }
 
         return new org.openl.meta.LongValue((org.openl.meta.LongValue) getAppropriateValue(values, result),
             NumberOperations.MIN_IN_ARRAY, values);

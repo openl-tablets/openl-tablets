@@ -198,6 +198,9 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
      */
     public static org.openl.meta.ShortValue max(org.openl.meta.ShortValue[] values) {
         org.openl.meta.ShortValue result = (org.openl.meta.ShortValue) MathUtils.max(values);
+        if (result == null) {
+            return null;
+        }
 
         return new org.openl.meta.ShortValue((org.openl.meta.ShortValue) getAppropriateValue(values, result),
             NumberOperations.MAX_IN_ARRAY, values);
@@ -209,6 +212,9 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
      */
     public static org.openl.meta.ShortValue min(org.openl.meta.ShortValue[] values) {
         org.openl.meta.ShortValue result = (org.openl.meta.ShortValue) MathUtils.min(values);
+        if (result == null) {
+            return null;
+        }
 
         return new org.openl.meta.ShortValue((org.openl.meta.ShortValue) getAppropriateValue(values, result),
             NumberOperations.MIN_IN_ARRAY, values);
