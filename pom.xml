@@ -237,6 +237,11 @@
                     <version>1.0-alpha-2</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.codehaus.gmaven</groupId>
+                    <artifactId>groovy-maven-plugin</artifactId>
+                    <version>2.0</version>
+                </plugin>
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-pdf-plugin</artifactId>
                     <version>1.2</version>
@@ -432,6 +437,77 @@
                     </plugin>
                 </plugins>
             </reporting>
+        </profile>
+        <profile>
+            <id>generateOpenLDefaultConfig</id>
+            <properties>
+                <!-- If none, generating of application.properties will be skipped  -->
+                <!-- Use process-resources to generate application.properties -->
+                <!-- See RuleService and WebStudio -->
+                <generate-application.properties>none</generate-application.properties>
+            </properties>
+            <activation>
+                <property>
+                    <name>!skip</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.gmaven</groupId>
+                        <artifactId>groovy-maven-plugin</artifactId>
+                        <configuration>
+                            <classpathScope>runtime</classpathScope>
+                            <source>
+                                log.info("Generating application.properties from:")
+                                import org.openl.util.StringUtils
+                                import org.springframework.core.io.Resource;
+                                import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+
+                                PathMatchingResourcePatternResolver prpr = new PathMatchingResourcePatternResolver(this.class.getClassLoader());
+                                // See :org.openl.spring artifact.
+                                Resource[] resources = prpr.getResources("classpath*:openl-default.properties");
+
+                                def out = new File(project.build.outputDirectory, "application.properties");
+                                out.write("### This file was generated!\n\r\n\r")
+                                def write = {
+                                    String text ->
+                                        out.append(text)
+                                        out.append("\n\r")
+                                        log.debug("   | {}", text)
+                                }
+
+                                resources.each {
+                                    def url = it.getURL()
+                                    log.info("  {}", url)
+                                    write "###"
+                                    write "### From: ${(url =~ /([^\/]+(!\/.*)?)$/)[0][1]}"
+                                    write "###"
+                                    it.getInputStream().eachLine {
+                                        if (StringUtils.isBlank(it)) {
+                                            write ""
+                                        } else if (it.startsWith('#')) {
+                                            write it.trim()
+                                        } else {
+                                            write "#" + it.trim()
+                                        }
+                                    }
+                                    write ""
+                                }
+                            </source>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>generate-application.properties</id>
+                                <phase>${generate-application.properties}</phase>
+                                <goals>
+                                    <goal>execute</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
     <dependencyManagement>
