@@ -1,9 +1,7 @@
 package org.openl.binding.impl.cast;
 
 import java.lang.reflect.Array;
-import java.util.Random;
 
-import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openl.types.NullOpenClass;
@@ -50,7 +48,7 @@ public class CastFactoryTest {
             for (int j = 0; j < 4; j++) {
                 for (int k = 0; k < 1; k++) {
                     for (int w = 0; w < 1; w++) {
-                        x[i][j][k][w] = RandomUtils.nextInt();
+                        x[i][j][k][w] = 31 + i * 101 ^ j >>> 3 + k * 721 - w * 13 ;
                     }
                 }
             }
