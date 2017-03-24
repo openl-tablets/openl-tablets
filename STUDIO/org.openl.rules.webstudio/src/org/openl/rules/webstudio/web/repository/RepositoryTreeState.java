@@ -57,6 +57,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     private IFilter<AProjectArtefact> filter = ALL_FILTER;
     private boolean hideDeleted = true;
 
+    private final Object lock = new Object();
+
     private void buildTree() {
         if (root != null) {
             return;
@@ -107,23 +109,31 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public TreeRepository getDeploymentRepository() {
-        buildTree();
-        return deploymentRepository;
+        synchronized (lock) {
+            buildTree();
+            return deploymentRepository;
+        }
     }
 
     public TreeRepository getRoot() {
-        buildTree();
-        return root;
+        synchronized (lock) {
+            buildTree();
+            return root;
+        }
     }
 
     public TreeRepository getRulesRepository() {
-        buildTree();
-        return rulesRepository;
+        synchronized (lock) {
+            buildTree();
+            return rulesRepository;
+        }
     }
 
     public TreeNode getSelectedNode() {
-        buildTree();
-        return this.repositorySelectNodeStateHolder.getSelectedNode();
+        synchronized (lock) {
+            buildTree();
+            return this.repositorySelectNodeStateHolder.getSelectedNode();
+        }
     }
 
     public Collection<SequenceRowKey> getSelection() {
@@ -135,7 +145,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             node = node.getParent();
         }
 
-        return new ArrayList<SequenceRowKey>(Arrays.asList(new SequenceRowKey(ids.toArray())));
+        return new ArrayList<SequenceRowKey>(Collections.singletonList(new SequenceRowKey(ids.toArray())));
     }
 
     public TreeProject getProjectNodeByPhysicalName(String physicalName) {
@@ -208,10 +218,12 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public void deleteSelectedNodeFromTree() {
-        TreeNode selectedNode = getSelectedNode();
-        if (selectedNode != root && selectedNode != rulesRepository && selectedNode != deploymentRepository) {
-            deleteNode(selectedNode);
-            moveSelectionToParentNode();
+        synchronized (lock) {
+            TreeNode selectedNode = getSelectedNode();
+            if (selectedNode != root && selectedNode != rulesRepository && selectedNode != deploymentRepository) {
+                deleteNode(selectedNode);
+                moveSelectionToParentNode();
+            }
         }
     }
 
@@ -253,8 +265,10 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
      * Forces tree rebuild during next access.
      */
     public void invalidateTree() {
-        invalidateSelection();
-        root = null;
+        synchronized (lock) {
+            invalidateSelection();
+            root = null;
+        }
     }
 
     /**
@@ -298,7 +312,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public void setFilter(IFilter<AProjectArtefact> filter) {
         this.filter = filter != null ? filter : ALL_FILTER;
-        root = null;
+        synchronized (lock) {
+            root = null;
+        }
     }
 
     public void setSelectedNode(TreeNode selectedNode) {
@@ -320,7 +336,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     @Override
     public void onRepositoryModified() {
-        root = null;
+        synchronized (lock) {
+            root = null;
+        }
     }
 
     public boolean isHideDeleted() {
@@ -471,8 +489,10 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public String clearSelectPrj() {
-        buildTree();
-        invalidateSelection();
+        synchronized (lock) {
+            buildTree();
+            invalidateSelection();
+        }
 
         return "";
     }
