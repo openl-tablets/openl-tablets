@@ -41,7 +41,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     @ManagedProperty("#{projectDescriptorArtefactResolver}")
     private ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
-    public static final String DEFAULT_TAB = "Properties";
+    private static final String DEFAULT_TAB = "Properties";
     private final Logger log = LoggerFactory.getLogger(RepositoryTreeState.class);
     private static IFilter<AProjectArtefact> ALL_FILTER = new AllFilter<AProjectArtefact>();
 
@@ -56,30 +56,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     private IFilter<AProjectArtefact> filter = ALL_FILTER;
     private boolean hideDeleted = true;
-
-    public Boolean adviseNodeSelected(UITree uiTree) {
-        /*TreeNode node = (TreeNode) uiTree.getTreeNode();
-
-        AProjectArtefact projectArtefact = node.getData();
-        AProjectArtefact selected = null;
-		if (selectedNode != null) {
-            selected = selectedNode.getData();
-		}else{
-			return false;
-		}
-
-        if ((selected == null) || (projectArtefact == null)) {
-            return selectedNode.getId().equals(node.getId());
-        }
-
-        if (selected.getArtefactPath().equals(projectArtefact.getArtefactPath())) {
-            if (projectArtefact instanceof DeploymentDescriptorProject) {
-                return selected instanceof DeploymentDescriptorProject;
-            }
-            return true;
-        }*/
-        return false;
-    }
 
     private void buildTree() {
         if (root != null) {
@@ -133,10 +109,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public TreeRepository getDeploymentRepository() {
         buildTree();
         return deploymentRepository;
-    }
-
-    public IFilter<AProjectArtefact> getFilter() {
-        return filter;
     }
 
     public TreeRepository getRoot() {
@@ -210,7 +182,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     /**
      * Refreshes repositoryTreeState.selectedNode after rebuilding tree.
      */
-    public void updateSelectedNode() {
+    private void updateSelectedNode() {
         AProjectArtefact artefact = getSelectedNode().getData();
         if (artefact == null) {
             return;
@@ -288,7 +260,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     /**
      * Moves selection to the parent of the current selected node.
      */
-    public void moveSelectionToParentNode() {
+    private void moveSelectionToParentNode() {
         if (getSelectedNode().getParent() != null) {
             setSelectedNode(getSelectedNode().getParent());
         } else {
@@ -327,10 +299,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public void setFilter(IFilter<AProjectArtefact> filter) {
         this.filter = filter != null ? filter : ALL_FILTER;
         root = null;
-    }
-
-    public void setRoot(TreeRepository root) {
-        this.root = root;
     }
 
     public void setSelectedNode(TreeNode selectedNode) {
@@ -375,12 +343,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         }
 
         return isGranted(PRIVILEGE_EDIT_PROJECTS);
-    }
-
-    public boolean getCanSave() {
-        UserWorkspaceProject selectedProject = getSelectedProject();
-
-        return selectedProject.isOpenedForEditing() && isGranted(PRIVILEGE_EDIT_PROJECTS);
     }
 
     public boolean getCanCreateDeployment() {
@@ -513,10 +475,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         invalidateSelection();
 
         return "";
-    }
-
-    public RepositorySelectNodeStateHolder getRepositorySelectNodeStateHolder() {
-        return repositorySelectNodeStateHolder;
     }
 
     public void setRepositorySelectNodeStateHolder(RepositorySelectNodeStateHolder repositorySelectNodeStateHolder) {
