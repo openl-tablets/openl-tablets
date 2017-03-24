@@ -5,6 +5,7 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
+  <f:view transient="true">
   <rich:popupPanel id="modalTreeFilter" width="300" autosized="true">
     <f:facet name="header">
       <h:outputText value="Advanced Filter"/>
@@ -31,6 +32,7 @@
       </footer>
     </h:form>
   </rich:popupPanel>
+  </f:view>
 
   <script>
     function showTreeFilterDialog() {
