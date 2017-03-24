@@ -42,7 +42,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     /**
      * Project Cache
      */
-    private HashMap<String, AProject> projects = new HashMap<String, AProject>();
+    private final HashMap<String, AProject> projects = new HashMap<String, AProject>();
 
     private final List<DesignTimeRepositoryListener> listeners = new ArrayList<DesignTimeRepositoryListener>();
 
@@ -71,7 +71,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             addListener(new DesignTimeRepositoryListener() {
                 @Override
                 public void onRepositoryModified() {
-                    projects.clear();
+                    synchronized (projects) {
+                        projects.clear();
+                    }
                 }
             });
         } catch (RRepositoryException e) {
@@ -121,8 +123,10 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         } catch (Exception e) {
             throw new RepositoryException("Failed to copy project ''{0}''!", e, name);
         } finally {
-            // invalidate cache (rules projects)
-            projects.remove(name);
+            synchronized (projects) {
+                // invalidate cache (rules projects)
+                projects.remove(name);
+            }
         }
     }
 
@@ -166,17 +170,21 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     public AProject getProject(String name) throws RepositoryException {
-        if (!hasProject(name)) {
-            throw new RepositoryException("Cannot find project ''{0}''!", null, name);
-        }
+        AProject project;
+        synchronized (projects) {
+            if (!hasProject(name)) {
+                throw new RepositoryException("Cannot find project ''{0}''!", null, name);
+            }
 
-        AProject cached = projects.get(name);
-        if (cached != null) {
-            return cached;
-        }
+            AProject cached = projects.get(name);
+            if (cached != null) {
+                return cached;
+            }
 
-        AProject project = new AProject(getRepository(), rulesLocation + "/" + name, false);
-        projects.put(project.getName(), project);
+            // TODO: Seems we never reach here. Is the code below really needed?
+            project = new AProject(getRepository(), rulesLocation + "/" + name, false);
+            projects.put(project.getName(), project);
+        }
         return project;
     }
 
@@ -193,12 +201,14 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         } catch (IOException ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         }
-        projects.clear();
-        for (FileData fileData : fileDatas) {
-            AProject project = new AProject(getRepository(), fileData, false);
-            // get from the repository
-            result.add(project);
-            projects.put(project.getName(), project);
+        synchronized (projects) {
+            projects.clear();
+            for (FileData fileData : fileDatas) {
+                AProject project = new AProject(getRepository(), fileData, false);
+                // get from the repository
+                result.add(project);
+                projects.put(project.getName(), project);
+            }
         }
         return result;
     }
@@ -212,7 +222,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     public boolean hasProject(String name) {
-        return projects.containsKey(name);
+        synchronized (projects) {
+            return projects.containsKey(name);
+        }
     }
 
     // --- private
@@ -240,7 +252,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             }
             repository = null;
         }
-        projects.clear();
+        synchronized (projects) {
+            projects.clear();
+        }
     }
 
     @Override
