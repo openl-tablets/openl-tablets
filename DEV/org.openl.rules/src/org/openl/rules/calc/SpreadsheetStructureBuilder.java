@@ -112,11 +112,11 @@ public class SpreadsheetStructureBuilder {
     }
 
     public String[] getRowNames() {
-        return componentsBuilder.getCellsHeadersExtractor().getRowNames();
+        return componentsBuilder.getRowNames();
     }
 
     public String[] getColumnNames() {
-        return componentsBuilder.getCellsHeadersExtractor().getColumnNames();
+        return componentsBuilder.getColumnNames();
     }
 
     private void buildCellsInternal(SpreadsheetOpenClass spreadsheetType) {

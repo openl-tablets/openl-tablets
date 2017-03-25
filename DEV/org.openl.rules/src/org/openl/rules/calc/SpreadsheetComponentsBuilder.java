@@ -1,8 +1,10 @@
 package org.openl.rules.calc;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.DuplicatedVarException;
@@ -74,6 +76,23 @@ public class SpreadsheetComponentsBuilder {
         return new HashMap<Integer, SpreadsheetHeaderDefinition>(columnHeaders);
     }
     
+    public String[] getRowNames() {
+        return buildArrayForHeaders(rowHeaders, cellsHeaderExtractor.getHeight());
+    }
+
+    public String[] getColumnNames() {
+        return buildArrayForHeaders(columnHeaders, cellsHeaderExtractor.getWidth());
+    }
+
+    private String[] buildArrayForHeaders(Map<Integer, SpreadsheetHeaderDefinition> headers, int size){
+        String[] ret = new String[size];
+        for (Entry<Integer, SpreadsheetHeaderDefinition> x : headers.entrySet()){
+            int k = x.getKey();
+            ret[k] = x.getValue().getFirstname();
+        }
+        return ret;
+    }
+        
     public CellsHeaderExtractor getCellsHeadersExtractor() {
         return cellsHeaderExtractor;
     }
