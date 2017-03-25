@@ -9,18 +9,19 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.IdentifierNode;
+import org.openl.syntax.impl.TerminalNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
 
 /**
  * @author snshor
- * 
+ *
  */
 public class TypeCastBinder extends ANodeBinder {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.openl.binding.INodeBinder#bind(org.openl.syntax.ISyntaxNode,
 	 * org.openl.binding.IBindingContext)
 	 */
@@ -35,13 +36,15 @@ public class TypeCastBinder extends ANodeBinder {
 		if (from == NullOpenClass.the || to == NullOpenClass.the) {
 			IBoundNode nullNode = to == NullOpenClass.the ? children[0]
 					: children[1];
-			String code = ((IdentifierNode) nullNode.getSyntaxNode()
-					.getChild(0)).getIdentifier();
+			if (!(nullNode.getSyntaxNode() instanceof TerminalNode)) {
+				String code = ((IdentifierNode) nullNode.getSyntaxNode()
+						.getChild(0)).getIdentifier();
 
-			String message = String.format("Type '%s' is not found", code);
-			BindHelper.processError(message, node, bindingContext, false);
+				String message = String.format("Type '%s' is not found", code);
+				BindHelper.processError(message, node, bindingContext, false);
 
-			return new ErrorBoundNode(node);
+				return new ErrorBoundNode(node);
+			}
 		}
 
 		if (to.equals(from)) {

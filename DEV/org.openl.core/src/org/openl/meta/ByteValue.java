@@ -197,6 +197,9 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      */
     public static org.openl.meta.ByteValue max(org.openl.meta.ByteValue[] values) {
         org.openl.meta.ByteValue result = (org.openl.meta.ByteValue) MathUtils.max(values);
+        if (result == null) {
+            return null;
+        }
 
         return new org.openl.meta.ByteValue((org.openl.meta.ByteValue) getAppropriateValue(values, result),
             NumberOperations.MAX_IN_ARRAY, values);
@@ -208,6 +211,9 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      */
     public static org.openl.meta.ByteValue min(org.openl.meta.ByteValue[] values) {
         org.openl.meta.ByteValue result = (org.openl.meta.ByteValue) MathUtils.min(values);
+        if (result == null) {
+            return null;
+        }
 
         return new org.openl.meta.ByteValue((org.openl.meta.ByteValue) getAppropriateValue(values, result),
             NumberOperations.MIN_IN_ARRAY, values);

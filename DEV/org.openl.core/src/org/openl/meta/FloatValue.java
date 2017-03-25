@@ -199,6 +199,9 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
      */
     public static org.openl.meta.FloatValue max(org.openl.meta.FloatValue[] values) {
         org.openl.meta.FloatValue result = (org.openl.meta.FloatValue) MathUtils.max(values);
+        if (result == null) {
+            return null;
+        }
 
         return new org.openl.meta.FloatValue((org.openl.meta.FloatValue) getAppropriateValue(values, result),
             NumberOperations.MAX_IN_ARRAY, values);
@@ -210,6 +213,9 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
      */
     public static org.openl.meta.FloatValue min(org.openl.meta.FloatValue[] values) {
         org.openl.meta.FloatValue result = (org.openl.meta.FloatValue) MathUtils.min(values);
+        if (result == null) {
+            return null;
+        }
 
         return new org.openl.meta.FloatValue((org.openl.meta.FloatValue) getAppropriateValue(values, result),
             NumberOperations.MIN_IN_ARRAY, values);

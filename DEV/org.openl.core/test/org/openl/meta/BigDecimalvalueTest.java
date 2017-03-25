@@ -102,20 +102,10 @@ public class BigDecimalvalueTest {
         assertEquals(new BigDecimalValue("5.23"), BigDecimalValue.min(la));
 
         BigDecimalValue[] nullArray = null;
-        try {
-            assertEquals(null, BigDecimalValue.min(nullArray));
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertTrue(true);
-        }
+        assertEquals(null, BigDecimalValue.min(nullArray));
 
         BigDecimalValue[] emptyArray = new BigDecimalValue[0];
-        try {
-            assertEquals(null, BigDecimalValue.min(emptyArray));
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertTrue(true);
-        }
+        assertEquals(null, BigDecimalValue.min(emptyArray));
     }
 
     private BigDecimalValue[] getTestArray() {
@@ -130,20 +120,10 @@ public class BigDecimalvalueTest {
         assertEquals(new BigDecimalValue("100.56"), BigDecimalValue.max(la));
 
         BigDecimalValue[] nullArray = null;
-        try {
-            assertEquals(null, BigDecimalValue.max(nullArray));
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertTrue(true);
-        }
+        assertEquals(null, BigDecimalValue.max(nullArray));
 
         BigDecimalValue[] emptyArray = new BigDecimalValue[0];
-        try {
-            assertEquals(null, BigDecimalValue.max(emptyArray));
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertTrue(true);
-        }
+        assertEquals(null, BigDecimalValue.max(emptyArray));
     }
 
     @Test

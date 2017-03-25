@@ -7,19 +7,12 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
 import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
+import org.openl.rules.tableeditor.renderkit.TableEditor;
 import org.openl.rules.tableeditor.util.Constants;
 
 public class BaseTableEditorController {
 
     public BaseTableEditorController() {
-    }
-
-    protected IGridTable getGridTable(String editorId) {
-        TableEditorModel editorModel = getEditorModel(editorId);
-        if (editorModel != null) {
-            return editorModel.getGridTable();
-        }
-        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -32,9 +25,13 @@ public class BaseTableEditorController {
     }
 
     protected TableModel initializeTableModel(String editorId) {
-        IGridTable table = getGridTable(editorId);
+        TableEditorModel editorModel = getEditorModel(editorId);
+        IGridTable table = editorModel.getGridTable();
+
         int numRows = HTMLRenderer.getMaxNumRowsToDisplay(table);
-        return TableModel.initializeTableModel(table, numRows);
+
+        TableEditor editor = editorModel.getTableEditor();
+        return TableModel.initializeTableModel(table, null, numRows, editor.getLinkBuilder(), editor.getMode(), editor.getView());
     }
 
     protected String render(String editorId) {

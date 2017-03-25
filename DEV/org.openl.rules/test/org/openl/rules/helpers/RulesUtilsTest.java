@@ -1,10 +1,6 @@
 package org.openl.rules.helpers;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -3406,6 +3402,7 @@ public class RulesUtilsTest {
         assertFalse(instance.testBoolTypeAllTrue(inputArray));
         inputArray = null;
         assertFalse(instance.testBoolTypeAllTrue(inputArray));
+        assertFalse(instance.testBoolTypeAllTrue(new boolean[] {}));
     }
 
     @Test
@@ -3418,14 +3415,21 @@ public class RulesUtilsTest {
         assertFalse(instance.testBoolAllTrue(inputArray));
         inputArray = new Boolean[]{true, null, true};
         assertFalse(instance.testBoolAllTrue(inputArray));
+        assertFalse(instance.testBoolAllTrue(null));
+        assertFalse(instance.testBoolAllTrue(new Boolean[] {}));
     }
 
     @Test(expected = OpenLRuntimeException.class)
     public void testXorBoolType() {
-        boolean[] inputArray = {true, true, true};
-        assertTrue(instance.testBoolTypeXor(inputArray));
-        inputArray = new boolean[]{true, false, true};
-        assertFalse(instance.testBoolTypeXor(inputArray));
+        boolean[] inputArray;
+        try {
+            inputArray = new boolean[] { true, true, true };
+            assertTrue(instance.testBoolTypeXor(inputArray));
+            inputArray = new boolean[] { true, false, true };
+            assertFalse(instance.testBoolTypeXor(inputArray));
+        } catch (OpenLRuntimeException e) {
+            fail(e.getMessage());
+        }
         inputArray = null;
         assertFalse(instance.testBoolTypeXor(inputArray));
         inputArray = new boolean[]{};
@@ -3434,10 +3438,15 @@ public class RulesUtilsTest {
 
     @Test(expected = OpenLRuntimeException.class)
     public void testXorBool() {
-        Boolean[] inputArray = {true, true, true};
-        assertTrue(instance.testBoolXor(inputArray));
-        inputArray = new Boolean[]{true, false, true};
-        assertFalse(instance.testBoolXor(inputArray));
+        Boolean[] inputArray;
+        try {
+            inputArray = new Boolean[] {true, true, true};
+            assertTrue(instance.testBoolXor(inputArray));
+            inputArray = new Boolean[]{true, false, true};
+            assertFalse(instance.testBoolXor(inputArray));
+        } catch (OpenLRuntimeException e) {
+            fail(e.getMessage());
+        }
         inputArray = null;
         assertFalse(instance.testBoolXor(inputArray));
         inputArray = new Boolean[]{};
@@ -3446,7 +3455,7 @@ public class RulesUtilsTest {
         assertFalse(instance.testBoolXor(inputArray));
     }
 
-    @Test(expected = OpenLRuntimeException.class)
+    @Test
     public void testAnyTrueBoolType() {
         boolean[] inputArray = {true, true, true};
         assertTrue(instance.testBoolTypeAnyTrue(inputArray));
@@ -3458,9 +3467,9 @@ public class RulesUtilsTest {
         assertFalse(instance.testBoolTypeAnyTrue(inputArray));
     }
 
-    @Test(expected = OpenLRuntimeException.class)
+    @Test
     public void testAnyTrueBool() {
-        Boolean[] inputArray = {true, true, true};
+        Boolean[] inputArray = new Boolean[] { true, true, true };
         assertTrue(instance.testBoolAnyTrue(inputArray));
         inputArray = new Boolean[]{true, false, true};
         assertTrue(instance.testBoolAnyTrue(inputArray));
@@ -3469,7 +3478,7 @@ public class RulesUtilsTest {
         inputArray = new Boolean[]{};
         assertFalse(instance.testBoolAnyTrue(inputArray));
         inputArray = new Boolean[]{true, null, true};
-        assertFalse(instance.testBoolAnyTrue(inputArray));
+        assertTrue(instance.testBoolAnyTrue(inputArray));
     }
 
     @Test

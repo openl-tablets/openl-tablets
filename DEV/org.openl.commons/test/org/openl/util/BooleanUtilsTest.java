@@ -81,7 +81,7 @@ public class BooleanUtilsTest {
         assertFalse(BooleanUtils.and(new boolean[]{true, false, true}));   //5
         assertFalse(BooleanUtils.and(new boolean[]{true, true, false}));   //6
         //Empty
-        assertTrue(BooleanUtils.and(new boolean[]{}));
+        assertFalse(BooleanUtils.and(new boolean[] {}));
         //Null
         assertFalse(BooleanUtils.and((boolean[])null));
     }
@@ -105,7 +105,7 @@ public class BooleanUtilsTest {
         assertFalse(BooleanUtils.and(new Boolean[]{true, false, true}));   //5
         assertFalse(BooleanUtils.and(new Boolean[]{true, true, false}));   //6
         //Empty
-        assertTrue(BooleanUtils.and(new Boolean[]{}));
+        assertFalse(BooleanUtils.and(new Boolean[] {}));
         //Null
         assertFalse(BooleanUtils.and((Boolean[])null));
         //null like false
@@ -135,16 +135,10 @@ public class BooleanUtilsTest {
         assertFalse(BooleanUtils.or(new boolean[]{false}));
         assertFalse(BooleanUtils.or(new boolean[]{false, false})); //0
         assertFalse(BooleanUtils.or(new boolean[]{false, false, false})); //0
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testOrEmpty() {
-        BooleanUtils.or(new boolean[]{});
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testOrNull() {
-        BooleanUtils.or((boolean[])null);
+        //Empty
+        assertFalse(BooleanUtils.or(new boolean[] {}));
+        //Null
+        assertFalse(BooleanUtils.or((boolean[]) null));
     }
 
     @Test
@@ -165,21 +159,17 @@ public class BooleanUtilsTest {
         assertFalse(BooleanUtils.or(new Boolean[]{false}));
         assertFalse(BooleanUtils.or(new Boolean[]{false, false})); //0
         assertFalse(BooleanUtils.or(new Boolean[]{false, false, false})); //0
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testOrObjectBooleanEmpty() {
-        BooleanUtils.or(new Boolean[]{});
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testOrObjectBooleanNull() {
-        BooleanUtils.or((Boolean[])null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testOrObjectBooleanNullValue() {
-        BooleanUtils.or(new Boolean[]{true, true, null});
+        //Empty
+        assertFalse(BooleanUtils.or(new Boolean[] {}));
+        //Null
+        assertFalse(BooleanUtils.or((Boolean[]) null));
+        //null like false
+        assertFalse(BooleanUtils.or(new Boolean[] { null }));
+        assertTrue(BooleanUtils.or(new Boolean[] { true, null }));
+        assertTrue(BooleanUtils.or(new Boolean[] { null, true }));
+        assertFalse(BooleanUtils.or(new Boolean[] { null, null }));
+        assertTrue(BooleanUtils.or(new Boolean[] { true, true, null }));
+        assertTrue(BooleanUtils.or(new Boolean[] { null, false, true }));
     }
 
     @Test

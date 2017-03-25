@@ -197,6 +197,9 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      */
     public static org.openl.meta.IntValue max(org.openl.meta.IntValue[] values) {
         org.openl.meta.IntValue result = (org.openl.meta.IntValue) MathUtils.max(values);
+        if (result == null) {
+            return null;
+        }
 
         return new org.openl.meta.IntValue((org.openl.meta.IntValue) getAppropriateValue(values, result),
             NumberOperations.MAX_IN_ARRAY, values);
@@ -208,6 +211,9 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      */
     public static org.openl.meta.IntValue min(org.openl.meta.IntValue[] values) {
         org.openl.meta.IntValue result = (org.openl.meta.IntValue) MathUtils.min(values);
+        if (result == null) {
+            return null;
+        }
 
         return new org.openl.meta.IntValue((org.openl.meta.IntValue) getAppropriateValue(values, result),
             NumberOperations.MIN_IN_ARRAY, values);

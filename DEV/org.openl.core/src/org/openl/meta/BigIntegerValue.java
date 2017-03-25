@@ -227,6 +227,9 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
      */
     public static org.openl.meta.BigIntegerValue max(org.openl.meta.BigIntegerValue[] values) {
         org.openl.meta.BigIntegerValue result = (org.openl.meta.BigIntegerValue) MathUtils.max(values);
+        if (result == null) {
+            return null;
+        }
 
         return new org.openl.meta.BigIntegerValue((org.openl.meta.BigIntegerValue) getAppropriateValue(values, result),
             NumberOperations.MAX_IN_ARRAY,
@@ -240,6 +243,9 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
      */
     public static org.openl.meta.BigIntegerValue min(org.openl.meta.BigIntegerValue[] values) {
         org.openl.meta.BigIntegerValue result = (org.openl.meta.BigIntegerValue) MathUtils.min(values);
+        if (result == null) {
+            return null;
+        }
 
         return new org.openl.meta.BigIntegerValue((org.openl.meta.BigIntegerValue) getAppropriateValue(values, result),
             NumberOperations.MIN_IN_ARRAY,

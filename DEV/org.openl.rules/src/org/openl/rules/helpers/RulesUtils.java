@@ -2616,16 +2616,32 @@ public class RulesUtils {
         return org.openl.util.BooleanUtils.and(values);
     }
 
+    public static boolean allYes(boolean[] values) {
+        return allTrue(values);
+    }
+
     public static boolean allTrue(Boolean[] values) {
         return org.openl.util.BooleanUtils.and(values);
     }
 
+    public static boolean allYes(Boolean[] values) {
+        return allTrue(values);
+    }
+
     public static boolean allFalse(boolean[] values) {
-        return !anyTrue(values);
+        return !ArrayUtils.isEmpty(values) && !anyTrue(values);
+    }
+
+    public static boolean allNo(boolean[] values) {
+        return allFalse(values);
     }
 
     public static boolean allFalse(Boolean[] values) {
-        return !anyTrue(values);
+        return !ArrayUtils.isEmpty(removeNulls(values)) && !anyTrue(values);
+    }
+
+    public static boolean allNo(Boolean[] values) {
+        return allFalse(values);
     }
 
     // Exclusive or
@@ -2642,16 +2658,32 @@ public class RulesUtils {
         return org.openl.util.BooleanUtils.or(values);
     }
 
+    public static boolean anyYes(boolean[] values) {
+        return anyTrue(values);
+    }
+
     public static boolean anyTrue(Boolean[] values) {
         return org.openl.util.BooleanUtils.or(values);
     }
 
+    public static boolean anyYes(Boolean[] values) {
+        return anyTrue(values);
+    }
+
     public static boolean anyFalse(boolean[] values) {
-        return !allTrue(values);
+        return !ArrayUtils.isEmpty(values) && !allTrue(values);
+    }
+
+    public static boolean anyNo(boolean[] values) {
+        return anyFalse(values);
     }
 
     public static boolean anyFalse(Boolean[] values) {
-        return !allTrue(values);
+        return !ArrayUtils.isEmpty(removeNulls(values)) && !allTrue(values);
+    }
+
+    public static boolean anyNo(Boolean[] values) {
+        return anyFalse(values);
     }
 
     /**
@@ -3495,10 +3527,10 @@ public class RulesUtils {
     }
 
     /**
-     * Returns the maximum of this BigInteger and {@code val}.
+     * Returns the maximum of {@code a} and {@code b}.
      *
-     * @param val value with which the maximum is to be computed.
-     * @return the BigInteger whose value is the greater of this and {@code val}
+     * @param b value with which the maximum is to be computed.
+     * @return the BigInteger whose value is the greater of {@code a} and {@code b}
      *         . If they are equal, either may be returned.
      */
     public static java.math.BigInteger max(java.math.BigInteger a, java.math.BigInteger b) {
@@ -3506,14 +3538,14 @@ public class RulesUtils {
     }
 
     /**
-     * Returns the maximum of this {@code BigDecimal} and {@code val}.
+     * Returns the maximum of {@code a} and {@code b}.
      *
-     * @param val value with which the maximum is to be computed.
-     * @return the {@code BigDecimal} whose value is the greater of this
-     *         {@code BigDecimal} and {@code val}. If they are equal, as defined
-     *         by the {@link #compareTo(BigDecimal) compareTo} method,
-     *         {@code this} is returned.
-     * @see #compareTo(java.math.BigDecimal)
+     * @param b value with which the maximum is to be computed.
+     * @return the {@code BigDecimal} whose value is the greater of
+     *         {@code a} and {@code b}. If they are equal, as defined
+     *         by the {@link BigDecimal#compareTo(BigDecimal) compareTo} method,
+     *         {@code a} is returned.
+     * @see BigDecimal#compareTo(java.math.BigDecimal)
      */
     public static java.math.BigDecimal max(java.math.BigDecimal a, java.math.BigDecimal b) {
         return a == null ? b : (b == null ? a : a.max(b));
@@ -3606,24 +3638,25 @@ public class RulesUtils {
     }
 
     /**
-     * Returns the minimum of this BigInteger and {@code val}.
+     * Returns the minimum of {@code a} and {@code b}.
      *
-     * @param val value with which the minimum is to be computed.
-     * @return the BigInteger whose value is the lesser of this BigInteger and
+     * @param b value with which the minimum is to be computed.
+     * @return the BigInteger whose value is the lesser of {@code a} and
+     *         {@code b}.  If they are equal, either may be returned.
      */
     public static java.math.BigInteger min(java.math.BigInteger a, java.math.BigInteger b) {
         return a == null ? b : (b == null ? a : a.min(b));
     }
 
     /**
-     * Returns the minimum of this {@code BigDecimal} and {@code val}.
+     * Returns the minimum of {@code a} and {@code b}.
      *
-     * @param val value with which the minimum is to be computed.
-     * @return the {@code BigDecimal} whose value is the lesser of this
-     *         {@code BigDecimal} and {@code val}. If they are equal, as defined
-     *         by the {@link #compareTo(BigDecimal) compareTo} method,
+     * @param b value with which the minimum is to be computed.
+     * @return the {@code BigDecimal} whose value is the lesser of
+     *         {@code a} and {@code b}. If they are equal, as defined
+     *         by the {@link BigDecimal#compareTo(BigDecimal) compareTo} method,
      *         {@code this} is returned.
-     * @see #compareTo(java.math.BigDecimal)
+     * @see BigDecimal#compareTo(java.math.BigDecimal)
      */
     public static java.math.BigDecimal min(java.math.BigDecimal a, java.math.BigDecimal b) {
         return a == null ? b : (b == null ? a : a.min(b));

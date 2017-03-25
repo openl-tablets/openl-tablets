@@ -214,7 +214,7 @@ public class BooleanUtils {
      * Returns true if all elements are true otherwise false.
      */
     public static boolean and(boolean[] values) {
-        if (values == null) {
+        if (values == null || values.length == 0) {
             return false;
         }
         for (boolean value : values) {
@@ -229,7 +229,7 @@ public class BooleanUtils {
      * Returns true if all elements are true otherwise false.
      */
     public static boolean and(Boolean[] values) {
-        if (values == null) {
+        if (values == null || values.length == 0) {
             return false;
         }
         for (Boolean value : values) {
@@ -274,12 +274,15 @@ public class BooleanUtils {
      * @exception java.lang.IllegalArgumentException for null or an empty array.
      */
     public static boolean or(boolean[] values) {
-        checkOnEmptyArray(values);
-        boolean result = values[0];
-        for (int i = 1; i < values.length; i++) {
-            result = result || values[i];
+        if (values == null || values.length == 0) {
+            return false;
         }
-        return result;
+        for (boolean value : values) {
+            if (value) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -288,12 +291,15 @@ public class BooleanUtils {
      * @exception java.lang.IllegalArgumentException for null or an empty array or null value in the array.
      */
     public static boolean or(Boolean[] values) {
-        checkOnEmptyArray(values);
-        Boolean result = values[0];
-        for (int i = 1; i < values.length; i++) {
-            result = result || values[i];
+        if (values == null || values.length == 0) {
+            return false;
         }
-        return result;
+        for (Boolean value : values) {
+            if (value != null && value) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static void checkOnEmptyArray(Boolean[] values) {

@@ -48,20 +48,10 @@ public class LongValueTest {
         assertEquals(new LongValue(5), LongValue.min(la));
         
         LongValue[] nullArray = null;
-        try {
-            assertEquals(new LongValue(0), LongValue.min(nullArray));
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertTrue(true);
-        }
-        
+        assertEquals(null, LongValue.min(nullArray));
+
         LongValue[] emptyArray = new LongValue[0];
-        try {
-            assertEquals(new LongValue(0), LongValue.min(emptyArray));
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertTrue(true);
-        }        
+        assertEquals(null, LongValue.min(emptyArray));
     }
 
     private LongValue[] getTestArray() {
@@ -74,20 +64,10 @@ public class LongValueTest {
         assertEquals(new LongValue(100), LongValue.max(la));
         
         LongValue[] nullArray = null;
-        try {
-            assertEquals(new LongValue(0), LongValue.max(nullArray));
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertTrue(true);
-        }
-        
+        assertEquals(null, LongValue.max(nullArray));
+
         LongValue[] emptyArray = new LongValue[0];
-        try {
-            assertEquals(new LongValue(0), LongValue.max(emptyArray));
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertTrue(true);
-        }        
+        assertEquals(null, LongValue.max(emptyArray));
     }
     
     @Test
