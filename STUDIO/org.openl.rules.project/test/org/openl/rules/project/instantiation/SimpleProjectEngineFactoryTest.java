@@ -51,7 +51,6 @@ public class SimpleProjectEngineFactoryTest {
         SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<Object>().setProject("test-resources/test1/third")
                 .setWorkspace("test-resources/test1").setProvideRuntimeContext(true)
                 .build();
-        simpleProjectEngineFactory.setProvideRuntimeContext(true);
         Object instance = simpleProjectEngineFactory.newInstance();
         Assert.notNull(instance);
         Method sayHelloMethod = simpleProjectEngineFactory.getInterfaceClass().getMethod("sayHello",

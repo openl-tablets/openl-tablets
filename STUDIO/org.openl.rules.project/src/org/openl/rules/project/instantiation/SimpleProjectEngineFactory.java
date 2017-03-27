@@ -18,14 +18,16 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
     private final Logger log = LoggerFactory.getLogger(SimpleProjectEngineFactory.class);
 
-    private boolean singleModuleMode = false;
-    private Map<String, Object> externalParameters = new HashMap<String, Object>();
-    private boolean provideRuntimeContext = false;
-    private boolean executionMode = true;
-    private Class<?> interfaceClass = null;
-    private String module;
-    private File workspace;
-    private File project;
+    private final boolean singleModuleMode;
+    private final Map<String, Object> externalParameters;
+    private final boolean provideRuntimeContext;
+    private final boolean executionMode;
+    private final String module;
+    private final File workspace;
+    private final File project;
+    private final Class<?> interfaceClass;
+    // lazy initialization.
+    private Class<?> generatedInterfaceClass;
     private ProjectDescriptor projectDescriptor;
 
     public static class SimpleProjectEngineFactoryBuilder<T> {
@@ -34,6 +36,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         private String module;
         private boolean provideRuntimeContext = false;
         private Class<T> interfaceClass = null;
+        private Map<String, Object> externalParameters = Collections.EMPTY_MAP;
         private boolean executionMode = true;
 
         public SimpleProjectEngineFactoryBuilder<T> setProject(String project) {
@@ -46,6 +49,11 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
         public SimpleProjectEngineFactoryBuilder<T> setInterfaceClass(Class<T> interfaceClass) {
             this.interfaceClass = interfaceClass;
+            return this;
+        }
+
+        public SimpleProjectEngineFactoryBuilder<T> setExternalParameters(Map<String, Object> externalParameters) {
+            this.externalParameters = externalParameters;
             return this;
         }
 
@@ -81,28 +89,22 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             }
             File projectFile = new File(project);
             File workspaceFile = workspace == null ? null : new File(workspace);
-            if (module == null) {
-                return new SimpleProjectEngineFactory<T>(projectFile,
-                    workspaceFile,
-                    interfaceClass,
-                    provideRuntimeContext,
-                    executionMode);
-            } else {
-                return new SimpleProjectEngineFactory<T>(projectFile,
-                    workspaceFile,
-                    module,
-                    interfaceClass,
-                    provideRuntimeContext,
-                    executionMode);
-            }
-
+            return new SimpleProjectEngineFactory<T>(projectFile,
+                workspaceFile,
+                module,
+                interfaceClass,
+                externalParameters,
+                provideRuntimeContext,
+                executionMode);
         }
 
     }
 
     private SimpleProjectEngineFactory(File project,
                                        File workspace,
+                                       String module,
                                        Class<T> interfaceClass,
+                                       Map<String, Object> externalParameters,
                                        boolean provideRuntimeContext,
                                        boolean executionMode) {
         if (project == null) {
@@ -113,24 +115,12 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         }
         this.project = project;
         this.workspace = workspace;
-        setInterfaceClass(interfaceClass);
+        this.interfaceClass = interfaceClass;
+        this.externalParameters = externalParameters;
         this.provideRuntimeContext = provideRuntimeContext;
-        this.singleModuleMode = false;
         this.executionMode = executionMode;
-    }
-
-    private SimpleProjectEngineFactory(File project,
-                                       File workspace,
-                                       String module,
-                                       Class<T> interfaceClass,
-                                       boolean provideRuntimeContext,
-                                       boolean executionMode) {
-        this(project, workspace, interfaceClass, provideRuntimeContext, executionMode);
-        if (module == null || module.isEmpty()) {
-            throw new IllegalArgumentException("module arg can't be null or empty!");
-        }
         this.module = module;
-        this.singleModuleMode = true;
+        this.singleModuleMode = module != null;
     }
 
     private RulesInstantiationStrategy rulesInstantiationStrategy = null;
@@ -214,34 +204,22 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         return provideRuntimeContext;
     }
 
-    public void setProvideRuntimeContext(boolean provideRuntimeContext) {
-        this.provideRuntimeContext = provideRuntimeContext;
-    }
-
-    public Class<?> getInterfaceClass() {
-        return interfaceClass;
-    }
-
-    public void setInterfaceClass(Class<T> interfaceClass) {
-        this.interfaceClass = interfaceClass;
+    public Class<?> getInterfaceClass() throws RulesInstantiationException,
+                                        ProjectResolvingException,
+                                        ClassNotFoundException {
+        if (interfaceClass != null) {
+            return interfaceClass;
+        }
+        if (generatedInterfaceClass != null) {
+            return generatedInterfaceClass;
+        }
+        log.info("Class is undefined for factory. Generated interface will be used.");
+        generatedInterfaceClass = getRulesInstantiationStrategy().getInstanceClass();
+        return generatedInterfaceClass;
     }
 
     public Map<String, Object> getExternalParameters() {
         return externalParameters;
-    }
-
-    public void setExternalParameters(Map<String, Object> externalParameters) {
-        this.externalParameters = externalParameters;
-    }
-
-    private void resolveInterface(RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException,
-            ClassNotFoundException {
-        if (getInterfaceClass() != null) {
-            instantiationStrategy.setServiceClass(getInterfaceClass());
-        } else {
-            log.info("Class is undefined for factory. Generated interface will be used.");
-            this.interfaceClass = instantiationStrategy.getInstanceClass();
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -294,7 +272,9 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             }
             instantiationStrategy.setExternalParameters(parameters);
             try {
-                resolveInterface(instantiationStrategy);
+                if (interfaceClass != null) {
+                    instantiationStrategy.setServiceClass(interfaceClass);
+                }
             } catch (Exception ex) {
                 throw new RulesInstantiationException(ex);
             }
