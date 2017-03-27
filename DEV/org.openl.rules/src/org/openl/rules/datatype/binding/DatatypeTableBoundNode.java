@@ -10,6 +10,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
@@ -263,6 +265,20 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
             FieldDescription fieldDescription;
             try {
+                if (fields.containsKey(fieldName)){
+                    throw SyntaxNodeExceptionUtils.createError(String.format("Field '%s' has already been defined!", fieldName), null, null, getCellSource(row, cxt, 1));
+                }
+                if (fields.containsKey(WordUtils.uncapitalize(fieldName)) || fields.containsKey(WordUtils.capitalize(fieldName))){
+                    String f = null;
+                    if (fields.containsKey(WordUtils.uncapitalize(fieldName))){
+                        f = WordUtils.uncapitalize(fieldName);
+                    }
+                    if (fields.containsKey(WordUtils.capitalize(fieldName))){
+                        f = WordUtils.capitalize(fieldName);
+                    }
+                    throw SyntaxNodeExceptionUtils.createError(String.format("Field '%s' conflicts with '%s' field!", fieldName, f), null, null, getCellSource(row, cxt, 1));
+                }
+
                 dataType.addField(field);
                 if (firstField) {
                     // This is done for operations like people["john"] in OpenL
@@ -279,7 +295,9 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
                 fieldDescription = fieldDescriptionFactory(field);
                 fields.put(fieldName, fieldDescription);
-            } catch (Throwable t) {
+            } catch (SyntaxNodeException e) {
+                throw e;
+            } catch (Exception t) {
                 throw SyntaxNodeExceptionUtils.createError(t.getMessage(), t, null, getCellSource(row, cxt, 1));
             }
 
