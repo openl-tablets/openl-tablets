@@ -141,8 +141,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
     }
 
     private Map<String, IOpenField> dependencyFields = null;
-    private Object dependencyFieldsFlag = new Object();
-    
+
     @Override
     public Map<String, IOpenField> getFields() {
         Map<String, IOpenField> fields = new HashMap<String, IOpenField>();
@@ -150,7 +149,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
         // get fields from dependencies
         //
         if (dependencyFields == null){
-            synchronized (dependencyFieldsFlag) {
+            synchronized(this) {
                 if (dependencyFields == null){
                     dependencyFields = new HashMap<String, IOpenField>();
                     for (CompiledDependency dependency : usingModules) {
