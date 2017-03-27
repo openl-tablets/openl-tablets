@@ -119,11 +119,9 @@ public class OpenLEngine {
         @SuppressWarnings("rawtypes")
         ProjectEngineFactory projectEngineFactory = OpenLRulesHelper.getInstance()
             .get(processDefinition.getDeploymentId(), resource);
-        Class<?> interfaceClass = projectEngineFactory.getInterfaceClass();
         Object instance = OpenLRulesHelper.getInstance().getInstance(processDefinition.getDeploymentId(), resource);
-        if (interfaceClass == null){
-            interfaceClass = instance.getClass();
-        }
+        Class<?> interfaceClass = projectEngineFactory.getInterfaceClass();
+        assert interfaceClass != null; // Always Non-null
 
         Object result = org.openl.rules.activiti.spring.OpenLEngine.findAndInvokeMethod(methodName,
             instance,
