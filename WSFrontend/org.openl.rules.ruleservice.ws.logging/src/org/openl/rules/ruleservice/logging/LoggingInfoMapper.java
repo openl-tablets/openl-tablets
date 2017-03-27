@@ -10,6 +10,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
+import org.openl.rules.ruleservice.logging.annotation.DefaultDateConvertor;
+import org.openl.rules.ruleservice.logging.annotation.DefaultNumberConvertor;
+import org.openl.rules.ruleservice.logging.annotation.DefaultStringConvertor;
+import org.openl.rules.ruleservice.logging.annotation.DefaultTypeConvertor;
 import org.openl.rules.ruleservice.logging.annotation.SetterCustomDateValue1;
 import org.openl.rules.ruleservice.logging.annotation.SetterCustomDateValue2;
 import org.openl.rules.ruleservice.logging.annotation.SetterCustomDateValue3;
@@ -23,10 +27,6 @@ import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue2;
 import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue3;
 import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue4;
 import org.openl.rules.ruleservice.logging.annotation.SetterCustomStringValue5;
-import org.openl.rules.ruleservice.logging.annotation.DefaultDateConvertor;
-import org.openl.rules.ruleservice.logging.annotation.DefaultNumberConvertor;
-import org.openl.rules.ruleservice.logging.annotation.DefaultStringConvertor;
-import org.openl.rules.ruleservice.logging.annotation.DefaultTypeConvertor;
 import org.openl.rules.ruleservice.logging.annotation.SetterIncomingTime;
 import org.openl.rules.ruleservice.logging.annotation.SetterInputName;
 import org.openl.rules.ruleservice.logging.annotation.SetterOutcomingTime;
@@ -35,6 +35,7 @@ import org.openl.rules.ruleservice.logging.annotation.SetterRequest;
 import org.openl.rules.ruleservice.logging.annotation.SetterResponse;
 import org.openl.rules.ruleservice.logging.annotation.SetterServiceName;
 import org.openl.rules.ruleservice.logging.annotation.SetterUrl;
+import org.openl.rules.ruleservice.logging.annotation.SetterValue;
 import org.openl.rules.ruleservice.logging.annotation.UseLoggingInfoConvertor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +62,7 @@ public class LoggingInfoMapper {
         customAnnotations.add(SetterCustomDateValue1.class);
         customAnnotations.add(SetterCustomDateValue2.class);
         customAnnotations.add(SetterCustomDateValue3.class);
+        customAnnotations.add(SetterValue.class);
         CUSTOM_ANNOTATIONS = Collections.unmodifiableSet(customAnnotations);
 
         Set<Class<?>> mappingAnnotations = new HashSet<Class<?>>();
@@ -80,11 +82,11 @@ public class LoggingInfoMapper {
     public void map(LoggingInfo loggingInfo, Object target) {
         LoggingCustomData loggingCustomData = loggingInfo.getLoggingCustomData();
         Class<?> targetClass = target.getClass();
-        Class<?> klass = targetClass;
+        Class<?> clazz = targetClass;
         Map<Annotation, Method> customAnnotationMethodMap = new HashMap<Annotation, Method>();
         Map<Annotation, Method> annotationMethodMap = new HashMap<Annotation, Method>();
-        while (klass != Object.class) {
-            for (final Method method : klass.getDeclaredMethods()) {
+        while (clazz != Object.class) {
+            for (final Method method : clazz.getDeclaredMethods()) {
                 for (final Annotation annotation : method.getAnnotations()) {
                     if (loggingCustomData != null && CUSTOM_ANNOTATIONS.contains(annotation.annotationType())) {
                         if (method.getParameterTypes().length != 1) {
@@ -107,7 +109,7 @@ public class LoggingInfoMapper {
 
                 }
             }
-            klass = klass.getSuperclass();
+            clazz = clazz.getSuperclass();
         }
 
         for (Entry<Annotation, Method> entry : annotationMethodMap.entrySet()) {
@@ -144,7 +146,7 @@ public class LoggingInfoMapper {
                         loggingInfo.getRequestMessage().getPayload().toString());
                 }
             }else{
-                log.error("Request message is not present!");
+                log.error("Request message is not presented!");
             }
             if (loggingInfo.getResponseMessage() != null){
                 if (SetterResponse.class.equals(annotation.annotationType()) && loggingInfo.getResponseMessage().getPayload() != null) {
@@ -155,7 +157,7 @@ public class LoggingInfoMapper {
                         loggingInfo.getResponseMessage().getPayload().toString());
                 }
             }else{
-                log.error("Response message is not present!");
+                log.error("Response message is not presented!");
             }
             if (UseLoggingInfoConvertor.class.equals(annotation.annotationType())) {
                 useLoggingInfoInsertValue(loggingInfo, target, annotation, method);
@@ -165,6 +167,12 @@ public class LoggingInfoMapper {
         for (Entry<Annotation, Method> entry : customAnnotationMethodMap.entrySet()) {
             Annotation annotation = entry.getKey();
             Method method = entry.getValue();
+            if (SetterValue.class.equals(annotation.annotationType())){
+                SetterValue setterValue = (SetterValue) annotation;
+                String key = setterValue.value();
+                insertValue(loggingInfo, target, annotation, method, loggingCustomData.getValue(key));
+            }
+            
             if (SetterCustomStringValue1.class.equals(annotation.annotationType())) {
                 insertValue(loggingInfo, target, annotation, method, loggingCustomData.getStringValue1());
             }

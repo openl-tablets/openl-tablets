@@ -1,6 +1,8 @@
 package org.openl.rules.ruleservice.logging;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoggingCustomData {
     private String stringValue1;
@@ -16,6 +18,8 @@ public class LoggingCustomData {
     private Long numberValue3;
     private Long numberValue4;
     private Long numberValue5;
+    
+    private Map<String, Object> values = new HashMap<String, Object>();
 
     public String getStringValue1() {
         return stringValue1;
@@ -119,6 +123,14 @@ public class LoggingCustomData {
 
     public void setNumberValue5(Long numberValue5) {
         this.numberValue5 = numberValue5;
+    }
+    
+    public Object getValue(String key){
+        return values.get(key);
+    }
+    
+    public void setValue(String key, Object value){
+        this.values.put(key, value);
     }
 
 }
