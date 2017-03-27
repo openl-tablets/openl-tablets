@@ -415,28 +415,23 @@ public class WebStudio {
         }
 
         try {
-
             XlsWorkbookSourceHistoryListener historyListener = new XlsWorkbookSourceHistoryListener(
                     model.getHistoryManager());
             Module module = getCurrentModule();
             File sourceFile = new File(module.getRulesRootPath().getPath());
             historyListener.beforeSave(sourceFile);
 
-            OutputStream outputStream = null;
-            InputStream inputStream = null;
-            try {
-                outputStream = new FileOutputStream(module.getRulesRootPath().getPath());
-                inputStream = uploadedFile.getInput();
-                IOUtils.copy(inputStream, outputStream);
-            } finally {
-                IOUtils.closeQuietly(inputStream);
-                IOUtils.closeQuietly(outputStream);
-            }
+            RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(FacesUtils.getSession());
+            LocalRepository repository = rulesUserSession.getUserWorkspace().getLocalWorkspace().getRepository();
+
+            FileData data = new FileData();
+            data.setName(getCurrentProjectDescriptor().getProjectFolder().getName() + "/" + sourceFile.getName());
+            repository.save(data, uploadedFile.getInput());
 
             historyListener.afterSave(sourceFile);
         } catch (Exception e) {
             log.error("Error updating file in user workspace.", e);
-            // TODO Display message - e.getMessage()
+            throw new IllegalStateException("Error while updating the module.", e);
         }
 
         model.resetSourceModified(); // Because we rewrite a file in the workspace
