@@ -47,8 +47,6 @@ public class ModuleOpenClass extends ComponentOpenClass {
      */
     private Map<String, IOpenClass> internalTypes = new HashMap<String, IOpenClass>();
     
-    private Map<String, IOpenClass> dependencyTypes = new HashMap<String, IOpenClass>();
-    
     /**
      * Set of dependencies for current module.
      * 
@@ -227,9 +225,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      */
     @Override
     public Map<String, IOpenClass> getTypes() {
-        Map<String, IOpenClass> currentModuleDatatypes = new HashMap<String, IOpenClass>(internalTypes);
-        currentModuleDatatypes.putAll(dependencyTypes);
-        return currentModuleDatatypes;
+        return internalTypes;
     }
 
     /**
