@@ -13,7 +13,7 @@ public interface ProjectEngineFactory<T> {
 
     boolean isProvideRuntimeContext();
 
-    Class<?> getInterfaceClass();
+    Class<?> getInterfaceClass() throws RulesInstantiationException, ProjectResolvingException, ClassNotFoundException;
 
     Map<String, Object> getExternalParameters();
 
