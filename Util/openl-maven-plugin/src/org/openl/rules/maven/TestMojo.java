@@ -4,6 +4,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.openl.CompiledOpenClass;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.testmethod.TestSuite;
@@ -11,12 +12,16 @@ import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.types.IOpenClass;
 
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.List;
+
 /**
  * Run OpenL tests
  *
  * @author Yury Molchan
  */
-@Mojo(name = "test", defaultPhase = LifecyclePhase.TEST)
+@Mojo(name = "test", defaultPhase = LifecyclePhase.TEST, requiresDependencyResolution = ResolutionScope.TEST)
 public class TestMojo extends BaseOpenLMojo {
     /**
      * Set this to 'true' to skip running OpenL tests.
@@ -61,5 +66,13 @@ public class TestMojo extends BaseOpenLMojo {
     @Override
     boolean isDisabled() {
         return skipTests;
+    }
+
+    @Override
+    ClassLoader composeClassLoader() throws Exception {
+        debug("Composing the classloader using the following classpaths:");
+        List<String> files = project.getTestClasspathElements();
+        URL[] urls = toURLs(files);
+        return new URLClassLoader(urls, this.getClass().getClassLoader());
     }
 }

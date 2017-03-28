@@ -8,6 +8,15 @@
       <includes>
         <include>**/*.java</include>
       </includes>
+      <excludes>
+        <exclude>com/example/**/*.java</exclude>
+      </excludes>
+    </fileSet>
+    <fileSet filtered="true" encoding="UTF-8">
+      <directory>src/main/java</directory>
+      <includes>
+        <include>com/example/**/*.java</include>
+      </includes>
     </fileSet>
     <fileSet filtered="true" encoding="UTF-8">
       <directory>src/main/scripts</directory>

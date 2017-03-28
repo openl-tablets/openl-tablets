@@ -19,9 +19,15 @@ package org.openl.rules.maven;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.cglib.beans.BeanGenerator;
+import net.sf.cglib.core.NamingPolicy;
+import net.sf.cglib.core.Predicate;
+import net.sf.cglib.proxy.InterfaceMaker;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -29,6 +35,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
@@ -42,7 +49,7 @@ import org.openl.rules.maven.gen.SimpleBeanJavaGenerator;
 /**
  * Generate OpenL interface, domain classes, project descriptor and unit tests
  */
-@Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
+@Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class GenerateMojo extends BaseOpenLMojo {
 
     /**
@@ -286,6 +293,35 @@ public class GenerateMojo extends BaseOpenLMojo {
     }
 
     @Override
+    ClassLoader composeClassLoader() throws Exception {
+        final List<String> compileSourceRoots = project.getCompileSourceRoots();
+        info("Composing the classloader for the folloving sources:");
+        for (String dir : compileSourceRoots) {
+            info("  # source roots > ", dir);
+        }
+        info("Using the following classpaths:");
+        List<String> files = project.getCompileClasspathElements();
+        URL[] urls = toURLs(files);
+        return new URLClassLoader(urls, this.getClass().getClassLoader()) {
+            @Override
+            public Class<?> findClass(String name) throws ClassNotFoundException {
+                String file = name.replace('.', '/').concat(".java");
+                for (String dir : compileSourceRoots) {
+                    if (new File(dir, file).isFile()) {
+                        debug("  # FOUND > ", dir, "/", file);
+                        BeanGenerator builder = new BeanGenerator();
+                        builder.setClassLoader(this);
+                        builder.setNamingPolicy(new ClassNaming(name));
+                        return builder.create().getClass();
+                    }
+                }
+                debug("  > ", file);
+                return super.findClass(name);
+            }
+        };
+    }
+
+    @Override
     String getHeader() {
         return "OPENL JAVA SOURCES GENERATION";
     }
@@ -456,4 +492,17 @@ public class GenerateMojo extends BaseOpenLMojo {
             IOUtils.closeQuietly(fw);
         }
     }
+
+    private static class ClassNaming implements NamingPolicy {
+        private final String className;
+
+        private ClassNaming(String className) {
+            this.className = className;
+        }
+
+        @Override
+        public String getClassName(String s, String s1, Object o, Predicate predicate) {
+            return className;
+        }
+    };
 }
