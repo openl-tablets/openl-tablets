@@ -17,7 +17,6 @@ import java.util.Set;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
-import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.exception.OpenLCompilationException;
@@ -46,8 +45,6 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * Value: {@link IOpenClass} for datatype.
      */
     private Map<String, IOpenClass> internalTypes = new HashMap<String, IOpenClass>();
-    
-    private Map<String, IOpenClass> dependencyTypes = new HashMap<String, IOpenClass>();
     
     /**
      * Set of dependencies for current module.
@@ -79,21 +76,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
             addMethods(dependency);
         }
     }
-    
-    /**
-     * Add datatypes from dependent modules to this one. 
-     * Only one domain model is supported by a set of rules.
-     * 
-     * @param dependency compiled dependency module
-     * @throws OpenLCompilationException if such datatype already presents.
-     */
-//    private void addTypes(CompiledOpenClass dependency) throws OpenLCompilationException {
-//        Map<String, IOpenClass> dependentModuleTypes = dependency.getOpenClass().getTypes(); 
-//        for (String typeNamespace : dependentModuleTypes.keySet()) {
-//            add(typeNamespace, dependentModuleTypes.get(typeNamespace));
-//        }
-//    }
-    
+
     protected boolean shouldAddMethodFromDependency(IOpenMethod method) {
         return true;
     }
@@ -158,8 +141,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
     }
 
     private Map<String, IOpenField> dependencyFields = null;
-    private Object dependencyFieldsFlag = new Object();
-    
+
     @Override
     public Map<String, IOpenField> getFields() {
         Map<String, IOpenField> fields = new HashMap<String, IOpenField>();
@@ -167,7 +149,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
         // get fields from dependencies
         //
         if (dependencyFields == null){
-            synchronized (dependencyFieldsFlag) {
+            synchronized(this) {
                 if (dependencyFields == null){
                     dependencyFields = new HashMap<String, IOpenField>();
                     for (CompiledDependency dependency : usingModules) {
@@ -228,9 +210,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      */
     @Override
     public Map<String, IOpenClass> getTypes() {
-        Map<String, IOpenClass> currentModuleDatatypes = new HashMap<String, IOpenClass>(internalTypes);
-        currentModuleDatatypes.putAll(dependencyTypes);
-        return currentModuleDatatypes;
+        return internalTypes;
     }
 
     /**
@@ -249,7 +229,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
         return type;
     }
     
-    protected void addTypeWithNamespace(String typeNameWithNamespace, IOpenClass type) throws OpenLCompilationException {
+    private void addTypeWithNamespace(String typeNameWithNamespace, IOpenClass type) throws OpenLCompilationException {
         IOpenClass openClass = internalTypes.get(typeNameWithNamespace);
         if (openClass != null && !openClass.equals(type)) {
             throw new OpenLCompilationException("The type " + type.getName() + " has been already defined.");
@@ -263,10 +243,6 @@ public class ModuleOpenClass extends ComponentOpenClass {
         return getTypes().get(typeNameWithNamespace);
     }
     
-    public IBindingContext makeBindingContext(IBindingContext topLevelContext) {        
-        return new ModuleBindingContext(topLevelContext, this);
-    }
-
     public void addError(Throwable error) {
         errors.add(error);
     }
