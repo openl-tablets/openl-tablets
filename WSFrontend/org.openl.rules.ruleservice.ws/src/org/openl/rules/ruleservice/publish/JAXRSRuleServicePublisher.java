@@ -221,7 +221,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
     }
 
     protected String processURL(String url) {
-        String id = "Any-Latin; NFD;";
+        String id = "Any-Latin; Latin-ASCII; [^\\p{Alnum}] Remove";
         url = Transliterator.getInstance(id).transform(url);
         String ret = url.replaceAll(" ", "_");
         while (ret.charAt(0) == '/') {
