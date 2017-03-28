@@ -16,6 +16,8 @@ import org.openl.binding.exception.AmbiguousTypeException;
 import org.openl.conf.ClassFactory;
 import org.openl.types.IOpenClass;
 import org.openl.types.ITypeLibrary;
+import org.openl.util.Log;
+import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * @author snshor
@@ -61,12 +63,26 @@ public class JavaImportTypeLibrary implements ITypeLibrary {
         }
         // TODO use imports
         for (String singleImport : importPackages) {
+            String name = singleImport + "." + typename;
             try {
-                Class<?> c = ClassFactory.forName(singleImport + "." + typename, getClassLoader());
+                Class<?> c = getClassLoader().loadClass(name);
                 oc = JavaOpenClass.getOpenClass(c);
                 aliases.put(typename, oc);
                 return oc;
+            } catch (ClassNotFoundException ignored) {
+                // Type isn't found in the package. Search in another.
+            } catch (NoClassDefFoundError e) {
+                // Type is found but can't be loaded because of absent dependent class.
+                String noClassMessage = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
+                String message = String.format("Type '%s' can't be loaded because of absent type '%s'.", name, noClassMessage);
+                throw RuntimeExceptionWrapper.wrap(message, e);
+            } catch (UnsupportedClassVersionError e) {
+                // Type is found but it's compiled using newer version of JDK
+                String message = String.format("Can't load the class \"%s\" compiled using newer version of JDK than current JRE (%s)", name, System.getProperty("java.version"));
+                throw RuntimeExceptionWrapper.wrap(message, e);
             } catch (Throwable t) {
+                Log.error("Error loading class: " + name, t);
+                throw RuntimeExceptionWrapper.wrap(t);
             }
         }
         notFound.add(typename);
