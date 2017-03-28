@@ -23,6 +23,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
     private final boolean provideRuntimeContext;
     private final boolean executionMode;
     private final String module;
+    private final ClassLoader classLoader;
     private final File workspace;
     private final File project;
     private final Class<?> interfaceClass;
@@ -33,6 +34,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
     public static class SimpleProjectEngineFactoryBuilder<T> {
         private String project;
         private String workspace;
+        private ClassLoader classLoader;
         private String module;
         private boolean provideRuntimeContext = false;
         private Class<T> interfaceClass = null;
@@ -67,6 +69,11 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             return this;
         }
 
+        public SimpleProjectEngineFactoryBuilder<T> setClassLoader(ClassLoader classLoader) {
+            this.classLoader = classLoader;
+            return this;
+        }
+
         public SimpleProjectEngineFactoryBuilder<T> setModule(String module) {
             if (module == null || module.isEmpty()) {
                 throw new IllegalArgumentException("module arg can't be null or empty!");
@@ -91,6 +98,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             File workspaceFile = workspace == null ? null : new File(workspace);
             return new SimpleProjectEngineFactory<T>(projectFile,
                 workspaceFile,
+                classLoader,
                 module,
                 interfaceClass,
                 externalParameters,
@@ -102,6 +110,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
     private SimpleProjectEngineFactory(File project,
                                        File workspace,
+                                       ClassLoader classLoader,
                                        String module,
                                        Class<T> interfaceClass,
                                        Map<String, Object> externalParameters,
@@ -115,6 +124,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         }
         this.project = project;
         this.workspace = workspace;
+        this.classLoader = classLoader;
         this.interfaceClass = interfaceClass;
         this.externalParameters = externalParameters;
         this.provideRuntimeContext = provideRuntimeContext;
@@ -132,10 +142,10 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                     throw new IllegalStateException("There are no modules to instantiate.");
                 case 1:
                     rulesInstantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(modules.iterator()
-                            .next(), isExecutionMode(), dependencyManager);
+                            .next(), isExecutionMode(), dependencyManager, classLoader);
                     break;
                 default:
-                    rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager, isExecutionMode());
+                    rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager, classLoader, isExecutionMode());
             }
         }
         return rulesInstantiationStrategy;
