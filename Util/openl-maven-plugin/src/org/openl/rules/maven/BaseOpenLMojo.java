@@ -1,6 +1,10 @@
 package org.openl.rules.maven;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -12,6 +16,7 @@ import org.apache.maven.project.MavenProject;
 import org.openl.CompiledOpenClass;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder;
+import org.openl.util.CollectionUtils;
 
 abstract class BaseOpenLMojo extends AbstractMojo {
     private static final String SEPARATOR = "--------------------------------------------------";
@@ -49,23 +54,28 @@ abstract class BaseOpenLMojo extends AbstractMojo {
         if (isDisabled()) {
             return;
         }
-        CompiledOpenClass openLRules;
+        ClassLoader classLoader;
+        try {
+            classLoader = composeClassLoader();
+        } catch (Exception e) {
+            throw new MojoFailureException("Failed to compose the classloader.", e);
+        }
+
+        String message = null;
         try {
             String openlRoot = getSourceDirectory().getCanonicalPath();
             info("Compiling the OpenL project from " + openlRoot);
 
             SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactoryBuilder<Object>();
-            SimpleProjectEngineFactory<?> factory = builder.setProject(openlRoot).setExecutionMode(false).build();
+            SimpleProjectEngineFactory<?> factory = builder.setProject(openlRoot)
+                .setClassLoader(classLoader)
+                .setExecutionMode(false)
+                .build();
 
-            openLRules = factory.getCompiledOpenClass();
-        } catch (Exception e) {
-            throw new MojoFailureException("Failed to compile OpenL project", e);
-        }
-        info(SEPARATOR);
-        info(getHeader());
-        info(SEPARATOR);
-        String message = null;
-        try {
+            CompiledOpenClass openLRules = factory.getCompiledOpenClass();
+            info(SEPARATOR);
+            info(getHeader());
+            info(SEPARATOR);
             message = execute(openLRules);
         } catch (Exception e) {
             getLog().error(e);
@@ -78,8 +88,11 @@ abstract class BaseOpenLMojo extends AbstractMojo {
         }
     }
 
-    abstract String execute(CompiledOpenClass openLRules) throws Exception;
+    ClassLoader composeClassLoader() throws Exception {
+        return null;
+    }
 
+    abstract String execute(CompiledOpenClass openLRules) throws Exception;
 
     boolean isDisabled() {
         return false;
@@ -89,9 +102,19 @@ abstract class BaseOpenLMojo extends AbstractMojo {
         return getClass().getSimpleName();
     }
 
-    void info(String message) {
+    URL[] toURLs(List<String> files) throws MalformedURLException {
+        debug("Converting file paths to URLs...");
+        ArrayList<URL> urls = new ArrayList<URL>(files.size());
+        for (String file : files) {
+            debug("   > ", file);
+            urls.add(new File(file).toURI().toURL());
+        }
+        return urls.toArray(new URL[0]);
+    }
+
+    void info(CharSequence message, Object... args) {
         if (getLog().isInfoEnabled()) {
-            getLog().info(message);
+            getLog().info(getMessage(message, args));
         }
     }
 
@@ -99,5 +122,22 @@ abstract class BaseOpenLMojo extends AbstractMojo {
         if (getLog().isErrorEnabled()) {
             getLog().error(ex);
         }
+    }
+
+    void debug(CharSequence message, Object... args) {
+        if (getLog().isDebugEnabled()) {
+            getLog().debug(getMessage(message, args));
+        }
+    }
+
+    private CharSequence getMessage(CharSequence message, Object[] args) {
+        if (CollectionUtils.isEmpty(args)) {
+            return message;
+        }
+        StringBuilder sb = new StringBuilder(message);
+        for (Object obj : args) {
+            sb.append(obj);
+        }
+        return sb;
     }
 }
