@@ -89,7 +89,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
 
         for (String columnName : columnNames) {
             if (!existedColumnNamesSet.contains(columnName)){
-                nRowNames.add(columnName);
+                nColumnNames.add(columnName);
                 fieldCoordinatesRequresUpdate = true;
             }
         }
