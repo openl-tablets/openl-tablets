@@ -22,6 +22,7 @@ import org.openl.binding.INodeBinderFactory;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
 
@@ -110,7 +111,7 @@ public class Binder implements IOpenBinder {
         } catch (Throwable cause) {
             // Process error/exception at first.
             //
-            BindHelper.processError(syntaxNode, cause, bindingContext);
+            bindingContext.addError(SyntaxNodeExceptionUtils.createError(cause, syntaxNode));
 
             // Return bound code with errors.
             //

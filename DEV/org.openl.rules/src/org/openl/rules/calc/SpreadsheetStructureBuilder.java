@@ -42,6 +42,7 @@ import org.openl.types.impl.ConstOpenField;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringUtils;
+import org.openl.util.text.LocationUtils;
 
 public class SpreadsheetStructureBuilder {
 
@@ -267,6 +268,9 @@ public class SpreadsheetStructureBuilder {
             } catch (CompositeSyntaxNodeException e) {
                 componentsBuilder.getTableSyntaxNode().addError(e);
                 BindHelper.processError(e, spreadsheetBindingContext);
+            } catch (Throwable t) {
+                String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
+                addError(SyntaxNodeExceptionUtils.createError(message, t, LocationUtils.createTextInterval(source.getCode()), source));
             }
 
         } else {

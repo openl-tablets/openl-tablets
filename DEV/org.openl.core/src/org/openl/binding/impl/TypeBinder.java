@@ -6,12 +6,18 @@
 
 package org.openl.binding.impl;
 
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author snshor
@@ -45,11 +51,55 @@ public class TypeBinder extends ANodeBinder {
             return new ErrorBoundNode(node);
         }
 
+        if (varType instanceof JavaOpenClass) {
+            String errorMessage = validateJavaType(varType, typeName, new HashSet<IOpenClass>());
+            if (errorMessage != null) {
+                BindHelper.processError(errorMessage, node, bindingContext, false);
+                return new ErrorBoundNode(node);
+            }
+        }
+
         if (dimension > 0) {
             varType = varType.getAggregateInfo().getIndexedAggregateType(varType, dimension);
         }
 
         return new TypeBoundNode(node, varType);
+    }
+
+    private String validateJavaType(IOpenClass varType, String typeName, Set<IOpenClass> checkedTypes) {
+        // Check that dependent classes can be loaded too
+        try {
+            Map<String, IOpenField> fields = varType.getFields();
+            checkedTypes.add(varType);
+
+            for (IOpenField field : fields.values()) {
+                IOpenClass type = field.getType();
+                if (checkedTypes.contains(type)) {
+                    continue;
+                }
+
+                String message = validateJavaType(type, typeName, checkedTypes);
+                if (message != null) {
+                    return message;
+                }
+                checkedTypes.add(type);
+            }
+        } catch (NoClassDefFoundError error) {
+            String noClassMessage = error.getCause() != null ? error.getCause().getMessage() : error.getMessage();
+            return String.format("Type '%s' can't be loaded because of absent type '%s' in the type '%s'.",
+                    typeName,
+                    noClassMessage,
+                    varType.getInstanceClass().getName());
+        } catch (UnsupportedClassVersionError e) {
+            // Type is found but it's compiled using newer version of JDK
+            return String.format("Can't load the class \"%s\" compiled using newer version of JDK than current JRE (%s)",
+                    typeName,
+                    System.getProperty("java.version"));
+        } catch (Throwable e) {
+            return String.format("Type '%s' can't be loaded: %s", typeName, e.getMessage());
+        }
+
+        return null;
     }
 
 }
