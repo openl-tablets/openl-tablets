@@ -86,7 +86,10 @@ public class TypeBinder extends ANodeBinder {
             }
         } catch (NoClassDefFoundError error) {
             String noClassMessage = error.getCause() != null ? error.getCause().getMessage() : error.getMessage();
-            return String.format("Type '%s' can't be loaded because of absent type '%s'.", typeName, noClassMessage);
+            return String.format("Type '%s' can't be loaded because of absent type '%s' in the type '%s'.",
+                    typeName,
+                    noClassMessage,
+                    varType.getInstanceClass().getName());
         } catch (UnsupportedClassVersionError e) {
             // Type is found but it's compiled using newer version of JDK
             return String.format("Can't load the class \"%s\" compiled using newer version of JDK than current JRE (%s)",
