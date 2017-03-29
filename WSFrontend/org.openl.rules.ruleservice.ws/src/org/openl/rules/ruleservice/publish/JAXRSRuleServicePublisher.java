@@ -94,8 +94,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
     }
 
     protected Class<?> enhanceServiceClassWithJAXRSAnnotations(Class<?> serviceClass,
-            OpenLService service,
-            String url) throws Exception {
+            OpenLService service) throws Exception {
         return JAXRSInterfaceEnhancerHelper.decorateInterface(serviceClass, service, true);
     }
 
@@ -141,7 +140,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 svrFactory.getInFaultInterceptors().add(new CollectPublisherTypeInterceptor(getPublisherType()));
                 svrFactory.getInFaultInterceptors().add(new CollectOperationResourceInfoInterceptor());
             }
-            Class<?> serviceClass = enhanceServiceClassWithJAXRSAnnotations(service.getServiceClass(), service, url);
+            Class<?> serviceClass = enhanceServiceClassWithJAXRSAnnotations(service.getServiceClass(), service);
             svrFactory.setResourceClasses(serviceClass);
             Object target = createWrappedBean(service.getServiceBean(),
                 service,
