@@ -692,12 +692,15 @@ public class XlsBinder implements IOpenBinder {
         
         Set<String> customSpreadsheetResultTypes = extractCustomSpreadsheetResultTypes(tableSyntaxNodes, moduleContext);
         
+        SyntaxNodeExceptionHolder syntaxNodeExceptionHolder = new SyntaxNodeExceptionHolder();
+        
         for (int i = 0; i < tableSyntaxNodes.length; i++) { //Add methods that should be compiled recursively
             if (isExecutableTableSyntaxNode(tableSyntaxNodes[i])) {
                 openMethodHeaders[i] = addMethodHeaderToContext(module,
                     tableSyntaxNodes[i],
                     openl,
                     moduleContext,
+                    syntaxNodeExceptionHolder,
                     children,
                     i, customSpreadsheetResultTypes);
             } 
@@ -730,7 +733,7 @@ public class XlsBinder implements IOpenBinder {
             }
         }
         
-        processModuleContextErrors(moduleContext);
+        syntaxNodeExceptionHolder.processModuleContextErrors(moduleContext);
         
         if (moduleContext.isExecutionMode()) {
             removeDebugInformation(children, tableSyntaxNodes, moduleContext);
@@ -743,6 +746,7 @@ public class XlsBinder implements IOpenBinder {
             TableSyntaxNode tableSyntaxNode,
             OpenL openl,
             RulesModuleBindingContext moduleContext,
+            SyntaxNodeExceptionHolder syntaxNodeExceptionHolder,
             IMemberBoundNode[] children,
             int index, Set<String> customSpreadsheetResultTypes) {
         try {
@@ -805,7 +809,8 @@ public class XlsBinder implements IOpenBinder {
                 children,
                 index,
                 openMethodHeader,
-                moduleContext);
+                moduleContext,
+                syntaxNodeExceptionHolder);
             moduleContext.addBinderMethod(openMethodHeader, xlsBinderExecutableMethodBind);
             return openMethodHeader;
         } catch (Exception e) {
@@ -943,6 +948,7 @@ public class XlsBinder implements IOpenBinder {
         OpenMethodHeader openMethodHeader;
         boolean preBindeding = false;
         List<RecursiveOpenMethodPreBinder> recursiveOpenMethodPreBinderMethods = null;
+        SyntaxNodeExceptionHolder syntaxNodeExceptionHolder;
 
         public XlsBinderExecutableMethodBind(XlsModuleOpenClass module,
                 OpenL openl,
@@ -950,7 +956,8 @@ public class XlsBinder implements IOpenBinder {
                 IMemberBoundNode[] childrens,
                 int index,
                 OpenMethodHeader openMethodHeader,
-                RulesModuleBindingContext moduleContext) {
+                RulesModuleBindingContext moduleContext,
+                SyntaxNodeExceptionHolder syntaxNodeExceptionHolder) {
             this.tableSyntaxNode = tableSyntaxNode;
             this.moduleContext = moduleContext;
             this.module = module;
@@ -958,6 +965,7 @@ public class XlsBinder implements IOpenBinder {
             this.childrens = childrens;
             this.index = index;
             this.openMethodHeader = openMethodHeader;
+            this.syntaxNodeExceptionHolder = syntaxNodeExceptionHolder;
         }
         
         @Override
@@ -1039,8 +1047,7 @@ public class XlsBinder implements IOpenBinder {
                 } finally {
                     List<SyntaxNodeException> syntaxNodeExceptions = moduleContext.popErrors();
                     for (SyntaxNodeException e : syntaxNodeExceptions) {
-                        addModuleContextError(e); // Workaround for syntax node
-                                                  // errors
+                        syntaxNodeExceptionHolder.addModuleContextError(e);
                     }
                 }
                 if (recursiveOpenMethodPreBinderMethods != null){
@@ -1058,16 +1065,19 @@ public class XlsBinder implements IOpenBinder {
         }
     }
     
-    private List<SyntaxNodeException> syntaxNodeExceptions = new ArrayList<SyntaxNodeException>();
+    private static class SyntaxNodeExceptionHolder{
     
-    private void addModuleContextError(SyntaxNodeException e){
-        syntaxNodeExceptions.add(e);
-    }
-    
-    private void processModuleContextErrors(IBindingContext bindingContext){
-        for (SyntaxNodeException e : syntaxNodeExceptions){
-            bindingContext.addError(e);
+        private List<SyntaxNodeException> syntaxNodeExceptions = new ArrayList<SyntaxNodeException>();
+
+        private void addModuleContextError(SyntaxNodeException e) {
+            syntaxNodeExceptions.add(e);
         }
-        syntaxNodeExceptions.clear();
+
+        private void processModuleContextErrors(IBindingContext bindingContext) {
+            for (SyntaxNodeException e : syntaxNodeExceptions) {
+                bindingContext.addError(e);
+            }
+            syntaxNodeExceptions.clear();
+        }
     }
 }

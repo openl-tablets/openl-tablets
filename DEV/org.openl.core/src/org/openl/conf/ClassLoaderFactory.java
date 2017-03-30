@@ -203,21 +203,5 @@ public class ClassLoaderFactory {
         }
         return res;
     }
-
-    // static class CurrentFactory extends ThreadLocal
-    // {
-    // }
-    //
-    // static CurrentFactory _currentFactory = new CurrentFactory();
-    //
-    // public static ClassLoaderFactory getCurrentFactory()
-    // {
-    // return (ClassLoaderFactory) _currentFactory.get();
-    // }
-    //
-    // public static void setCurrentFactory(ClassLoaderFactory m)
-    // {
-    // _currentFactory.set(m);
-    // }
-
+   
 }
