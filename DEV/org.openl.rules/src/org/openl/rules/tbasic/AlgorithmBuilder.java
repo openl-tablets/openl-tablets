@@ -68,14 +68,10 @@ public class AlgorithmBuilder {
             algorithmOperationsArray = algorithmOperations.toArray(new String[algorithmOperations.size()]);
             cellMetaInfo = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, new DomainOpenClass("operation",
                 JavaOpenClass.STRING, new EnumDomain<String>(algorithmOperationsArray), null), false);
-        } catch (RuntimeException e) {
-            Logger logger = LoggerFactory.getLogger(AlgorithmTableParserManager.class);
+        } catch (Throwable e) {
+            Logger logger = LoggerFactory.getLogger(AlgorithmBuilder.class);
             logger.error(e.getMessage(), e);
-            throw e;
-        } catch (Error e) {
-            Logger logger = LoggerFactory.getLogger(AlgorithmTableParserManager.class);
-            logger.error(e.getMessage(), e);
-            throw e;
+            throw new IllegalStateException(e);
         }
     }
 
