@@ -36,12 +36,12 @@ import org.openl.rules.table.Point;
  * 
  * @author Marat Kamalov
  */
-public class SpreadsheetResultType2 extends BeanType {
+public class SpreadsheetResultType extends BeanType {
     public static final Class<?> TYPE_CLASS = SpreadsheetResult.class;
 
     public static final QName QNAME = new Java5TypeCreator().createQName(TYPE_CLASS);
 
-    public SpreadsheetResultType2() {
+    public SpreadsheetResultType() {
         super(new WrapperBeanTypeInfo(TYPE_CLASS,
             QNAME.getNamespaceURI(),
             Arrays.asList(new String[] { "height", "width", "logicalTable" })));
