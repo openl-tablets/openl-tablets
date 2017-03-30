@@ -25,10 +25,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * 
  * @author Marat Kamalov
  */
-public class SpreadsheetResultType {
+public class SpreadsheetResultType2 {
 
     @JsonCreator
-    public SpreadsheetResultType(@JsonProperty("results") Object[][] results,
+    public SpreadsheetResultType2(@JsonProperty("results") Object[][] results,
             @JsonProperty("rowNames") String[] rowNames,
             @JsonProperty("columnNames") String[] columnNames,
             @JsonProperty("rowTitles") String[] rowTitles,
