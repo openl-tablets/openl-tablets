@@ -24,6 +24,8 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AlgorithmBuilder {
 
@@ -54,17 +56,23 @@ public class AlgorithmBuilder {
     private static CellMetaInfo cellMetaInfo = null;
 
     static {
-        AlgorithmTableParserManager tbasicParser = AlgorithmTableParserManager.instance();
-        TableParserSpecificationBean[] algSpecifications = tbasicParser.getAlgorithmSpecification();
+        try {
+            AlgorithmTableParserManager tbasicParser = AlgorithmTableParserManager.instance();
+            TableParserSpecificationBean[] algSpecifications = tbasicParser.getAlgorithmSpecification();
 
-        Set<String> algorithmOperations = new LinkedHashSet<String>();
+            Set<String> algorithmOperations = new LinkedHashSet<String>();
 
-        for (TableParserSpecificationBean specification : algSpecifications) {
-            algorithmOperations.add(specification.getKeyword());
+            for (TableParserSpecificationBean specification : algSpecifications) {
+                algorithmOperations.add(specification.getKeyword());
+            }
+            algorithmOperationsArray = algorithmOperations.toArray(new String[algorithmOperations.size()]);
+            cellMetaInfo = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, new DomainOpenClass("operation",
+                JavaOpenClass.STRING, new EnumDomain<String>(algorithmOperationsArray), null), false);
+        } catch (Throwable e) {
+            Logger logger = LoggerFactory.getLogger(AlgorithmBuilder.class);
+            logger.error(e.getMessage(), e);
+            throw new IllegalStateException(e);
         }
-        algorithmOperationsArray = algorithmOperations.toArray(new String[algorithmOperations.size()]);
-        cellMetaInfo = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, new DomainOpenClass("operation",
-            JavaOpenClass.STRING, new EnumDomain<String>(algorithmOperationsArray), null), false);
     }
 
     private final IBindingContext bindingContext;
