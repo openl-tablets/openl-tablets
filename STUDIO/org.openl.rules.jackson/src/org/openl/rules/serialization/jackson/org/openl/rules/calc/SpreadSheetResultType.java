@@ -25,12 +25,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * 
  * @author Marat Kamalov
  */
-public class SpreadSheetResultType {
+public class SpreadsheetResultType {
 
     @JsonCreator
-    public SpreadSheetResultType(@JsonProperty("results") Object[][] results,
+    public SpreadsheetResultType(@JsonProperty("results") Object[][] results,
             @JsonProperty("rowNames") String[] rowNames,
             @JsonProperty("columnNames") String[] columnNames,
+            @JsonProperty("rowTitles") String[] rowTitles,
+            @JsonProperty("columnTitles") String[] columnTitles,
             @JsonProperty("fieldsCoordinates") Map<String, Point> fieldsCoordinates) {
     }
 
