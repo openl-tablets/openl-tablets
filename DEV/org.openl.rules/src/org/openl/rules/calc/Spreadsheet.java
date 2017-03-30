@@ -39,6 +39,10 @@ public class Spreadsheet extends ExecutableRulesMethod {
      * So the column names starts from [0, 1] in the Spreadsheet table body
      */
     private String[] columnNames;
+    
+    private String[] rowTitles;
+
+    private String[] columnTitles;
 
     /**
      * Type of the Spreadsheet with all its fields Is some type of internal. Is
@@ -81,7 +85,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
     public synchronized Constructor<?> getResultConstructor() throws SecurityException, NoSuchMethodException {
         if (constructor == null)
             constructor = this.getType().getInstanceClass()
-                    .getConstructor(Object[][].class, String[].class, String[].class, Map.class);
+                    .getConstructor(Object[][].class, String[].class, String[].class, String[].class, String[].class, Map.class);
         return constructor;
     }
 
@@ -110,7 +114,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
         spreadsheetOpenClassFields.remove("this");
         String typeName = SPREADSHEETRESULT_TYPE_PREFIX + getName();
         Map<String, Point> fieldCoordinates = getFieldsCoordinates();
-        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(typeName, getRowNames(), getColumnNames(), fieldCoordinates);
+        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(typeName, getRowNames(), getColumnNames(), getRowTitles(), getColumnTitles(), fieldCoordinates);
         for (IOpenField field : spreadsheetOpenClassFields.values()) {
             CustomSpreadsheetResultField customSpreadsheetResultField = new CustomSpreadsheetResultField(spreadsheetCustomType, field.getName(), field.getType());
             customSpreadsheetResultOpenClass.addField(customSpreadsheetResultField);
@@ -159,6 +163,22 @@ public class Spreadsheet extends ExecutableRulesMethod {
 
     public void setRowNames(String[] rowNames) {
         this.rowNames = rowNames;
+    }
+    
+    public void setRowTitles(String[] rowTitles) {
+        this.rowTitles = rowTitles;
+    }
+    
+    public String[] getRowTitles() {
+        return rowTitles;
+    }
+    
+    public void setColumnTitles(String[] columnTitles) {
+        this.columnTitles = columnTitles;
+    }
+    
+    public String[] getColumnTitles() {
+        return columnTitles;
     }
 
     public void setSpreadsheetType(SpreadsheetOpenClass spreadsheetType) {

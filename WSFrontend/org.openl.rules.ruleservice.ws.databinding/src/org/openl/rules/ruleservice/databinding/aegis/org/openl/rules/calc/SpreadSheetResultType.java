@@ -42,8 +42,9 @@ public class SpreadSheetResultType extends BeanType {
     public static final QName QNAME = new Java5TypeCreator().createQName(TYPE_CLASS);
 
     public SpreadSheetResultType() {
-        super(new WrapperBeanTypeInfo(TYPE_CLASS, QNAME.getNamespaceURI(), Arrays.asList(new String[] { "height",
-                "width", "logicalTable" })));
+        super(new WrapperBeanTypeInfo(TYPE_CLASS,
+            QNAME.getNamespaceURI(),
+            Arrays.asList(new String[] { "height", "width", "logicalTable" })));
         setTypeClass(TYPE_CLASS);
         setSchemaType(QNAME);
     }
@@ -57,6 +58,9 @@ public class SpreadSheetResultType extends BeanType {
             Object[][] results = null;
             String[] columnNames = null;
             String[] rowNames = null;
+            String[] columnTitles = null;
+            String[] rowTitles = null;
+
             Map<String, Point> fieldsCoordinates = null;
             // Read child elements
             while (reader.hasMoreElementReaders()) {
@@ -74,6 +78,10 @@ public class SpreadSheetResultType extends BeanType {
                     columnNames = (String[]) type.readObject(childReader, context);
                 } else if (type != null && qName.getLocalPart().equals("rowNames")) {
                     rowNames = (String[]) type.readObject(childReader, context);
+                } else if (type != null && qName.getLocalPart().equals("columnTitles")) {
+                    columnTitles = (String[]) type.readObject(childReader, context);
+                } else if (type != null && qName.getLocalPart().equals("rowTitles")) {
+                    rowTitles = (String[]) type.readObject(childReader, context);
                 } else if (type != null && qName.getLocalPart().equals("fieldsCoordinates")) {
                     fieldsCoordinates = (Map<String, Point>) type.readObject(childReader, context);
                 } else if (type != null && qName.getLocalPart().equals("results")) {
@@ -83,7 +91,7 @@ public class SpreadSheetResultType extends BeanType {
                 }
             }
 
-            return new SpreadsheetResult(results, rowNames, columnNames, fieldsCoordinates);
+            return new SpreadsheetResult(results, rowNames, columnNames, rowTitles, columnTitles, fieldsCoordinates);
         } catch (IllegalArgumentException e) {
             throw new DatabindingException("Illegal argument. " + e.getMessage(), e);
         }

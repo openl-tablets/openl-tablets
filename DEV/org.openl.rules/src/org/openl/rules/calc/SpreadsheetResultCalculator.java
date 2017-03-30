@@ -60,6 +60,10 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
     public String getColumnName(int column) {
         return spreadsheet.getColumnNames()[column];
     }
+    
+    public String getColumnTitle(int column) {
+        return spreadsheet.getColumnTitles()[column];
+    }
 
     public Object getFieldValue(String name) {
 
@@ -87,6 +91,10 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
 
     public String getRowName(int row) {
         return spreadsheet.getRowNames()[row];
+    }
+    
+    public String getRowTitle(int row) {
+        return spreadsheet.getRowTitles()[row];
     }
 
     public int getRowIndex(String name) {

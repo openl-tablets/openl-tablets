@@ -67,6 +67,8 @@ public class ConvertorUtils {
                 spreadsheetResult = new SpreadsheetResult(spr.getHeight(), spr.getWidth());
                 spreadsheetResult.setColumnNames(spr.getColumnNames());
                 spreadsheetResult.setRowNames(spr.getRowNames());
+                spreadsheetResult.setColumnTitles(spr.getColumnTitles());
+                spreadsheetResult.setRowTitles(spr.getRowTitles());
                 spreadsheetResult.setFieldsCoordinates(spr.getFieldsCoordinates());
                 result = new Object[spr.getHeight()][spr.getWidth()];
             }

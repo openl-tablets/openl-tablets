@@ -28,10 +28,13 @@ public class DefaultResultBuilder implements IResultBuilder {
         String[] rowNames = getRowNames(result);
          
         String[] columnNames = getColumnNames(result);
+
+        String[] rowTitles = getRowTitles(result);
         
+        String[] columnTitles = getColumnTitles(result);
+
 //        Map<String, Point> fieldsCoordinates = getFieldsCoordinates(result.getSpreadsheet().getSpreadsheetType().getFields());
         Map<String, Point> fieldsCoordinates = result.getSpreadsheet().getFieldsCoordinates();
-        
 
         Constructor<?> constructor = null;
         try {
@@ -43,7 +46,7 @@ public class DefaultResultBuilder implements IResultBuilder {
         
         SpreadsheetResult spreadsheetBean = null;
         try {
-            spreadsheetBean = (SpreadsheetResult)constructor.newInstance(resultArray, rowNames, columnNames, fieldsCoordinates);
+            spreadsheetBean = (SpreadsheetResult)constructor.newInstance(resultArray, rowNames, columnNames, rowTitles, columnTitles, fieldsCoordinates);
         } catch (Exception e) {
             //TODO: add logger
         } 
@@ -82,6 +85,26 @@ public class DefaultResultBuilder implements IResultBuilder {
             rowNames[row] = result.getRowName(row);
         }
         return rowNames;
+    }
+    
+    private String[] getColumnTitles(SpreadsheetResultCalculator result) {
+        int width = result.width();
+        
+        String[] columnTitles = new String[width];        
+        for (int col = 0; col < width; col++) {
+            columnTitles[col] = result.getColumnTitle(col);
+        }
+        return columnTitles;
+    }
+
+    private String[] getRowTitles(SpreadsheetResultCalculator result) {
+        int height = result.height();
+        
+        String[] rowTitles = new String[height];        
+        for (int row = 0; row < height; row++) {
+            rowTitles[row] = result.getRowTitle(row);
+        }
+        return rowTitles;
     }
     
     public static Map<String, Point> getFieldsCoordinates(Map<String, IOpenField> spreadsheetfields) {

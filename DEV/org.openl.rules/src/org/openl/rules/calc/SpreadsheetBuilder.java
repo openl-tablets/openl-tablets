@@ -35,8 +35,10 @@ public class SpreadsheetBuilder {
     
     public void populateRowAndColumnNames(Spreadsheet spreadsheet) {
         spreadsheet.setRowNames(structureBuilder.getRowNames());
-
         spreadsheet.setColumnNames(structureBuilder.getColumnNames());
+        
+        spreadsheet.setRowTitles(structureBuilder.getRowTitles());
+        spreadsheet.setColumnTitles(structureBuilder.getColumnTitles());
     }
 
     public void finalizeBuild(Spreadsheet spreadsheet) {

@@ -28,6 +28,8 @@ public class SpreadsheetResult implements Serializable {
     private int width;
     private String[] columnNames;
     private String[] rowNames;
+    private String[] columnTitles;
+    private String[] rowTitles;
     private Map<String, Point> fieldsCoordinates = new HashMap<String, Point>();
     
     /**
@@ -47,10 +49,12 @@ public class SpreadsheetResult implements Serializable {
         this.results = new Object[height][width];        
     }
     
-    public SpreadsheetResult(Object[][] results, String[] rowNames, String[] columnNames, 
+    public SpreadsheetResult(Object[][] results, String[] rowNames, String[] columnNames, String[] rowTitles, String[] columnTitles,
             Map<String, Point> fieldsCoordinates) {
         this.columnNames = columnNames;
         this.rowNames = rowNames;
+        this.columnTitles = columnTitles;
+        this.rowTitles = rowTitles;
         this.height = rowNames.length;
         this.width = columnNames.length;
         this.results = results.clone();
@@ -128,6 +132,22 @@ public class SpreadsheetResult implements Serializable {
         return results[row][column];
     }
     
+    public String[] getRowTitles() {
+        return rowTitles;
+    }
+    
+    public void setRowTitles(String[] rowTitles) {
+        this.rowTitles = rowTitles;
+    }
+    
+    public String[] getColumnTitles() {
+        return columnTitles;
+    }
+    
+    public void setColumnTitles(String[] columnTitles) {
+        this.columnTitles = columnTitles;
+    }
+
     public void setFieldValue(String name, Object value) {
         Point fieldCoordinates = fieldsCoordinates.get(name);
         
@@ -152,6 +172,20 @@ public class SpreadsheetResult implements Serializable {
             return rowNames[row];
         }           
         return "DefaultRowName" + row;
+    }
+    
+    public String getColumnTitle(int column) {
+        if (columnTitles != null) {
+            return columnTitles[column];
+        }
+        return "DefaultColumnTitle" + column;
+    }    
+    
+    public String getRowTitle(int row) {
+        if (rowTitles != null) {
+            return rowTitles[row];
+        }           
+        return "DefaultRowTitle" + row;
     }
     
     public Map<String, Point> getFieldsCoordinates() {
