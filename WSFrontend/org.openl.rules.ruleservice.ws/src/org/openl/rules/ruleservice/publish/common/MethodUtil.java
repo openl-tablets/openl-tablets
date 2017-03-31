@@ -10,6 +10,7 @@ import java.util.List;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.types.IOpenMethod;
+import org.openl.util.JavaKeywordUtils;
 import org.openl.util.StringUtils;
 
 public final class MethodUtil {
@@ -82,6 +83,9 @@ public final class MethodUtil {
                         if (variationPackIsLastParameter) {
                             parameterNames.add("variationPack");
                         }
+                        
+                        fixJavaKeyWords(parameterNames);
+                        
                         return parameterNames.toArray(new String[] {});
                     }
                 }
@@ -92,6 +96,30 @@ public final class MethodUtil {
             parameterNames[i] = "arg" + i;
         }
         return parameterNames;
+    }
+
+    private static void fixJavaKeyWords(List<String> parameterNames) {
+        for (int i = 0; i < parameterNames.size(); i++) {
+            if (JavaKeywordUtils.isJavaKeyword(parameterNames.get(i))) {
+                int k = 0;
+                boolean f = false;
+                while (!f) {
+                    k++;
+                    String s = parameterNames.get(i) + k;
+                    boolean g = true;
+                    for (int j = 0; j < parameterNames.size(); j++) {
+                        if (j != i && s.equals(parameterNames.get(j))) {
+                            g = false;
+                            break;
+                        }
+                    }
+                    if (g) {
+                        f = true;
+                    }
+                }
+                parameterNames.set(i, parameterNames.get(i) + k);
+            }
+        }
     }
 
     public static String convertParameterName(String pName) {
