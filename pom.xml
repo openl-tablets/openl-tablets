@@ -473,7 +473,9 @@
                                 def write = {
                                     String text ->
                                         out.append(text)
-                                        out.append("\n\r")
+                                        if (!text.endsWith("\r\n")) {
+                                            out.append("\r\n")
+                                        }
                                         log.debug("   | {}", text)
                                 }
 
