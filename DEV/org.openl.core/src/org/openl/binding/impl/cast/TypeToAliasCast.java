@@ -1,10 +1,8 @@
 package org.openl.binding.impl.cast;
 
-import java.util.Iterator;
-
 import org.openl.domain.IDomain;
-import org.openl.exception.OpenLCompilationException;
 import org.openl.types.IOpenClass;
+import org.openl.util.DomainUtils;
 
 /**
  * Class provides feature to convert alias data type to underlying type.
@@ -57,24 +55,8 @@ public class TypeToAliasCast implements IOpenCast {
         // appropriate message.
         //
         if (!isInDomain) {
-            StringBuilder sb = new StringBuilder();
-            Iterator<Object> itr = domain.iterator();
-            boolean f = false;
-            while (itr.hasNext() && sb.length() < 200) {
-                Object v = itr.next();
-                if (f) {
-                    sb.append(", ");
-                } else {
-                    f = true;
-                }
-                sb.append(v.toString());
-            }
-            if (itr.hasNext()){
-                sb.append(", ...");
-            }
-            
             throw new OutsideOfValidDomainException( 
-                String.format("Object '%s' is outside of valid domain '%s'. Valid values: [%s]", from, toClass.getName(), sb.toString()));
+                String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s", from, toClass.getName(), DomainUtils.toString(domain)));
         }
 
         // Return object as a converted value.

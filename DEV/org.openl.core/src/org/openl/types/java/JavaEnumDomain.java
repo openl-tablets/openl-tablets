@@ -42,5 +42,23 @@ public class JavaEnumDomain extends FixedSizeDomain<Object> {
     public JavaOpenEnum getEnumClass() {
         return enumClass;
     }
+    
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        @SuppressWarnings("rawtypes")
+        Iterator itr = iterator();
+        boolean f = false;
+        while (itr.hasNext()) {
+            Object v = itr.next();
+            if (f) {
+                sb.append(", ");
+            } else {
+                f = true;
+            }
+            sb.append(v.toString());
+        }
+        return "[" + sb.toString() + "]";
+    }
 
 }
