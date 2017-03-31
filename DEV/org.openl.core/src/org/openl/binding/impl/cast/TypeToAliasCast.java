@@ -1,6 +1,9 @@
 package org.openl.binding.impl.cast;
 
+import java.util.Iterator;
+
 import org.openl.domain.IDomain;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.types.IOpenClass;
 
 /**
@@ -54,7 +57,24 @@ public class TypeToAliasCast implements IOpenCast {
         // appropriate message.
         //
         if (!isInDomain) {
-            throw new OutsideOfValidDomainException("Object " + from + " is outside of a valid domain");
+            StringBuilder sb = new StringBuilder();
+            Iterator<Object> itr = domain.iterator();
+            boolean f = false;
+            while (itr.hasNext() && sb.length() < 200) {
+                Object v = itr.next();
+                if (f) {
+                    sb.append(", ");
+                } else {
+                    f = true;
+                }
+                sb.append(v.toString());
+            }
+            if (itr.hasNext()){
+                sb.append(", ...");
+            }
+            
+            throw new OutsideOfValidDomainException( 
+                String.format("Object '%s' is outside of valid domain '%s'. Valid values: [%s]", from, toClass.getName(), sb.toString()));
         }
 
         // Return object as a converted value.

@@ -32,7 +32,7 @@ public class TypeToAliasCastTest {
             cast.convert("Not Existing");
             fail("Should be exception");
         } catch (RuntimeException e) {
-            assertEquals(e.getMessage(), "Object Not Existing is outside of a valid domain");
+            assertEquals(e.getMessage(), "Object 'Not Existing' is outside of valid domain 'TestDomain'. Valid values: [Val1, Val2]");
         }
     }
 }

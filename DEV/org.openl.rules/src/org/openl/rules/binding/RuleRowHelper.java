@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.openl.base.INamedThing;
@@ -447,8 +448,24 @@ public class RuleRowHelper {
                 //
                 boolean contains = domain.selectObject(value);
                 if (!contains) {
-                    throw new OpenLCompilationException(
-                        String.format("The value '%s' is outside of domain %s", value, domain.toString()));
+                    StringBuilder sb = new StringBuilder();
+                    Iterator<Object> itr = domain.iterator();
+                    boolean f = false;
+                    while (itr.hasNext() && sb.length() < 200) {
+                        Object v = itr.next();
+                        if (f) {
+                            sb.append(", ");
+                        } else {
+                            f = true;
+                        }
+                        sb.append(v.toString());
+                    }
+                    if (itr.hasNext()){
+                        sb.append(", ...");
+                    }
+                    
+                    throw new OpenLCompilationException( 
+                        String.format("The value '%s' is outside of valid domain '%s'. Valid values: [%s]", value, paramType.getName(), sb.toString()));
                 }
             } catch (RuntimeException e) {
                 throw new OpenLCompilationException(e.getMessage(), e.getCause());
