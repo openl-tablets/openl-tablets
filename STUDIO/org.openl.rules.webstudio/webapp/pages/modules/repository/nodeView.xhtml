@@ -212,6 +212,7 @@
     </h:panelGroup>
 
   <h:panelGroup rendered="#{node.type == 'deployment'}">
+      <f:event type="preRenderView" listener="#{deploymentController.onPageLoad()}" />
       <div class="nav-panel">
     <h:panelGroup rendered="#{artefact.deleted}">
         <h:commandButton id="undeleteId2" rendered="#{repositoryTreeState.canUndelete}" value="Undelete" onclick="confirmUndeleteProject();return false;" title="#{undeleteMessage}"/>

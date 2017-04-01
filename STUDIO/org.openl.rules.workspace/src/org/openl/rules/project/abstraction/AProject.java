@@ -4,10 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -15,9 +12,11 @@ import java.util.zip.ZipOutputStream;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.IOUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 
@@ -26,6 +25,7 @@ public class AProject extends AProjectFolder {
      * true if the project has a folder structure and false if the project is stored as a zip
      */
     private boolean folderStructure;
+    protected List<FileData> historyFileDatas;
 
     public AProject(Repository repository, String folderPath, boolean folderStructure) {
         this(repository, folderPath, null, folderStructure);
@@ -71,18 +71,62 @@ public class AProject extends AProjectFolder {
         return fileData;
     }
 
+    @Override
+    public ProjectVersion getLastVersion() {
+        List<FileData> fileDatas = getHistoryFileDatas();
+        return fileDatas.isEmpty() ? null : createProjectVersion(fileDatas.get(fileDatas.size() - 1));
+    }
+
     protected boolean isLastVersion() {
         if (getHistoryVersion() == null) {
             return true;
         }
-
-        List<FileData> fileDatas;
-        try {
-            fileDatas = getRepository().listHistory(getFolderPath());
-        } catch (IOException ex) {
-            throw RuntimeExceptionWrapper.wrap(ex);
-        }
+        List<FileData> fileDatas = getHistoryFileDatas();
         return fileDatas.isEmpty() || getHistoryVersion().equals(fileDatas.get(fileDatas.size() - 1).getVersion());
+    }
+
+    @Override
+    public List<ProjectVersion> getVersions() {
+        Collection<FileData> fileDatas = getHistoryFileDatas();
+        List<ProjectVersion> versions = new ArrayList<ProjectVersion>();
+        for (FileData data : fileDatas) {
+            versions.add(createProjectVersion(data));
+        }
+        return versions;
+    }
+
+    @Override
+    public int getVersionsCount() {
+        return getHistoryFileDatas().size();
+    }
+
+    @Override
+    protected ProjectVersion getVersion(int index) throws RRepositoryException {
+        List<FileData> fileDatas = getHistoryFileDatas();
+        return fileDatas.isEmpty() ? null : createProjectVersion(fileDatas.get(index));
+    }
+
+    protected List<FileData> getHistoryFileDatas() {
+        if (historyFileDatas == null) {
+            try {
+                String folderPath = getFolderPath();
+                if (folderPath != null) {
+                    historyFileDatas = getRepository().listHistory(folderPath);
+                } else {
+                    // Local repository doesn't have versions
+                    historyFileDatas = Collections.emptyList();
+                }
+            } catch (IOException ex) {
+                throw RuntimeExceptionWrapper.wrap(ex);
+            }
+        }
+        return historyFileDatas;
+    }
+
+    @Override
+    public void setFileData(FileData fileData) {
+        super.setFileData(fileData);
+        historyFileDatas = null;
     }
 
     @Override
