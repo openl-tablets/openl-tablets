@@ -25,14 +25,23 @@ class TableValueFilter extends AGridFilter {
     public FormattedCell filterFormat(FormattedCell cell) {
         ILogicalTable table = res.getLogicalTable();
 
+        int relativeColumn = cell.getColumn() - startX;
+        int relativeRow = cell.getRow() - startY;
+        if (relativeColumn < 0 || relativeColumn >= table.getWidth() ||
+                relativeRow < 0 || relativeRow >= table.getHeight()) {
+            // Sometimes the style of a cell outside of a table is retrieved to draw borders of a table, for such cells
+            // value is empty - don't modify the cell, keep empty.
+            return cell;
+        }
+
         int columnOffset = 0;
         int rowOffset = 0;
 
-        for (int i = 1; i < cell.getColumn() - startX; i++) {
+        for (int i = 1; i < relativeColumn; i++) {
             columnOffset += table.getColumn(i).getSource().getWidth() - 1;
         }
 
-        for (int i = 1; i < cell.getRow() - startY; i++) {
+        for (int i = 1; i < relativeRow; i++) {
             rowOffset += table.getRow(i).getSource().getHeight() - 1;
         }
 
