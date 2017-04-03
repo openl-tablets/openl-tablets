@@ -51,7 +51,7 @@
                 </div>
             </div>
 
-            <h:panelGroup rendered="#{modulePageBean.includes.size() > 0}">
+            <h:panelGroup rendered="#{not empty modulePageBean.includes}">
                 <div class="block">
                     <h3>#{msg['ws.module.includes']}</h3>
                     <div class="block-content">
@@ -66,7 +66,7 @@
                 </div>
             </h:panelGroup>
 
-            <h:panelGroup rendered="#{modulePageBean.dependencies.size() > 0}">
+            <h:panelGroup rendered="#{not empty modulePageBean.dependencies}">
             <div class="block">
                 <h3>#{msg['ws.module.dependencies']}</h3>
                 <div class="block-content">
@@ -79,7 +79,7 @@
             </div>
             </h:panelGroup>
 
-            <h:panelGroup rendered="#{modulePageBean.imports.size() > 0}">
+            <h:panelGroup rendered="#{not empty modulePageBean.imports}">
                 <div class="block">
                     <h3>#{msg['ws.module.imports']}</h3>
                     <div class="block-content">
