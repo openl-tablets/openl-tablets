@@ -6,11 +6,12 @@ import java.io.File;
 import java.util.List;
 
 import org.junit.Test;
-import org.openl.rules.TestHelper;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calculation.result.convertor2.CalculationStep;
 import org.openl.rules.calculation.result.convertor2.CompoundStep;
 import org.openl.rules.calculation.result.convertor2.sample.result.ResultConvertor;
+import org.openl.rules.runtime.RulesEngineFactory;
+import org.openl.source.impl.URLSourceCodeModule;
 
 public class ConvertorUsesTitlesTest {
     public interface ITestCalc {
@@ -20,9 +21,9 @@ public class ConvertorUsesTitlesTest {
     @Test
     public void test1() {
         File xlsFile = new File("test/rules/calc0-1.xls");
-        TestHelper<ITestCalc> testHelper = new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
+        RulesEngineFactory<ITestCalc> engineFactory = new RulesEngineFactory<ITestCalc>(URLSourceCodeModule.toUrl(xlsFile), ITestCalc.class);
 
-        ITestCalc test = testHelper.getInstance();
+        ITestCalc test = engineFactory.newEngineInstance();
         SpreadsheetResult result = test.calc();
         assertEquals(2, result.getHeight());
         assertEquals(3, result.getWidth());
