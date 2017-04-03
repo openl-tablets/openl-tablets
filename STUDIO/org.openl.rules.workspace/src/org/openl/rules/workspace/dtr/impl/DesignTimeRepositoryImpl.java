@@ -43,6 +43,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
      * Project Cache
      */
     private final HashMap<String, AProject> projects = new HashMap<String, AProject>();
+    private final HashMap<String, AProject> projectsVersions = new HashMap<String, AProject>();
 
     private final List<DesignTimeRepositoryListener> listeners = new ArrayList<DesignTimeRepositoryListener>();
 
@@ -73,6 +74,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 public void onRepositoryModified() {
                     synchronized (projects) {
                         projects.clear();
+                        projectsVersions.clear();
                     }
                 }
             });
@@ -126,6 +128,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             synchronized (projects) {
                 // invalidate cache (rules projects)
                 projects.remove(name);
+                projectsVersions.clear();
             }
         }
     }
@@ -189,7 +192,13 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     public AProject getProject(String name, CommonVersion version) throws RepositoryException {
-        return new AProject(getRepository(), rulesLocation + "/" + name, version.getVersionName(), false);
+        String key = String.format("%s:%s", name, version.getVersionName());
+        AProject project = projectsVersions.get(key);
+        if (project == null) {
+            project = new AProject(getRepository(), rulesLocation + "/" + name, version.getVersionName(), false);
+            projectsVersions.put(key, project);
+        }
+        return project;
     }
 
     public Collection<AProject> getProjects() {
@@ -203,6 +212,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
         synchronized (projects) {
             projects.clear();
+            projectsVersions.clear();
             for (FileData fileData : fileDatas) {
                 AProject project = new AProject(getRepository(), fileData, false);
                 // get from the repository
@@ -254,6 +264,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
         synchronized (projects) {
             projects.clear();
+            projectsVersions.clear();
         }
     }
 

@@ -40,6 +40,7 @@ public class DeploymentController {
     private String version;
     private String cachedForProject;
     private String repositoryConfigName;
+    private boolean canDeploy;
 
     @ManagedProperty(value = "#{productionRepositoriesTreeController}")
     private ProductionRepositoriesTreeController productionRepositoriesTreeController;
@@ -55,6 +56,22 @@ public class DeploymentController {
 
     @ManagedProperty("#{projectDescriptorArtefactResolver}")
     private volatile ProjectDescriptorArtefactResolver projectDescriptorResolver;
+
+    public void onPageLoad() {
+        if (repositoryTreeState == null || getSelectedProject() == null) {
+            canDeploy = false;
+            return;
+        }
+
+        if (!repositoryTreeState.getCanDeploy()) {
+            canDeploy = false;
+        } else {
+            DependencyChecker checker = new DependencyChecker(projectDescriptorResolver);
+            ADeploymentProject project = getSelectedProject();
+            checker.addProjects(project);
+            canDeploy = checker.check();
+        }
+    }
 
     public synchronized String addItem() {
         ADeploymentProject project = getSelectedProject();
@@ -89,7 +106,7 @@ public class DeploymentController {
         return null;
     }
 
-    private void checkConflicts(List<DeploymentDescriptorItem> items) throws ProjectException {
+    private void checkConflicts(List<DeploymentDescriptorItem> items) {
         if (items == null) {
             return;
         }
@@ -101,14 +118,7 @@ public class DeploymentController {
     }
 
     public synchronized boolean isCanDeploy() {
-        if (!repositoryTreeState.getCanDeploy()) {
-            return false;
-        }
-
-        DependencyChecker checker = new DependencyChecker(projectDescriptorResolver);
-        ADeploymentProject project = getSelectedProject();
-        checker.addProjects(project);
-        return checker.check();
+        return canDeploy;
     }
 
     public String save() {
@@ -204,12 +214,7 @@ public class DeploymentController {
             items.add(item);
         }
 
-        try {
-            checkConflicts(items);
-        } catch (ProjectException e) {
-            log.error("Failed to check conflicts!", e);
-            FacesUtils.addErrorMessage(e.getMessage());
-        }
+        checkConflicts(items);
 
         return items;
     }

@@ -22,7 +22,6 @@ public class RulesProject extends UserWorkspaceProject {
     private String localFolderName;
     private Repository designRepository;
     private String designFolderName;
-    private List<FileData> historyFileDatas;
     private final LockEngine lockEngine;
 
     public RulesProject(UserWorkspace userWorkspace,
@@ -141,42 +140,7 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     @Override
-    public ProjectVersion getLastVersion() {
-        List<FileData> fileDatas = getHistoryFileDatas();
-        return fileDatas.isEmpty() ? null : createProjectVersion(fileDatas.get(fileDatas.size() - 1));
-    }
-
-    @Override
-    protected boolean isLastVersion() {
-        if (getHistoryVersion() == null) {
-            return true;
-        }
-        List<FileData> fileDatas = getHistoryFileDatas();
-        return fileDatas.isEmpty() || getHistoryVersion().equals(fileDatas.get(fileDatas.size() - 1).getVersion());
-    }
-
-    @Override
-    public List<ProjectVersion> getVersions() {
-        Collection<FileData> fileDatas = getHistoryFileDatas();
-        List<ProjectVersion> versions = new ArrayList<ProjectVersion>();
-        for (FileData data : fileDatas) {
-            versions.add(createProjectVersion(data));
-        }
-        return versions;
-    }
-
-    @Override
-    public int getVersionsCount() {
-        return getHistoryFileDatas().size();
-    }
-
-    @Override
-    protected ProjectVersion getVersion(int index) throws RRepositoryException {
-        List<FileData> fileDatas = getHistoryFileDatas();
-        return fileDatas.isEmpty() ? null : createProjectVersion(fileDatas.get(index));
-    }
-
-    private List<FileData> getHistoryFileDatas() {
+    protected List<FileData> getHistoryFileDatas() {
         if (historyFileDatas == null) {
             try {
                 if (designFolderName != null) {
@@ -190,12 +154,6 @@ public class RulesProject extends UserWorkspaceProject {
             }
         }
         return historyFileDatas;
-    }
-
-    @Override
-    public void setFileData(FileData fileData) {
-        super.setFileData(fileData);
-        historyFileDatas = null;
     }
 
     public List<ProjectVersion> getArtefactVersions(ArtefactPath artefactPath) {
