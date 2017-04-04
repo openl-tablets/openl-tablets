@@ -241,7 +241,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
     @Override
     public IOpenClass findType(String namespace, String name) {
         String typeNameWithNamespace = StringTool.buildTypeName(namespace, name);
-        return getTypes().get(typeNameWithNamespace);
+        return internalTypes.get(typeNameWithNamespace);
     }
     
     public void addError(Throwable error) {

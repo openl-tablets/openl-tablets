@@ -24,6 +24,7 @@ import org.openl.config.ConfigurationManager;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
+import org.openl.syntax.impl.ISyntaxConstants;
 
 @RunWith(Parameterized.class)
 public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
@@ -135,7 +136,7 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
     }
 
     private Class<?> getExpenseInstanceClass(ProjectModel pm) {
-        return pm.getCompiledOpenClass().getTypes().get("org.openl.this::Expense").getInstanceClass();
+        return pm.getCompiledOpenClass().getOpenClassWithErrors().findType(ISyntaxConstants.THIS_NAMESPACE,"Expense").getInstanceClass();
     }
 
     private void setFieldName(String fieldName) throws IOException {

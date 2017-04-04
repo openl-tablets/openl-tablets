@@ -21,7 +21,6 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.util.StringTool;
 
 /**
  * Represents group of methods(rules) overloaded by dimension properties.
@@ -309,7 +308,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     @Override
     public IOpenClass getType() {
         //Use types from declaring types. For customspreadsheetresult types.
-        IOpenClass type = getDeclaringClass().getTypes().get(StringTool.buildTypeName(ISyntaxConstants.THIS_NAMESPACE,super.getType().getName()));
+        IOpenClass type = getDeclaringClass().findType(ISyntaxConstants.THIS_NAMESPACE,super.getType().getName());
         if (type == null){
             return super.getType();
         }

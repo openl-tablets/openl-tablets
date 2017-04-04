@@ -1,7 +1,5 @@
 package org.openl.rules.lang.xls.types;
 
-import java.util.Map;
-
 import static org.junit.Assert.*;
 
 import org.junit.Test;
@@ -12,7 +10,6 @@ import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
-import org.openl.util.StringTool;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
@@ -22,9 +19,6 @@ import org.openl.vm.SimpleVM;
  */
 public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
     private static final String SRC = "test/rules/DatatypeInheritanceTest.xls";
-    private static final String PARENT_TYPE_NAME = StringTool.buildTypeName(ISyntaxConstants.THIS_NAMESPACE, "ParentType");
-    private static final String CHILD_TYPE_NAME = StringTool.buildTypeName(ISyntaxConstants.THIS_NAMESPACE, "ChildType");
-    private static final String SECOND_CHILD_TYPE_NAME = StringTool.buildTypeName(ISyntaxConstants.THIS_NAMESPACE, "SecondLevelChildType");
 
     public DatatypeInheritanceTest() {
         super(SRC);
@@ -33,20 +27,19 @@ public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
     @Test
     public void testFieldsAccess() {
         XlsModuleOpenClass moduleOpenClass = (XlsModuleOpenClass) getCompiledOpenClass().getOpenClassWithErrors();
-        Map<String, IOpenClass> types = moduleOpenClass.getTypes();
-        assertNotNull(types.get(PARENT_TYPE_NAME).getField("field2"));
+        IOpenClass parentType = moduleOpenClass.findType(ISyntaxConstants.THIS_NAMESPACE, "ParentType");
+        IOpenClass childType = moduleOpenClass.findType(ISyntaxConstants.THIS_NAMESPACE, "ChildType");
+        IOpenClass secondLevelChildType = moduleOpenClass.findType(ISyntaxConstants.THIS_NAMESPACE, "SecondLevelChildType");
+        assertNotNull(parentType.getField("field2"));
 
-        assertNotNull(types.get(CHILD_TYPE_NAME).getField("field1"));
-        assertEquals(types.get(PARENT_TYPE_NAME), types.get(CHILD_TYPE_NAME).getField("field3").getDeclaringClass());
-        assertEquals(types.get(CHILD_TYPE_NAME), types.get(CHILD_TYPE_NAME).getField("field5").getDeclaringClass());
+        assertNotNull(childType.getField("field1"));
+        assertEquals(parentType, childType.getField("field3").getDeclaringClass());
+        assertEquals(childType, childType.getField("field5").getDeclaringClass());
 
-        assertNotNull(types.get(SECOND_CHILD_TYPE_NAME).getField("field1"));
-        assertEquals(types.get(PARENT_TYPE_NAME), types.get(SECOND_CHILD_TYPE_NAME).getField("field3")
-                .getDeclaringClass());
-        assertEquals(types.get(CHILD_TYPE_NAME), types.get(SECOND_CHILD_TYPE_NAME).getField("field5")
-                .getDeclaringClass());
-        assertEquals(types.get(SECOND_CHILD_TYPE_NAME), types.get(SECOND_CHILD_TYPE_NAME).getField("field7")
-                .getDeclaringClass());
+        assertNotNull(secondLevelChildType.getField("field1"));
+        assertEquals(parentType, secondLevelChildType.getField("field3").getDeclaringClass());
+        assertEquals(childType, secondLevelChildType.getField("field5").getDeclaringClass());
+        assertEquals(secondLevelChildType, secondLevelChildType.getField("field7").getDeclaringClass());
     }
 
     @Test
@@ -79,14 +72,14 @@ public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
     @Test
     public void testToStringMethod() {
         XlsModuleOpenClass moduleOpenClass = (XlsModuleOpenClass) getCompiledOpenClass().getOpenClassWithErrors();
-        Map<String, IOpenClass> types = moduleOpenClass.getTypes();
+        IOpenClass childType = moduleOpenClass.findType(ISyntaxConstants.THIS_NAMESPACE, "ChildType");
+        IOpenClass secondLevelChildType = moduleOpenClass.findType(ISyntaxConstants.THIS_NAMESPACE, "SecondLevelChildType");
+
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-        IOpenClass childType = types.get(CHILD_TYPE_NAME);
         String childTypeToStringResult = (String)childType.getMethod("toString", new IOpenClass[] {}).invoke(
                 childType.newInstance(env), new Object[] {}, env);
         assertTrue(childTypeToStringResult.contains("field5"));
         assertTrue(childTypeToStringResult.startsWith("ChildType"));
-        IOpenClass secondLevelChildType = types.get(SECOND_CHILD_TYPE_NAME);
         String secondLevelChildTypeToStringResult = (String)secondLevelChildType.getMethod("toString", new IOpenClass[] {}).invoke(
                 secondLevelChildType.newInstance(env), new Object[] {}, env);
         assertTrue(secondLevelChildTypeToStringResult.contains("field7"));
