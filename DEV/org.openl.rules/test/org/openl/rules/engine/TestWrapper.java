@@ -137,10 +137,8 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
       return;
 
     IUserContext ucxt = UserContext.getCurrentContextOrCreateNew(Thread.currentThread().getContextClassLoader(), __userHome);
-    OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , __src, __srcModuleClass);
-    __compiledClass = wrapper.getCompiledClass();
-    __class = wrapper.getOpenClassWithErrors();
-   // __env.set(wrapper.getEnv());
+    __compiledClass = OpenClassJavaWrapper.createWrapper(__openlName, ucxt , __src, null);
+    __class = __compiledClass.getOpenClassWithErrors();
 
     this_Field = __class.getField("this");
     driverRiskScoreOverloadTest_Method = __class.getMatchingMethod("driverRiskScoreOverloadTest", new IOpenClass[] {

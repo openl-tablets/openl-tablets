@@ -623,9 +623,7 @@ public class GenerateInterface {
             long start = System.currentTimeMillis();
             try {
                 IDependencyManager dependencyManager = instantiateDependencyManager();
-                OpenClassJavaWrapper jwrapper = null;
-                jwrapper = OpenClassJavaWrapper.createWrapper(openlName, ucxt, resourcesPath + srcFile, false, dependencyManager);
-                compiledOpenClass = jwrapper.getCompiledClass();
+                compiledOpenClass = OpenClassJavaWrapper.createWrapper(openlName, ucxt, resourcesPath + srcFile, dependencyManager);
             } finally {
                 long end = System.currentTimeMillis();
                 log("Loaded " + resourcesPath + srcFile + " in " + (end - start) + " ms");

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.conf.UserContext;
 import org.openl.impl.OpenClassJavaWrapper;
@@ -22,7 +23,8 @@ public class TestVersionedTreeNode {
 
     @Before
     public void getTables() {
-        OpenClassJavaWrapper wrapper = getJavaWrapper();
+        UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), ".");
+        CompiledOpenClass wrapper = OpenClassJavaWrapper.createWrapper(OpenL.OPENL_JAVA_RULE_NAME, ucxt, __src, null);
         XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClassWithErrors().getMetaInfo();
         xsn = xmi.getXlsModuleNode();
         TableSyntaxNode[] tsns = xsn.getXlsTableSyntaxNodes();
@@ -33,12 +35,6 @@ public class TestVersionedTreeNode {
                 }
             }
         }
-    }
-
-    private OpenClassJavaWrapper getJavaWrapper() {
-        UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), ".");
-        OpenClassJavaWrapper wrapper = OpenClassJavaWrapper.createWrapper(OpenL.OPENL_JAVA_RULE_NAME, ucxt, __src);
-        return wrapper;
     }
 
     @Test
