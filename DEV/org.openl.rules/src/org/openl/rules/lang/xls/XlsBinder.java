@@ -191,69 +191,43 @@ public class XlsBinder implements IOpenBinder {
             bindingContext.setExternalParams(parsedCode.getExternalParams());
         }
 
-        IBoundNode topNode = null;
+        IBoundNode topNode;
 
-        if (!parsedCode.getCompiledDependencies().isEmpty()) {
-            topNode = bindWithDependencies(moduleNode, openl, bindingContext, parsedCode.getCompiledDependencies());
-        } else {
-            topNode = bind(moduleNode, openl, bindingContext);
+        Set<CompiledDependency> compiledDependencies = parsedCode.getCompiledDependencies();
+        compiledDependencies = compiledDependencies.isEmpty() ? null : compiledDependencies; // !!! empty to null
+        XlsModuleOpenClass moduleOpenClass = createModuleOpenClass(moduleNode,
+            openl,
+            getModuleDatabase(),
+            compiledDependencies,
+            bindingContext);
+        RulesModuleBindingContext moduleContext = new RulesModuleBindingContext(bindingContext, moduleOpenClass);
+
+        if (compiledDependencies != null) {
+            /*
+             * Bind module with processing dependent modules, previously
+             * compiled.<br> Creates {@link XlsModuleOpenClass} with
+             * dependencies and<br> populates {@link RulesModuleBindingContext}
+             * for current module with types<br> from dependent modules.
+             */
+            try {
+                Map<String, IOpenClass> types = moduleOpenClass.getTypes();
+                for (IOpenClass type : types.values()) {
+                    moduleContext.addType(ISyntaxConstants.THIS_NAMESPACE, type);
+                }
+            } catch (Exception ex) {
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Can`t add datatype from dependency",
+                    ex, moduleNode);
+                BindHelper.processError(error);
+            }
         }
+
+        topNode = processBinding(moduleNode, openl, moduleContext, moduleOpenClass, bindingContext);
 
         return new BoundCode(parsedCode, topNode, bindingContext.getErrors(), 0);
     }
 
-    /**
-     * Bind module with processing dependent modules, previously compiled.<br>
-     * Creates {@link XlsModuleOpenClass} with dependencies and<br>
-     * populates {@link RulesModuleBindingContext} for current module with
-     * types<br>
-     * from dependent modules.
-     *
-     * @param moduleNode
-     * @param openl
-     * @param bindingContext
-     * @param moduleDependencies
-     * @return
-     */
-    private IBoundNode bindWithDependencies(XlsModuleSyntaxNode moduleNode,
-            OpenL openl,
-            IBindingContext bindingContext,
-            Set<CompiledDependency> moduleDependencies) {
-        XlsModuleOpenClass moduleOpenClass = createModuleOpenClass(moduleNode,
-            openl,
-            getModuleDatabase(),
-            moduleDependencies,
-            bindingContext);
-
-        RulesModuleBindingContext moduleContext = createRulesBindingContext(bindingContext, moduleOpenClass);
-        try {
-            Map<String, IOpenClass> types = moduleOpenClass.getTypes();
-            for (IOpenClass type : types.values()) {
-                moduleContext.addType(ISyntaxConstants.THIS_NAMESPACE, type);
-            }
-        } catch (Exception ex) {
-            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Can`t add datatype from dependency",
-                ex, moduleNode);
-            BindHelper.processError(error);
-        }
-        return processBinding(moduleNode, openl, moduleContext, moduleOpenClass, bindingContext);
-    }
-
     protected IDataBase getModuleDatabase() {
         return new DataBase();
-    }
-
-    public IBoundNode bind(XlsModuleSyntaxNode moduleNode, OpenL openl, IBindingContext bindingContext) {
-
-        XlsModuleOpenClass moduleOpenClass = createModuleOpenClass(moduleNode,
-            openl,
-            getModuleDatabase(),
-            null,
-            bindingContext);
-
-        RulesModuleBindingContext moduleContext = createRulesBindingContext(bindingContext, moduleOpenClass);
-
-        return processBinding(moduleNode, openl, moduleContext, moduleOpenClass, bindingContext);
     }
 
     /**
@@ -368,11 +342,6 @@ public class XlsBinder implements IOpenBinder {
 
     private StringValueSelector<ISyntaxNode> getSelector(String selectorValue) {
         return new ASelector.StringValueSelector<ISyntaxNode>(selectorValue, new SyntaxNodeConvertor());
-    }
-
-    private RulesModuleBindingContext createRulesBindingContext(IBindingContext bindingContext,
-            XlsModuleOpenClass moduleOpenClass) {
-        return new RulesModuleBindingContext(bindingContext, moduleOpenClass);
     }
 
     /**
