@@ -19,7 +19,6 @@ import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ADynamicClass.OpenConstructor;
 import org.openl.types.java.JavaOpenConstructor;
-import org.openl.types.java.OpenClassHelper;
 import org.openl.util.StringUtils;
 
 /**
@@ -204,7 +203,7 @@ public class InterfaceGenerator {
         IOpenClass[] paramClasses = method.getSignature().getParameterTypes();
         Class<?> returnType = method.getType().getInstanceClass();
 
-        Class<?>[] paramTypes = OpenClassHelper.getInstanceClasses(paramClasses);
+        Class<?>[] paramTypes = getInstanceClasses(paramClasses);
 
         RuleInfo ruleInfo = createRuleInfo(methodName, paramTypes, returnType);
 
@@ -264,4 +263,24 @@ public class InterfaceGenerator {
         return builder.toString();
     }
 
+    /**
+     * Convert open classes to array of instance classes.
+     *
+     * @param openClasses array of open classes
+     * @return array of instance classes
+     */
+    private static Class<?>[] getInstanceClasses(IOpenClass[] openClasses) {
+
+        List<Class<?>> classes = new ArrayList<Class<?>>();
+
+        if (openClasses != null) {
+            for (IOpenClass openClass : openClasses) {
+
+                Class<?> clazz = openClass.getInstanceClass();
+                classes.add(clazz);
+            }
+        }
+
+        return classes.toArray(new Class<?>[classes.size()]);
+    }
 }

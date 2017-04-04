@@ -57,27 +57,6 @@ public class OpenClassHelper {
 
     }
 
-    /**
-     * Convert open classes to array of instance classes.
-     * 
-     * @param openClasses array of open classes
-     * @return array of instance classes
-     */
-    public static Class<?>[] getInstanceClasses(IOpenClass[] openClasses) {
-
-        List<Class<?>> classes = new ArrayList<Class<?>>();
-
-        if (openClasses != null) {
-            for (IOpenClass openClass : openClasses) {
-
-                Class<?> clazz = openClass.getInstanceClass();
-                classes.add(clazz);
-            }
-        }
-
-        return classes.toArray(new Class<?>[classes.size()]);
-    }
-
     public static boolean isCollection(IOpenClass openClass) {
         return openClass.getAggregateInfo()!= null && openClass.getAggregateInfo().isAggregate(openClass);
     }
