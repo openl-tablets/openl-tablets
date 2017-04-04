@@ -26,7 +26,6 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.util.Log;
-import org.openl.util.PropertiesLocator;
 import org.openl.util.StringTool;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInterval;
@@ -72,13 +71,8 @@ public abstract class XlsHelper {
     public static XlsMetaInfo getXlsMetaInfo(String srcFile) {
 
     	UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), ".");
-        URL url = PropertiesLocator.locateToURL(srcFile, ucxt.getUserClassLoader(), new String[] { ucxt.getUserHome() });
-        
-        if (url == null) {
-            throw new RuntimeException("File " + srcFile + " is not found");
-        }
-        
-        IOpenSourceCodeModule src = new URLSourceCodeModule(url);
+
+        IOpenSourceCodeModule src = new URLSourceCodeModule(srcFile);
 
         IParsedCode pc = new XlsParser(ucxt).parseAsModule(src);
         IBoundCode bc = new XlsBinder(ucxt).bind(pc);

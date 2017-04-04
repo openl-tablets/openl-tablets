@@ -9,11 +9,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
-import org.openl.conf.ConfigurableResourceContext;
 import org.openl.conf.IConfigurableResourceContext;
 
 /**
@@ -69,35 +67,4 @@ public class PropertiesLocator {
         return ucxt.findProperty(propertyName);
 
     }
-
-    public static URL locateToURL(String fileName) {
-        return locateToURL(fileName, Thread.currentThread().getContextClassLoader(), new String[] { "." });
-    }
-
-    public static URL locateToURL(String fileName, ClassLoader cl, String[] fileRoots) {
-        ConfigurableResourceContext cxt = new ConfigurableResourceContext(cl, fileRoots);
-        return locateToURL(fileName, cxt);
-    }
-
-    private static URL locateToURL(String fileName, IConfigurableResourceContext ucxt) {
-        File f = ucxt.findFileSystemResource(fileName);
-        if (f != null) {
-            try {
-                return f.toURI().toURL();
-            } catch (MalformedURLException e) {
-            }
-        }
-
-        URL url = ucxt.findClassPathResource(fileName);
-        if (url != null) {
-            return url;
-        }
-
-        try {
-            return new URL(fileName);
-        } catch (MalformedURLException e) {
-        }
-        return null;
-    }
-
 }
