@@ -115,7 +115,7 @@ public class ComponentBindingContext extends BindingContextDelegator {
             }
         }
         
-        IOpenClass type = componentOpenClass.findType(namespace, typeName);
+        IOpenClass type = componentOpenClass.findType(typeName);
         if (type != null){
             return type;
         }

@@ -145,7 +145,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             String typeName = StringTool.getTypeName(nameWithNamespace);
             IOpenClass openClass = super.findType(namespace, typeName);
             if (openClass == null) {
-                IOpenClass t = getModule().addType(namespace, type); 
+                IOpenClass t = getModule().addType(type);
                 super.add(nameWithNamespace, t);
             } else {
                 customDynamicOpenClass.updateOpenClass(openClass);

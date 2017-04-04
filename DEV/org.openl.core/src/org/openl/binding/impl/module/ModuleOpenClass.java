@@ -26,7 +26,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AMethod;
 import org.openl.util.Log;
-import org.openl.util.StringTool;
 
 /**
  * {@link IOpenClass} implementation for full module.<br>
@@ -41,7 +40,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * Map of internal types. XLS document can have internal types defined using
      * <code>Datatype</code> tables, e.g. domain model.<br>
      * 
-     * Key: type name with namespace see {@link StringTool#buildTypeName(String, String)}.<br>
+     * Key: type name.<br>
      * Value: {@link IOpenClass} for datatype.
      */
     private Map<String, IOpenClass> internalTypes = new HashMap<String, IOpenClass>();
@@ -224,9 +223,8 @@ public class ModuleOpenClass extends ComponentOpenClass {
      *             if an error had occurred.
      */
     @Override
-    public IOpenClass addType(String namespace, IOpenClass type) throws OpenLCompilationException {        
-        String typeNameWithNamespace = StringTool.buildTypeName(namespace, type.getName());
-        addTypeWithNamespace(typeNameWithNamespace, type);
+    public IOpenClass addType(IOpenClass type) throws OpenLCompilationException {
+        addTypeWithNamespace(type.getName(), type);
         return type;
     }
     
@@ -239,9 +237,8 @@ public class ModuleOpenClass extends ComponentOpenClass {
     }
     
     @Override
-    public IOpenClass findType(String namespace, String name) {
-        String typeNameWithNamespace = StringTool.buildTypeName(namespace, name);
-        return internalTypes.get(typeNameWithNamespace);
+    public IOpenClass findType(String name) {
+        return internalTypes.get(name);
     }
     
     public void addError(Throwable error) {

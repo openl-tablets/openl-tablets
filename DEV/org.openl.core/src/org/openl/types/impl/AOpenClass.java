@@ -408,12 +408,12 @@ public abstract class AOpenClass implements IOpenClass {
      * @param type IOpenClass instance
      * @throws Exception if an error had occurred.
      */
-    public IOpenClass addType(String namespace, IOpenClass type) throws Exception {
+    public IOpenClass addType(IOpenClass type) throws Exception {
         return type;
     }
     
     @Override
-    public IOpenClass findType(String namespace, String name) {
+    public IOpenClass findType(String name) {
         return null;
     }
 

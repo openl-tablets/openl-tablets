@@ -166,11 +166,11 @@ public class NullOpenClass implements IOpenClass {
         return Collections.emptyList();
     }
 
-    public IOpenClass addType(String namespace, IOpenClass type) throws Exception {
+    public IOpenClass addType(IOpenClass type) throws Exception {
         return type;
     }
 
-    public IOpenClass findType(String namespace, String typeName) {
+    public IOpenClass findType(String typeName) {
         // Default implementation
         return null;
     }

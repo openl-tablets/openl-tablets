@@ -8,7 +8,6 @@ import org.openl.message.OpenLMessages;
 import org.openl.message.Severity;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
@@ -27,9 +26,9 @@ public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
     @Test
     public void testFieldsAccess() {
         XlsModuleOpenClass moduleOpenClass = (XlsModuleOpenClass) getCompiledOpenClass().getOpenClassWithErrors();
-        IOpenClass parentType = moduleOpenClass.findType(ISyntaxConstants.THIS_NAMESPACE, "ParentType");
-        IOpenClass childType = moduleOpenClass.findType(ISyntaxConstants.THIS_NAMESPACE, "ChildType");
-        IOpenClass secondLevelChildType = moduleOpenClass.findType(ISyntaxConstants.THIS_NAMESPACE, "SecondLevelChildType");
+        IOpenClass parentType = moduleOpenClass.findType("ParentType");
+        IOpenClass childType = moduleOpenClass.findType("ChildType");
+        IOpenClass secondLevelChildType = moduleOpenClass.findType("SecondLevelChildType");
         assertNotNull(parentType.getField("field2"));
 
         assertNotNull(childType.getField("field1"));
@@ -72,8 +71,8 @@ public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
     @Test
     public void testToStringMethod() {
         XlsModuleOpenClass moduleOpenClass = (XlsModuleOpenClass) getCompiledOpenClass().getOpenClassWithErrors();
-        IOpenClass childType = moduleOpenClass.findType(ISyntaxConstants.THIS_NAMESPACE, "ChildType");
-        IOpenClass secondLevelChildType = moduleOpenClass.findType(ISyntaxConstants.THIS_NAMESPACE, "SecondLevelChildType");
+        IOpenClass childType = moduleOpenClass.findType("ChildType");
+        IOpenClass secondLevelChildType = moduleOpenClass.findType("SecondLevelChildType");
 
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         String childTypeToStringResult = (String)childType.getMethod("toString", new IOpenClass[] {}).invoke(

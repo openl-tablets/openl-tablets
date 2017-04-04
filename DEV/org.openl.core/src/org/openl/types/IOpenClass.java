@@ -162,9 +162,9 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
      * @param type IOpenClass instance
      * @throws Exception if an error had occurred.
      */
-    IOpenClass addType(String namespace, IOpenClass type) throws Exception;
+    IOpenClass addType(IOpenClass type) throws Exception;
 
-    IOpenClass findType(String namespace, String name);
+    IOpenClass findType(String name);
 
     /**
      * Return the whole map of internal types. Where the key is namespace of the
