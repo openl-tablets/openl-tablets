@@ -1,4 +1,4 @@
-package org.openl.rules.domaintree;
+package org.openl.rules.ui.tablewizard;
 
 import static org.openl.types.java.JavaOpenClass.BOOLEAN;
 import static org.openl.types.java.JavaOpenClass.BYTE;
