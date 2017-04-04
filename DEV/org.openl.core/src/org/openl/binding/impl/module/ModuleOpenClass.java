@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
@@ -43,7 +45,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * Key: type name.<br>
      * Value: {@link IOpenClass} for datatype.
      */
-    private Map<String, IOpenClass> internalTypes = new HashMap<String, IOpenClass>();
+    private ConcurrentMap<String, IOpenClass> internalTypes = new ConcurrentHashMap<String, IOpenClass>();
     private Map<String, IOpenClass> unmodifiableTypes = Collections.unmodifiableMap(internalTypes);
     
     /**
@@ -229,13 +231,12 @@ public class ModuleOpenClass extends ComponentOpenClass {
     }
     
     private void addTypeWithNamespace(String typeNameWithNamespace, IOpenClass type) throws OpenLCompilationException {
-        IOpenClass openClass = internalTypes.get(typeNameWithNamespace);
+        IOpenClass openClass = internalTypes.putIfAbsent(typeNameWithNamespace, type);
         if (openClass != null && !openClass.equals(type)) {
             throw new OpenLCompilationException("The type " + type.getName() + " has been already defined.");
         }
-        internalTypes.put(typeNameWithNamespace, type);
     }
-    
+
     @Override
     public IOpenClass findType(String name) {
         return internalTypes.get(name);
