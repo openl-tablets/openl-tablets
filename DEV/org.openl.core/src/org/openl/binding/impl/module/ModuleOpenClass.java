@@ -7,15 +7,14 @@
 package org.openl.binding.impl.module;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
@@ -45,8 +44,8 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * Key: type name.<br>
      * Value: {@link IOpenClass} for datatype.
      */
-    private ConcurrentMap<String, IOpenClass> internalTypes = new ConcurrentHashMap<String, IOpenClass>();
-    private Map<String, IOpenClass> unmodifiableTypes = Collections.unmodifiableMap(internalTypes);
+    private ConcurrentHashMap<String, IOpenClass> internalTypes = new ConcurrentHashMap<String, IOpenClass>();
+    private Collection<IOpenClass> types = Collections.unmodifiableCollection(internalTypes.values());
     
     /**
      * Set of dependencies for current module.
@@ -195,9 +194,9 @@ public class ModuleOpenClass extends ComponentOpenClass {
     
     protected void addDependencyTypes(CompiledDependency dependency) {
         CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
-        for (Entry<String, IOpenClass> entry : compiledOpenClass.getTypes().entrySet()){
+        for (IOpenClass type : compiledOpenClass.getTypes()){
             try{
-                addTypeWithNamespace(entry.getKey(), entry.getValue());
+                addTypeWithNamespace(type);
             } catch (OpenLCompilationException e) {
                 addError(e);
             }
@@ -211,8 +210,8 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * @return map of internal types 
      */
     @Override
-    public Map<String, IOpenClass> getTypes() {
-        return unmodifiableTypes;
+    public Collection<IOpenClass> getTypes() {
+        return types;
     }
 
     /**
@@ -226,12 +225,12 @@ public class ModuleOpenClass extends ComponentOpenClass {
      */
     @Override
     public IOpenClass addType(IOpenClass type) throws OpenLCompilationException {
-        addTypeWithNamespace(type.getName(), type);
+        addTypeWithNamespace(type);
         return type;
     }
     
-    private void addTypeWithNamespace(String typeNameWithNamespace, IOpenClass type) throws OpenLCompilationException {
-        IOpenClass openClass = internalTypes.putIfAbsent(typeNameWithNamespace, type);
+    private void addTypeWithNamespace(IOpenClass type) throws OpenLCompilationException {
+        IOpenClass openClass = internalTypes.putIfAbsent(type.getName(), type);
         if (openClass != null && !openClass.equals(type)) {
             throw new OpenLCompilationException("The type " + type.getName() + " has been already defined.");
         }

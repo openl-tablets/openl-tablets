@@ -1,10 +1,7 @@
-/**
- * Created Jan 11, 2007
- */
 package org.openl;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -91,7 +88,7 @@ public class CompiledOpenClass {
         return messages;
     }
     
-    public Map<String, IOpenClass> getTypes() {
+    public Collection<IOpenClass> getTypes() {
         if (openClass == null) {
             return null;
         }

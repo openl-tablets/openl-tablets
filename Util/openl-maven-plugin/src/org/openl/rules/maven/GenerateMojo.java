@@ -21,13 +21,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import net.sf.cglib.beans.BeanGenerator;
 import net.sf.cglib.core.NamingPolicy;
 import net.sf.cglib.core.Predicate;
-import net.sf.cglib.proxy.InterfaceMaker;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -280,8 +279,7 @@ public class GenerateMojo extends BaseOpenLMojo {
     @Override
     String execute(CompiledOpenClass openLRules) throws Exception {
         // Generate Java beans from OpenL dataTypes
-        Map<String, IOpenClass> dataTypes = openLRules.getTypes();
-        writeJavaBeans(dataTypes);
+        writeJavaBeans(openLRules.getTypes());
 
         // Generate interface is optional.
         if (interfaceClass != null) {
@@ -443,15 +441,14 @@ public class GenerateMojo extends BaseOpenLMojo {
         return resourceDirectory;
     }
 
-    private void writeJavaBeans(Map<String, IOpenClass> types) throws Exception {
+    private void writeJavaBeans(Collection<IOpenClass> types) throws Exception {
         if (CollectionUtils.isNotEmpty(types)) {
-            for (Map.Entry<String, IOpenClass> datatype : types.entrySet()) {
+            for (IOpenClass datatypeOpenClass : types) {
 
                 // Skip java code generation for types what is defined
                 // thru DomainOpenClass (skip java code generation for alias
                 // types).
                 //
-                IOpenClass datatypeOpenClass = datatype.getValue();
                 if (datatypeOpenClass instanceof DatatypeOpenClass) {
                     Class<?> datatypeClass = datatypeOpenClass.getInstanceClass();
                     String dataType = datatypeClass.getName();

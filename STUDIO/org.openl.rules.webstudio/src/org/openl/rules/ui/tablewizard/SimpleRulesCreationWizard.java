@@ -84,7 +84,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     }
 
     private void initDomainType() {
-        List<IOpenClass> types = new ArrayList<IOpenClass>(WizardUtils.getProjectOpenClass().getTypes().values());
+        List<IOpenClass> types = new ArrayList<IOpenClass>(WizardUtils.getProjectOpenClass().getTypes());
         Collection<IOpenClass> importedClasses = WizardUtils.getImportedClasses();
         types.addAll(importedClasses);
 

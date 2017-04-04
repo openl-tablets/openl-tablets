@@ -125,11 +125,8 @@ public class DomainTree {
 
             if (addDatatypes) {
                 // Add all datatypes
-                Map<String, IOpenClass> dataTypes = projectOpenClass.getTypes();
-                if (dataTypes.size() > 0) {
-                    for (IOpenClass type : dataTypes.values()) {
-                        domainTree.addType(type);
-                    }
+                for (IOpenClass type : projectOpenClass.getTypes()) {
+                    domainTree.addType(type);
                 }
             }
             return domainTree;

@@ -328,7 +328,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
      * @return OpenClass for given type or null if type is not user-defined
      */
     private IOpenClass getUserDefinedType(String type) {
-        for (IOpenClass dataType : WizardUtils.getProjectOpenClass().getTypes().values()) {
+        for (IOpenClass dataType : WizardUtils.getProjectOpenClass().getTypes()) {
             if (dataType.getDisplayName(INamedThing.SHORT).equals(type)) {
                 return dataType;
             }

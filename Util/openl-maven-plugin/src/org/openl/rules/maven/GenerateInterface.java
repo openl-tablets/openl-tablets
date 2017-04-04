@@ -9,8 +9,8 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -711,15 +711,14 @@ public class GenerateInterface {
         }
     }
 
-    protected void writeDatatypeBeans(Map<String, IOpenClass> types) throws Exception {
+    protected void writeDatatypeBeans(Collection<IOpenClass> types) throws Exception {
         if (types != null) {
-            for (Map.Entry<String, IOpenClass> datatype : types.entrySet()) {
+            for (IOpenClass datatypeOpenClass : types) {
 
                 // Skip java code generation for types what is defined
                 // thru DomainOpenClass (skip java code generation for alias
                 // types).
                 //
-                IOpenClass datatypeOpenClass = datatype.getValue();
                 if (datatypeOpenClass instanceof DatatypeOpenClass) {
                     Class<?> datatypeClass = datatypeOpenClass.getInstanceClass();
                     SimpleBeanJavaGenerator beanJavaGenerator = new SimpleBeanJavaGenerator(datatypeClass);

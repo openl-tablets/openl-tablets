@@ -421,10 +421,10 @@ public abstract class AOpenClass implements IOpenClass {
      * Default implementation. Always returns <code>null</code>.
      * 
      */
-    public Map<String, IOpenClass> getTypes() {
+    public Collection<IOpenClass> getTypes() {
         // Default implementation.
         // To do nothing. Not everyone has internal types.
-        return Collections.EMPTY_MAP;
+        return Collections.emptyList();
     }
 
     @Override

@@ -210,8 +210,7 @@ public class XlsBinder implements IOpenBinder {
              * for current module with types<br> from dependent modules.
              */
             try {
-                Map<String, IOpenClass> types = moduleOpenClass.getTypes();
-                for (IOpenClass type : types.values()) {
+                for (IOpenClass type : moduleOpenClass.getTypes()) {
                     moduleContext.addType(ISyntaxConstants.THIS_NAMESPACE, type);
                 }
             } catch (Exception ex) {

@@ -109,7 +109,7 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
 
         domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass());
         
-        List<IOpenClass> types = new ArrayList<IOpenClass>(WizardUtils.getProjectOpenClass().getTypes().values());
+        List<IOpenClass> types = new ArrayList<IOpenClass>(WizardUtils.getProjectOpenClass().getTypes());
         Collection<IOpenClass> importedClasses = WizardUtils.getImportedClasses();
         types.addAll(importedClasses);
         

@@ -175,9 +175,9 @@ public class NullOpenClass implements IOpenClass {
         return null;
     }
 
-    public Map<String, IOpenClass> getTypes() {
+    public Collection<IOpenClass> getTypes() {
         // Default implementation
-        return Collections.emptyMap();
+        return Collections.emptyList();
     }
 
     public Map<String, IOpenField> getFields() {

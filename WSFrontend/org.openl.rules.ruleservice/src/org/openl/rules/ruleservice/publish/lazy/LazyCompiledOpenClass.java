@@ -1,7 +1,7 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenLCompilationException;
@@ -86,7 +86,7 @@ public class LazyCompiledOpenClass extends CompiledOpenClass {
     }
 
     @Override
-    public Map<String, IOpenClass> getTypes() {
+    public Collection<IOpenClass> getTypes() {
         return getCompiledOpenClass().getTypes();
     }
 
