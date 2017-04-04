@@ -45,6 +45,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * Value: {@link IOpenClass} for datatype.
      */
     private Map<String, IOpenClass> internalTypes = new HashMap<String, IOpenClass>();
+    private Map<String, IOpenClass> unmodifiableTypes = Collections.unmodifiableMap(internalTypes);
     
     /**
      * Set of dependencies for current module.
@@ -210,7 +211,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      */
     @Override
     public Map<String, IOpenClass> getTypes() {
-        return internalTypes;
+        return unmodifiableTypes;
     }
 
     /**
