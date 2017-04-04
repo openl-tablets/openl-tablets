@@ -14,9 +14,10 @@ import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.NullOpenClass;
-import org.openl.types.java.OpenClassHelper;
+import org.openl.types.java.JavaOpenClass;
 
 public class BindHelper {
 
@@ -137,7 +138,7 @@ public class BindHelper {
 	public static IBoundNode checkConditionBoundNode(IBoundNode conditionNode,
 			IBindingContext bindingContext) {
 		if (conditionNode != null
-				&& !OpenClassHelper.isBooleanType(conditionNode.getType())) {
+				&& !isBooleanType(conditionNode.getType())) {
 			if (conditionNode.getType() != NullOpenClass.the) {
 				BindHelper.processError(CONDITION_TYPE_MESSAGE,
 						conditionNode.getSyntaxNode(), bindingContext);
@@ -266,4 +267,17 @@ public class BindHelper {
 		return varNamePrefix + "$" + index;
 	}
 
+	/**
+     * Checks given type that it is boolean type.
+     *
+     * @param type {@link IOpenClass} instance
+     * @return <code>true</code> if given type equals
+     *         {@link JavaOpenClass#BOOLEAN} or
+     *         JavaOpenClass.getOpenClass(Boolean.class); otherwise -
+     *         <code>false</code>
+     */
+    private static boolean isBooleanType(IOpenClass type) {
+        return type == null || JavaOpenClass.BOOLEAN == type || JavaOpenClass.getOpenClass(Boolean.class) == type;
+
+    }
 }

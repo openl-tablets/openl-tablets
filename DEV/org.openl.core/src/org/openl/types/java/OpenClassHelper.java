@@ -78,24 +78,10 @@ public class OpenClassHelper {
         return classes.toArray(new Class<?>[classes.size()]);
     }
 
-    /**
-     * Checks given type that it is boolean type.
-     * 
-     * @param type {@link IOpenClass} instance
-     * @return <code>true</code> if given type equals
-     *         {@link JavaOpenClass#BOOLEAN} or
-     *         JavaOpenClass.getOpenClass(Boolean.class); otherwise -
-     *         <code>false</code>
-     */
-    public static boolean isBooleanType(IOpenClass type) {
-        return type == null || JavaOpenClass.BOOLEAN == type || JavaOpenClass.getOpenClass(Boolean.class) == type;
-
-    }
-
     public static boolean isCollection(IOpenClass openClass) {
         return openClass.getAggregateInfo()!= null && openClass.getAggregateInfo().isAggregate(openClass);
     }
-    
+
     public static String displayNameForCollection(IOpenClass collectionType, boolean isEmpty) {
     	StringBuilder builder = new StringBuilder();
         if(isEmpty){
