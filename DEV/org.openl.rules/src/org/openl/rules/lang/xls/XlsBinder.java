@@ -225,29 +225,6 @@ public class XlsBinder implements IOpenBinder {
             moduleDependencies,
             bindingContext);
 
-        RulesModuleBindingContext moduleContext = populateBindingContextWithDependencies(moduleNode,
-            bindingContext,
-            moduleOpenClass);
-        return processBinding(moduleNode, openl, moduleContext, moduleOpenClass, bindingContext);
-    }
-
-    protected IDataBase getModuleDatabase() {
-        return new DataBase();
-    }
-
-    /**
-     * Creates {@link RulesModuleBindingContext} and populates it with types
-     * from dependent modules.
-     *
-     * @param moduleNode just for processing error
-     * @param bindingContext
-     * @param moduleOpenClass
-     * @return {@link RulesModuleBindingContext} created with bindingContext and
-     *         moduleOpenClass.
-     */
-    private RulesModuleBindingContext populateBindingContextWithDependencies(XlsModuleSyntaxNode moduleNode,
-            IBindingContext bindingContext,
-            XlsModuleOpenClass moduleOpenClass) {
         RulesModuleBindingContext moduleContext = createRulesBindingContext(bindingContext, moduleOpenClass);
         try {
             Map<String, IOpenClass> types = moduleOpenClass.getTypes();
@@ -256,11 +233,14 @@ public class XlsBinder implements IOpenBinder {
             }
         } catch (Exception ex) {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Can`t add datatype from dependency",
-                ex,
-                moduleNode);
+                ex, moduleNode);
             BindHelper.processError(error);
         }
-        return moduleContext;
+        return processBinding(moduleNode, openl, moduleContext, moduleOpenClass, bindingContext);
+    }
+
+    protected IDataBase getModuleDatabase() {
+        return new DataBase();
     }
 
     public IBoundNode bind(XlsModuleSyntaxNode moduleNode, OpenL openl, IBindingContext bindingContext) {
