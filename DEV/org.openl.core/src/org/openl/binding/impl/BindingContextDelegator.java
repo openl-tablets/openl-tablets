@@ -68,10 +68,6 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         throw new UnsupportedOperationException();
     }
 
-    public void addTypes(Map<String, IOpenClass> types) throws OpenLCompilationException {
-        throw new UnsupportedOperationException();
-    }
-
     // FIXME: method should throw any type of custom exception
     public void removeType(String namespace, IOpenClass type) throws Exception {
         throw new UnsupportedOperationException();

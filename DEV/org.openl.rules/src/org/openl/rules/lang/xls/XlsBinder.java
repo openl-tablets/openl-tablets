@@ -250,7 +250,10 @@ public class XlsBinder implements IOpenBinder {
             XlsModuleOpenClass moduleOpenClass) {
         RulesModuleBindingContext moduleContext = createRulesBindingContext(bindingContext, moduleOpenClass);
         try {
-            moduleContext.addTypes(filterDependencyTypes(moduleOpenClass.getTypes(), moduleContext.getInternalTypes()));
+            Map<String, IOpenClass> types = filterDependencyTypes(moduleOpenClass.getTypes(), moduleContext.getInternalTypes());
+            for (String nameWithNamespace : types.keySet()) {
+                moduleContext.addType(ISyntaxConstants.THIS_NAMESPACE, types.get(nameWithNamespace));
+            }
         } catch (Exception ex) {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Can`t add datatype from dependency",
                 ex,

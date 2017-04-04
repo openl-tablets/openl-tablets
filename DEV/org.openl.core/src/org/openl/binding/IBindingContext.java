@@ -47,8 +47,6 @@ public interface IBindingContext extends ICastFactory {
 	 */
 	void addType(String namespace, IOpenClass type) throws Exception;
 	
-	void addTypes(Map<String, IOpenClass> types) throws Exception;
-
 	/**
 	 * Removes type from binding context.
 	 * 
