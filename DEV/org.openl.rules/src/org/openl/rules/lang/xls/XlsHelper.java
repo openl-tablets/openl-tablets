@@ -7,10 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.binding.IBoundCode;
-import org.openl.conf.UserContext;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
 import org.openl.rules.lang.xls.syntax.SpreadsheetHeaderNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -19,12 +16,8 @@ import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.syntax.GridLocation;
-import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.impl.URLSourceCodeModule;
-import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
-import org.openl.types.IOpenClass;
 import org.openl.util.Log;
 import org.openl.util.StringTool;
 import org.openl.util.text.ILocation;
@@ -68,19 +61,6 @@ public abstract class XlsHelper {
         }
     }
 
-    public static XlsMetaInfo getXlsMetaInfo(String srcFile) {
-
-    	UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), ".");
-
-        IOpenSourceCodeModule src = new URLSourceCodeModule(srcFile);
-
-        IParsedCode pc = new XlsParser(ucxt).parseAsModule(src);
-        IBoundCode bc = new XlsBinder(ucxt).bind(pc);
-        IOpenClass ioc = bc.getTopNode().getType();
-        
-        return (XlsMetaInfo) ioc.getMetaInfo();
-    }
-    
     public static String getModuleName(XlsModuleSyntaxNode node) {
 
         String uri = node.getModule().getUri();
