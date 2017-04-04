@@ -227,7 +227,6 @@ public class XlsBinder implements IOpenBinder {
 
         RulesModuleBindingContext moduleContext = populateBindingContextWithDependencies(moduleNode,
             bindingContext,
-            moduleDependencies,
             moduleOpenClass);
         return processBinding(moduleNode, openl, moduleContext, moduleOpenClass, bindingContext);
     }
@@ -242,14 +241,12 @@ public class XlsBinder implements IOpenBinder {
      *
      * @param moduleNode just for processing error
      * @param bindingContext
-     * @param moduleDependencies
      * @param moduleOpenClass
      * @return {@link RulesModuleBindingContext} created with bindingContext and
      *         moduleOpenClass.
      */
     private RulesModuleBindingContext populateBindingContextWithDependencies(XlsModuleSyntaxNode moduleNode,
             IBindingContext bindingContext,
-            Set<CompiledDependency> moduleDependencies,
             XlsModuleOpenClass moduleOpenClass) {
         RulesModuleBindingContext moduleContext = createRulesBindingContext(bindingContext, moduleOpenClass);
         try {
