@@ -8,25 +8,21 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.openl.CompiledOpenClass;
-import org.openl.OpenL;
-import org.openl.conf.UserContext;
-import org.openl.impl.OpenClassJavaWrapper;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.types.IOpenMethod;
 
 public class TestVersionedTreeNode {
-    private String __src = "test/rules/Versions_Test.xls";
-    private XlsModuleSyntaxNode xsn = null;
     private Map<String, TableSyntaxNode> tables = new HashMap<String, TableSyntaxNode>();
 
     @Before
     public void getTables() {
-        UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), ".");
-        CompiledOpenClass wrapper = OpenClassJavaWrapper.createWrapper(OpenL.OPENL_JAVA_RULE_NAME, ucxt, __src, null);
-        XlsMetaInfo xmi = (XlsMetaInfo) wrapper.getOpenClassWithErrors().getMetaInfo();
-        xsn = xmi.getXlsModuleNode();
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>("./test/rules/Versions_Test.xls");
+        CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
+        XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
+        XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
         TableSyntaxNode[] tsns = xsn.getXlsTableSyntaxNodes();
         for (TableSyntaxNode tsn : tsns) {
             if (tsn.getMember() instanceof IOpenMethod && tsn.getType().equals("xls.dt")) {

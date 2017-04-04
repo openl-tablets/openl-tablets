@@ -21,14 +21,17 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.resource.loader.StringResourceLoader;
 import org.apache.velocity.runtime.resource.util.StringResourceRepository;
 import org.openl.CompiledOpenClass;
+import org.openl.OpenL;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.conf.ClassLoaderFactory;
+import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.dependency.IDependencyManager;
-import org.openl.impl.OpenClassJavaWrapper;
+import org.openl.engine.OpenLManager;
 import org.openl.main.OpenLProjectPropertiesLoader;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessages;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.meta.IVocabulary;
@@ -40,6 +43,8 @@ import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.testmethod.ProjectHelper;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.util.FileTool;
@@ -80,6 +85,16 @@ public class GenerateInterface {
         // Can be overridden in maven configuration
         setGoal(GOAL_GENERATE_DATATYPES);
         setIgnoreTestMethods(true);
+    }
+
+    private static CompiledOpenClass createWrapper(String openlName, IUserContext userContext, String filename,
+                                                   IDependencyManager dependencyManager) {
+        IOpenSourceCodeModule source = new URLSourceCodeModule(filename);
+        OpenL openl = OpenL.getInstance(openlName, userContext);
+        OpenLMessages.getCurrentInstance().clear();
+        CompiledOpenClass openClass = OpenLManager.compileModuleWithErrors(openl, source, false, dependencyManager);
+
+        return openClass;
     }
 
     public void setGenerateUnitTests(Boolean generateUnitTests) {
@@ -623,7 +638,7 @@ public class GenerateInterface {
             long start = System.currentTimeMillis();
             try {
                 IDependencyManager dependencyManager = instantiateDependencyManager();
-                compiledOpenClass = OpenClassJavaWrapper.createWrapper(openlName, ucxt, resourcesPath + srcFile, dependencyManager);
+                compiledOpenClass = createWrapper(openlName, ucxt, resourcesPath + srcFile, dependencyManager);
             } finally {
                 long end = System.currentTimeMillis();
                 log("Loaded " + resourcesPath + srcFile + " in " + (end - start) + " ms");
