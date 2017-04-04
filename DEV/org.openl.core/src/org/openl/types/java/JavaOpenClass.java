@@ -422,10 +422,7 @@ public class JavaOpenClass extends AOpenClass {
     
     @Override
     public IOpenClass getComponentClass() {        
-        if (isArray() || OpenClassHelper.isCollection(this)) {
-            return getAggregateInfo().getComponentType(this);
-        } 
-        return null;
+        return getAggregateInfo().getComponentType(this);
     }
     
     
