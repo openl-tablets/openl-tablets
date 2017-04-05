@@ -259,8 +259,9 @@
         //<![CDATA[
         $j(function () {
             // If project is closed, open first tab
-            if (!#{artefact.project.openedForEditing}) {
-                RichFaces.$("nodeTabPanel").switchToItem("@first");
+            if (#{not artefact.project.openedForEditing}) {
+                var $nodeTabPanel = RichFaces.$("nodeTabPanel");
+                $nodeTabPanel && $nodeTabPanel.switchToItem("@first");
             }
         });
         //]]>
