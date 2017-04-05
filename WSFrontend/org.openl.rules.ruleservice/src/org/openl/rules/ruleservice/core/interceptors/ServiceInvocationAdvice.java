@@ -14,7 +14,10 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.beanutils.MethodUtils;
 import org.openl.exception.OpenLException;
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
+import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
+import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptors;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
@@ -27,9 +30,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 
 /**
- * Advice for processing method intercepting.
- * Exception wrapping.
- * And fix memory leaks.
+ * Advice for processing method intercepting. Exception wrapping. And fix memory
+ * leaks.
  * <p/>
  * Only for RuleService internal use.
  *
@@ -44,11 +46,15 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
     private Map<Method, List<ServiceMethodBeforeAdvice>> beforeInterceptors = new HashMap<Method, List<ServiceMethodBeforeAdvice>>();
     private Map<Method, List<ServiceMethodAfterAdvice<?>>> afterInterceptors = new HashMap<Method, List<ServiceMethodAfterAdvice<?>>>();
     private Map<Method, ServiceMethodAroundAdvice<?>> aroundInterceptors = new HashMap<Method, ServiceMethodAroundAdvice<?>>();
+    private Map<Method, ServiceExtraMethodHandler<?>> serviceExtraMethodAnnotations = new HashMap<Method, ServiceExtraMethodHandler<?>>();
+
     private Object serviceBean;
     private Class<?> serviceClass;
     private ServiceCallInterceptorGroup[] serviceCallInterceptorGroupSupported;
 
-    public ServiceInvocationAdvice(Object serviceBean, Class<?> serviceClass, ServiceCallInterceptorGroup[] serviceCallInterceptorGroupSupported) {
+    public ServiceInvocationAdvice(Object serviceBean,
+            Class<?> serviceClass,
+            ServiceCallInterceptorGroup[] serviceCallInterceptorGroupSupported) {
         this.serviceBean = serviceBean;
         this.serviceClass = serviceClass;
         this.serviceCallInterceptorGroupSupported = serviceCallInterceptorGroupSupported;
@@ -62,46 +68,50 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                 checkForBeforeInterceptors(method, annotation);
                 checkForAfterInterceptors(method, annotation);
                 checkForAroundInterceptor(method, annotation);
+                checkForServiceExtraMethodAnnotation(method, annotation);
             }
         }
     }
 
-    private boolean groupIsSupported(ServiceCallInterceptorGroup serviceCallInterceptorGroup){
-        if (ServiceCallInterceptorGroup.ALL.equals(serviceCallInterceptorGroup)){
+    private boolean groupIsSupported(ServiceCallInterceptorGroup serviceCallInterceptorGroup) {
+        if (ServiceCallInterceptorGroup.ALL.equals(serviceCallInterceptorGroup)) {
             return true;
         }
-        for (ServiceCallInterceptorGroup group : serviceCallInterceptorGroupSupported){
-            if (serviceCallInterceptorGroup.equals(group)){
+        for (ServiceCallInterceptorGroup group : serviceCallInterceptorGroupSupported) {
+            if (serviceCallInterceptorGroup.equals(group)) {
                 return true;
             }
         }
         return false;
     }
-    
+
     private void checkForAroundInterceptor(Method method, Annotation annotation) {
         if (annotation instanceof ServiceCallAroundInterceptor) {
-            ServiceCallInterceptorGroup serviceCallInterceptorGroup = ((ServiceCallAroundInterceptor) annotation).group();
-            if (groupIsSupported(serviceCallInterceptorGroup)){
+            ServiceCallInterceptorGroup serviceCallInterceptorGroup = ((ServiceCallAroundInterceptor) annotation)
+                .group();
+            if (groupIsSupported(serviceCallInterceptorGroup)) {
                 Class<? extends ServiceMethodAroundAdvice<?>> interceptorClass = ((ServiceCallAroundInterceptor) annotation)
-                        .value();
-                    try {
-                        ServiceMethodAroundAdvice<?> aroundInterceptor = interceptorClass.getConstructor().newInstance();
-                        aroundInterceptors.put(method, aroundInterceptor);
-                    } catch (Exception e) {
-                        throw new OpenLRuntimeException(String.format(
-                                "Wrong annotation definining around interceptor for method \"%s\" of class \"%s\"",
-                                method.getName(), serviceClass.getName()), e);
-                    }
+                    .value();
+                try {
+                    ServiceMethodAroundAdvice<?> aroundInterceptor = interceptorClass.getConstructor().newInstance();
+                    aroundInterceptors.put(method, aroundInterceptor);
+                } catch (Exception e) {
+                    throw new RuleServiceRuntimeException(String.format(
+                        "Wrong annotation definining around interceptor for method \"%s\" of class \"%s\"",
+                        method.getName(),
+                        serviceClass.getName()), e);
+                }
             }
         }
     }
-    
+
     private void checkForBeforeInterceptors(Method method, Annotation annotation) {
         if (annotation instanceof ServiceCallBeforeInterceptor) {
-            ServiceCallInterceptorGroup serviceCallInterceptorGroup = ((ServiceCallBeforeInterceptor) annotation).group();
-            if (groupIsSupported(serviceCallInterceptorGroup)){
+            ServiceCallInterceptorGroup serviceCallInterceptorGroup = ((ServiceCallBeforeInterceptor) annotation)
+                .group();
+            if (groupIsSupported(serviceCallInterceptorGroup)) {
                 Class<? extends ServiceMethodBeforeAdvice>[] interceptorClasses = ((ServiceCallBeforeInterceptor) annotation)
-                        .value();
+                    .value();
                 List<ServiceMethodBeforeAdvice> interceptors = beforeInterceptors.get(method);
                 if (interceptors == null) {
                     interceptors = new ArrayList<ServiceMethodBeforeAdvice>();
@@ -112,27 +122,47 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                         ServiceMethodBeforeAdvice preInterceptor = interceptorClass.getConstructor().newInstance();
                         interceptors.add(preInterceptor);
                     } catch (Exception e) {
-                        throw new OpenLRuntimeException(String.format(
-                                "Wrong annotation definining before interceptor for method \"%s\" of class \"%s\"",
-                                method.getName(), serviceClass.getName()), e);
+                        throw new RuleServiceRuntimeException(String.format(
+                            "Wrong annotation definining before interceptor for method \"%s\" of class \"%s\"",
+                            method.getName(),
+                            serviceClass.getName()), e);
                     }
                 }
             }
         }
-        if (annotation instanceof ServiceCallBeforeInterceptors){
-            ServiceCallBeforeInterceptor[] serviceCallBeforeInterceptors = ((ServiceCallBeforeInterceptors) annotation).value();
-            for (ServiceCallBeforeInterceptor serviceCallBeforeInterceptor : serviceCallBeforeInterceptors){
+        if (annotation instanceof ServiceCallBeforeInterceptors) {
+            ServiceCallBeforeInterceptor[] serviceCallBeforeInterceptors = ((ServiceCallBeforeInterceptors) annotation)
+                .value();
+            for (ServiceCallBeforeInterceptor serviceCallBeforeInterceptor : serviceCallBeforeInterceptors) {
                 checkForBeforeInterceptors(method, serviceCallBeforeInterceptor);
+            }
+        }
+    }
+    
+    
+    private void checkForServiceExtraMethodAnnotation(Method method, Annotation annotation) {
+        if (annotation instanceof ServiceExtraMethod) {
+            Class<? extends ServiceExtraMethodHandler<?>> serviceExtraMethodHandlerClass = ((ServiceExtraMethod) annotation).value();
+            try {
+                ServiceExtraMethodHandler<?> serviceMethodAdvice = serviceExtraMethodHandlerClass.getConstructor().newInstance();
+                serviceExtraMethodAnnotations.put(method, serviceMethodAdvice);
+            } catch (Exception e) {
+                throw new RuleServiceRuntimeException(
+                    String.format("Wrong annotation definining service method handler for method \"%s\" of class \"%s\"",
+                        method.getName(),
+                        serviceClass.getName()),
+                    e);
             }
         }
     }
 
     private void checkForAfterInterceptors(Method method, Annotation annotation) {
         if (annotation instanceof ServiceCallAfterInterceptor) {
-            ServiceCallInterceptorGroup serviceCallInterceptorGroup = ((ServiceCallAfterInterceptor) annotation).group();
-            if (groupIsSupported(serviceCallInterceptorGroup)){
+            ServiceCallInterceptorGroup serviceCallInterceptorGroup = ((ServiceCallAfterInterceptor) annotation)
+                .group();
+            if (groupIsSupported(serviceCallInterceptorGroup)) {
                 Class<? extends ServiceMethodAfterAdvice<?>>[] interceptorClasses = ((ServiceCallAfterInterceptor) annotation)
-                        .value();
+                    .value();
                 List<ServiceMethodAfterAdvice<?>> interceptors = afterInterceptors.get(method);
                 if (interceptors == null) {
                     interceptors = new ArrayList<ServiceMethodAfterAdvice<?>>();
@@ -143,16 +173,18 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                         ServiceMethodAfterAdvice<?> postInterceptor = interceptorClass.getConstructor().newInstance();
                         interceptors.add(postInterceptor);
                     } catch (Exception e) {
-                        throw new OpenLRuntimeException(String.format(
-                                "Wrong annotation definining afterReturning interceptor for method \"%s\" of class \"%s\"",
-                                method.getName(), serviceClass.getName()), e);
+                        throw new RuleServiceRuntimeException(String.format(
+                            "Wrong annotation definining afterReturning interceptor for method \"%s\" of class \"%s\"",
+                            method.getName(),
+                            serviceClass.getName()), e);
                     }
                 }
             }
         }
-        if (annotation instanceof ServiceCallAfterInterceptors){
-            ServiceCallAfterInterceptor[] serviceCallAfterInterceptors = ((ServiceCallAfterInterceptors) annotation).value();
-            for (ServiceCallAfterInterceptor serviceCallAfterInterceptor : serviceCallAfterInterceptors){
+        if (annotation instanceof ServiceCallAfterInterceptors) {
+            ServiceCallAfterInterceptor[] serviceCallAfterInterceptors = ((ServiceCallAfterInterceptors) annotation)
+                .value();
+            for (ServiceCallAfterInterceptor serviceCallAfterInterceptor : serviceCallAfterInterceptors) {
                 checkForAfterInterceptors(method, serviceCallAfterInterceptor);
             }
         }
@@ -167,8 +199,18 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
         }
     }
 
-    protected Object afterInvocation(Method interfaceMethod, Object result, Exception t, Object... args)
-            throws Throwable {
+    protected Object serviceExtraMethodInvoke(Method interfaceMethod, Object serviceBean, Object... args) throws Throwable {
+        ServiceExtraMethodHandler<?> serviceExtraMethodHandler = serviceExtraMethodAnnotations.get(interfaceMethod);
+        if (serviceExtraMethodHandler != null) {
+            return serviceExtraMethodHandler.invoke(interfaceMethod, serviceBean, args);
+        }
+        throw new OpenLRuntimeException("Service method advice not found!");
+    }
+
+    protected Object afterInvocation(Method interfaceMethod,
+            Object result,
+            Exception t,
+            Object... args) throws Throwable {
         List<ServiceMethodAfterAdvice<?>> postInterceptors = afterInterceptors.get(interfaceMethod);
         if (postInterceptors != null && postInterceptors.size() > 0) {
             Object ret = result;
@@ -203,51 +245,63 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
     public Object invoke(MethodInvocation invocation) throws Throwable {
         Method calledMethod = invocation.getMethod();
         Object[] args = invocation.getArguments();
-        Method interfaceMethod = MethodUtils.getMatchingAccessibleMethod(serviceClass, calledMethod.getName(),
-                calledMethod.getParameterTypes());
+        Method interfaceMethod = MethodUtils.getMatchingAccessibleMethod(serviceClass,
+            calledMethod.getName(),
+            calledMethod.getParameterTypes());
         Object result = null;
         try {
-            Method beanMethod = MethodUtils.getMatchingAccessibleMethod(serviceBean.getClass(), calledMethod.getName(),
+            Method beanMethod = null;
+            if (!calledMethod.isAnnotationPresent(ServiceExtraMethod.class)) {
+                beanMethod = MethodUtils.getMatchingAccessibleMethod(serviceBean.getClass(),
+                    calledMethod.getName(),
                     calledMethod.getParameterTypes());
-            if (beanMethod == null) {
-                StringBuilder sb = new StringBuilder();
-                boolean flag = true;
-                for (Class<?> clazz : calledMethod.getParameterTypes()) {
-                    if (flag) {
-                        flag = false;
-                    } else {
-                        sb.append(", ");
+                if (beanMethod == null) {
+                    StringBuilder sb = new StringBuilder();
+                    boolean flag = true;
+                    for (Class<?> clazz : calledMethod.getParameterTypes()) {
+                        if (flag) {
+                            flag = false;
+                        } else {
+                            sb.append(", ");
+                        }
+                        sb.append(clazz.getCanonicalName());
                     }
-                    sb.append(clazz.getCanonicalName());
+                    throw new OpenLRuntimeException(
+                        "Called method is not found in service bean. Please, check that excel file contains method with name \"" + calledMethod
+                            .getName() + "\" and  arguments (" + sb.toString() + ").");
                 }
-                throw new OpenLRuntimeException(
-                        "Called method is not found in service bean. Please, check that excel file contains method with name \""
-                                + calledMethod.getName() + "\" and  arguments (" + sb.toString() + ").");
             }
             try {
                 beforeInvocation(interfaceMethod, args);
-                if (aroundInterceptors.containsKey(interfaceMethod)){
-                    result = aroundInterceptors.get(interfaceMethod).around(interfaceMethod, beanMethod, serviceBean, args);
-                }else{
-                    result = beanMethod.invoke(serviceBean, args);
+                if (aroundInterceptors.containsKey(interfaceMethod)) {
+                    result = aroundInterceptors.get(interfaceMethod).around(interfaceMethod,
+                        beanMethod,
+                        serviceBean,
+                        args);
+                } else {
+                    if (beanMethod != null) {
+                        result = beanMethod.invoke(serviceBean, args);
+                    } else {
+                        result = serviceExtraMethodInvoke(interfaceMethod, serviceBean, args);
+                    }
                 }
                 result = afterInvocation(interfaceMethod, result, null, args);
             } catch (Exception e) {
-                if (e instanceof InvocationTargetException){
-                	Throwable t = e;
-                	while (t instanceof InvocationTargetException){
-                		Throwable t1 = ((InvocationTargetException) t).getTargetException();
-                		if (t1 instanceof UndeclaredThrowableException){
-                			t1 = ((UndeclaredThrowableException) t1).getUndeclaredThrowable();
-                		}
-                		t = t1;
-                	}
-                    if (t instanceof Exception){
+                if (e instanceof InvocationTargetException) {
+                    Throwable t = e;
+                    while (t instanceof InvocationTargetException) {
+                        Throwable t1 = ((InvocationTargetException) t).getTargetException();
+                        if (t1 instanceof UndeclaredThrowableException) {
+                            t1 = ((UndeclaredThrowableException) t1).getUndeclaredThrowable();
+                        }
+                        t = t1;
+                    }
+                    if (t instanceof Exception) {
                         result = afterInvocation(interfaceMethod, null, (Exception) t, args);
-                    }else{
+                    } else {
                         throw t;
                     }
-                }else{
+                } else {
                     result = afterInvocation(interfaceMethod, null, e, args);
                 }
             }
@@ -255,12 +309,13 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
         } catch (Throwable t) {
             throw new RuleServiceWrapperException(getExceptionMessage(calledMethod, t, args), t);
         } finally {
-            //Memory leaks fix.
+            // Memory leaks fix.
             if (serviceBean instanceof IEngineWrapper) {
                 IEngineWrapper engine = (IEngineWrapper) serviceBean;
                 engine.release();
             } else {
-                log.warn("Service bean doesn't implement IEngineWrapper interface. Doesn't use depricated static wrapper classes. It clauses memory leaks!!!");
+                log.warn(
+                    "Service bean doesn't implement IEngineWrapper interface. Doesn't use depricated static wrapper classes. It clauses memory leaks!!!");
             }
         }
     }

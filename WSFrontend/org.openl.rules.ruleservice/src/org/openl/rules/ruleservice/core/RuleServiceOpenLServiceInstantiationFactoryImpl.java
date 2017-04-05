@@ -159,9 +159,9 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             throw new IllegalStateException("It shouldn't happen!");
         }
         try {
-            Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper.getInterfaceForInstantiationStrategy(instantiationStrategy,
+            Class<?> interfaceForService = RuleServiceInstantiationFactoryHelper.getInterfaceForService(instantiationStrategy,
                 resultClass);
-            return interfaceForInstantiationStrategy;
+            return interfaceForService;
         } catch (Exception e) {
             log.error("Failed to applying intercepting template class for '{}'",
                 resultClass.getCanonicalName(),
@@ -186,13 +186,17 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             if (clazzName != null) {
                 try {
                     Class<?> interceptingTemplateClass = classLoader.loadClass(clazzName.trim());
-                    Class<?> decoratedClass = DynamicInterfaceAnnotationEnhancerHelper.decorate(serviceClass,
-                        interceptingTemplateClass,
-                        classLoader);
-                    log.info("Interceptor template class \"{}\" was used for service: {}",
-                        clazzName,
-                        serviceDescription.getName());
-                    return decoratedClass;
+                    if (interceptingTemplateClass.isInterface()){
+                        Class<?> decoratedClass = DynamicInterfaceAnnotationEnhancerHelper.decorate(serviceClass,
+                            interceptingTemplateClass,
+                            classLoader);
+                        log.info("Interceptor template class \"{}\" was used for service: {}",
+                            clazzName,
+                            serviceDescription.getName());
+                        return decoratedClass;
+                    }
+                    log.error("Required interface! Intercepting template class wasn't used! Failed to load or applying intercepting template class with name \"{}\"",
+                        clazzName);
                 } catch (Exception e) {
                     log.error("Intercepting template class wasn't used! Failed to load or applying intercepting template class with name \"{}\"",
                         clazzName,

@@ -4,16 +4,17 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.regex.Pattern;
 
-import net.sf.cglib.core.ReflectUtils;
-
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.openl.exception.OpenLRuntimeException;
+import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
+import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.util.generation.InterfaceTransformer;
+
+import net.sf.cglib.core.ReflectUtils;
 
 public class DynamicInterfaceAnnotationEnhancerHelper {
 
@@ -77,7 +78,7 @@ public class DynamicInterfaceAnnotationEnhancerHelper {
                                 if (templateMethod == null) {
                                     templateMethod = method;
                                 } else {
-                                    throw new OpenLRuntimeException(
+                                    throw new RuleServiceRuntimeException(
                                             "Invalid template class. Non-obvious choice of method. Please, check the template class!");
                                 }
                             }
@@ -98,16 +99,34 @@ public class DynamicInterfaceAnnotationEnhancerHelper {
         }
     }
 
+    private static void processServiceExtraMethods(ClassVisitor classVisitor, Class<?> templateClass) {
+        for (Method method : templateClass.getMethods()) {
+            if (method.isAnnotationPresent(ServiceExtraMethod.class)) {
+                MethodVisitor mv = classVisitor.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT, 
+                    method.getName(), 
+                    Type.getMethodDescriptor(method), 
+                    null, 
+                    null);
+            }
+        }
+    }
+    
     public static Class<?> decorate(Class<?> originalClass, Class<?> templateClass, ClassLoader classLoader)
             throws Exception {
+        if (!templateClass.isInterface()) {
+            throw new RuleServiceRuntimeException("Interface expected!");
+        }
+        
         ClassWriter cw = new ClassWriter(0);
-        DynamicInterfaceAnnotationEnhancerClassVisitor dynamicInterfaceAnnotationEnhancerClassAdaptor = new DynamicInterfaceAnnotationEnhancerClassVisitor(
+        DynamicInterfaceAnnotationEnhancerClassVisitor dynamicInterfaceAnnotationEnhancerClassVisitor = new DynamicInterfaceAnnotationEnhancerClassVisitor(
                 cw, templateClass);
-
+        
+        processServiceExtraMethods(dynamicInterfaceAnnotationEnhancerClassVisitor, templateClass);
+        
         String enchancedClassName = originalClass.getCanonicalName()
                 + DynamicInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
         InterfaceTransformer transformer = new InterfaceTransformer(originalClass, enchancedClassName);
-        transformer.accept(dynamicInterfaceAnnotationEnhancerClassAdaptor);
+        transformer.accept(dynamicInterfaceAnnotationEnhancerClassVisitor);
         cw.visitEnd();
         Class<?> enchancedClass = ReflectUtils.defineClass(enchancedClassName, cw.toByteArray(),
                 classLoader);

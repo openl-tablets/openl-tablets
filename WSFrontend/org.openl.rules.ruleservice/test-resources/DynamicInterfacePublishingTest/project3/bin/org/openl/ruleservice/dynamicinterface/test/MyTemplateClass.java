@@ -3,6 +3,7 @@ package org.openl.ruleservice.dynamicinterface.test;
 import javax.jws.WebService;
 
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.interceptors.AnyType;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
@@ -14,4 +15,7 @@ public interface MyTemplateClass {
 
     @ServiceCallBeforeInterceptor(value = { MyBeforeAdvice.class })
     MyClass method3(@AnyType Object obj, @AnyType Object obj1); 
+    
+    @ServiceExtraMethod(ServiceExtraMethodHandler.class)
+    String helloWorld();
 }

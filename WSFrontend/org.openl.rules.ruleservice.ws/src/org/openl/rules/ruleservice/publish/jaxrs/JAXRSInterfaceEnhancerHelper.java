@@ -18,8 +18,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import net.sf.cglib.core.ReflectUtils;
-
 import org.apache.cxf.jaxrs.ext.xml.ElementClass;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
@@ -27,12 +25,14 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.databinding.JAXRSArgumentWrapperGenerator;
 import org.openl.rules.ruleservice.publish.common.MethodUtil;
 import org.openl.util.StringUtils;
 import org.openl.util.generation.InterfaceTransformer;
+
+import net.sf.cglib.core.ReflectUtils;
 
 /**
  * Utility class for generate JAXRS annotations for service interface.
@@ -231,7 +231,7 @@ public class JAXRSInterfaceEnhancerHelper {
         public MethodVisitor visitMethod(int arg0, String methodName, String arg2, String arg3, String[] arg4) {
             Method originalMethod = findOriginalMethod(methodName, arg2);
             if (originalMethod == null) {
-                throw new OpenLRuntimeException("Method is not found in the original class!");
+                throw new RuleServiceRuntimeException("Method is not found in the original class!");
             }
 
             boolean skip = false;

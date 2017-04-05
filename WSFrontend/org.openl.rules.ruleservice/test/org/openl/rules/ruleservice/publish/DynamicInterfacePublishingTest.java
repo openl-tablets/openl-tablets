@@ -147,5 +147,8 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
         result = frontend.execute("dynamic-interface-test3", "method3", new Object[] { context, myClassIntance });
         Object value = getNameMethod.invoke(myClassIntance);
         Assert.assertEquals("beforeAdviceWasInvoked", value);
+        
+        result = frontend.execute("dynamic-interface-test3", "helloWorld", new Object[] {});
+        Assert.assertEquals("Hello world ServiceExtraMethodHandler!", result);
     }
 }

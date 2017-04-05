@@ -23,6 +23,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.publish.common.MethodUtil;
 import org.openl.util.generation.InterfaceTransformer;
 
@@ -82,7 +83,7 @@ public class JAXWSInterfaceEnhancerHelper {
         public MethodVisitor visitMethod(int arg0, String methodName, String arg2, String arg3, String[] arg4) {
             Method originalMethod = findOriginalMethod(methodName, arg2);
             if (originalMethod == null) {
-                throw new OpenLRuntimeException("Method is not found in the original class");
+                throw new RuleServiceRuntimeException("Method is not found in the original class");
             }
 
             MethodVisitor mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);

@@ -2,6 +2,7 @@ package org.openl.rules.ruleservice.core;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,6 +13,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptors;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
@@ -28,8 +30,9 @@ public abstract class RuleServiceInstantiationFactoryHelper {
      * 
      * @author PUdalau
      */
-    private static class ResultConvertorsSupportClassVisitor extends ClassVisitor {
-        private Collection<Method> methods;
+    private static class RuleserviceInterceptorsSupportClassVisitor extends ClassVisitor {
+        private Collection<Method> methodsWithReturnTypeNeedsChange;
+        private Collection<Method> methodsWithServiceExtraMethodAnnotation;
 
         /**
          * Constructs instanse with delegated {@link ClassVisitor} and set of
@@ -38,22 +41,35 @@ public abstract class RuleServiceInstantiationFactoryHelper {
          * @param visitor delegated {@link ClassVisitor}.
          * @param methods Methods where to change return type.
          */
-        public ResultConvertorsSupportClassVisitor(ClassVisitor visitor, Collection<Method> methods) {
+        public RuleserviceInterceptorsSupportClassVisitor(ClassVisitor visitor, Collection<Method> methodsWithReturnTypeNeedsChange, Collection<Method> methodsWithServiceExtraMethodAnnotation) {
             super(Opcodes.ASM4, visitor);
-            this.methods = methods;
+            this.methodsWithReturnTypeNeedsChange = methodsWithReturnTypeNeedsChange;
+            this.methodsWithServiceExtraMethodAnnotation = methodsWithServiceExtraMethodAnnotation;
         }
 
         @Override
         public MethodVisitor visitMethod(int arg0, String arg1, String arg2, String arg3, String[] arg4) {
-            boolean contains = false;
-            for (Method method : methods) {
+            boolean containsServiceExtraMethod = false;
+            for (Method method : methodsWithServiceExtraMethodAnnotation) {
                 if (arg1.equals(method.getName()) && arg2.equals(Type.getMethodDescriptor(method))) {
-                    contains = true;
+                    containsServiceExtraMethod = true;
                     break;
                 }
             }
+            
+            if (containsServiceExtraMethod){
+                return null;
+            }
 
-            if (contains) {
+            boolean containsReturnTypeNeedsChangeMethod = false;
+            for (Method method : methodsWithReturnTypeNeedsChange) {
+                if (arg1.equals(method.getName()) && arg2.equals(Type.getMethodDescriptor(method))) {
+                    containsReturnTypeNeedsChangeMethod = true;
+                    break;
+                }
+            }
+            
+            if (containsReturnTypeNeedsChangeMethod) {
                 return super.visitMethod(arg0, arg1, convertReturnType(arg2), arg3, arg4);
             } else {
                 return super.visitMethod(arg0, arg1, arg2, arg3, arg4);
@@ -83,14 +99,34 @@ public abstract class RuleServiceInstantiationFactoryHelper {
      */
     public static Class<?> getInterfaceForInstantiationStrategy(RulesInstantiationStrategy instantiationStrategy,
             Class<?> serviceClass) {
-        boolean hasChangedReturnType = hasMethodsWithAfterInterceptors(serviceClass);
-        if (!hasChangedReturnType) {
+        return processInterface(instantiationStrategy, serviceClass, false);
+    }
+    
+    public static Class<?> getInterfaceForService(RulesInstantiationStrategy instantiationStrategy,
+            Class<?> serviceClass) {
+        return processInterface(instantiationStrategy, serviceClass, true);
+    }
+
+    public static Class<?> processInterface(RulesInstantiationStrategy instantiationStrategy,
+            Class<?> serviceClass, boolean skipServiceExtraMethodAnnotation) {
+        boolean requresChangingReturnType = hasMethodsWithReturnTypeNeedsChange(serviceClass);
+        boolean hasServiceExtraMethodAnnotationMethods = false;
+        if (!skipServiceExtraMethodAnnotation){
+            hasServiceExtraMethodAnnotationMethods = hasMethodsWithServiceExtraMethodAnnotation(serviceClass);
+        }
+        if (!requresChangingReturnType && !hasServiceExtraMethodAnnotationMethods) {
             return serviceClass;
         } else {
-            Set<Method> methodsWithAfterInterceptors = getMethodsWithAfterInterceptors(serviceClass);
+            Set<Method> methodsWithReturnTypeNeedsChange = getMethodsWithReturnTypeNeedsChange(serviceClass);
+            Set<Method> methodsWithServiceExtraMethodAnnotation = null;
+            if (skipServiceExtraMethodAnnotation) {
+                methodsWithServiceExtraMethodAnnotation = Collections.emptySet();
+            }else{
+                methodsWithServiceExtraMethodAnnotation = getMethodsWithServiceExtraMethodAnnotation(serviceClass);
+            }
             ClassWriter classWriter = new ClassWriter(0);
-            ClassVisitor classVisitor = new ResultConvertorsSupportClassVisitor(classWriter,
-                    methodsWithAfterInterceptors);
+            ClassVisitor classVisitor = new RuleserviceInterceptorsSupportClassVisitor(classWriter,
+                methodsWithReturnTypeNeedsChange, methodsWithServiceExtraMethodAnnotation);
             String className = serviceClass.getName() + UNDECORATED_CLASS_NAME_SUFFIX;
             InterfaceTransformer transformer = new InterfaceTransformer(serviceClass, className);
             transformer.accept(classVisitor);
@@ -109,7 +145,8 @@ public abstract class RuleServiceInstantiationFactoryHelper {
         }
     }
 
-    private static boolean isMethodsWithAfterInterceptor(Method method){
+    
+    private static boolean isMethodWithReturnTypeNeedsChange(Method method){
         if (method.getAnnotation(ServiceCallAfterInterceptor.class) != null
                 && !method.getReturnType().equals(VariationsResult.class)) {
             return true;
@@ -129,6 +166,13 @@ public abstract class RuleServiceInstantiationFactoryHelper {
         return false;
     }
     
+    private static boolean isMethodWithServiceExtraMethodAnnotation(Method method){
+        if (method.getAnnotation(ServiceExtraMethod.class) != null) {
+            return true;
+        }
+        return false;
+    }
+    
     /**
      * Look through all methods (skip methods for variations) of the specified
      * class in order to find all methods annotated by
@@ -138,9 +182,27 @@ public abstract class RuleServiceInstantiationFactoryHelper {
      * @return returns true if class contains annotated method, otherwise
      *         returns false.
      */
-    public static boolean hasMethodsWithAfterInterceptors(Class<?> serviceClass) {
+    public static boolean hasMethodsWithReturnTypeNeedsChange(Class<?> serviceClass) {
         for (Method method : serviceClass.getMethods()) {
-            if (isMethodsWithAfterInterceptor(method)) {
+            if (isMethodWithReturnTypeNeedsChange(method)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Look through all methods of the specified
+     * class in order to find all methods annotated by
+     * {@link ServiceExtraMethod}.
+     * 
+     * @param serviceClass Class to be analyzed.
+     * @return returns true if class contains annotated method, otherwise
+     *         returns false.
+     */
+    public static boolean hasMethodsWithServiceExtraMethodAnnotation(Class<?> serviceClass) {
+        for (Method method : serviceClass.getMethods()) {
+            if (isMethodWithServiceExtraMethodAnnotation(method)) {
                 return true;
             }
         }
@@ -154,14 +216,31 @@ public abstract class RuleServiceInstantiationFactoryHelper {
      * @param serviceClass Class to be analyzed.
      * @return Methods which have after interceptors.
      */
-    public static Set<Method> getMethodsWithAfterInterceptors(Class<?> serviceClass) {
-        Set<Method> changedReturnType = new HashSet<Method>();
+    public static Set<Method> getMethodsWithReturnTypeNeedsChange(Class<?> serviceClass) {
+        Set<Method> ret = new HashSet<Method>();
         for (Method method : serviceClass.getMethods()) {
-            if (isMethodsWithAfterInterceptor(method)) {
-                changedReturnType.add(method);
+            if (isMethodWithReturnTypeNeedsChange(method)) {
+                ret.add(method);
             }
         }
-        return changedReturnType;
+        return ret;
+    }
+    
+    /**
+     * Look through all methods of the specified class in order to find all
+     * methods annotated by {@link ServiceExtraMethod}.
+     * 
+     * @param serviceClass Class to be analyzed.
+     * @return Methods which have after interceptors.
+     */
+    public static Set<Method> getMethodsWithServiceExtraMethodAnnotation(Class<?> serviceClass) {
+        Set<Method> ret = new HashSet<Method>();
+        for (Method method : serviceClass.getMethods()) {
+            if (isMethodWithServiceExtraMethodAnnotation(method)) {
+                ret.add(method);
+            }
+        }
+        return ret;
     }
 
 }
