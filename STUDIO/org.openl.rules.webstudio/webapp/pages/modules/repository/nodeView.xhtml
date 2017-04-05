@@ -67,7 +67,7 @@
                            onclick="#{repositoryTreeController.hasDependencies ? rich:component('modalOpenProject').concat('.show();return false;') : ''}"/>
           <h:commandButton id="openVersionId1" rendered="#{repositoryTreeState.canOpenOtherVersion}" value="Open Revision"
                            type="button" onclick="openOpenVersionDialog()" title="#{openVersionMessage}">
-              <f:ajax listener="#{repositoryTreeController.openVersionDialogListener}" render=":openVersionForm"/>
+              <f:ajax listener="#{repositoryTreeController.selectCurrentProjectForOpen}" render=":openVersionForm"/>
           </h:commandButton>
             <!-- We don't need forms validation when we are closing the project. So use immediate="true" to bypass validation -->
           <h:commandButton id="closeId1" rendered="#{repositoryTreeState.canClose}" value="Close" action="#{repositoryTreeController.closeProject}" title="#{closeMessage}"
@@ -78,7 +78,7 @@
         <h:panelGroup rendered="#{systemConfig['user.mode'] == 'single' and artefact.opened}">
           <h:commandButton id="openId2" rendered="#{repositoryTreeState.canOpen}" value="Open" onclick="#{rich:component('modalOpenProject')}.show();return false;" title="#{openMessage}"/>
 	      <h:commandButton id="openVersionId2" rendered="#{repositoryTreeState.canOpenOtherVersion}" value="Open Revision" onclick="openOpenVersionDialog();" title="#{openVersionMessage}">
-              <f:ajax listener="#{repositoryTreeController.openVersionDialogListener}" render=":openVersionForm"/>
+              <f:ajax listener="#{repositoryTreeController.selectCurrentProjectForOpen}" render=":openVersionForm"/>
 	      </h:commandButton>
           <h:commandButton id="closeId2" rendered="#{repositoryTreeState.canClose}" value="Close" onclick="#{rich:component('modalCloseProject')}.show();return false;" title="#{closeMessage}"/>
         </h:panelGroup>
@@ -200,10 +200,15 @@
          "render" attribute cannot be used for rich:tab (NullPointerException will be thrown in some cases).
          As a workaround "disabled" attribute in conjunction with "hideHeader"/"showHeader" styles is used.   
     --></ui:remove>
-    <rich:tab id="rulesDeployConfiguration" name="RulesDeployConfiguration" header="Rules Deploy Configuration" disabled="#{node.type != 'project'}" headerClass="#{node.type == 'project' ? 'showHeader' : 'hideHeader'}">
-      <h:panelGroup rendered="#{node.type == 'project'}">
-        <ui:include src="/pages/modules/repository/node/rulesDeployConfiguration.xhtml" />
+    <rich:tab id="rulesDeployConfiguration" name="RulesDeployConfiguration" header="Rules Deploy Configuration"
+              onenter="#{artefact.project.openedForEditing ? '' : 'refreshRulesDeployConfiguration()'}"
+              disabled="#{node.type != 'project'}" headerClass="#{node.type == 'project' ? 'showHeader' : 'hideHeader'}">
+      <h:panelGroup id="rulesDeployConfigurationContent">
+        <h:panelGroup rendered="#{node.type == 'project' and (artefact.project.openedForEditing or repositoryTreeController.currentProjectSelected)}">
+          <ui:include src="/pages/modules/repository/node/rulesDeployConfiguration.xhtml" />
+        </h:panelGroup>
       </h:panelGroup>
+      <a4j:jsFunction name="refreshRulesDeployConfiguration" action="#{repositoryTreeController.selectCurrentProjectForOpen(null)}" render="rulesDeployConfigurationContent"/>
     </rich:tab>
   </rich:tabPanel>
 
@@ -221,7 +226,7 @@
     <h:panelGroup rendered="#{not artefact.deleted}">
       <h:commandButton id="deployId" rendered="#{deploymentController.canDeploy}" value="Deploy" onclick="openSelectRepositoryDialog();return false;" title="Deploy into operations or staging"/>
       <h:commandButton id="openVersionId3" rendered="#{repositoryTreeState.canOpen}" value="Open Revision" onclick="openOpenVersionDialog();" title="Open the specified project revision">
-          <f:ajax listener="#{repositoryTreeController.openVersionDialogListener}" render=":openVersionForm"/>
+          <f:ajax listener="#{repositoryTreeController.selectCurrentProjectForOpen}" render=":openVersionForm"/>
       </h:commandButton>
 
       <h:commandButton id="closeId3" rendered="#{repositoryTreeState.canClose}" value="Close" action="#{deploymentController.close}" title="Close Deploy Configuration and make it unavailable for editing"
@@ -249,5 +254,16 @@
       </rich:tab>
     </rich:tabPanel>
   </h:panelGroup>
+
+    <script>
+        //<![CDATA[
+        $j(function () {
+            // If project is closed, open first tab
+            if (!#{artefact.project.openedForEditing}) {
+                RichFaces.$("nodeTabPanel").switchToItem("@first");
+            }
+        });
+        //]]>
+    </script>
 
 </ui:composition>
