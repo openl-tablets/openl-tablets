@@ -13,7 +13,6 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 
 import com.google.common.collect.Iterators;
 

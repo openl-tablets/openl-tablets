@@ -13,7 +13,6 @@ import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.LockEngine;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.RuntimeExceptionWrapper;
 
