@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.dt.type.IntRangeAdaptor;
 import org.openl.types.IOpenClass;
-import org.openl.types.java.OpenClassHelper;
+import org.openl.types.java.JavaOpenClass;
 
 /**
  * 
@@ -79,23 +79,20 @@ public class IntRangeRulesParsingTest extends BaseOpenlBuilderHelper {
     @Test    
     public void testtestRange() {
         assertEquals("rule1", invokeMethod("ClassifyIncome", 
-            new IOpenClass[]{OpenClassHelper.getOpenClass(getCompiledOpenClass().getOpenClass(), String.class), 
-                OpenClassHelper.getOpenClass(getCompiledOpenClass().getOpenClass(), short.class)}, 
+            new IOpenClass[]{JavaOpenClass.STRING, JavaOpenClass.SHORT},
                 new Object[]{"Type 1", -300}));
     }
     
     @Test    
     public void testtestRange0() {
         assertEquals("rule3", invokeMethod("ClassifyIncome", 
-            new IOpenClass[]{OpenClassHelper.getOpenClass(getCompiledOpenClass().getOpenClass(), String.class), 
-                OpenClassHelper.getOpenClass(getCompiledOpenClass().getOpenClass(), short.class)}, 
+            new IOpenClass[]{JavaOpenClass.STRING, JavaOpenClass.SHORT},
                 new Object[]{"Type 2", -80}));
     }
     
     private Object invoke(String methodName, boolean param1, int param2) {
         return invokeMethod(methodName, 
-            new IOpenClass[]{OpenClassHelper.getOpenClass(getCompiledOpenClass().getOpenClass(), boolean.class), 
-              OpenClassHelper.getOpenClass(getCompiledOpenClass().getOpenClass(), int.class)}, 
+            new IOpenClass[]{JavaOpenClass.BOOLEAN, JavaOpenClass.INT},
               new Object[]{param1, param2});
     }
 

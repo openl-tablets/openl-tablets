@@ -5,7 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.openl.rules.lang.xls.XlsHelper;
+import org.openl.rules.diff.xls2.XlsDiff2;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 
 import org.openl.rules.diff.differs.ProjectionDifferImpl;
@@ -31,8 +31,8 @@ public class TestXls {
     }
 
     void test(String file1, String file2, String fileOut) throws IOException {
-        XlsMetaInfo xmi1 = XlsHelper.getXlsMetaInfo(file1);
-        XlsMetaInfo xmi2 = XlsHelper.getXlsMetaInfo(file2);
+        XlsMetaInfo xmi1 = XlsDiff2.getXlsMetaInfo(file1);
+        XlsMetaInfo xmi2 = XlsDiff2.getXlsMetaInfo(file2);
 
         AbstractProjection p1 = XlsProjectionBuilder.build(xmi1, "xls1");
         AbstractProjection p2 = XlsProjectionBuilder.build(xmi2, "xls2");

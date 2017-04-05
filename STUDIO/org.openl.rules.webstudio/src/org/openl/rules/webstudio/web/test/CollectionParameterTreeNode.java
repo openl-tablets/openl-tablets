@@ -29,7 +29,7 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
 
     @Override
     public String getDisplayedValue() {
-    	return OpenClassHelper.displayNameForCollection(getType(), isLeaf());        
+    	return Utils.displayNameForCollection(getType(), isLeaf());
     }
 
     @Override

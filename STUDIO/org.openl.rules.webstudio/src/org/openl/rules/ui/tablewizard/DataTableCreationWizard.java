@@ -16,7 +16,6 @@ import javax.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.domaintree.DomainTree;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -329,7 +328,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
      * @return OpenClass for given type or null if type is not user-defined
      */
     private IOpenClass getUserDefinedType(String type) {
-        for (IOpenClass dataType : WizardUtils.getProjectOpenClass().getTypes().values()) {
+        for (IOpenClass dataType : WizardUtils.getProjectOpenClass().getTypes()) {
             if (dataType.getDisplayName(INamedThing.SHORT).equals(type)) {
                 return dataType;
             }

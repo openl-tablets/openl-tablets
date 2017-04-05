@@ -7,15 +7,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.openl.binding.IBoundCode;
+import org.openl.conf.UserContext;
 import org.openl.rules.diff.print.SimpleDiffTreePrinter;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls.XlsProjectionDiffer;
-import org.openl.rules.lang.xls.XlsHelper;
+import org.openl.rules.lang.xls.XlsBinder;
+import org.openl.rules.lang.xls.XlsParser;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.URLSourceCodeModule;
+import org.openl.syntax.code.IParsedCode;
+import org.openl.types.IOpenClass;
 
 /**
  * Find difference between two XLS files.
@@ -58,8 +65,21 @@ public class XlsDiff2 {
         p.print();
     }
 
+    public static XlsMetaInfo getXlsMetaInfo(String srcFile) {
+
+    	UserContext ucxt = new UserContext(Thread.currentThread().getContextClassLoader(), ".");
+
+        IOpenSourceCodeModule src = new URLSourceCodeModule(srcFile);
+
+        IParsedCode pc = new XlsParser(ucxt).parseAsModule(src);
+        IBoundCode bc = new XlsBinder(ucxt).bind(pc);
+        IOpenClass ioc = bc.getTopNode().getType();
+
+        return (XlsMetaInfo) ioc.getMetaInfo();
+    }
+
     protected List<XlsTable> load(String fileName) {
-        XlsMetaInfo xmi = XlsHelper.getXlsMetaInfo(fileName);
+        XlsMetaInfo xmi = getXlsMetaInfo(fileName);
         XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
 
         TableSyntaxNode[] nodes = xsn.getXlsTableSyntaxNodes();

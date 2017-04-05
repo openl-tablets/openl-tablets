@@ -17,11 +17,9 @@ import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.runtime.IRuntimeContext;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.util.StringTool;
 
 /**
  * Represents group of methods(rules) overloaded by dimension properties.
@@ -309,7 +307,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     @Override
     public IOpenClass getType() {
         //Use types from declaring types. For customspreadsheetresult types.
-        IOpenClass type = getDeclaringClass().getTypes().get(StringTool.buildTypeName(ISyntaxConstants.THIS_NAMESPACE,super.getType().getName()));
+        IOpenClass type = getDeclaringClass().findType(super.getType().getName());
         if (type == null){
             return super.getType();
         }

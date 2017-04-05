@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -505,7 +504,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
 		// Add new type to internal types of module.
 		//
-        moduleOpenClass.addType(ISyntaxConstants.THIS_NAMESPACE, dataType);
+        moduleOpenClass.addType(dataType);
     }
     
     private void checkInheritedFieldsDuplication(IBindingContext cxt) throws Exception {

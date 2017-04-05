@@ -7,14 +7,6 @@ import org.openl.rules.TestHelper;
 
 @Ignore("Manual test")
 public class Test0 {
-    public static void main(String[] args) {
-        Test0 t = new Test0();
-        t._test();
-    }
-
-    private void _test() {
-        okRows(new File("test/rules/Algorithm.xls"), 26);
-    }
 
     public Exception catchEx(File xlsFile) {
         Exception result = null;

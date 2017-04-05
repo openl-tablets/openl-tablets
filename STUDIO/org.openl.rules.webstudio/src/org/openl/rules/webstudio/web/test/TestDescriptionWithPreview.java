@@ -7,7 +7,6 @@ import org.openl.rules.testmethod.TestDescription;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.java.OpenClassHelper;
 
 public class TestDescriptionWithPreview extends TestDescription {
     private ParameterWithValueAndPreviewDeclaration[] paramsWithPreview;
@@ -60,7 +59,7 @@ public class TestDescriptionWithPreview extends TestDescription {
                         String[] foreignKeyColumnChain = descriptor.getForeignKeyColumnChainTokens();
                         if (foreignKeyColumnChain.length > 0) {
                             String fieldName = foreignKeyColumnChain[foreignKeyColumnChain.length - 1];
-                            if (OpenClassHelper.isCollection(type)) {
+                            if (Utils.isCollection(type)) {
                                 foreignKeyField = type.getComponentClass().getField(fieldName);
                             } else {
                                 foreignKeyField = type.getField(fieldName);

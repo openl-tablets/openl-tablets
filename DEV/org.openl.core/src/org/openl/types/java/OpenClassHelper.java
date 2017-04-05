@@ -2,9 +2,7 @@ package org.openl.types.java;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import org.openl.base.INameSpacedThing;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 
@@ -13,7 +11,7 @@ public class OpenClassHelper {
     public static synchronized IOpenClass getOpenClass(IOpenClass moduleOpenClass, Class<?> classToFind) {
         IOpenClass result = null;
         if (classToFind != null) {
-            Map<String, IOpenClass> internalTypes = moduleOpenClass.getTypes();
+            Iterable<IOpenClass> internalTypes = moduleOpenClass.getTypes();
             if (classToFind.isArray()) {
                 IOpenClass componentType = findType(classToFind.getComponentType(), internalTypes);
                 if (componentType != null) {
@@ -30,9 +28,9 @@ public class OpenClassHelper {
         return result;
     }
 
-    private static IOpenClass findType(Class<?> classToFind, Map<String, IOpenClass> internalTypes) {
+    private static IOpenClass findType(Class<?> classToFind, Iterable<IOpenClass> internalTypes) {
         IOpenClass result = null;
-        for (IOpenClass datatypeClass : internalTypes.values()) {
+        for (IOpenClass datatypeClass : internalTypes) {
             //getInstanceClass() for DomainOpenClass returns simple type == enum type
             if (!(datatypeClass instanceof DomainOpenClass) && classToFind.getName().equals(datatypeClass.getInstanceClass().getName())) {
 
@@ -57,52 +55,4 @@ public class OpenClassHelper {
 
     }
 
-    /**
-     * Convert open classes to array of instance classes.
-     * 
-     * @param openClasses array of open classes
-     * @return array of instance classes
-     */
-    public static Class<?>[] getInstanceClasses(IOpenClass[] openClasses) {
-
-        List<Class<?>> classes = new ArrayList<Class<?>>();
-
-        if (openClasses != null) {
-            for (IOpenClass openClass : openClasses) {
-
-                Class<?> clazz = openClass.getInstanceClass();
-                classes.add(clazz);
-            }
-        }
-
-        return classes.toArray(new Class<?>[classes.size()]);
-    }
-
-    /**
-     * Checks given type that it is boolean type.
-     * 
-     * @param type {@link IOpenClass} instance
-     * @return <code>true</code> if given type equals
-     *         {@link JavaOpenClass#BOOLEAN} or
-     *         JavaOpenClass.getOpenClass(Boolean.class); otherwise -
-     *         <code>false</code>
-     */
-    public static boolean isBooleanType(IOpenClass type) {
-        return type == null || JavaOpenClass.BOOLEAN == type || JavaOpenClass.getOpenClass(Boolean.class) == type;
-
-    }
-
-    public static boolean isCollection(IOpenClass openClass) {
-        return openClass.getAggregateInfo()!= null && openClass.getAggregateInfo().isAggregate(openClass);
-    }
-    
-    public static String displayNameForCollection(IOpenClass collectionType, boolean isEmpty) {
-    	StringBuilder builder = new StringBuilder();
-        if(isEmpty){
-            builder.append("Empty ");
-        }
-        builder.append("Collection of ");
-        builder.append(collectionType.getComponentClass().getDisplayName(INameSpacedThing.SHORT));
-        return builder.toString();
-    }
 }

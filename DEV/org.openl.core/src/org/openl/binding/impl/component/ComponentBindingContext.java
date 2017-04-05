@@ -70,13 +70,6 @@ public class ComponentBindingContext extends BindingContextDelegator {
     }
     
     @Override
-    public synchronized void addTypes(Map<String, IOpenClass> types) throws OpenLCompilationException {
-        for (String nameWithNamespace : types.keySet()) {
-        	add(nameWithNamespace, types.get(nameWithNamespace));
-        }
-    }
-
-    @Override
     public synchronized void removeType(String namespace, IOpenClass type)
             throws Exception {
 
@@ -122,7 +115,7 @@ public class ComponentBindingContext extends BindingContextDelegator {
             }
         }
         
-        IOpenClass type = componentOpenClass.getTypes().get(key);
+        IOpenClass type = componentOpenClass.findType(typeName);
         if (type != null){
             return type;
         }

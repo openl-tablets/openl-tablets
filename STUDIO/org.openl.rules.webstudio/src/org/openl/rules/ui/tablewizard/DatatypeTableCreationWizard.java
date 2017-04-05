@@ -14,7 +14,6 @@ import javax.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.base.INamedThing;
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.domaintree.DomainTree;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
@@ -110,7 +109,7 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
 
         domainTree = DomainTree.buildTree(WizardUtils.getProjectOpenClass());
         
-        List<IOpenClass> types = new ArrayList<IOpenClass>(WizardUtils.getProjectOpenClass().getTypes().values());
+        List<IOpenClass> types = new ArrayList<IOpenClass>(WizardUtils.getProjectOpenClass().getTypes());
         Collection<IOpenClass> importedClasses = WizardUtils.getImportedClasses();
         types.addAll(importedClasses);
         

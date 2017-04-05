@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Assert;
 import org.openl.CompiledOpenClass;
-import org.openl.conf.UserContext;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -23,7 +22,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.vm.SimpleVM.SimpleRuntimeEnv;
 
 /**
- * Helper class for building OpenClassJavaWrapper and getting
+ * Helper class for building IOpenClass and getting
  * XlsModuleSyntaxNode from it. To get everything you need for your tests just
  * extend this class.
  * 

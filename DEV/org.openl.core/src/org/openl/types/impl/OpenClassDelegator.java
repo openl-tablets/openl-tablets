@@ -1,6 +1,7 @@
 package org.openl.types.impl;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -152,18 +153,18 @@ public class OpenClassDelegator implements IOpenClass {
         return (getNameSpace() == null ? "" : getNameSpace() + ":") + getName();
     }
 
-    public IOpenClass addType(String namespace, IOpenClass type) throws Exception {
+    public IOpenClass addType(IOpenClass type) throws Exception {
         return type;
     }
 
-    public IOpenClass findType(String namespace, String typeName) {
+    public IOpenClass findType(String typeName) {
         // Default implementation.
         return null;
     }
 
-    public Map<String, IOpenClass> getTypes() {
+    public Collection<IOpenClass> getTypes() {
         // Default implementation
-        return null;
+        return Collections.emptyList();
     }
 
     public Map<String, IOpenField> getFields() {

@@ -7,13 +7,14 @@
 package org.openl.binding.impl.module;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
@@ -26,7 +27,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AMethod;
 import org.openl.util.Log;
-import org.openl.util.StringTool;
 
 /**
  * {@link IOpenClass} implementation for full module.<br>
@@ -41,10 +41,11 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * Map of internal types. XLS document can have internal types defined using
      * <code>Datatype</code> tables, e.g. domain model.<br>
      * 
-     * Key: type name with namespace see {@link StringTool#buildTypeName(String, String)}.<br>
+     * Key: type name.<br>
      * Value: {@link IOpenClass} for datatype.
      */
-    private Map<String, IOpenClass> internalTypes = new HashMap<String, IOpenClass>();
+    private ConcurrentHashMap<String, IOpenClass> internalTypes = new ConcurrentHashMap<String, IOpenClass>();
+    private Collection<IOpenClass> types = Collections.unmodifiableCollection(internalTypes.values());
     
     /**
      * Set of dependencies for current module.
@@ -193,9 +194,9 @@ public class ModuleOpenClass extends ComponentOpenClass {
     
     protected void addDependencyTypes(CompiledDependency dependency) {
         CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
-        for (Entry<String, IOpenClass> entry : compiledOpenClass.getTypes().entrySet()){
+        for (IOpenClass type : compiledOpenClass.getTypes()){
             try{
-                addTypeWithNamespace(entry.getKey(), entry.getValue());
+                addTypeWithNamespace(type);
             } catch (OpenLCompilationException e) {
                 addError(e);
             }
@@ -209,8 +210,8 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * @return map of internal types 
      */
     @Override
-    public Map<String, IOpenClass> getTypes() {
-        return internalTypes;
+    public Collection<IOpenClass> getTypes() {
+        return types;
     }
 
     /**
@@ -223,24 +224,21 @@ public class ModuleOpenClass extends ComponentOpenClass {
      *             if an error had occurred.
      */
     @Override
-    public IOpenClass addType(String namespace, IOpenClass type) throws OpenLCompilationException {        
-        String typeNameWithNamespace = StringTool.buildTypeName(namespace, type.getName());
-        addTypeWithNamespace(typeNameWithNamespace, type);
+    public IOpenClass addType(IOpenClass type) throws OpenLCompilationException {
+        addTypeWithNamespace(type);
         return type;
     }
     
-    private void addTypeWithNamespace(String typeNameWithNamespace, IOpenClass type) throws OpenLCompilationException {
-        IOpenClass openClass = internalTypes.get(typeNameWithNamespace);
+    private void addTypeWithNamespace(IOpenClass type) throws OpenLCompilationException {
+        IOpenClass openClass = internalTypes.putIfAbsent(type.getName(), type);
         if (openClass != null && !openClass.equals(type)) {
             throw new OpenLCompilationException("The type " + type.getName() + " has been already defined.");
         }
-        internalTypes.put(typeNameWithNamespace, type);
     }
-    
+
     @Override
-    public IOpenClass findType(String namespace, String name) {
-        String typeNameWithNamespace = StringTool.buildTypeName(namespace, name);
-        return getTypes().get(typeNameWithNamespace);
+    public IOpenClass findType(String name) {
+        return internalTypes.get(name);
     }
     
     public void addError(Throwable error) {

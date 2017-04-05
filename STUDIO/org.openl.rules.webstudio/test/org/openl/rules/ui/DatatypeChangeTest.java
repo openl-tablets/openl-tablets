@@ -135,7 +135,7 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
     }
 
     private Class<?> getExpenseInstanceClass(ProjectModel pm) {
-        return pm.getCompiledOpenClass().getTypes().get("org.openl.this::Expense").getInstanceClass();
+        return pm.getCompiledOpenClass().getOpenClassWithErrors().findType("Expense").getInstanceClass();
     }
 
     private void setFieldName(String fieldName) throws IOException {

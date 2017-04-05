@@ -4,7 +4,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
 
@@ -32,7 +31,7 @@ public class AliasDatatypeBoundNode implements IMemberBoundNode {
 	public void finalizeBind(IBindingContext cxt) throws Exception {
 		// Add new type to internal types of module.
 		//
-		moduleOpenClass.addType(ISyntaxConstants.THIS_NAMESPACE, domainOpenClass);
+		moduleOpenClass.addType(domainOpenClass);
 	}
 
     public void removeDebugInformation(IBindingContext cxt) throws Exception {

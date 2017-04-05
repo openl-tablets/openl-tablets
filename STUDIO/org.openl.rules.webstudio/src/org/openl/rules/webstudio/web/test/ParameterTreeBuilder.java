@@ -14,7 +14,6 @@ import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.java.OpenClassHelper;
 import org.openl.util.ClassUtils;
 import org.openl.vm.SimpleVM;
 import org.richfaces.model.TreeNode;
@@ -44,7 +43,7 @@ public class ParameterTreeBuilder {
             return customNode;
         }
 
-        if (OpenClassHelper.isCollection(fieldType)) {
+        if (Utils.isCollection(fieldType)) {
             return new CollectionParameterTreeNode(fieldName, value, fieldType, parent, previewField, hasExplainLinks);
         } else if (isSpreadsheetResult(value)) {
             return createSpreadsheetResultTreeNode(fieldType, value, fieldName, parent, hasExplainLinks);
@@ -110,7 +109,7 @@ public class ParameterTreeBuilder {
                                                                 Object value,
                                                                 String fieldName,
                                                                 ParameterDeclarationTreeNode parent) {
-        if (parent == null || OpenClassHelper.isCollection(parent.getType()) || parent.getType().getField(fieldName).isWritable()) {
+        if (parent == null || Utils.isCollection(parent.getType()) || parent.getType().getField(fieldName).isWritable()) {
             return new SimpleParameterTreeNode(fieldName, value, fieldType, parent);
         } else {
             UnmodifiableParameterTreeNode node = new UnmodifiableParameterTreeNode(fieldName, value, fieldType, parent);
@@ -141,9 +140,9 @@ public class ParameterTreeBuilder {
 
         if (value != null) {
             IOpenClass fieldType = param.getType();
-            if (OpenClassHelper.isCollection(fieldType)) {
+            if (Utils.isCollection(fieldType)) {
                 boolean empty = !fieldType.getAggregateInfo().getIterator(value).hasNext();
-                return OpenClassHelper.displayNameForCollection(fieldType, empty);
+                return Utils.displayNameForCollection(fieldType, empty);
             } else if (!fieldType.isSimple()) {
                 IOpenField previewField = null;
                 if (param instanceof ParameterWithValueAndPreviewDeclaration) {
@@ -189,7 +188,7 @@ public class ParameterTreeBuilder {
     public boolean isHtmlTable(Object value) {
         if (value instanceof ParameterWithValueDeclaration) {
             Object singlValue = value;
-            if (OpenClassHelper.isCollection(((ParameterWithValueDeclaration) value).getType())) {
+            if (Utils.isCollection(((ParameterWithValueDeclaration) value).getType())) {
                 Iterator<Object> iterator = ((ParameterWithValueDeclaration) value).getType().getAggregateInfo()
                         .getIterator(((ParameterWithValueDeclaration) value).getValue());
 
@@ -211,7 +210,7 @@ public class ParameterTreeBuilder {
     public String tableToHtml(Object value) {
         if (value != null && value instanceof ParameterWithValueDeclaration) {
             StringBuilder result = new StringBuilder();
-            if (OpenClassHelper.isCollection(((ParameterWithValueDeclaration) value).getType())) {
+            if (Utils.isCollection(((ParameterWithValueDeclaration) value).getType())) {
                 Iterator<Object> iterator = ((ParameterWithValueDeclaration) value).getType().getAggregateInfo()
                         .getIterator(((ParameterWithValueDeclaration) value).getValue());
                 while (iterator.hasNext()) {

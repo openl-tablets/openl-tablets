@@ -1,4 +1,4 @@
-package org.openl.rules.domaintree;
+package org.openl.rules.ui.tablewizard;
 
 import java.util.Map;
 import java.util.HashMap;

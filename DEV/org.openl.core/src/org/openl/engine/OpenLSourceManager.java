@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundCode;
@@ -27,6 +28,7 @@ import org.openl.syntax.code.ProcessedCode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.IdentifierNode;
+import org.openl.types.IOpenClass;
 import org.openl.util.CollectionUtils;
 
 /**
@@ -173,12 +175,14 @@ public class OpenLSourceManager extends OpenLHolder {
                             }
                             compiledDependencies.add(loadedDependency);
 
-                            if (loadedDependency.getCompiledOpenClass().getOpenClassWithErrors() instanceof ExtendableModuleOpenClass){
-                                ExtendableModuleOpenClass extendableModuleOpenClass = (ExtendableModuleOpenClass) loadedDependency.getCompiledOpenClass().getOpenClassWithErrors();
+                            CompiledOpenClass compiledOpenClass = loadedDependency.getCompiledOpenClass();
+                            IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
+                            if (openClass instanceof ExtendableModuleOpenClass){
+                                ExtendableModuleOpenClass extendableModuleOpenClass = (ExtendableModuleOpenClass) openClass;
                                 extendableModuleOpenClass.applyToDependentParsedCode(parsedCode);
                             }
                             
-                            for (OpenLMessage message : loadedDependency.getCompiledOpenClass().getMessages()) { // Save messages from dependencies
+                            for (OpenLMessage message : compiledOpenClass.getMessages()) { // Save messages from dependencies
                                 if (!dependencyMessages.contains(message)) {
                                     dependencyMessages.add(message);
                                 }

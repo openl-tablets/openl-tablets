@@ -1152,7 +1152,6 @@ public class RepositoryTreeController {
         for (TreeNode node : root.getChildNodes()) {
             if (node.getName().equals(projectName)) {
                 repositoryTreeState.setSelectedNode(node);
-                repositoryTreeState.refreshSelectedNode();
                 break;
             }
         }

@@ -8,8 +8,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 
-import org.openl.rules.domaintree.DomainTree;
-import org.openl.rules.domaintree.DomainTreeContext;
 import org.openl.util.StringUtils;
 
 /**
