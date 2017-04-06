@@ -66,12 +66,23 @@ public class ServiceInterfaceMethodInterceptingTest {
 
         @ServiceExtraMethod(NonExistedMethodServiceExtraMethodHandler.class)
         Double nonExistedMethod(String driverRisk);
+        
+        @ServiceExtraMethod(LoadClassServiceExtraMethodHandler.class)
+        Object loadClassMethod();
     }
 
     public static class NonExistedMethodServiceExtraMethodHandler implements ServiceExtraMethodHandler<Double> {
         @Override
         public Double invoke(Method interfaceMethod, Object serviceBean, Object... args) throws Exception {
             return 12345d;
+        }
+    }
+    
+    public static class LoadClassServiceExtraMethodHandler implements ServiceExtraMethodHandler<Object> {
+        @Override
+        public Object invoke(Method interfaceMethod, Object serviceBean, Object... args) throws Exception {
+            Class<?> myBeanClass = Thread.currentThread().getContextClassLoader().loadClass("org.openl.generated.beans.MyBean");
+            return myBeanClass.newInstance();
         }
     }
 
@@ -155,6 +166,22 @@ public class ServiceInterfaceMethodInterceptingTest {
         calendar.set(2009, 5, 15);
         runtimeContext.setCurrentDate(calendar.getTime());
         Assert.assertEquals(12345, instance.nonExistedMethod("High Risk Driver"), 0.1);
+    }
+    
+    @Test
+    public void testInterceptorClassloader() throws Exception {
+        RuleServiceOpenLServiceInstantiationFactoryImpl instantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
+        instantiationFactory
+            .setServiceCallInterceptorGroups(new ServiceCallInterceptorGroup[] { ServiceCallInterceptorGroup.GROUP1 });
+        instantiationFactory.setRuleServiceLoader(ruleServiceLoader);
+        OpenLService service = instantiationFactory.createService(serviceDescription);
+        assertTrue(service.getServiceBean() instanceof OverloadInterface);
+        OverloadInterface instance = (OverloadInterface) service.getServiceBean();
+        IRulesRuntimeContext runtimeContext = RulesRuntimeContextFactory.buildRulesRuntimeContext();
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2009, 5, 15);
+        runtimeContext.setCurrentDate(calendar.getTime());
+        Assert.assertNotNull(instance.loadClassMethod());
     }
 
     @Test(expected = ClassCastException.class)
