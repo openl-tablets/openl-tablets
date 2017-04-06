@@ -79,7 +79,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(instantiationStrategy.getClassLoader());
-            factory.addAdvice(new ServiceInvocationAdvice(serviceBean, serviceClass, getServiceCallInterceptorGroups()));
+            factory.addAdvice(new ServiceInvocationAdvice(serviceBean, serviceClass, getServiceCallInterceptorGroups(), instantiationStrategy.getClassLoader()));
             if (serviceClass.isInterface()) {
                 factory.addInterface(serviceClass);
                 if (!service.isProvideRuntimeContext()) {

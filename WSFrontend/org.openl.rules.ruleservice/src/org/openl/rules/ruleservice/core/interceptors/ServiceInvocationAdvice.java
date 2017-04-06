@@ -51,25 +51,34 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
     private Object serviceBean;
     private Class<?> serviceClass;
     private ServiceCallInterceptorGroup[] serviceCallInterceptorGroupSupported;
+    private ClassLoader serviceClassLoader;
 
     public ServiceInvocationAdvice(Object serviceBean,
             Class<?> serviceClass,
-            ServiceCallInterceptorGroup[] serviceCallInterceptorGroupSupported) {
+            ServiceCallInterceptorGroup[] serviceCallInterceptorGroupSupported,
+            ClassLoader serviceClassLoader) {
         this.serviceBean = serviceBean;
         this.serviceClass = serviceClass;
         this.serviceCallInterceptorGroupSupported = serviceCallInterceptorGroupSupported;
+        this.serviceClassLoader = serviceClassLoader;
         init();
     }
 
     private void init() {
-        for (Method method : serviceClass.getMethods()) {
-            Annotation[] methodAnnotations = method.getAnnotations();
-            for (Annotation annotation : methodAnnotations) {
-                checkForBeforeInterceptors(method, annotation);
-                checkForAfterInterceptors(method, annotation);
-                checkForAroundInterceptor(method, annotation);
-                checkForServiceExtraMethodAnnotation(method, annotation);
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(serviceClassLoader);
+            for (Method method : serviceClass.getMethods()) {
+                Annotation[] methodAnnotations = method.getAnnotations();
+                for (Annotation annotation : methodAnnotations) {
+                    checkForBeforeInterceptors(method, annotation);
+                    checkForAfterInterceptors(method, annotation);
+                    checkForAroundInterceptor(method, annotation);
+                    checkForServiceExtraMethodAnnotation(method, annotation);
+                }
             }
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
 
@@ -272,20 +281,26 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                 }
             }
             try {
-                beforeInvocation(interfaceMethod, args);
-                if (aroundInterceptors.containsKey(interfaceMethod)) {
-                    result = aroundInterceptors.get(interfaceMethod).around(interfaceMethod,
-                        beanMethod,
-                        serviceBean,
-                        args);
-                } else {
-                    if (beanMethod != null) {
-                        result = beanMethod.invoke(serviceBean, args);
+                ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+                try {
+                    Thread.currentThread().setContextClassLoader(serviceClassLoader);
+                    beforeInvocation(interfaceMethod, args);
+                    if (aroundInterceptors.containsKey(interfaceMethod)) {
+                        result = aroundInterceptors.get(interfaceMethod).around(interfaceMethod,
+                            beanMethod,
+                            serviceBean,
+                            args);
                     } else {
-                        result = serviceExtraMethodInvoke(interfaceMethod, serviceBean, args);
+                        if (beanMethod != null) {
+                            result = beanMethod.invoke(serviceBean, args);
+                        } else {
+                            result = serviceExtraMethodInvoke(interfaceMethod, serviceBean, args);
+                        }
                     }
+                    result = afterInvocation(interfaceMethod, result, null, args);
+                } finally {
+                    Thread.currentThread().setContextClassLoader(oldClassLoader);
                 }
-                result = afterInvocation(interfaceMethod, result, null, args);
             } catch (Exception e) {
                 if (e instanceof InvocationTargetException) {
                     Throwable t = e;
