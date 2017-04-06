@@ -256,7 +256,7 @@ public class RepositoryTreeController {
     }
 
     public boolean getHasDependenciesForVersion() {
-        if (!getIsOpenVersionDialogOpened()) {
+        if (!isCurrentProjectSelected()) {
             return false;
         }
         if (version == null) {
@@ -288,7 +288,7 @@ public class RepositoryTreeController {
     }
 
     public Collection<String> getDependenciesForVersion() {
-        if (version == null || !getIsOpenVersionDialogOpened()) {
+        if (version == null || !isCurrentProjectSelected()) {
             // Because ui:repeat ignores the "rendered" property, here is a
             // workaround to reduce performance drop.
             return Collections.emptyList();
@@ -1517,7 +1517,12 @@ public class RepositoryTreeController {
         return null;
     }
 
-    public boolean getIsOpenVersionDialogOpened() {
+    /**
+     * Determine show or not current project content is some page (Open Version dialog or Rules Deploy Configuration tab).
+     *
+     * @return false if selected project is changed or true if {@link #selectCurrentProjectForOpen(AjaxBehaviorEvent)} is invoked
+     */
+    public boolean isCurrentProjectSelected() {
         if (currentProject != getSelectedProject()) {
             currentProject = null;
             version = null;
@@ -1526,9 +1531,12 @@ public class RepositoryTreeController {
         return currentProject != null;
     }
 
-    public void openVersionDialogListener(AjaxBehaviorEvent event) {
+    /**
+     * Mark (select) current project for open in some page (Open Version dialog or Rules Deploy Configuration tab)
+     */
+    public void selectCurrentProjectForOpen(AjaxBehaviorEvent event) {
         currentProject = getSelectedProject();
-        version = currentProject.getVersion().getVersionName();
+        version = currentProject == null ? null : currentProject.getVersion().getVersionName();
     }
 
     public void deleteRulesProjectListener(AjaxBehaviorEvent event) {
