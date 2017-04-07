@@ -9,6 +9,7 @@ import java.util.*;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -68,21 +69,41 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
 
     @Override
     public void initialize() throws RRepositoryException {
-        s3 = AmazonS3ClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
-                .withRegion(Regions.fromName(regionName))
-                .build();
+        AmazonS3ClientBuilder builder = AmazonS3ClientBuilder.standard();
+        if (!StringUtils.isBlank(accessKey) && !StringUtils.isBlank(secretKey)) {
+            builder.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)));
+        } else {
+            builder.withCredentials(new DefaultAWSCredentialsProviderChain());
+        }
+        s3 = builder.withRegion(Regions.fromName(regionName)).build();
 
         try {
             if (!s3.doesBucketExist(bucketName)) {
                 s3.createBucket(bucketName);
-                s3.setBucketVersioningConfiguration(new SetBucketVersioningConfigurationRequest(bucketName,
-                        new BucketVersioningConfiguration(BucketVersioningConfiguration.ENABLED)));
+            }
+            try {
+                String status = s3.getBucketVersioningConfiguration(bucketName).getStatus();
+                if (!BucketVersioningConfiguration.ENABLED.equals(status)) {
+                    try {
+                        s3.setBucketVersioningConfiguration(new SetBucketVersioningConfigurationRequest(bucketName,
+                                new BucketVersioningConfiguration(BucketVersioningConfiguration.ENABLED)));
+                    } catch (SdkClientException e) {
+                        // Possibly don't have permission
+                        String message = "Bucket versioning status: " + status + ". Can't enable versioning. Error message: " + e.getMessage();
+                        log.warn(message);
+                    }
+                }
+            } catch (SdkClientException e) {
+                // Possibly don't have permission
+                log.warn("Can't detect bucket versioning configuration.");
             }
 
             // Check the connection
             s3.listObjectsV2(bucketName);
+            list("");
         } catch (SdkClientException e) {
+            throw new RRepositoryException(e.getMessage(), e);
+        } catch (IOException e) {
             throw new RRepositoryException(e.getMessage(), e);
         }
     }
