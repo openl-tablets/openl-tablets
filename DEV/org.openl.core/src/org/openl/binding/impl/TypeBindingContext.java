@@ -13,6 +13,7 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.types.IOwnTargetMethod;
 import org.openl.types.java.CustomJavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -91,18 +92,18 @@ public class TypeBindingContext extends BindingContextDelegator {
 
             //        	method = localVar.getType().getMatchingMethod(name, parTypes);
             if (res != null)
-                res = new LocalvarMethodCaller(localVar, res);
+                res = new LocalVarMethodCaller(localVar, res);
         }
 
         return res == null ? super.findMethodCaller(namespace, name, parTypes) : res;
     }
 
-    private static class LocalvarMethodCaller implements IMethodCaller {
+    private static class LocalVarMethodCaller implements IMethodCaller, IOwnTargetMethod{
 
         ILocalVar localvar;
         IMethodCaller method;
 
-        public LocalvarMethodCaller(ILocalVar localvar, IMethodCaller method) {
+        public LocalVarMethodCaller(ILocalVar localvar, IMethodCaller method) {
             super();
             this.localvar = localvar;
             this.method = method;
