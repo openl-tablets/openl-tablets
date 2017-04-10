@@ -13,6 +13,7 @@ import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOwnTargetMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -38,8 +39,11 @@ public class MethodBoundNode extends ATargetBoundNode {
         try {
             Object target = getTargetNode() == null ? env.getThis() : getTargetNode().evaluate(env);
             Object[] pars = evaluateChildren(env);
-            
-            return boundMethod.invoke(target, pars, env);
+            if (target == null && !(boundMethod instanceof IOwnTargetMethod) && !boundMethod.getMethod().isStatic() && !boundMethod.getMethod().getType().getClass().isPrimitive()) {
+                return null;
+            } else {
+                return boundMethod.invoke(target, pars, env);
+            }
         } catch (ControlSignalReturn signal) {
             return signal.getReturnValue();
         } catch (OpenLRuntimeException opex) {
