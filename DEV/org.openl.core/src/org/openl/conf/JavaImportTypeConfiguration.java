@@ -24,14 +24,20 @@ public class JavaImportTypeConfiguration extends AConfigurationElement implement
     private List<String> packages = new ArrayList<String>();
 
     private ITypeLibrary library = null;
-
-    public void addClassImport(String className) {
+    
+    public synchronized void addClassImport(String className) {
+        if (library != null){
+            throw new IllegalStateException("Library has already been initialized!");
+        }
         if (StringUtils.isNotEmpty(className)) {
             classes.add(className);
         }
     }
 
-    public void addPackageImport(String packageName) {
+    public synchronized void addPackageImport(String packageName) {
+        if (library != null){
+            throw new IllegalStateException("Library has already been initialized!");
+        }
         if (StringUtils.isNotEmpty(packageName)) {
             packages.add(packageName);
         }   
@@ -39,7 +45,7 @@ public class JavaImportTypeConfiguration extends AConfigurationElement implement
 
     public synchronized ITypeLibrary getLibrary(IConfigurableResourceContext cxt) {
         if (library == null) {
-            library = new JavaImportTypeLibrary(classes, packages, cxt.getClassLoader());
+            library = new JavaImportTypeLibrary(packages.toArray(new String[]{}), classes.toArray(new String[]{}), cxt.getClassLoader());
         }
         return library;
     }

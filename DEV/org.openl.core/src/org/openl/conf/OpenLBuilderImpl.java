@@ -1,8 +1,5 @@
 package org.openl.conf;
 
-import java.util.Collection;
-import java.util.HashSet;
-
 import org.openl.OpenL;
 import org.openl.conf.TypeCastFactory.JavaCastComponent;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -13,10 +10,10 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
 
     private String category;
 
-    private Collection<String> packageImports = new HashSet<String>();
-    private Collection<String> classImports = new HashSet<String>();
+    private String[] packageImports = new String[]{};
+    private String[] classImports = new String[]{};
 
-    private Collection<String> libraries = new HashSet<String>();
+    private String[] libraries = new String[]{};
 
     @Override
     public OpenL build(String category) throws OpenConfigurationException {
@@ -35,22 +32,6 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
         return category;
     }
 
-    public String getExtendsCategory() {
-        return extendsCategory;
-    }
-
-    public Collection<String> getPackageImports() {
-        return packageImports;
-    }
-
-    public Collection<String> getClassImports() {
-        return classImports;
-    }
-
-    public Collection<String> getLibraries() {
-        return libraries;
-    }
-
     @Override
     public NoAntOpenLTask getNoAntOpenLTask() {
         NoAntOpenLTask op = new NoAntOpenLTask();
@@ -58,14 +39,14 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
         op.setExtendsCategory(extendsCategory);
         op.setCategory(category);
 
-        if (getLibraries() != null && !getLibraries().isEmpty()) {
+        if (libraries != null && (libraries.length > 0)) {
             LibraryFactoryConfiguration libraries = op.createLibraries();
             NameSpacedLibraryConfiguration thisNamespaceLibrary = new NameSpacedLibraryConfiguration();
             thisNamespaceLibrary.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
             NameSpacedLibraryConfiguration operationNamespaceLibrary = null;
             TypeCastFactory typeCastFactory = op.createTypecast();
 
-            for (String libraryName : getLibraries()) {
+            for (String libraryName : this.libraries) {
                 JavaLibraryConfiguration javalib = new JavaLibraryConfiguration();
                 javalib.setClassName(libraryName);
 
@@ -102,29 +83,23 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
          * </libraries>
          */
 
-        if ((getPackageImports() != null && !getPackageImports()
-            .isEmpty()) || (getClassImports() != null && !getClassImports().isEmpty())) {
+        if ((packageImports != null && (packageImports.length > 0)) || (classImports != null && (classImports.length > 0))) {
             TypeFactoryConfiguration types = op.createTypes();
             NameSpacedTypeConfiguration typelibrary = new NameSpacedTypeConfiguration();
             typelibrary.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
-            JavaImportTypeConfiguration javaimport = new JavaImportTypeConfiguration();
-            // javaimport.setAll("com.exigen.ipb.rm.uk");
-            //
-            // typelibrary.addJavaImport(javaimport);
-
-            javaimport = new JavaImportTypeConfiguration();
-            if (getPackageImports() != null) {
-                for (String packageName : getPackageImports()) {
-                    javaimport.addPackageImport(packageName);
+            JavaImportTypeConfiguration javaImportTypeConfiguration = new JavaImportTypeConfiguration();
+            if (packageImports != null) {
+                for (String packageName : packageImports) {
+                    javaImportTypeConfiguration.addPackageImport(packageName);
                 }
             }
-            if (getClassImports() != null) {
-                for (String classeName : getClassImports()) {
-                    javaimport.addClassImport(classeName);
+            if (classImports != null) {
+                for (String classeName : classImports) {
+                    javaImportTypeConfiguration.addClassImport(classeName);
                 }
             }
 
-            typelibrary.addConfiguration(javaimport);
+            typelibrary.addConfiguration(javaImportTypeConfiguration);
 
             types.addConfiguredTypeLibrary(typelibrary);
         }
@@ -147,17 +122,16 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
         this.extendsCategory = extendsCategory;
     }
 
-    public void setPackageImports(Collection<String> packageNames) {
-        this.packageImports = packageNames;
-    }
-
-    public void setClassImports(Collection<String> classImports) {
+    public void setClassImports(String[] classImports) {
         this.classImports = classImports;
     }
     
-    public void setLibraries(Collection<String> libraries) {
+    public void setLibraries(String[] libraries) {
         this.libraries = libraries;
     }
-
+    
+    public void setPackageImports(String[] packageImports) {
+        this.packageImports = packageImports;
+    }
 
 }

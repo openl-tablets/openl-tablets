@@ -6,10 +6,9 @@
 
 package org.openl.types.java;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.openl.binding.exception.AmbiguousTypeException;
@@ -25,25 +24,31 @@ import org.openl.util.RuntimeExceptionWrapper;
  */
 public class JavaImportTypeLibrary implements ITypeLibrary {
 
-    private HashMap<String, IOpenClass> aliases = new HashMap<String, IOpenClass>();
+    private Map<String, IOpenClass> aliases = new HashMap<String, IOpenClass>();
 
     private Set<String> notFound = new HashSet<String>();
 
-    private List<String> importPackages = new ArrayList<String>();
+    private String[] importPackages;
 
     private ClassLoader loader;
 
-    public JavaImportTypeLibrary(List<String> importClasses, List<String> importPackages, ClassLoader loader) {
+    public JavaImportTypeLibrary(String[] importPackages, String[] importClasses, ClassLoader loader) {
         this.loader = loader;
-        this.importPackages = importPackages;
+        if (importPackages == null) {
+            this.importPackages = new String[] {};
+        } else {
+            this.importPackages = importPackages;
+        }
         if (importClasses != null) {
             for (String importClass : importClasses) {
                 int index = importClass.lastIndexOf('.');
                 String alias = importClass.substring(index + 1);
-
-                Class<?> c = ClassFactory.forName(importClass, loader);
-                aliases.put(alias, JavaOpenClass.getOpenClass(c));
-
+                try{
+                    Class<?> c = ClassFactory.forName(importClass, loader);
+                    aliases.put(alias, JavaOpenClass.getOpenClass(c));
+                }catch (Exception e) {
+                    //This never happens. Classes must be validated before.
+                }
             }
         }
     }

@@ -7,7 +7,6 @@
 package org.openl.conf;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.openl.binding.exception.AmbiguousTypeException;

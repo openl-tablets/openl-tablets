@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -415,9 +416,9 @@ public class XlsBinder implements IOpenBinder {
     }
 
     private void addImports(OpenLBuilderImpl builder, Collection<String> imports) {
-        Collection<String> packageNames = new HashSet<String>();
-        Collection<String> classNames = new HashSet<String>();
-        Collection<String> libraries = new HashSet<String>();
+        Collection<String> packageNames = new LinkedHashSet<String>();
+        Collection<String> classNames = new LinkedHashSet<String>();
+        Collection<String> libraries = new LinkedHashSet<String>();
         for (String singleImport : imports) {
             if (singleImport.endsWith(".*")) {
                 try {
@@ -440,9 +441,9 @@ public class XlsBinder implements IOpenBinder {
                 }
             }
         }
-        builder.setPackageImports(packageNames);
-        builder.setClassImports(classNames);
-        builder.setLibraries(libraries);
+        builder.setPackageImports(packageNames.toArray(new String[]{}));
+        builder.setClassImports(classNames.toArray(new String[]{}));
+        builder.setLibraries(libraries.toArray(new String[]{}));
     }
 
     private OpenL makeOpenL(XlsModuleSyntaxNode moduleNode) {
