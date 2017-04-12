@@ -127,7 +127,7 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 availableServices.add(createServiceInfo(service));
                 log.info("Service '{}' has been exposed with URL '{}'.",
                     service.getName(),
-                    url);
+                    serviceAddress);
             } finally {
                 svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
             }
