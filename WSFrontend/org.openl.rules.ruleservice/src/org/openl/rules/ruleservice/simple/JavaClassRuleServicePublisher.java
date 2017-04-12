@@ -41,7 +41,7 @@ public class JavaClassRuleServicePublisher extends AbstractRuleServicePublisher 
      */
     public OpenLService getServiceByName(String serviceName) {
         if (serviceName == null) {
-            throw new IllegalArgumentException("serviceName argument can't be null");
+            throw new IllegalArgumentException("serviceName argument must not be null!");
         }
 
         return runningServices.get(serviceName);
@@ -53,19 +53,19 @@ public class JavaClassRuleServicePublisher extends AbstractRuleServicePublisher 
     @Override
     public void deployService(OpenLService service) throws RuleServiceDeployException {
         if (service == null) {
-            throw new IllegalArgumentException("service argument can't be null");
+            throw new IllegalArgumentException("service argument must not be null!");
         }
         try {
             OpenLService registeredService = getServiceByName(service.getName());
             if (registeredService != null) {
                 throw new RuleServiceDeployException(
-                    String.format("Service with name \"%s\" has been already deployed. Replaced with new service.",
+                    String.format("Service '%s' has already been deployed. It has been replaced with new service.",
                         service.getName()));
             }
             frontend.registerService(service);
             runningServices.put(service.getName(), service);
         } catch (Exception e) {
-            throw new RuleServiceDeployException("Service deploy failed", e);
+            throw new RuleServiceDeployException("Failed to deploy service.", e);
         }
     }
 
@@ -75,18 +75,18 @@ public class JavaClassRuleServicePublisher extends AbstractRuleServicePublisher 
     @Override
     public void undeployService(String serviceName) throws RuleServiceUndeployException {
         if (serviceName == null) {
-            throw new IllegalArgumentException("serviceName argument can't be null");
+            throw new IllegalArgumentException("serviceName argument must not be null!");
         }
         frontend.unregisterService(serviceName);
         if (runningServices.remove(serviceName) == null) {
             throw new RuleServiceUndeployException(
-                String.format("Service with name \"%s\" hasn't been deployed.", serviceName));
+                String.format("Service '%s' hasn't been deployed.", serviceName));
         }
     }
 
     public void setFrontend(RulesFrontend frontend) {
         if (frontend == null) {
-            throw new IllegalArgumentException("frontend arg can't be null");
+            throw new IllegalArgumentException("frontend arg must not be null!");
         }
         this.frontend = frontend;
     }

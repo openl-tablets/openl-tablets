@@ -79,11 +79,11 @@ public class DeployClasspathJarsBean implements InitializingBean {
                 }
             } else {
                 throw new RuleServiceRuntimeException(
-                    "Protocol VFS supported only for JBoss VFS. URL content should be org.jboss.vfs.VirtualFile!");
+                    "Protocol VFS supports only for JBoss VFS. URL content must be org.jboss.vfs.VirtualFile!");
             }
         } else {
             throw new RuleServiceRuntimeException(
-                "Protocol VFS supported only for JBoss VFS. URL content should be org.jboss.vfs.VirtualFile!");
+                "Protocol VFS supports only for JBoss VFS. URL content must be org.jboss.vfs.VirtualFile!");
         }
     }
 
@@ -110,7 +110,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
                     continue;
                 } else {
                     throw new RuleServiceRuntimeException(
-                        "Protocol for URL doesn't supported! URL: " + resourceURL.toString());
+                        "Protocol for URL isn't supported! URL: " + resourceURL.toString());
                 }
             } catch (Exception e) {
                 log.error("Invalid resource!", e);

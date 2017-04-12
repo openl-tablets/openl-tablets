@@ -13,19 +13,18 @@ import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 
-import net.sf.cglib.core.ReflectUtils;
-
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.publish.common.MethodUtil;
 import org.openl.util.generation.InterfaceTransformer;
+
+import net.sf.cglib.core.ReflectUtils;
 
 /**
  * Utility class for generate JAXWS annotations for service interface.
@@ -197,7 +196,7 @@ public class JAXWSInterfaceEnhancerHelper {
             throw new IllegalArgumentException("Original class is mandatory argument!");
         }
         if (!originalClass.isInterface()) {
-            throw new IllegalArgumentException("Original class should be an interface!");
+            throw new IllegalArgumentException("Original class must be an interface!");
         }
         String enchancedClassName = originalClass.getCanonicalName() + JAXWSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
 

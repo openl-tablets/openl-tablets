@@ -48,7 +48,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
 
     public void setRuleService(RuleService ruleService) {
         if (ruleService == null) {
-            throw new IllegalArgumentException("ruleService can't be null");
+            throw new IllegalArgumentException("ruleService must not be null.");
         }
         this.ruleService = ruleService;
     }
@@ -59,7 +59,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
 
     public void setServiceConfigurer(ServiceConfigurer serviceConfigurer) {
         if (serviceConfigurer == null) {
-            throw new IllegalArgumentException("serviceConfigurer can't be null");
+            throw new IllegalArgumentException("serviceConfigurer must not be null.");
         }
 
         this.serviceConfigurer = serviceConfigurer;
@@ -70,13 +70,13 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
      */
     @Override
     public void start() {
-        log.info("Assembling services after service manager start");
+        log.info("Assembling services after service manager start.");
         processServices();
     }
 
     @Override
     public void onDeploymentAdded() {
-        log.info("Assembling services after data source modification");
+        log.info("Assembling services after data source modification.");
         processServices();
     }
 
@@ -96,7 +96,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
             for (ServiceDescription serviceDescription : servicesToBeDeployed) {
                 if (services.containsKey(serviceDescription.getName())) {
                     log.warn(
-                            "Service with name \"{}\" is duplicated! Only one service with this name will be deployed! Please, check your configuration!",
+                            "Service with name '{}' is duplicated! Only one service with this the same name can be deployed! Please, check your configuration!",
                             serviceDescription.getName());
                 } else {
                     services.put(serviceDescription.getName(), serviceDescription);
@@ -104,7 +104,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
             }
             return services;
         } catch (Exception e) {
-            log.error("Failed to gather services to be deployed", e);
+            log.error("Failed to gather services to be deployed.", e);
             return Collections.emptyMap();
         }
     }
@@ -119,7 +119,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
                     ruleService.undeploy(runningServiceName);
                     serviceDescriptions.remove(runningServiceName);
                 } catch (RuleServiceUndeployException e) {
-                    log.error("Failed to undeploy \"{}\" service", runningServiceName, e);
+                    log.error("Failed to undeploy '{}' service.", runningServiceName, e);
                 } finally {
                     ServiceDescriptionHolder.getInstance().remove();
                 }
@@ -142,9 +142,9 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
                 }
                 serviceDescriptions.put(serviceDescription.getName(), serviceDescription);
             } catch (RuleServiceDeployException e) {
-                log.error("Failed to deploy \"{}\" service", serviceDescription.getName(), e);
+                log.error("Failed to deploy '{}' service.", serviceDescription.getName(), e);
             } catch (RuleServiceRedeployException e) {
-                log.error("Failed to redeploy \"{}\" service", serviceDescription.getName(), e);
+                log.error("Failed to redeploy '{}' service.", serviceDescription.getName(), e);
             } finally {
                 ServiceDescriptionHolder.getInstance().remove();
             }

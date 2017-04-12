@@ -69,7 +69,7 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
                 readWriteLock.writeLock().unlock();
             }
         } catch (Exception e) {
-            throw new OpenlNotCheckedException("Failed to load lazy method", e);
+            throw new OpenlNotCheckedException("Failed to load lazy method.", e);
         }
     }
 

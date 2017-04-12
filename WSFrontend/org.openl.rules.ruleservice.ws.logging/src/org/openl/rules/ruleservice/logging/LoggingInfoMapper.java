@@ -256,7 +256,7 @@ public class LoggingInfoMapper {
                     convertor = (TypeConvertor<Object, Object>) typeConvertorClass.newInstance();
                 } catch (Exception e) {
                     if (log.isErrorEnabled()) {
-                        log.error("Type convertor instantiation was failed! Null value used as result value!", e);
+                        log.error("Failed to instantiate a type convertor! Null value has been used as result value!", e);
                     }
                     value = null;
                 }
@@ -265,7 +265,7 @@ public class LoggingInfoMapper {
                         value = convertor.convert(value);
                     } catch (Exception e) {
                         if (log.isErrorEnabled()) {
-                            log.error("Type convertation was failed! Null value used as result value!", e);
+                            log.error("Filed on type convertation! Null value has been used as a result value!", e);
                         }
                         value = null;
                     }
@@ -275,7 +275,7 @@ public class LoggingInfoMapper {
                 method.invoke(target, value);
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
-                    log.error("Method invoke was failed! Please, check that method annotated correctly!", e);
+                    log.error("Failed on method invoke! Please, check that method is annotated correctly!", e);
                 }
             }
         }
@@ -312,7 +312,7 @@ public class LoggingInfoMapper {
                         convertedValue = convertor.convert(loggingInfo);
                     } catch (Exception e) {
                         if (log.isErrorEnabled()) {
-                            log.error("LoggingInfo convertation was failed! Null value used as convertation result!",
+                            log.error("Failed on LoggingInfo convertation! Null value has been used as a convertation result!",
                                 e);
                         }
                         convertedValue = null;
@@ -321,8 +321,8 @@ public class LoggingInfoMapper {
                         method.invoke(target, convertedValue);
                     } catch (Exception e) {
                         if (log.isErrorEnabled()) {
-                            log.error("Method invoke was failed! Please, check that method '" + method
-                                .toGenericString() + "' annotated correctly!", e);
+                            log.error("Failed on method invokation! Please, check that method '" + method
+                                .toGenericString() + "' is annotated correctly!", e);
                         }
                     }
                 }

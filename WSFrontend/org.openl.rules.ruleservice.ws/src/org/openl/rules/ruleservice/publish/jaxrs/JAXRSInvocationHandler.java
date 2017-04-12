@@ -21,13 +21,13 @@ public class JAXRSInvocationHandler implements InvocationHandler {
             Map<Method, Method> methodMap,
             Map<Method, PropertyDescriptor[]> methodMapToPropertyDescriptors) {
         if (target == null) {
-            throw new IllegalArgumentException("target argument can't be null!");
+            throw new IllegalArgumentException("target argument must not be null!");
         }
         if (methodMap == null) {
-            throw new IllegalArgumentException("methodMap argument can't be null!");
+            throw new IllegalArgumentException("methodMap argument must not be null!");
         }
         if (methodMapToPropertyDescriptors == null) {
-            throw new IllegalArgumentException("methodMapToPropertyDescriptors argument can't be null!");
+            throw new IllegalArgumentException("methodMapToPropertyDescriptors argument must not be null!");
         }
         this.target = target;
         this.methodMap = methodMap;
@@ -63,7 +63,7 @@ public class JAXRSInvocationHandler implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Method m = methodMap.get(method);
         if (m == null) {
-            throw new IllegalStateException("Method is not found in the map of methods");
+            throw new IllegalStateException("Method is not found in the map of methods.");
         }
         try {
             PropertyDescriptor[] propertyDescriptors = methodMapToPropertyDescriptors.get(method);

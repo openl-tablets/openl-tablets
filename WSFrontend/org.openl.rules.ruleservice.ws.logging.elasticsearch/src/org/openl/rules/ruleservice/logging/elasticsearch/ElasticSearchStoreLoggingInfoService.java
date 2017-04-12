@@ -33,7 +33,7 @@ public class ElasticSearchStoreLoggingInfoService implements StoreLoggingInfoSer
     public void store(LoggingInfo loggingInfo) {
         Method serviceMethod = loggingInfo.getServiceMethod();
         if (serviceMethod == null) {
-            log.error("Service method wasn't found! Please, see previous errors.");
+            log.error("Service method has not been found! Please, see previous errors.");
             return;
         }
         
@@ -56,15 +56,15 @@ public class ElasticSearchStoreLoggingInfoService implements StoreLoggingInfoSer
                 elasticSearchIndexBuilder = new DefaultIndexBuilderImpl();
                 if (log.isErrorEnabled()) {
                     log.error(
-                        "Loading CustomLoggingElasticSearchIndexBuilder annotation was failed for method " + serviceMethod
-                            .getName() + ". Used default implementation instead!");
+                        "Failed to load CustomLoggingElasticSearchIndexBuilder annotation for method " + serviceMethod
+                            .getName() + ". Default implementation has been used instead!");
                 }
             } catch (IllegalAccessException e) {
                 elasticSearchIndexBuilder = new DefaultIndexBuilderImpl();
                 if (log.isErrorEnabled()) {
                     log.error(
-                        "Loading CustomLoggingElasticSearchIndexBuilder annotation was failed for method " + serviceMethod
-                            .getName() + ". Used default implementation instead!");
+                        "Failed to load CustomLoggingElasticSearchIndexBuilder annotation for method " + serviceMethod
+                            .getName() + ". Default implementation has been used instead!");
                 }
             }
         }

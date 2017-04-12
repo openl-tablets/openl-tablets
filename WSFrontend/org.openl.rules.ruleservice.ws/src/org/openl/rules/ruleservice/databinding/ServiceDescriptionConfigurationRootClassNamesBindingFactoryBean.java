@@ -19,7 +19,7 @@ public class ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean ext
 
     public void setDefaultAdditionalRootClassNames(Set<String> defaultAdditionalRootClassNames) {
         if (defaultAdditionalRootClassNames == null) {
-            throw new IllegalArgumentException("addtionalRootClassNames arg can't be null");
+            throw new IllegalArgumentException("addtionalRootClassNames arg must be not null!");
         }
         this.defaultAdditionalRootClassNames = defaultAdditionalRootClassNames;
     }
@@ -56,12 +56,12 @@ public class ServiceDescriptionConfigurationRootClassNamesBindingFactoryBean ext
                             classes.append(trimmedClassName);
                         }
                     }
-                    log.info("Service \"{}\" uses root class names for binding. Classes: {}", serviceDescription.getName(), classes);
+                    log.info("Service '{}' uses root class names for binding. Classes: {}", serviceDescription.getName(), classes);
                     return Collections.unmodifiableSet(ret);
                 }else{
                     if (value != null){
                         if (log.isErrorEnabled()) {
-                            log.error("Service \"{}\" error. Unsupports value for " + ROOT_CLASS_NAMES_BINDING + " configuration! Used default value!", serviceDescription.getName());
+                            log.error("Error in service '{}' error. Unsupported value is used for " + ROOT_CLASS_NAMES_BINDING + " configuration! Default value has been used!", serviceDescription.getName());
                         }
                     }
                 }

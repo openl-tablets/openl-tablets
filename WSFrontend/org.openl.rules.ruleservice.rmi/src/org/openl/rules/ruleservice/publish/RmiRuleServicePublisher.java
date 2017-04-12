@@ -109,7 +109,7 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
             ServiceServer serviceServer = new ServiceServer(url, rmiHandler);
             runningServices.put(service, serviceServer);
             availableServices.add(createServiceInfo(service));
-            log.info("Service \"{}\" was exposed with URL \"{}\".",
+            log.info("Service \"{}\" has been exposed with URL \"{}\".",
                 service.getName(),
                 url);
         } catch (Exception t) {
@@ -198,10 +198,10 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
 
         public ServiceServer(String name, Remote rmihandler) {
             if (name == null) {
-                throw new IllegalArgumentException("name arg can't be null!");
+                throw new IllegalArgumentException("name arg must not be null!");
             }
             if (rmihandler == null) {
-                throw new IllegalArgumentException("name rmihandler can't be null!");
+                throw new IllegalArgumentException("name rmihandler must not be null!");
             }
             this.name = name;
             this.rmiHandler = rmihandler;

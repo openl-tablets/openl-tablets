@@ -34,13 +34,13 @@ public class LocalTemporaryDeploymentsStorage {
      */
     public LocalTemporaryDeploymentsStorage(String directoryToLoadDeploymentsIn) {
         if (directoryToLoadDeploymentsIn == null) {
-            throw new IllegalArgumentException("directoryToLoadDeploymentsIn argument can't be null");
+            throw new IllegalArgumentException("directoryToLoadDeploymentsIn argument must not be null.");
         }
         this.directoryToLoadDeploymentsIn = directoryToLoadDeploymentsIn;
         File folderToLoadDeploymentsIn = new File(directoryToLoadDeploymentsIn);
         folderToLoadDeploymentsIn.mkdirs();
         if (!FolderHelper.clearFolder(folderToLoadDeploymentsIn)) {
-            log.error("Failed to clear a folder \"{}\"!", folderToLoadDeploymentsIn.getAbsolutePath());
+            log.error("Failed to clear a folder '{}'!", folderToLoadDeploymentsIn.getAbsolutePath());
         } else {
             log.info("Local temporary folder for downloading deployments was cleared.");
         }
@@ -83,7 +83,7 @@ public class LocalTemporaryDeploymentsStorage {
      * @return deployment from storage or null if doens't exists
      */
     Deployment getDeployment(String deploymentName, CommonVersion version) {
-        log.debug("Getting deployment with name=\"{}\" and version=\"{}\"", deploymentName, version.getVersionName());
+        log.debug("Getting deployment with name='{}' and version='{}'", deploymentName, version.getVersionName());
         String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
         Deployment deployment = cacheForGetDeployment.get(deploymentFolderName);
         return deployment;
@@ -97,13 +97,13 @@ public class LocalTemporaryDeploymentsStorage {
      */
     Deployment loadDeployment(Deployment deployment) {
         if (deployment == null) {
-            throw new IllegalArgumentException("deployment argument can't be null");
+            throw new IllegalArgumentException("deployment argument must not be null.");
         }
 
         String deploymentName = deployment.getDeploymentName();
         CommonVersion version = deployment.getCommonVersion();
         String versionName = deployment.getVersion().getVersionName();
-        log.debug("Loading deployement with name=\"{}\" and version=\"{}\"", deploymentName, versionName);
+        log.debug("Loading deployement with name='{}' and version='{}'", deploymentName, versionName);
 
         String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
         Deployment loadedDeployment = new Deployment(repository, deploymentFolderName, deploymentName, version);
@@ -111,7 +111,7 @@ public class LocalTemporaryDeploymentsStorage {
             loadedDeployment.update(deployment, null);
             loadedDeployment.refresh();
         } catch (ProjectException e) {
-            log.warn("Exception occurs on loading deployment with name=\"{}\" and version=\"{}\" from data source",
+            log.warn("Exception occurs on loading deployment with name='{}' and version='{}' from data source.",
                 deploymentName,
                 versionName,
                 e);
@@ -120,7 +120,7 @@ public class LocalTemporaryDeploymentsStorage {
 
         cacheForGetDeployment.put(deploymentFolderName, loadedDeployment);
 
-        log.debug("Deployment with name=\"{}\" and version=\"{}\" has been made on local storage and putted to cache.",
+        log.debug("Deployment with name='{}' and version='{}' has been made on local storage and put to cache.",
             deploymentName,
             versionName);
         return loadedDeployment;

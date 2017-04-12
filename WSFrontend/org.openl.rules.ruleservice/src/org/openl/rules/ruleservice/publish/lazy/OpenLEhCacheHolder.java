@@ -81,7 +81,7 @@ public class OpenLEhCacheHolder {
                 throw new IllegalStateException(OPENL_EHCACHE_FILE_NAME + " isn't found!");
             }
             if (resources != null && resources.length > 1) {
-                throw new IllegalStateException("Multiple " + OPENL_EHCACHE_FILE_NAME + " found in classpath!");
+                throw new IllegalStateException("Multiple " + OPENL_EHCACHE_FILE_NAME + " exists in classpath!");
             }
             Configuration config = new XmlConfiguration(resources[0].getURL());
             config.getCacheConfigurations().get(LAZY_CACHE_NAME);

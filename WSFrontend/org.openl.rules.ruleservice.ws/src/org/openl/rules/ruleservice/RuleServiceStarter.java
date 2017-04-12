@@ -14,10 +14,11 @@ public final class RuleServiceStarter {
     }
 
     public static void startServicesFromClasspath() {
+        @SuppressWarnings("resource")
         ApplicationContext applicationContext = new ClassPathXmlApplicationContext("openl-ruleservice-beans.xml");
         final ServiceManagerImpl serviceManager = (ServiceManagerImpl) applicationContext.getBean("serviceManager");
         serviceManager.start();
-        System.out.println("Type \"exit\" to stop services.");
+        System.out.println("Type 'exit' to stop services.");
         while ("exit".equals(System.console().readLine())) {
         }
     }

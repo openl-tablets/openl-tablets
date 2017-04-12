@@ -111,11 +111,11 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
                 compiledOpenClass = rulesInstantiationStrategy.compile();
                 CompiledOpenClassCache.getInstance().putToCache(deployment, dependencyName, compiledOpenClass);
                 if (log.isDebugEnabled()){
-                    log.debug("CompiledOpenClass for deploymentName=\"{}\", deploymentVersion=\"{}\", dependencyName=\"{}\" was stored to cache.", deployment.getName(), deployment.getVersion().getVersionName(), dependencyName);
+                    log.debug("CompiledOpenClass for deploymentName='{}', deploymentVersion='{}', dependencyName='{}' was stored to cache.", deployment.getName(), deployment.getVersion().getVersionName(), dependencyName);
                 }
                 return compiledOpenClass;
             } catch (Exception ex) {
-                OpenLMessagesUtils.addError("Can't load dependency " + dependencyName + ".");
+                OpenLMessagesUtils.addError("Failed to load dependency '" + dependencyName + "'.");
                 return compiledOpenClass;
             } finally {
                 LazyBinderInvocationHandler.setPrebindHandler(prebindHandler);

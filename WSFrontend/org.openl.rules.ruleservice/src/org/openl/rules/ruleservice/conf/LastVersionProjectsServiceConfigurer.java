@@ -92,7 +92,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                     }
                 } catch (Throwable e) {
                     log.error(
-                        "Project loading from repository was failed! Project with name \"{}\" in deployment \"{}\" was skipped!",
+                        "Failed to load project from repository! Project '{}' in deployment '{}' was skipped!",
                         project.getName(),
                         deployment.getDeploymentName(),
                         e);
@@ -218,19 +218,19 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                         } else {
                             if (serviceDescriptions.contains(serviceDescription)) {
                                 log.warn(
-                                    "Service \"{}\" has already exists in a deployment list. The second service will be skipped. Please, use unique name for services.",
+                                    "Service '{}' has already existed in the deployment list. The second service will be skipped. Please, use unique name for services.",
                                     serviceDescription.getName());
                             }
                             if (serviceURLs.contains(serviceDescription.getUrl())) {
                                 log.warn(
-                                    "URL \"{}\" has already registered. The second service will be skipped. Please, use unique URLs for services.",
+                                    "URL '{}' has already been registered. The second service will be skipped. Please, use unique URLs for services.",
                                     serviceDescription.getUrl());
                             }
                         }
                     }
                 } catch (Throwable e) {
                     log.error(
-                        "Project loading from repository was failed! Project with name \"{}\" in deployment \"{}\" was skipped!",
+                        "Failed to load project from repository! Project '{}' in deployment '{}' was skipped!",
                             projectName,
                             deploymentName,
                         e);
@@ -315,7 +315,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
 
     public final void setRulesDeploySerializer(IRulesDeploySerializer rulesDeploySerializer) {
         if (rulesDeploySerializer == null) {
-            throw new IllegalArgumentException("rulesDeploySerializer arg can't be null!");
+            throw new IllegalArgumentException("rulesDeploySerializer arg must not be null.");
         }
         this.rulesDeploySerializer = rulesDeploySerializer;
     }

@@ -53,13 +53,13 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
             Collection<Module> modules,
             boolean realCompileRequred) {
         if (deployment == null) {
-            throw new IllegalArgumentException("deployment arg can't be null!");
+            throw new IllegalArgumentException("deployment arg must not be null.");
         }
         if (dependencyName == null) {
-            throw new IllegalArgumentException("dependencyName arg can't be null!");
+            throw new IllegalArgumentException("dependencyName arg must not be null.");
         }
         if (modules == null || modules.isEmpty()) {
-            throw new IllegalArgumentException("modules arg can't be null or empty!");
+            throw new IllegalArgumentException("modules arg must not be null or empty.");
         }
         this.name = dependencyName;
         this.deployment = deployment;
@@ -81,13 +81,13 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
             IPrebindHandler prebindHandler = LazyBinderInvocationHandler.getPrebindHandler();
             try {
                 if (dependencyManager.getCompilationStack().contains(dependencyName)) {
-                    OpenLMessagesUtils.addError("Circular dependency detected in module: " + dependencyName);
+                    OpenLMessagesUtils.addError("Circular dependency has been detected in module: " + dependencyName);
                     return null;
                 }
                 RulesInstantiationStrategy rulesInstantiationStrategy = null;
                 final ClassLoader classLoader = dependencyManager.getClassLoader(modules.iterator().next().getProject());
                 dependencyManager.getCompilationStack().add(dependencyName);
-                log.debug("Creating lazy for:\n" + " deploymentName=\"{}\",\n" + " deploymentVersion=\"{}\",\n" + " dependencyName=\"{}\"",
+                log.debug("Creating lazy for:\n" + " deploymentName='{}',\n" + " deploymentVersion='{}',\n" + " dependencyName='{}'",
                     deployment.getName(),
                     deployment.getVersion().getVersionName(),
                     dependencyName);
@@ -123,7 +123,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                                 if (module != null) {
                                     return module;
                                 }
-                                throw new OpenlNotCheckedException("Module is not found");
+                                throw new OpenlNotCheckedException("Module is not found.");
                             }
 
                             private Module getModuleForSourceUrl(String sourceUrl, Collection<Module> modules) {
@@ -231,7 +231,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                     // correct
                     // compilation
                     LazyCompiledOpenClassCache.getInstance().putToCache(deployment, dependencyName, compiledOpenClass);
-                    log.debug("Lazy CompiledOpenClass was stored in cache for:\n" + " deploymentName=\"{}\",\n" + " deploymentVersion=\"{}\",\n" + " dependencyName=\"{}\"\n",
+                    log.debug("Lazy CompiledOpenClass was stored in cache for:\n" + " deploymentName='{}',\n" + " deploymentVersion='{}',\n" + " dependencyName='{}'\n",
                         deployment.getName(),
                         deployment.getVersion().getVersionName(),
                         dependencyName);
@@ -241,7 +241,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                     }
                     return compiledOpenClass;
                 } catch (Exception ex) {
-                    throw new OpenLCompilationException("Can't load dependency with name '" + dependencyName + "'.", ex);
+                    throw new OpenLCompilationException("Failed to load dependency '" + dependencyName + "'.", ex);
                 } finally {
                     LazyBinderInvocationHandler.setPrebindHandler(prebindHandler);
                 }
@@ -279,12 +279,12 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                 rulesInstantiationStrategy.setExternalParameters(parameters);
                 compiledOpenClass = rulesInstantiationStrategy.compile();
                 CompiledOpenClassCache.getInstance().putToCache(deployment, dependencyName, compiledOpenClass);
-                log.debug("CompiledOpenClass for deploymentName=\"{}\", deploymentVersion=\"{}\", dependencyName=\"{}\" was stored to cache.",
+                log.debug("CompiledOpenClass for deploymentName='{}', deploymentVersion='{}', dependencyName='{}' was stored to cache.",
                     deployment.getName(),
                     deployment.getVersion().getVersionName(),
                     dependencyName);
             } catch (Exception ex) {
-                throw new OpenLCompilationException("Can't load dependency with name '" + dependencyName + "'.", ex);
+                throw new OpenLCompilationException("Failed to load dependency '" + dependencyName + "'.", ex);
             } finally {
                 LazyBinderInvocationHandler.setPrebindHandler(prebindHandler);
             }

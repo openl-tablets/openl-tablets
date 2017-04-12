@@ -95,14 +95,14 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
                         publisher.undeploy(service.getName());
                     } catch (RuleServiceUndeployException e) {
                         if (log.isErrorEnabled()) {
-                            log.error("Service \"{}\" with URL \"{}\" undeploy failed.",
+                            log.error("Failed to undeploy service '{}' with URL '{}'!",
                                 service.getName(),
                                 service.getUrl());
                         }
                     }
                 }
             }
-            throw new RuleServiceDeployException("Service undeploy was failed", e1);
+            throw new RuleServiceDeployException("Failed to undeploy service!", e1);
         }
     }
 
@@ -133,14 +133,14 @@ public class MultipleRuleServicePublisher extends AbstractRuleServicePublisher i
         if (e1 == null) {
             services.remove(serviceName);
         } else {
-            throw new RuleServiceUndeployException("Service undeploy was failed", e1);
+            throw new RuleServiceUndeployException("Failed to undeploy service!", e1);
         }
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
         if (getDefaultRuleServicePublishers() == null || getDefaultRuleServicePublishers().isEmpty()) {
-            throw new BeanInitializationException("You should define at least one default publisher");
+            throw new BeanInitializationException("You must define at least one default publisher!");
         }
     }
 

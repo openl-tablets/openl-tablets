@@ -56,7 +56,7 @@ final class RuleServiceRuntimeContextInstantiationStrategyEnhancerHelper {
      */
     public static Class<?> undecorateClass(Class<?> clazz, ClassLoader classLoader) throws Exception {
         final Logger log = LoggerFactory.getLogger(RuleServiceRuntimeContextInstantiationStrategyEnhancerHelper.class);
-        log.debug("Generating interface with replace runtime context for '{}' class", clazz.getName());
+        log.debug("Generating interface with replace runtime context for '{}' class.", clazz.getName());
 
         if (!clazz.isInterface()) {
             throw new IllegalArgumentException("Supports only interface classes!!!");

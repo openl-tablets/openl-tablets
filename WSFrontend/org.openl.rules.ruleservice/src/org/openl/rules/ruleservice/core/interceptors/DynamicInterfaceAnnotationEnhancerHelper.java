@@ -79,7 +79,7 @@ public class DynamicInterfaceAnnotationEnhancerHelper {
                                     templateMethod = method;
                                 } else {
                                     throw new RuleServiceRuntimeException(
-                                            "Invalid template class. Non-obvious choice of method. Please, check the template class!");
+                                            "Invalid template class. It is a non-obvious choice of method. Please, check the template class!");
                                 }
                             }
                         }

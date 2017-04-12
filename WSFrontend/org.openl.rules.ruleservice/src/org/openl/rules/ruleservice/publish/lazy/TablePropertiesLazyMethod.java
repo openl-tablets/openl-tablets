@@ -24,7 +24,7 @@ public abstract class TablePropertiesLazyMethod extends LazyMethod implements IT
         if (getOriginal() instanceof ITablePropertiesMethod) {
             return ((ITablePropertiesMethod) getOriginal()).getProperties();
         }
-        throw new IllegalStateException("Original method should be instance of ITablePropertiesMethod");
+        throw new IllegalStateException("Original method must be the instance of ITablePropertiesMethod.");
     }
 
     @Override
@@ -32,6 +32,6 @@ public abstract class TablePropertiesLazyMethod extends LazyMethod implements IT
         if (getOriginal() instanceof ITablePropertiesMethod) {
             return ((ITablePropertiesMethod) getOriginal()).getMethodProperties();
         }
-        throw new IllegalStateException("Original method should be instance of ITablePropertiesMethod");
+        throw new IllegalStateException("Original method must be the instance of ITablePropertiesMethod.");
     }
 }

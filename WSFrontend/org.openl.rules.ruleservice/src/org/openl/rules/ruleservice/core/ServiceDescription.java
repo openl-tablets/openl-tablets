@@ -252,7 +252,7 @@ public final class ServiceDescription {
 
         public void addPublisher(String key) {
             if (key == null) {
-                throw new IllegalArgumentException("key argument can't be null!");
+                throw new IllegalArgumentException("key argument must not be null.");
             }
             if (this.publishers == null) {
                 this.publishers = new HashSet<String>();
@@ -288,7 +288,7 @@ public final class ServiceDescription {
          */
         public ServiceDescriptionBuilder setName(String name) {
             if (name == null) {
-                throw new IllegalArgumentException("name can't be null");
+                throw new IllegalArgumentException("name arg must not be null.");
             }
             this.name = name;
             return this;
@@ -420,16 +420,16 @@ public final class ServiceDescription {
          */
         public ServiceDescription build() {
             if (this.name == null) {
-                throw new IllegalStateException("name is required field for building ServiceDescription");
+                throw new IllegalStateException("Field 'name' is required for building ServiceDescription");
             }
             if (this.modules == null) {
-                throw new IllegalStateException("modules is required field for building ServiceDescription");
+                throw new IllegalStateException("Field 'modules' is required for building ServiceDescription");
             }
             if (this.deployment == null) {
-                throw new IllegalStateException("deployment is required field for building ServiceDescription");
+                throw new IllegalStateException("Field 'deployment' is required for building ServiceDescription");
             }
             if (this.modules == null) {
-                throw new IllegalStateException("modulesInService is required field for building ServiceDescription");
+                throw new IllegalStateException("Field 'modulesInService' is required for building ServiceDescription");
             }
             return new ServiceDescription(this);
         }

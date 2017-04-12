@@ -67,10 +67,10 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
 
     public void setInterfaceClassGenerator(InterfaceClassGenerator interfaceClassGenerator) {
         if (interfaceClassGenerator == null) {
-            throw new IllegalArgumentException("interfaceClassGenerator argument can't be null");
+            throw new IllegalArgumentException("interfaceClassGenerator argument must not be null!");
         }
         if (interfaceClass != null) {
-            log.warn("Rules engine factory has already had interface class. Interface class generator will be ignored!");
+            log.warn("Rules engine factory is already had interface class. Interface class generator will be ignored!");
         }
         this.interfaceClassGenerator = interfaceClassGenerator;
     }
@@ -89,7 +89,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
     public LazyEngineFactory(DeploymentDescription deployment, Collection<Module> modules) {
         super(RULES_XLS_OPENL_NAME);
         if (deployment == null) {
-            throw new IllegalArgumentException("deployment can't be null!");
+            throw new IllegalArgumentException("deployment must not be null!");
         }
         this.deployment = deployment;
         this.modules = modules;
@@ -159,7 +159,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
                         openClass,
                         getCompiledOpenClass().getClassLoader());
             } catch (Exception e) {
-                String errorMessage = String.format("Failed to create interface : %s", className);
+                String errorMessage = String.format("Failed to create interface: %s", className);
                 log.error(errorMessage, e);
                 throw new OpenlNotCheckedException(errorMessage, e);
             }
@@ -185,7 +185,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
                     runtimeEnv,
                     getCompiledOpenClass().getClassLoader());
         } catch (Exception ex) {
-            String errorMessage = "Can't instantiate engine instance";
+            String errorMessage = "Failed to instantiate engine instance";
             throw new OpenlNotCheckedException(errorMessage, ex);
         }
     }
@@ -214,7 +214,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
                     return module;
                 }
             } catch (Exception e) {
-                log.warn("Failed to build url of module '{}' with path: {}", module.getName(), modulePath, e);
+                log.warn("Failed to build url for module '{}' with path: {}", module.getName(), modulePath, e);
             }
         }
         return null;

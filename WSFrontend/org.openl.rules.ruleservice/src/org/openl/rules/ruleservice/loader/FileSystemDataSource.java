@@ -74,13 +74,13 @@ public class FileSystemDataSource implements DataSource {
         }
         if (!loadDeploymentsFromDirectory.exists()) {
             if (!loadDeploymentsFromDirectory.mkdirs()) {
-                log.warn("File system data source folder \"{}\" creation was fail!", loadDeploymentsFromDirectory);
+                log.warn("Failed to create file system data source folder '{}'!", loadDeploymentsFromDirectory);
             } else {
-                log.info("File system data source \"{}\" was successfully created!", loadDeploymentsFromDirectory);
+                log.info("File system data source '{}' has been created successfully!", loadDeploymentsFromDirectory);
             }
         }
         if (!loadDeploymentsFromDirectory.exists() || !loadDeploymentsFromDirectory.isDirectory()) {
-            throw new DataSourceException("File system data source folder \"" + loadDeploymentsFromDirectory + "\"  doesn't exist");
+            throw new DataSourceException("File system data source folder '" + loadDeploymentsFromDirectory + "'  doesn't exist");
         }
         this.loadDeploymentsFromDirectory = loadDeploymentsFromDirectory;
     }
@@ -166,7 +166,7 @@ public class FileSystemDataSource implements DataSource {
                     commonVersion = new CommonVersionImpl(versionSuffix);
                 } catch (Exception e) {
                     log.error(
-                        "Deployment folder \"{}\" in file system data source \"{}\" has invalid version suffix. Deployment was skiped!",
+                        "Deployment has been skiped! Deployment folder '{}' in file system data source '{}' has invalid version suffix.",
                         folderName,
                         loadDeploymentsFromDirectory);
                     continue;
@@ -185,7 +185,7 @@ public class FileSystemDataSource implements DataSource {
                 commonVersion);
             if (deployment.getProjects().isEmpty()) {
                 log.warn(
-                    "Deployment in file system data source \"{}\" does not contain projects. Make sure that you have specified correct folder!",
+                    "Deployment in file system data source '{}' does not contain projects. Make sure that you have specified correct folder!",
                     deploymentFolder);
             }
             deployments.add(deployment);

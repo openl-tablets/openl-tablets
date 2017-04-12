@@ -85,7 +85,7 @@ public final class OpenLService {
     OpenLService(String name, String url, String serviceClassName, String rmiServiceClassName, boolean provideRuntimeContext, boolean useRuleServiceRuntimeContext,
             boolean provideVariations, Set<String> publishers, Collection<Module> modules, ClassLoader classLoader) {
         if (name == null) {
-            throw new IllegalArgumentException("name arg can't be null");
+            throw new IllegalArgumentException("name arg must not be null.");
         }
         this.name = name;
         this.url = url;
@@ -357,7 +357,7 @@ public final class OpenLService {
          */
         public OpenLServiceBuilder setName(String name) {
             if (name == null) {
-                throw new IllegalArgumentException("name arg can't be null");
+                throw new IllegalArgumentException("name arg must not be null.");
             }
             this.name = name;
             return this;
@@ -478,7 +478,7 @@ public final class OpenLService {
          */
         public OpenLService build() {
             if (name == null) {
-                throw new IllegalStateException("name is required field for building ServiceDescription");
+                throw new IllegalStateException("Field 'name' is required for building ServiceDescription.");
             }
             return new OpenLService(this);
         }

@@ -20,7 +20,7 @@ public class ServiceDescriptionConfigurationStringFactoryBean extends AbstractFa
 
     public void setPropertyName(String propertyName) {
         if (propertyName == null) {
-            throw new IllegalArgumentException("protpertyName can't be null!");
+            throw new IllegalArgumentException("protpertyName must not be null!");
         }
         this.propertyName = propertyName;
     }
@@ -50,7 +50,7 @@ public class ServiceDescriptionConfigurationStringFactoryBean extends AbstractFa
                 } else {
                     if (value != null) {
                         if (log.isErrorEnabled()) {
-                            log.error("Service \"{}\" error. Supports only string values for " + getPropertyName().trim() + " configuration! Used default value!");
+                            log.error("Error in service '{}'. Supports only string values for " + getPropertyName().trim() + " configuration! Default value has been used!");
                         }
                     }
                 }
@@ -68,7 +68,7 @@ public class ServiceDescriptionConfigurationStringFactoryBean extends AbstractFa
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.propertyName, "propertyName must be set");
+        Assert.notNull(this.propertyName, "propertyName must be set!");
     }
 
 }

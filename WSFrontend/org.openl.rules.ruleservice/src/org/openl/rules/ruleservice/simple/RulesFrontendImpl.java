@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.beanutils.MethodUtils;
-import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.util.StringTool;
@@ -30,11 +29,11 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
      */
     public void registerService(OpenLService service) {
         if (service == null) {
-            throw new IllegalArgumentException("service argument can't be null");
+            throw new IllegalArgumentException("service argument must not be null!");
         }
         OpenLService replacedService = runningServices.put(service.getName(), service);
         if (replacedService != null) {
-            log.warn("Service with name \"{}\" has been already registered. Replaced with new service bean.",
+            log.warn("Service with name '{}' has already been registered. Replaced with new service bean.",
                 service.getName());
         }
     }
@@ -44,7 +43,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
      */
     public void unregisterService(String serviceName) {
         if (serviceName == null) {
-            throw new IllegalArgumentException("serviceName argument can't be null");
+            throw new IllegalArgumentException("serviceName argument must not be null!");
         }
         runningServices.remove(serviceName);
     }
@@ -60,7 +59,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
 
     public OpenLService findServiceByName(String serviceName) {
         if (serviceName == null) {
-            throw new IllegalArgumentException("serviceName argument can't be null");
+            throw new IllegalArgumentException("serviceName argument must not be null!");
         }
 
         return runningServices.get(serviceName);
@@ -74,10 +73,10 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
             Class<?>[] inputParamsTypes,
             Object[] params) throws MethodInvocationException {
         if (serviceName == null) {
-            throw new IllegalArgumentException("serviceName argument can't be null");
+            throw new IllegalArgumentException("serviceName argument must not be null!");
         }
         if (ruleName == null) {
-            throw new IllegalArgumentException("ruleName argument can't be null");
+            throw new IllegalArgumentException("ruleName argument must not be null!");
         }
 
         OpenLService service = runningServices.get(serviceName);
@@ -110,7 +109,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
                 throw new MethodInvocationException(t.toString(), t);
             } 
         } else {
-            throw new MethodInvocationException("Service '" + serviceName + "' is not found");
+            throw new MethodInvocationException("Service '" + serviceName + "' is not found.");
         }
     }
 
@@ -119,19 +118,19 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
      */
     public Object execute(String serviceName, String ruleName, Object... params) throws MethodInvocationException {
         if (serviceName == null) {
-            throw new IllegalArgumentException("serviceName argument can't be null");
+            throw new IllegalArgumentException("serviceName argument must not be null!");
         }
 
         if (ruleName == null) {
-            throw new IllegalArgumentException("ruleName argument can't be null");
+            throw new IllegalArgumentException("ruleName argument must not be null!");
         }
 
-        log.debug("Executing rule from service with name=\"{}\", ruleName=\"{}\"", serviceName, ruleName);
+        log.debug("Executing rule from service with name='{}', ruleName='{}'.", serviceName, ruleName);
 
         Class<?>[] paramTypes = new Class<?>[params.length];
         for (int i = 0; i < params.length; i++) {
             if (params[i] == null){
-                throw new MethodInvocationException("One of parameter is null. Please, use 'execute(String serviceName, String ruleName, Class<?>[] inputParamsTypes, Object[] params)' method! This method doesn't supports null params!");
+                throw new MethodInvocationException("One parameter is null. Please, use 'execute(String serviceName, String ruleName, Class<?>[] inputParamsTypes, Object[] params)' method! This method doesn't supports null params!");
             }
             paramTypes[i] = params[i].getClass();
         }
@@ -143,13 +142,13 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
      */
     public Object getValue(String serviceName, String fieldName) throws MethodInvocationException {
         if (serviceName == null) {
-            throw new IllegalArgumentException("serviceName argument can't be null");
+            throw new IllegalArgumentException("serviceName argument must not be null!");
         }
         if (fieldName == null) {
-            throw new IllegalArgumentException("fieldName argument can't be null");
+            throw new IllegalArgumentException("fieldName argument must not be null!");
         }
 
-        log.debug("Getting value from service with name=\"{}\", fieldName=\"{}\"", serviceName, fieldName);
+        log.debug("Getting value from service with name='{}', fieldName='{}'.", serviceName, fieldName);
 
         Object result = null;
 
@@ -164,7 +163,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
                 if (e.getCause() instanceof RuleServiceWrapperException) {
                     throw new MethodInvocationException(e.getCause());
                 } else {
-                    log.warn("Error reading field \"{}\" from the service \"{}\"", fieldName, serviceName, e);
+                    log.warn("Error on reading field '{}' from the service '{}'.", fieldName, serviceName, e);
                 }
             }
         }

@@ -64,11 +64,11 @@ public class StoreLoggingConfigurationFactoryBean implements FactoryBean<StoreLo
             log.info("Elastic Search logging store is enabled!");
             StoreLoggingInfoService loggingInfoStoringService = applicationContext.getBean(ELASTICSEARCH_STORING_SERVICE_BEAN_NAME, StoreLoggingInfoService.class);
             if (loggingInfoStoringService == null){
-                log.error("Elastic Search logging store wasn't configured! Please, refer to OpenL documentation.");
+                log.error("Elastic Search logging store isn't configured! Please, refer to OpenL documentation.");
             }
             return loggingInfoStoringService;
         } else {
-            return null;
+            return null;   
         }
     }
 

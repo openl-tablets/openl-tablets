@@ -43,7 +43,7 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
             }
         }, dependencyManager, true);
         if (deployment == null) {
-            throw new IllegalArgumentException("deployment can't be null");
+            throw new IllegalArgumentException("deployment must not be null!");
         }
         this.deployment = deployment;
     }
@@ -53,7 +53,7 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
                                      IDependencyManager dependencyManager) {
         super(modules, dependencyManager, true);
         if (deployment == null) {
-            throw new IllegalArgumentException("deployment can't be null");
+            throw new IllegalArgumentException("deployment must not be null!");
         }
         this.deployment = deployment;
     }
@@ -64,7 +64,7 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
                                      ClassLoader classLoader) {
         super(modules, dependencyManager, classLoader, true);
         if (deployment == null) {
-            throw new IllegalArgumentException("deployment can't be null");
+            throw new IllegalArgumentException("deployment must not be null!");
         }
         this.deployment = deployment;
     }
@@ -102,7 +102,7 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy 
         try {
             return getEngineFactory().getInterfaceClass();
         } catch (Exception e) {
-            throw new RulesInstantiationException("Can't resolve interface", e);
+            throw new RulesInstantiationException("Failed to resolve interface", e);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }

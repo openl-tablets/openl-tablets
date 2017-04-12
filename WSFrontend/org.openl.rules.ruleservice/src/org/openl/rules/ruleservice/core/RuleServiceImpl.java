@@ -39,7 +39,7 @@ public class RuleServiceImpl implements RuleService {
         OpenLService service = ruleServicePublisher.getServiceByName(serviceDescription.getName());
         if (service == null) {
             throw new RuleServiceRedeployException(
-                String.format("There is no running service with name \"%s\"", serviceDescription.getName()));
+                String.format("There is no running service with name '%s'.", serviceDescription.getName()));
         }
         try {
             ServiceDescription sd = mapping.get(serviceDescription.getName());
@@ -52,9 +52,9 @@ public class RuleServiceImpl implements RuleService {
                     undeploy(openLService.getName());
                     deploy(serviceDescription);
                 } catch (RuleServiceDeployException e) {
-                    throw new RuleServiceRedeployException("Failed on deploy service", e);
+                    throw new RuleServiceRedeployException("Failed on deploy a service.", e);
                 } catch (RuleServiceUndeployException e) {
-                    throw new RuleServiceRedeployException("Failed on undeploy service", e);
+                    throw new RuleServiceRedeployException("Failed on undeploy a service.", e);
                 }
 
             }
@@ -68,12 +68,12 @@ public class RuleServiceImpl implements RuleService {
      */
     public void undeploy(String serviceName) throws RuleServiceUndeployException {
         if (serviceName == null) {
-            throw new IllegalArgumentException("serviceName arg can't be null");
+            throw new IllegalArgumentException("serviceName arg must not be null.");
         }
         OpenLService service = ruleServicePublisher.getServiceByName(serviceName);
         if (service == null) {
             throw new RuleServiceUndeployException(
-                String.format("There is no running service with name \"%s\"", serviceName));
+                String.format("There is no running service '%s'", serviceName));
         }
 
         ServiceDescription serviceDescription = mapping.get(serviceName);
@@ -90,7 +90,7 @@ public class RuleServiceImpl implements RuleService {
                 .clear(serviceDescription.getDeployment());
         }
         service.destroy();
-        log.info("Service \"{}\" with URL \"{}\" succesfully undeployed.", service.getName(), service.getUrl());
+        log.info("Service '{}' was undeployed succesfully.", service.getName());
     }
 
     /**
@@ -115,7 +115,7 @@ public class RuleServiceImpl implements RuleService {
         OpenLService service = ruleServicePublisher.getServiceByName(serviceDescription.getName());
         if (service != null) {
             throw new RuleServiceDeployException(
-                "The service with name \"" + serviceDescription.getName() + "\" has already deployed!");
+                "The service with name '" + serviceDescription.getName() + "' has already been deployed!");
         }
         try {
             OpenLService newService = ruleServiceInstantiationFactory.createService(serviceDescription);
@@ -125,10 +125,10 @@ public class RuleServiceImpl implements RuleService {
             }
             ruleServicePublisher.deploy(newService);
             mapping.put(serviceDescription.getName(), serviceDescription);
-            log.info("Service \"{}\" succesfully deployed.",
+            log.info("Service '{}' was deployed succesfully.",
                 serviceDescription.getName());
         } catch (RuleServiceInstantiationException e) {
-            throw new RuleServiceDeployException("Failed on deploy service", e);
+            throw new RuleServiceDeployException("Failed on deploy a service.", e);
         }
     }
 
@@ -138,7 +138,7 @@ public class RuleServiceImpl implements RuleService {
 
     public void setRuleServicePublisher(RuleServicePublisher ruleServicePublisher) {
         if (ruleServicePublisher == null) {
-            throw new IllegalArgumentException("ruleServicePublisher arg can't be null");
+            throw new IllegalArgumentException("ruleServicePublisher arg must not be null.");
         }
         this.ruleServicePublisher = ruleServicePublisher;
     }
@@ -149,7 +149,7 @@ public class RuleServiceImpl implements RuleService {
 
     public void setRuleServiceInstantiationFactory(RuleServiceInstantiationFactory ruleServiceInstantiationFactory) {
         if (ruleServiceInstantiationFactory == null) {
-            throw new IllegalArgumentException("ruleServiceInstantiationFactory arg can't be null");
+            throw new IllegalArgumentException("ruleServiceInstantiationFactory arg must not be null.");
         }
         this.ruleServiceInstantiationFactory = ruleServiceInstantiationFactory;
     }

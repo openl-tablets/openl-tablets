@@ -36,7 +36,7 @@ public final class ResourceUtils {
         RepositoryService repositoryService = Context.getProcessEngineConfiguration().getRepositoryService();
         InputStream inputStream = repositoryService.getResourceAsStream(deploymentId, resource);
         if (inputStream == null) {
-            throw new ResourceNotFoundException(String.format("No resource found with name \"%s\"!", resource));
+            throw new ResourceNotFoundException(String.format("No resource found with name '%s'!", resource));
         }
 
         final File workspaceFolder = FileUtils.createTempDirectory();

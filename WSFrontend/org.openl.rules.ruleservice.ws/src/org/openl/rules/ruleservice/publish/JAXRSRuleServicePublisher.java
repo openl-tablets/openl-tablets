@@ -83,14 +83,14 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
         if (serverFactory != null) {
             return serverFactory.getObject();
         }
-        throw new IllegalArgumentException("serverFactory doesn't defined");
+        throw new IllegalArgumentException("serverFactory doesn't defined.");
     }
 
     /* internal for test */Feature getStoreLoggingFeatureBean() {
         if (storeLoggingFeatureFactoryBean != null) {
             return storeLoggingFeatureFactoryBean.getObject();
         }
-        throw new IllegalArgumentException("loggingInfoStoringService doesn't defined");
+        throw new IllegalArgumentException("loggingInfoStoringService doesn't defined.");
     }
 
     protected Class<?> enhanceServiceClassWithJAXRSAnnotations(Class<?> serviceClass,
@@ -113,7 +113,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
                                                                   // have
                                                                   // methods.
             if (log.isWarnEnabled()) {
-                log.warn("Service \"{}\" with URL \"{}{}\" doens't have method and wasn't deployed.",
+                log.warn("Service '{}' doens't have methods and has been skiped.",
                     service.getName(),
                     getBaseAddress(),
                     service.getUrl());
@@ -153,14 +153,14 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 Server wsServer = svrFactory.create();
                 runningServices.put(service, wsServer);
                 availableServices.add(createServiceInfo(service));
-                log.info("Service \"{}\" was exposed with URL \"{}\".",
+                log.info("Service '{}' has been exposed with URL '{}'.",
                     service.getName(),
                     url);
             } finally {
                 svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
             }
         } catch (Throwable t) {
-            throw new RuleServiceDeployException(String.format("Failed to deploy service \"%s\"", service.getName()),
+            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'.", service.getName()),
                 t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -185,11 +185,11 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
         OpenLService service = getServiceByName(serviceName);
         if (service == null) {
             throw new RuleServiceUndeployException(
-                String.format("There is no running service with name \"%s\"", serviceName));
+                String.format("There is no running service with name '%s'", serviceName));
         }
         try {
             runningServices.get(service).destroy();
-            log.info("Service \"{}\" with URL \"{}{}\" succesfully undeployed.",
+            log.info("Service '{}' has been undeployed succesfully.",
                 serviceName,
                 baseAddress,
                 service.getUrl());
@@ -197,7 +197,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
             removeServiceInfo(serviceName);
             service.destroy();
         } catch (Exception t) {
-            throw new RuleServiceUndeployException(String.format("Failed to undeploy service \"%s\"", serviceName), t);
+            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", serviceName), t);
         }
     }
 

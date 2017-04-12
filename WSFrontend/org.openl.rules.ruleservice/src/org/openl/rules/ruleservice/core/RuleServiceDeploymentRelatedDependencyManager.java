@@ -104,10 +104,10 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
             RuleServiceLoader ruleServiceLoader,
             boolean lazy) {
         if (deploymentDescription == null) {
-            throw new IllegalArgumentException("deploymentDescription can't be null!");
+            throw new IllegalArgumentException("deploymentDescription must not be null!");
         }
         if (ruleServiceLoader == null) {
-            throw new IllegalArgumentException("ruleService can't be null!");
+            throw new IllegalArgumentException("ruleService must not be null!");
         }
         this.deploymentDescription = deploymentDescription;
         this.ruleServiceLoader = ruleServiceLoader;
@@ -117,7 +117,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
 
     @Override
     public void setExecutionMode(boolean executionMode) {
-        throw new UnsupportedOperationException("This dependency manager supports only executionMode=true");
+        throw new UnsupportedOperationException("This dependency manager doesn't support executionMode=false!");
     }
 
     @Override
@@ -244,7 +244,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
                             }
                         } catch (Exception e) {
                             log.error(
-                                "Build dependency manager loaders for project \"{}\" from deployment \"{}\" was failed!",
+                                "Failed to build dependency manager loaders for project '{}' in deployment '{}'!",
                                     projectName,
                                 deploymentName,
                                 e);

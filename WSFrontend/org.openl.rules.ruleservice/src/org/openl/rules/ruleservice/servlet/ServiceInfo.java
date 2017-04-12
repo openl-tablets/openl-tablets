@@ -18,7 +18,7 @@ public class ServiceInfo {
     
     public ServiceInfo(Date startedTime, String name, List<String> methodNames, String url, String urlDescription, String address) {
         if (startedTime == null || name == null) {
-            throw new IllegalArgumentException("'startedTime' and 'name' parameters can't be null");
+            throw new IllegalArgumentException("'startedTime' and 'name' parameters must not be null!");
         }
         if (methodNames == null) {
             methodNames = Collections.emptyList();

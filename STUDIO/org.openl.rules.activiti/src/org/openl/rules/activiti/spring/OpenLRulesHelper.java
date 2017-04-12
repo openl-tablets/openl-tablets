@@ -52,7 +52,7 @@ public final class OpenLRulesHelper {
                 instance = projectEngineFactory.newInstance();
             } catch (Exception e) {
                 throw new ResourceCompileException(
-                    "Resource with name '" + resource + "' in deployment with id '" + deploymentId + "' compile was fail!");
+                    "Resource with name '" + resource + "' in deployment with id '" + deploymentId + "' compilation has been failed");
             }
             deploymentCache.add(resource, instance);
         }
@@ -83,7 +83,7 @@ public final class OpenLRulesHelper {
 
         DeploymentEntity deployment = deploymentEntityManager.findDeploymentById(deploymentId);
         if (deployment == null)
-            throw new ActivitiObjectNotFoundException("Could not find a deployment with id '" + deploymentId + "'.",
+            throw new ActivitiObjectNotFoundException("Deployment with id '" + deploymentId + "' hasn't been found.",
                 DeploymentEntity.class);
 
         // First find in cache
@@ -123,11 +123,11 @@ public final class OpenLRulesHelper {
                 return simpleProjectEngineFactory;
             } catch (IOException e) {
                 throw new ResourcePrepareException(
-                    "Resource preparation with name '" + resource + "' in deployment with id '" + deploymentId + "' was fail!",
+                    "Preparing resource with name '" + resource + "' in deployment with id '" + deploymentId + "' has been failed!",
                     e);
             } catch (ClassNotFoundException e) {
                 throw new ResourcePrepareException(
-                    "Resource preparation with name '" + resource + "' in deployment with id '" + deploymentId + "' was fail!",
+                    "Preparing resource with name '" + resource + "' in deployment with id '" + deploymentId + "' has been failed!",
                     e);
             }
         }

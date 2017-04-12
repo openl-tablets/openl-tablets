@@ -69,13 +69,13 @@ public class JcrDataSource implements DataSource {
      */
     public Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) {
         if (deploymentName == null) {
-            throw new IllegalArgumentException("deploymentName argument can't be null");
+            throw new IllegalArgumentException("deploymentName argument must not be null.");
         }
         if (deploymentVersion == null) {
-            throw new IllegalArgumentException("deploymentVersion argument can't be null");
+            throw new IllegalArgumentException("deploymentVersion argument must not be null.");
         }
 
-        log.debug("Getting deployement with name=\"{}\" and version=\"{}\"",
+        log.debug("Getting deployement with name='{}' and version='{}'",
             deploymentName,
             deploymentVersion.getVersionName());
 

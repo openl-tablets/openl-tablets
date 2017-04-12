@@ -36,7 +36,7 @@ public abstract class LazyField extends LazyMember<IOpenField> implements IOpenF
             }
             return compiledOpenClass.getOpenClass().getField(fieldName);
         } catch (Exception e) {
-            throw new OpenlNotCheckedException("Failed to load lazy field", e);
+            throw new OpenlNotCheckedException("Failed to load lazy field.", e);
         }
     }
 

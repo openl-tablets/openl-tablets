@@ -22,13 +22,13 @@ public class LazyCompiledOpenClass extends CompiledOpenClass {
     public LazyCompiledOpenClass(RuleServiceDeploymentRelatedDependencyManager dependencyManager, LazyRuleServiceDependencyLoader lazyRuleServiceDependencyLoader, IDependency dependency) {
         super(null, null, null, null);
         if (lazyRuleServiceDependencyLoader == null) {
-            throw new IllegalArgumentException("lazyRuleServiceDependencyLoader can't be null!");
+            throw new IllegalArgumentException("lazyRuleServiceDependencyLoader must not be null!");
         }
         if (dependency == null) {
-            throw new IllegalArgumentException("dependency can't be null!");
+            throw new IllegalArgumentException("dependency must not be null!");
         }
         if (dependencyManager == null) {
-            throw new IllegalArgumentException("dependencyManager can't be null!");
+            throw new IllegalArgumentException("dependencyManager must not be null!");
         }
         this.dependencyManager = dependencyManager;
         this.lazyRuleServiceDependencyLoader = lazyRuleServiceDependencyLoader;
@@ -40,7 +40,7 @@ public class LazyCompiledOpenClass extends CompiledOpenClass {
             CompiledOpenClass compiledOpenClass = lazyRuleServiceDependencyLoader.compile(dependency.getNode().getIdentifier(), dependencyManager);
             return compiledOpenClass;
         } catch (OpenLCompilationException e) {
-            throw new OpenlNotCheckedException("Shouldn't happen! Compilation validated before!!");
+            throw new OpenlNotCheckedException("It must not happen! Compilation validated before!");
         }
 
     }

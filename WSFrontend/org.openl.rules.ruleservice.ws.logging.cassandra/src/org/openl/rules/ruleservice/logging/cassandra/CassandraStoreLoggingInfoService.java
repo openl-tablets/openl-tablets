@@ -29,7 +29,7 @@ public class CassandraStoreLoggingInfoService implements StoreLoggingInfoService
     public void store(LoggingInfo loggingInfo) {
         Method serviceMethod = loggingInfo.getServiceMethod();
         if (serviceMethod == null) {
-            log.error("Service method wasn't found! Please, see previous errors.");
+            log.error("Service method has not been found! Please, see previous errors.");
             return;
         }
 
@@ -47,7 +47,7 @@ public class CassandraStoreLoggingInfoService implements StoreLoggingInfoService
             try {
                 entity = entityClass.newInstance();
             } catch (Exception e) {
-                log.error("Entity class instantiation fail!", e);
+                log.error("Failed to instantiate entity class!", e);
                 return;
             }
         }

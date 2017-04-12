@@ -53,13 +53,13 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             LocalTemporaryDeploymentsStorage storage,
             ProjectResolver projectResolver) {
         if (dataSource == null) {
-            throw new IllegalArgumentException("dataSource argument can't be null");
+            throw new IllegalArgumentException("dataSource argument must not be null.");
         }
         if (storage == null) {
-            throw new IllegalArgumentException("storage argument can't be null");
+            throw new IllegalArgumentException("storage argument must not be null.");
         }
         if (projectResolver == null) {
-            throw new IllegalArgumentException("projectResolver argument can't be null");
+            throw new IllegalArgumentException("projectResolver argument must not be null.");
         }
 
         this.dataSource = dataSource;
@@ -77,7 +77,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      */
     public void setDataSource(DataSource dataSource) {
         if (dataSource == null) {
-            throw new IllegalArgumentException("dataSource argument can't be null");
+            throw new IllegalArgumentException("dataSource argument must not be null.");
         }
 
         this.dataSource = dataSource;
@@ -97,7 +97,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      */
     public void setProjectResolver(ProjectResolver projectResolver) {
         if (projectResolver == null) {
-            throw new IllegalArgumentException("projectResolver argument can't be null");
+            throw new IllegalArgumentException("projectResolver argument must not be null.");
         }
 
         this.projectResolver = projectResolver;
@@ -115,7 +115,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      */
     public void setStorage(LocalTemporaryDeploymentsStorage storage) {
         if (storage == null) {
-            throw new IllegalArgumentException("storage argument can't be null");
+            throw new IllegalArgumentException("storage argument must not be null.");
         }
 
         this.storage = storage;
@@ -137,16 +137,16 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             CommonVersion deploymentVersion,
             String projectName) {
         if (deploymentName == null) {
-            throw new IllegalArgumentException("deploymentName argument can't be null");
+            throw new IllegalArgumentException("deploymentName argument must not be null.");
         }
         if (deploymentVersion == null) {
-            throw new IllegalArgumentException("deploymentVersion argument can't be null");
+            throw new IllegalArgumentException("deploymentVersion argument must not be null.");
         }
         if (projectName == null) {
-            throw new IllegalArgumentException("projectName argument can't be null");
+            throw new IllegalArgumentException("projectName argument must not be null.");
         }
 
-        log.debug("Resoliving modules for deployment with name={} and version={} and projectName={}",
+        log.debug("Resoliving modules for deployment (name='{}', version='{}', projectName='{}')",
                 deploymentName,
                 deploymentVersion.getVersionName(),
                 projectName);
@@ -154,7 +154,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         Deployment localDeployment = getDeploymentFromStorage(deploymentName, deploymentVersion);
         AProject project = localDeployment.getProject(projectName);
         if (project == null) {
-            throw new RuleServiceRuntimeException("Deployment \"" + deploymentName + "\" doesn't contain a project with name \"" + projectName + "\"!");
+            throw new RuleServiceRuntimeException("Deployment '" + deploymentName + "' doesn't contain a project '" + projectName + "'!");
         }
         String artefactPath = storage.getDirectoryToLoadDeploymentsIn() + project.getArtefactPath().getStringValue();
         File projectFolder = new File(artefactPath);
@@ -166,7 +166,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
                 result = Collections.unmodifiableList(modules);
             }
         } catch (ProjectResolvingException e) {
-            log.error("Project resolving failed!", e);
+            log.error("Project resolving has been failed!", e);
         }
         return result;
     }

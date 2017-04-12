@@ -57,13 +57,13 @@ public class ServiceDescriptionConfigurationBooleanFactoryBean extends AbstractF
                         return Boolean.FALSE;
                     }
                     if (log.isErrorEnabled()) {
-                        log.error("Service \"{}\" error. Supports only true/false values for " + getPropertyName().trim() + " configuration!", serviceDescription.getName());
+                        log.error("Error in service '{}'. Supports only true/false values for " + getPropertyName().trim() + " configuration!", serviceDescription.getName());
                     }
                     return getDefaultValue();
                 }else{
                     if (value != null){
                         if (log.isErrorEnabled()) {
-                            log.error("Service \"{}\" error. Supports only true/false values for " + getPropertyName().trim() + " configuration! Used default value!", serviceDescription.getName());
+                            log.error("Error in service '{}'. Supports only true/false values for " + getPropertyName().trim() + " configuration! Used default value!", serviceDescription.getName());
                         }
                     }
                 }
@@ -81,7 +81,7 @@ public class ServiceDescriptionConfigurationBooleanFactoryBean extends AbstractF
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.propertyName, "propertyName must be set");
+        Assert.notNull(this.propertyName, "propertyName must be set!");
     }
 
 }

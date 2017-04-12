@@ -31,7 +31,7 @@ public class RuleServiceRuntimeContextInstantiationStrategyEnhancerInvocationHan
             return method.invoke(serviceClassInstance, args);
         }
 
-        log.debug("Invoking service class method: {} -> {}", method, member);
+        log.debug("Invoking method of service class: {} -> {}", method, member);
         IRulesRuntimeContext context = (IRulesRuntimeContext) args[0];
         Object[] methodArgs = ArrayUtils.clone(args);
         methodArgs[0] = (org.openl.rules.context.IRulesRuntimeContext) RuntimeContextConvertor.covert(context);

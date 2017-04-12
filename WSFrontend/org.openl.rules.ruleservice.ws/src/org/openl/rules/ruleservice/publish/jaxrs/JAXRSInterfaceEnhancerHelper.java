@@ -415,7 +415,7 @@ public class JAXRSInterfaceEnhancerHelper {
             throw new IllegalArgumentException("Original class is mandatory argument!");
         }
         if (!originalClass.isInterface()) {
-            throw new IllegalArgumentException("Original class should be an interface!");
+            throw new IllegalArgumentException("Original class must be an interface!");
         }
         ClassWriter cw = new ClassWriter(0);
         JAXRSInterfaceAnnotationEnhancerClassVisitor jaxrsAnnotationEnhancerClassVisitor = new JAXRSInterfaceAnnotationEnhancerClassVisitor(cw,
@@ -464,7 +464,7 @@ public class JAXRSInterfaceEnhancerHelper {
         for (Method method : proxyInterface.getMethods()) {
             Annotation jaxRSMethod = method.getAnnotation(JAXRSMethod.class);
             if (jaxRSMethod == null) {
-                throw new IllegalStateException("Proxy interface should contains JAXRSMethod annotation for each method!");
+                throw new IllegalStateException("Proxy interface must contain JAXRSMethod annotation for each method!");
             }
             String methodName = ((JAXRSMethod) jaxRSMethod).value();
             boolean found = false;

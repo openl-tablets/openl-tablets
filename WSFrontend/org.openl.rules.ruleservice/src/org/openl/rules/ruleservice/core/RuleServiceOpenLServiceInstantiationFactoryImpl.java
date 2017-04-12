@@ -99,7 +99,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             Object proxyServiceBean = factory.getProxy();
             service.setServiceBean(proxyServiceBean);
         } catch (Throwable t) {
-            throw new RuleServiceRuntimeException("Can't create a proxy of service bean object", t);
+            throw new RuleServiceRuntimeException("Failed to create a proxy of service bean object.", t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
@@ -118,13 +118,13 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                     serviceClass);
                 instantiationStrategy.setServiceClass(interfaceForInstantiationStrategy);
             } catch (ClassNotFoundException e) {
-                log.error("Failed to load service class with name \"{}\"", serviceClassName, e);
+                log.error("Failed to load service class '{}'.", serviceClassName, e);
             } catch (NoClassDefFoundError e) {
-                log.error("Failed to load service class with name \"{}\"", serviceClassName, e);
+                log.error("Failed to load service class '{}'.", serviceClassName, e);
             }
         }
         if (serviceClass == null) {
-            log.info("Service class is undefined of service '{}'. Generated interface will be used.", service.getName());
+            log.info("Service class is undefined for service '{}'. Generated interface will be used.", service.getName());
             Class<?> instanceClass = instantiationStrategy.getInstanceClass();
             serviceClass = processGeneratedServiceClass(instantiationStrategy, service, instanceClass, serviceClassLoader);
             service.setServiceClassName(null); //Generated class is used.
@@ -140,9 +140,9 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             try {
                 serviceClass = serviceClassLoader.loadClass(rmiServiceClassName.trim());
             } catch (ClassNotFoundException e) {
-                log.error("Failed to load rmi service class with name \"{}\"", rmiServiceClassName, e);
+                log.error("Failed to load rmi service class '{}'", rmiServiceClassName, e);
             }catch (NoClassDefFoundError e) {
-                log.error("Failed to load rmi service class with name \"{}\"", rmiServiceClassName, e);
+                log.error("Failed to load rmi service class '{}'", rmiServiceClassName, e);
             }
         }
         if (serviceClass == null) {
@@ -156,14 +156,14 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     private Class<?> processGeneratedServiceClass(RulesInstantiationStrategy instantiationStrategy, OpenLService service, Class<?> serviceClass, ClassLoader classLoader) {
         Class<?> resultClass = processInterceptingTemplateClassConfiguration(service, serviceClass, classLoader);
         if (resultClass == null) {
-            throw new IllegalStateException("It shouldn't happen!");
+            throw new IllegalStateException("It must not happen!");
         }
         try {
             Class<?> interfaceForService = RuleServiceInstantiationFactoryHelper.getInterfaceForService(instantiationStrategy,
                 resultClass);
             return interfaceForService;
         } catch (Exception e) {
-            log.error("Failed to applying intercepting template class for '{}'",
+            log.error("Failed to applying intercepting template class for '{}'.",
                 resultClass.getCanonicalName(),
                 e);
         }
@@ -174,11 +174,11 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             Class<?> serviceClass,
             ClassLoader classLoader) {
         if (serviceClass == null) {
-            throw new IllegalStateException("It shouldn't happen!");
+            throw new IllegalStateException("It must not happen!");
         }
         ServiceDescription serviceDescription = ServiceDescriptionHolder.getInstance().getServiceDescription();
         if (serviceDescription == null) {
-            log.error("Service description didn't find! Something wrong!\n" + "Interceptor template configuration was ignored for service '{}!",
+            log.error("Service description hasn't been found! Something wrong!\n" + "Interceptor template configuration has been ignored for service '{}!",
                 service.getName());
             return serviceClass;
         } else {
@@ -190,19 +190,19 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                         Class<?> decoratedClass = DynamicInterfaceAnnotationEnhancerHelper.decorate(serviceClass,
                             interceptingTemplateClass,
                             classLoader);
-                        log.info("Interceptor template class \"{}\" was used for service: {}",
+                        log.info("Interceptor template class '{}' has been used for service: {}.",
                             clazzName,
                             serviceDescription.getName());
                         return decoratedClass;
                     }
-                    log.error("Required interface! Intercepting template class wasn't used! Failed to load or applying intercepting template class with name \"{}\"",
+                    log.error("Interface is required! Intercepting template class hasn't been used! Failed to load or apply intercepting template class '{}'.",
                         clazzName);
                 } catch (Exception e) {
-                    log.error("Intercepting template class wasn't used! Failed to load or applying intercepting template class with name \"{}\"",
+                    log.error("Intercepting template class hasn't been used! Failed to load or apply intercepting template class '{}'.",
                         clazzName,
                         e);
                 } catch (NoClassDefFoundError e) {
-                    log.error("Intercepting template class wasn't used! Failed to load or applying intercepting template class with name \"{}\"",
+                    log.error("Intercepting template class hasn't been used! Failed to load or apply intercepting template class '{}'.",
                         clazzName,
                         e);
                 }
@@ -216,7 +216,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
      */
     public OpenLService createService(ServiceDescription serviceDescription) throws RuleServiceInstantiationException {
         try {
-            log.debug("Resoliving modules for service with name={}", serviceDescription.getName());
+            log.debug("Resoliving modules for service '{}'.", serviceDescription.getName());
             Collection<Module> modules = serviceDescription.getModules();
 
             OpenLService.OpenLServiceBuilder builder = new OpenLService.OpenLServiceBuilder();
@@ -240,7 +240,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             initService(getDependencyManager(serviceDescription), openLService);
             return openLService;
         } catch (Exception e) {
-            throw new RuleServiceInstantiationException(String.format("Failed to initialiaze OpenL service \"%s\"",
+            throw new RuleServiceInstantiationException(String.format("Failed to initialiaze OpenL service '%s'.",
                 serviceDescription.getName()), e);
         }
     }
@@ -251,7 +251,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     public void setRuleServiceLoader(RuleServiceLoader ruleServiceLoader) {
         if (ruleServiceLoader == null) {
-            throw new IllegalArgumentException("rulesLoader arg can't be null");
+            throw new IllegalArgumentException("rulesLoader arg must not be null.");
         }
         this.ruleServiceLoader = ruleServiceLoader;
     }
@@ -270,7 +270,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     public void setInstantiationStrategyFactory(RuleServiceInstantiationStrategyFactory instantiationStrategyFactory) {
         if (instantiationStrategyFactory == null) {
-            throw new IllegalArgumentException("instantiationStrategyFactory arg can't be null");
+            throw new IllegalArgumentException("instantiationStrategyFactory arg must not be null.");
         }
         this.instantiationStrategyFactory = instantiationStrategyFactory;
     }

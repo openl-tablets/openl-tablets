@@ -88,7 +88,7 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
         if (storeLoggingFeatureFactoryBean != null) {
             return storeLoggingFeatureFactoryBean.getObject();
         }
-        throw new IllegalArgumentException("loggingInfoStoringService doesn't defined");
+        throw new IllegalArgumentException("loggingInfoStoringService isn't defined.");
     }
 
     protected Class<?> enhanceServiceClassWithJAXWSAnnotations(Class<?> serviceClass,
@@ -125,14 +125,14 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 ServiceServer serviceServer = new ServiceServer(wsServer, svrFactory.getDataBinding());
                 runningServices.put(service, serviceServer);
                 availableServices.add(createServiceInfo(service));
-                log.info("Service \"{}\" was exposed with URL \"{}\".",
+                log.info("Service '{}' has been exposed with URL '{}'.",
                     service.getName(),
                     url);
             } finally {
                 svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
             }
         } catch (Exception t) {
-            throw new RuleServiceDeployException(String.format("Failed to deploy service \"%s\"", service.getName()),
+            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'", service.getName()),
                 t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -165,14 +165,14 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
         OpenLService service = getServiceByName(serviceName);
         if (service == null) {
             throw new RuleServiceUndeployException(
-                String.format("There is no running service with name \"%s\"", serviceName));
+                String.format("There is no running service '%s'", serviceName));
         }
         try {
             runningServices.get(service).getServer().destroy();
             runningServices.remove(service);
             removeServiceInfo(serviceName);
         } catch (Exception t) {
-            throw new RuleServiceUndeployException(String.format("Failed to undeploy service \"%s\"", serviceName), t);
+            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", serviceName), t);
         }
     }
 
@@ -224,7 +224,7 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
 
         public ServiceServer(Server server, DataBinding dataBinding) {
             if (server == null) {
-                throw new IllegalArgumentException("server arg can't be null!");
+                throw new IllegalArgumentException("server arg must not be null!");
             }
 
             this.server = server;

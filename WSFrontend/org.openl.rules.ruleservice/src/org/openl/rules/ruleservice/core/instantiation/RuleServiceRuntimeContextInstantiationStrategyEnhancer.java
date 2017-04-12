@@ -77,7 +77,7 @@ public class RuleServiceRuntimeContextInstantiationStrategyEnhancer extends Abst
      * @return methods map
      */
     private Map<Method, Method> makeMethodMap(Class<?> interfaceClass, Class<?> serviceClass) {
-        log.debug("Creating methods map for classes: {} <-> {}", interfaceClass, serviceClass);
+        log.debug("Creating methods map for classes: {} <-> {}.", interfaceClass, serviceClass);
 
         Map<Method, Method> methodMap = new HashMap<Method, Method>();
         Method[] serviceMethods = serviceClass.getDeclaredMethods();

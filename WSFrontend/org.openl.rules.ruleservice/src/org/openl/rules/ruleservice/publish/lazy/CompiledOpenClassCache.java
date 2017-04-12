@@ -33,10 +33,10 @@ public final class CompiledOpenClassCache {
 
     public CompiledOpenClass get(DeploymentDescription deploymentDescription, String dependencyName) {
         if (deploymentDescription == null) {
-            throw new IllegalArgumentException("deploymentDescription can't be null!");
+            throw new IllegalArgumentException("deploymentDescription must not be null!");
         }
         if (dependencyName == null) {
-            throw new IllegalArgumentException("dependencyName can't be null");
+            throw new IllegalArgumentException("dependencyName must not be null");
         }
         Key key = new Key(deploymentDescription, dependencyName);
         Cache<Key, CompiledOpenClass> cache = OpenLEhCacheHolder.getInstance().getModulesCache();
@@ -47,10 +47,10 @@ public final class CompiledOpenClassCache {
             String dependencyName,
             CompiledOpenClass compiledOpenClass) {
         if (deploymentDescription == null) {
-            throw new IllegalArgumentException("deploymentDescription can't be null!");
+            throw new IllegalArgumentException("deploymentDescription must not be null!");
         }
         if (dependencyName == null) {
-            throw new IllegalArgumentException("dependencyName can't be null");
+            throw new IllegalArgumentException("dependencyName must not be null");
         }
         Key key = new Key(deploymentDescription, dependencyName);
         Cache<Key, CompiledOpenClass> cache = OpenLEhCacheHolder.getInstance().getModulesCache();
@@ -64,10 +64,10 @@ public final class CompiledOpenClassCache {
      */
     public void remove(DeploymentDescription deploymentDescription, String dependencyName) {
         if (deploymentDescription == null) {
-            throw new IllegalArgumentException("deploymentDescription can't be null!");
+            throw new IllegalArgumentException("deploymentDescription must not be null!");
         }
         if (dependencyName == null) {
-            throw new IllegalArgumentException("dependencyNAme can't be null");
+            throw new IllegalArgumentException("dependencyNAme must not be null!");
         }
         Key key = new Key(deploymentDescription, dependencyName);
         Cache<Key, CompiledOpenClass> cache = OpenLEhCacheHolder.getInstance().getModulesCache();
@@ -75,8 +75,8 @@ public final class CompiledOpenClassCache {
     }
 
     public void removeAll(DeploymentDescription deploymentDescription) {
-        if (deploymentDescription == null){
-            throw new IllegalArgumentException("deploymentDescription can't be null!");
+        if (deploymentDescription == null) {
+            throw new IllegalArgumentException("deploymentDescription must not be null!");
         }
         Cache<Key, CompiledOpenClass> cache = OpenLEhCacheHolder.getInstance().getModulesCache();
         Iterator<Entry<Key, CompiledOpenClass>> itr = cache.iterator();
