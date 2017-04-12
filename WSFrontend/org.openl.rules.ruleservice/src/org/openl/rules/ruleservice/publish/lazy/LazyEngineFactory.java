@@ -70,7 +70,7 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
             throw new IllegalArgumentException("interfaceClassGenerator argument must not be null!");
         }
         if (interfaceClass != null) {
-            log.warn("Rules engine factory is already had interface class. Interface class generator will be ignored!");
+            log.warn("Rules engine factory already has interface class. Interface class generator has been ignored!");
         }
         this.interfaceClassGenerator = interfaceClassGenerator;
     }

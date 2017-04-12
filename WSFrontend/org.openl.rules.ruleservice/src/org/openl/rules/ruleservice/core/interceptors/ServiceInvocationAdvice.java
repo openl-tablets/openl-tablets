@@ -106,7 +106,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                     aroundInterceptors.put(method, aroundInterceptor);
                 } catch (Exception e) {
                     throw new RuleServiceRuntimeException(String.format(
-                        "Wrong annotation definining around interceptor for method '%s' of class '%s'.",
+                        "Failed to instante 'around' interceptor for method '%s' in class '%s'.",
                         method.getName(),
                         serviceClass.getName()), e);
                 }
@@ -132,7 +132,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                         interceptors.add(preInterceptor);
                     } catch (Exception e) {
                         throw new RuleServiceRuntimeException(String.format(
-                            "Wrong annotation definining before interceptor for method '%s' of class '%s'.",
+                            "Failed to instante 'before' interceptor for method '%s' in class '%s'.",
                             method.getName(),
                             serviceClass.getName()), e);
                     }
@@ -156,8 +156,8 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                 ServiceExtraMethodHandler<?> serviceMethodAdvice = serviceExtraMethodHandlerClass.getConstructor().newInstance();
                 serviceExtraMethodAnnotations.put(method, serviceMethodAdvice);
             } catch (Exception e) {
-                throw new RuleServiceRuntimeException(
-                    String.format("Wrong annotation definining service method handler for method '%s' of class '%s'.",
+                throw new RuleServiceRuntimeException(String.format(
+                    "Failed to instante service method handler for method '%s' in class '%s'.",
                         method.getName(),
                         serviceClass.getName()),
                     e);
@@ -183,7 +183,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                         interceptors.add(postInterceptor);
                     } catch (Exception e) {
                         throw new RuleServiceRuntimeException(String.format(
-                            "Wrong annotation definining afterReturning interceptor for method '%s' of class '%s'.",
+                            "Failed to instante 'afterReturning' interceptor for method '%s' in class '%s'.",
                             method.getName(),
                             serviceClass.getName()), e);
                     }
@@ -213,7 +213,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
         if (serviceExtraMethodHandler != null) {
             return serviceExtraMethodHandler.invoke(interfaceMethod, serviceBean, args);
         }
-        throw new OpenLRuntimeException("Service method advice not found!");
+        throw new OpenLRuntimeException("Service method advice hasn't been found!");
     }
 
     protected Object afterInvocation(Method interfaceMethod,
@@ -276,8 +276,8 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                         sb.append(clazz.getCanonicalName());
                     }
                     throw new OpenLRuntimeException(
-                        "Called method is not found in service bean. Please, check that excel file contains method with name '" + calledMethod
-                            .getName() + "' and  arguments (" + sb.toString() + ").");
+                        "Called method hasn't been found in service bean. Please, check that excel file contains method with name '" + calledMethod
+                            .getName() + "' and arguments (" + sb.toString() + ").");
                 }
             }
             try {
@@ -330,7 +330,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                 engine.release();
             } else {
                 log.warn(
-                    "Service bean doesn't implement IEngineWrapper interface. Plese, Don't use depricated static wrapper classes. It can be cause of memory leaks!!!");
+                    "Service bean doesn't implement IEngineWrapper interface. Plese, don't use deprecated static wrapper classes. It can be cause of memory leaks!!!");
             }
         }
     }
@@ -362,7 +362,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
             }
         }
         StringBuilder sb = new StringBuilder();
-        sb.append("During OpenL rule execution exception was occured. Method name is '".toUpperCase());
+        sb.append("During OpenL rule execution exception was occurred. Method name is '".toUpperCase());
         sb.append(method.getName());
         sb.append("'. Arguments types are: ");
         sb.append(argsTypes.toString());

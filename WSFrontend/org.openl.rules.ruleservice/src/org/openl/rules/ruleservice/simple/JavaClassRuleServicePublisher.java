@@ -59,7 +59,7 @@ public class JavaClassRuleServicePublisher extends AbstractRuleServicePublisher 
             OpenLService registeredService = getServiceByName(service.getName());
             if (registeredService != null) {
                 throw new RuleServiceDeployException(
-                    String.format("Service '%s' has already been deployed. It has been replaced with new service.",
+                    String.format("Service '%s' is already deployed. It has been replaced with new service.",
                         service.getName()));
             }
             frontend.registerService(service);

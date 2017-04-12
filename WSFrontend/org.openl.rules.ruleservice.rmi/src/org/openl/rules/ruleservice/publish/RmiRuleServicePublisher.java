@@ -109,11 +109,11 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
             ServiceServer serviceServer = new ServiceServer(url, rmiHandler);
             runningServices.put(service, serviceServer);
             availableServices.add(createServiceInfo(service));
-            log.info("Service \"{}\" has been exposed with URL \"{}\".",
+            log.info("Service '{}' has been exposed with URL '{}'.",
                 service.getName(),
                 url);
         } catch (Exception t) {
-            throw new RuleServiceDeployException(String.format("Failed to deploy service \"%s\"", service.getName()), t);
+            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'.", service.getName()), t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
@@ -136,7 +136,7 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
     protected void undeployService(String serviceName) throws RuleServiceUndeployException {
         OpenLService service = getServiceByName(serviceName);
         if (service == null) {
-            throw new RuleServiceUndeployException(String.format("There is no running service with name \"%s\"",
+            throw new RuleServiceUndeployException(String.format("There is no running service with name '%s'.",
                 serviceName));
         }
         try {
@@ -145,7 +145,7 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
             runningServices.remove(service);
             removeServiceInfo(serviceName);
         } catch (Exception t) {
-            throw new RuleServiceUndeployException(String.format("Failed to undeploy service \"%s\"", serviceName), t);
+            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", serviceName), t);
         }
     }
 

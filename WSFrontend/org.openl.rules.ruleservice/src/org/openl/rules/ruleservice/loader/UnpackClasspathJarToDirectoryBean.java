@@ -88,7 +88,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
      */
     public void setDestinationDirectory(String destinationDirectory) {
         if (destinationDirectory == null) {
-            throw new IllegalArgumentException("destinationDirectory argument must not be null.");
+            throw new IllegalArgumentException("destinationDirectory argument must not be null!");
         }
         this.destinationDirectory = destinationDirectory;
     }
@@ -191,11 +191,11 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
 
         if (!isCreateAndClearDirectory()) {
             if (!desFile.exists()) {
-                throw new IOException("Destination folder does not exist. Path: " + destDirectory);
+                throw new IOException("Destination folder doesn't exist. Path: " + destDirectory);
             }
 
             if (!desFile.isDirectory()) {
-                throw new IOException("Destination path is not a directory on the file system. Path: " + destDirectory);
+                throw new IOException("Destination path isn't a directory on the file system. Path: " + destDirectory);
             }
         } else {
             if (checkOrCreateFolder(desFile)) {
@@ -218,17 +218,17 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                 } else if ("vfs".equals(rulesXmlResource.getURL().getProtocol())) {
                     // This reflection implementation for JBoss vfs
                     extractJarForJboss(resourceURL, desFile, false);
-                    log.info("Unpacking '{}' into '{}' was completed", resourceURL, destDirectory);
+                    log.info("Unpacking '{}' into '{}' has been completed.", resourceURL, destDirectory);
                     continue;
                 } else {
                     throw new RuleServiceRuntimeException("Protocol for URL isn't supported! URL: " + resourceURL.toString());
                 }
             } catch (Exception e) {
-                log.error("Invalid resource!", e);
-                throw new IOException("Invalid resource.", e);
+                log.error("Failed to load a resource!", e);
+                throw new IOException("Failed to load a resource!", e);
             }
             if (!file.exists()) {
-                throw new IOException("File is not found. File: " + file.getAbsolutePath());
+                throw new IOException("File hasn't been found. File: " + file.getAbsolutePath());
             }
 
             File d = desFile;
@@ -260,17 +260,17 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                     } else if ("vfs".equals(deploymentResource.getURL().getProtocol())) {
                         // This reflection implementation for JBoss vfs
                         extractJarForJboss(resourceURL, desFile, true);
-                        log.info("Unpacking '{}' into '{}' was completed.", resourceURL, destDirectory);
+                        log.info("Unpacking '{}' into '{}' has been completed.", resourceURL, destDirectory);
                         continue;
                     } else {
                         throw new RuleServiceRuntimeException("Protocol for URL isn't supported! URL: " + resourceURL.toString());
                     }
                 } catch (Exception e) {
-                    log.error("Invalid resource!", e);
-                    throw new IOException("Invalid resource", e);
+                    log.error("Failed to load a resource!", e);
+                    throw new IOException("Failed to load a resource!", e);
                 }
                 if (!file.exists()) {
-                    throw new IOException("File not found. File: " + file.getAbsolutePath());
+                    throw new IOException("File hasn't been found. File: " + file.getAbsolutePath());
                 }
     
                 String folderName = FileUtils.getBaseName(file.getCanonicalPath());
@@ -283,7 +283,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
     
                 ZipUtils.extractAll(file, d);
     
-                log.info("Unpacking '{}' into '{}' was completed.", file.getAbsolutePath(), destDirectory);
+                log.info("Unpacking '{}' into '{}' has been completed.", file.getAbsolutePath(), destDirectory);
             }
         }
     }

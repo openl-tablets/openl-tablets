@@ -80,7 +80,7 @@ public class FileSystemDataSource implements DataSource {
             }
         }
         if (!loadDeploymentsFromDirectory.exists() || !loadDeploymentsFromDirectory.isDirectory()) {
-            throw new DataSourceException("File system data source folder '" + loadDeploymentsFromDirectory + "'  doesn't exist");
+            throw new DataSourceException("File system data source folder '" + loadDeploymentsFromDirectory + "' doesn't exist");
         }
         this.loadDeploymentsFromDirectory = loadDeploymentsFromDirectory;
     }
@@ -90,11 +90,11 @@ public class FileSystemDataSource implements DataSource {
      */
     public Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) {
         if (deploymentName == null) {
-            throw new IllegalArgumentException("deploymentName argument can't be null");
+            throw new IllegalArgumentException("deploymentName argument must not be null!");
         }
 
         if (deploymentVersion == null) {
-            throw new IllegalArgumentException("deploymentVersion argument can't be null");
+            throw new IllegalArgumentException("deploymentVersion argument must not be null!");
         }
 
         if (!deploymentVersion.equals(FILESYSTEM_COMMON_VERSION) && !supportDeployments) {
@@ -185,7 +185,7 @@ public class FileSystemDataSource implements DataSource {
                 commonVersion);
             if (deployment.getProjects().isEmpty()) {
                 log.warn(
-                    "Deployment in file system data source '{}' does not contain projects. Make sure that you have specified correct folder!",
+                    "Deployment of the file system data source '{}' does not contain projects. Make sure that you have specified correct folder!",
                     deploymentFolder);
             }
             deployments.add(deployment);

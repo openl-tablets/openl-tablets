@@ -36,7 +36,7 @@ public final class CompiledOpenClassCache {
             throw new IllegalArgumentException("deploymentDescription must not be null!");
         }
         if (dependencyName == null) {
-            throw new IllegalArgumentException("dependencyName must not be null");
+            throw new IllegalArgumentException("dependencyName must not be null!");
         }
         Key key = new Key(deploymentDescription, dependencyName);
         Cache<Key, CompiledOpenClass> cache = OpenLEhCacheHolder.getInstance().getModulesCache();
@@ -50,7 +50,7 @@ public final class CompiledOpenClassCache {
             throw new IllegalArgumentException("deploymentDescription must not be null!");
         }
         if (dependencyName == null) {
-            throw new IllegalArgumentException("dependencyName must not be null");
+            throw new IllegalArgumentException("dependencyName must not be null!");
         }
         Key key = new Key(deploymentDescription, dependencyName);
         Cache<Key, CompiledOpenClass> cache = OpenLEhCacheHolder.getInstance().getModulesCache();

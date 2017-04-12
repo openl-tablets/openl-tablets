@@ -146,7 +146,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             }
         }
         if (serviceClass == null) {
-            log.info("Service class is undefined of service '{}'. Default RMI interface will be used.",
+            log.info("Service class is undefined for service '{}'. Default RMI interface will be used.",
                 service.getName());
             service.setRmiServiceClassName(null); // RMI default will be used
         }

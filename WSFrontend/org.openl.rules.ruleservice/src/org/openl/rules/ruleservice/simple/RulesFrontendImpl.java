@@ -33,7 +33,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
         }
         OpenLService replacedService = runningServices.put(service.getName(), service);
         if (replacedService != null) {
-            log.warn("Service with name '{}' has already been registered. Replaced with new service bean.",
+            log.warn("Service '{}' has already been registered. Replaced with new service bean.",
                 service.getName());
         }
     }
@@ -98,7 +98,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
                 }
 
                 throw new MethodInvocationException("Method '" + ruleName + "(" + sb
-                    .toString() + ")' is not found in service '" + serviceName + "'!");
+                    .toString() + ")' hasn't been found in service '" + serviceName + "'!");
             }
             try {
                 return serviceMethod.invoke(service.getServiceBean(), params);
@@ -109,7 +109,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
                 throw new MethodInvocationException(t.toString(), t);
             } 
         } else {
-            throw new MethodInvocationException("Service '" + serviceName + "' is not found.");
+            throw new MethodInvocationException("Service '" + serviceName + "' hasn't been found.");
         }
     }
 

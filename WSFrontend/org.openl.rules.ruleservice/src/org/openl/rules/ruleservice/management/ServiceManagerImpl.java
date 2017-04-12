@@ -48,7 +48,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
 
     public void setRuleService(RuleService ruleService) {
         if (ruleService == null) {
-            throw new IllegalArgumentException("ruleService must not be null.");
+            throw new IllegalArgumentException("ruleService must not be null!");
         }
         this.ruleService = ruleService;
     }
@@ -59,7 +59,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
 
     public void setServiceConfigurer(ServiceConfigurer serviceConfigurer) {
         if (serviceConfigurer == null) {
-            throw new IllegalArgumentException("serviceConfigurer must not be null.");
+            throw new IllegalArgumentException("serviceConfigurer must not be null!");
         }
 
         this.serviceConfigurer = serviceConfigurer;
@@ -96,7 +96,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
             for (ServiceDescription serviceDescription : servicesToBeDeployed) {
                 if (services.containsKey(serviceDescription.getName())) {
                     log.warn(
-                            "Service with name '{}' is duplicated! Only one service with this the same name can be deployed! Please, check your configuration!",
+                            "Service '{}' is duplicated! Only one service with this the same name can be deployed! Please, check your configuration!",
                             serviceDescription.getName());
                 } else {
                     services.put(serviceDescription.getName(), serviceDescription);

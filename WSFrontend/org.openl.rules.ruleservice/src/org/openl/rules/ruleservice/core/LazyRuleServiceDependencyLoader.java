@@ -141,7 +141,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                                             return module;
                                         }
                                     } catch (Exception e) {
-                                        log.warn("Failed to build url of module '{}' with path: {}",
+                                        log.warn("Failed to build url for module '{}' with path: {}",
                                             module.getName(),
                                             modulePath,
                                             e);

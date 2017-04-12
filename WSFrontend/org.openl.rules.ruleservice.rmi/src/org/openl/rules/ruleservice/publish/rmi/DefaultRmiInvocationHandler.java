@@ -13,10 +13,10 @@ class DefaultRmiInvocationHandler implements InvocationHandler {
     public DefaultRmiInvocationHandler(Object target,
             Map<String, List<Method>> methodMap) {
         if (target == null) {
-            throw new IllegalArgumentException("target argument can't be null!");
+            throw new IllegalArgumentException("target argument must not be null!");
         }
         if (methodMap == null) {
-            throw new IllegalArgumentException("methodMap argument can't be null!");
+            throw new IllegalArgumentException("methodMap argument must not be null!");
         }
         this.target = target;
         this.methodMap = methodMap;
@@ -32,7 +32,7 @@ class DefaultRmiInvocationHandler implements InvocationHandler {
             inputParamsTypes = (Class<?>[]) args[1];
             params = (Object[]) args[2];
             if (inputParamsTypes.length != params.length){
-                throw new IllegalArgumentException("inputParamTypes size should be equals to params size!");
+                throw new IllegalArgumentException("inputParamTypes size must be equals to params size!");
             }
         }else{
             strictMatch = false;
@@ -46,7 +46,7 @@ class DefaultRmiInvocationHandler implements InvocationHandler {
         }
         List<Method> methods = methodMap.get(ruleName);
         if (methods == null){
-            throw new IllegalArgumentException("Method with requested ruleName is not found!");
+            throw new IllegalArgumentException("Method with requested ruleName hasn't been found!");
         }
         
         int match = 0;
@@ -74,9 +74,9 @@ class DefaultRmiInvocationHandler implements InvocationHandler {
             return matchedMethod.invoke(target, params);
         }else{
             if (match > 1){
-                throw new IllegalArgumentException("More than one method found with requested ruleName and parameters");
+                throw new IllegalArgumentException("More than one method has been found with requested ruleName and parameters.");
             }else{
-                throw new IllegalArgumentException("Method with requested ruleName and parameters is not found");
+                throw new IllegalArgumentException("Method with requested ruleName and parameters hasn't been found.");
             }
         }
     }

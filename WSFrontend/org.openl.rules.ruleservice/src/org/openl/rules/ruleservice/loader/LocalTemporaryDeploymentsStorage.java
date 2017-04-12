@@ -42,7 +42,7 @@ public class LocalTemporaryDeploymentsStorage {
         if (!FolderHelper.clearFolder(folderToLoadDeploymentsIn)) {
             log.error("Failed to clear a folder '{}'!", folderToLoadDeploymentsIn.getAbsolutePath());
         } else {
-            log.info("Local temporary folder for downloading deployments was cleared.");
+            log.info("Local temporary folder for downloading deployments has been cleared.");
         }
         log.info("Local temporary folder location is: {}", directoryToLoadDeploymentsIn);
         repository = new LocalRepository(folderToLoadDeploymentsIn);

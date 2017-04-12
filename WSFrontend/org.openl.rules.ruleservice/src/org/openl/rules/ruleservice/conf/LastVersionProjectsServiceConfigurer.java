@@ -92,7 +92,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                     }
                 } catch (Throwable e) {
                     log.error(
-                        "Failed to load project from repository! Project '{}' in deployment '{}' was skipped!",
+                        "Failed to load project from repository! Project '{}' in deployment '{}' has been skipped!",
                         project.getName(),
                         deployment.getDeploymentName(),
                         e);
@@ -218,19 +218,19 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                         } else {
                             if (serviceDescriptions.contains(serviceDescription)) {
                                 log.warn(
-                                    "Service '{}' has already existed in the deployment list. The second service will be skipped. Please, use unique name for services.",
+                                    "Service '{}' already exists in the deployment list. The second service has been skipped. Please, use unique name for services.",
                                     serviceDescription.getName());
                             }
                             if (serviceURLs.contains(serviceDescription.getUrl())) {
                                 log.warn(
-                                    "URL '{}' has already been registered. The second service will be skipped. Please, use unique URLs for services.",
+                                    "URL '{}' has already been registered. The second service has been skipped. Please, use unique URLs for services.",
                                     serviceDescription.getUrl());
                             }
                         }
                     }
                 } catch (Throwable e) {
                     log.error(
-                        "Failed to load project from repository! Project '{}' in deployment '{}' was skipped!",
+                        "Failed to load project from repository! Project '{}' in deployment '{}' has been skipped!",
                             projectName,
                             deploymentName,
                         e);

@@ -113,11 +113,11 @@ public class DeployClasspathJarsBean implements InitializingBean {
                         "Protocol for URL isn't supported! URL: " + resourceURL.toString());
                 }
             } catch (Exception e) {
-                log.error("Invalid resource!", e);
-                throw new IOException("Invalid resource", e);
+                log.error("Failed to load a resource!", e);
+                throw new IOException("Failed to load a resource!", e);
             }
             if (!file.exists()) {
-                throw new IOException("File is not found. File: " + file.getAbsolutePath());
+                throw new IOException("File hasn't been found. File: " + file.getAbsolutePath());
             }
 
             productionRepositoryDeployer.deployInternal(file, repository, true);
