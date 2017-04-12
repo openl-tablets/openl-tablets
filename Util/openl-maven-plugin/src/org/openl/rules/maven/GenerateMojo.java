@@ -170,6 +170,7 @@ public class GenerateMojo extends BaseOpenLMojo {
      * </table>
      * <p>
      */
+    @Parameter
     @Deprecated
     private GenerateInterface[] generateInterfaces;
 
