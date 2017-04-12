@@ -24,6 +24,8 @@ import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
 import org.openl.rules.ruleservice.publish.jaxws.JAXWSInterfaceEnhancerHelper;
 import org.openl.rules.ruleservice.servlet.AvailableServicesGroup;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
 
 /**
@@ -33,8 +35,7 @@ import org.springframework.beans.factory.ObjectFactory;
  */
 public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesGroup {
 
-    // private final Log log =
-    // LogFactory.getLog(WebServicesRuleServicePublisher.class);
+    private final Logger log = LoggerFactory.getLogger(JAXWSRuleServicePublisher.class);
 
     private ObjectFactory<?> serverFactory;
     private Map<OpenLService, ServiceServer> runningServices = new HashMap<OpenLService, ServiceServer>();
@@ -124,6 +125,9 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 ServiceServer serviceServer = new ServiceServer(wsServer, svrFactory.getDataBinding());
                 runningServices.put(service, serviceServer);
                 availableServices.add(createServiceInfo(service));
+                log.info("Service \"{}\" was exposed with URL \"{}\".",
+                    service.getName(),
+                    url);
             } finally {
                 svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
             }

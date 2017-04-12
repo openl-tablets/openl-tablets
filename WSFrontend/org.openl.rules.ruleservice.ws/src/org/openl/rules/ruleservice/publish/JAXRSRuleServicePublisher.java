@@ -153,10 +153,9 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 Server wsServer = svrFactory.create();
                 runningServices.put(service, wsServer);
                 availableServices.add(createServiceInfo(service));
-                log.info("Service \"{}\" with URL \"{}{}\" succesfully deployed.",
+                log.info("Service \"{}\" was exposed with URL \"{}\".",
                     service.getName(),
-                    getBaseAddress(),
-                    service.getUrl());
+                    url);
             } finally {
                 svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
             }

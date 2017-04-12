@@ -23,6 +23,8 @@ import org.openl.rules.ruleservice.publish.rmi.RmiEnhancerHelper;
 import org.openl.rules.ruleservice.rmi.DefaultRmiHandler;
 import org.openl.rules.ruleservice.servlet.AvailableServicesGroup;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * DeploymentAdmin to expose services via HTTP.
@@ -31,6 +33,8 @@ import org.openl.rules.ruleservice.servlet.ServiceInfo;
  */
 public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesGroup  {
 
+    private final Logger log = LoggerFactory.getLogger(RmiRuleServicePublisher.class);
+    
     private Map<OpenLService, ServiceServer> runningServices = new HashMap<OpenLService, ServiceServer>();
     private String baseAddress;
     private List<ServiceInfo> availableServices = new ArrayList<ServiceInfo>();
@@ -105,6 +109,9 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
             ServiceServer serviceServer = new ServiceServer(url, rmiHandler);
             runningServices.put(service, serviceServer);
             availableServices.add(createServiceInfo(service));
+            log.info("Service \"{}\" was exposed with URL \"{}\".",
+                service.getName(),
+                url);
         } catch (Exception t) {
             throw new RuleServiceDeployException(String.format("Failed to deploy service \"%s\"", service.getName()), t);
         } finally {

@@ -125,9 +125,8 @@ public class RuleServiceImpl implements RuleService {
             }
             ruleServicePublisher.deploy(newService);
             mapping.put(serviceDescription.getName(), serviceDescription);
-            log.info("Service \"{}\" with URL \"{}\" succesfully deployed.",
-                serviceDescription.getName(),
-                serviceDescription.getUrl());
+            log.info("Service \"{}\" succesfully deployed.",
+                serviceDescription.getName());
         } catch (RuleServiceInstantiationException e) {
             throw new RuleServiceDeployException("Failed on deploy service", e);
         }
