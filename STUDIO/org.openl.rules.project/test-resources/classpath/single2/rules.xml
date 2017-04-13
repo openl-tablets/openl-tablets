@@ -1,0 +1,10 @@
+<project>
+    <name>Test classpath</name>
+
+    <modules>
+        <module>
+            <name>RULES</name>
+            <rules-root path="rules.xlsx"/>
+        </module>
+    </modules>
+</project>

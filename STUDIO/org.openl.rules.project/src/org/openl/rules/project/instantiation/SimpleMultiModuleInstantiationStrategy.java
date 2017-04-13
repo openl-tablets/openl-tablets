@@ -81,7 +81,6 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
         }
         if (engineFactory == null || (serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass))) {
             engineFactory = new RulesEngineFactory<Object>(createVirtualSourceCodeModule(),
-                    AOpenLEngineFactory.DEFAULT_USER_HOME,
                     (Class<Object>) serviceClass);// FIXME
             engineFactory.setExecutionMode(isExecutionMode());
 
