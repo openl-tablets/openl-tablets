@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.CompiledOpenClass;
-import org.openl.classloader.OpenLClassLoader;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
@@ -46,7 +45,7 @@ public class RulesModuleDependencyLoader implements IDependencyLoader {
                 
                 return new CompiledDependency(dependencyName, compiledOpenClass);
             } catch (Exception e) {
-                throw new OpenlNotCheckedException(String.format("Can't load dependency '%s'", dependencyName) , e);
+                throw new OpenlNotCheckedException(String.format("Failed to load dependency '%s'!", dependencyName) , e);
             }
         }
 

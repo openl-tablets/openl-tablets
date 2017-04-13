@@ -91,7 +91,7 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
                 }
             }
         } catch (InterruptedException e) {
-            throw new OpenLCompilationException("Interrupter exception!", e);
+            throw new OpenLCompilationException("Interrupted exception!", e);
         }
     }
 

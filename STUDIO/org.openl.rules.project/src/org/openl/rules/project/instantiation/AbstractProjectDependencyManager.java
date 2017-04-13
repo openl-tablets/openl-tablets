@@ -103,7 +103,7 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
     private CompiledDependency throwCompilationError(IDependency dependency, String dependencyName) throws OpenLCompilationException {
         IdentifierNode node = dependency.getNode();
         OpenLCompilationException exception = new OpenLCompilationException(
-                String.format("Dependency with name '%s' wasn't found", dependencyName),
+                String.format("Dependency with name '%s' hasn't been found.", dependencyName),
                 null,
                 node.getSourceLocation(),
                 node.getModule()

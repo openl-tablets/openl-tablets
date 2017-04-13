@@ -26,7 +26,7 @@ public abstract class DependencyManager implements IDependencyManager {
         CompiledDependency compiledDependency = handleLoadDependency(dependency);
 
         if (compiledDependency == null) {
-            throw new OpenLCompilationException(String.format("Dependency with name '%s' wasn't found", dependencyName), 
+            throw new OpenLCompilationException(String.format("Dependency with name '%s' hasn't been found", dependencyName), 
                 null, dependency.getNode().getSourceLocation());
         }   
         
@@ -85,7 +85,7 @@ public abstract class DependencyManager implements IDependencyManager {
 
             if (dependency != null) {
                 if (result != null) {
-                    throw new OpenLCompilationException(String.format("There are several modules with the same name '%s'", dependencyName));
+                    throw new OpenLCompilationException(String.format("Found more than one module with the same name '%s'", dependencyName));
                 }
                 result = dependency;
             }

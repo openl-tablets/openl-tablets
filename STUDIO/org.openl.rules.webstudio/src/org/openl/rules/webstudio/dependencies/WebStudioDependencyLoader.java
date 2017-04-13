@@ -33,7 +33,7 @@ final class WebStudioDependencyLoader extends SimpleProjectDependencyLoader {
             Exception ex) {
         List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
         for (OpenLMessage openLMessage : OpenLMessagesUtils.newMessages(ex)) {
-            String message = String.format("Can't load dependent module '%s': %s",
+            String message = String.format("Failed to load dependent module '%s': %s",
                 dependencyName,
                 openLMessage.getSummary());
             messages.add(new OpenLMessage(message, Severity.ERROR));

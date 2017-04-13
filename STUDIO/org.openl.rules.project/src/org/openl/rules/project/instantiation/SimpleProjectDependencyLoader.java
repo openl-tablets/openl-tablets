@@ -49,10 +49,10 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
     
     public SimpleProjectDependencyLoader(String dependencyName, Collection<Module> modules, boolean singleModuleMode, boolean executionMode) {
         if (dependencyName == null) {
-            throw new IllegalArgumentException("dependencyName arg can't be null!");
+            throw new IllegalArgumentException("dependencyName arg must not be null!");
         }
         if (modules == null || modules.isEmpty()) {
-            throw new IllegalArgumentException("modules arg can't be null or empty!");
+            throw new IllegalArgumentException("modules arg must not be null or empty!");
         }
         this.dependencyName = dependencyName;
         this.modules = modules;
@@ -81,13 +81,13 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
             }
 
             if (compiledDependency != null) {
-                log.debug("Dependency for dependencyName = {} from cache was returned.", dependencyName);
+                log.debug("Dependency for dependencyName = {} from cache has been returned.", dependencyName);
                 return compiledDependency;
             }
 
             try {
                 if (isCircularDependency) {
-                    OpenLMessagesUtils.addError("Circular dependency detected in module: " + dependencyName);
+                    OpenLMessagesUtils.addError("Circular dependency has been detected in module: " + dependencyName);
                     return null;
                 }
                 
@@ -104,7 +104,7 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
                                 dependencyManager,
                                 classLoader, executionMode);
                     } else {
-                        throw new IllegalStateException("Modules collection can't be empty");
+                        throw new IllegalStateException("Modules collection must not be empty");
                     }
                 }
 
@@ -119,7 +119,7 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
                     OpenLValidationManager.turnOffValidation();
                     CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
                     CompiledDependency cd = new CompiledDependency(dependencyName, compiledOpenClass);
-                    log.debug("Dependency for dependencyName = {} was stored to cache.", dependencyName);
+                    log.debug("Dependency for dependencyName = {} has been stored in cache.", dependencyName);
                     compiledDependency = cd;
                     return compiledDependency;
                 } catch (Exception ex) {
@@ -138,7 +138,7 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
     }
 
     protected CompiledDependency onCompilationFailure(Exception ex, AbstractProjectDependencyManager dependencyManager) throws OpenLCompilationException {
-        throw new OpenLCompilationException("Can't load dependency with name '" + dependencyName + "'.", ex);
+        throw new OpenLCompilationException("Failed to load dependency '" + dependencyName + "'.", ex);
     }
 
     public String getDependencyName() {

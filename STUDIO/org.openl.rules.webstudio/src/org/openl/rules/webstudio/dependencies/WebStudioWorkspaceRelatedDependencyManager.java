@@ -45,7 +45,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
             boolean singleModuleMode) {
         super();
         if (projects == null) {
-            throw new IllegalArgumentException("projects can't be null!");
+            throw new IllegalArgumentException("projects must not be null!");
         }
 
         this.projects = projects;
@@ -102,7 +102,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
                     projectDescriptors.add(project);
                     dependencyLoaders.add(projectLoader);
                 } catch (Exception e) {
-                    log.error("Build dependency manager loaders for project {} was failed!", project.getName(), e);
+                    log.error("Failed to build dependency manager loaders for project '{}'!", project.getName(), e);
                 }
             }
         }

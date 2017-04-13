@@ -40,7 +40,7 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
                                           boolean executionMode) {
         super();
         if (projects == null) {
-            throw new IllegalArgumentException("projects can't be null!");
+            throw new IllegalArgumentException("projects not be null!");
         }
         this.projects = projects;
         this.singleModuleMode = singleModuleMode;
@@ -94,7 +94,7 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
                     projectDescriptors.add(project);
                     dependencyLoaders.add(projectLoader);
                 } catch (Exception e) {
-                    log.error("Build dependency manager loaders for project {} was failed!", project.getName(), e);
+                    log.error("Failed to build dependency manager loaders for project '{}'!", project.getName(), e);
                 }
             }
         }
