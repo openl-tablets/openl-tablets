@@ -80,7 +80,7 @@ public class JavaImportTypeLibrary implements ITypeLibrary {
                 if (e.getCause() instanceof ClassNotFoundException) {
                     // Type is found but can't be loaded because of absent dependent class.
                     String noClassMessage = e.getCause().getMessage();
-                    String message = String.format("Type '%s' can't be loaded because of absent type '%s'.",
+                    String message = String.format("Failed to load type '%s' because of absent type '%s'.",
                             name,
                             noClassMessage);
                     throw RuntimeExceptionWrapper.wrap(message, e);
