@@ -80,7 +80,7 @@ public class JavaImportTypeLibrary implements ITypeLibrary {
                 if (e.getCause() instanceof ClassNotFoundException) {
                     // Type is found but can't be loaded because of absent dependent class.
                     String noClassMessage = e.getCause().getMessage();
-                    String message = String.format("Failed to load type '%s' because of absent type '%s'.",
+                    String message = String.format("Can't load type '%s' because of absent type '%s'.",
                             name,
                             noClassMessage);
                     throw RuntimeExceptionWrapper.wrap(message, e);
@@ -94,10 +94,10 @@ public class JavaImportTypeLibrary implements ITypeLibrary {
                 // We just skip such classes and continue searching them in another packages.
             } catch (UnsupportedClassVersionError e) {
                 // Type is found but it's compiled using newer version of JDK
-                String message = String.format("Failed to load the class '%s' that was compiled using newer version of JDK than current JRE (%s)", name, System.getProperty("java.version"));
+                String message = String.format("Can't load the class '%s' that was compiled using newer version of JDK than current JRE (%s)", name, System.getProperty("java.version"));
                 throw RuntimeExceptionWrapper.wrap(message, e);
             } catch (Throwable t) {
-                Log.error("Error loading class: " + name, t);
+                Log.error("Can't load class: " + name, t);
                 throw RuntimeExceptionWrapper.wrap(t);
             }
         }

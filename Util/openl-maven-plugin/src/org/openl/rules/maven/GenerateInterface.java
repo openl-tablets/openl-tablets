@@ -159,7 +159,7 @@ public class GenerateInterface {
 
             template = ve.getTemplate(unitTestTemplatePath);
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to find a template in '" + unitTestTemplatePath + "'.", e);
+            throw new IllegalStateException("Can't find a template in '" + unitTestTemplatePath + "'.", e);
         }
 
         VelocityContext vc = new VelocityContext();
@@ -177,7 +177,7 @@ public class GenerateInterface {
             template.merge(vc, writer);
             writeContentToFile(writer.toString(), getOutputFileName(), overwriteUnitTests);
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to generate JUnit class for file '" + getDisplayName() + "'.", e);
+            throw new IllegalStateException("Can't generate JUnit class for file '" + getDisplayName() + "'.", e);
         }
     }
 
@@ -222,7 +222,7 @@ public class GenerateInterface {
             }
             File folder = new File(fileName).getParentFile();
             if (!folder.mkdirs() && !folder.exists()) {
-                throw new IOException("Failed to create folder '" + folder.getAbsolutePath() + "'.");
+                throw new IOException("Can't create folder '" + folder.getAbsolutePath() + "'.");
             }
             fw = new FileWriter(fileName);
             fw.write(content);
@@ -300,7 +300,7 @@ public class GenerateInterface {
                 }
                 projectToWrite = existedDescriptor;
             } catch (Exception e) {
-                log("Failed to read previously created project descriptor file '" + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME + "'.", e, MSG_ERR);
+                log("Can't read previously created project descriptor file '" + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME + "'.", e, MSG_ERR);
                 throw new IllegalStateException(e);
             }
         } else {
@@ -315,7 +315,7 @@ public class GenerateInterface {
             fous = new FileOutputStream(rulesDescriptor);
             manager.writeDescriptor(projectToWrite, fous);
         } catch (Exception e) {
-            log("Failed to write project descriptor file '" + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME+"'.", e, MSG_ERR);
+            log("Can't write project descriptor file '" + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME+"'.", e, MSG_ERR);
         } finally {
             IOUtils.closeQuietly(fous);
         }
@@ -765,7 +765,7 @@ public class GenerateInterface {
                         vocabularyClass + " doesn't implement '" + IVocabulary.class.getCanonicalName() + "'.");
                 }
             } catch (Throwable t) {
-                log("Failed to instantiate vocabulary class:" + vocabularyClass, t, GenerateInterface.MSG_ERR);
+                log("Can't instantiate vocabulary class:" + vocabularyClass, t, GenerateInterface.MSG_ERR);
             }
 
             p.put(targetClass + OpenLProjectPropertiesLoader.VOCABULARY_CLASS_SUFFIX, vocabularyClass);

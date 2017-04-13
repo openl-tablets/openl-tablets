@@ -74,15 +74,15 @@ public abstract class BaseLazyItem<T> {
                 IOUtils.closeQuietly(inputStream);
             }
         } catch (JAXBException e) {
-            throw new IllegalStateException("Incorrect file format. Reason: " + e.getMessage(), e);
+            throw new IllegalStateException("Wrong file format. Reason: " + e.getMessage(), e);
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to read the file. Reason: " + e.getMessage(), e);
+            throw new IllegalStateException("Can't read the file. Reason: " + e.getMessage(), e);
         } finally {
             IOUtils.closeQuietly(zipFile);
         }
     }
 
     protected T getEmptyInstance() {
-        throw new IllegalStateException("Incorrect file format. The file '" + entryName + "' doesn't exist in the project.");
+        throw new IllegalStateException("Wrong file format. The file '" + entryName + "' doesn't exist in the project.");
     }
 }

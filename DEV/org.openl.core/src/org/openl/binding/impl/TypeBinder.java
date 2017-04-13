@@ -44,7 +44,7 @@ public class TypeBinder extends ANodeBinder {
         IOpenClass varType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
 
         if (varType == null) {
-            String message = String.format("Cannot bind node: '%s'. Cannot find type: '%s'.", 
+            String message = String.format("Can't bind node: '%s'. Can't find type: '%s'.", 
                 node.getModule().getCode(), typeName);
             BindHelper.processError(message, node, bindingContext, false);
 
@@ -86,17 +86,17 @@ public class TypeBinder extends ANodeBinder {
             }
         } catch (NoClassDefFoundError error) {
             String noClassMessage = error.getCause() != null ? error.getCause().getMessage() : error.getMessage();
-            return String.format("Failed to load type '%s' because of absent type '%s' in the type '%s'.",
+            return String.format("Can't load type '%s' because of absent type '%s' in the type '%s'.",
                     typeName,
                     noClassMessage,
                     varType.getInstanceClass().getName());
         } catch (UnsupportedClassVersionError e) {
             // Type is found but it's compiled using newer version of JDK
-            return String.format("Failed to load the class '%s' that was compiled using newer version of JDK than current JRE (%s)",
+            return String.format("Can't load the class '%s' that was compiled using newer version of JDK than current JRE (%s)",
                     typeName,
                     System.getProperty("java.version"));
         } catch (Throwable e) {
-            return String.format("Failed to load type '%s': %s", typeName, e.getMessage());
+            return String.format("Can't load type '%s': %s", typeName, e.getMessage());
         }
 
         return null;

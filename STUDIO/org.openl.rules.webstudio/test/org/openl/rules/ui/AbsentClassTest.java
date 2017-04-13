@@ -12,7 +12,6 @@ public class AbsentClassTest {
 
     @Test
     public void testAbsentClass() throws Exception {
-        @SuppressWarnings("unused")
         SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>()
                 .setProject("test/rules/LibImports")
                 .build();
@@ -23,10 +22,10 @@ public class AbsentClassTest {
 
         // Field dependency
         assertEquals(Severity.ERROR, compiledOpenClass.getMessages().get(0).getSeverity());
-        assertEquals("Failed to load type 'C' because of absent type 'org.openl.rules.beans.A' in the type 'org.openl.rules.beans.B'.", compiledOpenClass.getMessages().get(0).getSummary());
+        assertEquals("Can't load type 'C' because of absent type 'org.openl.rules.beans.A' in the type 'org.openl.rules.beans.B'.", compiledOpenClass.getMessages().get(0).getSummary());
 
         // Parent dependency
         assertEquals(Severity.ERROR, compiledOpenClass.getMessages().get(1).getSeverity());
-        assertEquals("Failed to load type 'org.openl.rules.beans.D' because of absent type 'org.openl.rules.beans.A'.", compiledOpenClass.getMessages().get(1).getSummary());
+        assertEquals("Can't load type 'org.openl.rules.beans.D' because of absent type 'org.openl.rules.beans.A'.", compiledOpenClass.getMessages().get(1).getSummary());
     }
 }

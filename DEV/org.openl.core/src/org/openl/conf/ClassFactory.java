@@ -37,10 +37,10 @@ public class ClassFactory extends AConfigurationElement {
             Log.debug("Potential problem loading class: {0}", ex, name);
             throw RuntimeExceptionWrapper.wrap(ex);
         } catch (UnsupportedClassVersionError e) {
-            Log.error("Failed to load the class \"{0}\" compiled using newer version of JDK than current JRE ({1})", e, name, System.getProperty("java.version"));
+            Log.error("Can't load the class \"{0}\" compiled using newer version of JDK than current JRE ({1})", e, name, System.getProperty("java.version"));
             throw RuntimeExceptionWrapper.wrap(e);
         } catch (Throwable t) {
-            Log.error("Error loading class: " + name, t);
+            Log.error("Can't load class: " + name, t);
             throw RuntimeExceptionWrapper.wrap(t);
         }
     }
@@ -49,7 +49,7 @@ public class ClassFactory extends AConfigurationElement {
         try {
             return cc.newInstance();
         } catch (Throwable t) {
-            throw new OpenConfigurationException("Error creating new " + cc.getName(), uri, t);
+            throw new OpenConfigurationException("Can't create a new " + cc.getName(), uri, t);
         }
     }
 
@@ -58,7 +58,7 @@ public class ClassFactory extends AConfigurationElement {
         try {
             return cxt.getClassLoader().loadClass(classname).newInstance();
         } catch (Throwable t) {
-            throw new OpenConfigurationException("Error creating new " + classname, uri, t);
+            throw new OpenConfigurationException("Can't create a new " + classname, uri, t);
         }
     }
 
@@ -76,7 +76,7 @@ public class ClassFactory extends AConfigurationElement {
         try {
             c = cl.loadClass(className);
         } catch (Throwable t) {
-            throw new OpenConfigurationException("Can not load class: " + className, uri, t);
+            throw new OpenConfigurationException("Can't load class: " + className, uri, t);
         }
 
         if (!Modifier.isPublic(c.getModifiers())) {
