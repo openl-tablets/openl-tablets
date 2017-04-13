@@ -27,7 +27,7 @@ import java.util.Map;
 public class ActivePropertyValidator extends TablesValidator {
 
     public static final String NO_ACTIVE_TABLE_MESSAGE = "No active table for group of tables. The last version will be used for execution.";
-    public static final String ODD_ACTIVE_TABLE_MESSAGE = "There can be only one active table";
+    public static final String ODD_ACTIVE_TABLE_MESSAGE = "There can be only one active table.";
 
     @Override
     public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
