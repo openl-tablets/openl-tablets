@@ -1,8 +1,17 @@
 package org.openl.rules.project.instantiation;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
+import org.openl.rules.project.instantiation.variation.VariationInstantiationStrategyEnhancer;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -11,9 +20,6 @@ import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.util.*;
-
 public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
     private final Logger log = LoggerFactory.getLogger(SimpleProjectEngineFactory.class);
@@ -21,6 +27,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
     private final boolean singleModuleMode;
     private final Map<String, Object> externalParameters;
     private final boolean provideRuntimeContext;
+    private final boolean provideVariations;
     private final boolean executionMode;
     private final String module;
     private final ClassLoader classLoader;
@@ -37,6 +44,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         private ClassLoader classLoader;
         private String module;
         private boolean provideRuntimeContext = false;
+        private boolean provideVariations = false;
         private Class<T> interfaceClass = null;
         private Map<String, Object> externalParameters = Collections.EMPTY_MAP;
         private boolean executionMode = true;
@@ -66,6 +74,11 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
         public SimpleProjectEngineFactoryBuilder<T> setProvideRuntimeContext(boolean provideRuntimeContext) {
             this.provideRuntimeContext = provideRuntimeContext;
+            return this;
+        }
+        
+        public SimpleProjectEngineFactoryBuilder<T> setProvideVariations(boolean provideVariations) {
+            this.provideVariations = provideVariations;
             return this;
         }
 
@@ -103,6 +116,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                 interfaceClass,
                 externalParameters,
                 provideRuntimeContext,
+                provideVariations,
                 executionMode);
         }
 
@@ -115,6 +129,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                                        Class<T> interfaceClass,
                                        Map<String, Object> externalParameters,
                                        boolean provideRuntimeContext,
+                                       boolean provideVariations,
                                        boolean executionMode) {
         if (project == null) {
             throw new IllegalArgumentException("project arg can't be null!");
@@ -128,6 +143,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         this.interfaceClass = interfaceClass;
         this.externalParameters = externalParameters;
         this.provideRuntimeContext = provideRuntimeContext;
+        this.provideVariations = provideVariations;
         this.executionMode = executionMode;
         this.module = module;
         this.singleModuleMode = module != null;
@@ -213,6 +229,10 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
     public boolean isProvideRuntimeContext() {
         return provideRuntimeContext;
     }
+    
+    public boolean isProvideVariations() {
+        return provideVariations;
+    }
 
     public Class<?> getInterfaceClass() throws RulesInstantiationException,
                                         ProjectResolvingException,
@@ -271,6 +291,11 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                     throw new RulesInstantiationException("Module isn't found in project!");
                 }
             }
+            
+            if (isProvideVariations()){
+                instantiationStrategy = new VariationInstantiationStrategyEnhancer(instantiationStrategy);
+            }
+            
             if (isProvideRuntimeContext()) {
                 instantiationStrategy = new RuntimeContextInstantiationStrategyEnhancer(instantiationStrategy);
             }
