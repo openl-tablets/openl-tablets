@@ -336,7 +336,7 @@ public class WebStudio {
         model.resetSourceModified();
     }
 
-    public void reset() {
+    public synchronized void reset() {
         resetProjects();
         currentModule = null;
         currentProject = null;
@@ -438,7 +438,7 @@ public class WebStudio {
         return null;
     }
 
-    public String updateProject() {
+    public synchronized String updateProject() {
         ProjectFile lastUploadedFile = getLastUploadedFile();
         if (lastUploadedFile == null) {
             // TODO Replace exceptions with FacesUtils.addErrorMessage()
@@ -516,6 +516,9 @@ public class WebStudio {
         }
 
         currentProject = resolveProject(projectDescriptor);
+        if (currentProject == null) {
+            log.warn("The project hasn't been resolved after update.");
+        }
 
         clearUploadedFiles();
 
