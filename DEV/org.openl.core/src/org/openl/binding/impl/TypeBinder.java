@@ -96,7 +96,7 @@ public class TypeBinder extends ANodeBinder {
                     typeName,
                     System.getProperty("java.version"));
         } catch (Throwable e) {
-            return String.format("Failed to loade type '%s': %s", typeName, e.getMessage());
+            return String.format("Failed to load type '%s': %s", typeName, e.getMessage());
         }
 
         return null;
