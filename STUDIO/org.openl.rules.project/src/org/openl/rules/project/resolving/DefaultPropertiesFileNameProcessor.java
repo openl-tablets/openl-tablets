@@ -78,10 +78,10 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                 Date parsedDate = format.parse(format.format(date));
 
                 if (!correctFormat.format(parsedDate).equals(dateForCheck)) {
-                    throw new InvalidFileNamePatternException("Invalid date format for property '" + entry.getKey() + "'");
+                    throw new InvalidFileNamePatternException("Wrong date format for property '" + entry.getKey() + "'.");
                 }
             } catch (ParseException e) {
-                throw new InvalidFileNamePatternException("Invalid date format for property '" + entry.getKey() + "'");
+                throw new InvalidFileNamePatternException("Wrong date format for property '" + entry.getKey() + "'.");
             }
         }
 
@@ -89,7 +89,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         Set<String> propertyNames = new HashSet<String>();
         for (String propertyName : patternModel.getPropertyNames()) {
             if (propertyNames.contains(propertyName)) {
-                throw new InvalidFileNamePatternException(String.format("Property '%s' is declared in pattern '%s' several times", propertyName, pattern));
+                throw new InvalidFileNamePatternException(String.format("Property '%s' is declared in pattern '%s' several times.", propertyName, pattern));
             }
             propertyNames.add(propertyName);
         }
@@ -113,7 +113,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                     Date date = dateFormat.parse(value);
                     setMethod.invoke(props, date);
                 } catch (ParseException e) {
-                    throw new NoMatchFileNameException("Invalid date format for property '" + propertyName + "'");
+                    throw new NoMatchFileNameException("Wrong date format for property '" + propertyName + "'");
                 }
             } else if (returnType.isEnum()) {
 
@@ -137,7 +137,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                         Date date = dateFormat.parse(value);
                         setMethod.invoke(props, createArray(Date.class, date));
                     } catch (ParseException e) {
-                        throw new NoMatchFileNameException("Invalid date format for property '" + propertyName + "'");
+                        throw new NoMatchFileNameException("Wrong date format for property '" + propertyName + "'");
                     }
                 } else if (componentClass.isEnum()) {
                     Method valueOfMethod = componentClass.getMethod("valueOf", String.class);
@@ -145,7 +145,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                     try {
                         enumObject = valueOfMethod.invoke(componentClass, value);
                     } catch (InvocationTargetException e) {
-                        throw new NoMatchFileNameException("Invalid '" + propertyName + "' property value in file name");
+                        throw new NoMatchFileNameException("Wrong '" + propertyName + "' property value in file name");
                     }
                     setMethod.invoke(props, createArray(componentClass, enumObject));
                 } else if (componentClass.isArray()) {
@@ -211,14 +211,14 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                             propertyName = p;
                         }
                     } catch (RuntimeException e) {
-                        throw new InvalidFileNamePatternException("Invalid file name pattern! Invalid at: " + propertyMatch);
+                        throw new InvalidFileNamePatternException("Wrong file name pattern! Wrong at: " + propertyMatch);
                     }
                     propertyNames.add(propertyName);
                     Class<?> returnType;
                     try {
                         returnType = getReturnTypeByPropertyName(propertyName);
                     } catch (NoSuchMethodException e) {
-                        throw new InvalidFileNamePatternException("Invalid file name pattern! Invalid property: " + propertyName + ". This property isn't supported!.");
+                        throw new InvalidFileNamePatternException("Wrong file name pattern! Wrong property: " + propertyName + ". This property isn't supported!.");
                     }
                     if (returnType == null) {
                         fileNameRegexpPattern = fileNameRegexpPattern.replace(propertyMatch, "(.*)");
@@ -229,7 +229,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                         fileNameRegexpPattern = fileNameRegexpPattern.replace(propertyMatch, "(.*)");
                     } else if (Date.class.equals(returnType)) {
                         if (!dateFormats.containsKey(propertyName)) {
-                            throw new InvalidFileNamePatternException("Date property '" + propertyName + "'should define date format!");
+                            throw new InvalidFileNamePatternException("Date property '" + propertyName + "' must define date format!");
                         }
                         fileNameRegexpPattern = fileNameRegexpPattern.replace(propertyMatch, "(.*)");
                     } else if (returnType.isEnum()) {

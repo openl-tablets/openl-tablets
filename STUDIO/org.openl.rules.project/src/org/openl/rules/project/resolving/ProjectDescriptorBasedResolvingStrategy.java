@@ -24,10 +24,10 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
     public boolean isRulesProject(File folder) {
         File descriptorFile = new File(folder, PROJECT_DESCRIPTOR_FILE_NAME);
         if (descriptorFile.exists()) {
-            log.debug("Project in {} folder was resolved as Project descriptor based project", folder.getPath());
+            log.debug("Project in {} folder has been resolved as Project descriptor based project.", folder.getPath());
             return true;
         } else {
-            log.debug("Project descriptor based strategy failed to resolve project folder {}: there is no file {} in folder", folder.getPath(), PROJECT_DESCRIPTOR_FILE_NAME);
+            log.debug("Project descriptor based strategy has failed to resolve project folder {}: there is no file {} in folder.", folder.getPath(), PROJECT_DESCRIPTOR_FILE_NAME);
             return false;
         }
     }
@@ -55,7 +55,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                         String moduleFileName = FilenameExtractorUtil.extractFileNameFromModule(module);
                         String defaultMessage = null;
                         if (projectDescriptor.getPropertiesFileNamePattern() != null){
-                            defaultMessage = "Module file name '" + moduleFileName + "' doesn't match file name pattern! File name pattern: " + projectDescriptor.getPropertiesFileNamePattern();
+                            defaultMessage = "Module file name '" + moduleFileName + "' doesn't match file name pattern! File name pattern is: " + projectDescriptor.getPropertiesFileNamePattern();
                         }else{
                             defaultMessage = "Module file name '" + moduleFileName + "' doesn't match file name pattern!";
                         }
@@ -82,17 +82,17 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                             log.warn(e.getMessage());
                         }
                         if (e.getMessage() == null) {
-                            moduleErrorMessages.add("File name pattern is invalid!");
+                            moduleErrorMessages.add("Wrong file name pattern!");
                         } else {
                             if (!(processor instanceof DefaultPropertiesFileNameProcessor)) {
-                                moduleErrorMessages.add("File name pattern is invalid! " + e.getMessage());
+                                moduleErrorMessages.add("Wrong file name pattern! " + e.getMessage());
                             } else {
                                 moduleErrorMessages.add(e.getMessage());
                             }
                         }
                     } catch (Exception e) {
-                        log.warn("Custom file name processor failed!", e);
-                        moduleErrorMessages.add("Custom file name processor failed!");
+                        log.warn("Failed to load custom file name processor!", e);
+                        moduleErrorMessages.add("Failed to load custom file name processor!");
                     }
                     params.put(OpenLSourceManager.ADDITIONAL_ERROR_MESSAGES_KEY, moduleErrorMessages);
                     params.put(OpenLSourceManager.ADDITIONAL_WARN_MESSAGES_KEY, moduleWarnMessages);
@@ -101,13 +101,13 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
             }
             return projectDescriptor;
         } catch (ValidationException ex) {
-            throw new ProjectResolvingException("Project descriptor is invalid. Please, verify " + PROJECT_DESCRIPTOR_FILE_NAME + " file format.",
+            throw new ProjectResolvingException("Project descriptor is wrong. Please, verify '" + PROJECT_DESCRIPTOR_FILE_NAME + "' file format.",
                     ex);
         } catch (FileNotFoundException e) {
-            throw new ProjectResolvingException("Project descriptor wasn't found! Project should countain " + PROJECT_DESCRIPTOR_FILE_NAME + " file.",
+            throw new ProjectResolvingException("Project descriptor hasn't been found! Project must countain '" + PROJECT_DESCRIPTOR_FILE_NAME + "' file.",
                     e);
         } catch (Exception e) {
-            throw new ProjectResolvingException("Project descriptor reading failed.", e);
+            throw new ProjectResolvingException("Failed to read project descriptor!", e);
         } finally {
             propertiesFileNameProcessorBuilder.destroy();
         }

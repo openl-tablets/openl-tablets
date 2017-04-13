@@ -43,7 +43,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
         public SimpleProjectEngineFactoryBuilder<T> setProject(String project) {
             if (project == null || project.isEmpty()) {
-                throw new IllegalArgumentException("project arg can't be null or empty!");
+                throw new IllegalArgumentException("project arg must not be null or empty!");
             }
             this.project = project;
             return this;
@@ -76,7 +76,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
         public SimpleProjectEngineFactoryBuilder<T> setModule(String module) {
             if (module == null || module.isEmpty()) {
-                throw new IllegalArgumentException("module arg can't be null or empty!");
+                throw new IllegalArgumentException("module arg must not be null or empty!");
             }
             this.module = module;
             return this;
@@ -84,7 +84,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
         public SimpleProjectEngineFactoryBuilder<T> setWorkspace(String workspace) {
             if (workspace == null || workspace.isEmpty()) {
-                throw new IllegalArgumentException("workspace arg can't be null or empty!");
+                throw new IllegalArgumentException("workspace arg must not be null or empty!");
             }
             this.workspace = workspace;
             return this;
@@ -92,7 +92,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
         public SimpleProjectEngineFactory<T> build() {
             if (project == null || project.isEmpty()) {
-                throw new IllegalArgumentException("project can't be null or empty!");
+                throw new IllegalArgumentException("project must not be null or empty!");
             }
             File projectFile = new File(project);
             File workspaceFile = workspace == null ? null : new File(workspace);
@@ -117,10 +117,10 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                                        boolean provideRuntimeContext,
                                        boolean executionMode) {
         if (project == null) {
-            throw new IllegalArgumentException("project arg can't be null!");
+            throw new IllegalArgumentException("project arg must not be null!");
         }
         if (workspace != null && !workspace.isDirectory()) {
-            throw new IllegalArgumentException("workspace should be a directory with projects!");
+            throw new IllegalArgumentException("workspace must be a directory with projects!");
         }
         this.project = project;
         this.workspace = workspace;
@@ -173,7 +173,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                     }
                 }
                 if (!found) {
-                    log.warn("Dependency '{}' for project '{}' is not found", dependencyDescriptor.getName(), project.getName());
+                    log.warn("Dependency '{}' for project '{}' hasn't been found", dependencyDescriptor.getName(), project.getName());
                 }
             }
         }
@@ -223,7 +223,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         if (generatedInterfaceClass != null) {
             return generatedInterfaceClass;
         }
-        log.info("Class is undefined for factory. Generated interface will be used.");
+        log.info("Interface class is undefined for factory. Generated interface has been used.");
         generatedInterfaceClass = getRulesInstantiationStrategy().getInstanceClass();
         return generatedInterfaceClass;
     }
@@ -242,7 +242,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             ProjectResolver projectResolver = ProjectResolver.instance();
             ProjectDescriptor pd = projectResolver.resolve(project);
             if (pd == null) {
-                throw new ProjectResolvingException("Defined location is not a OpenL project.");
+                throw new ProjectResolvingException("Failed to resolve project. Defined location is not a OpenL project.");
             }
             this.projectDescriptor = pd;
         }
@@ -268,7 +268,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                     }
                 }
                 if (instantiationStrategy == null) {
-                    throw new RulesInstantiationException("Module isn't found in project!");
+                    throw new RulesInstantiationException("Module hasn't been found in project!");
                 }
             }
             if (isProvideRuntimeContext()) {

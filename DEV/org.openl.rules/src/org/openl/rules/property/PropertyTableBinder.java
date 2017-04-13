@@ -57,7 +57,7 @@ public class PropertyTableBinder extends DataNodeBinder {
         try {
             processTable(module, propertyTable, propTableBody, tableName, propertiesClass, cxt, openl, false);
         } catch (SyntaxNodeException ex) {
-            throw SyntaxNodeExceptionUtils.createError("Table wasn't defined properly", ex, ex.getSyntaxNode());
+            throw SyntaxNodeExceptionUtils.createError("Table hasn't been defined properly.", ex, ex.getSyntaxNode());
         }
 
         TableProperties propertiesInstance = ((TableProperties[]) propertyTable.getDataArray())[0];

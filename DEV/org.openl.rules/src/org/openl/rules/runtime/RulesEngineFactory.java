@@ -35,10 +35,10 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
 
     public void setInterfaceClassGenerator(InterfaceClassGenerator interfaceClassGenerator) {
         if (interfaceClassGenerator == null) {
-            throw new IllegalArgumentException("interfaceClassGenerator argument can't be null");
+            throw new IllegalArgumentException("interfaceClassGenerator argument must not be null");
         }
         if (super.getInterfaceClass() != null) {
-            log.warn("Rules engine factory has already had interface class. Interface class generator will be ignored!");
+            log.warn("Rules engine factory has already had interface class. Interface class generator has been ignored!");
         }
         this.interfaceClassGenerator = interfaceClassGenerator;
     }
@@ -89,7 +89,7 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
     public RulesEngineFactory(URL source, Class<T> interfaceClass) {
         super(RULES_XLS_OPENL_NAME, source);
         if (interfaceClass == null) {
-            throw new IllegalArgumentException("Interface can't be null!");
+            throw new IllegalArgumentException("Interface must not be null!");
         }
         super.setInterfaceClass(interfaceClass);
     }
@@ -130,7 +130,7 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
             ClassLoader classLoader = getCompiledOpenClass().getClassLoader();
             try {
                 if (BeanByteCodeGenerator.isClassLoaderContainsClass(classLoader, className)) {
-                    log.warn("Previously generated  interface '{}' will be used as service class.", className);
+                    log.warn("Previously generated interface '{}' has been used as service class.", className);
                     @SuppressWarnings("unchecked")
                     Class<T> interfaceClass = (Class<T>) classLoader.loadClass(className);
                     setInterfaceClass(interfaceClass);
@@ -143,7 +143,7 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
                     return interfaceClass;
                 }
             } catch (Exception e) {
-                throw new OpenlNotCheckedException("Failed to generate interface : " + className, e);
+                throw new OpenlNotCheckedException("Failed to generate interface: " + className, e);
             }
         } else {
             return super.getInterfaceClass();

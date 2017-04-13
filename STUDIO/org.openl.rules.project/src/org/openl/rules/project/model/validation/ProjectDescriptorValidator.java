@@ -8,15 +8,15 @@ public class ProjectDescriptorValidator {
 
     public void validate(ProjectDescriptor descriptor) throws ValidationException {
         if (descriptor == null) {
-            throw new ValidationException("Project descriptor is null");
+            throw new ValidationException("Project descriptor is null.");
         }
 
         if (descriptor.getName() == null || descriptor.getName().trim().isEmpty()) {
-            throw new ValidationException("Project name are not defined");
+            throw new ValidationException("Project name aren't defined.");
         }
 
         if (descriptor.getModules() == null || descriptor.getModules().size() == 0) {
-            throw new ValidationException("Project modules are not defined");
+            throw new ValidationException("Project modules aren't defined.");
         }
 
         for (Module module : descriptor.getModules()) {
@@ -27,15 +27,15 @@ public class ProjectDescriptorValidator {
     private void validateModule(Module module) throws ValidationException {
 
         if (module == null) {
-            throw new ValidationException("Project module is not defined");
+            throw new ValidationException("Project module isn't defined.");
         }
 
         if (StringUtils.isEmpty(module.getName()) && !isModuleWithWildcard(module)) {
-            throw new ValidationException("Module name is not defined");
+            throw new ValidationException("Module name isn't defined.");
         }
 
         if (module.getRulesRootPath() == null || StringUtils.isEmpty(module.getRulesRootPath().getPath())) {
-            throw new ValidationException("Module rules root is not defined");
+            throw new ValidationException("Module rules root aren't defined.");
         }
     }
 

@@ -66,7 +66,7 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
         try {
             return getEngineFactory().getInterfaceClass();
         } catch (Exception e) {
-            throw new RulesInstantiationException("Can't resolve interface.", e);
+            throw new RulesInstantiationException("Failed to resolve a interface.", e);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }

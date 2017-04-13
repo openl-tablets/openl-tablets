@@ -25,7 +25,7 @@ public class SpreadsheetTableSyntaxNodeRelationsDeterminer implements TableSynta
             }
             return false;
         }
-        throw new IllegalStateException("Spreadsheet tables are only supported!");
+        throw new IllegalStateException("Spreadsheet tables are supported only!");
     }
 
     private static boolean isSpreadsheet(TableSyntaxNode o1) {

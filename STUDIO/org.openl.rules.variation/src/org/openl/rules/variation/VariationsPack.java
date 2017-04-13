@@ -53,7 +53,7 @@ public final class VariationsPack {
         }
         for (Variation v : variations) {
             if (variation.getVariationID().equals(v.getVariationID())) {
-                throw new VariationException("Variation pack has already contains variation with this variationID="
+                throw new VariationException("Variation pack already contains variation with this variationID="
                         + variation.getVariationID());
             }
         }
@@ -68,7 +68,7 @@ public final class VariationsPack {
      */
     public boolean removeVariation(String variationID) {
         if (variationID == null || variationID.isEmpty()) {
-            throw new IllegalArgumentException("variationID can't be empty");
+            throw new IllegalArgumentException("variationID must not be empty");
         }
         int i;
         for (i = 0; i < variations.size(); i++) {

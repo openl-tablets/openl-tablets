@@ -41,7 +41,7 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
                                           boolean executionMode) {
         super(rootClassLoader);
         if (projects == null) {
-            throw new IllegalArgumentException("projects not be null!");
+            throw new IllegalArgumentException("projects must not be null!");
         }
         this.projects = projects;
         this.singleModuleMode = singleModuleMode;

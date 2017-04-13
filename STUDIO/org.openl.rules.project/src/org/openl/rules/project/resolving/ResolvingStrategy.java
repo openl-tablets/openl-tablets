@@ -1,7 +1,6 @@
 package org.openl.rules.project.resolving;
 
 import java.io.File;
-import java.util.List;
 
 import org.openl.rules.project.model.ProjectDescriptor;
 

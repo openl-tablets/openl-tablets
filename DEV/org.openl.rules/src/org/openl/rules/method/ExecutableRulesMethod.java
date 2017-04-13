@@ -27,7 +27,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
     
     public String getTableUri(){
         if (this.tableUri == null){
-            throw new IllegalStateException("Table uri doesn't defined in method!");
+            throw new IllegalStateException("Table uri isn't defined in the method!");
         }
         return tableUri;
     }

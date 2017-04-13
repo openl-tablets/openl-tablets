@@ -50,7 +50,7 @@ public class VariationInstantiationStrategyEnhancer extends AbstractServiceClass
         if (VariationInstantiationStrategyEnhancerHelper.isDecoratedClass(serviceClass)) {
             return true;
         } else {
-            throw new ValidationServiceClassException("Variation pack parameter required in each variation method!");
+            throw new ValidationServiceClassException("Variation pack parameter is required in each variation method!");
         }
     }
 
@@ -95,7 +95,7 @@ public class VariationInstantiationStrategyEnhancer extends AbstractServiceClass
                 Method originalMethod = VariationInstantiationStrategyEnhancerHelper.getMethodForDecoration(serviceClass, serviceMethod);
                 methodMap.put(serviceMethod, originalMethod);
             } catch (Exception e) {
-                throw new RulesInstantiationException("Failed to find corresrponding method in original class for method " + MethodUtil.printMethod(serviceMethod.getName(),
+                throw new RulesInstantiationException("Failed to find corresrponding method in original class for method '" + MethodUtil.printMethod(serviceMethod.getName() + "'!",
                         serviceMethod.getParameterTypes()));
             }
         }

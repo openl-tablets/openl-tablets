@@ -95,9 +95,9 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
                 if (variationsGetter != null) {
                     variationsFromRules.put(method, variationsGetter);
                 } else {
-                    throw new OpenLCompilationException("Can't find variation from rules getter for method " + MethodUtil.printMethod(method.getName(),
+                    throw new OpenLCompilationException("Failed to find variation from rules getter for method " + MethodUtil.printMethod(method.getName(),
                         method.getParameterTypes()) + ". Make sure you have method " + MethodUtil.printMethod(ruleName,
-                        parameterTypes) + " in service class.");
+                        parameterTypes) + " in the service class.");
                 }
             }
         }
@@ -152,7 +152,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
                 simpleRulesRuntimeEnv.setOriginalCalculation(true);
                 simpleRulesRuntimeEnv.setIgnoreRecalculate(false);
             } else {
-                log.error("Runtime env should be SimpleRulesRuntimeEnv.class");
+                log.error("Runtime env must be SimpleRulesRuntimeEnv.class");
             }
             try {
                 final Collection<VariationsResult<Object>> results = new ArrayList<VariationsResult<Object>>();
@@ -183,8 +183,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
                 }
             }
         } else {
-            log.error("Service instance class should be implement IEngineWrapper or OpenLWrapper interface");
-            throw new OpenLRuntimeException("Service instance class should be implement IEngineWrapper or OpenLWrapper interface");
+            throw new OpenLRuntimeException("Service instance class must to implement IEngineWrapper or OpenLWrapper interface.");
         }
     }
     
@@ -281,7 +280,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
                     simpleRulesRuntimeEnv.initCurrentStep();
                 }else{
                     if (!f){
-                        log.warn("Variation features doesn't supported for Wrapper classses. This functionality was depricated!");
+                        log.warn("Variation features aren't supported for Wrapper classses. This functionality was depricated!");
                         f = true;
                     }
                 }
@@ -332,7 +331,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
 
                 return calculateSingleVariation(member, arguments, variation);
             } catch (Exception e) {
-                log.error("Cannot calculate variation", e);
+                log.error("Failed to calculate variation!", e);
                 throw e;
             } finally {
                 if (handler != null)

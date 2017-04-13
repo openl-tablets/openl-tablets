@@ -42,7 +42,7 @@ public class ArgumentReplacementVariation extends Variation {
     public ArgumentReplacementVariation(String variationID, int updatedArgumentIndex, Object valueToSet) {
         super(variationID);
         if (updatedArgumentIndex < 0) {
-            throw new IllegalArgumentException("Number of argument to be modified should be non negative.");
+            throw new IllegalArgumentException("Number of argument to be modified must be non negative.");
         } else {
             this.updatedArgumentIndex = updatedArgumentIndex;
         }

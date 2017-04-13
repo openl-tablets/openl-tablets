@@ -60,7 +60,7 @@ class RuntimeContextInstantiationStrategyEnhancerInvocationHandler implements In
             IRulesRuntimeContextConsumer wrapper = (IRulesRuntimeContextConsumer) serviceInstance;
             wrapper.setRuntimeContext(context);
         } else {
-            log.error("Cannot define rules runtime context for service instance. Service class must be instance one of: IEngineWrapper.class, IRulesRuntimeContextConsumer.class");
+            log.error("Failed to define rules runtime context for service instance. Service class must be instance one of: IEngineWrapper.class, IRulesRuntimeContextConsumer.class");
             // throw new
             // RuntimeException("Cannot define rules runtime context for service instance.");
         }

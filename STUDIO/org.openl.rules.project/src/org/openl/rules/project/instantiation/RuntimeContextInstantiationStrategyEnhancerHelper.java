@@ -63,7 +63,7 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
 
         String className = clazz.getName() + UNDECORATED_CLASS_NAME_SUFFIX;
 
-        log.debug("Generating interface without runtime context for '{}' class", clazz.getName());
+        log.debug("Generating interface without runtime context for '{}' class.", clazz.getName());
 
         return innerUndecorateInterface(className, clazz, classLoader);
     }
@@ -189,7 +189,7 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
             if (signature.startsWith("(" + RUNTIME_CONTEXT)) {
                 return "(" + signature.substring(RUNTIME_CONTEXT.length() + 1);
             } else {
-                throw new IllegalArgumentException("wrong signature!");
+                throw new IllegalArgumentException("Wrong signature!");
             }
         }
     }

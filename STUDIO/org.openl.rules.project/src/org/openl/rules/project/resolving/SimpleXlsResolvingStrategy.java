@@ -31,11 +31,11 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
         }
         for (File f : folder.listFiles()) {
             if (!f.isHidden() && FileTypeHelper.isExcelFile(f.getName())) {
-                log.debug("Project in {} folder was resolved as simple xls project", folder.getPath());
+                log.debug("Project in {} folder has been resolved as simple xls project.", folder.getPath());
                 return true;
             }
         }
-        log.debug("Simple xls strategy failed to resolve project folder: there is no excel files in given folder {}",
+        log.debug("Simple xls strategy has failed to resolve project folder: there is no excel files in the folder '{}'.",
             folder.getPath());
         return false;
     }
@@ -54,7 +54,7 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
                         modules.put(name, module);
                     } else {
                         if (log.isErrorEnabled()){
-                            log.error("A module with this name already exists: {}", name);
+                            log.error("A module with the same name already exists: {}", name);
                         }
                     }
                 }

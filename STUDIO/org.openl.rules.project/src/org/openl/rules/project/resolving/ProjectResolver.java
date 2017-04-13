@@ -40,7 +40,7 @@ public class ProjectResolver {
      */
     public ResolvingStrategy isRulesProject(File folder) {
         if (resolvingStrategies == null) {
-            throw new IllegalStateException("Resolving strategies weren't set.");
+            throw new IllegalStateException("Resolving strategies must be set.");
         }
         for (ResolvingStrategy strategy : resolvingStrategies) {
             if (strategy.isRulesProject(folder)) {

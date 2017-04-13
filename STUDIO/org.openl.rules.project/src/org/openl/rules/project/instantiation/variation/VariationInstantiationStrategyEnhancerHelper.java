@@ -87,7 +87,7 @@ public final class VariationInstantiationStrategyEnhancerHelper {
      */
     public static Class<?> undecorateClass(Class<?> clazz, ClassLoader classLoader) throws Exception {
         if (!clazz.isInterface()) {
-            throw new IllegalArgumentException("Supports only interface classes!!!");
+            throw new IllegalArgumentException("Only interface classes are supported!!!");
         }
 
         final Logger log = LoggerFactory.getLogger(VariationInstantiationStrategyEnhancerHelper.class);

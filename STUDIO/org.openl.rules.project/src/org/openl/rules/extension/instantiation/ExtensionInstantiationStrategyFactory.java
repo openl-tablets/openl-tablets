@@ -23,7 +23,7 @@ public final class ExtensionInstantiationStrategyFactory {
         } catch (RuntimeException e) {
             Logger log = LoggerFactory.getLogger(ExtensionInstantiationStrategyFactory.class);
             log.error(e.getMessage(), e);
-            throw new OpenLRuntimeException(String.format("Cannot resolve instantiation strategy for extension \"%s\"",
+            throw new OpenLRuntimeException(String.format("Failed to resolve instantiation strategy for extension \"%s\"",
                     extension.getName()));
         }
     }

@@ -52,7 +52,7 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
         try {
             return getEngineFactory().getInterfaceClass();
         } catch (Exception e) {
-            throw new RulesInstantiationException("Can't resolve interface", e);
+            throw new RulesInstantiationException("Failed to resolve interface!", e);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }

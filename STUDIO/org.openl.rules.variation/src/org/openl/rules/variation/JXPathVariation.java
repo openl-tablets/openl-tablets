@@ -50,7 +50,7 @@ public class JXPathVariation extends Variation {
     public JXPathVariation(String variationID, int updatedArgumentIndex, String path, Object valueToSet) {
         super(variationID);
         if (updatedArgumentIndex < 0) {
-            throw new IllegalArgumentException("Number of argument to be modified should be non negative.");
+            throw new IllegalArgumentException("Number of argument to be modified must be non negative.");
         } else {
             this.updatedArgumentIndex = updatedArgumentIndex;
         }
