@@ -94,7 +94,7 @@ public final class ClassLoaderCloserFactory {
             try {
                 close.invoke(classLoader);
             } catch (Exception e) {
-                log.error("Can't close ClassLoader '{}': {}", classLoader, e.getMessage(), e);
+                log.error("Failed on close ClassLoader '{}': {}", classLoader, e.getMessage(), e);
             }
         }
     }

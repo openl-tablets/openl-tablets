@@ -144,7 +144,7 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
         } catch (OpenlNotCheckedException ex) {
             throw ex;
         } catch (Exception ex) {
-            throw new OpenlNotCheckedException("Can't instantiate engine instance", ex);
+            throw new OpenlNotCheckedException("Failed to instantiate engine instance!", ex);
         }
     }
 

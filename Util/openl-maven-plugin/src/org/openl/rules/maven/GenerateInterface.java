@@ -159,7 +159,7 @@ public class GenerateInterface {
 
             template = ve.getTemplate(unitTestTemplatePath);
         } catch (Exception e) {
-            throw new IllegalStateException("Can't find template " + unitTestTemplatePath, e);
+            throw new IllegalStateException("Failed to find a template in '" + unitTestTemplatePath + "'.", e);
         }
 
         VelocityContext vc = new VelocityContext();
@@ -177,7 +177,7 @@ public class GenerateInterface {
             template.merge(vc, writer);
             writeContentToFile(writer.toString(), getOutputFileName(), overwriteUnitTests);
         } catch (IOException e) {
-            throw new IllegalStateException("Can't generate JUnit class for file " + getDisplayName(), e);
+            throw new IllegalStateException("Failed to generate JUnit class for file '" + getDisplayName() + "'.", e);
         }
     }
 
@@ -211,18 +211,18 @@ public class GenerateInterface {
             if (new File(fileName).exists()) {
                 if (override) {
                     if (log.isInfoEnabled()) {
-                        log.info(String.format("File '%s' exists already. Overwrite it.", fileName));
+                        log.info(String.format("File '%s' exists already. It has been overwritten.", fileName));
                     }
                 } else {
                     if (log.isInfoEnabled()) {
-                        log.info(String.format("File '%s' exists already. Skip it.", fileName));
+                        log.info(String.format("File '%s' exists already. I has been skiped.", fileName));
                         return;
                     }
                 }
             }
             File folder = new File(fileName).getParentFile();
             if (!folder.mkdirs() && !folder.exists()) {
-                throw new IOException("Can't create folder " + folder.getAbsolutePath());
+                throw new IOException("Failed to create folder '" + folder.getAbsolutePath() + "'.");
             }
             fw = new FileWriter(fileName);
             fw.write(content);
@@ -300,7 +300,7 @@ public class GenerateInterface {
                 }
                 projectToWrite = existedDescriptor;
             } catch (Exception e) {
-                log("Error while reading previously created project descriptor file " + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME, e, MSG_ERR);
+                log("Failed to read previously created project descriptor file '" + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME + "'.", e, MSG_ERR);
                 throw new IllegalStateException(e);
             }
         } else {
@@ -315,7 +315,7 @@ public class GenerateInterface {
             fous = new FileOutputStream(rulesDescriptor);
             manager.writeDescriptor(projectToWrite, fous);
         } catch (Exception e) {
-            log("Error while writing project descriptor file " + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME, e, MSG_ERR);
+            log("Failed to write project descriptor file '" + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME+"'.", e, MSG_ERR);
         } finally {
             IOUtils.closeQuietly(fous);
         }
@@ -641,7 +641,7 @@ public class GenerateInterface {
                 compiledOpenClass = createWrapper(openlName, ucxt, resourcesPath + srcFile, dependencyManager);
             } finally {
                 long end = System.currentTimeMillis();
-                log("Loaded " + resourcesPath + srcFile + " in " + (end - start) + " ms");
+                log("Loaded '" + resourcesPath + srcFile + "' in " + (end - start) + " ms");
             }
         }
 
@@ -761,10 +761,11 @@ public class GenerateInterface {
                 Class<?> c = Class.forName(vocabularyClass);
                 c.newInstance();
                 if (IVocabulary.class.isAssignableFrom(c)){
-                    throw new ClassCastException(vocabularyClass + " doesn't implements IVocabulary.");
+                    throw new ClassCastException(
+                        vocabularyClass + " doesn't implement '" + IVocabulary.class.getCanonicalName() + "'.");
                 }
             } catch (Throwable t) {
-                log("Error occured while trying instantiate vocabulary class:" + vocabularyClass, t, GenerateInterface.MSG_ERR);
+                log("Failed to instantiate vocabulary class:" + vocabularyClass, t, GenerateInterface.MSG_ERR);
             }
 
             p.put(targetClass + OpenLProjectPropertiesLoader.VOCABULARY_CLASS_SUFFIX, vocabularyClass);

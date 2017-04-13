@@ -76,7 +76,7 @@ public abstract class BaseLazyItem<T> {
         } catch (JAXBException e) {
             throw new IllegalStateException("Incorrect file format. Reason: " + e.getMessage(), e);
         } catch (IOException e) {
-            throw new IllegalStateException("Can't read the file. Reason: " + e.getMessage(), e);
+            throw new IllegalStateException("Failed to read the file. Reason: " + e.getMessage(), e);
         } finally {
             IOUtils.closeQuietly(zipFile);
         }

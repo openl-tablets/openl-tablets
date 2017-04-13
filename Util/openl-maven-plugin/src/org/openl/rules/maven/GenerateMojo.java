@@ -477,12 +477,12 @@ public class GenerateMojo extends BaseOpenLMojo {
         try {
             if (file.exists()) {
                 if (getLog().isInfoEnabled()) {
-                    getLog().info(String.format("File '%s' exists already. Overwrite it.", file));
+                    getLog().info(String.format("File '%s' exists already. It has been overwritten.", file));
                 }
             }
             File folder = file.getParentFile();
             if (folder != null && !folder.mkdirs() && !folder.isDirectory()) {
-                throw new IOException("Can't create folder " + folder.getAbsolutePath());
+                throw new IOException("Failed to create folder " + folder.getAbsolutePath());
             }
             fw = new FileWriter(file);
             fw.write(source);
