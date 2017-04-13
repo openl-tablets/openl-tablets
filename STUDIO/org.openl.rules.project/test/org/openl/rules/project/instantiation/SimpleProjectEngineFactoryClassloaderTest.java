@@ -1,5 +1,6 @@
 package org.openl.rules.project.instantiation;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder;
 
@@ -22,6 +23,7 @@ public class SimpleProjectEngineFactoryClassloaderTest {
         factory.newInstance();
     }
 
+    @Ignore
     @Test
     public void singleModuleWithClassloaderTest() throws Exception {
         URL[] urls = {new URL("file:test-resources/classpath/single1/beans.jar")};
@@ -46,6 +48,7 @@ public class SimpleProjectEngineFactoryClassloaderTest {
         factory.newInstance();
     }
 
+    @Ignore
     @Test
     public void multiModuleWithClassloaderTest() throws Exception {
         URL[] urls = {new URL("file:test-resources/classpath/multi1/beans.jar")};
