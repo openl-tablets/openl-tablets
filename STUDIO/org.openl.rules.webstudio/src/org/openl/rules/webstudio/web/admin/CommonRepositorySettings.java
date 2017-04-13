@@ -24,6 +24,7 @@ public class CommonRepositorySettings extends RepositorySettings {
             String factoryClassName,
             RepositoryType repositoryType,
             JcrType jcrType) {
+        super(configManager, configPrefix);
         this.configManager = configManager;
         this.repositoryType = repositoryType;
         this.jcrType = jcrType;

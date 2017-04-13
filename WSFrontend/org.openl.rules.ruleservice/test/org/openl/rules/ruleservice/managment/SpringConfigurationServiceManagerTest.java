@@ -21,7 +21,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource(properties = { "ruleservice.datasource.type=jcr",
         "production-repository.factory = org.openl.rules.repository.file.FileRepository",
-        "production-repository.uri = test-resources/openl-repository" })
+        "production-repository.uri = test-resources/openl-repository",
+        "version-in-deployment-name = true"
+})
 @ContextConfiguration(locations = { "classpath:openl-ruleservice-beans.xml" })
 @DirtiesContext
 public class SpringConfigurationServiceManagerTest implements ApplicationContextAware {

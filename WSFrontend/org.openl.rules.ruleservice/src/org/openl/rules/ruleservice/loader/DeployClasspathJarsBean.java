@@ -25,6 +25,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
 
     private boolean enabled = false;
     private Repository repository;
+    private boolean includeVersionInDeploymentName = false;
 
     public boolean isEnabled() {
         return enabled;
@@ -72,7 +73,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
 
                     File tmpJarFile = new File(tempDir, name);
                     ZipUtils.archive(newProjectDir, tmpJarFile);
-                    productionRepositoryDeployer.deployInternal(tmpJarFile, repository, true);
+                    productionRepositoryDeployer.deployInternal(tmpJarFile, repository, true, includeVersionInDeploymentName);
                 } finally {
                     /* Clean up */
                     FileUtils.deleteQuietly(tempDir);
@@ -98,7 +99,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
             PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
         ProductionRepositoryDeployer productionRepositoryDeployer = new ProductionRepositoryDeployer();
         for (Resource rulesXmlResource : resources) {
-            File file = null;
+            File file;
             try {
                 final URL resourceURL = rulesXmlResource.getURL();
                 if ("jar".equals(resourceURL.getProtocol()) || "wsjar".equals(resourceURL.getProtocol())) {
@@ -120,7 +121,15 @@ public class DeployClasspathJarsBean implements InitializingBean {
                 throw new IOException("File hasn't been found. File: " + file.getAbsolutePath());
             }
 
-            productionRepositoryDeployer.deployInternal(file, repository, true);
+            productionRepositoryDeployer.deployInternal(file, repository, true, includeVersionInDeploymentName);
         }
+    }
+
+    public void setIncludeVersionInDeploymentName(boolean includeVersionInDeploymentName) {
+        this.includeVersionInDeploymentName = includeVersionInDeploymentName;
+    }
+
+    public boolean getIncludeVersionInDeploymentName() {
+        return includeVersionInDeploymentName;
     }
 }
