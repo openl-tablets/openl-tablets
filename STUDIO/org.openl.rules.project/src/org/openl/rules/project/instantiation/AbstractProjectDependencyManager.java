@@ -83,7 +83,11 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
             return true;
         }
     }
-    
+    private final ClassLoader rootClassLoader;
+    protected AbstractProjectDependencyManager(ClassLoader rootClassLoader) {
+        this.rootClassLoader = rootClassLoader;
+    }
+
     // Disable cache. if cache required it should be used in loaders.
     @Override
     public synchronized CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
@@ -130,7 +134,7 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
         if (classLoaders.get(project.getName()) != null) {
             return classLoaders.get(project.getName());
         }
-        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(project.getClassPathUrls(), AbstractProjectDependencyManager.class.getClassLoader());
+        SimpleBundleClassLoader classLoader = new SimpleBundleClassLoader(project.getClassPathUrls(), rootClassLoader);
         classLoader.addClassLoader(project.getClassLoader(false));
         if (project.getDependencies() != null) {
             for (ProjectDependencyDescriptor projectDependencyDescriptor : project.getDependencies()) {

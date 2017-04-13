@@ -42,8 +42,9 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
     }
     
     public WebStudioWorkspaceRelatedDependencyManager(List<ProjectDescriptor> projects,
+            ClassLoader rootClassLoader,
             boolean singleModuleMode) {
-        super();
+        super(rootClassLoader);
         if (projects == null) {
             throw new IllegalArgumentException("projects must not be null!");
         }
@@ -52,10 +53,6 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractProjectD
         this.singleModuleMode = singleModuleMode;
     }
 
-    public WebStudioWorkspaceRelatedDependencyManager(List<ProjectDescriptor> projects) {
-        this(projects, false);
-    }
-    
     @Override
     public synchronized CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
         return super.loadDependency(dependency);

@@ -96,13 +96,10 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
     }
 
     public RuleServiceDeploymentRelatedDependencyManager(DeploymentDescription deploymentDescription,
-            RuleServiceLoader ruleServiceLoader) {
-        this(deploymentDescription, ruleServiceLoader, false);
-    }
-
-    public RuleServiceDeploymentRelatedDependencyManager(DeploymentDescription deploymentDescription,
             RuleServiceLoader ruleServiceLoader,
+            ClassLoader rootClassLoader,
             boolean lazy) {
+        super(rootClassLoader);
         if (deploymentDescription == null) {
             throw new IllegalArgumentException("deploymentDescription must not be null!");
         }

@@ -36,9 +36,10 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
     }
     
     public SimpleProjectDependencyManager(Collection<ProjectDescriptor> projects,
+                                          ClassLoader rootClassLoader,
                                           boolean singleModuleMode,
                                           boolean executionMode) {
-        super();
+        super(rootClassLoader);
         if (projects == null) {
             throw new IllegalArgumentException("projects not be null!");
         }
@@ -48,10 +49,6 @@ public class SimpleProjectDependencyManager extends AbstractProjectDependencyMan
         this.singleModuleMode = singleModuleMode;
     }
 
-    public SimpleProjectDependencyManager(Collection<ProjectDescriptor> projects, boolean singleModuleMode) {
-        this(projects, singleModuleMode, true);
-    }
-    
     @Override
     public Collection<ProjectDescriptor> getProjectDescriptors() {
         if (dependencyLoaders == null){
