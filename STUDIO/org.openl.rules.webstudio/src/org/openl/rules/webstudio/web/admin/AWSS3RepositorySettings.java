@@ -16,6 +16,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     private final String LISTENER_TIMER_PERIOD;
 
     public AWSS3RepositorySettings(ConfigurationManager configManager, String configPrefix) {
+        super(configManager, configPrefix);
         BUCKET_NAME = configPrefix + "bucket-name";
         REGION_NAME = configPrefix + "region-name";
         ACCESS_KEY = configPrefix + "access-key";

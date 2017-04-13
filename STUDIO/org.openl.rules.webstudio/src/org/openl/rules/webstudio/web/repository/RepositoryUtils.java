@@ -1,18 +1,15 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.util.Comparator;
+
 import org.openl.commons.web.jsf.FacesUtils;
-import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.Constants;
-import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Comparator;
 
 /**
  * Repository Utilities
@@ -31,15 +28,6 @@ public final class RepositoryUtils {
     };
 
     private RepositoryUtils() {
-    }
-
-    public static DeployID getDeployID(ADeploymentProject ddProject) {
-        StringBuilder sb = new StringBuilder(ddProject.getName());
-        ProjectVersion projectVersion = ddProject.getVersion();
-        if (projectVersion != null) {
-            sb.append('#').append(projectVersion.getVersionName());
-        }
-        return new DeployID(sb.toString());
     }
 
     /**

@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -8,7 +10,13 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
+import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.abstraction.ADeploymentProject;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
@@ -19,6 +27,9 @@ import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.DeployUtils;
 import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
@@ -27,8 +38,11 @@ import org.springframework.beans.factory.InitializingBean;
  * @author Andrey Naumenko
  */
 public class DeploymentManager implements InitializingBean {
+    private final Logger log = LoggerFactory.getLogger(DeploymentManager.class);
+
     private String[] initialProductionRepositoryConfigNames;
     private DesignTimeRepository designRepository;
+    private IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
 
     private Set<String> deployers = new HashSet<String>();
 
@@ -60,9 +74,17 @@ public class DeploymentManager implements InitializingBean {
             Repository deployRepo = repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
             StringBuilder sb = new StringBuilder(project.getName());
             ProjectVersion projectVersion = project.getVersion();
+            boolean includeVersionInDeploymentName = repositoryFactoryProxy.isIncludeVersionInDeploymentName( repositoryConfigName);
             if (projectVersion != null) {
-                int version = DeployUtils.getNextDeploymentVersion(deployRepo, project.getName());
-                sb.append('#').append(version);
+                if (includeVersionInDeploymentName) {
+                    int version = DeployUtils.getNextDeploymentVersion(deployRepo, project.getName());
+                    sb.append(DeployUtils.SEPARATOR).append(version);
+                } else {
+                    String apiVersion = getApiVersion(project);
+                    if (apiVersion != null) {
+                        sb.append(DeployUtils.API_VERSION_SEPARATOR).append(apiVersion);
+                    }
+                }
             }
             DeployID id = new DeployID(sb.toString());
 
@@ -86,6 +108,49 @@ public class DeploymentManager implements InitializingBean {
         } catch (Exception e) {
             throw new DeploymentException("Failed to deploy: " + e.getMessage(), e);
         }
+    }
+
+    private String getApiVersion(ADeploymentProject deploymentConfiguration) {
+        Repository designRepo = designRepository.getRepository();
+
+        for (ProjectDescriptor pd : deploymentConfiguration.getProjectDescriptors()) {
+            try {
+                InputStream content = null;
+                try {
+                    String projectVersion = pd.getProjectVersion().getVersionName();
+                    String projectName = pd.getProjectName();
+                    AProject project = new AProject(designRepo, "DESIGN/rules/" + projectName, projectVersion, false);
+
+                    AProjectArtefact artifact = project.getArtefact(DeployUtils.RULES_DEPLOY_XML);
+                    if (artifact instanceof AProjectResource) {
+                        AProjectResource resource = (AProjectResource) artifact;
+                        content = resource.getContent();
+                        RulesDeploy rulesDeploy = rulesDeploySerializer.deserialize(content);
+                        String apiVersion = rulesDeploy.getVersion();
+                        if (StringUtils.isNotBlank(apiVersion)) {
+                            return apiVersion;
+                        }
+                    }
+                } catch (ProjectException ignored) {
+                } finally {
+                    if (content != null) {
+                        try {
+                            content.close();
+                        } catch (IOException e) {
+                            log.error(e.getMessage(), e);
+                        }
+                    }
+                }
+            } catch (Throwable e) {
+                log.error(
+                        "Project loading from repository was failed! Project with name \"{}\" in deployment configuration \"{}\" was skipped!",
+                        pd.getProjectName(),
+                        deploymentConfiguration.getName(),
+                        e);
+            }
+        }
+
+        return null;
     }
 
     private ProductionRepositoryFactoryProxy repositoryFactoryProxy;

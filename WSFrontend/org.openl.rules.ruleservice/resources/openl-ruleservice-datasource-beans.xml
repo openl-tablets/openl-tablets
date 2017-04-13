@@ -47,11 +47,13 @@
     <bean id="jcrdatasource" class="org.openl.rules.ruleservice.loader.JcrDataSource"
           depends-on="deployClasspathJarsBean">
         <property name="repository" ref="repository"/>
+        <property name="includeVersionInDeploymentName" value="${version-in-deployment-name}"/>
     </bean>
 
     <bean id="deployClasspathJarsBean" class="org.openl.rules.ruleservice.loader.DeployClasspathJarsBean">
         <property name="repository" ref="repository"/>
         <property name="enabled"
                   value="#{${ruleservice.datasource.deploy.classpath.jars} and '${ruleservice.datasource.type}' eq 'jcr'}"/>
+        <property name="includeVersionInDeploymentName" value="${version-in-deployment-name}"/>
     </bean>
 </beans>

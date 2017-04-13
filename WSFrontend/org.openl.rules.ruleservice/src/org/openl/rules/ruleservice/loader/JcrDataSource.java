@@ -31,6 +31,7 @@ public class JcrDataSource implements DataSource {
     private final Logger log = LoggerFactory.getLogger(JcrDataSource.class);
 
     private Repository repository;
+    private boolean includeVersionInDeploymentName = false;
 
     /**
      * {@inheritDoc}
@@ -45,14 +46,24 @@ public class JcrDataSource implements DataSource {
         ConcurrentMap<String, Deployment> deployments = new ConcurrentHashMap<String, Deployment>();
         for (FileData fileData : fileDatas) {
             String deploymentFolderName = fileData.getName().substring(DeployUtils.DEPLOY_PATH.length()).split("/")[0];
-            int separatorPosition = deploymentFolderName.lastIndexOf(DeployUtils.SEPARATOR);
-
             String deploymentName = deploymentFolderName;
             CommonVersionImpl commonVersion = null;
-            if (separatorPosition >= 0) {
-                deploymentName = deploymentFolderName.substring(0, separatorPosition);
-                int version = Integer.valueOf(deploymentFolderName.substring(separatorPosition + 1));
-                commonVersion = new CommonVersionImpl(version);
+
+            if (includeVersionInDeploymentName) {
+                int separatorPosition = deploymentFolderName.lastIndexOf(DeployUtils.SEPARATOR);
+
+                if (separatorPosition >= 0) {
+                    deploymentName = deploymentFolderName.substring(0, separatorPosition);
+                    int version = Integer.valueOf(deploymentFolderName.substring(separatorPosition + 1));
+                    commonVersion = new CommonVersionImpl(version);
+                } else {
+                    commonVersion = null;
+                }
+            } else {
+                String version = fileData.getVersion();
+                if (version != null) {
+                    commonVersion = new CommonVersionImpl(version);
+                }
             }
             Deployment deployment = new Deployment(repository,
                 DeployUtils.DEPLOY_PATH + deploymentFolderName,
@@ -79,7 +90,12 @@ public class JcrDataSource implements DataSource {
             deploymentName,
             deploymentVersion.getVersionName());
 
-        String name = deploymentName + DeployUtils.SEPARATOR + deploymentVersion.getVersionName();
+        String name;
+        if (includeVersionInDeploymentName) {
+            name = deploymentName + DeployUtils.SEPARATOR + deploymentVersion.getVersionName();
+        } else {
+            name = deploymentName;
+        }
         return new Deployment(repository, DeployUtils.DEPLOY_PATH + name, deploymentName, deploymentVersion, false);
     }
 
@@ -114,4 +130,7 @@ public class JcrDataSource implements DataSource {
         this.repository = repository;
     }
 
+    public void setIncludeVersionInDeploymentName(boolean includeVersionInDeploymentName) {
+        this.includeVersionInDeploymentName = includeVersionInDeploymentName;
+    }
 }

@@ -4,22 +4,19 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
-import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
-import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.util.RuntimeExceptionWrapper;
 
 public final class DeployUtils {
     public static final String SEPARATOR = "#";
+    public static final String API_VERSION_SEPARATOR = "_V";
 
     public static final String DEPLOY_PATH = "deploy/";
+    public static final String RULES_DEPLOY_XML = "rules-deploy.xml";
 
     private DeployUtils() {
     }
@@ -41,11 +38,13 @@ public final class DeployUtils {
 
             String deploymentName = deploymentFolderName;
             Integer version = 0;
-            CommonVersionImpl commonVersion = null;
+            CommonVersionImpl commonVersion;
             if (separatorPosition >= 0) {
                 deploymentName = deploymentFolderName.substring(0, separatorPosition);
                 version = Integer.valueOf(deploymentFolderName.substring(separatorPosition + 1));
                 commonVersion = new CommonVersionImpl(version);
+            } else {
+                commonVersion = new CommonVersionImpl(fileData.getVersion());
             }
             Integer previous = versionsList.put(deploymentName, version);
             if (previous != null && previous > version) {

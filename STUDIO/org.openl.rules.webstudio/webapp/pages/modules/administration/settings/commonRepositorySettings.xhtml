@@ -19,6 +19,9 @@
         <h:inputText value="#{settings.login}" rendered="#{settings.secure || !empty settings.login}"/>
         <h:outputText value="Password:" rendered="#{settings.secure || !empty settings.login}"/>
         <h:inputSecret value="#{settings.password}" rendered="#{settings.secure || !empty settings.login}"/>
+
+        <h:outputText value="Version in deployment name" rendered="#{isProduction}" />
+        <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction}"/>
     </h:panelGrid>
 
 </ui:composition>

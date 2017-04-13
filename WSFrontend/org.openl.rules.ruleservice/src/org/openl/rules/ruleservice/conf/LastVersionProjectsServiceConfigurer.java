@@ -44,8 +44,13 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
     private boolean supportVariations = false;
     private boolean useRuleServiceRuntimeContext = false;
     private String supportedGroups = null;
+    private boolean filterDeployments = false;
 
     private Collection<Deployment> filterDeployments(Collection<Deployment> deployments) {
+        if (!filterDeployments) {
+            return deployments;
+        }
+
         Map<String, Map<String, Deployment>> latestDeployments = new HashMap<String, Map<String, Deployment>>();
         for (Deployment deployment : deployments) {
             String deploymentName = deployment.getDeploymentName();
@@ -350,5 +355,9 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
 
     public String getSupportedGroups() {
         return supportedGroups;
+    }
+
+    public void setFilterDeployments(boolean filterDeployments) {
+        this.filterDeployments = filterDeployments;
     }
 }

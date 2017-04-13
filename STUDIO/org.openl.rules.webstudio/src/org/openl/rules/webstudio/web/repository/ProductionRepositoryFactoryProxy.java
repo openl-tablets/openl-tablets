@@ -5,6 +5,7 @@ import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.RepositoryFactoryInstatiator;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.webstudio.web.admin.RepositorySettings;
 import org.openl.util.IOUtils;
 
 import java.io.Closeable;
@@ -71,4 +72,8 @@ public class ProductionRepositoryFactoryProxy {
         return RepositoryFactoryInstatiator.newFactory(properties, false);
     }
 
+    public boolean isIncludeVersionInDeploymentName(String propertiesFileName) {
+        ConfigurationManager configurationManager = configManagerFactory.getConfigurationManager(propertiesFileName);
+        return Boolean.valueOf(configurationManager.getStringProperty(RepositorySettings.VERSION_IN_DEPLOYMENT_NAME));
+    }
 }

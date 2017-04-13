@@ -8,7 +8,7 @@
 
   <style>
       #modalAddRepoConnectionForm .titleColumn {
-          min-width: 100px;
+          min-width: 140px;
       }
   </style>
   <rich:popupPanel id="modalAddRepoConnection" width="400" autosized="true">
@@ -48,11 +48,13 @@
             <h:panelGroup rendered="#{connectionProductionRepoController.repositoryConfiguration.formType == 'common'}">
                 <ui:include src="/pages/modules/administration/settings/commonRepositorySettings.xhtml">
                     <ui:param name="repository" value="#{connectionProductionRepoController.repositoryConfiguration}" />
+                    <ui:param name="isProduction" value="true" />
                 </ui:include>
             </h:panelGroup>
             <h:panelGroup rendered="#{connectionProductionRepoController.repositoryConfiguration.formType == 'aws_s3'}">
                 <ui:include src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
                     <ui:param name="repository" value="#{connectionProductionRepoController.repositoryConfiguration}" />
+                    <ui:param name="isProduction" value="true" />
                 </ui:include>
             </h:panelGroup>
         </h:panelGroup>

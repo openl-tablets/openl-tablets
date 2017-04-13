@@ -31,6 +31,7 @@ import org.xml.sax.InputSource;
  */
 public class ProductionRepositoryDeployer {
     private final Logger log = LoggerFactory.getLogger(ProductionRepositoryDeployer.class);
+    public static final String VERSION_IN_DEPLOYMENT_NAME = "version-in-deployment-name";
 
     /**
      * Deploys a new project to the production repository. If the project exists
@@ -73,8 +74,9 @@ public class ProductionRepositoryDeployer {
         try {
             // Initialize repo
             deployRepo = RepositoryFactoryInstatiator.newFactory(properties, false);
+            String includeVersion = (String) properties.get(VERSION_IN_DEPLOYMENT_NAME);
 
-            deployInternal(zipFile, deployRepo, skipExist);
+            deployInternal(zipFile, deployRepo, skipExist, Boolean.valueOf(includeVersion));
         } finally {
             // Close repo
             if (deployRepo != null) {
@@ -86,7 +88,7 @@ public class ProductionRepositoryDeployer {
         }
 
     }
-    public void deployInternal(File zipFile, Repository deployRepo, boolean skipExist) throws Exception {
+    public void deployInternal(File zipFile, Repository deployRepo, boolean skipExist, boolean includeVersionInDeploymentName) throws Exception {
 
         // Temp folders
         File zipFolder = FileUtils.createTempDirectory();
@@ -105,17 +107,37 @@ public class ProductionRepositoryDeployer {
                     name = rulesName;
                 }
             }
+            String deploymentName;
 
-            int version = DeployUtils.getNextDeploymentVersion(deployRepo, name);
-            if (version > 1 && skipExist) {
-                log.info("Project [{}] exists. It has been skipped to deploy.", name);
-                return;
+            int version = 0;
+            if (includeVersionInDeploymentName) {
+                version = DeployUtils.getNextDeploymentVersion(deployRepo, name);
+                deploymentName = name + DeployUtils.SEPARATOR + version;
+            } else {
+                deploymentName = name;
+                File rulesDeploy = new File(zipFolder, "rules-deploy.xml");
+                if (rulesDeploy.exists()) {
+                    String apiVersion = getApiVersion(rulesDeploy);
+                    if (apiVersion != null && !apiVersion.isEmpty()) {
+                        deploymentName = name + DeployUtils.API_VERSION_SEPARATOR + apiVersion;
+                    }
+                }
+            }
+            if (skipExist) {
+                if (includeVersionInDeploymentName) {
+                    if (version > 1) {
+                        log.info("Project [{}] exists. It has been skipped to deploy.", name);
+                        return;
+                    }
+                } else {
+                    if (!deployRepo.list(DeployUtils.DEPLOY_PATH + deploymentName + "/").isEmpty()) {
+                        return;
+                    }
+                }
             }
 
             // Do deploy
-            String target = new StringBuilder(DeployUtils.DEPLOY_PATH).append(name)
-                .append('#')
-                .append(version)
+            String target = new StringBuilder(DeployUtils.DEPLOY_PATH).append(deploymentName)
                 .append('/')
                 .append(name)
                 .toString();
@@ -136,6 +158,20 @@ public class ProductionRepositoryDeployer {
             XPathFactory factory = XPathFactory.newInstance();
             XPath xPath = factory.newXPath();
             XPathExpression xPathExpression = xPath.compile("/project/name");
+            return xPathExpression.evaluate(inputSource);
+        } catch (FileNotFoundException e) {
+            return null;
+        } catch (XPathExpressionException e) {
+            return null;
+        }
+    }
+
+    private String getApiVersion(File file) {
+        try {
+            InputSource inputSource = new InputSource(new FileInputStream(file));
+            XPathFactory factory = XPathFactory.newInstance();
+            XPath xPath = factory.newXPath();
+            XPathExpression xPathExpression = xPath.compile("/version");
             return xPathExpression.evaluate(inputSource);
         } catch (FileNotFoundException e) {
             return null;
