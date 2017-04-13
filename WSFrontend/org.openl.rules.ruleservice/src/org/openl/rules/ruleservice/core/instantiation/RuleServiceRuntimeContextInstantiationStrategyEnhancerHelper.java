@@ -187,7 +187,7 @@ final class RuleServiceRuntimeContextInstantiationStrategyEnhancerHelper {
             if (signature.startsWith("(" + RULESERVICE_RUNTIME_CONTEXT)) {
                 return "(" + RUNTIME_CONTEXT + signature.substring(RULESERVICE_RUNTIME_CONTEXT.length() + 1);
             } else {
-                throw new RuntimeException("Wrong signature!");
+                throw new RuntimeException("IRulesRuntimeContext has been expected in signature!");
             }
         }
     }

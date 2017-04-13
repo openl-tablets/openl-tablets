@@ -1,10 +1,8 @@
 package org.openl.rules.ui;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -59,7 +57,6 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
-import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.richfaces.event.FileUploadEvent;
@@ -445,7 +442,7 @@ public class WebStudio {
         ProjectFile lastUploadedFile = getLastUploadedFile();
         if (lastUploadedFile == null) {
             // TODO Replace exceptions with FacesUtils.addErrorMessage()
-            throw new IllegalArgumentException("No file was uploaded. Please upload .zip file to update project");
+            throw new IllegalArgumentException("No file has been uploaded. Please upload .zip file to update project");
         }
         if (!FileTypeHelper.isZipFile(FilenameUtils.getName(lastUploadedFile.getName()))) {
             // TODO Replace exceptions with FacesUtils.addErrorMessage()
@@ -638,7 +635,7 @@ public class WebStudio {
         } else if (!NameChecker.checkName(projectName)) {
             msg = NameChecker.BAD_PROJECT_NAME_MSG;
         } else if (isProjectExists(projectName)) {
-            msg = "Cannot update the project. Another project with the same name already exists in Repository.";
+            msg = "Failed to update the project. Another project with the same name already exists in Repository.";
         }
         return msg;
     }
