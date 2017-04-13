@@ -94,7 +94,7 @@ public class JavaImportTypeLibrary implements ITypeLibrary {
                 // We just skip such classes and continue searching them in another packages.
             } catch (UnsupportedClassVersionError e) {
                 // Type is found but it's compiled using newer version of JDK
-                String message = String.format("Can't load the class \"%s\" compiled using newer version of JDK than current JRE (%s)", name, System.getProperty("java.version"));
+                String message = String.format("Failed to load the class '%s' that was compiled using newer version of JDK than current JRE (%s)", name, System.getProperty("java.version"));
                 throw RuntimeExceptionWrapper.wrap(message, e);
             } catch (Throwable t) {
                 Log.error("Error loading class: " + name, t);
