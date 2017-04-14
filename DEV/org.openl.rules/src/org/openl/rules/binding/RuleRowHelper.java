@@ -555,11 +555,13 @@ public class RuleRowHelper {
 
         boolean isFormula = isFormula(dataTable);
         
-        if (oneCellTable && !isFormula) {
-            // load comma separated array
-            return loadCommaSeparatedArrayParams(dataTable, paramName, ruleName, openlAdaptor, arrayType);
-        } else if (oneCellTable && isFormula) {
-            return loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
+        if (oneCellTable) {
+            if (!isFormula) {
+                // load comma separated array
+                return loadCommaSeparatedArrayParams(dataTable, paramName, ruleName, openlAdaptor, arrayType);
+            } else {
+                return loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
+            }
         } else {
             return loadSimpleArrayParams(dataTable, paramName, ruleName, openlAdaptor, arrayType);
         }
