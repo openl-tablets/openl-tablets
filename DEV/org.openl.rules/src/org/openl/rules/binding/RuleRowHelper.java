@@ -309,8 +309,7 @@ public class RuleRowHelper {
                 openlAdapter.setHeader(newHeader);
 
                 if (source.startsWith("{") && source.endsWith("}")) {
-                    IGridTable cellTable = getTopLeftCellFromMergedRegion(cell.getSource());
-                    GridCellSourceCodeModule srcCode = new GridCellSourceCodeModule(cellTable,
+                    GridCellSourceCodeModule srcCode = new GridCellSourceCodeModule(cell.getSource(),
                         openlAdapter.getBindingContext());
 
                     return openlAdapter.makeMethod(srcCode);
@@ -318,8 +317,7 @@ public class RuleRowHelper {
 
                 if (source.startsWith("=") && (source.length() > 2 || source.length() == 2 && Character.isLetterOrDigit(source.charAt(1)))) {
 
-                    IGridTable cellTable = getTopLeftCellFromMergedRegion(cell.getSource());
-                    GridCellSourceCodeModule gridSource = new GridCellSourceCodeModule(cellTable,
+                    GridCellSourceCodeModule gridSource = new GridCellSourceCodeModule(cell.getSource(),
                         openlAdapter.getBindingContext());
                     IOpenSourceCodeModule code = new SubTextSourceCodeModule(gridSource, 1);
 
