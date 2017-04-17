@@ -61,5 +61,9 @@ public class DeferredMethod extends AMethod {
     public void setMethodBodyBoundNode(IBoundMethodNode bnode) {
         methodBodyBoundNode = bnode;
     }
-
+    
+    @Override
+    public boolean isConstructor() {
+        return false;
+    }
 }

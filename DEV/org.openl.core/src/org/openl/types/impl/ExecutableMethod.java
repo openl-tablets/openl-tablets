@@ -16,6 +16,11 @@ public abstract class ExecutableMethod extends AMethod implements IMemberMetaInf
 	}
 	
 	@Override
+	public boolean isConstructor() {
+	    return false;
+	}
+	
+	@Override
 	public String toString() {	
 		return getName();
 	}

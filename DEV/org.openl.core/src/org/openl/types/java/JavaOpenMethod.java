@@ -157,4 +157,9 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
     public String toString() {
         return getName();
     }
+    
+    @Override
+    public boolean isConstructor() {
+        return false;
+    }
 }

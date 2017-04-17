@@ -239,6 +239,11 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         public IMethodSignature getSignature() {
             return new MethodSignature(new IOpenClass[] {}, new String[] {});
         }
+        
+        @Override
+        public boolean isConstructor() {
+            return false;
+        }
     }
 
     public final class EmptyRuntimeContextMethod implements IOpenMethod {
@@ -278,6 +283,11 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
         public IMethodSignature getSignature() {
             return new MethodSignature(new IOpenClass[] {}, new String[] {});
+        }
+        
+        @Override
+        public boolean isConstructor() {
+            return false;
         }
     }
 
@@ -323,6 +333,11 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
         public IMethodSignature getSignature() {
             return new MethodSignature(new IOpenClass[] {}, new String[] {});
+        }
+        
+        @Override
+        public boolean isConstructor() {
+            return false;
         }
     }
 
@@ -371,6 +386,12 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             return new MethodSignature(new IOpenClass[] { JavaOpenClass.getOpenClass(IRulesRuntimeContext.class) },
                 new String[] { "context"});
         }
+        
+        @Override
+        public boolean isConstructor() {
+            return false;
+        }
+
     }
 
     public final class ModifyRuntimeContextMethod implements IOpenMethod {
@@ -423,6 +444,11 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         public IMethodSignature getSignature() {
             return new MethodSignature(new IOpenClass[] { JavaOpenClass.STRING, JavaOpenClass.OBJECT },
                 new String[] { "property", "value" });
+        }
+        
+        @Override
+        public boolean isConstructor() {
+            return false;
         }
     }
 }

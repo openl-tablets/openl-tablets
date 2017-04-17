@@ -71,9 +71,6 @@ public abstract class ADynamicClass extends AOpenClass {
         if (methodMap == STUB){
             methodMap = new HashMap<MethodKey, IOpenMethod>(4);
         }
-        OpenConstructor openConstructor = new OpenConstructor(this);
-        MethodKey key = new MethodKey(openConstructor);
-        methodMap.put(key, openConstructor);
         
         if (instanceClass != null && !DynamicObject.class.isAssignableFrom(instanceClass)){
             Method[] mm = instanceClass.getDeclaredMethods();
@@ -86,18 +83,30 @@ public abstract class ADynamicClass extends AOpenClass {
                     }
                 }
             }
-
-            Constructor<?>[] cc = instanceClass.getDeclaredConstructors();
-            for (int i = 0; i < cc.length; i++) {
-                if (isPublic(cc[i])) {
-                    IOpenMethod om = new JavaOpenConstructor(cc[i]);
-                    MethodKey kom = new MethodKey(om);
-                    methodMap.put(kom, om);
-                }
-            }
         }
         
         return methodMap;
+    }
+    
+    @Override
+    protected Map<MethodKey, IOpenMethod> initConstructorMap() {
+        Map<MethodKey, IOpenMethod> constructorMap = super.initConstructorMap();
+        if (constructorMap == STUB){
+            constructorMap = new HashMap<MethodKey, IOpenMethod>(1);
+        }
+        OpenConstructor openConstructor = new OpenConstructor(this);
+        MethodKey key = new MethodKey(openConstructor);
+        constructorMap.put(key, openConstructor);
+
+        Constructor<?>[] cc = instanceClass.getDeclaredConstructors();
+        for (int i = 0; i < cc.length; i++) {
+            if (isPublic(cc[i])) {
+                IOpenMethod om = new JavaOpenConstructor(cc[i]);
+                MethodKey kom = new MethodKey(om);
+                constructorMap.put(kom, om);
+            }
+        }
+        return constructorMap;
     }
 
     public void addMethod(IOpenMethod method) {
@@ -134,7 +143,7 @@ public abstract class ADynamicClass extends AOpenClass {
     
     public void setInstanceClass(Class<?> instanceClass) {
         this.instanceClass = instanceClass;
-        invalidateMethodCaches();
+        invalidateInternalData();
     }
 
     public String getName() {
@@ -209,7 +218,11 @@ public abstract class ADynamicClass extends AOpenClass {
         public String toString() {
             return openClass.getName();
         }
-
+        
+        @Override
+        public boolean isConstructor() {
+            return true;
+        }
     };
 
 }

@@ -258,6 +258,11 @@ public class DatatypeOpenClass extends ADynamicClass {
         public boolean isStatic() {
             return true;
         }
+        
+        @Override
+        public boolean isConstructor() {
+            return true;
+        }
 
         @Override
         public String toString() {
@@ -319,6 +324,11 @@ public class DatatypeOpenClass extends ADynamicClass {
             builder.append('}');
             return builder.toString();
         }
+        
+        @Override
+        public boolean isConstructor() {
+            return false;
+        }
     }
 
     /**
@@ -375,6 +385,12 @@ public class DatatypeOpenClass extends ADynamicClass {
             }
             return builder.isEquals();
         }
+        
+        @Override
+        public boolean isConstructor() {
+            return false;
+        }
+
     }
 
     /**
@@ -431,5 +447,11 @@ public class DatatypeOpenClass extends ADynamicClass {
 
             return result;
         }
+        
+        @Override
+        public boolean isConstructor() {
+            return false;
+        }
+
     }
 }

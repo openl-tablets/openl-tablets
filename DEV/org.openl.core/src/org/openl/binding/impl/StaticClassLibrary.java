@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.IOpenLibrary;
+import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -70,5 +71,14 @@ public class StaticClassLibrary implements IOpenLibrary {
 
         return found == null ? Collections.<IOpenMethod>emptyList() : found;
     }
+    
+    @Override
+    public IOpenMethod getMatchingConstructor(String name, IOpenClass[] params) throws AmbiguousMethodException {
+        return null;
+    }
 
+    @Override
+    public Iterable<IOpenMethod> constructors(String name) {
+        return Collections.<IOpenMethod>emptyList();
+    }
 }

@@ -123,6 +123,13 @@ public class MethodSearch {
             IMethodFactory factory) throws AmbiguousMethodException {
         return getCastingMethodCaller(name, params, casts, factory.methods(name));
     }
+    
+    public static IMethodCaller getCastingConstructorCaller(String name,
+            IOpenClass[] params,
+            ICastFactory casts,
+            IMethodFactory factory) throws AmbiguousMethodException {
+        return getCastingMethodCaller(name, params, casts, factory.constructors(name));
+    }
 
     /**
      * Choosing the most specific method according to:
@@ -206,6 +213,13 @@ public class MethodSearch {
             IMethodFactory factory) throws AmbiguousMethodException {
         return getMethodCaller(name, params, casts, factory, false);
     }
+    
+    public static IMethodCaller getConstructorCaller(String name,
+            IOpenClass[] params,
+            ICastFactory casts,
+            IMethodFactory factory) throws AmbiguousMethodException {
+        return getConstructorCaller(name, params, casts, factory, false);
+    }
 
     public static IMethodCaller getMethodCaller(String name,
             IOpenClass[] params,
@@ -222,6 +236,25 @@ public class MethodSearch {
         }
         if (!strictMatch) {
             return getCastingMethodCaller(name, params, casts, factory);
+        }
+        return null;
+    }
+    
+    public static IMethodCaller getConstructorCaller(String name,
+            IOpenClass[] params,
+            ICastFactory casts,
+            IMethodFactory factory,
+            boolean strictMatch) throws AmbiguousMethodException {
+        IMethodCaller caller = factory.getMatchingConstructor(name, params);
+        if (caller != null) {
+            return caller;
+        }
+
+        if (params.length == 0 || casts == null) {
+            return null;
+        }
+        if (!strictMatch) {
+            return getCastingConstructorCaller(name, params, casts, factory);
         }
         return null;
     }

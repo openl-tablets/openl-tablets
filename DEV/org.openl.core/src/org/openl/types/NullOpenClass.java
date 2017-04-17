@@ -78,6 +78,11 @@ public class NullOpenClass implements IOpenClass {
     public IOpenMethod getMatchingMethod(String name, IOpenClass[] params) throws AmbiguousMethodException {
         return null;
     }
+    
+    @Override
+    public IOpenMethod getMatchingConstructor(String name, IOpenClass[] params) throws AmbiguousMethodException {
+        return null;
+    }
 
     public IMetaInfo getMetaInfo() {
         return null;
@@ -202,6 +207,11 @@ public class NullOpenClass implements IOpenClass {
 
     @Override
     public Iterable<IOpenMethod> methods(String name) {
-        return null;
+        return Collections.emptyList();
+    }
+    
+    @Override
+    public Iterable<IOpenMethod> constructors(String name) {
+        return Collections.emptyList();
     }
 }

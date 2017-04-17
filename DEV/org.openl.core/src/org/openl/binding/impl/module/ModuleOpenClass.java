@@ -92,7 +92,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
         for (IOpenMethod depMethod : compiledOpenClass.getOpenClassWithErrors().getMethods()) {
             // filter constructor and getOpenClass methods of dependency modules
             //
-            if (!(depMethod instanceof OpenConstructor) && !(depMethod instanceof GetOpenClass)) {
+            if (!(depMethod.isConstructor()) && !(depMethod instanceof GetOpenClass)) {
                 try {
                     //Workaround for set dependency names in method while compile
                     if (depMethod instanceof AMethod){

@@ -140,6 +140,11 @@ public class JavaOpenConstructor implements IOpenMethod, IMethodSignature {
     public boolean isStatic() {
         return true;
     }
+    
+    @Override
+    public boolean isConstructor() {
+        return true;
+    }
 
     @Override
     public String toString() {

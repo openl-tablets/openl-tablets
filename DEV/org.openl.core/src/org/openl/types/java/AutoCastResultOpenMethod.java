@@ -143,6 +143,11 @@ public class AutoCastResultOpenMethod implements IOpenMethod, IMethodSignature {
     public boolean isStatic() {
         return methodCaller.getMethod().isStatic();
     }
+    
+    @Override
+    public boolean isConstructor() {
+        return false;
+    }
 
     @Override
     public String toString() {

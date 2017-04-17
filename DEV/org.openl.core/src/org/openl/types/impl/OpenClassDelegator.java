@@ -63,6 +63,11 @@ public class OpenClassDelegator implements IOpenClass {
     public IOpenMethod getMatchingMethod(String mname, IOpenClass[] params) throws AmbiguousMethodException {
         return baseClass.getMatchingMethod(mname, params);
     }
+    
+    @Override
+    public IOpenMethod getMatchingConstructor(String name, IOpenClass[] params) throws AmbiguousMethodException {
+        return baseClass.getMatchingConstructor(name, params);
+    }
 
     public IMetaInfo getMetaInfo() {
         return metaInfo;
@@ -198,6 +203,10 @@ public class OpenClassDelegator implements IOpenClass {
 
     public Iterable<IOpenMethod> methods(String name) {
         return baseClass.methods(name);
+    }
+    
+    public Iterable<IOpenMethod> constructors(String name) {
+        return baseClass.constructors(name);
     }
 
 }

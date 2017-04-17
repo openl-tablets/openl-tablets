@@ -943,6 +943,11 @@ public class XlsBinder implements IOpenBinder {
         public boolean isStatic() {
             return openMethodHeader.isStatic();
         }
+        
+        @Override
+        public boolean isConstructor() {
+            return false;
+        }
 
         @Override
         public IOpenClass getDeclaringClass() {

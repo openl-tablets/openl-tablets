@@ -11,5 +11,5 @@ package org.openl.types;
  *
  */
 public interface IOpenMethod extends IOpenMethodHeader, IMethodCaller {
-
+    boolean isConstructor();
 }

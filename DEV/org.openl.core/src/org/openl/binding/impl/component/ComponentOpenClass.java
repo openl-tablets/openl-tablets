@@ -122,6 +122,11 @@ public class ComponentOpenClass extends ADynamicClass {
         public boolean isStatic() {
             return false;
         }
+        
+        @Override
+        public boolean isConstructor() {
+            return true;
+        }
     }
 
     public class GetOpenClass implements IOpenMethod {
@@ -159,6 +164,11 @@ public class ComponentOpenClass extends ADynamicClass {
         }
 
         public boolean isStatic() {
+            return false;
+        }
+        
+        @Override
+        public boolean isConstructor() {
             return false;
         }
     }

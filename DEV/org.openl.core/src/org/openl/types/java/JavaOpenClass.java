@@ -327,7 +327,6 @@ public class JavaOpenClass extends AOpenClass {
     public IOpenMethod getMatchingMethod(String name, IOpenClass[] params) throws AmbiguousMethodException {
         return getMethod(name, params);
     }
-
     
     String name;
     
@@ -378,9 +377,7 @@ public class JavaOpenClass extends AOpenClass {
 
     @Override
     protected Map<MethodKey, IOpenMethod> initMethodMap() {
-        HashMap<MethodKey, IOpenMethod> methods;
-
-        methods = new HashMap<MethodKey, IOpenMethod>();
+        Map<MethodKey, IOpenMethod> methods = new HashMap<MethodKey, IOpenMethod>();
         Method[] mm = instanceClass.getDeclaredMethods();
         if (isPublic(instanceClass)) {
             for (int i = 0; i < mm.length; i++) {
@@ -391,19 +388,30 @@ public class JavaOpenClass extends AOpenClass {
             }
         }
 
+        if (methods.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        return Collections.unmodifiableMap(methods);
+    }
+    
+    @Override
+    protected Map<MethodKey, IOpenMethod> initConstructorMap() {
+        Map<MethodKey, IOpenMethod> constructors = new HashMap<MethodKey, IOpenMethod>();
+        
         Constructor<?>[] cc = instanceClass.getDeclaredConstructors();
         for (int i = 0; i < cc.length; i++) {
             if (isPublic(cc[i])) {
                 IOpenMethod om = new JavaOpenConstructor(cc[i]);
                 // Log.debug("Adding method " + mm[i].getName() + " code = "
                 // + new MethodKey(om).hashCode());
-                methods.put(new MethodKey(om), om);
+                constructors.put(new MethodKey(om), om);
             }
         }
-        if (methods.isEmpty()) {
+        if (constructors.isEmpty()) {
             return Collections.emptyMap();
         }
-        return Collections.unmodifiableMap(methods);
+        
+        return Collections.unmodifiableMap(constructors);
     }
 
     public Object newInstance(IRuntimeEnv env) {

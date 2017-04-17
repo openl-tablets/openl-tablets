@@ -16,6 +16,7 @@ import org.openl.types.java.JavaOpenClass;
  */
 public final class MethodKey {
     private String name;
+    private boolean isConstructor = false;
     private IOpenClass[] internalParameters;
     int hashCode = 0;
 
@@ -23,16 +24,25 @@ public final class MethodKey {
         this.name = om.getName();
         IOpenClass[] pars = om.getSignature().getParameterTypes();
         this.internalParameters = getNormalizedParams(pars);
+        this.isConstructor = om.isConstructor();
     }
 
     public MethodKey(String name, IOpenClass[] pars) {
         this.name = name;
         this.internalParameters = getNormalizedParams(pars);
+        this.isConstructor = false;
     }
 
-    public MethodKey(String name, IOpenClass[] parTypes, boolean doNotNormalizeParams) {
+    public MethodKey(String name, IOpenClass[] pars, boolean isContructor) {
+        this.name = name;
+        this.internalParameters = getNormalizedParams(pars);
+        this.isConstructor = isContructor;
+    }
+
+    public MethodKey(String name, IOpenClass[] parTypes, boolean isConstructor, boolean doNotNormalizeParams) {
     	this.name = name;
     	this.internalParameters = doNotNormalizeParams ? parTypes : getNormalizedParams(parTypes);
+    	this.isConstructor = isConstructor;
 	}
 
 	/**
@@ -89,13 +99,13 @@ public final class MethodKey {
 
         MethodKey mk = (MethodKey) obj;
 
-        return new EqualsBuilder().append(name, mk.name).append(internalParameters, mk.internalParameters).isEquals();
+        return new EqualsBuilder().append(name, mk.name).append(internalParameters, mk.internalParameters).append(isConstructor, mk.isConstructor).isEquals();
     }
 
     @Override
     public int hashCode() {
         if (hashCode == 0) {
-            hashCode = new HashCodeBuilder().append(name).append(internalParameters).toHashCode();
+            hashCode = new HashCodeBuilder().append(name).append(internalParameters).append(isConstructor).toHashCode();
         }
         return hashCode;
     }

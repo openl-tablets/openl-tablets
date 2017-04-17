@@ -125,6 +125,11 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     public boolean isStatic() {
         return delegate.isStatic();
     }
+    
+    @Override
+    public boolean isConstructor() {
+        return false;
+    }
 
     /**
      * Gets the user-friendly name.

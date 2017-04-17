@@ -153,6 +153,10 @@ public abstract class AOpenClass implements IOpenClass {
     public IOpenMethod getMatchingMethod(String name, IOpenClass[] params) throws AmbiguousMethodException {
         return getMethod(name, params);
     }
+    
+    public IOpenMethod getMatchingConstructor(String name, IOpenClass[] params) throws AmbiguousMethodException {
+        return getDeclaredConstructor(name, params);
+    }
 
     public IMetaInfo getMetaInfo() {
         return metaInfo;
@@ -290,6 +294,7 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     private Map<MethodKey, IOpenMethod> methodMap;
+    private Map<MethodKey, IOpenMethod> constructorMap;
 
     private Map<MethodKey, IOpenMethod> methodMap() {
         if (methodMap == null) {
@@ -301,8 +306,23 @@ public abstract class AOpenClass implements IOpenClass {
         }
         return methodMap;
     }
+    
+    private Map<MethodKey, IOpenMethod> constructorMap() {
+        if (constructorMap == null) {
+            synchronized (this) {
+                if (constructorMap == null) {
+                    constructorMap = initConstructorMap();
+                }
+            }
+        }
+        return constructorMap;
+    }
 
     protected Map<MethodKey, IOpenMethod> initMethodMap() {
+        return STUB;
+    }
+    
+    protected Map<MethodKey, IOpenMethod> initConstructorMap() {
         return STUB;
     }
 
@@ -322,6 +342,23 @@ public abstract class AOpenClass implements IOpenClass {
         return existMethod;
     }
 
+    private IOpenMethod putConstructor(IOpenMethod method) {
+        if (constructorMap == null || constructorMap == STUB) {
+            synchronized (this) {
+                if (constructorMap == null) {
+                    constructorMap = initConstructorMap();
+                }
+                if (constructorMap == STUB) {
+                    constructorMap = new HashMap<MethodKey, IOpenMethod>(4);
+                }
+            }
+        }
+        MethodKey key = new MethodKey(method);
+        final IOpenMethod existConstructor = constructorMap.put(key, method);
+        return existConstructor;
+    }
+
+    
     protected void addMethod(IOpenMethod method) {
         MethodKey key = new MethodKey(method);
         final IOpenMethod existMethod = putMethod(method);
@@ -329,7 +366,16 @@ public abstract class AOpenClass implements IOpenClass {
             throw new DuplicatedMethodException(
                 "Method '" + key + "' have bean already defined for class '" + getName() + "'", method);
         }
-        invalidateMethodCaches();
+        invalidateInternalData();
+    }
+    
+    public void addConstructor(IOpenMethod method) {
+        MethodKey key = new MethodKey(method);
+        final IOpenMethod existCostructor = putConstructor(method);
+        if (existCostructor != null) {
+            throw new DuplicatedMethodException(
+                "Constructor '" + key + "' have bean already defined for class '" + getName() + "'", method);
+        }
     }
 
     protected void overrideMethod(IOpenMethod method) {
@@ -338,12 +384,13 @@ public abstract class AOpenClass implements IOpenClass {
         if (existMethod == null) {
             throw new IllegalStateException("Method '" + key + "' is absent to override in class '" + getName() + "'");
         }
-        invalidateMethodCaches();
+        invalidateInternalData();
     }
 
-    protected final void invalidateMethodCaches() {
+    protected final void invalidateInternalData() {
         allMethodsCacheInvalidated = true; 
         allMethodNamesMapInvalidated = true;
+        constructorMap = null;
     }
 
     private Collection<IOpenMethod> allMethodsCache = null;
@@ -355,6 +402,10 @@ public abstract class AOpenClass implements IOpenClass {
             allMethodsCacheInvalidated = false;
         }
         return allMethodsCache;
+    }
+    
+    public final synchronized Collection<IOpenMethod> getConstructors() {
+        return constructorMap().values();
     }
 
     private Collection<IOpenMethod> buildAllMethods() {
@@ -378,6 +429,12 @@ public abstract class AOpenClass implements IOpenClass {
     protected IOpenMethod getDeclaredMethod(String name, IOpenClass[] classes) {
         Map<MethodKey, IOpenMethod> m = methodMap();
         MethodKey methodKey = new MethodKey(name, classes);
+        return m.get(methodKey);
+    }
+    
+    protected IOpenMethod getDeclaredConstructor(String name, IOpenClass[] classes) {
+        Map<MethodKey, IOpenMethod> m = constructorMap();
+        MethodKey methodKey = new MethodKey(name, classes, true);
         return m.get(methodKey);
     }
 
@@ -441,8 +498,9 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     private Map<String, List<IOpenMethod>> allMethodNamesMap = null;
+    
     private volatile boolean allMethodNamesMapInvalidated = true;
-
+    
     @Override
     public final synchronized Iterable<IOpenMethod> methods(String name) {
         if (allMethodNamesMapInvalidated) {
@@ -455,6 +513,11 @@ public abstract class AOpenClass implements IOpenClass {
         }
         List<IOpenMethod> found = allMethodNamesMap.get(name);
         return found == null ? Collections.<IOpenMethod> emptyList() : Collections.unmodifiableList(found);
+    }
+    
+    @Override
+    public final Iterable<IOpenMethod> constructors(String name) {
+        return getConstructors();
     }
 
     public static Map<String, List<IOpenMethod>> buildMethodNameMap(Iterable<IOpenMethod> methods) {

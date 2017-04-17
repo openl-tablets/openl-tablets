@@ -78,6 +78,11 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
     }
     
     @Override
+    public boolean isConstructor() {
+        return getOriginal().isConstructor();
+    }
+    
+    @Override
     public IOpenMethod getCompiledMethod(IRuntimeEnv env) {
         return getMember(env);
     }

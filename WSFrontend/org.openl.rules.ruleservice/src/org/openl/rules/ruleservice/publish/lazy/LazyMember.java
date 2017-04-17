@@ -181,7 +181,7 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
     public boolean isStatic() {
         return original.isStatic();
     }
-
+    
     public IMemberMetaInfo getInfo() {
         return original.getInfo();
     }

@@ -52,7 +52,7 @@ public class NewNodeBinder extends ANodeBinder {
         }
         IOpenClass[] types = getTypes(children);
 
-        IMethodCaller methodCaller = MethodSearch.getMethodCaller(type.getName(), types, bindingContext, type);
+        IMethodCaller methodCaller = MethodSearch.getConstructorCaller(type.getName(), types, bindingContext, type);
 
         if (methodCaller == null) {
 
