@@ -12,6 +12,7 @@ public class OpenLMessagesTest {
 
     public static final String SRC1 = "test/rules/messages/project1.xls";
     public static final String SRC2 = "test/rules/messages/project2.xls";
+    public static final String SRC3 = "test/rules/messages/merged-region.xlsx";
 
     @Test
     public void testInSeriesCompileMessages1() {
@@ -47,7 +48,7 @@ public class OpenLMessagesTest {
         engineFactory1.setExecutionMode(false);
         try {
             engineFactory1.newEngineInstance();
-        } catch (OpenlNotCheckedException e) {
+        } catch (OpenlNotCheckedException ignored) {
         }
         OpenLMessages messages = OpenLMessages.getCurrentInstance();
         assertEquals("Should be one message from current module", 1, messages.getMessages().size());
@@ -57,9 +58,17 @@ public class OpenLMessagesTest {
         engineFactory2.setExecutionMode(false);
         try {
             engineFactory2.newEngineInstance();
-        } catch (OpenlNotCheckedException ex) {
+        } catch (OpenlNotCheckedException ignored) {
         }
         OpenLMessages messages1 = OpenLMessages.getCurrentInstance();
         assertEquals("Messages should be 5, just from current module", 2, messages1.getMessages().size());
+    }
+
+    @Test
+    public void testErrorsInMergedRegions() {
+        BaseOpenlBuilderHelper helper1 = new BaseOpenlBuilderHelper() { };
+        helper1.build(SRC3);
+        OpenLMessages messages = OpenLMessages.getCurrentInstance();
+        assertEquals("Must be only one message from current module", 1, messages.getMessages().size());
     }
 }

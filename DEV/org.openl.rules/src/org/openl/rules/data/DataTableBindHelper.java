@@ -17,6 +17,7 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.rules.table.properties.TableProperties;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
@@ -125,6 +126,10 @@ public class DataTableBindHelper {
         // If data table body contains only one row, we consider it is vertical.
         //
         if (dataTableBody.getHeight() != 1) {
+            if (TableProperties.class.isAssignableFrom(tableType.getInstanceClass())) {
+                // Properties are always vertical
+                return false;
+            }
             int fieldsCount1 = countChangeableFields(dataTableBody, tableType);
             int fieldsCount2 = countChangeableFields(dataTableBody.transpose(), tableType);
 

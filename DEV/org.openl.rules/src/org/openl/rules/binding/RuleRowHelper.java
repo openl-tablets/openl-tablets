@@ -23,10 +23,7 @@ import org.openl.rules.convertor.ObjectToDataConvertorFactory;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.dt.element.ArrayHolder;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGrid;
-import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.LogicalTableHelper;
+import org.openl.rules.table.*;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
@@ -90,7 +87,6 @@ public class RuleRowHelper {
      * token as single parameter. Returns array of parameters.
      * 
      * @return Array of parameters.
-     * @throws SyntaxNodeException
      */
     public static Object loadCommaSeparatedParam(IOpenClass paramType,
             String paramName,
@@ -228,10 +224,11 @@ public class RuleRowHelper {
                     if (message == null) {
                         message = "Can't load cell value";
                     }
+                    IGridTable cellTable = getTopLeftCellFromMergedRegion(table.getSource());
                     throw SyntaxNodeExceptionUtils.createError(message,
                             t,
                             LocationUtils.createTextInterval(theValueCell.getStringValue()),
-                            new GridCellSourceCodeModule(table.getSource(), openlAdapter.getBindingContext()));
+                            new GridCellSourceCodeModule(cellTable, openlAdapter.getBindingContext()));
                 }
             }
         }
@@ -351,7 +348,8 @@ public class RuleRowHelper {
                 // CompositeSyntaxNodeException) with not user-friendly message.
                 // 
                 String message = String.format("Cannot parse cell value '%s'. Expected value of type '%s'.", source, expectedType.getSimpleName());
-                IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
+                IGridTable cellTable = getTopLeftCellFromMergedRegion(cell.getSource());
+                IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cellTable,
                     openlAdapter.getBindingContext());
                 if (e instanceof CompositeSyntaxNodeException ) {
                     throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
@@ -368,7 +366,8 @@ public class RuleRowHelper {
                 validateValue(result, paramType);
             } catch (Exception e) {
                 String message = String.format("Invalid cell value '%s'", source);
-                IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
+                IGridTable cellTable = getTopLeftCellFromMergedRegion(cell.getSource());
+                IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cellTable,
                     openlAdapter.getBindingContext());
 
                 throw SyntaxNodeExceptionUtils.createError(message, e, null, cellSourceCodeModule);
@@ -383,6 +382,41 @@ public class RuleRowHelper {
         }
 
         return null;
+    }
+
+    /**
+     * The cell in merged region must point to the top left cell of the region.
+     * If the cell is not in merged region, return cellTable object unchanged.
+     * If cellTable is not cell return cellTable object unchanged.
+     *
+     * @param cellTable original cell
+     * @return top left cell if region is merged or the cell itself otherwise
+     */
+    public static IGridTable getTopLeftCellFromMergedRegion(IGridTable cellTable) {
+        if (cellTable instanceof SingleCellGridTable) {
+            ICell cell = cellTable.getCell(0, 0);
+            IGridRegion region = cell.getRegion();
+            if (region == null) {
+                return cellTable;
+            }
+
+            int left;
+            int top;
+            if (cellTable.isNormalOrientation()) {
+                top = region.getTop();
+                left = region.getLeft();
+            } else {
+                top = region.getLeft();
+                left = region.getTop();
+            }
+
+            if (cell.getColumn() != left || cell.getRow() != top) {
+                IGridTable table = ((SingleCellGridTable) cellTable).getOriginalGridTable();
+                return new SingleCellGridTable(table, left, top);
+            }
+        }
+
+        return cellTable;
     }
 
     public static boolean isFormula(ILogicalTable valuesTable) {
@@ -519,11 +553,13 @@ public class RuleRowHelper {
 
         boolean isFormula = isFormula(dataTable);
         
-        if (oneCellTable && !isFormula) {
-            // load comma separated array
-            return loadCommaSeparatedArrayParams(dataTable, paramName, ruleName, openlAdaptor, arrayType);
-        } else if (oneCellTable && isFormula) {
-            return loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
+        if (oneCellTable) {
+            if (!isFormula) {
+                // load comma separated array
+                return loadCommaSeparatedArrayParams(dataTable, paramName, ruleName, openlAdaptor, arrayType);
+            } else {
+                return loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
+            }
         } else {
             return loadSimpleArrayParams(dataTable, paramName, ruleName, openlAdaptor, arrayType);
         }
