@@ -405,7 +405,7 @@ public abstract class AOpenClass implements IOpenClass {
     }
     
     public final synchronized Collection<IOpenMethod> getConstructors() {
-        return constructorMap().values();
+        return Collections.unmodifiableCollection(constructorMap().values());
     }
 
     private Collection<IOpenMethod> buildAllMethods() {
@@ -517,7 +517,18 @@ public abstract class AOpenClass implements IOpenClass {
     
     @Override
     public final Iterable<IOpenMethod> constructors(String name) {
-        return getConstructors();
+        Collection<IOpenMethod> constructors = getConstructors();
+        Collection<IOpenMethod> ret = new ArrayList<IOpenMethod>();
+        for (IOpenMethod m : constructors) {
+            if (m.getName().equals(name)) {
+                ret.add(m);
+            }
+        }
+        if (!ret.isEmpty()) {
+            return ret;
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     public static Map<String, List<IOpenMethod>> buildMethodNameMap(Iterable<IOpenMethod> methods) {
