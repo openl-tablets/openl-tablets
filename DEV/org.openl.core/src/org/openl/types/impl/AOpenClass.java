@@ -390,6 +390,7 @@ public abstract class AOpenClass implements IOpenClass {
     protected final void invalidateInternalData() {
         allMethodsCacheInvalidated = true; 
         allMethodNamesMapInvalidated = true;
+        allConstructorNamesMapInvalidated = true;
         constructorMap = null;
     }
 
@@ -501,6 +502,10 @@ public abstract class AOpenClass implements IOpenClass {
     
     private volatile boolean allMethodNamesMapInvalidated = true;
     
+    private Map<String, List<IOpenMethod>> allConstructorNamesMap = null;
+    
+    private volatile boolean allConstructorNamesMapInvalidated = true;
+    
     @Override
     public final synchronized Iterable<IOpenMethod> methods(String name) {
         if (allMethodNamesMapInvalidated) {
@@ -517,18 +522,16 @@ public abstract class AOpenClass implements IOpenClass {
     
     @Override
     public final Iterable<IOpenMethod> constructors(String name) {
-        Collection<IOpenMethod> constructors = getConstructors();
-        Collection<IOpenMethod> ret = new ArrayList<IOpenMethod>();
-        for (IOpenMethod m : constructors) {
-            if (m.getName().equals(name)) {
-                ret.add(m);
+        if (allConstructorNamesMapInvalidated) {
+            synchronized (this) {
+                if (allConstructorNamesMapInvalidated){
+                    allConstructorNamesMap = buildMethodNameMap(getConstructors());
+                    allConstructorNamesMapInvalidated = false;
+                }
             }
         }
-        if (!ret.isEmpty()) {
-            return ret;
-        } else {
-            return Collections.emptyList();
-        }
+        List<IOpenMethod> found = allConstructorNamesMap.get(name);
+        return found == null ? Collections.<IOpenMethod> emptyList() : Collections.unmodifiableList(found);
     }
 
     public static Map<String, List<IOpenMethod>> buildMethodNameMap(Iterable<IOpenMethod> methods) {
