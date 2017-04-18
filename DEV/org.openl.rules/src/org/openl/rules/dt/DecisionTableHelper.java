@@ -628,7 +628,7 @@ public class DecisionTableHelper {
         //
         int firstReturnColumn = firstColumnAfterConditionColumns;
         int retParameterIndex = 0;
-        if (isCollectTable) {
+        if (isCollectTable) { 
             validateCollectSyntaxNode(tableSyntaxNode, decisionTable, originalTable, bindingContext);
             
             if (Map.class.isAssignableFrom(decisionTable.getType().getInstanceClass())){
@@ -649,7 +649,14 @@ public class DecisionTableHelper {
             } else {
                 if (decisionTable.getType().isArray()){
                     grid.setCellValue(firstReturnColumn, 1, "extraRet");
-                    grid.setCellValue(firstReturnColumn, 2, decisionTable.getType().getComponentClass().getName() + " " + "extraRet");
+                    String componentClassName = decisionTable.getType().getComponentClass().getName();
+                    if (decisionTable.getType().getAggregateInfo() != null) {
+                        IOpenClass componentOpenClass = decisionTable.getType().getAggregateInfo().getComponentType(decisionTable.getType());
+                        if (componentOpenClass != null){
+                            componentClassName = componentOpenClass.getName();
+                        }
+                    }
+                    grid.setCellValue(firstReturnColumn, 2, componentClassName + " " + "extraRet");
                 }
             }
         } else {
