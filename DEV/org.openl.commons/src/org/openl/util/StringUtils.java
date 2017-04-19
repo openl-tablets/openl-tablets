@@ -29,7 +29,7 @@ public class StringUtils {
 
     /**
      * <p>
-     * Splits the provided string into an array of strings, separator specified.
+     * Splits the provided string into an array of trimmed strings, separator specified.
      * The separator is not included in the returned String array. Adjacent
      * separators are treated as one separator.
      * </p>
@@ -44,8 +44,9 @@ public class StringUtils {
      * StringUtils.split("", *)           = []
      * StringUtils.split("a.b.c", '.')    = ["a", "b", "c"]
      * StringUtils.split("a..b.c", '.')   = ["a", "b", "c"]
-     * StringUtils.split("a:b:c", '.')    = ["a:b:c"]
+     * StringUtils.split(" a b:c ", '.')  = ["a b:c"]
      * StringUtils.split("a b c", ' ')    = ["a", "b", "c"]
+     * StringUtils.split(" a, b, c", ',') = ["a", "b", "c"]
      * </pre>
      *
      * @param str the String to parse, may be null
@@ -58,7 +59,7 @@ public class StringUtils {
             public boolean evaluate(char ch) {
                 return ch == separator;
             }
-        });
+        }, true);
     }
 
     /**
@@ -96,10 +97,10 @@ public class StringUtils {
             public boolean evaluate(char ch) {
                 return Character.isWhitespace(ch);
             }
-        });
+        }, false);
     }
 
-    private static String[] splitWorker(final String str, final Predicate tester) {
+    private static String[] splitWorker(final String str, final Predicate tester, boolean trim) {
         if (str == null) {
             return null;
         }
@@ -108,22 +109,27 @@ public class StringUtils {
             return EMPTY_STRING_ARRAY;
         }
         final List<String> list = new ArrayList<String>();
-        int i = 0, start = 0;
+        int i = 0, start = 0, end = 0;
         boolean match = false;
         while (i < len) {
-            if (tester.evaluate(str.charAt(i))) {
+            char ch = str.charAt(i++);
+            if (tester.evaluate(ch)) {
                 if (match) {
-                    list.add(str.substring(start, i));
+                    list.add(str.substring(start, end));
                     match = false;
                 }
-                start = ++i;
-                continue;
+                start = i;
+            } else if (trim && Character.isWhitespace(ch)) {
+                if (!match) {
+                    start = i;
+                }
+            } else {
+                match = true;
+                end = i;
             }
-            match = true;
-            i++;
         }
         if (match) {
-            list.add(str.substring(start, i));
+            list.add(str.substring(start, end));
         }
         return list.toArray(new String[list.size()]);
     }
