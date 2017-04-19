@@ -1,5 +1,6 @@
 package org.openl.rules.project.instantiation;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder;
 
@@ -12,7 +13,8 @@ public class SimpleProjectEngineFactoryClassloaderTest {
     public void singleModuleTest() throws Exception {
         SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<Object>()
                 .setProject("test-resources/classpath/single1").build();
-        factory.newInstance();
+        Object instance = factory.newInstance();
+        Assert.assertNotNull(instance);
     }
 
     @Test(expected = org.openl.rules.project.instantiation.RulesInstantiationException.class)
@@ -23,20 +25,59 @@ public class SimpleProjectEngineFactoryClassloaderTest {
     }
 
     @Test
-    public void singleModuleWithClassloaderTest() throws Exception {
+    public void classloader_Test() throws Exception {
         URL[] urls = {new URL("file:test-resources/classpath/single1/beans.jar")};
         URLClassLoader classLoader = new URLClassLoader(urls, this.getClass().getClassLoader());
         SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<Object>()
                 .setClassLoader(classLoader)
                 .setProject("test-resources/classpath/single2").build();
-        factory.newInstance();
+        Object instance = factory.newInstance();
+        Assert.assertNotNull(instance);
+    }
+
+    @Test
+    public void classloader_context_Test() throws Exception {
+        URL[] urls = {new URL("file:test-resources/classpath/single1/beans.jar")};
+        URLClassLoader classLoader = new URLClassLoader(urls, this.getClass().getClassLoader());
+        SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<Object>()
+                .setClassLoader(classLoader)
+                .setProvideRuntimeContext(true)
+                .setProject("test-resources/classpath/single2").build();
+        Object instance = factory.newInstance();
+        Assert.assertNotNull(instance);
+    }
+
+    @Test
+    public void classloader_context_variation_Test() throws Exception {
+        URL[] urls = {new URL("file:test-resources/classpath/single1/beans.jar")};
+        URLClassLoader classLoader = new URLClassLoader(urls, this.getClass().getClassLoader());
+        SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<Object>()
+                .setClassLoader(classLoader)
+                .setProvideRuntimeContext(true)
+                .setProvideVariations(true)
+                .setProject("test-resources/classpath/single2").build();
+        Object instance = factory.newInstance();
+        Assert.assertNotNull(instance);
+    }
+
+    @Test
+    public void classloader_variation_Test() throws Exception {
+        URL[] urls = {new URL("file:test-resources/classpath/single1/beans.jar")};
+        URLClassLoader classLoader = new URLClassLoader(urls, this.getClass().getClassLoader());
+        SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<Object>()
+                .setClassLoader(classLoader)
+                .setProvideVariations(true)
+                .setProject("test-resources/classpath/single2").build();
+        Object instance = factory.newInstance();
+        Assert.assertNotNull(instance);
     }
 
     @Test
     public void multiModuleTest() throws Exception {
         SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<Object>()
             .setProject("test-resources/classpath/multi1").build();
-        factory.newInstance();
+        Object instance = factory.newInstance();
+        Assert.assertNotNull(instance);
     }
 
     @Test(expected = org.openl.rules.project.instantiation.RulesInstantiationException.class)
@@ -47,12 +88,50 @@ public class SimpleProjectEngineFactoryClassloaderTest {
     }
 
     @Test
-    public void multiModuleWithClassloaderTest() throws Exception {
+    public void multi_classloader_Test() throws Exception {
         URL[] urls = {new URL("file:test-resources/classpath/multi1/beans.jar")};
         URLClassLoader classLoader = new URLClassLoader(urls);
         SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<Object>()
                 .setClassLoader(classLoader)
                 .setProject("test-resources/classpath/multi2").build();
-        factory.newInstance();
+        Object instance = factory.newInstance();
+        Assert.assertNotNull(instance);
+    }
+
+    @Test
+    public void multi_classloader_context_Test() throws Exception {
+        URL[] urls = {new URL("file:test-resources/classpath/multi1/beans.jar")};
+        URLClassLoader classLoader = new URLClassLoader(urls);
+        SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<Object>()
+                .setClassLoader(classLoader)
+                .setProvideRuntimeContext(true)
+                .setProject("test-resources/classpath/multi2").build();
+        Object instance = factory.newInstance();
+        Assert.assertNotNull(instance);
+    }
+
+    @Test
+    public void multi_classloader_context_variation_Test() throws Exception {
+        URL[] urls = {new URL("file:test-resources/classpath/multi1/beans.jar")};
+        URLClassLoader classLoader = new URLClassLoader(urls);
+        SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<Object>()
+                .setClassLoader(classLoader)
+                .setProvideRuntimeContext(true)
+                .setProvideVariations(true)
+                .setProject("test-resources/classpath/multi2").build();
+        Object instance = factory.newInstance();
+        Assert.assertNotNull(instance);
+    }
+
+    @Test
+    public void multi_classloader_variation_Test() throws Exception {
+        URL[] urls = {new URL("file:test-resources/classpath/multi1/beans.jar")};
+        URLClassLoader classLoader = new URLClassLoader(urls);
+        SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<Object>()
+                .setClassLoader(classLoader)
+                .setProvideVariations(true)
+                .setProject("test-resources/classpath/multi2").build();
+        Object instance = factory.newInstance();
+        Assert.assertNotNull(instance);
     }
 }

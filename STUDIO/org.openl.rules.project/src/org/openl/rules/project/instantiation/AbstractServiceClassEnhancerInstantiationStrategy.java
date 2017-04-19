@@ -3,16 +3,25 @@ package org.openl.rules.project.instantiation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
+import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.project.model.Module;
 
 /**
  * 
  * @author Marat Kamalov
  * 
  */
-public abstract class AbstractServiceClassEnhancerInstantiationStrategy extends RulesInstantiationStrategyDelegator {
+public abstract class AbstractServiceClassEnhancerInstantiationStrategy implements RulesInstantiationStrategy {
+
+    /**
+     * Instantiation strategy delegate.
+     */
+    private RulesInstantiationStrategy instantiationStrategy;
 
     /**
      * Internal generated class at runtime which used as service class.
@@ -20,7 +29,7 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy extends 
     private Class<?> serviceClass;
 
     public AbstractServiceClassEnhancerInstantiationStrategy(RulesInstantiationStrategy instantiationStrategy) {
-        super(instantiationStrategy);
+        this.instantiationStrategy = instantiationStrategy;
     }
 
     protected abstract Class<?> decorateServiceClass(Class<?> serviceClass, ClassLoader classLoader);
@@ -53,29 +62,22 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy extends 
     public void setServiceClass(Class<?> serviceClass) {
         try {
             if (validateServiceClass(serviceClass)) {
-                // FIX IT
-                if (classLoader != null) {
-                    try {
-                        classLoader.addClassLoader(initClassLoader());
-                    } catch (RulesInstantiationException e) {
-                        throw new OpenlNotCheckedException(e.getMessage(), e);
-                    }
-                }
-
                 this.serviceClass = serviceClass;
                 try {
-                    Class<?> clazz = undecorateServiceClass(serviceClass,
-                        getOriginalInstantiationStrategy().getClassLoader());
+                    Class<?> clazz = undecorateServiceClass(serviceClass, getClassLoader());
                     getOriginalInstantiationStrategy().setServiceClass(clazz);
                 } catch (Exception e) {
-                    throw new OpenlNotCheckedException("Failed to set service class to instantiation strategy enhancer. Failed to get undecorated class.",
+                    throw new OpenlNotCheckedException(
+                        "Failed to set service class to instantiation strategy enhancer. Failed to get undecorated class.",
                         e);
                 }
             } else {
-                throw new OpenlNotCheckedException("Failed to set service class to instantiation strategy enhancer. Service class isn't supported by this strategy!");
+                throw new OpenlNotCheckedException(
+                    "Failed to set service class to instantiation strategy enhancer. Service class isn't supported by this strategy!");
             }
         } catch (ValidationServiceClassException e) {
-            throw new OpenlNotCheckedException("Failed to set service class to instantiation strategy enhancer. Service class isn't supported by this strategy!",
+            throw new OpenlNotCheckedException(
+                "Failed to set service class to instantiation strategy enhancer. Service class isn't supported by this strategy!",
                 e);
         }
     }
@@ -124,12 +126,56 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy extends 
 
     @Override
     public void reset() {
-        super.reset();
+        getOriginalInstantiationStrategy().reset();
         serviceClass = null;
+    }
+
+    @Override
+    public ClassLoader getClassLoader() throws RulesInstantiationException {
+        try {
+            return getOriginalInstantiationStrategy().getInstanceClass().getClassLoader();
+        } catch (ClassNotFoundException e) {
+            throw new RulesInstantiationException(e);
+        }
     }
 
     @Override
     public final Class<?> getInstanceClass() throws ClassNotFoundException, RulesInstantiationException {
         return getServiceClass();
+    }
+
+    protected RulesInstantiationStrategy getOriginalInstantiationStrategy() {
+        return instantiationStrategy;
+    }
+
+    @Override
+    public CompiledOpenClass compile() throws RulesInstantiationException {
+        return getOriginalInstantiationStrategy().compile();
+    }
+
+    @Override
+    public Class<?> getGeneratedRulesClass() throws RulesInstantiationException {
+        return getOriginalInstantiationStrategy().getGeneratedRulesClass();
+    }
+
+    @Override
+    public void forcedReset() {
+        reset();
+        getOriginalInstantiationStrategy().forcedReset();
+    }
+
+    @Override
+    public Collection<Module> getModules() {
+        return getOriginalInstantiationStrategy().getModules();
+    }
+
+    @Override
+    public Map<String, Object> getExternalParameters() {
+        return getOriginalInstantiationStrategy().getExternalParameters();
+    }
+
+    @Override
+    public void setExternalParameters(Map<String, Object> parameters) {
+        getOriginalInstantiationStrategy().setExternalParameters(parameters);
     }
 }
