@@ -77,6 +77,9 @@ public class GenerateMojo extends BaseOpenLMojo {
     @Parameter(defaultValue = "${project.build.directory}/generated-sources/openl")
     private File outputDirectory;
 
+    /**
+     * Comma-separated list of interfaces which are used for extending of the generated interface.
+     */
     @Parameter
     private String superInterface;
 
@@ -204,6 +207,8 @@ public class GenerateMojo extends BaseOpenLMojo {
      * </tr>
      * </table>
      * <p>
+     *
+     * @deprecated Obsolete. Replaced with the smart generator. Use interfaceClass instead.
      */
     @Parameter
     @Deprecated
@@ -214,6 +219,7 @@ public class GenerateMojo extends BaseOpenLMojo {
      * rules.xml will not be generated. Default value is "true".
      * 
      * @see #overwriteProjectDescriptor
+     * @deprecated Obsolete. No needs to generate rules.xml from Maven.
      */
     @Parameter(defaultValue = "true")
     @Deprecated
@@ -225,6 +231,7 @@ public class GenerateMojo extends BaseOpenLMojo {
      * {@link #createProjectDescriptor} == true. Default value is "true".
      * 
      * @see #createProjectDescriptor
+     * @deprecated Obsolete. No needs to generate rules.xml from Maven.
      */
     @Parameter(defaultValue = "true")
     @Deprecated
@@ -234,6 +241,7 @@ public class GenerateMojo extends BaseOpenLMojo {
      * Default project name in rules.xml. If omitted, the name of the first
      * module in the project is used. Used only if createProjectDescriptor ==
      * true.
+     * @deprecated Obsolete. No needs to generate rules.xml from Maven.
      */
     @Parameter
     @Deprecated
@@ -242,6 +250,7 @@ public class GenerateMojo extends BaseOpenLMojo {
     /**
      * Default classpath entries in rules.xml. Default value is {"."} Used only
      * if createProjectDescriptor == true.
+     * @deprecated Obsolete. No needs to generate rules.xml from Maven.
      */
     @Parameter
     @Deprecated
@@ -250,6 +259,7 @@ public class GenerateMojo extends BaseOpenLMojo {
     /**
      * If true, JUnit tests for OpenL Tablets Test tables will be generated.
      * Default value is "false"
+     * @deprecated Obsolete. Use openl:test goal to run OpenL tests.
      */
     @Parameter(defaultValue = "false")
     @Deprecated
@@ -289,6 +299,7 @@ public class GenerateMojo extends BaseOpenLMojo {
      * <td>Apache commons utility class</td>
      * </tr>
      * </table>
+     * @deprecated Obsolete. Use openl:test goal to run OpenL tests.
      */
     @Parameter(defaultValue = "org/openl/rules/maven/JUnitTestTemplate.vm")
     @Deprecated
@@ -297,6 +308,7 @@ public class GenerateMojo extends BaseOpenLMojo {
     /**
      * If true, existing JUnit tests will be overwritten. If false, only absent
      * tests will be generated, others will be skipped.
+     * @deprecated Obsolete. Use openl:test goal to run OpenL tests.
      */
     @Parameter(defaultValue = "false")
     @Deprecated
