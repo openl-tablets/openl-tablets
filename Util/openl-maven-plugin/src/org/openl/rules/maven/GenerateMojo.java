@@ -37,6 +37,7 @@ import org.apache.maven.project.MavenProject;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
+import org.openl.rules.maven.gen.GenerateInterface;
 import org.openl.rules.maven.gen.SimpleBeanJavaGenerator;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.types.IOpenClass;
