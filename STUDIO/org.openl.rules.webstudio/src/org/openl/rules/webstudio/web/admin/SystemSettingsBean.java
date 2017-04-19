@@ -129,14 +129,6 @@ public class SystemSettingsBean {
         return productionRepositoryEditor.getProductionRepositoryConfigurations();
     }
 
-    public boolean isCustomSpreadsheetType() {
-        return OpenLSystemProperties.isCustomSpreadsheetType(configManager.getProperties());
-    }
-
-    public void setCustomSpreadsheetType(boolean customSpreadsheetType) {
-        configManager.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, customSpreadsheetType);
-    }
-
     public void setDispatchingValidationEnabled(boolean dispatchingValidationEnabled) {
         configManager.setProperty(OpenLSystemProperties.DISPATCHING_VALIDATION, dispatchingValidationEnabled);
     }
@@ -160,14 +152,6 @@ public class SystemSettingsBean {
 
     public void setTestRunThreadCount(String testRunThreadCount) {
         configManager.setProperty(OpenLSystemProperties.TEST_RUN_THREAD_COUNT_PROPERTY, Integer.parseInt(StringUtils.trim(testRunThreadCount)));
-    }
-
-    public String getRulesDispatchingMode() {
-        return OpenLSystemProperties.getDispatchingMode(configManager.getProperties());
-    }
-
-    public void setRulesDispatchingMode(String dispatchingMode) {
-        configManager.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, dispatchingMode);
     }
 
     public boolean isAutoCompile() {
