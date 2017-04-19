@@ -23,9 +23,6 @@ abstract class BaseOpenLMojo extends AbstractMojo {
     private File sourceDirectory;
 
     /**
-     * Folder that contains all OpenL-related resources (OpenL rules, project
-     * descriptor etc.).
-     *
      * @deprecated Use sourceDirectory instead.
      */
     @Deprecated
