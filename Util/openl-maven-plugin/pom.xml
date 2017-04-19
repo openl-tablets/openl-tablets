@@ -11,8 +11,8 @@
     <packaging>maven-plugin</packaging>
     <name>OpenL - Util - OpenL Maven Plugin</name>
     <properties>
-        <mavenVersion>2.2.1</mavenVersion>
-        <mavenPluginPluginVersion>3.2</mavenPluginPluginVersion>
+        <mavenVersion>3.3.9</mavenVersion>
+        <mavenPluginPluginVersion>3.5</mavenPluginPluginVersion>
     </properties>
     <dependencies>
         <dependency>
@@ -22,12 +22,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
-            <artifactId>maven-project</artifactId>
-            <version>${mavenVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-model</artifactId>
+            <artifactId>maven-core</artifactId>
             <version>${mavenVersion}</version>
         </dependency>
         <!-- dependencies to annotations -->
@@ -40,6 +35,10 @@
         <dependency>
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.helger</groupId>
+            <artifactId>jcodemodel</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
