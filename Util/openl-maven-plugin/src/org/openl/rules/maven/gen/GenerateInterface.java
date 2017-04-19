@@ -1,4 +1,4 @@
-package org.openl.rules.maven;
+package org.openl.rules.maven.gen;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,7 +47,6 @@ import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
-import org.openl.rules.maven.gen.SimpleBeanJavaGenerator;
 
 @Deprecated
 public class GenerateInterface {
