@@ -508,34 +508,29 @@ public class GenerateMojo extends BaseOpenLMojo {
     private void writeInterface(Class<?> clazz) throws IOException, JClassAlreadyExistsException {
         info("Interface: " + interfaceClass);
         JCodeModel model = new JCodeModel();
+        CodeHelper helper = new CodeHelper();
 
         // Generate a class body
         JDefinedClass java = model._class(interfaceClass, EClassType.INTERFACE);
+
+        // Add super interfaces
         String[] interfaces = StringUtils.split(superInterface, ',');
         if (CollectionUtils.isNotEmpty(interfaces)) {
-            JCodeModel helper = new JCodeModel();
             for (String s : interfaces) {
-                JDefinedClass j = helper._class(s, EClassType.INTERFACE);
-                java._extends(j);
+                java._extends(helper.get(s));
             }
         }
 
         // Generate methods
         Method[] methods = clazz.getMethods();
 
-        JCodeModel helper = new JCodeModel();
         for (Method method : methods) {
             String name = method.getName();
             Class<?> returnType = method.getReturnType();
-            JMethod jm = java.method(JMod.NONE, returnType, name);
+            JMethod jm = java.method(JMod.NONE, helper.get(returnType), name);
             Class<?>[] argTypes = method.getParameterTypes();
             for (int i = 0; i < argTypes.length; i++) {
-                String argTypeName = argTypes[i].getName();
-                JDefinedClass jArgType = helper._getClass(argTypeName);
-                if (jArgType == null) {
-                    jArgType = helper._class(argTypeName);
-                }
-                jm.param(jArgType, "arg" + i);
+                jm.param(helper.get(argTypes[i]), "arg" + i);
             }
         }
 
@@ -575,4 +570,30 @@ public class GenerateMojo extends BaseOpenLMojo {
             return className;
         }
     };
+
+    /**
+     * A utility class to convert Java classes in CodeModel class descriptors.
+     * It is required for managing generated beans because of they have not a classloader.
+     */
+    private class CodeHelper {
+        JCodeModel model = new JCodeModel();
+
+        JDefinedClass get(Class<?> clazz) throws JClassAlreadyExistsException {
+            String clazzName = clazz.getName();
+            EClassType eClassType = clazz.isInterface() ? EClassType.INTERFACE : EClassType.CLASS;
+            return get(clazzName, eClassType);
+        }
+
+        JDefinedClass get(String clazzName) throws JClassAlreadyExistsException {
+            return get(clazzName, EClassType.INTERFACE);
+        }
+
+        private JDefinedClass get(String clazzName, EClassType eClassType) throws JClassAlreadyExistsException {
+            JDefinedClass jArgType = model._getClass(clazzName);
+            if (jArgType == null) {
+                jArgType = model._class(clazzName, eClassType);
+            }
+            return jArgType;
+        }
+    }
 }
