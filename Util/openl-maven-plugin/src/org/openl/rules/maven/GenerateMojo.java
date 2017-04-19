@@ -19,32 +19,42 @@ package org.openl.rules.maven;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.cglib.beans.BeanGenerator;
-import net.sf.cglib.core.NamingPolicy;
-import net.sf.cglib.core.Predicate;
-import net.sf.cglib.proxy.InterfaceMaker;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
+import org.openl.rules.maven.gen.SimpleBeanJavaGenerator;
+import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.types.IOpenClass;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
-import org.openl.rules.maven.gen.SimpleBeanJavaGenerator;
+
+import com.helger.jcodemodel.EClassType;
+import com.helger.jcodemodel.JClassAlreadyExistsException;
+import com.helger.jcodemodel.JCodeModel;
+import com.helger.jcodemodel.JDefinedClass;
+import com.helger.jcodemodel.JMethod;
+import com.helger.jcodemodel.JMod;
+
+import net.sf.cglib.beans.BeanGenerator;
+import net.sf.cglib.core.NamingPolicy;
+import net.sf.cglib.core.Predicate;
 
 /**
  * Generate OpenL interface, domain classes, project descriptor and unit tests
@@ -52,11 +62,23 @@ import org.openl.rules.maven.gen.SimpleBeanJavaGenerator;
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class GenerateMojo extends BaseOpenLMojo {
 
+    @Parameter(defaultValue = "${project}", readonly = true)
+    private MavenProject project;
+
+    @Parameter(defaultValue = "${project.compileClasspathElements}", readonly = true, required = true)
+    private List<String> classpath;
+
+    @Parameter(defaultValue = "${project.compileSourceRoots}", readonly = true, required = true)
+    private List<String> sourceRoots;
+
     /**
      * An output directory of generated Java beans and OpenL java interface.
      */
     @Parameter(defaultValue = "${project.build.directory}/generated-sources/openl")
     private File outputDirectory;
+
+    @Parameter
+    private String superInterface;
 
     /**
      * A generated Java interface from an OpenL project. If it is empty then
@@ -64,6 +86,18 @@ public class GenerateMojo extends BaseOpenLMojo {
      */
     @Parameter
     private String interfaceClass;
+
+    /**
+     * Add IRulesRuntimeContext arguments to the generated interface.
+     */
+    @Parameter
+    private boolean isProvideRuntimeContext;
+
+    /**
+     * Add additional methods to the generated interface to support variations.
+     */
+    @Parameter
+    private boolean isProvideVariations;
 
     /**
      * Tasks that will generate classes or data type.
@@ -279,35 +313,43 @@ public class GenerateMojo extends BaseOpenLMojo {
     }
 
     @Override
-    String execute(CompiledOpenClass openLRules) throws Exception {
+    public void execute(String sourcePath) throws Exception {
+        ClassLoader classLoader = composeClassLoader();
+
+        SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
+        SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
+            .setClassLoader(classLoader)
+            .setProvideRuntimeContext(isProvideRuntimeContext)
+            .setProvideVariations(isProvideVariations)
+            .setExecutionMode(true)
+            .build();
+
+        CompiledOpenClass openLRules = factory.getCompiledOpenClass();
+
         // Generate Java beans from OpenL dataTypes
         Map<String, IOpenClass> dataTypes = openLRules.getTypes();
         writeJavaBeans(dataTypes);
 
         // Generate interface is optional.
         if (interfaceClass != null) {
-            IOpenClass openClass = openLRules.getOpenClassWithErrors();
-            writeInterface(openClass);
+            Class<?> interfaceClass = factory.getInterfaceClass();
+            writeInterface(interfaceClass);
         }
+
         project.addCompileSourceRoot(outputDirectory.getPath());
-        return null;
     }
 
-    @Override
-    ClassLoader composeClassLoader() throws Exception {
-        final List<String> compileSourceRoots = project.getCompileSourceRoots();
+    private ClassLoader composeClassLoader() throws Exception {
         info("Composing the classloader for the folloving sources:");
-        for (String dir : compileSourceRoots) {
+        for (String dir : sourceRoots) {
             info("  # source roots > ", dir);
         }
-        info("Using the following classpaths:");
-        List<String> files = project.getCompileClasspathElements();
-        URL[] urls = toURLs(files);
+        URL[] urls = toURLs(classpath);
         return new URLClassLoader(urls, this.getClass().getClassLoader()) {
             @Override
             public Class<?> findClass(String name) throws ClassNotFoundException {
                 String file = name.replace('.', '/').concat(".java");
-                for (String dir : compileSourceRoots) {
+                for (String dir : sourceRoots) {
                     if (new File(dir, file).isFile()) {
                         debug("  # FOUND > ", dir, "/", file);
                         BeanGenerator builder = new BeanGenerator();
@@ -355,7 +397,7 @@ public class GenerateMojo extends BaseOpenLMojo {
 
     private void initDefaultValues(GenerateInterface task, boolean isUsedRuleXmlForGenerate) {
         if (StringUtils.isBlank(task.getResourcesPath())) {
-            task.setResourcesPath(getSourceDirectory().getPath());
+            task.setResourcesPath(getSourceDirectory());
         }
         if (!task.isUsedRuleXmlForGenerate() && isUsedRuleXmlForGenerate) {
             task.setGenerateDataType(false);
@@ -406,7 +448,7 @@ public class GenerateMojo extends BaseOpenLMojo {
         String srcFile = task.getSrcFile().replace("\\", "/");
         String baseDir = project.getBasedir().getAbsolutePath();
 
-        String directory = getSubDirectory(baseDir, getSourceDirectory().getPath()).replace("\\", "/");
+        String directory = getSubDirectory(baseDir, getSourceDirectory()).replace("\\", "/");
         if (srcFile.startsWith(directory)) {
             srcFile = getSubDirectory(directory, srcFile);
             task.setResourcesPath(directory);
@@ -465,13 +507,42 @@ public class GenerateMojo extends BaseOpenLMojo {
         }
     }
 
-    private void writeInterface(IOpenClass openClass) throws IOException {
+    private void writeInterface(Class<?> clazz) throws IOException, JClassAlreadyExistsException {
         info("Interface: " + interfaceClass);
-        JavaInterfaceGenerator javaGenerator = new JavaInterfaceGenerator.Builder(openClass, interfaceClass)
-            .methodsToGenerate(null).fieldsToGenerate(null).ignoreNonJavaTypes(false).ignoreTestMethods(true).build();
+        JCodeModel model = new JCodeModel();
 
-        String generatedSource = javaGenerator.generateJava();
-        writeClassToFile(interfaceClass, generatedSource);
+        // Generate a class body
+        JDefinedClass java = model._class(interfaceClass, EClassType.INTERFACE);
+        String[] interfaces = StringUtils.split(superInterface, ',');
+        if (CollectionUtils.isNotEmpty(interfaces)) {
+            JCodeModel helper = new JCodeModel();
+            for (String s : interfaces) {
+                JDefinedClass j = helper._class(s, EClassType.INTERFACE);
+                java._extends(j);
+            }
+        }
+
+        // Generate methods
+        Method[] methods = clazz.getMethods();
+
+        JCodeModel helper = new JCodeModel();
+        for (Method method : methods) {
+            String name = method.getName();
+            Class<?> returnType = method.getReturnType();
+            JMethod jm = java.method(JMod.NONE, returnType, name);
+            Class<?>[] argTypes = method.getParameterTypes();
+            for (int i = 0; i < argTypes.length; i++) {
+                String argTypeName = argTypes[i].getName();
+                JDefinedClass jArgType = helper._getClass(argTypeName);
+                if (jArgType == null) {
+                    jArgType = helper._class(argTypeName);
+                }
+                jm.param(jArgType, "arg" + i);
+            }
+        }
+
+        // Write the generated source code
+        model.build(outputDirectory, (PrintStream) null);
     }
 
     private void writeClassToFile(String clazz, String source) throws IOException {

@@ -9,13 +9,7 @@ import java.util.List;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
-
-import org.openl.CompiledOpenClass;
-import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
-import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder;
 import org.openl.util.CollectionUtils;
 
 abstract class BaseOpenLMojo extends AbstractMojo {
@@ -38,15 +32,23 @@ abstract class BaseOpenLMojo extends AbstractMojo {
     @Parameter
     private String openlResourcesDirectory;
 
-    @Component
-    protected MavenProject project;
-
-    File getSourceDirectory() {
+    String getSourceDirectory() {
+        File source;
         if (openlResourcesDirectory != null) {
-            getLog().warn("<openlResourcesDirectory> parameter is deprecated. Use <sourceDirectory> instead");
-            return new File(openlResourcesDirectory);
+            getLog().warn("<openlResourcesDirectory> parameter has been deprecated. Use <sourceDirectory> instead");
+            source = new File(openlResourcesDirectory);
+        } else {
+            source = sourceDirectory;
         }
-        return sourceDirectory;
+        String path;
+        try {
+            path = source.getCanonicalPath();
+        } catch (Exception e) {
+            warn("The path to OpenL source directory cannot be converted in canonical form.");
+            path = source.getPath();
+        }
+        info("OpenL source directory: ", path);
+        return path;
     }
 
     @Override
@@ -54,45 +56,22 @@ abstract class BaseOpenLMojo extends AbstractMojo {
         if (isDisabled()) {
             return;
         }
-        ClassLoader classLoader;
+        info(SEPARATOR);
+        info(getHeader());
+        info(SEPARATOR);
         try {
-            classLoader = composeClassLoader();
-        } catch (Exception e) {
-            throw new MojoFailureException("Failed to compose the classloader.", e);
-        }
-
-        String message = null;
-        try {
-            String openlRoot = getSourceDirectory().getCanonicalPath();
-            info("Compiling the OpenL project from " + openlRoot);
-
-            SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactoryBuilder<Object>();
-            SimpleProjectEngineFactory<?> factory = builder.setProject(openlRoot)
-                .setClassLoader(classLoader)
-                .setExecutionMode(false)
-                .build();
-
-            CompiledOpenClass openLRules = factory.getCompiledOpenClass();
-            info(SEPARATOR);
-            info(getHeader());
-            info(SEPARATOR);
-            message = execute(openLRules);
-        } catch (Exception e) {
-            getLog().error(e);
-            throw new MojoExecutionException("Execution failure.", e);
+            String openlRoot = getSourceDirectory();
+            execute(openlRoot);
+        } catch (MojoFailureException ex) {
+            throw ex; // skip
+        } catch (Exception ex) {
+            throw new MojoFailureException("Execution failure.", ex);
         } finally {
             info(SEPARATOR);
         }
-        if (message != null) {
-            throw new MojoExecutionException(message);
-        }
     }
 
-    ClassLoader composeClassLoader() throws Exception {
-        return null;
-    }
-
-    abstract String execute(CompiledOpenClass openLRules) throws Exception;
+    abstract void execute(String sourcePath) throws Exception;
 
     boolean isDisabled() {
         return false;
@@ -115,6 +94,12 @@ abstract class BaseOpenLMojo extends AbstractMojo {
     void info(CharSequence message, Object... args) {
         if (getLog().isInfoEnabled()) {
             getLog().info(getMessage(message, args));
+        }
+    }
+
+    void warn(CharSequence message, Object... args) {
+        if (getLog().isWarnEnabled()) {
+            getLog().warn(getMessage(message, args));
         }
     }
 
