@@ -37,6 +37,40 @@ public class StringUtilsTest {
         assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("..a", '.'));
         assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("..a.", '.'));
         assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("..a..", '.'));
+
+        assertArrayEquals("Returned array is not empty", new String[]{}, StringUtils.split(" \t\r\n", '*'));
+        assertArrayEquals("Returned array is not empty", new String[]{}, StringUtils.split(" \t\r\n *  * * \t\n", '*'));
+        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split(" a .b .c ", '.'));
+        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split(" a . . b . c ", '.'));
+        assertArrayEquals("Returned array is not valid", new String[]{"a : b : c"}, StringUtils.split(" a : b : c ", '.'));
+        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split("a b \t\r\nc", ' '));
+        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split("a. .b.c .", '.'));
+        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split(". . a..b.c..", '.'));
+        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("a\t..\n", '.'));
+        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("a\t", '.'));
+        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("\na", '.'));
+        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("  a", '.'));
+        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("  a ", '.'));
+        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split(". a. ", '.'));
+    }
+
+    @Test
+    public void testSplitWS() throws Exception {
+        assertNull(StringUtils.split(null));
+        assertArrayEquals("Returned array is not empty", new String[]{}, StringUtils.split(""));
+        assertArrayEquals("Returned array is not empty", new String[]{}, StringUtils.split("  \n\r  \t \r\n  \t\t"));
+        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split("a b c"));
+        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split("a \tb\nc"));
+        assertArrayEquals("Returned array is not valid", new String[]{"a:b:c"}, StringUtils.split("a:b:c"));
+        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split("a\tb\rc"));
+        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split("a\n\nb c\n"));
+        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split("\t\ta  b c  "));
+        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("a  "));
+        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("a "));
+        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split(" a"));
+        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("  a"));
+        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("  a "));
+        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("\t a\n\r"));
     }
 
     @Test
