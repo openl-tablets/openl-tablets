@@ -12,6 +12,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.CastingMethodCaller;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.AutoCastResultOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenMethod;
@@ -46,8 +47,12 @@ public class DefaultAutoCastFactory implements AutoCastFactory {
                             ReturnType returnType = (ReturnType) annotation;
                             IOpenClass simpleType = parameterTypes[i];
                             int d = 0;
-                            while (simpleType.isArray()) {
-                                simpleType = simpleType.getComponentClass();
+                            while (simpleType.isArray()) { 
+                                if (simpleType.getAggregateInfo() != null) {
+                                    simpleType = simpleType.getAggregateInfo().getComponentType(simpleType);
+                                }else{
+                                    simpleType = simpleType.getComponentClass();
+                                }
                                 d++;
                             }
                             if (returnType.strictMatchArray()){
@@ -71,12 +76,17 @@ public class DefaultAutoCastFactory implements AutoCastFactory {
                                 while (v.isArray()) {
                                     v = v.getComponentClass();
                                     dimensions++;
-                                }
-                                IOpenClass arrayType = JavaOpenClass.getOpenClass(
+                                } 
+                                IOpenClass arrayType = JavaOpenClass.getOpenClass( 
                                     Array.newInstance(simpleType.getInstanceClass(), dimensions).getClass());
-                                IOpenCast cast = bindingContext.getCast(method.getType(), arrayType);
+                                StringBuilder domainOpenClassName = new StringBuilder(simpleType.getName());
+								for (int j = 0; j < dimensions; j++) {
+									domainOpenClassName.append("[]");
+								}
+                                DomainOpenClass domainArrayType = new DomainOpenClass(domainOpenClassName.toString(), arrayType, simpleType.getDomain(), null);
+                                IOpenCast cast = bindingContext.getCast(method.getType(), domainArrayType);
                                 if (cast != null) {
-                                    return new AutoCastResultOpenMethod(methodCaller, arrayType, cast);
+                                    return new AutoCastResultOpenMethod(methodCaller, domainArrayType, cast);
                                 }
                             }
                         }

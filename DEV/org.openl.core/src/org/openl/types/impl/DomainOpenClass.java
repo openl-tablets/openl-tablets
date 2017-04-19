@@ -42,5 +42,9 @@ public class DomainOpenClass extends OpenClassDelegator {
     	}
     	return aggregateInfo;
     }
+    
+    public String getDisplayName(int mode) {
+        return getName();
+    }
 
 }
