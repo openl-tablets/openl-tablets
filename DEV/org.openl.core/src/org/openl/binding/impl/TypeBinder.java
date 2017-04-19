@@ -50,7 +50,7 @@ public class TypeBinder extends ANodeBinder {
 
             return new ErrorBoundNode(node);
         }
-
+/* EPBDS-6564
         if (varType instanceof JavaOpenClass) {
             String errorMessage = validateJavaType(varType, typeName, new HashSet<IOpenClass>());
             if (errorMessage != null) {
@@ -58,7 +58,7 @@ public class TypeBinder extends ANodeBinder {
                 return new ErrorBoundNode(node);
             }
         }
-
+*/
         if (dimension > 0) {
             varType = varType.getAggregateInfo().getIndexedAggregateType(varType, dimension);
         }
