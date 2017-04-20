@@ -86,7 +86,7 @@
         <org.apache.poi.version>3.12</org.apache.poi.version>
         <org.apache.jackrabbit.version>2.8.0</org.apache.jackrabbit.version>
         <com.fasterxml.jackson.version>2.6.5</com.fasterxml.jackson.version>
-        <maven.api.version>3.3.9</maven.api.version>
+        <maven.api.version>3.2.5</maven.api.version>
         <maven.plugin.version>3.5</maven.plugin.version>
         <!-- Empty for building without JaCoCo agent -->
         <jacococ.argLine />
