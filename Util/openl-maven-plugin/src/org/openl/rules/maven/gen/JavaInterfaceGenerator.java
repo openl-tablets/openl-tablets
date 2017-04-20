@@ -1,4 +1,4 @@
-package org.openl.rules.maven;
+package org.openl.rules.maven.gen;
 
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.data.DataOpenField;
@@ -14,6 +14,7 @@ import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.generation.JavaClassGeneratorHelper;
 
+@Deprecated
 public class JavaInterfaceGenerator {
 
     private IOpenClass moduleOpenClass;

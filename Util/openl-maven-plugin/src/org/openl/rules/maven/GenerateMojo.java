@@ -37,6 +37,7 @@ import org.apache.maven.project.MavenProject;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
+import org.openl.rules.maven.gen.GenerateInterface;
 import org.openl.rules.maven.gen.SimpleBeanJavaGenerator;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.types.IOpenClass;
@@ -77,6 +78,9 @@ public class GenerateMojo extends BaseOpenLMojo {
     @Parameter(defaultValue = "${project.build.directory}/generated-sources/openl")
     private File outputDirectory;
 
+    /**
+     * Comma-separated list of interfaces which are used for extending of the generated interface.
+     */
     @Parameter
     private String superInterface;
 
@@ -204,6 +208,8 @@ public class GenerateMojo extends BaseOpenLMojo {
      * </tr>
      * </table>
      * <p>
+     *
+     * @deprecated Obsolete. Replaced with the smart generator. Use interfaceClass instead.
      */
     @Parameter
     @Deprecated
@@ -214,6 +220,7 @@ public class GenerateMojo extends BaseOpenLMojo {
      * rules.xml will not be generated. Default value is "true".
      * 
      * @see #overwriteProjectDescriptor
+     * @deprecated Obsolete. No needs to generate rules.xml from Maven.
      */
     @Parameter(defaultValue = "true")
     @Deprecated
@@ -225,6 +232,7 @@ public class GenerateMojo extends BaseOpenLMojo {
      * {@link #createProjectDescriptor} == true. Default value is "true".
      * 
      * @see #createProjectDescriptor
+     * @deprecated Obsolete. No needs to generate rules.xml from Maven.
      */
     @Parameter(defaultValue = "true")
     @Deprecated
@@ -234,6 +242,7 @@ public class GenerateMojo extends BaseOpenLMojo {
      * Default project name in rules.xml. If omitted, the name of the first
      * module in the project is used. Used only if createProjectDescriptor ==
      * true.
+     * @deprecated Obsolete. No needs to generate rules.xml from Maven.
      */
     @Parameter
     @Deprecated
@@ -242,6 +251,7 @@ public class GenerateMojo extends BaseOpenLMojo {
     /**
      * Default classpath entries in rules.xml. Default value is {"."} Used only
      * if createProjectDescriptor == true.
+     * @deprecated Obsolete. No needs to generate rules.xml from Maven.
      */
     @Parameter
     @Deprecated
@@ -250,6 +260,7 @@ public class GenerateMojo extends BaseOpenLMojo {
     /**
      * If true, JUnit tests for OpenL Tablets Test tables will be generated.
      * Default value is "false"
+     * @deprecated Obsolete. Use openl:test goal to run OpenL tests.
      */
     @Parameter(defaultValue = "false")
     @Deprecated
@@ -289,6 +300,7 @@ public class GenerateMojo extends BaseOpenLMojo {
      * <td>Apache commons utility class</td>
      * </tr>
      * </table>
+     * @deprecated Obsolete. Use openl:test goal to run OpenL tests.
      */
     @Parameter(defaultValue = "org/openl/rules/maven/JUnitTestTemplate.vm")
     @Deprecated
@@ -297,6 +309,7 @@ public class GenerateMojo extends BaseOpenLMojo {
     /**
      * If true, existing JUnit tests will be overwritten. If false, only absent
      * tests will be generated, others will be skipped.
+     * @deprecated Obsolete. Use openl:test goal to run OpenL tests.
      */
     @Parameter(defaultValue = "false")
     @Deprecated
@@ -508,34 +521,29 @@ public class GenerateMojo extends BaseOpenLMojo {
     private void writeInterface(Class<?> clazz) throws IOException, JClassAlreadyExistsException {
         info("Interface: " + interfaceClass);
         JCodeModel model = new JCodeModel();
+        CodeHelper helper = new CodeHelper();
 
         // Generate a class body
         JDefinedClass java = model._class(interfaceClass, EClassType.INTERFACE);
+
+        // Add super interfaces
         String[] interfaces = StringUtils.split(superInterface, ',');
         if (CollectionUtils.isNotEmpty(interfaces)) {
-            JCodeModel helper = new JCodeModel();
             for (String s : interfaces) {
-                JDefinedClass j = helper._class(s, EClassType.INTERFACE);
-                java._extends(j);
+                java._extends(helper.get(s));
             }
         }
 
         // Generate methods
         Method[] methods = clazz.getMethods();
 
-        JCodeModel helper = new JCodeModel();
         for (Method method : methods) {
             String name = method.getName();
             Class<?> returnType = method.getReturnType();
-            JMethod jm = java.method(JMod.NONE, returnType, name);
+            JMethod jm = java.method(JMod.NONE, helper.get(returnType), name);
             Class<?>[] argTypes = method.getParameterTypes();
             for (int i = 0; i < argTypes.length; i++) {
-                String argTypeName = argTypes[i].getName();
-                JDefinedClass jArgType = helper._getClass(argTypeName);
-                if (jArgType == null) {
-                    jArgType = helper._class(argTypeName);
-                }
-                jm.param(jArgType, "arg" + i);
+                jm.param(helper.get(argTypes[i]), "arg" + i);
             }
         }
 
@@ -575,4 +583,30 @@ public class GenerateMojo extends BaseOpenLMojo {
             return className;
         }
     };
+
+    /**
+     * A utility class to convert Java classes in CodeModel class descriptors.
+     * It is required for managing generated beans because of they have not a classloader.
+     */
+    private class CodeHelper {
+        JCodeModel model = new JCodeModel();
+
+        JDefinedClass get(Class<?> clazz) throws JClassAlreadyExistsException {
+            String clazzName = clazz.getName();
+            EClassType eClassType = clazz.isInterface() ? EClassType.INTERFACE : EClassType.CLASS;
+            return get(clazzName, eClassType);
+        }
+
+        JDefinedClass get(String clazzName) throws JClassAlreadyExistsException {
+            return get(clazzName, EClassType.INTERFACE);
+        }
+
+        private JDefinedClass get(String clazzName, EClassType eClassType) throws JClassAlreadyExistsException {
+            JDefinedClass jArgType = model._getClass(clazzName);
+            if (jArgType == null) {
+                jArgType = model._class(clazzName, eClassType);
+            }
+            return jArgType;
+        }
+    }
 }
