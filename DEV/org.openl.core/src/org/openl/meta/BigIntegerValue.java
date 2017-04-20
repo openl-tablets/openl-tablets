@@ -641,6 +641,18 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     }
 
     /**
+     * Is used to overload implicit cast operators from char to
+     * org.openl.meta.BigIntegerValue
+     * 
+     * @param x
+     * @param y is needed to avoid ambiguity in Java method resolution
+     * @return the casted value to org.openl.meta.BigIntegerValue
+     */
+    public static org.openl.meta.BigIntegerValue autocast(char x, org.openl.meta.BigIntegerValue y) {
+        return new org.openl.meta.BigIntegerValue(String.valueOf(x));
+    }
+
+    /**
      * Is used to overload implicit cast operators from long to
      * org.openl.meta.BigIntegerValue
      * 

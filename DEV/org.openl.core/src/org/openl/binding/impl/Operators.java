@@ -1195,6 +1195,14 @@ public class Operators {
         return x;
     }
 
+    public static BigInteger autocast(byte x, BigInteger y) {
+    	return BigInteger.valueOf(x);
+    }
+
+    public static BigDecimal autocast(byte x, BigDecimal y) {
+    	return BigDecimal.valueOf(x);
+    }
+    
     public static int autocast(short x, int y) {
         return x;
     }
@@ -1211,6 +1219,14 @@ public class Operators {
         return x;
     }
 
+    public static BigInteger autocast(short x, BigInteger y) {
+    	return BigInteger.valueOf(x);
+    }
+
+    public static BigDecimal autocast(short x, BigDecimal y) {
+    	return BigDecimal.valueOf(x);
+    }
+    
     public static int autocast(char x, int y) {
         return x;
     }
@@ -1238,7 +1254,15 @@ public class Operators {
     public static double autocast(int x, double y) {
         return x;
     }
+    
+    public static BigInteger autocast(int x, BigInteger y) {
+        return BigInteger.valueOf(x);
+    }
 
+    public static BigDecimal autocast(int x, BigDecimal y) {
+        return BigDecimal.valueOf(x);
+    }
+    
     public static float autocast(long x, float y) {
         return x;
     }
@@ -1247,53 +1271,23 @@ public class Operators {
         return x;
     }
 
-    public static double autocast(float x, double y) {
-        return x;
-    }
-
-    // Other auto casts
-    //
-    public static BigDecimal autocast(double x, BigDecimal y) {
-        return new BigDecimal(x);
-    }
-
-    public static Number autocast(double d, Number N) {
-        return d;
-    }
-
-    public static BigDecimal autocast(int x, BigDecimal y) {
-        return BigDecimal.valueOf(x);
-    }
-
-    public static BigInteger autocast(int x, BigInteger y) {
-        return BigInteger.valueOf(x);
-    }
-
     public static BigInteger autocast(long x, BigInteger y) {
         return BigInteger.valueOf(x);
     }
 
-    public static Number autocast(int i, Number N) {
-        return i;
-    }
-
-    public static Number autocast(long i, Number N) {
-        return i;
-    }
-
-    public static Number autocast(byte i, Number N) {
-        return i;
-    }
-
-    public static Number autocast(float i, Number N) {
-        return i;
-    }
-
-    public static Number autocast(short i, Number N) {
-        return i;
-    }
-
     public static BigDecimal autocast(long x, BigDecimal y) {
+        return new BigDecimal(x);
+    }
+    
+    public static double autocast(float x, double y) {
+        return x;
+    }
+
+    public static BigDecimal autocast(float x, BigDecimal y) {
+        return new BigDecimal(x);
+    }
+    
+    public static BigDecimal autocast(double x, BigDecimal y) {
         return new BigDecimal(x);
     }
 
@@ -1303,12 +1297,18 @@ public class Operators {
 
     // Narrowing primitive conversions:
     //
+    // * byte to char
     // * short to byte or char
     // * char to byte or short
     // * int to byte, short, or char
     // * long to byte, short, char, or int
     // * float to byte, short, char, int, or long
     // * double to byte, short, char, int, long, or float
+    // * BigInteger to 
+
+    public static char cast(byte x, char y) {
+        return (char) x;
+    }
 
     public static char cast(short x, char y) {
         return (char) x;
@@ -1398,15 +1398,58 @@ public class Operators {
         return (float) x;
     }
 
-    // Widening and narrowing primitive convesions:
-    //
-    // * byte to char
-    public static char cast(byte x, char y) {
-        return (char) x;
+    public static byte cast(BigInteger x, byte y) {
+        return x.byteValue();
     }
 
-    // Other casts
-    //
+    public static short cast(BigInteger x, short y) {
+        return x.shortValue();
+    }
+
+    public static int cast(BigInteger x, int y) {
+        return x.intValue();
+    }
+
+    public static long cast(BigInteger x, long y) {
+        return x.longValue();
+    }
+
+    public static float cast(BigInteger x, float y) {
+        return x.floatValue();
+    }
+
+    public static double cast(BigInteger x, double y) {
+        return x.doubleValue();
+    }
+    
+    public static byte cast(BigDecimal x, byte y) {
+        return x.byteValue();
+    }
+
+    public static short cast(BigDecimal x, short y) {
+        return x.shortValue();
+    }
+
+    public static int cast(BigDecimal x, int y) {
+        return x.intValue();
+    }
+
+    public static long cast(BigDecimal x, long y) {
+        return x.longValue();
+    }
+
+    public static float cast(BigDecimal x, float y) {
+        return x.floatValue();
+    }
+
+    public static double cast(BigDecimal x, double y) {
+        return x.doubleValue();
+    }
+    
+    public static BigInteger cast(BigDecimal x, BigInteger y) {
+        return x.toBigInteger();
+    }
+    
     public static float dec(float x) {
         return x - 1;
     }

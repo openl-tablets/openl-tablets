@@ -1,5 +1,7 @@
 package org.openl.meta;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -549,6 +551,17 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         return new org.openl.meta.IntValue((int) x);
     }
 
+    /**
+     * Is used to overload implicit cast operators from char to org.openl.meta.IntValue
+     * @param x
+     * @param y is needed to avoid ambiguity in Java method resolution
+     * @return the casted value to org.openl.meta.IntValue
+     */
+    public static org.openl.meta.IntValue autocast(char x, org.openl.meta.IntValue y) {
+        return new org.openl.meta.IntValue((int) x);
+    }
+
+    
     // Constructors
     public IntValue(int value) {
         this.value = value;
@@ -625,14 +638,6 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     
     // ******* Autocasts*************
 
-    public static IntValue autocast(Integer x, IntValue y) {
-        if (x == null) {
-            return null;
-        }
-
-        return new IntValue(x);
-    }
-    
     public static LongValue autocast(IntValue x, LongValue y) {
         if (x == null) {
             return null;
@@ -673,6 +678,26 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     
     // ******* Casts*************
 
+    public static IntValue cast(long x, IntValue y) {
+    	return new IntValue((int) x);
+    }
+
+    public static IntValue cast(float x, IntValue y) {
+    	return new IntValue((int) x);
+    }
+    
+    public static IntValue cast(double x, IntValue y) {
+    	return new IntValue((int) x);
+    }
+
+    public static IntValue cast(BigInteger x, IntValue y) {
+    	return new IntValue(x.intValue());
+    }
+
+    public static IntValue cast(BigDecimal x, IntValue y) {
+    	return new IntValue(x.intValue());
+    }
+    
     public static byte cast(IntValue x, byte y) {
         return x.byteValue();
     }
@@ -701,14 +726,6 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         return x.doubleValue();
     }
 
-    public static Integer cast(IntValue x, Integer y) {
-        if (x == null) {
-            return null;
-        }
-
-        return x.intValue();
-    }
-    
     public static ByteValue cast(IntValue x, ByteValue y) {
         if (x == null) {
             return null;
