@@ -728,6 +728,14 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         }
         return new ByteValue(x.byteValue(), x, false);
     }
+    
+    public static BigInteger cast(ShortValue x, BigInteger y) {
+        return BigInteger.valueOf(x.shortValue());
+    }
+    
+    public static BigDecimal cast(ShortValue x, BigDecimal y) {
+        return BigDecimal.valueOf(x.shortValue());
+    }
 
     public ShortValue(String valueString) {
         value = Short.parseShort(valueString);

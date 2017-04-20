@@ -744,6 +744,14 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         }
         return new IntValue(x.intValue(), x, false);
     }
+    
+    public static BigInteger cast(LongValue x, BigInteger y) {
+        return BigInteger.valueOf(x.longValue());
+    }
+    
+    public static BigDecimal cast(LongValue x, BigDecimal y) {
+        return BigDecimal.valueOf(x.longValue());
+    }
 
     public LongValue(String valueString) {
         value = Long.parseLong(valueString);

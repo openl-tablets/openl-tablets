@@ -1,5 +1,6 @@
 package org.openl.meta;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
 
@@ -649,7 +650,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
      * @return the casted value to org.openl.meta.BigIntegerValue
      */
     public static org.openl.meta.BigIntegerValue autocast(char x, org.openl.meta.BigIntegerValue y) {
-        return new org.openl.meta.BigIntegerValue(String.valueOf(x));
+        return new org.openl.meta.BigIntegerValue(String.valueOf((int)x));
     }
 
     /**
@@ -762,6 +763,37 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 
     // ******* Casts 8*************
 
+	public static BigIntegerValue cast(float x, BigIntegerValue y) {
+		return new BigIntegerValue(String.valueOf((long) x));
+	}
+
+	public static BigIntegerValue cast(double x, BigIntegerValue y) {
+		return new BigIntegerValue(String.valueOf((long) x));
+	}
+
+	
+	public static BigIntegerValue cast(FloatValue x, BigIntegerValue y) {
+		if (x == null){
+			return null;
+		}
+		return new BigIntegerValue(String.valueOf(x.longValue()));
+	}
+
+	public static BigIntegerValue cast(DoubleValue x, BigIntegerValue y) {
+		if (x == null){
+			return null;
+		}
+		return new BigIntegerValue(String.valueOf(x.longValue()));
+	}
+	
+	public static BigIntegerValue cast(BigDecimal x, BigIntegerValue y) {
+		if (x == null){
+			return null;
+		}
+		return new BigIntegerValue(x.toBigInteger());
+	}
+
+	
     public static byte cast(BigIntegerValue x, byte y) {
         return x.byteValue();
     }
@@ -794,10 +826,17 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         if (x == null) {
             return null;
         }
-
         return x.getValue();
     }
 
+    public static BigDecimal cast(BigIntegerValue x, BigDecimal y) {
+        if (x == null) {
+            return null;
+        }
+
+        return new BigDecimal(x.getValue());
+    }
+    
     public static ByteValue cast(BigIntegerValue x, ByteValue y) {
         if (x == null) {
             return null;

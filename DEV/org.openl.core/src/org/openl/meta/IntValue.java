@@ -739,6 +739,14 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         }
         return new ShortValue(x.shortValue(), x, false);
     }
+    
+    public static BigInteger cast(IntValue x, BigInteger y) {
+        return BigInteger.valueOf(x.intValue());
+    }
+    
+    public static BigDecimal cast(IntValue x, BigDecimal y) {
+        return BigDecimal.valueOf(x.intValue());
+    }
 
     public IntValue(String valueString) {        
         value = Integer.parseInt(valueString);
