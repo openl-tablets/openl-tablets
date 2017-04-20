@@ -558,6 +558,15 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         return new org.openl.meta.FloatValue((float) x);
     }
     /**
+     * Is used to overload implicit cast operators from char to org.openl.meta.FloatValue
+     * @param x
+     * @param y is needed to avoid ambiguity in Java method resolution
+     * @return the casted value to org.openl.meta.FloatValue
+     */
+    public static org.openl.meta.FloatValue autocast(char x, org.openl.meta.FloatValue y) {
+        return new org.openl.meta.FloatValue((float) x);
+    }
+    /**
      * Is used to overload implicit cast operators from long to org.openl.meta.FloatValue
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
@@ -735,6 +744,14 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
             return null;
         }
         return new LongValue(x.longValue(), x, false);
+    }
+    
+    public static BigInteger cast(FloatValue x, BigInteger y) {
+        return BigInteger.valueOf(x.longValue());
+    }
+    
+    public static BigDecimal cast(FloatValue x, BigDecimal y) {
+        return BigDecimal.valueOf(x.doubleValue());
     }
 
     public static org.openl.meta.FloatValue round(org.openl.meta.FloatValue value) {

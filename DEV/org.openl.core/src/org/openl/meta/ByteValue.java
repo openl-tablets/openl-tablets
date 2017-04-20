@@ -731,6 +731,14 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         return x.doubleValue();
     }
 
+    public static BigInteger cast(ByteValue x, BigInteger y) {
+        return BigInteger.valueOf(x.byteValue());
+    }
+    
+    public static BigDecimal cast(ByteValue x, BigDecimal y) {
+        return BigDecimal.valueOf(x.byteValue());
+    }
+    
     public ByteValue(String valueString) {
         value = Byte.parseByte(valueString);
     }
