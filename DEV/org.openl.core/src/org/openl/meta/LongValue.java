@@ -1,5 +1,7 @@
 package org.openl.meta;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -555,6 +557,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     public static org.openl.meta.LongValue autocast(int x, org.openl.meta.LongValue y) {
         return new org.openl.meta.LongValue((long) x);
     }
+
     /**
      * Is used to overload implicit cast operators from long to org.openl.meta.LongValue
      * @param x
@@ -562,6 +565,16 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
      * @return the casted value to org.openl.meta.LongValue
      */
     public static org.openl.meta.LongValue autocast(long x, org.openl.meta.LongValue y) {
+        return new org.openl.meta.LongValue((long) x);
+    }
+    
+    /**
+     * Is used to overload implicit cast operators from char to org.openl.meta.LongValue
+     * @param x
+     * @param y is needed to avoid ambiguity in Java method resolution
+     * @return the casted value to org.openl.meta.LongValue
+     */
+    public static org.openl.meta.LongValue autocast(char x, org.openl.meta.LongValue y) {
         return new org.openl.meta.LongValue((long) x);
     }
 
@@ -641,14 +654,6 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
 
     // ******* Autocasts*************
 
-    public static LongValue autocast(Long x, LongValue y) {
-        if (x == null) {
-            return null;
-        }
-
-        return new LongValue(x);
-    }
-
     public static FloatValue autocast(LongValue x, FloatValue y) {
         if (x == null) {
             return null;
@@ -681,6 +686,22 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     
     // ******* Casts *************
 
+    public static LongValue cast(float x, LongValue y) {
+    	return new LongValue((long) x);
+    }
+    
+    public static LongValue cast(double x, LongValue y) {
+    	return new LongValue((long) x);
+    }
+
+    public static LongValue cast(BigInteger x, LongValue y) {
+    	return new LongValue(x.longValue());
+    }
+
+    public static LongValue cast(BigDecimal x, LongValue y) {
+    	return new LongValue(x.longValue());
+    }
+    
     public static byte cast(LongValue x, byte y) {
         return x.byteValue();
     }
@@ -707,14 +728,6 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
 
     public static double cast(LongValue x, double y) {
         return x.doubleValue();
-    }
-
-    public static Long cast(LongValue x, Long y) {
-        if (x == null) {
-            return null;
-        }
-
-        return x.longValue();
     }
 
     public static ByteValue cast(LongValue x, ByteValue y) {

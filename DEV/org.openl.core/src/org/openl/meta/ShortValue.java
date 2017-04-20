@@ -1,5 +1,7 @@
 package org.openl.meta;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -622,14 +624,6 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     
     // ******* Autocasts*************    
 
-    public static ShortValue autocast(Short x, ShortValue y) {
-        if (x == null) {
-            return null;
-        }
-
-        return new ShortValue(x);
-    }
-
     public static IntValue autocast(ShortValue x, IntValue y) {
         if (x == null) {
             return null;
@@ -678,6 +672,34 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     
     // ******* Casts*************
 
+    public static ShortValue cast(char x, ShortValue y) {
+    	return new ShortValue((short) x);
+    }
+
+    public static ShortValue cast(int x, ShortValue y) {
+    	return new ShortValue((short) x);
+    }
+
+    public static ShortValue cast(long x, ShortValue y) {
+    	return new ShortValue((short) x);
+    }
+
+    public static ShortValue cast(float x, ShortValue y) {
+    	return new ShortValue((short) x);
+    }
+    
+    public static ShortValue cast(double x, ShortValue y) {
+    	return new ShortValue((short) x);
+    }
+
+    public static ShortValue cast(BigInteger x, ShortValue y) {
+    	return new ShortValue(x.shortValue());
+    }
+
+    public static ShortValue cast(BigDecimal x, ShortValue y) {
+    	return new ShortValue(x.shortValue());
+    }
+    
     public static byte cast(ShortValue x, byte y) {
         return x.byteValue();
     }
@@ -704,14 +726,6 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 
     public static double cast(ShortValue x, double y) {
         return x.doubleValue();
-    }
-
-    public static Short cast(ShortValue x, Short y) {
-        if (x == null) {
-            return null;
-        }
-
-        return x.shortValue();
     }
 
     public static ByteValue cast(ShortValue x, ByteValue y) {

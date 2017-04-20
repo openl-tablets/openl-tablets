@@ -1,5 +1,7 @@
 package org.openl.meta;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -613,14 +615,6 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
 
     // ******* Autocasts *************
 
-    public static ByteValue autocast(Byte x, ByteValue y) {
-        if (x == null) {
-            return null;
-        }
-
-        return new ByteValue(x);
-    }
-
     public static ShortValue autocast(ByteValue x, ShortValue y) {
         if (x == null) {
             return null;
@@ -677,6 +671,38 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
 
     // ******* Casts *************
 
+    public static ByteValue cast(short x, ByteValue y) {
+    	return new ByteValue((byte) x);
+    }
+
+    public static ByteValue cast(char x, ByteValue y) {
+    	return new ByteValue((byte) x);
+    }
+
+    public static ByteValue cast(int x, ByteValue y) {
+    	return new ByteValue((byte) x);
+    }
+
+    public static ByteValue cast(long x, ByteValue y) {
+    	return new ByteValue((byte) x);
+    }
+
+    public static ByteValue cast(float x, ByteValue y) {
+    	return new ByteValue((byte) x);
+    }
+    
+    public static ByteValue cast(double x, ByteValue y) {
+    	return new ByteValue((byte) x);
+    }
+
+    public static ByteValue cast(BigInteger x, ByteValue y) {
+    	return new ByteValue(x.byteValue());
+    }
+
+    public static ByteValue cast(BigDecimal x, ByteValue y) {
+    	return new ByteValue(x.byteValue());
+    }
+    
     public static byte cast(ByteValue x, byte y) {
         return x.byteValue();
     }
@@ -703,14 +729,6 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
 
     public static double cast(ByteValue x, double y) {
         return x.doubleValue();
-    }
-
-    public static Byte cast(ByteValue x, Byte y) {
-        if (x == null) {
-            return null;
-        }
-
-        return x.byteValue();
     }
 
     public ByteValue(String valueString) {

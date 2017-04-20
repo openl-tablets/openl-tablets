@@ -555,6 +555,15 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         return new org.openl.meta.BigDecimalValue(String.valueOf(x));
     }
     /**
+     * Is used to overload implicit cast operators from char to org.openl.meta.BigDecimalValue
+     * @param x
+     * @param y is needed to avoid ambiguity in Java method resolution
+     * @return the casted value to org.openl.meta.BigDecimalValue
+     */
+    public static org.openl.meta.BigDecimalValue autocast(char x, org.openl.meta.BigDecimalValue y) {
+        return new org.openl.meta.BigDecimalValue(String.valueOf((int)x));
+    }
+    /**
      * Is used to overload implicit cast operators from long to org.openl.meta.BigDecimalValue
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution

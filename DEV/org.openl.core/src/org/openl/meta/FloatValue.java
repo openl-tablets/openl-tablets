@@ -1,6 +1,7 @@
 package org.openl.meta;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -651,14 +652,6 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 
     // ******* Autocasts*************
 
-    public static FloatValue autocast(Float x, FloatValue y) {
-        if (x == null) {
-            return null;
-        }
-
-        return new FloatValue(x);
-    }
-
     public static DoubleValue autocast(FloatValue x, DoubleValue y) {
         if (x == null) {
             return null;
@@ -676,6 +669,18 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     
     // ******* Casts *************
 
+    public static FloatValue cast(double x, FloatValue y) {
+    	return new FloatValue((float) x);
+    }
+
+    public static FloatValue cast(BigInteger x, FloatValue y) {
+    	return new FloatValue(x.floatValue());
+    }
+
+    public static FloatValue cast(BigDecimal x, FloatValue y) {
+    	return new FloatValue(x.floatValue());
+    }
+    
     public static byte cast(FloatValue x, byte y) {
         return x.byteValue();
     }
@@ -702,14 +707,6 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 
     public static double cast(FloatValue x, double y) {
         return x.doubleValue();
-    }
-
-    public static Float cast(FloatValue x, Float y) {
-        if (x == null) {
-            return null;
-        }
-
-        return x.floatValue();
     }
 
     public static ByteValue cast(FloatValue x, ByteValue y) {
