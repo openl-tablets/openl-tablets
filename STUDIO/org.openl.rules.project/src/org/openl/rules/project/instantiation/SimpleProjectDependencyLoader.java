@@ -91,51 +91,56 @@ public class SimpleProjectDependencyLoader implements IDependencyLoader {
                     return null;
                 }
                 
-                RulesInstantiationStrategy rulesInstantiationStrategy;
-                ClassLoader classLoader = dependencyManager.getClassLoader(modules.iterator().next().getProject());
-                if (modules.size() == 1) {
-                    dependencyManager.getCompilationStack().add(dependencyName);
-                    log.debug("Creating dependency for dependencyName = {}", dependencyName);
-                    rulesInstantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(modules.iterator()
-                            .next(), executionMode, dependencyManager, classLoader);
-                } else {
-                    if (modules.size() > 1) {
-                        rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
-                                dependencyManager,
-                                classLoader, executionMode);
-                    } else {
-                        throw new IllegalStateException("Modules collection must not be empty");
-                    }
-                }
-
-                Map<String, Object> parameters = configureParameters(dependencyManager);
-
-                rulesInstantiationStrategy.setExternalParameters(parameters);
-                rulesInstantiationStrategy.setServiceClass(EmptyInterface.class); // Prevent
-                // interface
-                // generation
-                boolean validationWasOn = OpenLValidationManager.isValidationEnabled();
-                try {
-                    OpenLValidationManager.turnOffValidation();
-                    CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
-                    CompiledDependency cd = new CompiledDependency(dependencyName, compiledOpenClass);
-                    log.debug("Dependency for dependencyName = {} has been stored in cache.", dependencyName);
-                    compiledDependency = cd;
-                    return compiledDependency;
-                } catch (Exception ex) {
-                    log.error(ex.getMessage(), ex);
-                    return onCompilationFailure(ex, dependencyManager);
-                } finally{
-                    if (validationWasOn){
-                        OpenLValidationManager.turnOnValidation();
-                    }
-                }
+                return compileDependency(dependencyName, dependencyManager);
             } finally {
                 dependencyManager.getCompilationStack().pollLast();
             }
         }
         return null;
     }
+
+	protected CompiledDependency compileDependency(String dependencyName,
+			AbstractProjectDependencyManager dependencyManager) throws OpenLCompilationException {
+		RulesInstantiationStrategy rulesInstantiationStrategy;
+		ClassLoader classLoader = dependencyManager.getClassLoader(modules.iterator().next().getProject());
+		if (modules.size() == 1) {
+		    dependencyManager.getCompilationStack().add(dependencyName);
+		    log.debug("Creating dependency for dependencyName = {}", dependencyName);
+		    rulesInstantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(modules.iterator()
+		            .next(), executionMode, dependencyManager, classLoader);
+		} else {
+		    if (modules.size() > 1) {
+		        rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
+		                dependencyManager,
+		                classLoader, executionMode);
+		    } else {
+		        throw new IllegalStateException("Modules collection must not be empty");
+		    }
+		}
+
+		Map<String, Object> parameters = configureParameters(dependencyManager);
+
+		rulesInstantiationStrategy.setExternalParameters(parameters);
+		rulesInstantiationStrategy.setServiceClass(EmptyInterface.class); // Prevent
+		// interface
+		// generation
+		boolean validationWasOn = OpenLValidationManager.isValidationEnabled();
+		try {
+		    OpenLValidationManager.turnOffValidation();
+		    CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
+		    CompiledDependency cd = new CompiledDependency(dependencyName, compiledOpenClass);
+		    log.debug("Dependency for dependencyName = {} has been stored in cache.", dependencyName);
+		    compiledDependency = cd;
+		    return compiledDependency;
+		} catch (Exception ex) {
+		    log.error(ex.getMessage(), ex);
+		    return onCompilationFailure(ex, dependencyManager);
+		} finally{
+		    if (validationWasOn){
+		        OpenLValidationManager.turnOnValidation();
+		    }
+		}
+	}
 
     protected CompiledDependency onCompilationFailure(Exception ex, AbstractProjectDependencyManager dependencyManager) throws OpenLCompilationException {
         throw new OpenLCompilationException("Failed to load dependency '" + dependencyName + "'.", ex);

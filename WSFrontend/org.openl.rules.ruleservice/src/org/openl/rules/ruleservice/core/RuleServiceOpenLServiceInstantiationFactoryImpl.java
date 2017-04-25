@@ -124,7 +124,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             }
         }
         if (serviceClass == null) {
-            log.info("Service class is undefined for service '{}'. Generated interface will be used.", service.getName());
+            log.info("Service class is undefined for service '{}'. Generated interface has been used.", service.getName());
             Class<?> instanceClass = instantiationStrategy.getInstanceClass();
             serviceClass = processGeneratedServiceClass(instantiationStrategy, service, instanceClass, serviceClassLoader);
             service.setServiceClassName(null); //Generated class is used.
@@ -146,7 +146,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             }
         }
         if (serviceClass == null) {
-            log.info("Service class is undefined for service '{}'. Default RMI interface will be used.",
+            log.info("Service class is undefined for service '{}'. Default RMI interface has been used.",
                 service.getName());
             service.setRmiServiceClassName(null); // RMI default will be used
         }

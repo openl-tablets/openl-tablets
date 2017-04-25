@@ -91,6 +91,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                     deployment.getName(),
                     deployment.getVersion().getVersionName(),
                     dependencyName);
+                
                 if (modules.size() > 1) {
                     rulesInstantiationStrategy = new LazyInstantiationStrategy(deployment,
                         modules,
@@ -114,137 +115,125 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                 final Map<String, Object> parameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(),
                     modules);
                 rulesInstantiationStrategy.setExternalParameters(parameters);
-                try {
+				try {
+					LazyBinderInvocationHandler.setPrebindHandler(new IPrebindHandler() {
+						Module getModuleForMember(IOpenMember member) {
+							String sourceUrl = member.getDeclaringClass().getMetaInfo().getSourceUrl();
+							Module module = getModuleForSourceUrl(sourceUrl, modules);
+							if (module != null) {
+								return module;
+							}
+							throw new OpenlNotCheckedException("Module is not found.");
+						}
 
-                        LazyBinderInvocationHandler.setPrebindHandler(new IPrebindHandler() {
-                            Module getModuleForMember(IOpenMember member) {
-                                String sourceUrl = member.getDeclaringClass().getMetaInfo().getSourceUrl();
-                                Module module = getModuleForSourceUrl(sourceUrl, modules);
-                                if (module != null) {
-                                    return module;
-                                }
-                                throw new OpenlNotCheckedException("Module is not found.");
-                            }
+						private Module getModuleForSourceUrl(String sourceUrl, Collection<Module> modules) {
+							if (modules.size() == 1) {
+								return modules.iterator().next();
+							}
+							for (Module module : modules) {
+								String modulePath = module.getRulesRootPath().getPath();
+								try {
+									if (FilenameUtils.normalize(sourceUrl)
+											.equals(FilenameUtils.normalize(new File(modulePath).getCanonicalFile()
+													.toURI().toURL().toExternalForm()))) {
+										return module;
+									}
+								} catch (Exception e) {
+									log.warn("Failed to build url for module '{}' with path: {}", module.getName(),
+											modulePath, e);
+								}
+							}
+							return null;
+						}
 
-                            private Module getModuleForSourceUrl(String sourceUrl, Collection<Module> modules) {
-                                if (modules.size() == 1) {
-                                    return modules.iterator().next();
-                                }
-                                for (Module module : modules) {
-                                    String modulePath = module.getRulesRootPath().getPath();
-                                    try {
-                                        if (FilenameUtils.normalize(sourceUrl)
-                                            .equals(FilenameUtils.normalize(new File(modulePath).getCanonicalFile()
-                                                .toURI()
-                                                .toURL()
-                                                .toExternalForm()))) {
-                                            return module;
-                                        }
-                                    } catch (Exception e) {
-                                        log.warn("Failed to build url for module '{}' with path: {}",
-                                            module.getName(),
-                                            modulePath,
-                                            e);
-                                    }
-                                }
-                                return null;
-                            }
+						private LazyMethod makeLazyMethod(IOpenMethod method) {
+							final Module declaringModule = getModuleForMember(method);
+							Class<?>[] argTypes = new Class<?>[method.getSignature().getNumberOfParameters()];
+							for (int i = 0; i < argTypes.length; i++) {
+								argTypes[i] = method.getSignature().getParameterType(i).getInstanceClass();
+							}
+							if (method instanceof ITablePropertiesMethod) {
+								return new TablePropertiesLazyMethod(method.getName(), argTypes, method,
+										dependencyManager, classLoader, true, parameters) {
+									@Override
+									public DeploymentDescription getDeployment(IRuntimeEnv env) {
+										return deployment;
+									}
 
-                            private LazyMethod makeLazyMethod(IOpenMethod method) {
-                                final Module declaringModule = getModuleForMember(method);
-                                Class<?>[] argTypes = new Class<?>[method.getSignature().getNumberOfParameters()];
-                                for (int i = 0; i < argTypes.length; i++) {
-                                    argTypes[i] = method.getSignature().getParameterType(i).getInstanceClass();
-                                }
-                                if (method instanceof ITablePropertiesMethod) {
-                                    return new TablePropertiesLazyMethod(method.getName(),
-                                        argTypes,
-                                        method,
-                                        dependencyManager,
-                                        classLoader,
-                                        true,
-                                        parameters) {
-                                        @Override
-                                        public DeploymentDescription getDeployment(IRuntimeEnv env) {
-                                            return deployment;
-                                        }
+									@Override
+									public Module getModule(IRuntimeEnv env) {
+										return declaringModule;
+									}
+								};
+							} else {
+								return new LazyMethod(method.getName(), argTypes, method, dependencyManager,
+										classLoader, true, parameters) {
+									@Override
+									public DeploymentDescription getDeployment(IRuntimeEnv env) {
+										return deployment;
+									}
 
-                                        @Override
-                                        public Module getModule(IRuntimeEnv env) {
-                                            return declaringModule;
-                                        }
-                                    };
-                                } else {
-                                    return new LazyMethod(method.getName(),
-                                        argTypes,
-                                        method,
-                                        dependencyManager,
-                                        classLoader,
-                                        true,
-                                        parameters) {
-                                        @Override
-                                        public DeploymentDescription getDeployment(IRuntimeEnv env) {
-                                            return deployment;
-                                        }
+									@Override
+									public Module getModule(IRuntimeEnv env) {
+										return declaringModule;
+									}
+								};
+							}
+						}
 
-                                        @Override
-                                        public Module getModule(IRuntimeEnv env) {
-                                            return declaringModule;
-                                        }
-                                    };
-                                }
-                            }
+						private LazyField makeLazyField(IOpenField field) {
+							final Module declaringModule = getModuleForMember(field);
+							return new LazyField(field.getName(), field, dependencyManager, classLoader, true,
+									parameters) {
+								@Override
+								public DeploymentDescription getDeployment(IRuntimeEnv env) {
+									return deployment;
+								}
 
-                            private LazyField makeLazyField(IOpenField field) {
-                                final Module declaringModule = getModuleForMember(field);
-                                return new LazyField(field.getName(),
-                                    field,
-                                    dependencyManager,
-                                    classLoader,
-                                    true,
-                                    parameters) {
-                                    @Override
-                                    public DeploymentDescription getDeployment(IRuntimeEnv env) {
-                                        return deployment;
-                                    }
+								@Override
+								public Module getModule(IRuntimeEnv env) {
+									return declaringModule;
+								}
+							};
+						}
 
-                                    @Override
-                                    public Module getModule(IRuntimeEnv env) {
-                                        return declaringModule;
-                                    }
-                                };
-                            }
+						@Override
+						public IOpenMethod processMethodAdded(IOpenMethod method,
+								XlsLazyModuleOpenClass moduleOpenClass) {
+							return makeLazyMethod(method);
+						}
 
-                            @Override
-                            public IOpenMethod processMethodAdded(IOpenMethod method,
-                                    XlsLazyModuleOpenClass moduleOpenClass) {
-                                return makeLazyMethod(method);
-                            }
-
-                            @Override
-                            public IOpenField processFieldAdded(IOpenField field, XlsLazyModuleOpenClass moduleOpenClass) {
-                                return makeLazyField(field);
-                            }
-                        });
-
-                    compiledOpenClass = rulesInstantiationStrategy.compile();// Check
-                    // correct
-                    // compilation
-                    LazyCompiledOpenClassCache.getInstance().putToCache(deployment, dependencyName, compiledOpenClass);
-                    log.debug("Lazy CompiledOpenClass was stored in cache for:\n" + " deploymentName='{}',\n" + " deploymentVersion='{}',\n" + " dependencyName='{}'\n",
-                        deployment.getName(),
-                        deployment.getVersion().getVersionName(),
-                        dependencyName);
-                    if (modules.size() == 1 && realCompileRequred) {
-                        compileAfterLazyCompile(dependencyName, dependencyManager, classLoader, modules.iterator()
-                            .next());
-                    }
-                    return compiledOpenClass;
-                } catch (Exception ex) {
-                    throw new OpenLCompilationException("Failed to load dependency '" + dependencyName + "'.", ex);
-                } finally {
-                    LazyBinderInvocationHandler.setPrebindHandler(prebindHandler);
-                }
+						@Override
+						public IOpenField processFieldAdded(IOpenField field, XlsLazyModuleOpenClass moduleOpenClass) {
+							return makeLazyField(field);
+						}
+					});
+					try {
+						dependencyManager.compilationBegin(this, modules);
+						compiledOpenClass = rulesInstantiationStrategy.compile(); // Check
+																					// correct
+																					// compilation
+						dependencyManager.compilationCompleted(this, !compiledOpenClass.hasErrors());
+					} finally {
+						if (compiledOpenClass == null) {
+							dependencyManager.compilationCompleted(this, false);
+						}
+					}
+					LazyCompiledOpenClassCache.getInstance().putToCache(deployment, dependencyName, compiledOpenClass);
+					log.debug(
+							"Lazy CompiledOpenClass was stored in cache for:\n" + " deploymentName='{}',\n"
+									+ " deploymentVersion='{}',\n" + " dependencyName='{}'\n",
+							deployment.getName(), deployment.getVersion().getVersionName(), dependencyName);
+					if (modules.size() == 1 && realCompileRequred) {
+						compileAfterLazyCompile(dependencyName, dependencyManager, classLoader,
+								modules.iterator().next());
+					}
+					return compiledOpenClass;
+				} catch (Exception ex) {
+					throw new OpenLCompilationException("Failed to load dependency '" + dependencyName + "'.", ex);
+				} finally {
+					LazyBinderInvocationHandler.setPrebindHandler(prebindHandler);
+				}
             } finally {
                 dependencyManager.getCompilationStack().pollLast();
             }

@@ -5,9 +5,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 import java.util.concurrent.Semaphore;
 
 import org.openl.dependency.CompiledDependency;
@@ -34,7 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
-public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProjectDependencyManager {
+public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProjectDependencyManager implements CompilationTimeLoggingDependencyManager{
 
     private final Logger log = LoggerFactory.getLogger(RuleServiceDeploymentRelatedDependencyManager.class);
 
@@ -73,6 +75,56 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
             RuleServiceStaticConfigurationUtil.getMaxThreadsForCompile());
         private static ThreadLocal<Object> threadsMarker = new ThreadLocal<Object>();
     }
+    
+    ThreadLocal<Stack<CompilationInfo>> compliationInfoThreadLocal = new ThreadLocal<Stack<CompilationInfo>>(){
+    	protected Stack<CompilationInfo> initialValue() {
+    		return new Stack<CompilationInfo>();
+    	};
+    };
+    
+	private static class CompilationInfo {
+		long time;
+		long embeddedTime;
+		IDependencyLoader dependencyLoader;
+		Collection<Module> modules;
+	}
+    
+    @Override
+    public void compilationBegin(IDependencyLoader dependencyLoader, Collection<Module> modules) {
+    	CompilationInfo compilationInfo = new CompilationInfo();
+    	compilationInfo.time = System.currentTimeMillis();
+    	compilationInfo.dependencyLoader = dependencyLoader;
+    	compilationInfo.modules = Collections.unmodifiableCollection(modules);
+    	Stack<CompilationInfo> compilationInfoStack = compliationInfoThreadLocal.get();
+    	compilationInfoStack.push(compilationInfo);
+    }
+    
+	@Override
+	public void compilationCompleted(IDependencyLoader dependencyLoader, boolean successed) {
+		try {
+			Stack<CompilationInfo> compilationInfoStack = compliationInfoThreadLocal.get();
+			CompilationInfo compilationInfo = compilationInfoStack.pop();
+			if (compilationInfo.dependencyLoader != dependencyLoader) {
+				throw new IllegalStateException("Illegal State!");
+			}
+			Collection<Module> modules = compilationInfo.modules;
+
+			long t = System.currentTimeMillis() - compilationInfo.time;
+
+			if (modules.size() == 1 && successed) {
+				Module module = modules.iterator().next();
+				log.info(String.format("Module '%s' in project '%s' has been compiled in %s ms.", module.getName(),
+						module.getProject().getName(), String.valueOf((t - compilationInfo.embeddedTime))));
+			}
+
+			if (!compilationInfoStack.isEmpty()) {
+				CompilationInfo compilationInfoParent = compilationInfoStack.peek();
+				compilationInfoParent.embeddedTime = compilationInfoParent.embeddedTime + t;
+			}
+		} catch (Exception e) {
+			log.error("Unexpected exception!", e);
+		}
+	}
 
     @Override
     public CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
