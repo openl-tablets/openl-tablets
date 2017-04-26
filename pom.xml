@@ -1232,6 +1232,11 @@
                 <artifactId>maven-core</artifactId>
                 <version>${maven.api.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-archiver</artifactId>
+                <version>3.4</version>
+            </dependency>
             <!-- OpenL modules -->
             <!-- DEV -->
             <dependency>
