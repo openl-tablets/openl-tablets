@@ -21,7 +21,7 @@ import org.openl.types.IOpenClass;
  * @author Yury Molchan
  */
 @Mojo(name = "compile", defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.COMPILE)
-public class CompileMojo extends BaseOpenLMojo {
+public final class CompileMojo extends BaseOpenLMojo {
 
     @Parameter(defaultValue = "${project.compileClasspathElements}", readonly = true, required = true)
     private List<String> classpath;
