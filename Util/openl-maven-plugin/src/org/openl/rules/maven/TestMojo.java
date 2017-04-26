@@ -23,7 +23,7 @@ import org.openl.types.IOpenClass;
  * @author Yury Molchan
  */
 @Mojo(name = "test", defaultPhase = LifecyclePhase.TEST, requiresDependencyResolution = ResolutionScope.TEST)
-public class TestMojo extends BaseOpenLMojo {
+public final class TestMojo extends BaseOpenLMojo {
     /**
      * Set this to 'true' to skip running OpenL tests.
      */
