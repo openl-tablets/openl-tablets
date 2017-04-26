@@ -61,7 +61,7 @@ import net.sf.cglib.core.Predicate;
  * Generate OpenL interface, domain classes, project descriptor and unit tests
  */
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE)
-public class GenerateMojo extends BaseOpenLMojo {
+public final class GenerateMojo extends BaseOpenLMojo {
 
     @Parameter(defaultValue = "${project}", readonly = true)
     private MavenProject project;
