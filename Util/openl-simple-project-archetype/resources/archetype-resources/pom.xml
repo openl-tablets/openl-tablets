@@ -34,6 +34,12 @@
             <scope>runtime</scope>
             <version>1.7.21</version>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <scope>runtime</scope>
+            <version>1.7.21</version>
+        </dependency>
         <!--
         <dependency>
             <groupId>com.example</groupId>
@@ -76,6 +82,7 @@
                             <goal>generate</goal>
                             <goal>compile</goal>
                             <goal>test</goal>
+                            <goal>package</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -93,7 +100,6 @@
                         <configuration>
                             <descriptors>
                                 <descriptor>assembly/runnable-zip.xml</descriptor>
-                                <descriptor>assembly/deployable-zip.xml</descriptor>
                             </descriptors>
                         </configuration>
                     </execution>
