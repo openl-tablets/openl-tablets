@@ -14,7 +14,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         if (System.getProperty("openl-cmd") != null) {
-            run(".");
+            run("openl");
         } else {
             run("src/main/openl");
         }
