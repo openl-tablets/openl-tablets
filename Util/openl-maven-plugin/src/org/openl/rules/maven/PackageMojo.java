@@ -20,6 +20,7 @@ import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
 import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
+
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 
@@ -114,18 +115,22 @@ public final class PackageMojo extends BaseOpenLMojo {
                 arch.addFile(file, classpathFolder + file.getName());
             }
         }
+        if (outputFile.equals(mainArtifact)) {
+            outputFile = getOutputFile(outputDirectory, finalName, "override", type);
+        }
         if (mainArtifact != null && mainArtifact.isFile()) {
             arch.addFile(mainArtifact, classpathFolder + mainArtifact.getName());
-            if (StringUtils.isBlank(classifier) && type.equals(packaging)) {
-                outputFile = getOutputFile(outputDirectory, finalName, "override", type);
-                warn("Replacing pre-existing project main-artifact file: ", mainArtifact);
-                warn("with OpenL file: " + outputFile);
-            }
         }
 
         arch.setDestFile(outputFile);
         arch.createArchive();
-        if (StringUtils.isBlank(classifier) && type.equals(packaging)) {
+        if ("openl".equals(packaging)) {
+            project.getArtifact().setFile(outputFile);
+        } else if (StringUtils.isBlank(classifier) && type.equals(packaging)) {
+            if (mainArtifact != null) {
+                warn("Replacing pre-existing project main-artifact file: ", mainArtifact);
+                warn("with OpenL file: " + outputFile);
+            }
             project.getArtifact().setFile(outputFile);
         } else {
             projectHelper.attachArtifact(project, type, classifier, outputFile);
@@ -160,7 +165,7 @@ public final class PackageMojo extends BaseOpenLMojo {
 
     @Override
     String getHeader() {
-        return "PACKAGING";
+        return "OPENL PACKAGING";
     }
 
     /**
