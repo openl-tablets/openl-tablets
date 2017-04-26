@@ -238,6 +238,11 @@
                         </archive>
                     </configuration>
                 </plugin>
+		<plugin>
+			<groupId>org.basepom.maven</groupId>
+			<artifactId>duplicate-finder-maven-plugin</artifactId>
+			<version>1.2.1</version>
+		</plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-plugin-plugin</artifactId>
@@ -1175,6 +1180,17 @@
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-s3</artifactId>
                 <version>1.11.86</version>
+            </dependency>
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-core</artifactId>
+                <version>1.11.86</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!--This examples uses Infinispan's JDBC cache store, which requires C3P0 and a JDBC database driver -->
             <dependency>

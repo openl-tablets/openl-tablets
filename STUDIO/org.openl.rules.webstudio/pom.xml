@@ -21,6 +21,38 @@
         <defaultGoal>package</defaultGoal>
         <plugins>
             <plugin>
+                <groupId>org.basepom.maven</groupId>
+                <artifactId>duplicate-finder-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <checkCompileClasspath>false</checkCompileClasspath>
+                    <checkRuntimeClasspath>true</checkRuntimeClasspath>
+                    <checkTestClasspath>false</checkTestClasspath>
+                    <failBuildInCaseOfConflict>true</failBuildInCaseOfConflict>
+                    <ignoredDependencies>
+                        <dependency>
+                            <groupId>org.apache.poi</groupId>
+                            <artifactId>poi-ooxml-schemas</artifactId>
+                        </dependency>
+                    </ignoredDependencies>
+                    <ignoredClassPatterns>
+                        <ignoredClassPattern>org.xmlpull.v1.XmlPullParser</ignoredClassPattern>
+                        <ignoredClassPattern>org.xmlpull.v1.XmlPullParserException</ignoredClassPattern>
+                        <ignoredClassPattern>org.apache.jackrabbit.commons.iterator.RangeIteratorAdapter</ignoredClassPattern>
+                    </ignoredClassPatterns>
+                    <ignoredResources>
+                    	<ignoredResource>mozilla/public-suffix-list.txt</ignoredResource>
+                    </ignoredResources>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>

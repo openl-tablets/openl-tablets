@@ -19,6 +19,35 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.basepom.maven</groupId>
+                <artifactId>duplicate-finder-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <checkCompileClasspath>false</checkCompileClasspath>
+                    <checkRuntimeClasspath>true</checkRuntimeClasspath>
+                    <checkTestClasspath>false</checkTestClasspath>
+                    <failBuildInCaseOfConflict>true</failBuildInCaseOfConflict>
+                    <ignoredClassPatterns>
+                        <ignoredClassPattern>org.xmlpull.v1.XmlPullParser</ignoredClassPattern>
+                        <ignoredClassPattern>org.xmlpull.v1.XmlPullParserException</ignoredClassPattern>
+                    </ignoredClassPatterns>
+                    <ignoredResources>
+                        <ignoredResource>org/apache/cxf/endpoint/dynamic/simple-binding.xjb</ignoredResource>
+                        <ignoredResource>openl-ruleservice-property-placeholder.xml</ignoredResource>
+                        <ignoredResource>openl-ruleservice-publisher-beans.xml</ignoredResource>
+                        <ignoredResource>openl-default.properties</ignoredResource>
+                    </ignoredResources>
+                </configuration>
+            </plugin>
+        
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
