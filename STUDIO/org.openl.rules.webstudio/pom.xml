@@ -42,14 +42,43 @@
                             <artifactId>poi-ooxml-schemas</artifactId>
                         </dependency>
                     </ignoredDependencies>
-                    <ignoredClassPatterns>
-                        <ignoredClassPattern>org.xmlpull.v1.XmlPullParser</ignoredClassPattern>
-                        <ignoredClassPattern>org.xmlpull.v1.XmlPullParserException</ignoredClassPattern>
-                        <ignoredClassPattern>org.apache.jackrabbit.commons.iterator.RangeIteratorAdapter</ignoredClassPattern>
-                    </ignoredClassPatterns>
-                    <ignoredResources>
-                    	<ignoredResource>mozilla/public-suffix-list.txt</ignoredResource>
-                    </ignoredResources>
+                    <exceptions>
+                    	<exception>
+                    	    <conflictingDependencies>
+                                <dependency>
+                                    <groupId>org.apache.jackrabbit</groupId>
+                                    <artifactId>jackrabbit-jcr-commons</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>org.apache.jackrabbit</groupId>
+                                    <artifactId>jackrabbit-jcr-rmi</artifactId>
+                                </dependency>
+                            </conflictingDependencies>
+                    		<classes>
+                    			<class>org.apache.jackrabbit.commons.iterator.RangeIteratorAdapter</class>
+                    		</classes>
+                    	</exception>
+                    	<exception>
+                    	    <conflictingDependencies>
+                                <dependency>
+                                    <groupId>xmlpull</groupId>
+                                    <artifactId>xmlpull</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>xpp3</groupId>
+                                    <artifactId>xpp3_min</artifactId>
+                                </dependency>
+                            </conflictingDependencies>
+                    		<classes>
+                    			<class>org.xmlpull.v1.XmlPullParser</class>
+                    			<class>org.xmlpull.v1.XmlPullParserException</class>
+                    		</classes>
+                    	</exception>
+                    	
+                    </exceptions>
+                    <ignoredResourcePatterns>
+                    	<ignoredResourcePattern>mozilla/public-suffix-list.txt</ignoredResourcePattern>
+                    </ignoredResourcePatterns>
                 </configuration>
             </plugin>
             <plugin>

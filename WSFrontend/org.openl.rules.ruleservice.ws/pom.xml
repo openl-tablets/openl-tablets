@@ -29,21 +29,35 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
+                  <configuration>
                     <checkCompileClasspath>false</checkCompileClasspath>
                     <checkRuntimeClasspath>true</checkRuntimeClasspath>
                     <checkTestClasspath>false</checkTestClasspath>
                     <failBuildInCaseOfConflict>true</failBuildInCaseOfConflict>
-                    <ignoredClassPatterns>
-                        <ignoredClassPattern>org.xmlpull.v1.XmlPullParser</ignoredClassPattern>
-                        <ignoredClassPattern>org.xmlpull.v1.XmlPullParserException</ignoredClassPattern>
-                    </ignoredClassPatterns>
-                    <ignoredResources>
-                        <ignoredResource>org/apache/cxf/endpoint/dynamic/simple-binding.xjb</ignoredResource>
-                        <ignoredResource>openl-ruleservice-property-placeholder.xml</ignoredResource>
-                        <ignoredResource>openl-ruleservice-publisher-beans.xml</ignoredResource>
-                        <ignoredResource>openl-default.properties</ignoredResource>
-                    </ignoredResources>
+                    <exceptions>
+                    	<exception>
+                    	    <conflictingDependencies>
+                                <dependency>
+                                    <groupId>xmlpull</groupId>
+                                    <artifactId>xmlpull</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>xpp3</groupId>
+                                    <artifactId>xpp3_min</artifactId>
+                                </dependency>
+                            </conflictingDependencies>
+                    		<classes>
+                    			<class>org.xmlpull.v1.XmlPullParser</class>
+                    			<class>org.xmlpull.v1.XmlPullParserException</class>
+                    		</classes>
+                    	</exception>
+                    </exceptions>
+                    <ignoredResourcePatterns>
+                        <ignoredResourcePattern>org/apache/cxf/endpoint/dynamic/simple-binding.xjb</ignoredResourcePattern>
+                        <ignoredResourcePattern>openl-ruleservice-property-placeholder.xml</ignoredResourcePattern>
+                        <ignoredResourcePattern>openl-ruleservice-publisher-beans.xml</ignoredResourcePattern>
+                        <ignoredResourcePattern>openl-default.properties</ignoredResourcePattern>
+                    </ignoredResourcePatterns>
                 </configuration>
             </plugin>
         
