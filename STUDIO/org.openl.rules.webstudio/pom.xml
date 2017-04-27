@@ -36,6 +36,7 @@
                     <checkRuntimeClasspath>true</checkRuntimeClasspath>
                     <checkTestClasspath>false</checkTestClasspath>
                     <failBuildInCaseOfConflict>true</failBuildInCaseOfConflict>
+                    <useResultFile>false</useResultFile>
                     <ignoredDependencies>
                         <dependency>
                             <groupId>org.apache.poi</groupId>
