@@ -36,7 +36,40 @@ Usage
   <<Note:>> It is not recommended to put OpenL-related resources to the <<<src/main/resources>>> folder. In this case, OpenL resources
   will be inside the JAR file alongside with the compiled Java classes - most probably not what was expected to do in production.
 
-* Configure Interface, Domain Classes and Project Descriptor Generation
+* Integration of openl-maven-plugin in the Maven lifecycle
+
+  The simplest way to create OpenL artifact:
+
++--------------------------------------
+<packaging>openl</packaging>
+[...]
+<build>
+  [...]
+  <plugins>
+      [...]
+      <plugin>
+          <groupId>org.openl.rules</groupId>
+          <artifactId>openl-maven-plugin</artifactId>
+          <version>${org.openl.version}</version>
+          <extensions>true</extensions>
+      </plugin>
+
+  </plugins>
+  [...]
+</build>
++--------------------------------------
+
+  In this case, the OpenL project will be processed trough Maven lifecycle:
+
+      * Java compilation at 'compile' phase.
+
+      * OpenL rules validation at 'compile' phase.
+
+      * Running OpenL tests at 'test' phase.
+
+      * Creating ZIP archive and register it as Maven artifact at 'package' phase.
+
+* Configure Interface and domain Classes generation
 
   The simplest way to generate interface for rules defined in the TemplateRules.xls file:
 
@@ -48,14 +81,9 @@ Usage
       <plugin>
           <groupId>org.openl.rules</groupId>
           <artifactId>openl-maven-plugin</artifactId>
-          <version>${openl.rules.version}</version>
+          <version>${org.openl.version}</version>
           <configuration>
-              <generateInterfaces>
-                  <generateInterface>
-                      <srcFile>src/main/openl/rules/TemplateRules.xls</srcFile>
-                      <targetClass>org.company.gen.TemplateRulesInterface</targetClass>
-                  </generateInterface>
-              </generateInterfaces>
+              <interfaceClass>org.company.gen.TemplateRulesInterface</interfaceClass>
           </configuration>
           <executions>
               <execution>
@@ -71,7 +99,7 @@ Usage
 </build>
 +--------------------------------------
 
-  In this case, classes and rules.xml are generated on each Maven run during the generate-sources phase.
+  In this case, classes are generated on each Maven run during the generate-sources phase.
 
   To invoke class generation manually, remove the <<<executions>>> node and run in the console when needed:
 
@@ -91,7 +119,7 @@ Usage
       <plugin>
           <groupId>org.openl.rules</groupId>
           <artifactId>openl-maven-plugin</artifactId>
-          <version>${openl.rules.version}</version>
+          <version>${org.openl.version}</version>
           <executions>
               <execution>
                   <goals>
@@ -120,7 +148,7 @@ Usage
       <plugin>
           <groupId>org.openl.rules</groupId>
           <artifactId>openl-maven-plugin</artifactId>
-          <version>${openl.rules.version}</version>
+          <version>${org.openl.version}</version>
           <executions>
               <execution>
                   <goals>
@@ -136,84 +164,3 @@ Usage
 +--------------------------------------
 
   More configuration options can be found on the {{{./test-mojo.html}openl:test}} goal page.
-
-  To have more control over tests, to invoke and debug them from the Java code, generate JUnit tests.
-  In this case do not use the <<<test>>> goal. Configure the <<<generate>>> goal:
-
-+--------------------------------------
-<build>
-  [...]
-  <plugins>
-      [...]
-      <plugin>
-          <groupId>org.openl.rules</groupId>
-          <artifactId>openl-maven-plugin</artifactId>
-          <version>${openl.rules.version}</version>
-          <configuration>
-              <generateUnitTests>true</generateUnitTests>
-              <generateInterfaces>
-                [...]
-              </generateInterfaces>
-          </configuration>
-          <executions>
-              <execution>
-                  <goals>
-                      <goal>generate</goal>
-                  </goals>
-              </execution>
-          </executions>
-      </plugin>
-
-  </plugins>
-  [...]
-</build>
-+--------------------------------------
-
-  To define a user's custom template for JUnits tests, set the <<<unitTestTemplatePath>>> parameter with a path
-  to the user's custom Velocity template. For example, <<<\<unitTestTemplatePath\>src/test/resources/MyTemplate.vm\</unitTestTemplatePath\>>>>.
-  Here is an example of such template:
-
-+--------------------------------------
-#if ($openlInterfacePackage)
-package $openlInterfacePackage;
-#end
-
-import org.junit.Before;
-import org.junit.Test;
-import org.openl.rules.runtime.RulesEngineFactory;
-import org.openl.rules.testmethod.TestUnitsResults;
-
-import java.io.File;
-
-import static org.junit.Assert.assertTrue;
-
-#set( $openlInterfaceClassWithTests = "${openlInterfaceClass}WithTests" )
-
-public class ${openlInterfaceClass}Test {
-    private static interface $openlInterfaceClassWithTests extends $openlInterfaceClass {
-#foreach( $testMethodName in $testMethodNames )
-        TestUnitsResults $testMethodName();
-#end
-    }
-
-    private $openlInterfaceClassWithTests instance;
-
-    @Before
-    public void setUp() throws Exception {
-        File xlsFile = new File("$projectRoot", "$srcFile");
-        instance = new RulesEngineFactory<$openlInterfaceClassWithTests>(
-            xlsFile,
-            ${openlInterfaceClassWithTests}.class
-        ).newEngineInstance();
-    }
-
-#foreach( $testMethodName in $testMethodNames )
-    @Test
-    public void test$StringUtils.capitalize($testMethodName)() throws Exception {
-        TestUnitsResults results = instance.$testMethodName();
-        assertTrue(results.toString(), results.getNumberOfFailures() == 0);
-    }
-#end
-}
-+--------------------------------------
-

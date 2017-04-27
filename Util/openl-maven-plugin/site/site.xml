@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project>
-  <body>
-    <menu name="Overview">
-      <item name="Introduction" href="index.html"/>
-      <item name="Goals" href="plugin-info.html"/>
-      <item name="Usage" href="usage.html"/>
-    </menu>
+<project name="OpenL Maven Plugin">
+    <body>
+        <menu name="Overview">
+            <item name="Introduction" href="index.html"/>
+            <item name="Usage" href="usage.html"/>
+            <item name="Goals" href="plugin-info.html">
+                <item name="generate" href="generate-mojo.html"/>
+                <item name="compile" href="compile-mojo.html"/>
+                <item name="test" href="test-mojo.html"/>
+                <item name="package" href="package-mojo.html"/>
+                <item name="help" href="help-mojo.html"/>
+            </item>
+        </menu>
 
-    <menu name="Examples">
-      <item name="Configuration with all Goals" href="examples/configuration-with-all-goals.html"/>
-      <item name="Generate a Project with a Working Example" href="examples/generate-project-with-working-example.html"/>
-    </menu>
-  </body>
+        <menu name="Examples">
+            <item name="Configuration with all Goals" href="configuration-with-all-goals.html"/>
+            <item name="Generate a Project with a Working Example" href="generate-project-with-working-example.html"/>
+        </menu>
+    </body>
 </project>

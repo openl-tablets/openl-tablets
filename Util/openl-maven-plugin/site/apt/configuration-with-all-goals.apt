@@ -1,0 +1,48 @@
+ ------
+ Configuration with all OpenL Maven Plugin Goals
+ ------
+ YYYY-MM-DD
+ ------
+
+Configuration with all OpenL Maven Plugin Goals
+
++--------------------------------------
+<build>
+  [...]
+  <plugins>
+      [...]
+      <plugin>
+          <groupId>org.openl.rules</groupId>
+          <artifactId>openl-maven-plugin</artifactId>
+          <version>${openl.rules.version}</version>
+          <configuration>
+              <!-- generate goal -->
+              <interfaceClass>com.example.Service</interfaceClass>
+              <superInterface>com.example.Base, com.example.Custom</superInterface>
+              <isProvideRuntimeContext>true</isProvideRuntimeContext>
+              <isProvideVariations>true</isProvideVariations>
+              <!-- test goal -->
+              <skipTests>false</skipTests>
+              <!-- package -->
+              <format>zip,jar</format>
+              <classifier>openl</classifier>
+              <classpathFolder>lib/</classpathFolder>
+              <!-- common part -->
+              <sourceDirectory>src/main/openl</sourceDirectory>
+          </configuration>
+          <executions>
+              <execution>
+                  <goals>
+                      <goal>generate</goal>
+                      <goal>compile</goal>
+                      <goal>test</goal>
+                      <goal>package</goal>
+                  </goals>
+              </execution>
+          </executions>
+      </plugin>
+
+  </plugins>
+  [...]
+</build>
++--------------------------------------
