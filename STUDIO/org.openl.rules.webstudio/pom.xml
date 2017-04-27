@@ -41,6 +41,10 @@
                             <groupId>org.apache.poi</groupId>
                             <artifactId>poi-ooxml-schemas</artifactId>
                         </dependency>
+                        <dependency> <!-- IBM Java library ignore -->
+                            <groupId>jakarta-regexp</groupId>
+                            <artifactId>jakarta-regexp</artifactId>
+                        </dependency>
                     </ignoredDependencies>
                     <exceptions>
                     	<exception>
@@ -74,7 +78,6 @@
                     			<class>org.xmlpull.v1.XmlPullParserException</class>
                     		</classes>
                     	</exception>
-                    	
                     </exceptions>
                     <ignoredResourcePatterns>
                     	<ignoredResourcePattern>mozilla/public-suffix-list.txt</ignoredResourcePattern>

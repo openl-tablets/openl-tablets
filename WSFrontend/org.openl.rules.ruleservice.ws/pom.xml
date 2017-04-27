@@ -34,6 +34,12 @@
                     <checkRuntimeClasspath>true</checkRuntimeClasspath>
                     <checkTestClasspath>false</checkTestClasspath>
                     <failBuildInCaseOfConflict>true</failBuildInCaseOfConflict>
+                    <ignoredDependencies>
+                        <dependency> <!-- IBM Java library ignore -->
+                            <groupId>jakarta-regexp</groupId>
+                            <artifactId>jakarta-regexp</artifactId>
+                        </dependency>
+                    </ignoredDependencies>
                     <exceptions>
                     	<exception>
                     	    <conflictingDependencies>
