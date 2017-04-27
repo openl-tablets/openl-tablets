@@ -35,7 +35,6 @@ public class OpenLConfigurator extends Configurator {
     public static final String DEFAULT_BUILDER_CLASS_PATH_PROPERTY = "org.openl.builder.classpath";
     public static final String BUILDER_CLASS_PATH = ".builder.classpath";
     // static final public String DEFAULT_BUILDER_CLASS_NAME =
-    // "org.openl.conf.ant.AntOpenLBuilder";
 
     public static final String OPENL_BUILDER = "OpenLBuilder";
 
