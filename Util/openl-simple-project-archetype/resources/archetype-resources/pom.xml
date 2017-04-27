@@ -8,7 +8,7 @@
     <groupId>\${groupId}</groupId>
     <artifactId>\${artifactId}</artifactId>
     <version>\${version}</version>
-    <packaging>jar</packaging>
+    <packaging>openl</packaging>
     <name>OpenL Simple Project</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -31,6 +31,12 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
+            <scope>runtime</scope>
+            <version>1.7.21</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
             <scope>runtime</scope>
             <version>1.7.21</version>
         </dependency>
@@ -74,11 +80,10 @@
                     <execution>
                         <goals>
                             <goal>generate</goal>
-                            <goal>compile</goal>
-                            <goal>test</goal>
                         </goals>
                     </execution>
                 </executions>
+                <extensions>true</extensions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -93,7 +98,6 @@
                         <configuration>
                             <descriptors>
                                 <descriptor>assembly/runnable-zip.xml</descriptor>
-                                <descriptor>assembly/deployable-zip.xml</descriptor>
                             </descriptors>
                         </configuration>
                     </execution>

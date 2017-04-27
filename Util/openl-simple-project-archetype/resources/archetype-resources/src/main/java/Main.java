@@ -13,9 +13,17 @@ import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimplePr
 public class Main {
 
     public static void main(String[] args) throws Exception {
+        if (System.getProperty("openl-cmd") != null) {
+            run("openl");
+        } else {
+            run("src/main/openl");
+        }
+    }
+
+    public static void run(String pathToOpenL) throws Exception {
         // Service - is generated interface from TemplateRules.xls using maven openl:generate goal.
         SimpleProjectEngineFactoryBuilder<Service> factoryBuilder = new SimpleProjectEngineFactoryBuilder<Service>();
-        SimpleProjectEngineFactory<Service> factory = factoryBuilder.setProject("src/main/openl")
+        SimpleProjectEngineFactory<Service> factory = factoryBuilder.setProject(pathToOpenL)
                 .setInterfaceClass(Service.class)
                 .build();
 
