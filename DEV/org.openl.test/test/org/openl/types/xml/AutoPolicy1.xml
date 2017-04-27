@@ -1,8 +1,0 @@
-<Policy date="1/1/2001" type="personal.auto">
-  <driver name="John Smith" age="33" gender="M" DMVPoints ="10"/>
-  <driver name="John Smith" age="33" gender="M" DMVPoints ="10"/>
-
-  <vehicle make="Subaru" model="STi" year="2004" mileage="10000" designatedDriver="xxx"/>	
-  <vehicle make="Subaru" model="STi" year="2004" mileage="10000" />	
-  		
-</Policy>
