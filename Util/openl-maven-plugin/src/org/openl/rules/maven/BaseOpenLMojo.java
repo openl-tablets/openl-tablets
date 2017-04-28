@@ -18,6 +18,7 @@ abstract class BaseOpenLMojo extends AbstractMojo {
     /**
      * Folder that contains all OpenL-related resources (OpenL rules, project
      * descriptor etc.). For example: "${project.basedir}/src/main/openl".
+     * @since 5.19.0
      */
     @Parameter(defaultValue = "${project.build.sourceDirectory}/../openl")
     private File sourceDirectory;
