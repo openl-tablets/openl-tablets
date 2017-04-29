@@ -5,11 +5,11 @@
             <item name="Introduction" href="index.html"/>
             <item name="Usage" href="usage.html"/>
             <item name="Goals" href="plugin-info.html">
-                <item name="generate" href="generate-mojo.html"/>
-                <item name="compile" href="compile-mojo.html"/>
-                <item name="test" href="test-mojo.html"/>
-                <item name="package" href="package-mojo.html"/>
-                <item name="help" href="help-mojo.html"/>
+                <item name="openl:generate" href="generate-mojo.html"/>
+                <item name="openl:compile" href="compile-mojo.html"/>
+                <item name="openl:test" href="test-mojo.html"/>
+                <item name="openl:package" href="package-mojo.html"/>
+                <item name="openl:help" href="help-mojo.html"/>
             </item>
         </menu>
 
