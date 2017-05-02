@@ -4,7 +4,10 @@
 
 package org.openl.binding.impl;
 
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
@@ -17,6 +20,7 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.CastingMethodCaller;
+import org.openl.types.java.AutoCastResultOpenMethod;
 import org.openl.types.java.JavaOpenMethod;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -67,12 +71,61 @@ public class MethodNodeBinder extends ANodeBinder {
                 } catch (IllegalAccessException e) {
                     return method;
                 }
+            } else {
+				Type genericReturnType = javaMethod.getGenericReturnType();
+				if (genericReturnType instanceof TypeVariable || genericReturnType instanceof GenericArrayType) {
+					return buildGenericAutoCastResultOpenMethod(bindingContext, methodCaller, method, parameterTypes);
+				}
             }
         }
 
         return methodCaller;
     }
     
+    private String getGenericTypeName(Type type){
+		if (type instanceof TypeVariable) {
+			@SuppressWarnings("rawtypes")
+			TypeVariable typeVariable = (TypeVariable) type;
+			return typeVariable.getTypeName();
+		}
+		if (type instanceof GenericArrayType) {
+			GenericArrayType genericArrayType = (GenericArrayType) type;
+			return getGenericTypeName(genericArrayType.getGenericComponentType());
+		}
+		return null;
+    }
+    
+    private int getGenericTypeDim(Type type){
+		if (type instanceof TypeVariable) {
+			return 0;
+		}
+		if (type instanceof GenericArrayType) {
+			GenericArrayType genericArrayType = (GenericArrayType) type;
+			return 1 + getGenericTypeDim(genericArrayType.getGenericComponentType());
+		}
+		return -1;
+    }
+
+    
+	public IMethodCaller buildGenericAutoCastResultOpenMethod(IBindingContext bindingContext, IMethodCaller methodCaller,
+			JavaOpenMethod method, IOpenClass[] parameterTypes) {
+		Method javaMethod = method.getJavaMethod();
+		Type genericReturnType = javaMethod.getGenericReturnType();
+		String genericReturnTypeName = getGenericTypeName(genericReturnType);
+		if (genericReturnTypeName == null) {
+			return methodCaller;
+		}
+		int i = 0;
+ 		for (Type genericParameterType : javaMethod.getGenericParameterTypes()) {
+ 			String genericParameterTypeName = getGenericTypeName(genericParameterType);
+			if (genericReturnTypeName.equals(genericParameterTypeName)){
+				return AutoCastResultOpenMethod.buildAutoCastResultOpenMethod(bindingContext, methodCaller, method, parameterTypes[i], getGenericTypeDim(genericParameterType));
+			}
+			i++;
+		}
+		return methodCaller;
+	}
+
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         int childrenCount = node.getNumberOfChildren();

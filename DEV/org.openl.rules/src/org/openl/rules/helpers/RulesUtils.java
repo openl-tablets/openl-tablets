@@ -2855,8 +2855,7 @@ public class RulesUtils {
      * @param array whose null elements should be removed
      * @return new array without null elements
      */
-    @AutoCastReturnType
-    public static <T> T[] removeNulls(@ReturnType T[] array) {
+    public static <T> T[] removeNulls(T[] array) {
         return ArrayTool.removeNulls(array);
     }
 
@@ -4810,9 +4809,9 @@ public class RulesUtils {
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
      *             || index > array.length).
      */
-    @AutoCastReturnType
-    public static Object[] add(@ReturnType Object[] array, int index, Object element) {
-        return ArrayUtils.add(array, index, element);
+    
+	public static <T> T[] add(T[] array, int index, T element) {
+        return (T[]) ArrayUtils.add(array, index, element);
     }
 
     /**
@@ -4848,9 +4847,8 @@ public class RulesUtils {
      *         The returned array type will be that of the input array (unless
      *         null), in which case it will have the same type as the element.
      */
-    @AutoCastReturnType
-    public static Object[] add(@ReturnType Object[] array, Object element) {
-        return ArrayUtils.add(array, element);
+	public static <T> T[] add(T[] array, T element) {
+        return (T[]) ArrayUtils.add(array, element);
     }
 
     /**
@@ -5021,8 +5019,7 @@ public class RulesUtils {
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
      *             || index > array.length).
      */
-    @AutoCastReturnType
-    public static Object[] addIgnoreNull(@ReturnType Object[] array, int index, Object element) {
+    public static <T> T[] addIgnoreNull(T[] array, int index, T element) {
         if (element != null) {
             return ArrayUtils.add(array, index, element);
         }
@@ -5062,8 +5059,7 @@ public class RulesUtils {
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
      *             || index > array.length).
      */
-    @AutoCastReturnType
-    public static Object[] addIgnoreNull(@ReturnType Object[] array, Object element) {
+    public static <T> T[] addIgnoreNull(T[] array, T element) {
         if (element != null) {
             return ArrayUtils.add(array, element);
         }
@@ -5291,8 +5287,7 @@ public class RulesUtils {
      *         type is the same as the second array.
      * @throws IllegalArgumentException if the array types are incompatible
      */
-    @AutoCastReturnType
-    public static Object[] addAll(@ReturnType Object[] array1, Object[] array2) {
+    public static <T> T[] addAll(T[] array1, T[] array2) {
         return ArrayUtils.addAll(array1, array2);
     }
 
@@ -5657,8 +5652,7 @@ public class RulesUtils {
      *             || index >= array.length), or if the array is
      *             <code>null</code>.
      */
-    @AutoCastReturnType
-    public static Object[] remove(@ReturnType Object[] array, int index) {
+    public static <T> T[] remove(T[] array, int index) {
         return ArrayUtils.remove(array, index);
     }
 
@@ -6021,8 +6015,7 @@ public class RulesUtils {
      * @param element
      * @return the element to be removed
      */
-    @AutoCastReturnType
-    public static Object[] removeElement(@ReturnType Object[] array, Object element) {
+    public static <T> T[] removeElement(T[] array, T element) {
         return ArrayUtils.removeElement(array, element);
     }
 
@@ -6497,7 +6490,10 @@ public class RulesUtils {
     }
     
     @AutoCastReturnType
-    public static Object[] flatten(@ReturnType(strictMatchArray = false) Object... data) {
+	public static <T> Object[] flatten(@ReturnType Object... data) {
+    	if (data == null){
+    		return null;
+    	}
         List<Object> values = new ArrayList<Object>();
         Class<?> type = Void.class;
         for (Object obj : data) {
@@ -6518,7 +6514,7 @@ public class RulesUtils {
 
         Object[] result = (Object[]) Array.newInstance(type, 0);
         result = values.toArray(result);
-        return result;
+        return (T[]) result;
     }
 
     public static Class<?> getCommonSuperClass(Class<?> classA, Class<?> classB) {
