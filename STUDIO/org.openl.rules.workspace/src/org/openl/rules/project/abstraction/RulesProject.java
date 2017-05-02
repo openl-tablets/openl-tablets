@@ -118,7 +118,7 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public void lock() throws ProjectException {
-        lockEngine.lock(getName());
+        lockEngine.lock(getName(), getUser().getUserName());
     }
 
     @Override

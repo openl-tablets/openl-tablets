@@ -198,7 +198,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
     @Override
     public void lock() throws ProjectException {
         if (lockEngine != null) {
-            lockEngine.lock(getName());
+            lockEngine.lock(getName(), getUser().getUserName());
         }
     }
 

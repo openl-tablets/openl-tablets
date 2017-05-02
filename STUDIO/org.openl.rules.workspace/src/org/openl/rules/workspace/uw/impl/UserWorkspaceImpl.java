@@ -52,8 +52,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
         userDProjects = new HashMap<String, ADeploymentProject>();
         File workspacesRoot = localWorkspace.getLocation().getParentFile();
         String userName = user.getUserName();
-        projectsLockEngine = LockEngine.create(workspacesRoot, "rules", userName);
-        deploymentsLockEngine = LockEngine.create(workspacesRoot, "deployments", userName);
+        projectsLockEngine = LockEngine.create(workspacesRoot, "rules");
+        deploymentsLockEngine = LockEngine.create(workspacesRoot, "deployments");
     }
 
     public void activate() throws ProjectException {
