@@ -393,10 +393,7 @@ public class TableBean {
         RulesProject currentProject = studio.getCurrentProject();
         if (currentProject != null) {
             try {
-                if (currentProject.isLocked()) {
-                    return currentProject.isLockedByMe();
-                }
-                currentProject.lock();
+                return currentProject.tryLock();
             } catch (ProjectException e) {
                 log.error(e.getMessage(), e);
                 return false;

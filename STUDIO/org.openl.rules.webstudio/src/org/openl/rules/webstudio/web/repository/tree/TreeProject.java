@@ -44,15 +44,12 @@ public class TreeProject extends TreeFolder {
             }
         }
 
-        if (userProject.isLocked()) {
-            LockInfo lock = userProject.getLockInfo();
-
-            if (lock != null) {
-                if (userProject.isLockedByMe()) {
-                    return "Locked by you. Please close this project.";
-                } else {
-                    return "Locked by " + lock.getLockedBy().getUserName();
-                }
+        LockInfo lock = userProject.getLockInfo();
+        if (lock.isLocked()) {
+            if (userProject.isLockedByMe(lock)) {
+                return "Locked by you. Please close this project.";
+            } else {
+                return "Locked by " + lock.getLockedBy().getUserName();
             }
         }
 

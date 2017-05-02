@@ -1,5 +1,6 @@
 package org.openl.rules.workspace.lw.impl;
 
+import org.openl.rules.project.impl.local.LockEngine;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.lw.LocalWorkspace;
@@ -28,6 +29,9 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
 
     // User name -> user workspace
     private Map<String, LocalWorkspaceImpl> localWorkspaces = new HashMap<String, LocalWorkspaceImpl>();
+
+    // Project type (rules/deployment) -> Lock Engine
+    private final Map<String, LockEngine> lockEngines = new HashMap<String, LockEngine>();
 
     /**
      * init-method
@@ -62,6 +66,19 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
             localWorkspaces.put(userId, lwi);
         }
         return lwi;
+    }
+
+    @Override
+    public LockEngine getLockEngine(String type) {
+        synchronized (lockEngines) {
+            LockEngine lockEngine = lockEngines.get(type);
+            if (lockEngine == null) {
+                lockEngine = LockEngine.create(new File(workspaceHome), type);
+                lockEngines.put(type, lockEngine);
+            }
+
+            return lockEngine;
+        }
     }
 
     public void setLocalWorkspaceFileFilter(FileFilter localWorkspaceFileFilter) {

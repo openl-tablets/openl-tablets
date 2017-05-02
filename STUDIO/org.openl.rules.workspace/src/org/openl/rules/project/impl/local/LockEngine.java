@@ -20,28 +20,25 @@ public class LockEngine {
     private static final String DATE = "date";
     private static final String DATE_FORMAT = "yyyy-MM-dd";
     private final File locksRoot;
-    private final String userName;
 
     /**
      * Create Lock Engine
      *
      * @param workspacesRoot the folder where all workspaces for all users are stored
      * @param type projects type, used as a subfolder name. For example "rules" or "deployments"
-     * @param userName workspace user name
      * @return Lock Engine
      */
-    public static LockEngine create(File workspacesRoot, String type, String userName) {
+    public static LockEngine create(File workspacesRoot, String type) {
         File locksRoot = new File(workspacesRoot, ".locks");
         File projectLocksRoot = new File(locksRoot, type);
-        return new LockEngine(projectLocksRoot, userName);
+        return new LockEngine(projectLocksRoot);
     }
 
-    private LockEngine(File locksRoot, String userName) {
+    private LockEngine(File locksRoot) {
         this.locksRoot = locksRoot;
-        this.userName = userName;
     }
 
-    public void lock(String projectName) throws ProjectException {
+    public void lock(String projectName, String userName) throws ProjectException {
         Properties properties = new Properties();
         properties.setProperty(USER_NAME, userName);
         properties.setProperty(DATE, new SimpleDateFormat(DATE_FORMAT).format(new Date()));

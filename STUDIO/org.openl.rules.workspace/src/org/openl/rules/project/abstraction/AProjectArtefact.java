@@ -206,8 +206,12 @@ public class AProjectArtefact implements PropertiesContainer {
     }
 
     public boolean isLockedByUser(CommonUser user) {
-        if (isLocked()) {
-            CommonUser lockedBy = getLockInfo().getLockedBy();
+        return isLockedByUser(getLockInfo(), user);
+    }
+
+    protected boolean isLockedByUser(LockInfo lockInfo, CommonUser user) {
+        if (lockInfo.isLocked()) {
+            CommonUser lockedBy = lockInfo.getLockedBy();
             if (lockedBy.getUserName().equals(user.getUserName())) {
                 return true;
             }
@@ -248,23 +252,6 @@ public class AProjectArtefact implements PropertiesContainer {
         return fileData == null ? versionComment : fileData.getComment();
     }
 
-    /**
-     * For backward compatibility. Earlier user name in the single user mode analog was "LOCAL".
-     * 
-     * @param currentUser - current user trying to unlock 
-     * @return if lockedUser is LOCAL and current user is DEFAULT then return locked user else return currentUser
-     */
-    protected CommonUser getUserToUnlock(CommonUser currentUser) {
-        if (isLocked()) {
-            CommonUser lockedBy = getLockInfo().getLockedBy();
-            // For backward compatibility. Earlier user name in single user mode analog was "LOCAL"
-            if (isLockedByDefaultUser(lockedBy, currentUser)) {
-                currentUser = lockedBy;
-            }
-        }
-        return currentUser;
-    }
-    
     /**
      * For backward compatibility. Earlier user name in the single user mode analog was "LOCAL".
      * Checks that lockedUser is LOCAL and current user is DEFAULT

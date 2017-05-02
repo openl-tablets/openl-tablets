@@ -28,7 +28,9 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
 
     private UserWorkspace createUserWorkspace(WorkspaceUser user) throws WorkspaceException {
         LocalWorkspace usersLocalWorkspace = localWorkspaceManager.getWorkspace(user);
-        return new UserWorkspaceImpl(user, usersLocalWorkspace, designTimeRepository);
+        return new UserWorkspaceImpl(user, usersLocalWorkspace, designTimeRepository,
+                localWorkspaceManager.getLockEngine("rules"),
+                localWorkspaceManager.getLockEngine("deployments"));
     }
 
     /**

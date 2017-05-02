@@ -113,21 +113,48 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public LockInfo getLockInfo() {
-        return lockEngine.getLockInfo(getName());
+        synchronized (lockEngine) {
+            return lockEngine.getLockInfo(getName());
+        }
     }
 
     @Override
     public void lock() throws ProjectException {
-        lockEngine.lock(getName());
+        synchronized (lockEngine) {
+            lockEngine.lock(getName(), getUser().getUserName());
+        }
     }
 
     @Override
     public void unlock() throws ProjectException {
-        lockEngine.unlock(getName());
+        synchronized (lockEngine) {
+            lockEngine.unlock(getName());
+        }
+    }
+
+    /**
+     * Try to lock the project if it's not locked already.
+     * Doesn't overwrite lock info if the user was locked already.
+     *
+     * @return false if the project was locked by other user. true if project wasn't locked before or was locked by me.
+     * @throws ProjectException if can't lock the project
+     */
+    public boolean tryLock() throws ProjectException {
+        synchronized (lockEngine) {
+            LockInfo lockInfo = getLockInfo();
+            if (lockInfo.isLocked()) {
+                return isLockedByMe(lockInfo);
+            }
+
+            lockEngine.lock(getName(), getUser().getUserName());
+
+            return true;
+        }
     }
 
     public String getLockedUserName() {
-        return getLockInfo().getLockedBy().getUserName();
+        LockInfo lockInfo = getLockInfo();
+        return lockInfo.isLocked() ? lockInfo.getLockedBy().getUserName() : "";
     }
 
     public ProjectVersion getVersion() {

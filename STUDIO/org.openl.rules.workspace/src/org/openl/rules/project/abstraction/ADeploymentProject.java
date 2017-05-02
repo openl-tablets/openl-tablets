@@ -192,20 +192,26 @@ public class ADeploymentProject extends UserWorkspaceProject {
         if (lockEngine == null) {
             return LockInfoImpl.NO_LOCK;
         }
-        return lockEngine.getLockInfo(getName());
+        synchronized (lockEngine) {
+            return lockEngine.getLockInfo(getName());
+        }
     }
 
     @Override
     public void lock() throws ProjectException {
         if (lockEngine != null) {
-            lockEngine.lock(getName());
+            synchronized (lockEngine) {
+                lockEngine.lock(getName(), getUser().getUserName());
+            }
         }
     }
 
     @Override
     public void unlock() {
         if (lockEngine != null) {
-            lockEngine.unlock(getName());
+            synchronized (lockEngine) {
+                lockEngine.unlock(getName());
+            }
         }
     }
 
