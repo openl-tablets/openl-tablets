@@ -302,8 +302,7 @@ public class CastFactory implements ICastFactory {
      * @return alias cast operation if conversion is found; null - otherwise
      */
     private IOpenCast findAliasCast(IOpenClass from, IOpenClass to) {
-
-        if (from instanceof DomainOpenClass || to instanceof DomainOpenClass) {
+        if (!from.isArray() && (from instanceof DomainOpenClass || to instanceof DomainOpenClass)) {
 
             if (from instanceof DomainOpenClass && !(to instanceof DomainOpenClass) && to.getInstanceClass()
                 .isAssignableFrom(from.getInstanceClass())) {
