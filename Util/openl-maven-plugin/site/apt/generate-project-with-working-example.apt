@@ -25,7 +25,7 @@ Create a Project with a Working Example of OpenL Maven Plugin Usage
 
   After that, the following objects can be found the <<<target>>> folder:
 
-  [[1]] A ZIP file with "-deployable" suffix, for importing a project to WebStudio. For more information, see [OpenL Tablets WebStudio User Guide].
+  [[1]] A ZIP file without suffix, for importing a project to WebStudio. For more information, see [OpenL Tablets WebStudio User Guide].
 
   [[1]] A ZIP file with "-runnable" suffix, that can be executed after unpacking. It demonstrates how OpenL rules can be invoked from the Java code.
 

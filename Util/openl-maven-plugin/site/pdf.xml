@@ -9,18 +9,18 @@
     </meta>
 
     <toc name="Table of Contents">
+
         <item name="Introduction" ref="index.apt"/>
-        <item name="Goals" ref="plugin-info.html">
-            <item name="Generate goal" ref="generate-mojo.xml"/>
-            <item name="Compile goal" ref="compile-mojo.xml"/>
-            <item name="Test goal" ref="test-mojo.xml"/>
-            <item name="Help goal" ref="help-mojo.xml"/>
-        </item>
         <item name="Usage" ref="usage.apt"/>
-        <item name="Examples" ref="examples" collapse="false">
-            <item name="Configuration with all Goals" ref="examples/configuration-with-all-goals.apt"/>
-            <item name="Generate a Project with a Working Example" ref="examples/generate-project-with-working-example.apt"/>
+        <item name="Goals" ref="plugin-info.html">
+            <item name="openl:generate" ref="generate-mojo.xml"/>
+            <item name="openl:compile" ref="compile-mojo.xml"/>
+            <item name="openl:test" ref="test-mojo.xml"/>
+            <item name="openl:package" ref="package-mojo.xml"/>
+            <item name="openl:help" ref="help-mojo.xml"/>
         </item>
+        <item name="Configuration with all Goals" ref="configuration-with-all-goals.apt"/>
+        <item name="Generate a Project with a Working Example" ref="generate-project-with-working-example.apt"/>
     </toc>
 
     <cover>

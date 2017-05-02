@@ -28,6 +28,7 @@ import org.openl.util.StringUtils;
  * Package an OpenL project in ZIP archive.
  *
  * @author Yury Molchan
+ * @since 5.19.1
  */
 @Mojo(name = "package", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public final class PackageMojo extends BaseOpenLMojo {

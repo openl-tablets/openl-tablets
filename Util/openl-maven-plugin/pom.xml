@@ -9,7 +9,7 @@
     </parent>
     <artifactId>openl-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
-    <name>OpenL - Util - OpenL Maven Plugin</name>
+    <name>OpenL Maven Plugin</name>
     <dependencies>
         <dependency>
             <groupId>org.apache.maven</groupId>
@@ -51,6 +51,26 @@
             <scope>runtime</scope>
         </dependency>
     </dependencies>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <!-- generate MOJOs documents -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-plugin-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <!-- Do not generate project reports -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <reports/>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
     <build>
         <plugins>
             <plugin>
@@ -67,9 +87,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pdf-plugin</artifactId>
-                <configuration>
-                    <siteDirectory>${basedir}/site</siteDirectory>
-                </configuration>
                 <executions>
                     <execution>
                         <goals>
@@ -81,32 +98,4 @@
             </plugin>
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>maven-plugin-documentation</id>
-            <activation>
-                <property>
-                    <name>report-type</name>
-                    <value>plugin-documentation</value>
-                </property>
-            </activation>
-            <reporting>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-plugin-plugin</artifactId>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-project-info-reports-plugin</artifactId>
-                        <reportSets>
-                            <reportSet>
-                                <reports />
-                            </reportSet>
-                        </reportSets>
-                    </plugin>
-                </plugins>
-            </reporting>
-        </profile>
-    </profiles>
 </project>

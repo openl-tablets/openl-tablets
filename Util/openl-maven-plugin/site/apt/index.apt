@@ -23,6 +23,8 @@ OpenL Maven Plugin
 
   * {{{./test-mojo.html}openl:test}} Run OpenL tests.
 
+  * {{{./package-mojo.html}openl:package}} Package OpenL project in the Maven artifact.
+
   * {{{./help-mojo.html}openl:help}} Display help information on openl-maven-plugin.
 
 * Usage
@@ -42,7 +44,7 @@ OpenL Maven Plugin
           <plugin>
             <groupId>org.openl.rules</groupId>
             <artifactId>openl-maven-plugin</artifactId>
-            <version>${openl.version}</version>
+            <version>${org.openl.version}</version>
           </plugin>
           ...
         </plugins>
@@ -52,7 +54,8 @@ OpenL Maven Plugin
         <plugin>
           <groupId>org.openl.rules</groupId>
           <artifactId>openl-maven-plugin</artifactId>
-          <version>${openl.version}</version>
+          <version>${org.openl.version}</version>
+          <extensions>true<extensions>
         </plugin>
         ...
       </plugins>
@@ -65,6 +68,6 @@ OpenL Maven Plugin
 
   To acquire a better understanding of Plugin Name usage, refer to the following examples:
 
-  * {{{./examples/configuration-with-all-goals.html}Configuration with all Goals}}
+  * {{{./configuration-with-all-goals.html}Configuration with all Goals}}
 
-  * {{{./examples/generate-project-with-working-example.html}Generate a Project with a Working Example}}
+  * {{{./generate-project-with-working-example.html}Generate a Project with a Working Example}}

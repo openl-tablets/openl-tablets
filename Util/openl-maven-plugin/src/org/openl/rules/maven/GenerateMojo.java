@@ -80,6 +80,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
 
     /**
      * Comma-separated list of interfaces which are used for extending of the generated interface.
+     * @since 5.19.1
      */
     @Parameter
     private String superInterface;
@@ -87,18 +88,21 @@ public final class GenerateMojo extends BaseOpenLMojo {
     /**
      * A generated Java interface from an OpenL project. If it is empty then
      * generation will be skipped.
+     * @since 5.19.1
      */
     @Parameter
     private String interfaceClass;
 
     /**
      * Add IRulesRuntimeContext arguments to the generated interface.
+     * @since 5.19.1
      */
     @Parameter
     private boolean isProvideRuntimeContext;
 
     /**
      * Add additional methods to the generated interface to support variations.
+     * @since 5.19.1
      */
     @Parameter
     private boolean isProvideVariations;
