@@ -1,5 +1,6 @@
 package org.openl.rules.project.abstraction;
 
+import org.openl.rules.common.LockInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
@@ -32,6 +33,10 @@ public abstract class UserWorkspaceProject extends AProject {
 
     public boolean isLockedByMe() {
         return isLockedByUser(user);
+    }
+
+    public boolean isLockedByMe(LockInfo lockInfo) {
+        return isLockedByUser(lockInfo, user);
     }
 
     public boolean isLocalOnly() {

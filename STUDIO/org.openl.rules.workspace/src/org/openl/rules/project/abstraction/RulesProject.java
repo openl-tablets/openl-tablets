@@ -127,7 +127,8 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     public String getLockedUserName() {
-        return getLockInfo().getLockedBy().getUserName();
+        LockInfo lockInfo = getLockInfo();
+        return lockInfo.isLocked() ? lockInfo.getLockedBy().getUserName() : "";
     }
 
     public ProjectVersion getVersion() {

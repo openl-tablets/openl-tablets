@@ -206,8 +206,12 @@ public class AProjectArtefact implements PropertiesContainer {
     }
 
     public boolean isLockedByUser(CommonUser user) {
-        if (isLocked()) {
-            CommonUser lockedBy = getLockInfo().getLockedBy();
+        return isLockedByUser(getLockInfo(), user);
+    }
+
+    protected boolean isLockedByUser(LockInfo lockInfo, CommonUser user) {
+        if (lockInfo.isLocked()) {
+            CommonUser lockedBy = lockInfo.getLockedBy();
             if (lockedBy.getUserName().equals(user.getUserName())) {
                 return true;
             }
