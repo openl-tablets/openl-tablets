@@ -42,18 +42,21 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private final LockEngine projectsLockEngine;
     private final LockEngine deploymentsLockEngine;
 
-    public UserWorkspaceImpl(WorkspaceUser user, LocalWorkspace localWorkspace,
-                             DesignTimeRepository designTimeRepository) {
+    public UserWorkspaceImpl(WorkspaceUser user,
+            LocalWorkspace localWorkspace,
+            DesignTimeRepository designTimeRepository,
+            LockEngine projectsLockEngine,
+            LockEngine deploymentsLockEngine) {
         this.user = user;
         this.localWorkspace = localWorkspace;
         this.designTimeRepository = designTimeRepository;
+        this.projectsLockEngine = projectsLockEngine;
+        this.deploymentsLockEngine = deploymentsLockEngine;
 
         userRulesProjects = new HashMap<String, RulesProject>();
         userDProjects = new HashMap<String, ADeploymentProject>();
         File workspacesRoot = localWorkspace.getLocation().getParentFile();
         String userName = user.getUserName();
-        projectsLockEngine = LockEngine.create(workspacesRoot, "rules");
-        deploymentsLockEngine = LockEngine.create(workspacesRoot, "deployments");
     }
 
     public void activate() throws ProjectException {
@@ -388,5 +391,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
             }
             throw e;
         }
+    }
+
+    @Override
+    public LockEngine getProjectsLockEngine() {
+        return projectsLockEngine;
     }
 }
