@@ -1,8 +1,5 @@
 package org.openl.types.java;
 
-import java.lang.reflect.Array;
-
-import org.openl.binding.IBindingContext;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IMemberMetaInfo;
@@ -10,7 +7,6 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.IRuntimeEnv;
 
@@ -157,56 +153,4 @@ public final class AutoCastResultOpenMethod implements IOpenMethod, IMethodSigna
     public String toString() {
         return getName();
     }
-    
-    public static IMethodCaller buildAutoCastResultOpenMethod(IBindingContext bindingContext, IMethodCaller methodCaller,
-			JavaOpenMethod method, IOpenClass type, Integer arrayDim) {
-		IOpenClass simpleType = type;
-		int d = 0;
-		while (simpleType.isArray()) {
-			if (simpleType.getAggregateInfo() != null) {
-				simpleType = simpleType.getAggregateInfo().getComponentType(simpleType);
-			} else {
-				simpleType = simpleType.getComponentClass();
-			}
-			d++;
-		}
-		
-		if (arrayDim != null && d > arrayDim) {
-			simpleType = JavaOpenClass.OBJECT;
-		}
-		
-		if (!method.getType().isArray()) {
-			IOpenCast cast = bindingContext.getCast(method.getType(), simpleType);
-			if (cast != null) {
-				return new AutoCastResultOpenMethod(methodCaller, simpleType, cast);
-			}
-		} else {
-			IOpenClass v = method.getType();
-			int dimensions = 0;
-			while (v.isArray()) {
-				v = v.getComponentClass();
-				dimensions++;
-			}
-			IOpenClass arrayType = JavaOpenClass
-					.getOpenClass(Array.newInstance(simpleType.getInstanceClass(), dimensions).getClass());
-			if (simpleType.getDomain() != null) {
-				StringBuilder domainOpenClassName = new StringBuilder(simpleType.getName());
-				for (int j = 0; j < dimensions; j++) {
-					domainOpenClassName.append("[]");
-				}
-				DomainOpenClass domainArrayType = new DomainOpenClass(domainOpenClassName.toString(), arrayType,
-						simpleType.getDomain(), null);
-				IOpenCast cast = bindingContext.getCast(method.getType(), domainArrayType);
-				if (cast != null) {
-					return new AutoCastResultOpenMethod(methodCaller, domainArrayType, cast);
-				}
-			} else {
-				IOpenCast cast = bindingContext.getCast(method.getType(), arrayType);
-				if (cast != null) {
-					return new AutoCastResultOpenMethod(methodCaller, arrayType, cast);
-				}
-			}
-		}
-		return methodCaller;
-	}
 }
