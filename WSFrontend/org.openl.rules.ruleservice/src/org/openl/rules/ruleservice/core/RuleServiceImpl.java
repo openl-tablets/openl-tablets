@@ -123,6 +123,15 @@ public class RuleServiceImpl implements RuleService {
             if (sd != null) {
                 throw new IllegalStateException("Illegal State!!");
             }
+            
+			if (newService.getServiceClass().getMethods().length == 0) { // Skip
+					   		  									    // deploy empty services
+				if (log.isWarnEnabled()) {
+					log.warn("Service '{}' doesn't have any methods. It has been skiped.", newService.getName());
+				}
+				return;
+			}
+            
             ruleServicePublisher.deploy(newService);
             mapping.put(serviceDescription.getName(), serviceDescription);
             log.info("Service '{}' was deployed succesfully.",
