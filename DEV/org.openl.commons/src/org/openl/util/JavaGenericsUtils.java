@@ -4,8 +4,8 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 
-public final class GenericUtils {
-	private GenericUtils() {
+public final class JavaGenericsUtils {
+	private JavaGenericsUtils() {
 	}
 
 	public static String getGenericTypeName(Type type) {

@@ -28,7 +28,7 @@ import org.openl.types.java.AutoCastResultOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenMethod;
 import org.openl.util.CollectionUtils;
-import org.openl.util.GenericUtils;
+import org.openl.util.JavaGenericsUtils;
 
 /**
  * @author snshor
@@ -49,9 +49,9 @@ public class MethodSearch {
 			int[] arrayDims = new int[method.getParameterTypes().length];
 			int i = 0;
 			for (Type type : method.getJavaMethod().getGenericParameterTypes()) {
-				typeNames[i] = GenericUtils.getGenericTypeName(type);
+				typeNames[i] = JavaGenericsUtils.getGenericTypeName(type);
 				if (typeNames[i] != null) {
-					arrayDims[i] = GenericUtils.getGenericTypeDim(type);
+					arrayDims[i] = JavaGenericsUtils.getGenericTypeDim(type);
 					int arrayDim = arrayDims[i];
 					IOpenClass t = callParam[i];
 					while (t.isArray() && arrayDim > 0) {
@@ -82,10 +82,10 @@ public class MethodSearch {
 				i++;
 			}
 			
-			String returnType = GenericUtils.getGenericTypeName(method.getJavaMethod().getGenericReturnType());
+			String returnType = JavaGenericsUtils.getGenericTypeName(method.getJavaMethod().getGenericReturnType());
 			
 			if (returnType != null && m.containsKey(returnType)){
-				int dim = GenericUtils.getGenericTypeDim(method.getJavaMethod().getGenericReturnType());
+				int dim = JavaGenericsUtils.getGenericTypeDim(method.getJavaMethod().getGenericReturnType());
 				IOpenClass type = buildTypeWithArrayLogic(m.get(returnType), dim);
 				IOpenCast returnCast = casts.getCast(method.getType(), type);
 				if (returnCast == null) {
