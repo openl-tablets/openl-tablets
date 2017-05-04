@@ -86,7 +86,7 @@ public class MethodNodeBinder extends ANodeBinder {
 		if (type instanceof TypeVariable) {
 			@SuppressWarnings("rawtypes")
 			TypeVariable typeVariable = (TypeVariable) type;
-			return typeVariable.getTypeName();
+			return typeVariable.getName();
 		}
 		if (type instanceof GenericArrayType) {
 			GenericArrayType genericArrayType = (GenericArrayType) type;

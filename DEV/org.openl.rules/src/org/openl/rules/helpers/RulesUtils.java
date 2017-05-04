@@ -6490,7 +6490,7 @@ public class RulesUtils {
     }
     
     @AutoCastReturnType
-	public static <T> Object[] flatten(@ReturnType Object... data) {
+	public static Object[] flatten(@ReturnType Object... data) {
     	if (data == null){
     		return null;
     	}
@@ -6514,7 +6514,7 @@ public class RulesUtils {
 
         Object[] result = (Object[]) Array.newInstance(type, 0);
         result = values.toArray(result);
-        return (T[]) result;
+        return result;
     }
 
     public static Class<?> getCommonSuperClass(Class<?> classA, Class<?> classB) {
