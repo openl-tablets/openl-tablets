@@ -215,6 +215,15 @@
                         <table>
                             <tr>
                                 <td>
+                                    <h:outputLink value="#{studio.url('table')}" title="Edit the table" styleClass="toolbarButton"
+                                        rendered="#{tableBean.canEdit}"  >
+                                        <f:param name="id" value="#{tableBean.id}" />
+                                        <f:param name="mode" value="edit" />
+                                        <img src="webresource/images/editTable.gif" />
+                                        <span>Edit</span>
+                                    </h:outputLink>
+                                </td>
+                                <td>
                                     <h:outputLink value="#{contextPath}/action/launch" styleClass="toolbarButton"
                                         rendered="#{tableBean.canOpenInExel}"
                                         title="Open the table in Excel" target="hidden">
