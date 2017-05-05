@@ -19,8 +19,8 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class AllExcelTest {
-    public static final String DIR = "test-resources/functionality/";
+public class NegativeTest {
+    public static final String DIR = "test-resources/negative-tests/";
     private Locale defaultLocale;
     private TimeZone defaultTimeZone;
 
@@ -40,7 +40,7 @@ public class AllExcelTest {
 
     @Test
     public void testAllExcelFiles() throws NoSuchMethodException {
-        System.out.println(">>> Positive tests...");
+        System.out.println(">>> Negative tests...");
         boolean hasErrors = false;
         final File sourceDir = new File(DIR);
         final String[] files = sourceDir.list();
@@ -56,34 +56,11 @@ public class AllExcelTest {
 
             RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(DIR + sourceFile);
             engineFactory.setExecutionMode(false);
-            IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
             final CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
 
-            if (compiledOpenClass.hasErrors()) {
-                System.out.println("!!! Compilation errors in [" + sourceFile + "].");
-                System.out.println(compiledOpenClass.getMessages());
+            if (!compiledOpenClass.hasErrors()) {
+                System.out.println("!!! No errors in [" + sourceFile + "].");
                 hasErrors = true;
-                continue;
-            }
-
-            IOpenClass openClass = compiledOpenClass.getOpenClass();
-            Object target = openClass.newInstance(env);
-            int errors = 0;
-            for (IOpenMethod method : openClass.getDeclaredMethods()) {
-                if (method instanceof TestSuiteMethod) {
-                    TestUnitsResults res = (TestUnitsResults) method.invoke(target, new Object[0], env);
-                    final int numberOfFailures = res.getNumberOfFailures();
-                    errors += numberOfFailures;
-                    if (numberOfFailures != 0) {
-                        System.out.println("!!! Errors in [" + sourceFile + "]. Failed test: " + res
-                            .getName() + "  Errors #:" + numberOfFailures);
-                    }
-
-                }
-            }
-            if (errors != 0) {
-                hasErrors = true;
-                System.out.println("!!! Errors in [" + sourceFile + "]. Total failures #: " + errors);
             } else {
                 System.out.println("+++ OK in [" + sourceFile + "]. ");
             }
