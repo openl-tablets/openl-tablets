@@ -108,69 +108,73 @@ public class ActionInvoker implements Invokable {
 
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        Object returnValue = null;
-        Object[] keyValues = null;
-        Object[] returnValues = null;
-        boolean[] f = null;
-        boolean isCollectReturn = false;
-        IOpenClass type = null;
+		Object returnValue = null;
+		Object[] keyValues = null;
+		Object[] returnValues = null;
+		boolean[] f = null;
+		boolean isCollectReturn = false;
+		IOpenClass type = null;
 
-        for (IBaseAction action : actions) {
-            if (action.isCollectReturnAction()) {
-                if (returnValues == null) {
-                    type = action.getType();
-                    if (type.isArray()) {
-                        returnValues = (Object[]) Array.newInstance(type.getComponentClass().getInstanceClass(),
-                            rules.length);
-                    } else {
-                        returnValues = new Object[rules.length];
-                    }
-                    if (f == null){
-                        f = new boolean[rules.length];
-                        Arrays.fill(f, false);
-                    }
-                }
-                for (int i = 0; i < rules.length; i++) {
-                    Object actionResult = action.executeAction(rules[i], target, params, env);
-                    if (returnValues[i] == null && (actionResult != null || (!action.isEmpty(rules[i])))) {
-                        returnValues[i] = actionResult;
-                        f[i] = true;
-                    }
-                }
-                returnValue = returnValues;
-                isCollectReturn = true;
-            } else {
-                if (action.isCollectReturnKeyAction()) {
-                    if (keyValues == null) {
-                        keyValues = new Object[rules.length];
-                        if (f == null){
-                            f = new boolean[rules.length];
-                            Arrays.fill(f, false);
-                        }
-                    }
-                    for (int i = 0; i < rules.length; i++) {
-                        Object actionResult = action.executeAction(rules[i], target, params, env);
-                        if (keyValues[i] == null && (actionResult != null || (!action.isEmpty(rules[i])))) {
-                            keyValues[i] = actionResult;
-                            f[i] = true;
-                        }
-                    }
-                } else {
-                    int i = 0;
-                    Object actionResult = null;
-                    for (i = 0; i < rules.length; i++) {
-                        actionResult = action.executeAction(rules[i], target, params, env);
-                        if (actionResult != null || (!action.isEmpty(rules[i]))) {
-                            break;
-                        }
-                    }
-                    if (returnValue == null && (actionResult != null || (i < rules.length))) {
-                        returnValue = actionResult;
-                        isCollectReturn = false;
-                    }
-                }
-            }
-        }
+		for (IBaseAction action : actions) {
+			if (action.isCollectReturnAction()) {
+				if (returnValues == null) {
+					type = action.getType();
+					if (type.isArray()) {
+						returnValues = (Object[]) Array.newInstance(type.getComponentClass().getInstanceClass(),
+								rules.length);
+					} else {
+						returnValues = new Object[rules.length];
+					}
+					if (f == null) {
+						f = new boolean[rules.length];
+						Arrays.fill(f, false);
+					}
+				}
+				for (int i = 0; i < rules.length; i++) {
+					Object actionResult = action.executeAction(rules[i], target, params, env);
+					if (returnValues[i] == null && (actionResult != null || (!action.isEmpty(rules[i])))) {
+						returnValues[i] = actionResult;
+						f[i] = true;
+					}
+				}
+				returnValue = returnValues;
+				isCollectReturn = true;
+			} else {
+				if (action.isCollectReturnKeyAction()) {
+					if (keyValues == null) {
+						keyValues = new Object[rules.length];
+						if (f == null) {
+							f = new boolean[rules.length];
+							Arrays.fill(f, false);
+						}
+					}
+					for (int i = 0; i < rules.length; i++) {
+						Object actionResult = action.executeAction(rules[i], target, params, env);
+						if (keyValues[i] == null && (actionResult != null || (!action.isEmpty(rules[i])))) {
+							keyValues[i] = actionResult;
+							f[i] = true;
+						}
+					}
+				} else {
+					int i = 0;
+					Object actionResult = null;
+					for (i = 0; i < rules.length; i++) {
+						if (action.isReturnAction()) {
+							actionResult = action.executeAction(rules[i], target, params, env);
+							if (actionResult != null || (!action.isEmpty(rules[i]))) {
+								break;
+							}
+						} else {
+							action.executeAction(rules[i], target, params, env);
+						}
+					}
+					if (returnValue == null && (actionResult != null || (i < rules.length))) {
+						returnValue = actionResult;
+						isCollectReturn = false;
+					}
+				}
+			}
+		}
         if (isCollectReturn) {
             return processReturnValue((Object[]) returnValue, keyValues, f, type);
         }
