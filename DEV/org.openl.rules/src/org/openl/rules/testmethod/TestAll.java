@@ -17,8 +17,10 @@ import org.openl.vm.SimpleVM;
  * 
  * This class should be used to run all the tests from command-line interface.
  * It may be also used in JUnit test integration
+ *
+ * @deprecated Use openl-maven-plugin for tests
  */
-
+@Deprecated
 public class TestAll {
 
     public class TestStatistics {

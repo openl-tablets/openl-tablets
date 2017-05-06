@@ -5,6 +5,7 @@ import org.openl.main.OpenLWrapper;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.vm.IRuntimeEnv;
 
+@Deprecated
 public final class SimpleRulesRuntimeEnvUtils {
     private SimpleRulesRuntimeEnvUtils() {
     }
