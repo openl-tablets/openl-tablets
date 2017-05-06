@@ -14,7 +14,7 @@ import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
 
 @Ignore("Auxiliary class")
-public class TestWrapper implements org.openl.main.OpenLWrapper,org.openl.rules.context.IRulesRuntimeContextProvider
+public class TestWrapper implements org.openl.rules.context.IRulesRuntimeContextProvider
 {
   Object __instance;
 
@@ -102,16 +102,6 @@ public class TestWrapper implements org.openl.main.OpenLWrapper,org.openl.rules.
 
   }
   static boolean __initialized = false;
-
-  static public void reset(){__initialized = false;}
-
-public Object getInstance(){return __instance;}
-
-public IOpenClass getOpenClass(){return __class;}
-
-public org.openl.CompiledOpenClass getCompiledOpenClass(){return __compiledClass;}
-
-public synchronized void  reload(){reset();__init();__instance = __class.newInstance(__env.get());}
 
   static synchronized protected void __init()
   {

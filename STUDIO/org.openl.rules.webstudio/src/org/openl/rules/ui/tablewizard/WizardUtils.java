@@ -9,7 +9,6 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import org.openl.base.INamedThing;
-import org.openl.main.OpenLWrapper;
 import org.openl.rules.lang.xls.classes.ClassFinder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
@@ -121,11 +120,6 @@ public final class WizardUtils {
 
         int modifiers = instanceClass.getModifiers();
         if (!Modifier.isPublic(modifiers) || Modifier.isAbstract(modifiers) || Modifier.isInterface(modifiers)) {
-            return false;
-        }
-
-        if (OpenLWrapper.class.isAssignableFrom(instanceClass)) {
-            // generated class for tutorial for example.
             return false;
         }
 

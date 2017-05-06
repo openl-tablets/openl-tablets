@@ -22,7 +22,6 @@ import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.main.OpenLWrapper;
 import org.openl.rules.project.SafeCloner;
 import org.openl.rules.runtime.OpenLRulesInvocationHandler;
 import org.openl.rules.variation.NoVariation;
@@ -133,7 +132,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
 
         Object[] arguments = Arrays.copyOf(args, args.length - 1);
 
-        if (serviceClassInstance instanceof IEngineWrapper || serviceClassInstance instanceof OpenLWrapper) {
+        if (serviceClassInstance instanceof IEngineWrapper) {
             IRuntimeEnv runtimeEnv = null;
             if (serviceClassInstance instanceof IEngineWrapper) {
                 runtimeEnv = ((IEngineWrapper) serviceClassInstance).getRuntimeEnv();

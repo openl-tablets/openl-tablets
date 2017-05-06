@@ -3,11 +3,9 @@ package org.openl.rules.testmethod;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.main.OpenLWrapper;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.util.Log;
-import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
@@ -120,25 +118,6 @@ public class TestAll {
 
     }
 
-    public TestStatistics testAllWrapper(Class<? extends OpenLWrapper> c) {
-
-        long start = System.currentTimeMillis();
-
-        OpenLWrapper engine;
-        try {
-            engine = c.newInstance();
-        } catch (Throwable t) {
-            throw RuntimeExceptionWrapper.wrap(t);
-        }
-
-        long end = System.currentTimeMillis();
-
-        IOpenClass ioc = engine.getOpenClass();
-
-        return runAllTests(ioc, new TestStatistics(ioc.getName(), end - start));
-
-    }
-
     /**
      * Runs all the tests found in OpenL module (ioc)
      * 
@@ -177,19 +156,4 @@ public class TestAll {
         stat.addTestResult(res);
 
     }
-
-    /*
-     * public void _testAlltests(Class<? extends OpenLWrapper> c) throws
-     * InstantiationException, IllegalAccessException { long start =
-     * System.currentTimeMillis();
-     * 
-     * 
-     * 
-     * long end = System.currentTimeMillis();
-     * 
-     * System.out.println("Loaded wrapper in " + (end-start) + "ms");
-     * 
-     * System.out.println("Run " + tottests + " tests. Failures: " + totfailures + "
-     * Time: " + (end-start) + "ms"); Assert.assertEquals(0, totfailures);
-     */
 }

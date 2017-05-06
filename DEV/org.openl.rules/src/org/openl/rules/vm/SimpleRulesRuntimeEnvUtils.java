@@ -1,7 +1,6 @@
 package org.openl.rules.vm;
 
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.main.OpenLWrapper;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.vm.IRuntimeEnv;
 
@@ -11,7 +10,7 @@ public final class SimpleRulesRuntimeEnvUtils {
     }
 
     public static IRuntimeEnv getRuntimeEnv(Object instance) {
-        if (instance instanceof IEngineWrapper || instance instanceof OpenLWrapper) {
+        if (instance instanceof IEngineWrapper) {
             IRuntimeEnv runtimeEnv;
             if (instance instanceof IEngineWrapper) {
                 runtimeEnv = ((IEngineWrapper) instance).getRuntimeEnv();
@@ -25,7 +24,7 @@ public final class SimpleRulesRuntimeEnvUtils {
             return runtimeEnv;
         }
         throw new OpenlNotCheckedException("Instance must implement " + IEngineWrapper.class
-            .getCanonicalName() + " or " + OpenLWrapper.class.getCanonicalName() + "!");
+            .getCanonicalName() + "!");
     }
 
     public static boolean isMethodArgumentsCacheEnable(Object instance) {
