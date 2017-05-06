@@ -3,6 +3,10 @@ package org.openl.main;
 import org.openl.CompiledOpenClass;
 import org.openl.types.IOpenClass;
 
+/**
+ * @deprecated Use generated interface and beans
+ */
+@Deprecated
 public interface OpenLWrapper {
 
     /**
