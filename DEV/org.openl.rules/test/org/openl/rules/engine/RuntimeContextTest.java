@@ -25,7 +25,7 @@ public class RuntimeContextTest {
 		TestHelper<ITestI> testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
 		
 		ITestI instance = testHelper.getInstance();
-		IRulesRuntimeContext context = ((IRulesRuntimeContextProvider) instance).getRuntimeContext();
+		IRulesRuntimeContext context = instance.getRuntimeContext();
 		
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(2003, 5, 15);
@@ -44,28 +44,4 @@ public class RuntimeContextTest {
 		DoubleValue res3 = instance.driverRiskScoreNoOverloadTest("High Risk Driver");
 		assertEquals(200.0, res3.doubleValue(), 1e-8);
 	}
-	
-	@Test
-    public void testWrapperRulesContext() {
-
-	    TestWrapper wrapper = new TestWrapper();
-	    IRulesRuntimeContext context = wrapper.getRuntimeContext();
-	    
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(2003, 5, 15);
-        
-        context.setCurrentDate(calendar.getTime());
-        
-        DoubleValue res1 = wrapper.driverRiskScoreOverloadTest("High Risk Driver");
-        assertEquals(120.0, res1.doubleValue(), 1e-8);
-        
-        calendar.set(2008, 5, 15);
-        context.setCurrentDate(calendar.getTime());
-        
-        DoubleValue res2 = wrapper.driverRiskScoreOverloadTest("High Risk Driver");
-        assertEquals(100.0, res2.doubleValue(), 1e-8);
-        
-        DoubleValue res3 = wrapper.driverRiskScoreNoOverloadTest("High Risk Driver");
-        assertEquals(200.0, res3.doubleValue(), 1e-8);
-    }
 }
