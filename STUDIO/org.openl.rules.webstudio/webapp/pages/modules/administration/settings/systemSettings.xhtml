@@ -347,7 +347,7 @@
                                         </td>
                                         <td class="repositoryConfigButton">
                                             <a4j:commandLink action="#{systemSettingsBean.deleteProductionRepository(repository.configName)}"
-                                                title="Delete Production Repository Connection" styleClass="toolbarButton menuButton"
+                                                title="Delete Deployment Repository Connection" styleClass="toolbarButton menuButton"
                                                 render="repositoryProps" rendered="#{productionRepos.size() > 1}"
                                                 onclick="if(!window.confirm('Do you really want to delete repository connection?')) {return false;}"
                                                 onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
@@ -363,14 +363,14 @@
 
                             <div class="addRepositoryConfig">
                                 <a4j:commandButton onclick="#{rich:component('modalCreateRepo')}.show();return false;"
-                                    title="Create local production repository"
+                                    title="Create local deployment repository"
                                     styleClass="toolbarButton menuButton" render="repositoryProps"
-                                    value="Create Production Repository" >
+                                    value="Create Deployment Repository" >
                                 </a4j:commandButton>
                                 <a4j:commandButton onclick="#{rich:component('modalAddRepoConnection')}.show();return false;"
-                                    title="Add connection to production repository"
+                                    title="Add connection to deployment repository"
                                     styleClass="toolbarButton menuButton" render="repositoryProps"
-                                    value="Connect To Production Repository">
+                                    value="Connect To Deployment Repository">
                                 </a4j:commandButton>
                             </div>
 
