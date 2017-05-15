@@ -683,7 +683,15 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
 
         return new BigDecimalValue(x);
     }
-    
+
+    public static BigDecimalValue autocast(BigIntegerValue x, BigDecimalValue y) {
+        if (x == null) {
+            return null;
+        }
+
+        return new BigDecimalValue(new BigDecimal(x.getValue()));
+    }
+
     // ******* Casts *************
 
     public static byte cast(BigDecimalValue x, byte y) {
