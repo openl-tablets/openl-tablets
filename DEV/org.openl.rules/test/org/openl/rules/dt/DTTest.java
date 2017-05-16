@@ -80,6 +80,16 @@ public class DTTest extends BaseOpenlBuilderHelper {
         result = (String[]) method.invoke(instance, new Object[] { new Integer(23) }, env);
         assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
     }
+    
+    @Test
+    public void greeting70() throws Exception {
+        IOpenMethod method = getCompiledOpenClass().getOpenClass().getMethod("Greeting70",
+            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
+        Object instance = newInstance();
+        SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+        String result = (String) method.invoke(instance, new Object[] { new Integer(0) }, env);
+        assertEquals("Good Evening", result);
+    }
 
     @Test
     public void greeting8() throws Exception {
