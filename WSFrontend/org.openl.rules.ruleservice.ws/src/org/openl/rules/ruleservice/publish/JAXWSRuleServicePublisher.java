@@ -47,7 +47,7 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
 
     public ObjectFactory<? extends Feature> getStoreLoggingFeatureFactoryBean() {
         return storeLoggingFeatureFactoryBean;
-    }
+    } 
 
     public void setStoreLoggingFeatureFactoryBean(ObjectFactory<? extends Feature> storeLoggingFeatureFactoryBean) {
         this.storeLoggingFeatureFactoryBean = storeLoggingFeatureFactoryBean;
@@ -105,7 +105,7 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
             ServerFactoryBean svrFactory = getServerFactoryBean();
             ClassLoader origClassLoader = svrFactory.getBus().getExtension(ClassLoader.class);
             try {
-                String serviceAddress = getBaseAddress() + service.getUrl();
+                String serviceAddress = getBaseAddress() + processURL(service.getUrl());
                 svrFactory.setAddress(serviceAddress);
                 svrFactory.setServiceClass(enhanceServiceClassWithJAXWSAnnotations(service.getServiceClass(), service));
                 svrFactory.setServiceBean(service.getServiceBean());

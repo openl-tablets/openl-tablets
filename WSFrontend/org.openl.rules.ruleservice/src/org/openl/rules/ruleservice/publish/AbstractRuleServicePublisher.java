@@ -39,7 +39,7 @@ public abstract class AbstractRuleServicePublisher implements RuleServicePublish
         while (ret.charAt(0) == '/') {
             ret = ret.substring(1);
         }
-        return ret;
+        return URLHelper.processURL(ret);
     }
     
     public void setListeners(Collection<RuleServicePublisherListener> listeners) {

@@ -28,8 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
 
-import com.ibm.icu.text.Transliterator;
-
 /**
  * DeploymentAdmin to expose services via HTTP using JAXRS.
  *
@@ -203,17 +201,6 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
             }
         });
         return services;
-    }
-
-    protected String processURL(String url) {
-        String id = "Any-Latin; Latin-ASCII; [^\\p{Alnum}] Remove";
-        url = Transliterator.getInstance(id).transform(url);
-        String ret = url.replaceAll(" ", "_");
-        while (ret.charAt(0) == '/') {
-            ret = ret.substring(1);
-        }
-
-        return ret;
     }
 
     private ServiceInfo createServiceInfo(OpenLService service) {

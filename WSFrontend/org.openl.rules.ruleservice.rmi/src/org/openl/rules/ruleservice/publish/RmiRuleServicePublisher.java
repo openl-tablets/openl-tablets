@@ -36,7 +36,6 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
     private final Logger log = LoggerFactory.getLogger(RmiRuleServicePublisher.class);
     
     private Map<OpenLService, ServiceServer> runningServices = new HashMap<OpenLService, ServiceServer>();
-    private String baseAddress;
     private List<ServiceInfo> availableServices = new ArrayList<ServiceInfo>();
     private int rmiPort = 1099; //Default RMI port
     private String rmiHost = "127.0.0.1"; //Default RMI host
@@ -70,14 +69,6 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
                 return LocateRegistry.createRegistry(getRmiPort());
             }
         }
-    }
-
-    public String getBaseAddress() {
-        return baseAddress;
-    }
-
-    public void setBaseAddress(String address) {
-        this.baseAddress = address;
     }
 
     protected DefaultRmiHandler enhanceServiceBeanWithDynamicRmiHandler(OpenLService service) throws Exception {
