@@ -13,7 +13,9 @@ import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.MethodNotFoundException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
+import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.DataNodeBinder;
+import org.openl.rules.data.DataTableBindHelper;
 import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -66,11 +68,13 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         final String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
         String tableName = parsedHeader[TABLE_NAME_INDEX].getIdentifier();
 
-        List<IOpenMethod> testedMethods = CollectionUtils.findAll(module.getMethods(), new CollectionUtils.Predicate<IOpenMethod>() {
-            @Override public boolean evaluate(IOpenMethod method) {
-                return typeName.equals(method.getName());
-            }
-        });
+        List<IOpenMethod> testedMethods = CollectionUtils.findAll(module.getMethods(),
+            new CollectionUtils.Predicate<IOpenMethod>() {
+                @Override
+                public boolean evaluate(IOpenMethod method) {
+                    return typeName.equals(method.getName());
+                }
+            });
         if (testedMethods.isEmpty()) {
             throw new MethodNotFoundException(null, typeName, IOpenClass.EMPTY);
         }
@@ -82,12 +86,12 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         IOpenMethod bestCaseOpenMethod = null;
         SyntaxNodeException[] bestCaseErrors = null;
         TestMethodOpenClass bestTestMethodOpenClass = null;
-        
+
         boolean hasNoErrorBinding = false;
         List<OpenLMessage> messages = OpenLMessages.getCurrentInstance().getMessages();
         for (IOpenMethod testedMethod : testedMethods) {
             OpenLMessages.getCurrentInstance().clear();
-            for (OpenLMessage message : messages){
+            for (OpenLMessage message : messages) {
                 OpenLMessages.getCurrentInstance().addMessage(message);
             }
             tableSyntaxNode.crearErrors();
@@ -110,14 +114,15 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                     bindingContext,
                     openl);
                 testMethodBoundNode.setTable(dataTable);
-                if (testMethodBoundNode.getTableSyntaxNode().hasErrors() && (bestCaseErrors == null || bestCaseErrors.length > testMethodBoundNode.getTableSyntaxNode()
-                    .getErrors().length)) {
+                if (testMethodBoundNode.getTableSyntaxNode()
+                    .hasErrors() && (bestCaseErrors == null || bestCaseErrors.length > testMethodBoundNode
+                        .getTableSyntaxNode().getErrors().length)) {
                     bestCaseErrors = testMethodBoundNode.getTableSyntaxNode().getErrors();
                     bestCaseTestMethodBoundNode = testMethodBoundNode;
                     bestCaseOpenMethod = testedMethod;
                     bestTestMethodOpenClass = testMethodOpenClass;
                 } else {
-                    if (!testMethodBoundNode.getTableSyntaxNode().hasErrors()){
+                    if (!testMethodBoundNode.getTableSyntaxNode().hasErrors()) {
                         if (!hasNoErrorBinding) {
                             bestCaseTestMethodBoundNode = testMethodBoundNode;
                             bestCaseOpenMethod = testedMethod;
@@ -145,10 +150,10 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         if (bestCaseTestMethodBoundNode != null) {
             tableSyntaxNode.crearErrors();
             OpenLMessages.getCurrentInstance().clear();
-            for (OpenLMessage message : messages){
+            for (OpenLMessage message : messages) {
                 OpenLMessages.getCurrentInstance().addMessage(message);
             }
-            
+
             ITable dataTable = makeTable(module,
                 tableSyntaxNode,
                 tableName,
@@ -156,12 +161,32 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                 bindingContext,
                 openl);
             bestCaseTestMethodBoundNode.setTable(dataTable);
-            
+
             return bestCaseTestMethodBoundNode;
         }
 
         String message = String.format("Type '%s' is not found", typeName);
         throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
+    }
+
+    @Override
+    protected ColumnDescriptor[] makeDescriptors(ITable tableToProcess,
+            IOpenClass tableType,
+            IBindingContext bindingContext,
+            OpenL openl,
+            boolean hasColumnTitleRow,
+            ILogicalTable horizDataTableBody,
+            ILogicalTable descriptorRows,
+            ILogicalTable dataWithTitleRows) throws Exception {
+        return DataTableBindHelper.makeDescriptors(bindingContext,
+            tableToProcess,
+            tableType,
+            openl,
+            descriptorRows,
+            dataWithTitleRows,
+            DataTableBindHelper.hasForeignKeysRow(horizDataTableBody),
+            hasColumnTitleRow,
+            false);
     }
 
 }

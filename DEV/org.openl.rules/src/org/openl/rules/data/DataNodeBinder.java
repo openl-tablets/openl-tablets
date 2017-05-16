@@ -50,7 +50,8 @@ public class DataNodeBinder extends AXlsTableBinder {
             IBindingContext bindingContext,
             XlsModuleOpenClass module,
             DataTableBoundNode dataNode,
-            String tableName, TableSyntaxNode tsn) {
+            String tableName,
+            TableSyntaxNode tsn) {
 
         return bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
     }
@@ -88,8 +89,10 @@ public class DataNodeBinder extends AXlsTableBinder {
         }
 
         if (!bindingContext.isExecutionMode()) {
-            RuleRowHelper.setCellMetaInfoWithNodeUsage(table, parsedHeader[TYPE_INDEX], tableType.getMetaInfo(),
-                    NodeType.DATATYPE);
+            RuleRowHelper.setCellMetaInfoWithNodeUsage(table,
+                parsedHeader[TYPE_INDEX],
+                tableType.getMetaInfo(),
+                NodeType.DATATYPE);
         }
 
         // Check that table type loaded properly.
@@ -140,16 +143,18 @@ public class DataNodeBinder extends AXlsTableBinder {
                 ILogicalTable descriptorRows = DataTableBindHelper.getDescriptorRows(horizDataTableBody);
                 ILogicalTable dataWithTitleRows = DataTableBindHelper.getHorizontalDataWithTitle(horizDataTableBody);
 
-                dataWithTitleRows = LogicalTableHelper.logicalTable(dataWithTitleRows.getSource(), descriptorRows, null);
-
-                ColumnDescriptor[] descriptors = DataTableBindHelper.makeDescriptors(bindingContext,
-                    tableToProcess,
-                    tableType,
-                    openl,
+                dataWithTitleRows = LogicalTableHelper.logicalTable(dataWithTitleRows.getSource(),
                     descriptorRows,
-                    dataWithTitleRows,
-                    DataTableBindHelper.hasForeignKeysRow(horizDataTableBody),
-                    hasColumnTitleRow);
+                    null);
+
+                ColumnDescriptor[] descriptors = makeDescriptors(tableToProcess,
+                    tableType,
+                    bindingContext,
+                    openl,
+                    hasColumnTitleRow,
+                    horizDataTableBody,
+                    descriptorRows,
+                    dataWithTitleRows);
 
                 OpenlBasedDataTableModel dataModel = new OpenlBasedDataTableModel(tableName,
                     tableType,
@@ -165,6 +170,25 @@ public class DataNodeBinder extends AXlsTableBinder {
                 throw SyntaxNodeExceptionUtils.createError(message, tableToProcess.getTableSyntaxNode());
             }
         }
+    }
+
+    protected ColumnDescriptor[] makeDescriptors(ITable tableToProcess,
+            IOpenClass tableType,
+            IBindingContext bindingContext,
+            OpenL openl,
+            boolean hasColumnTitleRow,
+            ILogicalTable horizDataTableBody,
+            ILogicalTable descriptorRows,
+            ILogicalTable dataWithTitleRows) throws Exception {
+        return DataTableBindHelper.makeDescriptors(bindingContext,
+            tableToProcess,
+            tableType,
+            openl,
+            descriptorRows,
+            dataWithTitleRows,
+            DataTableBindHelper.hasForeignKeysRow(horizDataTableBody),
+            hasColumnTitleRow,
+            true);
     }
 
     /**
@@ -218,7 +242,8 @@ public class DataNodeBinder extends AXlsTableBinder {
      * @param source source code
      * @throws error if length of header is less than {@link #HEADER_NUM_TOKENS}
      */
-    protected void checkParsedHeader(IdentifierNode[] parsedHeader, IOpenSourceCodeModule source) throws SyntaxNodeException {
+    protected void checkParsedHeader(IdentifierNode[] parsedHeader,
+            IOpenSourceCodeModule source) throws SyntaxNodeException {
 
         try {
             parsedHeader = Tokenizer.tokenize(source, " \n\r");

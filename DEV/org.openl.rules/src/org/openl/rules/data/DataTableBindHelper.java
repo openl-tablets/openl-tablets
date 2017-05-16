@@ -384,7 +384,8 @@ public class DataTableBindHelper {
             ILogicalTable descriptorRows,
             ILogicalTable dataWithTitleRows,
             boolean hasForeignKeysRow,
-            boolean hasColumnTytleRow) throws Exception {
+            boolean hasColumnTytleRow,
+            boolean supportConstructorFields) throws Exception {
 
         int width = descriptorRows.getWidth();
         ColumnDescriptor[] columnDescriptors = new ColumnDescriptor[width];
@@ -409,7 +410,7 @@ public class DataTableBindHelper {
                     // process single field in chain, e.g. driver;
                     IdentifierNode fieldNameNode = fieldAccessorChainTokens[0];
 
-                    if (CONSTRUCTOR_FIELD.equals(fieldNameNode.getIdentifier())) {
+                    if (supportConstructorFields && CONSTRUCTOR_FIELD.equals(fieldNameNode.getIdentifier())) {
                         constructorField = true;
                     } else if (fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_PATTERN)) {
                         descriptorField = getWritableArrayElement(fieldNameNode, table, type);
