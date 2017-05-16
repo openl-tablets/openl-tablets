@@ -86,12 +86,76 @@ public class Operators {
     public static double add(double x, double y) {
         return x + y;
     }
-    
+
+    public static Byte add(Byte x, Byte y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
+        return (byte) (x + y);
+    }
+
+    public static Short add(Short x, Short y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
+        return (short) (x + y);
+    }
+
+    public static Integer add(Integer x, Integer y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
+        return x + y;
+    }
+
+    public static Long add(Long x, Long y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
+        return x + y;
+    }
+
+    public static Float add(Float x, Float y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
+        return x + y;
+    }
+
+    public static Double add(Double x, Double y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
+        return x + y;
+    }
+
     public static BigInteger add(BigInteger x, BigInteger y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
         return x.add(y);
     }
     
     public static BigDecimal add(BigDecimal x, BigDecimal y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
         return x.add(y);
     }
 
@@ -119,12 +183,76 @@ public class Operators {
     public static double subtract(double x, double y) {
         return x - y;
     }
-    
+
+    public static Byte subtract(Byte x, Byte y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
+        return (byte) (x - y);
+    }
+
+    public static Short subtract(Short x, Short y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
+        return (short) (x - y);
+    }
+
+    public static Integer subtract(Integer x, Integer y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
+        return x - y;
+    }
+
+    public static Long subtract(Long x, Long y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
+        return x - y;
+    }
+
+    public static Float subtract(Float x, Float y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
+        return x - y;
+    }
+
+    public static Double subtract(Double x, Double y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
+        return x - y;
+    }
+
     public static BigInteger subtract(BigInteger x, BigInteger y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
         return x.subtract(y);
     }
     
     public static BigDecimal subtract(BigDecimal x, BigDecimal y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
         return x.subtract(y);
     }
 
@@ -156,12 +284,76 @@ public class Operators {
     public static double multiply(double x, double y) {
         return x * y;
     }
-    
+
+    public static Byte multiply(Byte x, Byte y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
+        return (byte) (x * y);
+    }
+
+    public static Short multiply(Short x, Short y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
+        return (short) (x * y);
+    }
+
+    public static Integer multiply(Integer x, Integer y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
+        return x * y;
+    }
+
+    public static Long multiply(Long x, Long y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
+        return x * y;
+    }
+
+    public static Float multiply(Float x, Float y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
+        return x * y;
+    }
+
+    public static Double multiply(Double x, Double y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
+        return x * y;
+    }
+
     public static BigInteger multiply(BigInteger x, BigInteger y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
         return x.multiply(y);
     }
     
     public static BigDecimal multiply(BigDecimal x, BigDecimal y) {
+        if (x == null) {
+            return y;
+        } else if (y == null) {
+            return x;
+        }
         return x.multiply(y);
     }
 
@@ -189,12 +381,76 @@ public class Operators {
     public static double divide(double x, double y) {
         return x / y;
     }
-    
+
+    public static Byte divide(Byte x, Byte y) {
+        if (y == null) {
+            return x;
+        } else if (x == null) {
+            x = 1;
+        }
+        return (byte) (x / y);
+    }
+
+    public static Short divide(Short x, Short y) {
+        if (y == null) {
+            return x;
+        } else if (x == null) {
+            x = 1;
+        }
+        return (short) (x / y);
+    }
+
+    public static Integer divide(Integer x, Integer y) {
+        if (y == null) {
+            return x;
+        } else if (x == null) {
+            x = 1;
+        }
+        return x / y;
+    }
+
+    public static Long divide(Long x, Long y) {
+        if (y == null) {
+            return x;
+        } else if (x == null) {
+            x = 1l;
+        }
+        return x / y;
+    }
+
+    public static Float divide(Float x, Float y) {
+        if (y == null) {
+            return x;
+        } else if (x == null) {
+            x = 1.0f;
+        }
+        return x / y;
+    }
+
+    public static Double divide(Double x, Double y) {
+        if (y == null) {
+            return x;
+        } else if (x == null) {
+            x = 1.0;
+        }
+        return x / y;
+    }
+
     public static BigInteger divide(BigInteger x, BigInteger y) {
+        if (y == null) {
+            return x;
+        } else if (x == null) {
+            x = BigInteger.ONE;
+        }
         return x.divide(y);
     }
     
     public static BigDecimal divide(BigDecimal x, BigDecimal y) {
+        if (y == null) {
+            return x;
+        } else if (x == null) {
+            x = BigDecimal.ONE;
+        }
         return x.divide(y, MathContext.DECIMAL128);
     }
 

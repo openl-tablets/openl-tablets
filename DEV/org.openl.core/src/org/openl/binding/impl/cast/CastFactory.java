@@ -150,8 +150,9 @@ public class CastFactory implements ICastFactory {
     }
 
     private IOpenCast findArrayCast(IOpenClass from, IOpenClass to) {
-        if ((from.isArray() || Object.class.equals(from.getInstanceClass())) && to.isArray()){
-            if (to.getInstanceClass().isAssignableFrom(from.getInstanceClass())) { //Improve for up cast
+        Class<?> fromClass = from.getInstanceClass();
+        if ((from.isArray() || Object.class.equals(fromClass)) && to.isArray()){
+            if (to.getInstanceClass().isAssignableFrom(fromClass)) { //Improve for up cast
                 return JAVA_UP_CAST;
             }
             int dimf = 0;
@@ -166,9 +167,9 @@ public class CastFactory implements ICastFactory {
                 t = t.getComponentClass();
                 dimt++;
             }
-            if (dimf == dimt || Object.class.equals(from.getInstanceClass())){
+            if (dimf == dimt || Object.class.equals(fromClass)){
                 IOpenCast arrayElementCast = findCast(f, t);
-                if (arrayElementCast == null && Object.class.equals(from.getInstanceClass())){
+                if (arrayElementCast == null && Object.class.equals(fromClass)){
                     arrayElementCast = JAVA_NO_CAST;
                 }
                 if (arrayElementCast != null){

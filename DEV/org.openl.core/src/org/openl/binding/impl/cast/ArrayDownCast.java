@@ -58,11 +58,11 @@ public class ArrayDownCast implements IOpenCast {
                     j++;
                 }
                 Object t = Array.get(p, x[j]);
-                if (t.getClass().isArray() && dimensions[j + 1] == 0) {
+                if (t != null && t.getClass().isArray() && dimensions[j + 1] == 0) {
                     int[] y = new int[dimensions.length - j - 1];
                     t = Array.newInstance(toComponentType.getInstanceClass(), y);
-                }else{
-                   t = openCast.convert(Array.get(p, x[j]));
+                } else {
+                    t = openCast.convert(t);
                 }
                 Array.set(w, x[j], t);
                 j = 0;

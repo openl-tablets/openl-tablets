@@ -699,6 +699,10 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         return copy(this, name);
     }
 
+    public static Integer distance(BigInteger x, BigIntegerValue y) {
+        return 8;
+    }
+
     /**
      * Prints the value of the current variable
      */
@@ -758,13 +762,6 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         }
 
         return new BigIntegerValue(x);
-    }
-
-    public static BigIntegerValue autocast(BigIntegerValue x, BigDecimalValue y) {
-        if (x == null) {
-            return null;
-        }
-        return new BigIntegerValue(String.valueOf(x.getValue()), x, true);
     }
 
     // ******* Casts 8*************
