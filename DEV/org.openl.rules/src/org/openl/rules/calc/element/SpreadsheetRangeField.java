@@ -125,7 +125,6 @@ public class SpreadsheetRangeField extends ASpreadsheetField {
             mv.visitInsn(Opcodes.ARETURN);
             mv.visitMaxs(3, 3);
             mv.visitEnd();
-
         }
         cw.visitEnd();
         // Create class object.
