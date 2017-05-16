@@ -3,13 +3,14 @@ package org.openl.rules.maven;
 import static org.codehaus.plexus.archiver.util.DefaultFileSet.fileSet;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactUtils;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -18,8 +19,8 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.Archiver;
+import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
-import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
 
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
@@ -57,6 +58,9 @@ public final class PackageMojo extends BaseOpenLMojo {
     @Parameter(defaultValue = "${project.build.finalName}", readonly = true)
     private String finalName;
 
+    @Parameter(defaultValue = "${project.build.outputDirectory}", required = true, readonly = true)
+    private File classesDirectory;
+
     /**
      * Comma separated list of packaging formats.
      */
@@ -81,61 +85,87 @@ public final class PackageMojo extends BaseOpenLMojo {
     @Override
     void execute(String sourcePath) throws Exception {
 
-        File existingArtifact = project.getArtifact().getFile();
+        File openLSourceDir = new File(sourcePath);
+        if (CollectionUtils.isEmpty(openLSourceDir.list())) {
+            info("No OpenL sources have been found at '", sourcePath, "' path");
+            info("Skipping packaging of the empty OpenL project.");
+            return;
+        }
         String[] types = StringUtils.split(format, ',');
-        if (CollectionUtils.isNotEmpty(types)) {
-            for (String type : types) {
-                execute(sourcePath, type, existingArtifact);
+        if (CollectionUtils.isEmpty(types)) {
+            throw new MojoFailureException("No formats have been defined in the plugin configuration.");
+        }
+        File dependencyLib = project.getArtifact().getFile();
+
+        boolean mainArtifactExists = dependencyLib != null && dependencyLib.isFile();
+        if (mainArtifactExists && StringUtils.isBlank(classifier)) {
+            error("The main artifact have been attached already.");
+            error(
+                "You have to use classifier to attach supplemental artifacts to the project instead of replacing them.");
+            throw new MojoFailureException("It is not possible to replace the main artifact.");
+        }
+        if (!mainArtifactExists && CollectionUtils.isNotEmpty(classesDirectory.list())) {
+            // create a jar file with compiled Java sources for OpenL rules
+            dependencyLib = File.createTempFile(finalName,"-lib.jar",outputDirectory);
+            Archiver jarArch = new JarArchiver();
+            jarArch.setIncludeEmptyDirs(false);
+            jarArch.setDestFile(dependencyLib);
+            jarArch.addFileSet(fileSet(classesDirectory).includeEmptyDirs(false));
+            jarArch.createArchive();
+        }
+
+        Set<Artifact> dependencies = getDependencies();
+        for (String type : types) {
+            File outputFile = getOutputFile(outputDirectory, finalName, classifier, type);
+            Archiver arch = archiverManager.getArchiver(type);
+            arch.setIncludeEmptyDirs(false);
+            addFile(arch, openLSourceDir, RULES_XML);
+            addFile(arch, openLSourceDir, RULES_DEPLOY_XML);
+            arch.addFileSet(fileSet(openLSourceDir).includeEmptyDirs(false).exclude(new String[] { RULES_XML, RULES_DEPLOY_XML }));
+
+            if (dependencyLib != null && dependencyLib.isFile()) {
+                arch.addFile(dependencyLib, classpathFolder + finalName + ".jar");
+            }
+            for (Artifact artifact : dependencies) {
+                File file = artifact.getFile();
+                arch.addFile(file, classpathFolder + file.getName());
+            }
+
+            arch.setDestFile(outputFile);
+            arch.createArchive();
+            if (mainArtifactExists || StringUtils.isNotBlank(classifier) ) {
+                info("Attaching the supplemental artifact '",outputFile,",");
+                projectHelper.attachArtifact(project, type, classifier, outputFile);
+            } else {
+                info("Registering the main artifact '",outputFile,",");
+                mainArtifactExists = true;
+                project.getArtifact().setFile(outputFile);
             }
         }
     }
 
-    private void execute(String sourcePath, String type, File mainArtifact) throws NoSuchArchiverException,
-                                                                            IOException {
-        File outputFile = getOutputFile(outputDirectory, finalName, classifier, type);
-        Archiver arch = archiverManager.getArchiver(type);
-        arch.setIncludeEmptyDirs(false);
-        addFile(arch, sourcePath, RULES_XML);
-        addFile(arch, sourcePath, RULES_DEPLOY_XML);
-        arch.addFileSet(fileSet(new File(sourcePath)).includeEmptyDirs(false)
-            .exclude(new String[] { RULES_XML, RULES_DEPLOY_XML }));
-
+    private Set<Artifact> getDependencies() {
         Set<Artifact> artifacts = project.getArtifacts();
 
         HashSet<String> skipped = new HashSet<String>();
+        Set<Artifact> dependencies = new HashSet<Artifact>();
 
         for (Artifact artifact : artifacts) {
             collectToSkip(skipped, artifact);
+        }
+        Iterator<Artifact> iterator = artifacts.iterator();
+        while (iterator.hasNext()) {
+            Artifact artifact = iterator.next();
         }
         for (Artifact artifact : artifacts) {
             if (skipped.contains(ArtifactUtils.versionlessKey(artifact))) {
                 debug("SKIP: ", artifact);
             } else {
                 debug("ADD : ", artifact);
-                File file = artifact.getFile();
-                arch.addFile(file, classpathFolder + file.getName());
+                dependencies.add(artifact);
             }
         }
-        if (outputFile.equals(mainArtifact)) {
-            outputFile = getOutputFile(outputDirectory, finalName, "override", type);
-        }
-        if (mainArtifact != null && mainArtifact.isFile()) {
-            arch.addFile(mainArtifact, classpathFolder + mainArtifact.getName());
-        }
-
-        arch.setDestFile(outputFile);
-        arch.createArchive();
-        if ("openl".equals(packaging)) {
-            project.getArtifact().setFile(outputFile);
-        } else if (StringUtils.isBlank(classifier) && type.equals(packaging)) {
-            if (mainArtifact != null) {
-                warn("Replacing pre-existing project main-artifact file: ", mainArtifact);
-                warn("with OpenL file: " + outputFile);
-            }
-            project.getArtifact().setFile(outputFile);
-        } else {
-            projectHelper.attachArtifact(project, type, classifier, outputFile);
-        }
+        return dependencies;
     }
 
     private void collectToSkip(HashSet<String> skipped, Artifact artifact) {
@@ -157,7 +187,7 @@ public final class PackageMojo extends BaseOpenLMojo {
         }
     }
 
-    private void addFile(Archiver arch, String folder, String fileName) {
+    private void addFile(Archiver arch, File folder, String fileName) {
         File file = new File(folder, fileName);
         if (file.isFile()) {
             arch.addFile(file, fileName);
