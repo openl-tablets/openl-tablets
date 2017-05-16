@@ -693,10 +693,6 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         return copy(this, name);
     }
 
-    public static Integer distance(BigInteger x, BigIntegerValue y) {
-        return 8;
-    }
-
     /**
      * Prints the value of the current variable
      */
