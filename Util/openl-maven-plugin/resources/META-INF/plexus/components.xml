@@ -30,7 +30,6 @@
                                 org.openl.rules:openl-maven-plugin:test
                             </test>
                             <package>
-                                org.apache.maven.plugins:maven-jar-plugin:jar,
                                 org.openl.rules:openl-maven-plugin:package
                             </package>
                             <install>
