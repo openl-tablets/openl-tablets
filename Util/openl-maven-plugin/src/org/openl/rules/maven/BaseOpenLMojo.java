@@ -101,6 +101,12 @@ abstract class BaseOpenLMojo extends AbstractMojo {
         }
     }
 
+    void error(CharSequence message, Object... args) {
+        if (getLog().isErrorEnabled()) {
+            getLog().error(getMessage(message, args));
+        }
+    }
+
     void error(Exception ex) {
         if (getLog().isErrorEnabled()) {
             getLog().error(ex);
