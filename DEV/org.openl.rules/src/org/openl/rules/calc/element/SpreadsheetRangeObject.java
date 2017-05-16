@@ -4,9 +4,9 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.calc.SpreadsheetResultCalculator;
+import org.openl.util.StringUtils;
 
 public class SpreadsheetRangeObject {
 
