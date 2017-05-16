@@ -5,7 +5,6 @@ import org.objenesis.ObjenesisStd;
 import org.openl.meta.BigDecimalValue;
 import org.openl.meta.BigIntegerValue;
 import org.openl.meta.ByteValue;
-import org.openl.meta.DoubleValue;
 import org.openl.meta.FloatValue;
 import org.openl.meta.IntValue;
 import org.openl.meta.LongValue;
@@ -13,10 +12,10 @@ import org.openl.meta.ShortValue;
 import org.openl.meta.StringValue;
 import org.openl.meta.ValueMetaInfo;
 import org.openl.rules.calc.SpreadsheetResult;
+import org.slf4j.Logger;
 
 import com.rits.cloning.Cloner;
 import com.rits.cloning.IInstantiationStrategy;
-import org.slf4j.Logger;
 
 /**
  * Extension for {@link Cloner}. To add OpenL classes to prevent cloning
@@ -45,7 +44,7 @@ public class OpenLArgumentsCloner extends Cloner {
         registerImmutable(IntValue.class);
         registerImmutable(LongValue.class);
         registerImmutable(FloatValue.class);
-        registerImmutable(DoubleValue.class);
+        //registerImmutable(DoubleValue.class); EPBDS-6604 DoubleValue is not immutable
         registerImmutable(BigIntegerValue.class);
         registerImmutable(BigDecimalValue.class);
         registerImmutable(StringValue.class);
