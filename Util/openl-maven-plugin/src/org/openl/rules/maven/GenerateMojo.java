@@ -46,6 +46,7 @@ import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
+import com.helger.jcodemodel.AbstractJClass;
 import com.helger.jcodemodel.EClassType;
 import com.helger.jcodemodel.JClassAlreadyExistsException;
 import com.helger.jcodemodel.JCodeModel;
@@ -79,7 +80,8 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private File outputDirectory;
 
     /**
-     * Comma-separated list of interfaces which are used for extending of the generated interface.
+     * Comma-separated list of interfaces which are used for extending of the
+     * generated interface.
      * @since 5.19.1
      */
     @Parameter
@@ -213,7 +215,8 @@ public final class GenerateMojo extends BaseOpenLMojo {
      * </table>
      * <p>
      *
-     * @deprecated Obsolete. Replaced with the smart generator. Use interfaceClass instead.
+     * @deprecated Obsolete. Replaced with the smart generator. Use
+     *             interfaceClass instead.
      */
     @Parameter
     @Deprecated
@@ -246,6 +249,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
      * Default project name in rules.xml. If omitted, the name of the first
      * module in the project is used. Used only if createProjectDescriptor ==
      * true.
+     * 
      * @deprecated Obsolete. No needs to generate rules.xml from Maven.
      */
     @Parameter
@@ -255,6 +259,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
     /**
      * Default classpath entries in rules.xml. Default value is {"."} Used only
      * if createProjectDescriptor == true.
+     * 
      * @deprecated Obsolete. No needs to generate rules.xml from Maven.
      */
     @Parameter
@@ -264,6 +269,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
     /**
      * If true, JUnit tests for OpenL Tablets Test tables will be generated.
      * Default value is "false"
+     * 
      * @deprecated Obsolete. Use openl:test goal to run OpenL tests.
      */
     @Parameter(defaultValue = "false")
@@ -304,6 +310,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
      * <td>Apache commons utility class</td>
      * </tr>
      * </table>
+     * 
      * @deprecated Obsolete. Use openl:test goal to run OpenL tests.
      */
     @Parameter(defaultValue = "org/openl/rules/maven/JUnitTestTemplate.vm")
@@ -313,6 +320,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
     /**
      * If true, existing JUnit tests will be overwritten. If false, only absent
      * tests will be generated, others will be skipped.
+     * 
      * @deprecated Obsolete. Use openl:test goal to run OpenL tests.
      */
     @Parameter(defaultValue = "false")
@@ -545,10 +553,14 @@ public final class GenerateMojo extends BaseOpenLMojo {
         for (Method method : methods) {
             String name = method.getName();
             Class<?> returnType = method.getReturnType();
+            debug("   method: ", returnType, "   ", name, "()");
             JMethod jm = java.method(JMod.NONE, helper.get(returnType), name);
             Class<?>[] argTypes = method.getParameterTypes();
             for (int i = 0; i < argTypes.length; i++) {
-                jm.param(helper.get(argTypes[i]), "arg" + i);
+                Class<?> argType = argTypes[i];
+                String argName = "arg" + i;
+                debug("      arg:     ", argName, "   ", argType);
+                jm.param(helper.get(argType), argName);
             }
         }
 
@@ -591,23 +603,29 @@ public final class GenerateMojo extends BaseOpenLMojo {
 
     /**
      * A utility class to convert Java classes in CodeModel class descriptors.
-     * It is required for managing generated beans because of they have not a classloader.
+     * It is required for managing generated beans because of they have not a
+     * classloader.
      */
     private class CodeHelper {
         JCodeModel model = new JCodeModel();
 
-        JDefinedClass get(Class<?> clazz) throws JClassAlreadyExistsException {
+        AbstractJClass get(Class<?> clazz) throws JClassAlreadyExistsException {
+            if (clazz.isArray()) {
+                Class<?> componentType = clazz.getComponentType();
+                AbstractJClass arrayType = get(componentType);
+                return arrayType.array();
+            }
             String clazzName = clazz.getName();
             EClassType eClassType = clazz.isInterface() ? EClassType.INTERFACE : EClassType.CLASS;
             return get(clazzName, eClassType);
         }
 
-        JDefinedClass get(String clazzName) throws JClassAlreadyExistsException {
+        AbstractJClass get(String clazzName) throws JClassAlreadyExistsException {
             return get(clazzName, EClassType.INTERFACE);
         }
 
-        private JDefinedClass get(String clazzName, EClassType eClassType) throws JClassAlreadyExistsException {
-            JDefinedClass jArgType = model._getClass(clazzName);
+        private AbstractJClass get(String clazzName, EClassType eClassType) throws JClassAlreadyExistsException {
+            AbstractJClass jArgType = model._getClass(clazzName);
             if (jArgType == null) {
                 jArgType = model._class(clazzName, eClassType);
             }
