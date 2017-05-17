@@ -57,6 +57,7 @@ import com.helger.jcodemodel.JMod;
 import net.sf.cglib.beans.BeanGenerator;
 import net.sf.cglib.core.NamingPolicy;
 import net.sf.cglib.core.Predicate;
+import org.openl.util.generation.GenUtils;
 
 /**
  * Generate OpenL interface, domain classes, project descriptor and unit tests
@@ -354,8 +355,8 @@ public final class GenerateMojo extends BaseOpenLMojo {
         // Generate interface is optional.
         if (interfaceClass != null) {
             Class<?> interfaceClass = factory.getInterfaceClass();
-            openLRules.getOpenClass();
-            writeInterface(interfaceClass);
+            IOpenClass openClass = openLRules.getOpenClass();
+            writeInterface(interfaceClass, openClass);
         }
 
         project.addCompileSourceRoot(outputDirectory.getPath());
@@ -529,7 +530,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
         }
     }
 
-    private void writeInterface(Class<?> clazz) throws IOException, JClassAlreadyExistsException {
+    private void writeInterface(Class<?> clazz, IOpenClass openClass) throws IOException, JClassAlreadyExistsException {
         info("Interface: " + interfaceClass);
         JCodeModel model = new JCodeModel();
         CodeHelper helper = new CodeHelper();
@@ -553,10 +554,11 @@ public final class GenerateMojo extends BaseOpenLMojo {
             Class<?> returnType = method.getReturnType();
             debug("   method: ", returnType, "   ", name, "()");
             JMethod jm = java.method(JMod.NONE, helper.get(returnType), name);
+            String[] argNames = GenUtils.getParameterNames(method, openClass, isProvideRuntimeContext, isProvideVariations);
             Class<?>[] argTypes = method.getParameterTypes();
             for (int i = 0; i < argTypes.length; i++) {
                 Class<?> argType = argTypes[i];
-                String argName = "arg" + i;
+                String argName = argNames[i];
                 debug("      arg:     ", argName, "   ", argType);
                 jm.param(helper.get(argType), argName);
             }
