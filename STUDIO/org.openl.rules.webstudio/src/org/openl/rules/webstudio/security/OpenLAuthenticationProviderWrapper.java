@@ -47,14 +47,15 @@ public class OpenLAuthenticationProviderWrapper implements AuthenticationProvide
                 UserDetails dbUser = userManagementService.loadUserByUsername(authentication.getName());
                 authorities = dbUser.getAuthorities();
             } catch (UsernameNotFoundException e) {
+                List<Privilege> groups;
                 if (!StringUtils.isBlank(defaultGroup) && groupManagementService.isGroupExist(defaultGroup)) {
                     Group group = groupManagementService.getGroupByName(defaultGroup);
-                    List<Privilege> groups = Collections.singletonList((Privilege) group);
-                    userManagementService.addUser(new SimpleUser("", "", authentication.getName(), "", groups));
-                    authorities = groups;
+                    groups = Collections.singletonList((Privilege) group);
                 } else {
-                    authorities = Collections.emptyList();
+                    groups = Collections.emptyList();
                 }
+                authorities = groups;
+                userManagementService.addUser(new SimpleUser("", "", authentication.getName(), "", groups));
             }
             return new UsernamePasswordAuthenticationToken(delegatedAuth.getPrincipal(), delegatedAuth.getCredentials(),
                     authorities);
