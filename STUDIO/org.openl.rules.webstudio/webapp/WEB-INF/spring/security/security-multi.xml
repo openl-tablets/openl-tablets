@@ -1,68 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:security="http://www.springframework.org/schema/security"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
           http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
-          http://www.springframework.org/schema/security
-          http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+          http://www.springframework.org/schema/util
+          http://www.springframework.org/schema/util/spring-util.xsd">
 
-  <import resource="classpath:META-INF/standalone/spring/security-dao-beans.xml" />
-  <import resource="classpath:META-INF/standalone/spring/security-hibernate-beans.xml" />
-  <import resource="db/flyway-bean.xml" />
+  <import resource="common-authentication.xml"/>
+  <import resource="authorization.xml"/>
+  <import resource="db-services.xml"/>
 
-  <bean id="dbConfigManagerFactory" class="org.openl.config.ConfigurationManagerFactory">
-      <constructor-arg name="useSystemProperties" value="true" />
-      <constructor-arg name="defaultPropertiesLocation" value="#{systemProperties['webapp.root']}/WEB-INF/conf/db.properties" />
-      <constructor-arg name="propertiesFolder" value="#{systemProperties['webstudio.home']}/system-settings/" />
-  </bean>
-  <bean id="dbConfigManager" factory-bean="dbConfigManagerFactory" factory-method="getConfigurationManager" autowire-candidate="false">
-      <constructor-arg name="propertiesName" value="db.properties" />
-  </bean>
-  <bean id="dbConfig" class="java.util.HashMap">
-      <constructor-arg value="#{dbConfigManager.properties}" />
-  </bean>
+  <util:list id="authenticationProviders">
+    <ref bean="daoAuthenticationProvider" />
+    <ref bean="rememberMeAuthenticationProvider" />
+  </util:list>
 
-  <!--  if you wish to use channel security, add "ChannelProcessingFilter," in front
-    of "securityContextPersistenceFilter" in the list below -->
-
-  <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
-    <security:filter-chain-map request-matcher="ant">
-      <security:filter-chain pattern="/faces/pages/login.xhtml" filters="none" />
-      <security:filter-chain pattern="/css/**" filters="none" />
-      <security:filter-chain pattern="/images/**" filters="none" />
-      <security:filter-chain pattern="/javascript/**" filters="none" />
-      <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none" />
-      <security:filter-chain pattern="/faces/rfRes/**" filters="none" />
-      <security:filter-chain pattern="/rest/**" filters="basicAuthenticationFilter,restExceptionTranslationFilter,filterSecurityInterceptor" />
-      <security:filter-chain pattern="/**"
-        filters="securityContextPersistenceFilter,usernamePasswordAuthenticationFilter,basicAuthenticationFilter,rememberMeAuthenticationFilter,exceptionTranslationFilter,filterSecurityInterceptor,logoutFilter" />
-    </security:filter-chain-map>
-  </bean>
-
-  <!-- ======================== AUTHENTICATION ======================= -->
-
-  <bean id="securityContextPersistenceFilter"
-    class="org.springframework.security.web.context.SecurityContextPersistenceFilter" />
-
-  <bean id="loginUrl" class="java.lang.String">
-    <constructor-arg value="/faces/pages/login.xhtml" />
-  </bean>
-  <bean id="loginCheckUrl" class="java.lang.String">
-    <constructor-arg value="/security_login_check" />
-  </bean>
-  <bean id="logoutUrl" class="java.lang.String">
-    <constructor-arg value="/security_logout" />
-  </bean>
-
-  <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
-    <constructor-arg name="providers">
-      <list>
-        <ref bean="daoAuthenticationProvider" />
-        <ref bean="rememberMeAuthenticationProvider" />
-      </list>
-    </constructor-arg>
-  </bean>
+  <util:list id="logoutHandlers">
+    <ref bean="rememberMeServices" />
+    <bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler" />
+  </util:list>
 
   <bean id="passwordEncoder" class="org.openl.rules.security.standalone.authentication.OpenLPasswordEncoder" >
       <constructor-arg value="#{systemProperties['webstudio.bcrypt.strength']}"/>
@@ -79,146 +36,13 @@
     <property name="userDao" ref="openlUserDao" />
   </bean>
 
-  <bean id="basicAuthenticationFilter" class="org.springframework.security.web.authentication.www.BasicAuthenticationFilter">
-    <constructor-arg name="authenticationManager" ref="authenticationManager" />
-    <constructor-arg name="authenticationEntryPoint" ref="basicAuthenticationEntryPoint" />
-  </bean>
-
-  <bean id="basicAuthenticationEntryPoint" class="org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint">
-    <property name="realmName" value="WebStudio Realm" />
-  </bean>
-
-  <bean id="usernamePasswordAuthenticationFilter"
-    class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
-    <property name="authenticationManager" ref="authenticationManager" />
-    <property name="authenticationFailureHandler">
-      <bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
-        <property name="defaultFailureUrl" ref="loginUrl" />
-      </bean>
-    </property>
-    <property name="authenticationSuccessHandler">
-      <bean class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">
-        <property name="defaultTargetUrl" value="/" />
-        <property name="targetUrlParameter" value="openl-redirect"/>
-      </bean>
-    </property>
-    <property name="filterProcessesUrl" ref="loginCheckUrl" />
-    <property name="rememberMeServices" ref="rememberMeServices" />
-  </bean>
-
-    <bean id="restExceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
-        <constructor-arg name="authenticationEntryPoint">
-            <bean class="org.openl.rules.rest.RestAuthenticationEntryPoint"/>
-        </constructor-arg>
-    </bean>
-
-    <bean id="exceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
-      <constructor-arg name="authenticationEntryPoint" ref="loginUrlAuthenticationEntryPoint"/>
-      <constructor-arg name="requestCache" ref="httpSessionRequestCache"/>
-  </bean>
-
-  <bean id="loginUrlAuthenticationEntryPoint"
-    class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
-    <constructor-arg name="loginFormUrl" ref="loginUrl" />
-    <property name="forceHttps" value="false" />
-    <property name="useForward" value="true"/>
-  </bean>
-
-  <!-- Note the order that entries are placed against the objectDefinitionSource is critical.
-    The FilterSecurityInterceptor will work from the top of the list down to the FIRST pattern that matches the request URL.
-    Accordingly, you should place MOST SPECIFIC (ie a/b/c/d.*) expressions first, with LEAST SPECIFIC (ie a/.*) expressions last -->
-  <bean id="filterSecurityInterceptor" class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
-    <property name="authenticationManager" ref="authenticationManager" />
-    <property name="accessDecisionManager" ref="accessDecisionManager" />
-    <property name="securityMetadataSource">
-      <security:filter-security-metadata-source lowercase-comparisons="true">
-        <security:intercept-url pattern="/faces/pages/modules/administration/**" access="PRIVILEGE_ADMINISTRATE" />
-        <security:intercept-url pattern="/**" access="PRIVILEGE_VIEW_PROJECTS" />
-      </security:filter-security-metadata-source>
-    </property>
-  </bean>
-
-  <bean id="webPrivilegeEvaluator" class="org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator">
-    <constructor-arg ref="filterSecurityInterceptor" />
-  </bean>
-
   <!-- ======================== RememberMe ========================== -->
-
-  <bean id="rememberMeAuthenticationFilter" class="org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter">
-    <constructor-arg name="rememberMeServices" ref="rememberMeServices" />
-    <constructor-arg name="authenticationManager" ref="authenticationManager" />
-  </bean>
 
   <bean id="rememberMeServices" class="org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
     <constructor-arg name="userDetailsService" ref="userDetailsService" />
     <constructor-arg name="key" value="WebStudio_rememberme" />
     <property name="parameter" value="rememberMe" />
     <!-- The same as in localeFilter -->
-  </bean>
-
-  <bean id="rememberMeAuthenticationProvider"
-    class="org.springframework.security.authentication.RememberMeAuthenticationProvider">
-    <constructor-arg name="key" value="WebStudio_rememberme" />
-  </bean>
-
-  <!-- ======================== Logout ========================== -->
-  <bean id="logoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter">
-    <constructor-arg ref="loginUrl" />
-    <constructor-arg>
-      <list>
-        <ref bean="rememberMeServices" />
-        <bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler" />
-      </list>
-    </constructor-arg>
-    <property name="filterProcessesUrl" ref="logoutUrl" />
-  </bean>
-
-  <!-- ======================== Roles ========================== -->
-  <bean id="roleVoter" class="org.openl.rules.security.standalone.AccessVoter" />
-  <bean id="accessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
-    <property name="allowIfAllAbstainDecisions" value="false" />
-    <constructor-arg name="decisionVoters">
-      <list>
-        <ref bean="roleVoter" />
-      </list>
-    </constructor-arg>
-  </bean>
-
-  <bean id="securityMetadataSource" class="org.springframework.security.access.annotation.SecuredAnnotationSecurityMetadataSource"/>
-  <bean id="openlManagerSecurity" class="org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor">
-    <property name="validateConfigAttributes" value="false" />
-    <property name="authenticationManager" ref="authenticationManager" />
-    <property name="accessDecisionManager" ref="accessDecisionManager" />
-    <property name="securityMetadataSource" ref="securityMetadataSource" />
-  </bean>
-
-  <bean id="userManagementService" class="org.openl.rules.webstudio.service.UserManagementService">
-    <property name="userDao" ref="openlUserDao" />
-    <property name="groupDao" ref="groupDao" />
-  </bean>
-
-  <bean id="groupManagementService" class="org.openl.rules.webstudio.service.GroupManagementServiceImpl">
-    <property name="groupDao" ref="groupDao" />
-    <property name="userDao" ref="openlUserDao" />
-  </bean>
-
-  <bean id="httpSessionRequestCache" class="org.springframework.security.web.savedrequest.HttpSessionRequestCache">
-      <!-- Don't redirect to these pages after login -->
-      <property name="requestMatcher" ref="excludingRequestMatcher"/>
-  </bean>
-
-  <bean id="excludingRequestMatcher" class="org.openl.rules.webstudio.security.ExcludingRequestMatcher">
-      <property name="matchers">
-          <list>
-              <bean class="org.springframework.security.web.util.AntPathRequestMatcher">
-                  <constructor-arg value="/**/sourceModified.xhtml"/>
-              </bean>
-              <bean class="org.springframework.security.web.util.AntPathRequestMatcher">
-                  <!-- accessDenied.xhtml, login.xhtml, sessionExpired.xhtml -->
-                  <constructor-arg value="/**/pages/*.xhtml"/>
-              </bean>
-          </list>
-      </property>
   </bean>
 
 </beans>

@@ -12,6 +12,7 @@
             <property name="dbUrl" value="#{dbConfig['db.url']}" />
             <property name="dbSchema" value="#{dbConfig['db.schema']}" />
             <property name="dbUrlSeparator" value="#{dbConfig['db.url.separator']}" />
+            <property name="additionalMigrationPaths" value="#{dbConfig['db.additional.migration.paths']}" />
             <property name="dataSource" ref="openlDataSource" />
         </bean>
 

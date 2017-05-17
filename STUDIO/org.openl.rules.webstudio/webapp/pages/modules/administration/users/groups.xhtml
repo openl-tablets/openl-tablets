@@ -20,13 +20,17 @@
             <td>#{group.description}</td>
             <td>
                 <a4j:repeat var="groupName" value="#{groupsBean.getIncludedGroups(group.name)}">
-                    <h:panelGroup class="badge badge-info" style="margin-right: 2px">#{groupName}</h:panelGroup>
+                    <h:panelGroup class="badge-container">
+                        <h:panelGroup class="badge badge-info" style="margin-right: 2px">#{groupName}</h:panelGroup>
+                    </h:panelGroup>
                 </a4j:repeat>
                 <a4j:repeat var="privilegeName" value="#{groupsBean.getNonGroupPrivileges(group.name)}">
-                    <h:panelGroup class="badge" style="margin-right: 2px"
-                        rendered="#{privilegeName != 'NO RESTRICTIONS' and privilegeName != 'Administrate'}">#{privilegeName}</h:panelGroup>
-                    <h:panelGroup class="badge badge-error" style="margin-right: 2px"
-                        rendered="#{privilegeName == 'NO RESTRICTIONS' or privilegeName == 'Administrate'}">#{privilegeName}</h:panelGroup>
+                    <h:panelGroup class="badge-container">
+                        <h:panelGroup class="badge" style="margin-right: 2px"
+                            rendered="#{privilegeName != 'NO RESTRICTIONS' and privilegeName != 'Administrate'}">#{privilegeName}</h:panelGroup>
+                        <h:panelGroup class="badge badge-error" style="margin-right: 2px"
+                            rendered="#{privilegeName == 'NO RESTRICTIONS' or privilegeName == 'Administrate'}">#{privilegeName}</h:panelGroup>
+                    </h:panelGroup>
                 </a4j:repeat>
             </td>
             <td>
@@ -38,7 +42,7 @@
                     action="#{groupsBean.deleteGroup(group.name)}"
                     onclick="if(!window.confirm('Are you sure you want to delete the group?')) {return false;}"
                     title="Delete">
-                    <h:graphicImage url="/webresource/images/delete.png" />
+                    <img src="webresource/images/delete.png" />
                 </a4j:commandLink>
             </td>
         </tr>

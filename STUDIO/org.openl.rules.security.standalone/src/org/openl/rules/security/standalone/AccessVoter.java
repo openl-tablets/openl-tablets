@@ -12,7 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 /**
  * <p>
  * Based on {@link org.springframework.security.access.vote.RoleVoter}. If Authentication has
- * {@link org.openl.rules.security.PredefinedGroup#GROUP_ADMIN} authority it will get
+ * {@link org.openl.rules.security.DefaultPrivileges#PRIVILEGE_ALL} authority it will get
  * access even if it is not specified explicitly.
  * </p>
  * <p>
@@ -57,7 +57,7 @@ public class AccessVoter implements AccessDecisionVoter<Object> {
      *
      * @param authentication Authentication (Principal)
      * @param object Ignored in current implementation
-     * @param configAttributeDefinition attributes (required Authorities)
+     * @param configAttributes attributes (required Authorities)
      * @return {@link #ACCESS_DENIED} or {@link #ACCESS_ABSTAIN} or
      *         {@link #ACCESS_GRANTED}
      */
@@ -76,6 +76,10 @@ public class AccessVoter implements AccessDecisionVoter<Object> {
                     String authority = grantedAuthority.getAuthority();
 
                     if (auth.equals(authority)) {
+                        return ACCESS_GRANTED;
+                    }
+
+                    if (DefaultPrivileges.PRIVILEGE_ALL.name().equals(auth)) {
                         return ACCESS_GRANTED;
                     }
 

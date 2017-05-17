@@ -32,6 +32,7 @@ public class DBMigrationBean {
     private String dbUrl;
     private String dbSchema;
     private String dbUrlSeparator;
+    private String additionalMigrationPaths;
     private DataSource dataSource;
 
     public void setServletContext(ServletContext servletContext) {
@@ -154,6 +155,14 @@ public class DBMigrationBean {
         this.dbUrlSeparator = dbUrlSeparator;
     }
 
+    public String getAdditionalMigrationPaths() {
+        return additionalMigrationPaths;
+    }
+
+    public void setAdditionalMigrationPaths(String additionalMigrationPaths) {
+        this.additionalMigrationPaths = additionalMigrationPaths;
+    }
+
     public DataSource getDataSource() {
         return dataSource;
     }
@@ -198,6 +207,11 @@ public class DBMigrationBean {
             locations.add("db/migration/mssqlserver");
         } else if (dialect instanceof H2Dialect) {
             locations.add("db/migration/h2");
+        }
+
+        // Additional migrations
+        if (!StringUtils.isBlank(additionalMigrationPaths)) {
+            Collections.addAll(locations, additionalMigrationPaths.trim().split("\\s*,\\s*"));
         }
 
         return locations.toArray(new String[locations.size()]);

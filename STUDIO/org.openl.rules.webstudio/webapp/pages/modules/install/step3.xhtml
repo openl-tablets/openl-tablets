@@ -123,7 +123,7 @@
                     <div class="wizard-block" id="adBlock">
                         <h3>Configure Active Directory:
                             <div class="field-description">
-                                <p>Set up an Active Directory to be used for managing users in OpenL Tablets WebStudio.<br />
+                                <p>Set up an Active Directory to use for managing users in OpenL Tablets WebStudio.<br />
                                    Please contact your System Administrator for this information if necessary.</p>
                             </div>
                         </h3>
@@ -150,13 +150,6 @@
                                         <h:inputText id="adUrl" value="#{installWizard.adUrl}" size="40"/>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td><label>Allowed authority:</label></td>
-                                    <td>
-                                        <h:inputText id="adAuthority" value="#{installWizard.adAuthority}" size="40"
-                                                     title="Authority needed for a full access. Leave it empty to allow a full access for any authenticated user."/>
-                                    </td>
-                                </tr>
                             </table>
 
                             <div class="field-description">
@@ -179,10 +172,91 @@
                             </table>
                         </div>
                     </div>
-                    <div class="wizard-buttons">
-                        <h:button id="prevButton" value="Prev" outcome="#{installWizard.previousPage}" onclick="showLoader()" />
+                    <div class="wizard-block" id="adAppmodeBlock">
+                        <h3>Select application mode:
+                            <div class="field-description">
+                                <p>Here you should choose which Database to use for managing groups in the application.</p>
+                                <p><strong>Production</strong> – You will use an external database to manage OpenL Tablets WebStudio groups.  The database allows you to add/remove groups and change their access rights.</p>
+                                <p><strong>Demo</strong> – You will use an internal Groups Database with predefined list of groups. All changes in the database will be lost after the application restart.</p>
+                            </div>
+                        </h3>
+                        <div>
+                            <h:selectOneRadio value="#{installWizard.appMode}" layout="pageDirection" immediate="true">
+                                <f:selectItem itemValue="production" itemLabel="Production" />
+                                <f:selectItem itemValue="demo" itemLabel="Demo" />
+                                <f:ajax  listener="#{installWizard.appmodeChanged}" />
+                            </h:selectOneRadio>
+                        </div>
+                    </div>
+                    <div class="wizard-block" id="adDbBlock">
+                        <h3>Configure database:
+                            <div class="field-description">
+                                <p>Set up a database to be used for managing groups in OpenL Tablets WebStudio.<br />
+                                    Please contact your System Administrator for this information if necessary.</p>
+                            </div>
+                        </h3>
+                        <div>
+                            <table>
+
+                                <tr>
+                                    <td colspan="2">
+                                        <a4j:outputPanel styleClass="installMessages" ajaxRendered="true">
+                                            <h:messages infoClass="success" errorClass="error" showDetail="true"
+                                                        showSummary="false" tooltip="true" globalOnly="true" />
+                                            <h:message  class="error" for="adDbPassword" />
+                                        </a4j:outputPanel>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label>Database type</label></td>
+                                    <td>
+                                        <h:selectOneMenu value="#{installWizard.dbVendor}" id="adDbVendor" immediate="true">
+                                            <f:selectItem itemValue="#{null}" itemLabel="Select one"/>
+                                            <f:selectItems value="#{installWizard.DBVendors}" />
+                                            <f:ajax  listener="#{installWizard.dbVendorChanged}" />
+                                            <f:ajax render="dbUrl dbUsername"/>
+                                        </h:selectOneMenu>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label>Database URL</label></td>
+                                    <td>
+                                        <h:inputText id="adDbUrl" value="#{installWizard.dbUrl}" size="40" >
+                                            <f:ajax  listener="#{installWizard.urlChanged}" />
+                                        </h:inputText>
+                                    </td>
+                                </tr>
+                                <tr><td></td></tr>
+                                <tr><td></td></tr>
+                                <tr>
+                                    <td><label>Username</label></td>
+                                    <td>
+                                        <h:inputText id="adDbUsername" value="#{installWizard.dbUsername}" size="40"
+                                                     required="true" >
+                                            <f:ajax  listener="#{installWizard.usernameChanged}" />
+                                        </h:inputText>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label>Password</label></td>
+                                    <td>
+                                        <h:inputSecret id="adDbPassword" value="#{installWizard.dbPassword}" size="40"
+                                                       redisplay="true"
+                                                       binding="#{installWizard.dbPasswordInput}"
+                                                       validator="#{installWizard.dbValidator}"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="wizard-buttons" id="finish-buttons">
+                        <h:commandButton id="prevButton" value="Prev" action="#{installWizard.prev}" onclick="showLoader()" />
                         <h:commandButton value="Finish" action="#{installWizard.finish}" class="button-primary" onclick="showLoader()" />
                         <span style="color:#7b1">Click 'Finish' to complete the installation process</span>
+                    </div>
+                    <div class="wizard-buttons" id="next-buttons">
+                        <h:commandButton id="prevButtonAd" value="Prev" action="#{installWizard.prev}" onclick="showLoader()" immediate="true" />
+                        <h:commandButton value="Next" action="#{installWizard.next}" class="button-primary" onclick="showLoader()" />
                     </div>
                 </h:form>
             </div>
@@ -207,16 +281,30 @@
                 toggleBlock("#dbBlock", $j("#usermodeBlock input:checked").val() == "multi"
                     && $j("#appmodeBlock input:checked").val() != "demo");
                 toggleBlock("#adBlock", $j("#usermodeBlock input:checked").val() == "ad");
+                toggleBlock("#adAppmodeBlock", $j("#usermodeBlock input:checked").val() == "ad");
+                toggleBlock("#adDbBlock", $j("#usermodeBlock input:checked").val() == "ad"
+                    && $j("#adAppmodeBlock input:checked").val() != "demo");
+                toggleBlock("#finish-buttons", $j("#usermodeBlock input:checked").val() != "ad");
+                toggleBlock("#next-buttons", $j("#usermodeBlock input:checked").val() == "ad");
 
                 $j("#usermodeBlock input").change(function(e) {
                     toggleBlock("#appmodeBlock", e.target.value == "multi");
                     toggleBlock("#dbBlock", e.target.value == "multi"
                         && $j("#appmodeBlock input:checked").val() != "demo");
                     toggleBlock("#adBlock", e.target.value == "ad");
+                    toggleBlock("#adAppmodeBlock",  e.target.value == "ad");
+                    toggleBlock("#adDbBlock",  e.target.value == "ad"
+                        && $j("#adAppmodeBlock input:checked").val() != "demo");
+                    toggleBlock("#finish-buttons", $j("#usermodeBlock input:checked").val() != "ad");
+                    toggleBlock("#next-buttons", $j("#usermodeBlock input:checked").val() == "ad");
                 });
 
                 $j("#appmodeBlock input").change(function(e) {
                     toggleBlock("#dbBlock", e.target.value != "demo");
+                });
+
+                $j("#adAppmodeBlock input").change(function(e) {
+                    toggleBlock("#adDbBlock", e.target.value != "demo");
                 });
 
             })();

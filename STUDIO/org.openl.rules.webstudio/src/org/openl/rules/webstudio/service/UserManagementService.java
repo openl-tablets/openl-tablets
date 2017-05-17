@@ -10,6 +10,7 @@ import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.security.standalone.persistence.User;
+import org.openl.rules.security.standalone.service.PrivilegesEvaluator;
 import org.openl.rules.security.standalone.service.UserInfoUserDetailsServiceImpl;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -25,7 +26,7 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
         List<org.openl.rules.security.User> resultUsers = new ArrayList<org.openl.rules.security.User>();
         for (User user : users) {
             org.openl.rules.security.User resultUser = new SimpleUser(user.getFirstName(), user.getSurname(),
-                    user.getLoginName(), user.getPasswordHash(), createPrivileges(user));
+                    user.getLoginName(), user.getPasswordHash(), PrivilegesEvaluator.createPrivileges(user));
             resultUsers.add(resultUser);
         }
         return resultUsers;
@@ -36,7 +37,7 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
         List<org.openl.rules.security.User> resultUsers = new ArrayList<org.openl.rules.security.User>();
         for (User user : users) {
             org.openl.rules.security.User resultUser = new SimpleUser(user.getFirstName(), user.getSurname(),
-                    user.getLoginName(), user.getPasswordHash(), createPrivileges(user));
+                    user.getLoginName(), user.getPasswordHash(), PrivilegesEvaluator.createPrivileges(user));
             if (resultUser.hasPrivilege(DefaultPrivileges.PRIVILEGE_ALL.name())
                     || resultUser.hasPrivilege(privilege)) {
                 resultUsers.add(resultUser);
