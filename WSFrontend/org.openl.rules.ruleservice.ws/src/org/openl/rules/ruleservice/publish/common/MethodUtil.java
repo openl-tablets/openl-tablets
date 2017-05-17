@@ -8,10 +8,8 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.variation.VariationsPack;
-import org.openl.types.IOpenMethod;
-import org.openl.util.JavaKeywordUtils;
-import org.openl.util.StringUtils;
+import org.openl.types.IOpenClass;
+import org.openl.util.generation.GenUtils;
 
 public final class MethodUtil {
     private MethodUtil() {
@@ -41,96 +39,12 @@ public final class MethodUtil {
 
     public static String[] getParameterNames(Method method, OpenLService service) {
         if (service != null && service.getOpenClass() != null) {
-            for (IOpenMethod m : service.getOpenClass().getMethods()) {
-                if (m.getName().equals(method.getName())) {
-                    int i = 0;
-                    boolean f = true;
-                    boolean skipRuntimeContextParameter = false;
-                    boolean variationPackIsLastParameter = false;
-                    int j = 0;
-                    for (Class<?> clazz : method.getParameterTypes()) {
-                        j++;
-                        if (service.isProvideRuntimeContext() && !skipRuntimeContextParameter) {
-                            skipRuntimeContextParameter = true;
-                            continue;
-                        }
-                        if (j == method.getParameterTypes().length && service.isProvideVariations() && clazz.isAssignableFrom(VariationsPack.class)) {
-                            variationPackIsLastParameter = true;
-                            continue;
-                        }
-                        if (i >= m.getSignature().getNumberOfParameters()) {
-                            f = false;
-                            break;
-                        }
-                        if (!clazz.equals(m.getSignature().getParameterType(i).getInstanceClass())) {
-                            f = false;
-                            break;
-                        }
-                        i++;
-                    }
-                    if (f && i != m.getSignature().getNumberOfParameters()){
-                        f = false;
-                    }
-                    if (f) {
-                        List<String> parameterNames = new ArrayList<String>();
-                        if (service.isProvideRuntimeContext()) {
-                            parameterNames.add("runtimeContext");
-                        }
-                        for (i = 0; i < m.getSignature().getNumberOfParameters(); i++) {
-                            String pName = convertParameterName(m.getSignature().getParameterName(i));
-                            parameterNames.add(pName);
-                        }
-                        if (variationPackIsLastParameter) {
-                            parameterNames.add("variationPack");
-                        }
-                        
-                        fixJavaKeyWords(parameterNames);
-                        
-                        return parameterNames.toArray(new String[] {});
-                    }
-                }
-            }
+            IOpenClass openClass = service.getOpenClass();
+            boolean provideRuntimeContext = service.isProvideRuntimeContext();
+            boolean provideVariations = service.isProvideVariations();
+            String[] parameterNames = GenUtils.getParameterNames(method, openClass, provideRuntimeContext, provideVariations);
+            return parameterNames;
         }
-        String[] parameterNames = new String[method.getParameterTypes().length];
-        for (int i = 0; i < method.getParameterTypes().length; i++) {
-            parameterNames[i] = "arg" + i;
-        }
-        return parameterNames;
-    }
-
-    private static void fixJavaKeyWords(List<String> parameterNames) {
-        for (int i = 0; i < parameterNames.size(); i++) {
-            if (JavaKeywordUtils.isJavaKeyword(parameterNames.get(i))) {
-                int k = 0;
-                boolean f = false;
-                while (!f) {
-                    k++;
-                    String s = parameterNames.get(i) + k;
-                    boolean g = true;
-                    for (int j = 0; j < parameterNames.size(); j++) {
-                        if (j != i && s.equals(parameterNames.get(j))) {
-                            g = false;
-                            break;
-                        }
-                    }
-                    if (g) {
-                        f = true;
-                    }
-                }
-                parameterNames.set(i, parameterNames.get(i) + k);
-            }
-        }
-    }
-
-    public static String convertParameterName(String pName) {
-        if (pName.length() == 1){
-            return pName.toLowerCase();
-        }else{
-            if (pName.length() > 1 && Character.isUpperCase(pName.charAt(1))){
-                return StringUtils.capitalize(pName);
-            }else{
-                return StringUtils.uncapitalize(pName);
-            }
-        }
+        return GenUtils.getParameterNames(method);
     }
 }

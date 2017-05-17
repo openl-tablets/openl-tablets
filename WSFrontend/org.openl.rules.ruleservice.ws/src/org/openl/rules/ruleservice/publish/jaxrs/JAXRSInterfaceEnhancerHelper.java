@@ -32,6 +32,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.databinding.JAXRSArgumentWrapperGenerator;
 import org.openl.rules.ruleservice.publish.common.MethodUtil;
 import org.openl.util.StringUtils;
+import org.openl.util.generation.GenUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
 /**
@@ -509,7 +510,7 @@ public class JAXRSInterfaceEnhancerHelper {
                             for (int j = 0; j < propertyDescriptors.length; j++) {
                                 int k = -1;
                                 for (int q = 0; q < paramNames.length; q++) {
-                                    if (paramNames[q].equals(MethodUtil.convertParameterName(propertyDescriptors[j].getName()))) {
+                                    if (paramNames[q].equals(GenUtils.convertParameterName(propertyDescriptors[j].getName()))) {
                                         k = q;
                                         break;
                                     }
