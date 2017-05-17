@@ -35,7 +35,7 @@
                                 </h:panelGrid>
                             </div>
                         </section>
-                        <h:panelGroup rendered="#{systemConfig['user.mode'] == 'multi'}">
+                        <h:panelGroup rendered="#{systemConfig['user.mode'] != 'single' and userProfileBean.user.internalUser}">
                         <section>
                             <h3>Name</h3>
                             <div>
@@ -54,6 +54,22 @@
                                 </h:panelGrid>
                             </div>
                         </section>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{systemConfig['user.mode'] != 'single' and not userProfileBean.user.internalUser}">
+                        <section>
+                            <h3>Name</h3>
+                            <div>
+                                <h:panelGrid columns="2" columnClasses="titleColumn">
+                                    <label>First Name</label>
+                                    <h:panelGroup style="font-weight: bold">#{userProfileBean.firstName}</h:panelGroup>
+
+                                    <label>Last Name</label>
+                                    <h:panelGroup style="font-weight: bold">#{userProfileBean.lastName}</h:panelGroup>
+                                </h:panelGrid>
+                            </div>
+                        </section>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{systemConfig['user.mode'] == 'multi'}">
                         <section>
                             <h3>Change Password</h3>
                             <div>
@@ -151,10 +167,10 @@
             </rich:tabPanel>
 
             <footer>
-                <a4j:commandButton rendered="#{systemConfig['user.mode'] == 'multi'}" value="Save"
+                <a4j:commandButton rendered="#{systemConfig['user.mode'] != 'single' and userProfileBean.user.internalUser}" value="Save"
                     action="#{userProfileBean.editUser}" data="#{facesContext.maximumSeverity}"
                     oncomplete="if(!event.data) hideAndReload()" styleClass="button-primary save-button" />
-                <a4j:commandButton rendered="#{systemConfig['user.mode'] != 'multi'}" value="Save"
+                <a4j:commandButton rendered="#{systemConfig['user.mode'] == 'single' or not userProfileBean.user.internalUser}" value="Save"
                     oncomplete="hideAndReload()" styleClass="button-primary save-button" />
                 <input class="restore-changed-state" type="button" value="Cancel" onclick="hideUserProfile();" />
             </footer>

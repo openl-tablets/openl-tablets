@@ -24,7 +24,7 @@
                 <h:inputHidden id="usernameHidden" value="#{usersBean.username}" />
 
                 <label>Password</label>
-                <h:inputSecret id="password" value="#{usersBean.changedPassword}" />
+                <h:inputSecret id="password" value="#{usersBean.changedPassword}" styleClass="internal-user" />
                 <a4j:outputPanel ajaxRendered="true" id="passwordError">
                     <h:message for="password" styleClass="error" />
                 </a4j:outputPanel>
@@ -34,13 +34,13 @@
                 <h:outputText value="" />
 
                 <label>First Name</label>
-                <h:inputText id="firstName" value="#{usersBean.firstName}" />
+                <h:inputText id="firstName" value="#{usersBean.firstName}" styleClass="internal-user" />
                 <a4j:outputPanel ajaxRendered="true" id="firstNameError">
                     <h:message for="firstName" styleClass="error" />
                 </a4j:outputPanel>
 
                 <label>Last Name</label>
-                <h:inputText id="lastName" value="#{usersBean.lastName}" />
+                <h:inputText id="lastName" value="#{usersBean.lastName}" styleClass="internal-user" />
                 <a4j:outputPanel ajaxRendered="true" id="lastNameError">
                     <h:message for="lastName" styleClass="error" />
                 </a4j:outputPanel>
@@ -66,7 +66,7 @@
 
     <script>
       //<![CDATA[
-        function editUser(username, firstName, lastName, groups, onlyAdminGroups) {
+        function editUser(username, firstName, lastName, internalUser, groups, onlyAdminGroups) {
             $j("#editUserForm\\:username").text(username);
             $j("#editUserForm\\:usernameHidden").val(username);
             $j("#editUserForm\\:firstName").val(firstName);
@@ -89,6 +89,9 @@
                     value: group.val()
                 }).appendTo("#editUserForm");
             }
+            $j(".internal-user").each(function () {
+                this.disabled = !internalUser;
+            });
 
             RichFaces.$("modalEditUser").show();
         }

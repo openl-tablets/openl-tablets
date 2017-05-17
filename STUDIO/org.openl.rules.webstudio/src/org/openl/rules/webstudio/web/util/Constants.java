@@ -19,6 +19,8 @@ public final class Constants {
 
     public static final String RULES_USER_SESSION = "rulesUserSession";
 
+    public static final String USER_ORIGIN_ACTIVE_DIRECTORY = "Active Directory";
+
     private Constants() {
     }
 }

@@ -35,6 +35,7 @@ import org.openl.rules.webstudio.service.GroupManagementServiceWrapper;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.admin.*;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
+import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -367,7 +368,8 @@ public class InstallWizard {
                 // Create admin users
                 for (String username : adAdmins.trim().split(SEPARATOR_PATTERN)) {
                     if (!username.isEmpty()) {
-                        userManagementService.addUser(new SimpleUser("", "", username, "", adminGroups));
+                        userManagementService.addUser(new SimpleUser("", "", username, "",
+                                Constants.USER_ORIGIN_ACTIVE_DIRECTORY, adminGroups));
                     }
                 }
                 setProductionDbProperties();
@@ -401,9 +403,9 @@ public class InstallWizard {
             String[] admins = adAdmins.trim().split(SEPARATOR_PATTERN);
             for (String username : admins) {
                 if (!username.isEmpty()) {
-                    script.append("INSERT INTO ${schemaPrefix}OpenLUser (LoginName, Password) VALUES('")
+                    script.append("INSERT INTO ${schemaPrefix}OpenLUser (LoginName, Password, origin) VALUES('")
                             .append(username)
-                            .append("', '');\n");
+                            .append("', '', '" + Constants.USER_ORIGIN_ACTIVE_DIRECTORY + "');\n");
                 }
             }
 

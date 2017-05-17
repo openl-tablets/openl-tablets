@@ -43,8 +43,15 @@
         </h:column>
 
         <h:column>
+            <f:facet name="header">
+                Origin
+            </f:facet>
+            #{user.origin}
+        </h:column>
+
+        <h:column>
             <a href="javascript:void(0)"
-                onclick="editUser('#{user.username}', '#{user.firstName}', '#{user.lastName}', #{jsffn:toJSON(usersBean.getGroups(user))}, #{jsffn:toJSON(usersBean.getOnlyAdminGroups(user))})"
+                onclick="editUser('#{user.username}', '#{user.firstName}', '#{user.lastName}', #{user.internalUser}, #{jsffn:toJSON(usersBean.getGroups(user))}, #{jsffn:toJSON(usersBean.getOnlyAdminGroups(user))})"
                 title="Edit"><img src="webresource/images/edit2.gif" /></a>
             <a4j:commandLink execute="@this" render="@form" rendered="#{!usersBean.isOnlyAdmin(user)}"
                 action="#{usersBean.deleteUser(user.username)}"

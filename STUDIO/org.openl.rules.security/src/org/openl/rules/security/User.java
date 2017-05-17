@@ -17,4 +17,7 @@ public interface User extends UserDetails {
 
     boolean hasPrivilege(String privilege);
 
+    String getOrigin();
+
+    boolean isInternalUser();
 }

@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.security;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -23,15 +22,18 @@ public class OpenLAuthenticationProviderWrapper implements AuthenticationProvide
     private final AuthenticationProvider delegate;
     private final UserManagementService userManagementService;
     private final GroupManagementService groupManagementService;
+    private final String origin;
     private String defaultGroup = null;
     private boolean groupsAreManagedInStudio = true;
 
     public OpenLAuthenticationProviderWrapper(AuthenticationProvider delegate,
             UserManagementService userManagementService,
-            GroupManagementService groupManagementService) {
+            GroupManagementService groupManagementService,
+            String origin) {
         this.delegate = delegate;
         this.userManagementService = userManagementService;
         this.groupManagementService = groupManagementService;
+        this.origin = StringUtils.trimToNull(origin);
     }
 
     @Override
@@ -55,7 +57,7 @@ public class OpenLAuthenticationProviderWrapper implements AuthenticationProvide
                     groups = Collections.emptyList();
                 }
                 authorities = groups;
-                userManagementService.addUser(new SimpleUser("", "", authentication.getName(), "", groups));
+                userManagementService.addUser(new SimpleUser("", "", authentication.getName(), "", origin, groups));
             }
             return new UsernamePasswordAuthenticationToken(delegatedAuth.getPrincipal(), delegatedAuth.getCredentials(),
                     authorities);

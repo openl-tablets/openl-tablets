@@ -32,6 +32,7 @@ public class User extends PersistentObject {
     private Set<Group> groups;
     private String firstName;
     private String surname;
+    private String origin;
     private Set<AccessControlEntry> accessControlEntries;
 
     /**
@@ -92,6 +93,11 @@ public class User extends PersistentObject {
         return surname;
     }
 
+    @Column(name = "origin", length = 100)
+    public String getOrigin() {
+        return origin;
+    }
+
     /**
      * User's access control entries.
      */
@@ -127,5 +133,9 @@ public class User extends PersistentObject {
 
     public void setSurname(String surname) {
         this.surname = surname;
+    }
+
+    public void setOrigin(String origin) {
+        this.origin = origin;
     }
 }

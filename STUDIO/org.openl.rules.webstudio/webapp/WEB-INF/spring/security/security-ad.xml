@@ -16,6 +16,8 @@
 
     <util:list id="authenticationProviders">
         <ref bean="authenticationProviderWrapper" />
+        <!-- Fallback: check if can be authenticated using internal user credentials -->
+        <ref bean="daoAuthenticationProvider" />
     </util:list>
 
     <util:list id="logoutHandlers">
@@ -52,8 +54,27 @@
         <constructor-arg name="delegate" ref="adAuthenticationProvider"/>
         <constructor-arg name="userManagementService" ref="userManagementService"/>
         <constructor-arg name="groupManagementService" ref="groupManagementService"/>
+        <constructor-arg name="origin">
+            <util:constant static-field="org.openl.rules.webstudio.web.util.Constants.USER_ORIGIN_ACTIVE_DIRECTORY"/>
+        </constructor-arg>
         <property name="defaultGroup" value="#{adConfig['security.ad.default-group']}"/>
         <property name="groupsAreManagedInStudio" value="#{adConfig['security.ad.groups-are-managed-in-studio']}"/>
+    </bean>
+
+    <!-- ========================== Fallback to internal users authentication =============================== -->
+    <bean id="daoAuthenticationProvider" class="org.openl.rules.security.standalone.authentication.RehashingDaoAuthenticationProvider">
+        <constructor-arg ref="passwordEncoder"/>
+        <constructor-arg ref="openlUserDao"/>
+        <property name="userDetailsService" ref="userDetailsService" />
+        <property name="hideUserNotFoundExceptions" value="false" />
+    </bean>
+
+    <bean id="passwordEncoder" class="org.openl.rules.security.standalone.authentication.OpenLPasswordEncoder" >
+        <constructor-arg value="#{systemProperties['webstudio.bcrypt.strength']}"/>
+    </bean>
+
+    <bean id="userDetailsService" class="org.openl.rules.security.standalone.service.UserInfoUserDetailsServiceImpl">
+        <property name="userDao" ref="openlUserDao" />
     </bean>
 
 </beans>

@@ -2,6 +2,7 @@ package org.openl.rules.security.standalone.authentication;
 
 import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.security.standalone.persistence.User;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
@@ -23,6 +24,12 @@ public class RehashingDaoAuthenticationProvider extends DaoAuthenticationProvide
     @Override
     protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
         super.additionalAuthenticationChecks(userDetails, authentication);
+        if (userDetails instanceof org.openl.rules.security.User) {
+            org.openl.rules.security.User user = (org.openl.rules.security.User) userDetails;
+            if (!user.isInternalUser()) {
+                throw new BadCredentialsException("Only internal users can be authenticated using RehashingDaoAuthenticationProvider");
+            }
+        }
 
         String oldHashedPassword = userDetails.getPassword();
         if (passwordEncoder.rehashIsNeeded(oldHashedPassword)) {
