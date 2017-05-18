@@ -1611,12 +1611,76 @@ public class Operators {
     public static double pow(double x, double y) {
         return Math.pow(x, y);
     }
-    
+
+    public static Byte pow(Byte x, Byte y) {
+        if (x == null) {
+            return null;
+        } else if (y == null) {
+            return 1;
+        }
+        return (byte) Math.pow(x, y);
+    }
+
+    public static Short pow(Short x, Short y) {
+        if (x == null) {
+            return null;
+        } else if (y == null) {
+            return 1;
+        }
+        return (short) Math.pow(x, y);
+    }
+
+    public static Integer pow(Integer x, Integer y) {
+        if (x == null) {
+            return null;
+        } else if (y == null) {
+            return 1;
+        }
+        return (int) Math.pow(x, y);
+    }
+
+    public static Long pow(Long x, Long y) {
+        if (x == null) {
+            return null;
+        } else if (y == null) {
+            return 1L;
+        }
+        return (long) Math.pow(x, y);
+    }
+
+    public static Float pow(Float x, Float y) {
+        if (x == null) {
+            return null;
+        } else if (y == null) {
+            return 1.0f;
+        }
+        return (float) Math.pow(x, y);
+    }
+
+    public static Double pow(Double x, Double y) {
+        if (x == null) {
+            return null;
+        } else if (y == null) {
+            return 1.0;
+        }
+        return Math.pow(x, y);
+    }
+
     public static BigInteger pow(BigInteger x, BigInteger y) {
+        if (x == null) {
+            return null;
+        } else if (y == null) {
+            return BigInteger.ONE;
+        }
         return x.pow(y.intValue());
     }
     
     public static BigDecimal pow(BigDecimal x, BigDecimal y) {
+        if (x == null) {
+            return null;
+        } else if (y == null) {
+            return BigDecimal.ONE;
+        }
         return x.pow(y.intValue());
     }
 
@@ -1735,7 +1799,11 @@ public class Operators {
     public static double rem(double x, double y) {
         return x % y;
     }
-    
+
+
+    public static void main(String[] args) {
+        System.out.println(-1.7 % 0.3);
+    }
     public static BigInteger rem(BigInteger x, BigInteger y) {
         return x.remainder(y);
     }
