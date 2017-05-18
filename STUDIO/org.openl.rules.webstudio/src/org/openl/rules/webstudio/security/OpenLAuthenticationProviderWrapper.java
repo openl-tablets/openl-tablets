@@ -39,6 +39,10 @@ public class OpenLAuthenticationProviderWrapper implements AuthenticationProvide
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+        if (!delegate.supports(authentication.getClass())) {
+            return null;
+        }
+
         Authentication delegatedAuth = delegate.authenticate(authentication);
         if (!groupsAreManagedInStudio) {
             return delegatedAuth;
@@ -101,7 +105,7 @@ public class OpenLAuthenticationProviderWrapper implements AuthenticationProvide
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
+        return Authentication.class.isAssignableFrom(authentication);
     }
 
     public void setDefaultGroup(String defaultGroup) {
