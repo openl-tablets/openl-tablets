@@ -158,6 +158,11 @@ public class UsersBean {
     }
 
     public void editUser() {
+        User user = userManagementService.loadUserByUsername(username);
+        if (!user.isInternalUser()) {
+            firstName = user.getFirstName();
+            lastName = user.getLastName();
+        }
         String passwordHash = StringUtils.isBlank(changedPassword) ? null : passwordEncoder.encode(changedPassword);
         userManagementService.updateUser(
                 new SimpleUser(firstName, lastName, username, passwordHash, getSelectedGroups()));

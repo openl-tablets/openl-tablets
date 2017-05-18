@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.security;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.List;
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleUser;
+import org.openl.rules.security.User;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.util.StringUtils;
@@ -15,7 +17,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 public class OpenLAuthenticationProviderWrapper implements AuthenticationProvider {
@@ -46,8 +47,34 @@ public class OpenLAuthenticationProviderWrapper implements AuthenticationProvide
         if (delegatedAuth != null) {
             Collection<? extends GrantedAuthority> authorities;
             try {
-                UserDetails dbUser = userManagementService.loadUserByUsername(authentication.getName());
+                User dbUser = userManagementService.loadUserByUsername(delegatedAuth.getName());
                 authorities = dbUser.getAuthorities();
+
+                // Check if First Name or Last Name were changed since last login
+                if (delegatedAuth.getPrincipal() instanceof User) {
+                    User user = (User) delegatedAuth.getPrincipal();
+
+                    String firstName = StringUtils.trimToEmpty(user.getFirstName());
+                    String lastName = StringUtils.trimToEmpty(user.getLastName());
+
+                    if (!firstName.equals(StringUtils.trimToEmpty(dbUser.getFirstName()))
+                            || !lastName.equals(StringUtils.trimToEmpty(dbUser.getLastName()))) {
+                        // Convert authorities to groups. We don't want to loose them.
+                        Collection<Privilege> privileges = new ArrayList<Privilege>();
+                        for (GrantedAuthority authority : dbUser.getAuthorities()) {
+                            Privilege group = groupManagementService.getGroupByName(authority.getAuthority());
+                            privileges.add(group);
+                        }
+
+                        SimpleUser userToUpdate = new SimpleUser(user.getFirstName(),
+                                user.getLastName(),
+                                user.getUsername(),
+                                null,
+                                user.getOrigin(),
+                                privileges);
+                        userManagementService.updateUser(userToUpdate);
+                    }
+                }
             } catch (UsernameNotFoundException e) {
                 List<Privilege> groups;
                 if (!StringUtils.isBlank(defaultGroup) && groupManagementService.isGroupExist(defaultGroup)) {
@@ -57,7 +84,14 @@ public class OpenLAuthenticationProviderWrapper implements AuthenticationProvide
                     groups = Collections.emptyList();
                 }
                 authorities = groups;
-                userManagementService.addUser(new SimpleUser("", "", authentication.getName(), "", origin, groups));
+                String firstName = null;
+                String lastName = null;
+                if (delegatedAuth.getPrincipal() instanceof User) {
+                    User user = (User) delegatedAuth.getPrincipal();
+                    firstName = user.getFirstName();
+                    lastName = user.getLastName();
+                }
+                userManagementService.addUser(new SimpleUser(firstName, lastName, delegatedAuth.getName(), "", origin, groups));
             }
             return new UsernamePasswordAuthenticationToken(delegatedAuth.getPrincipal(), delegatedAuth.getCredentials(),
                     authorities);

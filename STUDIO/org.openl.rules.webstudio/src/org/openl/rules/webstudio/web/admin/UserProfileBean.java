@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.admin;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -19,12 +20,17 @@ import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 @ManagedBean
 @RequestScoped
 public class UserProfileBean extends UsersBean {
     public static final String VALIDATION_MAX = "Must be less than 25";
+    private final Logger log = LoggerFactory.getLogger(UserProfileBean.class);
 
     private User user;
     private String newPassword;
@@ -53,7 +59,17 @@ public class UserProfileBean extends UsersBean {
      */
     public User getUser() {
         setUsername(currentUserInfo.getUserName());
-        user = userManagementService.loadUserByUsername(currentUserInfo.getUserName());
+        Authentication authentication = currentUserInfo.getAuthentication();
+        if (authentication.getPrincipal() instanceof User) {
+            user = (User) authentication.getPrincipal();
+        } else {
+            try {
+                user = userManagementService.loadUserByUsername(getUsername());
+            } catch (UsernameNotFoundException e) {
+                log.warn("User details for user '" + getUsername() + "' can't be retrieved.");
+                user = new SimpleUser(null, null, getUsername(), null, Collections.<Privilege>emptyList());
+            }
+        }
         setFirstName(user.getFirstName());
         setLastName(user.getLastName());
         setCurrentPassword(user.getPassword());

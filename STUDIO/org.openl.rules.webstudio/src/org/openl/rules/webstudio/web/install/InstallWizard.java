@@ -368,7 +368,7 @@ public class InstallWizard {
                 // Create admin users
                 for (String username : adAdmins.trim().split(SEPARATOR_PATTERN)) {
                     if (!username.isEmpty()) {
-                        userManagementService.addUser(new SimpleUser("", "", username, "",
+                        userManagementService.addUser(new SimpleUser(null, null, username, "",
                                 Constants.USER_ORIGIN_ACTIVE_DIRECTORY, adminGroups));
                     }
                 }

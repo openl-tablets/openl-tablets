@@ -1,8 +1,6 @@
 package org.openl.rules.security;
 
-import org.springframework.security.core.GrantedAuthority;
-
-public class SimplePrivilege implements GrantedAuthority {
+public class SimplePrivilege implements Privilege {
 
     private static final long serialVersionUID = 1L;
 
@@ -17,6 +15,7 @@ public class SimplePrivilege implements GrantedAuthority {
         this.displayName = displayName;
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -25,6 +24,7 @@ public class SimplePrivilege implements GrantedAuthority {
         this.name = name;
     }
 
+    @Override
     public String getDisplayName() {
         return displayName;
     }

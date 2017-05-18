@@ -44,10 +44,17 @@
         <constructor-arg name="domain" value="#{adConfig['security.ad.domain']}"/>
         <constructor-arg name="url" value="#{adConfig['security.ad.url']}"/>
         <property name="authoritiesMapper" ref="authoritiesMapper"/>
+        <property name="userDetailsContextMapper" ref="userDetailsContextMapper"/>
     </bean>
 
     <bean id="authoritiesMapper" class="org.openl.rules.webstudio.security.ActiveDirectoryAuthoritiesMapper">
         <constructor-arg ref="groupDao"/>
+    </bean>
+
+    <bean id="userDetailsContextMapper" class="org.openl.rules.webstudio.security.LdapToOpenLUserDetailsMapper">
+        <constructor-arg name="delegate">
+            <bean class="org.springframework.security.ldap.userdetails.LdapUserDetailsMapper"/>
+        </constructor-arg>
     </bean>
 
     <bean id="authenticationProviderWrapper" class="org.openl.rules.webstudio.security.OpenLAuthenticationProviderWrapper">
