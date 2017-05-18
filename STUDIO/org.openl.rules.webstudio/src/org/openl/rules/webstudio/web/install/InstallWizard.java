@@ -84,10 +84,6 @@ public class InstallWizard {
     private String dbVendor;
     private String dbSchema;
 
-    private UIInput dbURLInput;
-    private UIInput dbLoginInput;
-    private UIInput dbPasswordInput;
-
     @NotBlank
     private String adDomain;
     @NotBlank
@@ -525,7 +521,7 @@ public class InstallWizard {
     }
 
     public void dbValidator(FacesContext context, UIComponent toValidate, Object value) {
-        String dbPasswordString = (String) dbPasswordInput.getSubmittedValue();
+        String dbPasswordString = (String) value;
 
         if (!"demo".equals(appMode)) {
             if (StringUtils.isBlank(dbVendor)) {
@@ -572,7 +568,7 @@ public class InstallWizard {
     }
 
     public void adAdminsValidator(FacesContext context, UIComponent toValidate, Object value) {
-        String admins = (String) ((UIInput)toValidate).getSubmittedValue();
+        String admins = (String) value;
         if (StringUtils.isBlank(admins) || admins.trim().equals(",")) {
             throw new ValidatorException(FacesUtils.createErrorMessage("Administrators field must not be empty"));
         }
@@ -907,30 +903,6 @@ public class InstallWizard {
 
     public void setDbDriver(String dbDriver) {
         this.dbDriver = dbDriver;
-    }
-
-    public UIInput getDbURLInput() {
-        return dbURLInput;
-    }
-
-    public void setDbURLInput(UIInput dbURLInput) {
-        this.dbURLInput = dbURLInput;
-    }
-
-    public UIInput getDbLoginInput() {
-        return dbLoginInput;
-    }
-
-    public void setDbLoginInput(UIInput dbLoginInput) {
-        this.dbLoginInput = dbLoginInput;
-    }
-
-    public UIInput getDbPasswordInput() {
-        return dbPasswordInput;
-    }
-
-    public void setDbPasswordInput(UIInput dbPasswordInput) {
-        this.dbPasswordInput = dbPasswordInput;
     }
 
     public String getAdDomain() {
