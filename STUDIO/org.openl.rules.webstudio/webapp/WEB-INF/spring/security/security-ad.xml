@@ -15,9 +15,9 @@
     <bean id="rememberMeServices" class="org.springframework.security.web.authentication.NullRememberMeServices"/>
 
     <util:list id="authenticationProviders">
-        <ref bean="authenticationProviderWrapper" />
-        <!-- Fallback: check if can be authenticated using internal user credentials -->
+        <!-- First try to authenticate using internal users DB, then using AD-->
         <ref bean="daoAuthenticationProvider" />
+        <ref bean="authenticationProviderWrapper" />
     </util:list>
 
     <util:list id="logoutHandlers">
@@ -68,7 +68,7 @@
         <property name="groupsAreManagedInStudio" value="#{adConfig['security.ad.groups-are-managed-in-studio']}"/>
     </bean>
 
-    <!-- ========================== Fallback to internal users authentication =============================== -->
+    <!-- ========================== Internal users authentication =============================== -->
     <bean id="daoAuthenticationProvider" class="org.openl.rules.security.standalone.authentication.RehashingDaoAuthenticationProvider">
         <constructor-arg ref="passwordEncoder"/>
         <constructor-arg ref="openlUserDao"/>
