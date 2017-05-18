@@ -135,6 +135,7 @@
                                                 showSummary="false" tooltip="true" globalOnly="true" />
                                             <h:message  class="error" for="adPassword" />
                                         </a4j:outputPanel>
+                                        <span id="ad-successful-message" class="success" style="display:none">Connection successful</span>
                                     </td>
                                    </tr>
                                 <tr>
@@ -166,6 +167,12 @@
                                     <td><label>Password:</label></td>
                                     <td>
                                         <h:inputSecret id="adPassword" value="#{installWizard.adPassword}" size="40" validator="#{installWizard.adValidator}"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>
+                                        <a4j:commandButton value="Check connection" execute="adDomain adUrl adUsername adPassword" oncomplete="toggleBlock('#ad-successful-message', #{!facesContext.validationFailed});"/>
                                     </td>
                                 </tr>
                             </table>
@@ -261,19 +268,19 @@
         </div>
 
         <script>
-          //<![CDATA[
+            //<![CDATA[
+
+            // TODO Move to UI JS model
+            function toggleBlock(selector, toggle) {
+                $j(selector).toggle(toggle);
+                $j(selector + " input").each(function() {
+                    if (this.type != "radio") {
+                        this.disabled = !toggle;
+                    }
+                })
+            }
 
             (function() {
-
-                // TODO Move to UI JS model
-                function toggleBlock(selector, toggle) {
-                    $j(selector).toggle(toggle);
-                    $j(selector + " input").each(function() {
-                        if (this.type != "radio") {
-                            this.disabled = !toggle;
-                        }
-                    })
-                }
 
                 toggleBlock("#appmodeBlock", $j("#usermodeBlock input:checked").val() == "multi");
                 toggleBlock("#dbBlock", $j("#usermodeBlock input:checked").val() == "multi"
@@ -307,7 +314,7 @@
 
             })();
 
-          //]]>
+            //]]>
         </script>
 
     </ui:define>
