@@ -278,7 +278,7 @@ public abstract class FacesUtils {
     }
 
     public static FacesMessage createInfoMessage(String summary) {
-        return createWarnMessage(summary, null);
+        return createInfoMessage(summary, null);
     }
 
     public static FacesMessage createInfoMessage(String summary, String detail) {
