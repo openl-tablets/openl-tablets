@@ -622,12 +622,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <!-- Configuration library for JVM languages. -->
-            <dependency>
-                <groupId>com.typesafe</groupId>
-                <artifactId>config</artifactId>
-                <version>1.2.1</version>
-            </dependency>
             <!-- Spring Framework -->
             <!-- Core utilities used by other modules. Define this if you use Spring
                 Utility APIs (org.springframework.core.*/org.springframework.util.*) -->
