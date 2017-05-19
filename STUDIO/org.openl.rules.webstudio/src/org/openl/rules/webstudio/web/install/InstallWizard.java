@@ -388,6 +388,8 @@ public class InstallWizard {
         dbConfig.restoreDefaults();
 
         if (groupsAreManagedInStudio) {
+            dbConfig.setProperty("db.additional.origins", Constants.USER_ORIGIN_ACTIVE_DIRECTORY);
+
             // Add several users to Administrators group
             File folder = new File(scriptFolder);
             if (!folder.mkdirs() && !folder.exists()) {
@@ -427,7 +429,6 @@ public class InstallWizard {
             }
 
             IOUtils.copyAndClose(IOUtils.toInputStream(script.toString()), new FileOutputStream(scriptPath));
-            dbConfig.setProperty("db.additional.migration.paths", "filesystem:" + scriptFolder);
         } else {
             // Copy groups from DB in temporary context to initialization scripts
             File folder = new File(scriptFolder);
@@ -484,8 +485,8 @@ public class InstallWizard {
             }
 
             IOUtils.copyAndClose(IOUtils.toInputStream(script.toString()), new FileOutputStream(scriptPath));
-            dbConfig.setProperty("db.additional.migration.paths", "filesystem:" + scriptFolder);
         }
+        dbConfig.setProperty("db.additional.migration.paths", "filesystem:" + scriptFolder);
     }
 
     private void setProductionDbProperties() {
@@ -499,6 +500,12 @@ public class InstallWizard {
         dbConfig.setProperty("db.schema", this.dbSchema);
         dbConfig.setProperty("db.validationQuery", externalDBConfig.getStringProperty("db.validationQuery"));
         dbConfig.setProperty("db.url.separator", externalDBConfig.getStringProperty("db.url.separator"));
+        if (AD_USER_MODE.equals(userMode) && groupsAreManagedInStudio) {
+            dbConfig.setProperty("db.additional.origins", Constants.USER_ORIGIN_ACTIVE_DIRECTORY);
+        } else {
+            // By default only internal origin
+            dbConfig.removeProperty("db.additional.origins");
+        }
     }
 
     /**

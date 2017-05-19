@@ -28,6 +28,7 @@ import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
+import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.StringUtils;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -65,6 +66,8 @@ public class UsersBean {
     @NotEmpty(message=VALIDATION_GROUPS)
     private List<String> groups;
 
+    private String origin;
+
     @ManagedProperty(value="#{userManagementService}")
     protected UserManagementService userManagementService;
 
@@ -73,6 +76,9 @@ public class UsersBean {
 
     @ManagedProperty(value = "#{passwordEncoder}")
     protected PasswordEncoder passwordEncoder;
+
+    @ManagedProperty(value = "#{additionalOrigins}")
+    protected String[] additionalOrigins;
 
     /**
      * Validation for existed user
@@ -152,9 +158,9 @@ public class UsersBean {
     }
 
     public void addUser() {
-        String passwordHash = passwordEncoder.encode(password);
+        String passwordHash = origin == null ? passwordEncoder.encode(password) : "";
         userManagementService.addUser(
-                new SimpleUser(firstName, lastName, username, passwordHash, getSelectedGroups()));
+                new SimpleUser(firstName, lastName, username, passwordHash, origin, getSelectedGroups()));
     }
 
     public void editUser() {
@@ -234,6 +240,25 @@ public class UsersBean {
         this.changedPassword = changedPassword;
     }
 
+    public String getOrigin() {
+        return origin;
+    }
+
+    public void setOrigin(String origin) {
+        this.origin = StringUtils.trimToNull(origin);
+    }
+
+    public List<SelectItem> getOrigins() {
+        List<SelectItem> result = new ArrayList<SelectItem>();
+        result.add(new SelectItem(null, Constants.USER_ORIGIN_INTERNAL));
+        if (additionalOrigins != null) {
+            for (String additionalOrigin : additionalOrigins) {
+                result.add(new SelectItem(additionalOrigin));
+            }
+        }
+        return result;
+    }
+
     public List<String> getGroups() {
         return groups;
     }
@@ -262,5 +287,9 @@ public class UsersBean {
 
     public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
+    }
+
+    public void setAdditionalOrigins(String[] additionalOrigins) {
+        this.additionalOrigins = additionalOrigins;
     }
 }

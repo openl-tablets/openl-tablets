@@ -19,6 +19,12 @@
         <h:form id="addUserForm">
         <div style="max-height: 370px; overflow: auto;">
             <h:panelGrid columns="3" cellspacing="5">
+                <h:panelGroup rendered="#{usersBean.origins.size() > 1}"><label class="required">Origin</label></h:panelGroup>
+                <h:selectOneMenu rendered="#{usersBean.origins.size() > 1}" id="origin" value="#{usersBean.origin}">
+                    <f:selectItems value="#{usersBean.origins}"/>
+                </h:selectOneMenu>
+                <h:panelGroup rendered="#{usersBean.origins.size() > 1}"></h:panelGroup>
+
                 <label class="required">Username</label>
                 <h:inputText id="username" value="#{usersBean.username}"
                     validator="#{usersBean.validateUsername}" />
@@ -74,8 +80,18 @@
             $j("#addUserForm\\:nameError,#addUserForm\\:passwordError,#addUserForm\\:firstNameError,#addUserForm\\:lastNameError,#addUserForm\\:groupsError").text("");
 
             // Reset form
+            $j("#addUserForm\\:password").prop('disabled', false);
+            $j("#addUserForm\\:password").closest('tr').toggle(true);
             $j("#addUserForm")[0].reset();
         }
+
+        (function () {
+            $j("#addUserForm\\:origin").change(function (e) {
+                // Disable and hide the password field if origin isn't Internal (enable and show otherwise)
+                $j("#addUserForm\\:password").prop('disabled', e.target.value !== '');
+                $j("#addUserForm\\:password").closest('tr').toggle(e.target.value === '');
+            });
+        })();
     </script>
 
 </ui:composition>
