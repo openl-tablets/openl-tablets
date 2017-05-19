@@ -21,4 +21,8 @@
         <welcome-file>index.jsf</welcome-file>
     </welcome-file-list>
 
+    <context-param>
+        <param-name>ws.path</param-name>
+        <param-value>/webservice/Example3-AutoPolicyCalculation?wsdl</param-value>
+    </context-param>
 </web-app>
