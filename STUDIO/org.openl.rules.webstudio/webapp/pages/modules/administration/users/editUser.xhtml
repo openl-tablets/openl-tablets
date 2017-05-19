@@ -89,9 +89,16 @@
                     value: group.val()
                 }).appendTo("#editUserForm");
             }
-            $j(".internal-user").each(function () {
-                this.disabled = !internalUser;
-            });
+
+            $j(".external-user").remove();
+            $j(".internal-user").toggle(internalUser);
+            $j("#editUserForm\\:password").closest('tr').toggle(internalUser);
+            if (!internalUser) {
+                $j(".internal-user").each(function () {
+                    var $elem = $j(this);
+                    $elem.parent().append($j('<span/>').addClass('external-user').html($elem.val()));
+                });
+            }
 
             RichFaces.$("modalEditUser").show();
         }
