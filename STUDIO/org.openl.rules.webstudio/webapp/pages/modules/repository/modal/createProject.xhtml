@@ -106,7 +106,7 @@
 
                         <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
                         <h:inputText id="projectName" size="35"
-                            maxlength="50"
+                            maxlength="70"
                             value="#{repositoryTreeController.projectName}"
                             onkeyup="enableCreateButton(this.value.length > 0, #{rich:element('sbtFiles')});" />
                     </h:panelGrid>
@@ -134,7 +134,7 @@
 
                     <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
                         <h:inputText id="projectName" size="35"
-                            maxlength="50"
+                            maxlength="70"
                             value="#{repositoryTreeController.projectName}"
                             onkeyup="enableCreateButton(this.value.length > 0, #{rich:element('sbtZips')});" />
                     </h:panelGrid>
