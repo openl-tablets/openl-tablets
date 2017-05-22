@@ -53,6 +53,9 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
 
         Map<String, Map<String, Deployment>> latestDeployments = new HashMap<String, Map<String, Deployment>>();
         for (Deployment deployment : deployments) {
+            if (deployment.getCommonVersion() == null) {
+                throw new IllegalArgumentException("Can't detect deployment version. Probably 'version in deployment name' parameter in configuration is incorrect.");
+            }
             String deploymentName = deployment.getDeploymentName();
             Map<String, Deployment> internalMap = latestDeployments.get(deploymentName);
             if (internalMap == null) {

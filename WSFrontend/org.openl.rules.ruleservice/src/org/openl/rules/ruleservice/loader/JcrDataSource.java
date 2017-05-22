@@ -58,6 +58,7 @@ public class JcrDataSource implements DataSource {
                     commonVersion = new CommonVersionImpl(version);
                 } else {
                     commonVersion = null;
+                    log.error("WebServices are configured to include version in deployment name, but version isn't found in the name.");
                 }
             } else {
                 String version = fileData.getVersion();
