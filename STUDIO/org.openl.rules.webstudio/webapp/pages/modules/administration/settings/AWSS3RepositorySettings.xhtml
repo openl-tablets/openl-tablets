@@ -40,7 +40,8 @@
         <h:message for="listenerTimerPeriod" styleClass="error"/>
 
         <h:outputText value="Version in deployment name" rendered="#{isProduction}" />
-        <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction}"/>
+        <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction}" disabled="#{isEditing}"/>
+        <h:inputHidden value="#{settings.includeVersionInDeploymentName}" rendered="#{isProduction and isEditing}"/>
     </h:panelGrid>
 
 </ui:composition>
