@@ -3,6 +3,7 @@ package org.openl.rules.maven;
 import static org.codehaus.plexus.archiver.util.DefaultFileSet.fileSet;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -98,7 +99,7 @@ public final class PackageMojo extends BaseOpenLMojo {
         File dependencyLib = project.getArtifact().getFile();
 
         boolean mainArtifactExists = dependencyLib != null && dependencyLib.isFile();
-        if (mainArtifactExists && StringUtils.isBlank(classifier)) {
+        if (mainArtifactExists && StringUtils.isBlank(classifier) && Arrays.asList(types).contains(packaging)) {
             error("The main artifact have been attached already.");
             error(
                 "You have to use classifier to attach supplemental artifacts to the project instead of replacing them.");
