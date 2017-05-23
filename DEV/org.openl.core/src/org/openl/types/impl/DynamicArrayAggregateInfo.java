@@ -6,55 +6,21 @@
 
 package org.openl.types.impl;
 
-import java.lang.reflect.Array;
-import java.util.Collections;
 import java.util.Iterator;
 
-import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.IntegerValuesUtils;
 import org.openl.util.OpenIterator;
-import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
  *
  */
 public class DynamicArrayAggregateInfo extends AAggregateInfo {
-
-    static class MyArrayLengthOpenField extends ArrayLengthOpenField {
-
-        @Override
-        public int getLength(Object target) {
-            if (target == null) {
-                return 0;
-            }
-            return Array.getLength(target);
-        }
-    }
-
-    static class MyArrayOpenClass extends ArrayOpenClass {
-        public MyArrayOpenClass(IOpenClass componentClass) {
-            super(componentClass, new MyArrayLengthOpenField());
-        }
-
-        public IAggregateInfo getAggregateInfo() {
-            return aggregateInfo;
-        }
-
-        public Object newInstance(IRuntimeEnv env) {
-            throw new UnsupportedOperationException();
-        }
-
-        public Iterable<IOpenClass> superClasses() {
-            return Collections.emptyList();
-        }
-    }
-
-    static public final DynamicArrayAggregateInfo aggregateInfo = new DynamicArrayAggregateInfo();
+    public static final DynamicArrayAggregateInfo aggregateInfo = new DynamicArrayAggregateInfo();
 
     public IOpenClass getComponentType(IOpenClass aggregateType) {
         if (aggregateType instanceof ArrayOpenClass) {
@@ -95,7 +61,7 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
             return componentType;
         }
 
-        if (componentType instanceof MyArrayOpenClass)
+        if (componentType instanceof ComponentTypeArrayOpenClass)
         {
         	return getIndexedAggregateType(componentType.getComponentClass(), dim+1);
         }	
@@ -108,7 +74,7 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
             }
 
             for (int i = 0; i < arrayTypes.length; i++) {
-            	arrayTypes[i] = componentType = new MyArrayOpenClass(componentType);
+            	arrayTypes[i] = componentType = new ComponentTypeArrayOpenClass(componentType);
             }
 
             return arrayTypes[dim - 1];

@@ -5,13 +5,13 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 
 import org.openl.binding.IBindingContext;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.CastingMethodCaller;
+import org.openl.types.impl.ComponentTypeArrayOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.AutoCastResultOpenMethod;
 import org.openl.types.java.JavaOpenClass;
@@ -85,23 +85,24 @@ public class DefaultAutoCastFactory implements AutoCastFactory {
 				v = v.getComponentClass();
 				dimensions++;
 			}
-			IOpenClass arrayType = JavaOpenClass
-					.getOpenClass(Array.newInstance(simpleType.getInstanceClass(), dimensions).getClass());
+			
+			ComponentTypeArrayOpenClass componentTypeArrayOpenClass = ComponentTypeArrayOpenClass.createComponentTypeArrayOpenClass(simpleType, dimensions);
+			
 			if (simpleType.getDomain() != null) {
 				StringBuilder domainOpenClassName = new StringBuilder(simpleType.getName());
 				for (int j = 0; j < dimensions; j++) {
 					domainOpenClassName.append("[]");
 				}
-				DomainOpenClass domainArrayType = new DomainOpenClass(domainOpenClassName.toString(), arrayType,
+				DomainOpenClass domainArrayType = new DomainOpenClass(domainOpenClassName.toString(), componentTypeArrayOpenClass,
 						simpleType.getDomain(), null);
 				IOpenCast cast = bindingContext.getCast(method.getType(), domainArrayType);
 				if (cast != null) {
 					return new AutoCastResultOpenMethod(methodCaller, domainArrayType, cast);
 				}
 			} else {
-				IOpenCast cast = bindingContext.getCast(method.getType(), arrayType);
+				IOpenCast cast = bindingContext.getCast(method.getType(), componentTypeArrayOpenClass);
 				if (cast != null) {
-					return new AutoCastResultOpenMethod(methodCaller, arrayType, cast);
+					return new AutoCastResultOpenMethod(methodCaller, componentTypeArrayOpenClass, cast);
 				}
 			}
 		}
