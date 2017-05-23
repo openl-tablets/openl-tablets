@@ -61,10 +61,10 @@
                             <div>
                                 <h:panelGrid columns="2" columnClasses="titleColumn">
                                     <label>First Name</label>
-                                    <h:panelGroup style="font-weight: bold">#{userProfileBean.firstName}</h:panelGroup>
+                                    <h:outputText style="font-weight: bold" value="#{userProfileBean.firstName}"/>
 
                                     <label>Last Name</label>
-                                    <h:panelGroup style="font-weight: bold">#{userProfileBean.lastName}</h:panelGroup>
+                                    <h:outputText style="font-weight: bold" value="#{userProfileBean.lastName}"/>
                                 </h:panelGrid>
                             </div>
                         </section>
