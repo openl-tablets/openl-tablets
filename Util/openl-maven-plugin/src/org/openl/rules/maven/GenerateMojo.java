@@ -340,6 +340,10 @@ public final class GenerateMojo extends BaseOpenLMojo {
 
     @Override
     public void execute(String sourcePath) throws Exception {
+        if (outputDirectory.isDirectory()) {
+            info("Cleaning up '", outputDirectory, "' directory...");
+            FileUtils.delete(outputDirectory);
+        }
         ClassLoader classLoader = composeClassLoader();
 
         SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
