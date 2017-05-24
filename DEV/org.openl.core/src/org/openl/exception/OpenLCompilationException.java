@@ -65,6 +65,10 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
         return getOriginalCause();
     }
 
+    public String getSourceLocation() {
+        return SourceCodeURLTool.makeSourceLocationURL(getLocation(), getSourceModule());
+    }
+
     @Override
     public String toString() {
 

@@ -26,11 +26,14 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.NaryNode;
 import org.openl.types.IOpenMember;
 import org.openl.util.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author snshor
  */
 public class TableSyntaxNode extends NaryNode {
+    private final Logger log = LoggerFactory.getLogger(TableSyntaxNode.class);
 
     private ILogicalTable table;
 
@@ -64,18 +67,20 @@ public class TableSyntaxNode extends NaryNode {
         }
         for (SyntaxNodeException exception : errors) {
             if (exception.getMessage().equals(error.getMessage())) {
-                return;
+                if (error.getSourceLocation().equals(exception.getSourceLocation())) {
+                    log.warn("Skip duplicated message: " + error.getMessage(), error);
+                    return;
+                }
             }
         }
         errors.add(error);
     }
 
     public void addError(CompositeSyntaxNodeException error) {
-    	
-    	SyntaxNodeException[] errors = error.getErrors();
-    	for (int i = 0; i < errors.length; i++) {
-    		addError(errors[i]);
-		}
+        SyntaxNodeException[] errors = error.getErrors();
+        for (SyntaxNodeException e : errors) {
+            addError(e);
+        }
     }
     
     public void crearErrors(){
