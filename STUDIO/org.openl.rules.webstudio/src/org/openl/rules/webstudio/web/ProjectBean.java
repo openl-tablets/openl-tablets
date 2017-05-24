@@ -128,10 +128,11 @@ public class ProjectBean {
         ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
         List<PathEntry> sourceList = currentProject.getClasspath();
         if (sourceList != null) {
-            sources = "";
+            StringBuilder sb = new StringBuilder();
             for (PathEntry source : sourceList) {
-                sources += source.getPath() + StringTool.NEW_LINE;
+                sb.append(source.getPath()).append(StringTool.NEW_LINE);
             }
+            sources = sb.toString();
         }
 
         return sources;
