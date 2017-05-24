@@ -1536,7 +1536,11 @@ public class RepositoryTreeController {
      */
     public void selectCurrentProjectForOpen(AjaxBehaviorEvent event) {
         currentProject = getSelectedProject();
-        version = currentProject == null ? null : currentProject.getVersion().getVersionName();
+        if (currentProject == null || currentProject.getVersion() == null) {
+            version = null;
+        } else {
+            version = currentProject.getVersion().getVersionName();
+        }
     }
 
     public void deleteRulesProjectListener(AjaxBehaviorEvent event) {
