@@ -1,5 +1,5 @@
-/**
- * Created Jan 2, 2007
+/*
+  Created Jan 2, 2007
  */
 package org.openl.rules.testmethod;
 
@@ -37,7 +37,7 @@ import org.openl.util.CollectionUtils;
  */
 public class TestMethodNodeBinder extends DataNodeBinder {
 
-    private static final String FORMAT_ERROR_MESSAGE = "Testmethod table format: Testmethod <methodname> <testname>";
+    private static final String FORMAT_ERROR_MESSAGE = "Test table format: Test <methodname> <testname>";
 
     @Override
     protected String getFormatErrorMessage() {
