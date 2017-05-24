@@ -105,7 +105,7 @@ public class MessagesBean {
         }
 
         int pstart = 0;
-        int pend = 0;
+        int pend = code.length();
 
         if (StringUtils.isNotBlank(code)
                 && location != null && location.isTextLocation()) {
