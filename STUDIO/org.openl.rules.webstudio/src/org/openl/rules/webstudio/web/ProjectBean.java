@@ -717,10 +717,10 @@ public class ProjectBean {
 
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(getOriginalProjectDescriptor());
         Module module;
-        if (!StringUtils.isBlank(currentModuleName)) {
-            module = studio.getModule(newProjectDescriptor, currentModuleName);
-        } else {
+        if (currentModuleIndex != null) {
             module = newProjectDescriptor.getModules().get(currentModuleIndex);
+        } else {
+            module = studio.getModule(newProjectDescriptor, currentModuleName);
         }
         if (module == null) {
             module = getModuleWithWildcard(studio.getModule(studio.getCurrentProjectDescriptor(), currentModuleName));
@@ -761,10 +761,10 @@ public class ProjectBean {
         if (otherModule != null) {
             module = otherModule;
         } else {
-            if (!StringUtils.isBlank(currentModuleName)) {
-                module = studio.getModule(newProjectDescriptor, currentModuleName);
-            } else {
+            if (currentModuleIndex != null) {
                 module = newProjectDescriptor.getModules().get(currentModuleIndex);
+            } else {
+                module = studio.getModule(newProjectDescriptor, currentModuleName);
             }
 
             if (!projectDescriptorManager.isModuleWithWildcard(module)) {
