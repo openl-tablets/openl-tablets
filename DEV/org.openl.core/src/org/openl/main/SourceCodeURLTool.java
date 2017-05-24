@@ -34,6 +34,10 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
 
         String lineInfo = null;
 
+        if (module == null) {
+            return "NO_MODULE";
+        }
+
         if (location != null && location.isTextLocation()) {
             String src = module.getCode();
             TextInfo info = new TextInfo(src);
@@ -46,10 +50,6 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
 
             lineInfo = START + "=" + start + QSEP + END + "=" + end;
 
-        }
-
-        if (module == null) {
-            return "NO_MODULE";
         }
 
         String moduleUri = module.getUri();
