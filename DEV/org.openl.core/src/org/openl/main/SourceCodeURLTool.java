@@ -54,15 +54,13 @@ public class SourceCodeURLTool implements SourceCodeURLConstants {
 
         String moduleUri = module.getUri();
 
-        String suffix = moduleUri.indexOf(QSTART) < 0 ? QSTART : QSEP;
+        String suffix = !moduleUri.contains(QSTART) ? QSTART : QSEP;
 
         String url = moduleUri;
         if (lineInfo != null) {
             url += suffix + lineInfo;
-            suffix = QSEP;
         } else if (location != null) {
             url += suffix + location;
-            suffix = QSEP;
         }
 
         return url;
