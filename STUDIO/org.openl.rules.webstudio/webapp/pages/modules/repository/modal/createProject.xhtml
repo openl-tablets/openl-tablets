@@ -185,7 +185,7 @@
                         <a4j:commandButton id="sbtWorkspace" action="#{localUpload.upload}" styleClass="button-primary"
                         rendered="#{not empty localUpload.projects4Upload}" process="@form" value="Create"
                         oncomplete="hideNewProjectDialog()"
-                        render="uploadWorkspaceProjectForm uploadPrjFromLocalMessageDiv"/>
+                        render="uploadWorkspaceProjectForm uploadPrjFromLocalMessageDiv projectTree nodeView"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()" />
                     </footer>
                     </h:panelGroup>
