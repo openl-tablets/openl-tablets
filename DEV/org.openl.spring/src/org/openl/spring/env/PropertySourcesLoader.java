@@ -156,8 +156,6 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
     private static final String DEFAULT_NAMES = "${openl.config.name}";
     private static final String DEFAULT_DEFAULTS = "${openl.config.default}";
     private String[] locations;
-    private String[] names;
-    private String[] defaults;
     private ApplicationContext appContext;
     private PropertyResourceResolver resolver;
     private MutablePropertySources propertySources;
@@ -168,15 +166,6 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
     public void setLocations(String... locations) {
         this.locations = locations;
     }
-
-    public void setNames(String... names) {
-        this.names = names;
-    }
-
-    public void setDefaults(String... defaults) {
-        this.defaults = defaults;
-    }
-
     @Override
     public void initialize(ConfigurableApplicationContext appContext) {
         log.info("The initialization of properties from 'contextInitializerClasses' context-param in web.xml");
@@ -225,7 +214,7 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
 
     private void addDefaultProps(CompositePropertySource propertySource, boolean alreadyInit) {
         log.info("Loading default properties...");
-        List<String> locations = resolvePlaceholders(defaults, DEFAULT_DEFAULTS, alreadyInit);
+        List<String> locations = resolvePlaceholders(null, DEFAULT_DEFAULTS, alreadyInit);
         for (String location : locations) {
             addResource(propertySource, location);
         }
@@ -234,7 +223,7 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
     private void addApplicationProps(CompositePropertySource propertySource, boolean alreadyInit) {
         log.info("Loading application properties...");
         List<String> lc = resolvePlaceholders(locations, DEFAULT_LOCATIONS, alreadyInit);
-        List<String> nm = resolvePlaceholders(names, DEFAULT_NAMES, alreadyInit);
+        List<String> nm = resolvePlaceholders(null, DEFAULT_NAMES, alreadyInit);
         for (String location : lc) {
             if (location.endsWith("/") || location.endsWith("\\") || location.endsWith(":")) {
                 // Folder, schema root, Windows disk.
