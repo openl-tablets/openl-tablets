@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import org.openl.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -149,8 +150,6 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
     public static final String OPENL_APPLICATION_PROPS = "OpenL application properties";
     public static final String OPENL_ADDITIONAL_PROPS = "OpenL additional properties";
     public static final String ENVIRONMENT_PROPS = "environmentProps";
-    private static final String DEFAULT_LOCATIONS = "${openl.config.location}";
-    private static final String DEFAULT_NAMES = "${openl.config.name}";
     private String[] locations;
     private ApplicationContext appContext;
     private PropertyResourceResolver resolver;
@@ -187,7 +186,20 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
             addResource(defaultProps, location);
         }
 
-        addApplicationProps(applicationProps, false);
+        log.info("Loading application properties...");
+        List<String> lc = resolver.resolvePlaceholders("${openl.config.location}");
+        List<String> nm = resolver.resolvePlaceholders("${openl.config.name}");
+        for (String location : lc) {
+            if (location.endsWith("/") || location.endsWith("\\") || location.endsWith(":")) {
+                // Folder, schema root, Windows disk.
+                for (String name : nm) {
+                    addResource(applicationProps, location + name);
+                }
+            } else {
+                // direct location
+                addResource(applicationProps, location);
+            }
+        }
     }
 
     @Override
@@ -204,34 +216,6 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
     private CompositePropertySource createCompositPropertySource(String name) {
         CompositePropertySource propertySource = new CompositePropertySource(name);
         return propertySource;
-    }
-
-    private void addApplicationProps(CompositePropertySource propertySource, boolean alreadyInit) {
-        log.info("Loading application properties...");
-        List<String> lc = resolvePlaceholders(locations, DEFAULT_LOCATIONS, alreadyInit);
-        List<String> nm = resolvePlaceholders(null, DEFAULT_NAMES, alreadyInit);
-        for (String location : lc) {
-            if (location.endsWith("/") || location.endsWith("\\") || location.endsWith(":")) {
-                // Folder, schema root, Windows disk.
-                for (String name : nm) {
-                    addResource(propertySource, location + name);
-                }
-            } else {
-                // direct location
-                addResource(propertySource, location);
-            }
-        }
-    }
-
-    private List<String> resolvePlaceholders(String[] values, String def, boolean alreadyInit) {
-        if (values != null) {
-            return resolver.resolvePlaceholders(values);
-        } else if (alreadyInit) {
-            // Defaults already registered.
-            return Collections.emptyList();
-        } else {
-            return resolver.resolvePlaceholders(def);
-        }
     }
 
     private String getAppName(ApplicationContext appContext) {
@@ -284,6 +268,10 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
             loadProperties(propertySources);
         }
 
+        if (CollectionUtils.isNotEmpty(locations)) {
+            // Nothing to add
+            return;
+        }
         CompositePropertySource additionalProps = createCompositPropertySource(OPENL_ADDITIONAL_PROPS);
 
         if (localOverride) {
@@ -294,7 +282,13 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
             propertySources.addAfter(OPENL_APPLICATION_PROPS, additionalProps);
 
         }
-        addApplicationProps(additionalProps, true);
+
+        log.info("Loading additional properties...");
+        List<String> lc = resolver.resolvePlaceholders(locations);
+        for (String location : lc) {
+            // direct location
+            addResource(additionalProps, location);
+        }
     }
 
     @Override
