@@ -19,7 +19,6 @@ import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.PropertySources;
 import org.springframework.core.env.PropertySourcesPropertyResolver;
-import org.springframework.core.io.Resource;
 import org.springframework.util.StringValueResolver;
 
 /**
@@ -112,11 +111,11 @@ import org.springframework.util.StringValueResolver;
  * <li>file:${openl.home}/{appName}-{profile}.properties</li>
  * </ol>
  * </li>
- * <li>OpenL init config. It is used to load initial configurations of this
- * class.
+ * <li>OpenL loadProperties config. It is used to load initial configurations of
+ * this class.
  * <ol>
- * <li>classpath:openl-init-config.properties</li>
- * <li>${openl.config.init}</li>
+ * <li>classpath:openl-loadProperties-config.properties</li>
+ * <li>${openl.config.loadProperties}</li>
  * </ol>
  * </li>
  * <li>Spring environment.
@@ -124,9 +123,9 @@ import org.springframework.util.StringValueResolver;
  * <li>OS environment variables. {@link System#getenv()}</li>
  * <li>Java System properties. {@link System#getProperties()}</li>
  * <li>JNDI attributes from {@code java:comp/env}</li>
- * <li>Servlet context init parameters from
+ * <li>Servlet context loadProperties parameters from
  * {@link javax.servlet.ServletContext#getInitParameter(java.lang.String)}</li>
- * <li>Servlet config init parameters from
+ * <li>Servlet config loadProperties parameters from
  * {@link javax.servlet.ServletConfig#getInitParameter(java.lang.String)}</li>
  * </ol>
  * </li>
@@ -147,10 +146,9 @@ import org.springframework.util.StringValueResolver;
  */
 public class PropertySourcesLoader extends PlaceholderConfigurerSupport implements ApplicationContextInitializer<ConfigurableApplicationContext>, ApplicationContextAware {
     public static final String OPENL_INIT_PROPS = "openlInitProps";
-    public static final String OPENL_INIT_DEFAULT_PROPS = "openlInitDefaultProps";
-    public static final String OPENL_INIT_APPLICATION_PROPS = "openlInitApplicationProps";
-    public static final String OPENL_DEFAULT_PROPS = "openlDefaultProps";
-    public static final String OPENL_APPLICATION_PROPS = "openlApplicationProps";
+    public static final String OPENL_DEFAULT_PROPS = "OpenL default properties";
+    public static final String OPENL_APPLICATION_PROPS = "OpenL application properties";
+    public static final String OPENL_ADDITIONAL_PROPS = "OpenL additional properties";
     public static final String ENVIRONMENT_PROPS = "environmentProps";
     private static final String DEFAULT_LOCATIONS = "${openl.config.location}";
     private static final String DEFAULT_NAMES = "${openl.config.name}";
@@ -166,6 +164,7 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
     public void setLocations(String... locations) {
         this.locations = locations;
     }
+
     @Override
     public void initialize(ConfigurableApplicationContext appContext) {
         log.info("The initialization of properties from 'contextInitializerClasses' context-param in web.xml");
@@ -174,9 +173,13 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
         MutablePropertySources propertySources = env.getPropertySources();
         init(propertySources, env);
 
+        loadProperties(propertySources);
+    }
+
+    private void loadProperties(MutablePropertySources propertySources) {
         CompositePropertySource initProps = createCompositPropertySource(OPENL_INIT_PROPS);
-        CompositePropertySource defaultProps = createCompositPropertySource(OPENL_INIT_DEFAULT_PROPS);
-        CompositePropertySource applicationProps = createCompositPropertySource(OPENL_INIT_APPLICATION_PROPS);
+        CompositePropertySource defaultProps = createCompositPropertySource(OPENL_DEFAULT_PROPS);
+        CompositePropertySource applicationProps = createCompositPropertySource(OPENL_APPLICATION_PROPS);
 
         propertySources.addLast(initProps);
         propertySources.addAfter(OPENL_INIT_PROPS, defaultProps);
@@ -265,14 +268,6 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
         }
     }
 
-    private Object getInfo(Resource resource) {
-        try {
-            return resource.getURL();
-        } catch (Exception e) {
-            return resource;
-        }
-    }
-
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         if (propertySources == null) {
@@ -298,35 +293,25 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
     }
 
     private void load(MutablePropertySources propertySources) {
-        CompositePropertySource defaultProps = createCompositPropertySource(OPENL_DEFAULT_PROPS);
-        CompositePropertySource applicationProps = createCompositPropertySource(OPENL_APPLICATION_PROPS);
+        if (propertySources.contains(OPENL_ADDITIONAL_PROPS)) {
+            log.info("The second initialization of properties. The previous application properties have been kept.");
+            return;
+        } else if (!propertySources.contains(OPENL_DEFAULT_PROPS)) {
+            log.info("The first initialization of properties. Creating new application properties...");
+            loadProperties(propertySources);
+        }
 
-        boolean alreadyInit = true;
-        if (propertySources.contains(OPENL_DEFAULT_PROPS)) {
-            log.info("The second initialization of properties. Reload previous properties.");
-            propertySources.replace(OPENL_DEFAULT_PROPS, defaultProps);
-            propertySources.replace(OPENL_APPLICATION_PROPS, applicationProps);
-        } else if (!propertySources.contains(OPENL_INIT_PROPS)) {
-            alreadyInit = false;
-            log.info("The first initialization of properties. Create new.");
-            CompositePropertySource initProps = createCompositPropertySource(OPENL_INIT_PROPS);
-            propertySources.addLast(initProps);
-            addInitProps(initProps);
+        CompositePropertySource additionalProps = createCompositPropertySource(OPENL_ADDITIONAL_PROPS);
 
-            propertySources.addAfter(OPENL_INIT_PROPS, defaultProps);
-            propertySources.addAfter(OPENL_INIT_PROPS, applicationProps);
-        } else if (localOverride) {
-            log.info("The first initialization of properties. Override application properties.");
-            propertySources.addBefore(OPENL_INIT_DEFAULT_PROPS, defaultProps);
-            propertySources.addBefore(OPENL_INIT_APPLICATION_PROPS, applicationProps);
+        if (localOverride) {
+            log.info("The first initialization of properties. Overriding the application properties...");
+            propertySources.addBefore(OPENL_APPLICATION_PROPS, additionalProps);
         } else {
-            log.info("The first initialization of properties. Append to application properties.");
-            propertySources.addBefore(OPENL_INIT_DEFAULT_PROPS, defaultProps);
-            propertySources.addAfter(OPENL_INIT_APPLICATION_PROPS, applicationProps);
+            log.info("The first initialization of properties. Appending to the application properties...");
+            propertySources.addAfter(OPENL_APPLICATION_PROPS, additionalProps);
 
         }
-        addDefaultProps(defaultProps, alreadyInit);
-        addApplicationProps(applicationProps, alreadyInit);
+        addApplicationProps(additionalProps, true);
     }
 
     @Override
