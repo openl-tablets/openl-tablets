@@ -1,6 +1,6 @@
 package org.openl.spring.env;
 
-import java.util.Collections;
+import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
@@ -17,6 +17,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.PropertySources;
 import org.springframework.core.env.PropertySourcesPropertyResolver;
@@ -150,16 +151,13 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
     public static final String OPENL_APPLICATION_PROPS = "OpenL application properties";
     public static final String OPENL_ADDITIONAL_PROPS = "OpenL additional properties";
     public static final String ENVIRONMENT_PROPS = "environmentProps";
-    private String[] locations;
+    private final Logger log = LoggerFactory.getLogger(PropertySourcesLoader.class);
     private ApplicationContext appContext;
     private PropertyResourceResolver resolver;
     private MutablePropertySources propertySources;
 
-    /**
-     * @param locations
-     */
-    public void setLocations(String... locations) {
-        this.locations = locations;
+    {
+        setIgnoreResourceNotFound(true);
     }
 
     @Override
@@ -174,8 +172,8 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
     }
 
     private void loadProperties(MutablePropertySources propertySources) {
-        CompositePropertySource defaultProps = createCompositPropertySource(OPENL_DEFAULT_PROPS);
-        CompositePropertySource applicationProps = createCompositPropertySource(OPENL_APPLICATION_PROPS);
+        CompositePropertySource defaultProps = new CompositePropertySource(OPENL_DEFAULT_PROPS);
+        CompositePropertySource applicationProps = new CompositePropertySource(OPENL_APPLICATION_PROPS);
 
         propertySources.addLast(defaultProps);
         propertySources.addBefore(OPENL_DEFAULT_PROPS, applicationProps);
@@ -211,11 +209,6 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
         PropertySourcesPropertyResolver propertyResolver = new PropertySourcesPropertyResolver(propertySources);
         String[] profiles = env == null ? null : env.getActiveProfiles();
         resolver = new PropertyResourceResolver(propertyResolver, getAppName(appContext), profiles);
-    }
-
-    private CompositePropertySource createCompositPropertySource(String name) {
-        CompositePropertySource propertySource = new CompositePropertySource(name);
-        return propertySource;
     }
 
     private String getAppName(ApplicationContext appContext) {
@@ -268,26 +261,26 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
             loadProperties(propertySources);
         }
 
-        if (CollectionUtils.isNotEmpty(locations)) {
-            // Nothing to add
+        Properties properties;
+        try {
+            properties = mergeProperties();
+        } catch (IOException ex) {
+            log.warn("Could not load properties", ex);
             return;
         }
-        CompositePropertySource additionalProps = createCompositPropertySource(OPENL_ADDITIONAL_PROPS);
+        if (CollectionUtils.isEmpty(properties)) {
+            log.debug("Additional properties are absent.");
+            return;
+        }
+        PropertiesPropertySource additionalProps = new PropertiesPropertySource(OPENL_ADDITIONAL_PROPS, properties);
 
         if (localOverride) {
-            log.info("The first initialization of properties. Overriding the application properties...");
+            log.info("Loading additional properties... Overriding the application properties...");
             propertySources.addBefore(OPENL_APPLICATION_PROPS, additionalProps);
         } else {
-            log.info("The first initialization of properties. Appending to the application properties...");
+            log.info("Loading additional properties... Appending to the application properties...");
             propertySources.addAfter(OPENL_APPLICATION_PROPS, additionalProps);
 
-        }
-
-        log.info("Loading additional properties...");
-        List<String> lc = resolver.resolvePlaceholders(locations);
-        for (String location : lc) {
-            // direct location
-            addResource(additionalProps, location);
         }
     }
 
@@ -317,6 +310,4 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
 
         doProcessProperties(beanFactory, valueResolver);
     }
-
-    private final Logger log = LoggerFactory.getLogger(PropertySourcesLoader.class);
 }

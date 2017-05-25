@@ -5,6 +5,14 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
+    <!--
+    DELETE THIS FILE TO USE EXTERNALIZED CONFIGURATION!
+    OpenL supports externalized configuration out-of-the-box like in spring-boot.
+    All used properties should be merge to single application.properties file.
+    That file should contain only necessary properties!
+    See 'contextInitializerClasses' context-param in web.xml descriptor.
+    -->
+
     <!-- START Old properties support -->
     <bean id="log" class="org.slf4j.LoggerFactory" factory-method="getLogger">
         <constructor-arg value="Spring"/>
@@ -16,13 +24,13 @@
                   value="Remove old properties locations from openl-ruleservice-property-placeholder.xml !"/>
     </bean>
     <!-- This way does not allow to use system properties to override values from *-ruleservice-ext.properties -->
-    <!--
-    <context:property-placeholder
-            location="classpath:openl-ruleservice.properties, classpath*:*-ruleservice-ext.properties"
-            ignore-unresolvable="true" ignore-resource-not-found="true" local-override="true"/>
-    -->
+    <!-- Also be aware that org.openl.spring.env.PropertySourcesLoader class -->
+    <!-- registered in 'contextInitializerClasses' context-param in web.xml descriptor. -->
+    <!-- <context:property-placeholder
+            location="classpath:openl-ruleservice.properties, classpath:rules-production.properties, classpath*:*-ruleservice-ext.properties"
+            ignore-unresolvable="true" ignore-resource-not-found="true" local-override="true"/> -->
     <!-- Another way to load properties which can be overridden by system properties,
-         but be aware that this class also registered in 'contextInitializerClasses' context-param in web.xml descriptor. -->
+     but be aware that this class also registered in 'contextInitializerClasses' context-param in web.xml descriptor. -->
     <bean class="org.openl.spring.env.PropertySourcesLoader">
         <property name="locations">
             <array>
