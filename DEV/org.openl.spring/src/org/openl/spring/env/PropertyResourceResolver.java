@@ -56,7 +56,7 @@ public class PropertyResourceResolver {
         for (String value : values) {
             String resolved = resolver.resolvePlaceholders(value);
             if (StringUtils.isBlank(resolved)) {
-                debug("!       Empty: '{}'", value);
+                log.debug("!       Empty: '{}'", new Object[]{value});
                 continue;
             }
             String[] splitted = resolved.split(SEPARATOR);
@@ -78,7 +78,7 @@ public class PropertyResourceResolver {
         if (value.contains(APP_NAME_TAG)) {
             String appName = getAppName();
             if (StringUtils.isBlank(appName)) {
-                debug("- No app name: '{}'", value);
+                log.debug("- No app name: '{}'", new Object[]{value});
                 value = "";
             } else {
                 value = value.replace(APP_NAME_TAG, appName);
@@ -94,7 +94,7 @@ public class PropertyResourceResolver {
         if (value.contains(PROFILE_TAG)) {
             String[] profiles = getProfiles();
             if (CollectionUtils.isEmpty(profiles)) {
-                debug("- No profiles: '{}'", value);
+                log.debug("- No profiles: '{}'", new Object[]{value});
                 return Collections.emptyList();
             } else {
                 int size = profiles.length;
@@ -110,12 +110,4 @@ public class PropertyResourceResolver {
     }
 
     private final Logger log = LoggerFactory.getLogger(PropertyResourceResolver.class);
-    boolean debug;
-    private void debug(String message, Object... resource) {
-        if (debug) {
-            log.info(message, resource);
-        } else {
-            log.debug(message, resource);
-        }
-    }
 }

@@ -43,11 +43,11 @@ class CompositePropertySource extends EnumerablePropertySource<Object> {
         try {
             resources = resourcePattern.getResources(location);
         } catch (IOException e) {
-            debug("!      Error: '{}'", location, e);
+            log.debug("!     Error: '{}'", new Object[] { location, e });
             return;
         }
         if (CollectionUtils.isEmpty(resources)) {
-            debug("-  Not found: '{}'", location);
+            log.debug("- Not found: '{}'", new Object[] { location });
             return;
         }
         CompositePropertySource propertySource = new CompositePropertySource(location);
@@ -57,10 +57,10 @@ class CompositePropertySource extends EnumerablePropertySource<Object> {
                     propertySource.addFirst(new ResourcePropertySource(resource));
                     log.info("+        Add: [{}] '{}'", location, getInfo(resource));
                 } else {
-                    debug("-  Not exist: [{}] '{}'", location, getInfo(resource));
+                    log.debug("- Not exist: [{}] '{}'", new Object[] { location, getInfo(resource) });
                 }
             } catch (Exception ex) {
-                debug("!      Error: [{}] '{}'", location, getInfo(resource), ex);
+                log.debug("!     Error: [{}] '{}'", location, getInfo(resource), ex);
             }
         }
         addFirst(propertySource.get());
@@ -136,13 +136,4 @@ class CompositePropertySource extends EnumerablePropertySource<Object> {
 
     private final Logger log = LoggerFactory.getLogger(CompositePropertySource.class);
 
-    boolean debug;
-
-    private void debug(String message, Object... resource) {
-        if (debug) {
-            log.info(message, resource);
-        } else {
-            log.debug(message, resource);
-        }
-    }
 }

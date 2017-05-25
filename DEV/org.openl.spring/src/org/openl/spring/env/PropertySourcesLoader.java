@@ -207,12 +207,10 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
         PropertySourcesPropertyResolver propertyResolver = new PropertySourcesPropertyResolver(propertySources);
         String[] profiles = env == null ? null : env.getActiveProfiles();
         resolver = new PropertyResourceResolver(propertyResolver, getAppName(appContext), profiles);
-        resolver.debug = debug;
     }
 
     private CompositePropertySource createCompositPropertySource(String name) {
         CompositePropertySource propertySource = new CompositePropertySource(name);
-        propertySource.debug = this.debug;
         return propertySource;
     }
 
@@ -370,17 +368,4 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
     }
 
     private final Logger log = LoggerFactory.getLogger(PropertySourcesLoader.class);
-    private boolean debug;
-
-    public void setDebug(boolean debug) {
-        this.debug = debug;
-    }
-
-    private void debug(String message, Object... resource) {
-        if (debug) {
-            log.info(message, resource);
-        } else {
-            log.debug(message, resource);
-        }
-    }
 }
