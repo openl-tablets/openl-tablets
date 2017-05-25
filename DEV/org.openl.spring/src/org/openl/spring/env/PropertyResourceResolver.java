@@ -29,7 +29,6 @@ import org.springframework.core.env.PropertyResolver;
 public class PropertyResourceResolver {
     public static final String APP_NAME_TAG = "{appName}";
     public static final String PROFILE_TAG = "{profile}";
-    private static final String SEPARATOR = "[\\s,]+"; // Delimiter is comma
     private String appName;
     private String[] profiles;
     private PropertyResolver resolver;
@@ -59,7 +58,7 @@ public class PropertyResourceResolver {
                 log.debug("!       Empty: '{}'", new Object[]{value});
                 continue;
             }
-            String[] splitted = resolved.split(SEPARATOR);
+            String[] splitted = StringUtils.split(resolved, ',');
             for (String s : splitted) {
                 List<String> withTags = resolveTags(s);
                 result.addAll(withTags);
