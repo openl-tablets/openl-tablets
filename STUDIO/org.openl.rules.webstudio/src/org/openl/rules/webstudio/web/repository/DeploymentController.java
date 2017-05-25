@@ -196,7 +196,6 @@ public class DeploymentController {
     public synchronized List<DeploymentDescriptorItem> getItems() {
         ADeploymentProject project = getSelectedProject();
         if (project == null) {
-            items = null;
             return null;
         }
 
