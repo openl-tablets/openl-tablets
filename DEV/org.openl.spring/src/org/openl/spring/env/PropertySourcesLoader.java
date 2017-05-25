@@ -145,14 +145,12 @@ import org.springframework.util.StringValueResolver;
  * @see PropertyResourceResolver
  */
 public class PropertySourcesLoader extends PlaceholderConfigurerSupport implements ApplicationContextInitializer<ConfigurableApplicationContext>, ApplicationContextAware {
-    public static final String OPENL_INIT_PROPS = "openlInitProps";
     public static final String OPENL_DEFAULT_PROPS = "OpenL default properties";
     public static final String OPENL_APPLICATION_PROPS = "OpenL application properties";
     public static final String OPENL_ADDITIONAL_PROPS = "OpenL additional properties";
     public static final String ENVIRONMENT_PROPS = "environmentProps";
     private static final String DEFAULT_LOCATIONS = "${openl.config.location}";
     private static final String DEFAULT_NAMES = "${openl.config.name}";
-    private static final String DEFAULT_DEFAULTS = "${openl.config.default}";
     private String[] locations;
     private ApplicationContext appContext;
     private PropertyResourceResolver resolver;
@@ -177,16 +175,18 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
     }
 
     private void loadProperties(MutablePropertySources propertySources) {
-        CompositePropertySource initProps = createCompositPropertySource(OPENL_INIT_PROPS);
         CompositePropertySource defaultProps = createCompositPropertySource(OPENL_DEFAULT_PROPS);
         CompositePropertySource applicationProps = createCompositPropertySource(OPENL_APPLICATION_PROPS);
 
-        propertySources.addLast(initProps);
-        propertySources.addAfter(OPENL_INIT_PROPS, defaultProps);
-        propertySources.addAfter(OPENL_INIT_PROPS, applicationProps);
+        propertySources.addLast(defaultProps);
+        propertySources.addBefore(OPENL_DEFAULT_PROPS, applicationProps);
 
-        addInitProps(initProps);
-        addDefaultProps(defaultProps, false);
+        log.info("Loading default properties...");
+        List<String> locations = resolver.resolvePlaceholders("classpath*:openl-default.properties", "${openl.config.default}");
+        for (String location : locations) {
+            addResource(defaultProps, location);
+        }
+
         addApplicationProps(applicationProps, false);
     }
 
@@ -204,23 +204,6 @@ public class PropertySourcesLoader extends PlaceholderConfigurerSupport implemen
     private CompositePropertySource createCompositPropertySource(String name) {
         CompositePropertySource propertySource = new CompositePropertySource(name);
         return propertySource;
-    }
-
-    private void addInitProps(CompositePropertySource propertySource) {
-        log.info("Loading initial properties...");
-        List<String> locations = resolver.resolvePlaceholders("classpath:openl-init-config.properties",
-            "${openl.config.init}");
-        for (String location : locations) {
-            addResource(propertySource, location);
-        }
-    }
-
-    private void addDefaultProps(CompositePropertySource propertySource, boolean alreadyInit) {
-        log.info("Loading default properties...");
-        List<String> locations = resolvePlaceholders(null, DEFAULT_DEFAULTS, alreadyInit);
-        for (String location : locations) {
-            addResource(propertySource, location);
-        }
     }
 
     private void addApplicationProps(CompositePropertySource propertySource, boolean alreadyInit) {
