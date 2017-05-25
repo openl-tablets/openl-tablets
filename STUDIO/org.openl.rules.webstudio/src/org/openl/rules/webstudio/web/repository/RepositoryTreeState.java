@@ -268,6 +268,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         synchronized (lock) {
             invalidateSelection();
             root = null;
+
+            // Clear all ViewScoped beans that could cache some temporary values (for example DeploymentController).
+            // Because selection is invalidated too we can assume that view is changed so we can safely clear all
+            // views scoped beans.
+            FacesUtils.getFacesContext().getViewRoot().getViewMap().clear();
         }
     }
 
