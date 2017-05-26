@@ -208,7 +208,7 @@
           <ui:include src="/pages/modules/repository/node/rulesDeployConfiguration.xhtml" />
         </h:panelGroup>
       </h:panelGroup>
-      <a4j:jsFunction name="refreshRulesDeployConfiguration" action="#{repositoryTreeController.selectCurrentProjectForOpen(null)}" render="rulesDeployConfigurationContent"/>
+      <a4j:jsFunction name="refreshRulesDeployConfiguration" action="#{repositoryTreeController.selectCurrentProjectForOpen('')}" render="rulesDeployConfigurationContent"/>
     </rich:tab>
   </rich:tabPanel>
 
