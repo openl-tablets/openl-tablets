@@ -84,9 +84,7 @@ public class InstallWizard {
     private String dbVendor;
     private String dbSchema;
 
-    @NotBlank
     private String adDomain;
-    @NotBlank
     private String adUrl;
     private String adUsername;
     private String adPassword;
@@ -552,8 +550,12 @@ public class InstallWizard {
 
         if (StringUtils.isBlank(domain)) {
             throw new ValidatorException(FacesUtils.createErrorMessage("Active Directory domain can not be blank"));
-        } else if (StringUtils.isEmpty(url)) {
+        } else if (StringUtils.isBlank(url)) {
             throw new ValidatorException(FacesUtils.createErrorMessage("Active Directory URL can not be blank"));
+        } else if (StringUtils.isBlank(username)) {
+            throw new ValidatorException(FacesUtils.createErrorMessage("Empty username is not allowed"));
+        } else if (StringUtils.isBlank(password)) {
+            throw new ValidatorException(FacesUtils.createErrorMessage("Empty password is not allowed"));
         } else {
             try {
                 ActiveDirectoryLdapAuthenticationProvider ldapAuthenticationProvider = new ActiveDirectoryLdapAuthenticationProvider(
