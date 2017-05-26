@@ -880,6 +880,16 @@ public class InstallWizard {
         this.appMode = appMode;
     }
 
+    public String getAdAppMode() {
+        return getAppMode();
+    }
+
+    public void setAdAppMode(String appMode) {
+        if (AD_USER_MODE.equals(userMode)) {
+            setAppMode(appMode);
+        }
+    }
+
     public String getDbUrl() {
         return dbUrl;
     }
@@ -963,6 +973,16 @@ public class InstallWizard {
 
     public void setDbVendor(String dbVendor) {
         this.dbVendor = dbVendor;
+    }
+
+    public String getAdDbVendor() {
+        return getDbVendor();
+    }
+
+    public void setAdDbVendor(String dbVendor) {
+        if (AD_USER_MODE.equals(userMode)) {
+            setDbVendor(dbVendor);
+        }
     }
 
     public String getDbSchema() {

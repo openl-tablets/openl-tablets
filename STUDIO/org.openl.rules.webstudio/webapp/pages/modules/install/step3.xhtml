@@ -187,7 +187,7 @@
                             </div>
                         </h3>
                         <div>
-                            <h:selectOneRadio value="#{installWizard.appMode}" layout="pageDirection" immediate="true">
+                            <h:selectOneRadio value="#{installWizard.adAppMode}" layout="pageDirection" immediate="true">
                                 <f:selectItem itemValue="production" itemLabel="Production" />
                                 <f:selectItem itemValue="demo" itemLabel="Demo" />
                                 <f:ajax  listener="#{installWizard.appmodeChanged}" />
@@ -216,7 +216,7 @@
                                 <tr>
                                     <td><label>Database type</label></td>
                                     <td>
-                                        <h:selectOneMenu value="#{installWizard.dbVendor}" id="adDbVendor" immediate="true">
+                                        <h:selectOneMenu value="#{installWizard.adDbVendor}" id="adDbVendor" immediate="true">
                                             <f:selectItem itemValue="#{null}" itemLabel="Select one"/>
                                             <f:selectItems value="#{installWizard.DBVendors}" />
                                             <f:ajax  listener="#{installWizard.dbVendorChanged}" />
