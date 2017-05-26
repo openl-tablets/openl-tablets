@@ -1,19 +1,12 @@
 package org.openl.spring.env;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-import org.openl.util.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.PropertySource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePropertySource;
 
 /**
  * Holds collections of {@link PropertySource}. Add {@link PropertySource} at
@@ -29,44 +22,7 @@ class CompositePropertySource extends EnumerablePropertySource<Object> {
         super(name, new Object());
     }
 
-    /**
-     * The next source should override the previous.
-     */
-    void addFirst(ResourcePatternResolver resourcePattern, String location) {
-        if (location == null) {
-            return;
-        }
-        if (location.matches("[\\{\\}]")) {
-            log.info("! Unresolved: '{}'", location);
-        }
-        Resource[] resources;
-        try {
-            resources = resourcePattern.getResources(location);
-        } catch (IOException e) {
-            log.debug("!     Error: '{}'", new Object[] { location, e });
-            return;
-        }
-        if (CollectionUtils.isEmpty(resources)) {
-            log.debug("- Not found: '{}'", new Object[] { location });
-            return;
-        }
-        CompositePropertySource propertySource = new CompositePropertySource(location);
-        for (Resource resource : resources) {
-            try {
-                if (resource.exists()) {
-                    propertySource.addFirst(new ResourcePropertySource(resource));
-                    log.info("+        Add: [{}] '{}'", location, getInfo(resource));
-                } else {
-                    log.debug("- Not exist: [{}] '{}'", new Object[] { location, getInfo(resource) });
-                }
-            } catch (Exception ex) {
-                log.debug("!     Error: [{}] '{}'", location, getInfo(resource), ex);
-            }
-        }
-        addFirst(propertySource.get());
-    }
-
-    private void addFirst(PropertySource<?> propertySource) {
+    void addFirst(PropertySource<?> propertySource) {
         if (propertySource != null) {
             propertySources.addFirst(propertySource);
         }
@@ -76,7 +32,7 @@ class CompositePropertySource extends EnumerablePropertySource<Object> {
      * No needs to return this wrapper if no or one {@link PropertySource} was
      * added.
      */
-    private PropertySource<?> get() {
+    PropertySource<?> get() {
         if (propertySources.isEmpty()) {
             return null;
         }
@@ -84,14 +40,6 @@ class CompositePropertySource extends EnumerablePropertySource<Object> {
             return propertySources.getFirst();
         }
         return this;
-    }
-
-    private Object getInfo(Resource resource) {
-        try {
-            return resource.getURL();
-        } catch (Exception e) {
-            return resource;
-        }
     }
 
     @Override
@@ -133,7 +81,5 @@ class CompositePropertySource extends EnumerablePropertySource<Object> {
             this.name,
             this.propertySources);
     }
-
-    private final Logger log = LoggerFactory.getLogger(CompositePropertySource.class);
 
 }
