@@ -564,6 +564,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
     private void registerDrivers() {
         // Defaults drivers
         String[] drivers = { "com.mysql.jdbc.Driver",
+                "org.mariadb.jdbc.Driver",
                 "com.ibm.db2.jcc.DB2Driver",
                 "oracle.jdbc.OracleDriver",
                 "org.postgresql.Driver",
