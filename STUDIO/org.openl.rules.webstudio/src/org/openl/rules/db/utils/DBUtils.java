@@ -13,6 +13,7 @@ import javax.faces.validator.ValidatorException;
 import javax.servlet.ServletContext;
 
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,11 @@ public class DBUtils {
 
         try {
             Class.forName(dbDriver);
-            conn = DriverManager.getConnection((dbPrefix + dbUrl), login, password);
+            if (StringUtils.isBlank(login)) {
+                conn = DriverManager.getConnection((dbPrefix + dbUrl));
+            } else {
+                conn = DriverManager.getConnection((dbPrefix + dbUrl), login, password);
+            }
         } catch (ClassNotFoundException cnfe) {
             log.error(cnfe.getMessage(), cnfe);
             throw new ValidatorException(FacesUtils.createErrorMessage("Incorrect database driver"));

@@ -56,6 +56,8 @@ public class InstallWizard {
     private static final String MULTI_USER_MODE = "multi";
     private static final String AD_USER_MODE = "ad";
     private static final String SEPARATOR_PATTERN = "\\s*,\\s*";
+    private static final String APP_MODE_DEMO = "demo";
+    private static final String APP_MODE_PRODUCTION = "production";
 
     private final Logger log = LoggerFactory.getLogger(InstallWizard.class);
 
@@ -70,14 +72,12 @@ public class InstallWizard {
     private boolean showErrorMessage = false;
 
     private String userMode = "single";
-    private String appMode = "production";
+    private String appMode = APP_MODE_PRODUCTION;
     private boolean groupsAreManagedInStudio = true;
 
     @NotBlank
     private String dbUrl;
-    @NotBlank
     private String dbUsername;
-    @NotBlank
     private String dbPassword;
     private String dbDriver;
     private String dbPrefix;
@@ -169,8 +169,10 @@ public class InstallWizard {
 
                 userMode = systemConfig.getStringProperty("user.mode");
 
-                boolean innerDb = "org.h2.Driver".equals(dbConfig.getStringProperty("db.driver"));
-                appMode = innerDb ? "demo" : "production";
+                String savedDbDriver = dbConfig.getStringProperty("db.driver");
+                String savedDbUrl = StringUtils.trimToEmpty(dbConfig.getStringProperty("db.url"));
+                boolean innerDb = "org.h2.Driver".equals(savedDbDriver) && savedDbUrl.startsWith("jdbc:h2:mem:");
+                appMode = innerDb ? APP_MODE_DEMO : APP_MODE_PRODUCTION;
 
             }
         } else if (step == 3) {
@@ -225,7 +227,7 @@ public class InstallWizard {
 
         String url = savedConfig.getStringProperty("db.url");
 
-        if (StringUtils.isNotEmpty(url)) {
+        if (StringUtils.isNotEmpty(url) && !APP_MODE_DEMO.equals(appMode)) {
             String dbUrlSeparator = savedConfig.getStringProperty("db.url.separator");
             dbUrl = url.split(dbUrlSeparator)[1];
             dbPrefix = url.split(dbUrlSeparator)[0] + dbUrlSeparator;
@@ -287,7 +289,7 @@ public class InstallWizard {
 
     public String finish() {
         try {
-            if (MULTI_USER_MODE.equals(userMode) && appMode.equals("production")) {
+            if (MULTI_USER_MODE.equals(userMode) && appMode.equals(APP_MODE_PRODUCTION)) {
                 setProductionDbProperties();
                 migrateDatabase(dbConfig.getProperties());
 
@@ -343,7 +345,7 @@ public class InstallWizard {
     }
 
     private void fillDbForAD() throws IOException {
-        if (!appMode.equals("demo")) {
+        if (!appMode.equals(APP_MODE_DEMO)) {
             if (groupsAreManagedInStudio) {
                 if (temporaryContext == null) {
                     initializeTemporaryContext();
@@ -528,7 +530,7 @@ public class InstallWizard {
     public void dbValidator(FacesContext context, UIComponent toValidate, Object value) {
         String dbPasswordString = (String) value;
 
-        if (!"demo".equals(appMode)) {
+        if (!APP_MODE_DEMO.equals(appMode)) {
             if (StringUtils.isBlank(dbVendor)) {
                 throw new ValidatorException(FacesUtils.createErrorMessage("Select database type"));
             } else if (StringUtils.isEmpty(dbUrl)) {

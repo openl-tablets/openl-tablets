@@ -102,8 +102,7 @@
                                 <tr>
                                     <td><label>Username</label></td>
                                         <td>
-                                           <h:inputText id="dbUsername" value="#{installWizard.dbUsername}" size="40"
-                                           required="true" >
+                                           <h:inputText id="dbUsername" value="#{installWizard.dbUsername}" size="40">
                                            <f:ajax  listener="#{installWizard.usernameChanged}" />
                                            </h:inputText>
                                          </td>
@@ -237,8 +236,7 @@
                                 <tr>
                                     <td><label>Username</label></td>
                                     <td>
-                                        <h:inputText id="adDbUsername" value="#{installWizard.dbUsername}" size="40"
-                                                     required="true" >
+                                        <h:inputText id="adDbUsername" value="#{installWizard.dbUsername}" size="40">
                                             <f:ajax  listener="#{installWizard.usernameChanged}" />
                                         </h:inputText>
                                     </td>
@@ -255,7 +253,7 @@
                         </div>
                     </div>
                     <div class="wizard-buttons" id="finish-buttons">
-                        <h:commandButton id="prevButton" value="Prev" action="#{installWizard.prev}" onclick="showLoader()" />
+                        <h:commandButton id="prevButton" value="Prev" action="#{installWizard.prev}" onclick="showLoader()" immediate="true" />
                         <h:commandButton value="Finish" action="#{installWizard.finish}" class="button-primary" onclick="showLoader()" />
                         <span style="color:#7b1">Click 'Finish' to complete the installation process</span>
                     </div>
