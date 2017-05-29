@@ -209,6 +209,8 @@ public class DBMigrationBean {
             locations.add("db/migration/h2");
         } else if (dialect instanceof PostgreSQL81Dialect) {
             locations.add("db/migration/postgresql");
+        } else {
+            locations.add("db/migration/other");
         }
 
         // Additional migrations
