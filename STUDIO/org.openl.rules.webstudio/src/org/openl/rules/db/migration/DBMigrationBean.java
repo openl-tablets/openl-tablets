@@ -207,6 +207,8 @@ public class DBMigrationBean {
             locations.add("db/migration/mssqlserver");
         } else if (dialect instanceof H2Dialect) {
             locations.add("db/migration/h2");
+        } else if (dialect instanceof PostgreSQL81Dialect) {
+            locations.add("db/migration/postgresql");
         }
 
         // Additional migrations
