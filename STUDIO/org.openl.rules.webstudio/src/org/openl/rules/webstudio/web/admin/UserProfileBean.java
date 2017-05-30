@@ -114,6 +114,14 @@ public class UserProfileBean extends UsersBean {
 
         simpleUser = new SimpleUser(getUserFirstName(), getUserLastName(), getUsername(), currentPassword, getPriveleges());
         userManagementService.updateUser(simpleUser);
+
+        Authentication authentication = currentUserInfo.getAuthentication();
+        if (authentication.getPrincipal() instanceof SimpleUser) {
+            SimpleUser user = (SimpleUser) authentication.getPrincipal();
+            user.setFirstName(userFirstName);
+            user.setLastName(userLastName);
+            user.setPassword(currentPassword);
+        }
     }
 
     /**
