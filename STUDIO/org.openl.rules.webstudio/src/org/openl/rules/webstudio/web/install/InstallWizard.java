@@ -206,6 +206,7 @@ public class InstallWizard {
         initializeMigrationPaths(new ConfigurationManager(false, dbVendor));
         saveMigrationPaths();
 
+        setProductionDbProperties();
         final Map<String, Object> dbProperties = dbConfig.getProperties();
         migrateDatabase(dbProperties);
 
