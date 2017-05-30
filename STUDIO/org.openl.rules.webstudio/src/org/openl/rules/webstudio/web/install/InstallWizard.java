@@ -110,6 +110,8 @@ public class InstallWizard {
     private Boolean adAllowAccessToNewUsers;
     private String adAdmins;
 
+    private Set<String> additionalMigrationPaths = new HashSet<String>();
+
     public InstallWizard() {
         appConfig = new ConfigurationManager(true,
                 System.getProperty("webapp.root") + "/WEB-INF/conf/config.properties");
@@ -201,7 +203,9 @@ public class InstallWizard {
     private void initializeTemporaryContext() {
         destroyTemporaryContext();
 
-        dbConfig.removeProperty("db.additional.migration.paths");
+        initializeMigrationPaths(new ConfigurationManager(false, dbVendor));
+        saveMigrationPaths();
+
         final Map<String, Object> dbProperties = dbConfig.getProperties();
         migrateDatabase(dbProperties);
 
@@ -219,6 +223,18 @@ public class InstallWizard {
             }
         });
         temporaryContext.refresh();
+    }
+
+    private void initializeMigrationPaths(ConfigurationManager config) {
+        additionalMigrationPaths.clear();
+        String paths = config.getStringProperty("db.additional.migration.paths");
+        if (!StringUtils.isBlank(paths)) {
+            additionalMigrationPaths.addAll(Arrays.asList(StringUtils.split(paths, ',')));
+        }
+    }
+
+    private void saveMigrationPaths() {
+        dbConfig.setProperty("db.additional.migration.paths", StringUtils.join(additionalMigrationPaths, ","));
     }
 
     private void readDbProperties() {
@@ -245,6 +261,8 @@ public class InstallWizard {
             } else {
                 dbSchema = null;
             }
+
+            initializeMigrationPaths(savedConfig);
         } else {
             dbUrl = null;
             dbPrefix = null;
@@ -486,7 +504,8 @@ public class InstallWizard {
 
             IOUtils.copyAndClose(IOUtils.toInputStream(script.toString()), new FileOutputStream(scriptPath));
         }
-        dbConfig.setProperty("db.additional.migration.paths", "filesystem:" + scriptFolder);
+        additionalMigrationPaths.add("filesystem:" + scriptFolder);
+        saveMigrationPaths();
     }
 
     private void setProductionDbProperties() {
