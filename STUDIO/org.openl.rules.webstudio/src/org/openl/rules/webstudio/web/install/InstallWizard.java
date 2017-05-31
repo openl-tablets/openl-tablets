@@ -370,9 +370,6 @@ public class InstallWizard {
     private void fillDbForAD() throws IOException {
         if (!appMode.equals(APP_MODE_DEMO)) {
             if (groupsAreManagedInStudio) {
-                if (temporaryContext == null) {
-                    initializeTemporaryContext();
-                }
                 GroupManagementService groupManagementService = (GroupManagementService) temporaryContext.getBean(
                         "groupManagementService");
                 UserManagementService userManagementService = (UserManagementService) temporaryContext.getBean(
