@@ -22,7 +22,6 @@ public class DBMigrationBean {
 
     private final Logger log = LoggerFactory.getLogger(DBMigrationBean.class);
 
-    @Autowired
     ServletContext servletContext;
     private String dbDriver;
     private String dbLogin;
@@ -33,6 +32,7 @@ public class DBMigrationBean {
     private String additionalMigrationPaths;
     private DataSource dataSource;
 
+    @Autowired
     public void setServletContext(ServletContext servletContext) {
         this.servletContext = servletContext;
     }
