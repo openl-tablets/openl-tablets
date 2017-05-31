@@ -26,7 +26,6 @@ public class DBMigrationBean {
     private String dbDriver;
     private String dbLogin;
     private String dbPassword;
-    private String dbPrefix;
     private String dbUrl;
     private String dbSchema;
     private String dbUrlSeparator;
@@ -116,14 +115,6 @@ public class DBMigrationBean {
 
     public void setDbPassword(String dbPassword) {
         this.dbPassword = dbPassword;
-    }
-
-    public String getDbPrefix() {
-        return dbPrefix;
-    }
-
-    public void setDbPrefix(String dbPrefix) {
-        this.dbPrefix = dbPrefix;
     }
 
     public String getDbUrl() {
