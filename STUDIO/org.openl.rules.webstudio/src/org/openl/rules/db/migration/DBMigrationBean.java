@@ -49,8 +49,8 @@ public class DBMigrationBean {
 
             Flyway flyway = flywayInit(dialect);
             if (!dbUtils.isTableSchemaVersionExists(dbConnection)) {
-                flyway.setInitVersion("0");
-                flyway.init();
+                flyway.setBaselineVersionAsString("0");
+                flyway.baseline();
             }
             flyway.migrate();
             dbConnection.commit();
