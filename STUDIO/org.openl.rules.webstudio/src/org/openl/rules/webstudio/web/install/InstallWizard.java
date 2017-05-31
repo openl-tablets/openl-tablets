@@ -463,6 +463,7 @@ public class InstallWizard {
             script.append("DELETE FROM ${schemaPrefix}Group2Group;\n");
             script.append("DELETE FROM ${schemaPrefix}AccessControlEntry;\n");
             script.append("DELETE FROM ${schemaPrefix}UserGroup;\n");
+            script.append("DELETE FROM ${schemaPrefix}OpenLUser;\n");
             GroupManagementService groupManagementService = (GroupManagementService) temporaryContext.getBean(
                     "groupManagementService");
 
