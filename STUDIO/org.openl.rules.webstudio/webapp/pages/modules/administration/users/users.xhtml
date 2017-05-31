@@ -46,7 +46,7 @@
             <f:facet name="header">
                 Origin
             </f:facet>
-            #{user.origin}
+            #{empty user.origin ? 'Internal' : user.origin}
         </h:column>
 
         <h:column>
