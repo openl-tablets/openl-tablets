@@ -206,7 +206,11 @@ public class InstallWizard {
         initializeMigrationPaths(new ConfigurationManager(false, dbVendor));
         saveMigrationPaths();
 
-        setProductionDbProperties();
+        if (dbUrl != null) {
+            // If not demo mode (dbUrl == null) save db settings to dbConfig
+            setProductionDbProperties();
+        }
+
         final Map<String, Object> dbProperties = dbConfig.getProperties();
         migrateDatabase(dbProperties);
 
