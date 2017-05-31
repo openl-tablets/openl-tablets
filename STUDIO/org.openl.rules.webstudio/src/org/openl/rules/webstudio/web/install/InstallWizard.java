@@ -182,26 +182,20 @@ public class InstallWizard {
                 readDbProperties();
                 readAdProperties();
             } else if (step == 4) {
-                try {
-                    initializeTemporaryContext();
-                    // GroupManagementService delegate is transactional and properly initialized
-                    GroupManagementService delegate = (GroupManagementService) temporaryContext.getBean("groupManagementService");
-                    // Initialize groupManagementService before first usage in GroupsBean
-                    groupManagementService.setDelegate(delegate);
-                } catch (Exception e) {
-                    log.error("Failed while saving the configuration", e);
-                    if (e.getCause() instanceof FlywayException) {
-                        FacesUtils.addErrorMessage("Cannot migrate the database. Check the logs for details.");
-                    } else {
-                        FacesUtils.addErrorMessage("Cannot save the configuration. Check the logs for details.");
-                    }
-                    step--;
-                    return null;
-                }
+                initializeTemporaryContext();
+                // GroupManagementService delegate is transactional and properly initialized
+                GroupManagementService delegate = (GroupManagementService) temporaryContext.getBean("groupManagementService");
+                // Initialize groupManagementService before first usage in GroupsBean
+                groupManagementService.setDelegate(delegate);
             }
             return PAGE_PREFIX + step + PAGE_POSTFIX;
         } catch (Exception e) {
-            FacesUtils.addErrorMessage("Cannot go to next step. Check the logs for details.");
+            log.error("Failed while saving the configuration", e);
+            if (e.getCause() instanceof FlywayException) {
+                FacesUtils.addErrorMessage("Cannot migrate the database. Check the logs for details.");
+            } else {
+                FacesUtils.addErrorMessage("Cannot save the configuration. Check the logs for details.");
+            }
             step--;
             return null;
         }
