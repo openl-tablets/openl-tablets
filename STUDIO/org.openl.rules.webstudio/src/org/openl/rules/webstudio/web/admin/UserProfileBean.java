@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -41,6 +42,7 @@ public class UserProfileBean extends UsersBean {
     private boolean isPasswordValid = false;
     private String currentPassword;
     private String userPassword;
+    private boolean internalUser;
 
     @Size(max=25, message=VALIDATION_MAX)
     private String userFirstName;
@@ -52,12 +54,8 @@ public class UserProfileBean extends UsersBean {
         super();
     }
 
-    /**
-     * Returns the current logged in user
-     * 
-     * @return org.openl.rules.security.User
-     */
-    public User getUser() {
+    @PostConstruct
+    public void initialize() {
         setUsername(currentUserInfo.getUserName());
         Authentication authentication = currentUserInfo.getAuthentication();
         if (authentication.getPrincipal() instanceof User) {
@@ -73,6 +71,15 @@ public class UserProfileBean extends UsersBean {
         setFirstName(user.getFirstName());
         setLastName(user.getLastName());
         setCurrentPassword(user.getPassword());
+        setInternalUser(user.isInternalUser());
+    }
+
+    /**
+     * Returns the current logged in user
+     *
+     * @return org.openl.rules.security.User
+     */
+    public User getUser() {
         return user;
     }
 
@@ -218,6 +225,14 @@ public class UserProfileBean extends UsersBean {
 
     public void setUserLastName(String userLastName) {
         this.userLastName = userLastName;
+    }
+
+    public boolean isInternalUser() {
+        return internalUser;
+    }
+
+    public void setInternalUser(boolean internalUser) {
+        this.internalUser = internalUser;
     }
 
     public void setCurrentUserInfo(CurrentUserInfo currentUserInfo) {

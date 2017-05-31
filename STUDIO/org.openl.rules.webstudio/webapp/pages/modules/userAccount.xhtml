@@ -35,7 +35,7 @@
                                 </h:panelGrid>
                             </div>
                         </section>
-                        <h:panelGroup rendered="#{systemConfig['user.mode'] != 'single' and userProfileBean.user.internalUser}">
+                        <h:panelGroup rendered="#{systemConfig['user.mode'] != 'single' and userProfileBean.internalUser}">
                         <section>
                             <h3>Name</h3>
                             <div>
@@ -55,7 +55,7 @@
                             </div>
                         </section>
                         </h:panelGroup>
-                        <h:panelGroup rendered="#{systemConfig['user.mode'] != 'single' and not userProfileBean.user.internalUser}">
+                        <h:panelGroup rendered="#{systemConfig['user.mode'] != 'single' and not userProfileBean.internalUser}">
                         <section>
                             <h3>Name</h3>
                             <div>
@@ -167,10 +167,10 @@
             </rich:tabPanel>
 
             <footer>
-                <a4j:commandButton rendered="#{systemConfig['user.mode'] != 'single' and userProfileBean.user.internalUser}" value="Save"
+                <a4j:commandButton rendered="#{systemConfig['user.mode'] != 'single' and userProfileBean.internalUser}" value="Save"
                     action="#{userProfileBean.editUser}" data="#{facesContext.maximumSeverity}"
                     oncomplete="if(!event.data) hideAndReload()" styleClass="button-primary save-button" />
-                <a4j:commandButton rendered="#{systemConfig['user.mode'] == 'single' or not userProfileBean.user.internalUser}" value="Save"
+                <a4j:commandButton rendered="#{systemConfig['user.mode'] == 'single' or not userProfileBean.internalUser}" value="Save"
                     oncomplete="hideAndReload()" styleClass="button-primary save-button" />
                 <input class="restore-changed-state" type="button" value="Cancel" onclick="hideUserProfile();" />
             </footer>
