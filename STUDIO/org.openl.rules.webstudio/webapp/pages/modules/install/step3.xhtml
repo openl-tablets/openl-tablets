@@ -282,15 +282,15 @@
 
             (function() {
                 var toggleVisibleBlocks = function () {
-                    toggleBlock("#appmodeBlock", $j("#usermodeBlock input:checked").val() == "multi");
-                    toggleBlock("#dbBlock", $j("#usermodeBlock input:checked").val() == "multi"
-                        && $j("#appmodeBlock input:checked").val() != "demo");
-                    toggleBlock("#adBlock", $j("#usermodeBlock input:checked").val() == "ad");
-                    toggleBlock("#adAppmodeBlock", $j("#usermodeBlock input:checked").val() == "ad");
-                    toggleBlock("#adDbBlock", $j("#usermodeBlock input:checked").val() == "ad"
-                        && $j("#adAppmodeBlock input:checked").val() != "demo");
-                    toggleBlock("#finish-buttons", $j("#usermodeBlock input:checked").val() != "ad");
-                    toggleBlock("#next-buttons", $j("#usermodeBlock input:checked").val() == "ad");
+                    toggleBlock("#appmodeBlock", $j("#usermodeBlock input:checked").val() === "multi");
+                    toggleBlock("#dbBlock", $j("#usermodeBlock input:checked").val() === "multi"
+                        && $j("#appmodeBlock input:checked").val() !== "demo");
+                    toggleBlock("#adBlock", $j("#usermodeBlock input:checked").val() === "ad");
+                    toggleBlock("#adAppmodeBlock", $j("#usermodeBlock input:checked").val() === "ad");
+                    toggleBlock("#adDbBlock", $j("#usermodeBlock input:checked").val() === "ad"
+                        && $j("#adAppmodeBlock input:checked").val() !== "demo");
+                    toggleBlock("#finish-buttons", $j("#usermodeBlock input:checked").val() !== "ad");
+                    toggleBlock("#next-buttons", $j("#usermodeBlock input:checked").val() === "ad");
                 };
 
                 var updateCheckConnectionButton = function () {
@@ -309,11 +309,11 @@
                 });
 
                 $j("#appmodeBlock input").change(function(e) {
-                    toggleBlock("#dbBlock", e.target.value != "demo");
+                    toggleBlock("#dbBlock", e.target.value !== "demo");
                 });
 
                 $j("#adAppmodeBlock input").change(function(e) {
-                    toggleBlock("#adDbBlock", e.target.value != "demo");
+                    toggleBlock("#adDbBlock", e.target.value !== "demo");
                 });
 
                 $j("#step3Form\\:adUsername").on("change keyup cut paste", function () {
