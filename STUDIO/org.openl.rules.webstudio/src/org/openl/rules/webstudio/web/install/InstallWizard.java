@@ -135,69 +135,76 @@ public class InstallWizard {
     }
 
     public String next() {
-        // Validations
-        if (step == 2) {
-            try {
-                RepositoryValidators.validate(designRepositoryConfiguration);
+        try {
+            // Validations
+            if (step == 2) {
+                try {
+                    RepositoryValidators.validate(designRepositoryConfiguration);
 
-                productionRepositoryEditor.validate();
-            } catch (RepositoryValidationException e) {
-                FacesUtils.addErrorMessage(e.getMessage());
-                return null;
-            }
-        }
-
-        // Go to next step
-        ++step;
-        if (step == 2) {
-            workingDir = ConfigurationManager.normalizePath(workingDir);
-
-            // Get defaults from 'system.properties'
-            if (newWorkingDir || systemConfig == null) {
-                systemConfig = new ConfigurationManager(true,
-                        workingDir + "/system-settings/system.properties",
-                        System.getProperty("webapp.root") + "/WEB-INF/conf/system.properties");
-                designRepositoryConfiguration = new RepositoryConfiguration("", systemConfig, RepositoryType.DESIGN);
-
-                initProductionRepositoryEditor();
-
-                dbConfig = new ConfigurationManager(true,
-                        workingDir + "/system-settings/db.properties",
-                        System.getProperty("webapp.root") + "/WEB-INF/conf/db.properties");
-
-                adConfig = new ConfigurationManager(true,
-                        workingDir + "/system-settings/security-ad.properties",
-                        System.getProperty("webapp.root") + "/WEB-INF/conf/security-ad.properties");
-
-                userMode = systemConfig.getStringProperty("user.mode");
-
-                String savedDbDriver = dbConfig.getStringProperty("db.driver");
-                String savedDbUrl = StringUtils.trimToEmpty(dbConfig.getStringProperty("db.url"));
-                boolean innerDb = "org.h2.Driver".equals(savedDbDriver) && savedDbUrl.startsWith("jdbc:h2:mem:");
-                appMode = innerDb ? APP_MODE_DEMO : APP_MODE_PRODUCTION;
-
-            }
-        } else if (step == 3) {
-            readDbProperties();
-            readAdProperties();
-        } else if (step == 4) {
-            try {
-                initializeTemporaryContext();
-                // GroupManagementService delegate is transactional and properly initialized
-                GroupManagementService delegate = (GroupManagementService) temporaryContext.getBean("groupManagementService");
-                // Initialize groupManagementService before first usage in GroupsBean
-                groupManagementService.setDelegate(delegate);
-            } catch (Exception e) {
-                log.error("Failed while saving the configuration", e);
-                if (e.getCause() instanceof FlywayException) {
-                    FacesUtils.addErrorMessage("Cannot migrate the database. Check the logs for details.");
-                } else {
-                    FacesUtils.addErrorMessage("Cannot save the configuration. Check the logs for details.");
+                    productionRepositoryEditor.validate();
+                } catch (RepositoryValidationException e) {
+                    FacesUtils.addErrorMessage(e.getMessage());
+                    return null;
                 }
-
             }
+
+            // Go to next step
+            ++step;
+            if (step == 2) {
+                workingDir = ConfigurationManager.normalizePath(workingDir);
+
+                // Get defaults from 'system.properties'
+                if (newWorkingDir || systemConfig == null) {
+                    systemConfig = new ConfigurationManager(true,
+                            workingDir + "/system-settings/system.properties",
+                            System.getProperty("webapp.root") + "/WEB-INF/conf/system.properties");
+                    designRepositoryConfiguration = new RepositoryConfiguration("", systemConfig, RepositoryType.DESIGN);
+
+                    initProductionRepositoryEditor();
+
+                    dbConfig = new ConfigurationManager(true,
+                            workingDir + "/system-settings/db.properties",
+                            System.getProperty("webapp.root") + "/WEB-INF/conf/db.properties");
+
+                    adConfig = new ConfigurationManager(true,
+                            workingDir + "/system-settings/security-ad.properties",
+                            System.getProperty("webapp.root") + "/WEB-INF/conf/security-ad.properties");
+
+                    userMode = systemConfig.getStringProperty("user.mode");
+
+                    String savedDbDriver = dbConfig.getStringProperty("db.driver");
+                    String savedDbUrl = StringUtils.trimToEmpty(dbConfig.getStringProperty("db.url"));
+                    boolean innerDb = "org.h2.Driver".equals(savedDbDriver) && savedDbUrl.startsWith("jdbc:h2:mem:");
+                    appMode = innerDb ? APP_MODE_DEMO : APP_MODE_PRODUCTION;
+
+                }
+            } else if (step == 3) {
+                readDbProperties();
+                readAdProperties();
+            } else if (step == 4) {
+                try {
+                    initializeTemporaryContext();
+                    // GroupManagementService delegate is transactional and properly initialized
+                    GroupManagementService delegate = (GroupManagementService) temporaryContext.getBean("groupManagementService");
+                    // Initialize groupManagementService before first usage in GroupsBean
+                    groupManagementService.setDelegate(delegate);
+                } catch (Exception e) {
+                    log.error("Failed while saving the configuration", e);
+                    if (e.getCause() instanceof FlywayException) {
+                        FacesUtils.addErrorMessage("Cannot migrate the database. Check the logs for details.");
+                    } else {
+                        FacesUtils.addErrorMessage("Cannot save the configuration. Check the logs for details.");
+                    }
+                    step--;
+                    return null;
+                }
+            }
+            return PAGE_PREFIX + step + PAGE_POSTFIX;
+        } catch (Exception e) {
+            FacesUtils.addErrorMessage("Cannot go to next step. Check the logs for details.");
+            step--;
+            return null;
         }
-        return PAGE_PREFIX + step + PAGE_POSTFIX;
     }
 
     private void initializeTemporaryContext() {
