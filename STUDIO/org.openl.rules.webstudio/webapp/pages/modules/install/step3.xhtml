@@ -281,6 +281,18 @@
             }
 
             (function() {
+                var toggleVisibleBlocks = function () {
+                    toggleBlock("#appmodeBlock", $j("#usermodeBlock input:checked").val() == "multi");
+                    toggleBlock("#dbBlock", $j("#usermodeBlock input:checked").val() == "multi"
+                        && $j("#appmodeBlock input:checked").val() != "demo");
+                    toggleBlock("#adBlock", $j("#usermodeBlock input:checked").val() == "ad");
+                    toggleBlock("#adAppmodeBlock", $j("#usermodeBlock input:checked").val() == "ad");
+                    toggleBlock("#adDbBlock", $j("#usermodeBlock input:checked").val() == "ad"
+                        && $j("#adAppmodeBlock input:checked").val() != "demo");
+                    toggleBlock("#finish-buttons", $j("#usermodeBlock input:checked").val() != "ad");
+                    toggleBlock("#next-buttons", $j("#usermodeBlock input:checked").val() == "ad");
+                };
+
                 var updateCheckConnectionButton = function () {
                     var username = $j("#step3Form\\:adUsername").val();
                     var password = $j("#step3Form\\:adPassword").val();
@@ -289,28 +301,11 @@
                     $j("#step3Form\\:adConnectionCheck").prop('disabled', isBlank);
                 };
 
+                toggleVisibleBlocks();
                 updateCheckConnectionButton();
 
-                toggleBlock("#appmodeBlock", $j("#usermodeBlock input:checked").val() == "multi");
-                toggleBlock("#dbBlock", $j("#usermodeBlock input:checked").val() == "multi"
-                    && $j("#appmodeBlock input:checked").val() != "demo");
-                toggleBlock("#adBlock", $j("#usermodeBlock input:checked").val() == "ad");
-                toggleBlock("#adAppmodeBlock", $j("#usermodeBlock input:checked").val() == "ad");
-                toggleBlock("#adDbBlock", $j("#usermodeBlock input:checked").val() == "ad"
-                    && $j("#adAppmodeBlock input:checked").val() != "demo");
-                toggleBlock("#finish-buttons", $j("#usermodeBlock input:checked").val() != "ad");
-                toggleBlock("#next-buttons", $j("#usermodeBlock input:checked").val() == "ad");
-
                 $j("#usermodeBlock input").change(function(e) {
-                    toggleBlock("#appmodeBlock", e.target.value == "multi");
-                    toggleBlock("#dbBlock", e.target.value == "multi"
-                        && $j("#appmodeBlock input:checked").val() != "demo");
-                    toggleBlock("#adBlock", e.target.value == "ad");
-                    toggleBlock("#adAppmodeBlock",  e.target.value == "ad");
-                    toggleBlock("#adDbBlock",  e.target.value == "ad"
-                        && $j("#adAppmodeBlock input:checked").val() != "demo");
-                    toggleBlock("#finish-buttons", $j("#usermodeBlock input:checked").val() != "ad");
-                    toggleBlock("#next-buttons", $j("#usermodeBlock input:checked").val() == "ad");
+                    toggleVisibleBlocks();
                 });
 
                 $j("#appmodeBlock input").change(function(e) {

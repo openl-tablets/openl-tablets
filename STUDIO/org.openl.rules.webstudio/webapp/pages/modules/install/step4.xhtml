@@ -112,12 +112,15 @@
                     $j(selector + " input").not("input[type='radio']").prop('disabled', !toggle);
                 }
 
-                toggleBlock("#externalGroupsBlock", $j("#adGroupsManagingModeBlock input:checked").val() !== "true");
-                toggleBlock("#internalGroupsBlock", $j("#adGroupsManagingModeBlock input:checked").val() === "true");
+                var toggleVisibleBlocks = function () {
+                    toggleBlock("#externalGroupsBlock", $j("#adGroupsManagingModeBlock input:checked").val() !== "true");
+                    toggleBlock("#internalGroupsBlock", $j("#adGroupsManagingModeBlock input:checked").val() === "true");
+                };
+
+                toggleVisibleBlocks();
 
                 $j("#adGroupsManagingModeBlock input").change(function(e) {
-                    toggleBlock("#externalGroupsBlock", e.target.value !== "true");
-                    toggleBlock("#internalGroupsBlock", e.target.value === "true");
+                    toggleVisibleBlocks();
                 });
             })();
 
