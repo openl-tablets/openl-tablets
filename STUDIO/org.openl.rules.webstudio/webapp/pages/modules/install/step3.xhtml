@@ -171,7 +171,10 @@
                                 <tr>
                                     <td></td>
                                     <td>
-                                        <a4j:commandButton value="Check connection" execute="adDomain adUrl adUsername adPassword" oncomplete="toggleBlock('#ad-successful-message', #{!facesContext.validationFailed});"/>
+                                        <a4j:commandButton id="adConnectionCheck"
+                                                           value="Check connection"
+                                                           execute="adDomain adUrl adUsername adPassword"
+                                                           oncomplete="toggleBlock('#ad-successful-message', #{!facesContext.validationFailed});"/>
                                     </td>
                                 </tr>
                             </table>
@@ -271,7 +274,7 @@
             // TODO Move to UI JS model
             function toggleBlock(selector, toggle) {
                 $j(selector).toggle(toggle);
-                $j(selector + " input").each(function() {
+                $j(selector + " input").not("input[type='submit']").each(function() {
                     if (this.type != "radio") {
                         this.disabled = !toggle;
                     }
@@ -279,6 +282,15 @@
             }
 
             (function() {
+                var updateCheckConnectionButton = function () {
+                    var username = $j("#step3Form\\:adUsername").val();
+                    var password = $j("#step3Form\\:adPassword").val();
+                    // Disable the button if username and password are empty
+                    var isBlank = !username || !password || /^\s*$/.test(username);
+                    $j("#step3Form\\:adConnectionCheck").prop('disabled', isBlank);
+                };
+
+                updateCheckConnectionButton();
 
                 toggleBlock("#appmodeBlock", $j("#usermodeBlock input:checked").val() == "multi");
                 toggleBlock("#dbBlock", $j("#usermodeBlock input:checked").val() == "multi"
@@ -308,6 +320,13 @@
 
                 $j("#adAppmodeBlock input").change(function(e) {
                     toggleBlock("#adDbBlock", e.target.value != "demo");
+                });
+
+                $j("#step3Form\\:adUsername").on("change keyup cut paste", function () {
+                    updateCheckConnectionButton();
+                });
+                $j("#step3Form\\:adPassword").on("change keyup cut paste", function () {
+                    updateCheckConnectionButton();
                 });
 
             })();
