@@ -4,7 +4,6 @@ import org.flywaydb.core.Flyway;
 import org.hibernate.dialect.*;
 import org.hibernate.engine.jdbc.dialect.internal.StandardDialectResolver;
 import org.hibernate.engine.jdbc.dialect.spi.DatabaseMetaDataDialectResolutionInfoAdapter;
-import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.db.utils.DBUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -42,9 +41,6 @@ public class DBMigrationBean {
     public String init() {
         String prefix = dbUrl.split(dbUrlSeparator)[0] + dbUrlSeparator;
         String url = dbUrl.split(dbUrlSeparator)[1];
-        if (servletContext == null) {
-            servletContext = FacesUtils.getServletContext();
-        }
         DBUtils dbUtils = new DBUtils(servletContext);
         Connection dbConnection = dbUtils.createConnection(dbDriver, prefix, url, dbLogin, dbPassword);
         try {
