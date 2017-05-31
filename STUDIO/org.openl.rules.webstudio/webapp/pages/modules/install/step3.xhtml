@@ -274,11 +274,10 @@
             // TODO Move to UI JS model
             function toggleBlock(selector, toggle) {
                 $j(selector).toggle(toggle);
-                $j(selector + " input").not("input[type='submit']").each(function() {
-                    if (this.type != "radio") {
-                        this.disabled = !toggle;
-                    }
-                })
+                $j(selector + " input")
+                    .not("input[type='radio']")
+                    .not("input[type='submit']")
+                    .prop('disabled', !toggle);
             }
 
             (function() {
