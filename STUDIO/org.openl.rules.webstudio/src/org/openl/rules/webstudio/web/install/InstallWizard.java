@@ -206,7 +206,7 @@ public class InstallWizard {
         initializeMigrationPaths(new ConfigurationManager(false, dbVendor));
         saveMigrationPaths();
 
-        if (dbUrl != null) {
+        if (!appMode.equals(APP_MODE_DEMO)) {
             // If not demo mode (dbUrl == null) save db settings to dbConfig
             setProductionDbProperties();
         }
