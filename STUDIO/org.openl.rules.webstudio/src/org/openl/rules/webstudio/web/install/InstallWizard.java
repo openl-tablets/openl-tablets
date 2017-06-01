@@ -82,7 +82,6 @@ public class InstallWizard {
     private String dbDriver;
     private String dbPrefix;
     private String dbVendor;
-    private String dbSchema;
 
     private String adDomain;
     private String adUrl;
@@ -260,13 +259,6 @@ public class InstallWizard {
             String propertyFilePathForVendor = getPropertyFilePathForVendor(dbDriver);
             dbVendor = propertyFilePathForVendor;
 
-            // For Oracle database schema is a username
-            if (StringUtils.containsIgnoreCase(propertyFilePathForVendor, "oracle")) {
-                ConfigurationManager externalDBConfig = new ConfigurationManager(false, propertyFilePathForVendor);
-                dbSchema = externalDBConfig.getStringProperty("db.username");
-            } else {
-                dbSchema = null;
-            }
 
             initializeMigrationPaths(savedConfig);
         } else {
@@ -276,7 +268,6 @@ public class InstallWizard {
             dbPassword = null;
             dbDriver = null;
             dbVendor = null;
-            dbSchema = null;
         }
     }
 
@@ -797,11 +788,6 @@ public class InstallWizard {
                 setDbDriver(dbDriver);
                 setDbVendor(propertyFilePath);
                 this.dbPrefix = prefix;
-
-                // For Oracle database schema is a username
-                if (StringUtils.containsIgnoreCase(propertyFilePath, "oracle")) {
-                    this.dbSchema = externalDBConfig.getStringProperty("db.username");
-                }
             }
         } else {
             // Reset database url and dtabase user name when no database type is selected
@@ -1012,14 +998,6 @@ public class InstallWizard {
         if (AD_USER_MODE.equals(userMode)) {
             setDbVendor(dbVendor);
         }
-    }
-
-    public String getDbSchema() {
-        return dbSchema;
-    }
-
-    public void setDbSchema(String dbSchema) {
-        this.dbSchema = dbSchema;
     }
 
     public RepositoryConfiguration getDesignRepositoryConfiguration() {
