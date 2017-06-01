@@ -509,7 +509,6 @@ public class InstallWizard {
         dbConfig.setProperty("db.password", dbPassword);
         dbConfig.setProperty("db.driver", externalDBConfig.getStringProperty("db.driver"));
         dbConfig.setProperty("db.hibernate.dialect", externalDBConfig.getStringProperty("db.hibernate.dialect"));
-        dbConfig.setProperty("db.schema", this.dbSchema);
         dbConfig.setProperty("db.validationQuery", externalDBConfig.getStringProperty("db.validationQuery"));
         dbConfig.setProperty("db.url.separator", externalDBConfig.getStringProperty("db.url.separator"));
         if (AD_USER_MODE.equals(userMode) && groupsAreManagedInStudio) {
