@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 public class DBUtils {
     private static final String SQL_ERRORS_FILE_PATH = "/WEB-INF/conf/db/sql-errors.properties";
-    private static final String TABLE_FOR_VALIDATION = "schema_version";
 
     private final Logger log = LoggerFactory.getLogger(DBUtils.class);
 
@@ -74,36 +73,5 @@ public class DBUtils {
         }
 
         return conn;
-    }
-
-    /**
-     * Validates flyway table 'schema_version' exists or not.
-     *
-     * @param conn is a connection (session) with a specific database.
-     * @return true if table 'schema_version' exists into DB
-     */
-    public boolean isTableSchemaVersionExists(Connection conn) throws SQLException {
-        ResultSet rs = null;
-        try {
-            DatabaseMetaData meta = conn.getMetaData();
-            if ("Oracle".equals(meta.getDatabaseProductName())) {
-                rs = meta.getTables(null, meta.getUserName(), TABLE_FOR_VALIDATION, new String[] { "TABLE" });
-            } else {
-                rs = meta.getTables(null, null, TABLE_FOR_VALIDATION, new String[] { "TABLE" });
-            }
-
-            return rs.next();
-        } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            return false;
-        } finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    log.error(e.getMessage(), e);
-                }
-            }
-        }
     }
 }
