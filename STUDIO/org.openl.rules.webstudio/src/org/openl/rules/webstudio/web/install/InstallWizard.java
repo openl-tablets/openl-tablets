@@ -69,7 +69,6 @@ public class InstallWizard {
     private String dbDriver;
     private String dbPrefix;
     private String dbVendor;
-    private String dbSchema;
 
     private UIInput dbURLInput;
     private UIInput dbLoginInput;
@@ -171,13 +170,6 @@ public class InstallWizard {
             String propertyFilePathForVendor = getPropertyFilePathForVendor(dbDriver);
             dbVendor = propertyFilePathForVendor;
 
-            // For Oracle database schema is a username
-            if (StringUtils.containsIgnoreCase(propertyFilePathForVendor, "oracle")) {
-                ConfigurationManager externalDBConfig = new ConfigurationManager(false, propertyFilePathForVendor);
-                dbSchema = externalDBConfig.getStringProperty("db.username");
-            } else {
-                dbSchema = null;
-            }
         } else {
             dbUrl = null;
             dbPrefix = null;
@@ -185,7 +177,6 @@ public class InstallWizard {
             dbPassword = null;
             dbDriver = null;
             dbVendor = null;
-            dbSchema = null;
         }
     }
 
@@ -223,7 +214,6 @@ public class InstallWizard {
                 dbConfig.setProperty("db.driver", externalDBConfig.getStringProperty("db.driver"));
                 dbConfig.setProperty("db.hibernate.dialect", externalDBConfig.getStringProperty("db.hibernate.dialect"));
                 dbConfig.setProperty("db.hibernate.hbm2ddl.auto", externalDBConfig.getStringProperty("db.hibernate.hbm2ddl.auto"));
-                dbConfig.setProperty("db.schema", this.dbSchema);
                 dbConfig.setProperty("db.validationQuery", externalDBConfig.getStringProperty("db.validationQuery"));
                 dbConfig.setProperty("db.url.separator", externalDBConfig.getStringProperty("db.url.separator"));
 
@@ -474,11 +464,6 @@ public class InstallWizard {
                 setDbDriver(dbDriver);
                 setDbVendor(propertyFilePath);
                 this.dbPrefix = prefix;
-
-                // For Oracle database schema is a username
-                if (StringUtils.containsIgnoreCase(propertyFilePath, "oracle")) {
-                    this.dbSchema = externalDBConfig.getStringProperty("db.username");
-                }
             }
         } else {
             // Reset database url and dtabase user name when no database type is selected
@@ -631,14 +616,6 @@ public class InstallWizard {
 
     public void setDbVendor(String dbVendor) {
         this.dbVendor = dbVendor;
-    }
-
-    public String getDbSchema() {
-        return dbSchema;
-    }
-
-    public void setDbSchema(String dbSchema) {
-        this.dbSchema = dbSchema;
     }
 
     public RepositoryConfiguration getDesignRepositoryConfiguration() {

@@ -5,7 +5,6 @@ import org.hibernate.dialect.*;
 import org.hibernate.engine.jdbc.dialect.internal.StandardDialectResolver;
 import org.hibernate.engine.jdbc.dialect.spi.DatabaseMetaDataDialectResolutionInfoAdapter;
 import org.openl.rules.db.utils.DBUtils;
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import java.sql.Types;
 import java.util.*;
 
 public class DBMigrationBean {
-    private static final String SCHEMA_SEPARATOR = ".";
 
     private final Logger log = LoggerFactory.getLogger(DBMigrationBean.class);
 
@@ -27,7 +25,6 @@ public class DBMigrationBean {
     private String dbLogin;
     private String dbPassword;
     private String dbUrl;
-    private String dbSchema;
     private String dbUrlSeparator;
     private DataSource dataSource;
 
@@ -78,10 +75,8 @@ public class DBMigrationBean {
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
 
-        String schemaPrefix = StringUtils.isBlank(dbSchema) ? "" : StringUtils.trim(dbSchema) + SCHEMA_SEPARATOR;
-
         Map<String, String> placeholders = new HashMap<String, String>();
-        placeholders.put("schemaPrefix", schemaPrefix);
+        placeholders.put("schemaPrefix", "");
         placeholders.put("identity_column", getIdentityColumn(dialect));
         placeholders.put("create_hibernate_sequence", getCreateHibernateSequence(dialect));
         placeholders.put("bigint", dialect.getTypeName(Types.BIGINT));
@@ -123,14 +118,6 @@ public class DBMigrationBean {
 
     public void setDbUrl(String dbUrl) {
         this.dbUrl = dbUrl;
-    }
-
-    public String getDbSchema() {
-        return dbSchema;
-    }
-
-    public void setDbSchema(String dbSchema) {
-        this.dbSchema = dbSchema;
     }
 
     public String getDbUrlSeparator() {
