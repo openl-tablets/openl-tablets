@@ -15,7 +15,6 @@ import javax.sql.DataSource;
 
 import org.flywaydb.core.Flyway;
 import org.openl.util.IOUtils;
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +56,22 @@ public class DBMigrationBean {
         if (oldMigrationExists) {
             throw new IllegalStateException("Incompatible OpenL WebStudio version");
         }
+
+        String[] locations = { "/db/flyway/common", "/db/flyway/" + databaseCode };
+
+        TreeMap<String, String> placeholders = new TreeMap<String, String>();
+        for (String location : locations) {
+            fillQueries(placeholders, location + "/placeholders.properties");
+        }
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        flyway.setBaselineVersionAsString("0");
+        flyway.setBaselineOnMigrate(true);
+        flyway.setTable("openl_security_flyway");
+        flyway.setPlaceholders(placeholders);
+
+        flyway.setLocations(locations);
+        flyway.migrate();
     }
 
     public void setDataSource(DataSource dataSource) {
