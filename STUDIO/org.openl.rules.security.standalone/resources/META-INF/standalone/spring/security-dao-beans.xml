@@ -11,8 +11,4 @@
         <property name="sessionFactory" ref="openlSessionFactory"/>
     </bean>
     
-    <bean id="accessControlEntryDao" class="org.openl.rules.security.standalone.dao.HibernateAccessControlEntryDao">
-        <property name="sessionFactory" ref="openlSessionFactory"/>
-    </bean>
-
 </beans>

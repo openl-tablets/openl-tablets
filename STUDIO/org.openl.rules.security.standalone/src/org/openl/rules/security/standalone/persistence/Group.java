@@ -11,11 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Type;
 
 /**
@@ -31,7 +28,6 @@ public class Group extends PersistentObject {
     private String description;
     private String privileges;
     private Set<Group> includedGroups;
-    private Set<AccessControlEntry> accessControlEntries;
     private Set<User> users;
     private Set<Group> parentGroups;
 
@@ -98,17 +94,6 @@ public class Group extends PersistentObject {
     }
 
     /**
-     * Group's access control entries.
-     *
-     * @return
-     */
-    @OneToMany(targetEntity = AccessControlEntry.class, mappedBy = "group", orphanRemoval = true)
-    @Cascade(value = { CascadeType.ALL })
-    public Set<AccessControlEntry> getAccessControlEntries() {
-        return accessControlEntries;
-    }
-
-    /**
      * Users belonging to this group. Users count can be too big - we should use
      * lazy loading here
      * 
@@ -122,10 +107,6 @@ public class Group extends PersistentObject {
 
     public void setUsers(Set<User> users) {
         this.users = users;
-    }
-
-    public void setAccessControlEntries(Set<AccessControlEntry> accessControlEntries) {
-        this.accessControlEntries = accessControlEntries;
     }
 
     public void setDescription(String description) {

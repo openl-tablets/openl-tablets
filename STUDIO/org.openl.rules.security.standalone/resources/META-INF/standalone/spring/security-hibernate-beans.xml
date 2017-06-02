@@ -71,8 +71,4 @@
 
     <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager"
         p:sessionFactory-ref="openlSessionFactory" />
-
-    <bean name="aclService" class="org.openl.rules.security.standalone.service.DefaultAclService">
-      <property name="sessionFactory" ref="openlSessionFactory"/>
-    </bean>
 </beans>

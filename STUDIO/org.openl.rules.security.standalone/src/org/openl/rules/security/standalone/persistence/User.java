@@ -10,11 +10,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Type;
 
 /**
@@ -32,7 +29,6 @@ public class User extends PersistentObject {
     private Set<Group> groups;
     private String firstName;
     private String surname;
-    private Set<AccessControlEntry> accessControlEntries;
 
     /**
      * First name.
@@ -90,19 +86,6 @@ public class User extends PersistentObject {
     @Column(name = "Surname", length = 50)
     public String getSurname() {
         return surname;
-    }
-
-    /**
-     * User's access control entries.
-     */
-    @OneToMany(targetEntity = AccessControlEntry.class, mappedBy = "user", orphanRemoval = true)
-    @Cascade(value = { CascadeType.ALL })
-    public Set<AccessControlEntry> getAccessControlEntries() {
-        return accessControlEntries;
-    }
-
-    public void setAccessControlEntries(Set<AccessControlEntry> accessControlEntries) {
-        this.accessControlEntries = accessControlEntries;
     }
 
     public void setFirstName(String firstName) {
