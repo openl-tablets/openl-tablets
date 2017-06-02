@@ -57,6 +57,22 @@ public class DBMigrationBean {
         if (oldMigrationExists) {
             throw new IllegalStateException("Incompatible OpenL WebStudio version");
         }
+
+        String[] locations = { "/db/flyway/common", "/db/flyway/" + databaseCode };
+
+        TreeMap<String, String> placeholders = new TreeMap<String, String>();
+        for (String location : locations) {
+            fillQueries(placeholders, location + "/placeholders.properties");
+        }
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        flyway.setBaselineVersionAsString("0");
+        flyway.setBaselineOnMigrate(true);
+        flyway.setTable("openl_security_flyway");
+        flyway.setPlaceholders(placeholders);
+
+        flyway.setLocations(locations);
+        flyway.migrate();
     }
 
     public void setDataSource(DataSource dataSource) {
