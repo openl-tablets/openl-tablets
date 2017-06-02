@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
@@ -24,29 +26,37 @@ public class DBMigrationBean {
     public void init() throws Exception {
         Connection connection = dataSource.getConnection();
         String databaseCode;
+        boolean oldMigrationExists = false;
         try {
             DatabaseMetaData metaData = connection.getMetaData();
             databaseCode = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
+            String tableName = "schema_version";
+            String repoTable = metaData.storesUpperCaseIdentifiers() ? tableName.toUpperCase() : tableName;
+
+            ResultSet rs = null;
+            try {
+                if ("oracle".equals(databaseCode)) {
+                    rs = metaData.getTables(null, metaData.getUserName(), repoTable, new String[] { "TABLE" });
+                } else {
+                    rs = metaData.getTables(null, null, repoTable, new String[] { "TABLE" });
+                }
+                oldMigrationExists = rs.next();
+            } finally {
+                if (rs != null) {
+                    try {
+                        rs.close();
+                    } catch (SQLException e) {
+                        log.warn("Unexpected sql failure", e);
+                    }
+                }
+            }
         } finally {
             connection.close();
         }
-        String[] locations = { "/db/migration/common", "/db/migration/" + databaseCode };
 
-        TreeMap<String, String> placeholders = new TreeMap<String, String>();
-        for (String location : locations) {
-            fillQueries(placeholders, location + "/placeholders.properties");
+        if (oldMigrationExists) {
+            throw new IllegalStateException("Incompatible OpenL WebStudio version");
         }
-
-        Flyway flyway = new Flyway();
-        flyway.setDataSource(dataSource);
-
-        flyway.setPlaceholders(placeholders);
-
-        flyway.setLocations(locations);
-
-        flyway.setBaselineVersionAsString("0");
-        flyway.setBaselineOnMigrate(true);
-        flyway.migrate();
     }
 
     public void setDataSource(DataSource dataSource) {
