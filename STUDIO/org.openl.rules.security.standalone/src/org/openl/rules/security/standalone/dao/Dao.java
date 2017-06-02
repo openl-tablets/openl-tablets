@@ -2,15 +2,13 @@ package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
 
-import org.openl.rules.security.standalone.persistence.PersistentObject;
-
 /**
  * Base interface to be implemented by DAO interfaces. All Dao interfaces (like
  * UserDao, etc) should extend this interface.
  *
  * @author Andrey Naumenko
  */
-public interface Dao<T extends PersistentObject> {
+public interface Dao<T> {
     /**
      * Checks whether given object can be deleted. i.e. has no non-deletable
      * relations in DB.

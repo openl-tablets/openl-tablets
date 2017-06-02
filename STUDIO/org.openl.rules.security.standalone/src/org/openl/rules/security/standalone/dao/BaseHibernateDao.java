@@ -5,7 +5,6 @@ import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.openl.rules.security.standalone.persistence.PersistentObject;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -13,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Andrey Naumenko
  */
-public abstract class BaseHibernateDao<T extends PersistentObject> implements Dao<T> {
+public abstract class BaseHibernateDao<T> implements Dao<T> {
 
     private Class<T> persistentClass;
 
