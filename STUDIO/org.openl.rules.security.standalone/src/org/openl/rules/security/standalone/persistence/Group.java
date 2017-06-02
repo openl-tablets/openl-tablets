@@ -1,5 +1,6 @@
 package org.openl.rules.security.standalone.persistence;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -22,8 +23,9 @@ import org.hibernate.annotations.Type;
  */
 @Entity
 @Table(name = "UserGroup")
-public class Group extends PersistentObject {
+public class Group implements Serializable {
     private static final long serialVersionUID = 1L;
+    private Long id;
     private String name;
     private String description;
     private String privileges;
@@ -41,14 +43,17 @@ public class Group extends PersistentObject {
         return description;
     }
 
-    @Override
     @Id
     @GeneratedValue(
         strategy=GenerationType.AUTO)
     @Column(name = "GroupID")
     @Type(type = "java.lang.Long")
     public Long getId() {
-        return super.getId();
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     /**
@@ -127,5 +132,25 @@ public class Group extends PersistentObject {
 
     public void setPrivileges(String privileges) {
         this.privileges = privileges;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Group group = (Group) o;
+
+        return id != null ? id.equals(group.id) : group.id == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "Group{id=" + id + '}';
     }
 }

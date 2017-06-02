@@ -1,5 +1,6 @@
 package org.openl.rules.security.standalone.persistence;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -21,8 +22,9 @@ import org.hibernate.annotations.Type;
  */
 @Entity
 @Table(name="OpenLUser") // "USER" is a reserved word in SQL92/SQL99 
-public class User extends PersistentObject {
+public class User implements Serializable {
     private static final long serialVersionUID = 1L;
+    private Long id;
     private String loginName;
     private String passwordHash;
     private String privileges;
@@ -47,13 +49,16 @@ public class User extends PersistentObject {
         return groups;
     }
 
-    @Override
     @Id
     @GeneratedValue
     @Column(name = "UserID")
     @Type(type = "java.lang.Long")
     public Long getId() {
-        return super.getId();
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     /**
@@ -110,5 +115,25 @@ public class User extends PersistentObject {
 
     public void setSurname(String surname) {
         this.surname = surname;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+
+        return id != null ? id.equals(user.id) : user.id == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "User{id=" + id + '}';
     }
 }
