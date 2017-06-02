@@ -36,8 +36,6 @@ public class UserInfoUserDetailsServiceImpl implements UserInfoUserDetailsServic
                     new SimpleGroup(group.getName(), group.getDescription(), createPrivileges(group)));
         }
 
-        grantedList.addAll(createPrivileges(user.getPrivileges()));
-
         return grantedList;
     }
 

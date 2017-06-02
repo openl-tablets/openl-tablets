@@ -22,7 +22,7 @@ import org.hibernate.annotations.Type;
  * @author Andrey Naumenko
  */
 @Entity
-@Table(name = "UserGroup")
+@Table(name = "OpenLGroups")
 public class Group implements Serializable {
     private static final long serialVersionUID = 1L;
     private Long id;
@@ -38,7 +38,7 @@ public class Group implements Serializable {
      *
      * @return description
      */
-    @Column(length = 200, name = "Description")
+    @Column(length = 200, name = "description")
     public String getDescription() {
         return description;
     }
@@ -46,7 +46,7 @@ public class Group implements Serializable {
     @Id
     @GeneratedValue(
         strategy=GenerationType.AUTO)
-    @Column(name = "GroupID")
+    @Column(name = "id")
     @Type(type = "java.lang.Long")
     public Long getId() {
         return id;
@@ -62,7 +62,7 @@ public class Group implements Serializable {
      * @return
      */
     @ManyToMany(targetEntity = Group.class, fetch = FetchType.EAGER, cascade = javax.persistence.CascadeType.MERGE)
-    @JoinTable(name = "Group2Group", joinColumns = { @JoinColumn(name = "GroupID") }, inverseJoinColumns = { @JoinColumn(name = "IncludedGroupID") })
+    @JoinTable(name = "OpenLGroup2Group", joinColumns = { @JoinColumn(name = "groupID") }, inverseJoinColumns = { @JoinColumn(name = "includedGroupID") })
     public Set<Group> getIncludedGroups() {
         return includedGroups;
     }
@@ -73,7 +73,7 @@ public class Group implements Serializable {
      * @return
      */
     @ManyToMany(targetEntity = Group.class, fetch = FetchType.LAZY, cascade = javax.persistence.CascadeType.MERGE)
-    @JoinTable(name = "Group2Group", joinColumns = { @JoinColumn(name = "IncludedGroupID") }, inverseJoinColumns = { @JoinColumn(name = "GroupID") })
+    @JoinTable(name = "OpenLGroup2Group", joinColumns = { @JoinColumn(name = "includedGroupID") }, inverseJoinColumns = { @JoinColumn(name = "groupID") })
     public Set<Group> getParentGroups() {
         return parentGroups;
     }
@@ -83,7 +83,7 @@ public class Group implements Serializable {
      *
      * @return
      */
-    @Column(length = 40, name = "GroupName", unique = true, nullable = false)
+    @Column(length = 40, name = "groupName", unique = true, nullable = false)
     public String getName() {
         return name;
     }
@@ -93,7 +93,7 @@ public class Group implements Serializable {
      *
      * @return
      */
-    @Column(name = "UserPrivileges", length = 1000) // Privileges is reserved word for Oracle Data base
+    @Column(name = "userPrivileges", length = 1000) // Privileges is reserved word for Oracle Data base
     public String getPrivileges() {
         return privileges;
     }
@@ -105,7 +105,7 @@ public class Group implements Serializable {
      * @return belonging to this group
      */
     @ManyToMany(targetEntity = User.class, fetch = FetchType.LAZY, cascade = javax.persistence.CascadeType.MERGE)
-    @JoinTable(name = "User2Group", joinColumns = { @JoinColumn(name = "GroupID") }, inverseJoinColumns = { @JoinColumn(name = "UserID") })
+    @JoinTable(name = "OpenLUser2Group", joinColumns = { @JoinColumn(name = "groupID") }, inverseJoinColumns = { @JoinColumn(name = "loginName") })
     public Set<User> getUsers() {
         return users;
     }
