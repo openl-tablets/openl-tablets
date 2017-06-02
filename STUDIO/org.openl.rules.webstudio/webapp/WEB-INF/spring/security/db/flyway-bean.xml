@@ -6,7 +6,6 @@
     default-autowire="no">
 
         <bean id="dbMigration" class="org.openl.rules.db.migration.DBMigrationBean" init-method="init">
-            <property name="additionalMigrationPaths" value="#{dbConfig['db.additional.migration.paths']}" />
             <property name="dataSource" ref="openlDataSource" />
         </bean>
 
