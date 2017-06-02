@@ -4,6 +4,5 @@
   <session-factory>
     <mapping class="org.openl.rules.security.standalone.persistence.Group" />
     <mapping class="org.openl.rules.security.standalone.persistence.User" />
-    <mapping class="org.openl.rules.security.standalone.persistence.AccessControlEntry" />
   </session-factory>
 </hibernate-configuration>
