@@ -11,10 +11,10 @@ import org.openl.rules.security.standalone.service.PrivilegesEvaluator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 
-public class ActiveDirectoryAuthoritiesMapper implements GrantedAuthoritiesMapper {
+public class OpenLGroupsAuthoritiesMapper implements GrantedAuthoritiesMapper {
     private final GroupDao groupDao;
 
-    public ActiveDirectoryAuthoritiesMapper(GroupDao groupDao) {
+    public OpenLGroupsAuthoritiesMapper(GroupDao groupDao) {
         this.groupDao = groupDao;
     }
 

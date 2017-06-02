@@ -47,7 +47,7 @@
         <property name="userDetailsContextMapper" ref="userDetailsContextMapper"/>
     </bean>
 
-    <bean id="authoritiesMapper" class="org.openl.rules.webstudio.security.ActiveDirectoryAuthoritiesMapper">
+    <bean id="authoritiesMapper" class="org.openl.rules.webstudio.security.OpenLGroupsAuthoritiesMapper">
         <constructor-arg ref="groupDao"/>
     </bean>
 
@@ -59,12 +59,16 @@
 
     <bean id="authenticationProviderWrapper" class="org.openl.rules.webstudio.security.OpenLAuthenticationProviderWrapper">
         <constructor-arg name="delegate" ref="adAuthenticationProvider"/>
-        <constructor-arg name="userManagementService" ref="userManagementService"/>
-        <constructor-arg name="groupManagementService" ref="groupManagementService"/>
-        <constructor-arg name="origin">
-            <util:constant static-field="org.openl.rules.webstudio.web.util.Constants.USER_ORIGIN_ACTIVE_DIRECTORY"/>
+        <constructor-arg name="authenticationUserDetailsService">
+            <bean class="org.openl.rules.webstudio.security.CreateIfNotExistAuthenticationUserDetailsService">
+                <constructor-arg name="userManagementService" ref="userManagementService"/>
+                <constructor-arg name="groupManagementService" ref="groupManagementService"/>
+                <constructor-arg name="origin">
+                    <util:constant static-field="org.openl.rules.webstudio.web.util.Constants.USER_ORIGIN_ACTIVE_DIRECTORY"/>
+                </constructor-arg>
+                <property name="defaultGroup" value="#{adConfig['security.ad.default-group']}"/>
+            </bean>
         </constructor-arg>
-        <property name="defaultGroup" value="#{adConfig['security.ad.default-group']}"/>
         <property name="groupsAreManagedInStudio" value="#{adConfig['security.ad.groups-are-managed-in-studio']}"/>
     </bean>
 
