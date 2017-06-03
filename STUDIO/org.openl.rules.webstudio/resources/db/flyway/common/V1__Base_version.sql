@@ -9,24 +9,25 @@ CREATE TABLE OpenLUsers (
 );
 
 CREATE TABLE OpenLGroups (
-    groupName varchar(50) not null,
-    description varchar(200),
-    userPrivileges varchar(1000),
-    PRIMARY KEY (groupName)
+    id ${identity},
+    groupName varchar(40) not null unique,
+    description varchar(200) default null,
+    userPrivileges  varchar(1000),
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE OpenLUser2Group (
     loginName varchar(50) not null,
-    groupName varchar(50) not null,
-    PRIMARY KEY (loginName, groupName),
+    groupID ${bigint} not null,
+    PRIMARY KEY (loginName, groupID),
     CONSTRAINT fk_OpenLUser2Group1 FOREIGN KEY (loginName) REFERENCES OpenLUsers(loginName),
-    CONSTRAINT fk_OpenLUser2Group2 FOREIGN KEY (groupName) REFERENCES OpenLGroups(groupName)
+    CONSTRAINT fk_OpenLUser2Group2 FOREIGN KEY (groupID) REFERENCES OpenLGroups(id)
 );
 
 CREATE TABLE OpenLGroup2Group (
-    includedGroupName varchar(50) not null,
-    groupName varchar(50) not null,
-    PRIMARY KEY (includedGroupName, groupName),
-    CONSTRAINT fk_OpenLGroup2Group1 FOREIGN KEY (includedGroupName) REFERENCES OpenLGroups(groupName),
-    CONSTRAINT fk_OpenLGroup2Group2 FOREIGN KEY (groupName) REFERENCES OpenLGroups(groupName)
+    IncludedGroupID ${bigint} not null,
+    groupID ${bigint} not null,
+    PRIMARY KEY (IncludedGroupID, groupID),
+    CONSTRAINT fk_OpenLGroup2Group1 FOREIGN KEY (IncludedGroupID) REFERENCES OpenLGroups(id),
+    CONSTRAINT fk_OpenLGroup2Group2 FOREIGN KEY (groupID) REFERENCES OpenLGroups(id)
 );
