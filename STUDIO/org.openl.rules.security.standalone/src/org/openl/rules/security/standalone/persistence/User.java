@@ -18,7 +18,7 @@ import javax.persistence.Table;
  * @author Andrey Naumenko
  */
 @Entity
-@Table(name="OpenLUsers") // "USER" is a reserved word in SQL92/SQL99
+@Table(name="OpenL_Users") // "USER" is a reserved word in SQL92/SQL99
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
     private String loginName;
@@ -39,7 +39,7 @@ public class User implements Serializable {
      * User's groups.
      */
     @ManyToMany(targetEntity = Group.class, fetch = FetchType.EAGER, cascade = javax.persistence.CascadeType.MERGE)
-    @JoinTable(name = "OpenLUser2Group", joinColumns = { @JoinColumn(name = "loginName") }, inverseJoinColumns = { @JoinColumn(name = "groupID") })
+    @JoinTable(name = "OpenL_User2Group", joinColumns = { @JoinColumn(name = "loginName") }, inverseJoinColumns = { @JoinColumn(name = "groupID") })
     public Set<Group> getGroups() {
         return groups;
     }
