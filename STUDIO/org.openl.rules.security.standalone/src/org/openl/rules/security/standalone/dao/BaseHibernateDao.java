@@ -32,20 +32,8 @@ public abstract class BaseHibernateDao<T> implements Dao<T> {
 
     @Override
     @Transactional
-    public boolean canBeDeleted(T obj) {
-        return true;
-    }
-
-    @Override
-    @Transactional
     public void delete(T obj) {
         getSession().delete(obj);
-    }
-
-    @Override
-    @Transactional
-    public Object getById(Long id) {
-        return getSession().get(persistentClass, id);
     }
 
     @SuppressWarnings("unchecked")
@@ -54,12 +42,6 @@ public abstract class BaseHibernateDao<T> implements Dao<T> {
     public List<T> getAll() {
         return getSession().createCriteria(persistentClass)
                 .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
-    }
-
-    @Override
-    @Transactional
-    public Object loadById(Long id) {
-        return getSession().load(persistentClass, id);
     }
 
     @Override
