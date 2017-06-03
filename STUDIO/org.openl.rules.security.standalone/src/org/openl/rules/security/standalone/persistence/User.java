@@ -57,7 +57,7 @@ public class User implements Serializable {
     /**
      * Password of user.
      */
-    @Column(name = "password", length = 128, nullable = false)
+    @Column(name = "password", length = 128, nullable = true)
     public String getPasswordHash() {
         return passwordHash;
     }
