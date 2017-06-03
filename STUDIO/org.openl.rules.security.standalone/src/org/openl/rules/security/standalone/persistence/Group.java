@@ -3,16 +3,7 @@ package org.openl.rules.security.standalone.persistence;
 import java.io.Serializable;
 import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import org.hibernate.annotations.Type;
 
@@ -44,8 +35,8 @@ public class Group implements Serializable {
     }
 
     @Id
-    @GeneratedValue(
-        strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.AUTO, generator = "OpenLGroups_ID_SEQ")
+    @SequenceGenerator(sequenceName = "OpenLGroups_ID_SEQ", name = "OpenLGroups_ID_SEQ")
     @Column(name = "id")
     @Type(type = "java.lang.Long")
     public Long getId() {
