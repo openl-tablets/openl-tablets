@@ -1,6 +1,6 @@
 CREATE TABLE OpenLUsers (
     loginName varchar(50) not null,
-    password varchar(128) not null,
+    password varchar(128),
     lastLogin TIMESTAMP,
     origin varchar(50),
     firstName varchar(50),
@@ -11,7 +11,7 @@ CREATE TABLE OpenLUsers (
 CREATE TABLE OpenLGroups (
     id ${identity},
     groupName varchar(40) not null unique,
-    description varchar(200) default null,
+    description varchar(200),
     userPrivileges  varchar(1000),
     PRIMARY KEY (id)
 );
