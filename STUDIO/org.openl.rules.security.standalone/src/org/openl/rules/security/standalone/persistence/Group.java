@@ -21,7 +21,6 @@ public class Group implements Serializable {
     private String description;
     private Set<String> privileges;
     private Set<Group> includedGroups;
-    private Set<User> users;
     private Set<Group> parentGroups;
 
     /**
@@ -89,22 +88,6 @@ public class Group implements Serializable {
     @Column(length = 40, name = "authority", unique = true, nullable = false)
     public Set<String> getPrivileges() {
         return privileges;
-    }
-
-    /**
-     * Users belonging to this group. Users count can be too big - we should use
-     * lazy loading here
-     *
-     * @return belonging to this group
-     */
-    @ManyToMany(targetEntity = User.class, fetch = FetchType.LAZY, cascade = javax.persistence.CascadeType.MERGE)
-    @JoinTable(name = "OpenL_User2Group", joinColumns = { @JoinColumn(name = "groupID") }, inverseJoinColumns = { @JoinColumn(name = "loginName") })
-    public Set<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(Set<User> users) {
-        this.users = users;
     }
 
     public void setDescription(String description) {
