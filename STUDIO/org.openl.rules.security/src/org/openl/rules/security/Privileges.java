@@ -7,7 +7,7 @@ package org.openl.rules.security;
  * @author Aleh Bykhavets
  * @author NSamatov
  */
-public enum DefaultPrivileges implements Privilege {
+public enum Privileges implements Privilege {
 
     VIEW_PROJECTS ("View Projects"),
     CREATE_PROJECTS ("Create Projects"),
@@ -36,7 +36,7 @@ public enum DefaultPrivileges implements Privilege {
 
     private final String displayName;
 
-    private DefaultPrivileges(String displayName) {
+    private Privileges(String displayName) {
         this.displayName = displayName;
     }
 

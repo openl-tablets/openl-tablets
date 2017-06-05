@@ -70,10 +70,10 @@ import java.util.List;
 import java.util.Map;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.DefaultPrivileges.DELETE_DEPLOYMENT;
-import static org.openl.rules.security.DefaultPrivileges.DELETE_PROJECTS;
-import static org.openl.rules.security.DefaultPrivileges.UNLOCK_DEPLOYMENT;
-import static org.openl.rules.security.DefaultPrivileges.UNLOCK_PROJECTS;
+import static org.openl.rules.security.Privileges.DELETE_DEPLOYMENT;
+import static org.openl.rules.security.Privileges.DELETE_PROJECTS;
+import static org.openl.rules.security.Privileges.UNLOCK_DEPLOYMENT;
+import static org.openl.rules.security.Privileges.UNLOCK_PROJECTS;
 
 /**
  * Repository tree controller. Used for retrieving data for repository tree and

@@ -1,9 +1,9 @@
 package org.openl.rules.ui;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.DefaultPrivileges.CREATE_TABLES;
-import static org.openl.rules.security.DefaultPrivileges.EDIT_PROJECTS;
-import static org.openl.rules.security.DefaultPrivileges.EDIT_TABLES;
+import static org.openl.rules.security.Privileges.CREATE_TABLES;
+import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
+import static org.openl.rules.security.Privileges.EDIT_TABLES;
 
 import java.io.File;
 import java.util.ArrayList;

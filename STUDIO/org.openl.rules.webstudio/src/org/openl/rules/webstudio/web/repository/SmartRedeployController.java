@@ -30,8 +30,8 @@ import javax.faces.event.AjaxBehaviorEvent;
 import java.util.*;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.DefaultPrivileges.CREATE_DEPLOYMENT;
-import static org.openl.rules.security.DefaultPrivileges.EDIT_DEPLOYMENT;
+import static org.openl.rules.security.Privileges.CREATE_DEPLOYMENT;
+import static org.openl.rules.security.Privileges.EDIT_DEPLOYMENT;
 
 /**
  * @author Aleh Bykhavets

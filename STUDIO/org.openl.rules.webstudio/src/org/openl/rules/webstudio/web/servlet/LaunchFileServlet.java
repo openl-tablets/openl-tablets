@@ -27,7 +27,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.DefaultPrivileges.EDIT_TABLES;
+import static org.openl.rules.security.Privileges.EDIT_TABLES;
 
 public class LaunchFileServlet extends HttpServlet {
 

@@ -1,6 +1,6 @@
 package org.openl.rules.webstudio.service;
 
-import org.openl.rules.security.DefaultPrivileges;
+import org.openl.rules.security.Privileges;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.standalone.dao.GroupDao;
@@ -8,7 +8,6 @@ import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.security.standalone.persistence.User;
 import org.openl.rules.security.standalone.service.PrivilegesEvaluator;
 import org.openl.rules.security.standalone.service.UserInfoUserDetailsServiceImpl;
-import org.openl.util.StringUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -44,7 +43,7 @@ public class GroupManagementServiceImpl extends UserInfoUserDetailsServiceImpl i
         for (Group group : groups) {
             org.openl.rules.security.Group resultGroup = new SimpleGroup(
                     group.getName(), group.getDescription(), PrivilegesEvaluator.createPrivileges(group));
-            if (resultGroup.hasPrivilege(DefaultPrivileges.ADMIN.name())
+            if (resultGroup.hasPrivilege(Privileges.ADMIN.name())
                     || resultGroup.hasPrivilege(privilege)) {
                 resultGroups.add(resultGroup);
             }

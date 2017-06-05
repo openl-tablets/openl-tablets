@@ -2,8 +2,6 @@ package org.openl.rules.webstudio.security;
 
 import java.util.*;
 
-import org.openl.rules.security.DefaultPrivileges;
-import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;

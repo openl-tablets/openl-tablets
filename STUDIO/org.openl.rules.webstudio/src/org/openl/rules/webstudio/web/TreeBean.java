@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.web;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.DefaultPrivileges.RUN;
+import static org.openl.rules.security.Privileges.RUN;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;

@@ -21,7 +21,7 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.openl.rules.security.DefaultPrivileges;
+import org.openl.rules.security.Privileges;
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleUser;
@@ -116,7 +116,7 @@ public class UsersBean {
             return new String[0];
         }
 
-        String adminPrivilege = DefaultPrivileges.ADMIN.name();
+        String adminPrivilege = Privileges.ADMIN.name();
 
         List<String> groups = new ArrayList<String>();
         @SuppressWarnings("unchecked")
@@ -188,7 +188,7 @@ public class UsersBean {
     }
 
     public boolean isOnlyAdmin(Object objUser) {
-        String adminPrivilege = DefaultPrivileges.ADMIN.name();
+        String adminPrivilege = Privileges.ADMIN.name();
         return ((User) objUser).hasPrivilege(adminPrivilege)
                 && userManagementService.getUsersByPrivilege(adminPrivilege).size() == 1;
     }
