@@ -22,9 +22,6 @@ public final class PrivilegesEvaluator {
             grantedList.add(
                     new SimpleGroup(group.getName(), group.getDescription(), createPrivileges(group)));
         }
-
-        grantedList.addAll(createPrivileges(user.getPrivileges()));
-
         return grantedList;
     }
 
@@ -37,20 +34,13 @@ public final class PrivilegesEvaluator {
                     new SimpleGroup(persistGroup.getName(), persistGroup.getDescription(), createPrivileges(persistGroup)));
         }
 
-        grantedList.addAll(createPrivileges(group.getPrivileges()));
+        Set<String> privileges = group.getPrivileges();
 
-        return grantedList;
-    }
-
-    private static Collection<Privilege> createPrivileges(String privileges) {
-        Collection<Privilege> grantedList = new ArrayList<Privilege>();
-
-        if (privileges != null && !privileges.isEmpty()) {
-            for (String privilege : privileges.split(",")) {
+        if (privileges != null) {
+            for (String privilege : privileges) {
                 grantedList.add(DefaultPrivileges.valueOf(privilege));
             }
         }
-
         return grantedList;
     }
 }

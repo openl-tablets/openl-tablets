@@ -21,6 +21,7 @@ public class UserInfoUserDetailsServiceImpl implements UserInfoUserDetailsServic
 
     protected UserDao userDao;
 
+
     @Override
     public org.openl.rules.security.User loadUserByUsername(String name)
             throws UsernameNotFoundException, DataAccessException {
