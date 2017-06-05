@@ -16,8 +16,6 @@ public interface Dao<T> {
      */
     void delete(T obj);
 
-    List<T> getAll();
-
     /**
      * Saves object.
      *

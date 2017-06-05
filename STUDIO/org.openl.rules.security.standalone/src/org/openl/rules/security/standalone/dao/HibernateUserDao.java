@@ -1,7 +1,9 @@
 package org.openl.rules.security.standalone.dao;
 
-import org.hibernate.criterion.Restrictions;
+import java.util.List;
 
+import org.hibernate.Criteria;
+import org.hibernate.criterion.Restrictions;
 import org.openl.rules.security.standalone.persistence.User;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,14 +15,16 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao {
 
-    public HibernateUserDao() {
-        super(User.class);
-    }
-
     @Override
     @Transactional
     public User getUserByName(final String name) {
         return (User) getSession().createCriteria(User.class).add(Restrictions.eq("loginName", name)).uniqueResult();
     }
 
+    @Override
+    @Transactional
+    @SuppressWarnings("unchecked")
+    public List<User> getAllUsers() {
+        return getSession().createCriteria(User.class).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
+    }
 }

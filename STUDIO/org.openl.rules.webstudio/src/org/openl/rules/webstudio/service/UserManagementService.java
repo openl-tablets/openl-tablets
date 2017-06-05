@@ -22,7 +22,7 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
     private GroupDao groupDao;
 
     public List<org.openl.rules.security.User> getAllUsers() {
-        List<User> users = userDao.getAll();
+        List<User> users = userDao.getAllUsers();
         List<org.openl.rules.security.User> resultUsers = new ArrayList<org.openl.rules.security.User>();
         for (User user : users) {
             org.openl.rules.security.User resultUser = new SimpleUser(user.getFirstName(), user.getSurname(),
@@ -33,7 +33,7 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
     }
 
     public List<org.openl.rules.security.User> getUsersByPrivilege(String privilege) {
-        List<User> users = userDao.getAll();
+        List<User> users = userDao.getAllUsers();
         List<org.openl.rules.security.User> resultUsers = new ArrayList<org.openl.rules.security.User>();
         for (User user : users) {
             org.openl.rules.security.User resultUser = new SimpleUser(user.getFirstName(), user.getSurname(),
