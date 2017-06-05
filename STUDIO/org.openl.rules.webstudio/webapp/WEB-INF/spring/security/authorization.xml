@@ -15,7 +15,7 @@
         <property name="accessDecisionManager" ref="accessDecisionManager" />
         <property name="securityMetadataSource">
             <security:filter-security-metadata-source lowercase-comparisons="true">
-                <security:intercept-url pattern="/faces/pages/modules/administration/**" access="ADMINISTRATE" />
+                <security:intercept-url pattern="/faces/pages/modules/administration/**" access="ADMIN" />
                 <security:intercept-url pattern="/**" access="VIEW_PROJECTS" />
             </security:filter-security-metadata-source>
         </property>

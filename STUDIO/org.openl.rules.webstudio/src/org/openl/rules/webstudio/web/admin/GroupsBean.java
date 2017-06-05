@@ -17,7 +17,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.validator.ValidatorException;
 import javax.validation.constraints.Size;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.security.DefaultPrivileges;
@@ -95,9 +94,7 @@ public class GroupsBean {
     }
 
     public Privilege[] getDefaultPrivileges() {
-        Privilege[] privileges = DefaultPrivileges.values();
-        return ArrayUtils.removeElement(
-                privileges, DefaultPrivileges.ALL);
+        return DefaultPrivileges.values();
     }
 
     public List<String> getPrivileges(String groupName) {
@@ -159,10 +156,6 @@ public class GroupsBean {
         privileges.add(0, DefaultPrivileges.VIEW_PROJECTS.name());
 
         // Admin
-        if (privileges.size() == DefaultPrivileges.values().length - 1) {
-            authorities.add(DefaultPrivileges.ALL);
-
-        } else {
             Map<String, Group> groups = new java.util.HashMap<String, Group>();
             String[] groupNames = FacesUtils.getRequest().getParameterValues("group");
             if (groupNames != null) {
@@ -190,7 +183,6 @@ public class GroupsBean {
             for (String privilegeName : privileges) {
                 authorities.add(DefaultPrivileges.valueOf(privilegeName));
             }
-        }
 
         return authorities;
     }
@@ -230,9 +222,8 @@ public class GroupsBean {
     }
 
     public boolean isOnlyAdmin(Object objGroup) {
-        String adminPrivilege = DefaultPrivileges.ADMINISTRATE.name();
-        String allPrivileges = DefaultPrivileges.ALL.name();
-        return (((Group) objGroup).hasPrivilege(adminPrivilege) || ((Group) objGroup).hasPrivilege(allPrivileges))
+        String adminPrivilege = DefaultPrivileges.ADMIN.name();
+        return ((Group) objGroup).hasPrivilege(adminPrivilege)
                 && groupManagementService.getGroupsByPrivilege(adminPrivilege).size() == 1;
     }
 

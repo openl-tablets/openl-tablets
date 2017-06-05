@@ -37,7 +37,7 @@
             <ui:repeat var="authority" value="#{user.authorities}">
             <h:panelGroup class="badge" style="margin-right: 2px"
                 rendered="#{authority.name.startsWith('PRIVILEGE')}">#{authority.displayName}</h:panelGroup>
-            <h:panelGroup class="badge #{(authority.hasPrivilege('ADMINISTRATE') or authority.hasPrivilege('ALL')) ? 'badge-error' : 'badge-info'}"
+            <h:panelGroup class="badge #{(authority.hasPrivilege('ADMIN')) ? 'badge-error' : 'badge-info'}"
                 style="margin-right: 2px" rendered="#{!authority.name.startsWith('PRIVILEGE')}">#{authority.displayName}</h:panelGroup>
             </ui:repeat>
         </h:column>
