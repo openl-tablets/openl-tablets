@@ -355,7 +355,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public boolean getCanCreate() {
-        return isGranted(PRIVILEGE_CREATE_PROJECTS);
+        return isGranted(CREATE_PROJECTS);
     }
 
     // For any project
@@ -365,11 +365,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             return false;
         }
 
-        return isGranted(PRIVILEGE_EDIT_PROJECTS);
+        return isGranted(EDIT_PROJECTS);
     }
 
     public boolean getCanCreateDeployment() {
-        return isGranted(PRIVILEGE_CREATE_DEPLOYMENT);
+        return isGranted(CREATE_DEPLOYMENT);
     }
 
     public boolean getCanEditDeployment() {
@@ -378,7 +378,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             return false;
         }
 
-        return isGranted(PRIVILEGE_EDIT_DEPLOYMENT);
+        return isGranted(EDIT_DEPLOYMENT);
     }
 
     public boolean getCanDeleteDeployment() {
@@ -387,17 +387,17 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             // any user can delete own local project
             return true;
         }
-        return (!selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser())) && isGranted(PRIVILEGE_DELETE_DEPLOYMENT);
+        return (!selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser())) && isGranted(DELETE_DEPLOYMENT);
     }
 
     public boolean getCanSaveDeployment() {
         ADeploymentProject selectedProject = (ADeploymentProject) getSelectedProject();
-        return selectedProject.isOpenedForEditing() && selectedProject.isModified() && isGranted(PRIVILEGE_EDIT_DEPLOYMENT);
+        return selectedProject.isOpenedForEditing() && selectedProject.isModified() && isGranted(EDIT_DEPLOYMENT);
     }
 
     public boolean getCanSaveProject() {
         UserWorkspaceProject selectedProject = getSelectedProject();
-        return selectedProject.isModified() && isGranted(PRIVILEGE_EDIT_PROJECTS);
+        return selectedProject.isModified() && isGranted(EDIT_PROJECTS);
     }
 
     public boolean getCanClose() {
@@ -416,11 +416,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             // any user can delete own local project
             return true;
         }
-        return (!selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser())) && isGranted(PRIVILEGE_DELETE_PROJECTS);
+        return (!selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser())) && isGranted(DELETE_PROJECTS);
     }
 
     public boolean getCanErase() {
-        return getSelectedProject().isDeleted() && isGranted(PRIVILEGE_ERASE_PROJECTS);
+        return getSelectedProject().isDeleted() && isGranted(ERASE_PROJECTS);
     }
 
     public boolean getCanOpen() {
@@ -429,7 +429,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             return false;
         }
 
-        return isGranted(PRIVILEGE_VIEW_PROJECTS);
+        return isGranted(VIEW_PROJECTS);
     }
 
     public boolean getCanOpenOtherVersion() {
@@ -440,7 +440,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         }
 
         if (!selectedProject.isLocalOnly()) {
-            return isGranted(PRIVILEGE_VIEW_PROJECTS);
+            return isGranted(VIEW_PROJECTS);
         }
 
         return false;
@@ -454,7 +454,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         if (getSelectedProject().isLocalOnly()) {
             return false;
         }
-        return isGranted(PRIVILEGE_VIEW_PROJECTS);
+        return isGranted(VIEW_PROJECTS);
     }
 
     public boolean getCanRedeploy() {
@@ -463,11 +463,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             return false;
         }
 
-        return isGranted(PRIVILEGE_DEPLOY_PROJECTS);
+        return isGranted(DEPLOY_PROJECTS);
     }
 
     public boolean getCanUndelete() {
-        return getSelectedProject().isDeleted() && isGranted(PRIVILEGE_EDIT_PROJECTS);
+        return getSelectedProject().isDeleted() && isGranted(EDIT_PROJECTS);
     }
 
 
@@ -477,12 +477,12 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         String projectName = selectedArtefact.getProject().getName();
         String projectId = RepositoryUtils.getTreeNodeId(projectName);
         RulesProject project = (RulesProject) getRulesRepository().getChild(projectId).getData();
-        return (project.isOpenedForEditing() && isGranted(PRIVILEGE_EDIT_PROJECTS));
+        return (project.isOpenedForEditing() && isGranted(EDIT_PROJECTS));
     }
 
     //for deployment project
     public boolean getCanDeploy() {
-        return !getSelectedProject().isModified() && isGranted(PRIVILEGE_DEPLOY_PROJECTS);
+        return !getSelectedProject().isModified() && isGranted(DEPLOY_PROJECTS);
     }
 
     public String getDefSelectTab() {

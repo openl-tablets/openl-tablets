@@ -44,7 +44,7 @@ public class GroupManagementServiceImpl extends UserInfoUserDetailsServiceImpl i
         for (Group group : groups) {
             org.openl.rules.security.Group resultGroup = new SimpleGroup(
                     group.getName(), group.getDescription(), PrivilegesEvaluator.createPrivileges(group));
-            if (resultGroup.hasPrivilege(DefaultPrivileges.PRIVILEGE_ALL.name())
+            if (resultGroup.hasPrivilege(DefaultPrivileges.ALL.name())
                     || resultGroup.hasPrivilege(privilege)) {
                 resultGroups.add(resultGroup);
             }

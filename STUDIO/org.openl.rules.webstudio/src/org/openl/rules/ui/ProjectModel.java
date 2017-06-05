@@ -1,9 +1,9 @@
 package org.openl.rules.ui;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_CREATE_TABLES;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_PROJECTS;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_TABLES;
+import static org.openl.rules.security.DefaultPrivileges.CREATE_TABLES;
+import static org.openl.rules.security.DefaultPrivileges.EDIT_PROJECTS;
+import static org.openl.rules.security.DefaultPrivileges.EDIT_TABLES;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -626,7 +626,7 @@ public class ProjectModel {
      * @return <code>true</code> if project is read only.
      */
     public boolean isEditable() {
-        if (isGranted(PRIVILEGE_EDIT_PROJECTS)) {
+        if (isGranted(EDIT_PROJECTS)) {
             RulesProject project = getProject();
 
             if (project != null) {
@@ -664,15 +664,15 @@ public class ProjectModel {
     }
 
     public boolean isCanCreateTable() {
-        return isEditable() && isGranted(PRIVILEGE_CREATE_TABLES) && !isCurrentModuleLoadedByExtension();
+        return isEditable() && isGranted(CREATE_TABLES) && !isCurrentModuleLoadedByExtension();
     }
 
     public boolean isCanEditTable(String uri) {
-        return isEditableTable(uri) && isGranted(PRIVILEGE_EDIT_TABLES);
+        return isEditableTable(uri) && isGranted(EDIT_TABLES);
     }
 
     public boolean isCanEditProject() {
-        return isEditable() && isGranted(PRIVILEGE_EDIT_TABLES);
+        return isEditable() && isGranted(EDIT_TABLES);
     }
 
     public boolean isReady() {

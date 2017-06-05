@@ -12,7 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 /**
  * <p>
  * Based on {@link org.springframework.security.access.vote.RoleVoter}. If Authentication has
- * {@link org.openl.rules.security.DefaultPrivileges#PRIVILEGE_ALL} authority it will get
+ * {@link org.openl.rules.security.DefaultPrivileges#ALL} authority it will get
  * access even if it is not specified explicitly.
  * </p>
  * <p>
@@ -79,14 +79,14 @@ public class AccessVoter implements AccessDecisionVoter<Object> {
                         return ACCESS_GRANTED;
                     }
 
-                    if (DefaultPrivileges.PRIVILEGE_ALL.name().equals(auth)) {
+                    if (DefaultPrivileges.ALL.name().equals(auth)) {
                         return ACCESS_GRANTED;
                     }
 
                     if (grantedAuthority instanceof Group) {
                         Group group = (Group) grantedAuthority;
                         // No restrictions
-                        if (group.hasPrivilege(DefaultPrivileges.PRIVILEGE_ALL.name())) {
+                        if (group.hasPrivilege(DefaultPrivileges.ALL.name())) {
                             return ACCESS_GRANTED;
                         }
                         if (group.hasPrivilege(auth)) {
