@@ -1,6 +1,6 @@
 package org.openl.rules.security.standalone.service;
 
-import org.openl.rules.security.DefaultPrivileges;
+import org.openl.rules.security.Privileges;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.SimpleUser;
@@ -51,7 +51,7 @@ public class UserInfoUserDetailsServiceImpl implements UserInfoUserDetailsServic
 
         if (privileges != null) {
             for(String privilege: privileges) {
-                grantedList.add(DefaultPrivileges.valueOf(privilege));
+                grantedList.add(Privileges.valueOf(privilege));
              }
         }
 

@@ -2,7 +2,7 @@ package org.openl.rules.security.standalone;
 
 import java.util.Collection;
 
-import org.openl.rules.security.DefaultPrivileges;
+import org.openl.rules.security.Privileges;
 import org.openl.rules.security.Group;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
@@ -82,7 +82,7 @@ public class AccessVoter implements AccessDecisionVoter<Object> {
                     if (grantedAuthority instanceof Group) {
                         Group group = (Group) grantedAuthority;
                         // No restrictions
-                        if (group.hasPrivilege(DefaultPrivileges.ADMIN.name())) {
+                        if (group.hasPrivilege(Privileges.ADMIN.name())) {
                             return ACCESS_GRANTED;
                         }
                         if (group.hasPrivilege(auth)) {

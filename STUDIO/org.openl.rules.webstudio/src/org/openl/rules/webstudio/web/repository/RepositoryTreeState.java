@@ -24,7 +24,7 @@ import javax.faces.bean.SessionScoped;
 import java.util.*;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.DefaultPrivileges.*;
+import static org.openl.rules.security.Privileges.*;
 
 /**
  * Used for holding information about rulesRepository tree.
