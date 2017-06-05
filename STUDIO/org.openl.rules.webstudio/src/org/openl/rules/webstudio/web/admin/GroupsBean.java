@@ -97,7 +97,7 @@ public class GroupsBean {
     public Privilege[] getDefaultPrivileges() {
         Privilege[] privileges = DefaultPrivileges.values();
         return ArrayUtils.removeElement(
-                privileges, DefaultPrivileges.PRIVILEGE_ALL);
+                privileges, DefaultPrivileges.ALL);
     }
 
     public List<String> getPrivileges(String groupName) {
@@ -156,11 +156,11 @@ public class GroupsBean {
         String[] privilegesParam = FacesUtils.getRequest().getParameterValues("privilege");
         List<String> privileges = new ArrayList<String>(Arrays.asList(
                 privilegesParam == null ? new String[0] : privilegesParam));
-        privileges.add(0, DefaultPrivileges.PRIVILEGE_VIEW_PROJECTS.name());
+        privileges.add(0, DefaultPrivileges.VIEW_PROJECTS.name());
 
         // Admin
         if (privileges.size() == DefaultPrivileges.values().length - 1) {
-            authorities.add(DefaultPrivileges.PRIVILEGE_ALL);
+            authorities.add(DefaultPrivileges.ALL);
 
         } else {
             Map<String, Group> groups = new java.util.HashMap<String, Group>();
@@ -230,8 +230,8 @@ public class GroupsBean {
     }
 
     public boolean isOnlyAdmin(Object objGroup) {
-        String adminPrivilege = DefaultPrivileges.PRIVILEGE_ADMINISTRATE.name();
-        String allPrivileges = DefaultPrivileges.PRIVILEGE_ALL.name();
+        String adminPrivilege = DefaultPrivileges.ADMINISTRATE.name();
+        String allPrivileges = DefaultPrivileges.ALL.name();
         return (((Group) objGroup).hasPrivilege(adminPrivilege) || ((Group) objGroup).hasPrivilege(allPrivileges))
                 && groupManagementService.getGroupsByPrivilege(adminPrivilege).size() == 1;
     }

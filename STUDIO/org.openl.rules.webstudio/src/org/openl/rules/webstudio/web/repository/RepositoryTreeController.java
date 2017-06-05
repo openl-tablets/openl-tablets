@@ -70,10 +70,10 @@ import java.util.List;
 import java.util.Map;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_DELETE_DEPLOYMENT;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_DELETE_PROJECTS;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_UNLOCK_DEPLOYMENT;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_UNLOCK_PROJECTS;
+import static org.openl.rules.security.DefaultPrivileges.DELETE_DEPLOYMENT;
+import static org.openl.rules.security.DefaultPrivileges.DELETE_PROJECTS;
+import static org.openl.rules.security.DefaultPrivileges.UNLOCK_DEPLOYMENT;
+import static org.openl.rules.security.DefaultPrivileges.UNLOCK_PROJECTS;
 
 /**
  * Repository tree controller. Used for retrieving data for repository tree and
@@ -1479,19 +1479,19 @@ public class RepositoryTreeController {
     }
 
     public boolean getCanDelete() {
-        return isGranted(PRIVILEGE_DELETE_PROJECTS);
+        return isGranted(DELETE_PROJECTS);
     }
 
     public boolean getCanUnlock() {
-        return isGranted(PRIVILEGE_UNLOCK_PROJECTS);
+        return isGranted(UNLOCK_PROJECTS);
     }
 
     public boolean getCanUnlockDeployment() {
-        return isGranted(PRIVILEGE_UNLOCK_DEPLOYMENT);
+        return isGranted(UNLOCK_DEPLOYMENT);
     }
 
     public boolean getCanDeleteDeployment() {
-        return isGranted(PRIVILEGE_DELETE_DEPLOYMENT);
+        return isGranted(DELETE_DEPLOYMENT);
     }
 
     public void setProjectDescriptorResolver(ProjectDescriptorArtefactResolver projectDescriptorResolver) {

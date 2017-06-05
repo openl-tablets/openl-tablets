@@ -9,32 +9,32 @@ package org.openl.rules.security;
  */
 public enum DefaultPrivileges implements Privilege {
 
-    PRIVILEGE_VIEW_PROJECTS ("View Projects"),
-    PRIVILEGE_CREATE_PROJECTS ("Create Projects"),
-    PRIVILEGE_EDIT_PROJECTS ("Edit Projects"),
-    PRIVILEGE_ERASE_PROJECTS ("Erase Projects"),
-    PRIVILEGE_DELETE_PROJECTS ("Delete Projects"),
-    PRIVILEGE_UNLOCK_PROJECTS ("Unlock Projects"),
+    VIEW_PROJECTS ("View Projects"),
+    CREATE_PROJECTS ("Create Projects"),
+    EDIT_PROJECTS ("Edit Projects"),
+    ERASE_PROJECTS ("Erase Projects"),
+    DELETE_PROJECTS ("Delete Projects"),
+    UNLOCK_PROJECTS ("Unlock Projects"),
 
-    PRIVILEGE_DEPLOY_PROJECTS ("Deploy Projects"),
+    DEPLOY_PROJECTS ("Deploy Projects"),
 
-    PRIVILEGE_CREATE_DEPLOYMENT ("Create Deploy Configuration"),
-    PRIVILEGE_EDIT_DEPLOYMENT ("Edit Deploy Configuration"),
-    PRIVILEGE_DELETE_DEPLOYMENT ("Delete Deploy Configuration"),
-    PRIVILEGE_ERASE_DEPLOYMENT ("Erase Deploy Configuration"),
-    PRIVILEGE_UNLOCK_DEPLOYMENT ("Unlock Deploy Configuration"),
+    CREATE_DEPLOYMENT ("Create Deploy Configuration"),
+    EDIT_DEPLOYMENT ("Edit Deploy Configuration"),
+    DELETE_DEPLOYMENT ("Delete Deploy Configuration"),
+    ERASE_DEPLOYMENT ("Erase Deploy Configuration"),
+    UNLOCK_DEPLOYMENT ("Unlock Deploy Configuration"),
 
-    PRIVILEGE_CREATE_TABLES ("Create Tables"),
-    PRIVILEGE_EDIT_TABLES ("Edit Tables"),
-    PRIVILEGE_REMOVE_TABLES ("Remove Tables"),
+    CREATE_TABLES ("Create Tables"),
+    EDIT_TABLES ("Edit Tables"),
+    REMOVE_TABLES ("Remove Tables"),
 
-    PRIVILEGE_RUN ("Run Tables"),
-    PRIVILEGE_TRACE ("Trace Tables"),
-    PRIVILEGE_BENCHMARK ("Benchmark Tables"),
+    RUN ("Run Tables"),
+    TRACE ("Trace Tables"),
+    BENCHMARK ("Benchmark Tables"),
 
-    PRIVILEGE_ADMINISTRATE ("Administrate"),
+    ADMINISTRATE ("Administrate"),
 
-    PRIVILEGE_ALL ("NO RESTRICTIONS");
+    ALL ("NO RESTRICTIONS");
 
     private final String displayName;
 

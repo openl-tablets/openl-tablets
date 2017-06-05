@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.web;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_RUN;
+import static org.openl.rules.security.DefaultPrivileges.RUN;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
@@ -44,7 +44,7 @@ public class TreeBean {
     }
 
     public boolean getCanRun() {
-        return isGranted(PRIVILEGE_RUN);
+        return isGranted(RUN);
     }
 
     public int getProjectTestsCount() {

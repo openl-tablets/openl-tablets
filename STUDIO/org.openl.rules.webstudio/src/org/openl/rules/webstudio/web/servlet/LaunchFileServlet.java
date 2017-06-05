@@ -27,7 +27,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_TABLES;
+import static org.openl.rules.security.DefaultPrivileges.EDIT_TABLES;
 
 public class LaunchFileServlet extends HttpServlet {
 
@@ -43,7 +43,7 @@ public class LaunchFileServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException,
             IOException {
-        if (!isGranted(PRIVILEGE_EDIT_TABLES)) {
+        if (!isGranted(EDIT_TABLES)) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
         }

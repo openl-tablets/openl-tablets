@@ -99,7 +99,7 @@ public class TableBean {
             canBeOpenInExel = model.isEditable() && !isDispatcherValidationNode();
             copyable = editable && table.isCanContainProperties()
                     && !XlsNodeTypes.XLS_DATATYPE.toString().equals(table.getType())
-                    && isGranted(PRIVILEGE_CREATE_TABLES);
+                    && isGranted(CREATE_TABLES);
 
             String tableType = table.getType();
             if (tableType.equals(XlsNodeTypes.XLS_TEST_METHOD.toString())
@@ -297,7 +297,7 @@ public class TableBean {
      * @return true if it is possible to create tests for current table.
      */
     public boolean isCanCreateTest() {
-        return table != null && table.isExecutable() && isEditable() && isGranted(PRIVILEGE_CREATE_TABLES);
+        return table != null && table.isExecutable() && isEditable() && isGranted(CREATE_TABLES);
     }
 
     public boolean isEditable() {
@@ -425,7 +425,7 @@ public class TableBean {
     }
 
     public boolean getCanEdit() {
-        return isEditable() && isGranted(PRIVILEGE_EDIT_TABLES);
+        return isEditable() && isGranted(EDIT_TABLES);
     }
 
     public boolean isCanOpenInExel() {
@@ -433,7 +433,7 @@ public class TableBean {
     }
 
     public boolean getCanRemove() {
-        return isEditable() && isGranted(PRIVILEGE_REMOVE_TABLES);
+        return isEditable() && isGranted(REMOVE_TABLES);
     }
     
     public boolean hasErrorsInTargetTables(){
@@ -441,15 +441,15 @@ public class TableBean {
     }
 
     public boolean getCanRun() {
-        return isGranted(PRIVILEGE_RUN) && !hasErrorsInTargetTables() && !isHasErrors();
+        return isGranted(RUN) && !hasErrorsInTargetTables() && !isHasErrors();
     }
 
     public boolean getCanTrace() {
-        return isGranted(PRIVILEGE_TRACE) && !hasErrorsInTargetTables() && !isHasErrors();
+        return isGranted(TRACE) && !hasErrorsInTargetTables() && !isHasErrors();
     }
 
     public boolean getCanBenchmark() {
-        return isGranted(PRIVILEGE_BENCHMARK) && !hasErrorsInTargetTables() && !isHasErrors();
+        return isGranted(BENCHMARK) && !hasErrorsInTargetTables() && !isHasErrors();
     }
 
     public Integer getRowIndex() {

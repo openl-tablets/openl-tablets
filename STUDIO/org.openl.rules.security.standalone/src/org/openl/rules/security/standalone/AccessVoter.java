@@ -82,7 +82,7 @@ public class AccessVoter implements AccessDecisionVoter<Object> {
                     if (grantedAuthority instanceof Group) {
                         Group group = (Group) grantedAuthority;
                         // No restrictions
-                        if (group.hasPrivilege(DefaultPrivileges.PRIVILEGE_ALL.name())) {
+                        if (group.hasPrivilege(DefaultPrivileges.ALL.name())) {
                             return ACCESS_GRANTED;
                         }
                         if (group.hasPrivilege(auth)) {

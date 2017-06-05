@@ -30,8 +30,8 @@ import javax.faces.event.AjaxBehaviorEvent;
 import java.util.*;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_CREATE_DEPLOYMENT;
-import static org.openl.rules.security.DefaultPrivileges.PRIVILEGE_EDIT_DEPLOYMENT;
+import static org.openl.rules.security.DefaultPrivileges.CREATE_DEPLOYMENT;
+import static org.openl.rules.security.DefaultPrivileges.EDIT_DEPLOYMENT;
 
 /**
  * @author Aleh Bykhavets
@@ -175,7 +175,7 @@ public class SmartRedeployController {
                         }
                     }
             } else {
-                if (!isGranted(PRIVILEGE_EDIT_DEPLOYMENT)) {
+                if (!isGranted(EDIT_DEPLOYMENT)) {
                     // Don't have permission to edit deploy configuration -
                     // skip it
                     continue;
@@ -208,7 +208,7 @@ public class SmartRedeployController {
             result.add(item);
         }
 
-        if (!workspace.hasDDProject(projectName) && isGranted(PRIVILEGE_CREATE_DEPLOYMENT)) {
+        if (!workspace.hasDDProject(projectName) && isGranted(CREATE_DEPLOYMENT)) {
             // there is no deployment project with the same name...
             DeploymentProjectItem item = new DeploymentProjectItem();
             item.setName(projectName);

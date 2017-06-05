@@ -71,12 +71,12 @@
                     </ui:repeat>
                 </tr>
                 <ui:repeat value="#{groupsBean.defaultPrivileges}" var="privilege">
-                <tr class="#{privilege.name == 'PRIVILEGE_VIEW_PROJECTS' ? 'selectedRow' : ''}">
+                <tr class="#{privilege.name == 'VIEW_PROJECTS' ? 'selectedRow' : ''}">
                     <td>
-                        <h:panelGroup rendered="#{privilege.name != 'PRIVILEGE_VIEW_PROJECTS'}">
+                        <h:panelGroup rendered="#{privilege.name != 'VIEW_PROJECTS'}">
                             <input type="checkbox" name="privilege" value="#{privilege.name}" />#{privilege.displayName}
                         </h:panelGroup>
-                        <h:panelGroup rendered="#{privilege.name == 'PRIVILEGE_VIEW_PROJECTS'}">
+                        <h:panelGroup rendered="#{privilege.name == 'VIEW_PROJECTS'}">
                             <input type="checkbox" name="privilege" value="#{privilege.name}"
                                 checked="checked" disabled="disabled" />#{privilege.displayName}
                         </h:panelGroup>
@@ -84,7 +84,7 @@
                     <ui:repeat value="#{groupsBean.groups}" var="group">
                     <td style="text-align: center">
                         <h:graphicImage value="webresource/images/ok.png"
-                            rendered="#{group.hasPrivilege(privilege.name) or group.hasPrivilege('PRIVILEGE_ALL')}" />
+                            rendered="#{group.hasPrivilege(privilege.name) or group.hasPrivilege('ALL')}" />
                      </td>
                     </ui:repeat>
                 </tr>
@@ -160,7 +160,7 @@
             var groupPrivileges = groups[groupName];
             var oneNotEmpty = false;
 
-            var privilegeAll = groupPrivileges.length > 0 &amp;&amp; groupPrivileges[0] == "PRIVILEGE_ALL";
+            var privilegeAll = groupPrivileges.length > 0 &amp;&amp; groupPrivileges[0] == "ALL";
 
             if (privilegeAll) {
                 $j("#privilegesTable td :checkbox").each(function() {
@@ -235,7 +235,7 @@
         //<![CDATA[
         function setIsOnlyAdmin(isOnlyAdmin) {
             $j("#privilegesTable td :checkbox").each(function() {
-                if (this.value == 'PRIVILEGE_ADMINISTRATE') {
+                if (this.value == 'ADMINISTRATE') {
                     var jElem = $j(this);
                     jElem.closest("tr").toggleClass("selectedRow", isOnlyAdmin);
                     jElem.attr("checked", isOnlyAdmin);
@@ -245,7 +245,7 @@
                         $j('<input>').attr({
                             type: 'hidden',
                             name: 'privilege',
-                            value: 'PRIVILEGE_ADMINISTRATE'
+                            value: 'ADMINISTRATE'
                         }).insertAfter(jElem);
                     }
                 }
