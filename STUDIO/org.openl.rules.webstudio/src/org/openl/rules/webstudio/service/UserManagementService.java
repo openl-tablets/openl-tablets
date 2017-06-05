@@ -37,7 +37,7 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
         for (User user : users) {
             org.openl.rules.security.User resultUser = new SimpleUser(user.getFirstName(), user.getSurname(),
                     user.getLoginName(), user.getPasswordHash(), createPrivileges(user));
-            if (resultUser.hasPrivilege(DefaultPrivileges.ALL.name())
+            if (resultUser.hasPrivilege(DefaultPrivileges.ADMIN.name())
                     || resultUser.hasPrivilege(privilege)) {
                 resultUsers.add(resultUser);
             }

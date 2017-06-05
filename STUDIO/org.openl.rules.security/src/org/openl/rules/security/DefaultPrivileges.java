@@ -32,9 +32,7 @@ public enum DefaultPrivileges implements Privilege {
     TRACE ("Trace Tables"),
     BENCHMARK ("Benchmark Tables"),
 
-    ADMINISTRATE ("Administrate"),
-
-    ALL ("NO RESTRICTIONS");
+    ADMIN("Administrate");
 
     private final String displayName;
 

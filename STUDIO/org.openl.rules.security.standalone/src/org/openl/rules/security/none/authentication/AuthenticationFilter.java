@@ -24,7 +24,7 @@ public class AuthenticationFilter implements Filter {
 
     private static Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
     static {
-        authorities.add(DefaultPrivileges.ALL);
+        authorities.add(DefaultPrivileges.ADMIN);
     }
 
     @Override

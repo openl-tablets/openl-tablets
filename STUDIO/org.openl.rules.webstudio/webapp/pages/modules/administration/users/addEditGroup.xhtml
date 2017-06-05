@@ -84,7 +84,7 @@
                     <ui:repeat value="#{groupsBean.groups}" var="group">
                     <td style="text-align: center">
                         <h:graphicImage value="webresource/images/ok.png"
-                            rendered="#{group.hasPrivilege(privilege.name) or group.hasPrivilege('ALL')}" />
+                            rendered="#{group.hasPrivilege(privilege.name) or group.hasPrivilege('ADMIN')}" />
                      </td>
                     </ui:repeat>
                 </tr>
@@ -160,25 +160,6 @@
             var groupPrivileges = groups[groupName];
             var oneNotEmpty = false;
 
-            var privilegeAll = groupPrivileges.length > 0 &amp;&amp; groupPrivileges[0] == "ALL";
-
-            if (privilegeAll) {
-                $j("#privilegesTable td :checkbox").each(function() {
-                    if (!this.disabled) {
-                        if (!this.checked) {
-                            oneNotEmpty = true;
-                        }
-                    }
-                });
-
-                $j("#privilegesTable td :checkbox").each(function() {
-                    if (!this.disabled) {
-                        this.checked = oneNotEmpty;
-                        checkPrivilege($j(this), oneNotEmpty);
-                    }
-                });
-
-            } else {
                 for (var i = 0; i &lt; groupPrivileges.length; i++) {
                     var jElem = $j("#privilegesTable [value='" + groupPrivileges[i] + "']");
                     if (!jElem.attr("checked")) {
@@ -194,7 +175,6 @@
                         checkPrivilege(jElem, oneNotEmpty);
                     }
                 }
-            }
 
             checkGroups();
         }
@@ -235,7 +215,7 @@
         //<![CDATA[
         function setIsOnlyAdmin(isOnlyAdmin) {
             $j("#privilegesTable td :checkbox").each(function() {
-                if (this.value == 'ADMINISTRATE') {
+                if (this.value == 'ADMIN') {
                     var jElem = $j(this);
                     jElem.closest("tr").toggleClass("selectedRow", isOnlyAdmin);
                     jElem.attr("checked", isOnlyAdmin);
@@ -245,7 +225,7 @@
                         $j('<input>').attr({
                             type: 'hidden',
                             name: 'privilege',
-                            value: 'ADMINISTRATE'
+                            value: 'ADMIN'
                         }).insertAfter(jElem);
                     }
                 }

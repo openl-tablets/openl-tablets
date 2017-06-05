@@ -7,7 +7,7 @@ INSERT INTO OpenL_Groups (id, groupName) VALUES (3, 'Testers');
 INSERT INTO OpenL_Groups (id, groupName) VALUES (4, 'Deployers');
 INSERT INTO OpenL_Groups (id, groupName) VALUES (5, 'Analysts');
 
-INSERT INTO OpenL_Group_Authorities (groupId, authority) VALUES (0,'ALL');
+INSERT INTO OpenL_Group_Authorities (groupId, authority) VALUES (0,'ADMIN');
 INSERT INTO OpenL_Group_Authorities (groupId, authority) VALUES (1,'VIEW_PROJECTS');
 INSERT INTO OpenL_Group_Authorities (groupId, authority) VALUES (2,'CREATE_PROJECTS');
 INSERT INTO OpenL_Group_Authorities (groupId, authority) VALUES (2,'EDIT_PROJECTS');

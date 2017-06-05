@@ -110,8 +110,7 @@ public class UsersBean {
             return new String[0];
         }
 
-        String adminPrivilege = DefaultPrivileges.ADMINISTRATE.name();
-        String allPrivileges = DefaultPrivileges.ALL.name();
+        String adminPrivilege = DefaultPrivileges.ADMIN.name();
 
         List<String> groups = new ArrayList<String>();
         @SuppressWarnings("unchecked")
@@ -119,7 +118,7 @@ public class UsersBean {
         for (Privilege authority : authorities) {
             if (authority instanceof Group) {
                 Group group = (Group) authority;
-                if (group.hasPrivilege(adminPrivilege) || group.hasPrivilege(allPrivileges)) {
+                if (group.hasPrivilege(adminPrivilege)) {
                     groups.add(group.getAuthority());
                 }
             }
@@ -167,8 +166,7 @@ public class UsersBean {
         Set<String> groupNames = new HashSet<String>(groups.keySet());
         for (String checkGroupName : groupNames) {
             if (!group.getName().equals(checkGroupName) &&
-                    (group.hasPrivilege(checkGroupName) ||
-                            group.hasPrivilege(DefaultPrivileges.ALL.name()))) {
+                    group.hasPrivilege(checkGroupName)) {
                 Group includedGroup = groups.get(checkGroupName);
                 if (includedGroup != null) {
                     removeIncludedGroups(includedGroup, groups);
@@ -179,9 +177,8 @@ public class UsersBean {
     }
 
     public boolean isOnlyAdmin(Object objUser) {
-        String adminPrivilege = DefaultPrivileges.ADMINISTRATE.name();
-        String allPrivileges = DefaultPrivileges.ALL.name();
-        return (((User) objUser).hasPrivilege(adminPrivilege) || ((User) objUser).hasPrivilege(allPrivileges))
+        String adminPrivilege = DefaultPrivileges.ADMIN.name();
+        return ((User) objUser).hasPrivilege(adminPrivilege)
                 && userManagementService.getUsersByPrivilege(adminPrivilege).size() == 1;
     }
 
