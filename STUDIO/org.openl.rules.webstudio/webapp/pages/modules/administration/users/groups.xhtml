@@ -26,10 +26,8 @@
                 </a4j:repeat>
                 <a4j:repeat var="privilegeName" value="#{groupsBean.getNonGroupPrivileges(group.name)}">
                     <h:panelGroup class="badge-container">
-                        <h:panelGroup class="badge" style="margin-right: 2px"
-                            rendered="#{privilegeName != 'NO RESTRICTIONS' and privilegeName != 'Administrate'}">#{privilegeName}</h:panelGroup>
-                        <h:panelGroup class="badge badge-error" style="margin-right: 2px"
-                            rendered="#{privilegeName == 'NO RESTRICTIONS' or privilegeName == 'Administrate'}">#{privilegeName}</h:panelGroup>
+                        <h:panelGroup class="badge #{(privilegeName == 'Administrate') ? 'badge-error' : ''}" style="margin-right: 2px">#{privilegeName}</h:panelGroup>
+
                     </h:panelGroup>
                 </a4j:repeat>
             </td>
