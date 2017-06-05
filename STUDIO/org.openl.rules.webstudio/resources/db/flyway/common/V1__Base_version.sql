@@ -20,14 +20,14 @@ CREATE TABLE OpenL_User2Group (
     loginName varchar(50) not null,
     groupID ${bigint} not null,
     PRIMARY KEY (loginName, groupID),
-    CONSTRAINT fk_OpenLUser2Group1 FOREIGN KEY (loginName) REFERENCES OpenLUsers(loginName),
-    CONSTRAINT fk_OpenLUser2Group2 FOREIGN KEY (groupID) REFERENCES OpenLGroups(id)
+    CONSTRAINT fk_OpenL_User2Group1 FOREIGN KEY (loginName) REFERENCES OpenL_Users(loginName),
+    CONSTRAINT fk_OpenL_User2Group2 FOREIGN KEY (groupID) REFERENCES OpenL_Groups(id)
 );
 
 CREATE TABLE OpenL_Group2Group (
     IncludedGroupID ${bigint} not null,
     groupID ${bigint} not null,
     PRIMARY KEY (IncludedGroupID, groupID),
-    CONSTRAINT fk_OpenLGroup2Group1 FOREIGN KEY (IncludedGroupID) REFERENCES OpenLGroups(id),
-    CONSTRAINT fk_OpenLGroup2Group2 FOREIGN KEY (groupID) REFERENCES OpenLGroups(id)
+    CONSTRAINT fk_OpenL_Group2Group1 FOREIGN KEY (IncludedGroupID) REFERENCES OpenL_Groups(id),
+    CONSTRAINT fk_OpenL_Group2Group2 FOREIGN KEY (groupID) REFERENCES OpenL_Groups(id)
 );
