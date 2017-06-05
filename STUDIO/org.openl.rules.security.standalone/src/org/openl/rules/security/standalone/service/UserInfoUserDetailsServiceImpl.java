@@ -14,7 +14,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 /**
  * {@link org.springframework.security.core.userdetails.UserDetailsService} that can load
@@ -39,20 +38,6 @@ public class UserInfoUserDetailsServiceImpl implements UserInfoUserDetailsServic
         return grantedList;
     }
 
-    protected Collection<Privilege> createPrivileges(String privileges) {
-        Collection<Privilege> grantedList = new ArrayList<Privilege>();
-
-        if (privileges != null) {
-            StringTokenizer st = new StringTokenizer(privileges, ",");
-            while (st.hasMoreElements()) {
-                String privilege = st.nextToken();
-                grantedList.add(DefaultPrivileges.valueOf(privilege));
-             }
-        }
-
-        return grantedList;
-    }
-
     protected Collection<Privilege> createPrivileges(Group group) {
         Collection<Privilege> grantedList = new ArrayList<Privilege>();
 
@@ -62,7 +47,13 @@ public class UserInfoUserDetailsServiceImpl implements UserInfoUserDetailsServic
                     new SimpleGroup(persistGroup.getName(), persistGroup.getDescription(), createPrivileges(persistGroup)));
         }
 
-        grantedList.addAll(createPrivileges(group.getPrivileges()));
+        Set<String> privileges = group.getPrivileges();
+
+        if (privileges != null) {
+            for(String privilege: privileges) {
+                grantedList.add(DefaultPrivileges.valueOf(privilege));
+             }
+        }
 
         return grantedList;
     }

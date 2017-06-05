@@ -12,8 +12,13 @@ CREATE TABLE OpenL_Groups (
     id ${identity},
     groupName varchar(40) not null unique,
     description varchar(200),
-    userPrivileges  varchar(1000),
     PRIMARY KEY (id)
+);
+
+CREATE TABLE OpenL_Group_Authorities (
+    groupID ${bigint} not null,
+    authority varchar(40) not null,
+    PRIMARY KEY (groupID, authority)
 );
 
 CREATE TABLE OpenL_User2Group (

@@ -11,7 +11,6 @@ import org.openl.util.StringUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
@@ -71,7 +70,7 @@ public class GroupManagementServiceImpl extends UserInfoUserDetailsServiceImpl i
         persistGroup.setDescription(group.getDescription());
 
         Set<Group> includedGroups = new HashSet<Group>();
-        List<String> privileges = new ArrayList<String>();
+        Set<String> privileges = new HashSet<String>();
         for (Privilege privilege : group.getPrivileges()) {
             String privilegeName = privilege.getName();
             if (privilege instanceof org.openl.rules.security.Group) {
@@ -84,7 +83,7 @@ public class GroupManagementServiceImpl extends UserInfoUserDetailsServiceImpl i
             persistGroup.setIncludedGroups(includedGroups);
         }
         if (!privileges.isEmpty()) {
-            persistGroup.setPrivileges(StringUtils.join(privileges, ","));
+            persistGroup.setPrivileges(privileges);
         }
 
         groupDao.save(persistGroup);
@@ -97,7 +96,7 @@ public class GroupManagementServiceImpl extends UserInfoUserDetailsServiceImpl i
         persistGroup.setDescription(group.getDescription());
 
         Set<Group> includedGroups = new HashSet<Group>();
-        List<String> privileges = new ArrayList<String>();
+        Set<String> privileges = new HashSet<String>();
         for (Privilege privilege : group.getPrivileges()) {
             String privilegeName = privilege.getName();
             if (privilege instanceof org.openl.rules.security.Group) {
@@ -107,9 +106,9 @@ public class GroupManagementServiceImpl extends UserInfoUserDetailsServiceImpl i
                     includedGroups.add(includedGroup);
                 } else {
                     // Save all privileges of itself persisting group 
-                    String includedPrivileges = includedGroup.getPrivileges();
+                    Set<String> includedPrivileges = includedGroup.getPrivileges();
                     if (includedPrivileges != null) {
-                        privileges.addAll(Arrays.asList(includedPrivileges.split(",")));
+                        privileges.addAll(includedPrivileges);
                     }
                 }
             } else {
@@ -118,7 +117,7 @@ public class GroupManagementServiceImpl extends UserInfoUserDetailsServiceImpl i
         }
 
         persistGroup.setIncludedGroups(!includedGroups.isEmpty() ? includedGroups : null);
-        persistGroup.setPrivileges(!privileges.isEmpty() ? StringUtils.join(privileges, ",") : null);
+        persistGroup.setPrivileges(privileges);
 
         groupDao.update(persistGroup);
     }
