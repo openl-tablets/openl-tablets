@@ -25,7 +25,7 @@ public class GroupManagementServiceImpl extends UserInfoUserDetailsServiceImpl i
 
     @Override
     public List<org.openl.rules.security.Group> getGroups() {
-        List<Group> groups = groupDao.getAll();
+        List<Group> groups = groupDao.getAllGroups();
         List<org.openl.rules.security.Group> resultGroups = new ArrayList<org.openl.rules.security.Group>();
 
         for (Group group : groups) {
@@ -38,7 +38,7 @@ public class GroupManagementServiceImpl extends UserInfoUserDetailsServiceImpl i
 
     @Override
     public List<org.openl.rules.security.Group> getGroupsByPrivilege(String privilege) {
-        List<Group> groups = groupDao.getAll();
+        List<Group> groups = groupDao.getAllGroups();
         List<org.openl.rules.security.Group> resultGroups = new ArrayList<org.openl.rules.security.Group>();
 
         for (Group group : groups) {

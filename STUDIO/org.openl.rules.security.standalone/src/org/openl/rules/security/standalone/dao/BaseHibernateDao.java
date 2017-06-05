@@ -1,8 +1,5 @@
 package org.openl.rules.security.standalone.dao;
 
-import java.util.List;
-
-import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,13 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public abstract class BaseHibernateDao<T> implements Dao<T> {
 
-    private Class<T> persistentClass;
-
     private SessionFactory sessionFactory;
-
-    public BaseHibernateDao(Class<T> persistentClass) {
-        this.persistentClass = persistentClass;
-    }
 
     public void setSessionFactory(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
@@ -34,14 +25,6 @@ public abstract class BaseHibernateDao<T> implements Dao<T> {
     @Transactional
     public void delete(T obj) {
         getSession().delete(obj);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    @Transactional
-    public List<T> getAll() {
-        return getSession().createCriteria(persistentClass)
-                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
     }
 
     @Override

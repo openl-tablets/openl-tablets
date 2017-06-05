@@ -2,6 +2,8 @@ package org.openl.rules.security.standalone.dao;
 
 import org.openl.rules.security.standalone.persistence.User;
 
+import java.util.List;
+
 /**
  * User dao.
  *
@@ -16,4 +18,6 @@ public interface UserDao extends Dao<User> {
      * @return User or <code>null</code>.
      */
     User getUserByName(String name);
+
+    List<User> getAllUsers();
 }
