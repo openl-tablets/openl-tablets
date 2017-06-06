@@ -58,17 +58,6 @@ public class Group implements Serializable {
     }
 
     /**
-     * Parent groups.
-     *
-     * @return
-     */
-    @ManyToMany(targetEntity = Group.class, fetch = FetchType.LAZY, cascade = javax.persistence.CascadeType.MERGE)
-    @JoinTable(name = "OpenL_Group2Group", joinColumns = { @JoinColumn(name = "includedGroupID") }, inverseJoinColumns = { @JoinColumn(name = "groupID") })
-    public Set<Group> getParentGroups() {
-        return parentGroups;
-    }
-
-    /**
      * Group name.
      *
      * @return
