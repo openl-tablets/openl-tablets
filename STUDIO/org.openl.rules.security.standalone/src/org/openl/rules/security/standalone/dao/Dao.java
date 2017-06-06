@@ -29,12 +29,4 @@ public interface Dao<T> {
      * @param obj object to update.
      */
     void update(T obj);
-
-    /**
-     * Merges object.
-     *
-     * @param obj object to merge.
-     */
-    void merge(T obj);
-
 }

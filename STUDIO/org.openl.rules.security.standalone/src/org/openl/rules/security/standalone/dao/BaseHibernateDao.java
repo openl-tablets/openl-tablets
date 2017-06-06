@@ -38,11 +38,4 @@ public abstract class BaseHibernateDao<T> implements Dao<T> {
     public void update(T obj) {
         getSession().update(obj);
     }
-
-    @Override
-    @Transactional
-    public void merge(T obj) {
-        getSession().merge(obj);
-    }
-
 }

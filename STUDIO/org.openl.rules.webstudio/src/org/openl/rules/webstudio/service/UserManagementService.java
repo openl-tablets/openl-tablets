@@ -88,8 +88,4 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
     public void setGroupDao(GroupDao groupDao) {
         this.groupDao = groupDao;
     }
-
-    public User getUserByName(String name) {
-        return userDao.getUserByName(name);
-    }
 }
