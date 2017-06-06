@@ -49,11 +49,10 @@
       <property name="configLocation" value="classpath:/org/openl/rules/security/standalone/persistence/hibernate.cfg.xml"/>
       <property name="hibernateProperties">
         <props>
-          <prop key="hibernate.dialect">#{dbConfig['db.hibernate.dialect']}</prop>
-          <prop key="hibernate.show_sql">#{dbConfig['db.hibernate.show_sql']}</prop>
-          <prop key="hibernate.format_sql">#{dbConfig['db.hibernate.format_sql']}</prop>
-          <prop key="hibernate.use_sql_comments">#{dbConfig['db.hibernate.use_sql_comments']}</prop>
-          <prop key="hibernate.jdbc.batch_size">#{dbConfig['db.hibernate.batch_size']}</prop>
+          <prop key="hibernate.show_sql">false</prop>
+          <prop key="hibernate.format_sql">false</prop>
+          <prop key="hibernate.use_sql_comments">false</prop>
+          <prop key="hibernate.jdbc.batch_size">0</prop>
 
           <prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</prop>
           <prop key="hibernate.cache.use_query_cache">true</prop>
