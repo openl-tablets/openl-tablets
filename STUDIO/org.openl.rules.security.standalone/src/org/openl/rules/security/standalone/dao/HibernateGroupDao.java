@@ -22,6 +22,13 @@ public class HibernateGroupDao extends BaseHibernateDao<Group> implements GroupD
 
     @Override
     @Transactional
+    public void deleteGroupByName(final String name) {
+        getSession().createSQLQuery("delete from OpenL_Group2Group where includedGroupID = (select id from OpenL_Groups where groupName = :name)").setString("name", name).executeUpdate();
+        getSession().createSQLQuery("delete from OpenL_Groups where groupName = :name").setString("name", name).executeUpdate();
+    }
+
+    @Override
+    @Transactional
     @SuppressWarnings("unchecked")
     public List<Group> getAllGroups() {
         return getSession().createCriteria(Group.class).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
