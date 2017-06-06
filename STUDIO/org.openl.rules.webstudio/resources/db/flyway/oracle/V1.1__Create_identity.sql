@@ -1,4 +1,4 @@
-create SEQUENCE OpenL_Groups_ID_SEQ
+create SEQUENCE OpenL_Groups_ID_SEQ;
 create or replace trigger OpenL_Groups_ID_TRG
 before insert on OpenL_Groups
 for each row
