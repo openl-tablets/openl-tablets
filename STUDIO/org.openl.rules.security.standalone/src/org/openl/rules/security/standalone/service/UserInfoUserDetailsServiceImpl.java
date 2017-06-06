@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -30,21 +31,27 @@ public class UserInfoUserDetailsServiceImpl implements UserInfoUserDetailsServic
         Collection<Privilege> grantedList = new ArrayList<Privilege>();
 
         Set<Group> groups = user.getGroups();
+        Set<Group> visitedGroups = new HashSet<Group>();
         for (Group group : groups) {
-            grantedList.add(
-                    new SimpleGroup(group.getName(), group.getDescription(), createPrivileges(group)));
+            Collection<Privilege> privileges = createPrivileges(group, visitedGroups);
+            grantedList.add(new SimpleGroup(group.getName(), group.getDescription(), privileges));
         }
 
         return grantedList;
     }
 
-    protected Collection<Privilege> createPrivileges(Group group) {
+    protected Collection<Privilege> createPrivileges(Group group, Set<Group> visitedGroups) {
+        visitedGroups.add(group);
         Collection<Privilege> grantedList = new ArrayList<Privilege>();
 
         Set<Group> groups = group.getIncludedGroups();
         for (Group persistGroup : groups) {
-            grantedList.add(
-                    new SimpleGroup(persistGroup.getName(), persistGroup.getDescription(), createPrivileges(persistGroup)));
+            if (!visitedGroups.contains(persistGroup)) {
+                visitedGroups.add(persistGroup);
+                Collection<Privilege> privileges = createPrivileges(persistGroup, visitedGroups);
+                SimpleGroup simpleGroup = new SimpleGroup(persistGroup.getName(), persistGroup.getDescription(), privileges);
+                grantedList.add(simpleGroup);
+            }
         }
 
         Set<String> privileges = group.getPrivileges();

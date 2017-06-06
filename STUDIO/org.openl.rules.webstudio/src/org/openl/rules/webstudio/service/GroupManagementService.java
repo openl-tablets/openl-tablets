@@ -8,8 +8,6 @@ public interface GroupManagementService {
 
     List<Group> getGroups();
 
-    List<Group> getGroupsByPrivilege(String privilege);
-
     Group getGroupByName(String name);
 
     boolean isGroupExist(String name);

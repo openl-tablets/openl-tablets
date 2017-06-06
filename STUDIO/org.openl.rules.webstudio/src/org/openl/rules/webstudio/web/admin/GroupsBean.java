@@ -232,10 +232,18 @@ public class GroupsBean {
         }
     }
 
-    public boolean isOnlyAdmin(Object objGroup) {
-        String adminPrivilege = Privileges.ADMIN.name();
-        return ((Group) objGroup).hasPrivilege(adminPrivilege)
-                && groupManagementService.getGroupsByPrivilege(adminPrivilege).size() == 1;
+    public boolean isOnlyAdmin(Group objGroup) {
+        if (!objGroup.hasPrivilege(Privileges.ADMIN.name())) {
+            return false;
+        }
+        List<Group> groups = getGroups();
+        int i = 0;
+        for (Group group : groups) {
+            if (group.hasPrivilege(Privileges.ADMIN.name())) {
+                i++;
+            }
+        }
+        return i <= 1;
     }
 
     public void deleteGroup(String name) {
