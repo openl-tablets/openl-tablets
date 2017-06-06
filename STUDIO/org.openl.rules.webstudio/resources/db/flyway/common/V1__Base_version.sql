@@ -31,9 +31,9 @@ CREATE TABLE OpenL_User2Group (
 );
 
 CREATE TABLE OpenL_Group2Group (
-    IncludedGroupID ${bigint} not null,
     groupID ${bigint} not null,
-    PRIMARY KEY (IncludedGroupID, groupID),
-    CONSTRAINT fk_OpenL_Group2Group1 FOREIGN KEY (IncludedGroupID) REFERENCES OpenL_Groups(id) ON DELETE CASCADE,
-    CONSTRAINT fk_OpenL_Group2Group2 FOREIGN KEY (groupID) REFERENCES OpenL_Groups(id) ON DELETE CASCADE
+    includedGroupID ${bigint} not null,
+    PRIMARY KEY (groupID, includedGroupID),
+    CONSTRAINT fk_OpenL_Group2Group1 FOREIGN KEY (groupID) REFERENCES OpenL_Groups(id) ON DELETE CASCADE,
+    CONSTRAINT fk_OpenL_Group2Group2 FOREIGN KEY (includedGroupID) REFERENCES OpenL_Groups(id)
 );

@@ -120,11 +120,9 @@ public class GroupManagementServiceImpl extends UserInfoUserDetailsServiceImpl i
         groupDao.update(persistGroup);
     }
 
-    @Transactional
     @Override
     public void deleteGroup(String name) {
-        Group group = groupDao.getGroupByName(name);
-        groupDao.delete(group);
+        groupDao.deleteGroupByName(name);
     }
 
     public void setGroupDao(GroupDao groupDao) {
