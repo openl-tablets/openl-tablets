@@ -47,6 +47,7 @@ public class GroupsBean {
     private String oldName;
 
     private String description;
+    private List<Group> groups;
 
     public String getName() {
         return name;
@@ -97,13 +98,15 @@ public class GroupsBean {
         return Privileges.values();
     }
 
-    public List<String> getPrivileges(String groupName) {
+    public List<String> getPrivileges(Group group) {
         List<String> result = new ArrayList<String>();
-        Group group = groupManagementService.getGroupByName(groupName);
+        if (group == null) {
+            return result;
+        }
         Collection<Privilege> privileges = group.getPrivileges();
         for (Privilege privilege : privileges) {
             if (privilege instanceof Group) {
-                result.addAll(getPrivileges(privilege.getName()));
+                result.addAll(getPrivileges((Group) privilege));
             } else {
                 result.add(privilege.getName());
             }
@@ -111,29 +114,32 @@ public class GroupsBean {
         return result;
     }
 
-    public List<String> getIncludedGroups(String groupName) {
+    public List<String> getIncludedGroups(Group group) {
         List<String> result = new ArrayList<String>();
-        Group group = groupManagementService.getGroupByName(groupName);
+        if (group == null) {
+            return result;
+        }
         Collection<Privilege> authorities = group.getPrivileges();
         for (Privilege authority : authorities) {
             if (authority instanceof Group) {
-                String incGroupName = authority.getName();
                 // Don't use Set
-                List<String> incGroups = getIncludedGroups(incGroupName);
+                List<String> incGroups = getIncludedGroups((Group) authority);
                 for (String incGroup : incGroups) {
                     if (!result.contains(incGroup)) {
                         result.add(incGroup);
                     }
                 }
-                result.add(incGroupName);
+                result.add(authority.getName());
             }
         }
         return result;
     }
 
-    public List<String> getNonGroupPrivileges(String groupName) {
+    public List<String> getNonGroupPrivileges(Group group) {
         List<String> result = new ArrayList<String>();
-        Group group = groupManagementService.getGroupByName(groupName);
+        if (group == null) {
+            return result;
+        }
         Collection<Privilege> authorities = group.getPrivileges();
         for (Privilege authority : authorities) {
             if (!(authority instanceof Group)) {
@@ -144,7 +150,10 @@ public class GroupsBean {
     }
 
     public List<Group> getGroups() {
-        return groupManagementService.getGroups();
+        if (groups == null) {
+            groups = groupManagementService.getGroups();
+        }
+        return groups;
     }
 
     private Collection<Privilege> getSelectedAuthorities() {
@@ -190,11 +199,13 @@ public class GroupsBean {
     public void addGroup() {
         groupManagementService.addGroup(
                 new SimpleGroup(name, description, getSelectedAuthorities()));
+        groups = null;
     }
 
     public void editGroup() {
         groupManagementService.updateGroup(oldName,
                 new SimpleGroup(newName, description, getSelectedAuthorities()));
+        groups = null;
     }
 
     private void removeIncludedGroups(Group group, Map<String, Group> groups) {
@@ -229,6 +240,7 @@ public class GroupsBean {
 
     public void deleteGroup(String name) {
         groupManagementService.deleteGroup(name);
+        groups = null;
     }
 
     public void setGroupManagementService(GroupManagementService groupManagementService) {

@@ -19,10 +19,10 @@
             <td>#{group.name}</td>
             <td>#{group.description}</td>
             <td>
-                <a4j:repeat var="groupName" value="#{groupsBean.getIncludedGroups(group.name)}">
+                <a4j:repeat var="groupName" value="#{groupsBean.getIncludedGroups(group)}">
                     <h:panelGroup class="badge badge-info" style="margin-right: 2px">#{groupName}</h:panelGroup>
                 </a4j:repeat>
-                <a4j:repeat var="privilegeName" value="#{groupsBean.getNonGroupPrivileges(group.name)}">
+                <a4j:repeat var="privilegeName" value="#{groupsBean.getNonGroupPrivileges(group)}">
                     <h:panelGroup class="badge #{(privilegeName == 'Administrate') ? 'badge-error' : ''}" style="margin-right: 2px">#{privilegeName}</h:panelGroup>
                 </a4j:repeat>
             </td>
