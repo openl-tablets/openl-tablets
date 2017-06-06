@@ -23,12 +23,6 @@ public abstract class BaseHibernateDao<T> implements Dao<T> {
 
     @Override
     @Transactional
-    public void delete(T obj) {
-        getSession().delete(obj);
-    }
-
-    @Override
-    @Transactional
     public void save(T obj) {
         getSession().save(obj);
     }

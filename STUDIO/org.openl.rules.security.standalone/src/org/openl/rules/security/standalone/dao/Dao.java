@@ -9,12 +9,6 @@ import java.util.List;
  * @author Andrey Naumenko
  */
 public interface Dao<T> {
-    /**
-     * Delete given object.
-     *
-     * @param obj object to delete.
-     */
-    void delete(T obj);
 
     /**
      * Saves object.

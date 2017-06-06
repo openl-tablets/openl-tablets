@@ -23,6 +23,12 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
 
     @Override
     @Transactional
+    public void deleteUserByName(final String name) {
+        getSession().createSQLQuery("delete from OpenL_Users where loginName = :name").setString("name", name).executeUpdate();
+    }
+
+    @Override
+    @Transactional
     @SuppressWarnings("unchecked")
     public List<User> getAllUsers() {
         return getSession().createCriteria(User.class).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();

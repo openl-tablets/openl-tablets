@@ -80,7 +80,7 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
     }
 
     public void deleteUser(String username) {
-        userDao.delete(userDao.getUserByName(username));
+        userDao.deleteUserByName(username);
     }
 
     public void setGroupDao(GroupDao groupDao) {
