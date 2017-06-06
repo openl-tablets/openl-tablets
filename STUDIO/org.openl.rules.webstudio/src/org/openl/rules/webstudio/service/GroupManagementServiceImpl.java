@@ -1,13 +1,10 @@
 package org.openl.rules.webstudio.service;
 
-import org.openl.rules.security.Privileges;
 import org.openl.rules.security.Privilege;
-import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.security.standalone.service.PrivilegesEvaluator;
 import org.openl.rules.security.standalone.service.UserInfoUserDetailsServiceImpl;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,25 +24,7 @@ public class GroupManagementServiceImpl extends UserInfoUserDetailsServiceImpl i
         List<org.openl.rules.security.Group> resultGroups = new ArrayList<org.openl.rules.security.Group>();
 
         for (Group group : groups) {
-            resultGroups.add(
-                    new SimpleGroup(group.getName(), group.getDescription(), PrivilegesEvaluator.createPrivileges(group)));
-        }
-
-        return resultGroups;
-    }
-
-    @Override
-    public List<org.openl.rules.security.Group> getGroupsByPrivilege(String privilege) {
-        List<Group> groups = groupDao.getAllGroups();
-        List<org.openl.rules.security.Group> resultGroups = new ArrayList<org.openl.rules.security.Group>();
-
-        for (Group group : groups) {
-            org.openl.rules.security.Group resultGroup = new SimpleGroup(
-                    group.getName(), group.getDescription(), PrivilegesEvaluator.createPrivileges(group));
-            if (resultGroup.hasPrivilege(Privileges.ADMIN.name())
-                    || resultGroup.hasPrivilege(privilege)) {
-                resultGroups.add(resultGroup);
-            }
+            resultGroups.add(PrivilegesEvaluator.wrap(group));
         }
 
         return resultGroups;
@@ -54,7 +33,7 @@ public class GroupManagementServiceImpl extends UserInfoUserDetailsServiceImpl i
     @Override
     public org.openl.rules.security.Group getGroupByName(String name) {
         Group group = groupDao.getGroupByName(name);
-        return new SimpleGroup(group.getName(), group.getDescription(), PrivilegesEvaluator.createPrivileges(group));
+        return PrivilegesEvaluator.wrap(group);
     }
 
     @Override

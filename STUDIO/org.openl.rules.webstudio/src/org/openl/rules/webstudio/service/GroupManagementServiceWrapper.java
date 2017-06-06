@@ -19,13 +19,6 @@ public class GroupManagementServiceWrapper implements GroupManagementService {
         return delegate.getGroups();
     }
 
-    public List<Group> getGroupsByPrivilege(String privilege) {
-        if (delegate == null) {
-            return Collections.emptyList();
-        }
-        return delegate.getGroupsByPrivilege(privilege);
-    }
-
     public Group getGroupByName(String name) {
         if (delegate == null) {
             return null;
