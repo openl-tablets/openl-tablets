@@ -68,17 +68,17 @@ public class AccessVoter implements AccessDecisionVoter<Object> {
             if (this.supports(attribute)) {
                 result = ACCESS_DENIED;
 
-                String auth = attribute.getAttribute();
+                String neededAuthority = attribute.getAttribute();
 
                 // Attempt to find a matching granted authority
                 for (GrantedAuthority grantedAuthority : authentication.getAuthorities()) {
-                    String authority = grantedAuthority.getAuthority();
+                    String availableAuthority = grantedAuthority.getAuthority();
 
-                    if (auth.equals(authority)) {
+                    if (neededAuthority.equals(availableAuthority)) {
                         return ACCESS_GRANTED;
                     }
 
-                    if (Privileges.ADMIN.name().equals(authority)) {
+                    if (Privileges.ADMIN.name().equals(availableAuthority)) {
                         return ACCESS_GRANTED;
                     }
 
@@ -88,7 +88,7 @@ public class AccessVoter implements AccessDecisionVoter<Object> {
                         if (group.hasPrivilege(Privileges.ADMIN.name())) {
                             return ACCESS_GRANTED;
                         }
-                        if (group.hasPrivilege(auth)) {
+                        if (group.hasPrivilege(neededAuthority)) {
                             return ACCESS_GRANTED;
                         }
                     }
