@@ -8,6 +8,7 @@
           http://www.springframework.org/schema/util/spring-util.xsd">
 
   <import resource="common-authentication.xml"/>
+  <import resource="form-based-authentication.xml"/>
   <import resource="authorization.xml"/>
   <import resource="db-services.xml"/>
 
