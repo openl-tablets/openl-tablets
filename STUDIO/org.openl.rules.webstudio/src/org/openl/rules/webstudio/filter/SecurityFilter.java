@@ -21,7 +21,13 @@ public class SecurityFilter extends DelegatingFilterProxy {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
-        super.doFilter(servletRequest, servletResponse, filterChain);
+        try {
+            super.doFilter(servletRequest, servletResponse, filterChain);
+        } catch (RuntimeException e) {
+            // Log unhandled exceptions
+            logger.error(e.getMessage(), e);
+            throw e;
+        }
 
         if (servletRequest instanceof HttpServletRequest) {
             HttpServletRequest request = (HttpServletRequest) servletRequest;
