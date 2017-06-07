@@ -162,6 +162,11 @@
   <listener>
     <listener-class>org.openl.rules.webstudio.web.servlet.SessionListener</listener-class>
   </listener>
+  <listener>
+    <listener-class>
+      org.jasig.cas.client.session.SingleSignOutHttpSessionListener
+    </listener-class>
+  </listener>
 
   <servlet>
     <servlet-name>FacesServlet</servlet-name>

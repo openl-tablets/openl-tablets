@@ -8,6 +8,7 @@
           http://www.springframework.org/schema/util/spring-util.xsd">
 
     <import resource="common-authentication.xml"/>
+    <import resource="form-based-authentication.xml"/>
     <import resource="authorization.xml"/>
     <import resource="db-services.xml" />
 
@@ -45,10 +46,6 @@
         <constructor-arg name="url" value="#{adConfig['security.ad.url']}"/>
         <property name="authoritiesMapper" ref="authoritiesMapper"/>
         <property name="userDetailsContextMapper" ref="userDetailsContextMapper"/>
-    </bean>
-
-    <bean id="authoritiesMapper" class="org.openl.rules.webstudio.security.OpenLGroupsAuthoritiesMapper">
-        <constructor-arg ref="groupDao"/>
     </bean>
 
     <bean id="userDetailsContextMapper" class="org.openl.rules.webstudio.security.LdapToOpenLUserDetailsMapper">
