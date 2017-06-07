@@ -40,6 +40,7 @@
                                 <f:selectItem itemValue="single" itemLabel="Single-user" />
                                 <f:selectItem itemValue="multi" itemLabel="Multi-user" />
                                 <f:selectItem itemValue="ad" itemLabel="Active Directory" />
+                                <f:selectItem itemValue="cas" itemLabel="Central Authentication Service (CAS)" />
                             </h:selectOneRadio>
                         </div>
                     </div>
@@ -255,6 +256,117 @@
                             </table>
                         </div>
                     </div>
+
+                    <div class="wizard-block" id="casBlock">
+                        <h3>Configure Central Authentication Service (CAS):
+                            <div class="field-description">
+                                <p>Set up a Central Authentication Service (CAS) to use for managing users in OpenL Tablets WebStudio.<br />
+                                    Please contact your System Administrator for this information if necessary.</p>
+                            </div>
+                        </h3>
+                        <div>
+                            <table>
+                                <tr>
+                                    <td colspan="2">
+                                        <a4j:outputPanel styleClass="installMessages" ajaxRendered="true">
+                                            <h:messages infoClass="success" errorClass="error" showDetail="true"
+                                                        showSummary="false" tooltip="true" globalOnly="true" />
+                                            <h:message  class="error" for="casGroupsAttribute" />
+                                        </a4j:outputPanel>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label>WebStudio server URL:</label></td>
+                                    <td>
+                                        <h:inputText id="webStudioUrl" value="#{installWizard.casSettings.webStudioUrl}" size="40"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label>CAS server url:</label></td>
+                                    <td>
+                                        <h:inputText id="casServerUrl" value="#{installWizard.casSettings.casServerUrl}" size="40"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label>Attribute for First Name:</label></td>
+                                    <td>
+                                        <h:inputText id="casFirstNameAttribute" value="#{installWizard.casSettings.firstNameAttribute}" size="40"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label>Attribute for Second Name:</label></td>
+                                    <td>
+                                        <h:inputText id="casSecondNameAttribute" value="#{installWizard.casSettings.secondNameAttribute}" size="40"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label>Attribute for Groups:</label></td>
+                                    <td>
+                                        <h:inputText id="casGroupsAttribute" value="#{installWizard.casSettings.groupsAttribute}" size="40"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <h3>Configure database:
+                            <div class="field-description">
+                                <p>Set up a database to be used for managing groups in OpenL Tablets WebStudio.<br />
+                                    Please contact your System Administrator for this information if necessary.</p>
+                            </div>
+                        </h3>
+                        <div>
+                            <table>
+
+                                <tr>
+                                    <td colspan="2">
+                                        <a4j:outputPanel styleClass="installMessages" ajaxRendered="true">
+                                            <h:messages infoClass="success" errorClass="error" showDetail="true"
+                                                        showSummary="false" tooltip="true" globalOnly="true" />
+                                            <h:message  class="error" for="adDbPassword" />
+                                        </a4j:outputPanel>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label>Database type</label></td>
+                                    <td>
+                                        <h:selectOneMenu value="#{installWizard.adDbVendor}" id="casDbVendor" immediate="true">
+                                            <f:selectItem itemValue="#{null}" itemLabel="Select one"/>
+                                            <f:selectItems value="#{installWizard.DBVendors}" />
+                                            <f:ajax  listener="#{installWizard.dbVendorChanged}" />
+                                            <f:ajax render="casDbUrl casDbUsername"/>
+                                        </h:selectOneMenu>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label>Database URL</label></td>
+                                    <td>
+                                        <h:inputText id="casDbUrl" value="#{installWizard.dbUrl}" size="40" >
+                                            <f:ajax  listener="#{installWizard.urlChanged}" />
+                                        </h:inputText>
+                                    </td>
+                                </tr>
+                                <tr><td></td></tr>
+                                <tr><td></td></tr>
+                                <tr>
+                                    <td><label>Login:</label></td>
+                                    <td>
+                                        <h:inputText id="casDbUsername" value="#{installWizard.dbUsername}" size="40">
+                                            <f:ajax  listener="#{installWizard.usernameChanged}" />
+                                        </h:inputText>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label>Password:</label></td>
+                                    <td>
+                                        <h:inputSecret id="casDbPassword" value="#{installWizard.dbPassword}" size="40"
+                                                       redisplay="true"
+                                                       validator="#{installWizard.dbValidator}"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
                     <div class="wizard-buttons" id="finish-buttons">
                         <h:commandButton id="prevButton" value="Prev" action="#{installWizard.prev}" onclick="showLoader()" immediate="true" />
                         <h:commandButton value="Finish" action="#{installWizard.finish}" class="button-primary" onclick="showLoader()" />
@@ -285,12 +397,18 @@
                     toggleBlock("#appmodeBlock", $j("#usermodeBlock input:checked").val() === "multi");
                     toggleBlock("#dbBlock", $j("#usermodeBlock input:checked").val() === "multi"
                         && $j("#appmodeBlock input:checked").val() !== "demo");
+
                     toggleBlock("#adBlock", $j("#usermodeBlock input:checked").val() === "ad");
                     toggleBlock("#adAppmodeBlock", $j("#usermodeBlock input:checked").val() === "ad");
                     toggleBlock("#adDbBlock", $j("#usermodeBlock input:checked").val() === "ad"
                         && $j("#adAppmodeBlock input:checked").val() !== "demo");
-                    toggleBlock("#finish-buttons", $j("#usermodeBlock input:checked").val() !== "ad");
-                    toggleBlock("#next-buttons", $j("#usermodeBlock input:checked").val() === "ad");
+
+                    toggleBlock("#casBlock", $j("#usermodeBlock input:checked").val() === "cas");
+
+                    toggleBlock("#finish-buttons", $j("#usermodeBlock input:checked").val() !== "ad"
+                        && $j("#usermodeBlock input:checked").val() !== "cas");
+                    toggleBlock("#next-buttons", $j("#usermodeBlock input:checked").val() === "ad"
+                        || $j("#usermodeBlock input:checked").val() === "cas");
                 };
 
                 var updateCheckConnectionButton = function () {

@@ -54,6 +54,7 @@ public class InstallWizard {
 
     private static final String MULTI_USER_MODE = "multi";
     private static final String AD_USER_MODE = "ad";
+    private static final String CAS_USER_MODE = "cas";
     private static final String SEPARATOR_PATTERN = "\\s*,\\s*";
     private static final String APP_MODE_DEMO = "demo";
     private static final String APP_MODE_PRODUCTION = "production";
@@ -87,10 +88,13 @@ public class InstallWizard {
     private String adUsername;
     private String adPassword;
 
+    private CASSettings casSettings;
+
     private ConfigurationManager appConfig;
     private ConfigurationManager systemConfig;
     private ConfigurationManager dbConfig;
     private ConfigurationManager adConfig;
+    private ConfigurationManager casConfig;
 
     private DBUtils dbUtils;
 
@@ -167,6 +171,9 @@ public class InstallWizard {
                     adConfig = new ConfigurationManager(true,
                             workingDir + "/system-settings/security-ad.properties",
                             System.getProperty("webapp.root") + "/WEB-INF/conf/security-ad.properties");
+                    casConfig = new ConfigurationManager(true,
+                            workingDir + "/system-settings/security-cas.properties",
+                            System.getProperty("webapp.root") + "/WEB-INF/conf/security-cas.properties");
 
                     userMode = systemConfig.getStringProperty("user.mode");
 
@@ -179,6 +186,7 @@ public class InstallWizard {
             } else if (step == 3) {
                 readDbProperties();
                 readAdProperties();
+                readCasProperties();
             } else if (step == 4) {
                 initializeTemporaryContext();
                 // GroupManagementService delegate is transactional and properly initialized
@@ -277,6 +285,17 @@ public class InstallWizard {
         adAllowAccessToNewUsers = !StringUtils.isBlank(adConfig.getStringProperty("security.ad.default-group"));
     }
 
+    private void readCasProperties() {
+        casSettings = new CASSettings(
+                casConfig.getStringProperty("security.openl.server-name"),
+                casConfig.getStringProperty("security.cas.cas-server-url-prefix"),
+                casConfig.getStringProperty("security.cas.default-group"),
+                casConfig.getStringProperty("security.cas.attribute.first-name"),
+                casConfig.getStringProperty("security.cas.attribute.last-name"),
+                casConfig.getStringProperty("security.cas.attribute.groups-attribute")
+        );
+    }
+
     private String getPropertyFilePathForVendor(String dbDriver) {
         for (File propFile : getDBPropertiesFiles()) {
             InputStream is = null;
@@ -310,7 +329,7 @@ public class InstallWizard {
                 dbConfig.save();
             } else {
                 if (AD_USER_MODE.equals(userMode)) {
-                    fillDbForAD();
+                    fillDbForUserManagement(Constants.USER_ORIGIN_ACTIVE_DIRECTORY);
                     dbConfig.save();
 
                     adConfig.setProperty("security.ad.domain", adDomain);
@@ -318,6 +337,22 @@ public class InstallWizard {
                     adConfig.setProperty("security.ad.groups-are-managed-in-studio", groupsAreManagedInStudio);
                     adConfig.setProperty("security.ad.default-group", adAllowAccessToNewUsers ? "Viewers" : "");
                     adConfig.save();
+                } else if (CAS_USER_MODE.equals(userMode)) {
+                    // TODO: Refactor the code below
+                    appMode = APP_MODE_PRODUCTION;
+                    fillDbForUserManagement(Constants.USER_ORIGIN_CAS);
+                    dbConfig.save();
+
+                    // TODO: Separate cas configuration from AD setting
+                    casSettings.setDefaultGroup(adAllowAccessToNewUsers ? "Viewers" : "");
+
+                    casConfig.setProperty("security.openl.server-name", casSettings.getWebStudioUrl());
+                    casConfig.setProperty("security.cas.cas-server-url-prefix", casSettings.getCasServerUrl());
+                    casConfig.setProperty("security.cas.default-group", casSettings.getDefaultGroup());
+                    casConfig.setProperty("security.cas.attribute.first-name", casSettings.getFirstNameAttribute());
+                    casConfig.setProperty("security.cas.attribute.last-name", casSettings.getSecondNameAttribute());
+                    casConfig.setProperty("security.cas.attribute.groups-attribute", casSettings.getGroupsAttribute());
+                    casConfig.save();
                 } else {
                     dbConfig.restoreDefaults();
                 }
@@ -358,7 +393,7 @@ public class InstallWizard {
         }
     }
 
-    private void fillDbForAD() throws IOException {
+    private void fillDbForUserManagement(String origin) throws IOException {
         if (!appMode.equals(APP_MODE_DEMO)) {
             if (groupsAreManagedInStudio) {
                 GroupManagementService groupManagementService = (GroupManagementService) temporaryContext.getBean(
@@ -376,7 +411,7 @@ public class InstallWizard {
                 for (String username : adAdmins.trim().split(SEPARATOR_PATTERN)) {
                     if (!username.isEmpty()) {
                         userManagementService.addUser(new SimpleUser(null, null, username, "",
-                                Constants.USER_ORIGIN_ACTIVE_DIRECTORY, adminGroups));
+                                origin, adminGroups));
                     }
                 }
                 setProductionDbProperties();
@@ -511,8 +546,11 @@ public class InstallWizard {
         dbConfig.setProperty("db.hibernate.dialect", externalDBConfig.getStringProperty("db.hibernate.dialect"));
         dbConfig.setProperty("db.validationQuery", externalDBConfig.getStringProperty("db.validationQuery"));
         dbConfig.setProperty("db.url.separator", externalDBConfig.getStringProperty("db.url.separator"));
+
         if (AD_USER_MODE.equals(userMode) && groupsAreManagedInStudio) {
             dbConfig.setProperty("db.additional.origins", Constants.USER_ORIGIN_ACTIVE_DIRECTORY);
+        } else if (CAS_USER_MODE.equals(userMode) && groupsAreManagedInStudio) {
+            dbConfig.setProperty("db.additional.origins", Constants.USER_ORIGIN_CAS);
         } else {
             // By default only internal origin
             dbConfig.removeProperty("db.additional.origins");
@@ -965,6 +1003,14 @@ public class InstallWizard {
 
     public void setAdPassword(String adPassword) {
         this.adPassword = adPassword;
+    }
+
+    public CASSettings getCasSettings() {
+        return casSettings;
+    }
+
+    public void setCasSettings(CASSettings casSettings) {
+        this.casSettings = casSettings;
     }
 
     public boolean isShowErrorMessage() {
