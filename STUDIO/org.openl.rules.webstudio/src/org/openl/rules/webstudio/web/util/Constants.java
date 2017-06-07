@@ -21,6 +21,7 @@ public final class Constants {
 
     public static final String USER_ORIGIN_INTERNAL = "Internal";
     public static final String USER_ORIGIN_ACTIVE_DIRECTORY = "Active Directory";
+    public static final String USER_ORIGIN_CAS = "Central Authentication Service (CAS)";
 
     private Constants() {
     }
