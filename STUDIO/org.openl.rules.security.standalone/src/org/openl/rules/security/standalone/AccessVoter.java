@@ -24,8 +24,7 @@ import org.springframework.security.core.GrantedAuthority;
  * prefix. Votes to grant access if there is an exact matching
  * {@link org.springframework.security.core.GrantedAuthority} to a <code>ConfigAttribute</code>
  * starting with the role prefix. Votes to deny access if there is no exact
- * matching <code>GrantedAuthority</code> to a <code>ConfigAttribute</code>
- * starting with the role prefix ({@link org.openl.rules.security.Privileges#GROUP_PREFIX}).
+ * matching <code>GrantedAuthority</code> to a <code>ConfigAttribute</code>.
  * </p>
  * <p>
  * All comparisons and prefixes are case sensitive.
@@ -79,7 +78,7 @@ public class AccessVoter implements AccessDecisionVoter<Object> {
                         return ACCESS_GRANTED;
                     }
 
-                    if (Privileges.ADMIN.name().equals(auth)) {
+                    if (Privileges.ADMIN.name().equals(authority)) {
                         return ACCESS_GRANTED;
                     }
 
