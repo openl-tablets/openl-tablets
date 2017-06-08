@@ -185,8 +185,10 @@ public class Operators {
     }
 
     public static Byte subtract(Byte x, Byte y) {
-        if (x == null) {
-            return y;
+        if (x == null && y != null) {
+            return (byte) -y;
+        } else if (x == null) {
+            return null;
         } else if (y == null) {
             return x;
         }
@@ -194,8 +196,10 @@ public class Operators {
     }
 
     public static Short subtract(Short x, Short y) {
-        if (x == null) {
-            return y;
+        if (x == null && y != null) {
+            return (short) -y;
+        } else if (x == null) {
+            return null;
         } else if (y == null) {
             return x;
         }
@@ -203,8 +207,10 @@ public class Operators {
     }
 
     public static Integer subtract(Integer x, Integer y) {
-        if (x == null) {
-            return y;
+        if (x == null && y != null) {
+            return -y;
+        } else if (x == null) {
+            return null;
         } else if (y == null) {
             return x;
         }
@@ -212,8 +218,10 @@ public class Operators {
     }
 
     public static Long subtract(Long x, Long y) {
-        if (x == null) {
-            return y;
+        if (x == null && y != null) {
+            return -y;
+        } else if (x == null) {
+            return null;
         } else if (y == null) {
             return x;
         }
@@ -221,8 +229,10 @@ public class Operators {
     }
 
     public static Float subtract(Float x, Float y) {
-        if (x == null) {
-            return y;
+        if (x == null && y != null) {
+            return -y;
+        } else if (x == null) {
+            return null;
         } else if (y == null) {
             return x;
         }
@@ -230,8 +240,10 @@ public class Operators {
     }
 
     public static Double subtract(Double x, Double y) {
-        if (x == null) {
-            return y;
+        if (x == null && y != null) {
+            return -y;
+        } else if (x == null) {
+            return null;
         } else if (y == null) {
             return x;
         }
@@ -239,8 +251,10 @@ public class Operators {
     }
 
     public static BigInteger subtract(BigInteger x, BigInteger y) {
-        if (x == null) {
-            return y;
+        if (x == null && y != null) {
+            return y.negate();
+        } else if (x == null) {
+            return null;
         } else if (y == null) {
             return x;
         }
@@ -248,8 +262,10 @@ public class Operators {
     }
     
     public static BigDecimal subtract(BigDecimal x, BigDecimal y) {
-        if (x == null) {
-            return y;
+        if (x == null && y != null) {
+            return y.negate();
+        } else if (x == null) {
+            return null;
         } else if (y == null) {
             return x;
         }
