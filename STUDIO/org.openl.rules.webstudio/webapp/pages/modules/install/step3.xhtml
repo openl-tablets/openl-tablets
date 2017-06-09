@@ -106,12 +106,12 @@
                             </table>
 
                             <div class="field-description">
-                                <p>Username and Password are used to check connection to Active Directory. They will not be saved anywhere.</p>
+                                <p>Login and Password are used to check connection to Active Directory. They will not be saved anywhere.</p>
                             </div>
 
                             <table>
                                 <tr>
-                                    <td><label>Username:</label></td>
+                                    <td><label>Login:</label></td>
                                     <td>
                                         <h:inputText id="adUsername" value="#{installWizard.adUsername}" size="40"/>
                                     </td>
@@ -205,7 +205,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><label>Database type</label></td>
+                                    <td><label>Database type:</label></td>
                                     <td>
                                         <h:selectOneMenu value="#{installWizard.dbVendor}" id="dbVendor" immediate="true">
                                             <f:selectItem itemValue="#{null}" itemLabel="Select one"/>
@@ -216,7 +216,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><label>Database URL</label></td>
+                                    <td><label>Database URL:</label></td>
                                     <td>
                                         <h:inputText id="dbUrl" value="#{installWizard.dbUrl}" size="40" >
                                             <f:ajax  listener="#{installWizard.urlChanged}" />
