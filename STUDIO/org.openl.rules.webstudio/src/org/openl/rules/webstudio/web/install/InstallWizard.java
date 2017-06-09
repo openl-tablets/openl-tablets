@@ -24,9 +24,7 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.security.Privilege;
-import org.openl.rules.security.SimpleUser;
-import org.openl.rules.security.User;
+import org.openl.rules.security.*;
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.GroupManagementServiceWrapper;
@@ -55,6 +53,8 @@ public class InstallWizard {
     private static final String AD_USER_MODE = "ad";
     private static final String CAS_USER_MODE = "cas";
     private static final String USER_MODE_DEMO = "demo";
+    private static final String VIEWERS_GROUP = "Viewers";
+    private static final String ADMINISTRATORS_GROUP = "Administrators";
 
     private final Logger log = LoggerFactory.getLogger(InstallWizard.class);
 
@@ -105,7 +105,7 @@ public class InstallWizard {
     @ManagedProperty(value="#{groupManagementService}")
     private GroupManagementServiceWrapper groupManagementService;
     private XmlWebApplicationContext temporaryContext;
-    private Boolean adAllowAccessToNewUsers;
+    private Boolean allowAccessToNewUsers;
     private String adAdmins;
 
     public InstallWizard() {
@@ -248,7 +248,7 @@ public class InstallWizard {
         adDomain = adConfig.getStringProperty("security.ad.domain");
         adUrl = adConfig.getStringProperty("security.ad.url");
         groupsAreManagedInStudio = adConfig.getBooleanProperty("security.ad.groups-are-managed-in-studio");
-        adAllowAccessToNewUsers = !StringUtils.isBlank(adConfig.getStringProperty("security.ad.default-group"));
+        allowAccessToNewUsers = !StringUtils.isBlank(adConfig.getStringProperty("security.ad.default-group"));
     }
 
     private void readCasProperties() {
@@ -301,14 +301,13 @@ public class InstallWizard {
                     adConfig.setProperty("security.ad.domain", adDomain);
                     adConfig.setProperty("security.ad.url", adUrl);
                     adConfig.setProperty("security.ad.groups-are-managed-in-studio", groupsAreManagedInStudio);
-                    adConfig.setProperty("security.ad.default-group", adAllowAccessToNewUsers ? "Viewers" : "");
+                    adConfig.setProperty("security.ad.default-group", allowAccessToNewUsers ? VIEWERS_GROUP : "");
                     adConfig.save();
                 } else if (CAS_USER_MODE.equals(userMode)) {
                     fillDbForUserManagement(Constants.USER_ORIGIN_CAS);
                     dbConfig.save();
 
-                    // TODO: Separate cas configuration from AD setting
-                    casSettings.setDefaultGroup(adAllowAccessToNewUsers ? "Viewers" : "");
+                    casSettings.setDefaultGroup(allowAccessToNewUsers ? VIEWERS_GROUP : "");
 
                     casConfig.setProperty("security.openl.server-name", casSettings.getWebStudioUrl());
                     casConfig.setProperty("security.cas.cas-server-url-prefix", casSettings.getCasServerUrl());
@@ -363,7 +362,20 @@ public class InstallWizard {
                     "groupManagementService");
             UserManagementService userManagementService = (UserManagementService) temporaryContext.getBean(
                     "userManagementService");
-            List<Privilege> adminGroups = new ArrayList<Privilege>(Collections.singleton(groupManagementService.getGroupByName("Administrators")));
+
+            if (allowAccessToNewUsers) {
+                if (!groupManagementService.isGroupExist(VIEWERS_GROUP)) {
+                    Group group = new SimpleGroup(VIEWERS_GROUP, null, new ArrayList<Privilege>(Collections.singletonList(Privileges.VIEW_PROJECTS)));
+                    groupManagementService.addGroup(group);
+                }
+            }
+
+            if (!groupManagementService.isGroupExist(ADMINISTRATORS_GROUP)) {
+                Group group = new SimpleGroup(ADMINISTRATORS_GROUP, null, new ArrayList<Privilege>(Collections.singletonList(Privileges.ADMIN)));
+                groupManagementService.addGroup(group);
+            }
+            Group administrator = groupManagementService.getGroupByName(ADMINISTRATORS_GROUP);
+            List<Privilege> adminGroups = new ArrayList<Privilege>(Collections.singleton(administrator));
 
             // Delete example users
             for (User user : userManagementService.getAllUsers()) {
@@ -741,12 +753,12 @@ public class InstallWizard {
         this.groupsAreManagedInStudio = Boolean.parseBoolean(groupsAreManagedInStudio);
     }
 
-    public void setAdAllowAccessToNewUsers(Boolean adAllowAccessToNewUsers) {
-        this.adAllowAccessToNewUsers = adAllowAccessToNewUsers;
+    public void setAllowAccessToNewUsers(Boolean allowAccessToNewUsers) {
+        this.allowAccessToNewUsers = allowAccessToNewUsers;
     }
 
-    public Boolean getAdAllowAccessToNewUsers() {
-        return adAllowAccessToNewUsers;
+    public Boolean getAllowAccessToNewUsers() {
+        return allowAccessToNewUsers;
     }
 
 
