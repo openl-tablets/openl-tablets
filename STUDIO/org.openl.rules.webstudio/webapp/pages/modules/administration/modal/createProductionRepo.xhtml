@@ -24,10 +24,9 @@
                 <h:outputText id="errorMessage" styleClass="error" value="#{newProductionRepoController.errorMessage}" 
                     rendered="#{!empty newProductionRepoController.errorMessage}"/>
             </h:panelGroup>
-            <h:outputText value="Name:" />
+            <h:outputText value="Name:" styleClass="required" />
             <h:inputText value="#{newProductionRepoController.repositoryConfiguration.name}" styleClass="repoFieldWidth"/>
-            <h:outputText id="productionRepositoryPathTitle"
-                value="Directory:" />
+            <h:outputText id="productionRepositoryPathTitle" value="Directory:" styleClass="required" />
             <h:inputText id="productionRepositoryPath"
                 value="#{newProductionRepoController.repositoryConfiguration.settings.path}" styleClass="pathInput"/>
             <h:outputLabel value="Secure connection" for="secureConnection" />

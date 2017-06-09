@@ -29,9 +29,9 @@
                 <h:outputText id="errorMessage" styleClass="error" value="#{connectionProductionRepoController.errorMessage}" 
                     rendered="#{!empty connectionProductionRepoController.errorMessage}"/>
             </h:panelGroup>
-            <h:outputText value="Name:"/>
+            <h:outputText value="Name:" styleClass="required"/>
             <h:inputText id="productionRepositoryName" value="#{connectionProductionRepoController.repositoryConfiguration.name}" styleClass="repoFieldWidth"/>
-            <h:outputText value="Type:"/>
+            <h:outputText value="Type:" styleClass="required"/>
             <h:selectOneMenu value="#{connectionProductionRepoController.repositoryConfiguration.type}">
                 <f:ajax event="change" execute="@this productionRepositoryName" render="modalAddRepoConnectionPanel productionParameters" />
                 <f:selectItem itemValue="local" itemLabel="Local" />
