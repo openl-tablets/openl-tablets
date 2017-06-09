@@ -453,11 +453,7 @@ public class InstallWizard {
             throw new ValidatorException(FacesUtils.createErrorMessage("Active Directory URL can not be blank"));
         }
 
-        if (!StringUtils.isEmpty(username)) {
-            if (StringUtils.isBlank(password)) {
-                throw new ValidatorException(FacesUtils.createErrorMessage("Empty password is not allowed"));
-            }
-
+        if (!StringUtils.isEmpty(username) && !StringUtils.isEmpty(password)) {
             try {
                 ActiveDirectoryLdapAuthenticationProvider ldapAuthenticationProvider = new ActiveDirectoryLdapAuthenticationProvider(
                         domain,
