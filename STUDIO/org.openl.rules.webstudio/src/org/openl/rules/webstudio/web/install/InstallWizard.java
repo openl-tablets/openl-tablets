@@ -432,6 +432,9 @@ public class InstallWizard {
             } else if (StringUtils.isEmpty(dbUrl)) {
                 throw new ValidatorException(FacesUtils.createErrorMessage("Database URL can not be blank"));
             } else {
+                if (StringUtils.isNotEmpty(dbUsername) && dbUsername.length() > 100) {
+                    throw new ValidatorException(FacesUtils.createErrorMessage("Username length must be less than 100"));
+                }
                 testDBConnection(dbUrl, dbUsername, dbPasswordString);
             }
         }
