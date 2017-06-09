@@ -72,6 +72,22 @@
                             </div>
                         </div>
                     </div>
+                    <div class="wizard-block" id="groupsManagingModeBlock">
+                        <h3>Select how user permissions will be managed:
+                            <div class="field-description">
+                                <p>Here you should choose where user permissions will be managed.</p>
+                                <p><strong>Internal user management</strong> – You will use WebStudio to assign Active Directory or SSO users to Groups.</p>
+                                <p><strong>External user management</strong> – User groups will be managed in Active Directory or SSO. You must configure user attributes in Active Directory or SSO to be equal to OpenL groups.</p>
+                            </div>
+                        </h3>
+                        <div>
+                            <h:selectOneRadio id="groupsAreManagedInStudio" value="#{installWizard.groupsAreManagedInStudio}" layout="pageDirection" immediate="true">
+                                <f:selectItem itemValue="true" itemLabel="Internal user management" />
+                                <f:selectItem itemValue="false" itemLabel="External user management" />
+                                <f:ajax  listener="#{installWizard.groupsAreManagedInStudioChanged}" />
+                            </h:selectOneRadio>
+                        </div>
+                    </div>
                     <div class="wizard-block" id="adBlock">
                         <h3>Configure Active Directory:
                             <div class="field-description">
@@ -176,10 +192,42 @@
                                         <h:inputText id="casSecondNameAttribute" value="#{installWizard.casSettings.secondNameAttribute}" size="40"/>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td><label>Attribute for Groups:</label></td>
+                                <tr id="cas-group-field">
+                                    <td><label class="required">Attribute for Groups:</label></td>
                                     <td>
                                         <h:inputText id="casGroupsAttribute" value="#{installWizard.casSettings.groupsAttribute}" size="40"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="wizard-block" id="internalGroupsBlock">
+                        <h3>Configure initial users:
+                            <div class="field-description">
+                                <p>Add comma separated users with administrator privileges and make a decision if a new users will have View Access to WebStudio</p>
+                            </div>
+                        </h3>
+                        <div>
+                            <table>
+                                <tr>
+                                    <td colspan="2">
+                                        <a4j:outputPanel styleClass="installMessages" ajaxRendered="true">
+                                            <h:messages infoClass="success" errorClass="error" showDetail="true"
+                                                        showSummary="false" tooltip="true" globalOnly="true" />
+                                            <h:message  class="error" for="adAdminUsers" />
+                                        </a4j:outputPanel>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label class="required">Administrators:</label></td>
+                                    <td>
+                                        <h:inputText id="adAdminUsers" value="#{installWizard.externalAdmins}" size="40" validator="#{installWizard.externalAdminsValidator}"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label>All authenticated users have View access</label></td>
+                                    <td>
+                                        <h:selectBooleanCheckbox id="adAllowAccessToNewUsers" value="#{installWizard.allowAccessToNewUsers}" size="40"/>
                                     </td>
                                 </tr>
                             </table>
@@ -274,14 +322,19 @@
             (function() {
                 var toggleVisibleBlocks = function () {
                     var userMode = $j("#usermodeBlock input:checked").val();
+                    var groupsInStudio = $j("#groupsManagingModeBlock input:checked").val() === "true";
 
                     toggleBlock("#dbBlock", userMode !== "single" && userMode !== "demo");
+                    toggleBlock("#groupsManagingModeBlock", userMode === "ad" || userMode === "cas");
 
                     toggleBlock("#adBlock", userMode === "ad");
                     toggleBlock("#casBlock", userMode === "cas");
 
-                    toggleBlock("#finish-buttons", userMode !== "ad" && userMode !== "cas");
-                    toggleBlock("#next-buttons", userMode === "ad" || userMode === "cas");
+                    toggleBlock("#internalGroupsBlock", (userMode === "ad" || userMode === "cas") && groupsInStudio);
+                    toggleBlock("#cas-group-field", !groupsInStudio);
+
+                    toggleBlock("#finish-buttons", userMode !== "ad" && userMode !== "cas" || groupsInStudio);
+                    toggleBlock("#next-buttons", (userMode === "ad" || userMode === "cas") && !groupsInStudio);
 
                     $j("#user-mode-block-selector .field-description > p").hide();
                     $j("#user-mode-block-selector .field-description > p.user-mode-" + userMode).show();
@@ -298,7 +351,7 @@
                 toggleVisibleBlocks();
                 updateCheckConnectionButton();
 
-                $j("#usermodeBlock input").change(function() {
+                $j("#usermodeBlock input, #groupsManagingModeBlock input").change(function() {
                     toggleVisibleBlocks();
                 });
 

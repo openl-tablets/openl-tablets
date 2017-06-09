@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    template="/pages/layout/simpleLayout.xhtml"
-    xmlns:a4j="http://richfaces.org/a4j">
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        template="/pages/layout/simpleLayout.xhtml"
+>
 
     <ui:define name="content">
         <style>
@@ -31,29 +30,11 @@
 
         <div class="wizard-page">
             <div class="wizard-page-container">
-                <h:form id="step4ModeForm">
-                    <div class="wizard-block" id="adGroupsManagingModeBlock">
-                        <h3>Select how groups will be managed:
-                            <div class="field-description">
-                                <p>Here you should choose where groups will be managed.</p>
-                                <p><strong>WebStudio groups</strong> – You will use WebStudio to manage user groups and to assign the groups to Active Directory users. You don't need to change user attributes in Active Directory.</p>
-                                <p><strong>Active Directory groups</strong> – User groups will be managed in Active Directory. You must configure user attributes in Active Directory to be equal to OpenL groups.</p>
-                            </div>
-                        </h3>
-                        <div>
-                            <h:selectOneRadio value="#{installWizard.groupsAreManagedInStudio}" layout="pageDirection" immediate="true">
-                                <f:selectItem itemValue="true" itemLabel="WebStudio groups" />
-                                <f:selectItem itemValue="false" itemLabel="Active Directory groups" />
-                                <f:ajax  listener="#{installWizard.groupsAreManagedInStudioChanged}" />
-                            </h:selectOneRadio>
-                        </div>
-                    </div>
-                </h:form>
                     <div class="wizard-block" id="externalGroupsBlock">
-                        <h3>Configure Active Directory groups and their privileges:
+                        <h3>Configure groups and their privileges:
                             <div class="field-description">
                                 <p>Edit groups that will have access to OpenL WebStudio and configure privileges for them.
-                                    You can see an example of such groups below. Rename the groups to match available Active Directory groups, create new ones or delete unneeded ones.</p>
+                                    You can see an example of such groups below. Rename the groups to match available Active Directory or SSO groups, create new ones or delete unneeded ones.</p>
                             </div>
                         </h3>
                         <div>
@@ -61,38 +42,6 @@
                         </div>
                     </div>
                 <h:form id="step4Form">
-                    <div class="wizard-block" id="internalGroupsBlock">
-                        <h3>Configure initial users:
-                            <div class="field-description">
-                                <p>Add comma separated users with administrator privileges and make a decision if a new users will have View Access to WebStudio</p>
-                            </div>
-                        </h3>
-                        <div>
-                            <table>
-                                <tr>
-                                    <td colspan="2">
-                                        <a4j:outputPanel styleClass="installMessages" ajaxRendered="true">
-                                            <h:messages infoClass="success" errorClass="error" showDetail="true"
-                                                        showSummary="false" tooltip="true" globalOnly="true" />
-                                            <h:message  class="error" for="adAdminUsers" />
-                                        </a4j:outputPanel>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><label class="required">Administrators:</label></td>
-                                    <td>
-                                        <h:inputText id="adAdminUsers" value="#{installWizard.adAdmins}" size="40"  validator="#{installWizard.adAdminsValidator}"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><label>All AD users have View access</label></td>
-                                    <td>
-                                        <h:selectBooleanCheckbox id="adAllowAccessToNewUsers" value="#{installWizard.allowAccessToNewUsers}" size="40"/>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
                     <div class="wizard-buttons">
                         <h:commandButton id="prevButton" value="Prev" action="#{installWizard.prev}" onclick="showLoader()" immediate="true" />
                         <h:commandButton value="Finish" action="#{installWizard.finish}" class="button-primary" onclick="showLoader()" />
@@ -101,31 +50,5 @@
                 </h:form>
             </div>
         </div>
-
-        <script>
-          //<![CDATA[
-
-            (function() {
-
-                function toggleBlock(selector, toggle) {
-                    $j(selector).toggle(toggle);
-                    $j(selector + " input").not("input[type='radio']").prop('disabled', !toggle);
-                }
-
-                var toggleVisibleBlocks = function () {
-                    toggleBlock("#externalGroupsBlock", $j("#adGroupsManagingModeBlock input:checked").val() !== "true");
-                    toggleBlock("#internalGroupsBlock", $j("#adGroupsManagingModeBlock input:checked").val() === "true");
-                };
-
-                toggleVisibleBlocks();
-
-                $j("#adGroupsManagingModeBlock input").change(function(e) {
-                    toggleVisibleBlocks();
-                });
-            })();
-
-          //]]>
-        </script>
-
     </ui:define>
 </ui:composition>

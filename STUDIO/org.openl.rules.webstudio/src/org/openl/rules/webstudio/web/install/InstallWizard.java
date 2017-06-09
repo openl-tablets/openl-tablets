@@ -69,6 +69,9 @@ public class InstallWizard {
     private boolean showErrorMessage = false;
 
     private String userMode = "single";
+    /**
+     * TODO: Rename the field and properties to something more clear
+     */
     private boolean groupsAreManagedInStudio = true;
 
     @NotBlank
@@ -106,7 +109,7 @@ public class InstallWizard {
     private GroupManagementServiceWrapper groupManagementService;
     private XmlWebApplicationContext temporaryContext;
     private Boolean allowAccessToNewUsers;
-    private String adAdmins;
+    private String externalAdmins;
 
     public InstallWizard() {
         appConfig = new ConfigurationManager(true,
@@ -358,6 +361,7 @@ public class InstallWizard {
 
     private void fillDbForUserManagement(String origin) throws IOException {
         if (groupsAreManagedInStudio) {
+            initializeTemporaryContext();
             GroupManagementService groupManagementService = (GroupManagementService) temporaryContext.getBean(
                     "groupManagementService");
             UserManagementService userManagementService = (UserManagementService) temporaryContext.getBean(
@@ -383,7 +387,7 @@ public class InstallWizard {
             }
 
             // Create admin users
-            for (String username : StringUtils.split(adAdmins, ',')) {
+            for (String username : StringUtils.split(externalAdmins, ',')) {
                 if (!username.isEmpty()) {
                     userManagementService.addUser(new SimpleUser(null, null, username, "",
                             origin, adminGroups));
@@ -488,7 +492,7 @@ public class InstallWizard {
         }
     }
 
-    public void adAdminsValidator(FacesContext context, UIComponent toValidate, Object value) {
+    public void externalAdminsValidator(FacesContext context, UIComponent toValidate, Object value) {
         String admins = (String) value;
         if (StringUtils.isBlank(admins) || admins.trim().equals(",")) {
             throw new ValidatorException(FacesUtils.createErrorMessage("Administrators field must not be empty"));
@@ -762,12 +766,12 @@ public class InstallWizard {
     }
 
 
-    public void setAdAdmins(String adAdmins) {
-        this.adAdmins = adAdmins;
+    public void setExternalAdmins(String externalAdmins) {
+        this.externalAdmins = externalAdmins;
     }
 
-    public String getAdAdmins() {
-        return adAdmins;
+    public String getExternalAdmins() {
+        return externalAdmins;
     }
 
     public String getUserMode() {
