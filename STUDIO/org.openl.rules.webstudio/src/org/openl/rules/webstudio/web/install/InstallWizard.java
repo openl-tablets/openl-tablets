@@ -478,6 +478,13 @@ public class InstallWizard {
         if (StringUtils.isBlank(admins) || admins.trim().equals(",")) {
             throw new ValidatorException(FacesUtils.createErrorMessage("Administrators field must not be empty"));
         }
+
+        String[] allAdmins = StringUtils.split(admins, ',');
+        for (String admin : allAdmins) {
+            if (admin.length() > 50) {
+                throw new ValidatorException(FacesUtils.createErrorMessage("Administrator username length must be less than 50"));
+            }
+        }
     }
 
     private String getCauseExceptionMessage(Exception e) {
