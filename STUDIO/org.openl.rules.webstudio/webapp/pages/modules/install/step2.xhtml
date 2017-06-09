@@ -80,7 +80,7 @@
                                         <h:panelGrid id="designInfoPanel" columns="2" columnClasses="titleColumn">
                                             <h:outputText value="Name:" />
                                             <h:inputText value="#{designRepository.name}" disabled="true" styleClass="repoFieldWidth"/>
-                                            <h:outputText value="Type:" />
+                                            <h:outputText value="Type:" styleClass="required" />
                                             <h:selectOneMenu value="#{designRepository.type}">
                                                 <f:ajax event="change" render="designParameters" />
                                                 <f:selectItem itemValue="local" itemLabel="Local" />
@@ -126,10 +126,10 @@
                                             <tr>
                                                 <td>
                                                     <h:panelGrid id="repoInfoPanel" columns="2" columnClasses="titleColumn">
-                                                        <h:outputText value="Name:" />
+                                                        <h:outputText value="Name:" styleClass="required" />
                                                         <h:inputText value="#{repository.name}" styleClass="repoFieldWidth"/>
-                                                        <h:outputText value="Type:" />
-                                                        <h:selectOneMenu value="#{repository.type}">
+                                                        <h:outputText value="Type:" styleClass="required" />
+                                                        <h:selectOneMenu value="#{repository.type}" styleClass="required">
                                                             <f:ajax event="change" render="productionParameters" />
                                                             <f:selectItem itemValue="local" itemLabel="Local" />
                                                             <f:selectItem itemValue="rmi" itemLabel="Remote - RMI" />
