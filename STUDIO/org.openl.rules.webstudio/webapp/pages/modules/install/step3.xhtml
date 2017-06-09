@@ -8,18 +8,39 @@
 
     <ui:define name="content">
     <style>
-      .installMessages ul {
-        margin: 0;
-        padding: 0;
-        list-style-type: none;
-      }
+        .installMessages ul {
+            margin: 0;
+            padding: 0;
+            list-style-type: none;
+        }
+
         select, input[type='text'], input[type='password'] {
             width: 20em;
         }
 
-      #adBlock table tr td:first-child {
-          min-width: 145px;
-      }
+        #adBlock table tr td:first-child {
+            min-width: 145px;
+        }
+
+        #user-mode-block-selector > div {
+            display: table-cell;
+            vertical-align: top;
+        }
+
+        #user-mode-block-selector > .field-edit {
+            width: 40%;
+        }
+
+        #user-mode-block-selector > .field-description {
+            padding: 10px;
+            background-color: #f2f2f2;
+        }
+        #user-mode-block-selector > .field-description > p {
+            margin: 0;
+
+            /* Default value to reduce blinking. Is changed by js when the page is loaded. */
+            display: none;
+        }
 
     </style>
 
@@ -30,21 +51,25 @@
                         <h3>Select user mode:
                             <div class="field-description">
                                 <p>User mode defines how many users can run the application and where user projects will be located by default.</p>
-                                <p><strong>Single-user</strong> – Only the currently logged in user can run OpenL Tablets WebStudio. All user projects will be saved in the root of the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace' directory.</p>
-                                <p><strong>Multi-user</strong> – Multiple users can run OpenL Tablets WebStudio using their unique user names.  The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. User credentials are managed inside WebStudio.</p>
-                                <p><strong>Active Directory</strong> – Multiple users can run OpenL Tablets WebStudio using their unique user names.  The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. Active Directory will be used to authenticate and manage user credentials.</p>
-                                <p><strong>Central Authentication Service (CAS)</strong> – </p>
-                                <p><strong>Demo</strong> You will use an internal User Database with predefined list of users. All changes in the database will be lost after the application restart. The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder.</p>
                             </div>
                         </h3>
-                        <div>
-                            <h:selectOneRadio value="#{installWizard.userMode}" layout="pageDirection" >
-                                <f:selectItem itemValue="single" itemLabel="Single-user" />
-                                <f:selectItem itemValue="multi" itemLabel="Multi-user" />
-                                <f:selectItem itemValue="ad" itemLabel="Active Directory" />
-                                <f:selectItem itemValue="cas" itemLabel="Central Authentication Service (CAS)" />
-                                <f:selectItem itemValue="demo" itemLabel="Demo" />
-                            </h:selectOneRadio>
+                        <div id="user-mode-block-selector">
+                            <div class="field-edit">
+                                <h:selectOneRadio value="#{installWizard.userMode}" layout="pageDirection" >
+                                    <f:selectItem itemValue="single" itemLabel="Single-user" />
+                                    <f:selectItem itemValue="multi" itemLabel="Multi-user" />
+                                    <f:selectItem itemValue="ad" itemLabel="Active Directory" />
+                                    <f:selectItem itemValue="cas" itemLabel="Central Authentication Service (CAS)" />
+                                    <f:selectItem itemValue="demo" itemLabel="Demo" />
+                                </h:selectOneRadio>
+                            </div><!-- Remove whitespace between nearby divs
+                         --><div class="field-description">
+                                <p class="user-mode-single">Only the currently logged in user can run OpenL Tablets WebStudio. All user projects will be saved in the root of the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace' directory.</p>
+                                <p class="user-mode-multi">Multiple users can run OpenL Tablets WebStudio using their unique user names. The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. User credentials are managed inside WebStudio.</p>
+                                <p class="user-mode-ad">Multiple users can run OpenL Tablets WebStudio using their unique user names. The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. Active Directory will be used to authenticate and manage user credentials.</p>
+                                <p class="user-mode-cas">Multiple users can run OpenL Tablets WebStudio using their unique user names. The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. CAS server be used to authenticate and manage user credentials.</p>
+                                <p class="user-mode-demo">You will use an internal User Database with predefined list of users. All changes in the database will be lost after the application restart. The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder.</p>
+                            </div>
                         </div>
                     </div>
                     <div class="wizard-block" id="adBlock">
@@ -248,16 +273,18 @@
 
             (function() {
                 var toggleVisibleBlocks = function () {
-                    toggleBlock("#dbBlock", $j("#usermodeBlock input:checked").val() !== "single"
-                        && $j("#usermodeBlock input:checked").val() !== "demo");
+                    var userMode = $j("#usermodeBlock input:checked").val();
 
-                    toggleBlock("#adBlock", $j("#usermodeBlock input:checked").val() === "ad");
-                    toggleBlock("#casBlock", $j("#usermodeBlock input:checked").val() === "cas");
+                    toggleBlock("#dbBlock", userMode !== "single" && userMode !== "demo");
 
-                    toggleBlock("#finish-buttons", $j("#usermodeBlock input:checked").val() !== "ad"
-                        && $j("#usermodeBlock input:checked").val() !== "cas");
-                    toggleBlock("#next-buttons", $j("#usermodeBlock input:checked").val() === "ad"
-                        || $j("#usermodeBlock input:checked").val() === "cas");
+                    toggleBlock("#adBlock", userMode === "ad");
+                    toggleBlock("#casBlock", userMode === "cas");
+
+                    toggleBlock("#finish-buttons", userMode !== "ad" && userMode !== "cas");
+                    toggleBlock("#next-buttons", userMode === "ad" || userMode === "cas");
+
+                    $j("#user-mode-block-selector .field-description > p").hide();
+                    $j("#user-mode-block-selector .field-description > p.user-mode-" + userMode).show();
                 };
 
                 var updateCheckConnectionButton = function () {
