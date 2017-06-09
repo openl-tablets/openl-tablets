@@ -24,7 +24,6 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
@@ -55,9 +54,7 @@ public class InstallWizard {
     private static final String MULTI_USER_MODE = "multi";
     private static final String AD_USER_MODE = "ad";
     private static final String CAS_USER_MODE = "cas";
-    private static final String SEPARATOR_PATTERN = "\\s*,\\s*";
-    private static final String APP_MODE_DEMO = "demo";
-    private static final String APP_MODE_PRODUCTION = "production";
+    private static final String USER_MODE_DEMO = "demo";
 
     private final Logger log = LoggerFactory.getLogger(InstallWizard.class);
 
@@ -72,7 +69,6 @@ public class InstallWizard {
     private boolean showErrorMessage = false;
 
     private String userMode = "single";
-    private String appMode = APP_MODE_PRODUCTION;
     private boolean groupsAreManagedInStudio = true;
 
     @NotBlank
@@ -111,8 +107,6 @@ public class InstallWizard {
     private XmlWebApplicationContext temporaryContext;
     private Boolean adAllowAccessToNewUsers;
     private String adAdmins;
-
-    private Set<String> additionalMigrationPaths = new HashSet<String>();
 
     public InstallWizard() {
         appConfig = new ConfigurationManager(true,
@@ -176,12 +170,6 @@ public class InstallWizard {
                             System.getProperty("webapp.root") + "/WEB-INF/conf/security-cas.properties");
 
                     userMode = systemConfig.getStringProperty("user.mode");
-
-                    String savedDbDriver = dbConfig.getStringProperty("db.driver");
-                    String savedDbUrl = StringUtils.trimToEmpty(dbConfig.getStringProperty("db.url"));
-                    boolean innerDb = "org.h2.Driver".equals(savedDbDriver) && savedDbUrl.startsWith("jdbc:h2:mem:");
-                    appMode = innerDb ? APP_MODE_DEMO : APP_MODE_PRODUCTION;
-
                 }
             } else if (step == 3) {
                 readDbProperties();
@@ -210,13 +198,7 @@ public class InstallWizard {
     private void initializeTemporaryContext() {
         destroyTemporaryContext();
 
-        initializeMigrationPaths(new ConfigurationManager(false, dbVendor));
-        saveMigrationPaths();
-
-        if (!appMode.equals(APP_MODE_DEMO)) {
-            // If not demo mode (dbUrl == null) save db settings to dbConfig
-            setProductionDbProperties();
-        }
+        setProductionDbProperties();
 
         final Map<String, Object> dbProperties = dbConfig.getProperties();
         migrateDatabase(dbProperties);
@@ -237,25 +219,13 @@ public class InstallWizard {
         temporaryContext.refresh();
     }
 
-    private void initializeMigrationPaths(ConfigurationManager config) {
-        additionalMigrationPaths.clear();
-        String paths = config.getStringProperty("db.additional.migration.paths");
-        if (!StringUtils.isBlank(paths)) {
-            additionalMigrationPaths.addAll(Arrays.asList(StringUtils.split(paths, ',')));
-        }
-    }
-
-    private void saveMigrationPaths() {
-        dbConfig.setProperty("db.additional.migration.paths", StringUtils.join(additionalMigrationPaths, ","));
-    }
-
     private void readDbProperties() {
         String propsLocation = workingDir + "/system-settings/db.properties";
         ConfigurationManager savedConfig = new ConfigurationManager(false, propsLocation, System.getProperty("webapp.root") + "/WEB-INF/conf/db.properties");
 
         String url = savedConfig.getStringProperty("db.url");
 
-        if (StringUtils.isNotEmpty(url) && !APP_MODE_DEMO.equals(appMode)) {
+        if (StringUtils.isNotEmpty(url) && !USER_MODE_DEMO.equals(userMode)) {
             String dbUrlSeparator = savedConfig.getStringProperty("db.url.separator");
             dbUrl = url.split(dbUrlSeparator)[1];
             dbPrefix = url.split(dbUrlSeparator)[0] + dbUrlSeparator;
@@ -263,11 +233,7 @@ public class InstallWizard {
             dbPassword = savedConfig.getStringProperty("db.password");
             dbDriver = savedConfig.getStringProperty("db.driver");
 
-            String propertyFilePathForVendor = getPropertyFilePathForVendor(dbDriver);
-            dbVendor = propertyFilePathForVendor;
-
-
-            initializeMigrationPaths(savedConfig);
+            dbVendor = getPropertyFilePathForVendor(dbDriver);
         } else {
             dbUrl = null;
             dbPrefix = null;
@@ -322,7 +288,7 @@ public class InstallWizard {
 
     public String finish() {
         try {
-            if (MULTI_USER_MODE.equals(userMode) && appMode.equals(APP_MODE_PRODUCTION)) {
+            if (MULTI_USER_MODE.equals(userMode)) {
                 setProductionDbProperties();
                 migrateDatabase(dbConfig.getProperties());
 
@@ -338,8 +304,6 @@ public class InstallWizard {
                     adConfig.setProperty("security.ad.default-group", adAllowAccessToNewUsers ? "Viewers" : "");
                     adConfig.save();
                 } else if (CAS_USER_MODE.equals(userMode)) {
-                    // TODO: Refactor the code below
-                    appMode = APP_MODE_PRODUCTION;
                     fillDbForUserManagement(Constants.USER_ORIGIN_CAS);
                     dbConfig.save();
 
@@ -394,147 +358,30 @@ public class InstallWizard {
     }
 
     private void fillDbForUserManagement(String origin) throws IOException {
-        if (!appMode.equals(APP_MODE_DEMO)) {
-            if (groupsAreManagedInStudio) {
-                GroupManagementService groupManagementService = (GroupManagementService) temporaryContext.getBean(
-                        "groupManagementService");
-                UserManagementService userManagementService = (UserManagementService) temporaryContext.getBean(
-                        "userManagementService");
-                List<Privilege> adminGroups = new ArrayList<Privilege>(Collections.singleton(groupManagementService.getGroupByName("Administrators")));
-
-                // Delete example users
-                for (User user : userManagementService.getAllUsers()) {
-                    userManagementService.deleteUser(user.getUsername());
-                }
-
-                // Create admin users
-                for (String username : adAdmins.trim().split(SEPARATOR_PATTERN)) {
-                    if (!username.isEmpty()) {
-                        userManagementService.addUser(new SimpleUser(null, null, username, "",
-                                origin, adminGroups));
-                    }
-                }
-                setProductionDbProperties();
-                migrateDatabase(dbConfig.getProperties());
-            } else {
-                setProductionDbProperties();
-            }
-        } else {
-            // Demo mode
-            generateAdInitializationScripts();
-        }
-    }
-
-    private void generateAdInitializationScripts() throws IOException {
-        String scriptFolder = workingDir + "/system-settings/ad";
-
-        Calendar c = Calendar.getInstance();
-        String scriptPath = scriptFolder + "/V20170416__fill-tables-for-AD.sql";
-
-        dbConfig.restoreDefaults();
-
         if (groupsAreManagedInStudio) {
-            dbConfig.setProperty("db.additional.origins", Constants.USER_ORIGIN_ACTIVE_DIRECTORY);
-
-            // Add several users to Administrators group
-            File folder = new File(scriptFolder);
-            if (!folder.mkdirs() && !folder.exists()) {
-                throw new IOException("Can't create the folder for db initialization scripts");
-            }
-            StringBuilder script = new StringBuilder();
-            script.append("DELETE FROM ${schemaPrefix}User2Group;\n");
-            script.append("DELETE FROM ${schemaPrefix}OpenLUser;\n");
-            String[] admins = adAdmins.trim().split(SEPARATOR_PATTERN);
-            for (String username : admins) {
-                if (!username.isEmpty()) {
-                    script.append("INSERT INTO ${schemaPrefix}OpenLUser (LoginName, Password, origin) VALUES('")
-                            .append(username)
-                            .append("', '', '" + Constants.USER_ORIGIN_ACTIVE_DIRECTORY + "');\n");
-                }
-            }
-
-            StringBuilder conditionsBuilder = new StringBuilder();
-            for (String username : admins) {
-                if (!username.isEmpty()) {
-                    if (conditionsBuilder.length() > 0) {
-                        conditionsBuilder.append("\t\tOR ");
-                    }
-                    conditionsBuilder.append("u.LoginName = '")
-                            .append(username)
-                            .append("' AND g.GroupName = 'Administrators'\n");
-                }
-            }
-
-            if (conditionsBuilder.length() > 0) {
-                script.append("INSERT INTO ${schemaPrefix}User2Group (UserID, GroupID) (\n"
-                        + "\tSELECT u.UserID, g.GroupID\n"
-                        + "\tFROM OpenLUser u, UserGroup g\n"
-                        + "\tWHERE ")
-                        .append(conditionsBuilder)
-                        .append(");");
-            }
-
-            IOUtils.copyAndClose(IOUtils.toInputStream(script.toString()), new FileOutputStream(scriptPath));
-        } else {
-            // Copy groups from DB in temporary context to initialization scripts
-            File folder = new File(scriptFolder);
-            if (!folder.mkdirs() && !folder.exists()) {
-                throw new IOException("Can't create the folder for db initialization scripts");
-            }
-            StringBuilder script = new StringBuilder();
-            script.append("DELETE FROM ${schemaPrefix}User2Group;\n");
-            script.append("DELETE FROM ${schemaPrefix}Group2Group;\n");
-            script.append("DELETE FROM ${schemaPrefix}AccessControlEntry;\n");
-            script.append("DELETE FROM ${schemaPrefix}UserGroup;\n");
-            script.append("DELETE FROM ${schemaPrefix}OpenLUser;\n");
             GroupManagementService groupManagementService = (GroupManagementService) temporaryContext.getBean(
                     "groupManagementService");
+            UserManagementService userManagementService = (UserManagementService) temporaryContext.getBean(
+                    "userManagementService");
+            List<Privilege> adminGroups = new ArrayList<Privilege>(Collections.singleton(groupManagementService.getGroupByName("Administrators")));
 
-            // Add groups
-            for (Group group : groupManagementService.getGroups()) {
-                StringBuilder privilegesBuilder = new StringBuilder();
-                for (Privilege privilege : group.getPrivileges()) {
-                    if (!(privilege instanceof Group)) {
-                        if (privilegesBuilder.length() > 0) {
-                            privilegesBuilder.append(',');
-                        }
-                        privilegesBuilder.append(privilege.getName());
-                    }
-                }
-                script.append(
-                        "INSERT INTO ${schemaPrefix}UserGroup (GroupName, UserPrivileges) VALUES ('")
-                        .append(group.getName())
-                        .append("', '")
-                        .append(privilegesBuilder)
-                        .append("');\n");
+            // Delete example users
+            for (User user : userManagementService.getAllUsers()) {
+                userManagementService.deleteUser(user.getUsername());
             }
 
-            // Add group mapping
-            for (Group group : groupManagementService.getGroups()) {
-                StringBuilder conditionsBuilder = new StringBuilder();
-                for (Privilege privilege : group.getPrivileges()) {
-                    if ((privilege instanceof Group)) {
-                        if (conditionsBuilder.length() > 0) {
-                            conditionsBuilder.append("\t\tOR ");
-                        }
-                        conditionsBuilder.append("g1.GroupName = '").append(group.getName()).append("'")
-                                .append(" AND g2.GroupName = '").append(privilege.getName()).append("'\n");
-                    }
+            // Create admin users
+            for (String username : StringUtils.split(adAdmins, ',')) {
+                if (!username.isEmpty()) {
+                    userManagementService.addUser(new SimpleUser(null, null, username, "",
+                            origin, adminGroups));
                 }
-                if (conditionsBuilder.length() > 0) {
-                    script.append("INSERT INTO ${schemaPrefix}Group2Group (GroupID, IncludedGroupID) (\n"
-                            + "\tSELECT g1.GroupID, g2.GroupID\n"
-                            + "\tFROM UserGroup g1, UserGroup g2\n"
-                            + "\tWHERE ").append(conditionsBuilder)
-                            .append(");\n");
-                }
-
             }
-
-            IOUtils.copyAndClose(IOUtils.toInputStream(script.toString()), new FileOutputStream(scriptPath));
+            setProductionDbProperties();
+            migrateDatabase(dbConfig.getProperties());
+        } else {
+            setProductionDbProperties();
         }
-        additionalMigrationPaths.add("filesystem:" + scriptFolder);
-        saveMigrationPaths();
     }
 
     private void setProductionDbProperties() {
@@ -579,7 +426,7 @@ public class InstallWizard {
     public void dbValidator(FacesContext context, UIComponent toValidate, Object value) {
         String dbPasswordString = (String) value;
 
-        if (!APP_MODE_DEMO.equals(appMode)) {
+        if (!USER_MODE_DEMO.equals(userMode)) {
             if (StringUtils.isBlank(dbVendor)) {
                 throw new ValidatorException(FacesUtils.createErrorMessage("Select database type"));
             } else if (StringUtils.isEmpty(dbUrl)) {
@@ -854,16 +701,6 @@ public class InstallWizard {
         setDbUsername(username);
     }
 
-    /**
-     * Ajax event for changing application mode: demo or production
-     *
-     * @param e AjaxBehavior event
-     */
-    public void appmodeChanged(AjaxBehaviorEvent e) {
-        UIInput uiInput = (UIInput) e.getComponent();
-        appMode = uiInput.getValue().toString();
-    }
-
     public void groupsAreManagedInStudioChanged(AjaxBehaviorEvent e) {
         UIInput uiInput = (UIInput) e.getComponent();
         groupsAreManagedInStudio = Boolean.valueOf(uiInput.getValue().toString());
@@ -921,24 +758,6 @@ public class InstallWizard {
 
     public void setUserMode(String userMode) {
         this.userMode = userMode;
-    }
-
-    public String getAppMode() {
-        return appMode;
-    }
-
-    public void setAppMode(String appMode) {
-        this.appMode = appMode;
-    }
-
-    public String getAdAppMode() {
-        return getAppMode();
-    }
-
-    public void setAdAppMode(String appMode) {
-        if (AD_USER_MODE.equals(userMode)) {
-            setAppMode(appMode);
-        }
     }
 
     public String getDbUrl() {

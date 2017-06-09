@@ -33,6 +33,8 @@
                                 <p><strong>Single-user</strong> – Only the currently logged in user can run OpenL Tablets WebStudio. All user projects will be saved in the root of the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace' directory.</p>
                                 <p><strong>Multi-user</strong> – Multiple users can run OpenL Tablets WebStudio using their unique user names.  The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. User credentials are managed inside WebStudio.</p>
                                 <p><strong>Active Directory</strong> – Multiple users can run OpenL Tablets WebStudio using their unique user names.  The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. Active Directory will be used to authenticate and manage user credentials.</p>
+                                <p><strong>Central Authentication Service (CAS)</strong> – </p>
+                                <p><strong>Demo</strong> You will use an internal User Database with predefined list of users. All changes in the database will be lost after the application restart. The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder.</p>
                             </div>
                         </h3>
                         <div>
@@ -41,82 +43,8 @@
                                 <f:selectItem itemValue="multi" itemLabel="Multi-user" />
                                 <f:selectItem itemValue="ad" itemLabel="Active Directory" />
                                 <f:selectItem itemValue="cas" itemLabel="Central Authentication Service (CAS)" />
-                            </h:selectOneRadio>
-                        </div>
-                    </div>
-                    <div class="wizard-block" id="appmodeBlock">
-                        <h3>Select application mode:
-                            <div class="field-description">
-                                <p>Here you should choose which Database to use for managing users in the application.</p>
-                                <p><strong>Production</strong> – You will use an external database to manage OpenL Tablets WebStudio users.  The database allows you to add/remove users and change their access rights.</p>
-                                <p><strong>Demo</strong> – You will use an internal User Database with predefined list of users. All changes in the database will be lost after the application restart.</p>
-                            </div>
-                        </h3>
-                        <div>
-                            <h:selectOneRadio value="#{installWizard.appMode}" layout="pageDirection" immediate="true">
-                                <f:selectItem itemValue="production" itemLabel="Production" />
                                 <f:selectItem itemValue="demo" itemLabel="Demo" />
-                                <f:ajax  listener="#{installWizard.appmodeChanged}" />
                             </h:selectOneRadio>
-                        </div>
-                    </div>
-                    <div class="wizard-block" id="dbBlock">
-                        <h3>Configure database:
-                            <div class="field-description">
-                                <p>Set up a database to be used for managing users in OpenL Tablets WebStudio.<br />
-                                   Please contact your System Administrator for this information if necessary.</p>
-                            </div>
-                        </h3>
-                        <div>
-                            <table>
-                                
-                                <tr>
-                                    <td colspan="2">
-                                        <a4j:outputPanel styleClass="installMessages" ajaxRendered="true">
-                                            <h:messages infoClass="success" errorClass="error" showDetail="true"
-                                                showSummary="false" tooltip="true" globalOnly="true" />
-                                            <h:message  class="error" for="dbPassword" />
-                                        </a4j:outputPanel>
-                                    </td>
-                                   </tr>
-                                <tr>
-                                    <td><label>Database type</label></td>
-                                    <td>
-                                        <h:selectOneMenu value="#{installWizard.dbVendor}" id="dbVendor" immediate="true">
-                                            <f:selectItem itemValue="#{null}" itemLabel="Select one"/>
-                                            <f:selectItems value="#{installWizard.DBVendors}" />
-                                            <f:ajax  listener="#{installWizard.dbVendorChanged}" />
-                                            <f:ajax render="dbUrl dbUsername"/>
-                                        </h:selectOneMenu> 
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><label>Database URL</label></td>
-                                    <td>
-                                        <h:inputText id="dbUrl" value="#{installWizard.dbUrl}" size="40" >
-                                        <f:ajax  listener="#{installWizard.urlChanged}" />
-                                        </h:inputText>
-                                    </td>
-                                </tr>
-                                <tr><td></td></tr>
-                                <tr><td></td></tr>
-                                <tr>
-                                    <td><label>Login:</label></td>
-                                        <td>
-                                           <h:inputText id="dbUsername" value="#{installWizard.dbUsername}" size="40">
-                                           <f:ajax  listener="#{installWizard.usernameChanged}" />
-                                           </h:inputText>
-                                         </td>
-                                </tr>
-                                <tr>
-                                    <td><label>Password:</label></td>
-                                    <td>
-                                        <h:inputSecret id="dbPassword" value="#{installWizard.dbPassword}" size="40"
-                                                       redisplay="true"
-                                                       validator="#{installWizard.dbValidator}"/>
-                                    </td>
-                                </tr>
-                            </table>
                         </div>
                     </div>
                     <div class="wizard-block" id="adBlock">
@@ -181,82 +109,6 @@
                             </table>
                         </div>
                     </div>
-                    <div class="wizard-block" id="adAppmodeBlock">
-                        <h3>Select application mode:
-                            <div class="field-description">
-                                <p>Here you should choose which Database to use for managing groups in the application.</p>
-                                <p><strong>Production</strong> – You will use an external database to manage OpenL Tablets WebStudio groups.  The database allows you to add/remove groups and change their access rights.</p>
-                                <p><strong>Demo</strong> – You will use an internal Groups Database with predefined list of groups. All changes in the database will be lost after the application restart.</p>
-                            </div>
-                        </h3>
-                        <div>
-                            <h:selectOneRadio value="#{installWizard.adAppMode}" layout="pageDirection" immediate="true">
-                                <f:selectItem itemValue="production" itemLabel="Production" />
-                                <f:selectItem itemValue="demo" itemLabel="Demo" />
-                                <f:ajax  listener="#{installWizard.appmodeChanged}" />
-                            </h:selectOneRadio>
-                        </div>
-                    </div>
-                    <div class="wizard-block" id="adDbBlock">
-                        <h3>Configure database:
-                            <div class="field-description">
-                                <p>Set up a database to be used for managing groups in OpenL Tablets WebStudio.<br />
-                                    Please contact your System Administrator for this information if necessary.</p>
-                            </div>
-                        </h3>
-                        <div>
-                            <table>
-
-                                <tr>
-                                    <td colspan="2">
-                                        <a4j:outputPanel styleClass="installMessages" ajaxRendered="true">
-                                            <h:messages infoClass="success" errorClass="error" showDetail="true"
-                                                        showSummary="false" tooltip="true" globalOnly="true" />
-                                            <h:message  class="error" for="adDbPassword" />
-                                        </a4j:outputPanel>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><label>Database type</label></td>
-                                    <td>
-                                        <h:selectOneMenu value="#{installWizard.adDbVendor}" id="adDbVendor" immediate="true">
-                                            <f:selectItem itemValue="#{null}" itemLabel="Select one"/>
-                                            <f:selectItems value="#{installWizard.DBVendors}" />
-                                            <f:ajax  listener="#{installWizard.dbVendorChanged}" />
-                                            <f:ajax render="adDbUrl adDbUsername"/>
-                                        </h:selectOneMenu>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><label>Database URL</label></td>
-                                    <td>
-                                        <h:inputText id="adDbUrl" value="#{installWizard.dbUrl}" size="40" >
-                                            <f:ajax  listener="#{installWizard.urlChanged}" />
-                                        </h:inputText>
-                                    </td>
-                                </tr>
-                                <tr><td></td></tr>
-                                <tr><td></td></tr>
-                                <tr>
-                                    <td><label>Login:</label></td>
-                                    <td>
-                                        <h:inputText id="adDbUsername" value="#{installWizard.dbUsername}" size="40">
-                                            <f:ajax  listener="#{installWizard.usernameChanged}" />
-                                        </h:inputText>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><label>Password:</label></td>
-                                    <td>
-                                        <h:inputSecret id="adDbPassword" value="#{installWizard.dbPassword}" size="40"
-                                                       redisplay="true"
-                                                       validator="#{installWizard.dbValidator}"/>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-
                     <div class="wizard-block" id="casBlock">
                         <h3>Configure Central Authentication Service (CAS):
                             <div class="field-description">
@@ -307,10 +159,11 @@
                                 </tr>
                             </table>
                         </div>
-
+                    </div>
+                    <div class="wizard-block" id="dbBlock">
                         <h3>Configure database:
                             <div class="field-description">
-                                <p>Set up a database to be used for managing groups in OpenL Tablets WebStudio.<br />
+                                <p>Set up a database to be used for managing users in OpenL Tablets WebStudio.<br />
                                     Please contact your System Administrator for this information if necessary.</p>
                             </div>
                         </h3>
@@ -322,25 +175,25 @@
                                         <a4j:outputPanel styleClass="installMessages" ajaxRendered="true">
                                             <h:messages infoClass="success" errorClass="error" showDetail="true"
                                                         showSummary="false" tooltip="true" globalOnly="true" />
-                                            <h:message  class="error" for="adDbPassword" />
+                                            <h:message  class="error" for="dbPassword" />
                                         </a4j:outputPanel>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label>Database type</label></td>
                                     <td>
-                                        <h:selectOneMenu value="#{installWizard.adDbVendor}" id="casDbVendor" immediate="true">
+                                        <h:selectOneMenu value="#{installWizard.dbVendor}" id="dbVendor" immediate="true">
                                             <f:selectItem itemValue="#{null}" itemLabel="Select one"/>
                                             <f:selectItems value="#{installWizard.DBVendors}" />
                                             <f:ajax  listener="#{installWizard.dbVendorChanged}" />
-                                            <f:ajax render="casDbUrl casDbUsername"/>
+                                            <f:ajax render="dbUrl dbUsername"/>
                                         </h:selectOneMenu>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label>Database URL</label></td>
                                     <td>
-                                        <h:inputText id="casDbUrl" value="#{installWizard.dbUrl}" size="40" >
+                                        <h:inputText id="dbUrl" value="#{installWizard.dbUrl}" size="40" >
                                             <f:ajax  listener="#{installWizard.urlChanged}" />
                                         </h:inputText>
                                     </td>
@@ -350,7 +203,7 @@
                                 <tr>
                                     <td><label>Login:</label></td>
                                     <td>
-                                        <h:inputText id="casDbUsername" value="#{installWizard.dbUsername}" size="40">
+                                        <h:inputText id="dbUsername" value="#{installWizard.dbUsername}" size="40">
                                             <f:ajax  listener="#{installWizard.usernameChanged}" />
                                         </h:inputText>
                                     </td>
@@ -358,7 +211,7 @@
                                 <tr>
                                     <td><label>Password:</label></td>
                                     <td>
-                                        <h:inputSecret id="casDbPassword" value="#{installWizard.dbPassword}" size="40"
+                                        <h:inputSecret id="dbPassword" value="#{installWizard.dbPassword}" size="40"
                                                        redisplay="true"
                                                        validator="#{installWizard.dbValidator}"/>
                                     </td>
@@ -366,6 +219,7 @@
                             </table>
                         </div>
                     </div>
+
 
                     <div class="wizard-buttons" id="finish-buttons">
                         <h:commandButton id="prevButton" value="Prev" action="#{installWizard.prev}" onclick="showLoader()" immediate="true" />
@@ -394,15 +248,10 @@
 
             (function() {
                 var toggleVisibleBlocks = function () {
-                    toggleBlock("#appmodeBlock", $j("#usermodeBlock input:checked").val() === "multi");
-                    toggleBlock("#dbBlock", $j("#usermodeBlock input:checked").val() === "multi"
-                        && $j("#appmodeBlock input:checked").val() !== "demo");
+                    toggleBlock("#dbBlock", $j("#usermodeBlock input:checked").val() !== "single"
+                        && $j("#usermodeBlock input:checked").val() !== "demo");
 
                     toggleBlock("#adBlock", $j("#usermodeBlock input:checked").val() === "ad");
-                    toggleBlock("#adAppmodeBlock", $j("#usermodeBlock input:checked").val() === "ad");
-                    toggleBlock("#adDbBlock", $j("#usermodeBlock input:checked").val() === "ad"
-                        && $j("#adAppmodeBlock input:checked").val() !== "demo");
-
                     toggleBlock("#casBlock", $j("#usermodeBlock input:checked").val() === "cas");
 
                     toggleBlock("#finish-buttons", $j("#usermodeBlock input:checked").val() !== "ad"
@@ -422,16 +271,8 @@
                 toggleVisibleBlocks();
                 updateCheckConnectionButton();
 
-                $j("#usermodeBlock input").change(function(e) {
+                $j("#usermodeBlock input").change(function() {
                     toggleVisibleBlocks();
-                });
-
-                $j("#appmodeBlock input").change(function(e) {
-                    toggleBlock("#dbBlock", e.target.value !== "demo");
-                });
-
-                $j("#adAppmodeBlock input").change(function(e) {
-                    toggleBlock("#adDbBlock", e.target.value !== "demo");
                 });
 
                 $j("#step3Form\\:adUsername").on("change keyup cut paste", function () {
