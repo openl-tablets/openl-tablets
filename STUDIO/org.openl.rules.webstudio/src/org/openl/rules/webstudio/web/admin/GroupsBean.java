@@ -34,18 +34,19 @@ import org.openl.rules.webstudio.service.GroupManagementService;
 public class GroupsBean {
     
     public static final String VALIDATION_EMPTY = "Can not be empty";
-    public static final String VALIDATION_MAX = "Must be less than 25";
+    public static final String VALIDATION_MAX = "Must be less than ";
 
     @NotBlank(message=VALIDATION_EMPTY)
-    @Size(max=25, message=VALIDATION_MAX)
+    @Size(max=40, message=VALIDATION_MAX + 40)
     private String name;
 
     /* Used for editing*/
     @NotBlank(message=VALIDATION_EMPTY)
-    @Size(max=25, message=VALIDATION_MAX)
+    @Size(max=40, message=VALIDATION_MAX + 40)
     private String newName;
     private String oldName;
 
+    @Size(max=200, message=VALIDATION_MAX + 200)
     private String description;
     private List<Group> groups;
 

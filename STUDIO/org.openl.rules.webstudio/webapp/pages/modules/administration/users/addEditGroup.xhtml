@@ -55,6 +55,9 @@
                     <td style="width: 100%; padding-right: 11px">
                         <h:inputTextarea id="description" value="#{groupsBean.description}"
                             style="width: 100%" />
+                        <a4j:outputPanel ajaxRendered="true" id="descriptionError">
+                            <h:message for="description" styleClass="error" />
+                        </a4j:outputPanel>
                     </td>
                 </tr>
             </table>
