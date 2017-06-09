@@ -859,16 +859,6 @@ public class InstallWizard {
         this.dbVendor = dbVendor;
     }
 
-    public String getAdDbVendor() {
-        return getDbVendor();
-    }
-
-    public void setAdDbVendor(String dbVendor) {
-        if (AD_USER_MODE.equals(userMode)) {
-            setDbVendor(dbVendor);
-        }
-    }
-
     public RepositoryConfiguration getDesignRepositoryConfiguration() {
         return designRepositoryConfiguration;
     }
