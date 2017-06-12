@@ -1,7 +1,12 @@
 package org.openl.rules.rest;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -10,13 +15,18 @@ import javax.annotation.Resource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 import org.openl.rules.common.LockInfo;
@@ -32,14 +42,21 @@ import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.util.FileUtils;
+import org.openl.util.StringUtils;
+import org.openl.util.ZipUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.xml.sax.InputSource;
 
 /*
  GET /projects                                       list of (Project Name, Last Version, Last Modified Date, Last Modified By, Status, Editor)
  GET /project/{Project Name}/[{version}]             (Project_Name.zip)
- PUT /project/{Project Name}                         (Some_Project.zip, comments)
+ POST /project/{Project Name}                        (Some_Project.zip, comments)
+ POST /project                                       (Some_Project.zip, comments)
+ POST /project                                       (Some_Project.zip)
  POST /lock_project/{Project Name}                   (ok, fail (already locked by ...))
  POST /unlock_project/{Project Name}                 (ok, fail)
  */
@@ -125,30 +142,108 @@ public class RepositoryService {
      * @return
      * @throws WorkspaceException
      */
-    @PUT
+    @POST
     @Path("project/{name}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response putProject(@PathParam("name") String name,
+    public Response addProject(@Context UriInfo uriInfo,
+            @PathParam("name") String name,
             @Multipart(value = "file") InputStream zipFile,
             @Multipart(value = "comment", required = false) String comment) throws WorkspaceException {
         try {
-            RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(name);
-            if (project.isLocked() && !project.isLockedByUser(getUser())) {
-                String lockedBy = project.getLockInfo().getLockedBy().getUserName();
-                return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
+            UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(getUser());
+            if (userWorkspace.hasDDProject(name)) {
+                RulesProject project = userWorkspace.getProject(name);
+                if (project.isLocked() && !project.isLockedByUser(getUser())) {
+                    String lockedBy = project.getLockInfo().getLockedBy().getUserName();
+                    return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
+                }
+                project.lock();
             }
-            project.lock();
 
             FileData data = new FileData();
             data.setName(getFileName(name));
-            data.setComment("[REST] " + (comment != null ? comment : ""));
+            data.setComment("[REST] " + StringUtils.trimToEmpty(comment));
             data.setAuthor(getUserName());
-            getRepository().save(data, zipFile);
-            return Response.noContent().build();
+            FileData save = getRepository().save(data, zipFile);
+            return Response.created(new URI(uriInfo.getPath() + "/" + save.getVersion())).build();
         } catch (IOException ex) {
+            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
+        } catch (URISyntaxException ex) {
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         } catch (ProjectException ex) {
             return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
+        }
+    }
+
+    /**
+     * Uploads a zipped project to a design repository. The upload will be
+     * performed if the project in the design repository is not locked by other
+     * user.
+     *
+     * @param zipFile a zipped project
+     * @param comment a revision comment
+     * @return
+     * @throws WorkspaceException
+     */
+    @POST
+    @Path("project")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response addProject(@Context UriInfo uriInfo,
+                               @Multipart(value = "file") File zipFile,
+                               @Multipart(value = "comment", required = false) String comment) throws WorkspaceException {
+        File zipFolder = null;
+        try {
+            // Temp folders
+            zipFolder = FileUtils.createTempDirectory();
+            // Unpack jar to a file system
+            ZipUtils.extractAll(zipFile, zipFolder);
+
+            // Renamed a project according to rules.xml
+            File rules = new File(zipFolder, "rules.xml");
+            String name = null;
+            if (rules.exists()) {
+                name = getProjectName(rules);
+            }
+            if (StringUtils.isBlank(name)) {
+                return Response.status(Status.NOT_ACCEPTABLE).entity("The uploaded file does not contain Project Name in the rules.xml ").build();
+            }
+
+            return addProject(uriInfo, name, new FileInputStream(zipFile), comment);
+        } catch (IOException ex) {
+            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
+        } finally {
+            /* Clean up */
+            FileUtils.deleteQuietly(zipFolder);
+            FileUtils.deleteQuietly(zipFile);
+        }
+    }
+
+    /**
+     * Uploads a zipped project to a design repository. The upload will be
+     * performed if the project in the design repository is not locked by other
+     * user.
+     *
+     * @param zipFile a zipped project
+     * @return
+     * @throws WorkspaceException
+     */
+    @POST
+    @Path("project")
+    public Response addProject(@Context UriInfo uriInfo, File zipFile) throws WorkspaceException {
+        return addProject(uriInfo, zipFile, null);
+    }
+
+    private String getProjectName(File file) {
+        try {
+            InputSource inputSource = new InputSource(new FileInputStream(file));
+            XPathFactory factory = XPathFactory.newInstance();
+            XPath xPath = factory.newXPath();
+            XPathExpression xPathExpression = xPath.compile("/project/name");
+            return StringUtils.trimToNull(xPathExpression.evaluate(inputSource));
+        } catch (FileNotFoundException e) {
+            return null;
+        } catch (XPathExpressionException e) {
+            return null;
         }
     }
 
