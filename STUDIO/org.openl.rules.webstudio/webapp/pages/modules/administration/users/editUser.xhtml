@@ -72,23 +72,23 @@
             $j("#editUserForm\\:firstName").val(firstName);
             $j("#editUserForm\\:lastName").val(lastName);
 
-            $j("input[id^='editUserForm\\:editUserGroups']").attr("checked", false);
-            for (var i = 0; i < groups.length; i++) {
-                $j("input[id^='editUserForm\\:editUserGroups'][value='" + groups[i] + "']").attr("checked", true);
-            }
-
-            for (var i = 0; i < onlyAdminGroups.length; i++) {
-                var group = $j("input[id^='editUserForm\\:editUserGroups'][value='" + onlyAdminGroups[i] + "']");
-                group.attr("disabled", true);
-
-                // Disabled fields will not be submitted. Let's create a hidden input for them
-                $j('<input>').attr({
-                    type: 'hidden',
-                    id: group.attr('id') + "_hidden_admin",
-                    name: group.attr('name'),
-                    value: group.val()
-                }).appendTo("#editUserForm");
-            }
+            $j("input[id^='editUserForm\\:editUserGroups']").each(function() {
+                var box = $j( this );
+                var group = box.val();
+                var checked = $j.inArray(group, groups) != -1;
+                box.attr("checked", checked);
+                var isAdminGroup = $j.inArray(group, onlyAdminGroups) != -1;
+                if (isAdminGroup) {
+                    box.attr("disabled", true);
+                    // Disabled fields will not be submitted. Let's create a hidden input for them
+                    $j('<input>').attr({
+                        type: 'hidden',
+                        id: box.attr('id') + "_hidden_admin",
+                        name: box.attr('name'),
+                        value: box.val()
+                    }).appendTo("#editUserForm");
+                }
+            });
 
             RichFaces.$("modalEditUser").show();
         }
