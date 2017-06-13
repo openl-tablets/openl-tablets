@@ -954,6 +954,10 @@ public class WebStudio {
         return moduleUrl + "/" + pageUrl;
     }
 
+    public String toJSText(String str) {
+        return str == null ? null : str.replace("\\", "\\\\").replace("\"", "\\\"").replace("\'", "\\\'");
+    }
+
     public WebStudioLinkBuilder getLinkBuilder() {
         return linkBuilder;
     }

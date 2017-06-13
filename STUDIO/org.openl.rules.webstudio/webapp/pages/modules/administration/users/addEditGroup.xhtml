@@ -68,7 +68,7 @@
                     <th class="required" style="min-width: 161px">Privilege</th>
                     <ui:repeat value="#{groupsBean.groups}" var="group">
                     <th><a href="javascript:void(0)"
-                        onclick="setPrivileges('#{group.name}')">#{group.displayName}</a>
+                        onclick="setPrivileges('#{studio.toJSText(group.name)}')">#{group.displayName}</a>
                         <input type="checkbox" name="group" value="#{group.name}" style="display: none" />
                     </th>
                     </ui:repeat>
@@ -98,7 +98,7 @@
                 var groups = {};
 
                 <c:forEach items="#{groupsBean.groups}" var="group">
-                groups["#{group.name}"] = [<c:forEach items="#{groupsBean.getPrivileges(group)}" var="p">'#{p}',</c:forEach>];
+                groups["#{studio.toJSText(group.name)}"] = [<c:forEach items="#{groupsBean.getPrivileges(group)}" var="p">'#{p}',</c:forEach>];
                 </c:forEach>
             </script>
 
