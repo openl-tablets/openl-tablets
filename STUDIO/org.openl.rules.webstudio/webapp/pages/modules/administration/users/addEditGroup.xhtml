@@ -105,10 +105,10 @@
             <footer>
                 <a4j:commandButton id="saveBtn" value="Save" action="#{groupsBean.addGroup}" data="#{facesContext.maximumSeverity}"
                     oncomplete="if(!event.data) hideAddGroup()" styleClass="button-primary"
-                    render=":groupList :addUserGroups :editUserGroups nameError addGroupPrivilegeList" />
+                    render=":groupList :addUserGroups :editUserGroups :userList nameError addGroupPrivilegeList" />
                 <a4j:commandButton id="editBtn" value="Save" action="#{groupsBean.editGroup}" data="#{facesContext.maximumSeverity}"
                     oncomplete="if(!event.data) hideAddGroup()" styleClass="button-primary" style="display: none"
-                    render=":groupList :addUserGroups :editUserGroups nameError addGroupPrivilegeList" />
+                    render=":groupList :addUserGroups :editUserGroups :userList nameError addGroupPrivilegeList" />
                 <input type="button" value="Cancel" onclick="hideAddGroup()" />
             </footer>
 
