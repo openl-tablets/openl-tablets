@@ -36,26 +36,20 @@ public class DBUtils {
     /**
      * Returns connection (session) to a specific database.
      *
-     * @param dbDriver - database driver
-     * @param dbPrefix - database prefix
      * @param dbUrl - database url
      * @param login - database login
      * @param password - database password
      * @return connection (session) to a specific database.
      */
-    public Connection createConnection(String dbDriver, String dbPrefix, String dbUrl, String login, String password) {
+    public Connection createConnection(String dbUrl, String login, String password) {
         Connection conn;
 
         try {
-            Class.forName(dbDriver);
             if (StringUtils.isBlank(login)) {
-                conn = DriverManager.getConnection((dbPrefix + dbUrl));
+                conn = DriverManager.getConnection(dbUrl);
             } else {
-                conn = DriverManager.getConnection((dbPrefix + dbUrl), login, password);
+                conn = DriverManager.getConnection(dbUrl, login, password);
             }
-        } catch (ClassNotFoundException cnfe) {
-            log.error(cnfe.getMessage(), cnfe);
-            throw new ValidatorException(FacesUtils.createErrorMessage("Incorrect database driver"));
         } catch (SQLException sqle) {
             int errorCode = sqle.getErrorCode();
             String errorMessage = (String) dbErrors.get("" + errorCode);

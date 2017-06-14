@@ -575,11 +575,11 @@
                 <artifactId>commons-lang</artifactId>
                 <version>2.6</version>
             </dependency>
-            <!-- Apache Commons DBCP software implements Database Connection Pooling -->
+            <!-- HikariCP - A high-performance JDBC connection pool. -->
             <dependency>
-                <groupId>commons-dbcp</groupId>
-                <artifactId>commons-dbcp</artifactId>
-                <version>1.4</version>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP-java6</artifactId>
+                <version>2.3.13</version>
             </dependency>
             <!-- Apache Commons Lang, a package of Java utility classes for the classes that are in java.lang's hierarchy,
             or are considered to be so standard as to justify existence in java.lang. -->

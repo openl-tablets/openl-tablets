@@ -14,7 +14,6 @@ import javax.faces.component.UIInput;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
-import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 import javax.servlet.ServletContext;
 
@@ -32,7 +31,6 @@ import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.admin.*;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.webstudio.web.util.Constants;
-import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,9 +76,6 @@ public class InstallWizard {
     private String dbUrl;
     private String dbUsername;
     private String dbPassword;
-    private String dbDriver;
-    private String dbPrefix;
-    private String dbVendor;
 
     private String adDomain;
     private String adUrl;
@@ -226,25 +221,9 @@ public class InstallWizard {
         String propsLocation = workingDir + "/system-settings/db.properties";
         ConfigurationManager savedConfig = new ConfigurationManager(false, propsLocation, System.getProperty("webapp.root") + "/WEB-INF/conf/db.properties");
 
-        String url = savedConfig.getStringProperty("db.url");
-
-        if (StringUtils.isNotEmpty(url) && !USER_MODE_DEMO.equals(userMode)) {
-            String dbUrlSeparator = savedConfig.getStringProperty("db.url.separator");
-            dbUrl = url.split(dbUrlSeparator)[1];
-            dbPrefix = url.split(dbUrlSeparator)[0] + dbUrlSeparator;
-            dbUsername = savedConfig.getStringProperty("db.user");
-            dbPassword = savedConfig.getStringProperty("db.password");
-            dbDriver = savedConfig.getStringProperty("db.driver");
-
-            dbVendor = getPropertyFilePathForVendor(dbDriver);
-        } else {
-            dbUrl = null;
-            dbPrefix = null;
-            dbUsername = null;
-            dbPassword = null;
-            dbDriver = null;
-            dbVendor = null;
-        }
+        dbUrl = savedConfig.getStringProperty("db.url");
+        dbUsername = savedConfig.getStringProperty("db.user");
+        dbPassword = savedConfig.getStringProperty("db.password");
     }
 
     private void readAdProperties() {
@@ -263,30 +242,6 @@ public class InstallWizard {
                 casConfig.getStringProperty("security.cas.attribute.last-name"),
                 casConfig.getStringProperty("security.cas.attribute.groups-attribute")
         );
-    }
-
-    private String getPropertyFilePathForVendor(String dbDriver) {
-        for (File propFile : getDBPropertiesFiles()) {
-            InputStream is = null;
-            Properties dbProps = new Properties();
-            try {
-                is = new FileInputStream(propFile);
-                dbProps.load(is);
-                is.close();
-
-                if (dbDriver.equals(dbProps.getProperty("db.driver"))) {
-                    return System.getProperty("webapp.root") + "/WEB-INF/conf/db/" + propFile.getName();
-                }
-
-            } catch (FileNotFoundException e) {
-                log.error("The file {} is not found", propFile.getAbsolutePath(), e);
-            } catch (IOException e) {
-                log.error("Error while loading file {}", propFile.getAbsolutePath(), e);
-            } finally {
-                IOUtils.closeQuietly(is);
-            }
-        }
-        return dbConfig.getStringProperty("db.vendor");
     }
 
     public String finish() {
@@ -401,14 +356,9 @@ public class InstallWizard {
     }
 
     private void setProductionDbProperties() {
-        ConfigurationManager externalDBConfig = new ConfigurationManager(false, dbVendor);
-        dbConfig.setProperty("db.url", dbPrefix + dbUrl);
+        dbConfig.setProperty("db.url", dbUrl);
         dbConfig.setProperty("db.user", dbUsername);
         dbConfig.setProperty("db.password", dbPassword);
-        dbConfig.setProperty("db.driver", externalDBConfig.getStringProperty("db.driver"));
-        dbConfig.setProperty("db.hibernate.dialect", externalDBConfig.getStringProperty("db.hibernate.dialect"));
-        dbConfig.setProperty("db.validationQuery", externalDBConfig.getStringProperty("db.validationQuery"));
-        dbConfig.setProperty("db.url.separator", externalDBConfig.getStringProperty("db.url.separator"));
 
         if (AD_USER_MODE.equals(userMode) && groupsAreManagedInStudio) {
             dbConfig.setProperty("db.additional.origins", Constants.USER_ORIGIN_ACTIVE_DIRECTORY);
@@ -431,7 +381,7 @@ public class InstallWizard {
      * the file sql-errors.properties
      */
     private void testDBConnection(String url, String login, String password) {
-        Connection conn = dbUtils.createConnection(dbDriver, dbPrefix, url, login, password);
+        Connection conn = dbUtils.createConnection(url, login, password);
         try {
             conn.close();
         } catch (SQLException e) {
@@ -443,9 +393,7 @@ public class InstallWizard {
         String dbPasswordString = (String) value;
 
         if (!USER_MODE_DEMO.equals(userMode)) {
-            if (StringUtils.isBlank(dbVendor)) {
-                throw new ValidatorException(FacesUtils.createErrorMessage("Select database type"));
-            } else if (StringUtils.isEmpty(dbUrl)) {
+            if (StringUtils.isEmpty(dbUrl)) {
                 throw new ValidatorException(FacesUtils.createErrorMessage("Database URL can not be blank"));
             } else {
                 if (StringUtils.isNotEmpty(dbUsername) && dbUsername.length() > 100) {
@@ -620,88 +568,6 @@ public class InstallWizard {
     }
 
     /**
-     * Returns collection of properties files for external databases
-     */
-    private Collection<File> getDBPropertiesFiles() {
-        File dbPropFolder = new File(System.getProperty("webapp.root") + "/WEB-INF/conf/db");
-        Collection<File> dbPropFiles = new ArrayList<File>();
-
-        if (dbPropFolder.isDirectory()) {
-            File[] files = dbPropFolder.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    if (file.getName().startsWith("db-")) {
-                        dbPropFiles.add(file);
-                    }
-                }
-            }
-        }
-        return dbPropFiles;
-    }
-
-    /**
-     * Returns a Map of data base vendors
-     */
-    public List<SelectItem> getDBVendors() {
-        List<SelectItem> dbVendors = new ArrayList<SelectItem>();
-        Properties dbProps = new Properties();
-
-        for (File propFile : getDBPropertiesFiles()) {
-            InputStream is = null;
-            try {
-                is = new FileInputStream(propFile);
-                dbProps.load(is);
-                is.close();
-                String propertyFilePath = System.getProperty("webapp.root") + "/WEB-INF/conf/db/" + propFile.getName();
-                String dbVendor = dbProps.getProperty("db.vendor");
-
-                dbVendors.add(new SelectItem(propertyFilePath, dbVendor));
-            } catch (FileNotFoundException e) {
-                log.error("The file {} is not found", propFile.getAbsolutePath(), e);
-            } catch (IOException e) {
-                log.error("Error while loading file {}", propFile.getAbsolutePath(), e);
-            } finally {
-                IOUtils.closeQuietly(is);
-            }
-        }
-        return dbVendors;
-    }
-
-    /**
-     * Listener for vendor selectOnMenu
-     *
-     * @param e ajax event
-     */
-    public void dbVendorChanged(AjaxBehaviorEvent e) {
-        UIInput uiInput = (UIInput) e.getComponent();
-
-        if (uiInput.getLocalValue() != null) {
-            String propertyFilePath = uiInput.getValue().toString();
-            ConfigurationManager externalDBConfig = new ConfigurationManager(false, propertyFilePath);
-
-            String url = externalDBConfig.getStringProperty("db.url");
-
-            if (StringUtils.isNotEmpty(url)) {
-                String dbUrlSeparator = externalDBConfig.getStringProperty("db.url.separator");
-                String dbUrl = (externalDBConfig.getStringProperty("db.url")).split(dbUrlSeparator)[1];
-                String prefix = (externalDBConfig.getStringProperty("db.url")).split(dbUrlSeparator)[0] + dbUrlSeparator;
-                String dbLogin = externalDBConfig.getStringProperty("db.user");
-                String dbDriver = externalDBConfig.getStringProperty("db.driver");
-
-                setDbUrl(dbUrl);
-                setDbUsername(dbLogin);
-                setDbDriver(dbDriver);
-                setDbVendor(propertyFilePath);
-                this.dbPrefix = prefix;
-            }
-        } else {
-            // Reset database url and dtabase user name when no database type is selected
-            this.dbUrl = "";
-            this.dbUsername = "";
-        }
-    }
-
-    /**
      * Ajax event for changing database url.
      *
      * @param e AjaxBehavior event
@@ -806,14 +672,6 @@ public class InstallWizard {
         this.dbPassword = dbPassword;
     }
 
-    public String getDbDriver() {
-        return dbDriver;
-    }
-
-    public void setDbDriver(String dbDriver) {
-        this.dbDriver = dbDriver;
-    }
-
     public String getAdDomain() {
         return adDomain;
     }
@@ -865,14 +723,6 @@ public class InstallWizard {
     public String getFolderSeparator() {
 
         return File.separator;
-    }
-
-    public String getDbVendor() {
-        return dbVendor;
-    }
-
-    public void setDbVendor(String dbVendor) {
-        this.dbVendor = dbVendor;
     }
 
     public RepositoryConfiguration getDesignRepositoryConfiguration() {

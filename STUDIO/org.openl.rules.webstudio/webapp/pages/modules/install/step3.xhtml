@@ -253,17 +253,6 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><label class="required">Database type:</label></td>
-                                    <td>
-                                        <h:selectOneMenu value="#{installWizard.dbVendor}" id="dbVendor" immediate="true">
-                                            <f:selectItem itemValue="#{null}" itemLabel="Select one"/>
-                                            <f:selectItems value="#{installWizard.DBVendors}" />
-                                            <f:ajax  listener="#{installWizard.dbVendorChanged}" />
-                                            <f:ajax render="dbUrl dbUsername"/>
-                                        </h:selectOneMenu>
-                                    </td>
-                                </tr>
-                                <tr>
                                     <td><label class="required">Database URL:</label></td>
                                     <td>
                                         <h:inputText id="dbUrl" value="#{installWizard.dbUrl}" size="40" >

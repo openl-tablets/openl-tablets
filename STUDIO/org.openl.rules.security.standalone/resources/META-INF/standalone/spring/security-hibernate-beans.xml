@@ -11,19 +11,14 @@
 
     <bean id="driverRegister" class="org.openl.util.db.JDBCDriverRegister" init-method="init"/>
 
-    <bean id="openlDataSource" class="org.apache.commons.dbcp.BasicDataSource" depends-on="driverRegister">
-      <property name="url" value="#{dbConfig['db.url']}"/>
-      <property name="username" value="#{dbConfig['db.user']}"/>
-      <property name="password" value="#{dbConfig['db.password']}"/>
-
-      <!-- MySQL includes a timeout that will close connections that have been idle 
-           for long periods of time. If you use a connection that has been in the 
-           pool idle for too long, your application will likely experience the 
-           following error: "The last packet successfully received from the server 
-           was XXX seconds ago".
-           The connection pool includes a setting that will validate and throw out 
-           dead connections when calling javax.sql.DataSource.getConnection() -->
-      <property name="validationQuery" value="#{dbConfig['db.validationQuery']}" />
+    <bean id="openlDataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close" depends-on="driverRegister">
+        <constructor-arg>
+            <bean class="com.zaxxer.hikari.HikariConfig">
+                <property name="jdbcUrl" value="#{dbConfig['db.url']}"/>
+                <property name="username" value="#{dbConfig['db.user']}"/>
+                <property name="password" value="#{dbConfig['db.password']}"/>
+            </bean>
+        </constructor-arg>
     </bean>
 
     <bean id="openlSessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean" depends-on="dbMigration">
