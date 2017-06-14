@@ -9,30 +9,13 @@
 
     <tx:annotation-driven transaction-manager="transactionManager" />
 
-  <bean id="openlDataSource"
-    class="org.apache.commons.dbcp.BasicDataSource">
-      <property name="driverClassName" value="#{dbConfig['db.driver']}" />
+    <bean id="driverRegister" class="org.openl.util.db.JDBCDriverRegister" init-method="init"/>
+
+    <bean id="openlDataSource" class="org.apache.commons.dbcp.BasicDataSource" depends-on="driverRegister">
       <property name="url" value="#{dbConfig['db.url']}"/>
       <property name="username" value="#{dbConfig['db.user']}"/>
       <property name="password" value="#{dbConfig['db.password']}"/>
 
-      <!-- The maximum number of active connections that can be allocated from
-           this pool at the same time, or zero for no limit. -->
-      <property name="maxActive" value="8"/>
-
-      <!-- The maximum number of active connections that can remain idle in the
-           pool, without extra ones being released, or zero for no limit. -->
-      <property name="maxIdle" value="8"/>
-
-      <!-- The minimum number of active connections that can remain idle in the
-           pool, without extra ones being created, or 0 to create none. -->
-      <property name="minIdle" value="0"/>
-
-      <!-- The maximum number of milliseconds that the pool will wait (when there
-           are no available connections) for a connection to be returned before
-           throwing an exception, or -1 to wait indefinitely. -->
-      <property name="maxWait" value="-1"/>
-      
       <!-- MySQL includes a timeout that will close connections that have been idle 
            for long periods of time. If you use a connection that has been in the 
            pool idle for too long, your application will likely experience the 
@@ -41,7 +24,6 @@
            The connection pool includes a setting that will validate and throw out 
            dead connections when calling javax.sql.DataSource.getConnection() -->
       <property name="validationQuery" value="#{dbConfig['db.validationQuery']}" />
-      <property name="testOnBorrow" value="true" />
     </bean>
 
     <bean id="openlSessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean" depends-on="dbMigration">
