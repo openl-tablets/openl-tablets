@@ -911,8 +911,7 @@ public class InstallWizard {
         try {
             ctx = new XmlWebApplicationContext();
             ctx.setServletContext(FacesUtils.getServletContext());
-            ctx.setConfigLocations("classpath:META-INF/standalone/spring/security-hibernate-beans.xml",
-                    "/WEB-INF/spring/security/db/flyway-bean.xml");
+            ctx.setConfigLocations("classpath:META-INF/standalone/spring/security-hibernate-beans.xml");
             ctx.addBeanFactoryPostProcessor(new BeanFactoryPostProcessor() {
 
                 @Override

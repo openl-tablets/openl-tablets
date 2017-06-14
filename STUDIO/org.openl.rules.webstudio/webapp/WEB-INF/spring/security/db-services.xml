@@ -6,7 +6,6 @@
 
     <import resource="classpath:META-INF/standalone/spring/security-dao-beans.xml" />
     <import resource="classpath:META-INF/standalone/spring/security-hibernate-beans.xml" />
-    <import resource="db/flyway-bean.xml" />
 
     <!-- ======================== DB Services ========================== -->
 
