@@ -1,4 +1,4 @@
-package org.openl.rules.db.migration;
+package org.openl.rules.security.standalone;
 
 import java.io.IOException;
 import java.io.InputStream;

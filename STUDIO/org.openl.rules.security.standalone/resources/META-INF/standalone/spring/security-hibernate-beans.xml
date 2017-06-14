@@ -70,4 +70,8 @@
 
     <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager"
         p:sessionFactory-ref="openlSessionFactory" />
+
+    <bean id="dbMigration" class="org.openl.rules.security.standalone.DBMigrationBean" init-method="init">
+        <property name="dataSource" ref="openlDataSource" />
+    </bean>
 </beans>
