@@ -1,7 +1,6 @@
 CREATE TABLE OpenL_Users (
     loginName ${varchar}(50) not null,
     password ${varchar}(128),
-    origin ${varchar}(50),
     firstName ${varchar}(50),
     surname ${varchar}(50),
     PRIMARY KEY (loginName)
