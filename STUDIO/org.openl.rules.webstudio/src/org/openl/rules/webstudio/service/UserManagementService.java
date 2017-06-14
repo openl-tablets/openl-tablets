@@ -26,7 +26,7 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
         List<org.openl.rules.security.User> resultUsers = new ArrayList<org.openl.rules.security.User>();
         for (User user : users) {
             org.openl.rules.security.User resultUser = new SimpleUser(user.getFirstName(), user.getSurname(),
-                    user.getLoginName(), user.getPasswordHash(), user.getOrigin(), PrivilegesEvaluator.createPrivileges(user));
+                    user.getLoginName(), user.getPasswordHash(), PrivilegesEvaluator.createPrivileges(user));
             resultUsers.add(resultUser);
         }
         return resultUsers;
@@ -37,7 +37,7 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
         List<org.openl.rules.security.User> resultUsers = new ArrayList<org.openl.rules.security.User>();
         for (User user : users) {
             org.openl.rules.security.User resultUser = new SimpleUser(user.getFirstName(), user.getSurname(),
-                    user.getLoginName(), user.getPasswordHash(), user.getOrigin(), PrivilegesEvaluator.createPrivileges(user));
+                    user.getLoginName(), user.getPasswordHash(), PrivilegesEvaluator.createPrivileges(user));
             if (resultUser.hasPrivilege(Privileges.ADMIN.name())
                     || resultUser.hasPrivilege(privilege)) {
                 resultUsers.add(resultUser);
@@ -52,7 +52,6 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
         persistUser.setPasswordHash(user.getPassword());
         persistUser.setFirstName(user.getFirstName());
         persistUser.setSurname(user.getLastName());
-        persistUser.setOrigin(user.getOrigin());
 
         Set<Group> groups = new HashSet<Group>();
         for (GrantedAuthority auth : user.getAuthorities()) {

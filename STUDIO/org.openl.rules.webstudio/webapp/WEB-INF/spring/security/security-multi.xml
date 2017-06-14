@@ -12,6 +12,10 @@
   <import resource="authorization.xml"/>
   <import resource="db-services.xml"/>
 
+  <bean id="canCreateExternalUsers" class="java.lang.Boolean">
+    <constructor-arg type="boolean" value="false"/>
+  </bean>
+
   <util:list id="authenticationProviders">
     <ref bean="daoAuthenticationProvider" />
     <ref bean="rememberMeAuthenticationProvider" />

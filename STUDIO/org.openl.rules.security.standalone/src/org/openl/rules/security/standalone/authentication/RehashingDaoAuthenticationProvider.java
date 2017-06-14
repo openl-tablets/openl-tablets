@@ -23,13 +23,13 @@ public class RehashingDaoAuthenticationProvider extends DaoAuthenticationProvide
 
     @Override
     protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
-        super.additionalAuthenticationChecks(userDetails, authentication);
         if (userDetails instanceof org.openl.rules.security.User) {
             org.openl.rules.security.User user = (org.openl.rules.security.User) userDetails;
             if (!user.isInternalUser()) {
                 throw new BadCredentialsException("Only internal users can be authenticated using RehashingDaoAuthenticationProvider");
             }
         }
+        super.additionalAuthenticationChecks(userDetails, authentication);
 
         String oldHashedPassword = userDetails.getPassword();
         if (passwordEncoder.rehashIsNeeded(oldHashedPassword)) {

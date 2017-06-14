@@ -31,9 +31,4 @@
         <property name="userDao" ref="openlUserDao" />
     </bean>
 
-    <bean id="additionalOrigins" class="org.openl.util.StringUtils" factory-method="split">
-        <constructor-arg name="str" value="#{dbConfig['db.additional.origins']}"/>
-        <constructor-arg name="separator" value=","/>
-    </bean>
-
 </beans>

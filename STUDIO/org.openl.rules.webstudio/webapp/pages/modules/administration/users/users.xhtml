@@ -41,9 +41,9 @@
 
         <h:column>
             <f:facet name="header">
-                Origin
+                Internal user
             </f:facet>
-            #{empty user.origin ? 'Internal' : user.origin}
+            #{user.internalUser}
         </h:column>
 
         <h:column>

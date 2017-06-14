@@ -26,7 +26,6 @@ public class User implements Serializable {
     private Set<Group> groups;
     private String firstName;
     private String surname;
-    private String origin;
 
     /**
      * First name.
@@ -70,11 +69,6 @@ public class User implements Serializable {
         return surname;
     }
 
-    @Column(name = "origin", length = 100)
-    public String getOrigin() {
-        return origin;
-    }
-
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
@@ -93,10 +87,6 @@ public class User implements Serializable {
 
     public void setSurname(String surname) {
         this.surname = surname;
-    }
-
-    public void setOrigin(String origin) {
-        this.origin = origin;
     }
 
     @Override

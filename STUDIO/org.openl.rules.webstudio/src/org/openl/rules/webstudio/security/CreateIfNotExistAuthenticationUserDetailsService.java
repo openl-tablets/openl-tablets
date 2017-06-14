@@ -21,14 +21,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 public class CreateIfNotExistAuthenticationUserDetailsService implements AuthenticationUserDetailsService {
     private final UserManagementService userManagementService;
     private final GroupManagementService groupManagementService;
-    private final String origin;
     private String defaultGroup = null;
 
     public CreateIfNotExistAuthenticationUserDetailsService(UserManagementService userManagementService,
-            GroupManagementService groupManagementService, String origin) {
+            GroupManagementService groupManagementService) {
         this.userManagementService = userManagementService;
         this.groupManagementService = groupManagementService;
-        this.origin = origin;
     }
 
     @Override
@@ -58,7 +56,6 @@ public class CreateIfNotExistAuthenticationUserDetailsService implements Authent
                             user.getLastName(),
                             user.getUsername(),
                             null,
-                            user.getOrigin(),
                             privileges);
                     userManagementService.updateUser(userToUpdate);
                 }
@@ -78,7 +75,7 @@ public class CreateIfNotExistAuthenticationUserDetailsService implements Authent
                 firstName = user.getFirstName();
                 lastName = user.getLastName();
             }
-            SimpleUser user = new SimpleUser(firstName, lastName, delegatedAuth.getName(), "", origin, groups);
+            SimpleUser user = new SimpleUser(firstName, lastName, delegatedAuth.getName(), null, groups);
             userManagementService.addUser(user);
             userDetails = user;
         }

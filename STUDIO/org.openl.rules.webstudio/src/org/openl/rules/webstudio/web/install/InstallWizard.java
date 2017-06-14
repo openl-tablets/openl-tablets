@@ -253,7 +253,7 @@ public class InstallWizard {
                 dbConfig.save();
             } else {
                 if (AD_USER_MODE.equals(userMode)) {
-                    fillDbForUserManagement(Constants.USER_ORIGIN_ACTIVE_DIRECTORY);
+                    fillDbForUserManagement();
                     dbConfig.save();
 
                     adConfig.setProperty("security.ad.domain", adDomain);
@@ -262,7 +262,7 @@ public class InstallWizard {
                     adConfig.setProperty("security.ad.default-group", allowAccessToNewUsers ? VIEWERS_GROUP : "");
                     adConfig.save();
                 } else if (CAS_USER_MODE.equals(userMode)) {
-                    fillDbForUserManagement(Constants.USER_ORIGIN_CAS);
+                    fillDbForUserManagement();
                     dbConfig.save();
 
                     casSettings.setDefaultGroup(allowAccessToNewUsers ? VIEWERS_GROUP : "");
@@ -314,7 +314,7 @@ public class InstallWizard {
         }
     }
 
-    private void fillDbForUserManagement(String origin) throws IOException {
+    private void fillDbForUserManagement() throws IOException {
         if (groupsAreManagedInStudio) {
             initializeTemporaryContext();
             GroupManagementService groupManagementService = (GroupManagementService) temporaryContext.getBean(
@@ -344,8 +344,7 @@ public class InstallWizard {
             // Create admin users
             for (String username : StringUtils.split(externalAdmins, ',')) {
                 if (!username.isEmpty()) {
-                    userManagementService.addUser(new SimpleUser(null, null, username, "",
-                            origin, adminGroups));
+                    userManagementService.addUser(new SimpleUser(null, null, username, null, adminGroups));
                 }
             }
             setProductionDbProperties();
@@ -359,15 +358,6 @@ public class InstallWizard {
         dbConfig.setProperty("db.url", dbUrl);
         dbConfig.setProperty("db.user", dbUsername);
         dbConfig.setProperty("db.password", dbPassword);
-
-        if (AD_USER_MODE.equals(userMode) && groupsAreManagedInStudio) {
-            dbConfig.setProperty("db.additional.origins", Constants.USER_ORIGIN_ACTIVE_DIRECTORY);
-        } else if (CAS_USER_MODE.equals(userMode) && groupsAreManagedInStudio) {
-            dbConfig.setProperty("db.additional.origins", Constants.USER_ORIGIN_CAS);
-        } else {
-            // By default only internal origin
-            dbConfig.removeProperty("db.additional.origins");
-        }
     }
 
     /**

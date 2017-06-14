@@ -42,7 +42,6 @@ public class UserProfileBean extends UsersBean {
     private boolean isPasswordValid = false;
     private String currentPassword;
     private String userPassword;
-    private boolean internalUser;
 
     @Size(max=25, message=VALIDATION_MAX)
     private String userFirstName;
@@ -225,14 +224,6 @@ public class UserProfileBean extends UsersBean {
 
     public void setUserLastName(String userLastName) {
         this.userLastName = userLastName;
-    }
-
-    public boolean isInternalUser() {
-        return internalUser;
-    }
-
-    public void setInternalUser(boolean internalUser) {
-        this.internalUser = internalUser;
     }
 
     public void setCurrentUserInfo(CurrentUserInfo currentUserInfo) {

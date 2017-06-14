@@ -28,7 +28,6 @@ import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
-import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.StringUtils;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -66,7 +65,7 @@ public class UsersBean {
     @NotEmpty(message=VALIDATION_GROUPS)
     private List<String> groups;
 
-    private String origin;
+    private boolean internalUser = false;
 
     @ManagedProperty(value="#{userManagementService}")
     protected UserManagementService userManagementService;
@@ -77,8 +76,8 @@ public class UsersBean {
     @ManagedProperty(value = "#{passwordEncoder}")
     protected PasswordEncoder passwordEncoder;
 
-    @ManagedProperty(value = "#{additionalOrigins}")
-    protected String[] additionalOrigins;
+    @ManagedProperty(value = "#{canCreateExternalUsers}")
+    protected boolean canCreateExternalUsers;
 
     /**
      * Validation for existed user
@@ -148,18 +147,16 @@ public class UsersBean {
                 }
             }
 
-            for (Group group : groups.values()) {
-                resultGroups.add(group);
-            }
+            resultGroups.addAll(groups.values());
         }
 
         return resultGroups;
     }
 
     public void addUser() {
-        String passwordHash = origin == null ? passwordEncoder.encode(password) : "";
+        String passwordHash = canCreateExternalUsers && !internalUser ? null : passwordEncoder.encode(password);
         userManagementService.addUser(
-                new SimpleUser(firstName, lastName, username, passwordHash, origin, getSelectedGroups()));
+                new SimpleUser(firstName, lastName, username, passwordHash, getSelectedGroups()));
     }
 
     public void editUser() {
@@ -237,23 +234,12 @@ public class UsersBean {
         this.changedPassword = changedPassword;
     }
 
-    public String getOrigin() {
-        return origin;
+    public boolean isInternalUser() {
+        return internalUser;
     }
 
-    public void setOrigin(String origin) {
-        this.origin = StringUtils.trimToNull(origin);
-    }
-
-    public List<SelectItem> getOrigins() {
-        List<SelectItem> result = new ArrayList<SelectItem>();
-        result.add(new SelectItem(null, Constants.USER_ORIGIN_INTERNAL));
-        if (additionalOrigins != null) {
-            for (String additionalOrigin : additionalOrigins) {
-                result.add(new SelectItem(additionalOrigin));
-            }
-        }
-        return result;
+    public void setInternalUser(boolean internalUser) {
+        this.internalUser = internalUser;
     }
 
     public List<String> getGroups() {
@@ -286,7 +272,11 @@ public class UsersBean {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void setAdditionalOrigins(String[] additionalOrigins) {
-        this.additionalOrigins = additionalOrigins;
+    public void setCanCreateExternalUsers(boolean canCreateExternalUsers) {
+        this.canCreateExternalUsers = canCreateExternalUsers;
+    }
+
+    public boolean isCanCreateExternalUsers() {
+        return canCreateExternalUsers;
     }
 }

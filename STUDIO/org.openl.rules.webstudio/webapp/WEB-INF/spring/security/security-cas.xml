@@ -46,6 +46,8 @@
         <ref bean="authenticationProviderWrapper" />
     </util:list>
 
+    <alias name="groupsAreManagedInStudio" alias="canCreateExternalUsers"/>
+
     <!-- ======================== Logout ========================== -->
 
     <bean id="logoutUrl" class="java.lang.String">
@@ -102,19 +104,20 @@
         <property name="key" value="OpenLCasAuthenticationProviderKey"/>
     </bean>
 
+    <bean id="groupsAreManagedInStudio" class="java.lang.Boolean">
+        <constructor-arg type="boolean" value="#{casConfig['security.cas.attribute.groups-attribute'].isEmpty()}"/>
+    </bean>
+
     <bean id="authenticationProviderWrapper" class="org.openl.rules.webstudio.security.OpenLAuthenticationProviderWrapper">
         <constructor-arg name="delegate" ref="casAuthenticationProvider"/>
         <constructor-arg name="authenticationUserDetailsService">
             <bean class="org.openl.rules.webstudio.security.CreateIfNotExistAuthenticationUserDetailsService">
                 <constructor-arg name="userManagementService" ref="userManagementService"/>
                 <constructor-arg name="groupManagementService" ref="groupManagementService"/>
-                <constructor-arg name="origin">
-                    <util:constant static-field="org.openl.rules.webstudio.web.util.Constants.USER_ORIGIN_CAS"/>
-                </constructor-arg>
                 <property name="defaultGroup" value="#{casConfig['security.cas.default-group']}"/>
             </bean>
         </constructor-arg>
-        <property name="groupsAreManagedInStudio" value="#{casConfig['security.cas.attribute.groups-attribute'].isEmpty()}"/>
+        <property name="groupsAreManagedInStudio" ref="groupsAreManagedInStudio"/>
     </bean>
 
 </beans>

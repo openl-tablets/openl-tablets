@@ -6,7 +6,6 @@ import java.util.Collection;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.SimpleUser;
-import org.openl.rules.webstudio.web.util.Constants;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.GrantedAuthority;
@@ -38,7 +37,7 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
                 privileges.add(new SimplePrivilege(authority.getAuthority(), authority.getAuthority()));
             }
         }
-        return new SimpleUser(firstName, lastName, userDetails.getUsername(), "", Constants.USER_ORIGIN_ACTIVE_DIRECTORY, privileges);
+        return new SimpleUser(firstName, lastName, userDetails.getUsername(), null, privileges);
     }
 
     @Override

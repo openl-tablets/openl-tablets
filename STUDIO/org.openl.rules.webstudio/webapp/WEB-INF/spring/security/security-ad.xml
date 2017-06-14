@@ -25,6 +25,8 @@
         <bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler" />
     </util:list>
 
+    <alias name="groupsAreManagedInStudio" alias="canCreateExternalUsers"/>
+
     <!-- ================================= Define properties ======================================= -->
     <bean id="adConfigManagerFactory" class="org.openl.config.ConfigurationManagerFactory">
         <constructor-arg name="useSystemProperties" value="true"/>
@@ -54,19 +56,20 @@
         </constructor-arg>
     </bean>
 
+    <bean id="groupsAreManagedInStudio" class="java.lang.Boolean">
+        <constructor-arg type="boolean" value="#{adConfig['security.ad.groups-are-managed-in-studio']}"/>
+    </bean>
+
     <bean id="authenticationProviderWrapper" class="org.openl.rules.webstudio.security.OpenLAuthenticationProviderWrapper">
         <constructor-arg name="delegate" ref="adAuthenticationProvider"/>
         <constructor-arg name="authenticationUserDetailsService">
             <bean class="org.openl.rules.webstudio.security.CreateIfNotExistAuthenticationUserDetailsService">
                 <constructor-arg name="userManagementService" ref="userManagementService"/>
                 <constructor-arg name="groupManagementService" ref="groupManagementService"/>
-                <constructor-arg name="origin">
-                    <util:constant static-field="org.openl.rules.webstudio.web.util.Constants.USER_ORIGIN_ACTIVE_DIRECTORY"/>
-                </constructor-arg>
                 <property name="defaultGroup" value="#{adConfig['security.ad.default-group']}"/>
             </bean>
         </constructor-arg>
-        <property name="groupsAreManagedInStudio" value="#{adConfig['security.ad.groups-are-managed-in-studio']}"/>
+        <property name="groupsAreManagedInStudio" ref="groupsAreManagedInStudio"/>
     </bean>
 
     <!-- ========================== Internal users authentication =============================== -->

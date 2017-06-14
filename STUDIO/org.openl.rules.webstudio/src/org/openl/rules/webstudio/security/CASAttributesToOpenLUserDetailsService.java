@@ -7,7 +7,6 @@ import org.jasig.cas.client.validation.Assertion;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.SimpleUser;
-import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.StringUtils;
 import org.springframework.security.cas.userdetails.AbstractCasAssertionUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -61,7 +60,7 @@ public class CASAttributesToOpenLUserDetailsService extends AbstractCasAssertion
             }
         }
 
-        return new SimpleUser(firstName, lastName, assertion.getPrincipal().getName(), "", Constants.USER_ORIGIN_CAS, grantedAuthorities);
+        return new SimpleUser(firstName, lastName, assertion.getPrincipal().getName(), null, grantedAuthorities);
     }
 
 }

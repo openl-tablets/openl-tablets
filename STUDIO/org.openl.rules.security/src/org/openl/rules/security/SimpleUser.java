@@ -10,32 +10,20 @@ public class SimpleUser implements User {
     private String lastName;
     private String username;
     private String passwordHash;
-    private String origin;
     private Collection<Privilege> privileges;
 
     public SimpleUser() {
-    }
-
-    public SimpleUser(String firstName, String lastName, String username,
-            String passwordHash, Collection<Privilege> privileges) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.username = username;
-        this.passwordHash = passwordHash;
-        this.privileges = privileges;
     }
 
     public SimpleUser(String firstName,
             String lastName,
             String username,
             String passwordHash,
-            String origin,
             Collection<Privilege> privileges) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
         this.passwordHash = passwordHash;
-        this.origin = origin;
         this.privileges = privileges;
     }
 
@@ -76,15 +64,6 @@ public class SimpleUser implements User {
 
     public void setPassword(String passwordHash) {
         this.passwordHash = passwordHash;
-    }
-
-    @Override
-    public String getOrigin() {
-        return origin;
-    }
-
-    public void setOrigin(String origin) {
-        this.origin = origin;
     }
 
     @Override
@@ -131,7 +110,7 @@ public class SimpleUser implements User {
 
     @Override
     public boolean isInternalUser() {
-        return origin == null || origin.trim().isEmpty();
+        return passwordHash != null && !passwordHash.isEmpty();
     }
 
     @Override

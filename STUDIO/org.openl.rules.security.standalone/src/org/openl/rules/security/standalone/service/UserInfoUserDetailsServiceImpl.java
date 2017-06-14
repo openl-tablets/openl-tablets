@@ -32,7 +32,7 @@ public class UserInfoUserDetailsServiceImpl implements UserInfoUserDetailsServic
 
         Collection<Privilege> privileges = PrivilegesEvaluator.createPrivileges(user);
         return new SimpleUser(user.getFirstName(), user.getSurname(),
-                user.getLoginName(), user.getPasswordHash(), user.getOrigin(), privileges);
+                user.getLoginName(), user.getPasswordHash(), privileges);
     }
 
     public void setUserDao(UserDao userDao) {
