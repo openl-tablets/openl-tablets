@@ -20,6 +20,7 @@ import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
+import org.openl.util.db.JDBCDriverRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -532,7 +533,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
 
     @Override
     public void initialize() {
-        registerDrivers();
+        JDBCDriverRegister.registerDrivers();
         Throwable actualException = null;
         try {
             Connection connection = getConnection();
@@ -558,35 +559,6 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         }
         if (actualException != null) {
             throw new IllegalStateException("Failed to initialize repository", actualException);
-        }
-    }
-
-    private void registerDrivers() {
-        // Defaults drivers
-        String[] drivers = { "com.mysql.jdbc.Driver",
-                "org.mariadb.jdbc.Driver",
-                "com.ibm.db2.jcc.DB2Driver",
-                "oracle.jdbc.OracleDriver",
-                "org.postgresql.Driver",
-                "org.hsqldb.jdbcDriver",
-                "org.h2.Driver",
-                "com.microsoft.sqlserver.jdbc.SQLServerDriver" };
-        registerDrivers(drivers);
-        drivers = StringUtils.split(System.getProperty("jdbc.drivers"), ':');
-        registerDrivers(drivers);
-    }
-
-    private void registerDrivers(String... drivers) {
-        if (drivers == null) {
-            return;
-        }
-        for (String driver : drivers) {
-            try {
-                Class.forName(driver);
-                log.info("JDBC Driver: '{}' - OK.", driver);
-            } catch (ClassNotFoundException e) {
-                log.info("JDBC Driver: '{}' - NOT FOUND.", driver);
-            }
         }
     }
 

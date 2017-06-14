@@ -32,6 +32,7 @@ import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
+import org.openl.util.db.JDBCDriverRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +69,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
      * it will be created automatically.
      */
     private void init() throws Exception {
-        registerDrivers();
+        JDBCDriverRegister.registerDrivers();
 
         String dbUrl = uri;
         String user = login;
@@ -257,34 +258,6 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
             }
         }
         log.info("The connection has been closed");
-    }
-
-    private void registerDrivers() {
-        // Defaults drivers
-        String[] drivers = { "com.mysql.jdbc.Driver",
-                "com.ibm.db2.jcc.DB2Driver",
-                "oracle.jdbc.OracleDriver",
-                "org.postgresql.Driver",
-                "org.hsqldb.jdbcDriver",
-                "org.h2.Driver",
-                "com.microsoft.sqlserver.jdbc.SQLServerDriver" };
-        registerDrivers(drivers);
-        drivers = StringUtils.split(System.getProperty("jdbc.drivers"), ':');
-        registerDrivers(drivers);
-    }
-
-    private void registerDrivers(String... drivers) {
-        if (drivers == null) {
-            return;
-        }
-        for (String driver : drivers) {
-            try {
-                Class.forName(driver);
-                log.info("JDBC Driver: '{}' - OK.", driver);
-            } catch (ClassNotFoundException e) {
-                log.info("JDBC Driver: '{}' - NOT FOUND.", driver);
-            }
-        }
     }
 
     private void initTable(Connection conn, CompositeConfiguration properties) throws SQLException {
