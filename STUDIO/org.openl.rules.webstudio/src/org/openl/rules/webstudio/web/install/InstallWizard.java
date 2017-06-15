@@ -247,7 +247,7 @@ public class InstallWizard {
 
     private void readCasProperties() {
         casSettings = new CASSettings(
-                casConfig.getStringProperty("security.openl.server-name"),
+                casConfig.getStringProperty("security.cas.app-url"),
                 casConfig.getStringProperty("security.cas.cas-server-url-prefix"),
                 casConfig.getStringProperty("security.cas.default-group"),
                 casConfig.getStringProperty("security.cas.attribute.first-name"),
@@ -279,7 +279,7 @@ public class InstallWizard {
 
                     casSettings.setDefaultGroup(allowAccessToNewUsers ? VIEWERS_GROUP : "");
 
-                    casConfig.setProperty("security.openl.server-name", casSettings.getWebStudioUrl());
+                    casConfig.setProperty("security.cas.app-url", casSettings.getWebStudioUrl());
                     casConfig.setProperty("security.cas.cas-server-url-prefix", casSettings.getCasServerUrl());
                     casConfig.setProperty("security.cas.default-group", casSettings.getDefaultGroup());
                     casConfig.setProperty("security.cas.attribute.first-name", casSettings.getFirstNameAttribute());
