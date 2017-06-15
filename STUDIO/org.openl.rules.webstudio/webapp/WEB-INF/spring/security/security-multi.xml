@@ -7,7 +7,6 @@
           http://www.springframework.org/schema/security
           http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 
-  <import resource="classpath:META-INF/standalone/spring/security-dao-beans.xml" />
   <import resource="classpath:META-INF/standalone/spring/security-hibernate-beans.xml" />
 
   <bean id="dbConfigManagerFactory" class="org.openl.config.ConfigurationManagerFactory">
