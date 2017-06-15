@@ -12,13 +12,9 @@
     <bean id="driverRegister" class="org.openl.util.db.JDBCDriverRegister" init-method="init"/>
 
     <bean id="openlDataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close" depends-on="driverRegister">
-        <constructor-arg>
-            <bean class="com.zaxxer.hikari.HikariConfig">
-                <property name="jdbcUrl" value="#{dbConfig['db.url']}"/>
-                <property name="username" value="#{dbConfig['db.user']}"/>
-                <property name="password" value="#{dbConfig['db.password']}"/>
-            </bean>
-        </constructor-arg>
+        <property name="jdbcUrl" value="#{dbConfig['db.url']}"/>
+        <property name="username" value="#{dbConfig['db.user']}"/>
+        <property name="password" value="#{dbConfig['db.password']}"/>
     </bean>
 
     <bean id="openlSessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean" depends-on="dbMigration">
