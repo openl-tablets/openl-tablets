@@ -1,9 +1,15 @@
 package org.openl.rules.webstudio.web.install;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
@@ -15,7 +21,6 @@ import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.validator.ValidatorException;
-import javax.servlet.ServletContext;
 
 import org.flywaydb.core.api.FlywayException;
 import org.hibernate.validator.constraints.NotBlank;
@@ -23,14 +28,24 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
 import org.openl.config.ConfigurationManagerFactory;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.security.*;
+import org.openl.rules.security.Group;
+import org.openl.rules.security.Privilege;
+import org.openl.rules.security.Privileges;
+import org.openl.rules.security.SimpleGroup;
+import org.openl.rules.security.SimpleUser;
+import org.openl.rules.security.User;
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.GroupManagementServiceWrapper;
 import org.openl.rules.webstudio.service.UserManagementService;
-import org.openl.rules.webstudio.web.admin.*;
+import org.openl.rules.webstudio.web.admin.ConnectionProductionRepoController;
+import org.openl.rules.webstudio.web.admin.NewProductionRepoController;
+import org.openl.rules.webstudio.web.admin.ProductionRepositoryEditor;
+import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
+import org.openl.rules.webstudio.web.admin.RepositoryType;
+import org.openl.rules.webstudio.web.admin.RepositoryValidationException;
+import org.openl.rules.webstudio.web.admin.RepositoryValidators;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
-import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +105,6 @@ public class InstallWizard {
     private ConfigurationManager adConfig;
     private ConfigurationManager casConfig;
 
-    private DBUtils dbUtils;
 
     private RepositoryConfiguration designRepositoryConfiguration;
     private ProductionRepositoryEditor productionRepositoryEditor;
@@ -111,8 +125,6 @@ public class InstallWizard {
                 System.getProperty("webapp.root") + "/WEB-INF/conf/config.properties");
         workingDir = appConfig.getPath("webstudio.home");
 
-        ServletContext servletContext = FacesUtils.getServletContext();
-        dbUtils = new DBUtils(servletContext);
     }
 
     public String getPreviousPage() {
@@ -371,7 +383,33 @@ public class InstallWizard {
      * the file sql-errors.properties
      */
     private void testDBConnection(String url, String login, String password) {
-        Connection conn = dbUtils.createConnection(url, login, password);
+        Connection conn;
+
+        try {
+            if (StringUtils.isBlank(login)) {
+                conn = DriverManager.getConnection(url);
+            } else {
+                conn = DriverManager.getConnection(url, login, password);
+            }
+        } catch (SQLException sqle) {
+            int errorCode = sqle.getErrorCode();
+            log.error("Code: {}. {}", errorCode, sqle.getMessage(), sqle);
+            final String SQL_ERRORS_FILE_PATH = "/sql-errors.properties";
+            String errorMessage = null;
+            try {
+                Properties properties = new Properties();
+                properties.load(getClass().getResourceAsStream(SQL_ERRORS_FILE_PATH));
+                errorMessage = properties.getProperty(Integer.toString(errorCode));
+            } catch (Exception e) {
+                log.error("Cannot to load {} file.", SQL_ERRORS_FILE_PATH, e);
+            }
+            if (errorMessage == null) {
+                errorMessage = "Incorrect database URL, login or password";
+            }
+
+            throw new ValidatorException(FacesUtils.createErrorMessage(errorMessage));
+        }
+
         try {
             conn.close();
         } catch (SQLException e) {
