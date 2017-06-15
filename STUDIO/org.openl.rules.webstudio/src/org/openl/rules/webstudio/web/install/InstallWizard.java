@@ -103,7 +103,6 @@ public class InstallWizard {
     private ConfigurationManager systemConfig;
     private ConfigurationManager dbConfig;
     private ConfigurationManager adConfig;
-    private ConfigurationManager casConfig;
 
 
     private RepositoryConfiguration designRepositoryConfiguration;
@@ -175,9 +174,6 @@ public class InstallWizard {
                     adConfig = new ConfigurationManager(true,
                             workingDir + "/system-settings/security-ad.properties",
                             System.getProperty("webapp.root") + "/WEB-INF/conf/security-ad.properties");
-                    casConfig = new ConfigurationManager(true,
-                            workingDir + "/system-settings/security-cas.properties",
-                            System.getProperty("webapp.root") + "/WEB-INF/conf/security-cas.properties");
 
                     userMode = systemConfig.getStringProperty("user.mode");
                 }
@@ -247,12 +243,12 @@ public class InstallWizard {
 
     private void readCasProperties() {
         casSettings = new CASSettings(
-                casConfig.getStringProperty("security.cas.app-url"),
-                casConfig.getStringProperty("security.cas.cas-server-url-prefix"),
-                casConfig.getStringProperty("security.cas.default-group"),
-                casConfig.getStringProperty("security.cas.attribute.first-name"),
-                casConfig.getStringProperty("security.cas.attribute.last-name"),
-                casConfig.getStringProperty("security.cas.attribute.groups-attribute")
+                systemConfig.getStringProperty("security.cas.app-url"),
+                systemConfig.getStringProperty("security.cas.cas-server-url-prefix"),
+                systemConfig.getStringProperty("security.cas.default-group"),
+                systemConfig.getStringProperty("security.cas.attribute.first-name"),
+                systemConfig.getStringProperty("security.cas.attribute.last-name"),
+                systemConfig.getStringProperty("security.cas.attribute.groups-attribute")
         );
     }
 
@@ -279,13 +275,12 @@ public class InstallWizard {
 
                     casSettings.setDefaultGroup(allowAccessToNewUsers ? VIEWERS_GROUP : "");
 
-                    casConfig.setProperty("security.cas.app-url", casSettings.getWebStudioUrl());
-                    casConfig.setProperty("security.cas.cas-server-url-prefix", casSettings.getCasServerUrl());
-                    casConfig.setProperty("security.cas.default-group", casSettings.getDefaultGroup());
-                    casConfig.setProperty("security.cas.attribute.first-name", casSettings.getFirstNameAttribute());
-                    casConfig.setProperty("security.cas.attribute.last-name", casSettings.getSecondNameAttribute());
-                    casConfig.setProperty("security.cas.attribute.groups-attribute", casSettings.getGroupsAttribute());
-                    casConfig.save();
+                    systemConfig.setProperty("security.cas.app-url", casSettings.getWebStudioUrl());
+                    systemConfig.setProperty("security.cas.cas-server-url-prefix", casSettings.getCasServerUrl());
+                    systemConfig.setProperty("security.cas.default-group", casSettings.getDefaultGroup());
+                    systemConfig.setProperty("security.cas.attribute.first-name", casSettings.getFirstNameAttribute());
+                    systemConfig.setProperty("security.cas.attribute.last-name", casSettings.getSecondNameAttribute());
+                    systemConfig.setProperty("security.cas.attribute.groups-attribute", casSettings.getGroupsAttribute());
                 } else {
                     dbConfig.restoreDefaults();
                 }
