@@ -4,7 +4,6 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
           http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
 
-    <import resource="classpath:META-INF/standalone/spring/security-dao-beans.xml" />
     <import resource="classpath:META-INF/standalone/spring/security-hibernate-beans.xml" />
 
     <!-- ======================== DB Services ========================== -->
