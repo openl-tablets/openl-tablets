@@ -115,4 +115,7 @@ public final class JSFFunctions {
         return StringEscapeUtils.escapeEcmaScript(value);
     }
 
+    public static String toJSText(String str) {
+        return str == null ? null : str.replace("\\", "\\\\").replace("\"", "\\\"").replace("\'", "\\\'");
+    }
 }

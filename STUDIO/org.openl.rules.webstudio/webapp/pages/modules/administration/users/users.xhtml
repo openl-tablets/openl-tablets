@@ -41,7 +41,7 @@
 
         <h:column>
             <a href="javascript:void(0)"
-                onclick="editUser('#{studio.toJSText(user.username)}', '#{studio.toJSText(user.firstName)}', '#{studio.toJSText(user.lastName)}', #{jsffn:toJSON(usersBean.getGroups(user))}, #{jsffn:toJSON(usersBean.getOnlyAdminGroups(user))})"
+                onclick="editUser('#{jsffn:toJSText(user.username)}', '#{jsffn:toJSText(user.firstName)}', '#{jsffn:toJSText(user.lastName)}', #{jsffn:toJSON(usersBean.getGroups(user))}, #{jsffn:toJSON(usersBean.getOnlyAdminGroups(user))})"
                 title="Edit"><img src="webresource/images/edit2.gif" /></a>
             <a4j:commandLink execute="@this" render="@form" rendered="#{!usersBean.isOnlyAdmin(user)}"
                 action="#{usersBean.deleteUser(user.username)}"
