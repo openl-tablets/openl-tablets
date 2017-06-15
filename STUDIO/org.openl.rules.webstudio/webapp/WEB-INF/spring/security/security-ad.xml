@@ -27,25 +27,10 @@
 
     <alias name="groupsAreManagedInStudio" alias="canCreateExternalUsers"/>
 
-    <!-- ================================= Define properties ======================================= -->
-    <bean id="adConfigManagerFactory" class="org.openl.config.ConfigurationManagerFactory">
-        <constructor-arg name="useSystemProperties" value="true"/>
-        <constructor-arg name="defaultPropertiesLocation"
-                         value="#{systemProperties['webapp.root']}/WEB-INF/conf/security-ad.properties"/>
-        <constructor-arg name="propertiesFolder" value="#{systemProperties['webstudio.home']}/system-settings/"/>
-    </bean>
-    <bean id="adConfigManager" factory-bean="adConfigManagerFactory" factory-method="getConfigurationManager"
-          autowire-candidate="false">
-        <constructor-arg name="propertiesName" value="security-ad.properties"/>
-    </bean>
-    <bean id="adConfig" class="java.util.HashMap">
-        <constructor-arg value="#{adConfigManager.properties}" />
-    </bean>
-
     <!-- ================================= Authentication ======================================= -->
     <bean id="adAuthenticationProvider" class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
-        <constructor-arg name="domain" value="#{adConfig['security.ad.domain']}"/>
-        <constructor-arg name="url" value="#{adConfig['security.ad.url']}"/>
+        <constructor-arg name="domain" value="#{systemConfig['security.ad.domain']}"/>
+        <constructor-arg name="url" value="#{systemConfig['security.ad.server-url']}"/>
         <property name="authoritiesMapper" ref="authoritiesMapper"/>
         <property name="userDetailsContextMapper" ref="userDetailsContextMapper"/>
     </bean>
@@ -57,7 +42,7 @@
     </bean>
 
     <bean id="groupsAreManagedInStudio" class="java.lang.Boolean">
-        <constructor-arg type="boolean" value="#{adConfig['security.ad.groups-are-managed-in-studio']}"/>
+        <constructor-arg type="boolean" value="#{systemConfig['security.ad.groups-are-managed-in-studio']}"/>
     </bean>
 
     <bean id="authenticationProviderWrapper" class="org.openl.rules.webstudio.security.OpenLAuthenticationProviderWrapper">
@@ -66,7 +51,7 @@
             <bean class="org.openl.rules.webstudio.security.CreateIfNotExistAuthenticationUserDetailsService">
                 <constructor-arg name="userManagementService" ref="userManagementService"/>
                 <constructor-arg name="groupManagementService" ref="groupManagementService"/>
-                <property name="defaultGroup" value="#{adConfig['security.ad.default-group']}"/>
+                <property name="defaultGroup" value="#{systemConfig['security.ad.default-group']}"/>
             </bean>
         </constructor-arg>
         <property name="groupsAreManagedInStudio" ref="groupsAreManagedInStudio"/>

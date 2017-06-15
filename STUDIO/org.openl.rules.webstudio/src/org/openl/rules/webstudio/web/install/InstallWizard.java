@@ -102,7 +102,6 @@ public class InstallWizard {
     private ConfigurationManager appConfig;
     private ConfigurationManager systemConfig;
     private ConfigurationManager dbConfig;
-    private ConfigurationManager adConfig;
 
 
     private RepositoryConfiguration designRepositoryConfiguration;
@@ -171,10 +170,6 @@ public class InstallWizard {
                             workingDir + "/system-settings/db.properties",
                             System.getProperty("webapp.root") + "/WEB-INF/conf/db.properties");
 
-                    adConfig = new ConfigurationManager(true,
-                            workingDir + "/system-settings/security-ad.properties",
-                            System.getProperty("webapp.root") + "/WEB-INF/conf/security-ad.properties");
-
                     userMode = systemConfig.getStringProperty("user.mode");
                 }
             } else if (step == 3) {
@@ -235,10 +230,10 @@ public class InstallWizard {
     }
 
     private void readAdProperties() {
-        adDomain = adConfig.getStringProperty("security.ad.domain");
-        adUrl = adConfig.getStringProperty("security.ad.url");
-        groupsAreManagedInStudio = adConfig.getBooleanProperty("security.ad.groups-are-managed-in-studio");
-        allowAccessToNewUsers = !StringUtils.isBlank(adConfig.getStringProperty("security.ad.default-group"));
+        adDomain = systemConfig.getStringProperty("security.ad.domain");
+        adUrl = systemConfig.getStringProperty("security.ad.server-url");
+        groupsAreManagedInStudio = systemConfig.getBooleanProperty("security.ad.groups-are-managed-in-studio");
+        allowAccessToNewUsers = !StringUtils.isBlank(systemConfig.getStringProperty("security.ad.default-group"));
     }
 
     private void readCasProperties() {
@@ -264,11 +259,10 @@ public class InstallWizard {
                     fillDbForUserManagement();
                     dbConfig.save();
 
-                    adConfig.setProperty("security.ad.domain", adDomain);
-                    adConfig.setProperty("security.ad.url", adUrl);
-                    adConfig.setProperty("security.ad.groups-are-managed-in-studio", groupsAreManagedInStudio);
-                    adConfig.setProperty("security.ad.default-group", allowAccessToNewUsers ? VIEWERS_GROUP : "");
-                    adConfig.save();
+                    systemConfig.setProperty("security.ad.domain", adDomain);
+                    systemConfig.setProperty("security.ad.server-url", adUrl);
+                    systemConfig.setProperty("security.ad.groups-are-managed-in-studio", groupsAreManagedInStudio);
+                    systemConfig.setProperty("security.ad.default-group", allowAccessToNewUsers ? VIEWERS_GROUP : "");
                 } else if (CAS_USER_MODE.equals(userMode)) {
                     fillDbForUserManagement();
                     dbConfig.save();
