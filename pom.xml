@@ -767,6 +767,17 @@
                 </exclusions>
             </dependency>
             <dependency>
+                <groupId>org.springframework.security.extensions</groupId>
+                <artifactId>spring-security-saml2-core</artifactId>
+                <version>1.0.2.RELEASE</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
                 <groupId>com.sdicons.jsontools</groupId>
                 <artifactId>jsontools-core</artifactId>
                 <version>1.7</version>

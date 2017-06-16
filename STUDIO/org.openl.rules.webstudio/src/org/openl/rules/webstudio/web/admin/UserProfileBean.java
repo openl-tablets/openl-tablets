@@ -59,6 +59,8 @@ public class UserProfileBean extends UsersBean {
         Authentication authentication = currentUserInfo.getAuthentication();
         if (authentication.getPrincipal() instanceof User) {
             user = (User) authentication.getPrincipal();
+        } else if (authentication.getDetails() instanceof User) {
+            user = (User) authentication.getDetails();
         } else {
             try {
                 user = userManagementService.loadUserByUsername(getUsername());
@@ -122,8 +124,13 @@ public class UserProfileBean extends UsersBean {
         userManagementService.updateUser(simpleUser);
 
         Authentication authentication = currentUserInfo.getAuthentication();
+        SimpleUser user = null;
         if (authentication.getPrincipal() instanceof SimpleUser) {
-            SimpleUser user = (SimpleUser) authentication.getPrincipal();
+            user = (SimpleUser) authentication.getPrincipal();
+        } else if (authentication.getDetails() instanceof SimpleUser) {
+            user = (SimpleUser) authentication.getDetails();
+        }
+        if (user != null) {
             user.setFirstName(userFirstName);
             user.setLastName(userLastName);
             user.setPassword(currentPassword);
