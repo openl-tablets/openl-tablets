@@ -27,7 +27,11 @@
     <constructor-arg value="/security_logout" />
   </bean>
 
-  <bean id="autoLoginAuthenticationFilter" class="org.openl.rules.security.none.authentication.AuthenticationFilter" />
+  <bean id="autoLoginAuthenticationFilter" class="org.springframework.security.web.authentication.AnonymousAuthenticationFilter" >
+    <constructor-arg value="key"/>
+    <constructor-arg value="DEFAULT"/>
+    <constructor-arg value="#{T(org.springframework.security.core.authority.AuthorityUtils).createAuthorityList('NO_ROLES')}"/>
+  </bean>
 
   <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
     <constructor-arg name="providers">
