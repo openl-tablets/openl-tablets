@@ -243,7 +243,7 @@ public class InstallWizard {
                 systemConfig.getStringProperty("security.cas.default-group"),
                 systemConfig.getStringProperty("security.cas.attribute.first-name"),
                 systemConfig.getStringProperty("security.cas.attribute.last-name"),
-                systemConfig.getStringProperty("security.cas.attribute.groups-attribute")
+                systemConfig.getStringProperty("security.cas.attribute.groups")
         );
     }
 
@@ -274,7 +274,7 @@ public class InstallWizard {
                     systemConfig.setProperty("security.cas.default-group", casSettings.getDefaultGroup());
                     systemConfig.setProperty("security.cas.attribute.first-name", casSettings.getFirstNameAttribute());
                     systemConfig.setProperty("security.cas.attribute.last-name", casSettings.getSecondNameAttribute());
-                    systemConfig.setProperty("security.cas.attribute.groups-attribute", casSettings.getGroupsAttribute());
+                    systemConfig.setProperty("security.cas.attribute.groups", casSettings.getGroupsAttribute());
                 } else {
                     dbConfig.restoreDefaults();
                 }

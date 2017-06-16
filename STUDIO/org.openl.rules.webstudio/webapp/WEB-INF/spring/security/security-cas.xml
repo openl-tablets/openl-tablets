@@ -81,7 +81,7 @@
             <bean class="org.openl.rules.webstudio.security.CASAttributesToOpenLUserDetailsService">
                 <constructor-arg name="firstNameAttribute" value="#{systemConfig['security.cas.attribute.first-name']}"/>
                 <constructor-arg name="lastNameAttribute" value="#{systemConfig['security.cas.attribute.last-name']}"/>
-                <constructor-arg name="groupsAttribute" value="#{systemConfig['security.cas.attribute.groups-attribute']}"/>
+                <constructor-arg name="groupsAttribute" value="#{systemConfig['security.cas.attribute.groups']}"/>
             </bean>
         </property>
         <property name="authoritiesMapper" ref="authoritiesMapper"/>
@@ -89,7 +89,7 @@
     </bean>
 
     <bean id="groupsAreManagedInStudio" class="java.lang.Boolean">
-        <constructor-arg type="boolean" value="#{systemConfig['security.cas.attribute.groups-attribute'].isEmpty()}"/>
+        <constructor-arg type="boolean" value="#{systemConfig['security.cas.attribute.groups'].isEmpty()}"/>
     </bean>
 
     <bean id="authenticationProviderWrapper" class="org.openl.rules.webstudio.security.OpenLAuthenticationProviderWrapper">

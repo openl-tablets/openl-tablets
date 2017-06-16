@@ -147,13 +147,13 @@
             <bean class="org.openl.rules.webstudio.security.SAMLAttributesToOpenLUserDetailsService">
                 <constructor-arg name="firstNameAttribute" value="#{systemConfig['security.saml.attribute.first-name']}"/>
                 <constructor-arg name="lastNameAttribute" value="#{systemConfig['security.saml.attribute.last-name']}"/>
-                <constructor-arg name="groupsAttribute" value="#{systemConfig['security.saml.attribute.groups-attribute']}"/>
+                <constructor-arg name="groupsAttribute" value="#{systemConfig['security.saml.attribute.groups']}"/>
             </bean>
         </property>
     </bean>
 
     <bean id="groupsAreManagedInStudio" class="java.lang.Boolean">
-        <constructor-arg type="boolean" value="#{systemConfig['security.saml.attribute.groups-attribute'].isEmpty()}"/>
+        <constructor-arg type="boolean" value="#{systemConfig['security.saml.attribute.groups'].isEmpty()}"/>
     </bean>
 
     <bean id="authenticationProviderWrapper" class="org.openl.rules.webstudio.security.OpenLAuthenticationProviderWrapper">
