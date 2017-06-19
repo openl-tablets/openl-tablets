@@ -35,7 +35,12 @@ public class OpenLAuthenticationProviderWrapper implements AuthenticationProvide
         if (delegatedAuth != null) {
             UserDetails userDetails = authenticationUserDetailsService.loadUserDetails(delegatedAuth);
             Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
-            return new UsernamePasswordAuthenticationToken(delegatedAuth.getPrincipal(), delegatedAuth.getCredentials(), authorities);
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                    delegatedAuth.getPrincipal(),
+                    delegatedAuth.getCredentials(),
+                    authorities);
+            authenticationToken.setDetails(userDetails);
+            return authenticationToken;
         }
         return null;
     }

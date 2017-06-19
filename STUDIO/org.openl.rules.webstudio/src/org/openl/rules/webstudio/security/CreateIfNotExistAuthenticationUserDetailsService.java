@@ -37,9 +37,13 @@ public class CreateIfNotExistAuthenticationUserDetailsService implements Authent
             userDetails = dbUser;
 
             // Check if First Name or Last Name were changed since last login
+            User user = null;
             if (delegatedAuth.getPrincipal() instanceof User) {
-                User user = (User) delegatedAuth.getPrincipal();
-
+                user = (User) delegatedAuth.getPrincipal();
+            } else if (delegatedAuth.getDetails() instanceof User) {
+                user = (User) delegatedAuth.getDetails();
+            }
+            if (user != null) {
                 String firstName = StringUtils.trimToEmpty(user.getFirstName());
                 String lastName = StringUtils.trimToEmpty(user.getLastName());
 
@@ -58,9 +62,11 @@ public class CreateIfNotExistAuthenticationUserDetailsService implements Authent
                             null,
                             privileges);
                     userManagementService.updateUser(userToUpdate);
+                    userDetails = userToUpdate;
                 }
             }
         } catch (UsernameNotFoundException e) {
+            // Create new user
             List<Privilege> groups;
             if (!StringUtils.isBlank(defaultGroup) && groupManagementService.isGroupExist(defaultGroup)) {
                 Group group = groupManagementService.getGroupByName(defaultGroup);
@@ -70,10 +76,15 @@ public class CreateIfNotExistAuthenticationUserDetailsService implements Authent
             }
             String firstName = null;
             String lastName = null;
+            User preAuthenticatedUser = null;
             if (delegatedAuth.getPrincipal() instanceof User) {
-                User user = (User) delegatedAuth.getPrincipal();
-                firstName = user.getFirstName();
-                lastName = user.getLastName();
+                preAuthenticatedUser = (User) delegatedAuth.getPrincipal();
+            } else if (delegatedAuth.getDetails() instanceof User) {
+                preAuthenticatedUser = (User) delegatedAuth.getDetails();
+            }
+            if (preAuthenticatedUser != null) {
+                firstName = preAuthenticatedUser.getFirstName();
+                lastName = preAuthenticatedUser.getLastName();
             }
             SimpleUser user = new SimpleUser(firstName, lastName, delegatedAuth.getName(), null, groups);
             userManagementService.addUser(user);

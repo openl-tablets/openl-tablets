@@ -1,4 +1,4 @@
-package org.openl.rules.security.standalone;
+package org.openl.rules.security;
 
 import java.util.Collection;
 

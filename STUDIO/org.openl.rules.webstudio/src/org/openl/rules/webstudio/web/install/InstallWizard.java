@@ -102,8 +102,6 @@ public class InstallWizard {
     private ConfigurationManager appConfig;
     private ConfigurationManager systemConfig;
     private ConfigurationManager dbConfig;
-    private ConfigurationManager adConfig;
-    private ConfigurationManager casConfig;
 
 
     private RepositoryConfiguration designRepositoryConfiguration;
@@ -172,13 +170,6 @@ public class InstallWizard {
                             workingDir + "/system-settings/db.properties",
                             System.getProperty("webapp.root") + "/WEB-INF/conf/db.properties");
 
-                    adConfig = new ConfigurationManager(true,
-                            workingDir + "/system-settings/security-ad.properties",
-                            System.getProperty("webapp.root") + "/WEB-INF/conf/security-ad.properties");
-                    casConfig = new ConfigurationManager(true,
-                            workingDir + "/system-settings/security-cas.properties",
-                            System.getProperty("webapp.root") + "/WEB-INF/conf/security-cas.properties");
-
                     userMode = systemConfig.getStringProperty("user.mode");
                 }
             } else if (step == 3) {
@@ -239,20 +230,20 @@ public class InstallWizard {
     }
 
     private void readAdProperties() {
-        adDomain = adConfig.getStringProperty("security.ad.domain");
-        adUrl = adConfig.getStringProperty("security.ad.url");
-        groupsAreManagedInStudio = adConfig.getBooleanProperty("security.ad.groups-are-managed-in-studio");
-        allowAccessToNewUsers = !StringUtils.isBlank(adConfig.getStringProperty("security.ad.default-group"));
+        adDomain = systemConfig.getStringProperty("security.ad.domain");
+        adUrl = systemConfig.getStringProperty("security.ad.server-url");
+        groupsAreManagedInStudio = systemConfig.getBooleanProperty("security.ad.groups-are-managed-in-studio");
+        allowAccessToNewUsers = !StringUtils.isBlank(systemConfig.getStringProperty("security.ad.default-group"));
     }
 
     private void readCasProperties() {
         casSettings = new CASSettings(
-                casConfig.getStringProperty("security.openl.server-name"),
-                casConfig.getStringProperty("security.cas.cas-server-url-prefix"),
-                casConfig.getStringProperty("security.cas.default-group"),
-                casConfig.getStringProperty("security.cas.attribute.first-name"),
-                casConfig.getStringProperty("security.cas.attribute.last-name"),
-                casConfig.getStringProperty("security.cas.attribute.groups-attribute")
+                systemConfig.getStringProperty("security.cas.app-url"),
+                systemConfig.getStringProperty("security.cas.cas-server-url-prefix"),
+                systemConfig.getStringProperty("security.cas.default-group"),
+                systemConfig.getStringProperty("security.cas.attribute.first-name"),
+                systemConfig.getStringProperty("security.cas.attribute.last-name"),
+                systemConfig.getStringProperty("security.cas.attribute.groups")
         );
     }
 
@@ -268,24 +259,22 @@ public class InstallWizard {
                     fillDbForUserManagement();
                     dbConfig.save();
 
-                    adConfig.setProperty("security.ad.domain", adDomain);
-                    adConfig.setProperty("security.ad.url", adUrl);
-                    adConfig.setProperty("security.ad.groups-are-managed-in-studio", groupsAreManagedInStudio);
-                    adConfig.setProperty("security.ad.default-group", allowAccessToNewUsers ? VIEWERS_GROUP : "");
-                    adConfig.save();
+                    systemConfig.setProperty("security.ad.domain", adDomain);
+                    systemConfig.setProperty("security.ad.server-url", adUrl);
+                    systemConfig.setProperty("security.ad.groups-are-managed-in-studio", groupsAreManagedInStudio);
+                    systemConfig.setProperty("security.ad.default-group", allowAccessToNewUsers ? VIEWERS_GROUP : "");
                 } else if (CAS_USER_MODE.equals(userMode)) {
                     fillDbForUserManagement();
                     dbConfig.save();
 
                     casSettings.setDefaultGroup(allowAccessToNewUsers ? VIEWERS_GROUP : "");
 
-                    casConfig.setProperty("security.openl.server-name", casSettings.getWebStudioUrl());
-                    casConfig.setProperty("security.cas.cas-server-url-prefix", casSettings.getCasServerUrl());
-                    casConfig.setProperty("security.cas.default-group", casSettings.getDefaultGroup());
-                    casConfig.setProperty("security.cas.attribute.first-name", casSettings.getFirstNameAttribute());
-                    casConfig.setProperty("security.cas.attribute.last-name", casSettings.getSecondNameAttribute());
-                    casConfig.setProperty("security.cas.attribute.groups-attribute", casSettings.getGroupsAttribute());
-                    casConfig.save();
+                    systemConfig.setProperty("security.cas.app-url", casSettings.getWebStudioUrl());
+                    systemConfig.setProperty("security.cas.cas-server-url-prefix", casSettings.getCasServerUrl());
+                    systemConfig.setProperty("security.cas.default-group", casSettings.getDefaultGroup());
+                    systemConfig.setProperty("security.cas.attribute.first-name", casSettings.getFirstNameAttribute());
+                    systemConfig.setProperty("security.cas.attribute.last-name", casSettings.getSecondNameAttribute());
+                    systemConfig.setProperty("security.cas.attribute.groups", casSettings.getGroupsAttribute());
                 } else {
                     dbConfig.restoreDefaults();
                 }

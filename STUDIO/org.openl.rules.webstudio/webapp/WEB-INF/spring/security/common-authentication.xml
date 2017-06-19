@@ -11,6 +11,8 @@
 
     <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
         <constructor-arg name="providers" ref="authenticationProviders"/>
+        <!-- Needed for SAML. Without credentials it's not possible to make global single sign out -->
+        <property name="eraseCredentialsAfterAuthentication" value="false"/>
     </bean>
 
     <bean id="basicAuthenticationFilter" class="org.springframework.security.web.authentication.www.BasicAuthenticationFilter">

@@ -43,7 +43,7 @@ public final class AcegiFunctions {
 
         Authentication auth = ctx.getAuthentication();
         Object principal = null;
-        if ((auth.getPrincipal() != null) && auth.getPrincipal() instanceof UserDetails) {
+        if (auth.getPrincipal() instanceof UserDetails) {
             try {
                 principal = auth.getPrincipal();
                 log.debug("Principal is {}", principal);

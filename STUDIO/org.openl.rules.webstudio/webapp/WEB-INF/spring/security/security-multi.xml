@@ -26,21 +26,6 @@
     <bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler" />
   </util:list>
 
-  <bean id="passwordEncoder" class="org.openl.rules.security.standalone.authentication.OpenLPasswordEncoder" >
-      <constructor-arg value="#{systemProperties['webstudio.bcrypt.strength']}"/>
-  </bean>
-
-  <bean id="daoAuthenticationProvider" class="org.openl.rules.security.standalone.authentication.RehashingDaoAuthenticationProvider">
-    <constructor-arg ref="passwordEncoder"/>
-    <constructor-arg ref="openlUserDao"/>
-    <property name="userDetailsService" ref="userDetailsService" />
-    <property name="hideUserNotFoundExceptions" value="false" />
-  </bean>
-
-  <bean id="userDetailsService" class="org.openl.rules.security.standalone.service.UserInfoUserDetailsServiceImpl">
-    <property name="userDao" ref="openlUserDao" />
-  </bean>
-
   <!-- ======================== RememberMe ========================== -->
 
   <bean id="rememberMeServices" class="org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">

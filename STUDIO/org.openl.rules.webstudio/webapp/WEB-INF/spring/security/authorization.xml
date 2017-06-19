@@ -26,7 +26,7 @@
     </bean>
 
     <!-- ======================== Roles ========================== -->
-    <bean id="roleVoter" class="org.openl.rules.security.standalone.AccessVoter" />
+    <bean id="roleVoter" class="org.openl.rules.security.AccessVoter" />
     <bean id="accessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
         <property name="allowIfAllAbstainDecisions" value="false" />
         <constructor-arg name="decisionVoters">
