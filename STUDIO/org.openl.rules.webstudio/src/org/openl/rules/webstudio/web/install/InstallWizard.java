@@ -65,6 +65,7 @@ public class InstallWizard {
     private static final String MULTI_USER_MODE = "multi";
     private static final String AD_USER_MODE = "ad";
     private static final String CAS_USER_MODE = "cas";
+    private static final String SAML_USER_MODE = "saml";
     private static final String USER_MODE_DEMO = "demo";
     private static final String VIEWERS_GROUP = "Viewers";
     private static final String ADMINISTRATORS_GROUP = "Administrators";
@@ -98,6 +99,7 @@ public class InstallWizard {
     private String adPassword;
 
     private CASSettings casSettings;
+    private SAMLSettings samlSettings;
 
     private ConfigurationManager appConfig;
     private ConfigurationManager systemConfig;
@@ -176,6 +178,7 @@ public class InstallWizard {
                 readDbProperties();
                 readAdProperties();
                 readCasProperties();
+                readSamlProperties();
             } else if (step == 4) {
                 initializeTemporaryContext();
                 // GroupManagementService delegate is transactional and properly initialized
@@ -247,6 +250,22 @@ public class InstallWizard {
         );
     }
 
+    private void readSamlProperties() {
+        samlSettings = new SAMLSettings(
+                systemConfig.getStringProperty("security.saml.app-url"),
+                systemConfig.getStringProperty("security.saml.saml-server-metadata-url"),
+                systemConfig.getIntegerProperty("security.saml.request-timeout"),
+                systemConfig.getStringProperty("security.saml.keystore-file-path"),
+                systemConfig.getStringProperty("security.saml.keystore-password"),
+                systemConfig.getStringProperty("security.saml.keystore-sp-alias"),
+                systemConfig.getStringProperty("security.saml.keystore-sp-password"),
+                systemConfig.getStringProperty("security.saml.default-group"),
+                systemConfig.getStringProperty("security.saml.attribute.first-name"),
+                systemConfig.getStringProperty("security.saml.attribute.last-name"),
+                systemConfig.getStringProperty("security.saml.attribute.groups")
+        );
+    }
+
     public String finish() {
         try {
             if (MULTI_USER_MODE.equals(userMode)) {
@@ -275,6 +294,23 @@ public class InstallWizard {
                     systemConfig.setProperty("security.cas.attribute.first-name", casSettings.getFirstNameAttribute());
                     systemConfig.setProperty("security.cas.attribute.last-name", casSettings.getSecondNameAttribute());
                     systemConfig.setProperty("security.cas.attribute.groups", casSettings.getGroupsAttribute());
+                } else if (SAML_USER_MODE.equals(userMode)) {
+                    fillDbForUserManagement();
+                    dbConfig.save();
+
+                    samlSettings.setDefaultGroup(allowAccessToNewUsers ? VIEWERS_GROUP : "");
+
+                    systemConfig.setProperty("security.saml.app-url", samlSettings.getWebStudioUrl());
+                    systemConfig.setProperty("security.saml.saml-server-metadata-url", samlSettings.getSamlServerMetadataUrl());
+                    systemConfig.setProperty("security.saml.request-timeout", samlSettings.getRequestTimeout());
+                    systemConfig.setProperty("security.saml.keystore-file-path", samlSettings.getKeystoreFilePath());
+                    systemConfig.setProperty("security.saml.keystore-password", samlSettings.getKeystorePassword());
+                    systemConfig.setProperty("security.saml.keystore-sp-alias", samlSettings.getKeystoreSpAlias());
+                    systemConfig.setProperty("security.saml.default-group", samlSettings.getDefaultGroup());
+                    systemConfig.setProperty("security.saml.attribute.first-name", samlSettings.getFirstNameAttribute());
+                    systemConfig.setProperty("security.saml.attribute.last-name", samlSettings.getSecondNameAttribute());
+                    systemConfig.setProperty("security.saml.attribute.groups", samlSettings.getGroupsAttribute());
+
                 } else {
                     dbConfig.restoreDefaults();
                 }
@@ -454,6 +490,61 @@ public class InstallWizard {
             } catch (RuntimeException e) {
                 throw new ValidatorException(FacesUtils.createErrorMessage(getCauseExceptionMessage(e)));
             }
+        }
+    }
+
+    public void casValidator(FacesContext context, UIComponent toValidate, Object value) {
+        UIViewRoot viewRoot = context.getViewRoot();
+
+        String webStudioUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:casWebStudioUrl")).getValue();
+        String serverUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:casServerUrl")).getValue();
+
+        if (StringUtils.isBlank(webStudioUrl)) {
+            throw new ValidatorException(FacesUtils.createErrorMessage("WebStudio server URL can not be blank"));
+        }
+
+        if (StringUtils.isBlank(serverUrl)) {
+            throw new ValidatorException(FacesUtils.createErrorMessage("CAS server url can not be blank"));
+        }
+    }
+
+    public void samlValidator(FacesContext context, UIComponent toValidate, Object value) {
+        UIViewRoot viewRoot = context.getViewRoot();
+
+        String webStudioUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:samlWebStudioUrl")).getValue();
+        String serverUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerUrl")).getValue();
+        Integer requestTimeout = (Integer) ((UIInput) viewRoot.findComponent("step3Form:samlRequestTimeout")).getValue();
+        String keystoreFilePath = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystoreFilePath")).getValue();
+        String keystorePassword = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystorePassword")).getValue();
+        String keystoreSpAlias = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystoreSpAlias")).getValue();
+        String keystoreSpPassword = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystoreSpPassword")).getValue();
+
+        if (StringUtils.isBlank(webStudioUrl)) {
+            throw new ValidatorException(FacesUtils.createErrorMessage("WebStudio server URL can not be blank"));
+        }
+
+        if (StringUtils.isBlank(serverUrl)) {
+            throw new ValidatorException(FacesUtils.createErrorMessage("SAML server metadata url can not be blank"));
+        }
+
+        if (requestTimeout == null) {
+            throw new ValidatorException(FacesUtils.createErrorMessage("Request timeout can not be blank"));
+        }
+
+        if (StringUtils.isBlank(keystoreFilePath)) {
+            throw new ValidatorException(FacesUtils.createErrorMessage("Keystore path can not be blank"));
+        }
+
+        if (StringUtils.isBlank(keystorePassword)) {
+            throw new ValidatorException(FacesUtils.createErrorMessage("Keystore password can not be blank"));
+        }
+
+        if (StringUtils.isBlank(keystoreSpAlias)) {
+            throw new ValidatorException(FacesUtils.createErrorMessage("Keystore SP alias can not be blank"));
+        }
+
+        if (StringUtils.isBlank(keystoreSpPassword)) {
+            throw new ValidatorException(FacesUtils.createErrorMessage("Keystore SP password can not be blank"));
         }
     }
 
@@ -725,8 +816,8 @@ public class InstallWizard {
         return casSettings;
     }
 
-    public void setCasSettings(CASSettings casSettings) {
-        this.casSettings = casSettings;
+    public SAMLSettings getSamlSettings() {
+        return samlSettings;
     }
 
     public boolean isShowErrorMessage() {

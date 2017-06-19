@@ -28,7 +28,7 @@
         }
 
         #user-mode-block-selector > .field-edit {
-            width: 40%;
+            width: 20%;
         }
 
         #user-mode-block-selector > .field-description {
@@ -59,7 +59,8 @@
                                     <f:selectItem itemValue="single" itemLabel="Single-user" />
                                     <f:selectItem itemValue="multi" itemLabel="Multi-user" />
                                     <f:selectItem itemValue="ad" itemLabel="Active Directory" />
-                                    <f:selectItem itemValue="cas" itemLabel="Central Authentication Service (CAS)" />
+                                    <f:selectItem itemValue="cas" itemLabel="SSO: CAS" />
+                                    <f:selectItem itemValue="saml" itemLabel="SSO: SAML" />
                                     <f:selectItem itemValue="demo" itemLabel="Demo" />
                                 </h:selectOneRadio>
                             </div><!-- Remove whitespace between nearby divs
@@ -67,7 +68,8 @@
                                 <p class="user-mode-single">Only the currently logged in user can run OpenL Tablets WebStudio. All user projects will be saved in the root of the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace' directory.</p>
                                 <p class="user-mode-multi">Multiple users can run OpenL Tablets WebStudio using their unique user names. The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. User credentials are managed inside WebStudio.</p>
                                 <p class="user-mode-ad">Multiple users can run OpenL Tablets WebStudio using their unique user names. The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. Active Directory will be used to authenticate and manage user credentials.</p>
-                                <p class="user-mode-cas">Multiple users can run OpenL Tablets WebStudio using their unique user names. The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. CAS server be used to authenticate and manage user credentials.</p>
+                                <p class="user-mode-cas">Multiple users can run OpenL Tablets WebStudio using their unique user names. The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. CAS (Central Authentication Service) server will be used to authenticate and manage user credentials.</p>
+                                <p class="user-mode-saml">Multiple users can run OpenL Tablets WebStudio using their unique user names. The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. SAML (Security Assertion Markup Language) supporting Identity Provider server will be used to authenticate and manage user credentials.</p>
                                 <p class="user-mode-demo">You will use an internal User Database with predefined list of users. All changes in the database will be lost after the application restart. The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder.</p>
                             </div>
                         </div>
@@ -164,14 +166,14 @@
                                         <a4j:outputPanel styleClass="installMessages" ajaxRendered="true">
                                             <h:messages infoClass="success" errorClass="error" showDetail="true"
                                                         showSummary="false" tooltip="true" globalOnly="true" />
-                                            <h:message  class="error" for="casGroupsAttribute" />
+                                            <h:message  class="error" for="casWebStudioUrl" />
                                         </a4j:outputPanel>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label class="required">WebStudio server URL:</label></td>
                                     <td>
-                                        <h:inputText id="webStudioUrl" value="#{installWizard.casSettings.webStudioUrl}" size="40"/>
+                                        <h:inputText id="casWebStudioUrl" value="#{installWizard.casSettings.webStudioUrl}" size="40" validator="#{installWizard.casValidator}"/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -196,6 +198,87 @@
                                     <td><label class="required">Attribute for Groups:</label></td>
                                     <td>
                                         <h:inputText id="casGroupsAttribute" value="#{installWizard.casSettings.groupsAttribute}" size="40"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="wizard-block" id="samlBlock">
+                        <h3>SAML:
+                            <div class="field-description">
+                                <p>Set up SAML to use for managing users in OpenL Tablets WebStudio.<br />
+                                    Please contact your System Administrator for this information if necessary.</p>
+                            </div>
+                        </h3>
+                        <div>
+                            <table>
+                                <tr>
+                                    <td colspan="2">
+                                        <a4j:outputPanel styleClass="installMessages" ajaxRendered="true">
+                                            <h:messages infoClass="success" errorClass="error" showDetail="true"
+                                                        showSummary="false" tooltip="true" globalOnly="true" />
+                                            <h:message  class="error" for="samlWebStudioUrl" />
+                                        </a4j:outputPanel>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label class="required">WebStudio server URL:</label></td>
+                                    <td>
+                                        <h:inputText id="samlWebStudioUrl" value="#{installWizard.samlSettings.webStudioUrl}" size="40" validator="#{installWizard.samlValidator}"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label class="required">SAML server metadata url:</label></td>
+                                    <td>
+                                        <h:inputText id="samlServerUrl" value="#{installWizard.samlSettings.samlServerMetadataUrl}" size="40"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label class="required">Request timeout</label></td>
+                                    <td>
+                                        <h:inputText id="samlRequestTimeout" value="#{installWizard.samlSettings.requestTimeout}" size="40"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label class="required">Keystore path</label></td>
+                                    <td>
+                                        <h:inputText id="samlKeystoreFilePath" value="#{installWizard.samlSettings.keystoreFilePath}" size="40"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label class="required">Keystore password</label></td>
+                                    <td>
+                                        <h:inputSecret id="samlKeystorePassword" value="#{installWizard.samlSettings.keystorePassword}" size="40"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label class="required">Keystore SP alias</label></td>
+                                    <td>
+                                        <h:inputText id="samlKeystoreSpAlias" value="#{installWizard.samlSettings.keystoreSpAlias}" size="40"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label class="required">Keystore SP password</label></td>
+                                    <td>
+                                        <h:inputSecret id="samlKeystoreSpPassword" value="#{installWizard.samlSettings.keystoreSpPassword}" size="40"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label>Attribute for First Name:</label></td>
+                                    <td>
+                                        <h:inputText id="samlFirstNameAttribute" value="#{installWizard.samlSettings.firstNameAttribute}" size="40"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label>Attribute for Second Name:</label></td>
+                                    <td>
+                                        <h:inputText id="samlSecondNameAttribute" value="#{installWizard.samlSettings.secondNameAttribute}" size="40"/>
+                                    </td>
+                                </tr>
+                                <tr id="saml-group-field">
+                                    <td><label class="required">Attribute for Groups:</label></td>
+                                    <td>
+                                        <h:inputText id="samlGroupsAttribute" value="#{installWizard.samlSettings.groupsAttribute}" size="40"/>
                                     </td>
                                 </tr>
                             </table>
@@ -314,16 +397,17 @@
                     var groupsInStudio = $j("#groupsManagingModeBlock input:checked").val() === "true";
 
                     toggleBlock("#dbBlock", userMode !== "single" && userMode !== "demo");
-                    toggleBlock("#groupsManagingModeBlock", userMode === "ad" || userMode === "cas");
+                    toggleBlock("#groupsManagingModeBlock", userMode === "ad" || userMode === "cas" || userMode === "saml");
 
                     toggleBlock("#adBlock", userMode === "ad");
                     toggleBlock("#casBlock", userMode === "cas");
+                    toggleBlock("#samlBlock", userMode === "saml");
 
-                    toggleBlock("#internalGroupsBlock", (userMode === "ad" || userMode === "cas") && groupsInStudio);
-                    toggleBlock("#cas-group-field", !groupsInStudio);
+                    toggleBlock("#internalGroupsBlock", (userMode === "ad" || userMode === "cas" || userMode === "saml") && groupsInStudio);
+                    toggleBlock("#cas-group-field,#saml-group-field", !groupsInStudio);
 
-                    toggleBlock("#finish-buttons", userMode !== "ad" && userMode !== "cas" || groupsInStudio);
-                    toggleBlock("#next-buttons", (userMode === "ad" || userMode === "cas") && !groupsInStudio);
+                    toggleBlock("#finish-buttons", userMode !== "ad" && userMode !== "cas" && userMode !== "saml" || groupsInStudio);
+                    toggleBlock("#next-buttons", (userMode === "ad" || userMode === "cas" || userMode === "saml") && !groupsInStudio);
 
                     $j("#user-mode-block-selector .field-description > p").hide();
                     $j("#user-mode-block-selector .field-description > p.user-mode-" + userMode).show();

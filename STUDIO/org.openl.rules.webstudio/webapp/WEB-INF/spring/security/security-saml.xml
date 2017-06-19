@@ -76,14 +76,14 @@
 
     <!-- Central storage of cryptographic keys -->
     <bean id="keyManager" class="org.springframework.security.saml.key.JKSKeyManager">
-        <constructor-arg name="storeFile" value="#{systemConfig['security.saml.idp-keystore-file-path']}"/>
-        <constructor-arg name="storePass" value="#{systemConfig['security.saml.idp-keystore-password']}"/>
+        <constructor-arg name="storeFile" value="#{systemConfig['security.saml.keystore-file-path']}"/>
+        <constructor-arg name="storePass" value="#{systemConfig['security.saml.keystore-password']}"/>
         <constructor-arg name="passwords">
             <map>
-                <entry key="#{systemConfig['security.saml.idp-keystore-alias']}" value="#{systemConfig['security.saml.idp-keystore-password']}"/>
+                <entry key="#{systemConfig['security.saml.keystore-sp-alias']}" value="#{systemConfig['security.saml.keystore-sp-password']}"/>
             </map>
         </constructor-arg>
-        <constructor-arg name="defaultKey" value="#{systemConfig['security.saml.idp-keystore-alias']}"/>
+        <constructor-arg name="defaultKey" value="#{systemConfig['security.saml.keystore-sp-alias']}"/>
     </bean>
 
     <!-- Entry point to initialize authentication, default values taken from properties file. Both entry point and filter. -->
