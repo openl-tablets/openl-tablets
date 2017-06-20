@@ -179,6 +179,17 @@ public class InstallWizard {
                 readAdProperties();
                 readCasProperties();
                 readSamlProperties();
+
+                if (userMode.equals(AD_USER_MODE)) {
+                    groupsAreManagedInStudio = systemConfig.getBooleanProperty("security.ad.groups-are-managed-in-studio");
+                    allowAccessToNewUsers = !StringUtils.isBlank(systemConfig.getStringProperty("security.ad.default-group"));
+                } else if (userMode.equals(CAS_USER_MODE)) {
+                    groupsAreManagedInStudio = StringUtils.isBlank(systemConfig.getStringProperty("security.cas.attribute.groups"));
+                    allowAccessToNewUsers = !StringUtils.isBlank(systemConfig.getStringProperty("security.cas.default-group"));
+                } else if (userMode.equals(SAML_USER_MODE)) {
+                    groupsAreManagedInStudio = StringUtils.isBlank(systemConfig.getStringProperty("security.saml.attribute.groups"));
+                    allowAccessToNewUsers = !StringUtils.isBlank(systemConfig.getStringProperty("security.saml.default-group"));
+                }
             } else if (step == 4) {
                 initializeTemporaryContext();
                 // GroupManagementService delegate is transactional and properly initialized
@@ -235,8 +246,6 @@ public class InstallWizard {
     private void readAdProperties() {
         adDomain = systemConfig.getStringProperty("security.ad.domain");
         adUrl = systemConfig.getStringProperty("security.ad.server-url");
-        groupsAreManagedInStudio = systemConfig.getBooleanProperty("security.ad.groups-are-managed-in-studio");
-        allowAccessToNewUsers = !StringUtils.isBlank(systemConfig.getStringProperty("security.ad.default-group"));
     }
 
     private void readCasProperties() {
