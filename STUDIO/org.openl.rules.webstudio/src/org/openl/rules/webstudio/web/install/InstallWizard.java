@@ -499,8 +499,8 @@ public class InstallWizard {
     public void casValidator(FacesContext context, UIComponent toValidate, Object value) {
         UIViewRoot viewRoot = context.getViewRoot();
 
-        String webStudioUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:casWebStudioUrl")).getValue();
-        String serverUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:casServerUrl")).getValue();
+        String webStudioUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:casWebStudioUrl")).getSubmittedValue();
+        String serverUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:casServerUrl")).getSubmittedValue();
 
         if (StringUtils.isBlank(webStudioUrl)) {
             throw new ValidatorException(FacesUtils.createErrorMessage("WebStudio server URL can not be blank"));
@@ -514,13 +514,13 @@ public class InstallWizard {
     public void samlValidator(FacesContext context, UIComponent toValidate, Object value) {
         UIViewRoot viewRoot = context.getViewRoot();
 
-        String webStudioUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:samlWebStudioUrl")).getValue();
-        String serverUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerUrl")).getValue();
-        Integer requestTimeout = (Integer) ((UIInput) viewRoot.findComponent("step3Form:samlRequestTimeout")).getValue();
-        String keystoreFilePath = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystoreFilePath")).getValue();
-        String keystorePassword = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystorePassword")).getValue();
-        String keystoreSpAlias = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystoreSpAlias")).getValue();
-        String keystoreSpPassword = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystoreSpPassword")).getValue();
+        String webStudioUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:samlWebStudioUrl")).getSubmittedValue();
+        String serverUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerUrl")).getSubmittedValue();
+        String requestTimeout = (String) ((UIInput) viewRoot.findComponent("step3Form:samlRequestTimeout")).getSubmittedValue();
+        String keystoreFilePath = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystoreFilePath")).getSubmittedValue();
+        String keystorePassword = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystorePassword")).getSubmittedValue();
+        String keystoreSpAlias = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystoreSpAlias")).getSubmittedValue();
+        String keystoreSpPassword = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystoreSpPassword")).getSubmittedValue();
 
         if (StringUtils.isBlank(webStudioUrl)) {
             throw new ValidatorException(FacesUtils.createErrorMessage("WebStudio server URL can not be blank"));
@@ -530,7 +530,7 @@ public class InstallWizard {
             throw new ValidatorException(FacesUtils.createErrorMessage("SAML server metadata url can not be blank"));
         }
 
-        if (requestTimeout == null) {
+        if (StringUtils.isBlank(requestTimeout)) {
             throw new ValidatorException(FacesUtils.createErrorMessage("Request timeout can not be blank"));
         }
 
