@@ -7,6 +7,7 @@ import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.SimpleUser;
 import org.openl.util.StringUtils;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.saml.SAMLCredential;
 import org.springframework.security.saml.userdetails.SAMLUserDetailsService;
@@ -16,15 +17,21 @@ public class SAMLAttributesToOpenLUserDetailsService implements SAMLUserDetailsS
     private final String firstNameAttribute;
     private final String lastNameAttribute;
     private final String groupsAttribute;
+    /**
+     * Must map to {@link org.openl.rules.security.Privilege}
+     */
+    private final GrantedAuthoritiesMapper authoritiesMapper;
 
     public SAMLAttributesToOpenLUserDetailsService(String usernameAttribute,
             String firstNameAttribute,
             String lastNameAttribute,
-            String groupsAttribute) {
+            String groupsAttribute,
+            GrantedAuthoritiesMapper authoritiesMapper) {
         this.usernameAttribute = usernameAttribute;
         this.firstNameAttribute = firstNameAttribute;
         this.lastNameAttribute = lastNameAttribute;
         this.groupsAttribute = groupsAttribute;
+        this.authoritiesMapper = authoritiesMapper;
     }
 
     @Override
@@ -55,6 +62,8 @@ public class SAMLAttributesToOpenLUserDetailsService implements SAMLUserDetailsS
             }
         }
 
-        return new SimpleUser(firstName, lastName, username, null, grantedAuthorities);
+        @SuppressWarnings("unchecked")
+        List<Privilege> privileges = (List<Privilege>) authoritiesMapper.mapAuthorities(grantedAuthorities);
+        return new SimpleUser(firstName, lastName, username, null, privileges);
     }
 }

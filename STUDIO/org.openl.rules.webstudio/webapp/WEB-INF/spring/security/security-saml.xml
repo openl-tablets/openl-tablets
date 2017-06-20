@@ -149,6 +149,7 @@
                 <constructor-arg name="firstNameAttribute" value="#{systemConfig['security.saml.attribute.first-name']}"/>
                 <constructor-arg name="lastNameAttribute" value="#{systemConfig['security.saml.attribute.last-name']}"/>
                 <constructor-arg name="groupsAttribute" value="#{systemConfig['security.saml.attribute.groups']}"/>
+                <constructor-arg name="authoritiesMapper" ref="authoritiesMapper"/>
             </bean>
         </property>
         <property name="forcePrincipalAsString" value="false"/>
