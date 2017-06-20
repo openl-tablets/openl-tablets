@@ -145,11 +145,13 @@
         <!-- OPTIONAL property: can be used to store/load user data after login -->
         <property name="userDetails">
             <bean class="org.openl.rules.webstudio.security.SAMLAttributesToOpenLUserDetailsService">
+                <constructor-arg name="usernameAttribute" value="#{systemConfig['security.saml.attribute.username']}"/>
                 <constructor-arg name="firstNameAttribute" value="#{systemConfig['security.saml.attribute.first-name']}"/>
                 <constructor-arg name="lastNameAttribute" value="#{systemConfig['security.saml.attribute.last-name']}"/>
                 <constructor-arg name="groupsAttribute" value="#{systemConfig['security.saml.attribute.groups']}"/>
             </bean>
         </property>
+        <property name="forcePrincipalAsString" value="false"/>
     </bean>
 
     <bean id="groupsAreManagedInStudio" class="java.lang.Boolean">

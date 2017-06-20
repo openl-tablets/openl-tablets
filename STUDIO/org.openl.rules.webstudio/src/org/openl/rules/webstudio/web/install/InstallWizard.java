@@ -260,6 +260,7 @@ public class InstallWizard {
                 systemConfig.getStringProperty("security.saml.keystore-sp-alias"),
                 systemConfig.getStringProperty("security.saml.keystore-sp-password"),
                 systemConfig.getStringProperty("security.saml.default-group"),
+                systemConfig.getStringProperty("security.saml.attribute.username"),
                 systemConfig.getStringProperty("security.saml.attribute.first-name"),
                 systemConfig.getStringProperty("security.saml.attribute.last-name"),
                 systemConfig.getStringProperty("security.saml.attribute.groups")
@@ -306,7 +307,9 @@ public class InstallWizard {
                     systemConfig.setProperty("security.saml.keystore-file-path", samlSettings.getKeystoreFilePath());
                     systemConfig.setProperty("security.saml.keystore-password", samlSettings.getKeystorePassword());
                     systemConfig.setProperty("security.saml.keystore-sp-alias", samlSettings.getKeystoreSpAlias());
+                    systemConfig.setProperty("security.saml.keystore-sp-password", samlSettings.getKeystoreSpPassword());
                     systemConfig.setProperty("security.saml.default-group", samlSettings.getDefaultGroup());
+                    systemConfig.setProperty("security.saml.attribute.username", samlSettings.getUsernameAttribute());
                     systemConfig.setProperty("security.saml.attribute.first-name", samlSettings.getFirstNameAttribute());
                     systemConfig.setProperty("security.saml.attribute.last-name", samlSettings.getSecondNameAttribute());
                     systemConfig.setProperty("security.saml.attribute.groups", samlSettings.getGroupsAttribute());

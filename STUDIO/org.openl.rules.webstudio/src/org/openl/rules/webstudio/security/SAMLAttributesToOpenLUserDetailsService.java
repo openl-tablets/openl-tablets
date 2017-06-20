@@ -12,11 +12,16 @@ import org.springframework.security.saml.SAMLCredential;
 import org.springframework.security.saml.userdetails.SAMLUserDetailsService;
 
 public class SAMLAttributesToOpenLUserDetailsService implements SAMLUserDetailsService {
+    private final String usernameAttribute;
     private final String firstNameAttribute;
     private final String lastNameAttribute;
     private final String groupsAttribute;
 
-    public SAMLAttributesToOpenLUserDetailsService(String firstNameAttribute, String lastNameAttribute, String groupsAttribute) {
+    public SAMLAttributesToOpenLUserDetailsService(String usernameAttribute,
+            String firstNameAttribute,
+            String lastNameAttribute,
+            String groupsAttribute) {
+        this.usernameAttribute = usernameAttribute;
         this.firstNameAttribute = firstNameAttribute;
         this.lastNameAttribute = lastNameAttribute;
         this.groupsAttribute = groupsAttribute;
@@ -25,8 +30,13 @@ public class SAMLAttributesToOpenLUserDetailsService implements SAMLUserDetailsS
     @Override
     public Object loadUserBySAML(SAMLCredential credential) throws UsernameNotFoundException {
         final List<Privilege> grantedAuthorities = new ArrayList<Privilege>();
+        String username = credential.getNameID().getValue();
         String firstName = null;
         String lastName = null;
+
+        if (StringUtils.isNotBlank(usernameAttribute)) {
+            username = credential.getAttributeAsString(usernameAttribute);
+        }
 
         if (StringUtils.isNotBlank(firstNameAttribute)) {
             firstName = credential.getAttributeAsString(firstNameAttribute);
@@ -45,6 +55,6 @@ public class SAMLAttributesToOpenLUserDetailsService implements SAMLUserDetailsS
             }
         }
 
-        return new SimpleUser(firstName, lastName, credential.getNameID().getValue(), null, grantedAuthorities);
+        return new SimpleUser(firstName, lastName, username, null, grantedAuthorities);
     }
 }

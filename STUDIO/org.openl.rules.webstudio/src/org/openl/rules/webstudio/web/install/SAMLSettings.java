@@ -9,6 +9,7 @@ public class SAMLSettings {
     private String keystoreSpAlias;
     private String keystoreSpPassword;
     private String defaultGroup;
+    private String usernameAttribute;
     private String firstNameAttribute;
     private String secondNameAttribute;
     private String groupsAttribute;
@@ -19,7 +20,7 @@ public class SAMLSettings {
             String keystoreFilePath,
             String keystorePassword, String keystoreSpAlias,
             String keystoreSpPassword, String defaultGroup,
-            String firstNameAttribute, String secondNameAttribute, String groupsAttribute) {
+            String usernameAttribute, String firstNameAttribute, String secondNameAttribute, String groupsAttribute) {
         this.webStudioUrl = webStudioUrl;
         this.samlServerMetadataUrl = samlServerMetadataUrl;
         this.requestTimeout = requestTimeout;
@@ -28,6 +29,7 @@ public class SAMLSettings {
         this.keystorePassword = keystorePassword;
         this.keystoreSpPassword = keystoreSpPassword;
         this.defaultGroup = defaultGroup;
+        this.usernameAttribute = usernameAttribute;
         this.firstNameAttribute = firstNameAttribute;
         this.secondNameAttribute = secondNameAttribute;
         this.groupsAttribute = groupsAttribute;
@@ -95,6 +97,14 @@ public class SAMLSettings {
 
     public void setDefaultGroup(String defaultGroup) {
         this.defaultGroup = defaultGroup;
+    }
+
+    public String getUsernameAttribute() {
+        return usernameAttribute;
+    }
+
+    public void setUsernameAttribute(String usernameAttribute) {
+        this.usernameAttribute = usernameAttribute;
     }
 
     public String getFirstNameAttribute() {
