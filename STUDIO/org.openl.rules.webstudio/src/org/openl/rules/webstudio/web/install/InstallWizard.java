@@ -161,7 +161,7 @@ public class InstallWizard {
 
                 // Get defaults from 'system.properties'
                 if (newWorkingDir || systemConfig == null) {
-                    systemConfig = new ConfigurationManager(true,
+                    systemConfig = new ConfigurationManager(false,
                             workingDir + "/system-settings/system.properties",
                             System.getProperty("webapp.root") + "/WEB-INF/conf/system.properties");
                     designRepositoryConfiguration = new RepositoryConfiguration("", systemConfig, RepositoryType.DESIGN);
