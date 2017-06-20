@@ -501,6 +501,7 @@ public class InstallWizard {
 
         String webStudioUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:casWebStudioUrl")).getSubmittedValue();
         String serverUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:casServerUrl")).getSubmittedValue();
+        String groupsAttribute = (String) ((UIInput) viewRoot.findComponent("step3Form:casGroupsAttribute")).getSubmittedValue();
 
         if (StringUtils.isBlank(webStudioUrl)) {
             throw new ValidatorException(FacesUtils.createErrorMessage("WebStudio server URL can not be blank"));
@@ -508,6 +509,10 @@ public class InstallWizard {
 
         if (StringUtils.isBlank(serverUrl)) {
             throw new ValidatorException(FacesUtils.createErrorMessage("CAS server url can not be blank"));
+        }
+
+        if (!groupsAreManagedInStudio && StringUtils.isBlank(groupsAttribute)) {
+            throw new ValidatorException(FacesUtils.createErrorMessage("Attribute for Groups can not be blank or Internal User Management must be selected"));
         }
     }
 
@@ -521,6 +526,7 @@ public class InstallWizard {
         String keystorePassword = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystorePassword")).getSubmittedValue();
         String keystoreSpAlias = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystoreSpAlias")).getSubmittedValue();
         String keystoreSpPassword = (String) ((UIInput) viewRoot.findComponent("step3Form:samlKeystoreSpPassword")).getSubmittedValue();
+        String groupsAttribute = (String) ((UIInput) viewRoot.findComponent("step3Form:samlGroupsAttribute")).getSubmittedValue();
 
         if (StringUtils.isBlank(webStudioUrl)) {
             throw new ValidatorException(FacesUtils.createErrorMessage("WebStudio server URL can not be blank"));
@@ -548,6 +554,10 @@ public class InstallWizard {
 
         if (StringUtils.isBlank(keystoreSpPassword)) {
             throw new ValidatorException(FacesUtils.createErrorMessage("Keystore SP password can not be blank"));
+        }
+
+        if (!groupsAreManagedInStudio && StringUtils.isBlank(groupsAttribute)) {
+            throw new ValidatorException(FacesUtils.createErrorMessage("Attribute for Groups can not be blank or Internal User Management must be selected"));
         }
     }
 
