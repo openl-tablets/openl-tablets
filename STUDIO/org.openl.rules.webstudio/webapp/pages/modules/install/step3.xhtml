@@ -22,20 +22,20 @@
             min-width: 145px;
         }
 
-        #user-mode-block-selector > div {
+        .block-with-description > div {
             display: table-cell;
             vertical-align: top;
         }
 
-        #user-mode-block-selector > .field-edit {
-            width: 20%;
+        .block-with-description > .field-edit {
+            width: 30%;
         }
 
-        #user-mode-block-selector > .field-description {
+        .block-with-description > .field-description {
             padding: 10px;
             background-color: #f2f2f2;
         }
-        #user-mode-block-selector > .field-description > p {
+        .block-with-description > .field-description > p {
             margin: 0;
 
             /* Default value to reduce blinking. Is changed by js when the page is loaded. */
@@ -53,9 +53,9 @@
                                 <p>User mode defines how many users can run the application and where user projects will be located by default.</p>
                             </div>
                         </h3>
-                        <div id="user-mode-block-selector">
+                        <div class="block-with-description">
                             <div class="field-edit">
-                                <h:selectOneRadio value="#{installWizard.userMode}" layout="pageDirection" >
+                                <h:selectOneRadio id="userMode" value="#{installWizard.userMode}" layout="pageDirection" >
                                     <f:selectItem itemValue="single" itemLabel="Single-user" />
                                     <f:selectItem itemValue="multi" itemLabel="Multi-user" />
                                     <f:selectItem itemValue="ad" itemLabel="Active Directory" />
@@ -78,16 +78,20 @@
                         <h3>Select how user permissions will be managed:
                             <div class="field-description">
                                 <p>Here you should choose where user permissions will be managed.</p>
-                                <p><strong>Internal user management</strong> – You will use WebStudio to assign Active Directory or SSO users to Groups.</p>
-                                <p><strong>External user management</strong> – User groups will be managed in Active Directory or SSO. You must configure user attributes in Active Directory or SSO to be equal to OpenL groups.</p>
                             </div>
                         </h3>
-                        <div>
-                            <h:selectOneRadio id="groupsAreManagedInStudio" value="#{installWizard.groupsAreManagedInStudio}" layout="pageDirection" immediate="true">
-                                <f:selectItem itemValue="true" itemLabel="Internal user management" />
-                                <f:selectItem itemValue="false" itemLabel="External user management" />
-                                <f:ajax  listener="#{installWizard.groupsAreManagedInStudioChanged}" />
-                            </h:selectOneRadio>
+                        <div class="block-with-description">
+                            <div class="field-edit">
+                                <h:selectOneRadio id="groupsAreManagedInStudio" value="#{installWizard.groupsAreManagedInStudio}" layout="pageDirection" immediate="true">
+                                    <f:selectItem itemValue="true" itemLabel="Internal user management" />
+                                    <f:selectItem itemValue="false" itemLabel="External user management" />
+                                    <f:ajax  listener="#{installWizard.groupsAreManagedInStudioChanged}" />
+                                </h:selectOneRadio>
+                            </div>
+                            <div class="field-description">
+                                <p class="user-managemement-internal">You will use WebStudio to assign Active Directory or SSO users to Groups. You can create any groups and will manage authenticated user permissions in WebStudio</p>
+                                <p class="user-managemement-external">User groups will be managed in Active Directory or SSO. You must configure user attributes in Active Directory or SSO to be equal to OpenL groups.</p>
+                            </div>
                         </div>
                     </div>
                     <div class="wizard-block" id="adBlock">
@@ -415,8 +419,9 @@
                     toggleBlock("#finish-buttons", userMode !== "ad" && userMode !== "cas" && userMode !== "saml" || groupsInStudio);
                     toggleBlock("#next-buttons", (userMode === "ad" || userMode === "cas" || userMode === "saml") && !groupsInStudio);
 
-                    $j("#user-mode-block-selector .field-description > p").hide();
-                    $j("#user-mode-block-selector .field-description > p.user-mode-" + userMode).show();
+                    $j(".block-with-description .field-description > p").hide();
+                    $j(".block-with-description p.user-mode-" + userMode).show();
+                    $j(".block-with-description p.user-managemement-" + (groupsInStudio ? "internal" : "external")).show();
                 };
 
                 var updateCheckConnectionButton = function () {
