@@ -32,6 +32,11 @@
 
     <alias name="groupsAreManagedInStudio" alias="canCreateExternalUsers"/>
 
+    <!-- REST services for now can login using internal user login. We should allow to create internal users -->
+    <bean id="canCreateInternalUsers" class="java.lang.Boolean">
+        <constructor-arg type="boolean" value="true"/>
+    </bean>
+
     <!-- ======================== Logout ========================== -->
 
     <bean id="logoutUrl" class="java.lang.String">

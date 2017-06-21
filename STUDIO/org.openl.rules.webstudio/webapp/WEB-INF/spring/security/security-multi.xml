@@ -16,6 +16,10 @@
     <constructor-arg type="boolean" value="false"/>
   </bean>
 
+  <bean id="canCreateInternalUsers" class="java.lang.Boolean">
+    <constructor-arg type="boolean" value="true"/>
+  </bean>
+
   <util:list id="authenticationProviders">
     <ref bean="daoAuthenticationProvider" />
     <ref bean="rememberMeAuthenticationProvider" />

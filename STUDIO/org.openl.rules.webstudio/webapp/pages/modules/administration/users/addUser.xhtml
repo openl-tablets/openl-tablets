@@ -19,9 +19,9 @@
         <h:form id="addUserForm">
         <div style="max-height: 370px; overflow: auto;">
             <h:panelGrid columns="3" cellspacing="5">
-                <h:panelGroup rendered="#{usersBean.canCreateExternalUsers}"><label>Internal user</label></h:panelGroup>
-                <h:selectBooleanCheckbox id="internalUser" rendered="#{usersBean.canCreateExternalUsers}" value="#{usersBean.internalUser}"/>
-                <h:panelGroup rendered="#{usersBean.canCreateExternalUsers}"> </h:panelGroup>
+                <h:panelGroup rendered="#{usersBean.canSelectInternalOrExternal}"><label>Internal user</label></h:panelGroup>
+                <h:selectBooleanCheckbox id="internalUser" rendered="#{usersBean.canSelectInternalOrExternal}" value="#{usersBean.internalUser}"/>
+                <h:panelGroup rendered="#{usersBean.canSelectInternalOrExternal}"> </h:panelGroup>
 
                 <label class="required">Username</label>
                 <h:inputText id="username" value="#{usersBean.username}"
@@ -30,9 +30,9 @@
                     <h:message for="username" styleClass="error" />
                 </a4j:outputPanel>
 
-                <label class="required">Password</label>
-                <h:inputSecret id="password" value="#{usersBean.password}" />
-                <a4j:outputPanel ajaxRendered="true" id="passwordError">
+                <h:panelGroup rendered="#{usersBean.canCreateInternalUsers}"><label class="required">Password</label></h:panelGroup>
+                <h:inputSecret id="password" value="#{usersBean.password}" rendered="#{usersBean.canCreateInternalUsers}"/>
+                <a4j:outputPanel ajaxRendered="true" id="passwordError" rendered="#{usersBean.canCreateInternalUsers}">
                     <h:message for="password" styleClass="error" />
                 </a4j:outputPanel>
 

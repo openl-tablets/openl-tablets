@@ -76,6 +76,9 @@ public class UsersBean {
     @ManagedProperty(value = "#{passwordEncoder}")
     protected PasswordEncoder passwordEncoder;
 
+    @ManagedProperty(value = "#{canCreateInternalUsers}")
+    protected boolean canCreateInternalUsers;
+
     @ManagedProperty(value = "#{canCreateExternalUsers}")
     protected boolean canCreateExternalUsers;
 
@@ -154,7 +157,8 @@ public class UsersBean {
     }
 
     public void addUser() {
-        String passwordHash = canCreateExternalUsers && !internalUser ? null : passwordEncoder.encode(password);
+        boolean willBeExternalUser = canCreateExternalUsers && (!internalUser || !canCreateInternalUsers);
+        String passwordHash = willBeExternalUser ? null : passwordEncoder.encode(password);
         userManagementService.addUser(
                 new SimpleUser(firstName, lastName, username, passwordHash, getSelectedGroups()));
     }
@@ -276,7 +280,22 @@ public class UsersBean {
         this.canCreateExternalUsers = canCreateExternalUsers;
     }
 
-    public boolean isCanCreateExternalUsers() {
-        return canCreateExternalUsers;
+    public void setCanCreateInternalUsers(boolean canCreateInternalUsers) {
+        this.canCreateInternalUsers = canCreateInternalUsers;
+    }
+
+    public boolean isCanCreateInternalUsers() {
+        return canCreateInternalUsers;
+    }
+
+    public boolean isCanCreateUsers() {
+        return canCreateInternalUsers || canCreateExternalUsers;
+    }
+
+    /**
+     * Returns true if both internal and external users are supported. Returns false if only internal or only external users are supported.
+     */
+    public boolean isCanSelectInternalOrExternal() {
+        return canCreateInternalUsers && canCreateExternalUsers;
     }
 }

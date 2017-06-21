@@ -44,6 +44,10 @@
 
     <alias name="groupsAreManagedInStudio" alias="canCreateExternalUsers"/>
 
+    <bean id="canCreateInternalUsers" class="java.lang.Boolean">
+        <constructor-arg type="boolean" value="false"/>
+    </bean>
+
     <!-- ======================== Logout ========================== -->
     <bean id="logoutSuccessUrl" class="java.lang.String">
         <constructor-arg value="/" />

@@ -27,6 +27,10 @@
 
     <alias name="groupsAreManagedInStudio" alias="canCreateExternalUsers"/>
 
+    <bean id="canCreateInternalUsers" class="java.lang.Boolean">
+        <constructor-arg type="boolean" value="true"/>
+    </bean>
+
     <!-- ================================= Authentication ======================================= -->
     <bean id="adAuthenticationProvider" class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
         <constructor-arg name="domain" value="#{systemConfig['security.ad.domain']}"/>
