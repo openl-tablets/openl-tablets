@@ -201,7 +201,7 @@
 
   <servlet>
     <servlet-name>CXFServlet</servlet-name>
-    <servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class>
+    <servlet-class>org.openl.rules.webstudio.web.servlet.WebStudioCXFServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
 
