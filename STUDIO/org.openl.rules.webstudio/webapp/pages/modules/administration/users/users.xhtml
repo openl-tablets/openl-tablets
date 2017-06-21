@@ -43,7 +43,7 @@
             <f:facet name="header">
                 Internal user
             </f:facet>
-            #{user.internalUser}
+            #{user.internalUser ? 'Yes' : 'No'}
         </h:column>
 
         <h:column>
