@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import com.rits.cloning.Cloner;
-import org.openl.classloader.ClassLoaderCloserFactory;
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
 import org.openl.rules.extension.instantiation.IExtensionDescriptor;
@@ -179,7 +179,7 @@ public class ProjectDescriptorManager {
                         classLoader);
                 module.setProject(descriptor);
                 processedModules.addAll(extensionDescriptor.getInternalModules(module));
-                ClassLoaderCloserFactory.getClassLoaderCloser().close(classLoader);
+                ClassLoaderUtils.close(classLoader);
             }
         }
 

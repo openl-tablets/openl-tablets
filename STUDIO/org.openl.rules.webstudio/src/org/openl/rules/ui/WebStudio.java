@@ -15,7 +15,7 @@ import javax.validation.ValidationException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
-import org.openl.classloader.ClassLoaderCloserFactory;
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.config.ConfigurationManager;
@@ -916,7 +916,7 @@ public class WebStudio {
                                     module.getExtension(), classLoader
                             ).getUrlForModule(module);
                         } finally {
-                            ClassLoaderCloserFactory.getClassLoaderCloser().close(classLoader);
+                            ClassLoaderUtils.close(classLoader);
                         }
                     }
                     return tableURI.startsWith(moduleURI);

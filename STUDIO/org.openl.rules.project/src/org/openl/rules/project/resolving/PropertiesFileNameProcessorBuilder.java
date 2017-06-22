@@ -3,7 +3,7 @@ package org.openl.rules.project.resolving;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import org.openl.classloader.ClassLoaderCloserFactory;
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.util.StringUtils;
 
@@ -62,7 +62,7 @@ public final class PropertiesFileNameProcessorBuilder {
 
     public void destroy() {
         if (classLoader != null){
-            ClassLoaderCloserFactory.getClassLoaderCloser().close(classLoader);
+            ClassLoaderUtils.close(classLoader);
         }
     }
 

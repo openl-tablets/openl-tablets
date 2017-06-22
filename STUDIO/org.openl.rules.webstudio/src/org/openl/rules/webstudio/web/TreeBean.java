@@ -6,7 +6,7 @@ import static org.openl.rules.security.Privileges.RUN;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
-import org.openl.classloader.ClassLoaderCloserFactory;
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -81,7 +81,7 @@ public class TreeBean {
                         module.getExtension(), classLoader
                 ).getUtilityTablePredicate(studio.getModel().getXlsModuleNode());
             } finally {
-                ClassLoaderCloserFactory.getClassLoaderCloser().close(classLoader);
+                ClassLoaderUtils.close(classLoader);
             }
         }
         return utilityTablePredicate;

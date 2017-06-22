@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openl.classloader.ClassLoaderCloserFactory;
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.types.java.JavaOpenClass;
 import org.slf4j.Logger;
@@ -222,7 +222,7 @@ public class ProjectDescriptor {
         if (classLoader != null) {
             JavaOpenClass.resetClassloader(classLoader);
             String2DataConvertorFactory.unregisterClassLoader(classLoader);
-            ClassLoaderCloserFactory.getClassLoaderCloser().close(classLoader);
+            ClassLoaderUtils.close(classLoader);
         }
     }
 

@@ -9,7 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.classloader.ClassLoaderCloserFactory;
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.DependencyManager;
@@ -215,7 +215,7 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
         if (classLoader != null) {
             JavaOpenClass.resetClassloader(classLoader);
             String2DataConvertorFactory.unregisterClassLoader(classLoader);
-            ClassLoaderCloserFactory.getClassLoaderCloser().close(classLoader);
+            ClassLoaderUtils.close(classLoader);
         }
     }
 

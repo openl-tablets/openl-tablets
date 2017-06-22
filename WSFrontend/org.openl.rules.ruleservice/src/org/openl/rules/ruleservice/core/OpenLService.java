@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.openl.classloader.ClassLoaderCloserFactory;
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.project.model.Module;
@@ -291,7 +291,7 @@ public final class OpenLService {
             while (classLoader instanceof SimpleBundleClassLoader) {
                 JavaOpenClass.resetClassloader(classLoader);
                 String2DataConvertorFactory.unregisterClassLoader(classLoader);
-                ClassLoaderCloserFactory.getClassLoaderCloser().close(classLoader);
+                ClassLoaderUtils.close(classLoader);
                 classLoader = classLoader.getParent();
             }
         }
