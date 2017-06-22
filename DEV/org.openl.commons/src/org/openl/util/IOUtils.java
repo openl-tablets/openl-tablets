@@ -9,7 +9,6 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.zip.ZipFile;
 
 /**
  * A set of utils to work with general IO streams.
@@ -28,24 +27,6 @@ public class IOUtils {
      * @param closeable the object to close, may be null or already closed
      */
     public static void closeQuietly(Closeable closeable) {
-        try {
-            if (closeable != null) {
-                closeable.close();
-            }
-        } catch (IOException ioe) {
-            // ignore
-        }
-    }
-
-    /**
-     * Unconditionally close a <code>ZipFile</code>. To support Java 6.
-     * ZipFile has implemented Closable starting from Java 7.
-     * <p/>
-     * Equivalent to {@link ZipFile#close()}, except any exceptions will be ignored.
-     *
-     * @param closeable the zipFile to close, may be null or already closed
-     */
-    public static void closeQuietly(ZipFile closeable) {
         try {
             if (closeable != null) {
                 closeable.close();
