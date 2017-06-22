@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.impl.context.Context;
@@ -39,7 +40,7 @@ public final class ResourceUtils {
             throw new ResourceNotFoundException(String.format("No resource found with name '%s'!", resource));
         }
 
-        final File workspaceFolder = FileUtils.createTempDirectory();
+        final File workspaceFolder = Files.createTempDirectory("openl").toFile();
 
         if (resource.endsWith(".zip")) {
             // Unzip

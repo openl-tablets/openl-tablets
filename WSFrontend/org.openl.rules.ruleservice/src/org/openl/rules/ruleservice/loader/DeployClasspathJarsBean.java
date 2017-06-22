@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
 import java.util.List;
 
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
@@ -57,7 +58,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
             if (!children.isEmpty()) {
                 Method getNameMethod = clazz.getMethod("getName");
                 String name = (String) getNameMethod.invoke(jarFile);
-                File tempDir = FileUtils.createTempDirectory();
+                File tempDir = Files.createTempDirectory("openl").toFile();
                 try {
                     File newProjectDir = new File(tempDir, FileUtils.getBaseName(name));
                     Class<?> VFSUtilsClazz = Thread.currentThread()

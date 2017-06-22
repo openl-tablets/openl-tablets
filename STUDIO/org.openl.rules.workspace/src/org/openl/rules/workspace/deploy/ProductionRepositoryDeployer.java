@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.nio.file.Files;
 import java.util.Map;
 
 import javax.xml.xpath.XPath;
@@ -91,7 +92,7 @@ public class ProductionRepositoryDeployer {
     public void deployInternal(File zipFile, Repository deployRepo, boolean skipExist, boolean includeVersionInDeploymentName) throws Exception {
 
         // Temp folders
-        File zipFolder = FileUtils.createTempDirectory();
+        File zipFolder = Files.createTempDirectory("openl").toFile();
 
         try {
             String name = FileUtils.getBaseName(zipFile.getName());

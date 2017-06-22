@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -194,7 +195,7 @@ public class RepositoryService {
         File zipFolder = null;
         try {
             // Temp folders
-            zipFolder = FileUtils.createTempDirectory();
+            zipFolder = Files.createTempDirectory("openl").toFile();
             // Unpack jar to a file system
             ZipUtils.extractAll(zipFile, zipFolder);
 
