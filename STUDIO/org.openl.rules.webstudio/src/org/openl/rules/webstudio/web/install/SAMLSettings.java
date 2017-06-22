@@ -64,7 +64,14 @@ public class SAMLSettings {
     }
 
     public void setKeystoreFilePath(String keystoreFilePath) {
-        this.keystoreFilePath = keystoreFilePath;
+        if (keystoreFilePath == null
+                || keystoreFilePath.startsWith("classpath:")
+                || keystoreFilePath.startsWith("file:")
+                || keystoreFilePath.startsWith("url:")) {
+            this.keystoreFilePath = keystoreFilePath;
+        } else {
+            this.keystoreFilePath = "file:" + keystoreFilePath;
+        }
     }
 
     public String getKeystorePassword() {
