@@ -49,7 +49,7 @@
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP-java6</artifactId>
+            <artifactId>HikariCP-java7</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>

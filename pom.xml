@@ -578,8 +578,8 @@
             <!-- HikariCP - A high-performance JDBC connection pool. -->
             <dependency>
                 <groupId>com.zaxxer</groupId>
-                <artifactId>HikariCP-java6</artifactId>
-                <version>2.3.13</version>
+                <artifactId>HikariCP-java7</artifactId>
+                <version>2.4.12</version>
             </dependency>
             <!-- Apache Commons Lang, a package of Java utility classes for the classes that are in java.lang's hierarchy,
             or are considered to be so standard as to justify existence in java.lang. -->
