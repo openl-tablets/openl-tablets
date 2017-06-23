@@ -13,6 +13,7 @@ public class SAMLSettings {
     private String firstNameAttribute;
     private String secondNameAttribute;
     private String groupsAttribute;
+    private String authenticationContexts;
 
     public SAMLSettings(String webStudioUrl,
             String samlServerMetadataUrl,
@@ -20,7 +21,8 @@ public class SAMLSettings {
             String keystoreFilePath,
             String keystorePassword, String keystoreSpAlias,
             String keystoreSpPassword, String defaultGroup,
-            String usernameAttribute, String firstNameAttribute, String secondNameAttribute, String groupsAttribute) {
+            String usernameAttribute, String firstNameAttribute, String secondNameAttribute, String groupsAttribute,
+            String authenticationContexts) {
         this.webStudioUrl = webStudioUrl;
         this.samlServerMetadataUrl = samlServerMetadataUrl;
         this.requestTimeout = requestTimeout;
@@ -33,6 +35,7 @@ public class SAMLSettings {
         this.firstNameAttribute = firstNameAttribute;
         this.secondNameAttribute = secondNameAttribute;
         this.groupsAttribute = groupsAttribute;
+        this.authenticationContexts = authenticationContexts;
     }
 
     public String getWebStudioUrl() {
@@ -136,5 +139,13 @@ public class SAMLSettings {
 
     public void setGroupsAttribute(String groupsAttribute) {
         this.groupsAttribute = groupsAttribute;
+    }
+
+    public String getAuthenticationContexts() {
+        return authenticationContexts;
+    }
+
+    public void setAuthenticationContexts(String authenticationContexts) {
+        this.authenticationContexts = authenticationContexts;
     }
 }

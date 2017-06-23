@@ -272,7 +272,8 @@ public class InstallWizard {
                 systemConfig.getStringProperty("security.saml.attribute.username"),
                 systemConfig.getStringProperty("security.saml.attribute.first-name"),
                 systemConfig.getStringProperty("security.saml.attribute.last-name"),
-                systemConfig.getStringProperty("security.saml.attribute.groups")
+                systemConfig.getStringProperty("security.saml.attribute.groups"),
+                systemConfig.getStringProperty("security.saml.authentication-contexts")
         );
     }
 
@@ -322,7 +323,7 @@ public class InstallWizard {
                     systemConfig.setProperty("security.saml.attribute.first-name", samlSettings.getFirstNameAttribute());
                     systemConfig.setProperty("security.saml.attribute.last-name", samlSettings.getSecondNameAttribute());
                     systemConfig.setProperty("security.saml.attribute.groups", samlSettings.getGroupsAttribute());
-
+                    systemConfig.setProperty("security.saml.authentication-contexts", samlSettings.getAuthenticationContexts());
                 } else {
                     dbConfig.restoreDefaults();
                 }
