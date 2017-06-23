@@ -95,6 +95,7 @@
         <property name="defaultProfileOptions">
             <bean class="org.springframework.security.saml.websso.WebSSOProfileOptions">
                 <property name="includeScoping" value="false"/>
+                <property name="binding" value="#{systemConfig['security.saml.binding']}"/>
                 <property name="authnContexts" value="#{T(java.util.Arrays).asList(systemConfig['security.saml.authentication-contexts'])}" />
             </bean>
         </property>
