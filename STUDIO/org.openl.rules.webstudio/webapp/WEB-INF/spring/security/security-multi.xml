@@ -195,6 +195,10 @@
     <property name="groupDao" ref="groupDao" />
   </bean>
 
+  <bean class="org.openl.rules.webstudio.service.DemoUsers" lazy-init="false" init-method="init">
+    <!-- assuming that in the demo mode we are using memory based DB -->
+    <property name="demoMode" value="#{dbConfig['db.url'].startsWith('jdbc:h2:mem:')}"/>
+  </bean>
   <bean id="groupManagementService" class="org.openl.rules.webstudio.service.GroupManagementServiceImpl">
     <property name="groupDao" ref="groupDao" />
     <property name="userDao" ref="openlUserDao" />
