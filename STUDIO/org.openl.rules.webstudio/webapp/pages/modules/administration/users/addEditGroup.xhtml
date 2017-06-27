@@ -95,7 +95,7 @@
                 var groups = {};
 
                 <c:forEach items="#{groupsBean.groups}" var="group">
-                groups["#{jsffn:toJSText(group.name)}"] = [<c:forEach items="#{groupsBean.getPrivileges(group)}" var="p">'#{p}',</c:forEach>];
+                groups["#{jsffn:toJSText(group.name)}"] = [<ui:repeat value="#{groupsBean.getPrivileges(group)}" var="p">'#{p}',</ui:repeat>];
                 </c:forEach>
             </script>
 
