@@ -30,7 +30,7 @@ public class DBMigrationBean {
     public void init() throws Exception {
         Connection connection = dataSource.getConnection();
         String databaseCode;
-        boolean oldMigrationExists = false;
+        boolean oldMigrationExists;
         try {
             DatabaseMetaData metaData = connection.getMetaData();
             databaseCode = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
@@ -77,6 +77,8 @@ public class DBMigrationBean {
         if (oldMigrationExists) {
             migrateOldFlywayData();
         }
+
+        migrateFromRC1();
     }
 
     // TODO: Remove it after 5.19.3 and early will become unsupported.
@@ -157,6 +159,73 @@ public class DBMigrationBean {
         } catch (Exception ex) {
             connection.rollback();
         } finally {
+            connection.close();
+        }
+    }
+
+    // TODO: Remove it later
+    private void migrateFromRC1() throws Exception {
+        Connection connection = dataSource.getConnection();
+        connection.setAutoCommit(false);
+        DatabaseMetaData metaData = connection.getMetaData();
+        String databaseCode = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
+        String tableName = "OpenL_Users";
+        String columnToCheck = "origin";
+        if (metaData.storesUpperCaseIdentifiers()) {
+            tableName = tableName.toUpperCase();
+            columnToCheck = columnToCheck.toUpperCase();
+        }
+
+        ResultSet rs = null;
+        try {
+            if ("oracle".equals(databaseCode)) {
+                // If table contains "origin" column, it's 5.19.4-RC1, need to migrate to latest version
+                rs = metaData.getColumns(null, metaData.getUserName(), tableName, columnToCheck);
+
+                if (rs.next()) {
+                    log.info("Migrating from RC1...");
+
+                    // Drop constraint preventing column type change
+                    connection.prepareStatement("alter table OpenL_User2Group drop constraint FK_OPENL_USER2GROUP1").execute();
+
+                    // Change column types
+                    connection.prepareStatement("alter table OpenL_Users modify loginName nvarchar2(50)").execute();
+                    connection.prepareStatement("alter table OpenL_Users modify password nvarchar2(128)").execute();
+                    connection.prepareStatement("alter table OpenL_Users modify firstName nvarchar2(50)").execute();
+                    connection.prepareStatement("alter table OpenL_Users modify surname nvarchar2(50)").execute();
+
+                    connection.prepareStatement("alter table OpenL_Groups modify groupName nvarchar2(50)").execute();
+                    connection.prepareStatement("alter table OpenL_Groups modify description nvarchar2(200)").execute();
+
+                    connection.prepareStatement("alter table OpenL_Group_Authorities modify authority nvarchar2(50)").execute();
+
+                    connection.prepareStatement("alter table OpenL_User2Group modify loginName nvarchar2(50)").execute();
+
+                    // Restore constraint back
+                    connection.prepareStatement(
+                            "alter table OpenL_User2Group "
+                                    + "add constraint FK_OPENL_USER2GROUP1 "
+                                    + "foreign key (loginName) "
+                                    + "references OpenL_Users(loginName) "
+                                    + "on delete cascade"
+                    ).execute();
+
+                    // Delete columns
+                    connection.prepareStatement("alter table OpenL_Users drop column lastLogin").execute();
+                    connection.prepareStatement("alter table OpenL_Users drop column origin").execute();
+                }
+            }
+        } catch (Exception e) {
+            connection.rollback();
+            throw e;
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    log.warn("Unexpected sql failure", e);
+                }
+            }
             connection.close();
         }
     }
