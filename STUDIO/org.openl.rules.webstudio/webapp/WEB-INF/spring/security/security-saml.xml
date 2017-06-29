@@ -19,6 +19,7 @@
     <!-- Filters for processing of SAML messages -->
     <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
         <security:filter-chain-map request-matcher="ant">
+            <security:filter-chain pattern="#{accessDeniedUrl}" filters="none" />
             <security:filter-chain pattern="/css/**" filters="none"/>
             <security:filter-chain pattern="/images/**" filters="none"/>
             <security:filter-chain pattern="/javascript/**" filters="none"/>
@@ -62,6 +63,9 @@
     </util:list>
 
     <!-- ============================== SAML ==================================================================== -->
+    <bean id="accessDeniedUrl" class="java.lang.String">
+        <constructor-arg value="/faces/pages/accessDenied.xhtml" />
+    </bean>
 
     <!-- Use the following for interpreting RelayState coming from unsolicited response as redirect URL: -->
     <bean id="successRedirectHandler" class="org.springframework.security.saml.SAMLRelayStateSuccessHandler">
@@ -71,8 +75,7 @@
 
     <!-- Handler deciding where to redirect user after failed login -->
     <bean id="failureRedirectHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
-        <property name="useForward" value="true"/>
-        <property name="defaultFailureUrl" value="/faces/pages/accessDenied.xhtml"/>
+        <property name="defaultFailureUrl" ref="accessDeniedUrl"/>
     </bean>
 
     <!-- Logger for SAML messages and events -->

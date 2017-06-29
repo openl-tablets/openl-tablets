@@ -6,7 +6,9 @@
 
         <script>
             //<![CDATA[
-            if (location.pathname != "#{contextPath}" && location.pathname != "#{contextPath}/") {
+            if (location.pathname !== "#{contextPath}"
+                && location.pathname !== "#{contextPath}/"
+                && location.pathname !== "#{contextPath}/faces/pages/accessDenied.xhtml") {
                 location.href = "#{contextPath}/";
             }
             //]]>
