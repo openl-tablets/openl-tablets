@@ -58,6 +58,9 @@ public class DBMigrationBean {
             connection.close();
         }
 
+        migrateFromRC1();
+
+
         String[] locations = { "/db/flyway/common", "/db/flyway/" + databaseCode };
 
         TreeMap<String, String> placeholders = new TreeMap<String, String>();
@@ -77,8 +80,6 @@ public class DBMigrationBean {
         if (oldMigrationExists) {
             migrateOldFlywayData();
         }
-
-        migrateFromRC1();
     }
 
     // TODO: Remove it after 5.19.3 and early will become unsupported.
@@ -213,6 +214,12 @@ public class DBMigrationBean {
                     // Delete columns
                     connection.prepareStatement("alter table OpenL_Users drop column lastLogin").execute();
                     connection.prepareStatement("alter table OpenL_Users drop column origin").execute();
+
+                    // Update checksum in flyway table
+                    // Note: flyway table is case sensitive thus we must quote table name and it's columns
+                    connection.prepareStatement("update \"openl_security_flyway\" set \"checksum\" = 1791202539 where \"version\" = '1'").executeUpdate();
+
+                    connection.commit();
                 }
             }
         } catch (Exception e) {
