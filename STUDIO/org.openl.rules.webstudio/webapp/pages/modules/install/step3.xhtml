@@ -141,7 +141,7 @@
                                 <tr>
                                     <td><label>Password:</label></td>
                                     <td>
-                                        <h:inputSecret id="adPassword" value="#{installWizard.adPassword}" size="40" validator="#{installWizard.adValidator}"/>
+                                        <h:inputSecret id="adPassword" value="#{installWizard.adPassword}" size="40" validator="#{installWizard.adValidator}" redisplay="true"/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -252,7 +252,7 @@
                                 <tr>
                                     <td><label class="required">Keystore password</label></td>
                                     <td>
-                                        <h:inputSecret id="samlKeystorePassword" value="#{installWizard.samlSettings.keystorePassword}" size="40"/>
+                                        <h:inputSecret id="samlKeystorePassword" value="#{installWizard.samlSettings.keystorePassword}" size="40" redisplay="true"/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -264,7 +264,7 @@
                                 <tr>
                                     <td><label class="required">Keystore SP password</label></td>
                                     <td>
-                                        <h:inputSecret id="samlKeystoreSpPassword" value="#{installWizard.samlSettings.keystoreSpPassword}" size="40"/>
+                                        <h:inputSecret id="samlKeystoreSpPassword" value="#{installWizard.samlSettings.keystoreSpPassword}" size="40" redisplay="true"/>
                                     </td>
                                 </tr>
                                 <tr>
