@@ -23,13 +23,13 @@
             <security:filter-chain pattern="/images/**" filters="none"/>
             <security:filter-chain pattern="/javascript/**" filters="none"/>
             <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none"/>
-            <security:filter-chain pattern="/saml/login/**" filters="securityContextPersistenceFilter,samlEntryPoint"/>
-            <security:filter-chain pattern="/security_logout" filters="securityContextPersistenceFilter,samlLogoutFilter"/>
-            <security:filter-chain pattern="/saml/metadata/**" filters="securityContextPersistenceFilter,metadataDisplayFilter"/>
-            <security:filter-chain pattern="/saml/SSO/**" filters="securityContextPersistenceFilter,samlWebSSOProcessingFilter"/>
-            <security:filter-chain pattern="/saml/SSOHoK/**" filters="securityContextPersistenceFilter,samlWebSSOHoKProcessingFilter"/>
-            <security:filter-chain pattern="/saml/SingleLogout/**" filters="securityContextPersistenceFilter,samlLogoutProcessingFilter"/>
-            <security:filter-chain pattern="/saml/discovery/**" filters="securityContextPersistenceFilter,samlIDPDiscovery"/>
+            <security:filter-chain pattern="/saml/login/**" filters="securityContextPersistenceFilter,metadataGeneratorFilter,samlEntryPoint"/>
+            <security:filter-chain pattern="/security_logout" filters="securityContextPersistenceFilter,metadataGeneratorFilter,samlLogoutFilter"/>
+            <security:filter-chain pattern="/saml/metadata/**" filters="securityContextPersistenceFilter,metadataGeneratorFilter,metadataDisplayFilter"/>
+            <security:filter-chain pattern="/saml/SSO/**" filters="securityContextPersistenceFilter,metadataGeneratorFilter,samlWebSSOProcessingFilter"/>
+            <security:filter-chain pattern="/saml/SSOHoK/**" filters="securityContextPersistenceFilter,metadataGeneratorFilter,samlWebSSOHoKProcessingFilter"/>
+            <security:filter-chain pattern="/saml/SingleLogout/**" filters="securityContextPersistenceFilter,metadataGeneratorFilter,samlLogoutProcessingFilter"/>
+            <security:filter-chain pattern="/saml/discovery/**" filters="securityContextPersistenceFilter,metadataGeneratorFilter,samlIDPDiscovery"/>
             <security:filter-chain pattern="/**" filters="securityContextPersistenceFilter,metadataGeneratorFilter,samlLogoutFilter,exceptionTranslationFilter,filterSecurityInterceptor"/>
         </security:filter-chain-map>
     </bean>
