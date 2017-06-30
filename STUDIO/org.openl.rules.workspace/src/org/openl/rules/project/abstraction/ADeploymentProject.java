@@ -44,8 +44,8 @@ public class ADeploymentProject extends UserWorkspaceProject {
         this.lockEngine = lockEngine;
     }
 
-    public ADeploymentProject(WorkspaceUser user, Repository repository, FileData fileData) {
-        super(user, repository, fileData, false);
+    public ADeploymentProject(Repository repository, FileData fileData) {
+        super(null, repository, fileData, false);
         lockEngine = null;
     }
 

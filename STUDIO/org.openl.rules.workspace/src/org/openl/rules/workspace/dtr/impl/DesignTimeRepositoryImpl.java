@@ -143,7 +143,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             throw new RepositoryException("Cannot read the deploy repository", e);
         }
         for (FileData fileData : fileDatas) {
-            result.add(new ADeploymentProject(null, getRepository(), fileData));
+            result.add(new ADeploymentProject(getRepository(), fileData));
         }
         return result;
     }
