@@ -29,6 +29,8 @@ public interface UserWorkspace extends ProjectsContainer {
 
     ADeploymentProject getDDProject(String name) throws ProjectException;
 
+    ADeploymentProject getLatestDeploymentConfiguration(String name);
+
     List<ADeploymentProject> getDDProjects() throws ProjectException;
 
     DesignTimeRepository getDesignTimeRepository();
