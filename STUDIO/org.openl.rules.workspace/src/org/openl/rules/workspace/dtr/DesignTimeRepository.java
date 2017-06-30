@@ -47,9 +47,8 @@ public interface DesignTimeRepository extends ProjectsContainer {
      *
      * @param name name of deployment project
      * @return instance of deployment project
-     * @throws RepositoryException if failed
      */
-    ADeploymentProject getDDProject(String name) throws RepositoryException;
+    ADeploymentProject getDDProject(String name);
 
     /**
      * Returns list of all deployment projects from the DTR.
