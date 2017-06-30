@@ -54,13 +54,11 @@ public class ADeploymentProject extends UserWorkspaceProject {
         return false;
     }
 
-    public ProjectDescriptor addProjectDescriptor(String name, CommonVersion version) throws ProjectException {
+    public void addProjectDescriptor(String name, CommonVersion version) throws ProjectException {
         if (hasProjectDescriptor(name)) {
             removeProjectDescriptor(name);
         }
-        ProjectDescriptorImpl projectDescriptor = new ProjectDescriptorImpl(name, version);
-        getDescriptors().add(projectDescriptor);
-        return projectDescriptor;
+        getDescriptors().add(new ProjectDescriptorImpl(name, version));
     }
 
     public boolean hasProjectDescriptor(String name) throws ProjectException {
@@ -156,7 +154,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
         unlock();
     }
 
-    public void removeProjectDescriptor(String name) throws ProjectException {
+    private void removeProjectDescriptor(String name) throws ProjectException {
         Collection<ProjectDescriptor> projectDescriptors = getDescriptors();
         for (ProjectDescriptor descriptor : projectDescriptors) {
             if (descriptor.getProjectName().equals(name)) {
