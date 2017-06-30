@@ -115,7 +115,7 @@ public class InstallWizard {
     private NewProductionRepoController newProductionRepoController;
 
     @ManagedProperty(value="#{groupManagementService}")
-    private GroupManagementServiceWrapper groupManagementService;
+    private GroupManagementService groupManagementService;
     private XmlWebApplicationContext temporaryContext;
     private Boolean allowAccessToNewUsers;
     private String externalAdmins;
@@ -192,10 +192,13 @@ public class InstallWizard {
                 }
             } else if (step == 4) {
                 initializeTemporaryContext();
-                // GroupManagementService delegate is transactional and properly initialized
-                GroupManagementService delegate = (GroupManagementService) temporaryContext.getBean("groupManagementService");
-                // Initialize groupManagementService before first usage in GroupsBean
-                groupManagementService.setDelegate(delegate);
+
+                if (groupManagementService instanceof GroupManagementServiceWrapper) {
+                    // GroupManagementService delegate is transactional and properly initialized
+                    GroupManagementService delegate = (GroupManagementService) temporaryContext.getBean("groupManagementService");
+                    // Initialize groupManagementService before first usage in GroupsBean
+                    ((GroupManagementServiceWrapper) groupManagementService).setDelegate(delegate);
+                }
             }
             return PAGE_PREFIX + step + PAGE_POSTFIX;
         } catch (Exception e) {
@@ -951,13 +954,15 @@ public class InstallWizard {
 
     private void destroyTemporaryContext() {
         if (temporaryContext != null) {
-            groupManagementService.setDelegate(null);
+            if (groupManagementService instanceof GroupManagementServiceWrapper) {
+                ((GroupManagementServiceWrapper) groupManagementService).setDelegate(null);
+            }
             temporaryContext.close();
             temporaryContext = null;
         }
     }
 
-    public void setGroupManagementService(GroupManagementServiceWrapper groupManagementService) {
+    public void setGroupManagementService(GroupManagementService groupManagementService) {
         this.groupManagementService = groupManagementService;
     }
 }
