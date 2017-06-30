@@ -118,7 +118,7 @@ public class SmartRedeployController {
 
             ADeploymentProject latestDeploymentVersion = deploymentProject;
             if (deploymentProject.isOpenedOtherVersion()) {
-                latestDeploymentVersion = workspace.getDesignTimeRepository().getDDProject(deploymentProject.getName());
+                latestDeploymentVersion = workspace.getLatestDeploymentConfiguration(deploymentProject.getName());
             }
 
             ProjectDescriptor<?> projectDescriptor = null;

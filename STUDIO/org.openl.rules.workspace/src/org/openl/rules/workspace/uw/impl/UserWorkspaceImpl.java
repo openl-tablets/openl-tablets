@@ -126,6 +126,11 @@ public class UserWorkspaceImpl implements UserWorkspace {
         return deploymentProject;
     }
 
+    @Override
+    public ADeploymentProject getLatestDeploymentConfiguration(String name) {
+        return getDesignTimeRepository().getDDProject(name);
+    }
+
     public List<ADeploymentProject> getDDProjects() throws ProjectException {
         refreshDeploymentProjects();
 
