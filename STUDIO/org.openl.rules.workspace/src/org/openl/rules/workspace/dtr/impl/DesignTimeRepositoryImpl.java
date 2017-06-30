@@ -100,12 +100,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         return RepositoryFactoryInstatiator.newFactory(properties, true);
     }
 
-    public void copyDDProject(ADeploymentProject project, String name, WorkspaceUser user)
-            throws ProjectException {
-        ADeploymentProject newProject = getDDProject(name);
-        newProject.update(project, user);
-    }
-
     public void copyProject(AProject project, String name, WorkspaceUser user, ResourceTransformer resourceTransformer) throws ProjectException {
         if (hasProject(name)) {
             throw new ProjectException("Project ''{0}'' is already exist in the repository!", null, name);
