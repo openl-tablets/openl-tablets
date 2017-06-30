@@ -16,6 +16,14 @@ import org.openl.rules.security.SimpleUser;
  * @author Yury Molchan
  */
 public class DemoUsers {
+    /**
+     * It's assumed that demo users are stored in in-memory database and are destroyed on JVM shutdown.
+     * This global static variable is needed to create demo users only once.
+     * After administration settings change context is refreshed and this bean is invoked again. This time it must keep
+     * previous changes, no need to create demo users again.
+     */
+    private static boolean initialized = false;
+
     @Resource
     private UserManagementService userManagementService;
 
@@ -47,6 +55,12 @@ public class DemoUsers {
         if (!demoMode) {
             return;
         }
+
+        if (initialized) {
+            // Demo users are created already.
+            return;
+        }
+
         userManagementService.addUser(getUser("a1", "Administrators"));
         userManagementService.addUser(getUser("u0", "Testers"));
         userManagementService.addUser(getUser("u1", "Developers", "Analysts"));
@@ -54,6 +68,8 @@ public class DemoUsers {
         userManagementService.addUser(getUser("u3", "Viewers"));
         userManagementService.addUser(getUser("u4", "Deployers"));
         userManagementService.addUser(getUser("user", "Viewers"));
+
+        initialized = true;
     }
 
     private SimpleUser getUser(String user, String... groups) {
