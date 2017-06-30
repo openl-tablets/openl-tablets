@@ -131,6 +131,8 @@
     <property name="securityMetadataSource">
       <security:filter-security-metadata-source lowercase-comparisons="true">
         <security:intercept-url pattern="/faces/pages/modules/administration/**" access="ADMINISTRATE" />
+        <!-- Don't allow unprivileged users to run install wizard by manually entering install wizard url when studio is configured already -->
+        <security:intercept-url pattern="/faces/pages/modules/install/**" access="ADMINISTRATE" />
         <security:intercept-url pattern="/**" access="VIEW_PROJECTS" />
       </security:filter-security-metadata-source>
     </property>
