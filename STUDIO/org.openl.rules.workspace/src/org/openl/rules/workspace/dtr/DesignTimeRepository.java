@@ -21,19 +21,6 @@ import org.openl.rules.workspace.abstracts.ProjectsContainer;
 public interface DesignTimeRepository extends ProjectsContainer {
 
     /**
-     * Copies deployment project in/into the DTR. <p/> Source project can be
-     * local project, a version of project in the DTR, any other class that
-     * implements DeploymentDescriptorProject interface.
-     *
-     * @param project source deployment project
-     * @param name name of new project, must be unique
-     * @param user who is copies project
-     * @throws ProjectException if failed
-     */
-    void copyDDProject(ADeploymentProject project, String name, WorkspaceUser user)
-            throws ProjectException;
-
-    /**
      * Copies rules project in/into Design Time Repository. <p/> Source project
      * can be LocalWorkspaceProject, a version of project in the DTR, any other
      * class that implements Project interface.

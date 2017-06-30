@@ -65,7 +65,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public void copyDDProject(ADeploymentProject project, String name) throws ProjectException {
-        designTimeRepository.copyDDProject(project, name, user);
+        ADeploymentProject newProject = designTimeRepository.getDDProject(name);
+        newProject.setUser(user);
+        newProject.update(project, user);
+
         refresh();
     }
 
