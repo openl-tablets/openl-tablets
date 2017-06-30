@@ -68,8 +68,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     public void copyDDProject(ADeploymentProject project, String name) throws ProjectException {
-        ADeploymentProject newProject = designTimeRepository.getDDProject(name);
-        newProject.setUser(user);
+        ADeploymentProject newProject = designTimeRepository.createDeploymentConfigurationBuilder(name)
+                .user(getUser())
+                .lockEngine(deploymentsLockEngine)
+                .build();
         newProject.update(project, user);
 
         refresh();
@@ -96,8 +98,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
         if (deploymentsRefreshNeeded) {
             refreshDeploymentProjects();
         }
-        ADeploymentProject ddProject = designTimeRepository.getDDProject(name);
-        ddProject.setUser(getUser());
+        ADeploymentProject ddProject = designTimeRepository.createDeploymentConfigurationBuilder(name)
+                .user(getUser())
+                .lockEngine(deploymentsLockEngine)
+                .build();
         userDProjects.put(name, ddProject);
         return ddProject;
     }
@@ -128,7 +132,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public ADeploymentProject getLatestDeploymentConfiguration(String name) {
-        return getDesignTimeRepository().getDDProject(name);
+        return getDesignTimeRepository().createDeploymentConfigurationBuilder(name)
+                .user(getUser())
+                .lockEngine(deploymentsLockEngine)
+                .build();
     }
 
     public List<ADeploymentProject> getDDProjects() throws ProjectException {

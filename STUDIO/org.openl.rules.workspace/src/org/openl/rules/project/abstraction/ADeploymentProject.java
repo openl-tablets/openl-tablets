@@ -35,11 +35,6 @@ public class ADeploymentProject extends UserWorkspaceProject {
 
     private final LockEngine lockEngine;
 
-    // TODO Remove this constructor in the future. Always pass user to deployment
-    public ADeploymentProject(Repository repository, String folderPath, String version) {
-        this(null, repository, folderPath, version, null);
-    }
-
     public ADeploymentProject(WorkspaceUser user,
             Repository repository,
             String folderPath,
@@ -254,5 +249,52 @@ public class ADeploymentProject extends UserWorkspaceProject {
     @Override
     public boolean isModified() {
         return modifiedDescriptors;
+    }
+
+    public static class Builder {
+        private final Repository repository;
+        private final String folderPath;
+        private String version;
+        private WorkspaceUser user;
+        private LockEngine lockEngine;
+
+        public Builder(Repository repository, String folderPath) {
+            if (repository == null) {
+                throw new IllegalArgumentException("Repository must be not null");
+            }
+
+            if (folderPath == null) {
+                throw new IllegalArgumentException("folderPath must be not null");
+            }
+
+            this.repository = repository;
+            this.folderPath = folderPath;
+        }
+
+        public Builder version(String version) {
+            this.version = version;
+            return this;
+        }
+
+        public Builder user(WorkspaceUser user) {
+            this.user = user;
+            return this;
+        }
+
+        public Builder lockEngine(LockEngine lockEngine) {
+            this.lockEngine = lockEngine;
+            return this;
+        }
+
+        public ADeploymentProject build() {
+            if (user == null) {
+                throw new IllegalArgumentException("user must be not null");
+            }
+            if (lockEngine == null) {
+                throw new IllegalArgumentException("lockEngine must be not null");
+            }
+
+            return new ADeploymentProject(user, repository, folderPath, version, lockEngine);
+        }
     }
 }
