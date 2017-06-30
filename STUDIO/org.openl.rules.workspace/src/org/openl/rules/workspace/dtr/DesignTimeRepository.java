@@ -42,7 +42,7 @@ public interface DesignTimeRepository extends ProjectsContainer {
      * @param project source rules project
      * @param name name of new project, must be unique
      * @param user who is copies project
-     * @param resourceTransformer
+     * @param resourceTransformer class to modify resources
      * @throws RepositoryException if failed
      */
     void copyProject(AProject project, String name, WorkspaceUser user, ResourceTransformer resourceTransformer) throws ProjectException;
@@ -71,16 +71,6 @@ public interface DesignTimeRepository extends ProjectsContainer {
      * @throws RepositoryException if failed
      */
     ADeploymentProject getDDProject(String name) throws RepositoryException;
-
-    /**
-     * Gets specified version of deployment project from the DTR.
-     *
-     * @param name name of deployment project
-     * @param version exact version of project
-     * @return specified version of deployment project
-     * @throws RepositoryException if failed
-     */
-    ADeploymentProject getDDProject(String name, CommonVersion version) throws RepositoryException;
 
     /**
      * Returns list of all deployment projects from the DTR.
