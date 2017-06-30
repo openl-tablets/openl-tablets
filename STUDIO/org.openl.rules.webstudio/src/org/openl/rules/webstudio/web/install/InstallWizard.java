@@ -180,15 +180,19 @@ public class InstallWizard {
                 readCasProperties();
                 readSamlProperties();
 
-                if (userMode.equals(AD_USER_MODE)) {
-                    groupsAreManagedInStudio = systemConfig.getBooleanProperty("security.ad.groups-are-managed-in-studio");
-                    allowAccessToNewUsers = !StringUtils.isBlank(systemConfig.getStringProperty("security.ad.default-group"));
-                } else if (userMode.equals(CAS_USER_MODE)) {
-                    groupsAreManagedInStudio = StringUtils.isBlank(systemConfig.getStringProperty("security.cas.attribute.groups"));
-                    allowAccessToNewUsers = !StringUtils.isBlank(systemConfig.getStringProperty("security.cas.default-group"));
-                } else if (userMode.equals(SAML_USER_MODE)) {
-                    groupsAreManagedInStudio = StringUtils.isBlank(systemConfig.getStringProperty("security.saml.attribute.groups"));
-                    allowAccessToNewUsers = !StringUtils.isBlank(systemConfig.getStringProperty("security.saml.default-group"));
+                switch (userMode) {
+                    case AD_USER_MODE:
+                        groupsAreManagedInStudio = systemConfig.getBooleanProperty("security.ad.groups-are-managed-in-studio");
+                        allowAccessToNewUsers = !StringUtils.isBlank(systemConfig.getStringProperty("security.ad.default-group"));
+                        break;
+                    case CAS_USER_MODE:
+                        groupsAreManagedInStudio = StringUtils.isBlank(systemConfig.getStringProperty("security.cas.attribute.groups"));
+                        allowAccessToNewUsers = !StringUtils.isBlank(systemConfig.getStringProperty("security.cas.default-group"));
+                        break;
+                    case SAML_USER_MODE:
+                        groupsAreManagedInStudio = StringUtils.isBlank(systemConfig.getStringProperty("security.saml.attribute.groups"));
+                        allowAccessToNewUsers = !StringUtils.isBlank(systemConfig.getStringProperty("security.saml.default-group"));
+                        break;
                 }
             } else if (step == 4) {
                 initializeTemporaryContext();
