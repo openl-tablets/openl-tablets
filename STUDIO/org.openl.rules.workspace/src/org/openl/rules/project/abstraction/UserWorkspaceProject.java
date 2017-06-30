@@ -6,7 +6,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
 
 public abstract class UserWorkspaceProject extends AProject {
-    private WorkspaceUser user;
+    private final WorkspaceUser user;
 
     public UserWorkspaceProject(WorkspaceUser user, Repository repository, String folderPath, String version, boolean folderStructure) {
         super(repository, folderPath, version, folderStructure);
@@ -20,10 +20,6 @@ public abstract class UserWorkspaceProject extends AProject {
 
     protected WorkspaceUser getUser() {
         return user;
-    }
-
-    public void setUser(WorkspaceUser user) {
-        this.user = user;
     }
 
     public boolean isOpenedForEditing() {

@@ -129,8 +129,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         return ralProject.getArtefactByPath(pathInProject);
     }
 
-    public ADeploymentProject getDDProject(String name) {
-        return new ADeploymentProject(getRepository(), deploymentConfigurationLocation + "/" + name, null);
+    public ADeploymentProject.Builder createDeploymentConfigurationBuilder(String name) {
+        return new ADeploymentProject.Builder(getRepository(), deploymentConfigurationLocation + "/" + name);
     }
 
     public List<ADeploymentProject> getDDProjects() throws RepositoryException {
