@@ -146,10 +146,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         return new ADeploymentProject(getRepository(), deploymentConfigurationLocation + "/" + name, null);
     }
 
-    public ADeploymentProject getDDProject(String name, CommonVersion version) throws RepositoryException {
-        return new ADeploymentProject(getRepository(), deploymentConfigurationLocation + "/" + name, version.getVersionName());
-    }
-
     public List<ADeploymentProject> getDDProjects() throws RepositoryException {
         LinkedList<ADeploymentProject> result = new LinkedList<ADeploymentProject>();
 
