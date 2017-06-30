@@ -118,12 +118,7 @@ public class SmartRedeployController {
 
             ADeploymentProject latestDeploymentVersion = deploymentProject;
             if (deploymentProject.isOpenedOtherVersion()) {
-                try {
-                    latestDeploymentVersion = workspace.getDesignTimeRepository()
-                            .getDDProject(deploymentProject.getName());
-                } catch (RepositoryException e) {
-                    log.error("Failed to get latest version for deployment project '{}'", deploymentProject.getName(), e);
-                }
+                latestDeploymentVersion = workspace.getDesignTimeRepository().getDDProject(deploymentProject.getName());
             }
 
             ProjectDescriptor<?> projectDescriptor = null;
@@ -305,8 +300,7 @@ public class SmartRedeployController {
         ConfigurationManager productionConfig = productionConfigManagerFactory.getConfigurationManager(repositoryConfigName);
         RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName, productionConfig,
                 RepositoryType.PRODUCTION);
-        String repositoryName = repo.getName();
-        return repositoryName;
+        return repo.getName();
     }
 
     public void setDeploymentManager(DeploymentManager deploymentManager) {
