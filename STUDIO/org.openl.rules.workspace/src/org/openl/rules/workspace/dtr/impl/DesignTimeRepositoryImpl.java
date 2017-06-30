@@ -102,10 +102,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     public void copyDDProject(ADeploymentProject project, String name, WorkspaceUser user)
             throws ProjectException {
-        ADeploymentProject newProject = new ADeploymentProject(
-                getRepository(),
-                deploymentConfigurationLocation + "/" + name,
-                null);
+        ADeploymentProject newProject = getDDProject(name);
         newProject.update(project, user);
     }
 
@@ -131,10 +128,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 projectsVersions.clear();
             }
         }
-    }
-
-    public ADeploymentProject createDDProject(String name) throws RepositoryException {
-        return new ADeploymentProject(getRepository(), deploymentConfigurationLocation + "/" + name, null);
     }
 
     public AProject createProject(String name) throws RepositoryException {

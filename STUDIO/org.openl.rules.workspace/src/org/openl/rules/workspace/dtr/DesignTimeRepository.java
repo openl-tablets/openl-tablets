@@ -48,14 +48,6 @@ public interface DesignTimeRepository extends ProjectsContainer {
     void copyProject(AProject project, String name, WorkspaceUser user, ResourceTransformer resourceTransformer) throws ProjectException;
 
     /**
-     * Creates new deployment project in the DTR.
-     *
-     * @param name name of new deployment project, must be unique
-     * @throws RepositoryException if failed
-     */
-    ADeploymentProject createDDProject(String name) throws RepositoryException;
-
-    /**
      * Creates new rules project in the Design Time Repository.
      *
      * @param name name of new rules project, must be unique

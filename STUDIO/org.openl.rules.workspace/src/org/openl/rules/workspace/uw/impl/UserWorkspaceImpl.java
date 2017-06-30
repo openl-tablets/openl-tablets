@@ -93,7 +93,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         if (deploymentsRefreshNeeded) {
             refreshDeploymentProjects();
         }
-        ADeploymentProject ddProject = designTimeRepository.createDDProject(name);
+        ADeploymentProject ddProject = designTimeRepository.getDDProject(name);
         ddProject.setUser(getUser());
         userDProjects.put(name, ddProject);
         return ddProject;
