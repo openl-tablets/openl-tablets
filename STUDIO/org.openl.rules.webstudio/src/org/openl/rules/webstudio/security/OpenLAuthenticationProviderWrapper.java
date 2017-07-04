@@ -27,22 +27,28 @@ public class OpenLAuthenticationProviderWrapper implements AuthenticationProvide
             return null;
         }
 
-        Authentication delegatedAuth = delegate.authenticate(authentication);
-        if (!groupsAreManagedInStudio) {
-            return delegatedAuth;
-        }
+        try {
+            AuthenticationHolder.setAuthentication(authentication);
 
-        if (delegatedAuth != null) {
-            UserDetails userDetails = authenticationUserDetailsService.loadUserDetails(delegatedAuth);
-            Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    delegatedAuth.getPrincipal(),
-                    delegatedAuth.getCredentials(),
-                    authorities);
-            authenticationToken.setDetails(userDetails);
-            return authenticationToken;
+            Authentication delegatedAuth = delegate.authenticate(authentication);
+            if (!groupsAreManagedInStudio) {
+                return delegatedAuth;
+            }
+
+            if (delegatedAuth != null) {
+                UserDetails userDetails = authenticationUserDetailsService.loadUserDetails(delegatedAuth);
+                Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                        delegatedAuth.getPrincipal(),
+                        delegatedAuth.getCredentials(),
+                        authorities);
+                authenticationToken.setDetails(userDetails);
+                return authenticationToken;
+            }
+            return null;
+        } finally {
+            AuthenticationHolder.clear();
         }
-        return null;
     }
 
     @Override

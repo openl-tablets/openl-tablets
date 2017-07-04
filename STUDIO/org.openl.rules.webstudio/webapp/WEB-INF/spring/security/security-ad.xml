@@ -43,6 +43,8 @@
         <constructor-arg name="delegate">
             <bean class="org.springframework.security.ldap.userdetails.LdapUserDetailsMapper"/>
         </constructor-arg>
+        <constructor-arg name="domain" value="#{systemConfig['security.ad.domain']}"/>
+        <constructor-arg name="url" value="#{systemConfig['security.ad.server-url']}"/>
     </bean>
 
     <bean id="groupsAreManagedInStudio" class="java.lang.Boolean">
