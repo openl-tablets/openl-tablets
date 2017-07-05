@@ -1000,7 +1000,7 @@ void CastExpression() :
 void CastLookahead() :
 {}
 {
-  "(" Type() ")" ( "~" | "!" | "(" | "[" | <IDENTIFIER> | "new" | Literal() )
+  "(" Type() ")" (<PLUS> | <MINUS> | <TILDE> | <BANG> | <LPAREN> | <LBRACKET> | <IDENTIFIER> | <NEW> | Literal() )
 }
 
 void identifier() :
