@@ -150,8 +150,7 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
                 }
             } catch (PartialResultException e) {
                 LdapUtils.closeEnumeration(groupsSearch);
-                log.error(e.getMessage(), e);
-                return null;
+                log.info("Ignoring PartialResultException with message: " + e.getMessage());
             }
 
             return authorities;
@@ -171,6 +170,8 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
         env.put(Context.OBJECT_FACTORIES, DefaultDirObjectFactory.class.getName());
         // Needed to get objectSid as binary array and then find primary group
         env.put("java.naming.ldap.attributes.binary", "objectSid");
+        // To handle "Unprocessed Continuation Reference(s)" errors
+        env.put(Context.REFERRAL, "follow");
 
         return new InitialLdapContext(env, null);
     }
