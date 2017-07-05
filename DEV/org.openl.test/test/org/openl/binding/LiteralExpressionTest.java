@@ -55,6 +55,10 @@ public class LiteralExpressionTest  extends TestCase{
         _testExpr("int x = 5; 9+x", false, 16);
         _testExpr("Math.sin(0)", true, 0.0);
         _testExpr("Math.cos(0)", true, 1.0);
+        _testExpr("Math.round(-3.2)", true, -3L);
+        _testExpr("Math.round((double) -3.2)", true, -3L);
+        _testExpr("Math.round(+3.2)", true, 3L);
+        _testExpr("Math.round((double) +3.2)", true, 3L);
         _testExpr("System.out.println(0)", false, 1.0);
     }
     
