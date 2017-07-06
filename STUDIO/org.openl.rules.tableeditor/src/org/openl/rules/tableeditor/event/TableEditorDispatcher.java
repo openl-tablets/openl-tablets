@@ -65,7 +65,12 @@ public class TableEditorDispatcher implements PhaseListener {
 
     private void handleResourceRequest(FacesContext context, HttpServletResponse response, String path) {
         ClassLoader cl = getClass().getClassLoader();
-        InputStream is = cl.getResourceAsStream(path);
+        InputStream is = null;
+        try {
+            is = cl.getResourceAsStream(path);
+        } catch (Exception e) {
+            log.error("Could not handle Resource request for path '" + path + "'. Error: " + e.getMessage(), e);
+        }
         if (is == null) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             context.responseComplete();
@@ -87,8 +92,8 @@ public class TableEditorDispatcher implements PhaseListener {
             out.flush();
             out.close();
             context.responseComplete();
-        } catch (IOException e) {
-            log.error("Could not handle Resource request", e);
+        } catch (Exception e) {
+            log.error("Could not handle Resource request for path '" + path + "'. Error: " + e.getMessage(), e);
         } finally {
             try {
                 bis.close();
