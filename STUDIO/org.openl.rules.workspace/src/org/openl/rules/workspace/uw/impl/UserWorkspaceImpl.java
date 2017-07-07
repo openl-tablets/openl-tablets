@@ -1,6 +1,5 @@
 package org.openl.rules.workspace.uw.impl;
 
-import java.io.File;
 import java.util.*;
 
 import org.openl.rules.common.ArtefactPath;
@@ -55,8 +54,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
         userRulesProjects = new HashMap<String, RulesProject>();
         userDProjects = new HashMap<String, ADeploymentProject>();
-        File workspacesRoot = localWorkspace.getLocation().getParentFile();
-        String userName = user.getUserName();
     }
 
     public void activate() throws ProjectException {
