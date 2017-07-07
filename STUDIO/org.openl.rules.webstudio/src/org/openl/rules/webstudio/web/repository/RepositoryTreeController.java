@@ -17,10 +17,13 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.ResourceTransformer;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.project.impl.local.LockEngine;
 import org.openl.rules.project.model.*;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
+import org.openl.rules.repository.api.FileData;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportModule;
@@ -728,6 +731,10 @@ public class RepositoryTreeController {
         try {
             projectArtefact.unlock();
             repositoryTreeState.refreshSelectedNode();
+            if (projectArtefact instanceof RulesProject) {
+                File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
+                closeProjectForAllUsers(workspacesRoot, projectArtefact.getName());
+            }
             resetStudioModel();
 
             FacesUtils.addInfoMessage("File was unlocked successfully.");
@@ -745,12 +752,45 @@ public class RepositoryTreeController {
         try {
             RulesProject project = userWorkspace.getProject(projectName);
             project.unlock();
+            File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
+            closeProjectForAllUsers(workspacesRoot, projectName);
             resetStudioModel();
         } catch (ProjectException e) {
             log.error("Cannot unlock rules project '{}'.", projectName, e);
             FacesUtils.addErrorMessage("Failed to unlock rules project.", e.getMessage());
         }
         return null;
+    }
+
+    /**
+     * Closes unlocked project for all users. All unsaved changes will be lost.
+     */
+    private void closeProjectForAllUsers(File workspacesRoot, String projectName) {
+        // List all folders. Those folders - workspaces for each user (except for reserved .locks folder)
+        File[] files = workspacesRoot.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    String userName = file.getName();
+                    // Check for reserved folder name
+                    if (!LockEngine.LOCKS_FOLDER_NAME.equals(userName)) {
+                        try {
+                            LocalRepository repository = new LocalRepository(file);
+                            for (FileData fileData : repository.list(projectName)) {
+                                if (!repository.delete(fileData)) {
+                                    log.warn("Can't close project " + projectName + " because some resources are used");
+                                }
+                            }
+                            // Delete properties folder. Workaround for broken empty projects that failed to delete properties folder last time
+                            repository.getProjectState(projectName).notifyModified();
+                        } catch (Exception e) {
+                            // Log exception and skip current user
+                            log.error(e.getMessage(), e);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public String unlockDeploymentConfiguration() {

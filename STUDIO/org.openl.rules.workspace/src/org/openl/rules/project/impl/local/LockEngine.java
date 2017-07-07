@@ -16,6 +16,7 @@ import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.util.IOUtils;
 
 public class LockEngine {
+    public static final String LOCKS_FOLDER_NAME = ".locks";
     private static final String USER_NAME = "user";
     private static final String DATE = "date";
     private static final String DATE_FORMAT = "yyyy-MM-dd";
@@ -29,7 +30,7 @@ public class LockEngine {
      * @return Lock Engine
      */
     public static LockEngine create(File workspacesRoot, String type) {
-        File locksRoot = new File(workspacesRoot, ".locks");
+        File locksRoot = new File(workspacesRoot, LOCKS_FOLDER_NAME);
         File projectLocksRoot = new File(locksRoot, type);
         return new LockEngine(projectLocksRoot);
     }
