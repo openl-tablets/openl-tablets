@@ -140,8 +140,22 @@
                 $j('#loadingPanel').hide();
             }
 
+          function updateSubmitListener() {
+              $j("form input[type='submit']").each(function () {
+                  var $submit = $j(this);
+                  // Add showLoader listener only on submit buttons without onclick handler to skip
+                  // ajax jsf submit buttons and buttons with existed logic in onclick attribute.
+                  if (!$submit.attr("onclick")) {
+                      // Because this function is invoked on DOM change we must remove the handler we've set before.
+                      $submit.off("click", showLoader);
+                      $submit.on("click", showLoader);
+                  }
+              })
+          }
+
           $j(function () {
               fixTabIndexesInRichPopupPanels();
+              updateSubmitListener();
           });
           //]]>
         </script>
@@ -197,7 +211,8 @@
             <img src="webresource/images/ajax-loader.gif" />
         </div>
 
-        <a4j:status onstart="showLoader()" onstop="hideLoader()" />
+        <!-- ajax request can change DOM, for example add submit buttons. We must add listeners to them when request is finished. -->
+        <a4j:status onstart="showLoader()" onstop="hideLoader(); updateSubmitListener();" />
 
         <c:if test="#{jsffn:getSystemProp('webstudio.analytics') != 'false'}">
             <ui:include src="/pages/common/analytics.xhtml">
