@@ -92,6 +92,16 @@ public class DynamicInterfaceAnnotationEnhancerHelper {
                         AnnotationVisitor annotationVisitor = mv.visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
                         InterfaceTransformer.processAnnotation(annotation, annotationVisitor);
                     }
+                    int i = 0;
+                    for (Annotation[] parameterAnnotations : templateMethod.getParameterAnnotations()) {
+                        if (parameterAnnotations.length > 0) {
+                            for (Annotation annotation : parameterAnnotations) {
+                                AnnotationVisitor annotationVisitor = mv.visitParameterAnnotation(i, Type.getDescriptor(annotation.annotationType()), true);
+                                InterfaceTransformer.processAnnotation(annotation, annotationVisitor);
+                            }
+                        }
+                        i++;
+                    }
                     return mv;
                 }
             }
