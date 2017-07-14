@@ -14,6 +14,7 @@ public class SAMLSettings {
     private String secondNameAttribute;
     private String groupsAttribute;
     private String authenticationContexts;
+    private boolean localLogout;
 
     public SAMLSettings(String webStudioUrl,
             String samlServerMetadataUrl,
@@ -22,7 +23,8 @@ public class SAMLSettings {
             String keystorePassword, String keystoreSpAlias,
             String keystoreSpPassword, String defaultGroup,
             String usernameAttribute, String firstNameAttribute, String secondNameAttribute, String groupsAttribute,
-            String authenticationContexts) {
+            String authenticationContexts,
+            boolean localLogout) {
         this.webStudioUrl = webStudioUrl;
         this.samlServerMetadataUrl = samlServerMetadataUrl;
         this.requestTimeout = requestTimeout;
@@ -36,6 +38,7 @@ public class SAMLSettings {
         this.secondNameAttribute = secondNameAttribute;
         this.groupsAttribute = groupsAttribute;
         this.authenticationContexts = authenticationContexts;
+        this.localLogout = localLogout;
     }
 
     public String getWebStudioUrl() {
@@ -147,5 +150,13 @@ public class SAMLSettings {
 
     public void setAuthenticationContexts(String authenticationContexts) {
         this.authenticationContexts = authenticationContexts;
+    }
+
+    public boolean isLocalLogout() {
+        return localLogout;
+    }
+
+    public void setLocalLogout(boolean localLogout) {
+        this.localLogout = localLogout;
     }
 }

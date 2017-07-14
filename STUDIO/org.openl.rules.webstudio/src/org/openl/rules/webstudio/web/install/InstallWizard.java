@@ -280,8 +280,8 @@ public class InstallWizard {
                 systemConfig.getStringProperty("security.saml.attribute.first-name"),
                 systemConfig.getStringProperty("security.saml.attribute.last-name"),
                 systemConfig.getStringProperty("security.saml.attribute.groups"),
-                systemConfig.getStringProperty("security.saml.authentication-contexts")
-        );
+                systemConfig.getStringProperty("security.saml.authentication-contexts"),
+                systemConfig.getBooleanProperty("security.saml.local-logout"));
     }
 
     public String finish() {
@@ -331,6 +331,7 @@ public class InstallWizard {
                     systemConfig.setProperty("security.saml.attribute.last-name", samlSettings.getSecondNameAttribute());
                     systemConfig.setProperty("security.saml.attribute.groups", samlSettings.getGroupsAttribute());
                     systemConfig.setProperty("security.saml.authentication-contexts", samlSettings.getAuthenticationContexts());
+                    systemConfig.setProperty("security.saml.local-logout", samlSettings.isLocalLogout());
                 } else {
                     dbConfig.restoreDefaults();
                 }

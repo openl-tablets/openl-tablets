@@ -75,6 +75,10 @@
 
     <!-- ======================== Logout ========================== -->
 
+    <bean id="logoutUrlProvider" class="org.openl.rules.webstudio.security.LogoutUrlProvider">
+        <constructor-arg ref="logoutUrl"/>
+    </bean>
+
     <bean id="logoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter">
         <constructor-arg name="logoutSuccessUrl" ref="logoutSuccessUrl" />
         <constructor-arg name="handlers" ref="logoutHandlers" />
