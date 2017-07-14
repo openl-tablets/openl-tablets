@@ -24,7 +24,7 @@ public class AProjectResource extends AProjectArtefact {
                 return getRepository().read(getFileData().getName()).getStream();
             }
         } catch (IOException ex) {
-            throw new IllegalStateException(ex);
+            throw new ProjectException(ex.getMessage(), ex);
         }
     }
 
