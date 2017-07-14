@@ -78,7 +78,7 @@
         <property name="serviceProperties" ref="serviceProperties" />
         <property name="ticketValidator">
             <bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
-                <constructor-arg name="casServerUrlPrefix" value="#{systemConfig['security.cas.cas-server-url-prefix']}" />
+                <constructor-arg name="casServerUrlPrefix" value="#{systemConfig['security.cas.cas-server-ticket-validator-prefix']}"/>
                 <property name="encoding" value="UTF-8"/>
             </bean>
         </property>
