@@ -56,21 +56,21 @@
                         <div class="block-with-description">
                             <div class="field-edit">
                                 <h:selectOneRadio id="userMode" value="#{installWizard.userMode}" layout="pageDirection" >
+                                    <f:selectItem itemValue="demo" itemLabel="Demo" />
                                     <f:selectItem itemValue="single" itemLabel="Single-user" />
                                     <f:selectItem itemValue="multi" itemLabel="Multi-user" />
                                     <f:selectItem itemValue="ad" itemLabel="Active Directory" />
                                     <f:selectItem itemValue="cas" itemLabel="SSO: CAS" />
                                     <f:selectItem itemValue="saml" itemLabel="SSO: SAML" />
-                                    <f:selectItem itemValue="demo" itemLabel="Demo" />
                                 </h:selectOneRadio>
                             </div><!-- Remove whitespace between nearby divs
                          --><div class="field-description">
+                                <p class="user-mode-demo">You will use an internal User Database with predefined list of users. All changes in the database will be lost after the application restart. The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder.</p>
                                 <p class="user-mode-single">Only the currently logged in user can run OpenL Tablets WebStudio. All user projects will be saved in the root of the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace' directory.</p>
                                 <p class="user-mode-multi">Multiple users can run OpenL Tablets WebStudio using their unique user names. The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. User credentials are managed inside WebStudio.</p>
                                 <p class="user-mode-ad">Multiple users can run OpenL Tablets WebStudio using their unique user names. The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. Active Directory will be used to authenticate and manage user credentials.</p>
                                 <p class="user-mode-cas">Multiple users can run OpenL Tablets WebStudio using their unique user names. The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. CAS (Central Authentication Service) server will be used to authenticate and manage user credentials.</p>
                                 <p class="user-mode-saml">Multiple users can run OpenL Tablets WebStudio using their unique user names. The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. SAML (Security Assertion Markup Language) supporting Identity Provider server will be used to authenticate and manage user credentials.</p>
-                                <p class="user-mode-demo">You will use an internal User Database with predefined list of users. All changes in the database will be lost after the application restart. The User’s projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder.</p>
                             </div>
                         </div>
                     </div>

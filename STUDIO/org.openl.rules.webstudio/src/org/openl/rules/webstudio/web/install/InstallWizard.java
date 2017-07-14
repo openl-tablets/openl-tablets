@@ -82,7 +82,7 @@ public class InstallWizard {
     private boolean newWorkingDir;
     private boolean showErrorMessage = false;
 
-    private String userMode = "single";
+    private String userMode = "demo";
     /**
      * TODO: Rename the field and properties to something more clear
      */
