@@ -40,12 +40,12 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public void save(CommonUser user) throws ProjectException {
-        clearModifyStatus();
         AProject designProject = new AProject(designRepository, designFolderName, false);
         AProject localProject = new AProject(localRepository, localFolderName, true);
         designProject.getFileData().setComment(getFileData().getComment());
         designProject.update(localProject, user);
         setHistoryVersion(designProject.getFileData().getVersion());
+        clearModifyStatus();
         unlock();
         refresh();
     }
@@ -264,6 +264,12 @@ public class RulesProject extends UserWorkspaceProject {
     private void clearModifyStatus() {
         if (!isRepositoryOnly()) {
             localRepository.getProjectState(localFolderName).clearModifyStatus();
+        }
+    }
+
+    private void setModified() {
+        if (!isRepositoryOnly()) {
+            localRepository.getProjectState(localFolderName).notifyModified();
         }
     }
 
