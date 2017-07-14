@@ -1,6 +1,7 @@
 package org.openl.rules.ui;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -188,8 +189,19 @@ public class WebStudio {
             }
             project.save();
         } catch (Exception e) {
-            log.error("Can not Save changes", e);
-            // TODO Display message - e.getMessage()
+            String msg;
+            if (e.getCause() instanceof FileNotFoundException) {
+                if (e.getMessage().contains(".xls")) {
+                    msg = "Failed to save project. Please close module Excel file and try again.";
+                } else {
+                    msg = "Failed to save project because some resources are used";
+                }
+            } else {
+                msg = "Failed to save project. See logs for details.";
+            }
+
+            log.error(msg, e);
+            throw new ValidationException(msg);
         }
     }
 
