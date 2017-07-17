@@ -38,7 +38,7 @@ public final class CompileMojo extends BaseOpenLMojo {
             .build();
 
         CompiledOpenClass openLRules = factory.getCompiledOpenClass();
-        IOpenClass openClass = openLRules.getOpenClassWithErrors();
+        IOpenClass openClass = openLRules.getOpenClass();
         List<OpenLMessage> messages = openLRules.getMessages();
         List<OpenLMessage> warnings = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.WARN);
         info("Compilation has finished.");
