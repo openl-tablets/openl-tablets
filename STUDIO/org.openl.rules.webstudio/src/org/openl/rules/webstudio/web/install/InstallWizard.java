@@ -242,12 +242,9 @@ public class InstallWizard {
     }
 
     private void readDbProperties() {
-        String propsLocation = workingDir + "/system-settings/db.properties";
-        ConfigurationManager savedConfig = new ConfigurationManager(false, propsLocation, System.getProperty("webapp.root") + "/WEB-INF/conf/db.properties");
-
-        dbUrl = savedConfig.getStringProperty("db.url");
-        dbUsername = savedConfig.getStringProperty("db.user");
-        dbPassword = savedConfig.getStringProperty("db.password");
+        dbUrl = dbConfig.getStringProperty("db.url");
+        dbUsername = dbConfig.getStringProperty("db.user");
+        dbPassword = dbConfig.getStringProperty("db.password");
     }
 
     private void readAdProperties() {
