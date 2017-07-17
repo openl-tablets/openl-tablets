@@ -69,6 +69,8 @@ public final class TestMojo extends BaseOpenLMojo {
         info("Tests run: ", runTests, ", Failures: ", failedTests, ", Errors: ", errors);
         if (failedTests > 0 || errors > 0) {
             throw new MojoFailureException("There are errors in the OpenL tests");
+        } else if (openLRules.hasErrors()) {
+            throw new MojoFailureException("There are compilation errors in the OpenL tests ");
         }
     }
 
