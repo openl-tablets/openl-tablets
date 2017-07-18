@@ -245,6 +245,8 @@ public class WebStudio {
         String cookieName = cookePrefix + "_" + FacesUtils.getRequestParameter(cookePrefix);
         try {
             RulesProject forExport = getCurrentProject();
+            // Export fresh state of the project (it could be modified in background by Excel)
+            forExport.refresh();
             String userName = WebStudioUtils.getRulesUserSession(FacesUtils.getSession()).getUserName();
 
             String fileName = String.format("%s-%s.zip", forExport.getName(), forExport.getVersion().getVersionName());
@@ -257,8 +259,19 @@ public class WebStudio {
             ExportModule.writeOutContent(response, file, fileName);
             facesContext.responseComplete();
         } catch (ProjectException e) {
-            log.error("Failed to export the project", e);
-            FacesUtils.addCookie(cookieName, "Failed to export the project", -1);
+            String message;
+            if (e.getCause() instanceof FileNotFoundException) {
+                if (e.getMessage().contains(".xls")) {
+                    message = "Failed to export the project with unsaved changes. Please close module Excel file and try again.";
+                } else {
+                    message = "Failed to export the project because some resources are used.";
+                }
+            } else {
+                message = "Failed to export the project. See logs for details.";
+            }
+
+            log.error(message, e);
+            FacesUtils.addCookie(cookieName, message, -1);
         } finally {
             FileUtils.deleteQuietly(file);
         }
