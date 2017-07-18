@@ -73,7 +73,9 @@ public class XlsUrlParser implements XlsURLConstants {
             wbName = "unexistingSourceFile.xls";
         } else {
             if (file.startsWith("file:/")) {
-                file = file.substring(6);
+                // In Unix we must skip two slashes after "file:".
+                int prefixSize = file.startsWith("file:///") ? 7 : 6;
+                file = file.substring(prefixSize);
             }
             try {
                 File f = new File(file).getCanonicalFile();
