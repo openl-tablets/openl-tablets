@@ -48,7 +48,7 @@
                     if (status === "success") {
                         RichFaces.$('exportProject').hide();
                     } else {
-                        ws.ui.error(status);
+                        ws.ui.info(status);
                     }
                 },
                 onTimeout: function(){
