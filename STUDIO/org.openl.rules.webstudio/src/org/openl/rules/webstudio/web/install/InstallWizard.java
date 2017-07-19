@@ -500,9 +500,6 @@ public class InstallWizard {
                         username,
                         password);
                 Authentication authentication = ldapAuthenticationProvider.authenticate(authenticationToken);
-                if (authentication.getAuthorities().isEmpty()) {
-                    throw new ValidatorException(FacesUtils.createErrorMessage("User '" + username + "' doesn't have any authority."));
-                }
             } catch (AuthenticationException e) {
                 throw new ValidatorException(FacesUtils.createErrorMessage(e.getMessage()));
             } catch (RuntimeException e) {
