@@ -151,7 +151,13 @@
 
         ResponseMonitor.prototype._getCookie = function() {
             var parts = document.cookie.split(this.cookie.name + "=");
-            if (parts.length == 2) return parts.pop().split(";").shift();
+            if (parts.length === 2) {
+                var text = parts.pop().split(";").shift();
+                if (text.charAt(0) === '"' && text.charAt(text.length - 1) === '"') {
+                    text = text.substring(1, text.length - 1);
+                }
+                return text;
+            }
         };
 
         ResponseMonitor.prototype._expireCookie = function(name) {
