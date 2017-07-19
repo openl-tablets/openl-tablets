@@ -187,33 +187,31 @@ public class AProject extends AProjectFolder {
 
     public void undelete() throws ProjectException {
         try {
-        if (!isDeleted()) {
-            throw new ProjectException("Cannot undelete non-marked project ''{0}''!", null, getName());
-        }
+            if (!isDeleted()) {
+                throw new ProjectException("Cannot undelete non-marked project ''{0}''!", null, getName());
+            }
 
-        if (isFolder()) {
-            for (AProjectArtefact artefact : getArtefacts()) {
-                if (artefact instanceof AProjectResource) {
-                    FileData fileData = artefact.getFileData();
-                    fileData.setDeleted(false);
-
-                    FileItem read = getRepository().read(fileData.getName());
-                    InputStream stream = read.getStream();
-                    fileData.setSize(read.getData().getSize());
-                    getRepository().save(fileData, stream);
-                    IOUtils.closeQuietly(stream);
+            Repository repository = getRepository();
+            if (isFolder()) {
+                for (AProjectArtefact artefact : getArtefacts()) {
+                    if (artefact instanceof AProjectResource) {
+                        FileData fileData = repository.check(artefact.getFileData().getName());
+                        if (fileData != null && fileData.isDeleted()) {
+                            repository.deleteHistory(fileData.getName(), fileData.getVersion());
+                            FileData actual = repository.check(fileData.getName());
+                            artefact.setFileData(actual);
+                        }
+                    }
+                }
+            } else {
+                FileData fileData = repository.check(getFileData().getName());
+                if (fileData != null && fileData.isDeleted()) {
+                    repository.deleteHistory(fileData.getName(), fileData.getVersion());
+                    FileData actual = repository.check(fileData.getName());
+                    setFileData(actual);
+                    setHistoryVersion(actual.getVersion());
                 }
             }
-        } else {
-            FileData fileData = getFileData();
-            fileData.setDeleted(false);
-            FileItem read = getRepository().read(fileData.getName());
-            fileData.setSize(read.getData().getSize());
-            InputStream stream = read.getStream();
-            setFileData(getRepository().save(fileData, stream));
-            setHistoryVersion(getFileData().getVersion());
-            IOUtils.closeQuietly(stream);
-        }
         } catch (IOException ex) {
             throw new ProjectException("Cannot undelete a project", ex);
         }
