@@ -5,7 +5,6 @@ import static org.codehaus.plexus.archiver.util.DefaultFileSet.fileSet;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -22,7 +21,6 @@ import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.manager.ArchiverManager;
-
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 
@@ -74,13 +72,24 @@ public final class PackageMojo extends BaseOpenLMojo {
     private String classpathFolder;
 
     /**
-     * Classifier to add to the artifact generated. If given, the artifact will
-     * be attached as a supplemental artifact. If not given this will create the
-     * main artifact which is the default behavior. If you try to do that a
-     * second time without using a classifier the build will fail.
+     * Classifier to add to the artifact generated. If given, the artifact will be
+     * attached as a supplemental artifact. If not given this will create the main
+     * artifact which is the default behavior. If you try to do that a second time
+     * without using a classifier the build will fail.
      */
     @Parameter
     private String classifier;
+
+    /**
+     * An allowed quantity of dependencies which can be included into the ZIP
+     * archive. Usually OpenL rules require a few dependencies like: domain models
+     * (Java beans) or some utils (e.g. JSON parsing). So the quantity of required
+     * dependencies does not exceed 3 usually. In case incorrect declaring of
+     * transitive dependencies, the size of the ZIP package increases dramatically.
+     * This parameter allows to prevent such situation by failing packaging.
+     */
+    @Parameter(defaultValue = "3", required = true)
+    private int dependenciesThreshold;
 
     @Override
     void execute(String sourcePath) throws Exception {
@@ -100,13 +109,25 @@ public final class PackageMojo extends BaseOpenLMojo {
         boolean mainArtifactExists = dependencyLib != null && dependencyLib.isFile();
         if (mainArtifactExists && StringUtils.isBlank(classifier) && Arrays.asList(types).contains(packaging)) {
             error("The main artifact have been attached already.");
-            error(
-                "You have to use classifier to attach supplemental artifacts to the project instead of replacing them.");
+            error("You have to use classifier to attach supplemental artifacts to the project instead of replacing them.");
             throw new MojoFailureException("It is not possible to replace the main artifact.");
+        }
+        Set<Artifact> dependencies = getDependencies();
+        int dependensiesSize = dependencies.size();
+        if (dependensiesSize > dependenciesThreshold) {
+            error("The quantity of dependencies (",
+                dependensiesSize,
+                ") exceedes the defined threshold in 'dependenciesThreshold=",
+                dependenciesThreshold,
+                "' parameter.");
+            for (Artifact artifact : dependencies) {
+                error("    : ", artifact);
+            }
+            throw new MojoFailureException("The quantity of dependencies exceedes the limit");
         }
         if (!mainArtifactExists && CollectionUtils.isNotEmpty(classesDirectory.list())) {
             // create a jar file with compiled Java sources for OpenL rules
-            dependencyLib = File.createTempFile(finalName,"-lib.jar",outputDirectory);
+            dependencyLib = File.createTempFile(finalName, "-lib.jar", outputDirectory);
             Archiver jarArch = new JarArchiver();
             jarArch.setIncludeEmptyDirs(false);
             jarArch.setDestFile(dependencyLib);
@@ -114,7 +135,6 @@ public final class PackageMojo extends BaseOpenLMojo {
             jarArch.createArchive();
         }
 
-        Set<Artifact> dependencies = getDependencies();
         for (String type : types) {
             File outputFile = getOutputFile(outputDirectory, finalName, classifier, type);
             Archiver arch = archiverManager.getArchiver(type);
@@ -133,11 +153,11 @@ public final class PackageMojo extends BaseOpenLMojo {
 
             arch.setDestFile(outputFile);
             arch.createArchive();
-            if (mainArtifactExists || StringUtils.isNotBlank(classifier) ) {
-                info("Attaching the supplemental artifact '",outputFile,",");
+            if (mainArtifactExists || StringUtils.isNotBlank(classifier)) {
+                info("Attaching the supplemental artifact '", outputFile, ",");
                 projectHelper.attachArtifact(project, type, classifier, outputFile);
             } else {
-                info("Registering the main artifact '",outputFile,",");
+                info("Registering the main artifact '", outputFile, ",");
                 mainArtifactExists = true;
                 project.getArtifact().setFile(outputFile);
             }
@@ -152,10 +172,6 @@ public final class PackageMojo extends BaseOpenLMojo {
 
         for (Artifact artifact : artifacts) {
             collectToSkip(skipped, artifact);
-        }
-        Iterator<Artifact> iterator = artifacts.iterator();
-        while (iterator.hasNext()) {
-            Artifact artifact = iterator.next();
         }
         for (Artifact artifact : artifacts) {
             if (skipped.contains(ArtifactUtils.versionlessKey(artifact))) {
