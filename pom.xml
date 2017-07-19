@@ -90,7 +90,7 @@
         <maven.api.version>3.2.5</maven.api.version>
         <maven.plugin.version>3.5</maven.plugin.version>
         <!-- Empty for building without JaCoCo agent -->
-        <jacococ.argLine />
+        <jacococ.argLine/>
     </properties>
 
     <modules>
@@ -243,6 +243,23 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-plugin-plugin</artifactId>
                     <version>${maven.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-invoker-plugin</artifactId>
+                    <version>3.0.0</version>
+                    <configuration>
+                        <projectsDirectory>it</projectsDirectory>
+                        <pomIncludes>
+                            <pomInclude>**/pom.xml</pomInclude>
+                        </pomIncludes>
+                        <preBuildHookScript>setup</preBuildHookScript>
+                        <postBuildHookScript>verify</postBuildHookScript>
+                        <goals>
+                            <goal>clean</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
