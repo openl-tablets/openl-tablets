@@ -97,17 +97,6 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
 
     @Override
     public FileData save(FileData data, InputStream stream) throws IOException {
-        if (!data.isDeleted()) {
-            FileData existing = getLatestVersionFileData(data.getName());
-
-            if (existing != null && existing.isDeleted()) {
-                // This is undelete operation
-                deleteHistory(data.getName(), existing.getVersion());
-                invokeListener();
-                return getLatestVersionFileData(data.getName());
-            }
-        }
-
         return insertFile(data, stream);
     }
 
@@ -161,8 +150,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
 
     @Override
     public FileData rename(String path, FileData destData) throws IOException {
-        // TODO: implement
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override

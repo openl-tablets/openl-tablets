@@ -205,16 +205,6 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
     @Override
     public FileData save(FileData data, InputStream stream) throws IOException {
         try {
-            if (!data.isDeleted()) {
-                FileData existing = check(data.getName());
-
-                if (existing != null && existing.isDeleted()) {
-                    // This is undelete operation
-                    deleteHistory(data.getName(), existing.getVersion());
-                    return check(data.getName());
-                }
-            }
-
             ObjectMetadata metaData = new ObjectMetadata();
             metaData.setContentType("application/zip");
             if (data.getSize() != 0) {

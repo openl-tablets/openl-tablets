@@ -154,13 +154,8 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
     @Override
     public FileData save(FileData data, InputStream stream) throws IOException {
         try {
-
             String name = data.getName();
             FolderAPI project = getOrCreateProject(name, true);
-
-            if (undeleteIfNeeded(data, project)) {
-                return createFileData(name, project);
-            }
 
             String comment = data.getComment();
             if (comment == null) {
@@ -232,18 +227,6 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             folderPaths.add(folderPath);
             addFolderPaths(folderPaths, folderPath);
         }
-    }
-
-    private boolean undeleteIfNeeded(FileData data, FolderAPI project) throws IOException, PropertyException {
-        FileData existingData = check(data.getName());
-        if (existingData == null) {
-            return false;
-        }
-        if (existingData.isDeleted() && !data.isDeleted()) {
-            project.removeProperty(ArtefactProperties.PROP_PRJ_MARKED_4_DELETION);
-            return true;
-        }
-        return false;
     }
 
     @Override
@@ -367,8 +350,11 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
 
                 return true;
             } else {
-                // TODO implement
-                return false;
+                if (!artefact.hasProperty(ArtefactProperties.PROP_PRJ_MARKED_4_DELETION)) {
+                    throw new ProjectException("Project ''{0}'' isn't marked for deletion. The method deleteHistory() in JCR Repository is supported only for undelete and erase.", null, name);
+                }
+                artefact.removeProperty(ArtefactProperties.PROP_PRJ_MARKED_4_DELETION);
+                return true;
             }
         } catch (CommonException e) {
             log.error(e.getMessage(), e);
