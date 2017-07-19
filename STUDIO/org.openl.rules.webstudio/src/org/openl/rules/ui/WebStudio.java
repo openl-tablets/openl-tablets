@@ -192,12 +192,12 @@ public class WebStudio {
             String msg;
             if (e.getCause() instanceof FileNotFoundException) {
                 if (e.getMessage().contains(".xls")) {
-                    msg = "Failed to save project. Please close module Excel file and try again.";
+                    msg = "Failed to save the project. Please close module Excel file and try again.";
                 } else {
-                    msg = "Failed to save project because some resources are used";
+                    msg = "Failed to save the project because some resources are used";
                 }
             } else {
-                msg = "Failed to save project. See logs for details.";
+                msg = "Failed to save the project. See logs for details.";
             }
 
             log.error(msg, e);
@@ -262,7 +262,7 @@ public class WebStudio {
             String message;
             if (e.getCause() instanceof FileNotFoundException) {
                 if (e.getMessage().contains(".xls")) {
-                    message = "Failed to export the project with unsaved changes. Please close module Excel file and try again.";
+                    message = "Failed to export the project. Please close module Excel file and try again.";
                 } else {
                     message = "Failed to export the project because some resources are used.";
                 }
