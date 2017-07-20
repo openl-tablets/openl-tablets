@@ -37,8 +37,7 @@ import java.util.List;
 public interface Repository {
 
     /**
-     * Return a list of files recursively in the given folder. This method MUST
-     * NOT return deleted files.
+     * Return a list of files recursively in the given folder.
      * 
      * @param path the folder to scan. The path must be ended by '/' or be
      *            empty.
@@ -148,8 +147,8 @@ public interface Repository {
     FileItem readHistory(String name, String version) throws IOException;
 
     /**
-     * Delete a file from the history. If the version is null, then it will work
-     * like {@link #delete(FileData)} method.
+     * Delete a file from the history. If the version is null, then it will
+     * delete all versions of the file from the history.
      *
      * @param name the file to delete.
      * @param version the version of the file to delete, can be null.
