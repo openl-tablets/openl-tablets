@@ -53,7 +53,7 @@ public class CommonRepositorySettings extends RepositorySettings {
         }
 
         login = configManager.getStringProperty(REPOSITORY_LOGIN);
-
+        password = configManager.getPassword(REPOSITORY_PASS);
     }
 
     public String getPath() {
@@ -84,7 +84,7 @@ public class CommonRepositorySettings extends RepositorySettings {
     }
 
     public String getPassword() {
-        return "";
+        return password;
     }
 
     public void setPassword(String pass) {
@@ -143,7 +143,7 @@ public class CommonRepositorySettings extends RepositorySettings {
         } else {
             if (StringUtils.isNotEmpty(password)) {
                 configurationManager.setProperty(REPOSITORY_LOGIN, getLogin());
-                configurationManager.setPassword(REPOSITORY_PASS, password);
+                configurationManager.setPassword(REPOSITORY_PASS, getPassword());
             }
         }
     }
@@ -164,7 +164,7 @@ public class CommonRepositorySettings extends RepositorySettings {
             CommonRepositorySettings otherSettings = (CommonRepositorySettings) other;
             setPath(otherSettings.getPath());
             setLogin(otherSettings.getLogin());
-            setPassword(otherSettings.configManager.getPassword(REPOSITORY_PASS));
+            setPassword(otherSettings.getPassword());
             // Needed for default local repository when creating or connecting to new repositories.
             defaultLocalUri = otherSettings.defaultLocalUri;
         } else {
