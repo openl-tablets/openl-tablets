@@ -62,6 +62,7 @@ public class LaunchFileServlet extends HttpServlet {
         String file;
         String decodedUriParameter;
         try {
+            log.debug("uri: {}", uri);
             decodedUriParameter = StringTool.decodeURL(uri);
             URL url = new URL(decodedUriParameter);
             file = url.getFile();
@@ -97,12 +98,16 @@ public class LaunchFileServlet extends HttpServlet {
 
         // Parse url
         try {
+            log.debug("decodedUriParameter: {}", decodedUriParameter);
+
             XlsUrlParser parser = new XlsUrlParser();
             parser.parse(decodedUriParameter);
             wbPath = parser.wbPath;
             wbName = wrapperGrid != null ? wrapperGrid.getSourceFileName() : parser.wbName;
             wsName = parser.wsName;
             range = parser.range;
+
+            log.debug("wbPath: {}, wbName: {}, wsName: {}, range: {}", wbPath, wbName, wsName, range);
         } catch (Exception e) {
             log.error("Can't parse file uri", e);
             return;
