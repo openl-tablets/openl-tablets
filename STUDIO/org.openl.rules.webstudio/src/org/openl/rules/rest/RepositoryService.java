@@ -160,8 +160,16 @@ public class RepositoryService {
                 project.lock();
             }
 
+            String fileName = getFileName(name);
+
+            FileData existing = getRepository().check(fileName);
+            if (existing != null && existing.isDeleted()) {
+                // Remove "deleted" marker
+                getRepository().deleteHistory(existing.getName(), existing.getVersion());
+            }
+
             FileData data = new FileData();
-            data.setName(getFileName(name));
+            data.setName(fileName);
             data.setComment("[REST] " + StringUtils.trimToEmpty(comment));
             data.setAuthor(getUserName());
             FileData save = getRepository().save(data, zipFile);
