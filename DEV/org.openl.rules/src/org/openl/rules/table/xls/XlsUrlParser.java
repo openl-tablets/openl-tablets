@@ -73,8 +73,9 @@ public class XlsUrlParser implements XlsURLConstants {
             wbName = "unexistingSourceFile.xls";
         } else {
             if (file.startsWith("file:/")) {
-                // In Unix we must skip two slashes after "file:".
-                int prefixSize = file.startsWith("file:///") ? 7 : 6;
+                // In current OpenL implementation in Linux the path will be like this: file:/opt/smth.
+                // In Windows like this: file:/C:/smth.
+                int prefixSize = file.length() > 7 && file.charAt(7) == ':' ? 6 : 5;
                 file = file.substring(prefixSize);
             }
             try {
