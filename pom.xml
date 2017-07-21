@@ -259,6 +259,7 @@
                             <goal>clean</goal>
                             <goal>verify</goal>
                         </goals>
+                        <streamLogs>true</streamLogs>
                     </configuration>
                 </plugin>
                 <plugin>
