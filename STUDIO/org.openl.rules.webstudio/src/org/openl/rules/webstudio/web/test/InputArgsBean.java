@@ -143,7 +143,10 @@ public class InputArgsBean {
             IOpenClass parameterType = method.getSignature().getParameterType(i);
             Object parameterValue = null;
             try {
-                parameterValue = parameterType.newInstance(env);
+                // No need to instantiate the class with compile error and spam the logs.
+                if (ParameterTreeBuilder.canConstruct(parameterType)) {
+                    parameterValue = parameterType.newInstance(env);
+                }
             } catch (Exception ignored) {
             }
             args[i] = new ParameterWithValueDeclaration(parameterName, parameterValue, parameterType);

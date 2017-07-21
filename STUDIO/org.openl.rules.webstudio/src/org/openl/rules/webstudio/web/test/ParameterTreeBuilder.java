@@ -97,6 +97,10 @@ public class ParameterTreeBuilder {
             return false;
         }
 
+        if (type.getInstanceClass() == null) {
+            return false;
+        }
+
         try {
             type.newInstance(new SimpleVM().getRuntimeEnv());
             return true;
