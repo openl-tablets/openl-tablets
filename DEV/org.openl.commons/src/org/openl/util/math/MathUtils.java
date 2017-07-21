@@ -1817,34 +1817,4 @@ public class MathUtils {
         }
         return res;
     }
-
-    public static double round(double x, int scale, int roundingMethod) {
-        try {
-            return (new BigDecimal
-                    (Double.toString(x))
-                    .setScale(scale, roundingMethod))
-                    .doubleValue();
-        } catch (NumberFormatException ex) {
-            if (Double.isInfinite(x)) {
-                return x;
-            } else {
-                return Double.NaN;
-            }
-        }
-    }
-
-    public static float round(float x, int scale, int roundingMethod) {
-        try {
-            return (new BigDecimal
-                    (Float.toString(x))
-                    .setScale(scale, roundingMethod))
-                    .floatValue();
-        } catch (NumberFormatException ex) {
-            if (Float.isInfinite(x)) {
-                return x;
-            } else {
-                return Float.NaN;
-            }
-        }
-    }
 }

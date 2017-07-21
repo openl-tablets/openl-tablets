@@ -4911,26 +4911,6 @@ public class RulesUtilsTest {
         assertTrue(callOr(true, true, true));
     }
 
-    @Test
-    public void testRoundToLong() {
-        assertEquals(1, RulesUtils.round(1.222235345345));
-
-        assertEquals(2, RulesUtils.round(1.500000001235345345));
-
-        assertEquals(0, RulesUtils.round(0));
-    }
-
-    @Test
-    public void testRoundWithPrecision() {
-        assertEquals("1.222",
-                String.valueOf(RulesUtils.round(1.222235345345, 3)));
-
-        assertEquals("1.6",
-                String.valueOf(RulesUtils.round(1.56000001235345345, 1)));
-
-        assertEquals("0.0", String.valueOf(RulesUtils.round(0, 0)));
-    }
-
     private boolean callXor(boolean... values) {
         return RulesUtils.xor(values);
     }
