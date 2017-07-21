@@ -17,6 +17,7 @@ import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.LogicalExpressions;
 import org.openl.meta.number.NumberOperations;
+import org.openl.rules.util.Round;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
 
@@ -748,14 +749,14 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         return BigDecimal.valueOf(x.doubleValue());
     }
 
-    public static org.openl.meta.FloatValue round(org.openl.meta.FloatValue value) {
+    public static FloatValue round(FloatValue value) {
         if (value == null) {
             return null;
         }
 
-        return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue((float) Math.round(value.getValue())),
-            NumberOperations.ROUND,
-            new org.openl.meta.FloatValue[] { value });
+        float rounded = Round.round(value.value, 0);
+        FloatValue newValue = new FloatValue(rounded);
+        return new FloatValue(newValue, NumberOperations.ROUND, value);
     }
 
     public static FloatValue round(FloatValue value, int scale) {
@@ -763,8 +764,9 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
             return null;
         }
 
-        return new FloatValue(new FloatValue(MathUtils.round(value.floatValue(),
-                scale, BigDecimal.ROUND_HALF_UP)), NumberOperations.ROUND, new FloatValue[] { value, new FloatValue(scale) });
+        float rounded = Round.round(value.value, scale);
+        FloatValue newValue = new FloatValue(rounded);
+        return new FloatValue(newValue, NumberOperations.ROUND, value, new FloatValue(scale));
     }
 
     public static FloatValue round(FloatValue value, int scale, int roundingMethod) {
@@ -772,9 +774,9 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
             return null;
         }
 
-        return new FloatValue(new FloatValue(MathUtils.round(value.floatValue(),
-                    scale,
-                    roundingMethod)), NumberOperations.ROUND, new FloatValue[] { value, new FloatValue(scale) });
+        float rounded = Round.round(value.value, scale, roundingMethod);
+        FloatValue newValue = new FloatValue(rounded);
+        return new FloatValue(newValue, NumberOperations.ROUND, value, new FloatValue(scale));
     }
 
     public FloatValue(String valueString) {
@@ -782,7 +784,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     }
 
     /** Function constructor **/
-    public FloatValue(FloatValue result, NumberOperations function, FloatValue[] params) {
+    public FloatValue(FloatValue result, NumberOperations function, FloatValue... params) {
         super(function, params);
         this.value = result.floatValue();
     }

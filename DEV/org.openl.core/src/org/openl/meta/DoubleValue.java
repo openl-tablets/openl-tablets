@@ -16,6 +16,7 @@ import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.LogicalExpressions;
 import org.openl.meta.number.NumberOperations;
+import org.openl.rules.util.Round;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
 
@@ -825,16 +826,14 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         return BigDecimal.valueOf(x.doubleValue());
     }
 
-    public static org.openl.meta.DoubleValue round(org.openl.meta.DoubleValue value) {
+    public static DoubleValue round(DoubleValue value) {
         if (value == null) {
             return null;
         }
 
-        // ULP is used for fix imprecise operations of double values
-        double ulp = Math.ulp(value.getValue());
-        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue((double) Math.round(value.getValue() + ulp)),
-            NumberOperations.ROUND,
-            new org.openl.meta.DoubleValue[] { value });
+        double rounded = Round.round(value.value, 0);
+        DoubleValue newValue = new DoubleValue(rounded);
+        return new DoubleValue(newValue, NumberOperations.ROUND, value);
     }
 
     public static DoubleValue round(DoubleValue value, int scale) {
@@ -842,14 +841,9 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
             return null;
         }
 
-        // ULP is used for fix imprecise operations of double values
-        double ulp = Math.ulp(value.getValue());
-        DoubleValue returnValue = new DoubleValue(new DoubleValue(MathUtils.round(value.doubleValue() + ulp,
-                scale, BigDecimal.ROUND_HALF_UP)),
-                NumberOperations.ROUND,
-                new DoubleValue[] { value, new DoubleValue(scale) });
-
-        return returnValue;
+        double rounded = Round.round(value.value, scale);
+        DoubleValue newValue = new DoubleValue(rounded);
+        return new DoubleValue(newValue, NumberOperations.ROUND, value, new DoubleValue(scale));
     }
 
     public static DoubleValue round(DoubleValue value, int scale, int roundingMethod) {
@@ -857,9 +851,9 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
             return null;
         }
 
-        return new DoubleValue(new DoubleValue(MathUtils.round(value.doubleValue(),
-            scale,
-            roundingMethod)), NumberOperations.ROUND, new DoubleValue[] { value, new DoubleValue(scale) });
+        double rounded = Round.round(value.value, scale, roundingMethod);
+        DoubleValue newValue = new DoubleValue(rounded);
+        return new DoubleValue(newValue, NumberOperations.ROUND, value, new DoubleValue(scale));
     }
 
     /**
@@ -879,13 +873,13 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
             scale = 0;
             preRoundedValue = d.doubleValue();
         } else {
-            scale = (int) MathUtils.round(-Math.log10(p.doubleValue()), 0, BigDecimal.ROUND_HALF_UP);
+            scale = (int) Round.round(-Math.log10(p.doubleValue()), 0, Round.HALF_UP);
             preRoundedValue = d.doubleValue();
             // preRoundedValue = Math.round(d.doubleValue() / p.doubleValue()) *
             // p.doubleValue();
         }
 
-        double roundedValue = MathUtils.round(preRoundedValue, scale, BigDecimal.ROUND_HALF_UP);
+        double roundedValue = Round.round(preRoundedValue, scale, Round.HALF_UP);
 
         return new DoubleValue(new DoubleValue(roundedValue), NumberOperations.ROUND, new DoubleValue[] { d, p });
     }
@@ -896,7 +890,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     }
 
     /** Function constructor **/
-    public DoubleValue(DoubleValue result, NumberOperations function, DoubleValue[] params) {
+    public DoubleValue(DoubleValue result, NumberOperations function, DoubleValue... params) {
         super(function, params);
         this.value = result.doubleValue();
     }

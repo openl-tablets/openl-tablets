@@ -46,6 +46,10 @@
             <artifactId>org.openl.commons</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.openl</groupId>
+            <artifactId>org.openl.rules.util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.constrainer</artifactId>
         </dependency>
