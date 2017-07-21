@@ -110,7 +110,7 @@ public class NegativeTest {
         try {
             for (String expectedMessage : getExpectedMessages(messagesFile)) {
                 if (!isMessageExists(actualMessages, expectedMessage, severity)) {
-                    System.out.println("!!! Message + \"" + expectedMessage + "\" with severity " + severity.name() + " is not found in [" + sourceFile + "].");
+                    System.out.println("!!! The message \"" + expectedMessage + "\" with severity " + severity.name() + " is not found in [" + sourceFile + "].");
                     hasAllMessages = false;
                 }
             }
