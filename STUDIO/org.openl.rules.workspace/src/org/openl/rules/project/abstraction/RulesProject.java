@@ -251,7 +251,7 @@ public class RulesProject extends UserWorkspaceProject {
         }
     }
 
-    private void setModified() {
+    public void setModified() {
         if (!isRepositoryOnly()) {
             localRepository.getProjectState(localFolderName).notifyModified();
         }
