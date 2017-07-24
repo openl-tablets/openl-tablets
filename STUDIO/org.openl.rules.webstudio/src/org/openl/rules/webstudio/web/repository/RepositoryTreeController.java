@@ -765,7 +765,16 @@ public class RepositoryTreeController {
     /**
      * Closes unlocked project for all users. All unsaved changes will be lost.
      */
-    private void closeProjectForAllUsers(File workspacesRoot, String projectName) {
+    private void closeProjectForAllUsers(File workspacesRoot, String projectName) throws ProjectException {
+        // Needed to update UI of current user
+        TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(projectName);
+        if (projectNode != null) {
+            AProjectArtefact artefact = projectNode.getData();
+            if (artefact instanceof RulesProject) {
+                ((RulesProject) artefact).close();
+            }
+        }
+
         // List all folders. Those folders - workspaces for each user (except for reserved .locks folder)
         File[] files = workspacesRoot.listFiles();
         if (files != null) {
