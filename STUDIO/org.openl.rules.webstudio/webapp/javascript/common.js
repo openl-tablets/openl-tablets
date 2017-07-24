@@ -95,6 +95,22 @@ function fixTabIndexesInRichPopupPanels() {
     };
 }
 
+function updateSubmitListener(listener) {
+    if (!$j) {
+        return;
+    }
+    $j("form input[type='submit']").each(function () {
+        var $submit = $j(this);
+        // Add showLoader listener only on submit buttons without onclick handler to skip
+        // ajax jsf submit buttons and buttons with existed logic in onclick attribute.
+        if (!$submit.attr("onclick")) {
+            // Because this function is invoked on DOM change we must remove the handler we've set before.
+            $submit.off("click", listener);
+            $submit.on("click", listener);
+        }
+    });
+}
+
 function showAnimatedPanel(loadingPanel) {
     loadingPanel.show();
 
