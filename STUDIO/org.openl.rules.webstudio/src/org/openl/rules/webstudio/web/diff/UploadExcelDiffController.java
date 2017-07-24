@@ -6,9 +6,11 @@ import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.FacesContext;
 
 import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
+import org.richfaces.component.UITree;
 import org.richfaces.event.FileUploadEvent;
 import org.richfaces.model.UploadedFile;
 
@@ -38,6 +40,9 @@ public class UploadExcelDiffController extends ExcelDiffController {
     public String compare() {
         // Fix Ctrl+R in browser
         if (uploadedFiles.size() >= MAX_FILES_COUNT) {
+            // Clear selection to handle NPE bug. See EPBDS-3992 for details.
+            UITree treeComponent = (UITree) FacesContext.getCurrentInstance().getViewRoot().findComponent("diffTreeForm:newTree");
+            treeComponent.setSelection(new ArrayList<Object>());
 
             List<File> filesToCompare = new ArrayList<File>();
             for (UploadedFile uploadedFile : uploadedFiles) {
@@ -61,5 +66,4 @@ public class UploadExcelDiffController extends ExcelDiffController {
         setFilesToCompare(files);
         super.compare();
     }
-
 }
