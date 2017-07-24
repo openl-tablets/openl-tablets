@@ -40,7 +40,6 @@
     <bean id="rememberMeServices" class="org.springframework.security.web.authentication.NullRememberMeServices"/>
 
     <util:list id="authenticationProviders">
-        <ref bean="daoAuthenticationProvider" />
         <ref bean="authenticationProviderWrapper" />
     </util:list>
 

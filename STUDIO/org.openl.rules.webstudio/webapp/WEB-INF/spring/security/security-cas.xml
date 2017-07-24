@@ -17,7 +17,6 @@
             <security:filter-chain pattern="/javascript/**" filters="none" />
             <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none" />
             <security:filter-chain pattern="/faces/rfRes/**" filters="none" />
-            <security:filter-chain pattern="/rest/**" filters="basicAuthenticationFilter,restExceptionTranslationFilter,filterSecurityInterceptor" />
             <security:filter-chain pattern="/**" filters="securityContextPersistenceFilter,logoutFilter,singleLogoutFilter,casFilter,exceptionTranslationFilter,filterSecurityInterceptor" />
         </security:filter-chain-map>
     </bean>
@@ -26,15 +25,13 @@
     <bean id="rememberMeServices" class="org.springframework.security.web.authentication.NullRememberMeServices"/>
 
     <util:list id="authenticationProviders">
-        <ref bean="daoAuthenticationProvider" />
         <ref bean="authenticationProviderWrapper" />
     </util:list>
 
     <alias name="groupsAreManagedInStudio" alias="canCreateExternalUsers"/>
 
-    <!-- REST services for now can login using internal user login. We should allow to create internal users -->
     <bean id="canCreateInternalUsers" class="java.lang.Boolean">
-        <constructor-arg type="boolean" value="true"/>
+        <constructor-arg type="boolean" value="false"/>
     </bean>
 
     <!-- ======================== Logout ========================== -->
