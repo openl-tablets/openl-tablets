@@ -45,6 +45,9 @@ abstract class BaseOpenLMojo extends AbstractMojo {
             path = source.getPath();
         }
         info("OpenL source directory: ", path);
+        if (!source.isDirectory() || CollectionUtils.isEmpty(source.list())) {
+            warn("OpenL source directory is empty.");
+        }
         return path;
     }
 

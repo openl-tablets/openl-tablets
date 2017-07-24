@@ -5,7 +5,7 @@
     <artifactId>org.openl.test</artifactId>
     <version>0.0.0</version>
     <packaging>openl</packaging>
-    <name>OpenL Plugin: Mixed datatypes</name>
+    <name>OpenL Plugin: Empty Project</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.openl.version>@project.version@</org.openl.version>
@@ -17,24 +17,7 @@
                 <artifactId>openl-maven-plugin</artifactId>
                 <version>${org.openl.version}</version>
                 <extensions>true</extensions>
-                <configuration>
-                    <interfaceClass>com.example.Service</interfaceClass>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
-    <dependencies>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules</artifactId>
-            <version>${org.openl.version}</version>
-        </dependency>
-    </dependencies>
 </project>
