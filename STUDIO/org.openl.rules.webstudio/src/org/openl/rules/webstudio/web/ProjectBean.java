@@ -24,6 +24,7 @@ import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.SafeCloner;
 import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.model.*;
 import org.openl.rules.project.model.validation.ValidationException;
@@ -352,6 +353,8 @@ public class ProjectBean {
             throw new Message("Error while project copying");
         }
 
+        RulesProject currentProject = studio.getCurrentProject();
+        currentProject.setModified();
 
         PathEntry pathEntry = new PathEntry();
         pathEntry.setPath(path);
