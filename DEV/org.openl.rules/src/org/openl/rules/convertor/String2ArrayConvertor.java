@@ -47,17 +47,17 @@ class String2ArrayConvertor<T> implements IString2DataConvertor<T[]> , IString2D
 
         List<Object> elements = new ArrayList<Object>();
 
-        IString2DataConvertor<T> convertor = String2DataConvertorFactory.getConvertor(componentType);
+        IString2DataConvertor<T> converter = String2DataConvertorFactory.getConvertor(componentType);
         for (String elementValue : elementValues) {
             Object element;
             if (elementValue.length() == 0) {
                 element = null;
             } else {
-                if (convertor instanceof IString2DataConverterWithContext) {
-                    IString2DataConverterWithContext<T> convertorCxt = (IString2DataConverterWithContext<T>) convertor;
+                if (cxt != null && converter instanceof IString2DataConverterWithContext) {
+                    IString2DataConverterWithContext<T> convertorCxt = (IString2DataConverterWithContext<T>) converter;
                     element = convertorCxt.parse(elementValue, format, cxt);
                 }else{
-                    element = convertor.parse(elementValue, format);
+                    element = converter.parse(elementValue, format);
                 }
             }
             elements.add(element);
@@ -95,30 +95,8 @@ class String2ArrayConvertor<T> implements IString2DataConvertor<T[]> , IString2D
      * @param data <code>{@link String}</code> representation of the array.
      * @return array of elements. <code>NULL</code> if input is empty or can`t get the component type of the array.
      */
-    @SuppressWarnings("unchecked")
     @Override
     public T[] parse(String data, String format) {
-        if (data == null) return null;
-        if (data.length() == 0) return (T[]) Array.newInstance(componentType, 0);
-
-        String[] elementValues = StringTool.splitAndEscape(data, ARRAY_ELEMENTS_SEPARATOR,
-                ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
-
-        List<Object> elements = new ArrayList<Object>();
-
-        IString2DataConvertor<T> converter = String2DataConvertorFactory.getConvertor(componentType);
-        for (String elementValue : elementValues) {
-            Object element;
-            if (elementValue.length() == 0) {
-                element = null;
-            } else {
-                element = converter.parse(elementValue, format);
-            }
-            elements.add(element);
-        }
-
-        T[] resultArray = (T[]) Array.newInstance(componentType, elements.size());
-        T[] result = elements.toArray(resultArray);
-        return result;
+        return parse(data, format, null);
     }
 }
