@@ -14,9 +14,8 @@ public class DoubleTypeWriter implements TypeWriter {
         return Opcodes.DRETURN;
     }
 
-    public int writeFieldValue(MethodVisitor methodVisitor, FieldDescription fieldType) {
+    public void writeFieldValue(MethodVisitor methodVisitor, FieldDescription fieldType) {
         methodVisitor.visitLdcInsn(fieldType.getDefaultValue()); 
-        return 3;
     }
 
 }

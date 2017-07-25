@@ -40,7 +40,7 @@ public class DefaultEmptyArrayConstructorTypeWriter implements TypeWriter {
         throw new IllegalStateException("Primitive type wasn't found for code generation!");
     }
 
-    public int writeFieldValue(MethodVisitor methodVisitor, FieldDescription field) {
+    public void writeFieldValue(MethodVisitor methodVisitor, FieldDescription field) {
         if (!field.getType().isArray()) {
             throw new IllegalArgumentException("Field type is not an array!");
         }
@@ -66,7 +66,5 @@ public class DefaultEmptyArrayConstructorTypeWriter implements TypeWriter {
             }
             methodVisitor.visitMultiANewArrayInsn(internalName, level);
         }
-
-        return 5;
     }
 }

@@ -21,11 +21,6 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
     private Map<String, FieldDescription> allFields;
     
     /**
-     * Number of fields that will take 2 stack elements(like a double and long)
-     */
-    private int twoStackElementFieldsCount;
-    
-    /**
      * 
      * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br> 
      * (e.g. <code>my/test/TestClass</code>)
@@ -42,7 +37,6 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
         super(beanNameWithPackage, parentClass, beanFields);
         this.parentFields = new LinkedHashMap<String, FieldDescription>(parentFields);
         this.allFields = new LinkedHashMap<String, FieldDescription>(allFields);
-        this.twoStackElementFieldsCount = ByteCodeGeneratorHelper.getTwoStackElementFieldsCount(allFields);
     }
     
     public void write(ClassWriter classWriter) {
@@ -56,7 +50,6 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
                     JavaClassGeneratorHelper.getConstructorByFieldsCount(getParentClass(), parentFields.size());
         }
         int i = 1;
-        int stackSizeForParentConstructorCall = 0;
         if (parentConstructor == null) {
             methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, INIT,
                     ByteCodeGeneratorHelper.getMethodSignatureForByteCode(getBeanFields(), null), null, null);
@@ -81,9 +74,6 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
                 }
             }
 
-            // Invoke parent constructor with fields
-            //
-            stackSizeForParentConstructorCall = i;
             methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(getParentClass()),
                     INIT, ByteCodeGeneratorHelper.getMethodSignatureForByteCode(parentFields, null));
         }
@@ -108,14 +98,7 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
             }
         }
         methodVisitor.visitInsn(Opcodes.RETURN);
-        if (twoStackElementFieldsCount > 0) {
-            methodVisitor.visitMaxs(3 + stackSizeForParentConstructorCall, allFields.size() + 1
-                    + twoStackElementFieldsCount);
-        }
-        else {
-            methodVisitor.visitMaxs(2 + stackSizeForParentConstructorCall, allFields.size() + 1);
-        }
-        
+        methodVisitor.visitMaxs(0,0);
     }
 
 }

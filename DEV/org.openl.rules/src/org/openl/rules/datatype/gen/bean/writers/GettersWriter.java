@@ -96,14 +96,7 @@ public class GettersWriter extends MethodWriter {
         methodVisitor.visitFieldInsn(Opcodes.GETFIELD, getBeanNameWithPackage(), fieldName,
                 javaType);
         methodVisitor.visitInsn(ByteCodeGeneratorHelper.getConstantForReturn(field));
-        
-        // long and double types are the biggest ones, so they use a maximum of two stack  
-        // elements and one local variable for getter method.
-        if (long.class.equals(field.getType()) || double.class.equals(field.getType())) {
-            methodVisitor.visitMaxs(2, 1);
-        } else {
-            methodVisitor.visitMaxs(1, 1);
-        }
+        methodVisitor.visitMaxs(0, 0);
     }
 
 }

@@ -62,10 +62,6 @@ public class EqualsWriter extends MethodWriter {
         EqualsBuilderInvoker.getIsEquals().invoke(methodVisitor);
 
         methodVisitor.visitInsn(ByteCodeGeneratorHelper.getConstantForReturn(boolean.class));
-        if (getTwoStackElementFieldsCount() > 0) {
-            methodVisitor.visitMaxs(5, 3);
-        } else {
-            methodVisitor.visitMaxs(3, 3);
-        }
+        methodVisitor.visitMaxs(0, 0);
     }
 }

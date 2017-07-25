@@ -12,9 +12,8 @@ import org.openl.rules.datatype.gen.FieldDescription;
 public class CharacterTypeWriter extends ObjectTypeWriter {
     
     @Override
-    public int writeFieldValue(MethodVisitor methodVisitor, FieldDescription field) {
+    public void writeFieldValue(MethodVisitor methodVisitor, FieldDescription field) {
         methodVisitor.visitLdcInsn(field.getDefaultValue());
         methodVisitor.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;");
-        return 5;
     }
 }

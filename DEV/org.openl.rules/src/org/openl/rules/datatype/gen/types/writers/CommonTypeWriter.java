@@ -20,7 +20,7 @@ public class CommonTypeWriter implements TypeWriter {
         return Opcodes.ILOAD;
     }
 
-    public int writeFieldValue(MethodVisitor methodVisitor, FieldDescription fieldType) {
+    public void writeFieldValue(MethodVisitor methodVisitor, FieldDescription fieldType) {
         throw new UnsupportedOperationException("This operation must be overloaded in childs");
     }
 }

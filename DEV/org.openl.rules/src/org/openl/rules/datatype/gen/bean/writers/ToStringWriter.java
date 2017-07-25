@@ -78,10 +78,6 @@ public class ToStringWriter extends MethodWriter {
         // return
         StringBuilderInvoker.getToString().invoke(methodVisitor);
         methodVisitor.visitInsn(getConstantForReturn(String.class));
-        if (getTwoStackElementFieldsCount() > 0) {
-            methodVisitor.visitMaxs(3, 1);
-        } else {
-            methodVisitor.visitMaxs(2, 1);
-        }
+        methodVisitor.visitMaxs(0, 0);
     }
 }

@@ -11,8 +11,7 @@ import org.openl.rules.datatype.gen.FieldDescription;
 public class StringTypeWriter extends ObjectTypeWriter {
     
     @Override
-    public int writeFieldValue(MethodVisitor methodVisitor, FieldDescription field) {
+    public void writeFieldValue(MethodVisitor methodVisitor, FieldDescription field) {
         methodVisitor.visitLdcInsn(field.getDefaultValue());
-        return 2;
     }
 }

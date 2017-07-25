@@ -41,14 +41,7 @@ public class SettersWriter extends MethodWriter {
         
         methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), fieldName, ByteCodeGeneratorHelper.getJavaType(field));
         methodVisitor.visitInsn(Opcodes.RETURN);
-        
-        // long and double types are the biggest ones, so they use a maximum of three stack  
-        // elements and three local variables for setter method.
-        if (long.class.equals(field.getType()) || double.class.equals(field.getType())) {
-            methodVisitor.visitMaxs(3, 3);
-        } else {
-            methodVisitor.visitMaxs(2, 2);
-        }
+        methodVisitor.visitMaxs(0, 0);
     }
 
     protected MethodVisitor writeMethodSignature(ClassWriter classWriter, FieldDescription fieldType, String fieldName) {
