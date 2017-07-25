@@ -658,7 +658,7 @@ public class InstallWizard {
             }
 
         } else {
-            throw new ValidatorException(FacesUtils.createErrorMessage("WebStudio working directory name can not be blank"));
+            throw new ValidatorException(FacesUtils.createErrorMessage("WebStudio working directory can not be blank"));
         }
     }
 
