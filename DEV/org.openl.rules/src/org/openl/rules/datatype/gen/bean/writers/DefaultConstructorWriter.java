@@ -23,59 +23,32 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
     }
     
     public void write(ClassWriter classWriter) {
-        MethodVisitor methodVisitor;
-        
-        methodVisitor = writeDefaultConstructorDefinition(classWriter);
+        // creates a MethodWriter for the (implicit) constructor
+        MethodVisitor mv = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+        // pushes the 'this' variable
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
 
         // invokes the super class constructor
         String parentName = getParentInternalName();
-        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, parentName, "<init>", "()V");
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, parentName, "<init>", "()V");
 
-        if (isAnyDefaultValue()) {
-            writeAtLeast1DefaultValue(methodVisitor);
-        }
-
-        methodVisitor.visitInsn(Opcodes.RETURN);
-
-        methodVisitor.visitMaxs(0, 0);
-    }
-
-    protected MethodVisitor writeDefaultConstructorDefinition(ClassWriter classWriter) {
-        MethodVisitor methodVisitor;
-        // creates a MethodWriter for the (implicit) constructor
-        methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
-        // pushes the 'this' variable
-        methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-        return methodVisitor;
-    }
-
-    private void writeAtLeast1DefaultValue(MethodVisitor methodVisitor) {
         for (Map.Entry<String, FieldDescription> field : getBeanFields().entrySet()) {
-            FieldDescription fieldDescription = field.getValue();            
-            
+            FieldDescription fieldDescription = field.getValue();
+
             if (fieldDescription.hasDefaultValue()) {
-                methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-                
+                mv.visitVarInsn(Opcodes.ALOAD, 0);
+
                 TypeWriter typeWriter = ByteCodeGeneratorHelper.getTypeWriter(fieldDescription);
-                typeWriter.writeFieldValue(methodVisitor, fieldDescription);
+                typeWriter.writeFieldValue(mv, fieldDescription);
 
                 String fieldTypeName = ByteCodeGeneratorHelper.getJavaType(fieldDescription);
-                methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), field.getKey(), fieldTypeName);
+                mv.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), field.getKey(), fieldTypeName);
             }
         }
+
+        mv.visitInsn(Opcodes.RETURN);
+
+        mv.visitMaxs(0, 0);
     }
-    
-    /**
-     * 
-     * @return true if there is any default value for any field.
-     */
-    private boolean isAnyDefaultValue() {
-        for (Map.Entry<String, FieldDescription> field : getBeanFields().entrySet()) {
-            Object defaultValue = field.getValue().getDefaultValue();
-            if (defaultValue != null) {
-                return true;
-            }
-        }
-        return false;
-    }
+
 }

@@ -29,20 +29,21 @@ public class DefaultConstructorWriter extends org.openl.rules.datatype.gen.bean.
     
     @Override
     public void write(ClassWriter classWriter) {
-        MethodVisitor methodVisitor;
-        
-        methodVisitor = writeDefaultConstructorDefinition(classWriter);
-        
+        // creates a MethodWriter for the (implicit) constructor
+        MethodVisitor mv = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+        // pushes the 'this' variable
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+
         /** increments by 1 because max coordinates are started from 0*/
-        methodVisitor.visitIntInsn(Opcodes.BIPUSH, maxColumnAndRow.getRow() + 1);
-        methodVisitor.visitIntInsn(Opcodes.BIPUSH, maxColumnAndRow.getColumn() + 1);
+        mv.visitIntInsn(Opcodes.BIPUSH, maxColumnAndRow.getRow() + 1);
+        mv.visitIntInsn(Opcodes.BIPUSH, maxColumnAndRow.getColumn() + 1);
         // invokes the super class constructor
-        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, getParentInternalName(), "<init>", "(II)V");
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, getParentInternalName(), "<init>", "(II)V");
         
-        methodVisitor.visitInsn(Opcodes.RETURN);        
+        mv.visitInsn(Opcodes.RETURN);
         
-        methodVisitor.visitMaxs(3, 1);
-        methodVisitor.visitEnd();
+        mv.visitMaxs(3, 1);
+        mv.visitEnd();
     }
 
 }
