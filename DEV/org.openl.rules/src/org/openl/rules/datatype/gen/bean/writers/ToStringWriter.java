@@ -58,8 +58,8 @@ public class ToStringWriter extends MethodWriter {
                 invokeStatic(
                         methodVisitor, ArrayUtils.class, METHOD_NAME_TO_STRING,
                         new Class<?>[] { field.getValue().getType() });
-            }
-            if (short.class.equals(field.getValue().getType()) || byte.class.equals(field.getValue().getType())){
+                StringBuilderInvoker.getAppend(String.class).invoke(methodVisitor);
+            } else if (short.class.equals(field.getValue().getType()) || byte.class.equals(field.getValue().getType())){
             	invokeStatic(methodVisitor, Integer.class, METHOD_NAME_VALUE_OF,
                         new Class<?>[] { field.getValue().getType() });
                 Invokers.INT_VALUE.invoke(methodVisitor);
