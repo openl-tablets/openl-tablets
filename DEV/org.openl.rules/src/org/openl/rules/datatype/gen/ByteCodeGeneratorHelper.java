@@ -11,18 +11,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.binding.MethodUtil;
-import org.openl.rules.datatype.gen.types.writers.BooleanTypeWriter;
-import org.openl.rules.datatype.gen.types.writers.CharTypeWriter;
-import org.openl.rules.datatype.gen.types.writers.DateTypeWriter;
-import org.openl.rules.datatype.gen.types.writers.DefaultConstructorTypeWriter;
-import org.openl.rules.datatype.gen.types.writers.DefaultEmptyArrayConstructorTypeWriter;
-import org.openl.rules.datatype.gen.types.writers.DoubleTypeWriter;
-import org.openl.rules.datatype.gen.types.writers.FloatTypeWriter;
-import org.openl.rules.datatype.gen.types.writers.LongTypeWriter;
-import org.openl.rules.datatype.gen.types.writers.NumericTypeWriter;
-import org.openl.rules.datatype.gen.types.writers.ObjectTypeWriter;
-import org.openl.rules.datatype.gen.types.writers.StringTypeWriter;
-import org.openl.rules.datatype.gen.types.writers.TypeWriter;
+import org.openl.rules.datatype.gen.types.writers.*;
 import org.openl.types.IOpenField;
 import org.openl.util.generation.JavaClassGeneratorHelper;
 
@@ -37,8 +26,9 @@ public class ByteCodeGeneratorHelper {
         typeWriters.put(short.class, new NumericTypeWriter());
         typeWriters.put(int.class, new NumericTypeWriter());
         typeWriters.put(boolean.class, new BooleanTypeWriter());
-        typeWriters.put(char.class, new CharTypeWriter());                
-        
+        typeWriters.put(char.class, new CharTypeWriter());
+        typeWriters.put(Character.class, new CharacterTypeWriter());
+
         typeWriters.put(long.class, new LongTypeWriter());
         typeWriters.put(float.class, new FloatTypeWriter());
         typeWriters.put(double.class, new DoubleTypeWriter());
