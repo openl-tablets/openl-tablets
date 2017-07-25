@@ -9,6 +9,6 @@ public interface TypeWriter {
     
     int getConstantForReturn();
 
-    int writeFieldValue(MethodVisitor methodVisitor, FieldDescription fieldType);
+    void writeFieldValue(MethodVisitor methodVisitor, FieldDescription fieldType);
 
 }

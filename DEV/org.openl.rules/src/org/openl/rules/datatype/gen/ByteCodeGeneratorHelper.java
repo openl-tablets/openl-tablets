@@ -156,15 +156,4 @@ public class ByteCodeGeneratorHelper {
         String signatureBuilder = getSignature(methodOwner, methodName, paramTypes);
         methodVisitor.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(methodOwner), methodName, signatureBuilder);
     }
-    
-    public static int getTwoStackElementFieldsCount(Map<String, FieldDescription> fields) {
-        int twoStackElementsCount = 0;
-        for (FieldDescription field : fields.values()) {
-            if (long.class.equals(field.getType()) || double.class.equals(field.getType())) {
-                twoStackElementsCount++;
-            }
-        }
-        return twoStackElementsCount;
-    }
-
 }

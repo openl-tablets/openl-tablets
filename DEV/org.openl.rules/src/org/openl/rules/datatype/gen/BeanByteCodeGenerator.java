@@ -35,7 +35,7 @@ public abstract class BeanByteCodeGenerator {
 
     public byte[] generateClassByteCode() {
         if (generatedByteCode == null) {
-            ClassWriter classWriter = new ClassWriter(0);
+            ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
             for (BeanByteCodeWriter writer : writers) {
                 writer.write(classWriter);

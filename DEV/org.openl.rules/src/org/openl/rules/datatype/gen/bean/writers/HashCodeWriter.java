@@ -43,12 +43,7 @@ public class HashCodeWriter extends MethodWriter {
         HashCodeBuilderInvoker.getToHashCode().invoke(methodVisitor);
 
         methodVisitor.visitInsn(ByteCodeGeneratorHelper.getConstantForReturn(int.class));
-        if (getTwoStackElementFieldsCount() > 0) {
-            methodVisitor.visitMaxs(3, 1);
-        } else {
-            methodVisitor.visitMaxs(2, 2);
-        }
-
+        methodVisitor.visitMaxs(0, 0);
     }
 
 }

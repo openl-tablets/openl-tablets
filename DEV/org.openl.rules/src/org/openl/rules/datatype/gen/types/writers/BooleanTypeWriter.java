@@ -7,9 +7,8 @@ import org.openl.rules.datatype.gen.FieldDescription;
 public class BooleanTypeWriter extends CommonTypeWriter {
     
     @Override
-    public int writeFieldValue(MethodVisitor methodVisitor, FieldDescription fieldType) {
+    public void writeFieldValue(MethodVisitor methodVisitor, FieldDescription fieldType) {
         methodVisitor.visitInsn(getValueForBoolean((Boolean)fieldType.getDefaultValue()));
-        return 2;
     }
     
     private int getValueForBoolean(Boolean defaultValue) {

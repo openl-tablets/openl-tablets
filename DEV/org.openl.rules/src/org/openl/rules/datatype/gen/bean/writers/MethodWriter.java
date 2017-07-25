@@ -11,14 +11,8 @@ public abstract class MethodWriter extends DefaultBeanByteCodeWriter {
     
     public static final String VOID_CLASS_NAME = "void";
     
-    /**
-     * Number of fields that will take 2 stack elements(like a double and long)
-     */
-    private int twoStackElementFieldsCount;
-    
     public MethodWriter(String beanNameWithPackage, Map<String, FieldDescription> allFields) {
         super(beanNameWithPackage, null, allFields);        
-        this.twoStackElementFieldsCount = ByteCodeGeneratorHelper.getTwoStackElementFieldsCount(allFields);
     }
 
     protected String getBeanNameWithPackage() {
@@ -29,10 +23,6 @@ public abstract class MethodWriter extends DefaultBeanByteCodeWriter {
         return getBeanFields();
     }
 
-    protected int getTwoStackElementFieldsCount() {
-        return twoStackElementFieldsCount;
-    }
-    
     protected void pushFieldToStack(MethodVisitor codeVisitor, int fieldOwnerLocalVarIndex, String fieldName) {
         codeVisitor.visitVarInsn(Opcodes.ALOAD, fieldOwnerLocalVarIndex);
         codeVisitor.visitFieldInsn(Opcodes.GETFIELD, getBeanNameWithPackage(), fieldName, ByteCodeGeneratorHelper.getJavaType(getAllFields()

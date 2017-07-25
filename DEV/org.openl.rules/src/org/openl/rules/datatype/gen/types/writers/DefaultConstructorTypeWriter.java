@@ -23,13 +23,12 @@ public class DefaultConstructorTypeWriter implements TypeWriter {
         return Opcodes.ARETURN;
     }
 
-    public int writeFieldValue(MethodVisitor methodVisitor, FieldDescription field) {
+    public void writeFieldValue(MethodVisitor methodVisitor, FieldDescription field) {
         String internalName = Type.getInternalName(field.getType());
         methodVisitor.visitTypeInsn(Opcodes.NEW, internalName);
         methodVisitor.visitInsn(Opcodes.DUP);
 
         methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, internalName, "<init>",
                 "()V");
-        return 5;
     }
 }
