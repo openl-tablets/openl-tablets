@@ -129,7 +129,7 @@ public class NegativeTest {
         }
 
         String content = IOUtils.toStringAndClose(new FileInputStream(messagesFile));
-        for (String message : content.split("\\R")) {
+        for (String message : content.split("\\u000D\\u000A|[\\u000A\\u000B\\u000C\\u000D\\u0085\\u2028\\u2029]")) {
             if (!StringUtils.isBlank(message)) {
                 result.add(message.trim());
             }
