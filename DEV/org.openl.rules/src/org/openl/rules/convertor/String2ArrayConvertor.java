@@ -5,8 +5,6 @@ import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A converter for arrays. It converts strings to an array of a specified type and vice versa.
@@ -14,7 +12,7 @@ import java.util.List;
  *
  * @author Yury Molchan
  */
-class String2ArrayConvertor<T> implements IString2DataConvertor<T[]> , IString2DataConverterWithContext<T[]> {
+class String2ArrayConvertor<C, T> implements IString2DataConvertor<T> , IString2DataConverterWithContext<T> {
 
     /**
      * Constant for escaping {@link #ARRAY_ELEMENTS_SEPARATOR} of elements. It is needed when the element contains
@@ -27,45 +25,44 @@ class String2ArrayConvertor<T> implements IString2DataConvertor<T[]> , IString2D
      */
     public static final String ARRAY_ELEMENTS_SEPARATOR = ",";
 
-    private Class<T> componentType;
+    private Class<C> componentType;
 
     /**
      * @param componentType a component type of an array.
      */
-    public String2ArrayConvertor(Class<T> componentType) {
+    public String2ArrayConvertor(Class<C> componentType) {
         this.componentType = componentType;
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public T[] parse(String data, String format, IBindingContext cxt) {
+    public T parse(String data, String format, IBindingContext cxt) {
         if (data == null) return null;
-        if (data.length() == 0) return (T[]) Array.newInstance(componentType, 0);
+        if (data.length() == 0) return (T) Array.newInstance(componentType, 0);
 
         String[] elementValues = StringTool.splitAndEscape(data, ARRAY_ELEMENTS_SEPARATOR,
                 ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
+        T resultArray = (T) Array.newInstance(componentType, elementValues.length);
 
-        List<Object> elements = new ArrayList<Object>();
-
-        IString2DataConvertor<T> converter = String2DataConvertorFactory.getConvertor(componentType);
+        IString2DataConvertor<C> converter = String2DataConvertorFactory.getConvertor(componentType);
+        int i = 0;
         for (String elementValue : elementValues) {
             Object element;
             if (elementValue.length() == 0) {
                 element = null;
             } else {
                 if (cxt != null && converter instanceof IString2DataConverterWithContext) {
-                    IString2DataConverterWithContext<T> convertorCxt = (IString2DataConverterWithContext<T>) converter;
+                    IString2DataConverterWithContext<C> convertorCxt = (IString2DataConverterWithContext<C>) converter;
                     element = convertorCxt.parse(elementValue, format, cxt);
                 }else{
                     element = converter.parse(elementValue, format);
                 }
             }
-            elements.add(element);
+            Array.set(resultArray, i, element);
+            i++;
         }
 
-        T[] resultArray = (T[]) Array.newInstance(componentType, elements.size());
-        T[] result = elements.toArray(resultArray);
-        return result;
+        return resultArray;
     }
     
     /**
@@ -77,13 +74,15 @@ class String2ArrayConvertor<T> implements IString2DataConvertor<T[]> , IString2D
      * <code>NULL</code> or if income value is not an array.
      */
     @Override
-    public String format(T[] data, String format) {
+    public String format(T data, String format) {
         if (data == null) return null;
 
-        IString2DataConvertor<T> converter = String2DataConvertorFactory.getConvertor(componentType);
-        String[] elementResults = new String[data.length];
-        for (int i = 0; i < data.length; i++) {
-            T element = data[i];
+        IString2DataConvertor<C> converter = String2DataConvertorFactory.getConvertor(componentType);
+
+        int length = Array.getLength(data);
+        String[] elementResults = new String[length];
+        for (int i = 0; i < length; i++) {
+            C element = (C) Array.get(data, i);;
             elementResults[i] = converter.format(element, format);
         }
 
@@ -96,7 +95,7 @@ class String2ArrayConvertor<T> implements IString2DataConvertor<T[]> , IString2D
      * @return array of elements. <code>NULL</code> if input is empty or can`t get the component type of the array.
      */
     @Override
-    public T[] parse(String data, String format) {
+    public T parse(String data, String format) {
         return parse(data, format, null);
     }
 }
