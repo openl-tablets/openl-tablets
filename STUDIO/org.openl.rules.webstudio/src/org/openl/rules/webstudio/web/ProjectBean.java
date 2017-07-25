@@ -88,7 +88,7 @@ public class ProjectBean {
     private IRulesDeploySerializer rulesDeploySerializer;
 
     public String getModulePath(Module module) {
-        PathEntry modulePath = module.getRulesRootPath();
+        PathEntry modulePath = module == null ? null : module.getRulesRootPath();
 
         if (modulePath == null)
             return null;
