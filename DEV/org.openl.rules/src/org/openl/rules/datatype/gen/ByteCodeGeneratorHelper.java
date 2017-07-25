@@ -76,7 +76,7 @@ public class ByteCodeGeneratorHelper {
         return getTypeWriter(clazz);
     }
     
-    public static TypeWriter getTypeWriter(Class<?> clazz) {
+    private static TypeWriter getTypeWriter(Class<?> clazz) {
         TypeWriter typeWriter = typeWriters.get(clazz);
         if (typeWriter == null && clazz instanceof Object) {
             return typeWriters.get(Object.class);
@@ -91,7 +91,7 @@ public class ByteCodeGeneratorHelper {
     }
 
     public static int getConstantForVarInsn(Class<?> fieldClass) {
-        TypeWriter typeWriter = ByteCodeGeneratorHelper.getTypeWriter(fieldClass);
+        TypeWriter typeWriter = getTypeWriter(fieldClass);
         if (typeWriter != null){
             return typeWriter.getConstantForVarInsn();
         } 
@@ -133,7 +133,7 @@ public class ByteCodeGeneratorHelper {
      * @return
      */
     public static int getConstantForReturn(Class<?> fieldClass) {
-        TypeWriter typeWriter = ByteCodeGeneratorHelper.getTypeWriter(fieldClass);        
+        TypeWriter typeWriter = getTypeWriter(fieldClass);
         if (typeWriter != null) {
             return typeWriter.getConstantForReturn();
         } 
