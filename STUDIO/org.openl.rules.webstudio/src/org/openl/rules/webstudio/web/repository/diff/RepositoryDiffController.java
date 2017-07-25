@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.repository.diff;
 
+import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
@@ -12,6 +13,7 @@ import org.openl.rules.webstudio.web.diff.AbstractDiffController;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.FileTypeHelper;
+import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -153,7 +155,7 @@ public class RepositoryDiffController extends AbstractDiffController {
 
     private List<AProjectArtefact> getExcelArtefacts(AProject project, String rootPath) throws Exception {
         List<AProjectArtefact> excelArtefacts = new ArrayList<AProjectArtefact>();
-        Collection<? extends AProjectArtefact> projectArtefacts = null;
+        Collection<? extends AProjectArtefact> projectArtefacts;
         if (rootPath != null) {
             try {
                 projectArtefacts = getProjectFolder(project, rootPath).getArtefacts();
@@ -182,8 +184,7 @@ public class RepositoryDiffController extends AbstractDiffController {
             return project;
         }
 
-        AProjectFolder projectFolder = (AProjectFolder) project.getArtefactByPath(new ArtefactPathImpl(path));
-        return projectFolder;
+        return (AProjectFolder) project.getArtefactByPath(new ArtefactPathImpl(path));
     }
 
     private File downloadExelFile(AProjectArtefact excelArtefact) {
@@ -242,6 +243,14 @@ public class RepositoryDiffController extends AbstractDiffController {
         File excelFile2 = downloadExelFile(excelArtefact2);
 
         try {
+            if (excelFile1 == null) {
+                FacesUtils.addErrorMessage("Can't open the file " + selectedExcelFileUW);
+                return null;
+            }
+            if (excelFile2 == null) {
+                FacesUtils.addErrorMessage("Can't open the file " + selectedExcelFileRepo);
+                return null;
+            }
             // The Diff Tree can be huge. As far as we don't need the
             // previous instance anymore, we should clear it before any
             // further calculations.
@@ -249,9 +258,17 @@ public class RepositoryDiffController extends AbstractDiffController {
             XlsDiff2 x = new XlsDiff2();
             DiffTreeNode diffTree = x.diffFiles(excelFile1.getAbsolutePath(), excelFile2.getAbsolutePath());
             setDiffTree(diffTree);
+        } catch (Exception e) {
+            Throwable cause = e.getCause();
+            if (cause == null) {
+                cause = e;
+            }
+            String message = "Can't compare the files '" + FileUtils.getName(selectedExcelFileUW) + "' and '" + FileUtils.getName(selectedExcelFileRepo) + "'. Cause: " + cause.getMessage();
+            log.error(message, e);
+            FacesUtils.addErrorMessage(message);
         } finally {
-            excelFile1.delete();
-            excelFile2.delete();
+            FileUtils.deleteQuietly(excelFile1);
+            FileUtils.deleteQuietly(excelFile2);
         }
 
         return null;

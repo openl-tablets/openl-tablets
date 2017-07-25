@@ -41,8 +41,8 @@ public class ExcelDiffController extends AbstractDiffController {
                 DiffTreeNode diffTree = x.diffFiles(
                         file1.getAbsolutePath(), file2.getAbsolutePath());
                 setDiffTree(diffTree);
-            } catch (OpenLRuntimeException e) {
-                FacesUtils.addInfoMessage(e.getMessage());
+            } catch (Exception e) {
+                FacesUtils.addErrorMessage(e.getMessage());
             }
 
         }

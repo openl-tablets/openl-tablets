@@ -12,6 +12,12 @@
   <ui:define name="content">
     <br/>
     <h:form id="compareForm" style="margin-left: 6px;">
+      <a4j:outputPanel ajaxRendered="true">
+        <h:panelGroup styleClass="messages" layout="block" rendered="#{!empty facesContext.maximumSeverity and jsffn:hasGlobalMessages()}">
+          <h:messages infoClass="success" errorClass="error" showDetail="true" showSummary="false" tooltip="true" globalOnly="true"/>
+        </h:panelGroup>
+      </a4j:outputPanel>
+
       <h:outputText value="Show equal elements" />
       <h:selectBooleanCheckbox value="#{repositoryDiffController.showEqualElements}" />
       <h:commandButton id="compareBtn" value="Compare" action="#{repositoryDiffController.compare}"
