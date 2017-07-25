@@ -19,6 +19,16 @@ public class Round {
     public static RoundingMode UNNECESSARY = RoundingMode.UNNECESSARY;
 
     /**
+     * Like {@link #round(double)} but null-safe.
+     */
+    public static Long round(Double value) {
+        if (value == null) {
+            return null;
+        }
+        return round((double) value);
+    }
+
+    /**
      * Returns the closest {@code long} to the argument, with ties rounding up. The
      * value is rounded like using the {@link RoundingMode#HALF_UP} method.
      * <p/>
@@ -52,6 +62,16 @@ public class Round {
             // Make rounding symmetrical: 0.5 ==> 1 and -0.5 ==> -1
             return -round(-value);
         }
+    }
+
+    /**
+     * Like {@link #round(float)} but null-safe.
+     */
+    public static Integer round(Float value) {
+        if (value == null) {
+            return null;
+        }
+        return round((float) value);
     }
 
     /**
@@ -97,6 +117,16 @@ public class Round {
     }
 
     /**
+     * Like {@link #round(double, int)} but null-safe.
+     */
+    public static Double round(Double value, int scale) {
+        if (value == null) {
+            return null;
+        }
+        return round((double) value, scale);
+    }
+
+    /**
      * Round the given value to the specified number of decimal places. The value is
      * rounded using the {@link RoundingMode#HALF_UP} method.
      *
@@ -128,6 +158,16 @@ public class Round {
     }
 
     /**
+     * Like {@link #round(float, int)} but null-safe.
+     */
+    public static Float round(Float value, int scale) {
+        if (value == null) {
+            return null;
+        }
+        return round((float) value, scale);
+    }
+
+    /**
      * Round the given value to the specified number of decimal places. The value is
      * rounded using the {@link RoundingMode#HALF_UP} method.
      *
@@ -137,6 +177,16 @@ public class Round {
      */
     public static float round(float value, int scale) {
         return round(value, scale, HALF_UP);
+    }
+
+    /**
+     * Like {@link #round(double, int, RoundingMode)} but null-safe.
+     */
+    public static Double round(Double value, int scale, RoundingMode rounding) {
+        if (value == null) {
+            return null;
+        }
+        return round((double) value, scale, rounding);
     }
 
     /**
@@ -159,6 +209,16 @@ public class Round {
         } catch (NumberFormatException var5) {
             return Double.NaN;
         }
+    }
+
+    /**
+     * Like {@link #round(float, int, RoundingMode)} but null-safe.
+     */
+    public static Float round(Float value, int scale, RoundingMode rounding) {
+        if (value == null) {
+            return null;
+        }
+        return round((float) value, scale, rounding);
     }
 
     /**
@@ -201,12 +261,12 @@ public class Round {
     }
 
     /** For backward compatibility */
-    public static double round(double x, int scale, int rounding) {
+    public static Double round(Double x, int scale, int rounding) {
         return round(x, scale, RoundingMode.valueOf(rounding));
     }
 
     /** For backward compatibility */
-    public static float round(float x, int scale, int rounding) {
+    public static Float round(Float x, int scale, int rounding) {
         return round(x, scale, RoundingMode.valueOf(rounding));
     }
 
@@ -216,9 +276,11 @@ public class Round {
     }
 
     /** Like {@code round(double)} but without a ulp amendment */
-    public static long roundStrict(double value) {
-        if (value == 0.0 || Double.isNaN(value)) {
-            return 0;
+    public static Long roundStrict(Double value) {
+        if (value == null) {
+            return null;
+        } else if (value == 0.0 || Double.isNaN(value)) {
+            return 0L;
         } if (Double.POSITIVE_INFINITY == value) {
             return Long.MAX_VALUE;
         } else if (Double.NEGATIVE_INFINITY == value) {
@@ -232,7 +294,7 @@ public class Round {
     }
 
     /** Like {@code round(double)} but without a ulp amendment */
-    public static double roundStrict(double value, int scale) {
+    public static Double roundStrict(Double value, int scale) {
         return round(value, scale, HALF_UP);
     }
 }

@@ -1,6 +1,7 @@
 package org.openl.rules.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
@@ -65,29 +66,31 @@ public class RoundTest {
     @Test
     public void testRoundStrict() {
 
-        assertEquals(0, Round.roundStrict(Double.NaN));
-        assertEquals(Long.MAX_VALUE, Round.roundStrict(Double.POSITIVE_INFINITY));
-        assertEquals(Long.MIN_VALUE, Round.roundStrict(Double.NEGATIVE_INFINITY));
+        assertNull(Round.roundStrict(null));
 
-        assertEquals(0, Round.roundStrict(0d));
-        assertEquals(0, Round.roundStrict(Math.ulp(0d)));
-        assertEquals(0, Round.roundStrict(-Math.ulp(0d)));
+        assertEquals((Long) 0L, Round.roundStrict(Double.NaN));
+        assertEquals((Long) Long.MAX_VALUE, Round.roundStrict(Double.POSITIVE_INFINITY));
+        assertEquals((Long) Long.MIN_VALUE, Round.roundStrict(Double.NEGATIVE_INFINITY));
 
-        assertEquals(1, Round.roundStrict(0.5));
-        assertEquals(0, Round.roundStrict(0.49999999999999992d));
-        assertEquals(0, Round.roundStrict(0.49999999999999991d));
+        assertEquals((Long) 0L, Round.roundStrict(0d));
+        assertEquals((Long) 0L, Round.roundStrict(Math.ulp(0d)));
+        assertEquals((Long) 0L, Round.roundStrict(-Math.ulp(0d)));
 
-        assertEquals(2, Round.roundStrict(1.5));
-        assertEquals(1, Round.roundStrict(1.4999999999999998d));
-        assertEquals(1, Round.roundStrict(1.4999999999999996d));
+        assertEquals((Long) 1L, Round.roundStrict(0.5));
+        assertEquals((Long) 0L, Round.roundStrict(0.49999999999999992d));
+        assertEquals((Long) 0L, Round.roundStrict(0.49999999999999991d));
 
-        assertEquals(-1, Round.roundStrict(-0.5));
-        assertEquals(-0, Round.roundStrict(-0.49999999999999992d));
-        assertEquals(-0, Round.roundStrict(-0.49999999999999991d));
+        assertEquals((Long) 2L, Round.roundStrict(1.5));
+        assertEquals((Long) 1L, Round.roundStrict(1.4999999999999998d));
+        assertEquals((Long) 1L, Round.roundStrict(1.4999999999999996d));
 
-        assertEquals(-2, Round.roundStrict(-1.5));
-        assertEquals(-1, Round.roundStrict(-1.4999999999999998d));
-        assertEquals(-1, Round.roundStrict(-1.4999999999999996d));
+        assertEquals((Long) (-1L), Round.roundStrict(-0.5));
+        assertEquals((Long) 0L, Round.roundStrict(-0.49999999999999992d));
+        assertEquals((Long) 0L, Round.roundStrict(-0.49999999999999991d));
+
+        assertEquals((Long) (-2L), Round.roundStrict(-1.5));
+        assertEquals((Long) (-1L), Round.roundStrict(-1.4999999999999998d));
+        assertEquals((Long) (-1L), Round.roundStrict(-1.4999999999999996d));
     }
 
     @Test
