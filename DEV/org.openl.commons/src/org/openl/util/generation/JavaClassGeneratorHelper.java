@@ -254,25 +254,6 @@ public class JavaClassGeneratorHelper {
         return arrayTypeName != null && arrayTypeName.indexOf('[') >= 0;
     }
 
-    /**
-     * Gets the type name without square brackets.
-     * 
-     * @param arrayType type name with square brackets (e.g.
-     *            org.my.test.Hello[])
-     * 
-     * @return type name without square brackets (e.g. org.my.test.Hello)
-     */
-    public static String cleanTypeName(String arrayType) {
-        if (StringUtils.isNotBlank(arrayType)) {
-            if (arrayType.contains("[")) {
-                return arrayType.substring(0, arrayType.indexOf("["));
-            } else {
-                return arrayType;
-            }
-        }
-        return null;
-    }
-
     public static Constructor<?> getConstructorByFieldsCount(Class<?> beanClass, int beanFieldsCount) {
         for (Constructor<?> constructor : beanClass.getConstructors()) {
             if (constructor.getParameterTypes().length == beanFieldsCount) {
