@@ -12,10 +12,6 @@ import org.openl.rules.datatype.gen.FieldDescription;
  */
 public class CommonTypeWriter implements TypeWriter {
 
-    public int getConstantForReturn() {
-        return Opcodes.IRETURN;
-    }
-
     public int getConstantForVarInsn() {
         return Opcodes.ILOAD;
     }

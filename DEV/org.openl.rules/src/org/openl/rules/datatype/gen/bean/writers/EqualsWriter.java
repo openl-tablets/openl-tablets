@@ -41,7 +41,7 @@ public class EqualsWriter extends MethodWriter {
         methodVisitor.visitTypeInsn(Opcodes.INSTANCEOF, getBeanNameWithPackage());
         methodVisitor.visitJumpInsn(Opcodes.IFNE, comparingLabel);
         methodVisitor.visitLdcInsn(Boolean.FALSE);
-        methodVisitor.visitInsn(ByteCodeGeneratorHelper.getConstantForReturn(boolean.class));
+        methodVisitor.visitInsn(Opcodes.IRETURN);
 
         // cast
         methodVisitor.visitLabel(comparingLabel);
@@ -60,7 +60,7 @@ public class EqualsWriter extends MethodWriter {
 
         EqualsBuilderInvoker.getIsEquals().invoke(methodVisitor);
 
-        methodVisitor.visitInsn(ByteCodeGeneratorHelper.getConstantForReturn(boolean.class));
+        methodVisitor.visitInsn(Opcodes.IRETURN);
         methodVisitor.visitMaxs(0, 0);
     }
 }

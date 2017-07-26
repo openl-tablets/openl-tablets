@@ -10,10 +10,6 @@ public class DoubleTypeWriter implements TypeWriter {
         return Opcodes.DLOAD;
     }
 
-    public int getConstantForReturn() {
-        return Opcodes.DRETURN;
-    }
-
     public void writeFieldValue(MethodVisitor methodVisitor, FieldDescription fieldType) {
         methodVisitor.visitLdcInsn(fieldType.getDefaultValue()); 
     }

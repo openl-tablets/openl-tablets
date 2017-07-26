@@ -10,10 +10,6 @@ public class LongTypeWriter implements TypeWriter {
         return Opcodes.LLOAD;
     }
 
-    public int getConstantForReturn() {
-        return Opcodes.LRETURN;
-    }
- 
     public void writeFieldValue(MethodVisitor methodVisitor, FieldDescription fieldType) {
         methodVisitor.visitLdcInsn(fieldType.getDefaultValue());
     }

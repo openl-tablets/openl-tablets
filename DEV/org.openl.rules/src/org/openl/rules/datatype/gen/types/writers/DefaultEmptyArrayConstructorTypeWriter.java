@@ -14,10 +14,6 @@ public class DefaultEmptyArrayConstructorTypeWriter implements TypeWriter {
         return Opcodes.ALOAD;
     }
 
-    public int getConstantForReturn() {
-        return Opcodes.ARETURN;
-    }
-
     private int findOptcodesForType(Class<?> type) {
         Type t = Type.getType(type);
         if (Type.BOOLEAN_TYPE.equals(t)) {
