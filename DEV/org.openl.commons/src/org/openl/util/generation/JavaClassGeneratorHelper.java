@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.UUID;
 
 public class JavaClassGeneratorHelper {
 
@@ -50,15 +49,6 @@ public class JavaClassGeneratorHelper {
 
     public static String getSimplePublicClassDeclaration(String className) {
         return String.format("\npublic class %s", className);
-    }
-
-    public static String addExtendingClassDeclaration(String className, String extendableClass) {
-        return String.format("%s extends %s", getSimplePublicClassDeclaration(className), extendableClass);
-    }
-
-    public static String addImplementingInterfToClassDeclaration(String classDeclaration, String[] implementsInterfaces) {
-        String interfaces = StringUtils.join(implementsInterfaces, ",");
-        return String.format("%s implements %s", classDeclaration, interfaces);
     }
 
     public static String getProtectedFieldDeclaration(String fieldType, String fieldName) {
@@ -222,19 +212,6 @@ public class JavaClassGeneratorHelper {
         return "{\n";
     }
 
-    public static Object getDefaultFieldDeclaration(String fieldType, String fieldName) {
-        return String.format("  %s %s;\n\n", fieldType, fieldName);
-    }
-
-    public static Object getStaticPublicFieldDeclaration(String fieldType, String fieldName) {
-        return String.format("  public static %s %s;\n\n", fieldType, fieldName);
-    }
-
-    public static String getStaticPublicFieldInitialization(String fieldType, String fieldName,
-            String initializationValue) {
-        return String.format("  public static %s %s = %s;\n\n", fieldType, fieldName, initializationValue);
-    }
-
     public static int getDimension(String arrayTypeName) {
         if (StringUtils.isNotBlank(arrayTypeName)) {
             if (isArray(arrayTypeName)) {
@@ -307,17 +284,6 @@ public class JavaClassGeneratorHelper {
             }
         }
         return null;
-    }
-
-    public static String getUUID() {
-        /**
-         * The most significant half of UUID contains 58 bits of randomness,
-         * which means in average we need to generate 2^29 UUIDs to get a
-         * collision (compared to 2^61 for the full UUID). It is rather safe.
-         */
-        long uuid = UUID.randomUUID().getMostSignificantBits();
-
-        return String.format("private static final long serialVersionUID = %sL;", String.valueOf(uuid));
     }
 
     public static Object getInterfaceDeclaration(String className) {
