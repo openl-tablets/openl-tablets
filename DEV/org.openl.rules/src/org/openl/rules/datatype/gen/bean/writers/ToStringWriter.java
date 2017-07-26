@@ -29,8 +29,7 @@ public class ToStringWriter extends MethodWriter {
 
     public void write(ClassWriter classWriter) {
         MethodVisitor methodVisitor;
-        methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, METHOD_NAME_TO_STRING, String.format("()%s",
-                getJavaType(String.class)), null, null);
+        methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, METHOD_NAME_TO_STRING, "()Ljava/lang/String;", null, null);
 
         // create StringBuilder
         methodVisitor.visitTypeInsn(Opcodes.NEW, Type.getInternalName(StringBuilder.class));

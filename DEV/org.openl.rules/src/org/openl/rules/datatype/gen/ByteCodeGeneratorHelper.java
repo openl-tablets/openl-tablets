@@ -51,19 +51,9 @@ public class ByteCodeGeneratorHelper {
         }
         Class<?> fieldClass = field.getType();
         /** gets the type by its class*/
-        return ByteCodeGeneratorHelper.getJavaType(fieldClass);
+        return Type.getDescriptor(fieldClass);
     }
 
-    /**
-     * Returns the Java type corresponding to the given class.
-     * 
-     * @param fieldClass
-     * @return the Java type corresponding to the given class.
-     */
-    public static String getJavaType(Class<?> fieldClass) {
-        return String.valueOf(Type.getType(fieldClass));
-    }
-    
     public static TypeWriter getTypeWriter(FieldDescription field) {
         if (field.hasDefaultKeyWord()) {
            if (field.getType().isArray()){
@@ -108,7 +98,7 @@ public class ByteCodeGeneratorHelper {
         if(returnType == null){
             signatureBuilder.append("V");
         }else{
-            signatureBuilder.append(ByteCodeGeneratorHelper.getJavaType(returnType));
+            signatureBuilder.append(Type.getDescriptor(returnType));
         }
         return signatureBuilder.toString();
     }
@@ -145,10 +135,10 @@ public class ByteCodeGeneratorHelper {
         StringBuilder signatureBuilder = new StringBuilder();
         signatureBuilder.append('(');
         for(Class<?> paramType : matchingMethod.getParameterTypes()){
-            signatureBuilder.append(ByteCodeGeneratorHelper.getJavaType(paramType));
+            signatureBuilder.append(Type.getDescriptor(paramType));
         }
         signatureBuilder.append(')');
-        signatureBuilder.append(ByteCodeGeneratorHelper.getJavaType(matchingMethod.getReturnType()));
+        signatureBuilder.append(Type.getDescriptor(matchingMethod.getReturnType()));
         return signatureBuilder.toString();
     }
     

@@ -25,8 +25,7 @@ public class HashCodeWriter extends MethodWriter {
  
     public void write(ClassWriter classWriter) {
         MethodVisitor methodVisitor;
-        methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "hashCode", String.format("()%s",
-                ByteCodeGeneratorHelper.getJavaType(int.class)), null, null);
+        methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "hashCode", "()I", null, null);
 
         // create HashCodeBuilder
         methodVisitor.visitTypeInsn(Opcodes.NEW, Type.getInternalName(HashCodeBuilder.class));

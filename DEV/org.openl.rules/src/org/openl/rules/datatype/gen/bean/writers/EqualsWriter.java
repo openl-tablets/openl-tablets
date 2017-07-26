@@ -26,8 +26,7 @@ public class EqualsWriter extends MethodWriter {
 
     public void write(ClassWriter classWriter) {
         MethodVisitor methodVisitor;
-        methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "equals", String.format("(%s)%s",
-                ByteCodeGeneratorHelper.getJavaType(Object.class), ByteCodeGeneratorHelper.getJavaType(boolean.class)), null, null);
+        methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "equals", "(Ljava/lang/Object;)Z", null, null);
 
         // create EqualsBuilder
         methodVisitor.visitTypeInsn(Opcodes.NEW, Type.getInternalName(EqualsBuilder.class));
