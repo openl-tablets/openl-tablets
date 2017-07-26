@@ -1,4 +1,4 @@
-package org.openl.util.generation;
+package org.openl.rules.maven.gen;
 
 import org.openl.util.ClassUtils;
 import org.openl.util.NumberUtils;

@@ -1,4 +1,4 @@
-package org.openl.util.generation;
+package org.openl.rules.maven.gen;
 
 import static org.junit.Assert.*;
 

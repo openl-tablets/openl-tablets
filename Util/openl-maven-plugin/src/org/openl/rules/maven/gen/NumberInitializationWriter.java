@@ -1,7 +1,5 @@
 package org.openl.rules.maven.gen;
 
-import org.openl.util.generation.JavaClassGeneratorHelper;
-
 public class NumberInitializationWriter extends CommonInitializationWriter {
 
     public String getInitialization(Object value) {
