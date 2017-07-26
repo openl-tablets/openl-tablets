@@ -1,6 +1,5 @@
 package org.openl.rules.calc;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,6 @@ import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.generation.JavaClassGeneratorHelper;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
 
@@ -242,7 +240,23 @@ public class SpreadsheetComponentsBuilder {
 
                     String typeIdentifier = typeIdentifierNode.getIdentifier();
 
-                    IOpenClass type = findType(typeIdentifier);
+                    IOpenClass type = null;
+                    if (typeIdentifier.indexOf('[') > 0) {
+                        // gets the name of the type, remove square brackets for array type declaration.
+                        //
+                        String cleanTypeIdentifier = typeIdentifier.substring(0, typeIdentifier.indexOf("["));
+
+                        IOpenClass componentType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, cleanTypeIdentifier);
+
+                        if (componentType != null) {
+                            // count of []
+                            int typeDimension = typeIdentifier.split("\\[").length - 1;
+                            type = componentType.getAggregateInfo().getIndexedAggregateType(componentType, typeDimension);
+                        }
+
+                    } else {
+                        type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeIdentifier);
+                    }
 
                     if (type == null) {
                         // error case, can`t find type.
@@ -315,35 +329,6 @@ public class SpreadsheetComponentsBuilder {
         return null;
     }
 
-    /**
-     * Gets appropriate IOpenClass for given typeIdentifier.<br>
-     * Supports array types.
-     * 
-     * @param typeIdentifier String type identifier (e.g. DoubleValue or Driver[], etc)
-     * 
-     * @return appropriate IOpenClass for given typeIdentifier
-     */
-    private IOpenClass findType(String typeIdentifier) {
-        IOpenClass result;
-        if (JavaClassGeneratorHelper.isArray(typeIdentifier)) {
-            // gets the name of the type, remove square brackets for array type declaration.
-            //
-            String cleanTypeIdentifier = JavaClassGeneratorHelper.cleanTypeName(typeIdentifier);
-           
-            IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, cleanTypeIdentifier);
-
-            if (type == null) {
-                return null;
-            }
-
-            int typeDimension = JavaClassGeneratorHelper.getDimension(typeIdentifier);
-            result = type.getAggregateInfo().getIndexedAggregateType(type, typeDimension);
-        } else {
-            result = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeIdentifier);
-        }        
-        return result;
-    }
-    
     private void buildReturnCells(IOpenClass spreadsheetHeaderType) throws SyntaxNodeException {
 
         SpreadsheetHeaderDefinition headerDefinition = headerDefinitions.get(SpreadsheetSymbols.RETURN_NAME.toString());

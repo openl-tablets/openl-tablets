@@ -25,24 +25,6 @@ public class JavaClassGeneratorHelperTest {
     }
 
     @Test
-    public void testCleanTypeName() {
-        String str = JavaClassGeneratorHelper.cleanTypeName(null);
-        assertNull(str);
-
-        String str1 = JavaClassGeneratorHelper.cleanTypeName("org.openl.java.Driver[]");
-        assertEquals("org.openl.java.Driver", str1);
-
-        String str2 = JavaClassGeneratorHelper.cleanTypeName("org.openl.java.Driver");
-        assertEquals("org.openl.java.Driver", str2);
-
-        String str3 = JavaClassGeneratorHelper.cleanTypeName("[]");
-        assertEquals("", str3);
-
-        String str4 = JavaClassGeneratorHelper.cleanTypeName("org.openl.java.Driver[][]");
-        assertEquals("org.openl.java.Driver", str4);
-    }
-
-    @Test
     public void testGetTypeNameForCast() {
         assertEquals("java.lang.String", JavaClassGeneratorHelper.getTypeNameForCastFromObject(String.class));
 
