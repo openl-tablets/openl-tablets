@@ -15,10 +15,6 @@ import org.openl.rules.datatype.gen.FieldDescription;
  */
 public class DefaultConstructorTypeWriter implements TypeWriter {
 
-    public int getConstantForVarInsn() {
-        return Opcodes.ALOAD;
-    }
-
     public void writeFieldValue(MethodVisitor methodVisitor, FieldDescription field) {
         String internalName = Type.getInternalName(field.getType());
         methodVisitor.visitTypeInsn(Opcodes.NEW, internalName);

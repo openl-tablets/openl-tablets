@@ -10,10 +10,6 @@ import org.openl.rules.datatype.gen.FieldDescription;
  */
 public class DefaultEmptyArrayConstructorTypeWriter implements TypeWriter {
 
-    public int getConstantForVarInsn() {
-        return Opcodes.ALOAD;
-    }
-
     private int findOptcodesForType(Class<?> type) {
         Type t = Type.getType(type);
         if (Type.BOOLEAN_TYPE.equals(t)) {
