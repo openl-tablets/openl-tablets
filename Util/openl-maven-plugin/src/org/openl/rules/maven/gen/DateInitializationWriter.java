@@ -1,7 +1,5 @@
 package org.openl.rules.maven.gen;
 
-import org.openl.util.generation.JavaClassGeneratorHelper;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 

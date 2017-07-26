@@ -12,7 +12,6 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ArrayTool;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
-import org.openl.util.generation.JavaClassGeneratorHelper;
 
 @Deprecated
 public class JavaInterfaceGenerator {

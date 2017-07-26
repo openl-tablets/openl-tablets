@@ -19,7 +19,6 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.openl.util.ClassUtils;
 import org.openl.rules.datatype.gen.bean.writers.DefaultValue;
-import org.openl.util.generation.JavaClassGeneratorHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
