@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.types.writers.*;
 import org.openl.types.IOpenField;
@@ -75,17 +76,10 @@ public class ByteCodeGeneratorHelper {
     
     public static int getConstantForVarInsn(FieldDescription field) {
         Class<?> retClass = field.getType();
-        return getConstantForVarInsn(retClass);
+        Type type = Type.getType(retClass);
+        return type.getOpcode(Opcodes.ILOAD);
     }
 
-    public static int getConstantForVarInsn(Class<?> fieldClass) {
-        TypeWriter typeWriter = getTypeWriter(fieldClass);
-        if (typeWriter != null){
-            return typeWriter.getConstantForVarInsn();
-        } 
-        return 0;
-    }
-    
     public static String getMethodSignatureForByteCode(Map<String, FieldDescription> params, Class<?> returnType){
         StringBuilder signatureBuilder = new StringBuilder("(");
         for (Map.Entry<String, FieldDescription> field : params.entrySet()) {
