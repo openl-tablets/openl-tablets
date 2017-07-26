@@ -13,6 +13,8 @@ import org.objectweb.asm.Type;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.datatype.gen.types.writers.*;
 import org.openl.types.IOpenField;
+import org.openl.util.NumberUtils;
+import org.openl.util.StringUtils;
 import org.openl.util.generation.JavaClassGeneratorHelper;
 
 public class ByteCodeGeneratorHelper {
@@ -47,7 +49,7 @@ public class ByteCodeGeneratorHelper {
      */
     public static String getJavaType(FieldDescription field) {
         if (field instanceof RecursiveFieldDescription) {
-            return JavaClassGeneratorHelper.getJavaType(field.getCanonicalTypeName());
+            return getJavaType(field.getCanonicalTypeName());
         }
         Class<?> fieldClass = field.getType();
         /** gets the type by its class*/
@@ -145,5 +147,65 @@ public class ByteCodeGeneratorHelper {
     public static void invokeStatic(MethodVisitor methodVisitor, Class<?> methodOwner, String methodName, Class<?>[] paramTypes) {        
         String signatureBuilder = getSignature(methodOwner, methodName, paramTypes);
         methodVisitor.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(methodOwner), methodName, signatureBuilder);
+    }
+
+    /**
+     * Generate the Java type corresponding to the given canonical type name.
+     * Support array types.<br>
+     * (e.g. <code>my.test.Vehicle[][]</code>)
+     *
+     * @param canonicalTypeName name of the type (e.g.
+     *            <code>my.test.TestClass</code>)
+     * @return Java type corresponding to the given type name. (e.g.
+     *         <code>Lmy/test/TestClass;</code>)
+     */
+    public static String getJavaType(String canonicalTypeName) {
+        if (JavaClassGeneratorHelper.isArray(canonicalTypeName)) {
+            String[] tokens = canonicalTypeName.split("\\[");
+            StringBuilder strBuf = new StringBuilder();
+            for (int i = 0; i < tokens.length - 1; i++) {
+                strBuf.append("[");
+            }
+            strBuf.append(getJavaTypeWithPrefix(tokens[0]));
+            return strBuf.toString();
+        } else {
+            return getJavaTypeWithPrefix(canonicalTypeName);
+        }
+    }
+
+    /**
+     * Gets the corresponding java type name by the given canonical type
+     * name(without array brackets).<br>
+     * Supports primitives.
+     *
+     * @param canonicalTypeName name of the type (e.g.
+     *            <code>my.test.TestClass</code>)
+     * @return Java type corresponding to the given type name. (e.g.
+     *         <code>Lmy/test/TestClass;</code>)
+     */
+    private static String getJavaTypeWithPrefix(String canonicalTypeName) {
+        if (NumberUtils.isPrimitive(canonicalTypeName)) {
+            if ("byte".equals(canonicalTypeName)) {
+                return "B";
+            } else if ("short".equals(canonicalTypeName)) {
+                return "S";
+            } else if ("int".equals(canonicalTypeName)) {
+                return "I";
+            } else if ("long".equals(canonicalTypeName)) {
+                return "J";
+            } else if ("float".equals(canonicalTypeName)) {
+                return "F";
+            } else if ("double".equals(canonicalTypeName)) {
+                return "D";
+            } else if ("boolean".equals(canonicalTypeName)) {
+                return "Z";
+            } else if ("char".equals(canonicalTypeName)) {
+                return "C";
+            }
+        }
+        if (StringUtils.isNotBlank(canonicalTypeName)) {
+            return String.format("L%s;", JavaClassGeneratorHelper.replaceDots(canonicalTypeName));
+        }
+        return StringUtils.EMPTY;
     }
 }

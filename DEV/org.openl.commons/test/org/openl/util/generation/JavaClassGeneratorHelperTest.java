@@ -73,42 +73,6 @@ public class JavaClassGeneratorHelperTest {
     }
 
     @Test
-    public void testGetJavaType() {
-        assertEquals("Ljava/lang/String;", JavaClassGeneratorHelper.getJavaType(String.class.getCanonicalName()));
-        assertEquals("[Ljava/lang/String;", JavaClassGeneratorHelper.getJavaType(String[].class.getCanonicalName()));
-        assertEquals("I", JavaClassGeneratorHelper.getJavaType(int.class.getCanonicalName()));
-        assertEquals("[[I", JavaClassGeneratorHelper.getJavaType(int[][].class.getCanonicalName()));
-        assertEquals("D", JavaClassGeneratorHelper.getJavaType(double.class.getCanonicalName()));
-
-        assertEquals(StringUtils.EMPTY, JavaClassGeneratorHelper.getJavaType(null));
-    }
-
-    @Test
-    public void testGetJavaTypeWithPrefix() {
-        assertEquals("Ljava/lang/String;",
-                JavaClassGeneratorHelper.getJavaTypeWithPrefix(String.class.getCanonicalName()));
-        assertEquals("I", JavaClassGeneratorHelper.getJavaTypeWithPrefix(int.class.getCanonicalName()));
-        assertEquals("B", JavaClassGeneratorHelper.getJavaTypeWithPrefix(byte.class.getCanonicalName()));
-        assertEquals("S", JavaClassGeneratorHelper.getJavaTypeWithPrefix(short.class.getCanonicalName()));
-        assertEquals("J", JavaClassGeneratorHelper.getJavaTypeWithPrefix(long.class.getCanonicalName()));
-        assertEquals("F", JavaClassGeneratorHelper.getJavaTypeWithPrefix(float.class.getCanonicalName()));
-        assertEquals("D", JavaClassGeneratorHelper.getJavaTypeWithPrefix(double.class.getCanonicalName()));
-        assertEquals("Z", JavaClassGeneratorHelper.getJavaTypeWithPrefix(boolean.class.getCanonicalName()));
-        assertEquals("C", JavaClassGeneratorHelper.getJavaTypeWithPrefix(char.class.getCanonicalName()));
-
-        assertEquals(StringUtils.EMPTY, JavaClassGeneratorHelper.getJavaTypeWithPrefix(null));
-    }
-
-    @Test
-    public void testGetJavaArrayType() {
-        assertNull(JavaClassGeneratorHelper.getJavaArrayType(null));
-
-        assertEquals("[[Lorg/test/MyType;", JavaClassGeneratorHelper.getJavaArrayType("org.test.MyType[][]"));
-
-        assertEquals("Lorg/test/MyType;", JavaClassGeneratorHelper.getJavaArrayType("org.test.MyType"));
-    }
-
-    @Test
     public void testDimension() {
         assertEquals(-1, JavaClassGeneratorHelper.getDimension(null));
 
