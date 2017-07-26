@@ -136,7 +136,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
         try {
             return method.invoke(target, params);
         } catch (Throwable t) {
-            throw RuntimeExceptionWrapper.wrap(t);
+            throw RuntimeExceptionWrapper.wrap("Failure in the method: " + method + " on the target:" + String.valueOf(target), t);
         }
     }
 
