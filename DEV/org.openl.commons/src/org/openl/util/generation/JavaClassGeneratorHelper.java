@@ -212,10 +212,6 @@ public class JavaClassGeneratorHelper {
         return "{\n";
     }
 
-    public static boolean isArray(String arrayTypeName) {
-        return arrayTypeName != null && arrayTypeName.indexOf('[') >= 0;
-    }
-
     public static Constructor<?> getConstructorByFieldsCount(Class<?> beanClass, int beanFieldsCount) {
         for (Constructor<?> constructor : beanClass.getConstructors()) {
             if (constructor.getParameterTypes().length == beanFieldsCount) {
