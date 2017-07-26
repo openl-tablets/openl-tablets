@@ -11,10 +11,6 @@ public class ObjectTypeWriter implements TypeWriter {
         return Opcodes.ALOAD;
     }
 
-    public int getConstantForReturn() {
-        return Opcodes.ARETURN;
-    }
-
     public void writeFieldValue(MethodVisitor methodVisitor, FieldDescription field) {
         // try to process object field with String constructor.
         Class<?> fieldClass = field.getType();

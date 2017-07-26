@@ -10,10 +10,6 @@ public class FloatTypeWriter implements TypeWriter {
         return Opcodes.FLOAD;
     }
 
-    public int getConstantForReturn() {
-        return Opcodes.FRETURN;
-    }
-
     public void writeFieldValue(MethodVisitor methodVisitor, FieldDescription fieldType) {
         methodVisitor.visitLdcInsn(fieldType.getDefaultValue());
     }

@@ -74,7 +74,7 @@ public class ToStringWriter extends MethodWriter {
 
         // return
         StringBuilderInvoker.getToString().invoke(methodVisitor);
-        methodVisitor.visitInsn(getConstantForReturn(String.class));
+        methodVisitor.visitInsn(Opcodes.ARETURN);
         methodVisitor.visitMaxs(0, 0);
     }
 }

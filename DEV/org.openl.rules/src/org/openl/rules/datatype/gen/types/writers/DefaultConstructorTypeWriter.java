@@ -19,10 +19,6 @@ public class DefaultConstructorTypeWriter implements TypeWriter {
         return Opcodes.ALOAD;
     }
 
-    public int getConstantForReturn() {
-        return Opcodes.ARETURN;
-    }
-
     public void writeFieldValue(MethodVisitor methodVisitor, FieldDescription field) {
         String internalName = Type.getInternalName(field.getType());
         methodVisitor.visitTypeInsn(Opcodes.NEW, internalName);

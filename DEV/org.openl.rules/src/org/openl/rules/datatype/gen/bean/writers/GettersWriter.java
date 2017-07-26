@@ -12,6 +12,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
+import org.openl.rules.datatype.gen.types.writers.TypeWriter;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 
@@ -93,9 +94,9 @@ public class GettersWriter extends MethodWriter {
         av.visitEnd();
         
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-        methodVisitor.visitFieldInsn(Opcodes.GETFIELD, getBeanNameWithPackage(), fieldName,
-                javaType);
-        methodVisitor.visitInsn(ByteCodeGeneratorHelper.getConstantForReturn(field));
+        methodVisitor.visitFieldInsn(Opcodes.GETFIELD, getBeanNameWithPackage(), fieldName, javaType);
+        Type type = Type.getType(field.getType());
+        methodVisitor.visitInsn(type.getOpcode(Opcodes.IRETURN));
         methodVisitor.visitMaxs(0, 0);
     }
 

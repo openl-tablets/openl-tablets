@@ -1,6 +1,5 @@
 package org.openl.rules.datatype.gen;
 
-import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -8,7 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.objectweb.asm.Type;
-import org.openl.binding.MethodUtil;
 import org.openl.rules.datatype.gen.types.writers.*;
 import org.openl.types.IOpenField;
 import org.openl.util.NumberUtils;
@@ -109,25 +107,6 @@ public class ByteCodeGeneratorHelper {
             fields.put(field.getKey(), new DefaultFieldDescription(field.getValue()));
         }
         return fields;
-    }
-    
-    public static int getConstantForReturn(FieldDescription field) {
-        Class<?> retClass = field.getType();
-        return getConstantForReturn(retClass);
-    }
-    
-    /**
-     * Returns the constant for return type. Each primitive type has its constant.
-     * 
-     * @param fieldClass
-     * @return
-     */
-    public static int getConstantForReturn(Class<?> fieldClass) {
-        TypeWriter typeWriter = getTypeWriter(fieldClass);
-        if (typeWriter != null) {
-            return typeWriter.getConstantForReturn();
-        } 
-        return 0;
     }
 
     /**

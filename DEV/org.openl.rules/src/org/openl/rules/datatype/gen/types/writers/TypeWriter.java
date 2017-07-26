@@ -6,8 +6,6 @@ import org.openl.rules.datatype.gen.FieldDescription;
 public interface TypeWriter {
     
     int getConstantForVarInsn();
-    
-    int getConstantForReturn();
 
     void writeFieldValue(MethodVisitor methodVisitor, FieldDescription fieldType);
 

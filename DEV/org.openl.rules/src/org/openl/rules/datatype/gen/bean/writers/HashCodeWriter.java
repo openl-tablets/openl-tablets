@@ -41,7 +41,7 @@ public class HashCodeWriter extends MethodWriter {
         }
         HashCodeBuilderInvoker.getToHashCode().invoke(methodVisitor);
 
-        methodVisitor.visitInsn(ByteCodeGeneratorHelper.getConstantForReturn(int.class));
+        methodVisitor.visitInsn(Opcodes.IRETURN);
         methodVisitor.visitMaxs(0, 0);
     }
 
