@@ -12,7 +12,6 @@ import org.openl.rules.datatype.gen.types.writers.*;
 import org.openl.types.IOpenField;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringUtils;
-import org.openl.util.generation.JavaClassGeneratorHelper;
 
 public class ByteCodeGeneratorHelper {
     
@@ -114,7 +113,7 @@ public class ByteCodeGeneratorHelper {
      *         <code>Lmy/test/TestClass;</code>)
      */
     public static String getJavaType(String canonicalTypeName) {
-        if (JavaClassGeneratorHelper.isArray(canonicalTypeName)) {
+        if (canonicalTypeName != null && canonicalTypeName.indexOf('[') >= 0) {
             String[] tokens = canonicalTypeName.split("\\[");
             StringBuilder strBuf = new StringBuilder();
             for (int i = 0; i < tokens.length - 1; i++) {
