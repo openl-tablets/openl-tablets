@@ -53,32 +53,4 @@ public class JavaClassGeneratorHelperTest {
                 JavaClassGeneratorHelper.getGetterWithCastMethod(double.class, "getFieldValue", "myField"));
 
     }
-
-    @Test
-    public void testDimension() {
-        assertEquals(-1, JavaClassGeneratorHelper.getDimension(null));
-
-        assertEquals(2, JavaClassGeneratorHelper.getDimension("org.test.my.Hello[][]"));
-
-        assertEquals(0, JavaClassGeneratorHelper.getDimension("org.test.my.Hello"));
-
-        assertEquals(1, JavaClassGeneratorHelper.getDimension("org.test.my.Hello[]"));
-    }
-
-    @Test
-    public void testGetNameWithoutBrackets() {
-        assertEquals("String", JavaClassGeneratorHelper.getNameWithoutBrackets("String[][][]"));
-        assertEquals(StringUtils.EMPTY, JavaClassGeneratorHelper.getNameWithoutBrackets(null));
-        assertEquals("String", JavaClassGeneratorHelper.getNameWithoutBrackets("String"));
-    }
-
-    @Test
-    public void testGetArrayName() {
-        assertEquals("String", JavaClassGeneratorHelper.getArrayName("String", 0));
-        assertEquals("String", JavaClassGeneratorHelper.getArrayName("String", -10));
-        assertEquals("String[][]", JavaClassGeneratorHelper.getArrayName("String", 2));
-
-        assertEquals(StringUtils.EMPTY, JavaClassGeneratorHelper.getArrayName(StringUtils.EMPTY, 0));
-        assertEquals(StringUtils.EMPTY, JavaClassGeneratorHelper.getArrayName(null, 0));
-    }
 }
