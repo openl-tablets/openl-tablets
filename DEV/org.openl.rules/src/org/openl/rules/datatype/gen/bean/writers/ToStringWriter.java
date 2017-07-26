@@ -15,9 +15,6 @@ import static  org.openl.rules.datatype.gen.ByteCodeGeneratorHelper.*;
 
 public class ToStringWriter extends MethodWriter {
 
-    public static final String METHOD_NAME_TO_STRING = "toString";
-    public static final String METHOD_NAME_VALUE_OF = "valueOf";
-
     /**
      * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br> 
      * (e.g. <code>my/test/TestClass</code>)
@@ -29,7 +26,7 @@ public class ToStringWriter extends MethodWriter {
 
     public void write(ClassWriter classWriter) {
         MethodVisitor methodVisitor;
-        methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, METHOD_NAME_TO_STRING, "()Ljava/lang/String;", null, null);
+        methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "toString", "()Ljava/lang/String;", null, null);
 
         // create StringBuilder
         methodVisitor.visitTypeInsn(Opcodes.NEW, Type.getInternalName(StringBuilder.class));
@@ -53,19 +50,20 @@ public class ToStringWriter extends MethodWriter {
 
             pushFieldToStack(methodVisitor, 0, field.getKey());
 
-            if (field.getValue().isArray()) { 
-                invokeStatic(
-                        methodVisitor, ArrayUtils.class, METHOD_NAME_TO_STRING,
-                        new Class<?>[] { field.getValue().getType() });
+            FieldDescription fd = field.getValue();
+            Class<?> type = fd.getType();
+            if (fd.isArray()) {
+                String descriptor = Type.getMethodDescriptor(Type.getType(String.class), Type.getType(type));
+                methodVisitor.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ArrayUtils.class), "toString", descriptor);
                 StringBuilderInvoker.getAppend(String.class).invoke(methodVisitor);
-            } else if (short.class.equals(field.getValue().getType()) || byte.class.equals(field.getValue().getType())){
-            	invokeStatic(methodVisitor, Integer.class, METHOD_NAME_VALUE_OF,
-                        new Class<?>[] { field.getValue().getType() });
+            } else if (short.class.equals(type) || byte.class.equals(type)){
+                String descriptor = Type.getMethodDescriptor(Type.getType(Integer.class), Type.getType(type));
+                methodVisitor.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(Integer.class), "valueOf", descriptor);
                 Invokers.INT_VALUE.invoke(methodVisitor);
                 StringBuilderInvoker.getAppend(int.class).invoke(methodVisitor);
             }
             else {
-                StringBuilderInvoker.getAppend(field.getValue().getType()).invoke(methodVisitor);
+                StringBuilderInvoker.getAppend(type).invoke(methodVisitor);
             }
             
             methodVisitor.visitLdcInsn(" ");

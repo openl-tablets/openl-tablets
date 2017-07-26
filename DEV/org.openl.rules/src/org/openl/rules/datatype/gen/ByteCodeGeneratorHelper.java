@@ -7,8 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.datatype.gen.types.writers.*;
@@ -130,23 +128,6 @@ public class ByteCodeGeneratorHelper {
             return typeWriter.getConstantForReturn();
         } 
         return 0;
-    }
-
-    public static String getSignature(Class<?> methodOwner, String methodName, Class<?>[] paramTypes) {
-        Method matchingMethod = MethodUtil.getMatchingAccessibleMethod(methodOwner, methodName, paramTypes);
-        StringBuilder signatureBuilder = new StringBuilder();
-        signatureBuilder.append('(');
-        for(Class<?> paramType : matchingMethod.getParameterTypes()){
-            signatureBuilder.append(Type.getDescriptor(paramType));
-        }
-        signatureBuilder.append(')');
-        signatureBuilder.append(Type.getDescriptor(matchingMethod.getReturnType()));
-        return signatureBuilder.toString();
-    }
-    
-    public static void invokeStatic(MethodVisitor methodVisitor, Class<?> methodOwner, String methodName, Class<?>[] paramTypes) {        
-        String signatureBuilder = getSignature(methodOwner, methodName, paramTypes);
-        methodVisitor.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(methodOwner), methodName, signatureBuilder);
     }
 
     /**
