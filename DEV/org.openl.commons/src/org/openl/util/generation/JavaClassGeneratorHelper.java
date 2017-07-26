@@ -254,10 +254,6 @@ public class JavaClassGeneratorHelper {
         return arrayTypeName != null && arrayTypeName.indexOf('[') >= 0;
     }
 
-    public static String replaceDots(String canonicalTypeName) {
-        return canonicalTypeName.replace('.', '/');
-    }
-
     /**
      * Gets the type name without square brackets.
      * 
