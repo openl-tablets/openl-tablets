@@ -8,14 +8,6 @@ import org.openl.rules.datatype.gen.bean.writers.DefaultValue;
 public class ByteCodeGeneratorHelperTest {
     
     @Test
-    public void testGetJavaType() {
-        assertEquals("I", ByteCodeGeneratorHelper.getJavaType(int.class));
-        assertEquals("[I", ByteCodeGeneratorHelper.getJavaType(int[].class));
-        assertEquals("Ljava/lang/String;", ByteCodeGeneratorHelper.getJavaType(String.class));
-        assertEquals("[Ljava/lang/String;", ByteCodeGeneratorHelper.getJavaType(String[].class));
-    }
-
-    @Test
     public void testGetTypeWriter() {
         assertEquals("org.openl.rules.datatype.gen.types.writers.StringTypeWriter",
                 ByteCodeGeneratorHelper.getTypeWriter(new DefaultFieldDescription(String.class)).getClass().getName());
