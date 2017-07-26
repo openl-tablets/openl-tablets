@@ -11,12 +11,9 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
-import org.openl.util.generation.JavaClassGeneratorHelper;
 
 public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
 
-    public static final String INIT = "<init>";
-    public static final String V = "()V";
     private Map<String, FieldDescription> parentFields;
     private Map<String, FieldDescription> allFields;
     
@@ -46,19 +43,23 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
         if (getParentClass() != null) {
             // Find the parent constructor with the appropriate number of fields
             //
-            parentConstructor =
-                    JavaClassGeneratorHelper.getConstructorByFieldsCount(getParentClass(), parentFields.size());
+            for (Constructor<?> constructor : getParentClass().getConstructors()) {
+                if (constructor.getParameterTypes().length == parentFields.size()) {
+                    parentConstructor = constructor;
+                    break;
+                }
+            }
         }
         int i = 1;
         if (parentConstructor == null) {
-            methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, INIT,
+            methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>",
                     ByteCodeGeneratorHelper.getMethodSignatureForByteCode(getBeanFields(), null), null, null);
             methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
             String parentName = getParentInternalName();
-            methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, parentName, INIT, V);
+            methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, parentName, "<init>", "()V");
         }
         else {
-            methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, INIT,
+            methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>",
                     ByteCodeGeneratorHelper.getMethodSignatureForByteCode(allFields, null), null, null);
             methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);            
 
@@ -75,7 +76,7 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
             }
 
             methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(getParentClass()),
-                    INIT, ByteCodeGeneratorHelper.getMethodSignatureForByteCode(parentFields, null));
+                    "<init>", ByteCodeGeneratorHelper.getMethodSignatureForByteCode(parentFields, null));
         }
 
         // Set all fields that is not presented in parent
@@ -100,5 +101,4 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
         methodVisitor.visitInsn(Opcodes.RETURN);
         methodVisitor.visitMaxs(0,0);
     }
-
 }
