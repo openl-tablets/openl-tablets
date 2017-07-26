@@ -3,7 +3,9 @@ package org.openl.rules.asm.invoker;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
+import org.openl.binding.MethodUtil;
+
+import java.lang.reflect.Method;
 
 /**
  * An invoker of virtual methods.
@@ -32,7 +34,8 @@ class VirtialInvoker implements Invoker {
     }
 
     static Invoker create(Class<?> methodOwner, String methodName, Class<?>[] paramTypes) {
-        String signature = ByteCodeGeneratorHelper.getSignature(methodOwner, methodName, paramTypes);
+        Method matchingMethod = MethodUtil.getMatchingAccessibleMethod(methodOwner, methodName, paramTypes);
+        String signature = Type.getMethodDescriptor(matchingMethod);
         final String owner = Type.getInternalName(methodOwner);
         return new VirtialInvoker(owner, methodName, signature);
     }
