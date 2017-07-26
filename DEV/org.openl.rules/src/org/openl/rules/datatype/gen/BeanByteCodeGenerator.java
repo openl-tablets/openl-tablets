@@ -9,7 +9,6 @@ import org.objectweb.asm.ClassWriter;
 import org.openl.rules.datatype.gen.bean.writers.BeanByteCodeWriter;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringUtils;
-import org.openl.util.generation.JavaClassGeneratorHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +29,7 @@ public abstract class BeanByteCodeGenerator {
 
     public BeanByteCodeGenerator(String beanName) {
         this.beanName = beanName;
-        this.beanNameWithPackage = JavaClassGeneratorHelper.replaceDots(beanName);
+        this.beanNameWithPackage = ByteCodeGeneratorHelper.replaceDots(beanName);
     }
 
     public byte[] generateClassByteCode() {

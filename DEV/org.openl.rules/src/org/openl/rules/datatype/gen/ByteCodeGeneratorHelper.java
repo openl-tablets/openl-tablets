@@ -158,8 +158,12 @@ public class ByteCodeGeneratorHelper {
             }
         }
         if (StringUtils.isNotBlank(canonicalTypeName)) {
-            return String.format("L%s;", JavaClassGeneratorHelper.replaceDots(canonicalTypeName));
+            return String.format("L%s;", replaceDots(canonicalTypeName));
         }
         return StringUtils.EMPTY;
+    }
+
+    public static String replaceDots(String canonicalTypeName) {
+        return canonicalTypeName.replace('.', '/');
     }
 }
