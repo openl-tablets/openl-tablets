@@ -212,44 +212,6 @@ public class JavaClassGeneratorHelper {
         return "{\n";
     }
 
-    public static int getDimension(String arrayTypeName) {
-        if (StringUtils.isNotBlank(arrayTypeName)) {
-            if (isArray(arrayTypeName)) {
-                String[] tokens = arrayTypeName.split("\\[");
-                return tokens.length - 1;
-            } else {
-                return 0;
-            }
-        }
-        return -1;
-    }
-
-    public static String getNameWithoutBrackets(String arrayTypeName) {
-        if (StringUtils.isNotBlank(arrayTypeName)) {
-            if (isArray(arrayTypeName)) {
-                String[] tokens = arrayTypeName.split("\\[");
-                return tokens[0];
-            } else {
-                return arrayTypeName;
-            }
-        }
-        return StringUtils.EMPTY;
-    }
-
-    public static String getArrayName(String domainName, int dimension) {
-        if (StringUtils.isNotBlank(domainName)) {
-            String array = "[]";
-            StringBuilder buf = new StringBuilder();
-            buf.append(domainName);
-            for (int i = 0; i < dimension; i++) {
-                buf.append(array);
-            }
-            return buf.toString();
-        } else {
-            return StringUtils.EMPTY;
-        }
-    }
-
     public static boolean isArray(String arrayTypeName) {
         return arrayTypeName != null && arrayTypeName.indexOf('[') >= 0;
     }
