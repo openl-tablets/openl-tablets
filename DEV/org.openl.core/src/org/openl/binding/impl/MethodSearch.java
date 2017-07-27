@@ -52,7 +52,7 @@ public class MethodSearch {
 
         return maxdiff * 100 + ndiff;
     }
-    
+
     public static IMethodCaller getCastingMethodCaller(final String name,
             IOpenClass[] params,
             ICastFactory casts,
@@ -64,11 +64,13 @@ public class MethodSearch {
         IOpenCast[] bestCastHolder = null;
 
         final int nParams = params.length;
-        Iterable<IOpenMethod> filtered = (methods == null) ? Collections.<IOpenMethod>emptyList() : CollectionUtils.findAll(methods, new CollectionUtils.Predicate<IOpenMethod>() {
-            @Override public boolean evaluate(IOpenMethod method) {
-                return method.getName().equals(name) && method.getSignature().getParameterTypes().length == nParams;
-            }
-        });
+        Iterable<IOpenMethod> filtered = (methods == null) ? Collections
+            .<IOpenMethod> emptyList() : CollectionUtils.findAll(methods, new CollectionUtils.Predicate<IOpenMethod>() {
+                @Override
+                public boolean evaluate(IOpenMethod method) {
+                    return method.getName().equals(name) && method.getSignature().getParameterTypes().length == nParams;
+                }
+            });
         for (IOpenMethod method : filtered) {
             IOpenCast[] castHolder = new IOpenCast[nParams];
 
@@ -94,9 +96,9 @@ public class MethodSearch {
             case 0:
                 return null;
             case 1:
-                if (bestMatch > 0){
+                if (bestMatch > 0) {
                     return new CastingMethodCaller(matchingMethods.get(0), bestCastHolder);
-                }else{
+                } else {
                     return matchingMethods.get(0);
                 }
             default:
@@ -146,7 +148,8 @@ public class MethodSearch {
             IOpenClass[] params,
             List<IOpenMethod> matchingMethods,
             ICastFactory casts) throws AmbiguousMethodException {
-        for(IOpenMethod res : matchingMethods) {
+        List<IOpenMethod> moreSpecificMethods = new ArrayList<IOpenMethod>();
+        for (IOpenMethod res : matchingMethods) {
             boolean f = true;
             for (IOpenMethod next : matchingMethods) {
                 if (res != next && !isMoreSpecificMethod(res, next, casts)) {
@@ -155,11 +158,58 @@ public class MethodSearch {
                 }
             }
             if (f) {
-                return res;
+                moreSpecificMethods.add(res);
             }
         }
 
-        throw new AmbiguousMethodException(name, params, matchingMethods);
+        if (moreSpecificMethods.size() == 1) {
+            return moreSpecificMethods.get(0);
+        } else {
+            List<IOpenMethod> mostSpecificMethods = new ArrayList<IOpenMethod>();
+            int best1 = Integer.MAX_VALUE;
+            int best2 = Integer.MAX_VALUE;
+            for (IOpenMethod m : moreSpecificMethods) {
+                int penalty1 = 0;
+                int penalty2 = 0;
+                if (m.getSignature().getNumberOfParameters() == params.length) {
+                    for (int i = 0; i < params.length; i++) {
+                        if (!params[i].getInstanceClass().isPrimitive() && m.getSignature()
+                            .getParameterType(i)
+                            .getInstanceClass()
+                            .isPrimitive()) {
+                            penalty1++;
+                        }
+                        if (params[i].getInstanceClass()
+                            .isPrimitive() != m.getSignature().getParameterType(i).getInstanceClass().isPrimitive()) {
+                            penalty2++;
+                        }
+                    }
+                }
+                if (penalty1 < best1) {
+                    best1 = penalty1;
+                    best2 = penalty2;
+                    mostSpecificMethods.clear();
+                    mostSpecificMethods.add(m);
+                } else {
+                    if (penalty1 == best1) {
+                        if (penalty2 < best2) {
+                            best2 = penalty2;
+                            mostSpecificMethods.clear();
+                            mostSpecificMethods.add(m);
+                        } else {
+                            if (penalty2 == best2) {
+                                mostSpecificMethods.add(m);
+                            }
+                        }
+                    }
+                }
+            }
+            if (mostSpecificMethods.size() == 1) {
+                return mostSpecificMethods.get(0);
+            } else {
+                throw new AmbiguousMethodException(name, params, mostSpecificMethods);
+            }
+        }
     }
 
     private static boolean isMoreSpecificMethod(IOpenMethod first, IOpenMethod second, ICastFactory casts) {
