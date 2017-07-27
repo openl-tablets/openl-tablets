@@ -12,7 +12,6 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
-import org.openl.rules.datatype.gen.types.writers.TypeWriter;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 

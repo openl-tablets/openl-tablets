@@ -79,6 +79,8 @@
         <org.springsecurity.version>3.2.4.RELEASE</org.springsecurity.version>
         <org.hibernate.version>4.3.11.Final</org.hibernate.version>
         <org.mojarra.version>2.1.19</org.mojarra.version>
+        <asm.version>4.2</asm.version>
+        <cglib.version>3.1</cglib.version>
 
         <org.richfaces.version>4.0.0.Final</org.richfaces.version>
         <org.apache.cxf.version>3.0.11</org.apache.cxf.version>
@@ -944,11 +946,23 @@
                 <artifactId>derby</artifactId>
                 <version>10.10.2.0</version>
             </dependency>
+            <!-- Byte code generation library -->
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
+            <!-- Byte code generation library -->
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-commons</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
             <!-- Code generation library with shaded ASM dependecies -->
             <dependency>
                 <groupId>cglib</groupId>
                 <artifactId>cglib</artifactId>
-                <version>3.1</version>
+                <version>${cglib.version}</version>
             </dependency>
             <!-- Java source code generation library -->
             <dependency>
