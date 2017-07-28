@@ -147,6 +147,11 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
             Type primType = Type.getType(prim);
             pushValue(mg, primType, value);
             mg.valueOf(primType);
+        } else if (value.getClass().isEnum()) {
+            //SomeEnum.NAME
+            Class<?> enumClass = value.getClass();
+            Type enumType = Type.getType(enumClass);
+            mg.getStatic(enumType, ((Enum)value).name(), enumType);
         } else {
             // new SomeType("value")
             mg.newInstance(type);
