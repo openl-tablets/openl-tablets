@@ -60,7 +60,6 @@ public final class RepositoryValidators {
             throw new RepositoryValidationException(msg);
         }
 
-        // workingDirValidator(prodConfig.getPath(),
         // "Production Repository directory");
 
         // Check for name uniqueness.

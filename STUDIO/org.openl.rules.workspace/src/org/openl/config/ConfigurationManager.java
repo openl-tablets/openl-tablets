@@ -166,32 +166,6 @@ public class ConfigurationManager {
         }
     }
 
-    public String getPath(String key) {
-        return normalizePath(getStringProperty(key));
-    }
-
-    public void setPath(String key, String path) {
-        String defaultPath = normalizePath(compositeConfiguration.getString(key));
-        String newPath = normalizePath(path);
-        if (defaultPath != null && !defaultPath.equals(newPath)) {
-            getConfigurationToSave().setProperty(key, newPath);
-        }
-    }
-
-    public static String normalizePath(String path) {
-        if (path == null)
-            return null;
-
-        File pathFile = new File(path);
-        if (!pathFile.isAbsolute()) {
-            if (!path.startsWith("/") && !path.startsWith("\\")) {
-                pathFile = new File(File.separator + path);
-            }
-        }
-
-        return pathFile.getAbsolutePath();
-    }
-
     public void removeProperty(String key) {
         getConfigurationToSave().clearProperty(key);
     }

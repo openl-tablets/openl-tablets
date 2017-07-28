@@ -62,19 +62,17 @@ public class RepositoryConfiguration {
         String oldUriProperty = RepositoryFactoryInstatiator.getOldUriProperty(factoryClassName);
         if (oldUriProperty != null) {
             oldUriProperty = CONFIG_PREFIX + oldUriProperty;
-            uri = jcrType == JcrType.LOCAL ? configManager.getPath(oldUriProperty)
-                                           : configManager.getStringProperty(oldUriProperty);
+            uri = configManager.getStringProperty(oldUriProperty);
             configManager.removeProperty(oldUriProperty);
         }
         if (uri == null) {
-            uri = jcrType == JcrType.LOCAL ? configManager.getPath(REPOSITORY_URI)
-                                           : configManager.getStringProperty(REPOSITORY_URI);
+            uri = configManager.getStringProperty(REPOSITORY_URI);
         }
 
         if (jcrType == JcrType.LOCAL) {
-            defaultLocalUri = configManager.getPath(oldUriProperty);
+            defaultLocalUri = configManager.getStringProperty(oldUriProperty);
             if (defaultLocalUri == null) {
-                defaultLocalUri = configManager.getPath(REPOSITORY_URI);
+                defaultLocalUri = configManager.getStringProperty(REPOSITORY_URI);
             }
         }
 
@@ -91,11 +89,7 @@ public class RepositoryConfiguration {
     private void store() {
         configManager.setProperty(REPOSITORY_NAME, StringUtils.trimToEmpty(name));
         configManager.setProperty(REPOSITORY_FACTORY, jcrType.getFactoryClassName());
-        if (jcrType == JcrType.LOCAL) {
-            configManager.setPath(REPOSITORY_URI, uri);
-        } else {
-            configManager.setProperty(REPOSITORY_URI, uri);
-        }
+        configManager.setProperty(REPOSITORY_URI, uri);
 
         if (!secure) {
             configManager.removeProperty(REPOSITORY_LOGIN);

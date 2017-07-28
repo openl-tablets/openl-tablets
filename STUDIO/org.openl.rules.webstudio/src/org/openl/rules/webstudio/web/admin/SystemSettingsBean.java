@@ -70,11 +70,11 @@ public class SystemSettingsBean {
     }
 
     public String getUserWorkspaceHome() {
-        return configManager.getPath(USER_WORKSPACE_HOME);
+        return configManager.getStringProperty(USER_WORKSPACE_HOME);
     }
 
     public void setUserWorkspaceHome(String userWorkspaceHome) {
-        configManager.setPath(USER_WORKSPACE_HOME, userWorkspaceHome);
+        configManager.setProperty(USER_WORKSPACE_HOME, userWorkspaceHome);
     }
 
     public String getDatePattern() {
@@ -94,11 +94,11 @@ public class SystemSettingsBean {
     }
 
     public String getProjectHistoryHome() {
-        return configManager.getPath(PROJECT_HISTORY_HOME);
+        return configManager.getStringProperty(PROJECT_HISTORY_HOME);
     }
 
     public void setProjectHistoryHome(String projectHistoryHome) {
-        configManager.setPath(PROJECT_HISTORY_HOME, projectHistoryHome);
+        configManager.setProperty(PROJECT_HISTORY_HOME, projectHistoryHome);
     }
 
     public String getProjectHistoryCount() {
