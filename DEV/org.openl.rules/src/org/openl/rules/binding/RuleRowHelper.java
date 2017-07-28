@@ -22,6 +22,7 @@ import org.openl.rules.convertor.IObjectToDataConvertor;
 import org.openl.rules.convertor.ObjectToDataConvertorFactory;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.dt.element.ArrayHolder;
+import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
@@ -448,6 +449,25 @@ public class RuleRowHelper {
         IDomain<Object> domain = (IDomain<Object>) paramType.getDomain();
 
         if (domain != null) {
+            validateDomain(value, domain);
+        }
+    }
+
+    private static void validateDomain(Object value, IDomain<Object> domain) throws OpenLCompilationException {
+        if (value == null) {
+            // return;
+        } else if (value.getClass().isArray()) {
+            int length = Array.getLength(value);
+            for (int i = 0; i < length; i++) {
+                Object element = Array.get(value, i);
+                validateDomain(element, domain);
+            }
+        } else if (value instanceof Iterable && !(value instanceof INumberRange)) {
+            Iterable list = (Iterable) value;
+            for (Object element : list) {
+                validateDomain(element, domain);
+            }
+        } else {
             try {
                 // block is surrounded by try block, as EnumDomain implementation throws a
                 // RuntimeException when value doesn`t belong to domain.
