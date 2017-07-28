@@ -35,20 +35,17 @@ public class CommonRepositorySettings extends RepositorySettings {
         String oldUriProperty = RepositoryFactoryInstatiator.getOldUriProperty(factoryClassName);
         if (oldUriProperty != null) {
             oldUriProperty = configPrefix + oldUriProperty;
-            uri = jcrType == JcrType.LOCAL ? configManager.getPath(oldUriProperty)
-                                           : configManager.getStringProperty(oldUriProperty);
+            uri = configManager.getStringProperty(oldUriProperty);
             configManager.removeProperty(oldUriProperty);
         }
         if (uri == null) {
-            uri = jcrType == JcrType.LOCAL ?
-                  configManager.getPath(REPOSITORY_URI) :
-                  configManager.getStringProperty(REPOSITORY_URI);
+            uri = configManager.getStringProperty(REPOSITORY_URI);
         }
 
         if (jcrType == JcrType.LOCAL) {
-            defaultLocalUri = configManager.getPath(oldUriProperty);
+            defaultLocalUri = configManager.getStringProperty(oldUriProperty);
             if (defaultLocalUri == null) {
-                defaultLocalUri = configManager.getPath(REPOSITORY_URI);
+                defaultLocalUri = configManager.getStringProperty(REPOSITORY_URI);
             }
         }
 
@@ -131,11 +128,7 @@ public class CommonRepositorySettings extends RepositorySettings {
     @Override
     protected void store(ConfigurationManager configurationManager) {
         super.store(configurationManager);
-        if (jcrType == JcrType.LOCAL) {
-            configurationManager.setPath(REPOSITORY_URI, uri);
-        } else {
-            configurationManager.setProperty(REPOSITORY_URI, uri);
-        }
+        configurationManager.setProperty(REPOSITORY_URI, uri);
 
         if (!isSecure()) {
             configurationManager.removeProperty(REPOSITORY_LOGIN);

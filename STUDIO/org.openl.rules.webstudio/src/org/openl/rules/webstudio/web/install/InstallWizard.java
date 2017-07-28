@@ -79,7 +79,7 @@ public class InstallWizard {
 
     @NotBlank
     private String workingDir;
-    private boolean newWorkingDir;
+    private boolean workingDirChanged;
     private boolean showErrorMessage = false;
 
     private String userMode = "demo";
@@ -123,8 +123,7 @@ public class InstallWizard {
     public InstallWizard() {
         appConfig = new ConfigurationManager(true,
                 System.getProperty("webapp.root") + "/WEB-INF/conf/config.properties");
-        workingDir = appConfig.getPath("webstudio.home");
-
+        workingDir = appConfig.getStringProperty("webstudio.home");
     }
 
     public String getPreviousPage() {
@@ -157,10 +156,8 @@ public class InstallWizard {
             // Go to next step
             ++step;
             if (step == 2) {
-                workingDir = ConfigurationManager.normalizePath(workingDir);
-
                 // Get defaults from 'system.properties'
-                if (newWorkingDir || systemConfig == null) {
+                if (workingDirChanged || systemConfig == null) {
                     systemConfig = new ConfigurationManager(true,
                             workingDir + "/system-settings/system.properties",
                             System.getProperty("webapp.root") + "/WEB-INF/conf/system.properties");
@@ -342,7 +339,7 @@ public class InstallWizard {
             designRepositoryConfiguration.save();
 
             System.clearProperty("webstudio.home"); // Otherwise this property will not be saved to file.
-            appConfig.setPath("webstudio.home", workingDir);
+            appConfig.setProperty("webstudio.home", workingDir);
             appConfig.setProperty("webstudio.configured", true);
             appConfig.save();
             System.setProperty("webstudio.home", workingDir);
@@ -613,7 +610,7 @@ public class InstallWizard {
         File studioDir;
 
         if (StringUtils.isNotEmpty((String) value)) {
-            studioPath = ConfigurationManager.normalizePath((String) value);
+            studioPath = (String) value;
             studioDir = new File(studioPath);
 
             if (studioDir.exists()) {
@@ -635,7 +632,7 @@ public class InstallWizard {
                     throw new ValidatorException(FacesUtils.createErrorMessage("'" + studioPath + "' is not a folder"));
                 }
             } else {
-                File parentFolder = studioDir.getParentFile();
+                File parentFolder = studioDir.getAbsoluteFile().getParentFile();
                 File existingFolder = null;
 
                 while (parentFolder != null) {
@@ -687,16 +684,19 @@ public class InstallWizard {
      * @param studioFolder   folder were studio will be installed
      */
     private void deleteFolder(File existingFolder, File studioFolder) {
-
         if (!studioFolder.delete()) {
             log.warn("Can't delete the folder {}", studioFolder.getName());
+        }
+
+        if (existingFolder == null) {
+            return;
         }
 
         while (!studioFolder.getAbsolutePath().equalsIgnoreCase(existingFolder.getAbsolutePath())) {
             if (!studioFolder.delete()) {
                 log.warn("Can't delete the folder {}", studioFolder.getName());
             }
-            studioFolder = studioFolder.getParentFile();
+            studioFolder = studioFolder.getAbsoluteFile().getParentFile();
         }
     }
 
@@ -740,9 +740,8 @@ public class InstallWizard {
     }
 
     public void setWorkingDir(String workingDir) {
-        String normWorkingDir = ConfigurationManager.normalizePath(workingDir);
-        newWorkingDir = !normWorkingDir.equals(this.workingDir);
-        this.workingDir = normWorkingDir;
+        workingDirChanged = !workingDir.equals(this.workingDir);
+        this.workingDir = workingDir;
 
         // Other configurations depend on this property
         System.setProperty("webstudio.home", this.workingDir);

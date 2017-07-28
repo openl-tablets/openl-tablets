@@ -102,6 +102,6 @@ public class ProjectsInHistoryController {
     }
 
     public String getProjectHistoryHome() {
-        return configManager.getPath(PROJECT_HISTORY_HOME);
+        return configManager.getStringProperty(PROJECT_HISTORY_HOME);
     }
 }
