@@ -66,6 +66,7 @@ public class TableBean {
     private boolean editable;
     private boolean canBeOpenInExel;
     private boolean copyable;
+    private boolean confirmOverwriteNewerRevision;
 
     private List<OpenLMessage> errors;
     private List<OpenLMessage> warnings;
@@ -92,6 +93,11 @@ public class TableBean {
             uri = table.getUri();
             // Save URI because some actions don't provide table ID
             studio.setTableUri(uri);
+
+            RulesProject project = studio.getCurrentProject();
+            if (project != null) {
+                confirmOverwriteNewerRevision = project.isOpenedOtherVersion() && !project.isModified();
+            }
 
             method = model.getMethod(uri);
 
@@ -465,6 +471,10 @@ public class TableBean {
             return table.getGridTable().getHeight() - runnableTestMethods.length + 1;
         }
         return null;
+    }
+
+    public boolean isConfirmOverwriteNewerRevision() {
+        return confirmOverwriteNewerRevision;
     }
 
     public static class TableDescription {

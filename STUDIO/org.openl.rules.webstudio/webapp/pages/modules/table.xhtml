@@ -216,6 +216,7 @@
                             <tr>
                                 <td>
                                     <h:outputLink value="#{studio.url('table')}" title="Edit the table" styleClass="toolbarButton"
+                                        onclick="return onBeforeEdit();"
                                         rendered="#{tableBean.canEdit}"  >
                                         <f:param name="id" value="#{tableBean.id}" />
                                         <f:param name="mode" value="edit" />
@@ -563,6 +564,7 @@
                                showFormulas="#{studio.showFormulas}"
                                beforeEditAction="#{tableBean.beforeEditAction}"
                                beforeSaveAction="#{tableBean.beforeSaveAction}" afterSaveAction="#{tableBean.afterSaveAction}"
+                               onBeforeEdit="return onBeforeEdit();"
                                onBeforeSave="javascript:onBeforeSave();" onAfterSave="javascript:onAfterSave(data);"
                                onError="javascript:onError(data);" excludeScripts="prototype">
 
@@ -624,6 +626,11 @@
         function editInExcel(f) {
             f.id.value = "#{tableBean.id}";
             f.submit();
+        }
+
+        function onBeforeEdit() {
+            var confirmNeeded = #{tableBean.confirmOverwriteNewerRevision};
+            return !confirmNeeded || confirm("You are trying to edit old revision of the project. Do you want to overwrite newer revision?");
         }
 
         function onBeforeSave() {
