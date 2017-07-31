@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
-import com.thoughtworks.xstream.XStreamException;
+import java.io.*;
+
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
@@ -9,9 +10,6 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 
 public abstract class AProjectCreator {
 
@@ -79,20 +77,28 @@ public abstract class AProjectCreator {
 
     protected InputStream changeFileIfNeeded(String fileName, InputStream inputStream) throws UnsupportedEncodingException, ProjectException {
         if (ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME.equals(fileName)) {
+            // Read the stream to memory and try to parse it and then change project name. If it can't be parsed return original rules.xml.
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            try {
+                IOUtils.copyAndClose(inputStream, outputStream);
+            } catch (IOException e) {
+                throw new ProjectException(e.getMessage(), e);
+            }
+            ByteArrayInputStream copy = new ByteArrayInputStream(outputStream.toByteArray());
+
             try {
                 XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer(false);
-                ProjectDescriptor projectDescriptor = serializer.deserialize(inputStream);
+                ProjectDescriptor projectDescriptor = serializer.deserialize(copy);
                 projectDescriptor.setName(getProjectName());
-                // FIXME: This steram will be closed at exit from try/finally
-                inputStream = IOUtils.toInputStream(serializer.serialize(projectDescriptor));
-            } catch (XStreamException e) {
-                throw new ProjectException(ProjectDescriptorUtils.getErrorMessage(e), e);
-            } finally {
-                IOUtils.closeQuietly(inputStream);
+                return IOUtils.toInputStream(serializer.serialize(projectDescriptor));
+            } catch (Exception e) {
+                log.warn(e.getMessage(), e);
+                copy.reset();
+                return copy;
             }
+        } else {
+            return inputStream;
         }
-        // FIXME: Returns CLOSED stream
-        return inputStream;
     }
 
     protected abstract RulesProjectBuilder getProjectBuilder() throws ProjectException;
