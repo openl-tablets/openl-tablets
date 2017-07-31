@@ -74,11 +74,13 @@ public class NestedSpreadsheetResultConverter<T extends CalculationStep, Q exten
         List<CalculationStep> steps = new ArrayList<CalculationStep>();
         if (spreadsheetResult != null) {
             int height = spreadsheetResult.getHeight();
-
+            RowFilter rowFilter = conf.buildRowFilter();
             for (int row = 0; row < height; row++) {
-                CalculationStep step = processRow(spreadsheetResult, row);
-                if (step != null){
-                    steps.add(step);
+                if (rowFilter == null || !rowFilter.excludeRow(spreadsheetResult.getRowName(row))) {
+                    CalculationStep step = processRow(spreadsheetResult, row);
+                    if (step != null){
+                        steps.add(step);
+                    }
                 }
             }
             return steps;
