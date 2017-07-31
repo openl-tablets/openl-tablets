@@ -857,7 +857,7 @@ public class RepositoryTreeController {
     public void deleteProjectHistory(String projectName) {
         try {
             String projectHistoryPath = studio.getSystemConfigManager()
-                .getPath(PROJECT_HISTORY_HOME) + File.separator + projectName;
+                .getStringProperty(PROJECT_HISTORY_HOME) + File.separator + projectName;
             File dir = new File(projectHistoryPath);
             // Project can contain no history
             if (dir.exists()) {

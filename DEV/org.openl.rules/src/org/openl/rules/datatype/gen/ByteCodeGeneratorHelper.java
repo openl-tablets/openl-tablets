@@ -1,14 +1,11 @@
 package org.openl.rules.datatype.gen;
 
-import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.openl.rules.datatype.gen.types.writers.*;
 import org.openl.types.IOpenField;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringUtils;
@@ -16,25 +13,8 @@ import org.openl.util.StringUtils;
 public class ByteCodeGeneratorHelper {
     
     public static final String JAVA_LANG_OBJECT = "java/lang/Object";
-    
-    private static Map<Class<?>, TypeWriter> typeWriters = new HashMap<Class<?>, TypeWriter>();
-    
-    static {
-        typeWriters.put(byte.class, new NumericTypeWriter());
-        typeWriters.put(short.class, new NumericTypeWriter());
-        typeWriters.put(int.class, new NumericTypeWriter());
-        typeWriters.put(boolean.class, new BooleanTypeWriter());
-        typeWriters.put(char.class, new CharTypeWriter());
-        typeWriters.put(Character.class, new CharacterTypeWriter());
 
-        typeWriters.put(long.class, new LongTypeWriter());
-        typeWriters.put(float.class, new FloatTypeWriter());
-        typeWriters.put(double.class, new DoubleTypeWriter());
-        typeWriters.put(Date.class, new DateTypeWriter());
-        typeWriters.put(String.class, new StringTypeWriter());
-        typeWriters.put(Object.class, new ObjectTypeWriter());
-    }
-    
+
     private ByteCodeGeneratorHelper() {}
 
     /**
@@ -52,27 +32,6 @@ public class ByteCodeGeneratorHelper {
         return Type.getDescriptor(fieldClass);
     }
 
-    public static TypeWriter getTypeWriter(FieldDescription field) {
-        if (field.hasDefaultKeyWord()) {
-           if (field.getType().isArray()){
-               return new DefaultEmptyArrayConstructorTypeWriter();
-           }else{
-               return new DefaultConstructorTypeWriter();
-           }
-        }
-        Class<?> clazz = field.getType();
-        return getTypeWriter(clazz);
-    }
-    
-    private static TypeWriter getTypeWriter(Class<?> clazz) {
-        TypeWriter typeWriter = typeWriters.get(clazz);
-        if (typeWriter == null && clazz instanceof Object) {
-            return typeWriters.get(Object.class);
-        } else  {
-            return typeWriter;
-        }
-    }
-    
     public static int getConstantForVarInsn(FieldDescription field) {
         Class<?> retClass = field.getType();
         Type type = Type.getType(retClass);

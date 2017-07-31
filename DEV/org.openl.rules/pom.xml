@@ -68,6 +68,14 @@
             <artifactId>cglib</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-commons</artifactId>
+        </dependency>
+        <dependency>
             <groupId>uk.com.robust-it</groupId>
             <artifactId>cloning</artifactId>
         </dependency>

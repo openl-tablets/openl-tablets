@@ -53,7 +53,7 @@ public class ToStringWriter extends MethodWriter {
             FieldDescription fd = field.getValue();
             Class<?> type = fd.getType();
             if (fd.isArray()) {
-                String descriptor = Type.getMethodDescriptor(Type.getType(String.class), Type.getType(type));
+                String descriptor = Type.getMethodDescriptor(Type.getType(String.class), Type.getType(Object.class));
                 methodVisitor.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ArrayUtils.class), "toString", descriptor);
                 StringBuilderInvoker.getAppend(String.class).invoke(methodVisitor);
             } else if (short.class.equals(type) || byte.class.equals(type)){
