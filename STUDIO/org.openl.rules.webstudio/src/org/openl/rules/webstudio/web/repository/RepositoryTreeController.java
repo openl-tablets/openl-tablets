@@ -36,6 +36,7 @@ import org.openl.rules.webstudio.web.repository.project.TemplatesResolver;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
+import org.openl.rules.webstudio.web.repository.upload.ProjectDescriptorUtils;
 import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -59,10 +60,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -1491,6 +1490,14 @@ public class RepositoryTreeController {
             }
         } else {
             errorMessage = "Project name must not be empty.";
+        }
+
+        try {
+            ZipProjectDescriptorExtractor.getProjectDescriptorOrThrow(getLastUploadedFile(), zipFilter);
+        } catch (XStreamException e) {
+            // Add warning that uploaded project contains incorrect rules.xml
+            FacesUtils.addWarnMessage("Warning: " + ProjectDescriptorUtils.getErrorMessage(e));
+        } catch (Exception ignored) {
         }
 
         if (errorMessage == null) {
