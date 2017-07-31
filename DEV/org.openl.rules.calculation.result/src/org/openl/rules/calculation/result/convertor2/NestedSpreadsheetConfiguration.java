@@ -31,7 +31,10 @@ public abstract class NestedSpreadsheetConfiguration<T extends CalculationStep, 
 
     /** Map of columns that gonna be extracted on each level of extracting **/
     private Map<Integer, List<ColumnToExtract>> columnsToExtractForLevels;
-
+    
+    /** Row filter**/
+    private RowFilter rowFilter;
+    
     /**
      * 
      * @param columnsToExtractForLevels Map of columns that gonna be extracted
@@ -85,4 +88,22 @@ public abstract class NestedSpreadsheetConfiguration<T extends CalculationStep, 
             ColumnToExtract columnToExtract) {
         return new NestedSpreadsheedColumnExtractor(nestingLevel, this, columnToExtract);
     }
+    
+    /**
+     * Initialize rowFilter
+     */
+    protected RowFilter initRowFilter() {
+        return null;
+    }
+
+    /**
+     * Initialize rowFilter
+     */
+    public final RowFilter buildRowFilter() {
+        if (rowFilter == null) {
+            rowFilter = initRowFilter();
+        }
+        return rowFilter;
+    }
+    
 }
