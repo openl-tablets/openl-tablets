@@ -87,6 +87,10 @@ var TableEditor = Class.create({
     },
 
     toEditMode: function(cellToEdit) {
+        if (this.actions && this.actions.beforeEdit && !this.actions.beforeEdit()) {
+            return;
+        }
+
         if (!cellToEdit) {
             cellToEdit = $(PopupMenu.lastTarget);
         }

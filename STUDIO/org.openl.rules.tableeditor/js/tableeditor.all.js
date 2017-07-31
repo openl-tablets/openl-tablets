@@ -319,6 +319,10 @@ var TableEditor = Class.create({
     },
 
     toEditMode: function(cellToEdit) {
+        if (this.actions && this.actions.beforeEdit && !this.actions.beforeEdit()) {
+            return;
+        }
+
         if (!cellToEdit) {
             cellToEdit = $(PopupMenu.lastTarget);
         }
@@ -588,7 +592,7 @@ var TableEditor = Class.create({
                 case this.Modes.VIEW:
                 default: {
                     if (this.editable) {
-                        // Remove links
+                        // Remove links in EDIT mode
                         $$('.te-meta-info > a').each(function(item) {
                             $(item).replace($(item).text);
                         });
