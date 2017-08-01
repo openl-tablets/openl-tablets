@@ -87,13 +87,13 @@
                 <h:commandLink styleClass="changes-listener" onclick="openSaveDialog(); return false;" value="Save"
                     title="Save the project changes in Design Repository as a new revision and make it available for editing to other users"
                     rendered="#{!empty rProject and rProject.openedForEditing and rProject.modified and studio.model.editable}" />
-                <h:commandLink onclick="openUpdateProjectDialog();return false;"
+                <h:commandLink onclick="if (!canOverwriteRevision()) return false; openUpdateProjectDialog();return false;"
                                title="Update project" value="Update"
                                rendered="#{!empty rProject and studio.model.editable and empty module}" />
                 <h:commandLink styleClass="changes-listener" onclick="openExportProjectDialog(); return false;"
                                title="Download the project as a zip archive" value="Export"
                                rendered="#{!empty rProject and empty module}" />
-                <h:commandLink styleClass="changes-listener" onclick="openUpdateModuleDialog(); return false;"
+                <h:commandLink styleClass="changes-listener" onclick="if (!canOverwriteRevision()) return false; openUpdateModuleDialog(); return false;"
                     title="Update module" value="Update"
                     rendered="#{!empty module and studio.model.editable}" />
                 <h:commandLink styleClass="changes-listener" onclick="openExportModuleDialog(); return false;"
@@ -159,7 +159,7 @@
             </h:panelGroup>
 
             <h:panelGroup rendered="#{!empty module and studio.model.canCreateTable}">
-                <a href="#{studio.url('create/index')}" title="Create new table" class="primary">Create Table</a>
+                <a href="#{studio.url('create/index')}" title="Create new table" class="primary" onclick="return canOverwriteRevision();">Create Table</a>
                 <span class="delimeter"></span>
             </h:panelGroup>
 
@@ -170,6 +170,7 @@
                 <ul class="dropdown-menu" role="menu">
                     <h:panelGroup rendered="#{!empty module and studio.model.canEditProject}">
                         <li><a tabindex="-1" id="topRevertLink" href="#{studio.url('revert')}"
+                               onclick="return canOverwriteRevision();"
                                title="Compare and/or roll back module changes against a specific date">Revert Changes</a></li>
                         <li class="divider"></li>
                     </h:panelGroup>
@@ -225,6 +226,12 @@
             });
             ws.nav.go(testUrl + "?" + query, true);
         }
+
+        function canOverwriteRevision() {
+            var confirmNeeded = #{studio.model.confirmOverwriteNewerRevision};
+            return !confirmNeeded || confirm("#{msg['ws.project.warning.version.old']}");
+        }
+
         //]]>
     </script>
 
