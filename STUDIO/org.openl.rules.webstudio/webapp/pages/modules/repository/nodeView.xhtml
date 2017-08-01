@@ -250,8 +250,12 @@
   </h:panelGroup>
 
 
+    <script>
+        //<![CDATA[
         function canOverwriteRevision() {
             var confirmNeeded = #{repositoryTreeState.confirmOverwriteNewerRevision};
             return !confirmNeeded || confirm("#{msg['ws.project.warning.version.old']}");
         }
+        //]]>
+    </script>
 </ui:composition>
