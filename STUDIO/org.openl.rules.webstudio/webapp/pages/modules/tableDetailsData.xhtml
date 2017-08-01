@@ -74,6 +74,7 @@
                     <h:panelGroup rendered="#{editable and !prop.inheritedProperty}">
                         <a4j:commandLink id="removePropBtn" action="#{tableDetailsBean.remove(prop)}" title="Remove"
                             render="propsTable :addPropsPanel"
+                            onclick="return canOverwriteRevision();"
                             style="#{empty prop.deprecation ? 'display: none' : ''}">
                             <img style="opacity: 0.5" src="webresource/images/close.gif" />
                         </a4j:commandLink>
@@ -90,7 +91,7 @@
             <a4j:commandButton id="savePropsButton" value="Save" style="margin-left: 2px;  #{tableDetailsBean.changed ? 'display:inline' : 'display:none'}"
                 action="#{tableDetailsBean.save}" data="#{tableDetailsBean.newTableId}"
                 oncomplete="saveComplete(event.data)" />
-            <h:outputLink id="addPropBtn" value="javascript:void(0)" onclick="$j(this).hide();$j('#addPropsPanel').fadeIn()"
+            <h:outputLink id="addPropBtn" value="javascript:void(0)" onclick="if (!canOverwriteRevision()) return false; $j(this).hide();$j('#addPropsPanel').fadeIn()"
                 rendered="#{!empty tableDetailsBean.propertiesToAdd}" style="margin-left: 4px">Add Property</h:outputLink>
         </h:panelGroup>
     </h:panelGroup>
