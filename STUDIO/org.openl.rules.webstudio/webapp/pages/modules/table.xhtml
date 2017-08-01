@@ -636,7 +636,7 @@
 
         function onBeforeEdit() {
             var confirmNeeded = #{tableBean.confirmOverwriteNewerRevision};
-            return !confirmNeeded || confirm("You are trying to edit old revision of the project. Do you want to overwrite newer revision?");
+            return !confirmNeeded || confirm("#{msg['ws.project.warning.version.old']}");
         }
 
         function onBeforeSave() {
