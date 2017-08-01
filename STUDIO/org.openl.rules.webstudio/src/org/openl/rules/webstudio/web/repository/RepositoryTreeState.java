@@ -526,4 +526,17 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public void setProjectDescriptorResolver(ProjectDescriptorArtefactResolver projectDescriptorResolver) {
         this.projectDescriptorResolver = projectDescriptorResolver;
     }
+
+    /**
+     * Returns true if both are true:
+     * 1) Old project version is opened
+     * and
+     * 2) project isn't modified yet.
+     *
+     * Otherwise return false
+     */
+    public boolean isConfirmOverwriteNewerRevision() {
+        UserWorkspaceProject project = getSelectedProject();
+        return project != null && project.isOpenedOtherVersion() && !project.isModified();
+    }
 }

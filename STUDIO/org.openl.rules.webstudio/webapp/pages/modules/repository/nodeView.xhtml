@@ -42,16 +42,16 @@
     <h:panelGroup rendered="#{node.type != 'deployment'}">
     <div class="nav-panel">
   <h:panelGroup rendered="#{node.type == 'file'}">
-      <h:commandButton id="updateId" rendered="#{repositoryTreeState.canModify}" value="Update file" onclick="openUpdateFileDialog();return false;" title="Upload the updated file"/>
+      <h:commandButton id="updateId" rendered="#{repositoryTreeState.canModify}" value="Update file" onclick="if (!canOverwriteRevision()) return false; openUpdateFileDialog();return false;" title="Upload the updated file"/>
       <h:commandButton id="exportId" rendered="#{repositoryTreeState.canExport and node.hasVersions()}" value="Export file" onclick="openExportFileDialog();return false;" title="Export file"/>
-      <h:commandButton id="copyId" rendered="#{repositoryTreeState.canModify}" value="Copy file" onclick="openCopyFileDialog();return false;" title="Copy file"/>
-      <h:commandButton id="deleteFileId" rendered="#{repositoryTreeState.canModify}" value="Delete" onclick="#{rich:component('modalDeleteNode')}.show();return false;" title="Delete the file"/>
+      <h:commandButton id="copyId" rendered="#{repositoryTreeState.canModify}" value="Copy file" onclick="if (!canOverwriteRevision()) return false; openCopyFileDialog();return false;" title="Copy file"/>
+      <h:commandButton id="deleteFileId" rendered="#{repositoryTreeState.canModify}" value="Delete" onclick="if (!canOverwriteRevision()) return false; #{rich:component('modalDeleteNode')}.show();return false;" title="Delete the file"/>
   </h:panelGroup>
 
   <h:panelGroup rendered="#{node.type == 'folder' and repositoryTreeState.canModify}">
-      <h:commandButton id="addFolder1" value="Add Folder" onclick="openNewFolderDialog();return false;" title="#{addFolderMessage}"/>
-      <h:commandButton id="uploadFile1" value="Upload File" onclick="openNewFileDialog();return false;" title="#{uploadFileMessage}"/>
-      <h:commandButton id="deleteFolderId" value="Delete" onclick="#{rich:component('modalDeleteNode')}.show();return false;" title="Delete the folder"/>
+      <h:commandButton id="addFolder1" value="Add Folder" onclick="if (!canOverwriteRevision()) return false; openNewFolderDialog();return false;" title="#{addFolderMessage}"/>
+      <h:commandButton id="uploadFile1" value="Upload File" onclick="if (!canOverwriteRevision()) return false; openNewFileDialog();return false;" title="#{uploadFileMessage}"/>
+      <h:commandButton id="deleteFolderId" value="Delete" onclick="if (!canOverwriteRevision()) return false; #{rich:component('modalDeleteNode')}.show();return false;" title="Delete the folder"/>
   </h:panelGroup>
 
   <h:panelGroup rendered="#{node.type == 'project'}">
@@ -98,8 +98,8 @@
         
         <h:commandButton id="compareId" rendered="#{repositoryTreeState.canCompare}" value="Compare" onclick="window.open('#{contextPath}/faces/pages/modules/repository/compare.xhtml?projectName=#{artefact.name}','compare','width=1240,height=700,screenX=50,screenY=100,resizable=no,scrollbars=yes,status=yes');return false;"
                          title="Compare tables in Excel file between two project versions"/>
-        <h:commandButton id="addFolder2" rendered="#{artefact.openedForEditing}" value="Add Folder" onclick="openNewFolderDialog();return false;" title="#{addFolderMessage}"/>
-        <h:commandButton id="uploadFile2" rendered="#{artefact.openedForEditing}" value="Upload File" onclick="openNewFileDialog();return false;" title="#{uploadFileMessage}"/>
+        <h:commandButton id="addFolder2" rendered="#{artefact.openedForEditing}" value="Add Folder" onclick="if (!canOverwriteRevision()) return false; openNewFolderDialog();return false;" title="#{addFolderMessage}"/>
+        <h:commandButton id="uploadFile2" rendered="#{artefact.openedForEditing}" value="Upload File" onclick="if (!canOverwriteRevision()) return false; openNewFileDialog();return false;" title="#{uploadFileMessage}"/>
         <h:commandButton id="exportVersionId" rendered="#{repositoryTreeState.canExport}" value="Export" onclick="openExportVersionDialog();return false;" title="Download the project as a zip archive"/>
       </h:panelGroup>
 
@@ -249,4 +249,9 @@
     </rich:tabPanel>
   </h:panelGroup>
 
+
+        function canOverwriteRevision() {
+            var confirmNeeded = #{repositoryTreeState.confirmOverwriteNewerRevision};
+            return !confirmNeeded || confirm("#{msg['ws.project.warning.version.old']}");
+        }
 </ui:composition>
