@@ -508,6 +508,10 @@
         }
 
         function editProject() {
+            if (!canOverwriteRevision()) {
+                return false;
+            }
+
             $j("#editProjectForm")[0].reset();
             var btn = $j("#editProjectBtn");
 
@@ -545,12 +549,20 @@
         }
 
         function removeModule(module) {
+            if (!canOverwriteRevision()) {
+                return false;
+            }
+
             $j("#moduleToRemove").val(module);
             ws.ui.show("removeModulePopup");
             $j("#removeModuleButton").focus();
         }
 
         function manageDependencies() {
+            if (!canOverwriteRevision()) {
+                return false;
+            }
+
             var btn = $j("#editDependenciesBtn");
 
             btn.prop("disabled", true);
@@ -595,6 +607,10 @@
         }
 
         function manageSources() {
+            if (!canOverwriteRevision()) {
+                return false;
+            }
+
             var btn = $j("#editSourcesBtn");
 
             btn.prop("disabled", true);
@@ -617,6 +633,11 @@
                     $j(divWithLink).hide();
                 }
             })
+        }
+
+        function canOverwriteRevision() {
+            var confirmNeeded = #{studio.model.confirmOverwriteNewerRevision};
+            return !confirmNeeded || confirm("#{msg['ws.project.warning.version.old']}");
         }
 
     //]]>
