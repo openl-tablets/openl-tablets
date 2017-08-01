@@ -226,6 +226,7 @@
                                 </td>
                                 <td>
                                     <h:outputLink value="#{contextPath}/action/launch" styleClass="toolbarButton"
+                                        onclick="return onBeforeEdit();"
                                         rendered="#{tableBean.canOpenInExel}"
                                         title="Open the table in Excel" target="hidden">
                                         <f:param name="id" value="#{tableBean.id}" />
@@ -235,6 +236,7 @@
                                 </td>
                                 <td>
                                     <a4j:commandLink rendered="#{tableBean.copyable}"
+                                        onclick="return onBeforeEdit();"
                                         oncomplete="ws.nav.go('#{studio.url('copyTable')}?id=#{tableBean.id}')" title="Create a new table based on the existing one"
                                         styleClass="toolbarButton">
                                         <img src="webresource/images/copyTable.gif" />
@@ -244,7 +246,7 @@
                                 <td>
                                     <a4j:commandLink action="#{tableBean.removeTable}" title="Delete the table"
                                         rendered="#{tableBean.canRemove}"
-                                        onclick="if(!confirm('Do you really want to remove this table?'))return false;"
+                                        onclick="if (!onBeforeEdit()) return false; if (!confirm('Do you really want to remove this table?'))return false;"
                                         oncomplete="ws.changes.revertChanges();ws.nav.go('#' + encodeURIComponent('#{studio.currentModule.project.name}') + '/' + encodeURIComponent('#{studio.currentModule.name}'), true)"
                                         styleClass="toolbarButton">
                                         <img src="webresource/images/delete.png" />
@@ -444,6 +446,7 @@
                     <h:form>
                         <a4j:commandLink action="#{tableCreatorWizardManager.startWizard}"
                             styleClass="toolbarButton" title="Create a new Test table"
+                            onclick="return onBeforeEdit();"
                             oncomplete="ws.nav.go('#{studio.url('create/index')}?initStep=test/step2.xhtml')" >
                             <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />
                             <img src="webresource/images/test_new.gif" />
@@ -624,6 +627,9 @@
         }
 
         function editInExcel(f) {
+            if (!onBeforeEdit()) {
+                return false;
+            }
             f.id.value = "#{tableBean.id}";
             f.submit();
         }
