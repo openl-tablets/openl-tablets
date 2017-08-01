@@ -1280,6 +1280,19 @@ public class ProjectModel {
         setModuleInfo(moduleInfo, ReloadType.SINGLE, false);
     }
 
+    /**
+     * Returns true if both are true:
+     * 1) Old project version is opened
+     * and
+     * 2) project isn't modified yet.
+     *
+     * Otherwise return false
+     */
+    public boolean isConfirmOverwriteNewerRevision() {
+        RulesProject project = getProject();
+        return project != null && project.isOpenedOtherVersion() && !project.isModified();
+    }
+
     private static class EditXlsModificationChecker implements ModificationChecker {
         private final XlsWorkbookSourceCodeModule module;
         private final File sourceFile;
