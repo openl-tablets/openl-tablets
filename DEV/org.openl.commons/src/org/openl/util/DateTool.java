@@ -160,19 +160,8 @@ public class DateTool {
      * @return String date format
      */
     public static String dateToString(Date date, String dateFormat) throws Exception {
-        DateFormat df = null;
-        String stringDate = "";
-        String datePattern = "([A-Za-z]{1,}(.|/|-| )){1,}";
-
-        df = dateFormat == null ? DateFormat.getDateInstance(DateFormat.SHORT) : new SimpleDateFormat(dateFormat);
-
-        if (dateFormat == null) {
-            stringDate = df.format(date);
-        } else if (dateFormat.matches(datePattern)) {
-            stringDate = df.format(date);
-        }
-
-        return stringDate;
+        DateFormat df = dateFormat == null ? DateFormat.getDateInstance(DateFormat.SHORT) : new SimpleDateFormat(dateFormat);
+        return df.format(date);
     }
 
     /**

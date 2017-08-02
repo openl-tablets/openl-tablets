@@ -28,8 +28,9 @@ class String2DateConvertor implements IString2DataConvertor<Date> {
         if (data == null) {
             return null;
         }
-        if (data.length() == 0)
+        if (data.isEmpty()) {
             throw new IllegalArgumentException("Cannot convert an empty String to date type");
+        }
 
         DateFormat df;
         if (format == null) {
