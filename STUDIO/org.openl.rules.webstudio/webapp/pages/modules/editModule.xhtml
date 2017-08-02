@@ -79,6 +79,10 @@
     //<![CDATA[
 
         function editModule(module, callback) {
+            if (!canOverwriteRevision()) {
+                return false;
+            }
+
             var add = !module;
 
             if (callback) {

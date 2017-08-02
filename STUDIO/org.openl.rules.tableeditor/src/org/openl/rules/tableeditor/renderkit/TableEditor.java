@@ -29,6 +29,7 @@ public class TableEditor {
     private String beforeEditAction;
     private String beforeSaveAction;
     private String afterSaveAction;
+    private String onBeforeEdit;
     private String onBeforeSave;
     private String onAfterSave;
     private String onError;
@@ -53,6 +54,7 @@ public class TableEditor {
         beforeEditAction = FacesUtils.getValueExpressionString(component, Constants.ATTRIBUTE_BEFORE_EDIT_ACTION);
         beforeSaveAction = FacesUtils.getValueExpressionString(component, Constants.ATTRIBUTE_BEFORE_SAVE_ACTION);
         afterSaveAction = FacesUtils.getValueExpressionString(component, Constants.ATTRIBUTE_AFTER_SAVE_ACTION);
+        onBeforeEdit = (String) attributes.get(Constants.ATTRIBUTE_ON_BEFORE_EDIT);
         onBeforeSave = (String) attributes.get(Constants.ATTRIBUTE_ON_BEFORE_SAVE);
         onError = (String) attributes.get(Constants.ATTRIBUTE_ON_ERROR);
         onAfterSave = (String) attributes.get(Constants.ATTRIBUTE_ON_AFTER_SAVE);
@@ -163,6 +165,14 @@ public class TableEditor {
 
     public void setAfterSaveAction(String afterSaveAction) {
         this.afterSaveAction = afterSaveAction;
+    }
+
+    public String getOnBeforeEdit() {
+        return onBeforeEdit;
+    }
+
+    public void setOnBeforeEdit(String onBeforeEdit) {
+        this.onBeforeEdit = onBeforeEdit;
     }
 
     public String getOnBeforeSave() {

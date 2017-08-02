@@ -87,6 +87,16 @@ var TableEditor = Class.create({
     },
 
     toEditMode: function(cellToEdit) {
+        if (this.actions && this.actions.beforeEdit && !this.actions.beforeEdit()) {
+            return;
+        }
+
+        // Remove links in EDIT mode
+        $$('.te-meta-info > a').each(function(item) {
+            $(item).replace($(item).text);
+        });
+
+
         if (!cellToEdit) {
             cellToEdit = $(PopupMenu.lastTarget);
         }
@@ -356,11 +366,6 @@ var TableEditor = Class.create({
                 case this.Modes.VIEW:
                 default: {
                     if (this.editable) {
-                        // Remove links in EDIT mode
-                        $$('.te-meta-info > a').each(function(item) {
-                            $(item).replace($(item).text);
-                        });
-
                         this.toEditMode(cell);
                     }
                     break;

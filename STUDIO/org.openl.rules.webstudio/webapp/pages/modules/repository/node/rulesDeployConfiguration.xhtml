@@ -25,7 +25,8 @@
 
   <h:panelGroup rendered="#{!hasRulesDeploy}">
     <a4j:commandButton value="Create rules deploy configuration" action="#{repositoryProjectRulesDeployConfig.createRulesDeploy}"
-      rendered="#{openedForEditing}"/>
+                       onclick="return canOverwriteRevision();"
+                       rendered="#{openedForEditing}"/>
     <h:outputText value="Rules deploy configuration is absent" rendered="#{!openedForEditing}"/>
   </h:panelGroup>
 
@@ -119,10 +120,13 @@
 
     <br />
     <br />
-    <a4j:commandButton value="Save Configuration" action="#{repositoryProjectRulesDeployConfig.saveRulesDeploy}" rendered="#{openedForEditing}" render="projectTree nodeView" styleClass="save-deploy-configuration-button button-primary"/>
+    <a4j:commandButton value="Save Configuration" action="#{repositoryProjectRulesDeployConfig.saveRulesDeploy}"
+                       rendered="#{openedForEditing}" render="projectTree nodeView"
+                       onclick="return canOverwriteRevision();"
+                       styleClass="save-deploy-configuration-button button-primary"/>
     <a4j:commandButton value="Delete Configuration" action="#{repositoryProjectRulesDeployConfig.deleteRulesDeploy}" immediate="true"
                        rendered="#{openedForEditing}" render="projectTree nodeView"
-                       onclick="if(!window.confirm('Are you sure you want to delete the rules deploy configuration?')) {return false;}"/>
+                       onclick="if (!canOverwriteRevision()) return false; if(!window.confirm('Are you sure you want to delete the rules deploy configuration?')) {return false;}"/>
       <script>
           $j(function () {
               $j('.save-deploy-configuration-button').prop("disabled", true);

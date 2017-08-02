@@ -20,6 +20,7 @@
         <constructor-arg name="useSystemProperties" value="true" />
         <constructor-arg name="defaultPropertiesLocation" value="#{systemProperties['webapp.root']}/WEB-INF/conf/rules-production.properties" />
         <constructor-arg name="propertiesFolder" value="#{systemProperties['webstudio.home']}/system-settings/" />
+        <constructor-arg name="propertiesInContextFolder" value="#{systemProperties['webapp.root']}/WEB-INF/conf/" />
     </bean>
 
     <bean id="configManager" factory-bean="systemConfigManagerFactory" factory-method="getConfigurationManager">

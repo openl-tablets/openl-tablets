@@ -93,13 +93,14 @@ public class HTMLRenderer {
                 result.append(tableRenderer.render(editor.isShowFormulas(), errorCell, editor.getId(), editor.getRowIndex()));
                 result.append("</div>");
 
+                String beforeEdit = getEditorJSAction(editor.getOnBeforeEdit());
                 String beforeSave = getEditorJSAction(editor.getOnBeforeSave());
                 String afterSave = getEditorJSAction(editor.getOnAfterSave());
                 String error = getEditorJSAction(editor.getOnError());
 
                 String relativeCellToEdit = getRelativeCellToEdit(cellToEdit, table, tableModel);
                 
-                String actions = "{beforeSave:" + beforeSave + ",afterSave:" + afterSave + ",error:" + error + "}";
+                String actions = "{beforeEdit:" + beforeEdit + ",beforeSave:" + beforeSave + ",afterSave:" + afterSave + ",error:" + error + "}";
 
                 result.append(renderJSBody("var " + editorJsVar + " = initTableEditor(\"" + editor.getId() + "\", \""
                         + internalPath("ajax/") + "\",\"" + relativeCellToEdit + "\"," + actions + ","

@@ -25,9 +25,10 @@ public class JavaCollectionAggregateInfo implements IAggregateInfo {
         return null;
     }
 
+
     @Override
     public IOpenClass getIndexedAggregateType(IOpenClass componentType, int dims) {
-        throw new UnsupportedOperationException();
+        return componentType;
     }
 
     @SuppressWarnings("unchecked")

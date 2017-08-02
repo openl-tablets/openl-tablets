@@ -68,8 +68,14 @@
     </style>
 
     <script>
+        //<![CDATA[
         function editProperty(elem) {
             elem = $j(elem);
+
+            if (elem.hasClass("editableProp") && !canOverwriteRevision()) {
+                return false;
+            }
+
             elem.removeClass("editableProp");
             elem.find(".propValue").hide();
             elem.find(".propEditor").show();
@@ -90,6 +96,12 @@
             if (!deprecated)
                 $j(row).find("a[id*='removePropBtn']").hide();
         }
+
+        function canOverwriteRevision() {
+            var confirmNeeded = #{studio.model.confirmOverwriteNewerRevision};
+            return !confirmNeeded || confirm("#{msg['ws.project.warning.version.old']}");
+        }
+        //]]>
     </script>
 
     <div class="panel">

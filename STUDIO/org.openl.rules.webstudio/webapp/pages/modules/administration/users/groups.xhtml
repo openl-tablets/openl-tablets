@@ -8,12 +8,15 @@
     <h:form id="groupsForm">
     <h:panelGroup id="groupList">
     <table class="table">
+        <thead>
         <tr>
             <th>Name</th>
             <th>Description</th>
             <th>Privileges</th>
             <th></th>
         </tr>
+        </thead>
+        <tbody>
         <a4j:repeat value="#{groupsBean.groups}" var="group">
         <tr>
             <td>#{group.name}</td>
@@ -45,6 +48,7 @@
             </td>
         </tr>
         </a4j:repeat>
+        </tbody>
     </table>
     </h:panelGroup>
 

@@ -24,6 +24,7 @@ public class ConfigurationManager {
 
     private boolean useSystemProperties;
     private String propsLocation;
+    private String propsInContextLocation;
     private String defaultPropsLocation;
     private boolean autoSave;
 
@@ -42,8 +43,14 @@ public class ConfigurationManager {
 
     public ConfigurationManager(boolean useSystemProperties, String propsLocation, String defaultPropsLocation,
                                 boolean autoSave) {
+        this(useSystemProperties, propsLocation, null, defaultPropsLocation, autoSave);
+    }
+
+    public ConfigurationManager(boolean useSystemProperties, String propsLocation, String propsInContextLocation, String defaultPropsLocation,
+                                boolean autoSave) {
         this.useSystemProperties = useSystemProperties;
         this.propsLocation = propsLocation;
+        this.propsInContextLocation = propsInContextLocation;
         this.defaultPropsLocation = defaultPropsLocation;
         this.autoSave = autoSave;
 
@@ -69,6 +76,11 @@ public class ConfigurationManager {
             }
         }
 
+        FileConfiguration propsInContext = createFileConfiguration(propsInContextLocation);
+        if (propsInContext != null) {
+            compositeConfiguration.addConfiguration(propsInContext);
+        }
+
         defaultConfiguration = createFileConfiguration(defaultPropsLocation);
         if (defaultConfiguration != null) {
             compositeConfiguration.addConfiguration(defaultConfiguration);
@@ -87,7 +99,7 @@ public class ConfigurationManager {
                     if (file.exists()) {
                         configuration.load();
                     }
-                } else {
+                } else if (new File(configLocation).exists()) {
                     configuration = new PropertiesConfiguration();
                     configuration.setDelimiterParsingDisabled(true);
                     configuration.setFileName(configLocation);

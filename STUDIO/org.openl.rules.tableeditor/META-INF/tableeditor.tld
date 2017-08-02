@@ -178,6 +178,13 @@
             </deferred-method>
         </attribute>
         <attribute>
+            <description>Before Edit JS action.</description>
+            <name>onBeforeEdit</name>
+            <deferred-value>
+                <type>String</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
             <description>Before Save JS action.</description>
             <name>onBeforeSave</name>
             <deferred-value>

@@ -234,6 +234,10 @@
         var currentModule;
 
         function copyModule(module, callback) {
+            if (!canOverwriteRevision()) {
+                return false;
+            }
+
             if (callback) {
                 copyModuleDone = callback;
             }

@@ -916,7 +916,8 @@ public class InstallWizard {
         final ConfigurationManagerFactory productionConfigManagerFactory = new ConfigurationManagerFactory(
                 true,
                 System.getProperty("webapp.root") + "/WEB-INF/conf/rules-production.properties",
-                workingDir + "/system-settings/"
+                workingDir + "/system-settings/",
+                System.getProperty("webapp.root") + "/WEB-INF/conf/"
         );
         productionRepositoryFactoryProxy = new ProductionRepositoryFactoryProxy();
         productionRepositoryFactoryProxy.setConfigManagerFactory(productionConfigManagerFactory);
