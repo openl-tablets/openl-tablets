@@ -25,6 +25,7 @@
                     <h:outputText value="#{msg['ws.compare.select']}" />
 
                     <rich:fileUpload id="fileUpload" fileUploadListener="#{uploadExcelDiffController.uploadListener}"
+                        onfilesubmit="showLoader();" oncomplete="hideLoader();"
                         acceptedTypes="xls, xlsx, xlsm" style="height: 148px">
                         <a4j:ajax event="uploadcomplete" execute="@none" render="compareButton" />
                     </rich:fileUpload>
