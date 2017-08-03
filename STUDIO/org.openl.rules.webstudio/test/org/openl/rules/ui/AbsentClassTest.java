@@ -3,7 +3,6 @@ package org.openl.rules.ui;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.CompiledOpenClass;
 import org.openl.message.Severity;
@@ -11,7 +10,6 @@ import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 
 public class AbsentClassTest {
 
-    @Ignore("EPBDS-6564")
     @Test
     public void testAbsentClass() throws Exception {
         SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>()
