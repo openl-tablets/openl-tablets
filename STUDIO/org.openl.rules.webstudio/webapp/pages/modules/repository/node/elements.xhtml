@@ -29,7 +29,7 @@
       </rich:column>
       <rich:column style="text-align: center;" rendered="#{ el.type != 'prodproject' and artefact.project != null}" >
         <h:commandLink action="#{repositoryTreeController.deleteElement}"
-          onclick="if(!window.confirm('Are you sure you want to delete the file/folder?')) {return false;}"
+          onclick="if (!canOverwriteRevision()) return false; if(!window.confirm('Are you sure you want to delete the file/folder?')) {return false;}"
           rendered="#{artefact.project.openedForEditing}" title="Delete">
           <f:param name="element" value="#{el.name}" />
           <h:graphicImage url="/webresource/images/delete.png" styleClass="actionImage" alt="Delete" />
