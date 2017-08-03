@@ -1284,7 +1284,7 @@ public class Operators {
     }
 
     public static BigDecimal autocast(long x, BigDecimal y) {
-        return new BigDecimal(x);
+        return BigDecimal.valueOf(x);
     }
     
     public static double autocast(float x, double y) {
@@ -1292,11 +1292,11 @@ public class Operators {
     }
 
     public static BigDecimal autocast(float x, BigDecimal y) {
-        return new BigDecimal(x);
+        return new BigDecimal(Float.toString(x));
     }
     
     public static BigDecimal autocast(double x, BigDecimal y) {
-        return new BigDecimal(x);
+        return BigDecimal.valueOf(x);
     }
 
     public static BigDecimal autocast(BigInteger x, BigDecimal y) {

@@ -35,11 +35,11 @@ public class NumberUtils {
     public static Double convertToDouble(Object object) {
 
         if (Float.class.equals(object.getClass())) {
-            return Double.valueOf(((Float) object).toString());
+            return Double.valueOf(object.toString());
         }
         
         if (FloatValue.class.isAssignableFrom(object.getClass())) {
-            return Double.valueOf(((FloatValue) object).toString());
+            return Double.valueOf(object.toString());
         }
 
         if  (Double.class.equals(object.getClass())) {

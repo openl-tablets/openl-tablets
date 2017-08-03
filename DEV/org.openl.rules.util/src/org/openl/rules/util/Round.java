@@ -204,8 +204,7 @@ public class Round {
             return x;
         }
         try {
-            String val = Double.toString(x);
-            return new BigDecimal(val).setScale(scale, rounding).doubleValue();
+            return BigDecimal.valueOf(x).setScale(scale, rounding).doubleValue();
         } catch (NumberFormatException var5) {
             return Double.NaN;
         }

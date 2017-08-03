@@ -233,7 +233,7 @@ public class RunTest extends TestCase {
         _runNoError("long Of =-1;int y=60; Of >>> y ", (long) -1 >>> 60, OpenL.OPENL_J_NAME);
         _runNoError("5.0 ** 7.0 ", Math.pow(5, 7), OpenL.OPENL_JAVA_NAME);
         _runNoError("DoubleValue x = 5.0; x ** 7 ", new DoubleValue(Math.pow(5, 7)), OpenL.OPENL_JAVA_NAME);
-        _runNoError("BigDecimal x = 5.0; x ** 7 ", new BigDecimal(Math.pow(5, 7)), OpenL.OPENL_JAVA_NAME);
+        _runNoError("BigDecimal x = 5.0; x ** 7 ", new BigDecimal("78125.0000000"), OpenL.OPENL_JAVA_NAME);
 
     }
     
