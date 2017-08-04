@@ -18,6 +18,7 @@
     </style>
 
     <table class="table">
+        <thead>
         <tr>
             <a4j:repeat var="argument" value="#{inputArgsBean.arguments}">
                 <th>
@@ -25,7 +26,9 @@
                 </th>
             </a4j:repeat>
         </tr>
+        </thead>
 
+        <tbody>
         <tr style="vertical-align: top; text-align: left">
             <a4j:repeat var="argumentTreeNode" value="#{inputArgsBean.argumentTreeNodes}">
                 <td width="100 px"><rich:panel id="dynamicTreePanel">
@@ -139,6 +142,7 @@
                 </td>
             </a4j:repeat>
         </tr>
+        </tbody>
     </table>
 
     <script>

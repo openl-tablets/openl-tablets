@@ -147,6 +147,7 @@
                     <input type="text" id="testRanges"/>
                 </div>
             <table id="testTable" class="table" style="margin: 2px 2px 1px 2px; width: 98%;">
+                <thead>
                 <tr>
                     <th>
                         <input type="checkbox" id="allTestCheck" onclick="changeAllItemStatus(this, 'testTable')" checked="checked" title="Check/Uncheck All"/>
@@ -156,6 +157,8 @@
                         #{tableBean.table.type == 'xls.run.method' ? 'Run Cases' : 'Test Cases'}
                     </th>
                 </tr>
+                </thead>
+                <tbody>
                 <ui:repeat var="test" value="#{tableBean.tests}">
                     <tr>
                         <td>
@@ -171,6 +174,7 @@
                         </ui:repeat>
                     </tr>
                 </ui:repeat>
+                </tbody>
             </table>
             </h:panelGroup>
             <div style="padding: 6px 5px">

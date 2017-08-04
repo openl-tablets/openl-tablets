@@ -445,10 +445,13 @@
         <h:form prependId="false" id="manageDependenciesForm">
             <div style="overflow:auto; height:350px">
                 <table id="dependenciesTable" class="table table-over w100">
+                    <thead>
                     <tr>
                         <th>Project Name</th>
                         <th style="width:67px">All Modules</th>
                     </tr>
+                    </thead>
+                    <tbody>
                     <ui:repeat value="#{projectBean.dependencies}" var="dependency2">
                         <tr class="#{dependency2.selected ? 'active' : ''}">
                             <td><label><h:selectBooleanCheckbox value="#{dependency2.selected}" /> #{dependency2.item.name}</label></td>
@@ -456,6 +459,7 @@
                                 title="Include all modules" /></td>
                         </tr>
                     </ui:repeat>
+                    </tbody>
                 </table>
             </div>
 

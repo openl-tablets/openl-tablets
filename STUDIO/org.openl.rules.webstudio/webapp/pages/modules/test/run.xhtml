@@ -29,6 +29,7 @@
 
                 <h:form>
                 <table class="table">
+                    <thead>
                     <tr>
                         <h:panelGroup rendered="#{!empty runBean.results.get(0).test.executionParams}">
                             <th>ID</th>
@@ -38,6 +39,8 @@
                         </h:panelGroup>
                         <th>Result</th>
                     </tr>
+                    </thead>
+                    <tbody>
                     <ui:repeat value="#{runBean.results}" var="result">
                         <tr style="vertical-align: top">
                             <h:panelGroup rendered="#{!empty result.test.executionParams}">
@@ -75,6 +78,7 @@
                                 </h:panelGroup></td>
                         </tr>
                     </ui:repeat>
+                    </tbody>
                 </table>
                 </h:form>
             </h:panelGroup>
