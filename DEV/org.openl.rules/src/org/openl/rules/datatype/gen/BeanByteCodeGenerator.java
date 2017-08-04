@@ -58,7 +58,7 @@ public abstract class BeanByteCodeGenerator {
         try {
             /** try to load bean class from current classloader.
              check if it already presents*/
-            if (isClassLoaderContainsClass(classLoader, beanName)) {
+            if (ByteCodeGeneratorHelper.isClassLoaderContainsClass(classLoader, beanName)) {
                 resultClass = classLoader.loadClass(beanName);
                 log.debug("Bean {} is using previously loaded", beanName);
                 return resultClass;
@@ -87,15 +87,6 @@ public abstract class BeanByteCodeGenerator {
 
     protected String getBeanNameWithPackage() {
         return beanNameWithPackage;
-    }
-
-    //TODO move to some utility class
-    public static boolean isClassLoaderContainsClass(ClassLoader classLoader, String className) {
-        try {
-            return classLoader.loadClass(className) != null;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
     }
 
     public String toString() {

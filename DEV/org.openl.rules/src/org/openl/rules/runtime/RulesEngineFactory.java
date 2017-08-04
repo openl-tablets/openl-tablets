@@ -3,7 +3,7 @@ package org.openl.rules.runtime;
 import org.openl.OpenL;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
-import org.openl.rules.datatype.gen.BeanByteCodeGenerator;
+import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.runtime.EngineFactory;
 import org.openl.runtime.IEngineWrapper;
@@ -129,7 +129,7 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
             String className = openClass.getName();
             ClassLoader classLoader = getCompiledOpenClass().getClassLoader();
             try {
-                if (BeanByteCodeGenerator.isClassLoaderContainsClass(classLoader, className)) {
+                if (ByteCodeGeneratorHelper.isClassLoaderContainsClass(classLoader, className)) {
                     log.warn("Previously generated interface '{}' has been used as service class.", className);
                     @SuppressWarnings("unchecked")
                     Class<T> interfaceClass = (Class<T>) classLoader.loadClass(className);

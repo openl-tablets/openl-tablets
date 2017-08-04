@@ -124,4 +124,12 @@ public class ByteCodeGeneratorHelper {
     public static String replaceDots(String canonicalTypeName) {
         return canonicalTypeName.replace('.', '/');
     }
+
+    public static boolean isClassLoaderContainsClass(ClassLoader classLoader, String className) {
+        try {
+            return classLoader.loadClass(className) != null;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
 }
