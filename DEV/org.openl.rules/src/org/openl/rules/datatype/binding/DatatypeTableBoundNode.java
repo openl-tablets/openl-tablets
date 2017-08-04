@@ -4,8 +4,6 @@
 
 package org.openl.rules.datatype.binding;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Date;
@@ -237,20 +235,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     fieldDescription.getCanonicalTypeName());
                 throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
             }
-            
-            /*try {
-                Constructor<?> fieldClass = fieldDescription.getType().getConstructor();
-                Object o = fieldClass.newInstance();
-                System.out.println(o);
-            }catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            }catch (InvocationTargetException e) {
-                e.printStackTrace();
-            }catch(IllegalAccessException e) {
-                e.printStackTrace();
-            }catch(InstantiationException e) {
-                e.printStackTrace();
-            }*/
         }
 
         try {
