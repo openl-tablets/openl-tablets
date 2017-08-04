@@ -4,7 +4,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.objectweb.asm.Type;
-import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 
 public abstract class DefaultBeanByteCodeWriter implements BeanByteCodeWriter {
@@ -41,13 +40,12 @@ public abstract class DefaultBeanByteCodeWriter implements BeanByteCodeWriter {
      * then "java/lang/Object" will be returned.
      *
      * @return an internal name of the parent class.
-     * @see ByteCodeGeneratorHelper#JAVA_LANG_OBJECT
      * @see Type#getInternalName(Class)
      */
     protected String getParentInternalName() {
         String internalName;
         if (parentClass == null) {
-            internalName = ByteCodeGeneratorHelper.JAVA_LANG_OBJECT;
+            internalName = "java/lang/Object";
         } else {
             internalName = Type.getInternalName(parentClass);
         }
