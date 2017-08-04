@@ -67,11 +67,14 @@
     
             <h:panelGroup id="explainData">
                 <table class="table-explain">
+                    <thead>
                     <tr>
                         <th>Result</th>
                         <th></th>
                         <th>Explanation</th>
                     </tr>
+                    </thead>
+                    <tbody>
                     <ui:repeat value="#{explainBean.expandedValues}" var="value" varStatus="st">
                     <tr id="#{value[0]}" class="#{st.first?'':'hidden'}">
                         <td style="padding-left:#{4 + 9 * value[1]}px">#{value[2]}</td>
@@ -79,6 +82,7 @@
                         <td><h:outputText value="#{value[3]}" escape="false" /></td>
                     </tr>
                     </ui:repeat>
+                    </tbody>
                 </table>
             </h:panelGroup>
         </h:form>

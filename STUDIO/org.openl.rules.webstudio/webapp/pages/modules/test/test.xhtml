@@ -133,6 +133,7 @@
                     </h1>
                     <h:panelGroup rendered="#{testFailed or !failuresOnly}">
                     <table class="table">
+                        <thead>
                         <tr>
                             <th>ID</th>
                             <h:panelGroup rendered="#{test.hasDescription()}">
@@ -153,7 +154,9 @@
                                 <th>Compound Result</th>
                             </h:panelGroup>
                         </tr>
+                        </thead>
 
+                        <tbody>
                         <ui:repeat value="#{test.getFilteredTestUnits(failuresOnly,failuresPerTest)}" var="testCase">
                         <ui:param name="compareResult" value="#{testCase.compareResult()}" />
                         <h:panelGroup>
@@ -252,6 +255,7 @@
                             </tr>
                             </h:panelGroup>
                         </ui:repeat>
+                        </tbody>
                     </table>
                     </h:panelGroup>
                 </div>
