@@ -35,20 +35,24 @@ public class TypeBinder extends ANodeBinder {
         }
 
         String typeName = ((IdentifierNode) typeNode).getIdentifier();
-        IOpenClass varType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
+        try {
+            IOpenClass varType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
 
-        if (varType == null) {
-            String message = String
-                .format("Can't bind node: '%s'. Can't find type: '%s'.", node.getModule().getCode(), typeName);
-            BindHelper.processError(message, node, bindingContext, false);
+            if (varType == null) {
+                String message = String
+                    .format("Can't bind node: '%s'. Can't find type: '%s'.", node.getModule().getCode(), typeName);
+                BindHelper.processError(message, node, bindingContext, false);
 
+                return new ErrorBoundNode(node);
+            }
+
+            if (dimension > 0) {
+                varType = varType.getAggregateInfo().getIndexedAggregateType(varType, dimension);
+            }
+            return new TypeBoundNode(node, varType);
+        } catch (RuntimeException e) {
+            BindHelper.processError(e.getMessage(), node, bindingContext, false);
             return new ErrorBoundNode(node);
         }
-
-        if (dimension > 0) {
-            varType = varType.getAggregateInfo().getIndexedAggregateType(varType, dimension);
-        }
-
-        return new TypeBoundNode(node, varType);
     }
 }

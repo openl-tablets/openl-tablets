@@ -7,6 +7,7 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.formatter.ExceptionMessageFormatter;
 import org.openl.syntax.exception.formatter.IndexOutOfBoundsExceptionFormatter;
+import org.openl.syntax.exception.formatter.NoClassDefFoundErrorFormatter;
 import org.openl.syntax.exception.formatter.NullPointerExceptionFormatter;
 import org.openl.util.text.ILocation;
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ public class SyntaxNodeExceptionUtils {
     
     static {
         formatters.put(ArrayIndexOutOfBoundsException.class, new IndexOutOfBoundsExceptionFormatter());
+        formatters.put(NoClassDefFoundError.class, new NoClassDefFoundErrorFormatter());
         formatters.put(NullPointerException.class, new NullPointerExceptionFormatter());
     }
     

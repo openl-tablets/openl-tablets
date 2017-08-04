@@ -18,14 +18,11 @@ public class AbsentClassTest {
 
         CompiledOpenClass compiledOpenClass = simpleProjectEngineFactory.getCompiledOpenClass();
         assertTrue(compiledOpenClass.hasErrors());
-        assertEquals(2, compiledOpenClass.getMessages().size());
-
-        // Field dependency
-        assertEquals(Severity.ERROR, compiledOpenClass.getMessages().get(0).getSeverity());
-        assertEquals("Can't load type 'C' because of absent type 'org.openl.rules.beans.A' in the type 'org.openl.rules.beans.B'.", compiledOpenClass.getMessages().get(0).getSummary());
+        assertEquals(1, compiledOpenClass.getMessages().size());
 
         // Parent dependency
-        assertEquals(Severity.ERROR, compiledOpenClass.getMessages().get(1).getSeverity());
-        assertEquals("Can't load type 'org.openl.rules.beans.D' because of absent type 'org.openl.rules.beans.A'.", compiledOpenClass.getMessages().get(1).getSummary());
+        assertEquals(Severity.ERROR, compiledOpenClass.getMessages().get(0).getSeverity());
+        assertEquals("Can't load type 'org.openl.rules.beans.D' because of absent type 'org.openl.rules.beans.A'.", compiledOpenClass.getMessages().get(0).getSummary());
+        
     }
 }
