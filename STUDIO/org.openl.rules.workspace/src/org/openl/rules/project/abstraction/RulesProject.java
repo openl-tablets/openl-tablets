@@ -82,7 +82,9 @@ public class RulesProject extends UserWorkspaceProject {
         try {
             for (FileData fileData : localRepository.list(localFolderName)) {
                 if (!localRepository.delete(fileData)) {
-                    throw new ProjectException("Can't close project because some resources are used");
+                    if (localRepository.check(fileData.getName()) != null) {
+                        throw new ProjectException("Can't close project because resource '" + fileData.getName() + "' is used");
+                    }
                 }
             }
             // Delete properties folder. Workaround for broken empty projects that failed to delete properties folder last time
