@@ -1,18 +1,11 @@
 package org.openl.rules.datatype.gen;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.openl.types.IOpenField;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringUtils;
 
 public class ByteCodeGeneratorHelper {
-    
-    public static final String JAVA_LANG_OBJECT = "java/lang/Object";
 
 
     private ByteCodeGeneratorHelper() {}
