@@ -1,6 +1,5 @@
 package org.openl.rules.project.instantiation.variation;
 
-import net.sf.cglib.core.ReflectUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -10,6 +9,7 @@ import org.openl.rules.runtime.InterfaceGenerator;
 import org.openl.rules.runtime.RuleInfo;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.rules.variation.VariationsResult;
+import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +110,7 @@ public final class VariationInstantiationStrategyEnhancerHelper {
 
         // Create class object.
         //
-        ReflectUtils.defineClass(className, classWriter.toByteArray(), classLoader);
+        ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
 
         // Return loaded to classpath class object.
         //

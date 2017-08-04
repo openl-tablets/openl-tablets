@@ -13,8 +13,6 @@ import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 
-import net.sf.cglib.core.ReflectUtils;
-
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -24,6 +22,7 @@ import org.objectweb.asm.Type;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.publish.common.MethodUtil;
+import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
 /**
@@ -210,7 +209,7 @@ public class JAXWSInterfaceEnhancerHelper {
 
         ClassLoader classLoader = getClassLoader(service);
 
-        Class<?> enchancedClass = ReflectUtils.defineClass(enchancedClassName, cw.toByteArray(), classLoader);
+        Class<?> enchancedClass = ClassUtils.defineClass(enchancedClassName, cw.toByteArray(), classLoader);
         return enchancedClass;
     }
 

@@ -4,8 +4,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.regex.Pattern;
 
-import net.sf.cglib.core.ReflectUtils;
-
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -13,6 +11,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
 public class DynamicInterfaceAnnotationEnhancerHelper {
@@ -109,7 +108,7 @@ public class DynamicInterfaceAnnotationEnhancerHelper {
         InterfaceTransformer transformer = new InterfaceTransformer(originalClass, enchancedClassName);
         transformer.accept(dynamicInterfaceAnnotationEnhancerClassAdaptor);
         cw.visitEnd();
-        Class<?> enchancedClass = ReflectUtils.defineClass(enchancedClassName, cw.toByteArray(),
+        Class<?> enchancedClass = ClassUtils.defineClass(enchancedClassName, cw.toByteArray(),
                 classLoader);
         return enchancedClass;
     }

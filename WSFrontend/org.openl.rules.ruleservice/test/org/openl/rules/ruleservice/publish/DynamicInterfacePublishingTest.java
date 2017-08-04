@@ -9,11 +9,10 @@ import java.util.Set;
 
 import javax.jws.WebService;
 
-import net.sf.cglib.core.ReflectUtils;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.objectweb.asm.Type;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.ruleservice.core.OpenLService;
@@ -67,7 +66,7 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
         }
         int count = 0;
         for (Method method : service.getServiceClass().getMethods()) {
-            if (methodNames.contains(ReflectUtils.getSignature(method).toString())) {
+            if (methodNames.contains(method.getName() + Type.getMethodDescriptor(method))) {
                 count++;
             }
         }
@@ -99,7 +98,7 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
         }
         int count = 0;
         for (Method method : service.getServiceClass().getMethods()) {
-            if (methodNames.contains(ReflectUtils.getSignature(method).toString())) {
+            if (methodNames.contains(method.getName() + Type.getMethodDescriptor(method))) {
                 count++;
             }
         }
