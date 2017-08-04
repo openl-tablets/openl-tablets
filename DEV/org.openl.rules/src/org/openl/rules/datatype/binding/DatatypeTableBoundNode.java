@@ -23,7 +23,6 @@ import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.binding.RuleRowHelper;
-import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.DefaultFieldDescription;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.datatype.gen.RecursiveFieldDescription;
@@ -152,7 +151,10 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         IOpenClass superClass = dataType.getSuperClass();
         SimpleBeanByteCodeGenerator beanGenerator;
         if (superClass != null) {
-            Map<String, FieldDescription> parentFields = ByteCodeGeneratorHelper.convertFields(superClass.getFields());
+            LinkedHashMap<String, FieldDescription> parentFields = new LinkedHashMap<String, FieldDescription>();
+            for (Entry<String, IOpenField> field : superClass.getFields().entrySet()) {
+                parentFields.put(field.getKey(), new DefaultFieldDescription(field.getValue()));
+            }
             beanGenerator = new SimpleBeanByteCodeGenerator(beanName,
                 fields,
                 superClass.getInstanceClass(),

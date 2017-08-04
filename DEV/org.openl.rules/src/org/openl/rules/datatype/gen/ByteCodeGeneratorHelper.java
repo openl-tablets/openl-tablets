@@ -38,14 +38,6 @@ public class ByteCodeGeneratorHelper {
         return type.getOpcode(Opcodes.ILOAD);
     }
 
-    public static Map<String, FieldDescription> convertFields(Map<String, IOpenField> fieldsToConvert) {
-        LinkedHashMap<String, FieldDescription> fields = new LinkedHashMap<String, FieldDescription>();
-        for (Entry<String, IOpenField> field : fieldsToConvert.entrySet()) {
-            fields.put(field.getKey(), new DefaultFieldDescription(field.getValue()));
-        }
-        return fields;
-    }
-
     /**
      * Generate the Java type corresponding to the given canonical type name.
      * Support array types.<br>
