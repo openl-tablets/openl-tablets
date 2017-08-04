@@ -38,21 +38,6 @@ public class ByteCodeGeneratorHelper {
         return type.getOpcode(Opcodes.ILOAD);
     }
 
-    public static String getMethodSignatureForByteCode(Map<String, FieldDescription> params, Class<?> returnType){
-        StringBuilder signatureBuilder = new StringBuilder("(");
-        for (Map.Entry<String, FieldDescription> field : params.entrySet()) {
-            String javaType = ByteCodeGeneratorHelper.getJavaType(field.getValue());
-            signatureBuilder.append(javaType);
-        }
-        signatureBuilder.append(")");
-        if(returnType == null){
-            signatureBuilder.append("V");
-        }else{
-            signatureBuilder.append(Type.getDescriptor(returnType));
-        }
-        return signatureBuilder.toString();
-    }
-    
     public static Map<String, FieldDescription> convertFields(Map<String, IOpenField> fieldsToConvert) {
         LinkedHashMap<String, FieldDescription> fields = new LinkedHashMap<String, FieldDescription>();
         for (Entry<String, IOpenField> field : fieldsToConvert.entrySet()) {

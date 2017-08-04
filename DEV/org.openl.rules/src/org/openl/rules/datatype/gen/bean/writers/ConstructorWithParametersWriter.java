@@ -35,7 +35,7 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
         this.parentFields = new LinkedHashMap<String, FieldDescription>(parentFields);
         this.allFields = new LinkedHashMap<String, FieldDescription>(allFields);
     }
-    
+
     public void write(ClassWriter classWriter) {
         MethodVisitor methodVisitor;
 
@@ -53,14 +53,14 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
         int i = 1;
         if (parentConstructor == null) {
             methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>",
-                    ByteCodeGeneratorHelper.getMethodSignatureForByteCode(getBeanFields(), null), null, null);
+                    getMethodSignatureForByteCode(getBeanFields(), null), null, null);
             methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
             String parentName = getParentInternalName();
             methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, parentName, "<init>", "()V");
         }
         else {
             methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>",
-                    ByteCodeGeneratorHelper.getMethodSignatureForByteCode(allFields, null), null, null);
+                    getMethodSignatureForByteCode(allFields, null), null, null);
             methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);            
 
             // push to stack all parameters for parent constructor
@@ -76,7 +76,7 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
             }
 
             methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(getParentClass()),
-                    "<init>", ByteCodeGeneratorHelper.getMethodSignatureForByteCode(parentFields, null));
+                    "<init>", getMethodSignatureForByteCode(parentFields, null));
         }
 
         // Set all fields that is not presented in parent
@@ -100,5 +100,20 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
         }
         methodVisitor.visitInsn(Opcodes.RETURN);
         methodVisitor.visitMaxs(0,0);
+    }
+
+    private static String getMethodSignatureForByteCode(Map<String, FieldDescription> params, Class<?> returnType){
+        StringBuilder signatureBuilder = new StringBuilder("(");
+        for (Map.Entry<String, FieldDescription> field : params.entrySet()) {
+            String javaType = ByteCodeGeneratorHelper.getJavaType(field.getValue());
+            signatureBuilder.append(javaType);
+        }
+        signatureBuilder.append(")");
+        if(returnType == null){
+            signatureBuilder.append("V");
+        }else{
+            signatureBuilder.append(Type.getDescriptor(returnType));
+        }
+        return signatureBuilder.toString();
     }
 }
