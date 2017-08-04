@@ -81,7 +81,7 @@ public class ComponentBindingContext extends BindingContextDelegator {
     @Override
     public ILocalVar addVar(String namespace, String name, IOpenClass type)
             throws DuplicatedVarException {
-        return null;
+        throw new UnsupportedOperationException();
     }
     
     private synchronized Map<String, IOpenClass> initInternalTypes() {

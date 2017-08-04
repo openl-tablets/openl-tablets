@@ -96,7 +96,7 @@ public class RowParser implements IRowParser {
     }
 
     public List<AlgorithmTreeNode> parse() throws SyntaxNodeException {
-        List<AlgorithmTreeNode> nodes = prepareNodes();
+         List<AlgorithmTreeNode> nodes = prepareNodes();
 
         // TODO: refactor. Create AlgorithmNodeWithGuess decorator over the AlgorithmTreeNode
         // and work with this entity
