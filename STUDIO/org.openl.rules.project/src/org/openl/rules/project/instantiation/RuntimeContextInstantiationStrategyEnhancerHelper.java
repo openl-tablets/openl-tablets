@@ -1,6 +1,5 @@
 package org.openl.rules.project.instantiation;
 
-import net.sf.cglib.core.ReflectUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -9,6 +8,7 @@ import org.objectweb.asm.Opcodes;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.runtime.InterfaceGenerator;
 import org.openl.rules.runtime.RuleInfo;
+import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +79,7 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
 
         // Create class object.
         //
-        ReflectUtils.defineClass(className, classWriter.toByteArray(), classLoader);
+        ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
 
         // Return loaded to classpath class object.
         //

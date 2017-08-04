@@ -5,8 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import net.sf.cglib.core.ReflectUtils;
-
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -19,6 +17,7 @@ import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ADynamicClass.OpenConstructor;
 import org.openl.types.java.JavaOpenConstructor;
+import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -63,7 +62,7 @@ public class InterfaceGenerator {
 
         // Create class object.
         //
-        ReflectUtils.defineClass(className, classWriter.toByteArray(), classLoader);
+        ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
 
         // Return loaded to classpath class object.
         //

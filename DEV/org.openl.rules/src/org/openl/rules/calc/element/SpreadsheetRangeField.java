@@ -3,8 +3,6 @@ package org.openl.rules.calc.element;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import net.sf.cglib.core.ReflectUtils;
-
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -16,6 +14,7 @@ import org.openl.rules.calc.ASpreadsheetField;
 import org.openl.rules.calc.SpreadsheetResultCalculator;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public class SpreadsheetRangeField extends ASpreadsheetField {
@@ -129,7 +128,7 @@ public class SpreadsheetRangeField extends ASpreadsheetField {
         cw.visitEnd();
         // Create class object.
         //
-        ReflectUtils.defineClass(className, cw.toByteArray(), classLoader);
+        ClassUtils.defineClass(className, cw.toByteArray(), classLoader);
         // Return loaded to classpath class object.
         //
         return Class.forName(className, true, classLoader);

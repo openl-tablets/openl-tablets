@@ -1,5 +1,11 @@
 package org.openl.util;
 
+import java.lang.reflect.Method;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.security.PrivilegedExceptionAction;
+import java.security.ProtectionDomain;
+
 /**
  * A util to manipulate with Java classes.
  * 
@@ -7,15 +13,66 @@ package org.openl.util;
  */
 public class ClassUtils {
 
+    private static final Method DEFINE_CLASS;
+    private static final ProtectionDomain PROTECTION_DOMAIN;
+    private static final Throwable THROWABLE;
+
+    static {
+        ProtectionDomain pd;
+        Method dc;
+        Throwable th = null;
+        try {
+            pd = (ProtectionDomain) AccessController.doPrivileged(new PrivilegedAction() {
+                public Object run() {
+                    return ClassUtils.class.getProtectionDomain();
+                }
+            });
+
+            dc = (Method) AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
+                public Object run() throws Exception {
+                    Class loader = Class.forName("java.lang.ClassLoader");
+                    Method defineClass = loader.getDeclaredMethod("defineClass",
+                        new Class[] { String.class, byte[].class, int.class, int.class, ProtectionDomain.class });
+                    defineClass.setAccessible(true);
+                    return defineClass;
+                }
+            });
+
+        } catch (Throwable e) {
+            th = e;
+            dc = null;
+            pd = null;
+
+        }
+        DEFINE_CLASS = dc;
+        PROTECTION_DOMAIN = pd;
+        THROWABLE = th;
+    }
+
+    /**
+     * Loads bytecode and run static initializes.
+     */
+    public static Class<?> defineClass(String className, byte[] b, ClassLoader loader) throws Exception {
+        Class clazz;
+        if (DEFINE_CLASS != null) {
+            Object[] args = new Object[]{className, b, new Integer(0), new Integer(b.length), PROTECTION_DOMAIN};
+            clazz = (Class) DEFINE_CLASS.invoke(loader, args);
+        } else {
+            throw new IllegalStateException(THROWABLE);
+        }
+        Class.forName(className, true, loader); // Force static initializers to run.
+        return clazz;
+    }
+
     /**
      * <p>
-     * Converts the specified primitive Class object to its corresponding
-     * wrapper Class object.
+     * Converts the specified primitive Class object to its corresponding wrapper
+     * Class object.
      * </p>
      *
      * @param cls the class to convert, may be null
-     * @return the wrapper class for {@code cls} or {@code cls} if {@code cls}
-     *         is not a primitive. {@code null} if null input.
+     * @return the wrapper class for {@code cls} or {@code cls} if {@code cls} is
+     *         not a primitive. {@code null} if null input.
      */
     public static Class<?> primitiveToWrapper(final Class<?> cls) {
         if (cls == null) {
@@ -46,21 +103,20 @@ public class ClassUtils {
 
     /**
      * <p>
-     * Converts the specified wrapper class to its corresponding primitive
-     * class.
+     * Converts the specified wrapper class to its corresponding primitive class.
      * </p>
      *
      * <p>
      * This method is the counter part of {@code primitiveToWrapper()}. If the
-     * passed in class is a wrapper class for a primitive type, this primitive
-     * type will be returned (e.g. {@code Integer.TYPE} for
-     * {@code Integer.class}). For other classes, or if the parameter is
-     * <b>null</b>, the return value is <b>null</b>.
+     * passed in class is a wrapper class for a primitive type, this primitive type
+     * will be returned (e.g. {@code Integer.TYPE} for {@code Integer.class}). For
+     * other classes, or if the parameter is <b>null</b>, the return value is
+     * <b>null</b>.
      * </p>
      *
      * @param cls the class to convert, may be <b>null</b>
-     * @return the corresponding primitive type if {@code cls} is a wrapper
-     *         class, <b>null</b> otherwise
+     * @return the corresponding primitive type if {@code cls} is a wrapper class,
+     *         <b>null</b> otherwise
      */
     public static Class<?> wrapperToPrimitive(final Class<?> cls) {
         if (cls == Double.class) {
@@ -91,10 +147,9 @@ public class ClassUtils {
      * </p>
      *
      * <p>
-     * Consider using the Java 5 API {@link Class#getSimpleName()} instead. The
-     * one known difference is that this code will return {@code "Map.Entry"}
-     * while the {@code java.lang.Class} variant will simply return
-     * {@code "Entry"}.
+     * Consider using the Java 5 API {@link Class#getSimpleName()} instead. The one
+     * known difference is that this code will return {@code "Map.Entry"} while the
+     * {@code java.lang.Class} variant will simply return {@code "Entry"}.
      * </p>
      *
      * @param cls the class to get the short name for.
@@ -148,28 +203,26 @@ public class ClassUtils {
      *
      * <p>
      * Unlike the {@link Class#isAssignableFrom(java.lang.Class)} method, this
-     * method takes into account widenings of primitive classes and {@code null}
-     * s.
+     * method takes into account widenings of primitive classes and {@code null} s.
      * </p>
      *
      * <p>
-     * Primitive widenings allow an int to be assigned to a long, float or
-     * double. This method returns the correct result for these cases.
+     * Primitive widenings allow an int to be assigned to a long, float or double.
+     * This method returns the correct result for these cases.
      * </p>
      *
      * <p>
-     * {@code Null} may be assigned to any reference type. This method will
-     * return {@code true} if {@code null} is passed in and the toClass is
-     * non-primitive.
+     * {@code Null} may be assigned to any reference type. This method will return
+     * {@code true} if {@code null} is passed in and the toClass is non-primitive.
      * </p>
      *
      * <p>
-     * Specifically, this method tests whether the type represented by the
-     * specified {@code Class} parameter can be converted to the type
-     * represented by this {@code Class} object via an identity conversion
-     * widening primitive or widening reference conversion. See
-     * <em><a href="http://docs.oracle.com/javase/specs/">The Java Language Specification</a></em>
-     * , sections 5.1.1, 5.1.2 and 5.1.4 for details.
+     * Specifically, this method tests whether the type represented by the specified
+     * {@code Class} parameter can be converted to the type represented by this
+     * {@code Class} object via an identity conversion widening primitive or
+     * widening reference conversion. See
+     * <em><a href="http://docs.oracle.com/javase/specs/">The Java Language
+     * Specification</a></em> , sections 5.1.1, 5.1.2 and 5.1.4 for details.
      * </p>
      *
      * <p>
@@ -236,5 +289,4 @@ public class ClassUtils {
         }
         return toClass.isAssignableFrom(cls);
     }
-
 }
