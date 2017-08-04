@@ -61,6 +61,7 @@
 
             <h:panelGroup id="addGroupPrivilegeList" layout="block">
             <table id="privilegesTable" class="table" style="margin-top: 23px">
+                <thead>
                 <tr id="privilegesTableHeader">
                     <th class="required" style="min-width: 161px">Privilege</th>
                     <ui:repeat value="#{groupsBean.groups}" var="group">
@@ -70,6 +71,8 @@
                     </th>
                     </ui:repeat>
                 </tr>
+                </thead>
+                <tbody>
                 <ui:repeat value="#{groupsBean.defaultPrivileges}" var="privilege">
                 <tr class="#{privilege.name == 'VIEW_PROJECTS' ? 'selectedRow' : ''}">
                     <td>
@@ -89,6 +92,7 @@
                     </ui:repeat>
                 </tr>
                 </ui:repeat>
+                </tbody>
             </table>
 
             <script>
