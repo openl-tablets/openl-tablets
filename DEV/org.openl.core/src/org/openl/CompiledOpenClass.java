@@ -41,7 +41,7 @@ public class CompiledOpenClass {
     }
 
     @Deprecated
-    public SyntaxNodeException[] getBindingErrors() {
+    public SyntaxNodeException[] getBindingErrors() { 
         return bindingErrors;
     }
 
