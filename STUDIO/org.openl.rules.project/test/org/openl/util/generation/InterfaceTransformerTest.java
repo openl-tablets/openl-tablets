@@ -14,10 +14,9 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
-import net.sf.cglib.core.ReflectUtils;
-
 import org.junit.Test;
 import org.objectweb.asm.ClassWriter;
+import org.openl.util.ClassUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 
 public class InterfaceTransformerTest {
@@ -33,7 +32,7 @@ public class InterfaceTransformerTest {
             transformer.accept(classWriter);
             classWriter.visitEnd();
 
-            ReflectUtils.defineClass(className, classWriter.toByteArray(), classLoader);
+            ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
 
             return Class.forName(className, true, classLoader);
         }

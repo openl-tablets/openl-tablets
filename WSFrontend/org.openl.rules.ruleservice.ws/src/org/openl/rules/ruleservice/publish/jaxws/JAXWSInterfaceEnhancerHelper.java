@@ -22,6 +22,7 @@ import org.objectweb.asm.Type;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.publish.common.MethodUtil;
+import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
 import net.sf.cglib.core.ReflectUtils;
@@ -210,7 +211,7 @@ public class JAXWSInterfaceEnhancerHelper {
 
         ClassLoader classLoader = getClassLoader(service);
 
-        Class<?> enchancedClass = ReflectUtils.defineClass(enchancedClassName, cw.toByteArray(), classLoader);
+        Class<?> enchancedClass = ClassUtils.defineClass(enchancedClassName, cw.toByteArray(), classLoader);
         return enchancedClass;
     }
 

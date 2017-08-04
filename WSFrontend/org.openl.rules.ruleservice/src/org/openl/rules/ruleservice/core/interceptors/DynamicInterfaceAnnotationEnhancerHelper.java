@@ -12,9 +12,8 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
+import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
-
-import net.sf.cglib.core.ReflectUtils;
 
 public class DynamicInterfaceAnnotationEnhancerHelper {
 
@@ -138,7 +137,7 @@ public class DynamicInterfaceAnnotationEnhancerHelper {
         InterfaceTransformer transformer = new InterfaceTransformer(originalClass, enchancedClassName);
         transformer.accept(dynamicInterfaceAnnotationEnhancerClassVisitor);
         cw.visitEnd();
-        Class<?> enchancedClass = ReflectUtils.defineClass(enchancedClassName, cw.toByteArray(),
+        Class<?> enchancedClass = ClassUtils.defineClass(enchancedClassName, cw.toByteArray(),
                 classLoader);
         return enchancedClass;
     }

@@ -29,6 +29,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.databinding.JAXRSArgumentWrapperGenerator;
 import org.openl.rules.ruleservice.publish.common.MethodUtil;
+import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.generation.GenUtils;
 import org.openl.util.generation.InterfaceTransformer;
@@ -432,7 +433,7 @@ public class JAXRSInterfaceEnhancerHelper {
         transformer.accept(jaxrsAnnotationEnhancerClassVisitor);
         cw.visitEnd();
         ClassLoader classLoader = getClassLoader(service);
-        Class<?> enchancedClass = ReflectUtils.defineClass(enchancedClassName, cw.toByteArray(), classLoader);
+        Class<?> enchancedClass = ClassUtils.defineClass(enchancedClassName, cw.toByteArray(), classLoader);
         return enchancedClass;
     }
 

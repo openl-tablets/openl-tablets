@@ -786,7 +786,9 @@ public class RepositoryTreeController {
                             LocalRepository repository = new LocalRepository(file);
                             for (FileData fileData : repository.list(projectName)) {
                                 if (!repository.delete(fileData)) {
-                                    log.warn("Can't close project " + projectName + " because some resources are used");
+                                    if (repository.check(fileData.getName()) == null) {
+                                        log.warn("Can't close project because resource '" + fileData.getName() + "' is used");
+                                    }
                                 }
                             }
                             // Delete properties folder. Workaround for broken empty projects that failed to delete properties folder last time
@@ -1169,10 +1171,11 @@ public class RepositoryTreeController {
     }
 
     private void closeProjectAndReleaseResources(UserWorkspaceProject repositoryProject) throws ProjectException {
-        RulesProject studioProject = studio.getModel().getProject();
-        if (studioProject != null && repositoryProject.getFolderPath().equals(studioProject.getFolderPath())) {
-            studio.getModel().clearModuleInfo();
-        }
+        // We must release module info because it can hold jars.
+        // We can't rely on studio.getProject() to determine if closing project is compiled inside studio.getModel()
+        // because project could be changed or cleared before (See studio.reset() usages). Also that project can be
+        // a dependency of other. That's why we must always clear moduleInfo when closing a project.
+        studio.getModel().clearModuleInfo();
         repositoryProject.close();
     }
 

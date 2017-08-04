@@ -18,9 +18,8 @@ import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfte
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptors;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
 import org.openl.rules.variation.VariationsResult;
+import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
-
-import net.sf.cglib.core.ReflectUtils;
 
 public abstract class RuleServiceInstantiationFactoryHelper {
 
@@ -134,7 +133,7 @@ public abstract class RuleServiceInstantiationFactoryHelper {
             try {
                 // Create class object.
                 //
-                ReflectUtils.defineClass(className, classWriter.toByteArray(), instantiationStrategy.getClassLoader());
+                ClassUtils.defineClass(className, classWriter.toByteArray(), instantiationStrategy.getClassLoader());
 
                 // Return loaded to classpath class object.
                 //

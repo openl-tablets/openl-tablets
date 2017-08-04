@@ -38,29 +38,6 @@ public class ByteCodeGeneratorHelper {
         return type.getOpcode(Opcodes.ILOAD);
     }
 
-    public static String getMethodSignatureForByteCode(Map<String, FieldDescription> params, Class<?> returnType){
-        StringBuilder signatureBuilder = new StringBuilder("(");
-        for (Map.Entry<String, FieldDescription> field : params.entrySet()) {
-            String javaType = ByteCodeGeneratorHelper.getJavaType(field.getValue());
-            signatureBuilder.append(javaType);
-        }
-        signatureBuilder.append(")");
-        if(returnType == null){
-            signatureBuilder.append("V");
-        }else{
-            signatureBuilder.append(Type.getDescriptor(returnType));
-        }
-        return signatureBuilder.toString();
-    }
-    
-    public static Map<String, FieldDescription> convertFields(Map<String, IOpenField> fieldsToConvert) {
-        LinkedHashMap<String, FieldDescription> fields = new LinkedHashMap<String, FieldDescription>();
-        for (Entry<String, IOpenField> field : fieldsToConvert.entrySet()) {
-            fields.put(field.getKey(), new DefaultFieldDescription(field.getValue()));
-        }
-        return fields;
-    }
-
     /**
      * Generate the Java type corresponding to the given canonical type name.
      * Support array types.<br>
@@ -123,5 +100,13 @@ public class ByteCodeGeneratorHelper {
 
     public static String replaceDots(String canonicalTypeName) {
         return canonicalTypeName.replace('.', '/');
+    }
+
+    public static boolean isClassLoaderContainsClass(ClassLoader classLoader, String className) {
+        try {
+            return classLoader.loadClass(className) != null;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 }

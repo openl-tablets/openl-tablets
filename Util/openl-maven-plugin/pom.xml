@@ -33,6 +33,10 @@
             <artifactId>velocity</artifactId>
         </dependency>
         <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.helger</groupId>
             <artifactId>jcodemodel</artifactId>
         </dependency>
