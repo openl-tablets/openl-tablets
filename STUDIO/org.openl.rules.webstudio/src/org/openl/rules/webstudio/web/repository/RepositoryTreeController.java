@@ -786,7 +786,9 @@ public class RepositoryTreeController {
                             LocalRepository repository = new LocalRepository(file);
                             for (FileData fileData : repository.list(projectName)) {
                                 if (!repository.delete(fileData)) {
-                                    log.warn("Can't close project " + projectName + " because some resources are used");
+                                    if (repository.check(fileData.getName()) == null) {
+                                        log.warn("Can't close project because resource '" + fileData.getName() + "' is used");
+                                    }
                                 }
                             }
                             // Delete properties folder. Workaround for broken empty projects that failed to delete properties folder last time
