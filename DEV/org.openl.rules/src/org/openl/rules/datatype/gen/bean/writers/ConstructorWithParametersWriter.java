@@ -53,14 +53,14 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
         int i = 1;
         if (parentConstructor == null) {
             methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>",
-                    getMethodSignatureForByteCode(getBeanFields(), null), null, null);
+                    getMethodSignatureForByteCode(getBeanFields()), null, null);
             methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
             String parentName = getParentInternalName();
             methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, parentName, "<init>", "()V");
         }
         else {
             methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>",
-                    getMethodSignatureForByteCode(allFields, null), null, null);
+                    getMethodSignatureForByteCode(allFields), null, null);
             methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);            
 
             // push to stack all parameters for parent constructor
@@ -76,7 +76,7 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
             }
 
             methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(getParentClass()),
-                    "<init>", getMethodSignatureForByteCode(parentFields, null));
+                    "<init>", getMethodSignatureForByteCode(parentFields));
         }
 
         // Set all fields that is not presented in parent
@@ -102,18 +102,14 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
         methodVisitor.visitMaxs(0,0);
     }
 
-    private static String getMethodSignatureForByteCode(Map<String, FieldDescription> params, Class<?> returnType){
+    private static String getMethodSignatureForByteCode(Map<String, FieldDescription> params){
         StringBuilder signatureBuilder = new StringBuilder("(");
         for (Map.Entry<String, FieldDescription> field : params.entrySet()) {
             String javaType = ByteCodeGeneratorHelper.getJavaType(field.getValue());
             signatureBuilder.append(javaType);
         }
         signatureBuilder.append(")");
-        if(returnType == null){
-            signatureBuilder.append("V");
-        }else{
-            signatureBuilder.append(Type.getDescriptor(returnType));
-        }
+        signatureBuilder.append("V");
         return signatureBuilder.toString();
     }
 }
