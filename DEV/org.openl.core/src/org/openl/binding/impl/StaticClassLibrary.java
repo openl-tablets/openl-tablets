@@ -43,9 +43,10 @@ public class StaticClassLibrary implements IOpenLibrary {
     public IOpenMethod getMatchingMethod(String name, IOpenClass[] params) {
         return openClass.getMethod(name, params);
     }
-
+    
     public IOpenField getVar(String name, boolean strictMatch) {
-        return openClass.getField(name, strictMatch);
+        //This method must return null! See EPBDS-6799.
+        return null;
     }
 
     public void setOpenClass(IOpenClass c) {
