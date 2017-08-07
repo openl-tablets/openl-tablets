@@ -82,7 +82,7 @@
         });
 
         function showMaxCountInHistory() {
-            maxNumberHistory = $j("#systemSettingsForm\\:history-count");
+            var maxNumberHistory = $j("#systemSettingsForm\\:history-count");
             hideMaxCountInHistory();
             if (!$j("#systemSettingsForm\\:unlimitHistory").is(':checked')) {
                 $j("#systemSettingsForm\\:maxCountInHistory").show();
@@ -108,10 +108,10 @@
             }
         }
 
-        function showAvaliableProjectsInHistory(showHistory) {
+        function showAvailableProjectsInHistory(showHistory) {
             if (showHistory) {
                 $j("#avaliableProjectsInHistory").show();
-                $j("#systemSettingsForm\\:sbtClean").attr('disabled', 'disabled');
+                onProjectChecked();
             } else {
                 $j("#avaliableProjectsInHistory INPUT[type='checkbox']").attr('checked', false);
                 $j("#avaliableProjectsInHistory").hide();
@@ -122,16 +122,13 @@
             hideMaxCountInHistory();
         }
 
-        function changeAllProjectCheck(element) {
-            checkedCount = $j("#avaliableProjectsInHistory INPUT[type='checkbox']:checked").size();
-            allCount = $j("#avaliableProjectsInHistory INPUT[type='checkbox']").size() - 1;
+        function onProjectChecked() {
+            var checkedCount = $j("#avaliableProjectsInHistory INPUT[type='checkbox']:checked").not("#systemSettingsForm\\:selectAll").size();
+            var allCount = $j("#avaliableProjectsInHistory INPUT[type='checkbox']").not("#systemSettingsForm\\:selectAll").size();
 
-            if (checkedCount == allCount && !$j("#systemSettingsForm\\:selectAll").is(':checked')) {
-                $j("#systemSettingsForm\\:selectAll").attr('checked', true);
-            } else {
-                $j("#systemSettingsForm\\:selectAll").attr('checked', false);
-            }
-            if (element.checked) {
+            $j("#systemSettingsForm\\:selectAll").attr('checked', checkedCount === allCount);
+
+            if (checkedCount > 0) {
                 $j("#systemSettingsForm\\:sbtClean").removeAttr('disabled');
             } else {
                 $j("#systemSettingsForm\\:sbtClean").attr('disabled', 'disabled');
@@ -218,7 +215,7 @@
                                             disabled="#{jsffn:isSystemProp('project.history.unlimited')}" onclick="showMaxCountInHistory()"/>
                                     </h:panelGrid>
                                     <h:panelGrid rendered="#{!emptyHistoryDir}">
-                                        <a href="javascript:void(0)" id="cleanHistoryHref" title="Clean history" onclick="showAvaliableProjectsInHistory(true)">Clean history</a>
+                                        <a href="javascript:void(0)" id="cleanHistoryHref" title="Clean history" onclick="showAvailableProjectsInHistory(true)">Clean history</a>
                                     </h:panelGrid>
                                 </div>
                                 <div id="avaliableProjectsInHistory" class="history" style="display:none">
@@ -235,7 +232,7 @@
                                         <div class="historyChecks">
                                             <ui:repeat value="#{projectsInHistory.projects}" var="project">
                                                 <h:panelGrid columns="2">
-                                                    <h:selectBooleanCheckbox value="#{project.selected}" onclick="changeAllProjectCheck(this)"/>
+                                                    <h:selectBooleanCheckbox value="#{project.selected}" onclick="onProjectChecked()"/>
                                                     <h:outputText value="#{project.projectName}" />
                                                 </h:panelGrid>
                                             </ui:repeat>
@@ -243,8 +240,8 @@
                                         <div>
                                             <h:panelGrid columns="2">
                                                 <a4j:commandButton id="sbtClean" value="Clean" title="Clean projects history" action="#{projectsInHistory.deleteProjects}"
-                                                    render="commonProps" oncomplete="showAvaliableProjectsInHistory(false)"/>
-                                                <input type="button" value="Cancel" title="Cancel" onclick="showAvaliableProjectsInHistory(false)"/>
+                                                    render="commonProps" oncomplete="showAvailableProjectsInHistory(false)"/>
+                                                <input type="button" value="Cancel" title="Cancel" onclick="showAvailableProjectsInHistory(false)"/>
                                             </h:panelGrid>
                                         </div>
                                     </h:panelGroup>
