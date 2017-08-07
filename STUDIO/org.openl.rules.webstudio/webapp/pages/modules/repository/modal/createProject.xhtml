@@ -273,6 +273,8 @@
         }
 
         initTemplates();
+        $j("#createProjectFormFiles\\:projectName").val("");
+        $j("#uploadProjectForm\\:projectName").val("");
 
         $j("#projectTemplates").on("click", "td", function() {
             selectTemplate($j(this));
