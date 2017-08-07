@@ -103,7 +103,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
 
     }
 
-    public IOpenClass transformParameterType(IParameterDeclaration parameterDeclaration) {
+    public IOpenClass transformParameterType(IParameterDeclaration parameterDeclaration) { 
 
         Class<?> instanceClass = parameterDeclaration.getType().getInstanceClass();
         
@@ -116,7 +116,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         }
         
         if (instanceClass == boolean.class || instanceClass == Boolean.class) {
-            return JavaOpenClass.getOpenClass(IntBoolVar.class);
+            return JavaOpenClass.INT;
         }
         
         if (instanceClass.isEnum()) {
