@@ -270,6 +270,8 @@
 
             $j("#createProjectFormTempl\\:projectTemplate").val(selectedTemplate.find("input").val());
             $j("#createProjectFormTempl\\:projectName").val(selectedTemplate.find("span").text());
+
+            enableCreateButton($j("#createProjectFormTempl\\:projectName").val().length > 0, #{rich:element('sbtTemplates')});
         }
 
         initTemplates();
