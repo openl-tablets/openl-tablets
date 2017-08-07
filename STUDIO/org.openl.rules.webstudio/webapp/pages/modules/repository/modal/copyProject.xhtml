@@ -24,7 +24,7 @@
           <h:inputText id="newProjectName" size="35"
               maxlength="50"
               value="#{repositoryTreeController.newProjectName}"
-              onkeyup="#{rich:element('sbt')}.disabled = this.value.length === 0;" />
+              onkeyup="#{rich:element('sbt')}.disabled = this.value.trim().length === 0;" />
         </h:panelGrid>
   
         <h:inputHidden id="hiddenProjectName" value="#{repositoryTreeController.projectName}" />

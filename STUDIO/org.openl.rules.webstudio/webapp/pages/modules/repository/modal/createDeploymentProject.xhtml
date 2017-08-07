@@ -18,11 +18,11 @@
     <h:form id="newDProjectForm">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputLabel for="projectName" styleClass="required" value="Name" />
-        <h:inputText id="projectName" size="30" maxlength="50" value="#{repositoryTreeController.projectName}"/>
+        <h:inputText id="projectName" size="30" maxlength="50" value="#{repositoryTreeController.projectName}" onkeyup="$j('#newDProjectForm\\:create').prop('disabled', this.value.trim().length === 0)" />
       </h:panelGrid>
 
       <footer>
-        <h:commandButton value="Create" action="#{repositoryTreeController.createDeploymentConfiguration}" styleClass="button-primary" />
+        <h:commandButton id="create" value="Create" action="#{repositoryTreeController.createDeploymentConfiguration}" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="clearNewDProjectFormProjName(); #{rich:component('modalNewDProject')}.hide();" />
       </footer>
     </h:form>
@@ -36,7 +36,12 @@
     
     function clearNewDProjectFormProjName() {
         $j("#newDProjectForm\\:projectName").val("");
+        $j("#newDProjectForm\\:create").prop("disabled", true);
     }
+
+    $j(function () {
+        clearNewDProjectFormProjName();
+    });
   </script>
 
 </ui:composition>
