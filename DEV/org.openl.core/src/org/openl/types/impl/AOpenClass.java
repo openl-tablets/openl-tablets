@@ -421,7 +421,7 @@ public abstract class AOpenClass implements IOpenClass {
         if (m != null) {
             methods.putAll(m);
         }
-        if (m.isEmpty()) {
+        if (methods.isEmpty()) {
             return Collections.emptyList();
         }
         return Collections.unmodifiableCollection(methods.values());
