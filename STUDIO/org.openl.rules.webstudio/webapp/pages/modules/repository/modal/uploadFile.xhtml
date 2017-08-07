@@ -20,15 +20,16 @@
             <h:outputLabel for="file" styleClass="required" value="File" />
             <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}" maxFilesQuantity="1"
                              onfilesubmit="showLoader();" oncomplete="hideLoader();">
-                <a4j:ajax event="uploadcomplete" render="newFileForm:fileName" />
+                <a4j:ajax event="uploadcomplete" render="newFileForm:fileName" oncomplete="enableUploadButton($j('#newFileForm\\:fileName').val().trim().length > 0);" />
             </rich:fileUpload>
     
             <h:outputLabel for="fileName" styleClass="required" value="File name" />
-            <h:inputText id="fileName" size="40" maxlength="50" value="#{repositoryTreeController.fileName}" />
+            <h:inputText id="fileName" size="40" maxlength="50" value="#{repositoryTreeController.fileName}"
+                         onkeyup="enableUploadButton(this.value.trim().length > 0);"/>
         </h:panelGrid>
 
       <footer>
-        <h:commandButton value="Upload" action="#{repositoryTreeController.addFile}" styleClass="button-primary" />
+        <h:commandButton id="upload" value="Upload" action="#{repositoryTreeController.addFile}" styleClass="button-primary" />
         <input type="button" value="Cancel" onclick="RichFaces.$('modalNewFile').hide();" />
       </footer>
     </h:form>
@@ -38,5 +39,13 @@
     function openNewFileDialog() {
       RichFaces.$('modalNewFile').show();
     }
+
+    function enableUploadButton(enable) {
+        $j("#newFileForm\\:upload").prop("disabled", !enable);
+    }
+
+    $j(function () {
+        enableUploadButton($j('#newFileForm\\:fileName').val().trim().length > 0);
+    });
   </script>
 </ui:composition>
