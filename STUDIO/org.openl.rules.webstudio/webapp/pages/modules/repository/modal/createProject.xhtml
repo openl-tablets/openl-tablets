@@ -81,7 +81,7 @@
                             <td><h:inputText id="projectName"
                                     size="35" maxlength="70"
                                     value="#{repositoryTreeController.projectName}"
-                                    onkeyup="enableCreateButton(this.value.length > 0, #{rich:element('sbtTemplates')});" />
+                                    onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtTemplates')});" />
                             </td>
                         </tr>
                     </table>
@@ -109,7 +109,7 @@
                         <h:inputText id="projectName" size="35"
                             maxlength="70"
                             value="#{repositoryTreeController.projectName}"
-                            onkeyup="enableCreateButton(this.value.length > 0, #{rich:element('sbtFiles')});" />
+                            onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtFiles')});" />
                     </h:panelGrid>
 
                     <footer>
@@ -131,14 +131,14 @@
                             <a4j:ajax event="uploadcomplete"
                                 execute="@none"
                                 render="projectName"
-                                oncomplete="enableCreateButton(#{rich:element('uploadProjectForm:projectName')}.value.length > 0, #{rich:element('sbtZips')});" />
+                                oncomplete="enableCreateButton(#{rich:element('uploadProjectForm:projectName')}.value.trim().length > 0, #{rich:element('sbtZips')});" />
                         </rich:fileUpload>
 
                     <h:outputLabel for="projectName" styleClass="required" value="Project Name" />
                         <h:inputText id="projectName" size="35"
                             maxlength="70"
                             value="#{repositoryTreeController.projectName}"
-                            onkeyup="enableCreateButton(this.value.length > 0, #{rich:element('sbtZips')});" />
+                            onkeyup="enableCreateButton(this.value.trim().length > 0, #{rich:element('sbtZips')});" />
                     </h:panelGrid>
 
                 <footer>
@@ -270,9 +270,13 @@
 
             $j("#createProjectFormTempl\\:projectTemplate").val(selectedTemplate.find("input").val());
             $j("#createProjectFormTempl\\:projectName").val(selectedTemplate.find("span").text());
+
+            enableCreateButton($j("#createProjectFormTempl\\:projectName").val().trim().length > 0, #{rich:element('sbtTemplates')});
         }
 
         initTemplates();
+        $j("#createProjectFormFiles\\:projectName").val("");
+        $j("#uploadProjectForm\\:projectName").val("");
 
         $j("#projectTemplates").on("click", "td", function() {
             selectTemplate($j(this));

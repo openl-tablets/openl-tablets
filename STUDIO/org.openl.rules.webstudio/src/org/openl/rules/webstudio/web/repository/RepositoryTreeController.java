@@ -469,6 +469,11 @@ public class RepositoryTreeController {
 
     public String createDeploymentConfiguration() {
         try {
+            if (StringUtils.isBlank(projectName)) {
+                FacesUtils.addErrorMessage("Deploy Configuration name must not be empty.");
+                return null;
+            }
+
             if (userWorkspace.hasDDProject(projectName)) {
                 String msg = "Cannot create configuration because configuration with such name already exists.";
                 FacesUtils.addErrorMessage(msg, null);

@@ -2,7 +2,6 @@ package org.openl.rules.datatype.gen.bean.writers;
 
 import org.junit.Test;
 import org.objectweb.asm.ClassWriter;
-import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 
 import java.util.Collections;
@@ -14,13 +13,13 @@ public class DefaultBeanByteCodeWriterTest {
     @Test
     public void testNullParentClass() {
         DefaultBeanByteCodeWriter testedWriter = createStubInstance(null);
-        assertEquals(ByteCodeGeneratorHelper.JAVA_LANG_OBJECT, testedWriter.getParentInternalName());
+        assertEquals("java/lang/Object", testedWriter.getParentInternalName());
     }
 
     @Test
     public void testObjectParentClass() {
         DefaultBeanByteCodeWriter testedWriter = createStubInstance(Object.class);
-        assertEquals(ByteCodeGeneratorHelper.JAVA_LANG_OBJECT, testedWriter.getParentInternalName());
+        assertEquals("java/lang/Object", testedWriter.getParentInternalName());
     }
 
     @Test
