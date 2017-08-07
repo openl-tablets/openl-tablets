@@ -1,7 +1,6 @@
 <ui:composition
   xmlns:f="http://java.sun.com/jsf/core"
   xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:a4j="http://richfaces.org/a4j"
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
@@ -12,7 +11,7 @@
 
     <f:facet name="controls">
       <h:graphicImage value="/images/close.gif" class="close"
-      onclick="RichFaces.$('modalCopyProject').hide();" alt="Close" />
+      onclick="clearCopyProjectForm(); RichFaces.$('modalCopyProject').hide();" alt="Close" />
     </f:facet>
 
     <h:form id="copyProjectForm">
@@ -25,7 +24,7 @@
           <h:inputText id="newProjectName" size="35"
               maxlength="50"
               value="#{repositoryTreeController.newProjectName}"
-              onkeyup="#{rich:element('sbt')}.disabled = this.value.length == 0;" />
+              onkeyup="#{rich:element('sbt')}.disabled = this.value.length === 0;" />
         </h:panelGrid>
   
         <h:inputHidden id="hiddenProjectName" value="#{repositoryTreeController.projectName}" />
@@ -33,13 +32,13 @@
 
       <footer>
         <h:commandButton id="sbt" value="Copy" action="#{repositoryTreeController.copyProject}" styleClass="button-primary" />
-        <input type="button" value="Cancel" onclick="#{rich:component('modalCopyProject')}.hide();" />
+        <input type="button" value="Cancel" onclick="clearCopyProjectForm(); RichFaces.$('modalCopyProject').hide();" />
       </footer>
     </h:form>
   </rich:popupPanel>
 
   <script>
-    #{rich:element('sbt')}.disabled = true;
+      $j("#copyProjectForm\\:sbt").prop("disabled", true);
 
     function openCopyProjectDialog(projectName) {
       if (projectName) {
@@ -49,6 +48,11 @@
       RichFaces.$('modalCopyProject').show();
       focusElement('copyProjectForm:newProjectName');
       document.getElementById('copyProjectForm:hiddenProjectName').value = document.getElementById('projectName1').value;
+    }
+
+    function clearCopyProjectForm() {
+        $j("#copyProjectForm\\:newProjectName").val("");
+        $j("#copyProjectForm\\:sbt").prop("disabled", true);
     }
   </script>
 </ui:composition>
