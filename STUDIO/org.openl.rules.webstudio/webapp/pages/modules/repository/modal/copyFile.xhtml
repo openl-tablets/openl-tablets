@@ -75,7 +75,7 @@
             </h:panelGroup>
 
             <footer>
-                <h:commandButton value="Copy" action="#{repositoryTreeController.copyFileVersion}"
+                <h:commandButton id="copy" value="Copy" action="#{repositoryTreeController.copyFileVersion}"
                                  onclick="RichFaces.$('modalCopyFile').hide();" styleClass="button-primary"/>
                 <input type="button" value="Cancel" onclick="RichFaces.$('modalCopyFile').hide();"/>
             </footer>
@@ -86,15 +86,17 @@
     <script>
         //<![CDATA[
         function openCopyFileDialog() {
+            var newFilePathChangeListener = function() {
+                var folder = $j('#copyFileForm\\:newFileFolder').val().trim();
+                var fileName = $j('#copyFileForm\\:newFileName').val().trim();
+                $j('#copyFileForm\\:filePath').val(folder + '/' + fileName);
+                $j('#copyFileForm\\:copy').prop('disabled', fileName.length === 0);
+            };
+
             var path = $j('#copyFileForm\\:filePath').val();
             $j('#copyFileForm\\:newFileFolder').val(getFolder(path));
             $j('#copyFileForm\\:newFileName').val(getFileName(path) + '.' + getExtension(path));
-
-            var newFilePathChangeListener = function() {
-                var folder = $j('#copyFileForm\\:newFileFolder').val();
-                var fileName = $j('#copyFileForm\\:newFileName').val();
-                $j('#copyFileForm\\:filePath').val(folder + '/' + fileName);
-            };
+            newFilePathChangeListener();
 
             $j('#copyFileForm\\:newFileFolder').off().on('keyup change', newFilePathChangeListener);
             $j('#copyFileForm\\:newFileName').off().on('keyup change', newFilePathChangeListener);
