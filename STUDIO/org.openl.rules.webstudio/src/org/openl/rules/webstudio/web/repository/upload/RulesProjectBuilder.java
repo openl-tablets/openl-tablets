@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
-import java.io.File;
 import java.io.InputStream;
 
 import org.openl.rules.common.ProjectException;

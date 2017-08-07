@@ -1,5 +1,18 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Enumeration;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
+
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.webstudio.util.NameChecker;
@@ -13,13 +26,6 @@ import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
-
 public class ZipFileProjectCreator extends AProjectCreator {
     private final Logger log = LoggerFactory.getLogger(ZipFileProjectCreator.class);
     private ZipFile zipFile;
@@ -30,19 +36,17 @@ public class ZipFileProjectCreator extends AProjectCreator {
                                  InputStream uploadedFileStream,
                                  String projectName,
                                  UserWorkspace userWorkspace,
-                                 PathFilter zipFilter) throws IOException {
+                                 PathFilter zipFilter) throws IOException{
         super(projectName, userWorkspace);
 
         uploadedFile = FileTool.toTempFile(uploadedFileStream, uploadedFileName);
+        
+        if (isEmptyZip(uploadedFile)) {
+            throw new IOException("Can`t create project from the given file. Zip file is empty!");
+        }
 
         try {
             this.zipFile = new ZipFile(uploadedFile);
-        } catch (ZipException e) {
-            // Sometimes ZipException is thrown for empty but legal zips. Workaround for that case.
-            if (!isEmptyZip(uploadedFile)) {
-                destroy();
-                throw e;
-            }
         } catch (IOException e) {
             destroy();
             throw e;

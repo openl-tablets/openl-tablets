@@ -37,7 +37,7 @@ public class ProjectUploader {
         String errorMessage = null;
         AProjectCreator projectCreator = null;
         if (uploadedFiles.isEmpty()) {
-            errorMessage = "Can`t create project from given file.";
+            errorMessage = "Can`t create project from the given file.";
         } else try {
             // Get the last file
             ProjectFile file = uploadedFiles.get(uploadedFiles.size() - 1);
