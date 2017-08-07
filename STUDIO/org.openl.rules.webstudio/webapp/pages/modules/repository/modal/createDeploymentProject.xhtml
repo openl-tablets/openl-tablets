@@ -12,7 +12,7 @@
 
     <f:facet name="controls">
       <h:graphicImage value="/images/close.gif" class="close"
-        onclick="#{rich:component('modalNewDProject')}.hide();" alt="Close" />
+        onclick="clearNewDProjectFormProjName(); #{rich:component('modalNewDProject')}.hide();" alt="Close" />
     </f:facet>
 
     <h:form id="newDProjectForm">
