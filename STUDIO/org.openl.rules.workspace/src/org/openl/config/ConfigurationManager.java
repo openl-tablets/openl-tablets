@@ -99,11 +99,16 @@ public class ConfigurationManager {
                     if (file.exists()) {
                         configuration.load();
                     }
-                } else if (new File(configLocation).exists()) {
-                    configuration = new PropertiesConfiguration();
-                    configuration.setDelimiterParsingDisabled(true);
-                    configuration.setFileName(configLocation);
-                    configuration.load();
+                } else {
+                    try {
+                        configuration = new PropertiesConfiguration();
+                        configuration.setDelimiterParsingDisabled(true);
+                        configuration.setFileName(configLocation);
+                        configuration.load();
+                    } catch (ConfigurationException ignored) {
+                        // Configuration isn't found. Skip it
+                        return null;
+                    }
                 }
             } catch (Exception e) {
                 log.error("Error when initializing configuration: {}", configLocation, e);
