@@ -152,7 +152,7 @@ public class RepositoryService {
             @Multipart(value = "comment", required = false) String comment) throws WorkspaceException {
         try {
             UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(getUser());
-            if (userWorkspace.hasDDProject(name)) {
+            if (userWorkspace.hasProject(name)) {
                 RulesProject project = userWorkspace.getProject(name);
                 if (project.isLocked() && !project.isLockedByUser(getUser())) {
                     String lockedBy = project.getLockInfo().getLockedBy().getUserName();
