@@ -96,12 +96,9 @@ public class FileRepositoryTest {
     private void assertSave(Repository repo, String name, String text) throws IOException {
         FileData data = new FileData();
         data.setName(name);
-        long startTime = System.currentTimeMillis();
         FileData result = repo.save(data, IOUtils.toInputStream(text));
         assertEquals("Wrong file length", text.length(), result.getSize());
-        long modified = result.getModifiedAt().getTime();
-        assertTrue("Unexpected time of modification (early).", modified >= startTime);
-        assertTrue("Unexpected time of modification (late).", modified <= System.currentTimeMillis());
+        assertRead(repo, name, text);
         assertEquals("Wrong file name", name, result.getName());
     }
 }
