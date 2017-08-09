@@ -2,13 +2,18 @@ package org.openl.rules.datatype.gen.bean.writers;
 
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -22,8 +27,7 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
 
     private static final Method STR_CONSTR = Method.getMethod("void <init> (java.lang.String)");
     private static final Method DEF_CONSTR = Method.getMethod("void <init> ()");
-    private static Type COLLECTIONS = Type.getType(Collections.class);
-    private static Map<String, Method> emptyCollections = new HashMap<String, Method>(4);
+    private static Map<String, Class<?>> defaultInterfaceCollections = new HashMap<String, Class<?>>(4);
     private static Map<String, Class<?>> boxed = new HashMap<String, Class<?>>(8);
     static {
         boxed.put(Byte.class.getName(), byte.class);
@@ -35,10 +39,12 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
         boxed.put(Float.class.getName(), float.class);
         boxed.put(Double.class.getName(), double.class);
 
-        emptyCollections.put(Collection.class.getName(), Method.getMethod("java.util.List emptyList ()"));
-        emptyCollections.put(List.class.getName(), Method.getMethod("java.util.List emptyList ()"));
-        emptyCollections.put(Set.class.getName(), Method.getMethod("java.util.Set emptySet ()"));
-        emptyCollections.put(Map.class.getName(), Method.getMethod("java.util.Map emptyMap ()"));
+        defaultInterfaceCollections.put(Collection.class.getName(), ArrayList.class);
+        defaultInterfaceCollections.put(List.class.getName(), ArrayList.class);
+        defaultInterfaceCollections.put(Set.class.getName(), HashSet.class);
+        defaultInterfaceCollections.put(SortedSet.class.getName(), TreeSet.class);
+        defaultInterfaceCollections.put(Map.class.getName(), HashMap.class);
+        defaultInterfaceCollections.put(SortedMap.class.getName(), TreeMap.class);
     }
 
     /**
@@ -121,10 +127,13 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
     private static void pushObject(GeneratorAdapter mg, Type type, Object value) {
         String className = type.getClassName();
         if (DefaultValue.DEFAULT.equals(value)) {
-            if (emptyCollections.containsKey(className)) {
-                // Collections.emptyList()
-                Method method = emptyCollections.get(className);
-                mg.invokeStatic(COLLECTIONS, method);
+            if (defaultInterfaceCollections.containsKey(className)) {
+                // Collection, Map, SortedMap, List, Set 
+                Class<?> defaultImpl = defaultInterfaceCollections.get(className);
+                Type defaultImplType = Type.getType(defaultImpl);
+                mg.newInstance(defaultImplType);
+                mg.dup();
+                mg.invokeConstructor(defaultImplType, DEF_CONSTR);
             } else {
                 // new SomeType()
                 mg.newInstance(type);
