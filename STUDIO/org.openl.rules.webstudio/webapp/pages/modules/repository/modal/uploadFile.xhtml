@@ -12,7 +12,7 @@
 
     <f:facet name="controls">
       <h:graphicImage value="/images/close.gif" class="close"
-        onclick="RichFaces.$('modalNewFile').hide();" alt="Close" />
+        onclick="clearNewFileForm(); RichFaces.$('modalNewFile').hide();" alt="Close" />
     </f:facet>
     
     <h:form id="newFileForm" >
@@ -20,32 +20,40 @@
             <h:outputLabel for="file" styleClass="required" value="File" />
             <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}" maxFilesQuantity="1"
                              onfilesubmit="showLoader();" oncomplete="hideLoader();">
-                <a4j:ajax event="uploadcomplete" render="newFileForm:fileName" oncomplete="enableUploadButton($j('#newFileForm\\:fileName').val().trim().length > 0);" />
+                <a4j:ajax event="uploadcomplete" render="newFileForm:fileName" oncomplete="onNewFileNameChange();" />
             </rich:fileUpload>
     
             <h:outputLabel for="fileName" styleClass="required" value="File name" />
-            <h:inputText id="fileName" size="40" maxlength="50" value="#{repositoryTreeController.fileName}"
-                         onkeyup="enableUploadButton(this.value.trim().length > 0);"/>
+            <h:inputText id="fileName" size="40" maxlength="50" value="#{repositoryTreeController.fileName}"/>
         </h:panelGrid>
 
       <footer>
         <h:commandButton id="upload" value="Upload" action="#{repositoryTreeController.addFile}" styleClass="button-primary" />
-        <input type="button" value="Cancel" onclick="RichFaces.$('modalNewFile').hide();" />
+        <input type="button" value="Cancel" onclick="clearNewFileForm(); RichFaces.$('modalNewFile').hide();" />
       </footer>
     </h:form>
   </rich:popupPanel>
 
   <script>
     function openNewFileDialog() {
-      RichFaces.$('modalNewFile').show();
+        onNewFileNameChange();
+        RichFaces.$('modalNewFile').show();
     }
 
     function enableUploadButton(enable) {
         $j("#newFileForm\\:upload").prop("disabled", !enable);
     }
 
+    function onNewFileNameChange() {
+        enableUploadButton($j("#newFileForm\\:fileName").val().trim().length > 0);
+    }
+
+    function clearNewFileForm() {
+        $j("#newFileForm\\:fileName").val("");
+    }
+
     $j(function () {
-        enableUploadButton($j('#newFileForm\\:fileName').val().trim().length > 0);
+        $j("#newFileForm\\:fileName").off().on("keyup change", onNewFileNameChange);
     });
   </script>
 </ui:composition>

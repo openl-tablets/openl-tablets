@@ -1,7 +1,6 @@
 <ui:composition
   xmlns:f="http://java.sun.com/jsf/core"
   xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:a4j="http://richfaces.org/a4j"
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
@@ -11,33 +10,43 @@
     </f:facet>
 
     <f:facet name="controls">
-      <h:graphicImage value="/images/close.gif" class="close" onclick="RichFaces.$('modalNewFolder').hide();" alt="Close" />
+      <h:graphicImage value="/images/close.gif" class="close" onclick="clearNewFolderForm(); RichFaces.$('modalNewFolder').hide();" alt="Close" />
     </f:facet>
 
     <h:form id="newFolderForm">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputLabel for="folderName" styleClass="required" value="Folder Name" />
-        <h:inputText id="folderName" size="40" maxlength="50" value="#{repositoryTreeController.folderName}" 
-            onkeyup="enableAddButton(this.value.trim().length > 0);" />
+        <h:inputText id="folderName" size="40" maxlength="50" value="#{repositoryTreeController.folderName}"/>
       </h:panelGrid>
 
       <footer>
         <h:commandButton value="Add" id="addButton" action="#{repositoryTreeController.addFolder}" styleClass="button-primary" />
-        <input type="button" value="Cancel" onclick="#{rich:component('modalNewFolder')}.hide();" />
+        <input type="button" value="Cancel" onclick="clearNewFolderForm(); RichFaces.$('modalNewFolder').hide();" />
       </footer>
     </h:form>
   </rich:popupPanel>
 
   <script>
     function openNewFolderDialog() {
-      RichFaces.$('modalNewFolder').show();
-      focusElement("newFolderForm:folderName");
+        onNewFolderNameChange();
+        RichFaces.$('modalNewFolder').show();
+        focusElement("newFolderForm:folderName");
     }
 
     function enableAddButton(enable) {
-        #{rich:element('addButton')}.disabled = !enable;
+        $j("#newFolderForm\\:addButton").prop("disabled", !enable);
     }
 
-    enableAddButton(false);
+    function clearNewFolderForm() {
+        $j("#newFolderForm\\:folderName").val("");
+    }
+
+    function onNewFolderNameChange() {
+        enableAddButton($j("#newFolderForm\\:folderName").val().trim().length > 0);
+    }
+
+    $j(function () {
+        $j("#newFolderForm\\:folderName").off().on("keyup change", onNewFolderNameChange);
+    });
   </script>
 </ui:composition>
