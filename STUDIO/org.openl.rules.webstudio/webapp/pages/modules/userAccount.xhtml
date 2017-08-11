@@ -30,7 +30,7 @@
                                     <h:inputHidden id="usernameHidden" value="#{userProfileBean.user.username}" />
                                     </h:panelGroup>
                                     <h:panelGroup rendered="#{systemConfig['user.mode'] != 'multi'}">
-                                    <span style="font-weight: bold"><authz:authentication operation="username" /></span>
+                                    <span style="font-weight: bold" class="username"><authz:authentication operation="username" /></span>
                                     </h:panelGroup>
                                 </h:panelGrid>
                             </div>
@@ -59,13 +59,18 @@
                         <section>
                             <h3>Name</h3>
                             <div>
-                                <h:panelGrid columns="2" columnClasses="titleColumn">
-                                    <label>First Name</label>
-                                    <h:outputText style="font-weight: bold" value="#{userProfileBean.firstName}"/>
-
-                                    <label>Last Name</label>
-                                    <h:outputText style="font-weight: bold" value="#{userProfileBean.lastName}"/>
-                                </h:panelGrid>
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <td class="titleColumn"><label>First Name</label></td>
+                                            <td><span style="font-weight: bold" class="firstname">#{userProfileBean.firstName}</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="titleColumn"><label>Last Name</label></td>
+                                            <td><span style="font-weight: bold" class="lastname">#{userProfileBean.lastName}</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </section>
                         </h:panelGroup>
