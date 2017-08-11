@@ -1,15 +1,16 @@
 package org.openl.rules.maven.gen;
 
-public class DefaultEmptyArrayConstructorInitWriter implements TypeInitializationWriter {
+public class DefaultArrayInitializationWriter implements TypeInitializationWriter {
+    
     @Override
     public String getInitialization(Object value) {
         if (value == null) {
-            throw new IllegalArgumentException("Value cannot be null");
+            throw new IllegalArgumentException("Value can't be null");
         }
         
         Class<?> type = value.getClass();
         if (!type.isArray()){
-            throw new IllegalStateException("Requred array type of class!");
+            throw new IllegalStateException("Array type is expected!");
         }
         
         StringBuilder sb = new StringBuilder("new %s");
@@ -18,6 +19,6 @@ public class DefaultEmptyArrayConstructorInitWriter implements TypeInitializatio
             sb.append("[0]");
         }
         
-        return String.format(sb.toString(), type.getCanonicalName());
+        return String.format(sb.toString(), type.getSimpleName());
     }
 }

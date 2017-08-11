@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,8 +18,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.openl.util.ClassUtils;
 import org.openl.rules.datatype.gen.bean.writers.DefaultValue;
+import org.openl.util.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,24 +30,24 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
     private Map<String, Class<?>> datatypeDeclaredFields;
     private Map<String, Class<?>> datatypeAllFields;
 
-    private static Map<Class<?>, TypeInitializationWriter> initializationWriters;
+    public static final Map<Class<?>, TypeInitializationWriter> INITIALIZATION_WRITERS;
 
     static {
-        initializationWriters = new HashMap<Class<?>, TypeInitializationWriter>();
+        Map<Class<?>, TypeInitializationWriter> initializationWriters = new HashMap<Class<?>, TypeInitializationWriter>();
 
         initializationWriters.put(byte.class, new CommonInitializationWriter());
         initializationWriters.put(short.class, new CommonInitializationWriter());
         initializationWriters.put(int.class, new CommonInitializationWriter());
-        initializationWriters.put(long.class, new CommonInitializationWriter());
-        initializationWriters.put(float.class, new CommonInitializationWriter());
+        initializationWriters.put(long.class, new LongInitializationWriter());
+        initializationWriters.put(float.class, new FloatInitializationWriter());
         initializationWriters.put(double.class, new CommonInitializationWriter());
         initializationWriters.put(boolean.class, new CommonInitializationWriter());
 
         initializationWriters.put(Byte.class, new CommonInitializationWriter());
         initializationWriters.put(Short.class, new CommonInitializationWriter());
         initializationWriters.put(Integer.class, new CommonInitializationWriter());
-        initializationWriters.put(Long.class, new CommonInitializationWriter());
-        initializationWriters.put(Float.class, new CommonInitializationWriter());
+        initializationWriters.put(Long.class, new LongInitializationWriter());
+        initializationWriters.put(Float.class, new FloatInitializationWriter());
         initializationWriters.put(Double.class, new CommonInitializationWriter());
         initializationWriters.put(Boolean.class, new CommonInitializationWriter());
         initializationWriters.put(Date.class, new DateInitializationWriter());
@@ -54,15 +55,20 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         initializationWriters.put(Number.class, new NumberInitializationWriter());
 
         initializationWriters.put(String.class, new StringInitializationWriter());
+        initializationWriters.put(Enum.class, new EnumInitializationWriter());
         initializationWriters.put(char.class, new CharInitializationWriter());
         initializationWriters.put(Character.class, new CharInitializationWriter());
-        initializationWriters.put(MarkerClass.class, new DefaultConstructorInitWriter());
-        initializationWriters.put(EmptyArrayMarkerClass.class, new DefaultEmptyArrayConstructorInitWriter());
+        initializationWriters.put(DefaultInitializationMarkerClass.class, new DefaultInitializationWriter());
+        initializationWriters.put(DefaultInitializationArrayMarkerClass.class, new DefaultArrayInitializationWriter());
+        initializationWriters.put(ArrayInitializationMarkerClass.class, new ArrayInitializationWriter());
+
+        INITIALIZATION_WRITERS = Collections.unmodifiableMap(initializationWriters);
     }
 
     public SimpleBeanJavaGenerator(Class<?> datatypeClass) {
         super(datatypeClass);
-        this.datatypeDeclaredFields = new LinkedHashMap<String, Class<?>>(getFieldsDescription(datatypeClass.getDeclaredFields()));
+        this.datatypeDeclaredFields = new LinkedHashMap<String, Class<?>>(
+            getFieldsDescription(datatypeClass.getDeclaredFields()));
         this.datatypeAllFields = new LinkedHashMap<String, Class<?>>(getFieldsDescription(getAllFields(datatypeClass)));
     }
 
@@ -76,7 +82,7 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
             }
             currentClass = currentClass.getSuperclass();
         }
-        return allFields.toArray(new Field[]{});
+        return allFields.toArray(new Field[] {});
     }
 
     private Map<String, Class<?>> getFieldsDescription(Field[] fields) {
@@ -88,11 +94,11 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         }
         return fieldsDescriprtion;
     }
-    
+
     private void addJAXBAnnotations(StringBuilder buf) {
-        addImport(buf, filterTypeNameForImport(XmlRootElement.class));
-        addImport(buf, filterTypeNameForImport(XmlElement.class));
-        addImport(buf, filterTypeNameForImport(XmlType.class));
+        addImport(buf, filterTypeNameToImport(XmlRootElement.class));
+        addImport(buf, filterTypeNameToImport(XmlElement.class));
+        addImport(buf, filterTypeNameToImport(XmlType.class));
 
         String packageName = ClassUtils.getPackageName(getClassForGeneration());
 
@@ -118,11 +124,12 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         addPackage(buf);
 
         addImports(buf);
-        
+
         addJAXBAnnotations(buf);
 
-        addClassDeclaration(buf, ClassUtils.getShortClassName(getClassForGeneration()),
-                ClassUtils.getShortClassName(getClassForGeneration().getSuperclass()));
+        addClassDeclaration(buf,
+            ClassUtils.getShortClassName(getClassForGeneration()),
+            ClassUtils.getShortClassName(getClassForGeneration().getSuperclass()));
 
         addFieldsDeclaration(buf);
 
@@ -143,17 +150,17 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
                 return o1.getName().compareToIgnoreCase(o2.getName());
             }
         });
-        
+
         for (Method method : methods) {
             if (method.getName().startsWith(JavaGenerator.GET)) {
                 String fieldName = getFieldName(method.getName(), datatypeAllFields.keySet());
-               
+
                 String defaultFieldValue = null;
                 Field field = null;
                 try {
                     field = getClassForGeneration().getDeclaredField(fieldName);
                     DefaultValue defaultValueAnnotation = field.getAnnotation(DefaultValue.class);
-                    if (defaultValueAnnotation != null){
+                    if (defaultValueAnnotation != null) {
                         defaultFieldValue = defaultValueAnnotation.value();
                     }
                 } catch (Exception e) {
@@ -179,12 +186,12 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
                 addSetter(buf, method, datatypeAllFields.keySet());
             } else if (method.getName().equals(JavaGenerator.EQUALS)) {
                 buf.append(JavaClassGeneratorHelper.getEqualsMethod(getClassForGeneration().getSimpleName(),
-                        datatypeAllFields.keySet()));
+                    datatypeAllFields.keySet()));
             } else if (method.getName().startsWith(JavaGenerator.HASH_CODE)) {
                 buf.append(JavaClassGeneratorHelper.getHashCodeMethod(datatypeAllFields.keySet()));
             } else if (method.getName().equals(JavaGenerator.TO_STRING)) {
                 buf.append(JavaClassGeneratorHelper.getToStringMethod(getClassForGeneration().getSimpleName(),
-                        datatypeAllFields));
+                    datatypeAllFields));
             }
         }
     }
@@ -204,7 +211,8 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
 
             /** Gets the parent constructor with fields */
             Constructor<?> superConstructorWithFields = JavaClassGeneratorHelper.getConstructorByFieldsCount(
-                    getClassForGeneration().getSuperclass(), numberOfParamsForSuperConstructor);
+                getClassForGeneration().getSuperclass(),
+                numberOfParamsForSuperConstructor);
             if (superConstructorWithFields != null) {
                 int i = 0;
                 for (Entry<String, Class<?>> field : datatypeAllFields.entrySet()) {
@@ -228,7 +236,8 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         /** Put all the fields declared in current datatype */
         fieldsForConstructor.putAll(datatypeDeclaredFields);
         buf.append(JavaClassGeneratorHelper.getConstructorWithFields(getClassForGeneration().getSimpleName(),
-                fieldsForConstructor, numberOfParamsForSuperConstructor));
+            fieldsForConstructor,
+            numberOfParamsForSuperConstructor));
     }
 
     private void addFieldsDeclaration(StringBuilder buf) {
@@ -264,34 +273,49 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
                 } else {
                     // write value initialization to bean class
                     String valueInitialzation = writer.getInitialization(fieldValue);
-                    buf.append(JavaClassGeneratorHelper.getProtectedFieldInitialzation(
-                            JavaClassGeneratorHelper.filterTypeName(fieldType), field.getName(), valueInitialzation));
+                    buf.append(JavaClassGeneratorHelper.getProtectedFieldInitialzation(JavaClassGeneratorHelper
+                        .filterTypeSimpleName(fieldType), field.getName(), valueInitialzation));
                 }
             } else {
                 // write field declaration
                 buf.append(JavaClassGeneratorHelper.getProtectedFieldDeclaration(
-                        JavaClassGeneratorHelper.filterTypeName(fieldType), field.getName()));
+                    JavaClassGeneratorHelper.filterTypeSimpleName(fieldType),
+                    field.getName()));
             }
         }
     }
 
+    public static TypeInitializationWriter geTypeInitializationWriter(Class<?> type) {
+        TypeInitializationWriter writer = SimpleBeanJavaGenerator.INITIALIZATION_WRITERS.get(type);
+        if (writer == null && Number.class.isAssignableFrom(type)) {
+            writer = INITIALIZATION_WRITERS.get(Number.class);
+        }
+        if (type.isEnum()) {
+            writer = INITIALIZATION_WRITERS.get(Enum.class);
+        }
+        return writer;
+    }
+
     private TypeInitializationWriter getFieldValueWriter(Field field) {
         Class<?> fieldValueClass = field.getType();
-        TypeInitializationWriter writer = initializationWriters.get(fieldValueClass);
+        TypeInitializationWriter writer = geTypeInitializationWriter(fieldValueClass);
         if (writer == null) {
-            if (ClassUtils.isAssignable(fieldValueClass, Number.class)) {
-                writer = initializationWriters.get(Number.class);
-            }
             DefaultValue defaultValueAnnotation = field.getAnnotation(DefaultValue.class);
             String defaultFieldValue = null;
-            if (defaultValueAnnotation != null){
+            if (defaultValueAnnotation != null) {
                 defaultFieldValue = defaultValueAnnotation.value();
             }
             if (DefaultValue.DEFAULT.equals(defaultFieldValue)) {
-                if (fieldValueClass.isArray()){
-                    writer = initializationWriters.get(EmptyArrayMarkerClass.class);
-                }else{
-                    writer = initializationWriters.get(MarkerClass.class);
+                if (fieldValueClass.isArray()) {
+                    writer = INITIALIZATION_WRITERS.get(DefaultInitializationArrayMarkerClass.class);
+                } else {
+                    writer = INITIALIZATION_WRITERS.get(DefaultInitializationMarkerClass.class);
+                }
+            } else {
+                // It is one dim array with default value
+                if (defaultFieldValue != null && fieldValueClass.isArray() && !fieldValueClass.getComponentType()
+                    .isArray()) {
+                    writer = INITIALIZATION_WRITERS.get(ArrayInitializationMarkerClass.class);
                 }
             }
         }
@@ -310,6 +334,12 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
         return fieldValue;
     }
 
-    private final class MarkerClass{}
-    private final class EmptyArrayMarkerClass{};
+    private final static class DefaultInitializationMarkerClass {
+    }
+
+    private final static class DefaultInitializationArrayMarkerClass {
+    };
+
+    private final static class ArrayInitializationMarkerClass {
+    }
 }

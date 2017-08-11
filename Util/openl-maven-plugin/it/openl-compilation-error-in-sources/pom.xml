@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openl.internal</groupId>
-    <artifactId>org.openl.test</artifactId>
+    <artifactId>openl-compilation-error-in-sources</artifactId>
     <version>0.0.0</version>
     <packaging>openl</packaging>
     <name>OpenL Plugin: Compilation error in OpenL Sources</name>

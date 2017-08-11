@@ -11,6 +11,6 @@ public class DateInitializationWriter implements TypeInitializationWriter {
         Date date = (Date) value;
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT_FOR_DATE_CONSTRUCTOR);
         String stringValue = simpleDateFormat.format(date);
-        return String.format("new %s(\"%s\")", JavaClassGeneratorHelper.filterTypeName(value.getClass()), stringValue);
+        return String.format("new %s(\"%s\")", JavaClassGeneratorHelper.filterTypeSimpleName(value.getClass()), stringValue);
     }
 }

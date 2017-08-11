@@ -96,6 +96,9 @@ public class DefaultFieldDescription implements FieldDescription {
                     //
                     defaultValue = DefaultValue.DEFAULT;
                 } else {
+                    if (getType().isArray() && getType().getComponentType().isArray()) {
+                        throw new IllegalStateException("Multi-dimensional arrays aren't supported!");
+                    }
                     IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(getType());
                     defaultValue = convertor.parse(defaultValueAsString, null);
                 }

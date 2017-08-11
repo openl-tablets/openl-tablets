@@ -45,6 +45,7 @@ import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
+import org.openl.util.generation.GenUtils;
 
 import com.helger.jcodemodel.AbstractJClass;
 import com.helger.jcodemodel.EClassType;
@@ -57,7 +58,6 @@ import com.helger.jcodemodel.JMod;
 import net.sf.cglib.beans.BeanGenerator;
 import net.sf.cglib.core.NamingPolicy;
 import net.sf.cglib.core.Predicate;
-import org.openl.util.generation.GenUtils;
 
 /**
  * Generate OpenL interface, domain classes, project descriptor and unit tests

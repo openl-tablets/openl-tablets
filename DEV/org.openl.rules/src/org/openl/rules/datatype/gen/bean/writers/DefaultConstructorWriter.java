@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,8 +28,10 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
 
     private static final Method STR_CONSTR = Method.getMethod("void <init> (java.lang.String)");
     private static final Method DEF_CONSTR = Method.getMethod("void <init> ()");
-    private static Map<String, Class<?>> defaultInterfaceCollections = new HashMap<String, Class<?>>(4);
-    private static Map<String, Class<?>> boxed = new HashMap<String, Class<?>>(8);
+    
+    public static final Map<String, Class<?>> DEFAULT_COLLECTIONS_INTERFACES;
+    private static final Map<String, Class<?>> boxed = new HashMap<String, Class<?>>(8);
+    
     static {
         boxed.put(Byte.class.getName(), byte.class);
         boxed.put(Short.class.getName(), short.class);
@@ -39,12 +42,15 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
         boxed.put(Float.class.getName(), float.class);
         boxed.put(Double.class.getName(), double.class);
 
+        Map<String, Class<?>> defaultInterfaceCollections = new HashMap<String, Class<?>>(6);
         defaultInterfaceCollections.put(Collection.class.getName(), ArrayList.class);
         defaultInterfaceCollections.put(List.class.getName(), ArrayList.class);
         defaultInterfaceCollections.put(Set.class.getName(), HashSet.class);
         defaultInterfaceCollections.put(SortedSet.class.getName(), TreeSet.class);
         defaultInterfaceCollections.put(Map.class.getName(), HashMap.class);
         defaultInterfaceCollections.put(SortedMap.class.getName(), TreeMap.class);
+        
+        DEFAULT_COLLECTIONS_INTERFACES = Collections.unmodifiableMap(defaultInterfaceCollections);
     }
 
     /**
@@ -127,9 +133,9 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
     private static void pushObject(GeneratorAdapter mg, Type type, Object value) {
         String className = type.getClassName();
         if (DefaultValue.DEFAULT.equals(value)) {
-            if (defaultInterfaceCollections.containsKey(className)) {
+            if (DEFAULT_COLLECTIONS_INTERFACES.containsKey(className)) {
                 // Collection, Map, SortedMap, List, Set 
-                Class<?> defaultImpl = defaultInterfaceCollections.get(className);
+                Class<?> defaultImpl = DEFAULT_COLLECTIONS_INTERFACES.get(className);
                 Type defaultImplType = Type.getType(defaultImpl);
                 mg.newInstance(defaultImplType);
                 mg.dup();

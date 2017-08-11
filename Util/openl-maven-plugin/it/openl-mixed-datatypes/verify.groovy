@@ -8,9 +8,9 @@ try {
     assert new File(basedir, 'target/classes/com/example/beans/openl/Auto.class').exists()
     assert new File(basedir, 'target/classes/com/example/beans/openl/Person.class').exists()
 
-    assert new File(basedir, 'target/org.openl.test-0.0.0.zip').exists()
+    assert new File(basedir, 'target/openl-mixed-datatypes-0.0.0.zip').exists()
 
-    assert new File(basedir, 'target').list({File file, String name -> name.startsWith("org.openl.test-0.0.0") && name.endsWith("-lib.jar")}).length == 1
+    assert new File(basedir, 'target').list({File file, String name -> name.startsWith("openl-mixed-datatypes-0.0.0") && name.endsWith("-lib.jar")}).length == 1
 
     return true
 
