@@ -22,6 +22,13 @@ public class JavaClassGeneratorHelper {
         }
         return StringUtils.EMPTY;
     }
+    
+    public static String filterTypeSimpleName(Class<?> type) {
+        if (type != null) {
+            return type.getSimpleName();
+        }
+        return StringUtils.EMPTY;
+    }
 
     /**
      * TODO: check the income package for valid value.
@@ -125,7 +132,7 @@ public class JavaClassGeneratorHelper {
     }
 
     public static String getGetterWithCastMethod(Class<?> methodType, String methodToDecorate, String fieldName) {
-        return String.format("  public %s %s() {\n   %s\n}\n", filterTypeName(methodType),
+        return String.format("  public %s %s() {\n   %s\n}\n", filterTypeSimpleName(methodType),
                 StringTool.getGetterName(fieldName), getDecoratorBody(methodType, methodToDecorate, fieldName));
     }
 

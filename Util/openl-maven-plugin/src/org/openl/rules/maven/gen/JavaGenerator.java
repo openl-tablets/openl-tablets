@@ -1,16 +1,16 @@
 package org.openl.rules.maven.gen;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.openl.util.ClassUtils;
-import org.openl.util.StringUtils;
-
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.openl.util.ClassUtils;
+import org.openl.util.StringUtils;
 
 public abstract class JavaGenerator {
 
@@ -54,52 +54,58 @@ public abstract class JavaGenerator {
         buf.append(JavaClassGeneratorHelper.getImportText(importStr));
     }
 
+    protected Class<?> extractTypeToImport(Class<?> clazz) {
+        Class<?> cl = clazz;
+        while (cl.isArray()) {
+            cl = cl.getComponentType();
+        }
+        return cl;
+    }
+
     public Set<String> gatherImports() {
         Set<String> importsSet = new HashSet<String>();
-
+        
         for (Method method : classForGeneration.getDeclaredMethods()) {
             if (method.getName().startsWith(GET)) {
                 Class<?> methodReturnType = method.getReturnType();
-                if (!methodReturnType.isPrimitive()
-                        && !(methodReturnType.isArray() && methodReturnType.getComponentType().isPrimitive())) {
-                    importsSet.add(filterTypeNameForImport(methodReturnType));
+                Class<?> typeToImport = extractTypeToImport(methodReturnType);
+                if (!typeToImport.isPrimitive()) {
+                    importsSet.add(filterTypeNameToImport(typeToImport));
                 }
             }
             if (method.getName().equals(EQUALS)) {
-                importsSet.add(filterTypeNameForImport(EqualsBuilder.class));
+                importsSet.add(filterTypeNameToImport(EqualsBuilder.class));
             }
             if (method.getName().startsWith(HASH_CODE)) {
-                importsSet.add(filterTypeNameForImport(HashCodeBuilder.class));
+                importsSet.add(filterTypeNameToImport(HashCodeBuilder.class));
             }
             if (method.getName().startsWith(TO_STRING)) {
-                importsSet.add(filterTypeNameForImport(ArrayUtils.class));
+                importsSet.add(filterTypeNameToImport(ArrayUtils.class));
             }
         }
 
         for (Constructor<?> constructor : classForGeneration.getDeclaredConstructors()) {
             for (Class<?> paramType : constructor.getParameterTypes()) {
-                if (!paramType.isPrimitive() && !(paramType.isArray() && paramType.getComponentType().isPrimitive())) {
-                    importsSet.add(filterTypeNameForImport(paramType));
+                Class<?> typeToImport = extractTypeToImport(paramType);
+                if (!typeToImport.isPrimitive()) {
+                    importsSet.add(filterTypeNameToImport(typeToImport));
                 }
             }
         }
 
         Class<?> superClass = getClassForGeneration().getSuperclass();
-        if (superClass != Object.class) {
-            importsSet.add(filterTypeNameForImport(superClass));
+        if (!Object.class.equals(superClass)) {
+            importsSet.add(filterTypeNameToImport(superClass));
         }
-        importsSet.add(filterTypeNameForImport(Serializable.class));
+        importsSet.add(filterTypeNameToImport(Serializable.class));
         return importsSet;
     }
 
-    protected String filterTypeNameForImport(Class<?> type) {
-        String typeName = JavaClassGeneratorHelper.filterTypeName(type);
-        int index = typeName.indexOf("[");
-        if (index > 0) {
-            return typeName.substring(0, index);
-        } else {
-            return typeName;
+    protected String filterTypeNameToImport(Class<?> type) {
+        if (type.isArray()) {
+            throw new IllegalStateException();
         }
+        return JavaClassGeneratorHelper.filterTypeName(type);
     }
 
     public void addClassDeclaration(StringBuilder buf, String className, String superClass) {
@@ -116,8 +122,8 @@ public abstract class JavaGenerator {
         boolean exists = false;
         String fieldName = getFieldName(method.getName(), allDatatypeFieldNames);
         if (StringUtils.isNotBlank(fieldName)) {
-            String getter = JavaClassGeneratorHelper.getPublicGetterMethod(
-                    JavaClassGeneratorHelper.filterTypeName(method.getReturnType()), fieldName);
+            String getter = JavaClassGeneratorHelper
+                .getPublicGetterMethod(JavaClassGeneratorHelper.filterTypeSimpleName(method.getReturnType()), fieldName);
             if (StringUtils.isNotBlank(getter)) {
                 exists = true;
             }
@@ -128,8 +134,8 @@ public abstract class JavaGenerator {
     public void addGetter(StringBuilder buf, Method method, Set<String> allDatatypeFieldNames) {
         String fieldName = getFieldName(method.getName(), allDatatypeFieldNames);
         if (StringUtils.isNotBlank(fieldName)) {
-            String getter = JavaClassGeneratorHelper.getPublicGetterMethod(
-                    JavaClassGeneratorHelper.filterTypeName(method.getReturnType()), fieldName);
+            String getter = JavaClassGeneratorHelper
+                .getPublicGetterMethod(JavaClassGeneratorHelper.filterTypeSimpleName(method.getReturnType()), fieldName);
             if (StringUtils.isNotBlank(getter)) {
                 buf.append(getter);
             }
@@ -140,7 +146,8 @@ public abstract class JavaGenerator {
         String fieldName = getFieldName(method.getName(), allDatatypeFieldNames);
         if (StringUtils.isNotBlank(fieldName)) {
             buf.append(JavaClassGeneratorHelper.getPublicSetterMethod(
-                    JavaClassGeneratorHelper.filterTypeName(method.getParameterTypes()[0]), fieldName));
+                JavaClassGeneratorHelper.filterTypeSimpleName(method.getParameterTypes()[0]),
+                fieldName));
         }
 
     }

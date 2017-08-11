@@ -41,7 +41,7 @@ public class JavaClassGeneratorHelperTest {
     @Test
     public void testGetterWithCastMethod() {
         assertEquals(
-                "  public java.lang.String getMyField() {\n   return (java.lang.String)getFieldValue(\"myField\");\n}\n",
+                "  public String getMyField() {\n   return (java.lang.String)getFieldValue(\"myField\");\n}\n",
                 JavaClassGeneratorHelper.getGetterWithCastMethod(String.class, "getFieldValue", "myField"));
 
         assertEquals(

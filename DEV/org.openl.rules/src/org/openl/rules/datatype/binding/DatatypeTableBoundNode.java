@@ -300,7 +300,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 try {
                     value = fieldDescription.getDefaultValue();
                 } catch (RuntimeException e) {
-                    String message = String.format("Cannot parse cell value '%s'", defaultValue);
+                    String message = String.format("Can't parse cell value '%s'", defaultValue);
                     IOpenSourceCodeModule cellSourceCodeModule = getCellSource(row, cxt, 2);
 
                     if (e instanceof CompositeSyntaxNodeException) {
