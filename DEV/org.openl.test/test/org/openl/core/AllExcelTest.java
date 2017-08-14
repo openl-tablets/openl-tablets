@@ -18,8 +18,13 @@ import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class AllExcelTest {
+public final class AllExcelTest {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AllExcelTest.class);
+
     public static final String DIR = "test-resources/functionality/";
     private Locale defaultLocale;
     private TimeZone defaultTimeZone;
@@ -40,7 +45,7 @@ public class AllExcelTest {
 
     @Test
     public void testAllExcelFiles() throws NoSuchMethodException {
-        System.out.println(">>> Positive tests...");
+        LOG.info(">>> Positive tests...");
         boolean hasErrors = false;
         final File sourceDir = new File(DIR);
         final String[] files = sourceDir.list();
@@ -49,7 +54,7 @@ public class AllExcelTest {
             try {
                 new FileInputStream(new File(sourceDir, sourceFile)).close();
             } catch (Exception ex) {
-                System.out.println("!!! Cannot read file [" + sourceFile + "]. Because: " + ex.getMessage());
+                LOG.error("Failed to read file [" + sourceFile + "]", ex);
                 hasErrors = true;
                 continue;
             }
@@ -60,8 +65,9 @@ public class AllExcelTest {
             final CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
 
             if (compiledOpenClass.hasErrors()) {
-                System.out.println("!!! Compilation errors in [" + sourceFile + "].");
-                System.out.println(compiledOpenClass.getMessages());
+                LOG.error("Compilation errors in [" + sourceFile + "].");
+                LOG.error(compiledOpenClass.getMessages().toString());
+
                 hasErrors = true;
                 continue;
             }
@@ -75,7 +81,7 @@ public class AllExcelTest {
                     final int numberOfFailures = res.getNumberOfFailures();
                     errors += numberOfFailures;
                     if (numberOfFailures != 0) {
-                        System.out.println("!!! Errors in [" + sourceFile + "]. Failed test: " + res
+                        LOG.error("Errors in [" + sourceFile + "]. Failed test: " + res
                             .getName() + "  Errors #:" + numberOfFailures);
                     }
 
@@ -83,11 +89,12 @@ public class AllExcelTest {
             }
             if (errors != 0) {
                 hasErrors = true;
-                System.out.println("!!! Errors in [" + sourceFile + "]. Total failures #: " + errors);
+                LOG.error("Errors in [" + sourceFile + "]. Total failures #: " + errors);
             } else {
-                System.out.println("+++ OK in [" + sourceFile + "]. ");
+                LOG.info("OK in [" + sourceFile + "]. ");
             }
         }
-        assertFalse("Failed test", hasErrors);
+        
+        assertFalse("Failed test!", hasErrors);
     }
 }

@@ -20,8 +20,12 @@ import org.openl.message.Severity;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class NegativeTest {
+public final class NegativeTest {
+    private static final Logger LOG = LoggerFactory.getLogger(NegativeTest.class);
+    
     public static final String DIR = "test-resources/negative-tests/";
     private Locale defaultLocale;
     private TimeZone defaultTimeZone;
@@ -42,7 +46,8 @@ public class NegativeTest {
 
     @Test
     public void testAllExcelFiles() throws NoSuchMethodException {
-        System.out.println(">>> Negative tests...");
+        LOG.info(">>> Negative tests...");
+        
         boolean hasErrors = false;
         final File sourceDir = new File(DIR);
         final String[] files = sourceDir.list(new FilenameFilter() {
@@ -57,7 +62,7 @@ public class NegativeTest {
             try {
                 new FileInputStream(new File(sourceDir, sourceFile)).close();
             } catch (Exception ex) {
-                System.out.println("!!! Cannot read file [" + sourceFile + "]. Because: " + ex.getMessage());
+                LOG.error("Failed to read file [" + sourceFile + "]", ex);
                 hasErrors = true;
                 continue;
             }
@@ -76,20 +81,21 @@ public class NegativeTest {
                 }
 
                 if (hasAllMessages) {
-                    System.out.println("+++ OK in [" + sourceFile + "]. ");
+                    LOG.info("OK in [" + sourceFile + "].");
                 } else {
                     hasErrors = true;
                 }
             } else {
                 if (!compiledOpenClass.hasErrors()) {
-                    System.out.println("!!! No errors in [" + sourceFile + "].");
+                    LOG.info("Expected compilation errors in [" + sourceFile + "].");
                     hasErrors = true;
                 } else {
-                    System.out.println("+++ OK in [" + sourceFile + "]. ");
+                    LOG.info("OK in [" + sourceFile + "].");
                 }
             }
         }
-        assertFalse("Failed test", hasErrors);
+        
+        assertFalse("Failed test!", hasErrors);
     }
 
     private boolean anyMessageFileExists(File sourceDir, String sourceFile) {
@@ -106,29 +112,29 @@ public class NegativeTest {
     private boolean isHasMessages(File sourceDir, String sourceFile, List<OpenLMessage> actualMessages, Severity severity) {
         boolean hasAllMessages = true;
 
-        File messagesFile = new File(sourceDir, sourceFile + "." + severity.name().toLowerCase() + ".txt");
+        File file = new File(sourceDir, sourceFile + "." + severity.name().toLowerCase() + ".txt");
         try {
-            for (String expectedMessage : getExpectedMessages(messagesFile)) {
+            for (String expectedMessage : getExpectedMessages(file)) {
                 if (!isMessageExists(actualMessages, expectedMessage, severity)) {
-                    System.out.println("!!! The message \"" + expectedMessage + "\" with severity " + severity.name() + " is not found in [" + sourceFile + "].");
+                    LOG.error("The message \"" + expectedMessage + "\" with severity " + severity.name() + " is expected for [" + sourceFile + "].");
                     hasAllMessages = false;
                 }
             }
         } catch (IOException e) {
-            System.out.println("!!! Cannot read file [" + messagesFile + "]. Because: " + e.getMessage());
+            LOG.error("Failed to read file [" + file + "].", e);
             hasAllMessages = false;
         }
         return hasAllMessages;
     }
 
-    private List<String> getExpectedMessages(File messagesFile) throws IOException {
+    private List<String> getExpectedMessages(File file) throws IOException {
         List<String> result = new ArrayList<>();
 
-        if (!messagesFile.exists()) {
+        if (!file.exists()) {
             return result;
         }
 
-        String content = IOUtils.toStringAndClose(new FileInputStream(messagesFile));
+        String content = IOUtils.toStringAndClose(new FileInputStream(file));
         for (String message : content.split("\\u000D\\u000A|[\\u000A\\u000B\\u000C\\u000D\\u0085\\u2028\\u2029]")) {
             if (!StringUtils.isBlank(message)) {
                 result.add(message.trim());
