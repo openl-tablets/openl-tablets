@@ -76,13 +76,14 @@ public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
 
         try {
-        // if current bundle is dependency of parent bundle it must be visible
-        // for parent bundle
-        //
-        if (!(oldClassLoader instanceof OpenLBundleClassLoader)) {
-            ClassLoader newClassLoader = new SimpleBundleClassLoader(oldClassLoader);
-            Thread.currentThread().setContextClassLoader(newClassLoader);
-        }
+            // if current bundle is dependency of parent bundle it must be
+            // visible
+            // for parent bundle
+            //
+            if (!(oldClassLoader instanceof OpenLBundleClassLoader)) {
+                ClassLoader newClassLoader = new SimpleBundleClassLoader(oldClassLoader);
+                Thread.currentThread().setContextClassLoader(newClassLoader);
+            }
 
             return OpenLManager.compileModuleWithErrors(getOpenL(), getSourceCode(), executionMode, dependencyManager);
         } finally {

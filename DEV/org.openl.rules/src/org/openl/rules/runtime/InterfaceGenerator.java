@@ -2,7 +2,9 @@ package org.openl.rules.runtime;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.objectweb.asm.ClassWriter;
@@ -16,6 +18,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ADynamicClass.OpenConstructor;
+import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenConstructor;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
@@ -87,28 +90,33 @@ public class InterfaceGenerator {
 
         List<RuleInfo> rules = new ArrayList<RuleInfo>();
 
+        Set<MethodKey> methodsInClass = new HashSet<MethodKey>();
+        
         final Collection<IOpenMethod> methods = openClass.getMethods();
         for (IOpenMethod method : methods) {
-
             if (!isIgnoredMember(method)) {
                 RuleInfo ruleInfo = getRuleInfoForMethod(method);
                 boolean isMember = isMember(ruleInfo, includes, excludes);
                 if (isMember) {
                     rules.add(ruleInfo);
+                    methodsInClass.add(new MethodKey(method));
                 }
             }
         }
 
         final Collection<IOpenField> fields = openClass.getFields().values();
         for (IOpenField field : fields) {
-
             if (!isIgnoredMember(field)) {
-
                 if (field.isReadable()) {
                     RuleInfo ruleInfo = getRuleInfoForField(field);
                     boolean isMember = isMember(ruleInfo, includes, excludes);
                     if (isMember) {
-                        rules.add(ruleInfo);
+                        MethodKey key = new MethodKey(ruleInfo.getName(), new IOpenClass[0], false);
+                        //Skip getter for field if method is defined with the same signature.
+                        if (!methodsInClass.contains(key)) {
+                            rules.add(ruleInfo);
+                            methodsInClass.add(key);
+                        }
                     }
                 }
             }
