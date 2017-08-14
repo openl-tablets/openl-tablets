@@ -158,8 +158,7 @@ public class BindHelper {
 		if (children.length == 2) {
 			IBoundNode left = children[0];
 			IBoundNode right = children[1];
-			if (left instanceof FieldBoundNode && right instanceof FieldBoundNode
-					&& ((FieldBoundNode) left).getBoundField() == ((FieldBoundNode) right).getBoundField()) {
+			if (isSame(left, right)) {
 				String type = conditionNode.getSyntaxNode().getType();
 
 				if (EQUAL_OPERATORS.contains(type)) {
@@ -173,6 +172,27 @@ public class BindHelper {
 				}
 			}
 		}
+	}
+
+	private static boolean isSame(IBoundNode left, IBoundNode right) {
+		if (left instanceof FieldBoundNode && right instanceof FieldBoundNode) {
+			if (((FieldBoundNode) left).getBoundField() == ((FieldBoundNode) right).getBoundField()) {
+				if (left.getTargetNode() == right.getTargetNode()) {
+					return true;
+				}
+				if (isSame(left.getTargetNode(), right.getTargetNode())) {
+					return true;
+				}
+			}
+		} else if (left instanceof LiteralBoundNode && right instanceof LiteralBoundNode) {
+			Object leftValue = ((LiteralBoundNode) left).getValue();
+			Object rightValue = ((LiteralBoundNode) right).getValue();
+			if (leftValue == rightValue || leftValue != null && leftValue.equals(rightValue)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public static void processWarn(String message, ISyntaxNode source,
