@@ -159,49 +159,6 @@ public class RepositoryService {
         return addProject(uriInfo.getPath(), name, zipFile, comment);
     }
 
-    private Response addProject(String uri, String name, InputStream zipFile, String comment) throws WorkspaceException {
-        try {
-            UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(getUser());
-            if (userWorkspace.hasProject(name)) {
-                if (!isGranted(Privileges.EDIT_PROJECTS)) {
-                    return Response.status(Status.FORBIDDEN).entity("Doesn't have EDIT PROJECTS privilege").build();
-                }
-                RulesProject project = userWorkspace.getProject(name);
-                if (project.isLocked() && !project.isLockedByUser(getUser())) {
-                    String lockedBy = project.getLockInfo().getLockedBy().getUserName();
-                    return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
-                }
-                project.lock();
-            } else {
-                if (!isGranted(Privileges.CREATE_PROJECTS)) {
-                    return Response.status(Status.FORBIDDEN).entity("Doesn't have CREATE PROJECTS privilege").build();
-                }
-            }
-
-            String fileName = getFileName(name);
-
-            FileData existing = getRepository().check(fileName);
-            if (existing != null && existing.isDeleted()) {
-                // Remove "deleted" marker
-                getRepository().deleteHistory(existing.getName(), existing.getVersion());
-            }
-
-            FileData data = new FileData();
-            data.setName(fileName);
-            data.setComment("[REST] " + StringUtils.trimToEmpty(comment));
-            data.setAuthor(getUserName());
-            FileData save = getRepository().save(data, zipFile);
-            userWorkspace.getProject(name).unlock();
-            return Response.created(new URI(uri + "/" + save.getVersion())).build();
-        } catch (IOException ex) {
-            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
-        } catch (URISyntaxException ex) {
-            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
-        } catch (ProjectException ex) {
-            return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
-        }
-    }
-
     /**
      * Uploads a zipped project to a design repository. The upload will be
      * performed if the project in the design repository is not locked by other
@@ -258,6 +215,49 @@ public class RepositoryService {
     @Path("project")
     public Response addProject(@Context UriInfo uriInfo, File zipFile) throws WorkspaceException {
         return addProject(uriInfo, zipFile, null);
+    }
+
+    private Response addProject(String uri, String name, InputStream zipFile, String comment) throws WorkspaceException {
+        try {
+            UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(getUser());
+            if (userWorkspace.hasProject(name)) {
+                if (!isGranted(Privileges.EDIT_PROJECTS)) {
+                    return Response.status(Status.FORBIDDEN).entity("Doesn't have EDIT PROJECTS privilege").build();
+                }
+                RulesProject project = userWorkspace.getProject(name);
+                if (project.isLocked() && !project.isLockedByUser(getUser())) {
+                    String lockedBy = project.getLockInfo().getLockedBy().getUserName();
+                    return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
+                }
+                project.lock();
+            } else {
+                if (!isGranted(Privileges.CREATE_PROJECTS)) {
+                    return Response.status(Status.FORBIDDEN).entity("Doesn't have CREATE PROJECTS privilege").build();
+                }
+            }
+
+            String fileName = getFileName(name);
+
+            FileData existing = getRepository().check(fileName);
+            if (existing != null && existing.isDeleted()) {
+                // Remove "deleted" marker
+                getRepository().deleteHistory(existing.getName(), existing.getVersion());
+            }
+
+            FileData data = new FileData();
+            data.setName(fileName);
+            data.setComment("[REST] " + StringUtils.trimToEmpty(comment));
+            data.setAuthor(getUserName());
+            FileData save = getRepository().save(data, zipFile);
+            userWorkspace.getProject(name).unlock();
+            return Response.created(new URI(uri + "/" + save.getVersion())).build();
+        } catch (IOException ex) {
+            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
+        } catch (URISyntaxException ex) {
+            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
+        } catch (ProjectException ex) {
+            return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
+        }
     }
 
     private String getProjectName(File file) {
