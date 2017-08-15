@@ -156,6 +156,10 @@ public class RepositoryService {
             @PathParam("name") String name,
             @Multipart(value = "file") InputStream zipFile,
             @Multipart(value = "comment", required = false) String comment) throws WorkspaceException {
+        return addProject(uriInfo.getPath(), name, zipFile, comment);
+    }
+
+    private Response addProject(String uri, String name, InputStream zipFile, String comment) throws WorkspaceException {
         try {
             UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(getUser());
             if (userWorkspace.hasProject(name)) {
@@ -188,7 +192,7 @@ public class RepositoryService {
             data.setAuthor(getUserName());
             FileData save = getRepository().save(data, zipFile);
             userWorkspace.getProject(name).unlock();
-            return Response.created(new URI(uriInfo.getPath() + "/" + save.getVersion())).build();
+            return Response.created(new URI(uri + "/" + save.getVersion())).build();
         } catch (IOException ex) {
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         } catch (URISyntaxException ex) {
@@ -231,7 +235,7 @@ public class RepositoryService {
                 return Response.status(Status.NOT_ACCEPTABLE).entity("The uploaded file does not contain Project Name in the rules.xml ").build();
             }
 
-            return addProject(uriInfo, name, new FileInputStream(zipFile), comment);
+            return addProject(uriInfo.getPath() + "/" + name, name, new FileInputStream(zipFile), comment);
         } catch (IOException ex) {
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         } finally {
