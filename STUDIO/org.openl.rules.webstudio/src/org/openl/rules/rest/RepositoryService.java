@@ -187,6 +187,7 @@ public class RepositoryService {
             data.setComment("[REST] " + StringUtils.trimToEmpty(comment));
             data.setAuthor(getUserName());
             FileData save = getRepository().save(data, zipFile);
+            userWorkspace.getProject(name).unlock();
             return Response.created(new URI(uriInfo.getPath() + "/" + save.getVersion())).build();
         } catch (IOException ex) {
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
