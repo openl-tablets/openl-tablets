@@ -18,7 +18,7 @@
             <security:filter-chain pattern="/javascript/**" filters="none" />
             <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none" />
             <security:filter-chain pattern="/faces/rfRes/**" filters="none" />
-            <security:filter-chain pattern="/rest/**" filters="basicAuthenticationFilter,restExceptionTranslationFilter,filterSecurityInterceptor" />
+            <security:filter-chain pattern="/rest/**" filters="restBasicAuthenticationFilter,restExceptionTranslationFilter,filterSecurityInterceptor" />
             <security:filter-chain pattern="/**"
                                    filters="securityContextPersistenceFilter,logoutFilter,usernamePasswordAuthenticationFilter,basicAuthenticationFilter,rememberMeAuthenticationFilter,exceptionTranslationFilter,filterSecurityInterceptor" />
         </security:filter-chain-map>
