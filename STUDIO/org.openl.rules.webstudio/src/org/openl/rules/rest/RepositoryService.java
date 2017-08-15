@@ -95,6 +95,9 @@ public class RepositoryService {
                 return Response.status(Status.FORBIDDEN).entity("Doesn't have VIEW privilege").build();
             }
             FileItem fileItem = getRepository().read(getFileName(name));
+            if (fileItem == null) {
+                throw new FileNotFoundException("File '" + name + "' not found.");
+            }
             String zipFileName = String.format("%s-%s.zip", name, fileItem.getData().getVersion());
 
             return Response.ok(fileItem.getStream())
@@ -122,6 +125,9 @@ public class RepositoryService {
                 return Response.status(Status.FORBIDDEN).entity("Doesn't have VIEW privilege").build();
             }
             FileItem fileItem = getRepository().readHistory(getFileName(name), version);
+            if (fileItem == null) {
+                throw new FileNotFoundException("File '" + name + "' not found.");
+            }
             String zipFileName = String.format("%s-%s.zip", name, version);
 
             return Response.ok(fileItem.getStream())
