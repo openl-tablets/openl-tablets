@@ -36,6 +36,7 @@ import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.FileUtils;
+import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.openl.util.ZipUtils;
 import org.springframework.security.core.Authentication;
@@ -156,7 +157,7 @@ public class RepositoryService {
             @PathParam("name") String name,
             @Multipart(value = "file") InputStream zipFile,
             @Multipart(value = "comment", required = false) String comment) throws WorkspaceException {
-        return addProject(uriInfo.getPath(), name, zipFile, comment);
+        return addProject(uriInfo.getPath(false), name, zipFile, comment);
     }
 
     /**
@@ -192,7 +193,7 @@ public class RepositoryService {
                 return Response.status(Status.NOT_ACCEPTABLE).entity("The uploaded file does not contain Project Name in the rules.xml ").build();
             }
 
-            return addProject(uriInfo.getPath() + "/" + name, name, new FileInputStream(zipFile), comment);
+            return addProject(uriInfo.getPath(false) + "/" + StringTool.encodeURL(name), name, new FileInputStream(zipFile), comment);
         } catch (IOException ex) {
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         } finally {
@@ -250,7 +251,7 @@ public class RepositoryService {
             data.setAuthor(getUserName());
             FileData save = getRepository().save(data, zipFile);
             userWorkspace.getProject(name).unlock();
-            return Response.created(new URI(uri + "/" + save.getVersion())).build();
+            return Response.created(new URI(uri + "/" + StringTool.encodeURL(save.getVersion()))).build();
         } catch (IOException ex) {
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         } catch (URISyntaxException ex) {
