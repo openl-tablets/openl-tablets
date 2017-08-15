@@ -26,6 +26,8 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
@@ -35,10 +37,9 @@ import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.util.FileUtils;
-import org.openl.util.StringTool;
-import org.openl.util.StringUtils;
-import org.openl.util.ZipUtils;
+import org.openl.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -57,6 +58,7 @@ import org.xml.sax.InputSource;
 @Path("/repo/")
 @Produces(MediaType.APPLICATION_JSON)
 public class RepositoryService {
+    private final Logger log = LoggerFactory.getLogger(RepositoryService.class);
 
     @Resource
     private MultiUserWorkspaceManager workspaceManager;
@@ -157,7 +159,40 @@ public class RepositoryService {
             @PathParam("name") String name,
             @Multipart(value = "file") InputStream zipFile,
             @Multipart(value = "comment", required = false) String comment) throws WorkspaceException {
-        return addProject(uriInfo.getPath(false), name, zipFile, comment);
+        File modifiedZip = null;
+        FileInputStream modifiedZipStream = null;
+        File originalZipFolder = null;
+        try {
+            originalZipFolder = Files.createTempDirectory("openl").toFile();
+            ZipUtils.extractAll(zipFile, originalZipFolder);
+
+            File rules = new File(originalZipFolder, "rules.xml");
+            if (rules.exists()) {
+                // Change project name in rules.xml.
+                try {
+                    XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer(false);
+                    ProjectDescriptor projectDescriptor = serializer.deserialize(new FileInputStream(rules));
+                    projectDescriptor.setName(name);
+                    String modifiedRules = serializer.serialize(projectDescriptor);
+
+                    IOUtils.copyAndClose(IOUtils.toInputStream(modifiedRules), new FileOutputStream(rules));
+                } catch (Exception e) {
+                    log.warn(e.getMessage(), e);
+                }
+            }
+
+            modifiedZip = File.createTempFile("project", ".zip");
+            ZipUtils.archive(originalZipFolder, modifiedZip);
+            modifiedZipStream = new FileInputStream(modifiedZip);
+
+            return addProject(uriInfo.getPath(false), name, modifiedZipStream, comment);
+        } catch (IOException ex) {
+            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
+        } finally {
+            FileUtils.deleteQuietly(originalZipFolder);
+            IOUtils.closeQuietly(modifiedZipStream);
+            FileUtils.deleteQuietly(modifiedZip);
+        }
     }
 
     /**
