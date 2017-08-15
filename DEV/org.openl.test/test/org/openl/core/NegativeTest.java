@@ -87,7 +87,7 @@ public final class NegativeTest {
                 }
             } else {
                 if (!compiledOpenClass.hasErrors()) {
-                    LOG.info("Expected compilation errors in [" + sourceFile + "].");
+                    LOG.error("Expected compilation errors in [" + sourceFile + "].");
                     hasErrors = true;
                 } else {
                     LOG.info("OK in [" + sourceFile + "].");
