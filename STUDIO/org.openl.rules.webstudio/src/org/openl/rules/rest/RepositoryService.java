@@ -118,7 +118,7 @@ public class RepositoryService {
      * @throws WorkspaceException
      */
     @GET
-    @Path("project/{name}/{version:[0-9]+}")
+    @Path("project/{name}/{version}")
     @Produces("application/zip")
     public Response getProject(@PathParam("name") String name, @PathParam("version") String version) throws WorkspaceException {
         try {
