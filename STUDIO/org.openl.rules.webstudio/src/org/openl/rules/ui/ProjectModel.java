@@ -75,6 +75,7 @@ import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
+import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.rules.webstudio.web.trace.node.CachingArgumentsCloner;
@@ -95,7 +96,6 @@ import org.openl.util.Log;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.tree.ITreeElement;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.SimpleVM;
 
 public class ProjectModel {
 
@@ -188,7 +188,7 @@ public class ProjectModel {
 
         BenchmarkUnit bu;
 
-        final IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+        final IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         final Object target = compiledOpenClass.getOpenClassWithErrors().newInstance(env);
 
         bu = new BenchmarkUnit() {
