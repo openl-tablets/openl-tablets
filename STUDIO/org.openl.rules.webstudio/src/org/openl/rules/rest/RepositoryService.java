@@ -1,10 +1,8 @@
 package org.openl.rules.rest;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import static org.openl.rules.security.AccessManager.isGranted;
+
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -13,17 +11,9 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Resource;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
@@ -39,6 +29,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.security.Privileges;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
@@ -75,14 +66,17 @@ public class RepositoryService {
      */
     @GET
     @Path("projects")
-    public List<ProjectDescription> getProjects() throws WorkspaceException {
+    public Response getProjects() throws WorkspaceException {
+        if (!isGranted(Privileges.VIEW_PROJECTS)) {
+            return Response.status(Status.FORBIDDEN).entity("Doesn't have VIEW privilege").build();
+        }
         Collection<? extends AProject> projects = getDesignTimeRepository().getProjects();
         List<ProjectDescription> result = new ArrayList<ProjectDescription>(projects.size());
         for (AProject prj : projects) {
             ProjectDescription projectDescription = getProjectDescription(prj);
             result.add(projectDescription);
         }
-        return result;
+        return Response.ok(new GenericEntity<List<ProjectDescription>>(result) {}).build();
     }
 
     /**
@@ -97,6 +91,9 @@ public class RepositoryService {
     @Produces("application/zip")
     public Response getLastProject(@PathParam("name") String name) throws WorkspaceException {
         try {
+            if (!isGranted(Privileges.VIEW_PROJECTS)) {
+                return Response.status(Status.FORBIDDEN).entity("Doesn't have VIEW privilege").build();
+            }
             FileItem fileItem = getRepository().read(getFileName(name));
             String zipFileName = String.format("%s-%s.zip", name, fileItem.getData().getVersion());
 
@@ -121,6 +118,9 @@ public class RepositoryService {
     @Produces("application/zip")
     public Response getProject(@PathParam("name") String name, @PathParam("version") String version) throws WorkspaceException {
         try {
+            if (!isGranted(Privileges.VIEW_PROJECTS)) {
+                return Response.status(Status.FORBIDDEN).entity("Doesn't have VIEW privilege").build();
+            }
             FileItem fileItem = getRepository().readHistory(getFileName(name), version);
             String zipFileName = String.format("%s-%s.zip", name, version);
 
@@ -153,12 +153,19 @@ public class RepositoryService {
         try {
             UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(getUser());
             if (userWorkspace.hasProject(name)) {
+                if (!isGranted(Privileges.EDIT_PROJECTS)) {
+                    return Response.status(Status.FORBIDDEN).entity("Doesn't have EDIT PROJECTS privilege").build();
+                }
                 RulesProject project = userWorkspace.getProject(name);
                 if (project.isLocked() && !project.isLockedByUser(getUser())) {
                     String lockedBy = project.getLockInfo().getLockedBy().getUserName();
                     return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
                 }
                 project.lock();
+            } else {
+                if (!isGranted(Privileges.CREATE_PROJECTS)) {
+                    return Response.status(Status.FORBIDDEN).entity("Doesn't have CREATE PROJECTS privilege").build();
+                }
             }
 
             String fileName = getFileName(name);
@@ -272,6 +279,10 @@ public class RepositoryService {
     @POST
     @Path("lockProject/{name}")
     public Response lockProject(@PathParam("name") String name) throws WorkspaceException, ProjectException {
+        // When locking the project only EDIT_PROJECTS privilege is needed because we modify the project's state.
+        if (!isGranted(Privileges.EDIT_PROJECTS)) {
+            return Response.status(Status.FORBIDDEN).entity("Doesn't have EDIT PROJECTS privilege").build();
+        }
         RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(name);
         if (project.isLocked()) {
             String lockedBy = project.getLockInfo().getLockedBy().getUserName();
@@ -293,6 +304,11 @@ public class RepositoryService {
     @POST
     @Path("unlockProject/{name}")
     public Response unlockProject(@PathParam("name") String name) throws WorkspaceException, ProjectException {
+        // When unlocking the project locked by current user, only EDIT_PROJECTS privilege is needed because we modify the project's state.
+        // UNLOCK_PROJECTS privilege is needed only to unlock the project locked by other user (it's not our case).
+        if (!isGranted(Privileges.EDIT_PROJECTS)) {
+            return Response.status(Status.FORBIDDEN).entity("Doesn't have EDIT PROJECTS privilege").build();
+        }
         RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(name);
         if (!project.isLocked()) {
             return Response.status(Status.FORBIDDEN).entity("The project is not locked.").build();
