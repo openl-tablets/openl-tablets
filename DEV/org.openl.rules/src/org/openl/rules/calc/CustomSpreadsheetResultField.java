@@ -10,6 +10,10 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField {
     }
     
     public Object get(Object target, IRuntimeEnv env) {
+        if (target == null) {
+            return getType().nullObject();
+        }
+        
         Object res = ((SpreadsheetResult) target).getFieldValue(getName());
 
         return res != null ? res : getType().nullObject();

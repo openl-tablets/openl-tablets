@@ -34,6 +34,10 @@ public class SpreadsheetCellField extends ASpreadsheetField {
     public Object get(Object target, IRuntimeEnv env) {
         SpreadsheetResultCalculator result = (SpreadsheetResultCalculator) target;
 
+        if (result == null) {
+            return getType().nullObject();
+        }
+        
         return result.getValue(cell.getRowIndex(), cell.getColumnIndex());
     }
 

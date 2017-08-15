@@ -439,7 +439,7 @@ public class JavaOpenClass extends AOpenClass {
     public synchronized Iterable<IOpenClass> superClasses() {
         if (superClasses == null) {
             Class<?>[] interfaces = instanceClass.getInterfaces();
-            Class superClass = instanceClass.getSuperclass();
+            Class<?> superClass = instanceClass.getSuperclass();
             List<IOpenClass> superClasses = new ArrayList<IOpenClass>(interfaces.length + 1);
             if (superClass != null) {
                 superClasses.add(getOpenClass(superClass));
