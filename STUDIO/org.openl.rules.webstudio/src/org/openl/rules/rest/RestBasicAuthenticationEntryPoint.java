@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.security;
+package org.openl.rules.rest;
 
 import java.io.IOException;
 

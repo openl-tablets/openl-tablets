@@ -29,7 +29,7 @@
         <constructor-arg name="authenticationEntryPoint" ref="restBasicAuthenticationEntryPoint"/>
     </bean>
 
-    <bean name="restBasicAuthenticationEntryPoint" class="org.openl.rules.webstudio.security.RestBasicAuthenticationEntryPoint">
+    <bean name="restBasicAuthenticationEntryPoint" class="org.openl.rules.rest.RestBasicAuthenticationEntryPoint">
         <property name="realmName" value="WebStudio Realm"/>
     </bean>
 
