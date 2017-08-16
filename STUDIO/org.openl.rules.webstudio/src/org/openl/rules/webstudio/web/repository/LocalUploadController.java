@@ -132,14 +132,20 @@ public class LocalUploadController {
                         FacesUtils.addInfoMessage("Project " + bean.getProjectName()
                                 + " was created successfully");
                     } catch (Exception e) {
+                        String msg;
                         if (!NameChecker.checkName(bean.getProjectName())) {
-                            String msg = "Failed to create the project '" + bean.getProjectName() + "'! " + NameChecker.BAD_PROJECT_NAME_MSG;
-                            FacesUtils.addErrorMessage(msg);
+                            msg = "Failed to create the project '" + bean.getProjectName() + "'! " + NameChecker.BAD_PROJECT_NAME_MSG;
+                        } else if (e.getCause() instanceof FileNotFoundException) {
+                            if (e.getMessage().contains(".xls")) {
+                                msg = "Failed to create the project. Please close module Excel file and try again.";
+                            } else {
+                                msg = "Failed to create the project because some resources are used";
+                            }
                         } else {
-                            String msg = "Failed to create the project '" + bean.getProjectName() + "'!";
+                            msg = "Failed to create the project '" + bean.getProjectName() + "'!";
                             log.error(msg, e);
-                            FacesUtils.addErrorMessage(msg, e.getMessage());
                         }
+                        FacesUtils.addErrorMessage(msg);
 
                     }
                 }
