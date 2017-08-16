@@ -7,6 +7,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.LockEngine;
+import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -329,14 +330,11 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     }
                 }
 
-                RulesProject uwp = userRulesProjects.get(name);
-                if (uwp == null) {
-                    uwp = new RulesProject(this, localRepository, lp == null ? null : lp.getFileData(), designRepository, rp.getFileData(), projectsLockEngine);
-                    userRulesProjects.put(name, uwp);
-                } else if ((uwp.isLocalOnly() || uwp.isRepositoryOnly()) && lp != null) {
-                    userRulesProjects.put(name, new RulesProject(this, localRepository, lp.getFileData(), designRepository, rp.getFileData(), projectsLockEngine));
+                if (lp == null) {
+                    userRulesProjects.put(name, new RulesProject(this, localRepository, designRepository, rp.getFileData(), projectsLockEngine));
                 } else {
-                    uwp.refresh();
+                    FileData local = lp.getFileData();
+                    userRulesProjects.put(name, new RulesProject(this, local.getVersion(), localRepository, local.getName(), designRepository, rp.getFileData().getName(), projectsLockEngine));
                 }
             }
 
@@ -346,7 +344,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 String name = lp.getName();
 
                 if (!designTimeRepository.hasProject(name)) {
-                    userRulesProjects.put(name, new RulesProject(this, localRepository, lp.getFileData(), null, null, projectsLockEngine));
+                    FileData local = lp.getFileData();
+                    userRulesProjects.put(name, new RulesProject(this, local.getVersion(), localRepository, local.getName(), null, null, projectsLockEngine));
                 }
             }
 

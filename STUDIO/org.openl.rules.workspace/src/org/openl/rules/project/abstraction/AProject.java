@@ -51,9 +51,7 @@ public class AProject extends AProjectFolder {
                 if (!isHistoric() || isLastVersion()) {
                     fileData = getRepository().check(getFolderPath());
                     if (fileData == null) {
-                        fileData = new FileData();
-                        fileData.setName(getFolderPath());
-                        fileData.setVersion(getHistoryVersion());
+                        fileData = new LazyFileData(getFolderPath(), getHistoryVersion(), this);
                     }
                 } else {
                     fileData = getRepository().checkHistory(getFolderPath(), getHistoryVersion());
@@ -62,9 +60,7 @@ public class AProject extends AProjectFolder {
                     throw new IllegalStateException(ex);
                 }
             } else {
-                fileData = new FileData();
-                fileData.setName(getFolderPath());
-                fileData.setVersion(getHistoryVersion());
+                fileData = new LazyFileData(getFolderPath(), getHistoryVersion(), this);
             }
             setFileData(fileData);
         }
@@ -110,7 +106,7 @@ public class AProject extends AProjectFolder {
         if (historyFileDatas == null) {
             try {
                 String folderPath = getFolderPath();
-                if (folderPath != null) {
+                if (folderPath != null && !isFolder()) {
                     historyFileDatas = getRepository().listHistory(folderPath);
                 } else {
                     // Local repository doesn't have versions
@@ -431,5 +427,105 @@ public class AProject extends AProjectFolder {
     public String getInternalPath() {
         // The root of the project
         return "";
+    }
+
+    private static class LazyFileData extends FileData {
+        private AProject project;
+
+        private LazyFileData(String name, String version, AProject project) {
+            setName(name);
+            setVersion(version);
+            this.project = project;
+        }
+
+        @Override
+        public long getSize() {
+            verifyInitialized();
+            return super.getSize();
+        }
+
+        @Override
+        public void setSize(long size) {
+            verifyInitialized();
+            super.setSize(size);
+        }
+
+        @Override
+        public String getAuthor() {
+            verifyInitialized();
+            return super.getAuthor();
+        }
+
+        @Override
+        public void setAuthor(String author) {
+            verifyInitialized();
+            super.setAuthor(author);
+        }
+
+        @Override
+        public String getComment() {
+            verifyInitialized();
+            return super.getComment();
+        }
+
+        @Override
+        public void setComment(String comment) {
+            verifyInitialized();
+            super.setComment(comment);
+        }
+
+        @Override
+        public Date getModifiedAt() {
+            verifyInitialized();
+            return super.getModifiedAt();
+        }
+
+        @Override
+        public void setModifiedAt(Date modifiedAt) {
+            verifyInitialized();
+            super.setModifiedAt(modifiedAt);
+        }
+
+        @Override
+        public boolean isDeleted() {
+            verifyInitialized();
+            return super.isDeleted();
+        }
+
+        @Override
+        public void setDeleted(boolean deleted) {
+            verifyInitialized();
+            super.setDeleted(deleted);
+        }
+
+        private void verifyInitialized() {
+            if (project != null) {
+                List<FileData> fileDatas = project.getHistoryFileDatas();
+                if (!fileDatas.isEmpty()) {
+                    FileData repoData = null;
+
+                    String version = getVersion();
+                    if (version == null) {
+                        repoData = fileDatas.get(fileDatas.size() - 1);
+                    } else {
+                        for (FileData data : fileDatas) {
+                            if (data.getVersion().equals(version)) {
+                                repoData = data;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (repoData != null) {
+                        super.setAuthor(repoData.getAuthor());
+                        super.setModifiedAt(repoData.getModifiedAt());
+                        super.setComment(repoData.getComment());
+                        super.setSize(repoData.getSize());
+                        super.setDeleted(repoData.isDeleted());
+                    }
+                }
+                project = null;
+            }
+        }
     }
 }
