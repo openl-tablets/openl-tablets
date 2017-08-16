@@ -7,7 +7,9 @@ import java.util.List;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.table.OpenLArgumentsCloner;
+import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM.SimpleRuntimeEnv;
@@ -34,6 +36,11 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
         return new SimpleRulesRuntimeEnv(this);
     }
 
+    @Override
+    protected IRuntimeContext buildDefaultRuntimeContext() {
+        return RulesRuntimeContextFactory.buildRulesRuntimeContext();
+    }
+    
     private volatile boolean methodArgumentsCacheEnable = false;
     private volatile CacheMode cacheMode = CacheMode.READ_ONLY;
 

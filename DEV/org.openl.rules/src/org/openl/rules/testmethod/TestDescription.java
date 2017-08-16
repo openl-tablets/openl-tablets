@@ -1,10 +1,13 @@
 package org.openl.rules.testmethod;
 
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.RowIdField;
 import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.rules.table.formatters.FormattersManager;
+import org.openl.rules.vm.SimpleRulesRuntimeEnv;
+import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -213,6 +216,11 @@ public class TestDescription {
 
     public IRulesRuntimeContext getRuntimeContext() {
         IRulesRuntimeContext context = (IRulesRuntimeContext) getArgumentValue(TestMethodHelper.CONTEXT_NAME);
+        
+        if (context == null) {
+            return RulesRuntimeContextFactory.buildRulesRuntimeContext();
+        }
+        
         try {
             return cloner.deepClone(context);
         } catch (Exception e) {

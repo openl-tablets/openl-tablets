@@ -17,7 +17,7 @@ public class OverloadedMethodsDispatcherTable extends MatchingOpenMethodDispatch
 
     private final Logger log = LoggerFactory.getLogger(OverloadedMethodsDispatcherTable.class);
 
-    public OverloadedMethodsDispatcherTable() { //For CGLIB proxing
+    public OverloadedMethodsDispatcherTable() { // For CGLIB proxing
     }
 
     public OverloadedMethodsDispatcherTable(IOpenMethod method, XlsModuleOpenClass moduleOpenClass) {
@@ -29,8 +29,9 @@ public class OverloadedMethodsDispatcherTable extends MatchingOpenMethodDispatch
         if (openMethod != null) {
             return openMethod.invoke(target, updateArguments(params, env, openMethod), env);
         } else {
-            log.warn("Dispatcher table for methods group [{}] wasn't built correctly. Dispatching will be passed through the java code instead of dispatcher table.",
-                    MethodUtil.printMethod(getName(), getSignature().getParameterTypes()));
+            log.warn(
+                "Dispatcher table for methods group [{}] wasn't built correctly. Dispatching will be passed through the java code instead of dispatcher table.",
+                MethodUtil.printMethod(getName(), getSignature().getParameterTypes()));
             return super.invoke(target, params, env);
         }
     }
@@ -42,10 +43,8 @@ public class OverloadedMethodsDispatcherTable extends MatchingOpenMethodDispatch
             System.arraycopy(params, 0, arguments, 0, params.length);
         }
         IRulesRuntimeContext context = (IRulesRuntimeContext) env.getContext();
-        if (context != null) {
-            for (int i = parametersOfOverloadedMethods; i < dispatcherMethod.getSignature().getNumberOfParameters(); i++) {
-                arguments[i] = context.getValue(dispatcherMethod.getSignature().getParameterName(i));
-            }
+        for (int i = parametersOfOverloadedMethods; i < dispatcherMethod.getSignature().getNumberOfParameters(); i++) {
+            arguments[i] = context.getValue(dispatcherMethod.getSignature().getParameterName(i));
         }
         return arguments;
     }
