@@ -337,8 +337,13 @@ public class SmartRedeployController {
                 }
             }
 
+            boolean create;
+
             if (deployConfiguration == null) {
                 deployConfiguration = workspace.getDDProject(deploymentName);
+                create = false;
+            } else {
+                create = true;
             }
 
             boolean sameVersion = deployConfiguration.hasProjectDescriptor(project.getName()) && project.getVersion()
@@ -357,7 +362,8 @@ public class SmartRedeployController {
 
                 deployConfiguration.save();
 
-                FacesUtils.addInfoMessage("Deploy configuration '" + deploymentName + "' is successfully updated");
+                String action = create ? "created" : "updated";
+                FacesUtils.addInfoMessage("Deploy configuration '" + deploymentName + "' is successfully " + action);
                 return deployConfiguration;
             }
         } catch (ProjectException e) {
