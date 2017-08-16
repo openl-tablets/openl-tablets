@@ -85,6 +85,9 @@ public class LocalUploadController {
                 }
                 File workspace = new File(webStudio.getWorkspacePath());
                 File[] projects = workspace.listFiles();
+                if (projects == null) {
+                    projects = new File[0];
+                }
                 Arrays.sort(projects, fileNameComparator);
                  // All OpenL projects folders in workspace
                 ProjectResolver projectResolver = webStudio.getProjectResolver();
