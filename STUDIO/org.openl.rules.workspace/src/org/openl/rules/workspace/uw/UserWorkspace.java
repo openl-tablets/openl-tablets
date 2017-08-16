@@ -16,7 +16,7 @@ import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 
 public interface UserWorkspace extends ProjectsContainer {
-    void activate() throws ProjectException;
+    void activate();
 
     void addWorkspaceListener(UserWorkspaceListener listener);
 
@@ -42,7 +42,7 @@ public interface UserWorkspace extends ProjectsContainer {
 
     void passivate();
 
-    void refresh() throws ProjectException;
+    void refresh();
 
     void release();
 

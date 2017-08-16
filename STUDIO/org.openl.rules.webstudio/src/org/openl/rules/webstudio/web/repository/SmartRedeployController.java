@@ -101,6 +101,9 @@ public class SmartRedeployController {
         UserWorkspace workspace = RepositoryUtils.getWorkspace();
 
         List<DeploymentProjectItem> result = new LinkedList<DeploymentProjectItem>();
+        if (workspace == null) {
+            return result; // must never happen
+        }
 
         // FIXME take latest deployment projects from DTR not from user scope
         // get all deployment projects
@@ -328,6 +331,9 @@ public class SmartRedeployController {
             // ADeployConfiguration, because of the renaming 'Deployment
             // Project' to the 'Deploy configuration'
             ADeploymentProject deployConfiguration = null;
+            if (workspace == null) {
+                return null; // must never happen
+            }
 
             if (deploymentName.equals(project.getName())) {
                 // the same name
@@ -337,8 +343,13 @@ public class SmartRedeployController {
                 }
             }
 
+            boolean create;
+
             if (deployConfiguration == null) {
                 deployConfiguration = workspace.getDDProject(deploymentName);
+                create = false;
+            } else {
+                create = true;
             }
 
             boolean sameVersion = deployConfiguration.hasProjectDescriptor(project.getName()) && project.getVersion()
@@ -357,7 +368,8 @@ public class SmartRedeployController {
 
                 deployConfiguration.save();
 
-                FacesUtils.addInfoMessage("Deploy configuration '" + deploymentName + "' is successfully updated");
+                String action = create ? "created" : "updated";
+                FacesUtils.addInfoMessage("Deploy configuration '" + deploymentName + "' is successfully " + action);
                 return deployConfiguration;
             }
         } catch (ProjectException e) {

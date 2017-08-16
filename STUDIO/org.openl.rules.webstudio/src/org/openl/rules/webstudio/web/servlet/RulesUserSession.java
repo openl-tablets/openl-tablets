@@ -20,7 +20,7 @@ public class RulesUserSession {
         return userName;
     }
 
-    public synchronized UserWorkspace getUserWorkspace() throws WorkspaceException, ProjectException {
+    public synchronized UserWorkspace getUserWorkspace() throws WorkspaceException {
         if (userWorkspace == null) {
             userWorkspace = workspaceManager.getUserWorkspace(new WorkspaceUserImpl(getUserName()));
             userWorkspace.activate();
@@ -36,11 +36,7 @@ public class RulesUserSession {
     }
 
     public void sessionDidActivate() {
-        try {
-            userWorkspace.activate();
-        } catch (ProjectException e) {
-            Log.error("Error at activation", e);
-        }
+        userWorkspace.activate();
     }
 
     public void sessionWillPassivate() {

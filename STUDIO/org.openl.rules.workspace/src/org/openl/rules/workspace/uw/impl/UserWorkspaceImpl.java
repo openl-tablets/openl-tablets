@@ -56,7 +56,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         userDProjects = new HashMap<String, ADeploymentProject>();
     }
 
-    public void activate() throws ProjectException {
+    public void activate() {
         refresh();
     }
 
@@ -243,7 +243,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         scheduleDeploymentsRefresh();
     }
 
-    public void refresh() throws ProjectException {
+    public void refresh() {
         localWorkspace.refresh();
         scheduleProjectsRefresh();
         scheduleDeploymentsRefresh();
@@ -331,12 +331,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
                 RulesProject uwp = userRulesProjects.get(name);
                 if (uwp == null) {
-                    // TODO:refactor
-                    if (lp == null) {
-                        uwp = new RulesProject(this, localRepository, null, designRepository, rp.getFileData(), projectsLockEngine);
-                    } else {
-                        uwp = new RulesProject(this, localRepository, lp.getFileData(), designRepository, rp.getFileData(), projectsLockEngine);
-                    }
+                    uwp = new RulesProject(this, localRepository, lp == null ? null : lp.getFileData(), designRepository, rp.getFileData(), projectsLockEngine);
                     userRulesProjects.put(name, uwp);
                 } else if ((uwp.isLocalOnly() || uwp.isRepositoryOnly()) && lp != null) {
                     userRulesProjects.put(name, new RulesProject(this, localRepository, lp.getFileData(), designRepository, rp.getFileData(), projectsLockEngine));
