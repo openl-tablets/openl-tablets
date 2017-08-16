@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
-import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.runtime.OpenLInvocationHandler;
 import org.openl.types.IOpenMember;
@@ -17,15 +16,7 @@ public class OpenLRulesInvocationHandler extends OpenLInvocationHandler implemen
     }
 
     public IRulesRuntimeContext getRuntimeContext() {
-
-        IRulesRuntimeContext runtimeContext = (IRulesRuntimeContext) getRuntimeEnv().getContext();
-
-        if (runtimeContext == null) {
-            runtimeContext = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-            getRuntimeEnv().setContext(runtimeContext);
-        }
-
-        return (IRulesRuntimeContext) runtimeContext;
+        return (IRulesRuntimeContext) getRuntimeEnv().getContext();
     }
 
     public OpenLRulesInvocationHandler(Object openlInstance, Map<Method, IOpenMember> methodMap) {

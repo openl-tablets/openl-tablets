@@ -1,19 +1,19 @@
 package org.openl.rules.types;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContextMutableUUID;
-import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.lang.xls.binding.TableVersionComparator;
 import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
 import org.openl.rules.lang.xls.prebind.LazyMethodWrapper;
@@ -60,11 +60,11 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      */
     private List<IOpenMethod> candidates = new ArrayList<IOpenMethod>();
     private final Invokable invokeInner = new Invokable() {
-        @Override public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+        @Override
+        public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             return invokeInner(target, params, env);
         }
     };
-
 
     /**
      * Creates new instance of decorator.
@@ -152,16 +152,16 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         return candidates;
     }
 
-    private Map<UUID, IOpenMethod> cache = null;
-    
+    private Map<UUID, IOpenMethod> cache = Collections.synchronizedMap(new LinkedHashMap<UUID, IOpenMethod>());
+
     private static final int MAX_ELEMENTS_IN_CAHCE = 1000;
-    private static final int MIN_ELEMENTS_IN_CAHCE = 800;
+    private static final int MIN_ELEMENTS_IN_CAHCE = 500;
 
     /**
      * Invokes appropriate method using runtime context.
      */
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return Tracer.invoke(invokeInner,target, params, env, this);
+        return Tracer.invoke(invokeInner, target, params, env, this);
     }
 
     /**
@@ -173,38 +173,27 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         //
         IRuntimeContext context = env.getContext();
 
-        if (context == null) {
-            // Using empty context: all methods will be matched by properties.
-            context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-        }
-
         // Get matching method.
         //
         IOpenMethod method = null;
-        
-        if (context instanceof IRulesRuntimeContextMutableUUID){
+
+        if (context instanceof IRulesRuntimeContextMutableUUID) {
             IRulesRuntimeContextMutableUUID contextMutableUUID = (IRulesRuntimeContextMutableUUID) context;
-            if (cache != null){
-                method = cache.get(contextMutableUUID.getUUID());
-            }
-            if (method == null){
+            method = cache.get(contextMutableUUID.getUUID());
+            if (method == null) {
                 method = findMatchingMethod(candidates, context);
-                if (cache == null) {
-                    cache = new ConcurrentSkipListMap<UUID, IOpenMethod>();
-                }
                 cache.put(contextMutableUUID.getUUID(), method);
-                if (cache.size() > MAX_ELEMENTS_IN_CAHCE){
+                if (cache.size() > MAX_ELEMENTS_IN_CAHCE) {
                     synchronized (cache) {
-                        if (cache.size() > MAX_ELEMENTS_IN_CAHCE){
-                            Iterator<UUID> itr = cache.keySet().iterator();
-                            while (cache.size() > MIN_ELEMENTS_IN_CAHCE && itr.hasNext()){
-                                cache.remove(itr.next());
-                            }
+                        int i = cache.size() - MIN_ELEMENTS_IN_CAHCE;
+                        Iterator<UUID> itr = cache.keySet().iterator();
+                        while (i > 0) {
+                            cache.remove(itr.next());
                         }
                     }
                 }
             }
-        }else{
+        } else {
             method = findMatchingMethod(candidates, context);
         }
         Tracer.put(this, "rule", method);
@@ -235,11 +224,11 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                 method = methodDelegator.getMethod();
             }
         }
-        
-        if (method instanceof IOpenMethodWrapper){
+
+        if (method instanceof IOpenMethodWrapper) {
             method = ((IOpenMethodWrapper) method).getDelegate();
         }
-        
+
         return method.invoke(target, params, env);
     }
 
@@ -251,14 +240,16 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      * @param key Method key of these methods based on signature.
      * @param existedMethod The existing method.
      */
-    protected IOpenMethod useActiveOrNewerVersion(IOpenMethod existedMethod, IOpenMethod newMethod, MethodKey key) throws DuplicatedMethodException {
+    protected IOpenMethod useActiveOrNewerVersion(IOpenMethod existedMethod,
+            IOpenMethod newMethod,
+            MethodKey key) throws DuplicatedMethodException {
         int compareResult = TableVersionComparator.getInstance().compare(existedMethod, newMethod);
         if (compareResult > 0) {
             return newMethod;
         } else if (compareResult == 0) {
             /**
-             * Throw the error with the right message for the case
-             * when the methods are equal
+             * Throw the error with the right message for the case when the
+             * methods are equal
              */
             if (newMethod instanceof TableUriMethod && existedMethod instanceof TableUriMethod) {
                 String newMethodHashUrl = ((TableUriMethod) newMethod).getTableUri();
@@ -279,7 +270,8 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         int i = 0;
         for (IOpenMethod existedMethod : candidates) {
             if (existedMethod instanceof ITablePropertiesMethod && candidate instanceof ITablePropertiesMethod) {
-                DimensionPropertiesMethodKey existedMethodPropertiesKey = new DimensionPropertiesMethodKey(existedMethod);
+                DimensionPropertiesMethodKey existedMethodPropertiesKey = new DimensionPropertiesMethodKey(
+                    existedMethod);
                 DimensionPropertiesMethodKey newMethodPropertiesKey = new DimensionPropertiesMethodKey(candidate);
                 if (newMethodPropertiesKey.equals(existedMethodPropertiesKey)) {
                     return i;
@@ -289,7 +281,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         }
         return -1;
     }
-    
+
     private Set<MethodKey> candidateKeys = new HashSet<MethodKey>();
 
     /**
@@ -309,35 +301,31 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         // methods and delegate cannot be overloaded by candidate.
         //
         if (delegateKey.equals(candidateKey)) {
-			int i = searchTheSameMethod(candidate);
-			if (i < 0) {
-				candidates.add(candidate);
-			} else {
-				IOpenMethod existedMethod = candidates.get(i);
-				try {
-					candidate = useActiveOrNewerVersion(existedMethod,
-							candidate, candidateKey);
-					candidates.set(i, candidate);
-				} catch (DuplicatedMethodException e) {
-					if (!candidateKeys.contains(candidateKey)){
-						if (existedMethod instanceof IMemberMetaInfo) {
-							IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) existedMethod;
-							if (memberMetaInfo.getSyntaxNode() != null) {
-								if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
-									SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e
-                                                    .getMessage(), e,
-                                            memberMetaInfo.getSyntaxNode());
-									((TableSyntaxNode) memberMetaInfo
-											.getSyntaxNode())
-											.addError(error);
-								}
-							}
-						}
-						candidateKeys.add(candidateKey);
-					}
-					throw e;
-				}
-			}
+            int i = searchTheSameMethod(candidate);
+            if (i < 0) {
+                candidates.add(candidate);
+            } else {
+                IOpenMethod existedMethod = candidates.get(i);
+                try {
+                    candidate = useActiveOrNewerVersion(existedMethod, candidate, candidateKey);
+                    candidates.set(i, candidate);
+                } catch (DuplicatedMethodException e) {
+                    if (!candidateKeys.contains(candidateKey)) {
+                        if (existedMethod instanceof IMemberMetaInfo) {
+                            IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) existedMethod;
+                            if (memberMetaInfo.getSyntaxNode() != null) {
+                                if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
+                                    SyntaxNodeException error = SyntaxNodeExceptionUtils
+                                        .createError(e.getMessage(), e, memberMetaInfo.getSyntaxNode());
+                                    ((TableSyntaxNode) memberMetaInfo.getSyntaxNode()).addError(error);
+                                }
+                            }
+                        }
+                        candidateKeys.add(candidateKey);
+                    }
+                    throw e;
+                }
+            }
         } else {
             // Throw appropriate exception.
             //

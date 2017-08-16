@@ -197,9 +197,6 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             IRulesRuntimeContext context = (IRulesRuntimeContext)env.getContext();
-            if (context == null) {
-                return null;
-            }
             try {
                 return context.clone();
             } catch (CloneNotSupportedException e) {
@@ -378,12 +375,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             if(env.isContextManagingSupported()){
-                IRulesRuntimeContext runtimeContext = (IRulesRuntimeContext)env.getContext();
-                if(runtimeContext == null){
-                    runtimeContext = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-                }else{
-                    runtimeContext = new RulesRuntimeContextDelegator(runtimeContext);
-                }
+                IRulesRuntimeContext runtimeContext = new RulesRuntimeContextDelegator((IRulesRuntimeContext)env.getContext());
                 runtimeContext.setValue((String)params[0], params[1]);
                 env.pushContext(runtimeContext);
             } else {
