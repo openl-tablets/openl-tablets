@@ -101,6 +101,9 @@ public class SmartRedeployController {
         UserWorkspace workspace = RepositoryUtils.getWorkspace();
 
         List<DeploymentProjectItem> result = new LinkedList<DeploymentProjectItem>();
+        if (workspace == null) {
+            return result; // must never happen
+        }
 
         // FIXME take latest deployment projects from DTR not from user scope
         // get all deployment projects
@@ -328,6 +331,9 @@ public class SmartRedeployController {
             // ADeployConfiguration, because of the renaming 'Deployment
             // Project' to the 'Deploy configuration'
             ADeploymentProject deployConfiguration = null;
+            if (workspace == null) {
+                return null; // must never happen
+            }
 
             if (deploymentName.equals(project.getName())) {
                 // the same name
