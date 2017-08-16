@@ -56,7 +56,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         userDProjects = new HashMap<String, ADeploymentProject>();
     }
 
-    public void activate() throws ProjectException {
+    public void activate() {
         refresh();
     }
 
@@ -243,7 +243,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         scheduleDeploymentsRefresh();
     }
 
-    public void refresh() throws ProjectException {
+    public void refresh() {
         localWorkspace.refresh();
         scheduleProjectsRefresh();
         scheduleDeploymentsRefresh();
