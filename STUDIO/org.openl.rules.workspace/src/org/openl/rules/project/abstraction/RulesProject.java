@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.openl.rules.common.*;
 import org.openl.rules.common.impl.ArtefactPathImpl;
-import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.LockEngine;
 import org.openl.rules.repository.api.FileData;
@@ -23,14 +22,31 @@ public class RulesProject extends UserWorkspaceProject {
     private String designFolderName;
     private final LockEngine lockEngine;
 
+    /**
+     * Constructor for the projects that have local copy in user workspace. (isRepositoryOnly() == false)
+     */
+    public RulesProject(UserWorkspace userWorkspace,
+            String version,
+            LocalRepository localRepository, String localFolderName,
+            Repository designRepository, String designFolderName,
+            LockEngine lockEngine) {
+        super(userWorkspace.getUser(), localRepository, localFolderName, version, true);
+        this.localRepository = localRepository;
+        this.localFolderName = localFolderName;
+        this.designRepository = designRepository;
+        this.designFolderName = designFolderName;
+        this.lockEngine = lockEngine;
+    }
+
+    /**
+     * Constructor for the projects that doesn't have local copy in user workspace. (isRepositoryOnly() == true)
+     */
     public RulesProject(UserWorkspace userWorkspace,
             LocalRepository localRepository,
-            FileData localFileData,
             Repository designRepository, FileData designFileData, LockEngine lockEngine) {
-        super(userWorkspace.getUser(), localFileData != null ? localRepository : designRepository,
-                localFileData != null ? localFileData : designFileData, localFileData != null);
+        super(userWorkspace.getUser(), designRepository, designFileData, false);
         this.localRepository = localRepository;
-        this.localFolderName = localFileData == null ? null : localFileData.getName();
+        this.localFolderName = null;
         this.designRepository = designRepository;
         this.designFolderName = designFileData == null ? null : designFileData.getName();
         this.lockEngine = lockEngine;
@@ -164,7 +180,7 @@ public class RulesProject extends UserWorkspaceProject {
         if (historyVersion == null) {
             return getLastVersion();
         }
-        return new RepositoryProjectVersionImpl(historyVersion, null);
+        return super.getVersion();
     }
 
     @Override
