@@ -60,7 +60,7 @@ public class CastFactory implements ICastFactory {
     /**
      * Internal cache of cast operations.
      */
-    private Map<Object, IOpenCast> castCache = new HashMap<>();
+    private Map<Object, IOpenCast> castCache = new HashMap<Object, IOpenCast>();
     private ReadWriteLock castCacheLock = new ReentrantReadWriteLock();
 
     /**
