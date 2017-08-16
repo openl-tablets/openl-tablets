@@ -24,11 +24,17 @@
         <property name="realmName" value="WebStudio Realm" />
     </bean>
 
+    <bean id="restBasicAuthenticationFilter" class="org.springframework.security.web.authentication.www.BasicAuthenticationFilter">
+        <constructor-arg name="authenticationManager" ref="authenticationManager" />
+        <constructor-arg name="authenticationEntryPoint" ref="restBasicAuthenticationEntryPoint"/>
+    </bean>
+
+    <bean name="restBasicAuthenticationEntryPoint" class="org.openl.rules.rest.RestBasicAuthenticationEntryPoint">
+        <property name="realmName" value="WebStudio Realm"/>
+    </bean>
 
     <bean id="restExceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
-        <constructor-arg name="authenticationEntryPoint">
-            <bean class="org.openl.rules.rest.RestAuthenticationEntryPoint"/>
-        </constructor-arg>
+        <constructor-arg name="authenticationEntryPoint" ref="restBasicAuthenticationEntryPoint"/>
     </bean>
 
     <bean id="exceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">

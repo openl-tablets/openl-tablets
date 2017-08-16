@@ -18,8 +18,6 @@
                 <security:intercept-url pattern="/faces/pages/modules/administration/**" access="ADMIN" />
                 <!-- Don't allow unprivileged users to run install wizard by manually entering install wizard url when studio is configured already -->
                 <security:intercept-url pattern="/faces/pages/modules/install/**" access="ADMINISTRATE" />
-                <security:intercept-url pattern="/rest/**" method="POST" access="EDIT_PROJECTS" />
-                <security:intercept-url pattern="/rest/**" method="DELETE" access="DELETE_PROJECTS" />
                 <security:intercept-url pattern="/**" access="VIEW_PROJECTS" />
             </security:filter-security-metadata-source>
         </property>

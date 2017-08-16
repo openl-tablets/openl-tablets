@@ -2,8 +2,6 @@ package org.openl.rules.security;
 
 import java.util.Collection;
 
-import org.openl.rules.security.Privileges;
-import org.openl.rules.security.Group;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
