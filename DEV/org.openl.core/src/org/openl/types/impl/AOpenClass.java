@@ -289,7 +289,7 @@ public abstract class AOpenClass implements IOpenClass {
 
     }
 
-    private Map<MethodKey, IOpenMethod> methodMap;
+    private volatile Map<MethodKey, IOpenMethod> methodMap;
 
     private Map<MethodKey, IOpenMethod> methodMap() {
         if (methodMap == null) {
@@ -349,10 +349,14 @@ public abstract class AOpenClass implements IOpenClass {
     private Collection<IOpenMethod> allMethodsCache = null;
     private volatile boolean allMethodsCacheInvalidated = true;
 
-    public synchronized Collection<IOpenMethod> getMethods() {
+    public final Collection<IOpenMethod> getMethods() {
         if (allMethodsCacheInvalidated) {
-            allMethodsCache = buildAllMethods();
-            allMethodsCacheInvalidated = false;
+            synchronized (this) {
+                if (allMethodNamesMapInvalidated) {
+                    allMethodsCache = buildAllMethods();
+                    allMethodsCacheInvalidated = false;
+                }
+            }
         }
         return allMethodsCache;
     }
@@ -444,11 +448,13 @@ public abstract class AOpenClass implements IOpenClass {
     private volatile boolean allMethodNamesMapInvalidated = true;
 
     @Override
-    public synchronized Iterable<IOpenMethod> methods(String name) {
+    public final Iterable<IOpenMethod> methods(String name) {
         if (allMethodNamesMapInvalidated) {
             synchronized (this) {
-                allMethodNamesMap = buildMethodNameMap(getMethods());
-                allMethodNamesMapInvalidated = false;
+                if (allMethodNamesMapInvalidated){
+                    allMethodNamesMap = buildMethodNameMap(getMethods());
+                    allMethodNamesMapInvalidated = false;
+                }
             }
         }
         List<IOpenMethod> found = allMethodNamesMap.get(name);
