@@ -192,8 +192,10 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                     synchronized (cache) {
                         int i = cache.size() - MIN_ELEMENTS_IN_CAHCE;
                         Iterator<UUID> itr = cache.keySet().iterator();
-                        while (i > 0) {
-                            cache.remove(itr.next());
+                        while (i > 0 && itr.hasNext()) {
+                            itr.next();
+                            itr.remove();
+                            i--;
                         }
                     }
                 }
