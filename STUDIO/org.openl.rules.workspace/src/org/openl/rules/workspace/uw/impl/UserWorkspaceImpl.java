@@ -385,7 +385,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
     public void uploadLocalProject(String name) throws ProjectException {
         try {
             AProject createdProject = createProject(name);
-            createdProject.update(localWorkspace.getProject(name), user);
+            AProject project = localWorkspace.getProject(name);
+            project.refresh();
+            createdProject.update(project, user);
             refreshRulesProjects();
         } catch (ProjectException e) {
             try {
