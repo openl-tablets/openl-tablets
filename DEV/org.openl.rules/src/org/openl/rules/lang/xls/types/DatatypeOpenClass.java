@@ -21,10 +21,12 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.impl.MethodSignature;
+import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenMethod;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -214,15 +216,13 @@ public class DatatypeOpenClass extends ADynamicClass {
 
         public IMethodSignature getSignature() {
             Map<String, IOpenField> fields = openClass.getFields();
-            IOpenClass[] params = new IOpenClass[fields.size()];
-            String[] names = new String[fields.size()];
+            IParameterDeclaration[] params = new IParameterDeclaration[fields.size()];
             int i = 0;
             for (Entry<String, IOpenField> field : fields.entrySet()) {
-                params[i] = field.getValue().getType();
-                names[i] = field.getKey();
+                params[i] = new ParameterDeclaration(field.getValue().getType(), field.getKey());
                 i++;
             }
-            return new MethodSignature(params, names);
+            return new MethodSignature(params);
         }
 
         public IOpenClass getType() {

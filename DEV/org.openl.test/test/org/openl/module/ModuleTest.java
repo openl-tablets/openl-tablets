@@ -19,6 +19,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DynamicObjectField;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
+import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -191,7 +192,7 @@ public class ModuleTest extends TestCase {
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
 
         JavaOpenClass openClass = JavaOpenClass.getOpenClass(context.getClass());
-        IMethodSignature signature = new MethodSignature(new IOpenClass[] { openClass }, new String[] { "context" });
+        IMethodSignature signature = new MethodSignature(new ParameterDeclaration(openClass, "context"));
 
         OpenMethodHeader methodHeader = new OpenMethodHeader("foo", retType, signature, null);
 
@@ -237,7 +238,7 @@ public class ModuleTest extends TestCase {
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
 
         JavaOpenClass openClass = JavaOpenClass.getOpenClass(context.getClass());
-        IMethodSignature signature = new MethodSignature(new IOpenClass[] { openClass }, new String[] { "context" });
+        IMethodSignature signature = new MethodSignature(new ParameterDeclaration(openClass, "context"));
 
         OpenMethodHeader methodHeader = new OpenMethodHeader("foo", JavaOpenClass.VOID, signature, null);
 
@@ -253,7 +254,7 @@ public class ModuleTest extends TestCase {
     private IOpenMethod makeMethod(ModuleOpenClass module, String expr, IOpenClass retType, OpenL op) {
         IOpenSourceCodeModule src = new StringSourceCodeModule(expr, null);
 
-        IMethodSignature signature = new MethodSignature(new IOpenClass[] {}, new String[] {});
+        IMethodSignature signature = IMethodSignature.VOID;
 
         OpenMethodHeader methodHeader = new OpenMethodHeader("foo", retType, signature, null);
 
