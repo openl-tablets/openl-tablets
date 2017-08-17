@@ -20,7 +20,6 @@ public class OpenClassDelegator implements IOpenClass {
     private IOpenClass baseClass;
     private String name;
     private IMetaInfo metaInfo;
-    private String nameSpace;
 
     public OpenClassDelegator(String name, IOpenClass baseClass, IMetaInfo metaInfo) {
         this.baseClass = baseClass;
@@ -82,7 +81,7 @@ public class OpenClassDelegator implements IOpenClass {
     }
 
     public String getNameSpace() {
-        return nameSpace;
+        return null;
     }
 
     public IOpenClass getOpenClass() {
@@ -133,20 +132,8 @@ public class OpenClassDelegator implements IOpenClass {
         return baseClass.nullObject();
     }
 
-    public void setBaseClass(IOpenClass baseClass) {
-        this.baseClass = baseClass;
-    }
-
     public void setMetaInfo(IMetaInfo metaInfo) {
         this.metaInfo = metaInfo;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setNameSpace(String nameSpace) {
-        this.nameSpace = nameSpace;
     }
 
     public Iterable<IOpenClass> superClasses() {
