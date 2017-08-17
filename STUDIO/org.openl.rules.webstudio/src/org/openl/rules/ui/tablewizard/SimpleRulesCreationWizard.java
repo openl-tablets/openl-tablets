@@ -44,7 +44,6 @@ import org.openl.rules.ui.tablewizard.util.CellStyleManager;
 import org.openl.rules.ui.tablewizard.util.JSONHolder;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
-import org.openl.types.impl.OpenClassDelegator;
 import org.openl.util.StringUtils;
 import org.richfaces.json.JSONException;
 import org.slf4j.Logger;
@@ -103,11 +102,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
 
         Collection<String> allClasses = DomainTree.buildTree(WizardUtils.getProjectOpenClass()).getAllClasses();
         for (IOpenClass type : importedClasses) {
-            if (type instanceof OpenClassDelegator) {
-                allClasses.add(type.getName());
-            } else {
-                allClasses.add(type.getDisplayName(INamedThing.SHORT));
-            }
+            allClasses.add(type.getDisplayName(INamedThing.SHORT));
         }
 
         domainTypes = FacesUtils.createSelectItems(allClasses);
@@ -116,11 +111,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         this.typesList = new ArrayList<DomainTypeHolder>();
 
         for (IOpenClass oc : classTypes) {
-            if (oc instanceof OpenClassDelegator) {
-                typesList.add(new DomainTypeHolder(oc.getName(), oc, false));
-            } else {
-                typesList.add(new DomainTypeHolder(oc.getDisplayName(INamedThing.SHORT), oc, false));
-            }
+            typesList.add(new DomainTypeHolder(oc.getDisplayName(INamedThing.SHORT), oc, false));
         }
     }
 

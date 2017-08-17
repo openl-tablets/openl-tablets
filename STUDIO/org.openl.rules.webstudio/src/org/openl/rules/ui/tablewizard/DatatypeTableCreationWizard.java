@@ -21,7 +21,6 @@ import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DatatypeTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.types.IOpenClass;
-import org.openl.types.impl.OpenClassDelegator;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -130,11 +129,7 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
         definedDatatypes = FacesUtils.createSelectItems(datatypes);
         Collection<String> allClasses = domainTree.getAllClasses();
         for (IOpenClass type : importedClasses) {
-            if (type instanceof OpenClassDelegator) {
-                allClasses.add(type.getName());
-            } else {
-                allClasses.add(type.getDisplayName(INamedThing.SHORT));
-            }
+            allClasses.add(type.getDisplayName(INamedThing.SHORT));
         }
         domainTypes = FacesUtils.createSelectItems(allClasses);
 

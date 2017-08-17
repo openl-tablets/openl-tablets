@@ -44,7 +44,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.ArrayOpenClass;
-import org.openl.types.impl.OpenClassDelegator;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -163,12 +162,7 @@ public class DomainTree {
             type = getComponentType(type);
         }
                 
-        String simpleTypeName;
-        if (type instanceof OpenClassDelegator) {
-            simpleTypeName = type.getName();
-        } else {
-            simpleTypeName = type.getDisplayName(INamedThing.SHORT);
-        }
+        String simpleTypeName = type.getDisplayName(INamedThing.SHORT);
 
         if (!treeElements.containsKey(simpleTypeName) && !ignoredTypes.contains(simpleTypeName)) {
             Class<?> instanceClass = type.getInstanceClass(); // instance class can be null, in case 
@@ -299,11 +293,7 @@ public class DomainTree {
             }
             openClass = field.getType();
         }
-        if (openClass instanceof OpenClassDelegator) {
-            return openClass.getName();
-        } else {
-            return openClass.getDisplayName(INamedThing.SHORT);
-        }
+        return openClass.getDisplayName(INamedThing.SHORT);
     }
 
 }
