@@ -1,7 +1,5 @@
 package org.openl.types.impl;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
@@ -30,6 +28,7 @@ public class DomainOpenClass implements IOpenClass {
     private IMetaInfo metaInfo;
 
     public DomainOpenClass(String name, IOpenClass baseClass, IDomain<?> domain, IMetaInfo metaInfo) {
+        assert name != null;
         this.baseClass = baseClass;
         this.name = name;
         this.metaInfo = metaInfo;
@@ -194,20 +193,22 @@ public class DomainOpenClass implements IOpenClass {
         return baseClass.getMethods();
     }
 
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder().append(getName()).toHashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof IOpenClass)) {
-            return false;
-        }
-        return new EqualsBuilder().append(getName(), ((IOpenClass) obj).getName()).isEquals();
-    }
-
     public Iterable<IOpenMethod> methods(String name) {
         return baseClass.methods(name);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DomainOpenClass that = (DomainOpenClass) o;
+
+        return name.equals(that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
     }
 }
