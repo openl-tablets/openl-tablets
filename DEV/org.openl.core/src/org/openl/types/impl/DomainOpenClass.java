@@ -1,6 +1,5 @@
 package org.openl.types.impl;
 
-import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;
@@ -80,10 +79,6 @@ public class DomainOpenClass implements IOpenClass {
 
     public Class<?> getInstanceClass() {
         return baseClass.getInstanceClass();
-    }
-
-    public IOpenMethod getMatchingMethod(String mname, IOpenClass[] params) throws AmbiguousMethodException {
-        return baseClass.getMatchingMethod(mname, params);
     }
 
     public IMetaInfo getMetaInfo() {

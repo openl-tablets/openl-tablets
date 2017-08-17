@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Assert;
 import org.openl.CompiledOpenClass;
-import org.openl.conf.UserContext;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -173,7 +172,7 @@ public abstract class BaseOpenlBuilderHelper {
 
     protected IOpenMethod getMethod(String methodName, IOpenClass[] params) {
         IOpenClass clazz = getCompiledOpenClass().getOpenClassWithErrors();
-        return clazz.getMatchingMethod(methodName, params);
+        return clazz.getMethod(methodName, params);
     }
 
     protected IOpenField getField(String fieldName) {

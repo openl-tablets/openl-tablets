@@ -262,7 +262,7 @@ public class MethodSearch {
             ICastFactory casts,
             IMethodFactory factory,
             boolean strictMatch) throws AmbiguousMethodException {
-        IMethodCaller caller = factory.getMatchingMethod(name, params);
+        IMethodCaller caller = factory.getMethod(name, params);
         if (caller != null) {
             return caller;
         }

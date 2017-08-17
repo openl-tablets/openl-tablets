@@ -18,7 +18,6 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.binding.ICastFactory;
-import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.cast.CastFactory;
@@ -148,10 +147,6 @@ public abstract class AOpenClass implements IOpenClass {
 
     public IOpenField getIndexField() {
         return indexField;
-    }
-
-    public IOpenMethod getMatchingMethod(String name, IOpenClass[] params) throws AmbiguousMethodException {
-        return getMethod(name, params);
     }
 
     public IMetaInfo getMetaInfo() {

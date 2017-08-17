@@ -28,7 +28,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.openl.base.INamedThing;
-import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IMemberMetaInfo;
@@ -252,12 +251,6 @@ public class JavaOpenClass extends AOpenClass {
         return instanceClass;
     }
 
-    @Override
-    public IOpenMethod getMatchingMethod(String name, IOpenClass[] params) throws AmbiguousMethodException {
-        return getMethod(name, params);
-    }
-
-    
     String name;
 
     public String getName() {

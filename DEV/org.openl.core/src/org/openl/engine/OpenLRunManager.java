@@ -63,7 +63,7 @@ public class OpenLRunManager extends OpenLHolder {
         IOpenMethod method = null;
 
         if (paramTypes != null) {
-            method = openClass.getMatchingMethod(methodName, paramTypes);
+            method = openClass.getMethod(methodName, paramTypes);
         } else {
             List<IOpenMethod> list = CollectionUtils.findAll(openClass.getMethods(),
                     new CollectionUtils.Predicate<IOpenMethod>() {

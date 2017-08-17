@@ -66,7 +66,7 @@ public final class WrapperLogic {
             }
         } else {
             if (topClass != xlsModuleOpenClass) {
-                IOpenMethod matchedMethod = topClass.getMatchingMethod(wrapper.getDelegate().getName(),
+                IOpenMethod matchedMethod = topClass.getMethod(wrapper.getDelegate().getName(),
                     wrapper.getDelegate().getSignature().getParameterTypes());
                 if (matchedMethod != null) {
                     while (matchedMethod instanceof LazyMethodWrapper || matchedMethod instanceof MethodDelegator) {

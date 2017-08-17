@@ -56,7 +56,7 @@ public class Algorithm1Wrapper implements org.openl.main.OpenLWrapper {
         // __env.set(wrapper.getEnv());
 
         this_Field = __class.getField("this");
-        modification_Method = __class.getMatchingMethod("modification", new IOpenClass[] {});
+        modification_Method = __class.getMethod("modification", new IOpenClass[] {});
 
         __initialized = true;
     }
