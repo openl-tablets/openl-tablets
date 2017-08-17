@@ -175,7 +175,7 @@ public class SimpleVM implements IOpenVM {
 
         public void setContext(IRuntimeContext context) {
             if (context == null) {
-                throw new NullPointerException();
+                context = buildDefaultRuntimeContext();
             }
             contextStack.clear();
             pushContext(context);
