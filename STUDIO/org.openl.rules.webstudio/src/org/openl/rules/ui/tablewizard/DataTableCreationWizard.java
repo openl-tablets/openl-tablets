@@ -28,7 +28,7 @@ import org.openl.rules.table.xls.builder.DataTableUserDefinedTypeField;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.impl.OpenClassDelegator;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.Log;
 import org.openl.util.StringUtils;
 
@@ -104,7 +104,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
         while (classIterator.hasNext()) {
             className = classIterator.next();
             for (IOpenClass dataType : domainTree.getAllOpenClasses()) {
-                if (dataType instanceof OpenClassDelegator) {
+                if (dataType instanceof DomainOpenClass) {
                     typeName = dataType.getName();
                     if (typeName.equals(className)) {
                         classIterator.remove();
@@ -114,7 +114,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
         }
 
         for (IOpenClass type : importedClasses) {
-            if (!(type instanceof OpenClassDelegator)) {
+            if (!(type instanceof DomainOpenClass)) {
                 allClasses.add(type.getDisplayName(INamedThing.SHORT));
             }
         }
