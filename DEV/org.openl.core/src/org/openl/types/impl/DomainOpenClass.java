@@ -84,8 +84,8 @@ public class DomainOpenClass implements IOpenClass {
     }
 
     @Override
-    public IOpenMethod getMatchingConstructor(String name, IOpenClass[] params) throws AmbiguousMethodException {
-        return baseClass.getMatchingConstructor(name, params);
+    public IOpenMethod getConstructor(String name, IOpenClass[] params) throws AmbiguousMethodException {
+        return baseClass.getConstructor(name, params);
     }
 
     public IMetaInfo getMetaInfo() {

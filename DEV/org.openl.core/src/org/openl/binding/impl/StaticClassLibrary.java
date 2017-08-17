@@ -74,7 +74,7 @@ public class StaticClassLibrary implements IOpenLibrary {
     }
     
     @Override
-    public IOpenMethod getMatchingConstructor(String name, IOpenClass[] params) throws AmbiguousMethodException {
+    public IOpenMethod getConstructor(String name, IOpenClass[] params) throws AmbiguousMethodException {
         return null;
     }
 

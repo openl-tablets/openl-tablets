@@ -69,7 +69,7 @@ public class NullOpenClass implements IOpenClass {
     }
 
     @Override
-    public IOpenMethod getMatchingConstructor(String name, IOpenClass[] params) {
+    public IOpenMethod getConstructor(String name, IOpenClass[] params) {
         return null;
     }
 

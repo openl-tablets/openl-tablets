@@ -150,8 +150,10 @@ public abstract class AOpenClass implements IOpenClass {
         return indexField;
     }
 
-    public IOpenMethod getMatchingConstructor(String name, IOpenClass[] params) throws AmbiguousMethodException {
-        return getDeclaredConstructor(name, params);
+    public IOpenMethod getConstructor(String name, IOpenClass[] params) {
+        Map<MethodKey, IOpenMethod> m = constructorMap();
+        MethodKey methodKey = new MethodKey(name, params, true);
+        return m.get(methodKey);
     }
 
     public IMetaInfo getMetaInfo() {
@@ -427,18 +429,12 @@ public abstract class AOpenClass implements IOpenClass {
         return Collections.unmodifiableCollection(methods.values());
     }
 
-    protected IOpenMethod getDeclaredMethod(String name, IOpenClass[] classes) {
+    public IOpenMethod getDeclaredMethod(String name, IOpenClass[] classes) {
         Map<MethodKey, IOpenMethod> m = methodMap();
         MethodKey methodKey = new MethodKey(name, classes);
         return m.get(methodKey);
     }
     
-    protected IOpenMethod getDeclaredConstructor(String name, IOpenClass[] classes) {
-        Map<MethodKey, IOpenMethod> m = constructorMap();
-        MethodKey methodKey = new MethodKey(name, classes, true);
-        return m.get(methodKey);
-    }
-
     public Collection<IOpenMethod> getDeclaredMethods() {
         return methodMap().values();
     }

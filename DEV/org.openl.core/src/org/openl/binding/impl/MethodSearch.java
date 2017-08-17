@@ -467,7 +467,7 @@ public class MethodSearch {
             ICastFactory casts,
             IMethodFactory factory,
             boolean strictMatch) throws AmbiguousMethodException {
-        IMethodCaller caller = factory.getMatchingConstructor(name, params);
+        IMethodCaller caller = factory.getConstructor(name, params);
         if (caller != null) {
             return caller;
         }
