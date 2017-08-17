@@ -13,7 +13,6 @@ import org.openl.base.INamedThing;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
-import org.openl.types.impl.OpenClassDelegator;
 import org.openl.util.ClassUtils;
 import org.openl.util.IConvertor;
 import org.openl.util.print.DefaultFormat;
@@ -31,7 +30,7 @@ public class MethodUtil {
     };
 
     public static String printType(IOpenClass type) {
-        return type instanceof OpenClassDelegator ? type.getName() : type.getDisplayName(INamedThing.SHORT);
+        return type.getDisplayName(INamedThing.SHORT);
     }
 
     public static StringBuilder printMethod(IOpenMethodHeader method, StringBuilder buf) {
