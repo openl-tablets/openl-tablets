@@ -148,7 +148,7 @@ public class IntRangeParsingTest {
             ITestI instance = testHelper.getInstance();
             instance.hello1(10);
         } catch (CompositeOpenlException e) {
-            assertTrue(e.toString().contains("IntRangeParsing1.xls?sheet=hello2&cell=C8"));
+            assertTrue(e.toString().contains("IntRangeParsing1.xls?sheet=hello2&range=C8:D8"));
         }
     }
 }

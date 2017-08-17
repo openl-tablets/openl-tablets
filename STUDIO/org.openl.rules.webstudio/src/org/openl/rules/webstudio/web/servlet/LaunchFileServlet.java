@@ -102,10 +102,10 @@ public class LaunchFileServlet extends HttpServlet {
 
             XlsUrlParser parser = new XlsUrlParser();
             parser.parse(decodedUriParameter);
-            wbPath = parser.wbPath;
-            wbName = wrapperGrid != null ? wrapperGrid.getSourceFileName() : parser.wbName;
-            wsName = parser.wsName;
-            range = parser.range;
+            wbPath = parser.getWbPath();
+            wbName = wrapperGrid != null ? wrapperGrid.getSourceFileName() : parser.getWbName();
+            wsName = parser.getWsName();
+            range = parser.getRange();
 
             log.debug("wbPath: {}, wbName: {}, wsName: {}, range: {}", wbPath, wbName, wsName, range);
         } catch (Exception e) {

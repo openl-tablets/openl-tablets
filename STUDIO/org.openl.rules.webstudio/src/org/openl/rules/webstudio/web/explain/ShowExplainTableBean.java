@@ -85,7 +85,7 @@ public class ShowExplainTableBean {
 
         XlsUrlParser p1 = new XlsUrlParser();
         p1.parse(uri);
-        IGridRegion region = IGridRegion.Tool.makeRegion(p1.range);
+        IGridRegion region = IGridRegion.Tool.makeRegion(p1.getRange());
         
         if (table.getGridTable().getGrid() instanceof CompositeGrid) {
             CompositeGrid compositeGrid = (CompositeGrid) table.getGridTable().getGrid();

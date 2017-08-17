@@ -94,8 +94,8 @@ public class MessageHandler {
         XlsUrlParser uriParser = new XlsUrlParser();
         uriParser.parse(errorUri);
         String url = "table?id=" + tableId;
-        if (StringUtils.isNotBlank(uriParser.cell)) {
-            url += "&errorCell=" + uriParser.cell;
+        if (StringUtils.isNotBlank(uriParser.getCell())) {
+            url += "&" + org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_ERROR_CELL + "=" + uriParser.getCell();
         }
         return WebStudioUtils.getWebStudio().url(url);
     }

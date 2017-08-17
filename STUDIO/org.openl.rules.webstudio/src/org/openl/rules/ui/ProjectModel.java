@@ -222,7 +222,7 @@ public class ProjectModel {
         XlsUrlParser parsedUrl = new XlsUrlParser();
         parsedUrl.parse(url);
 
-        if (parsedUrl.range == null) {
+        if (parsedUrl.getRange() == null) {
             return null;
         }
 

@@ -64,6 +64,6 @@ public class Test4 {
                 ITest4E test = testHelper.getInstance();
                 test.nonIntScore(10, 0, 0, 0);
             }
-        }, "Score algorithm supports int or Integer return type only!", "range=" + StringTool.encodeURL("B3:M10"));
+        }, "Score algorithm supports int or Integer return type only!", "range=B3:M10");
     }
 }

@@ -16,19 +16,15 @@ import org.openl.rules.table.syntax.XlsURLConstants;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringTool;
 
-/**
- * @author sam
- */
-
 public class XlsUrlParser implements XlsURLConstants {
 
-    public String wbPath;
-    public String wbName;
-    public String wsName;
+    private String wbPath;
+    private String wbName;
+    private String wsName;
 
-    public String range;
-    public String cell;
-
+    private String range;
+    private String cell;
+    
     public void parse(String url) {
 
         String file;
@@ -65,6 +61,10 @@ public class XlsUrlParser implements XlsURLConstants {
             // TODO line, col
             range = cell;
         }
+        
+        if (cell == null && range != null) {
+            cell = range.substring(0, range.indexOf(":"));
+        }
 
         if ("null".equals(file)) {
             // there is no file representation
@@ -88,4 +88,25 @@ public class XlsUrlParser implements XlsURLConstants {
         }
     }
 
+    public String getWbPath() {
+        return wbPath;
+    }
+
+    public String getWbName() {
+        return wbName;
+    }
+
+    public String getWsName() {
+        return wsName;
+    }
+
+    public String getRange() {
+        return range;
+    }
+
+    public String getCell() {
+        return cell;
+    }
+    
+    
 }

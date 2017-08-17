@@ -31,7 +31,7 @@ public class XmlRulesFileLauncher implements FileLauncher {
             parser.parse(StringTool.decodeURL(uri));
             Desktop desktop = Desktop.getDesktop();
             if (desktop.isSupported(Desktop.Action.OPEN)) {
-                desktop.open(new File(parser.wbPath, sourceFileName));
+                desktop.open(new File(parser.getWbPath(), sourceFileName));
             } else {
                 log.error("File open is not supported");
             }

@@ -21,11 +21,18 @@ public abstract class AGrid implements IGrid {
     public String getRangeUri(int colStart, int rowStart, int colEnd, int rowEnd) {
 
         if (colStart == colEnd && rowStart == rowEnd) {
-            return getUri() + "&" + "cell=" + getCell(colStart, rowStart).getUri();
+            ICell cell = getCell(colStart, rowStart);
+            IGridRegion region = cell.getRegion();
+            if (region == null || (region.getRight() == region.getLeft() && region.getBottom() == region.getTop())) {
+                return getUri() + "&" + "cell=" + cell.getUri();
+            } else {
+                String range = getCell(region.getLeft(), region.getTop()).getUri() + RANGE_SEPARATOR + getCell(region.getRight(), region.getBottom()).getUri();
+                return getUri() + "&" + XlsURLConstants.RANGE + "=" + range;
+            }
         }
 
         String range = getCell(colStart, rowStart).getUri() + RANGE_SEPARATOR + getCell(colEnd, rowEnd).getUri();
-        return getUri() + "&" + XlsURLConstants.RANGE + "=" + StringTool.encodeURL(range);
+        return getUri() + "&" + XlsURLConstants.RANGE + "=" + range;
     }
 
     public IGridRegion getRegionContaining(int col, int row) {

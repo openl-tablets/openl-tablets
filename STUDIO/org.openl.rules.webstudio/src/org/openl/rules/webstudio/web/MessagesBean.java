@@ -77,7 +77,7 @@ public class MessagesBean {
         XlsUrlParser uriParser = new XlsUrlParser();
         uriParser.parse(errorUri);
 
-        return uriParser.cell;
+        return uriParser.getCell();
     }
 
     private String getErrorUri() {
