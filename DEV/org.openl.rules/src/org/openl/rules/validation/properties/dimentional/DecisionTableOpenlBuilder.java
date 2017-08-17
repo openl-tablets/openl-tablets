@@ -9,8 +9,10 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
+import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
+import org.openl.types.impl.ParameterDeclaration;
 
 /**
  * Builder for executable Decision table. 
@@ -26,15 +28,16 @@ public class DecisionTableOpenlBuilder implements Builder<DecisionTable>{
     private TableSyntaxNode tsn;
     private ModuleOpenClass moduleOpenClass;
     
-    public DecisionTableOpenlBuilder(String tableName, IOpenClass returnType, IMethodSignature signature) {
-    	this.tableName = tableName;
-    	this.returnType = returnType;
-    	this.signature = signature;
-    }
-    
     public DecisionTableOpenlBuilder(String tableName, IOpenClass returnType, Map<String, IOpenClass> incomeParams) {
-    	this(tableName, returnType, new MethodSignature(incomeParams.values().toArray(
-                new IOpenClass[incomeParams.size()]), incomeParams.keySet().toArray(new String[incomeParams.size()])));        
+        this.tableName = tableName;
+        this.returnType = returnType;
+        IParameterDeclaration[] params = new IParameterDeclaration[incomeParams.size()];
+        int i = 0;
+        for (Map.Entry<String, IOpenClass> field : incomeParams.entrySet()) {
+            params[i] = new ParameterDeclaration(field.getValue(), field.getKey());
+            i++;
+        }
+        this.signature = new MethodSignature(params);
     }
     
     public DecisionTable build() {

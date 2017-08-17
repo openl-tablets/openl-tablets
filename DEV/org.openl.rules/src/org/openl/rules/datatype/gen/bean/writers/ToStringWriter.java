@@ -57,12 +57,8 @@ public class ToStringWriter extends MethodWriter {
                 methodVisitor.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ArrayUtils.class), "toString", descriptor);
                 StringBuilderInvoker.getAppend(String.class).invoke(methodVisitor);
             } else if (short.class.equals(type) || byte.class.equals(type)){
-                String descriptor = Type.getMethodDescriptor(Type.getType(Integer.class), Type.getType(type));
-                methodVisitor.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(Integer.class), "valueOf", descriptor);
-                Invokers.INT_VALUE.invoke(methodVisitor);
                 StringBuilderInvoker.getAppend(int.class).invoke(methodVisitor);
-            }
-            else {
+            } else {
                 StringBuilderInvoker.getAppend(type).invoke(methodVisitor);
             }
             

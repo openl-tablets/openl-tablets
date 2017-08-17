@@ -1,13 +1,14 @@
 package org.openl.rules.validation.properties.dimentional;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.MethodSignature;
+import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
-
-import static org.junit.Assert.assertEquals;
 
 public class DispatcherTableReturnColumnTest {
 
@@ -34,11 +35,12 @@ public class DispatcherTableReturnColumnTest {
 
     @Test
     public void testGetRuleValue() {
-        MethodSignature signature = new MethodSignature(new IOpenClass[] { JavaOpenClass.STRING, JavaOpenClass.FLOAT });
+        IMethodSignature signature = new MethodSignature(new ParameterDeclaration(JavaOpenClass.STRING, "key"),
+            new ParameterDeclaration(JavaOpenClass.FLOAT, "value"));
         IDecisionTableReturnColumn retColumn = createDTColumn(JavaOpenClass.FLOAT, signature);
-        assertEquals("=aMethod$3(arg_p0,arg_p1)", retColumn.getRuleValue(3, 5));
+        assertEquals("=aMethod$3(arg_key,arg_value)", retColumn.getRuleValue(3, 5));
 
-        signature = new MethodSignature(new IOpenClass[0]);
+        signature = IMethodSignature.VOID;
         retColumn = createDTColumn(JavaOpenClass.FLOAT, signature);
         assertEquals("=aMethod$7()", retColumn.getRuleValue(7, 9));
     }
