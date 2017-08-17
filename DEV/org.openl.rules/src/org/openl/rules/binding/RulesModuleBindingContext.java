@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.openl.rules.binding;
 
 import java.util.ArrayList;
@@ -25,9 +22,11 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CastingMethodCaller;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
+import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringTool;
@@ -234,7 +233,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
 
         public IMethodSignature getSignature() {
-            return new MethodSignature(new IOpenClass[] {}, new String[] {});
+            return IMethodSignature.VOID;
         }
     }
 
@@ -274,7 +273,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
 
         public IMethodSignature getSignature() {
-            return new MethodSignature(new IOpenClass[] {}, new String[] {});
+            return IMethodSignature.VOID;
         }
     }
 
@@ -319,7 +318,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
 
         public IMethodSignature getSignature() {
-            return new MethodSignature(new IOpenClass[] {}, new String[] {});
+            return IMethodSignature.VOID;
         }
     }
 
@@ -365,8 +364,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
 
         public IMethodSignature getSignature() {
-            return new MethodSignature(new IOpenClass[] { JavaOpenClass.getOpenClass(IRulesRuntimeContext.class) },
-                new String[] { "context"});
+            return new MethodSignature(new ParameterDeclaration(JavaOpenClass.getOpenClass(IRulesRuntimeContext.class), "context"));
         }
     }
 
@@ -413,8 +411,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
 
         public IMethodSignature getSignature() {
-            return new MethodSignature(new IOpenClass[] { JavaOpenClass.STRING, JavaOpenClass.OBJECT },
-                new String[] { "property", "value" });
+            return new MethodSignature(new ParameterDeclaration(JavaOpenClass.STRING, "property"),
+                        new ParameterDeclaration(JavaOpenClass.OBJECT, "value"));
         }
     }
 }
