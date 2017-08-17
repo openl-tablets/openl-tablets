@@ -70,7 +70,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     public static synchronized  void register(String name, IUserContext ucxt, IOpenLConfiguration oplc, boolean shared)
             throws OpenConfigurationException {
-        Object key = null;
+        Object key;
 
         if (shared) {
             key = name;
@@ -92,15 +92,8 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     }
 
     public static synchronized void unregister(String name, IUserContext ucxt) throws OpenConfigurationException {
-        Object key = GenericKey.getInstance(name);
+        Object key = GenericKey.getInstance(name, ucxt);
 
-        // IOpenLConfiguration old =
-        // (IOpenLConfiguration)configurations.get(key);
-        // if (old == null)
-        // {
-        // throw new OpenConfigurationException("The configuration " + name + "
-        // does not exists", null, null);
-        // }
         configurations.remove(key);
         configurations.remove(name);
 
