@@ -1,7 +1,6 @@
 package org.openl.rules.types;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -9,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.DuplicatedMethodException;
@@ -157,10 +159,10 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         return candidates;
     }
 
-    private Map<UUID, IOpenMethod> cache = Collections.synchronizedMap(new LinkedHashMap<UUID, IOpenMethod>());
+    private Map<UUID, IOpenMethod> cache = new LinkedHashMap<UUID, IOpenMethod>();
+    private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
     private static final int MAX_ELEMENTS_IN_CAHCE = 1000;
-    private static final int MIN_ELEMENTS_IN_CAHCE = 500;
 
     /**
      * Invokes appropriate method using runtime context.
@@ -184,20 +186,26 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
 
         if (context instanceof IRulesRuntimeContextMutableUUID) {
             IRulesRuntimeContextMutableUUID contextMutableUUID = (IRulesRuntimeContextMutableUUID) context;
-            method = cache.get(contextMutableUUID.getUUID());
+            Lock readLock = readWriteLock.readLock();
+            try {
+                readLock.lock();
+                method = cache.get(contextMutableUUID.getUUID());
+            } finally {
+                readLock.unlock();
+            }
             if (method == null) {
                 method = findMatchingMethod(candidates, context);
-                cache.put(contextMutableUUID.getUUID(), method);
-                if (cache.size() > MAX_ELEMENTS_IN_CAHCE) {
-                    synchronized (cache) {
-                        int i = cache.size() - MIN_ELEMENTS_IN_CAHCE;
+                Lock writeLock = readWriteLock.writeLock();
+                try {
+                    writeLock.lock();
+                    cache.put(contextMutableUUID.getUUID(), method);
+                    if (cache.size() > MAX_ELEMENTS_IN_CAHCE) {
                         Iterator<UUID> itr = cache.keySet().iterator();
-                        while (i > 0 && itr.hasNext()) {
-                            itr.next();
-                            itr.remove();
-                            i--;
-                        }
+                        itr.next();
+                        itr.remove();
                     }
+                } finally {
+                    writeLock.unlock();
                 }
             }
         } else {

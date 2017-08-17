@@ -53,7 +53,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
     /**
      * Invoker for current method.
      */
-    private Invokable invoker;
+    private volatile Invokable invoker;
 
     /**
      * Custom return type of the spreadsheet method. Is a public type of the
@@ -205,9 +205,13 @@ public class Spreadsheet extends ExecutableRulesMethod {
         return new SpreadsheetInvoker(this);
     }
 
-    synchronized protected Invokable getInvoker() {
+     protected Invokable getInvoker() {
         if (invoker == null) {
-            invoker = createInvoker();
+            synchronized (this) {
+                if (invoker == null) {
+                    invoker = createInvoker();
+                }
+            }
         }
         return invoker;
 
