@@ -19,20 +19,6 @@ public class MethodSignature implements IMethodSignature {
 
     IParameterDeclaration[] parameters;
 
-    /**
-     * Copy constructor makes deep copy of ims
-     *
-     * @param ims
-     */
-    public MethodSignature(IMethodSignature ims) {
-        IOpenClass[] parTypes = ims.getParameterTypes();
-        int len = parTypes.length;
-        parameters = new IParameterDeclaration[len];
-        for (int i = 0; i < len; i++) {
-            parameters[i] = new ParameterDeclaration(parTypes[i], ims.getParameterName(i));
-        }
-    }
-
     public MethodSignature(IOpenClass[] parTypes) {
         int len = parTypes.length;
         parameters = new IParameterDeclaration[len];
