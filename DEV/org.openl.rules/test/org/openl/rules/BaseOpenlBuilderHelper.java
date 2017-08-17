@@ -172,7 +172,7 @@ public abstract class BaseOpenlBuilderHelper {
 
     protected IOpenMethod getMethod(String methodName, IOpenClass[] params) {
         IOpenClass clazz = getCompiledOpenClass().getOpenClassWithErrors();
-        return clazz.getMatchingMethod(methodName, params);
+        return clazz.getMethod(methodName, params);
     }
 
     protected IOpenField getField(String fieldName) {

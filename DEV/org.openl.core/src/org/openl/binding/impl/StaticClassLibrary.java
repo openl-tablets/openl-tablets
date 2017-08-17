@@ -40,7 +40,7 @@ public class StaticClassLibrary implements IOpenLibrary {
      * @see org.openl.binding.IMethodFactory#getMatchingMethod(java.lang.String,
      * java.lang.String, org.openl.types.IOpenClass[])
      */
-    public IOpenMethod getMatchingMethod(String name, IOpenClass[] params) {
+    public IOpenMethod getMethod(String name, IOpenClass[] params) {
         return openClass.getMethod(name, params);
     }
     

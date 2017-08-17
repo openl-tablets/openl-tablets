@@ -15,7 +15,7 @@ import org.openl.types.IOpenMethod;
  */
 public interface IMethodFactory {
 
-    IOpenMethod getMatchingMethod(String name, IOpenClass[] params) throws AmbiguousMethodException;
+    IOpenMethod getMethod(String name, IOpenClass[] params) throws AmbiguousMethodException;
     
     IOpenMethod getMatchingConstructor(String name, IOpenClass[] params) throws AmbiguousMethodException;
 

@@ -83,10 +83,6 @@ public class DomainOpenClass implements IOpenClass {
         return baseClass.getInstanceClass();
     }
 
-    public IOpenMethod getMatchingMethod(String mname, IOpenClass[] params) throws AmbiguousMethodException {
-        return baseClass.getMatchingMethod(mname, params);
-    }
-
     @Override
     public IOpenMethod getMatchingConstructor(String name, IOpenClass[] params) throws AmbiguousMethodException {
         return baseClass.getMatchingConstructor(name, params);

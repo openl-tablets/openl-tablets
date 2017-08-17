@@ -150,10 +150,6 @@ public abstract class AOpenClass implements IOpenClass {
         return indexField;
     }
 
-    public IOpenMethod getMatchingMethod(String name, IOpenClass[] params) throws AmbiguousMethodException {
-        return getMethod(name, params);
-    }
-    
     public IOpenMethod getMatchingConstructor(String name, IOpenClass[] params) throws AmbiguousMethodException {
         return getDeclaredConstructor(name, params);
     }
