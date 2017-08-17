@@ -26,6 +26,8 @@ import org.openl.types.impl.DynamicArrayAggregateInfo;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.JavaOpenMethod;
+import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,24 +59,6 @@ public class DatatypeOpenClass extends ADynamicClass {
         this.packageName = packageName;
     }
     
-    private void addMethodToMap(Map<MethodKey, IOpenMethod> methodMap, IOpenMethod method){
-        MethodKey key = new MethodKey(method);
-        methodMap.put(key, method);
-    }
-    
-    @Override
-    protected Map<MethodKey, IOpenMethod> initMethodMap() {
-        Map<MethodKey, IOpenMethod> methodMap = super.initMethodMap();
-        if (methodMap == STUB){
-            methodMap = new HashMap<MethodKey, IOpenMethod>(4);
-        }
-        addMethodToMap(methodMap, new EqualsMethod(this));
-        addMethodToMap(methodMap, new HashCodeMethod(this));
-        addMethodToMap(methodMap, new ToStringMethod(this));
-        
-        return methodMap;
-    }
-
     @Override
     public IAggregateInfo getAggregateInfo() {
         return DynamicArrayAggregateInfo.aggregateInfo;
@@ -271,187 +255,36 @@ public class DatatypeOpenClass extends ADynamicClass {
 
     }
 
-    /**
-     * <code>toString()</code> method.
-     *
-     * @author PUdalau
-     */
-    public static class ToStringMethod implements IOpenMethod {
-        private IOpenClass openClass;
 
-        public ToStringMethod(IOpenClass forClass) {
-            this.openClass = forClass;
+    @Override
+    protected Map<MethodKey, IOpenMethod> initMethodMap() {
+        Map<MethodKey, IOpenMethod> methods = super.initMethodMap();
+        if (methods == STUB){
+            methods = new HashMap<MethodKey, IOpenMethod>(5);
         }
+        methods.put(toStringKey, toString);
+        methods.put(equalsKey, equals);
+        methods.put(hashCodeKey, hashCode);
 
-        public IMethodSignature getSignature() {
-            return IMethodSignature.VOID;
-        }
-
-        public IOpenClass getDeclaringClass() {
-            return openClass;
-        }
-
-        public IMemberMetaInfo getInfo() {
-            return null;
-        }
-
-        public IOpenClass getType() {
-            return JavaOpenClass.STRING;
-        }
-
-        public boolean isStatic() {
-            return false;
-        }
-
-        public String getDisplayName(int mode) {
-            return getName();
-        }
-
-        public String getName() {
-            return "toString";
-        }
-
-        public IOpenMethod getMethod() {
-            return this;
-        }
-
-        public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-            StringBuilder builder = new StringBuilder(openClass.getDisplayName(0) + "{ ");
-            Map<String, IOpenField> fields = openClass.getFields();
-            for (Entry<String, IOpenField> field : fields.entrySet()) {
-                builder.append(field.getKey()).append("=").append(field.getValue().get(target, env)).append(" ");
-            }
-            builder.append('}');
-            return builder.toString();
-        }
-        
-        @Override
-        public boolean isConstructor() {
-            return false;
-        }
+        return methods;
     }
 
-    /**
-     * Method that compares two objects by fields defined in some {@link IOpenClass}
-     *
-     * @author PUdalau
-     */
-    public static class EqualsMethod implements IOpenMethod {
-        private IOpenClass openClass;
-
-        public EqualsMethod(IOpenClass forClass) {
-            this.openClass = forClass;
+    private static final IOpenMethod toString;
+    private static final IOpenMethod equals;
+    private static final IOpenMethod hashCode;
+    private static final MethodKey toStringKey;
+    private static final MethodKey equalsKey;
+    private static final MethodKey hashCodeKey;
+    static {
+        try {
+            toString = new JavaOpenMethod(Object.class.getMethod("toString"));
+            equals = new JavaOpenMethod(Object.class.getMethod("equals", Object.class));
+            hashCode = new JavaOpenMethod(Object.class.getMethod("hashCode"));
+            toStringKey = new MethodKey(toString);
+            equalsKey = new MethodKey(equals);
+            hashCodeKey = new MethodKey(hashCode);
+        } catch (NoSuchMethodException nsme) {
+            throw RuntimeExceptionWrapper.wrap(nsme);
         }
-
-        public IMethodSignature getSignature() {
-            return new MethodSignature(new IOpenClass[]{JavaOpenClass.OBJECT});
-        }
-
-        public IOpenClass getDeclaringClass() {
-            return openClass;
-        }
-
-        public IMemberMetaInfo getInfo() {
-            return null;
-        }
-
-        public IOpenClass getType() {
-            return JavaOpenClass.BOOLEAN;
-        }
-
-        public boolean isStatic() {
-            return false;
-        }
-
-        public String getDisplayName(int mode) {
-            return getName();
-        }
-
-        public String getName() {
-            return "equals";
-        }
-
-        public IOpenMethod getMethod() {
-            return this;
-        }
-
-        public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-            // TODO: remove usage of the EqualsBuilder
-            //
-            EqualsBuilder builder = new EqualsBuilder();
-            Map<String, IOpenField> fields = openClass.getFields();
-            for (IOpenField field : fields.values()) {
-                builder.append(field.get(target, env), field.get(params[0], env));
-            }
-            return builder.isEquals();
-        }
-        
-        @Override
-        public boolean isConstructor() {
-            return false;
-        }
-
-    }
-
-    /**
-     * Methods that returns hash code calculated using fields.
-     *
-     * @author PUdalau
-     */
-    public static class HashCodeMethod implements IOpenMethod {
-        private IOpenClass openClass;
-
-        public HashCodeMethod(IOpenClass forClass) {
-            this.openClass = forClass;
-        }
-
-        public IMethodSignature getSignature() {
-            return IMethodSignature.VOID;
-        }
-
-        public IOpenClass getDeclaringClass() {
-            return openClass;
-        }
-
-        public IMemberMetaInfo getInfo() {
-            return null;
-        }
-
-        public IOpenClass getType() {
-            return JavaOpenClass.INT;
-        }
-
-        public boolean isStatic() {
-            return false;
-        }
-
-        public String getDisplayName(int mode) {
-            return getName();
-        }
-
-        public String getName() {
-            return "hashCode";
-        }
-
-        public IOpenMethod getMethod() {
-            return this;
-        }
-
-        public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-            int result = 0;
-            Map<String, IOpenField> fields = openClass.getFields();
-
-            for (IOpenField field : fields.values()) {
-                result = 31 * result + (field != null ? field.hashCode() : 0);
-            }
-
-            return result;
-        }
-        
-        @Override
-        public boolean isConstructor() {
-            return false;
-        }
-
     }
 }
