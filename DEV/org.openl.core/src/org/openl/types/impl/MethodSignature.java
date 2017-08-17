@@ -19,14 +19,6 @@ public class MethodSignature implements IMethodSignature {
 
     IParameterDeclaration[] parameters;
 
-    public MethodSignature(IOpenClass[] parTypes) {
-        int len = parTypes.length;
-        parameters = new IParameterDeclaration[len];
-        for (int i = 0; i < len; i++) {
-            parameters[i] = new ParameterDeclaration(parTypes[i], "p" + i);
-        }
-    }
-
     public MethodSignature(IOpenClass[] parTypes, String[] names) {
         int len = parTypes.length;
         parameters = new IParameterDeclaration[len];
