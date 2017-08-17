@@ -17,8 +17,10 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
 
     private static final long serialVersionUID = 670283457423670894L;
 
+    private static final UUID NEW_INSTANCE_UUID = UUID.randomUUID(); 
+    
     @XmlTransient
-    UUID uuid = UUID.randomUUID();
+    UUID uuid = NEW_INSTANCE_UUID;
 
     public static class IRulesRuntimeContextAdapter extends XmlAdapter<DefaultRulesRuntimeContext, IRulesRuntimeContext> {
         @Override
