@@ -334,15 +334,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         if (openMethod instanceof TableMethod) {
             return new TableMethodWrapper(this, (TableMethod) openMethod);
         }
-
-        /*if (openMethod instanceof JavaOpenMethod) {
-            return new JavaOpenMethodWrapper(this, (JavaOpenMethod) openMethod);
-        }*/
-
-        /*
-         * if (log.isWarnEnabled()) { log.warn(
-         * "Method wasn't wrapped. Dispatching will not work properly!" ); }
-         */
         return openMethod;
     }
 
