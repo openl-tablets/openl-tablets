@@ -437,7 +437,6 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
      */
     public void validateTableName(FacesContext context, UIComponent toValidate, Object value) {
         String name = ((String) value);
-        getParamId(toValidate.getClientId());
         checkParameterName(name);
     }
 
