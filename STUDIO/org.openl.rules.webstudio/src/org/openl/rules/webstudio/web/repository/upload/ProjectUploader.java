@@ -51,6 +51,8 @@ public class ProjectUploader {
             errorMessage = projectCreator.createRulesProject();
         } catch (IOException e) {
             errorMessage = e.getMessage();
+        } catch (Exception e) {
+            errorMessage = "Can`t create project. Error: " + e.getMessage();
         } finally {
             if (projectCreator != null) {
                 projectCreator.destroy();
