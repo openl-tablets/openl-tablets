@@ -189,7 +189,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
             Lock readLock = readWriteLock.readLock();
             try {
                 readLock.lock();
-                method = cache.get(contextMutableUUID.getUUID());
+                method = cache.get(contextMutableUUID.contextUUID());
             } finally {
                 readLock.unlock();
             }
@@ -198,7 +198,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                 Lock writeLock = readWriteLock.writeLock();
                 try {
                     writeLock.lock();
-                    cache.put(contextMutableUUID.getUUID(), method);
+                    cache.put(contextMutableUUID.contextUUID(), method);
                     if (cache.size() > MAX_ELEMENTS_IN_CAHCE) {
                         Iterator<UUID> itr = cache.keySet().iterator();
                         itr.next();

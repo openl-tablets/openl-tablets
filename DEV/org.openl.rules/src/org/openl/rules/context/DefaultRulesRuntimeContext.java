@@ -115,7 +115,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     @Override
-    public UUID getUUID() {
+    public UUID contextUUID() {
         return uuid;
     }
 
