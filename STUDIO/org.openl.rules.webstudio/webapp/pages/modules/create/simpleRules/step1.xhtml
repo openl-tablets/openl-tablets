@@ -62,6 +62,7 @@
                     <h:column>
                         <a4j:commandLink id="removeLink" action="#{wizard.removeParameter(parameter)}" 
                             render="inputParamTable" execute="@form"
+                            immediate="true"
                             title="Remove Parameter" style="margin-left: 5px;"
                             ajax="false">
                             <h:graphicImage value="/images/delete.png" />

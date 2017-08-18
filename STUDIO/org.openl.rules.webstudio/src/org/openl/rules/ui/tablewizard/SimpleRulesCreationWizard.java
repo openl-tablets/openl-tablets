@@ -413,11 +413,6 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         FacesMessage message = new FacesMessage();
         ValidatorException validEx;
         int paramId = this.getParamId(toValidate.getClientId());
-
-        if (this.containsRemoveLink(FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap())) {
-            return;
-        }
-
         checkParameterName(name);
 
         try {
@@ -443,11 +438,6 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     public void validateTableName(FacesContext context, UIComponent toValidate, Object value) {
         String name = ((String) value);
         getParamId(toValidate.getClientId());
-
-        if (this.containsRemoveLink(FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap())) {
-            return;
-        }
-
         checkParameterName(name);
     }
 
@@ -479,19 +469,6 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         }
 
         return 0;
-    }
-
-    public boolean containsRemoveLink(Map<String, String> params) {
-        if (params == null) {
-            return false;
-        }
-
-        for (String param : params.keySet()) {
-            if (param.endsWith("removeLink")) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private void checkParameterName(String name) {
