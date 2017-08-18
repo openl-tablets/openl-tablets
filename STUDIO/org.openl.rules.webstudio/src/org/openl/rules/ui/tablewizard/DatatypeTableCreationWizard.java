@@ -6,8 +6,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
 import javax.faces.component.html.HtmlDataTable;
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.faces.validator.ValidatorException;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 
@@ -22,6 +26,7 @@ import org.openl.rules.table.xls.builder.DatatypeTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.StringUtils;
 
 /**
  * @author Andrei Astrouski
@@ -221,4 +226,20 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
         return false;
     }
 
+    public void nameValidator(FacesContext context, UIComponent toValidate, Object value) throws ValidatorException {
+        String text = (String) value;
+        if (StringUtils.isBlank(text)) {
+            throw new ValidatorException(new FacesMessage("Can not be empty"));
+        }
+
+        String[] idParts = toValidate.getClientId().split(":");
+        int inputNum = Integer.parseInt(idParts[idParts.length - 2]);
+        parameters.get(inputNum).setSubmittedName(text);
+
+        for (int i = 0; i < inputNum; i++) {
+            if (text.equals(parameters.get(i).getSubmittedName())) {
+                throw new ValidatorException(new FacesMessage("Parameter '" + text + "' already exists"));
+            }
+        }
+    }
 }
