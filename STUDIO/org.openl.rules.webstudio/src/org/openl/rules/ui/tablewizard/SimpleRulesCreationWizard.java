@@ -460,19 +460,12 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     }
 
     private void checkParameterName(String name) {
-        FacesMessage message = new FacesMessage();
-        ValidatorException validEx;
-
         if (StringUtils.isEmpty(name)) {
-            message.setDetail("Can not be empty");
-            validEx = new ValidatorException(message);
-            throw validEx;
+            throw new ValidatorException(new FacesMessage("Can not be empty"));
         }
 
         if (!name.matches("([a-zA-Z_][a-zA-Z_0-9]*)?")) {
-            message.setDetail(INVALID_NAME_MESSAGE);
-            validEx = new ValidatorException(message);
-            throw validEx;
+            throw new ValidatorException(new FacesMessage(INVALID_NAME_MESSAGE));
         }
     }
 }
