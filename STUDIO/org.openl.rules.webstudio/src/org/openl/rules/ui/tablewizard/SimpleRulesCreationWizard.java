@@ -411,7 +411,6 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     public void validatePropsName(FacesContext context, UIComponent toValidate, Object value) {
         String name = ((String) value);
         FacesMessage message = new FacesMessage();
-        ValidatorException validEx;
         int paramId = this.getParamId(toValidate.getClientId());
         checkParameterName(name);
 
@@ -420,8 +419,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
             for (TypeNamePair param : parameters) {
                 if (paramId != i && param.getName() != null && param.getName().equals(name)) {
                     message.setDetail("Parameter with such name already exists");
-                    validEx = new ValidatorException(message);
-                    throw validEx;
+                    throw new ValidatorException(message);
                 }
 
                 i++;
