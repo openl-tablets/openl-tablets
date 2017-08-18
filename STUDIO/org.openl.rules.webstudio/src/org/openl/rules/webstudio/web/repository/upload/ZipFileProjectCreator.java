@@ -79,14 +79,19 @@ public class ZipFileProjectCreator extends AProjectCreator {
         if (zipFile == null) {
             return sortedNames;
         }
+
+        boolean skipped = false;
         for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements(); ) {
             try {
                 ZipEntry item = items.nextElement();
                 sortedNames.add(item.getName());
             } catch (Exception e) {
-                // TODO message on UI
                 log.warn("Can not extract zip entry.", e);
+                skipped = true;
             }
+        }
+        if (skipped) {
+            FacesUtils.addWarnMessage("Warning: Some malformed zip entries were skipped.");
         }
         return sortedNames;
     }
@@ -204,7 +209,6 @@ public class ZipFileProjectCreator extends AProjectCreator {
                 }
 
             } catch (Exception e) {
-                // TODO message on UI
                 log.warn("Can not extract zip entry.", e);
             }
         }
