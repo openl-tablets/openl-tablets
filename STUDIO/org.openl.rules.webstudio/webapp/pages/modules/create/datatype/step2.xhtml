@@ -19,7 +19,6 @@
         </style>
 
         <h:form>
-            <f:validateBean disabled="#{wizard.containsRemoveLink(param)}">
                 <a4j:commandLink action="#{wizard.addParameter}"
                     render="paramTable" title="Add more" styleClass="addButton">
                     <h:outputText value="Add Parameter" />
@@ -38,24 +37,25 @@
                                 <f:selectItems value="#{wizard.domainTypes}" />
                             </h:selectOneMenu>
                         </h:column>
-    
+
                         <h:column>
                             <f:facet name="header">
                                 <h:outputText value="Is Array" />
                             </f:facet>
                             <h:selectBooleanCheckbox value="#{parameter.iterable}" />
                         </h:column>
-    
+
                         <h:column>
                             <f:facet name="header">
                                 <h:outputText value="Name"/>
                             </f:facet>
                             <h:inputText id="pname" value="#{parameter.name}" validator="#{wizard.nameValidator}"/>
                         </h:column>
-    
+
                         <h:column>
                             <a4j:commandLink id="removeLink" action="#{wizard.removeParameter(parameter)}" 
                                 render="paramTable" execute="@form"
+                                immediate="true"
                                 title="Remove Parameter" style="margin-left: 5px;" disabled="#{wizard.parameters.size() == 1}">
                                 <h:graphicImage value="/images/delete.png" />
                             </a4j:commandLink>
@@ -78,7 +78,6 @@
                 </a4j:commandButton>
                 <a4j:commandButton value="Cancel" action="#{tableCreatorWizardManager.cancel}" immediate="true"
                     oncomplete="go('step0.xhtml')" />
-            </f:validateBean> 
         </h:form>
 
   </ui:define>
