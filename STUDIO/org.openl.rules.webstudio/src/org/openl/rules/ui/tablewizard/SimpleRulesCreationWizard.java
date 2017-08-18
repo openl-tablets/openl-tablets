@@ -413,13 +413,11 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         int paramId = this.getParamId(toValidate.getClientId());
         checkParameterName(name);
 
-        int i = 0;
-        for (TypeNamePair param : parameters) {
+        for (int i = 0; i < parameters.size(); i++) {
+            TypeNamePair param = parameters.get(i);
             if (paramId != i && param.getName() != null && param.getName().equals(name)) {
                 throw new ValidatorException(new FacesMessage("Parameter with such name already exists"));
             }
-
-            i++;
         }
     }
 
