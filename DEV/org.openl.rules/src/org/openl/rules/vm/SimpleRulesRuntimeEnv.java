@@ -1,16 +1,20 @@
 package org.openl.rules.vm;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.rules.context.RulesRuntimeContextFactory;
+import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
 import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM.SimpleRuntimeEnv;
 
@@ -40,7 +44,7 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
     protected IRuntimeContext buildDefaultRuntimeContext() {
         return RulesRuntimeContextFactory.buildRulesRuntimeContext();
     }
-    
+
     private volatile boolean methodArgumentsCacheEnable = false;
     private volatile CacheMode cacheMode = CacheMode.READ_ONLY;
 
@@ -223,7 +227,7 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
 
     public void registerForwardOriginalCalculationStep(Object member) {
         if (!isIgnoreRecalculation() && isOriginalCalculation()) {
-            if (this.originalCalculationSteps == null){
+            if (this.originalCalculationSteps == null) {
                 this.originalCalculationSteps = new LinkedList<SimpleRulesRuntimeEnv.CalculationStep>();
             }
             this.originalCalculationSteps.add(new ForwardCalculationStep(member));
@@ -232,16 +236,16 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
 
     @SuppressWarnings("unchecked")
     public void initCurrentStep() {
-        if (originalCalculationSteps != null){
+        if (originalCalculationSteps != null) {
             this.step = originalCalculationSteps.iterator();
-        }else{
+        } else {
             this.step = Collections.EMPTY_LIST.iterator();
         }
     }
 
     public void registerBackwardOriginalCalculationStep(Object member, Object result) {
         if (!isIgnoreRecalculation() && isOriginalCalculation()) {
-            if (this.originalCalculationSteps == null){
+            if (this.originalCalculationSteps == null) {
                 this.originalCalculationSteps = new LinkedList<SimpleRulesRuntimeEnv.CalculationStep>();
             }
             this.originalCalculationSteps.add(new BackwardCalculationStep(member, result));
@@ -310,14 +314,31 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
             }
         }
     }
-    
+
     public IOpenClass getTopClass() {
         return topClass;
     }
-    
+
+    // This is workaround of too much creating MethodKeys in runtime
+    private Map<IOpenMethodWrapper, IOpenMethod> wrapperMethodCache = new HashMap<IOpenMethodWrapper, IOpenMethod>();
+
+    public IOpenMethod getTopClassMethod(IOpenMethodWrapper wrapper) {
+        if (topClass == null) {
+            return null;
+        }
+        IOpenMethod method = wrapperMethodCache.get(wrapper);
+        if (method != null) {
+            return method;
+        }
+        method = topClass.getMethod(wrapper.getDelegate().getName(),
+            wrapper.getDelegate().getSignature().getParameterTypes());
+        wrapperMethodCache.put(wrapper, method);
+        return method;
+    }
+
     public void setTopClass(IOpenClass topClass) {
         this.topClass = topClass;
     }
-    
+
     private IOpenClass topClass;
 }
