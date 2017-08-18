@@ -7,7 +7,6 @@ import java.util.Map;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
-import javax.faces.component.html.HtmlDataTable;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
@@ -40,8 +39,6 @@ public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
 
     private DomainTree domainTree;
     private SelectItem[] domainTypes;
-
-    private HtmlDataTable valuesTable;
 
     public DatatypeAliasTableCreationWizard() {
     }
@@ -76,14 +73,6 @@ public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
 
     public SelectItem[] getDomainTypes() {
         return domainTypes;
-    }
-
-    public HtmlDataTable getValuesTable() {
-        return valuesTable;
-    }
-
-    public void setValuesTable(HtmlDataTable valuesTable) {
-        this.valuesTable = valuesTable;
     }
 
     @Override

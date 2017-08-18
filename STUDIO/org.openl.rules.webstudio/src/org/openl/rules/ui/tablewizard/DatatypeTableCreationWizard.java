@@ -8,7 +8,6 @@ import java.util.Map;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
-import javax.faces.component.html.HtmlDataTable;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
@@ -45,8 +44,6 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
     private SelectItem[] domainTypes;
     private String parent;
     private int definedDatatypesLength;
-
-    private HtmlDataTable parametersTable;
 
     public DatatypeTableCreationWizard() {
     }
@@ -85,14 +82,6 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
 
     public SelectItem[] getDomainTypes() {
         return domainTypes;
-    }
-
-    public HtmlDataTable getParametersTable() {
-        return parametersTable;
-    }
-
-    public void setParametersTable(HtmlDataTable parametersTable) {
-        this.parametersTable = parametersTable;
     }
 
     public int getDefinedDatatypesLength() {

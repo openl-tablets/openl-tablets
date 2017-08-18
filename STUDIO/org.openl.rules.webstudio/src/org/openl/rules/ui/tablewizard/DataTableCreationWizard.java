@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.faces.application.FacesMessage;
-import javax.faces.component.html.HtmlDataTable;
 import javax.faces.model.SelectItem;
 import javax.validation.constraints.Pattern;
 
@@ -44,7 +43,6 @@ public class DataTableCreationWizard extends TableCreationWizard {
 
     private DomainTree domainTree;
     private SelectItem[] domainTypes;
-    private HtmlDataTable parametersTable;
     private List<TableSyntaxNode> allDataTables;
     private Collection<IOpenClass> importedClasses;
 
@@ -73,14 +71,6 @@ public class DataTableCreationWizard extends TableCreationWizard {
 
     public SelectItem[] getDomainTypes() {
         return domainTypes;
-    }
-
-    public HtmlDataTable getParametersTable() {
-        return parametersTable;
-    }
-
-    public void setParametersTable(HtmlDataTable parametersTable) {
-        this.parametersTable = parametersTable;
     }
 
     @Override
