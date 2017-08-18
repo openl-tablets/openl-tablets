@@ -29,7 +29,7 @@ import org.openl.util.ClassUtils;
  * Base implementation of {@link ICastFactory} abstraction that used by engine
  * for type conversion operations.
  * 
- * @author snshor
+ * @author snshor, Yury Molchan
  */
 public class CastFactory implements ICastFactory {
 
@@ -69,17 +69,13 @@ public class CastFactory implements ICastFactory {
     public CastFactory() {
     }
 
-    public IMethodFactory getMethodFactory() {
-        return methodFactory;
-    }
-
     public void setMethodFactory(IMethodFactory factory) {
         methodFactory = factory;
     }
 
     /**
-     * Gets cast operation for given types. This is method is using internal
-     * cache for cast operations.
+     * Gets cast operation for given types. This is method is using internal cache
+     * for cast operations.
      * 
      * @param from from type
      * @param to to type
@@ -87,40 +83,8 @@ public class CastFactory implements ICastFactory {
      * @return cast operation if it have been found; null - otherwise
      */
     public IOpenCast getCast(IOpenClass from, IOpenClass to) {
-        Object key = GenericKey.getInstance(from, to);
-        IOpenCast cast = null;
-
-        Lock readLock = castCacheLock.readLock();
-        try {
-            readLock.lock();
-            cast = castCache.get(key);
-        } finally {
-            readLock.unlock();
-        }
-
-        if (cast == null) {
-            cast = findCast(from, to);
-            Lock writeLock = castCacheLock.writeLock();
-            try {
-                writeLock.lock();
-                castCache.put(key, cast);
-            } finally {
-                writeLock.unlock();
-            }
-        }
-
-        return cast;
-    }
-
-    /**
-     * Finds appropriate cast object for given openl classes.
-     * 
-     * @param from from type
-     * @param to to type
-     */
-    public IOpenCast findCast(IOpenClass from, IOpenClass to) {
-
-        if (from.equals(to)) {
+        /* BEGIN: This is very cheap operations, so no needs to chache it */
+        if (from == to || from.equals(to)) {
             return JAVA_NO_CAST;
         }
 
@@ -128,18 +92,43 @@ public class CastFactory implements ICastFactory {
             return null;
         }
 
-        if (from == NullOpenClass.the && isPrimitive(to)) {
-            return null;
-        }
-
-        if (from == NullOpenClass.the && !isPrimitive(to)) {
-            return JAVA_UP_CAST;
+        if (from == NullOpenClass.the) {
+            if (isPrimitive(to)) {
+                return null;
+            } else {
+                return JAVA_UP_CAST;
+            }
         }
 
         if (ThrowableVoid.class.equals(from.getInstanceClass())) {
             return THROWABLE_VOID_CAST;
         }
+        /* END: This is very cheap operations, so no needs to chache it */
 
+        Object key = GenericKey.getInstance(from, to);
+        Lock readLock = castCacheLock.readLock();
+        try {
+            readLock.lock();
+            IOpenCast cast = castCache.get(key);
+            if (cast != null) {
+                return cast;
+            }
+        } finally {
+            readLock.unlock();
+        }
+
+        IOpenCast typeCast = searchCast(from, to);
+        Lock writeLock = castCacheLock.writeLock();
+        try {
+            writeLock.lock();
+            castCache.put(key, typeCast);
+        } finally {
+            writeLock.unlock();
+        }
+        return typeCast;
+    }
+
+    private IOpenCast searchCast(IOpenClass from, IOpenClass to) {
         IOpenCast typeCast = findArrayCast(from, to);
         if (typeCast != null) {
             return typeCast;
@@ -190,7 +179,7 @@ public class CastFactory implements ICastFactory {
                 dimt++;
             }
             if (dimf == dimt || Object.class.equals(fromClass)) {
-                IOpenCast arrayElementCast = findCast(f, t);
+                IOpenCast arrayElementCast = getCast(f, t);
                 if (arrayElementCast == null && Object.class.equals(fromClass)) {
                     arrayElementCast = JAVA_NO_CAST;
                 }
@@ -214,8 +203,8 @@ public class CastFactory implements ICastFactory {
     }
 
     /**
-     * Finds appropriate cast type operation using cast rules of java language.
-     * If result type is not java class <code>null</code> will be returned.
+     * Finds appropriate cast type operation using cast rules of java language. If
+     * result type is not java class <code>null</code> will be returned.
      * 
      * @param from from type
      * @param to to type
@@ -256,13 +245,11 @@ public class CastFactory implements ICastFactory {
     }
 
     /**
-     * Finds appropriate auto boxing (primitive to wrapper object) cast
-     * operation.
+     * Finds appropriate auto boxing (primitive to wrapper object) cast operation.
      * 
      * @param from primitive type
      * @param to wrapper type
-     * @return auto boxing cast operation if conversion is found; null -
-     *         otherwise
+     * @return auto boxing cast operation if conversion is found; null - otherwise
      */
     private IOpenCast findBoxingCast(IOpenClass from, IOpenClass to) {
 
@@ -551,28 +538,27 @@ public class CastFactory implements ICastFactory {
     /**
      * The following conversions are called the narrowing reference conversions:
      * 
-     * From any class type S to any class type T, provided that S is a
-     * superclass of T. (An important special case is that there is a narrowing
-     * conversion from the class type Object to any other class type.) From any
-     * class type S to any interface type K, provided that S is not final and
-     * does not implement K. (An important special case is that there is a
-     * narrowing conversion from the class type Object to any interface type.)
-     * From type Object to any array type. From type Object to any interface
-     * type. From any interface type J to any class type T that is not final.
-     * From any interface type J to any class type T that is final, provided
-     * that T implements J. From any interface type J to any interface type K,
-     * provided that J is not a subinterface of K and there is no method name m
-     * such that J and K both contain a method named m with the same signature
-     * but different return types. From any array type SC[] to any array type
-     * TC[], provided that SC and TC are reference types and there is a
+     * From any class type S to any class type T, provided that S is a superclass of
+     * T. (An important special case is that there is a narrowing conversion from
+     * the class type Object to any other class type.) From any class type S to any
+     * interface type K, provided that S is not final and does not implement K. (An
+     * important special case is that there is a narrowing conversion from the class
+     * type Object to any interface type.) From type Object to any array type. From
+     * type Object to any interface type. From any interface type J to any class
+     * type T that is not final. From any interface type J to any class type T that
+     * is final, provided that T implements J. From any interface type J to any
+     * interface type K, provided that J is not a subinterface of K and there is no
+     * method name m such that J and K both contain a method named m with the same
+     * signature but different return types. From any array type SC[] to any array
+     * type TC[], provided that SC and TC are reference types and there is a
      * narrowing conversion from SC to TC.
      * 
      * @link http://java.sun.com/docs/books/jls/second_edition/html/conversions.doc
      *       .html
      * @param from from type
      * @param to to type
-     * @return <code>true</code> is downcast operation is allowed for given
-     *         types; <code>false</code> - otherwise
+     * @return <code>true</code> is downcast operation is allowed for given types;
+     *         <code>false</code> - otherwise
      */
     private boolean isAllowJavaDowncast(Class<?> from, Class<?> to) {
 
