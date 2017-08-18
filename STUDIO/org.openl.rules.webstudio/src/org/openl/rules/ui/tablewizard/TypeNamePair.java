@@ -18,6 +18,8 @@ public class TypeNamePair {
     @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = WizardUtils.INVALID_NAME_OF_PARAMETER_MESSAGE)
     private String name;
 
+    private String submittedName;
+
     public String getType() {
         return type;
     }
@@ -41,7 +43,15 @@ public class TypeNamePair {
     public void setName(String name) {
         this.name = name;
     }
-    
+
+    public String getSubmittedName() {
+        return submittedName;
+    }
+
+    public void setSubmittedName(String submittedName) {
+        this.submittedName = submittedName;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

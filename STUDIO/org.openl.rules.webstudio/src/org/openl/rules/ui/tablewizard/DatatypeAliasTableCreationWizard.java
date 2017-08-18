@@ -5,19 +5,22 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.component.html.HtmlDataTable;
+import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.faces.validator.ValidatorException;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.NotBlank;
-
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.DatatypeAliasTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
+import org.openl.util.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 /**
@@ -36,8 +39,6 @@ public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
 
     private DomainTree domainTree;
     private SelectItem[] domainTypes;
-
-    private HtmlDataTable valuesTable;
 
     public DatatypeAliasTableCreationWizard() {
     }
@@ -72,14 +73,6 @@ public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
 
     public SelectItem[] getDomainTypes() {
         return domainTypes;
-    }
-
-    public HtmlDataTable getValuesTable() {
-        return valuesTable;
-    }
-
-    public void setValuesTable(HtmlDataTable valuesTable) {
-        this.valuesTable = valuesTable;
     }
 
     @Override
@@ -146,6 +139,23 @@ public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
 
     public void addValue() {
         values.add(new AliasValue());
+    }
+
+    public void valueValidator(FacesContext context, UIComponent toValidate, Object value) throws ValidatorException {
+        String text = (String) value;
+        if (StringUtils.isBlank(text)) {
+            throw new ValidatorException(new FacesMessage("Can not be empty"));
+        }
+
+        String[] idParts = toValidate.getClientId().split(":");
+        int inputNum = Integer.parseInt(idParts[idParts.length - 2]);
+        values.get(inputNum).setSubmittedValue(text);
+
+        for (int i = 0; i < inputNum; i++) {
+            if (text.equals(values.get(i).getSubmittedValue())) {
+                throw new ValidatorException(new FacesMessage("Value '" + text + "' already exists"));
+            }
+        }
     }
 
     public void removeValue(AliasValue value) {

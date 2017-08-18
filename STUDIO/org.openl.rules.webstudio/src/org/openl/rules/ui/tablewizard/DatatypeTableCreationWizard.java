@@ -6,8 +6,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import javax.faces.component.html.HtmlDataTable;
+import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.faces.validator.ValidatorException;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 
@@ -22,6 +25,7 @@ import org.openl.rules.table.xls.builder.DatatypeTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.StringUtils;
 
 /**
  * @author Andrei Astrouski
@@ -40,8 +44,6 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
     private SelectItem[] domainTypes;
     private String parent;
     private int definedDatatypesLength;
-
-    private HtmlDataTable parametersTable;
 
     public DatatypeTableCreationWizard() {
     }
@@ -80,14 +82,6 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
 
     public SelectItem[] getDomainTypes() {
         return domainTypes;
-    }
-
-    public HtmlDataTable getParametersTable() {
-        return parametersTable;
-    }
-
-    public void setParametersTable(HtmlDataTable parametersTable) {
-        this.parametersTable = parametersTable;
     }
 
     public int getDefinedDatatypesLength() {
@@ -210,15 +204,20 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
         super.onFinish();
     }
 
-    public boolean containsRemoveLink(Map<String, String> params) {
-        if (params == null)
-            return false;
-        for (String param : params.keySet()) {
-            if (param.endsWith("removeLink")) {
-                return true;
+    public void nameValidator(FacesContext context, UIComponent toValidate, Object value) throws ValidatorException {
+        String text = (String) value;
+        if (StringUtils.isBlank(text)) {
+            throw new ValidatorException(new FacesMessage("Can not be empty"));
+        }
+
+        String[] idParts = toValidate.getClientId().split(":");
+        int inputNum = Integer.parseInt(idParts[idParts.length - 2]);
+        parameters.get(inputNum).setSubmittedName(text);
+
+        for (int i = 0; i < inputNum; i++) {
+            if (text.equals(parameters.get(i).getSubmittedName())) {
+                throw new ValidatorException(new FacesMessage("Parameter '" + text + "' already exists"));
             }
         }
-        return false;
     }
-
 }

@@ -410,30 +410,14 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
      */
     public void validatePropsName(FacesContext context, UIComponent toValidate, Object value) {
         String name = ((String) value);
-        FacesMessage message = new FacesMessage();
-        ValidatorException validEx;
         int paramId = this.getParamId(toValidate.getClientId());
-
-        if (this.containsRemoveLink(FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap())) {
-            return;
-        }
-
         checkParameterName(name);
 
-        try {
-            int i = 0;
-            for (TypeNamePair param : parameters) {
-                if (paramId != i && param.getName() != null && param.getName().equals(name)) {
-                    message.setDetail("Parameter with such name already exists");
-                    validEx = new ValidatorException(message);
-                    throw validEx;
-                }
-
-                i++;
+        for (int i = 0; i < parameters.size(); i++) {
+            TypeNamePair param = parameters.get(i);
+            if (paramId != i && param.getName() != null && param.getName().equals(name)) {
+                throw new ValidatorException(new FacesMessage("Parameter with such name already exists"));
             }
-
-        } catch (Exception e) {
-            throw new ValidatorException(message);
         }
     }
 
@@ -442,12 +426,6 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
      */
     public void validateTableName(FacesContext context, UIComponent toValidate, Object value) {
         String name = ((String) value);
-        getParamId(toValidate.getClientId());
-
-        if (this.containsRemoveLink(FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap())) {
-            return;
-        }
-
         checkParameterName(name);
     }
 
@@ -481,33 +459,13 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         return 0;
     }
 
-    public boolean containsRemoveLink(Map<String, String> params) {
-        if (params == null) {
-            return false;
-        }
-
-        for (String param : params.keySet()) {
-            if (param.endsWith("removeLink")) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private void checkParameterName(String name) {
-        FacesMessage message = new FacesMessage();
-        ValidatorException validEx;
-
         if (StringUtils.isEmpty(name)) {
-            message.setDetail("Can not be empty");
-            validEx = new ValidatorException(message);
-            throw validEx;
+            throw new ValidatorException(new FacesMessage("Can not be empty"));
         }
 
         if (!name.matches("([a-zA-Z_][a-zA-Z_0-9]*)?")) {
-            message.setDetail(INVALID_NAME_MESSAGE);
-            validEx = new ValidatorException(message);
-            throw validEx;
+            throw new ValidatorException(new FacesMessage(INVALID_NAME_MESSAGE));
         }
     }
 }
