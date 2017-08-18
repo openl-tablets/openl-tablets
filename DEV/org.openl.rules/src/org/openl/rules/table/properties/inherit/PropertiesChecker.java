@@ -32,9 +32,6 @@ public class PropertiesChecker {
      *
      * @param propertyNamesToCheck properties names that are physically defined
      *                             in table.
-     * @param tableType            type of he table. Shows whether it is a decision table
-     *                             or a data or some other.
-     *                             <p/>
      *                             TODO: Refactor with strategy pattern
      */
     public static void checkProperties(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode,
@@ -65,19 +62,17 @@ public class PropertiesChecker {
 
     /**
      * Checks if properties can be defined for given type of table.
-     *
-     * @param propertyNamesToCheck
-     * @param tableType
      */
     private static void checkPropertiesForTableType(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode) {
 
         String tableType = tableSyntaxNode.getType();
+        String typeName = getTypeName(tableSyntaxNode);
 
         for (String propertyNameToCheck : propertyNamesToCheck) {
             if (!PropertiesChecker.isPropertySuitableForTableType(propertyNameToCheck, tableType)) {
-                String message = String.format("Property '%s' can`t be defined in table of type '%s'",
+                String message = String.format("Property '%s' can't be defined in %s Table",
                         propertyNameToCheck,
-                        tableType);
+                        typeName);
 
                 addError(tableSyntaxNode, message);
             }
@@ -92,14 +87,11 @@ public class PropertiesChecker {
 
     /**
      * Checks if properties were deprecated.
-     *
-     * @param propertyNamesToCheck
-     * @param tableSyntaxNode
      */
     private static void checkForDeprecation(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode) {
         for (String propertyNameToCheck : propertyNamesToCheck) {
             TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils.getPropertyByName(propertyNameToCheck);
-            if (propertyDefinition.getDeprecation() != null && !propertyDefinition.getDeprecation().isEmpty()) {
+            if (propertyDefinition != null && propertyDefinition.getDeprecation() != null && !propertyDefinition.getDeprecation().isEmpty()) {
                 String message = String.format("Property '%s' was deprecated. Please remove it!", propertyNameToCheck);
 
                 OpenLMessagesUtils.addWarn(message, tableSyntaxNode);
@@ -137,8 +129,6 @@ public class PropertiesChecker {
     /**
      * Checks if properties can be defined for given type of table.
      *
-     * @param propertyName
-     * @param tableType
      * @return TRUE if given property can be set for given type of table.
      */
     public static boolean isPropertySuitableForTableType(String propertyName, String tableType) {
@@ -146,7 +136,7 @@ public class PropertiesChecker {
         if (definitionTableTypes != null && definitionTableTypes.length > 0) {
             for (XlsNodeTypes nodeType : definitionTableTypes) {
                 if (nodeType.toString().equals(tableType)) {
-                    // If type from property definition and current table type are equals. It means property is suitable 
+                    // If type from property definition and current table type are equals. It means property is suitable
                     // for this kind of table.
                     return true;
                 }
@@ -156,5 +146,40 @@ public class PropertiesChecker {
             return true;
         }
         return false;
+    }
+
+    private static String getTypeName(TableSyntaxNode tableSyntaxNode) {
+        switch (tableSyntaxNode.getNodeType()) {
+            case XLS_DT:
+                return "Decision";
+            case XLS_SPREADSHEET:
+                return "Spreadsheet";
+            case XLS_TBASIC:
+                return "TBasic";
+            case XLS_COLUMN_MATCH:
+                return "Column Match";
+            case XLS_METHOD:
+                return "Method";
+            case XLS_TEST_METHOD:
+                return "Test";
+            case XLS_RUN_METHOD:
+                return "Run";
+            case XLS_DATA:
+                return "Data";
+            case XLS_DATATYPE:
+                return "Datatype";
+            case XLS_OPENL:
+                return "OpenL";
+            case XLS_ENVIRONMENT:
+                return "Environment";
+            case XLS_TABLEPART:
+                return "TablePart";
+            case XLS_OTHER:
+                return "Other";
+            case XLS_PROPERTIES:
+                return "Properties";
+            default:
+                return tableSyntaxNode.getNodeType().name();
+        }
     }
 }
