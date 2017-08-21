@@ -11,8 +11,6 @@ import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.asm.invoker.Invokers;
 import org.openl.rules.asm.invoker.StringBuilderInvoker;
 
-import static  org.openl.rules.datatype.gen.ByteCodeGeneratorHelper.*;
-
 public class ToStringWriter extends MethodWriter {
 
     /**
