@@ -17,7 +17,7 @@ import java.lang.reflect.Array;
  */
 
 public class DatatypeArrayElementField extends AOpenField {
-    private final Logger log = LoggerFactory.getLogger(DatatypeOpenField.class);
+    private final Logger log = LoggerFactory.getLogger(DatatypeArrayElementField.class);
     private int elementIndex;
     private IOpenField field;
 
