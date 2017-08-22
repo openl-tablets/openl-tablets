@@ -2,47 +2,92 @@ package org.openl.rules.datatype.gen.bean.writers;
 
 import java.util.Map;
 
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
-import org.openl.rules.asm.invoker.HashCodeBuilderInvoker;
 
 public class HashCodeWriter extends MethodWriter {
-    
+
     /**
      * 
-     * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br> 
-     * (e.g. <code>my/test/TestClass</code>)
+     * @param beanNameWithPackage name of the class being generated with package,
+     *            symbol '/' is used as separator<br>
+     *            (e.g. <code>my/test/TestClass</code>)
      * @param allFields collection of fields for current class and parent`s ones.
      */
     public HashCodeWriter(String beanNameWithPackage, Map<String, FieldDescription> allFields) {
         super(beanNameWithPackage, allFields);
     }
- 
-    public void write(ClassWriter classWriter) {
-        MethodVisitor methodVisitor;
-        methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "hashCode", "()I", null, null);
 
-        // create HashCodeBuilder
-        methodVisitor.visitTypeInsn(Opcodes.NEW, Type.getInternalName(HashCodeBuilder.class));
-        methodVisitor.visitInsn(Opcodes.DUP);
-        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(HashCodeBuilder.class), "<init>",
-                "()V");
+    public void write(ClassWriter classWriter) {
+        MethodVisitor mv;
+        mv = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "hashCode", "()I", null, null);
+
+        // hash = 5
+        mv.visitInsn(Opcodes.ICONST_5);
 
         // generating hash code by fields
         for (Map.Entry<String, FieldDescription> field : getAllFields().entrySet()) {
-            pushFieldToStack(methodVisitor, 0, field.getKey());
-            final Class<?> type = field.getValue().getType();
-            HashCodeBuilderInvoker.getAppend(type).invoke(methodVisitor);
-        }
-        HashCodeBuilderInvoker.getToHashCode().invoke(methodVisitor);
+            // hash *= 31
+            mv.visitIntInsn(Opcodes.BIPUSH, 31);
+            mv.visitInsn(Opcodes.IMUL);
 
-        methodVisitor.visitInsn(Opcodes.IRETURN);
-        methodVisitor.visitMaxs(0, 0);
+            // getField
+            pushFieldToStack(mv, 0, field.getKey());
+
+            // c = ?
+            final String type = field.getValue().getType().getName();
+            if ("double".equals(type)) {
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double", "doubleToLongBits", "(D)J");
+                hash64bits(mv);
+            } else if ("long".equals(type)) {
+                hash64bits(mv);
+            } else if ("float".equals(type)) {
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Float", "floatToIntBits", "(F)I");
+            } else if ("int".equals(type) || "short".equals(type) || "byte".equals(type) || "char".equals(type)) {
+                // No conversions
+            } else if ("boolean".equals(type)) {
+                Label zero = new Label();
+                mv.visitJumpInsn(Opcodes.IFEQ, zero);
+                mv.visitInsn(Opcodes.ICONST_1);
+                Label end = new Label();
+                mv.visitJumpInsn(Opcodes.GOTO, end);
+                mv.visitLabel(zero);
+                mv.visitInsn(Opcodes.ICONST_0);
+                mv.visitLabel(end);
+            } else if (type.charAt(0) == '[' && type.length() == 2) { // Array of primitives
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/util/Arrays", "hashCode", "(" + type + ")I");
+            } else if (type.startsWith("[L")) { // Array of objects
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/util/Arrays", "hashCode", "([Ljava/lang/Object;)I");
+            } else if (type.startsWith("[[")) { // Multi array
+                mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/util/Arrays", "deepHashCode", "([Ljava/lang/Object;)I");
+            } else {
+                mv.visitInsn(Opcodes.DUP);
+                Label isNull = new Label();
+                mv.visitJumpInsn(Opcodes.IFNULL, isNull);
+                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Object", "hashCode", "()I");
+                Label end = new Label();
+                mv.visitJumpInsn(Opcodes.GOTO, end);
+                mv.visitLabel(isNull);
+                mv.visitInsn(Opcodes.POP);
+                mv.visitInsn(Opcodes.ICONST_0); // Replace null with zero
+                mv.visitLabel(end);
+            }
+
+            // hash += c
+            mv.visitInsn(Opcodes.IADD);
+        }
+        mv.visitInsn(Opcodes.IRETURN);
+        mv.visitMaxs(0, 0);
     }
 
+    private void hash64bits(MethodVisitor mv) {
+        mv.visitInsn(Opcodes.DUP2);
+        mv.visitIntInsn(Opcodes.BIPUSH, 32);
+        mv.visitInsn(Opcodes.LUSHR);
+        mv.visitInsn(Opcodes.LXOR);
+        mv.visitInsn(Opcodes.L2I);
+    }
 }
