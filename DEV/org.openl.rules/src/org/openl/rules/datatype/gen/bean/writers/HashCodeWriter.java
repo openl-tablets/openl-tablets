@@ -44,6 +44,7 @@ public class HashCodeWriter extends MethodWriter {
             // hash *= 31
             mv.visitIntInsn(Opcodes.BIPUSH, 31);
             mv.visitInsn(Opcodes.IMUL);
+            mv.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[] { Opcodes.INTEGER });
 
             // getField
             pushFieldToStack(mv, 0, field.getKey());
@@ -66,6 +67,7 @@ public class HashCodeWriter extends MethodWriter {
                 Label end = new Label();
                 mv.visitJumpInsn(Opcodes.GOTO, end);
                 mv.visitLabel(zero);
+                mv.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[] { Opcodes.INTEGER });
                 mv.visitInsn(Opcodes.ICONST_0);
                 mv.visitLabel(end);
             } else if (type.charAt(0) == '[' && type.length() == 2) { // Array of primitives
@@ -82,10 +84,20 @@ public class HashCodeWriter extends MethodWriter {
                 Label end = new Label();
                 mv.visitJumpInsn(Opcodes.GOTO, end);
                 mv.visitLabel(isNull);
+                mv.visitFrame(Opcodes.F_FULL,
+                    1,
+                    new Object[] { getBeanNameWithPackage() },
+                    2,
+                    new Object[] { Opcodes.INTEGER, type.replace('.', '/') });
                 mv.visitInsn(Opcodes.POP);
                 mv.visitInsn(Opcodes.ICONST_0); // Replace null with zero
                 mv.visitLabel(end);
             }
+            mv.visitFrame(Opcodes.F_FULL,
+                1,
+                new Object[] { getBeanNameWithPackage() },
+                2,
+                new Object[] { Opcodes.INTEGER, Opcodes.INTEGER });
 
             // hash += c
             mv.visitInsn(Opcodes.IADD);
