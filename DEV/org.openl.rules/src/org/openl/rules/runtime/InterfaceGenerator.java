@@ -53,7 +53,7 @@ public class InterfaceGenerator {
 
         String name = className.replace('.', '/');
 
-        classWriter.visit(Opcodes.V1_5, PUBLIC_ABSTRACT_INTERFACE, name, null, JAVA_LANG_OBJECT, null);
+        classWriter.visit(Opcodes.V1_6, PUBLIC_ABSTRACT_INTERFACE, name, null, JAVA_LANG_OBJECT, null);
 
         for (RuleInfo ruleInfo : rules) {
 

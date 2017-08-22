@@ -27,6 +27,6 @@ public class ClassDescriptionWriter extends DefaultBeanByteCodeWriter {
     
     public void write(ClassWriter classWriter) {
         String parentName = getParentInternalName();
-        classWriter.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, getBeanNameWithPackage(), null, parentName, new String[]{Serializable.class.getName().replace(".", "/")});
+        classWriter.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, getBeanNameWithPackage(), null, parentName, new String[]{Serializable.class.getName().replace(".", "/")});
     }
 }
