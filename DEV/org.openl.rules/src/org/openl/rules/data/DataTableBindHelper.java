@@ -59,7 +59,7 @@ public class DataTableBindHelper {
      * field value to other table. Foreign keys always starts from
      * {@value #INDEX_ROW_REFERENCE_START_SYMBOL} symbol.
      *
-     * @param dataTable
+     * @param dataTable data table to check
      * @return <code>TRUE</code> if second row in data table body (next to the
      *         field row) consists even one value, in any column, starts with
      *         {@value #INDEX_ROW_REFERENCE_START_SYMBOL} symbol.
@@ -89,12 +89,12 @@ public class DataTableBindHelper {
      * Gets the table body, by skipping the table header and properties
      * sections.
      *
-     * @param tsn
+     * @param tsn inspecting table
      * @return Table body without table header and properties section.
      */
     public static ILogicalTable getTableBody(TableSyntaxNode tsn) {
 
-        int startRow = 0;
+        int startRow;
 
         if (!tsn.hasPropertiesDefinedInTable()) {
             startRow = 1;
@@ -122,8 +122,8 @@ public class DataTableBindHelper {
      * </tr>
      * </table>
      *
-     * @param dataTableBody
-     * @param tableType
+     * @param dataTableBody the body of a table to check
+     * @param tableType the type of data table
      * @return <code>TRUE</code> if table is horizontal.
      */
     public static boolean isHorizontalTable(ILogicalTable dataTableBody, IOpenClass tableType) {
@@ -148,8 +148,8 @@ public class DataTableBindHelper {
      * Goes through the data table columns from left to right, and count number
      * of changeable <code>{@link IOpenField}</code>.
      *
-     * @param dataTable
-     * @param tableType
+     * @param dataTable the body of a table to check
+     * @param tableType the type of data table
      * @return Number of <code>{@link IOpenField}</code> found in the data
      *         table.
      */
@@ -203,8 +203,8 @@ public class DataTableBindHelper {
      * Gets the horizontal table representation from current table. If it was
      * vertical it will be transposed.
      *
-     * @param tableBody
-     * @param tableType
+     * @param tableBody the body of a table to check
+     * @param tableType the type of data table
      * @return Horizontal representation of table.
      */
     public static ILogicalTable getHorizontalTable(ILogicalTable tableBody, IOpenClass tableType) {
@@ -240,7 +240,7 @@ public class DataTableBindHelper {
      * Gets the sub table for displaying on business view.<br>
      *
      * @param tableBody data table body.
-     * @param tableType
+     * @param tableType the type of a table
      * @return Data_With_Titles section for current data table body.
      */
     public static ILogicalTable getSubTableForBusinessView(ILogicalTable tableBody, IOpenClass tableType) {
@@ -372,15 +372,6 @@ public class DataTableBindHelper {
      * @param bindingContext is used for optimization
      *            {@link GridCellSourceCodeModule} in execution mode. Can be
      *            <code>null</code>.
-     * @param table
-     * @param type
-     * @param openl
-     * @param descriptorRows
-     * @param dataWithTitleRows
-     * @param hasForeignKeysRow
-     * @param hasColumnTytleRow
-     * @return
-     * @throws Exception
      */
     public static ColumnDescriptor[] makeDescriptors(IBindingContext bindingContext,
             ITable table,
@@ -472,9 +463,6 @@ public class DataTableBindHelper {
      *            <code>null</code>.
      * @param table is needed only for error processing. Can be
      *            <code>null</code>.
-     * @param descriptorRows
-     * @return
-     * @throws OpenLCompilationException
      */
     public static List<IdentifierNode[]> getColumnIdentifiers(IBindingContext bindingContext,
             ITable table,
@@ -567,8 +555,7 @@ public class DataTableBindHelper {
 
     private static GridCellSourceCodeModule getCellSourceModule(ILogicalTable descriptorRows, int columnNum) {
         IGridTable gridTable = descriptorRows.getColumn(columnNum).getSource();
-        GridCellSourceCodeModule cellSourceModule = new GridCellSourceCodeModule(gridTable);
-        return cellSourceModule;
+        return new GridCellSourceCodeModule(gridTable);
     }
 
     private static ColumnDescriptor getColumnDescriptor(OpenL openl,
@@ -631,7 +618,7 @@ public class DataTableBindHelper {
             }
             
             if (arrayAccess) {
-                hasAccessByArrayId = arrayAccess;
+                hasAccessByArrayId = true;
                 fieldInChain = getWritableArrayElement(fieldNameNode, table, loadedFieldType);
             } else {
                 fieldInChain = getWritableField(fieldNameNode, table, loadedFieldType);
@@ -703,12 +690,7 @@ public class DataTableBindHelper {
      * @param bindingContext is used for optimization
      *            {@link GridCellSourceCodeModule} in execution mode. Can be
      *            <code>null</code>.
-     * @param descriptorRows
-     * @param columnNum
-     * @return
-     * @throws OpenLCompilationException
-     * 
-     * @see {@link #hasForeignKeysRow(ILogicalTable)}.
+     * @see #hasForeignKeysRow(ILogicalTable)
      */
     private static IdentifierNode[] getForeignKeyTokens(IBindingContext bindingContext,
             ILogicalTable descriptorRows,
@@ -726,11 +708,6 @@ public class DataTableBindHelper {
     /**
      * Gets the field, and if it is not <code>null</code> and isWritable,
      * returns it. In other case processes errors and return <code>null</code>.
-     * 
-     * @param currentFieldNameNode
-     * @param table
-     * @param loadedFieldType
-     * @return
      */
     private static IOpenField getWritableField(IdentifierNode currentFieldNameNode,
             ITable table,
@@ -788,7 +765,7 @@ public class DataTableBindHelper {
             processError(table, error);
             return null;
         }
-        IOpenField arrayAccessField = null;
+        IOpenField arrayAccessField;
         if (!field.getType().isArray() && field.getType().getOpenClass().getInstanceClass().equals(Object.class)) {
             arrayAccessField = new DatatypeArrayElementField(field, arrayIndex, JavaOpenClass.OBJECT);
         } else {
