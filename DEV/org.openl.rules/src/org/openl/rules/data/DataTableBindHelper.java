@@ -2,6 +2,8 @@ package org.openl.rules.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.OpenL;
@@ -29,6 +31,8 @@ import org.openl.types.impl.DatatypeArrayElementField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
+import org.openl.util.text.LocationUtils;
+import org.openl.util.text.TextInterval;
 
 public class DataTableBindHelper {
 
@@ -40,7 +44,7 @@ public class DataTableBindHelper {
     // Protected to make javadoc reference.
     protected static final String CONSTRUCTOR_FIELD = "this";
 
-    private static final String CODE_DELIMETERS = ". \n\r";
+    private static final String CODE_DELIMETERS = ".\n\r";
     private static final String INDEX_ROW_REFERENCE_DELIMITER = " >\n\r";
     private static final String LINK_DELIMETERS = ".";
 
@@ -48,12 +52,13 @@ public class DataTableBindHelper {
     public static final String ARRAY_ACCESS_PATTERN = ".+\\[[0-9]+\\]$";
     public static final String PRECISION_PATTERN = "^\\(\\-?[0-9]+\\)$";
     public static final String SPREADSHEETRESULTFIELD_PATTERN = "^\\$.+\\$.+$";
-    
+    private static final Pattern FIELD_WITH_PRECISION_PATTERN = Pattern.compile("^(.*\\S)\\s*(\\(-?[0-9]+\\))$");
+
     /**
      * Foreign keys row is optional for data table. It consists reference for
      * field value to other table. Foreign keys always starts from
      * {@value #INDEX_ROW_REFERENCE_START_SYMBOL} symbol.
-     * 
+     *
      * @param dataTable
      * @return <code>TRUE</code> if second row in data table body (next to the
      *         field row) consists even one value, in any column, starts with
@@ -83,7 +88,7 @@ public class DataTableBindHelper {
     /**
      * Gets the table body, by skipping the table header and properties
      * sections.
-     * 
+     *
      * @param tsn
      * @return Table body without table header and properties section.
      */
@@ -103,7 +108,7 @@ public class DataTableBindHelper {
     /**
      * Checks if table representation is horizontal. Horizontal is data table
      * where parameters are listed from left to right.</br> Example:
-     * 
+     *
      * <table cellspacing="2">
      * <tr bgcolor="#ccffff">
      * <td align="center">param1</td>
@@ -116,7 +121,7 @@ public class DataTableBindHelper {
      * <td align="center"><b>param3 value</b></td>
      * </tr>
      * </table>
-     * 
+     *
      * @param dataTableBody
      * @param tableType
      * @return <code>TRUE</code> if table is horizontal.
@@ -142,7 +147,7 @@ public class DataTableBindHelper {
     /**
      * Goes through the data table columns from left to right, and count number
      * of changeable <code>{@link IOpenField}</code>.
-     * 
+     *
      * @param dataTable
      * @param tableType
      * @return Number of <code>{@link IOpenField}</code> found in the data
@@ -197,7 +202,7 @@ public class DataTableBindHelper {
     /**
      * Gets the horizontal table representation from current table. If it was
      * vertical it will be transposed.
-     * 
+     *
      * @param tableBody
      * @param tableType
      * @return Horizontal representation of table.
@@ -221,7 +226,7 @@ public class DataTableBindHelper {
      * Gets the Data_With_Titles rows from the data table body. Data_With_Titles
      * start row consider to be the next row after descriptor section of the
      * table and till the end of the table.
-     * 
+     *
      * @param horizDataTableBody Horizontal representation of data table body.
      * @return Data_With_Titles rows for current data table body.
      */
@@ -233,7 +238,7 @@ public class DataTableBindHelper {
 
     /**
      * Gets the sub table for displaying on business view.<br>
-     * 
+     *
      * @param tableBody data table body.
      * @param tableType
      * @return Data_With_Titles section for current data table body.
@@ -250,7 +255,7 @@ public class DataTableBindHelper {
      * Gets the Data_With_Titles columns from the data table body.
      * Data_With_Titles start column consider to be the next column after
      * descriptor section of the table and till the end of the table.
-     * 
+     *
      * @param verticalTableBody Vertical representation of data table body.
      * @return Data_With_Titles columns for current data table body.
      */
@@ -266,7 +271,7 @@ public class DataTableBindHelper {
      * It depends on whether table has or no the foreign key row.<br>
      * <br>
      * Works with horizontal representation of data table.
-     * 
+     *
      * @param horizDataTableBody Horizontal representation of data table body.
      * @return Number of the start row for the Data_With_Titles section.
      */
@@ -289,7 +294,7 @@ public class DataTableBindHelper {
      * Gets the descriptor rows from the data table body. Descriptor rows are
      * obligatory parameter row and optional foreign key row if it exists in the
      * table.
-     * 
+     *
      * @param horizDataTableBody Horizontal representation of data table body.
      * @return Descriptor rows for current data table body.
      */
@@ -303,7 +308,7 @@ public class DataTableBindHelper {
     /**
      * Gets the number of end row for descriptor section of the data table body.
      * It depends on whether table has or no the foreign key row.
-     * 
+     *
      * @param horizDataTableBody Horizontal representation of data table body.
      * @return Number of end row for descriptor section.
      */
@@ -325,7 +330,7 @@ public class DataTableBindHelper {
 
     /**
      * Gets title for column if required or returns blank value.
-     * 
+     *
      * @param dataWithTitleRows Logical part of the data table. Consider to
      *            include all rows from base table after header section
      *            (consists from header row + property section) and descriptor
@@ -363,7 +368,7 @@ public class DataTableBindHelper {
     }
 
     /**
-     * 
+     *
      * @param bindingContext is used for optimization
      *            {@link GridCellSourceCodeModule} in execution mode. Can be
      *            <code>null</code>.
@@ -461,7 +466,7 @@ public class DataTableBindHelper {
     }
 
     /**
-     * 
+     *
      * @param bindingContext is used for optimization
      *            {@link GridCellSourceCodeModule} in execution mode. Can be
      *            <code>null</code>.
@@ -488,7 +493,7 @@ public class DataTableBindHelper {
                 IdentifierNode[] fieldAccessorChainTokens = null;
                 try {
                     // fields names nodes
-                    fieldAccessorChainTokens = Tokenizer.tokenize(cellSourceModule, CODE_DELIMETERS);
+                    fieldAccessorChainTokens = trimAndSplitPrecisionToken(Tokenizer.tokenize(cellSourceModule, CODE_DELIMETERS));
                 } catch (OpenLCompilationException e) {
                     String message = String.format("Cannot parse field source \"%s\"", code);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
@@ -507,6 +512,57 @@ public class DataTableBindHelper {
             }
         }
         return identifiers;
+    }
+
+    private static IdentifierNode[] trimAndSplitPrecisionToken(IdentifierNode[] chainTokens) {
+        if (chainTokens.length == 0) {
+            return chainTokens;
+        }
+
+        // Trim all identifiers and set correct location for them.
+        for (int i = 0; i < chainTokens.length; i++) {
+            IdentifierNode token = chainTokens[i];
+            String identifier = token.getIdentifier();
+            String trimmed = identifier.trim();
+            if (trimmed.length() != identifier.length()) {
+                int tokenStart = token.getLocation().getStart().getAbsolutePosition(null) + identifier.indexOf(trimmed);
+
+                TextInterval fieldInterval = LocationUtils.createTextInterval(tokenStart, tokenStart + trimmed.length());
+                chainTokens[i] = new IdentifierNode(token.getType(),
+                        fieldInterval,
+                        trimmed,
+                        token.getModule());
+            }
+        }
+
+        // Extract precision node if exists in last identifier chain
+        IdentifierNode token = chainTokens[chainTokens.length - 1];
+        String identifier = token.getIdentifier();
+
+        Matcher matcher = FIELD_WITH_PRECISION_PATTERN.matcher(identifier);
+        if (matcher.matches()) {
+            // Separate the token to: 1) field 2) precision
+            String field = matcher.group(1);
+            String precision = matcher.group(2);
+
+            int tokenStart = token.getLocation().getStart().getAbsolutePosition(null);
+            int fieldStart = identifier.indexOf(field);
+            int precisionStart = identifier.lastIndexOf(precision);
+            TextInterval fieldInterval = LocationUtils.createTextInterval(tokenStart + fieldStart, tokenStart + fieldStart + field.length());
+            TextInterval precisionInterval = LocationUtils.createTextInterval(tokenStart + precisionStart, tokenStart + precisionStart + precision.length());
+
+            chainTokens[chainTokens.length - 1] = new IdentifierNode(token.getType(),
+                    fieldInterval,
+                    field,
+                    token.getModule());
+
+            chainTokens = ArrayUtils.add(chainTokens, new IdentifierNode(token.getType(),
+                    precisionInterval,
+                    precision,
+                    token.getModule()));
+        }
+
+        return chainTokens;
     }
 
     private static GridCellSourceCodeModule getCellSourceModule(ILogicalTable descriptorRows, int columnNum) {
