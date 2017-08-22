@@ -1,21 +1,52 @@
 package org.openl.rules.datatype.gen.bean.writers;
 
+import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.FieldDescription;
-import org.openl.rules.asm.invoker.Invokers;
-import org.openl.rules.asm.invoker.StringBuilderInvoker;
 
 public class ToStringWriter extends MethodWriter {
+    private static Map<String, String> PRIMITIVE_DISCRIPTORS = new HashMap<String, String>(8, 1) {
+        {
+            put(byte.class, 'I');
+            put(short.class, 'I');
+            put(int.class, 'I');
+            put(char.class, 'C');
+            put(boolean.class, 'Z');
+            put(long.class, 'J');
+            put(float.class, 'F');
+            put(double.class, 'D');
+        }
+
+        private void put(Class<?> clazz, char type) {
+            put(clazz.getName(), "(" + type + ")Ljava/lang/StringBuilder;");
+        }
+    };
+
+    private static Map<String, String> ARRAY_OF_PRIMITIVES_DISCRIPTORS = new HashMap<String, String>(8, 1) {
+        {
+            put(byte[].class);
+            put(short[].class);
+            put(int[].class);
+            put(char[].class);
+            put(boolean[].class);
+            put(long[].class);
+            put(float[].class);
+            put(double[].class);
+        }
+
+        private void put(Class<?> clazz) {
+            put(clazz.getName(), "(" + clazz.getName() + ")Ljava/lang/String;");
+        }
+    };
 
     /**
-     * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br> 
-     * (e.g. <code>my/test/TestClass</code>)
+     * @param beanNameWithPackage name of the class being generated with package,
+     *            symbol '/' is used as separator<br>
+     *            (e.g. <code>my/test/TestClass</code>)
      * @param allFields collection of fields for current class and parent`s ones.
      */
     public ToStringWriter(String beanNameWithPackage, Map<String, FieldDescription> allFields) {
@@ -27,48 +58,87 @@ public class ToStringWriter extends MethodWriter {
         methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "toString", "()Ljava/lang/String;", null, null);
 
         // create StringBuilder
-        methodVisitor.visitTypeInsn(Opcodes.NEW, Type.getInternalName(StringBuilder.class));
+        methodVisitor.visitTypeInsn(Opcodes.NEW, "java/lang/StringBuilder");
         methodVisitor.visitInsn(Opcodes.DUP);
-        methodVisitor
-                .visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(StringBuilder.class), "<init>", "()V");
+        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "()V");
 
         // write ClassName
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-        Invokers.GET_CLASS.invoke(methodVisitor);
-        Invokers.GET_CLASS_NAME.invoke(methodVisitor);
-        StringBuilderInvoker.getAppend(String.class).invoke(methodVisitor);
+        invokeAppendClassName(methodVisitor);
 
         // write fields
-        methodVisitor.visitLdcInsn("{ ");
-        StringBuilderInvoker.getAppend(String.class).invoke(methodVisitor);
+        invokeAppendValue(methodVisitor, "{ ");
 
         for (Map.Entry<String, FieldDescription> field : getAllFields().entrySet()) {
-            methodVisitor.visitLdcInsn(field.getKey() + "=");
-            StringBuilderInvoker.getAppend(String.class).invoke(methodVisitor);
+            invokeAppendValue(methodVisitor, field.getKey() + "=");
 
             pushFieldToStack(methodVisitor, 0, field.getKey());
 
-            FieldDescription fd = field.getValue();
-            Class<?> type = fd.getType();
-            if (fd.isArray()) {
-                String descriptor = Type.getMethodDescriptor(Type.getType(String.class), Type.getType(Object.class));
-                methodVisitor.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ArrayUtils.class), "toString", descriptor);
-                StringBuilderInvoker.getAppend(String.class).invoke(methodVisitor);
-            } else if (short.class.equals(type) || byte.class.equals(type)){
-                StringBuilderInvoker.getAppend(int.class).invoke(methodVisitor);
+            String type = field.getValue().getType().getName();
+            if (PRIMITIVE_DISCRIPTORS.containsKey(type)) {
+                invokeAppendPrimitive(methodVisitor, type);
+            } else if (type.charAt(0) == '[') {
+                if (ARRAY_OF_PRIMITIVES_DISCRIPTORS.containsKey(type)) {
+                    invokeAppendArrayOfPrimitives(methodVisitor, type);
+                } else {
+                    invokeAppendArrayOfObjects(methodVisitor);
+                }
             } else {
-                StringBuilderInvoker.getAppend(type).invoke(methodVisitor);
+                invokeAppendObject(methodVisitor);
             }
-            
-            methodVisitor.visitLdcInsn(" ");
-            StringBuilderInvoker.getAppend(String.class).invoke(methodVisitor);
+
+            invokeAppendValue(methodVisitor, " ");
         }
-        methodVisitor.visitLdcInsn("}");
-        StringBuilderInvoker.getAppend(String.class).invoke(methodVisitor);
+        invokeAppendValue(methodVisitor, "}");
 
         // return
-        StringBuilderInvoker.getToString().invoke(methodVisitor);
+        invokeVirtual(methodVisitor, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;");
         methodVisitor.visitInsn(Opcodes.ARETURN);
         methodVisitor.visitMaxs(0, 0);
+    }
+
+    private void invokeAppendArrayOfObjects(MethodVisitor methodVisitor) {
+        String desc = "([Ljava/lang/Object;)Ljava/lang/String;";
+        methodVisitor.visitMethodInsn(Opcodes.INVOKESTATIC, "java/util/Arrays", "deepToString", desc);
+        invokeAppendString(methodVisitor);
+    }
+
+    private void invokeAppendArrayOfPrimitives(MethodVisitor methodVisitor, String type) {
+        String desc = ARRAY_OF_PRIMITIVES_DISCRIPTORS.get(type);
+        methodVisitor.visitMethodInsn(Opcodes.INVOKESTATIC, "java/util/Arrays", "toString", desc);
+        invokeAppendString(methodVisitor);
+    }
+
+    private void invokeAppendClassName(MethodVisitor methodVisitor) {
+        invokeVirtual(methodVisitor, "java/lang/Object", "getClass", "()Ljava/lang/Class;");
+        invokeVirtual(methodVisitor, "java/lang/Class", "getSimpleName", "()Ljava/lang/String;");
+        invokeAppendString(methodVisitor);
+    }
+
+    private void invokeAppendValue(MethodVisitor methodVisitor, String str) {
+        methodVisitor.visitLdcInsn(str);
+        invokeAppendString(methodVisitor);
+    }
+
+    private void invokeAppendObject(MethodVisitor methodVisitor) {
+        String desc = "(Ljava/lang/Object;)Ljava/lang/StringBuilder;";
+        invokeAppend(methodVisitor, desc);
+    }
+
+    private void invokeAppendPrimitive(MethodVisitor methodVisitor, String type) {
+        String desc = PRIMITIVE_DISCRIPTORS.get(type);
+        invokeAppend(methodVisitor, desc);
+    }
+
+    private void invokeAppendString(MethodVisitor methodVisitor) {
+        invokeAppend(methodVisitor, "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+    }
+
+    private void invokeAppend(MethodVisitor methodVisitor, String desc) {
+        invokeVirtual(methodVisitor, "java/lang/StringBuilder", "append", desc);
+    }
+
+    private void invokeVirtual(MethodVisitor methodVisitor, String owner, String method, String desc) {
+        methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, owner, method, desc);
     }
 }
