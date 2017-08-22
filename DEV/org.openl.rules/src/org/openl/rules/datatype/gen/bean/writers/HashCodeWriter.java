@@ -6,14 +6,25 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+
 import org.openl.rules.datatype.gen.FieldDescription;
 
+/**
+ * Generates a hashCode() method. This method calculates a hashcode using the following expression:
+ * 
+ * <pre>
+ * {@code
+ *     int hash = 5;
+ *     hash = 31 * hash + field.hashCode()
+ * }
+ * </pre>
+ * 
+ * @author Yury Molchan
+ */
 public class HashCodeWriter extends MethodWriter {
 
     /**
-     * 
-     * @param beanNameWithPackage name of the class being generated with package,
-     *            symbol '/' is used as separator<br>
+     * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br>
      *            (e.g. <code>my/test/TestClass</code>)
      * @param allFields collection of fields for current class and parent`s ones.
      */

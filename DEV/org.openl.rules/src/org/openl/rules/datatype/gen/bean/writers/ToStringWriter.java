@@ -6,10 +6,17 @@ import java.util.Map;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+
 import org.openl.rules.datatype.gen.FieldDescription;
 
+/**
+ * Generates a toString() method. This method uses only JRE classes for building a string, such as
+ * {@link java.util.Arrays} and {@link java.lang.StringBuilder}.
+ *
+ * @author Yury Molchan
+ */
 public class ToStringWriter extends MethodWriter {
-    private static Map<String, String> PRIMITIVE_DISCRIPTORS = new HashMap<String, String>(8, 1) {
+    private static Map<String, String> PRIMITIVE_DESCRIPTORS = new HashMap<String, String>(8, 1) {
         {
             put(byte.class, 'I');
             put(short.class, 'I');
@@ -26,7 +33,7 @@ public class ToStringWriter extends MethodWriter {
         }
     };
 
-    private static Map<String, String> ARRAY_OF_PRIMITIVES_DISCRIPTORS = new HashMap<String, String>(8, 1) {
+    private static Map<String, String> ARRAY_OF_PRIMITIVES_DESCRIPTORS = new HashMap<String, String>(8, 1) {
         {
             put(byte[].class);
             put(short[].class);
@@ -44,8 +51,7 @@ public class ToStringWriter extends MethodWriter {
     };
 
     /**
-     * @param beanNameWithPackage name of the class being generated with package,
-     *            symbol '/' is used as separator<br>
+     * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br>
      *            (e.g. <code>my/test/TestClass</code>)
      * @param allFields collection of fields for current class and parent`s ones.
      */
@@ -75,10 +81,10 @@ public class ToStringWriter extends MethodWriter {
             pushFieldToStack(methodVisitor, 0, field.getKey());
 
             String type = field.getValue().getType().getName();
-            if (PRIMITIVE_DISCRIPTORS.containsKey(type)) {
+            if (PRIMITIVE_DESCRIPTORS.containsKey(type)) {
                 invokeAppendPrimitive(methodVisitor, type);
             } else if (type.charAt(0) == '[') {
-                if (ARRAY_OF_PRIMITIVES_DISCRIPTORS.containsKey(type)) {
+                if (ARRAY_OF_PRIMITIVES_DESCRIPTORS.containsKey(type)) {
                     invokeAppendArrayOfPrimitives(methodVisitor, type);
                 } else {
                     invokeAppendArrayOfObjects(methodVisitor);
@@ -104,7 +110,7 @@ public class ToStringWriter extends MethodWriter {
     }
 
     private void invokeAppendArrayOfPrimitives(MethodVisitor methodVisitor, String type) {
-        String desc = ARRAY_OF_PRIMITIVES_DISCRIPTORS.get(type);
+        String desc = ARRAY_OF_PRIMITIVES_DESCRIPTORS.get(type);
         methodVisitor.visitMethodInsn(Opcodes.INVOKESTATIC, "java/util/Arrays", "toString", desc);
         invokeAppendString(methodVisitor);
     }
@@ -126,7 +132,7 @@ public class ToStringWriter extends MethodWriter {
     }
 
     private void invokeAppendPrimitive(MethodVisitor methodVisitor, String type) {
-        String desc = PRIMITIVE_DISCRIPTORS.get(type);
+        String desc = PRIMITIVE_DESCRIPTORS.get(type);
         invokeAppend(methodVisitor, desc);
     }
 
