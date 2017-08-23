@@ -9,7 +9,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 
 public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
@@ -89,7 +88,7 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
                 methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
                 methodVisitor.visitVarInsn(getConstantForVarInsn(fieldType), i);
                 methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), fieldName,
-                        ByteCodeGeneratorHelper.getJavaType(fieldType));
+                        fieldType.getTypeDescriptor());
                 if (long.class.equals(fieldType.getType()) || double.class.equals(fieldType.getType())) {
                     i += 2;
                 }
@@ -105,7 +104,7 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
     private static String getMethodSignatureForByteCode(Map<String, FieldDescription> params){
         StringBuilder signatureBuilder = new StringBuilder("(");
         for (Map.Entry<String, FieldDescription> field : params.entrySet()) {
-            String javaType = ByteCodeGeneratorHelper.getJavaType(field.getValue());
+            String javaType = field.getValue().getTypeDescriptor();
             signatureBuilder.append(javaType);
         }
         signatureBuilder.append(")");

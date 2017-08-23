@@ -5,7 +5,6 @@ import java.util.Map;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.util.StringTool;
 
@@ -39,14 +38,14 @@ public class SettersWriter extends MethodWriter {
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
         methodVisitor.visitVarInsn(getConstantForVarInsn(field), 1);
         
-        methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), fieldName, ByteCodeGeneratorHelper.getJavaType(field));
+        methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), fieldName, field.getTypeDescriptor());
         methodVisitor.visitInsn(Opcodes.RETURN);
         methodVisitor.visitMaxs(0, 0);
     }
 
     protected MethodVisitor writeMethodSignature(ClassWriter classWriter, FieldDescription fieldType, String fieldName) {
         String setterName = StringTool.getSetterName(fieldName);
-        final String javaType = ByteCodeGeneratorHelper.getJavaType(fieldType);
+        final String javaType = fieldType.getTypeDescriptor();
         final String format = new StringBuilder(64).append('(').append(javaType).append(")V").toString();
         return classWriter.visitMethod(Opcodes.ACC_PUBLIC,  setterName, format, null, null);
     }

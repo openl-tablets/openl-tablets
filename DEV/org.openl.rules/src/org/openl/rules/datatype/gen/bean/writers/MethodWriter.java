@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 
 public abstract class MethodWriter extends DefaultBeanByteCodeWriter {
@@ -25,8 +24,8 @@ public abstract class MethodWriter extends DefaultBeanByteCodeWriter {
 
     protected void pushFieldToStack(MethodVisitor codeVisitor, int fieldOwnerLocalVarIndex, String fieldName) {
         codeVisitor.visitVarInsn(Opcodes.ALOAD, fieldOwnerLocalVarIndex);
-        codeVisitor.visitFieldInsn(Opcodes.GETFIELD, getBeanNameWithPackage(), fieldName, ByteCodeGeneratorHelper.getJavaType(getAllFields()
-                .get(fieldName)));
+        codeVisitor.visitFieldInsn(Opcodes.GETFIELD, getBeanNameWithPackage(), fieldName, getAllFields()
+                .get(fieldName).getTypeDescriptor());
     }
     
     public static boolean containRestrictedSymbols(String fieldName) {

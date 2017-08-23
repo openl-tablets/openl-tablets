@@ -10,7 +10,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
@@ -54,7 +53,7 @@ public class GettersWriter extends MethodWriter {
         FieldDescription field = fieldEntry.getValue();
         String getterName = StringTool.getGetterName(fieldName);
 
-        final String javaType = ByteCodeGeneratorHelper.getJavaType(field);
+        final String javaType = field.getTypeDescriptor();
         final String format = new StringBuilder(64).append("()").append(javaType).toString();
         methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC,  getterName, format, null, null);
         
