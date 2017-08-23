@@ -34,7 +34,7 @@ public class ProtectedFieldsWriter extends DefaultBeanByteCodeWriter {
           if (field.getValue().hasDefaultValue()){
               //Requred for java class generation
               AnnotationVisitor annotationVisitor = fieldVisitor.visitAnnotation(Type.getDescriptor(DefaultValue.class), true);
-              if (field.getValue().getType().equals(Date.class)){
+              if (field.getValue().getTypeName().equals(Date.class.getName())){
                   Object value = field.getValue().getDefaultValue();
                   if (value instanceof Date){
                       Date date = (Date) value;

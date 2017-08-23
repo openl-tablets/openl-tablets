@@ -80,7 +80,7 @@ public class ToStringWriter extends MethodWriter {
 
             pushFieldToStack(methodVisitor, 0, field.getKey());
 
-            String type = field.getValue().getType().getName();
+            String type = field.getValue().getTypeName();
             if (PRIMITIVE_DESCRIPTORS.containsKey(type)) {
                 invokeAppendPrimitive(methodVisitor, type);
             } else if (type.charAt(0) == '[') {

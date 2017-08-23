@@ -50,7 +50,7 @@ public class HashCodeWriter extends MethodWriter {
             pushFieldToStack(mv, 0, field.getKey());
 
             // c = ?
-            final String type = field.getValue().getType().getName();
+            final String type = field.getValue().getTypeName();
             if ("double".equals(type)) {
                 mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double", "doubleToLongBits", "(D)J");
                 hash64bits(mv);

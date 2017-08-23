@@ -202,7 +202,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             String getterMethodName = StringTool.getGetterName(fieldName);
             try {
                 Method getterMethod = beanClass.getMethod(getterMethodName);
-                if (!getterMethod.getReturnType().getCanonicalName().equals(fieldDescription.getTypeName())) {
+                if (!getterMethod.getReturnType().getName().equals(fieldDescription.getTypeName())) {
                     String errorMessage = String.format(
                         "Datatype '%s' validation is failed on method '%s' with unexpected return type. Please, regenerate your datatype classes.",
                         beanName,
@@ -222,7 +222,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             boolean found = false;
             for (Method method : methods) {
                 if (method.getName().equals(setterMethodName)) {
-                    if ((method.getParameterTypes().length == 1) && method.getParameterTypes()[0].getCanonicalName()
+                    if ((method.getParameterTypes().length == 1) && method.getParameterTypes()[0].getName()
                         .equals(fieldDescription.getTypeName())) {
                         found = true;
                         break;
@@ -348,12 +348,10 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             if (row.getWidth() > 2) {
                 String defaultValue = getDefaultValue(row, cxt);
                 fieldDescription.setDefaultValueAsString(defaultValue);
-                if (fieldDescription.getType().equals(Date.class)) {
-                    // EPBDS-6068 add metainfo for
-                    // XlsDataFormatterFactory.getFormatter can define correct
-                    // formater for cell.
+                if (fieldDescription.getTypeName().equals(Date.class.getName())){
+                    //EPBDS-6068 add metainfo for XlsDataFormatterFactory.getFormatter can define correct formater for cell.
                     Object value = row.getColumn(2).getCell(0, 0).getObjectValue();
-                    if (value != null && fieldDescription.getType().equals(value.getClass())) {
+                    if (value != null && fieldDescription.getTypeName().equals(value.getClass().getName())){
                         RuleRowHelper.setCellMetaInfo(row.getColumn(2), null, fieldType, false);
                         fieldDescription.setDefaultValue(value);
                     }
@@ -379,7 +377,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         throw SyntaxNodeExceptionUtils.createError(message, e, location, cellSourceCodeModule);
                     }
                 }
-                if (value != null && !(fieldDescription.hasDefaultKeyWord() && fieldDescription.getType().isArray())) {
+                if (value != null && !(fieldDescription.hasDefaultKeyWord() && fieldDescription.isArray())) {
                     // Validate not null default value
                     // The null value is allowed for alias types
                     try {
@@ -416,10 +414,23 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             if (field.getType().getInstanceClass() == null) {
                 String datatypeName = field.getType().getName();
                 String packageName = ((DatatypeOpenClass) type).getPackageName();
+                String canonicalName;
                 if (StringUtils.isBlank(packageName)) {
-                    return datatypeName;
+                    canonicalName = datatypeName;
+                } else {
+                    canonicalName = String.format("%s.%s", packageName, datatypeName);
                 }
-                return String.format("%s.%s", packageName, datatypeName);
+                if (canonicalName.contains("[")) {
+                    String[] tokens = canonicalName.split("\\[");
+                    StringBuilder strBuf = new StringBuilder();
+                    for (int i = 0; i < tokens.length - 1; i++) {
+                        strBuf.append("[");
+                    }
+                    strBuf.append('L').append(tokens[0]).append(';');
+                    return strBuf.toString();
+                } else {
+                    return canonicalName;
+                }
             }
         }
         throw new IllegalArgumentException("Unknown field got here");

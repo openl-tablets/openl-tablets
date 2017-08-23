@@ -74,10 +74,10 @@ public class GettersWriter extends MethodWriter {
         
         if (fieldEntry.getValue().hasDefaultValue()){
             String defaultFieldValue = fieldEntry.getValue().getDefaultValueAsString();
-            if (Boolean.class.equals(fieldEntry.getValue().getType()) || boolean.class.equals(fieldEntry.getValue().getType())){
+            if (Boolean.class.getName().equals(fieldEntry.getValue().getTypeName()) || boolean.class.getName().equals(fieldEntry.getValue().getTypeName())){
                 defaultFieldValue = String.valueOf(fieldEntry.getValue().getDefaultValue());
             }
-            if (fieldEntry.getValue().getType().equals(Date.class)){
+            if (fieldEntry.getValue().getTypeName().equals(Date.class.getName())){
                 Date date = (Date) fieldEntry.getValue().getDefaultValue();
                 defaultFieldValue = ISO8601DateFormater.format(date);
             }

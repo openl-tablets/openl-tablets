@@ -66,7 +66,7 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
             for (Map.Entry<String, FieldDescription> fieldEntry : parentFields.entrySet()) {
                 FieldDescription field = fieldEntry.getValue();
                 methodVisitor.visitVarInsn(getConstantForVarInsn(field), i);
-                if (long.class.equals(field.getType()) || double.class.equals(field.getType())) {
+                if (long.class.getName().equals(field.getTypeName()) || double.class.getName().equals(field.getTypeName())) {
                     i += 2;
                 }
                 else {
@@ -89,7 +89,7 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
                 methodVisitor.visitVarInsn(getConstantForVarInsn(fieldType), i);
                 methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), fieldName,
                         fieldType.getTypeDescriptor());
-                if (long.class.equals(fieldType.getType()) || double.class.equals(fieldType.getType())) {
+                if (long.class.getName().equals(fieldType.getTypeName()) || double.class.getName().equals(fieldType.getTypeName())) {
                     i += 2;
                 }
                 else {

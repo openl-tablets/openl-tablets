@@ -8,31 +8,31 @@ import org.openl.util.StringUtils;
 
 public class DefaultFieldDescription implements FieldDescription {
 
-    private String canonicalTypeName;
+    private String typeName;
     private Class<?> type;
     
     private String defaultValueAsString;
     private Object defaultValue;
     
     public DefaultFieldDescription(Class<?> type) {
-        this(type, type.getCanonicalName());
+        this(type, type.getName());
     }
     
     public DefaultFieldDescription(IOpenField field) {
-        this(field.getType().getInstanceClass(), field.getType().getInstanceClass().getCanonicalName());
+        this(field.getType().getInstanceClass(), field.getType().getInstanceClass().getName());
     }
 
-    public DefaultFieldDescription(Class<?> type, String canonicalTypeName) {
+    public DefaultFieldDescription(Class<?> type, String typeName) {
         if (type == null) {
             throw new IllegalArgumentException("Type cannot be null for the type declaration");
         }
         this.type = type;
-        this.canonicalTypeName = canonicalTypeName;
+        this.typeName = typeName;
     }
 
     @Override
     public String getTypeName() {
-        return canonicalTypeName;
+        return typeName;
     }
 
     @Override
@@ -47,8 +47,7 @@ public class DefaultFieldDescription implements FieldDescription {
      *
      * @return
      */
-    @Override
-    public Class<?> getType() {
+    private Class<?> getType() {
         return type;
     } 
     
@@ -63,17 +62,12 @@ public class DefaultFieldDescription implements FieldDescription {
 
 	@Override
     public boolean isArray() {
-        if (getType().isArray()) {
-            return true;
-        } else if (canonicalTypeName.endsWith("]")){
-            return true;
-        }
-        return false;
+        return typeName.charAt(0) =='[';
     }
     
     public String toString() {
-        if (StringUtils.isNotBlank(canonicalTypeName)) {
-            return canonicalTypeName;
+        if (StringUtils.isNotBlank(typeName)) {
+            return typeName;
         }
         return super.toString();
     }
@@ -98,7 +92,7 @@ public class DefaultFieldDescription implements FieldDescription {
                     //
                     defaultValue = DefaultValue.DEFAULT;
                 } else {
-                    if (getType().isArray() && getType().getComponentType().isArray()) {
+                    if (typeName.startsWith("[[")) {
                         throw new IllegalStateException("Multi-dimensional arrays aren't supported!");
                     }
                     IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(getType());
