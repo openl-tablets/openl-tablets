@@ -194,8 +194,8 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
                 mg.loadThis();
 
                 Object value = fieldDescription.getDefaultValue();
-                Class<?> clazz = fieldDescription.getType();
-                Type type = Type.getType(clazz);
+                String retClass = fieldDescription.getTypeDescriptor();
+                Type type = Type.getType(retClass);
                 pushValue(mg, type, value);
 
                 String fieldTypeName = fieldDescription.getTypeDescriptor();
