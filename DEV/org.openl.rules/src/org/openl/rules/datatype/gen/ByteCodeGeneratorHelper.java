@@ -25,12 +25,6 @@ public class ByteCodeGeneratorHelper {
         return Type.getDescriptor(fieldClass);
     }
 
-    public static int getConstantForVarInsn(FieldDescription field) {
-        Class<?> retClass = field.getType();
-        Type type = Type.getType(retClass);
-        return type.getOpcode(Opcodes.ILOAD);
-    }
-
     /**
      * Generate the Java type corresponding to the given canonical type name.
      * Support array types.<br>

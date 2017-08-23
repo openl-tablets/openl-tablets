@@ -3,6 +3,7 @@ package org.openl.rules.datatype.gen.bean.writers;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.FieldDescription;
 
@@ -25,6 +26,12 @@ public abstract class DefaultBeanByteCodeWriter implements BeanByteCodeWriter {
         this.beanNameWithPackage = beanNameWithPackage;
         this.parentClass = parentClass;
         this.beanFields = new LinkedHashMap<String, FieldDescription>(beanFields);
+    }
+
+    protected int getConstantForVarInsn(FieldDescription field) {
+        Class<?> retClass = field.getType();
+        Type type = Type.getType(retClass);
+        return type.getOpcode(Opcodes.ILOAD);
     }
 
     protected String getBeanNameWithPackage() {

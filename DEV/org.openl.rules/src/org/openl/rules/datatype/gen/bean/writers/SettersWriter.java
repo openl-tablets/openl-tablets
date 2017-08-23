@@ -37,7 +37,7 @@ public class SettersWriter extends MethodWriter {
         
         methodVisitor = writeMethodSignature(classWriter, field, fieldName);
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-        methodVisitor.visitVarInsn(ByteCodeGeneratorHelper.getConstantForVarInsn(field), 1);
+        methodVisitor.visitVarInsn(getConstantForVarInsn(field), 1);
         
         methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), fieldName, ByteCodeGeneratorHelper.getJavaType(field));
         methodVisitor.visitInsn(Opcodes.RETURN);
