@@ -50,7 +50,7 @@ public class RuleServiceImpl implements RuleService {
                 try {
                     OpenLService openLService = ruleServiceInstantiationFactory.createService(serviceDescription);
                     undeploy(openLService.getName());
-                    deploy(serviceDescription);
+                    deploy(serviceDescription, openLService);
                 } catch (RuleServiceDeployException e) {
                     throw new RuleServiceRedeployException("Failed on deploy a service.", e);
                 } catch (RuleServiceUndeployException e) {
@@ -117,27 +117,31 @@ public class RuleServiceImpl implements RuleService {
             throw new RuleServiceDeployException(
                 "The service with name '" + serviceDescription.getName() + "' has already been deployed!");
         }
-		try {
-			OpenLService newService = ruleServiceInstantiationFactory.createService(serviceDescription);
-			ServiceDescription sd = mapping.get(serviceDescription.getName());
-			if (sd != null) {
-				throw new IllegalStateException("Illegal State!!");
-			}
+        try {
+            OpenLService newService = ruleServiceInstantiationFactory.createService(serviceDescription);
+            deploy(serviceDescription, newService);
+        } catch (RuleServiceInstantiationException e) {
+            throw new RuleServiceDeployException("Failed on deploy a service.", e);
+        }
+    }
 
-			if (newService.getServiceClass().getMethods().length == 0) { // Skip
-				// deploy empty services
-				if (log.isWarnEnabled()) {
-					log.warn("Service '{}' doesn't have any methods. It has been skiped.", newService.getName());
-				}
-				return;
-			}
+    private void deploy(ServiceDescription serviceDescription, OpenLService newService) throws RuleServiceDeployException {
+        ServiceDescription sd = mapping.get(serviceDescription.getName());
+        if (sd != null) {
+            throw new IllegalStateException("Illegal State!!");
+        }
 
-			ruleServicePublisher.deploy(newService);
-			mapping.put(serviceDescription.getName(), serviceDescription);
-			log.info("Service '{}' was deployed succesfully.", serviceDescription.getName());
-		} catch (RuleServiceInstantiationException e) {
-			throw new RuleServiceDeployException("Failed on deploy a service.", e);
-		}
+        if (newService.getServiceClass().getMethods().length == 0) { // Skip
+            // deploy empty services
+            if (log.isWarnEnabled()) {
+                log.warn("Service '{}' doesn't have any methods. It has been skiped.", newService.getName());
+            }
+            return;
+        }
+
+        ruleServicePublisher.deploy(newService);
+        mapping.put(serviceDescription.getName(), serviceDescription);
+        log.info("Service '{}' was deployed succesfully.", serviceDescription.getName());
     }
 
     public RuleServicePublisher getRuleServicePublisher() {
