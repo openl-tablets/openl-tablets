@@ -56,7 +56,7 @@ public class SimpleBeanByteCodeGenerator {
             Class<?> parentClass,
             Map<String, FieldDescription> parentFields) {
         this.beanName = beanName;
-        this.beanNameWithPackage = ByteCodeGeneratorHelper.replaceDots(beanName);
+        this.beanNameWithPackage = beanName.replace('.', '/');
         this.beanFields = new LinkedHashMap<String, FieldDescription>(beanFields);
         this.parentFields = new LinkedHashMap<String, FieldDescription>(parentFields);
         this.parentClass = parentClass;
