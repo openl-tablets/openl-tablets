@@ -4,7 +4,7 @@ package org.openl.rules.datatype.gen;
  * Created by dl on 6/19/14.
  */
 public interface FieldDescription {
-    String getCanonicalTypeName();
+    String getTypeName();
 
     Class<?> getType();
 

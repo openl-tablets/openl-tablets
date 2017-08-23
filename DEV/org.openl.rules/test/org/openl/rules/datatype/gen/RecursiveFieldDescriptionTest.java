@@ -36,7 +36,7 @@ public class RecursiveFieldDescriptionTest {
         FieldDescription field = new RecursiveFieldDescription(driversField);
 
         assertEquals("Object class is used as a type, as instance class is unknown", Object.class, field.getType());
-        assertEquals("Canonical name based on the package", "org.openl.beans.generated.Driver[]", field.getCanonicalTypeName());
+        assertEquals("Canonical name based on the package", "org.openl.beans.generated.Driver[]", field.getTypeName());
     }
 
     private class Policy {

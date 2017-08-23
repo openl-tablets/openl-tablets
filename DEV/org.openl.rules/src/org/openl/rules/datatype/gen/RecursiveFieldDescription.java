@@ -47,8 +47,8 @@ public class RecursiveFieldDescription implements FieldDescription {
     }
 
     @Override
-    public String getCanonicalTypeName() {
-        return field.getCanonicalTypeName();
+    public String getTypeName() {
+        return field.getTypeName();
     }
 
     @Override

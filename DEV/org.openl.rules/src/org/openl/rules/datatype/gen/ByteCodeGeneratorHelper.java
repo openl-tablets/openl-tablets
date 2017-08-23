@@ -18,7 +18,7 @@ public class ByteCodeGeneratorHelper {
      */
     public static String getJavaType(FieldDescription field) {
         if (field instanceof RecursiveFieldDescription) {
-            return getJavaType(field.getCanonicalTypeName());
+            return getJavaType(field.getTypeName());
         }
         Class<?> fieldClass = field.getType();
         /** gets the type by its class*/

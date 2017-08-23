@@ -31,7 +31,7 @@ public class DefaultFieldDescription implements FieldDescription {
     }
 
     @Override
-    public String getCanonicalTypeName() {
+    public String getTypeName() {
         return canonicalTypeName;
     }
 

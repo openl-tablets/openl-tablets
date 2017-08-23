@@ -202,7 +202,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             String getterMethodName = StringTool.getGetterName(fieldName);
             try {
                 Method getterMethod = beanClass.getMethod(getterMethodName);
-                if (!getterMethod.getReturnType().getCanonicalName().equals(fieldDescription.getCanonicalTypeName())) {
+                if (!getterMethod.getReturnType().getCanonicalName().equals(fieldDescription.getTypeName())) {
                     String errorMessage = String.format(
                         "Datatype '%s' validation is failed on method '%s' with unexpected return type. Please, regenerate your datatype classes.",
                         beanName,
@@ -223,7 +223,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             for (Method method : methods) {
                 if (method.getName().equals(setterMethodName)) {
                     if ((method.getParameterTypes().length == 1) && method.getParameterTypes()[0].getCanonicalName()
-                        .equals(fieldDescription.getCanonicalTypeName())) {
+                        .equals(fieldDescription.getTypeName())) {
                         found = true;
                         break;
                     }
@@ -234,7 +234,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     "Datatype '%s' validation is failed on missed method '%s(%s)'. Please, regenerate your datatype classes.",
                     beanName,
                     setterMethodName,
-                    fieldDescription.getCanonicalTypeName());
+                    fieldDescription.getTypeName());
                 throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
             }
         }
