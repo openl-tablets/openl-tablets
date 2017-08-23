@@ -93,7 +93,8 @@ public class GettersWriter extends MethodWriter {
         
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
         methodVisitor.visitFieldInsn(Opcodes.GETFIELD, getBeanNameWithPackage(), fieldName, javaType);
-        Type type = Type.getType(field.getType());
+        String retClass = field.getTypeDescriptor();
+        Type type = Type.getType(retClass);
         methodVisitor.visitInsn(type.getOpcode(Opcodes.IRETURN));
         methodVisitor.visitMaxs(0, 0);
     }

@@ -29,7 +29,7 @@ public abstract class DefaultBeanByteCodeWriter implements BeanByteCodeWriter {
     }
 
     protected int getConstantForVarInsn(FieldDescription field) {
-        Class<?> retClass = field.getType();
+        String retClass = field.getTypeDescriptor();
         Type type = Type.getType(retClass);
         return type.getOpcode(Opcodes.ILOAD);
     }
