@@ -187,7 +187,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             String getterMethodName = StringTool.getGetterName(fieldName);
             try {
                 Method getterMethod = beanClass.getMethod(getterMethodName);
-                if (!getterMethod.getReturnType().getCanonicalName().equals(fieldDescription.getCanonicalTypeName())) {
+                if (!getterMethod.getReturnType().getCanonicalName().equals(fieldDescription.getTypeName())) {
                     String errorMessage = String.format(
                         "Class '%s' is found in classloader. Method '%s' returns invalid type. Please, regenerate your datatype classes.", beanName, getterMethodName);
                     throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
@@ -204,7 +204,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             for (Method method : methods) {
                 if (method.getName().equals(setterMethodName)) {
                     if ((method.getParameterTypes().length == 1) && method.getParameterTypes()[0].getCanonicalName()
-                        .equals(fieldDescription.getCanonicalTypeName())) {
+                        .equals(fieldDescription.getTypeName())) {
                         found = true;
                         break;
                     }
@@ -215,7 +215,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     "Class '%s' is found in classloader. Method '%s(%s)' is missed. Please, regenerate your datatype classes.",
                     beanName,
                     setterMethodName,
-                    fieldDescription.getCanonicalTypeName());
+                    fieldDescription.getTypeName());
                 throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
             }
         }

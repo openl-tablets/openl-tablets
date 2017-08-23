@@ -42,7 +42,7 @@ public abstract class MethodWriter extends DefaultBeanByteCodeWriter {
     /** Generate methods only for fields without restricted symbols.
     In future should be updated to use this fields too somehow*/
     protected boolean validField(String fieldName, FieldDescription fieldDescription) {
-        return !fieldDescription.getCanonicalTypeName().equals(VOID_CLASS_NAME) && !containRestrictedSymbols(fieldName);
+        return !fieldDescription.getTypeName().equals(VOID_CLASS_NAME) && !containRestrictedSymbols(fieldName);
     }
     
 }
