@@ -41,7 +41,7 @@ public class EqualsWriter extends MethodWriter {
             pushFieldToStack(mv, 0, field.getKey());
             pushFieldToStack(mv, 2, field.getKey());
 
-            final String type = field.getValue().getType().getName();
+            final String type = field.getValue().getTypeName();
             if ("double".equals(type)) {
                 mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Double", "compare", "(DD)I");
                 mv.visitJumpInsn(Opcodes.IFNE, retFalse);

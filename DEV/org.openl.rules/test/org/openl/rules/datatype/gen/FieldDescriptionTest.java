@@ -75,7 +75,7 @@ public class FieldDescriptionTest {
         DatatypeOpenField driversField = new DatatypeOpenField(policyClass, "drivers", driversClass);
 
         FieldDescription field = new DefaultFieldDescription(driversField);
-        assertEquals(Driver[].class, field.getType());
+        assertEquals(Driver[].class.getName(), field.getTypeName());
     }
 
     public static class Policy {

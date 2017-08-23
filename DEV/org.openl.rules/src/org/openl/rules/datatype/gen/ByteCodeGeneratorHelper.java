@@ -1,7 +1,5 @@
 package org.openl.rules.datatype.gen;
 
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringUtils;
 
@@ -21,14 +19,8 @@ public class ByteCodeGeneratorHelper {
      *         <code>Lmy/test/TestClass;</code>)
      */
     public static String getJavaType(String canonicalTypeName) {
-        if (canonicalTypeName != null && canonicalTypeName.indexOf('[') >= 0) {
-            String[] tokens = canonicalTypeName.split("\\[");
-            StringBuilder strBuf = new StringBuilder();
-            for (int i = 0; i < tokens.length - 1; i++) {
-                strBuf.append("[");
-            }
-            strBuf.append(getJavaTypeWithPrefix(tokens[0]));
-            return strBuf.toString();
+        if (canonicalTypeName.charAt(0) == '[') {
+            return canonicalTypeName.replace('.', '/');
         } else {
             return getJavaTypeWithPrefix(canonicalTypeName);
         }

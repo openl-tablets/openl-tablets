@@ -7,8 +7,6 @@ public interface FieldDescription {
     String getTypeName();
     String getTypeDescriptor();
 
-    Class<?> getType();
-
     String getDefaultValueAsString();
 
     void setDefaultValueAsString(String defaultValueAsString);
