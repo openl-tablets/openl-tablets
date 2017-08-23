@@ -22,7 +22,7 @@ public class DefaultFieldDescription implements FieldDescription {
         this(field.getType().getInstanceClass(), field.getType().getInstanceClass().getCanonicalName());
     }
 
-    private DefaultFieldDescription(Class<?> type, String canonicalTypeName) {
+    public DefaultFieldDescription(Class<?> type, String canonicalTypeName) {
         if (type == null) {
             throw new IllegalArgumentException("Type cannot be null for the type declaration");
         }
@@ -39,10 +39,6 @@ public class DefaultFieldDescription implements FieldDescription {
     public String getTypeDescriptor() {
         /** gets the type by its class*/
         return ByteCodeGeneratorHelper.getJavaType(getTypeName());
-    }
-
-    public void setCanonicalTypeName(String canonicalTypeName) {
-        this.canonicalTypeName = canonicalTypeName;
     }
 
     /**

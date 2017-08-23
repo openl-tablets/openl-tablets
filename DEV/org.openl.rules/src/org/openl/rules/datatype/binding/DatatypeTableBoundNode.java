@@ -25,7 +25,6 @@ import org.openl.meta.IMetaInfo;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.datatype.gen.DefaultFieldDescription;
 import org.openl.rules.datatype.gen.FieldDescription;
-import org.openl.rules.datatype.gen.RecursiveFieldDescription;
 import org.openl.rules.datatype.gen.SimpleBeanByteCodeGenerator;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
@@ -47,6 +46,7 @@ import org.openl.types.impl.DatatypeOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
 import org.openl.util.StringTool;
+import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
 
@@ -394,7 +394,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     private FieldDescription fieldDescriptionFactory(IOpenField field) {
         if (isRecursiveField(field)) {
-            return new RecursiveFieldDescription(field);
+            return new DefaultFieldDescription(Object.class, getCanonicalTypeName(field));
         }
         return new DefaultFieldDescription(field);
     }
@@ -408,6 +408,21 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     private boolean isRecursiveField(IOpenField field) {
         IOpenClass fieldType = getRootComponentClass(field.getType());
         return fieldType.getName().equals(dataType.getName());
+    }
+
+    private static String getCanonicalTypeName(IOpenField field) {
+        IOpenClass type = DatatypeTableBoundNode.getRootComponentClass(field.getType());
+        if (type instanceof DatatypeOpenClass) {
+            if (field.getType().getInstanceClass() == null) {
+                String datatypeName = field.getType().getName();
+                String packageName = ((DatatypeOpenClass) type).getPackageName();
+                if (StringUtils.isBlank(packageName)) {
+                    return datatypeName;
+                }
+                return String.format("%s.%s", packageName, datatypeName);
+            }
+        }
+        throw new IllegalArgumentException("Unknown field got here");
     }
 
     public static IOpenClass getRootComponentClass(IOpenClass fieldType) {
