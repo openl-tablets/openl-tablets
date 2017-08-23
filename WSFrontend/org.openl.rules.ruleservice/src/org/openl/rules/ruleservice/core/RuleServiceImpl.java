@@ -50,7 +50,7 @@ public class RuleServiceImpl implements RuleService {
                 try {
                     OpenLService openLService = ruleServiceInstantiationFactory.createService(serviceDescription);
                     undeploy(openLService.getName());
-                    deploy(serviceDescription);
+                    deploy(serviceDescription, openLService);
                 } catch (RuleServiceDeployException e) {
                     throw new RuleServiceRedeployException("Failed on deploy service", e);
                 } catch (RuleServiceUndeployException e) {
@@ -119,18 +119,22 @@ public class RuleServiceImpl implements RuleService {
         }
         try {
             OpenLService newService = ruleServiceInstantiationFactory.createService(serviceDescription);
-            ServiceDescription sd = mapping.get(serviceDescription.getName());
-            if (sd != null) {
-                throw new IllegalStateException("Illegal State!!");
-            }
-            ruleServicePublisher.deploy(newService);
-            mapping.put(serviceDescription.getName(), serviceDescription);
-            log.info("Service \"{}\" with URL \"{}\" succesfully deployed.",
-                serviceDescription.getName(),
-                serviceDescription.getUrl());
+            deploy(serviceDescription, newService);
         } catch (RuleServiceInstantiationException e) {
             throw new RuleServiceDeployException("Failed on deploy service", e);
         }
+    }
+
+    private void deploy(ServiceDescription serviceDescription, OpenLService newService) throws RuleServiceDeployException {
+        ServiceDescription sd = mapping.get(serviceDescription.getName());
+        if (sd != null) {
+            throw new IllegalStateException("Illegal State!!");
+        }
+        ruleServicePublisher.deploy(newService);
+        mapping.put(serviceDescription.getName(), serviceDescription);
+        log.info("Service \"{}\" with URL \"{}\" succesfully deployed.",
+            serviceDescription.getName(),
+            serviceDescription.getUrl());
     }
 
     public RuleServicePublisher getRuleServicePublisher() {
