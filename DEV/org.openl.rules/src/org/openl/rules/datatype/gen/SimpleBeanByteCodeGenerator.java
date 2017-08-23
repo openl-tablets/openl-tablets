@@ -117,11 +117,11 @@ public class SimpleBeanByteCodeGenerator {
         try {
             /** try to load bean class from current classloader.
              check if it already presents*/
-            if (ByteCodeGeneratorHelper.isClassLoaderContainsClass(classLoader, beanName)) {
+            try {
                 resultClass = classLoader.loadClass(beanName);
                 log.debug("Bean {} is using previously loaded", beanName);
                 return resultClass;
-            } else {
+            } catch (ClassNotFoundException e) {
                 /** generate byte code*/
                 generateClassByteCode();
 
