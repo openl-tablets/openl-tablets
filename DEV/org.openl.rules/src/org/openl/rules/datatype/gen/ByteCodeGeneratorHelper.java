@@ -11,21 +11,6 @@ public class ByteCodeGeneratorHelper {
     private ByteCodeGeneratorHelper() {}
 
     /**
-     * Gets Java type corresponding to the given field type.<br>
-     * 
-     * @param field
-     * @return Java type corresponding to the given field type. (e.g. <code>Lmy/test/TestClass;</code>)
-     */
-    public static String getJavaType(FieldDescription field) {
-        if (field instanceof RecursiveFieldDescription) {
-            return getJavaType(field.getTypeName());
-        }
-        Class<?> fieldClass = field.getType();
-        /** gets the type by its class*/
-        return Type.getDescriptor(fieldClass);
-    }
-
-    /**
      * Generate the Java type corresponding to the given canonical type name.
      * Support array types.<br>
      * (e.g. <code>my.test.Vehicle[][]</code>)

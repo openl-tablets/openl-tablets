@@ -21,7 +21,6 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
-import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 
 public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
@@ -199,7 +198,7 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
                 Type type = Type.getType(clazz);
                 pushValue(mg, type, value);
 
-                String fieldTypeName = ByteCodeGeneratorHelper.getJavaType(fieldDescription);
+                String fieldTypeName = fieldDescription.getTypeDescriptor();
                 mg.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), field.getKey(), fieldTypeName);
             }
         }

@@ -35,6 +35,12 @@ public class DefaultFieldDescription implements FieldDescription {
         return canonicalTypeName;
     }
 
+    @Override
+    public String getTypeDescriptor() {
+        /** gets the type by its class*/
+        return ByteCodeGeneratorHelper.getJavaType(getTypeName());
+    }
+
     public void setCanonicalTypeName(String canonicalTypeName) {
         this.canonicalTypeName = canonicalTypeName;
     }

@@ -5,6 +5,7 @@ package org.openl.rules.datatype.gen;
  */
 public interface FieldDescription {
     String getTypeName();
+    String getTypeDescriptor();
 
     Class<?> getType();
 

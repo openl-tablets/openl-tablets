@@ -52,6 +52,11 @@ public class RecursiveFieldDescription implements FieldDescription {
     }
 
     @Override
+    public String getTypeDescriptor() {
+        return field.getTypeDescriptor();
+    }
+
+    @Override
     public Class<?> getType() {
         return field.getType();
     }

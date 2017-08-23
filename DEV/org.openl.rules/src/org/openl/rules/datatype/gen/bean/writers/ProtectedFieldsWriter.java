@@ -8,7 +8,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.util.StringUtils;
 
@@ -30,7 +29,7 @@ public class ProtectedFieldsWriter extends DefaultBeanByteCodeWriter {
     
     public void write(ClassWriter classWriter) {
         for (Map.Entry<String,  FieldDescription> field : getBeanFields().entrySet()) {
-          String fieldTypeName = ByteCodeGeneratorHelper.getJavaType(field.getValue());          
+          String fieldTypeName = field.getValue().getTypeDescriptor();
           FieldVisitor fieldVisitor = classWriter.visitField(Opcodes.ACC_PROTECTED, field.getKey(), fieldTypeName, null, null);
           if (field.getValue().hasDefaultValue()){
               //Requred for java class generation
