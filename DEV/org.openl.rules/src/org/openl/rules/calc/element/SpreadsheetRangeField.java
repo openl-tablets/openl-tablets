@@ -68,7 +68,7 @@ public class SpreadsheetRangeField extends ASpreadsheetField {
         }
         ClassWriter cw = new ClassWriter(0);
         MethodVisitor mv;
-        cw.visit(Opcodes.V1_6,
+        cw.visit(Opcodes.V1_7,
             Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER,
             className.replaceAll("\\.", "/"),
             null,
