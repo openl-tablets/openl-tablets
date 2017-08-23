@@ -3,7 +3,6 @@ package org.openl.rules.runtime;
 import org.openl.OpenL;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
-import org.openl.rules.datatype.gen.ByteCodeGeneratorHelper;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.runtime.EngineFactory;
 import org.openl.runtime.IEngineWrapper;
@@ -148,13 +147,13 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
             String className = openClass.getName();
             ClassLoader classLoader = getCompiledOpenClass().getClassLoader();
             try {
-                if (ByteCodeGeneratorHelper.isClassLoaderContainsClass(classLoader, className)) {
-                    log.warn("Previously generated  interface '{}' will be used as service class.", className);
+                try {
                     @SuppressWarnings("unchecked")
                     Class<T> interfaceClass = (Class<T>) classLoader.loadClass(className);
+                    log.warn("Previously generated  interface '{}' will be used as service class.", className);
                     setInterfaceClass(interfaceClass);
                     return interfaceClass;
-                } else {
+                } catch (ClassNotFoundException e) {
                     @SuppressWarnings("unchecked")
                     Class<T> interfaceClass = (Class<T>) interfaceClassGenerator.generateInterface(className, openClass,
                             classLoader);
