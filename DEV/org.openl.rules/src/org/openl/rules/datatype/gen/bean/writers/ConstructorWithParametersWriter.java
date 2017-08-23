@@ -66,7 +66,7 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
             // push to stack all parameters for parent constructor
             for (Map.Entry<String, FieldDescription> fieldEntry : parentFields.entrySet()) {
                 FieldDescription field = fieldEntry.getValue();
-                methodVisitor.visitVarInsn(ByteCodeGeneratorHelper.getConstantForVarInsn(field), i);
+                methodVisitor.visitVarInsn(getConstantForVarInsn(field), i);
                 if (long.class.equals(field.getType()) || double.class.equals(field.getType())) {
                     i += 2;
                 }
@@ -87,7 +87,7 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
                 // there is no such field in parent class
                 FieldDescription fieldType = field.getValue();
                 methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-                methodVisitor.visitVarInsn(ByteCodeGeneratorHelper.getConstantForVarInsn(fieldType), i);
+                methodVisitor.visitVarInsn(getConstantForVarInsn(fieldType), i);
                 methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getBeanNameWithPackage(), fieldName,
                         ByteCodeGeneratorHelper.getJavaType(fieldType));
                 if (long.class.equals(fieldType.getType()) || double.class.equals(fieldType.getType())) {
