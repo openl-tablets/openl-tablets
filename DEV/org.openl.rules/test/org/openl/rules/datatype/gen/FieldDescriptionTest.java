@@ -20,36 +20,36 @@ public class FieldDescriptionTest {
 
     @Test
     public void testDefaultValue_String() {
-        DefaultFieldDescription field = new DefaultFieldDescription(String.class);
+        FieldDescription field = new FieldDescription(String.class.getName());
         field.setDefaultValueAsString(DEFAULT_STRING_VALUE);
         assertEquals(DEFAULT_STRING_VALUE, field.getDefaultValue());
     }
 
     @Test
     public void testDefaultValue_Boolean() {
-        DefaultFieldDescription field = new DefaultFieldDescription(Boolean.class);
+        FieldDescription field = new FieldDescription(Boolean.class.getName());
         field.setDefaultValueAsString(DEFAULT_BOOLEAN_VALUE);
         assertEquals(Boolean.TRUE, field.getDefaultValue());
     }
 
     @Test
     public void testDefaultValue_Integer() {
-        DefaultFieldDescription field = new DefaultFieldDescription(Integer.class);
+        FieldDescription field = new FieldDescription(Integer.class.getName());
         field.setDefaultValueAsString(DEFAULT_INTEGER_VALUE);
         assertEquals(Integer.valueOf(25), field.getDefaultValue());
     }
 
     @Test
     public void testDefaultValue_DefaultBean() {
-        DefaultFieldDescription field = new DefaultFieldDescription(String.class);
+        FieldDescription field = new FieldDescription(String.class.getName());
         field.setDefaultValueAsString(DefaultValue.DEFAULT);
         assertEquals("Return the default keyword itself", DefaultValue.DEFAULT, field.getDefaultValue());
 
-        DefaultFieldDescription field1 = new DefaultFieldDescription(Boolean.class);
+        FieldDescription field1 = new FieldDescription(Boolean.class.getName());
         field1.setDefaultValueAsString(DefaultValue.DEFAULT);
         assertEquals("Return the default keyword itself", DefaultValue.DEFAULT, field1.getDefaultValue());
 
-        DefaultFieldDescription field2 = new DefaultFieldDescription(Integer.class);
+        FieldDescription field2 = new FieldDescription(Integer.class.getName());
         field2.setDefaultValueAsString(DefaultValue.DEFAULT);
         assertEquals("Return the default keyword itself", DefaultValue.DEFAULT, field2.getDefaultValue());
     }
@@ -74,8 +74,28 @@ public class FieldDescriptionTest {
         //
         DatatypeOpenField driversField = new DatatypeOpenField(policyClass, "drivers", driversClass);
 
-        FieldDescription field = new DefaultFieldDescription(driversField);
+        FieldDescription field = new FieldDescription(driversField.getType().getInstanceClass().getName());
         assertEquals(Driver[].class.getName(), field.getTypeName());
+    }
+
+    @Test
+    public void testGetJavaType() {
+        assertEquals("Ljava/lang/String;", new FieldDescription(String.class.getName()).getTypeDescriptor());
+        assertEquals("[Ljava/lang/String;", new FieldDescription(String[].class.getName()).getTypeDescriptor());
+        assertEquals("I", new FieldDescription(int.class.getName()).getTypeDescriptor());
+        assertEquals("[[I", new FieldDescription(int[][].class.getName()).getTypeDescriptor());
+        assertEquals("D", new FieldDescription(double.class.getName()).getTypeDescriptor());
+        assertEquals("Ljava/lang/String;", new FieldDescription(String.class.getName()).getTypeDescriptor());
+        assertEquals("I", new FieldDescription(int.class.getName()).getTypeDescriptor());
+        assertEquals("B", new FieldDescription(byte.class.getName()).getTypeDescriptor());
+        assertEquals("S", new FieldDescription(short.class.getName()).getTypeDescriptor());
+        assertEquals("J", new FieldDescription(long.class.getName()).getTypeDescriptor());
+        assertEquals("F", new FieldDescription(float.class.getName()).getTypeDescriptor());
+        assertEquals("D", new FieldDescription(double.class.getName()).getTypeDescriptor());
+        assertEquals("Z", new FieldDescription(boolean.class.getName()).getTypeDescriptor());
+        assertEquals("C", new FieldDescription(char.class.getName()).getTypeDescriptor());
+        assertEquals("[[Lorg/test/MyType;", new FieldDescription("[[Lorg.test.MyType;").getTypeDescriptor());
+        assertEquals("Lorg/test/MyType;", new FieldDescription("org.test.MyType").getTypeDescriptor());
     }
 
     public static class Policy {

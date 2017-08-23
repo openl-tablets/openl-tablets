@@ -23,7 +23,6 @@ import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.binding.RuleRowHelper;
-import org.openl.rules.datatype.gen.DefaultFieldDescription;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.datatype.gen.SimpleBeanByteCodeGenerator;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -153,7 +152,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         if (superClass != null) {
             LinkedHashMap<String, FieldDescription> parentFields = new LinkedHashMap<String, FieldDescription>();
             for (Entry<String, IOpenField> field : superClass.getFields().entrySet()) {
-                parentFields.put(field.getKey(), new DefaultFieldDescription(field.getValue()));
+                parentFields.put(field.getKey(), new FieldDescription(field.getValue().getType().getInstanceClass().getName()));
             }
             beanGenerator = new SimpleBeanByteCodeGenerator(beanName,
                 fields,
@@ -392,9 +391,9 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     private FieldDescription fieldDescriptionFactory(IOpenField field) {
         if (isRecursiveField(field)) {
-            return new DefaultFieldDescription(Object.class, getCanonicalTypeName(field));
+            return new FieldDescription(getCanonicalTypeName(field));
         }
-        return new DefaultFieldDescription(field);
+        return new FieldDescription(field.getType().getInstanceClass().getName());
     }
 
     /**

@@ -11,7 +11,6 @@ import java.util.Map;
 import org.junit.Test;
 import org.openl.classloader.SimpleBundleClassLoader;
 import org.openl.meta.DoubleValue;
-import org.openl.rules.datatype.gen.DefaultFieldDescription;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.datatype.gen.SimpleBeanByteCodeGenerator;
 import org.openl.rules.helpers.DoubleRange;
@@ -24,7 +23,7 @@ public class SimpleBeanByteCodeGeneratorTest {
     @Test
     public void testStringFields() {
         String className = String.format("%s.StringBean", CLASS_NAMESPACE);
-        Map<String, FieldDescription> fields = getFields(new DefaultFieldDescription(String.class));
+        Map<String, FieldDescription> fields = getFields(new FieldDescription(String.class.getName()));
          
         assertNotNull(getBeanClass(className, fields));
     }
@@ -32,7 +31,7 @@ public class SimpleBeanByteCodeGeneratorTest {
     @Test
     public void testDate() {
         String className = String.format("%s.DateBean", CLASS_NAMESPACE);
-        Map<String, FieldDescription> fields = getFields(new DefaultFieldDescription(Date.class));
+        Map<String, FieldDescription> fields = getFields(new FieldDescription(Date.class.getName()));
          
         assertNotNull(getBeanClass(className, fields));
     }
@@ -40,7 +39,7 @@ public class SimpleBeanByteCodeGeneratorTest {
     @Test
     public void testDoubleValue() {
         String className = String.format("%s.DoubleValueBean", CLASS_NAMESPACE);
-        Map<String, FieldDescription> fields = getFields(new DefaultFieldDescription(DoubleValue.class));
+        Map<String, FieldDescription> fields = getFields(new FieldDescription(DoubleValue.class.getName()));
          
         assertNotNull(getBeanClass(className, fields));
     }
@@ -48,8 +47,8 @@ public class SimpleBeanByteCodeGeneratorTest {
     @Test
     public void testRanges() {
         String className = String.format("%s.RangesBean", CLASS_NAMESPACE);
-        Map<String, FieldDescription> fields = getFields(new DefaultFieldDescription(IntRange.class));
-        fields.putAll(getFields(new DefaultFieldDescription(DoubleRange.class)));
+        Map<String, FieldDescription> fields = getFields(new FieldDescription(IntRange.class.getName()));
+        fields.putAll(getFields(new FieldDescription(DoubleRange.class.getName())));
          
         assertNotNull(getBeanClass(className, fields));
     }
@@ -57,8 +56,8 @@ public class SimpleBeanByteCodeGeneratorTest {
     @Test
     public void testBigNumbers() {
         String className = String.format("%s.BigNumbersBean", CLASS_NAMESPACE);
-        Map<String, FieldDescription> fields = getFields(new DefaultFieldDescription(BigInteger.class));
-        fields.putAll(getFields(new DefaultFieldDescription(BigDecimal.class)));
+        Map<String, FieldDescription> fields = getFields(new FieldDescription(BigInteger.class.getName()));
+        fields.putAll(getFields(new FieldDescription(BigDecimal.class.getName())));
          
         assertNotNull(getBeanClass(className, fields));
     }
@@ -66,8 +65,8 @@ public class SimpleBeanByteCodeGeneratorTest {
     @Test
     public void testIntFields() {
         String className = String.format("%s.IntBean", CLASS_NAMESPACE);
-        Map<String, FieldDescription> fields = getFields(new DefaultFieldDescription(int.class));
-        fields.putAll(getFields(new DefaultFieldDescription(Integer.class)));
+        Map<String, FieldDescription> fields = getFields(new FieldDescription(int.class.getName()));
+        fields.putAll(getFields(new FieldDescription(Integer.class.getName())));
         
         assertNotNull(getBeanClass(className, fields));
     }
@@ -75,8 +74,8 @@ public class SimpleBeanByteCodeGeneratorTest {
     @Test
     public void testFloatFields() {
         String className = String.format("%s.FloatBean", CLASS_NAMESPACE);
-        Map<String, FieldDescription> fields = getFields(new DefaultFieldDescription(float.class));
-        fields.putAll(getFields(new DefaultFieldDescription(Float.class)));
+        Map<String, FieldDescription> fields = getFields(new FieldDescription(float.class.getName()));
+        fields.putAll(getFields(new FieldDescription(Float.class.getName())));
         
         assertNotNull(getBeanClass(className, fields));
     }
@@ -84,8 +83,8 @@ public class SimpleBeanByteCodeGeneratorTest {
     @Test
     public void testBooleanFields() {
         String className = String.format("%s.BooleanBean", CLASS_NAMESPACE);
-        Map<String, FieldDescription> fields = getFields(new DefaultFieldDescription(boolean.class));
-        fields.putAll(getFields(new DefaultFieldDescription(Boolean.class)));
+        Map<String, FieldDescription> fields = getFields(new FieldDescription(boolean.class.getName()));
+        fields.putAll(getFields(new FieldDescription(Boolean.class.getName())));
         
         assertNotNull(getBeanClass(className, fields));
     }
@@ -93,8 +92,8 @@ public class SimpleBeanByteCodeGeneratorTest {
     @Test
     public void testCharFields() {
         String className = String.format("%s.CharBean", CLASS_NAMESPACE);
-        Map<String, FieldDescription> fields = getFields(new DefaultFieldDescription(char.class));
-        fields.putAll(getFields(new DefaultFieldDescription(Character.class)));
+        Map<String, FieldDescription> fields = getFields(new FieldDescription(char.class.getName()));
+        fields.putAll(getFields(new FieldDescription(Character.class.getName())));
         
         assertNotNull(getBeanClass(className, fields));
     }
@@ -102,8 +101,8 @@ public class SimpleBeanByteCodeGeneratorTest {
     @Test
     public void testByteFields() {
         String className = String.format("%s.ByteBean", CLASS_NAMESPACE);
-        Map<String, FieldDescription> fields = getFields(new DefaultFieldDescription(byte.class));
-        fields.putAll(getFields(new DefaultFieldDescription(Byte.class)));
+        Map<String, FieldDescription> fields = getFields(new FieldDescription(byte.class.getName()));
+        fields.putAll(getFields(new FieldDescription(Byte.class.getName())));
         
         assertNotNull(getBeanClass(className, fields));
     }
@@ -111,8 +110,8 @@ public class SimpleBeanByteCodeGeneratorTest {
     @Test
     public void testShortFields() {
         String className = String.format("%s.ShortBean", CLASS_NAMESPACE);
-        Map<String, FieldDescription> fields = getFields(new DefaultFieldDescription(short.class));
-        fields.putAll(getFields(new DefaultFieldDescription(Short.class)));
+        Map<String, FieldDescription> fields = getFields(new FieldDescription(short.class.getName()));
+        fields.putAll(getFields(new FieldDescription(Short.class.getName())));
         
         assertNotNull(getBeanClass(className, fields));
     }
@@ -120,8 +119,8 @@ public class SimpleBeanByteCodeGeneratorTest {
     @Test
     public void testLongFields() {
         String className = String.format("%s.LongBean", CLASS_NAMESPACE);
-        Map<String, FieldDescription> fields = getFields(new DefaultFieldDescription(long.class));
-        fields.putAll(getFields(new DefaultFieldDescription(Long.class)));
+        Map<String, FieldDescription> fields = getFields(new FieldDescription(long.class.getName()));
+        fields.putAll(getFields(new FieldDescription(Long.class.getName())));
         
         assertNotNull(getBeanClass(className, fields));
     }
@@ -129,8 +128,8 @@ public class SimpleBeanByteCodeGeneratorTest {
     @Test
     public void testDoubleFields() {
         String className = String.format("%s.DoubleBean", CLASS_NAMESPACE);
-        Map<String, FieldDescription> fields = getFields(new DefaultFieldDescription(double.class));
-        fields.putAll(getFields(new DefaultFieldDescription(Double.class)));
+        Map<String, FieldDescription> fields = getFields(new FieldDescription(double.class.getName()));
+        fields.putAll(getFields(new FieldDescription(Double.class.getName())));
         
         assertNotNull(getBeanClass(className, fields));
     }
@@ -138,7 +137,7 @@ public class SimpleBeanByteCodeGeneratorTest {
     @Test
     public void testIntArrayFields() {        
         String className = String.format("%s.IntArrayBean", CLASS_NAMESPACE);
-        Map<String, FieldDescription> fields = getFields(new DefaultFieldDescription(int[].class));
+        Map<String, FieldDescription> fields = getFields(new FieldDescription(int[].class.getName()));
         
         assertNotNull(getBeanClass(className, fields));
     }
@@ -146,7 +145,7 @@ public class SimpleBeanByteCodeGeneratorTest {
     @Test
     public void testLongArrayFields() {        
         String className = String.format("%s.LongArrayBean", CLASS_NAMESPACE);
-        Map<String, FieldDescription> fields = getFields(new DefaultFieldDescription(long[].class));
+        Map<String, FieldDescription> fields = getFields(new FieldDescription(long[].class.getName()));
         
         assertNotNull(getBeanClass(className, fields));
     }
@@ -154,7 +153,7 @@ public class SimpleBeanByteCodeGeneratorTest {
     @Test
     public void testObjectArrayFields() {        
         String className = String.format("%s.ObjectArrayBean", CLASS_NAMESPACE);
-        Map<String, FieldDescription> fields = getFields(new DefaultFieldDescription(Object[].class));
+        Map<String, FieldDescription> fields = getFields(new FieldDescription(Object[].class.getName()));
         
         assertNotNull(getBeanClass(className, fields));
     }
@@ -163,7 +162,7 @@ public class SimpleBeanByteCodeGeneratorTest {
     @Test
     public void testEquals() {
     	String className = String.format("%s.EqualsTestBean", CLASS_NAMESPACE);
-    	Map<String, FieldDescription> fields = getFields(new DefaultFieldDescription(String.class));
+    	Map<String, FieldDescription> fields = getFields(new FieldDescription(String.class.getName()));
         
     	Class<?> clazz = getBeanClass(className, fields);
         assertNotNull(clazz);
