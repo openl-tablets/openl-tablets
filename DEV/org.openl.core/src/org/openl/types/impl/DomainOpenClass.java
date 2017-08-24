@@ -100,6 +100,11 @@ public class DomainOpenClass implements IOpenClass {
         return name;
     }
 
+    @Override
+    public String getJavaName() {
+        return baseClass.getJavaName();
+    }
+
     public String getNameSpace() {
         return null;
     }

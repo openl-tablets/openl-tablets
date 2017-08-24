@@ -51,7 +51,7 @@ public abstract class ArrayOpenClass extends AOpenClass {
             return null;
         }
     }
-    
+
     @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
         return getInstanceClass().isAssignableFrom(ioc.getInstanceClass());
@@ -69,6 +69,16 @@ public abstract class ArrayOpenClass extends AOpenClass {
     
     public String getName() {
         return componentClass.getName() + "[]";
+    }
+
+    @Override
+    public String getJavaName() {
+        String componentName = componentClass.getJavaName();
+        if (componentName.charAt(0) == '[') {
+            return '[' + componentName;
+        } else {
+            return "[L" + componentName + ';';
+        }
     }
 
     @Override

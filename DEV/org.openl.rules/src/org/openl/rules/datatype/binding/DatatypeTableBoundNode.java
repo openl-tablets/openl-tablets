@@ -45,7 +45,6 @@ import org.openl.types.impl.DatatypeOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
 import org.openl.util.StringTool;
-import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
 
@@ -152,7 +151,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         if (superClass != null) {
             LinkedHashMap<String, FieldDescription> parentFields = new LinkedHashMap<String, FieldDescription>();
             for (Entry<String, IOpenField> field : superClass.getFields().entrySet()) {
-                parentFields.put(field.getKey(), new FieldDescription(field.getValue().getType().getInstanceClass().getName()));
+                parentFields.put(field.getKey(), new FieldDescription(field.getValue().getType().getJavaName()));
             }
             beanGenerator = new SimpleBeanByteCodeGenerator(beanName,
                 fields,
@@ -336,7 +335,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     dataType.setIndexField(field);
                 }
 
-                fieldDescription = fieldDescriptionFactory(field);
+                fieldDescription = new FieldDescription(field.getType().getJavaName());
                 fields.put(fieldName, fieldDescription);
             } catch (SyntaxNodeException e) {
                 throw e;
@@ -389,13 +388,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
     }
 
-    private FieldDescription fieldDescriptionFactory(IOpenField field) {
-        if (isRecursiveField(field)) {
-            return new FieldDescription(getCanonicalTypeName(field));
-        }
-        return new FieldDescription(field.getType().getInstanceClass().getName());
-    }
-
     /**
      * Checks if the type of the field is equal to the current datatype.
      *
@@ -405,34 +397,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     private boolean isRecursiveField(IOpenField field) {
         IOpenClass fieldType = getRootComponentClass(field.getType());
         return fieldType.getName().equals(dataType.getName());
-    }
-
-    private static String getCanonicalTypeName(IOpenField field) {
-        IOpenClass type = DatatypeTableBoundNode.getRootComponentClass(field.getType());
-        if (type instanceof DatatypeOpenClass) {
-            if (field.getType().getInstanceClass() == null) {
-                String datatypeName = field.getType().getName();
-                String packageName = ((DatatypeOpenClass) type).getPackageName();
-                String canonicalName;
-                if (StringUtils.isBlank(packageName)) {
-                    canonicalName = datatypeName;
-                } else {
-                    canonicalName = String.format("%s.%s", packageName, datatypeName);
-                }
-                if (canonicalName.contains("[")) {
-                    String[] tokens = canonicalName.split("\\[");
-                    StringBuilder strBuf = new StringBuilder();
-                    for (int i = 0; i < tokens.length - 1; i++) {
-                        strBuf.append("[");
-                    }
-                    strBuf.append('L').append(tokens[0]).append(';');
-                    return strBuf.toString();
-                } else {
-                    return canonicalName;
-                }
-            }
-        }
-        throw new IllegalArgumentException("Unknown field got here");
     }
 
     public static IOpenClass getRootComponentClass(IOpenClass fieldType) {

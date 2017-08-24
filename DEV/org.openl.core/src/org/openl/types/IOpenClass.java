@@ -65,6 +65,12 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
      */
     Class<?> getInstanceClass();
 
+    /**
+     * Returns a Java scoped name for this class. This method MUST return a class name string, which is valid for
+     * {@link Class#forName(String)}. For Java classes, it equals to {@link Class#getName()).
+     */
+    String getJavaName();
+
     IOpenMethod getMethod(String name, IOpenClass[] classes);
 
     // ********* instance related methods ***********//

@@ -265,6 +265,11 @@ public class JavaOpenClass extends AOpenClass {
         return name;
     }
 
+    @Override
+    public String getJavaName() {
+        return instanceClass.getName();
+    }
+
     public String getSimpleName() {
         return getDisplayName(INamedThing.SHORT);
     }

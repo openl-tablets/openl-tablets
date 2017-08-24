@@ -85,6 +85,10 @@ public class NullOpenClass implements IOpenClass {
         return "null-Class";
     }
 
+    public String getJavaName() {
+        return getName();
+    }
+
     public String getNameSpace() {
         return ISyntaxConstants.THIS_NAMESPACE;
     }

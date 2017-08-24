@@ -132,7 +132,7 @@ public abstract class ADynamicClass extends AOpenClass {
     public Class<?> getInstanceClass() {
         return instanceClass;
     }
-    
+
     protected boolean isPublic(Class<?> declaringClass) {
         return Modifier.isPublic(declaringClass.getModifiers());
     }
@@ -148,6 +148,11 @@ public abstract class ADynamicClass extends AOpenClass {
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getJavaName() {
+        return instanceClass.getName();
     }
 
     public boolean isAssignableFrom(Class<?> c) {
