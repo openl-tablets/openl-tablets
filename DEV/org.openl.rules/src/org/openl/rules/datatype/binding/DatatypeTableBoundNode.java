@@ -203,7 +203,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         IOpenClass superOpenClass = dataType.getSuperClass();
         SimpleBeanByteCodeGenerator beanGenerator;
         LinkedHashMap<String, FieldDescription> parentFields = new LinkedHashMap<String, FieldDescription>();
-        Class<?> superClass = null;
+        Class<?> superClass = Object.class;
         if (superOpenClass != null) {
             superClass = superOpenClass.getInstanceClass();
             for (Entry<String, IOpenField> field : superOpenClass.getFields().entrySet()) {

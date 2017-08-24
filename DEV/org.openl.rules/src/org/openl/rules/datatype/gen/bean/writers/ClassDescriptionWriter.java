@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.FieldDescription;
 
 /**
@@ -26,7 +27,7 @@ public class ClassDescriptionWriter extends DefaultBeanByteCodeWriter {
     }
     
     public void write(ClassWriter classWriter) {
-        String parentName = getParentInternalName();
+        String parentName = Type.getInternalName(getParentClass());
         classWriter.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, getBeanNameWithPackage(), null, parentName, new String[]{Serializable.class.getName().replace(".", "/")});
     }
 }

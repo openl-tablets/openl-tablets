@@ -1,7 +1,6 @@
 package org.openl.rules.datatype.gen.bean.writers;
 
 import java.lang.reflect.Constructor;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -39,22 +38,20 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
         MethodVisitor methodVisitor;
 
         Constructor<?> parentConstructor = null;
-        if (getParentClass() != null) {
-            // Find the parent constructor with the appropriate number of fields
-            //
-            for (Constructor<?> constructor : getParentClass().getConstructors()) {
-                if (constructor.getParameterTypes().length == parentFields.size()) {
-                    parentConstructor = constructor;
-                    break;
-                }
+        // Find the parent constructor with the appropriate number of fields
+        //
+        for (Constructor<?> constructor : getParentClass().getConstructors()) {
+            if (constructor.getParameterTypes().length == parentFields.size()) {
+                parentConstructor = constructor;
+                break;
             }
         }
         int i = 1;
+        String parentName = Type.getInternalName(getParentClass());
         if (parentConstructor == null) {
             methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>",
                     getMethodSignatureForByteCode(getBeanFields()), null, null);
             methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-            String parentName = getParentInternalName();
             methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, parentName, "<init>", "()V");
         }
         else {
@@ -74,7 +71,7 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
                 }
             }
 
-            methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(getParentClass()),
+            methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, parentName,
                     "<init>", getMethodSignatureForByteCode(parentFields));
         }
 
@@ -82,7 +79,7 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
         //
         for (Map.Entry<String, FieldDescription> field : getBeanFields().entrySet()) {
             String fieldName = field.getKey();
-            if (getParentClass() == null || parentFields.get(fieldName) == null) {
+            if (parentFields.get(fieldName) == null) {
                 // there is no such field in parent class
                 FieldDescription fieldType = field.getValue();
                 methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
