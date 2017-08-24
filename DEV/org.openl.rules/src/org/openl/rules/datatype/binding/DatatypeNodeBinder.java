@@ -36,63 +36,64 @@ import org.openl.util.ArrayTool;
  */
 public class DatatypeNodeBinder extends AXlsTableBinder {
 
-	public static final int PARENT_TYPE_INDEX = 3;
-	public static final int TYPE_INDEX = 1;
+    public static final int PARENT_TYPE_INDEX = 3;
+    public static final int TYPE_INDEX = 1;
 
-	@Override
-	public IMemberBoundNode preBind(TableSyntaxNode tsn, OpenL openl, IBindingContext cxt, XlsModuleOpenClass module)
-	    throws Exception {
+    @Override
+    public IMemberBoundNode preBind(TableSyntaxNode tsn,
+            OpenL openl,
+            IBindingContext cxt,
+            XlsModuleOpenClass module) throws Exception {
 
-		ILogicalTable table = tsn.getTable();
-		IOpenSourceCodeModule tableSource = new GridCellSourceCodeModule(table.getSource(), cxt);
-		
-		IdentifierNode[] parsedHeader = DatatypeHelper.tokenizeHeader(tableSource);
+        ILogicalTable table = tsn.getTable();
+        IOpenSourceCodeModule tableSource = new GridCellSourceCodeModule(table.getSource(), cxt);
 
-		String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
+        IdentifierNode[] parsedHeader = DatatypeHelper.tokenizeHeader(tableSource);
 
-		if (cxt.findType(ISyntaxConstants.THIS_NAMESPACE, typeName) != null) {
-			String message = "Duplicate type definition: " + typeName;
-			throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
-		}
-		
-		// Put sub table without header and properties section for business view.
-		//
-		putSubTableForBussinesView(tsn);
+        String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
 
-		// Check the datatype table that is alias data type.
-		//
-		if (parsedHeader.length == 3 
-		        && parsedHeader[2] != null 
-		        && parsedHeader[2].getIdentifier().startsWith("<")
-		        && parsedHeader[2].getIdentifier().endsWith(">")) {
+        if (cxt.findType(ISyntaxConstants.THIS_NAMESPACE, typeName) != null) {
+            String message = "Duplicate type definition: " + typeName;
+            throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
+        }
 
-			int beginIndex = 1;
-			int endIndex = parsedHeader[2].getIdentifier().length() - 1;
+        // Put sub table without header and properties section for business view.
+        //
+        putSubTableForBussinesView(tsn);
 
-			// Get type name.
-			//
-			String type = parsedHeader[2].getIdentifier().substring(beginIndex, endIndex).trim();
+        // Check the datatype table that is alias data type.
+        //
+        if (parsedHeader.length == 3 && parsedHeader[2] != null && parsedHeader[2].getIdentifier()
+            .startsWith("<") && parsedHeader[2].getIdentifier().endsWith(">")) {
 
-			// Create source code module for type definition. 
-			// Domain values are loaded as elements of array. We are create one
-			// more type for it - array with appropriate type of elements.
-			//
-			IOpenSourceCodeModule aliasTypeSource = new StringSourceCodeModule(type, tableSource.getUri());
-			IOpenSourceCodeModule arrayAliasTypeSource = new StringSourceCodeModule(type + "[]", tableSource.getUri());
-			
-			// Create appropriate OpenL class for type definition.
-			//
-			IOpenClass baseOpenClass = OpenLManager.makeType(openl, aliasTypeSource, (IBindingContextDelegator) cxt);
-			IOpenClass arrayOpenClass = OpenLManager.makeType(openl, arrayAliasTypeSource, (IBindingContextDelegator) cxt);
+            int beginIndex = 1;
+            int endIndex = parsedHeader[2].getIdentifier().length() - 1;
 
-			// Load data part of table (part where domain values are defined).
-			//
-			ILogicalTable dataPart = DatatypeHelper.getNormalizedDataPartTable(table, openl, cxt);
-			
-			// Create appropriate domain object.
-			//
-			Object[] res = {};
-			if (dataPart != null) {
+            // Get type name.
+            //
+            String type = parsedHeader[2].getIdentifier().substring(beginIndex, endIndex).trim();
+
+            // Create source code module for type definition.
+            // Domain values are loaded as elements of array. We are create one
+            // more type for it - array with appropriate type of elements.
+            //
+            IOpenSourceCodeModule aliasTypeSource = new StringSourceCodeModule(type, tableSource.getUri());
+            IOpenSourceCodeModule arrayAliasTypeSource = new StringSourceCodeModule(type + "[]", tableSource.getUri());
+
+            // Create appropriate OpenL class for type definition.
+            //
+            IOpenClass baseOpenClass = OpenLManager.makeType(openl, aliasTypeSource, (IBindingContextDelegator) cxt);
+            IOpenClass arrayOpenClass = OpenLManager
+                .makeType(openl, arrayAliasTypeSource, (IBindingContextDelegator) cxt);
+
+            // Load data part of table (part where domain values are defined).
+            //
+            ILogicalTable dataPart = DatatypeHelper.getNormalizedDataPartTable(table, openl, cxt);
+
+            // Create appropriate domain object.
+            //
+            Object[] res = {};
+            if (dataPart != null) {
 
                 OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, cxt);
 
@@ -103,51 +104,58 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
                 }
             }
 
-			IDomain<?> domain = new EnumDomain<Object>(res);
+            IDomain<?> domain = new EnumDomain<Object>(res);
 
-			// Create domain class definition which will be used by OpenL engine at runtime. 
-			//
-			DomainOpenClass tableType = new DomainOpenClass(typeName, baseOpenClass, domain, new DatatypeMetaInfo(tableSource.getCode(), tsn.getUri()));
-			
-			// Add domain class definition to biding context as internal type.
-			//
-			cxt.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);
+            // Create domain class definition which will be used by OpenL engine at runtime.
+            //
+            DomainOpenClass tableType = new DomainOpenClass(typeName,
+                baseOpenClass,
+                domain,
+                new DatatypeMetaInfo(tableSource.getCode(), tsn.getUri()));
 
-			// Return bound node.
-			//
-			return new AliasDatatypeBoundNode(tsn, tableType, module);
-		} else {
+            // Add domain class definition to biding context as internal type.
+            //
+            cxt.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);
 
-			if (parsedHeader.length != 2
-					&& parsedHeader.length != 4
-					|| (parsedHeader.length == 4 && !parsedHeader[2]
-							.getIdentifier().equals("extends"))) {
-				
-				String message = "Datatype table formats: [Datatype %typename%] or [Datatype %typename% extends %parentTypeName%] or [Datatype %typename% %<aliastype>%] ";
-				throw SyntaxNodeExceptionUtils.createError(message, null, null, tableSource);
-			}
-			
-			String packageName = tsn.getTableProperties().getPropertyValueAsString("datatypePackage");
-			DatatypeOpenClass tableType = new DatatypeOpenClass(typeName, packageName);
-            
+            // Return bound node.
+            //
+            return new AliasDatatypeBoundNode(tsn, tableType, module);
+        } else {
+
+            if (parsedHeader.length != 2 && parsedHeader.length != 4 || (parsedHeader.length == 4 && !parsedHeader[2]
+                .getIdentifier()
+                .equals("extends"))) {
+
+                String message = "Datatype table formats: [Datatype %typename%] or [Datatype %typename% extends %parentTypeName%] or [Datatype %typename% %<aliastype>%] ";
+                throw SyntaxNodeExceptionUtils.createError(message, null, null, tableSource);
+            }
+
+            String packageName = tsn.getTableProperties().getPropertyValueAsString("datatypePackage");
+            DatatypeOpenClass tableType = new DatatypeOpenClass(typeName, packageName);
+
             // set meta info with uri to the DatatypeOpenClass for indicating the source of the datatype table
             //
             tableType.setMetaInfo(new DatatypeMetaInfo(tableSource.getCode(), tsn.getUri()));
 
-			// Add domain class definition to biding context as internal type.
-			//
-			cxt.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);
+            // Add domain class definition to biding context as internal type.
+            //
+            cxt.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);
 
-			if (parsedHeader.length == 4) {
-				return new DatatypeTableBoundNode(tsn, tableType, module, table, openl, parsedHeader[PARENT_TYPE_INDEX]);
-			} else {
-				return new DatatypeTableBoundNode(tsn, tableType, module, table, openl);
-			}
-		}
-	}
-	
-	private void putSubTableForBussinesView(TableSyntaxNode tsn) {
-	    tsn.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tsn.getTableBody());
+            if (parsedHeader.length == 4) {
+                return new DatatypeTableBoundNode(tsn,
+                    tableType,
+                    module,
+                    table,
+                    openl,
+                    parsedHeader[PARENT_TYPE_INDEX]);
+            } else {
+                return new DatatypeTableBoundNode(tsn, tableType, module, table, openl);
+            }
+        }
+    }
+
+    private void putSubTableForBussinesView(TableSyntaxNode tsn) {
+        tsn.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tsn.getTableBody());
     }
 
 }

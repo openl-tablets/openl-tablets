@@ -64,13 +64,20 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     private ILogicalTable table;
     private OpenL openl;
 
-    public DatatypeTableBoundNode(TableSyntaxNode tableSyntaxNode, DatatypeOpenClass datatype,
-    		ModuleOpenClass moduleOpenClass, ILogicalTable table, OpenL openl) {
-        this(tableSyntaxNode,datatype, moduleOpenClass, table, openl, null);
+    public DatatypeTableBoundNode(TableSyntaxNode tableSyntaxNode,
+            DatatypeOpenClass datatype,
+            ModuleOpenClass moduleOpenClass,
+            ILogicalTable table,
+            OpenL openl) {
+        this(tableSyntaxNode, datatype, moduleOpenClass, table, openl, null);
     }
-    
-    public DatatypeTableBoundNode(TableSyntaxNode tableSyntaxNode, DatatypeOpenClass datatype,
-    		ModuleOpenClass moduleOpenClass, ILogicalTable table, OpenL openl, IdentifierNode parentClassIdentifier) {
+
+    public DatatypeTableBoundNode(TableSyntaxNode tableSyntaxNode,
+            DatatypeOpenClass datatype,
+            ModuleOpenClass moduleOpenClass,
+            ILogicalTable table,
+            OpenL openl,
+            IdentifierNode parentClassIdentifier) {
         this.tableSyntaxNode = tableSyntaxNode;
         this.dataType = datatype;
         this.table = table;
@@ -80,9 +87,45 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         this.moduleOpenClass = moduleOpenClass;
     }
 
+    public static IOpenClass getRootComponentClass(IOpenClass fieldType) {
+        if (!fieldType.isArray()) {
+            return fieldType;
+        }
+        // Get the component type of the array
+        //
+        return getRootComponentClass(fieldType.getComponentClass());
+    }
+
+    public static GridCellSourceCodeModule getCellSource(ILogicalTable row, IBindingContext cxt, int columnIndex) {
+        return new GridCellSourceCodeModule(row.getColumn(columnIndex).getSource(), cxt);
+    }
+
+    public static IdentifierNode[] getIdentifierNode(
+            GridCellSourceCodeModule cellSrc) throws OpenLCompilationException {
+        return Tokenizer.tokenize(cellSrc, " \r\n");
+    }
+
+    /**
+     * Encapsulates the wrapping the row and bindingContext with the GridCellSourceCodeModule
+     */
+    public static boolean canProcessRow(ILogicalTable row, IBindingContext cxt) {
+        GridCellSourceCodeModule rowSrc = new GridCellSourceCodeModule(row.getSource(), cxt);
+        return canProcessRow(rowSrc);
+    }
+
+    /**
+     * Checks if the given row can be processed.
+     *
+     * @param rowSrc checked row
+     * @return false if row content is empty, or was commented with special symbols.
+     */
+    public static boolean canProcessRow(GridCellSourceCodeModule rowSrc) {
+        return !ParserUtils.isBlankOrCommented(rowSrc.getCode());
+    }
+
     /**
      * Process datatype fields from source table.
-     * 
+     *
      * @param cxt binding context
      * @throws Exception
      */
@@ -91,15 +134,15 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         ILogicalTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, openl, cxt);
 
         int tableHeight = 0;
-        
+
         if (dataTable != null) {
             tableHeight = dataTable.getHeight();
         }
-        
+
         // map of fields that will be used for byte code generation.
         // key: name of the field, value: field type.
         //
-        Map<String, FieldDescription> fields = new LinkedHashMap<String,  FieldDescription>();
+        Map<String, FieldDescription> fields = new LinkedHashMap<String, FieldDescription>();
 
         for (int i = 0; i < tableHeight; i++) {
             ILogicalTable row = dataTable.getRow(i);
@@ -107,14 +150,14 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             processRow(row, cxt, fields, firstField);
         }
         checkInheritedFieldsDuplication(cxt);
-        
+
         if (beanClassCanBeGenerated(cxt)) {
             Class<?> beanClass = createBeanForDatatype(fields);
             dataType.setInstanceClass(beanClass);
             validateBeanForDatatype(beanClass, fields);
         }
     }
-    
+
     private boolean beanClassCanBeGenerated(IBindingContext cxt) {
         if (tableSyntaxNode.hasErrors()) {
             return false;
@@ -127,10 +170,10 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
         return true;
     }
-    
+
     /**
      * Generate a simple java bean for current datatype table.
-     * 
+     *
      * @param fields fields for bean class
      * @return Class descriptor of generated bean class.
      * @throws SyntaxNodeException is can`t generate bean for datatype table.
@@ -145,15 +188,19 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             for (Entry<String, IOpenField> field : superClass.getFields().entrySet()) {
                 parentFields.put(field.getKey(), new FieldDescription(field.getValue().getType().getJavaName()));
             }
-            beanGenerator = new SimpleBeanByteCodeGenerator(beanName, fields, superClass.getInstanceClass(), parentFields);
+            beanGenerator = new SimpleBeanByteCodeGenerator(beanName,
+                fields,
+                superClass.getInstanceClass(),
+                parentFields);
         } else {
             beanGenerator = new SimpleBeanByteCodeGenerator(beanName, fields);
         }
-        
+
         try {
             return beanGenerator.generateAndLoadBeanClass();
         } catch (RuntimeException e) {
-            String errorMessage = String.format("Can't generate bean for datatype '%s': %s", datatypeName, e.getMessage());
+            String errorMessage = String
+                .format("Can't generate bean for datatype '%s': %s", datatypeName, e.getMessage());
             throw SyntaxNodeExceptionUtils.createError(errorMessage, e, tableSyntaxNode);
         }
     }
@@ -179,7 +226,9 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 beanClass.getDeclaredField(fieldName);
             } catch (NoSuchFieldException e) {
                 String errorMessage = String.format(
-                    "Class '%s' is found in classloader. Field '%s' is missed. Please, regenerate your datatype classes.", beanName, fieldName);
+                    "Class '%s' is found in classloader. Field '%s' is missed. Please, regenerate your datatype classes.",
+                    beanName,
+                    fieldName);
                 throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
             }
 
@@ -188,12 +237,16 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 Method getterMethod = beanClass.getMethod(getterMethodName);
                 if (!getterMethod.getReturnType().getName().equals(fieldDescription.getTypeName())) {
                     String errorMessage = String.format(
-                        "Class '%s' is found in classloader. Method '%s' returns invalid type. Please, regenerate your datatype classes.", beanName, getterMethodName);
+                        "Class '%s' is found in classloader. Method '%s' returns invalid type. Please, regenerate your datatype classes.",
+                        beanName,
+                        getterMethodName);
                     throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
                 }
             } catch (NoSuchMethodException e) {
                 String errorMessage = String.format(
-                    "Class '%s' is found in classloader. Method '%s' is missed. Please, regenerate your datatype classes.", beanName, getterMethodName);
+                    "Class '%s' is found in classloader. Method '%s' is missed. Please, regenerate your datatype classes.",
+                    beanName,
+                    getterMethodName);
                 throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
             }
 
@@ -219,19 +272,22 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             }
         }
     }
-    
+
     /**
      * Gets the name for datatype bean with path to it (e.g <code>org.openl.this.Driver</code>)
-     * 
+     *
      * @param datatypeName name of the datatype (e.g. <code>Driver</code>)
      * @return the name for datatype bean with path to it (e.g <code>org.openl.this.Driver</code>)
      */
     private String getDatatypeBeanNameWithNamespace(String datatypeName) {
-        return String.format("%s.%s", tableSyntaxNode.getTableProperties().getPropertyValue("datatypePackage"), datatypeName);        
+        return String
+            .format("%s.%s", tableSyntaxNode.getTableProperties().getPropertyValue("datatypePackage"), datatypeName);
     }
 
-    private void processRow(ILogicalTable row, IBindingContext cxt, Map<String, FieldDescription> fields, boolean firstField)
-            throws OpenLCompilationException {
+    private void processRow(ILogicalTable row,
+            IBindingContext cxt,
+            Map<String, FieldDescription> fields,
+            boolean firstField) throws OpenLCompilationException {
 
         GridCellSourceCodeModule rowSrc = new GridCellSourceCodeModule(row.getSource(), cxt);
 
@@ -284,10 +340,11 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             if (row.getWidth() > 2) {
                 String defaultValue = getDefaultValue(row, cxt);
                 fieldDescription.setDefaultValueAsString(defaultValue);
-                if (fieldDescription.getTypeName().equals(Date.class.getName())){
-                    //EPBDS-6068 add metainfo for XlsDataFormatterFactory.getFormatter can define correct formater for cell.
+                if (fieldDescription.getTypeName().equals(Date.class.getName())) {
+                    // EPBDS-6068 add metainfo for XlsDataFormatterFactory.getFormatter can define correct formater for
+                    // cell.
                     Object value = row.getColumn(2).getCell(0, 0).getObjectValue();
-                    if (value != null && fieldDescription.getTypeName().equals(value.getClass().getName())){
+                    if (value != null && fieldDescription.getTypeName().equals(value.getClass().getName())) {
                         RuleRowHelper.setCellMetaInfo(row.getColumn(2), null, fieldType, false);
                         fieldDescription.setDefaultValue(value);
                     }
@@ -303,16 +360,13 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         CompositeSyntaxNodeException exception = (CompositeSyntaxNodeException) e;
                         if (exception.getErrors() != null && exception.getErrors().length == 1) {
                             SyntaxNodeException syntaxNodeException = exception.getErrors()[0];
-                            throw SyntaxNodeExceptionUtils.createError(message,
-                                    null,
-                                    syntaxNodeException.getLocation(),
-                                    cellSourceCodeModule);
+                            throw SyntaxNodeExceptionUtils
+                                .createError(message, null, syntaxNodeException.getLocation(), cellSourceCodeModule);
                         }
                         throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
                     } else {
-                        TextInterval location = defaultValue == null ?
-                                                null :
-                                                LocationUtils.createTextInterval(defaultValue);
+                        TextInterval location = defaultValue == null ? null
+                                                                     : LocationUtils.createTextInterval(defaultValue);
                         throw SyntaxNodeExceptionUtils.createError(message, e, location, cellSourceCodeModule);
                     }
                 }
@@ -340,15 +394,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         return fieldType.getName().equals(dataType.getName());
     }
 
-    public static IOpenClass getRootComponentClass(IOpenClass fieldType) {
-        if (!fieldType.isArray()) {
-            return fieldType;
-        }
-        // Get the component type of the array
-        //
-        return getRootComponentClass(fieldType.getComponentClass());
-    }
-
     private String getName(ILogicalTable row, IBindingContext cxt) throws OpenLCompilationException {
         GridCellSourceCodeModule nameCellSource = getCellSource(row, cxt, 1);
         IdentifierNode[] idn = getIdentifierNode(nameCellSource);
@@ -360,10 +405,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
     }
 
-    public static GridCellSourceCodeModule getCellSource(ILogicalTable row, IBindingContext cxt, int columnIndex) {
-        return new GridCellSourceCodeModule(row.getColumn(columnIndex).getSource(), cxt);        
-    }
-
     private String getDefaultValue(ILogicalTable row, IBindingContext cxt) throws OpenLCompilationException {
         String defaultValue = null;
         GridCellSourceCodeModule defaultValueSrc = getCellSource(row, cxt, 2);
@@ -373,54 +414,28 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 // if there is any valid identifier, consider it is a default value
                 //
                 defaultValue = defaultValueSrc.getCode();
-            }          
+            }
         }
         return defaultValue;
     }
 
-    public static IdentifierNode[] getIdentifierNode(GridCellSourceCodeModule cellSrc)
-        throws OpenLCompilationException {
-        return Tokenizer.tokenize(cellSrc, " \r\n");
-    }
+    private IOpenClass getFieldType(IBindingContext cxt,
+            ILogicalTable row,
+            GridCellSourceCodeModule tableSrc) throws SyntaxNodeException {
 
-    /**
-     * Encapsulates the wrapping the row and bindingContext with the GridCellSourceCodeModule
-     */
-    public static boolean canProcessRow(ILogicalTable row, IBindingContext cxt) {
-        GridCellSourceCodeModule rowSrc = new GridCellSourceCodeModule(row.getSource(), cxt);
-        return canProcessRow(rowSrc);
-    }
-    
-    /**
-     * Checks if the given row can be processed. 
-     * 
-     * @param rowSrc checked row
-     * @return false if row content is empty, or was commented with special symbols.
-     */
-    public static boolean canProcessRow(GridCellSourceCodeModule rowSrc) {
-        return !ParserUtils.isBlankOrCommented(rowSrc.getCode());
-    }
-
-    private IOpenClass getFieldType(IBindingContext cxt, ILogicalTable row, GridCellSourceCodeModule tableSrc) 
-        throws SyntaxNodeException {
-        
         IOpenClass fieldType = OpenLManager.makeType(openl, tableSrc, (IBindingContextDelegator) cxt);
 
         if (fieldType == null || fieldType instanceof NullOpenClass) {
             String errorMessage = String.format("Type %s is not found", tableSrc.getCode());
-            throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, 
-                  tableSrc);
+            throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, tableSrc);
         }
 
         if (row.getWidth() < 2) {
             String errorMessage = "Bad table structure: must be {header} / {type | name}";
-            throw SyntaxNodeExceptionUtils.createError(errorMessage,
-                null,
-                null,
-                tableSrc);
+            throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, tableSrc);
         }
         return fieldType;
-    }    
+    }
 
     public void addTo(ModuleOpenClass openClass) {
         InternalDatatypeClass internalClassMember = new InternalDatatypeClass(dataType, openClass);
@@ -428,73 +443,79 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     }
 
     public void finalizeBind(IBindingContext cxt) throws Exception {
-        if(parentClassName != null){
+        if (parentClassName != null) {
             IOpenClass parentClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, parentClassName);
             if (parentClass == null) {
-            	// Remove invalid type from binding context.
-            	//
-            	cxt.removeType(ISyntaxConstants.THIS_NAMESPACE, dataType);
+                // Remove invalid type from binding context.
+                //
+                cxt.removeType(ISyntaxConstants.THIS_NAMESPACE, dataType);
                 throw new OpenLCompilationException(String.format("Parent class '%s' is not defined", parentClassName));
             }
-            
-            if (parentClass.getInstanceClass() != null) {//parent class has errors
+
+            if (parentClass.getInstanceClass() != null) {// parent class has errors
                 if (Modifier.isFinal(parentClass.getInstanceClass().getModifiers())) {
                     // Remove invalid type from binding context.
                     //
                     cxt.removeType(ISyntaxConstants.THIS_NAMESPACE, dataType);
-                    throw new OpenLCompilationException(String.format("Cannot inherit from final class \"%s\"",
-                            parentClassName));
+                    throw new OpenLCompilationException(
+                        String.format("Cannot inherit from final class \"%s\"", parentClassName));
                 }
 
                 if (Modifier.isAbstract(parentClass.getInstanceClass().getModifiers())) {
                     // Remove invalid type from binding context.
                     //
                     cxt.removeType(ISyntaxConstants.THIS_NAMESPACE, dataType);
-                    throw new OpenLCompilationException(String.format("Cannot inherit from abstract class \"%s\"",
-                            parentClassName));
+                    throw new OpenLCompilationException(
+                        String.format("Cannot inherit from abstract class \"%s\"", parentClassName));
                 }
             }
-            
+
             if (parentClass instanceof DomainOpenClass) {
-            	// Remove invalid type from binding context.
-            	//
-            	cxt.removeType(ISyntaxConstants.THIS_NAMESPACE, dataType);
-                throw new OpenLCompilationException(String.format("Parent class '%s' cannot be domain type", parentClassName));
+                // Remove invalid type from binding context.
+                //
+                cxt.removeType(ISyntaxConstants.THIS_NAMESPACE, dataType);
+                throw new OpenLCompilationException(
+                    String.format("Parent class '%s' cannot be domain type", parentClassName));
             }
-            
+
             dataType.setSuperClass(parentClass);
 
             if (!cxt.isExecutionMode()) {
                 // Link to parent class table
-                RuleRowHelper.setCellMetaInfoWithNodeUsage(table, parentClassIdentifier, parentClass.getMetaInfo(),
-                        NodeType.DATATYPE);
+                RuleRowHelper.setCellMetaInfoWithNodeUsage(table,
+                    parentClassIdentifier,
+                    parentClass.getMetaInfo(),
+                    NodeType.DATATYPE);
             }
 
         }
         addFields(cxt);
-        //adding constructor with all fields after all fields have been added
+        // adding constructor with all fields after all fields have been added
         if (dataType.getFields().size() > 0) {
             dataType.addMethod(new OpenFieldsConstructor(dataType));
         }
-		// Add new type to internal types of module.
-		//
+        // Add new type to internal types of module.
+        //
         moduleOpenClass.addType(ISyntaxConstants.THIS_NAMESPACE, dataType);
     }
-    
+
     private void checkInheritedFieldsDuplication(IBindingContext cxt) throws Exception {
         IOpenClass superClass = dataType.getSuperClass();
         if (superClass != null) {
             for (Entry<String, IOpenField> field : dataType.getDeclaredFields().entrySet()) {
                 IOpenField fieldInParent = superClass.getField(field.getKey());
-                if(fieldInParent != null){
-                    if(fieldInParent.getType().getInstanceClass().equals(field.getValue().getType().getInstanceClass())){
+                if (fieldInParent != null) {
+                    if (fieldInParent.getType().getInstanceClass().equals(
+                        field.getValue().getType().getInstanceClass())) {
                         BindHelper.processWarn(String.format("Field [%s] has been already defined in class \"%s\"",
-                                field.getKey(), fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode, cxt);
-                    }else{
-                        throw SyntaxNodeExceptionUtils.createError(String.format(
-                                "Field [%s] has been already defined in class \"%s\" with another type",
-                                field.getKey(), fieldInParent.getDeclaringClass().getDisplayName(0)),
-                                tableSyntaxNode);
+                            field.getKey(),
+                            fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode, cxt);
+                    } else {
+                        throw SyntaxNodeExceptionUtils.createError(
+                            String.format("Field [%s] has been already defined in class \"%s\" with another type",
+                                field.getKey(),
+                                fieldInParent.getDeclaringClass().getDisplayName(0)),
+                            tableSyntaxNode);
                     }
                 }
             }
@@ -502,7 +523,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     }
 
     public void removeDebugInformation(IBindingContext cxt) throws Exception {
-        //nothing to remove
+        // nothing to remove
     }
 
 }
