@@ -9,6 +9,7 @@ package org.openl.types.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openl.meta.IMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
@@ -86,4 +87,8 @@ public abstract class ArrayOpenClass extends AOpenClass {
         return true;
     }
 
+    @Override
+    public IMetaInfo getMetaInfo() {
+        return componentClass.getMetaInfo();
+    }
 }
