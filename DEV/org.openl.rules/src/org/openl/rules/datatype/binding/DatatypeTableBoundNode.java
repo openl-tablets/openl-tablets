@@ -44,9 +44,12 @@ import org.openl.types.NullOpenClass;
 import org.openl.types.impl.DatatypeOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
+import org.openl.util.ClassUtils;
 import org.openl.util.StringTool;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Bound node for datatype table component.
@@ -55,6 +58,8 @@ import org.openl.util.text.TextInterval;
  * 
  */
 public class DatatypeTableBoundNode implements IMemberBoundNode {
+
+    private final Logger log = LoggerFactory.getLogger(DatatypeTableBoundNode.class);
 
     private TableSyntaxNode tableSyntaxNode;
     private DatatypeOpenClass dataType;
@@ -153,7 +158,22 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         checkInheritedFieldsDuplication(cxt);
 
         if (beanClassCanBeGenerated(cxt)) {
-            Class<?> beanClass = createBeanForDatatype(fields);
+            Class<?> beanClass;
+            String beanName = dataType.getJavaName();
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            try {
+                beanClass = classLoader.loadClass(beanName);
+                log.debug("Bean {} is using previously loaded", beanName);
+            } catch (ClassNotFoundException e) {
+                try {
+                    byte[] byteCode = createBeanForDatatype(fields);
+                    beanClass = ClassUtils.defineClass(beanName, byteCode, classLoader);
+                    log.debug("bean {} is using generated at runtime", beanName);
+                } catch (RuntimeException e2) {
+                    throw SyntaxNodeExceptionUtils.createError("Can't generate bean for datatype " + beanName, e, tableSyntaxNode);
+                }
+            }
+
             dataType.setInstanceClass(beanClass);
             validateBeanForDatatype(beanClass, fields);
         }
@@ -179,30 +199,20 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
      * @return Class descriptor of generated bean class.
      * @throws SyntaxNodeException is can`t generate bean for datatype table.
      */
-    private Class<?> createBeanForDatatype(Map<String, FieldDescription> fields) throws SyntaxNodeException {
+    private byte[] createBeanForDatatype(Map<String, FieldDescription> fields) throws SyntaxNodeException {
         String beanName = dataType.getJavaName();
-        IOpenClass superClass = dataType.getSuperClass();
+        IOpenClass superOpenClass = dataType.getSuperClass();
         SimpleBeanByteCodeGenerator beanGenerator;
-        if (superClass != null) {
-            LinkedHashMap<String, FieldDescription> parentFields = new LinkedHashMap<String, FieldDescription>();
-            for (Entry<String, IOpenField> field : superClass.getFields().entrySet()) {
+        LinkedHashMap<String, FieldDescription> parentFields = new LinkedHashMap<String, FieldDescription>();
+        Class<?> superClass = null;
+        if (superOpenClass != null) {
+            superClass = superOpenClass.getInstanceClass();
+            for (Entry<String, IOpenField> field : superOpenClass.getFields().entrySet()) {
                 parentFields.put(field.getKey(), new FieldDescription(field.getValue().getType().getJavaName()));
             }
-            beanGenerator = new SimpleBeanByteCodeGenerator(beanName,
-                fields,
-                superClass.getInstanceClass(),
-                parentFields);
-        } else {
-            beanGenerator = new SimpleBeanByteCodeGenerator(beanName, fields);
         }
-
-        try {
-            return beanGenerator.generateAndLoadBeanClass();
-        } catch (RuntimeException e) {
-            String errorMessage = String
-                .format("Can't generate bean for datatype '%s': %s", beanName, e.getMessage());
-            throw SyntaxNodeExceptionUtils.createError(errorMessage, e, tableSyntaxNode);
-        }
+        beanGenerator = new SimpleBeanByteCodeGenerator(beanName, fields, superClass, parentFields);
+        return beanGenerator.byteCode();
     }
 
     private void validateBeanForDatatype(Class<?> beanClass,
