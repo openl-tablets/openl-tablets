@@ -276,9 +276,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             if (!cxt.isExecutionMode()) {
                 IdentifierNode[] parsedHeader = Tokenizer.tokenize(rowSrc, "[]\n\r");
                 IMetaInfo metaInfo = fieldType.getMetaInfo();
-                if (metaInfo == null) {
-                    metaInfo = getRootComponentClass(fieldType).getMetaInfo();
-                }
 
                 // Link to field type table
                 RuleRowHelper.setCellMetaInfoWithNodeUsage(row, parsedHeader[0], metaInfo, NodeType.DATATYPE);
