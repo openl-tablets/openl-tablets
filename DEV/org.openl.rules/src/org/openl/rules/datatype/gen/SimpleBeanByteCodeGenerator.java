@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.bean.writers.*;
 
 /**
@@ -35,7 +37,6 @@ public class SimpleBeanByteCodeGenerator {
         allFields.putAll(beanFields);
 
         List<BeanByteCodeWriter> writers = new ArrayList<BeanByteCodeWriter>();
-        writers.add(new ClassDescriptionWriter(beanNameWithPackage, parentClass));
         writers.add(new JAXBAnnotationWriter(beanNameWithPackage));
         writers.add(new ProtectedFieldsWriter(beanFields));
         writers.add(new DefaultConstructorWriter(beanNameWithPackage, parentClass, beanFields));
@@ -57,12 +58,19 @@ public class SimpleBeanByteCodeGenerator {
         writers.add(new HashCodeWriter(beanNameWithPackage, allFields));
         /** generate byte code */
         ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        visitClassDescription(classWriter, beanNameWithPackage, parentClass);
 
         for (BeanByteCodeWriter writer : writers) {
             writer.write(classWriter);
         }
 
         bytes = classWriter.toByteArray();
+    }
+
+    private static void visitClassDescription(ClassWriter classWriter, String className, Class<?> parentClass) {
+        String[] interfaces = { "java/io/Serializable" };
+        String parent = Type.getInternalName(parentClass);
+        classWriter.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, className, null, parent, interfaces);
     }
 
     /**
