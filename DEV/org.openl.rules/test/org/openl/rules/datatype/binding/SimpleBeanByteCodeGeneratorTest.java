@@ -15,6 +15,7 @@ import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.datatype.gen.SimpleBeanByteCodeGenerator;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
+import org.openl.util.ClassUtils;
 
 public class SimpleBeanByteCodeGeneratorTest {
     
@@ -195,12 +196,15 @@ public class SimpleBeanByteCodeGeneratorTest {
     private Class<?> getBeanClass(String className, Map<String, FieldDescription> fields) {
         SimpleBundleClassLoader simpleBundleClassLoader = new SimpleBundleClassLoader(Thread.currentThread().getContextClassLoader());
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        try{
+        try {
             Thread.currentThread().setContextClassLoader(simpleBundleClassLoader);
-            SimpleBeanByteCodeGenerator beanGenerator = new SimpleBeanByteCodeGenerator(className, fields);
-            Class<?> beanClass = beanGenerator.generateAndLoadBeanClass();
-            return beanClass;
-        }finally {
+            SimpleBeanByteCodeGenerator beanGenerator = new SimpleBeanByteCodeGenerator(className, fields, null, new HashMap<String, FieldDescription>());
+            byte[] byteCode = beanGenerator.byteCode();
+            return ClassUtils.defineClass(className, byteCode, simpleBundleClassLoader);
+        } catch (Exception e) {
+            fail();
+            return null;
+        } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
