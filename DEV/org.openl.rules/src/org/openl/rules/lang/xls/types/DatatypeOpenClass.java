@@ -30,6 +30,7 @@ import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenMethod;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,12 +46,13 @@ public class DatatypeOpenClass extends ADynamicClass {
 
     private IOpenClass superClass;
 
-    /**
-     * see {@link #getPackageName()}
-     */
-    private String packageName;
+    private final String javaName;
 
-    public DatatypeOpenClass(String name, String packageName) {
+    /**
+     * User has a possibility to set the package (by table properties mechanism) where he wants to generate datatype
+     * beans classes.
+     */
+     public DatatypeOpenClass(String name, String packageName) {
         // NOTE! The instance class during the construction is null.
         // It will be set after the generating the appropriate byte code for the datatype.
         // See {@link org.openl.rules.datatype.binding.DatatypeTableBoundNode.addFields()}
@@ -58,7 +60,11 @@ public class DatatypeOpenClass extends ADynamicClass {
         // @author Denis Levchuk
         //
         super(name, null);
-        this.packageName = packageName;
+        if (StringUtils.isBlank(packageName)) {
+            javaName = name;
+        } else {
+            javaName = packageName + '.' + name;
+        }
     }
 
     @Override
@@ -83,14 +89,9 @@ public class DatatypeOpenClass extends ADynamicClass {
         }
     }
 
-    /**
-     * User has a possibility to set the package (by table properties mechanism) where he wants to generate datatype
-     * beans classes. It is stored in this field.
-     *
-     * @return package name for current datatype.
-     */
-    public String getPackageName() {
-        return packageName;
+    @Override
+    public String getJavaName() {
+        return javaName;
     }
 
     /**
@@ -159,7 +160,7 @@ public class DatatypeOpenClass extends ADynamicClass {
      */
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(superClass).append(getMetaInfo()).append(packageName).toHashCode();
+        return new HashCodeBuilder().append(superClass).append(getMetaInfo()).append(javaName).toHashCode();
     }
 
     /**
@@ -178,7 +179,7 @@ public class DatatypeOpenClass extends ADynamicClass {
             return false;
         DatatypeOpenClass other = (DatatypeOpenClass) obj;
 
-        return new EqualsBuilder().append(superClass, other.getSuperClass()).append(getMetaInfo(), other.getMetaInfo()).append(packageName, other.getPackageName()).isEquals();
+        return new EqualsBuilder().append(superClass, other.getSuperClass()).append(getMetaInfo(), other.getMetaInfo()).append(javaName, other.getJavaName()).isEquals();
     }
 
     /**

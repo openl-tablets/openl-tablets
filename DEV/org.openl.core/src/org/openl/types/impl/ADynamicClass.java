@@ -89,13 +89,18 @@ public abstract class ADynamicClass extends AOpenClass {
     public Class<?> getInstanceClass() {
         return instanceClass;
     }
-    
+
     public void setInstanceClass(Class<?> instanceClass) {
         this.instanceClass = instanceClass;
     }
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getJavaName() {
+        return instanceClass.getName();
     }
 
     public boolean isAssignableFrom(Class<?> c) {
