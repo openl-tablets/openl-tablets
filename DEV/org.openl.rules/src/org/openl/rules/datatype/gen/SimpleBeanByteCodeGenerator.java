@@ -1,6 +1,7 @@
 package org.openl.rules.datatype.gen;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,15 +11,17 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.rules.datatype.gen.bean.writers.BeanByteCodeWriter;
 import org.openl.rules.datatype.gen.bean.writers.ConstructorWithParametersWriter;
 import org.openl.rules.datatype.gen.bean.writers.DefaultConstructorWriter;
+import org.openl.rules.datatype.gen.bean.writers.DefaultValue;
 import org.openl.rules.datatype.gen.bean.writers.EqualsWriter;
 import org.openl.rules.datatype.gen.bean.writers.GettersWriter;
 import org.openl.rules.datatype.gen.bean.writers.HashCodeWriter;
-import org.openl.rules.datatype.gen.bean.writers.ProtectedFieldsWriter;
+import org.openl.rules.datatype.gen.bean.writers.ISO8601DateFormater;
 import org.openl.rules.datatype.gen.bean.writers.SettersWriter;
 import org.openl.rules.datatype.gen.bean.writers.ToStringWriter;
 
@@ -49,7 +52,6 @@ public class SimpleBeanByteCodeGenerator {
         allFields.putAll(beanFields);
 
         List<BeanByteCodeWriter> writers = new ArrayList<BeanByteCodeWriter>();
-        writers.add(new ProtectedFieldsWriter(beanFields));
         writers.add(new DefaultConstructorWriter(beanNameWithPackage, parentClass, beanFields));
         if (allFields.size() < 256) {
             // Generate constructor with parameters only in case where there are
@@ -71,6 +73,7 @@ public class SimpleBeanByteCodeGenerator {
         ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         visitClassDescription(classWriter, beanNameWithPackage, parentClass);
         visitJAXBAnnotation(classWriter, beanNameWithPackage);
+        visitFields(classWriter, beanFields);
 
         for (BeanByteCodeWriter writer : writers) {
             writer.write(classWriter);
@@ -96,6 +99,30 @@ public class SimpleBeanByteCodeGenerator {
         av.visit("namespace", namespace);
         av.visitEnd();
 
+    }
+
+    private static void visitFields(ClassWriter classWriter, Map<String, FieldDescription> beanFields) {
+        for (Map.Entry<String, FieldDescription> field : beanFields.entrySet()) {
+            String fieldTypeName = field.getValue().getTypeDescriptor();
+            FieldVisitor fieldVisitor = classWriter
+                    .visitField(Opcodes.ACC_PROTECTED, field.getKey(), fieldTypeName, null, null);
+            if (field.getValue().hasDefaultValue()) {
+                // Requred for java class generation
+                AnnotationVisitor annotationVisitor = fieldVisitor
+                        .visitAnnotation(Type.getDescriptor(DefaultValue.class), true);
+                if (field.getValue().getTypeName().equals(Date.class.getName())) {
+                    Object value = field.getValue().getDefaultValue();
+                    if (value instanceof Date) {
+                        Date date = (Date) value;
+                        String formatedDate = ISO8601DateFormater.format(date);
+                        annotationVisitor.visit("value", formatedDate);
+                    }
+                } else {
+                    annotationVisitor.visit("value", field.getValue().getDefaultValueAsString());
+                }
+                annotationVisitor.visitEnd();
+            }
+        }
     }
 
     private static String getNamespace(String beannameWithPackage) {
