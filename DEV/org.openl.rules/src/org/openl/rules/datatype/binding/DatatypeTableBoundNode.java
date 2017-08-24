@@ -88,9 +88,45 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         this.moduleOpenClass = moduleOpenClass;
     }
 
+    public static IOpenClass getRootComponentClass(IOpenClass fieldType) {
+        if (!fieldType.isArray()) {
+            return fieldType;
+        }
+        // Get the component type of the array
+        //
+        return getRootComponentClass(fieldType.getComponentClass());
+    }
+
+    public static GridCellSourceCodeModule getCellSource(ILogicalTable row, IBindingContext cxt, int columnIndex) {
+        return new GridCellSourceCodeModule(row.getColumn(columnIndex).getSource(), cxt);
+    }
+
+    public static IdentifierNode[] getIdentifierNode(
+            GridCellSourceCodeModule cellSrc) throws OpenLCompilationException {
+        return Tokenizer.tokenize(cellSrc, " \r\n");
+    }
+
+    /**
+     * Encapsulates the wrapping the row and bindingContext with the GridCellSourceCodeModule
+     */
+    public static boolean canProcessRow(ILogicalTable row, IBindingContext cxt) {
+        GridCellSourceCodeModule rowSrc = new GridCellSourceCodeModule(row.getSource(), cxt);
+        return canProcessRow(rowSrc);
+    }
+
+    /**
+     * Checks if the given row can be processed.
+     *
+     * @param rowSrc checked row
+     * @return false if row content is empty, or was commented with special symbols.
+     */
+    public static boolean canProcessRow(GridCellSourceCodeModule rowSrc) {
+        return !ParserUtils.isBlankOrCommented(rowSrc.getCode());
+    }
+
     /**
      * Process datatype fields from source table.
-     * 
+     *
      * @param cxt binding context
      * @throws Exception
      */
@@ -138,7 +174,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     /**
      * Generate a simple java bean for current datatype table.
-     * 
+     *
      * @param fields fields for bean class
      * @return Class descriptor of generated bean class.
      * @throws SyntaxNodeException is can`t generate bean for datatype table.
@@ -248,12 +284,10 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     }
 
     /**
-     * Gets the name for datatype bean with path to it (e.g
-     * <code>org.openl.this.Driver</code>)
-     * 
+     * Gets the name for datatype bean with path to it (e.g <code>org.openl.this.Driver</code>)
+     *
      * @param datatypeName name of the datatype (e.g. <code>Driver</code>)
-     * @return the name for datatype bean with path to it (e.g
-     *         <code>org.openl.this.Driver</code>)
+     * @return the name for datatype bean with path to it (e.g <code>org.openl.this.Driver</code>)
      */
     private String getDatatypeBeanNameWithNamespace(String datatypeName) {
         return String
@@ -343,10 +377,11 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             if (row.getWidth() > 2) {
                 String defaultValue = getDefaultValue(row, cxt);
                 fieldDescription.setDefaultValueAsString(defaultValue);
-                if (fieldDescription.getTypeName().equals(Date.class.getName())){
-                    //EPBDS-6068 add metainfo for XlsDataFormatterFactory.getFormatter can define correct formater for cell.
+                if (fieldDescription.getTypeName().equals(Date.class.getName())) {
+                    // EPBDS-6068 add metainfo for XlsDataFormatterFactory.getFormatter can define correct formater for
+                    // cell.
                     Object value = row.getColumn(2).getCell(0, 0).getObjectValue();
-                    if (value != null && fieldDescription.getTypeName().equals(value.getClass().getName())){
+                    if (value != null && fieldDescription.getTypeName().equals(value.getClass().getName())) {
                         RuleRowHelper.setCellMetaInfo(row.getColumn(2), null, fieldType, false);
                         fieldDescription.setDefaultValue(value);
                     }
@@ -396,15 +431,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         return fieldType.getName().equals(dataType.getName());
     }
 
-    public static IOpenClass getRootComponentClass(IOpenClass fieldType) {
-        if (!fieldType.isArray()) {
-            return fieldType;
-        }
-        // Get the component type of the array
-        //
-        return getRootComponentClass(fieldType.getComponentClass());
-    }
-
     private String getName(ILogicalTable row, IBindingContext cxt) throws OpenLCompilationException {
         GridCellSourceCodeModule nameCellSource = getCellSource(row, cxt, 1);
         IdentifierNode[] idn = getIdentifierNode(nameCellSource);
@@ -414,10 +440,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         } else {
             return idn[0].getIdentifier();
         }
-    }
-
-    public static GridCellSourceCodeModule getCellSource(ILogicalTable row, IBindingContext cxt, int columnIndex) {
-        return new GridCellSourceCodeModule(row.getColumn(columnIndex).getSource(), cxt);
     }
 
     private String getDefaultValue(ILogicalTable row, IBindingContext cxt) throws OpenLCompilationException {
@@ -433,31 +455,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             }
         }
         return defaultValue;
-    }
-
-    public static IdentifierNode[] getIdentifierNode(
-            GridCellSourceCodeModule cellSrc) throws OpenLCompilationException {
-        return Tokenizer.tokenize(cellSrc, " \r\n");
-    }
-
-    /**
-     * Encapsulates the wrapping the row and bindingContext with the
-     * GridCellSourceCodeModule
-     */
-    public static boolean canProcessRow(ILogicalTable row, IBindingContext cxt) {
-        GridCellSourceCodeModule rowSrc = new GridCellSourceCodeModule(row.getSource(), cxt);
-        return canProcessRow(rowSrc);
-    }
-
-    /**
-     * Checks if the given row can be processed.
-     * 
-     * @param rowSrc checked row
-     * @return false if row content is empty, or was commented with special
-     *         symbols.
-     */
-    public static boolean canProcessRow(GridCellSourceCodeModule rowSrc) {
-        return !ParserUtils.isBlankOrCommented(rowSrc.getCode());
     }
 
     private IOpenClass getFieldType(IBindingContext cxt,
