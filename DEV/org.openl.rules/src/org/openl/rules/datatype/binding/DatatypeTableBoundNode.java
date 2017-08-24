@@ -180,8 +180,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
      * @throws SyntaxNodeException is can`t generate bean for datatype table.
      */
     private Class<?> createBeanForDatatype(Map<String, FieldDescription> fields) throws SyntaxNodeException {
-        String datatypeName = dataType.getName();
-        String beanName = getDatatypeBeanNameWithNamespace(datatypeName);
+        String beanName = dataType.getJavaName();
         IOpenClass superClass = dataType.getSuperClass();
         SimpleBeanByteCodeGenerator beanGenerator;
         if (superClass != null) {
@@ -201,21 +200,20 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             return beanGenerator.generateAndLoadBeanClass();
         } catch (RuntimeException e) {
             String errorMessage = String
-                .format("Can't generate bean for datatype '%s': %s", datatypeName, e.getMessage());
+                .format("Can't generate bean for datatype '%s': %s", beanName, e.getMessage());
             throw SyntaxNodeExceptionUtils.createError(errorMessage, e, tableSyntaxNode);
         }
     }
 
     private void validateBeanForDatatype(Class<?> beanClass,
             Map<String, FieldDescription> fields) throws SyntaxNodeException {
-        String datatypeName = dataType.getName();
-        String beanName = getDatatypeBeanNameWithNamespace(datatypeName);
+        String beanName = dataType.getJavaName();
         IOpenClass superClass = dataType.getSuperClass();
         if (superClass != null) {
             if (!beanClass.getSuperclass().equals(superClass.getInstanceClass())) {
                 String errorMessage = String.format(
                     "Datatype '%s' validation is failed on missed parent class. Please, regenerate datatype classes.",
-                    datatypeName);
+                    beanName);
                 throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
             }
         }
@@ -281,17 +279,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 beanName);
             throw SyntaxNodeExceptionUtils.createError(errorMessage, tableSyntaxNode);
         }
-    }
-
-    /**
-     * Gets the name for datatype bean with path to it (e.g <code>org.openl.this.Driver</code>)
-     *
-     * @param datatypeName name of the datatype (e.g. <code>Driver</code>)
-     * @return the name for datatype bean with path to it (e.g <code>org.openl.this.Driver</code>)
-     */
-    private String getDatatypeBeanNameWithNamespace(String datatypeName) {
-        return String
-            .format("%s.%s", tableSyntaxNode.getTableProperties().getPropertyValue("datatypePackage"), datatypeName);
     }
 
     private void processRow(ILogicalTable row,
