@@ -198,7 +198,7 @@ public class SimpleBeanByteCodeGeneratorTest {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(simpleBundleClassLoader);
-            SimpleBeanByteCodeGenerator beanGenerator = new SimpleBeanByteCodeGenerator(className, fields, null, new HashMap<String, FieldDescription>());
+            SimpleBeanByteCodeGenerator beanGenerator = new SimpleBeanByteCodeGenerator(className, fields, Object.class, new HashMap<String, FieldDescription>());
             byte[] byteCode = beanGenerator.byteCode();
             return ClassUtils.defineClass(className, byteCode, simpleBundleClassLoader);
         } catch (Exception e) {

@@ -42,23 +42,6 @@ public abstract class DefaultBeanByteCodeWriter implements BeanByteCodeWriter {
         return parentClass;
     }
 
-    /**
-     * Returns an internal name of the parent class. If no parent classes are (parentClass is null)
-     * then "java/lang/Object" will be returned.
-     *
-     * @return an internal name of the parent class.
-     * @see Type#getInternalName(Class)
-     */
-    protected String getParentInternalName() {
-        String internalName;
-        if (parentClass == null) {
-            internalName = "java/lang/Object";
-        } else {
-            internalName = Type.getInternalName(parentClass);
-        }
-        return internalName;
-    }
-
     protected Map<String, FieldDescription> getBeanFields() {
         return beanFields;
     }

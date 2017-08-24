@@ -181,11 +181,7 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
 
         // invokes the super class constructor
         mg.loadThis();
-        Class<?> parent = getParentClass();
-        if (parent == null) {
-            parent = Object.class;
-        }
-        mg.invokeConstructor(Type.getType(parent), DEF_CONSTR);
+        mg.invokeConstructor(Type.getType(getParentClass()), DEF_CONSTR);
 
         for (Map.Entry<String, FieldDescription> field : getBeanFields().entrySet()) {
             FieldDescription fieldDescription = field.getValue();
