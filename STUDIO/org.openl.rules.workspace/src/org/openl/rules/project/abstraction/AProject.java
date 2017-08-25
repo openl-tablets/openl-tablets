@@ -19,6 +19,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.IOUtils;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.util.StringUtils;
 
 public class AProject extends AProjectFolder {
     /**
@@ -117,6 +118,22 @@ public class AProject extends AProjectFolder {
             }
         }
         return historyFileDatas;
+    }
+
+    @Override
+    protected int getFirstRevisionIndex() {
+        List<FileData> fileDatas = getHistoryFileDatas();
+        if (fileDatas.isEmpty()) {
+            return 0;
+        }
+
+        // In JCR repository first revision is "technical". It doesn't contain any file and comment.
+        // In this case first real revision is 1, not 0.
+        // In other situations it's impossible to create empty project in repository.
+        // In other repository types first revision is always 0.
+        FileData fd = fileDatas.get(0);
+        boolean technicalRevision = fd.getSize() == 0 && StringUtils.isEmpty(fd.getComment());
+        return technicalRevision ? 1 : 0;
     }
 
     @Override

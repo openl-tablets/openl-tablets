@@ -123,13 +123,12 @@ public class AProjectArtefact implements PropertiesContainer {
     }
 
     public ProjectVersion getFirstVersion() {
-        if (getVersionsCount() == 0) {
+        int versionsCount = getVersionsCount();
+        if (versionsCount == 0) {
             return new RepositoryProjectVersionImpl("0", null);
         }
 
-        try {
-            return getVersion(1);
-        } catch (Exception e) {
+        if (versionsCount == 1) {
             try {
                 return getVersion(0);
             } catch (RRepositoryException e1) {
@@ -137,6 +136,15 @@ public class AProjectArtefact implements PropertiesContainer {
             }
         }
 
+        try {
+            return getVersion(getFirstRevisionIndex());
+        } catch (Exception e) {
+            return new RepositoryProjectVersionImpl("0", null);
+        }
+    }
+
+    protected int getFirstRevisionIndex() {
+        return 0;
     }
 
     public List<ProjectVersion> getVersions() {
