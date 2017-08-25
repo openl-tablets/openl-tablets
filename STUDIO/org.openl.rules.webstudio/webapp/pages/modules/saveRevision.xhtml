@@ -18,7 +18,7 @@
       <h:panelGroup id="modalSaveData">
         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
           <h:outputText value="Project Name" />
-          <h:outputText value="#{artefact.name}"/>
+          <h:outputText value="#{studio.getLogicalName(artefact)}"/>
 
           <ui:remove>
             <input value="#{artefact.name}" type="text" size="35" readonly="true" title="#{artefact.name}"/>
@@ -35,6 +35,9 @@
           </h:inputTextarea>
           <h:outputText value="" />
           <h:message for="comment" styleClass="error" />
+
+          <h:outputText value="" rendered="#{studio.isRenamed(artefact)}" />
+          <h:outputText value="New project in repository will be created because you changed project name. Was: '#{artefact.name}'." rendered="#{studio.isRenamed(artefact)}" />
         </h:panelGrid>
 
       </h:panelGroup>

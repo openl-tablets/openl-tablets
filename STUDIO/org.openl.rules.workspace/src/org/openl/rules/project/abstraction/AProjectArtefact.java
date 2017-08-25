@@ -238,7 +238,7 @@ public class AProjectArtefact implements PropertiesContainer {
         return !modifiedTime.equals(fileData.getModifiedAt());
     }
 
-    public void setVersionComment(String versionComment) throws PropertyException {
+    public void setVersionComment(String versionComment) {
         FileData fileData = getFileData();
         if (fileData != null) {
             fileData.setComment(versionComment);

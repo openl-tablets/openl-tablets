@@ -20,6 +20,7 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
     private Map<String, Object> versionProperties;
     private String versionComment;
     
+    @Override
     public String getVersionComment() {
         return versionComment;
     }

@@ -119,7 +119,8 @@
                     <h:outputText value="Name" rendered="#{node.type == 'project' || node.type == 'prodproject' }"/>
                 </td>
                 <td>
-                    <h:outputText value="#{node.name}" style="font-weight: bold" />
+                    <h:outputText value="#{node.name}" style="font-weight: bold" rendered="#{node.type != 'project' or not node.renamed}" />
+                    <h:outputText value="#{node.logicalName} (#{node.name})" rendered="#{node.type == 'project' and node.renamed}"/>
                 </td>
             </tr>
             <h:panelGroup rendered="#{node.type == 'project' || node.type == 'prodproject' }">

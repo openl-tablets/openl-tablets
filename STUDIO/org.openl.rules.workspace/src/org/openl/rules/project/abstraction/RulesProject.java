@@ -1,5 +1,6 @@
 package org.openl.rules.project.abstraction;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,6 +14,7 @@ import org.openl.rules.project.impl.local.LockEngine;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.util.FileUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 
 public class RulesProject extends UserWorkspaceProject {
@@ -62,6 +64,21 @@ public class RulesProject extends UserWorkspaceProject {
         clearModifyStatus();
         unlock();
         refresh();
+    }
+
+    public void rename(String newName) throws IOException {
+        if (isRepositoryOnly()) {
+            throw new UnsupportedOperationException("Renaming of repository only project isn't supported");
+        }
+
+        File root = localRepository.getRoot();
+        File src = new File(root, localFolderName);
+        File dest = new File(root, newName);
+        FileUtils.move(src, dest);
+
+        localFolderName = newName;
+        designFolderName = designFolderName.substring(0, designFolderName.lastIndexOf('/') + 1) + newName;
+        getFileData().setName(localFolderName);
     }
 
     @Override

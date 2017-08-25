@@ -44,7 +44,15 @@
         </h:outputText>
       </rich:column>
       <rich:column rendered="#{node.type == 'project'}">
-        <h:outputText value="#{version.versionComment}" />
+        <ui:param name="projectReference" value="#{repositoryTreeState.getProjectReference(artefact, version)}"/>
+        <h:outputText value="#{version.versionComment}" rendered="#{empty projectReference}" />
+        <h:outputText value="Renamed from: " rendered="#{not empty projectReference}" />
+        <h:commandLink value="#{projectReference}"
+                       rendered="#{not empty projectReference}"
+                       action="#{repositoryTreeController.selectRulesProject}"
+                       immediate="true">
+          <f:param name="projectName" value="#{projectReference}" />
+        </h:commandLink>
       </rich:column>
       <rich:column rendered="#{node.type == 'project' and repositoryTreeState.canOpenOtherVersion and !artefact.deleted}" style="text-align: center;">
         <a4j:commandLink id="openPrjVersion" title="Open Revision ##{version.versionName}" onclick="return backToPropsTab();"

@@ -201,8 +201,11 @@ public class RepositoryTreeController {
     public String saveProject() {
         try {
             UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
-
-            project.save();
+            if (project instanceof RulesProject) {
+                studio.saveProject((RulesProject) project);
+            } else {
+                project.save();
+            }
 
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
@@ -237,7 +240,7 @@ public class RepositoryTreeController {
         TreeNode selectedNode = getSelectedNode();
         TreeProject projectNode = selectedNode instanceof TreeProject ? (TreeProject) selectedNode : null;
         if (projectNode != null) {
-            String name = projectNode.getLogicalName();
+            String name = projectNode.getName();
 
             for (ProjectDescriptor projectDescriptor : studio.getAllProjects()) {
                 if (projectDescriptor.getDependencies() != null) {
@@ -331,7 +334,7 @@ public class RepositoryTreeController {
 
         for (ProjectDependencyDescriptor dependency : dependencies) {
             try {
-                TreeProject projectNode = repositoryTreeState.getProjectNodeByLogicalName(dependency.getName());
+                TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(dependency.getName());
                 if (projectNode == null) {
                     continue;
                 }
@@ -559,7 +562,7 @@ public class RepositoryTreeController {
         } else if (!NameChecker.checkName(projectName)) {
             msg = "Specified name is not a valid project name." + " " + NameChecker.BAD_NAME_MSG;
         } else if (userWorkspace
-            .hasProject(projectName) || repositoryTreeState.getProjectNodeByLogicalName(projectName) != null) {
+            .hasProject(projectName)) {
             msg = "Cannot create project because project with such name already exists.";
         }
         return msg;
@@ -1144,7 +1147,7 @@ public class RepositoryTreeController {
     private void openDependenciesIfNeeded() throws ProjectException {
         if (openDependencies) {
             for (String dependency : getDependencies(getSelectedProject(), true)) {
-                TreeProject projectNode = repositoryTreeState.getProjectNodeByLogicalName(dependency);
+                TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(dependency);
                 if (projectNode == null) {
                     log.error("Can't find dependency {}", dependency);
                     continue;
@@ -1268,12 +1271,7 @@ public class RepositoryTreeController {
     }
 
     public void setVersionComment(String versionComment) {
-        try {
-            repositoryTreeState.getSelectedNode().getData().setVersionComment(versionComment);
-        } catch (PropertyException e) {
-            log.error("Failed to set LOB!", e);
-            FacesUtils.addErrorMessage("Can not set line of business.", e.getMessage());
-        }
+        repositoryTreeState.getSelectedNode().getData().setVersionComment(versionComment);
     }
 
     public void setNewProjectName(String newProjectName) {
@@ -1622,5 +1620,13 @@ public class RepositoryTreeController {
     public TreeNode getSelectedNode() {
         TreeNode selectedNode = repositoryTreeState.getSelectedNode();
         return activeProjectNode != null && selectedNode instanceof TreeRepository ? activeProjectNode : selectedNode;
+    }
+
+    public boolean isRenamed(RulesProject project) {
+        return project != null && !getLogicalName(project).equals(project.getName());
+    }
+
+    public String getLogicalName(RulesProject project) {
+        return project == null ? null : projectDescriptorResolver.getLogicalName(project);
     }
 }

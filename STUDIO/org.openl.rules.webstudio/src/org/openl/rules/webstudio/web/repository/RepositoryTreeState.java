@@ -2,9 +2,11 @@ package org.openl.rules.webstudio.web.repository;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.repository.tree.*;
+import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -152,16 +154,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         for (TreeNode treeNode : getRulesRepository().getChildNodes()) {
             TreeProject project = (TreeProject) treeNode;
             if (project.getName().equals(physicalName)) {
-                return project;
-            }
-        }
-        return null;
-    }
-
-    public TreeProject getProjectNodeByLogicalName(String logicalName) {
-        for (TreeNode treeNode : getRulesRepository().getChildNodes()) {
-            TreeProject project = (TreeProject) treeNode;
-            if (project.getLogicalName().equals(logicalName)) {
                 return project;
             }
         }
@@ -430,6 +422,23 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         }
 
         return isGranted(VIEW_PROJECTS);
+    }
+
+    public String getProjectReference(AProjectArtefact artefact, ProjectVersion version) {
+        if (artefact instanceof RulesProject) {
+            String prefix = Constants.RENAMED_FROM_PREFIX;
+
+            String comment = version.getVersionComment();
+            if (comment != null && comment.startsWith(prefix)) {
+                String name = comment.substring(prefix.length()).trim();
+                if (getProjectNodeByPhysicalName(name) == null) {
+                    return "";
+                }
+                return name;
+            }
+        }
+
+        return "";
     }
 
     public boolean getCanOpenOtherVersion() {

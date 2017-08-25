@@ -1,9 +1,6 @@
 package org.openl.rules.ui;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -13,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.ValidationException;
 
+import com.thoughtworks.xstream.XStreamException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -35,12 +33,7 @@ import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.ui.tree.view.CategoryDetailedView;
-import org.openl.rules.ui.tree.view.CategoryInversedView;
-import org.openl.rules.ui.tree.view.CategoryView;
-import org.openl.rules.ui.tree.view.FileView;
-import org.openl.rules.ui.tree.view.RulesTreeView;
-import org.openl.rules.ui.tree.view.TypeView;
+import org.openl.rules.ui.tree.view.*;
 import org.openl.rules.webstudio.util.ExportModule;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
@@ -51,8 +44,11 @@ import org.openl.rules.webstudio.web.repository.upload.zip.DefaultZipEntryComman
 import org.openl.rules.webstudio.web.repository.upload.zip.FilePathsCollector;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipWalker;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
+import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
@@ -64,8 +60,6 @@ import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.support.WebApplicationContextUtils;
-
-import com.thoughtworks.xstream.XStreamException;
 
 /**
  * TODO Remove JSF dependency
@@ -187,7 +181,7 @@ public class WebStudio {
             if (project == null) {
                 return;
             }
-            project.save();
+            saveProject(project);
         } catch (Exception e) {
             String msg;
             if (e.getCause() instanceof FileNotFoundException) {
@@ -202,6 +196,39 @@ public class WebStudio {
 
             log.error(msg, e);
             throw new ValidationException(msg);
+        }
+    }
+
+    public boolean isRenamed(RulesProject project) {
+        return project != null && !getLogicalName(project).equals(project.getName());
+    }
+
+    public String getLogicalName(RulesProject project) {
+        return project == null ? null : getProjectDescriptorResolver().getLogicalName(project);
+    }
+
+    public void saveProject(RulesProject project) throws ProjectException {
+        try {
+            String logicalName = getLogicalName(project);
+            if (!logicalName.equals(project.getName())) {
+                RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(FacesUtils.getSession());
+                UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
+                DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
+
+                String designPath = designTimeRepository.createProject(logicalName).getFolderPath();
+                FileData fileData = new FileData();
+                fileData.setName(designPath);
+                fileData.setComment(Constants.RENAMED_FROM_PREFIX + project.getName());
+                fileData.setAuthor(userWorkspace.getUser().getUserName());
+                fileData.setSize(0);
+
+                designTimeRepository.getRepository().save(fileData, new ByteArrayInputStream(new byte[0]));
+
+                project.rename(logicalName);
+            }
+            project.save();
+        } catch (WorkspaceException | IOException e) {
+            throw new ProjectException(e.getMessage(), e);
         }
     }
 
@@ -739,21 +766,7 @@ public class WebStudio {
         RulesProject project = getProject(name); // #2
         RulesProject currentProject = getCurrentProject(); // #3
 
-        if (project != null && project != currentProject) {
-            return true;
-        }
-
-        ProjectDescriptorArtefactResolver projectDescriptorResolver = getProjectDescriptorResolver();
-        for (RulesProject rulesProject : projects) {
-            if (currentProject == rulesProject) {
-                continue;
-            }
-            if (projectDescriptorResolver.getLogicalName(rulesProject).equals(name)) {
-                return true;
-            }
-        }
-
-        return false;
+        return project != null && project != currentProject;
     }
 
     private RulesProject getProject(String name) {
