@@ -169,8 +169,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     byte[] byteCode = createBeanForDatatype(fields);
                     beanClass = ClassUtils.defineClass(beanName, byteCode, classLoader);
                     log.debug("bean {} is using generated at runtime", beanName);
-                } catch (RuntimeException e2) {
-                    throw SyntaxNodeExceptionUtils.createError("Can't generate bean for datatype " + beanName, e, tableSyntaxNode);
+                } catch (Exception e2) {
+                    throw SyntaxNodeExceptionUtils.createError("Can't generate a Java bean for datatype " + beanName, tableSyntaxNode);
                 }
             }
 
