@@ -42,7 +42,7 @@ public class TreeDProject extends TreeFile {
     
     public Date getModifiedAt() {
         ProjectVersion projectVersion = getProject().getVersion();
-        if (projectVersion == null || getProject().getVersionsCount() <= 2) {
+        if (projectVersion == null) {
             return null;
         }
 
@@ -53,7 +53,7 @@ public class TreeDProject extends TreeFile {
     public String getModifiedBy() {
         ProjectVersion projectVersion = (getProject()).getVersion();
         /* zero*/
-        if (projectVersion == null || getProject().getVersionsCount() <= 2) {
+        if (projectVersion == null) {
             return null;
         }
 

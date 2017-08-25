@@ -156,6 +156,10 @@ public class AProjectArtefact implements PropertiesContainer {
         return versions;
     }
 
+    public boolean hasModifications() {
+        return !getFirstVersion().equals(getLastVersion());
+    }
+
     public int getVersionsCount() {
         try {
             return getFileData() == null ? 0 : getRepository().listHistory(getFileData().getName()).size();

@@ -156,7 +156,7 @@
                     <h:outputText value="#{node.createdBy}" />
                 </td>
             </tr>
-            <h:panelGroup rendered="#{node.modifiedAt != null}">
+            <h:panelGroup rendered="#{node.hasModifications}">
                 <tr>
                     <td class="label">Modified At</td>
                     <td>
@@ -166,7 +166,7 @@
                     </td>
                 </tr>
             </h:panelGroup>
-            <h:panelGroup rendered="#{node.modifiedBy != null}">
+            <h:panelGroup rendered="#{node.hasModifications}">
                 <tr>
                     <td class="label">Modified By</td>
                     <td>#{node.modifiedBy}</td>

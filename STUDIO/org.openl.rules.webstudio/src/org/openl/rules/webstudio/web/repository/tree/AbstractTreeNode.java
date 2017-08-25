@@ -322,6 +322,10 @@ public abstract class AbstractTreeNode implements TreeNode {
         }
     }
 
+    public boolean isHasModifications() {
+        return getData().hasModifications();
+    }
+
     public SelectItem[] getSelectedFileVersions() {
         Collection<ProjectVersion> versions = getVersions();
 

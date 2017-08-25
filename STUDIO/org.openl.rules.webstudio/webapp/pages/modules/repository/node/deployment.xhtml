@@ -21,11 +21,11 @@
     	<f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}" />
     </h:outputText>
     
-    <h:outputText value="Modified By" rendered="#{node.modifiedBy != null}" />
-    <h:outputText value="#{node.modifiedBy}" rendered="#{node.modifiedBy != null}" />
+    <h:outputText value="Modified By" rendered="#{node.hasModifications}" />
+    <h:outputText value="#{node.modifiedBy}" rendered="#{node.hasModifications}" />
 
-    <h:outputText value="Modified At" rendered="#{node.modifiedAt != null}"/>
-    <h:outputText value="#{node.modifiedAt}" rendered="#{node.modifiedAt != null}">
+    <h:outputText value="Modified At" rendered="#{node.hasModifications}"/>
+    <h:outputText value="#{node.modifiedAt}" rendered="#{node.hasModifications}">
         <f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}" />
     </h:outputText>
   </h:panelGrid>

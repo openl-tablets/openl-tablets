@@ -43,10 +43,10 @@
                 <h:outputText value="#{prj.data.version.versionName}" />
               </rich:column>
               <rich:column style="text-align:center">
-                <h:outputText value="#{prj.modifiedBy != null ? prj.modifiedBy : prj.createdBy}" />
+                <h:outputText value="#{prj.modifiedBy}" />
               </rich:column>
               <rich:column style="text-align:center">
-                <h:outputText value="#{prj.modifiedAt != null ? prj.modifiedAt : prj.createdAt}">
+                <h:outputText value="#{prj.modifiedAt}">
                     <f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}" />
                 </h:outputText>
               </rich:column>
