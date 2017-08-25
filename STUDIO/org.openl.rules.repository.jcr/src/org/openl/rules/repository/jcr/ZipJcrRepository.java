@@ -428,10 +428,10 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
         FileData fileData = new FileData();
         fileData.setName(name);
 
-        // TODO size
-        //        if (resource instanceof JcrFileAPI) {
-        //            fileData.setSize(((JcrFileAPI) resource).getSize());
-        //        }
+        // It's impossible to calculate zip size if project contains artefacts
+        if (((FolderAPI) project).getArtefacts().size() == 0) {
+            fileData.setSize(0);
+        }
 
         fileData.setDeleted(project.hasProperty(ArtefactProperties.PROP_PRJ_MARKED_4_DELETION));
 

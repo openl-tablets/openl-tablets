@@ -6,8 +6,13 @@ import java.util.Date;
  * @author Yury Molchan
  */
 public class FileData {
+    /**
+     * If file size can't be determined in some rare cases this constant should be used.
+     */
+    public static final long UNDEFINED_SIZE = -2;
+
     private String name;
-    private long size;
+    private long size = UNDEFINED_SIZE;
     private String author;
     private String comment;
     private Date modifiedAt;

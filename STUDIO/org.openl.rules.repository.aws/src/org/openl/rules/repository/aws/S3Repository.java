@@ -207,7 +207,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
         try {
             ObjectMetadata metaData = new ObjectMetadata();
             metaData.setContentType("application/zip");
-            if (data.getSize() != 0) {
+            if (data.getSize() != FileData.UNDEFINED_SIZE) {
                 metaData.setContentLength(data.getSize());
             }
             if (!StringUtils.isBlank(data.getAuthor())) {
