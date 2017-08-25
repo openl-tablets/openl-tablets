@@ -249,4 +249,8 @@ public class AProjectFolder extends AProjectArtefact {
         }
         refresh();
     }
+
+    public boolean hasArtefacts() {
+        return !getArtefacts().isEmpty();
+    }
 }

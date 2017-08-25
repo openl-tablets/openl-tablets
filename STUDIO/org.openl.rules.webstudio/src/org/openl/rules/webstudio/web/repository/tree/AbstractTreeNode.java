@@ -12,6 +12,7 @@ import javax.faces.model.SelectItem;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
 
 import com.google.common.collect.Iterators;
@@ -336,7 +337,7 @@ public abstract class AbstractTreeNode implements TreeNode {
     }
 
     public boolean isLeaf() {
-        return isLeafOnly || getElements().isEmpty();
+        return isLeafOnly || getData() instanceof AProjectFolder && !((AProjectFolder) getData()).hasArtefacts();
     }
 
     public void removeChild(Object id) {

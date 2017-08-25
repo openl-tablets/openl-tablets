@@ -429,6 +429,11 @@ public class AProject extends AProjectFolder {
         return "";
     }
 
+    @Override
+    public boolean hasArtefacts() {
+        return isFolder() ? super.hasArtefacts() : getFileData().getSize() != 0;
+    }
+
     private static class LazyFileData extends FileData {
         private AProject project;
 
