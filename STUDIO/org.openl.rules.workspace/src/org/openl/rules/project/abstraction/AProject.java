@@ -1,9 +1,6 @@
 package org.openl.rules.project.abstraction;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -367,11 +364,38 @@ public class AProject extends AProjectFolder {
         AProject projectFrom = (AProject) newFolder;
 
         if (isFolder()) {
-            if (newFolder.isFolder()) {
-                super.update(newFolder, user);
+            if (projectFrom.isFolder()) {
+                super.update(projectFrom, user);
             } else {
-                // TODO Optimize copying to reduce using of ZipFolderRepository
-                super.update(newFolder, user);
+                ZipInputStream stream = null;
+                try {
+                    if (projectFrom.isHistoric()) {
+                        FileItem fileItem = projectFrom.getRepository().readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
+                        stream = new ZipInputStream(fileItem.getStream());
+                    } else {
+                        FileItem fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
+                        stream = new ZipInputStream(fileItem.getStream());
+                    }
+                    String folderPath = getFolderPath();
+
+                    ZipEntry entry;
+                    while ((entry = stream.getNextEntry()) != null) {
+                        FileData fileData = new FileData();
+                        fileData.setName(folderPath + "/" + entry.getName());
+                        fileData.setSize(entry.getSize());
+                        fileData.setModifiedAt(new Date(entry.getTime()));
+                        getRepository().save(fileData, new FilterInputStream(stream) {
+                            @Override
+                            public void close() throws IOException {
+                                // Skip closing
+                            }
+                        });
+                    }
+                } catch (IOException e) {
+                    throw new ProjectException("Can't update: " + e.getMessage(), e);
+                } finally {
+                    IOUtils.closeQuietly(stream);
+                }
             }
         } else {
             if (!projectFrom.isFolder()) {
@@ -392,7 +416,7 @@ public class AProject extends AProjectFolder {
                 fileData.setAuthor(user.getUserName());
                 setFileData(getRepository().save(fileData, stream));
                 } catch (IOException ex) {
-                    throw new IllegalArgumentException("Can't update not from AProject", ex);
+                    throw new ProjectException("Can't update: " + ex.getMessage(), ex);
                 } finally {
                     IOUtils.closeQuietly(stream);
                 }
