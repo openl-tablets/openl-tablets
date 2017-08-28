@@ -213,6 +213,7 @@ public class WebStudio {
             if (!logicalName.equals(project.getName())) {
                 RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(FacesUtils.getSession());
                 UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
+                getModel().clearModuleInfo();
                 DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
                 String designPath = designTimeRepository.createProject(logicalName).getFolderPath();
@@ -225,6 +226,9 @@ public class WebStudio {
                 designTimeRepository.getRepository().save(fileData, new ByteArrayInputStream(new byte[0]));
 
                 project.rename(logicalName);
+
+                resetProjects();
+                userWorkspace.refresh();
             }
             project.save();
         } catch (WorkspaceException | IOException e) {
