@@ -25,7 +25,7 @@ public class RulesProjectBuilder {
             // TODO: workspace.createProject() should return RulesProject instance initialized with LockEngine
             AProject createdProject = workspace.createProject(projectName);
             LockEngine lockEngine = workspace.getProjectsLockEngine();
-            project = new RulesProject(workspace, workspace.getLocalWorkspace().getRepository(), createdProject.getRepository(), createdProject.getFileData(), lockEngine);
+            project = new RulesProject(workspace, workspace.getLocalWorkspace().getRepository(), null, createdProject.getRepository(), createdProject.getFileData(), lockEngine);
         }
         project.open();
     }

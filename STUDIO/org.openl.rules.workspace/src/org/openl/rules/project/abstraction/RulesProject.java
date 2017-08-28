@@ -24,34 +24,39 @@ public class RulesProject extends UserWorkspaceProject {
     private String designFolderName;
     private final LockEngine lockEngine;
 
-    /**
-     * Constructor for the projects that have local copy in user workspace. (isRepositoryOnly() == false)
-     */
     public RulesProject(UserWorkspace userWorkspace,
-            String version,
-            LocalRepository localRepository, String localFolderName,
-            Repository designRepository, String designFolderName,
-            LockEngine lockEngine) {
-        super(userWorkspace.getUser(), localRepository, localFolderName, version, true);
-        this.localRepository = localRepository;
-        this.localFolderName = localFolderName;
-        this.designRepository = designRepository;
-        this.designFolderName = designFolderName;
-        this.lockEngine = lockEngine;
-    }
-
-    /**
-     * Constructor for the projects that doesn't have local copy in user workspace. (isRepositoryOnly() == true)
-     */
-    public RulesProject(UserWorkspace userWorkspace,
-            LocalRepository localRepository,
+            LocalRepository localRepository, FileData localFileData,
             Repository designRepository, FileData designFileData, LockEngine lockEngine) {
-        super(userWorkspace.getUser(), designRepository, designFileData, false);
+        super(userWorkspace.getUser(), localFileData != null ? localRepository : designRepository,
+                localFileData != null ? localFileData : designFileData, localFileData != null);
         this.localRepository = localRepository;
-        this.localFolderName = null;
+        this.localFolderName = localFileData == null ? null : localFileData.getName();
         this.designRepository = designRepository;
         this.designFolderName = designFileData == null ? null : designFileData.getName();
         this.lockEngine = lockEngine;
+
+        FileData fullLocalFileData;
+        if (localFileData != null && designFileData != null) {
+            String localVersion = localFileData.getVersion();
+            if (localVersion == null || designFileData.getVersion().equals(localVersion)) {
+                fullLocalFileData = new FileData();
+                fullLocalFileData.setName(localFileData.getName());
+                fullLocalFileData.setVersion(designFileData.getVersion());
+                fullLocalFileData.setSize(designFileData.getSize());
+                fullLocalFileData.setAuthor(designFileData.getAuthor());
+                fullLocalFileData.setModifiedAt(designFileData.getModifiedAt());
+                fullLocalFileData.setComment(designFileData.getComment());
+                fullLocalFileData.setDeleted(designFileData.isDeleted());
+                setFileData(fullLocalFileData);
+            } else {
+                // Lazy load properties
+                setFileData(null);
+            }
+        }
+
+        if (designFileData != null) {
+            setLastHistoryVersion(designFileData.getVersion());
+        }
     }
 
     @Override
@@ -60,7 +65,9 @@ public class RulesProject extends UserWorkspaceProject {
         AProject localProject = new AProject(localRepository, localFolderName, true);
         designProject.getFileData().setComment(getFileData().getComment());
         designProject.update(localProject, user);
-        setHistoryVersion(designProject.getFileData().getVersion());
+        String version = designProject.getFileData().getVersion();
+        setHistoryVersion(version);
+        setLastHistoryVersion(version);
         clearModifyStatus();
         unlock();
         refresh();

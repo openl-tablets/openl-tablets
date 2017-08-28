@@ -88,7 +88,7 @@ public class TreeProject extends TreeFolder {
     }
 
     public String getCreatedBy() {
-        ProjectVersion projectVersion = (getProject()).getFirstVersion();
+        ProjectVersion projectVersion = getProject().getFirstVersion();
         if (projectVersion == null) {
             return null;
         }
@@ -98,24 +98,11 @@ public class TreeProject extends TreeFolder {
     }
 
     public Date getModifiedAt() {
-        ProjectVersion projectVersion = getProject().getVersion();
-        if (projectVersion == null) {
-            return null;
-        }
-
-        VersionInfo vi = projectVersion.getVersionInfo();
-        return (vi != null) ? vi.getCreatedAt() : null;
+        return getProject().getFileData().getModifiedAt();
     }
 
     public String getModifiedBy() {
-        ProjectVersion projectVersion = (getProject()).getVersion();
-        /* zero*/
-        if (projectVersion == null) {
-            return null;
-        }
-
-        VersionInfo vi = projectVersion.getVersionInfo();
-        return (vi != null) ? vi.getCreatedBy() : null;
+        return getProject().getFileData().getAuthor();
     }
 
     @Override
@@ -164,11 +151,8 @@ public class TreeProject extends TreeFolder {
     }
 
     public String getVersion() {
-        ProjectVersion projectVersion = (getProject()).getVersion();
-        if (projectVersion == null) {
-            return "unversioned";
-        }
-        return projectVersion.getVersionName();
+        String projectVersion = getProject().getFileData().getVersion();
+        return projectVersion == null ? "unversioned" : projectVersion;
     }
 
     public boolean isRenamed() {

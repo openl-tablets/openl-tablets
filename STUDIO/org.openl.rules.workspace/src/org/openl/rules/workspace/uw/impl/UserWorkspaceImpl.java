@@ -270,8 +270,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
                 if (userDProject == null || ddp.isDeleted() != userDProject.isDeleted()) {
                     String historyVersion = ddp.getHistoryVersion();
-                    userDProject = new ADeploymentProject(user, ddp.getRepository(), ddp.getFolderPath(), historyVersion,
-                            deploymentsLockEngine);
+                    userDProject = new ADeploymentProject(user, ddp.getRepository(), ddp.getFileData(), deploymentsLockEngine);
                     if (!userDProject.isOpened()) {
                         // Closed project can't be locked.
                         // DeployConfiguration changes aren't persisted. If it closed, it means changes are lost. We can safely unlock it
@@ -330,12 +329,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     }
                 }
 
-                if (lp == null) {
-                    userRulesProjects.put(name, new RulesProject(this, localRepository, designRepository, rp.getFileData(), projectsLockEngine));
-                } else {
-                    FileData local = lp.getFileData();
-                    userRulesProjects.put(name, new RulesProject(this, local.getVersion(), localRepository, local.getName(), designRepository, rp.getFileData().getName(), projectsLockEngine));
-                }
+                FileData local = lp == null ? null : lp.getFileData();
+                userRulesProjects.put(name, new RulesProject(this, localRepository, local, designRepository, rp.getFileData(), projectsLockEngine));
             }
 
             // LocalProjects that hasn't corresponding project in
@@ -345,7 +340,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
                 if (!designTimeRepository.hasProject(name)) {
                     FileData local = lp.getFileData();
-                    userRulesProjects.put(name, new RulesProject(this, local.getVersion(), localRepository, local.getName(), null, null, projectsLockEngine));
+                    userRulesProjects.put(name, new RulesProject(this, localRepository, local, designRepository, null, projectsLockEngine));
                 }
             }
 

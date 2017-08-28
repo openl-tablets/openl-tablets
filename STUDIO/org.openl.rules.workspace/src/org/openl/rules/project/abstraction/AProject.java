@@ -27,6 +27,7 @@ public class AProject extends AProjectFolder {
      */
     private boolean folderStructure;
     protected List<FileData> historyFileDatas;
+    private String lastHistoryVersion;
 
     public AProject(Repository repository, String folderPath, boolean folderStructure) {
         this(repository, folderPath, null, folderStructure);
@@ -68,6 +69,18 @@ public class AProject extends AProjectFolder {
         return fileData;
     }
 
+    protected String getLastHistoryVersion() {
+        if (lastHistoryVersion == null) {
+            List<FileData> fileDatas = getHistoryFileDatas();
+            lastHistoryVersion = fileDatas.isEmpty() ? null : fileDatas.get(fileDatas.size() - 1).getVersion();
+        }
+        return lastHistoryVersion;
+    }
+
+    final protected void setLastHistoryVersion(String lastHistoryVersion) {
+        this.lastHistoryVersion = lastHistoryVersion;
+    }
+
     @Override
     public ProjectVersion getLastVersion() {
         List<FileData> fileDatas = getHistoryFileDatas();
@@ -75,12 +88,12 @@ public class AProject extends AProjectFolder {
     }
 
     protected boolean isLastVersion() {
-        if (getHistoryVersion() == null) {
+        String historyVersion = getHistoryVersion();
+        if (historyVersion == null) {
             return true;
         }
-        List<FileData> fileDatas = getHistoryFileDatas();
-        return fileDatas.isEmpty() || getHistoryVersion().equals(fileDatas.get(fileDatas.size() - 1).getVersion());
-    }
+        String lastHistoryVersion = getLastHistoryVersion();
+        return lastHistoryVersion == null || historyVersion.equals(lastHistoryVersion);    }
 
     @Override
     public List<ProjectVersion> getVersions() {
@@ -266,7 +279,9 @@ public class AProject extends AProjectFolder {
                     repository.deleteHistory(fileData.getName(), fileData.getVersion());
                     FileData actual = repository.check(fileData.getName());
                     setFileData(actual);
-                    setHistoryVersion(actual.getVersion());
+                    String version = actual.getVersion();
+                    setHistoryVersion(version);
+                    setLastHistoryVersion(version);
                 }
             }
         } catch (IOException ex) {
@@ -539,6 +554,9 @@ public class AProject extends AProjectFolder {
                     }
 
                     if (repoData != null) {
+                        if (super.getVersion() == null) {
+                            super.setVersion(project.getLastHistoryVersion());
+                        }
                         super.setAuthor(repoData.getAuthor());
                         super.setModifiedAt(repoData.getModifiedAt());
                         super.setComment(repoData.getComment());

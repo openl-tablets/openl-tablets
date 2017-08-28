@@ -35,12 +35,20 @@ public class ADeploymentProject extends UserWorkspaceProject {
 
     private final LockEngine lockEngine;
 
-    public ADeploymentProject(WorkspaceUser user,
+    private ADeploymentProject(WorkspaceUser user,
             Repository repository,
             String folderPath,
             String version,
             LockEngine lockEngine) {
         super(user, repository, folderPath, version, false);
+        this.lockEngine = lockEngine;
+    }
+
+    public ADeploymentProject(WorkspaceUser user,
+            Repository repository,
+            FileData fileData,
+            LockEngine lockEngine) {
+        super(user, repository, fileData, false);
         this.lockEngine = lockEngine;
     }
 
