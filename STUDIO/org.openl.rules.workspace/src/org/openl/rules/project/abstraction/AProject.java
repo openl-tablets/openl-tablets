@@ -380,7 +380,7 @@ public class AProject extends AProjectFolder {
 
                 InputStream stream = null;
                 try {
-                if (isHistoric()) {
+                if (projectFrom.isHistoric()) {
                     FileItem fileItem = projectFrom.getRepository().readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
                     fileData.setSize(fileItem.getData().getSize());
                     stream = fileItem.getStream();
