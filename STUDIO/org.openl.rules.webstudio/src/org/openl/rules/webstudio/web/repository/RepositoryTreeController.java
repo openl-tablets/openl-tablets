@@ -269,6 +269,9 @@ public class RepositoryTreeController {
         }
         try {
             AProject selectedProject = repositoryTreeState.getSelectedProject();
+            if (selectedProject instanceof ADeploymentProject) {
+                return false;
+            }
             AProject newVersion = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
                 new CommonVersionImpl(version));
             return !getDependencies(newVersion, false).isEmpty();
