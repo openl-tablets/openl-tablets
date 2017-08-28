@@ -501,7 +501,7 @@ public class AProject extends AProjectFolder {
 
         private LazyFileData(String name, String version, AProject project) {
             setName(name);
-            setVersion(version);
+            setVersion(version == null ? project.getLastHistoryVersion() : version);
             this.project = project;
         }
 
@@ -584,9 +584,6 @@ public class AProject extends AProjectFolder {
                     }
 
                     if (repoData != null) {
-                        if (super.getVersion() == null) {
-                            super.setVersion(project.getLastHistoryVersion());
-                        }
                         super.setAuthor(repoData.getAuthor());
                         super.setModifiedAt(repoData.getModifiedAt());
                         super.setComment(repoData.getComment());
