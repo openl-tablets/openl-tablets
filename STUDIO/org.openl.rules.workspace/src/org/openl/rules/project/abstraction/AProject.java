@@ -371,9 +371,15 @@ public class AProject extends AProjectFolder {
                 try {
                     if (projectFrom.isHistoric()) {
                         FileItem fileItem = projectFrom.getRepository().readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
+                        if (fileItem == null) {
+                            return;
+                        }
                         stream = new ZipInputStream(fileItem.getStream());
                     } else {
                         FileItem fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
+                        if (fileItem == null) {
+                            return;
+                        }
                         stream = new ZipInputStream(fileItem.getStream());
                     }
                     String folderPath = getFolderPath();
