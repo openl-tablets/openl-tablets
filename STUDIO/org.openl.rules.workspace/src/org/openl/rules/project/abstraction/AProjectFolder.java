@@ -31,6 +31,16 @@ public class AProjectFolder extends AProjectArtefact {
         this.historyVersion = historyVersion;
     }
 
+    /**
+     * Create a folder with pre-initialised content
+     *
+     * @param artefacts pre-initialized artefact collection
+     */
+    public AProjectFolder(Map<String, AProjectArtefact> artefacts, AProject project, Repository repository, String folderPath) {
+        this(project, repository, folderPath, null);
+        this.artefacts = artefacts;
+    }
+
     @Override
     public String getName() {
         return folderPath.substring(folderPath.lastIndexOf("/") + 1);
@@ -91,6 +101,41 @@ public class AProjectFolder extends AProjectArtefact {
             throw new ProjectException("Cannot add a resource", ex);
         } finally {
             IOUtils.closeQuietly(content);
+        }
+    }
+
+    /**
+     * Adds artefact to the folder creating needed subfolders (parent folders for artefact)
+     *
+     * @param artefact artefact to add
+     */
+    public void addArtefact(AProjectArtefact artefact) {
+        Map<String, AProjectArtefact> artefacts = getArtefactsInternal();
+        if (artefact instanceof AProjectFolder) {
+            // Add folders as is. They are split to sub-folders already.
+            artefacts.put(artefact.getName(), artefact);
+            return;
+        }
+
+        String folderPath = getFolderPath();
+        String artefactPath = artefact.getFileData().getName();
+
+        int subFolderNameStart = folderPath.length() + 1;
+        int subFolderNameEnd = artefactPath.indexOf('/', subFolderNameStart);
+        if (subFolderNameEnd > -1) {
+            // Has subfolder
+            String name = artefactPath.substring(subFolderNameStart, subFolderNameEnd);
+            AProjectFolder folder = (AProjectFolder) artefacts.get(name);
+            if (folder == null) {
+                folder = new AProjectFolder(new HashMap<String, AProjectArtefact>(),
+                        artefact.getProject(),
+                        artefact.getRepository(),
+                        folderPath + "/" + name);
+                artefacts.put(name, folder);
+            }
+            folder.addArtefact(artefact);
+        } else {
+            artefacts.put(artefact.getName(), artefact);
         }
     }
 
