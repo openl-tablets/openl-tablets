@@ -247,7 +247,7 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     public boolean isLocalOnly() {
-        return designRepository == null;
+        return designFolderName == null;
     }
 
     public boolean isRepositoryOnly() {
