@@ -277,8 +277,8 @@ public class AProject extends AProjectFolder {
                     FileData actual = repository.check(fileData.getName());
                     setFileData(actual);
                     String version = actual.getVersion();
-                    setHistoryVersion(version);
                     setLastHistoryVersion(version);
+                    setHistoryVersion(version);
                 }
             }
         } catch (IOException ex) {

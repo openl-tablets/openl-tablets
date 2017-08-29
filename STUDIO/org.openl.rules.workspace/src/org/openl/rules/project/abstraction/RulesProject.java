@@ -66,8 +66,8 @@ public class RulesProject extends UserWorkspaceProject {
         designProject.getFileData().setComment(getFileData().getComment());
         designProject.update(localProject, user);
         String version = designProject.getFileData().getVersion();
-        setHistoryVersion(version);
         setLastHistoryVersion(version);
+        setHistoryVersion(version);
         clearModifyStatus();
         unlock();
         refresh();
