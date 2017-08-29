@@ -14,16 +14,6 @@ import org.openl.rules.workspace.abstracts.ProjectsContainer;
  * @author Aleh Bykhavets
  */
 public interface LocalWorkspace extends ProjectsContainer {
-    /**
-     * Adds a project to the workspace by making a copy from given
-     * <code>Project</code> and saving it to the filesystem.
-     *
-     * @param project the project to make copy of when creating new one in the
-     *            workspace
-     * @return newly created <code>LocalProject</code>
-     * @throws ProjectException if a project can not be added on some reason
-     */
-    AProject addProject(AProject project) throws ProjectException;
 
     /**
      * Adds listener to the workspace that listens to workspace events.

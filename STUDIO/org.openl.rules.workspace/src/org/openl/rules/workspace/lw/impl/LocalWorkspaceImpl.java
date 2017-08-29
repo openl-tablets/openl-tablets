@@ -46,38 +46,8 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         loadProjects();
     }
 
-    public AProject addProject(AProject project) throws ProjectException {
-        String name = project.getName();
-
-        if (hasProject(name)) {
-            removeProject(name);
-            // TODO smart update (if it is reasonable)
-        }
-
-        return downloadProject(project);
-    }
-
     public void addWorkspaceListener(LocalWorkspaceListener listener) {
         listeners.add(listener);
-    }
-
-    private AProject downloadProject(AProject project) throws ProjectException {
-        String name = project.getName();
-
-        File f = new File(location, name);
-        if (!f.mkdir() && !f.exists()) {
-            throw new ProjectException(String.format("Can't create the folder '%s'", f.getAbsolutePath()));
-        }
-
-        AProject localProject = createLocalProject(name);
-
-        localProject.update(project, user);
-
-        // add project
-        synchronized (localProjects) {
-            localProjects.put(name, localProject);
-        }
-        return localProject;
     }
 
     private AProject createLocalProject(String path) {
