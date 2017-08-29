@@ -84,7 +84,9 @@ public class RulesProject extends UserWorkspaceProject {
         FileUtils.move(src, dest);
 
         localFolderName = newName;
-        designFolderName = designFolderName.substring(0, designFolderName.lastIndexOf('/') + 1) + newName;
+        if (designFolderName != null) {
+            designFolderName = designFolderName.substring(0, designFolderName.lastIndexOf('/') + 1) + newName;
+        }
         getFileData().setName(localFolderName);
     }
 

@@ -45,6 +45,7 @@ import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.WorkspaceException;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -275,6 +276,19 @@ public class ProjectBean {
 
         clean(newProjectDescriptor);
         save(newProjectDescriptor);
+
+        RulesProject currentProject = studio.getCurrentProject();
+        if (currentProject.isLocalOnly() && studio.isRenamed(currentProject)) {
+            try {
+                studio.getModel().clearModuleInfo();
+                currentProject.rename(newProjectDescriptor.getName());
+                studio.resetProjects();
+                WebStudioUtils.getRulesUserSession(FacesUtils.getSession()).getUserWorkspace().refresh();
+            } catch (IOException | WorkspaceException e) {
+                log.error(e.getMessage(), e);
+                throw new Message("Error while renaming local project");
+            }
+        }
     }
 
     public void editModule() {
