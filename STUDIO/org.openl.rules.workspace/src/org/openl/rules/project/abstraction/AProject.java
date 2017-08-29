@@ -386,6 +386,9 @@ public class AProject extends AProjectFolder {
 
                     ZipEntry entry;
                     while ((entry = stream.getNextEntry()) != null) {
+                        if (entry.isDirectory()) {
+                            continue;
+                        }
                         FileData fileData = new FileData();
                         fileData.setName(folderPath + "/" + entry.getName());
                         fileData.setSize(entry.getSize());
