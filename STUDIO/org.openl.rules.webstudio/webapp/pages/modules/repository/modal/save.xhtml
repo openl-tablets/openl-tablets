@@ -30,10 +30,13 @@
 
           <h:outputText value="Comment" />
           <h:inputTextarea value="#{repositoryTreeController.versionComment}" type="text" size="35" readonly="false" title="#{repositoryTreeController.versionComment}"/>
-
-          <h:outputText value="" rendered="#{node.type == 'project' and repositoryTreeController.isRenamed(artefact)}" />
-          <h:outputText value="New project in repository will be created because you changed project name. Was: '#{artefact.name}'." rendered="#{node.type == 'project' and repositoryTreeController.isRenamed(artefact)}" />
         </h:panelGrid>
+
+        <h:panelGroup rendered="#{node.type == 'project' and repositoryTreeController.isRenamed(artefact)}" styleClass="warning">
+          <h:outputText value="Warning! This renaming will split the project on two parts."/> <br/>
+          <h:outputText value="This project will be closed: '#{artefact.name}'."/> <br/>
+          <h:outputText value="This project will be created: '#{repositoryTreeController.getLogicalName(artefact)}'."/>
+        </h:panelGroup>
 
       </h:panelGroup>
 

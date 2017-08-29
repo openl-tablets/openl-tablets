@@ -35,11 +35,13 @@
           </h:inputTextarea>
           <h:outputText value="" />
           <h:message for="comment" styleClass="error" />
-
-          <h:outputText value="" rendered="#{studio.isRenamed(artefact)}" />
-          <h:outputText value="New project in repository will be created because you changed project name. Was: '#{artefact.name}'." rendered="#{studio.isRenamed(artefact)}" />
         </h:panelGrid>
 
+        <h:panelGroup rendered="#{studio.isRenamed(artefact)}" styleClass="warning">
+          <h:outputText value="Warning! This renaming will split the project on two parts."/> <br/>
+          <h:outputText value="This project will be closed: '#{artefact.name}'."/> <br/>
+          <h:outputText value="This project will be created: '#{studio.getLogicalName(artefact)}'."/>
+        </h:panelGroup>
       </h:panelGroup>
 
       <footer>
