@@ -50,11 +50,6 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         listeners.add(listener);
     }
 
-    private AProject createLocalProject(String path) {
-        String version = localRepository.getProjectState(path).getProjectVersion();
-        return new AProject(getRepository(), path, version, true);
-    }
-
     @Override
     public LocalRepository getRepository() {
         return localRepository;
@@ -106,7 +101,8 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             for (File f : folders) {
                 String name = f.getName();
 
-                AProject lpi = createLocalProject(name);
+                String version = localRepository.getProjectState(name).getProjectVersion();
+                AProject lpi = new AProject(getRepository(), name, version, true);
                 synchronized (localProjects) {
                     localProjects.put(name, lpi);
                 }
