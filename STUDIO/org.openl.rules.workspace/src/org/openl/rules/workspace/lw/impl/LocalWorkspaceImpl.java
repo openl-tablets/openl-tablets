@@ -10,6 +10,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.lw.LocalWorkspace;
@@ -101,8 +102,14 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             for (File f : folders) {
                 String name = f.getName();
 
-                String version = localRepository.getProjectState(name).getProjectVersion();
-                AProject lpi = new AProject(getRepository(), name, version, true);
+                AProject lpi;
+                FileData fileData = localRepository.getProjectState(name).getFileData();
+                if (fileData == null) {
+                    String version = localRepository.getProjectState(name).getProjectVersion();
+                    lpi = new AProject(getRepository(), name, version, true);
+                } else {
+                    lpi = new AProject(getRepository(), fileData, true);
+                }
                 synchronized (localProjects) {
                     localProjects.put(name, lpi);
                 }

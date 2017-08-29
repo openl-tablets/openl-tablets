@@ -1,6 +1,8 @@
 package org.openl.rules.project.impl.local;
 
 import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -64,9 +66,14 @@ public class LocalRepository extends FileRepository {
 
     public ProjectState getProjectState(final String pathInProject) {
         return new ProjectState() {
+            private static final String DATE_FORMAT = "yyyy-MM-dd";
             private static final String MODIFIED_FILE_NAME = ".modified";
             private static final String VERSION_FILE_NAME = ".version";
             private static final String VERSION_PROPERTY = "version";
+            private static final String AUTHOR_PROPERTY = "author";
+            private static final String MODIFIED_AT_PROPERTY = "modified-at";
+            private static final String SIZE_PROPERTY = "size";
+            private static final String COMMENT_PROPERTY = "comment";
 
             @Override
             public void notifyModified() {
@@ -126,6 +133,73 @@ public class LocalRepository extends FileRepository {
                     properties.load(is);
                     return properties.getProperty(VERSION_PROPERTY);
                 } catch (IOException e) {
+                    throw new IllegalStateException(e);
+                } finally {
+                    IOUtils.closeQuietly(is);
+                }
+            }
+
+            @Override
+            public void saveFileData(FileData fileData) {
+                if (fileData.getVersion() == null || fileData.getAuthor() == null || fileData.getModifiedAt() == null) {
+                    // No need to save empty fileData
+                    return;
+                }
+                Properties properties = new Properties();
+                properties.setProperty(VERSION_PROPERTY, fileData.getVersion());
+                properties.setProperty(AUTHOR_PROPERTY, fileData.getAuthor());
+                properties.setProperty(MODIFIED_AT_PROPERTY, new SimpleDateFormat(DATE_FORMAT).format(fileData.getModifiedAt()));
+                properties.setProperty(SIZE_PROPERTY, "" + fileData.getSize());
+                properties.setProperty(COMMENT_PROPERTY, fileData.getComment());
+                FileOutputStream os = null;
+                try {
+                    File file = propertiesEngine.createPropertiesFile(pathInProject, VERSION_FILE_NAME);
+                    os = new FileOutputStream(file);
+                    properties.store(os, "Project version");
+                } catch (IOException e) {
+                    throw new IllegalStateException(e.getMessage(), e);
+                } finally {
+                    IOUtils.closeQuietly(os);
+                }
+            }
+
+            @Override
+            public FileData getFileData() {
+                File file = propertiesEngine.getPropertiesFile(pathInProject, VERSION_FILE_NAME);
+                if (!file.exists()) {
+                    return null;
+                }
+
+                Properties properties = new Properties();
+                FileInputStream is = null;
+                try {
+                    is = new FileInputStream(file);
+                    properties.load(is);
+                    FileData fileData = new FileData();
+                    File propertiesFolder = propertiesEngine.getPropertiesFolder(pathInProject);
+                    File projectFolder = propertiesFolder.getParentFile();
+
+                    String name = projectFolder.getName();
+                    String version = properties.getProperty(VERSION_PROPERTY);
+                    String author = properties.getProperty(AUTHOR_PROPERTY);
+                    String modifiedAt = properties.getProperty(MODIFIED_AT_PROPERTY);
+                    String size = properties.getProperty(SIZE_PROPERTY);
+                    String comment = properties.getProperty(COMMENT_PROPERTY);
+
+                    if (version == null || author == null || modifiedAt == null) {
+                        // Only partial information is available. Can't fill FileData. Must request from repository.
+                        return null;
+                    }
+
+                    fileData.setName(name);
+                    fileData.setVersion(version);
+                    fileData.setAuthor(author);
+                    fileData.setModifiedAt(new SimpleDateFormat(DATE_FORMAT).parse(modifiedAt));
+                    fileData.setSize(Long.parseLong(size));
+                    fileData.setComment(comment);
+
+                    return fileData;
+                } catch (IOException | ParseException e) {
                     throw new IllegalStateException(e);
                 } finally {
                     IOUtils.closeQuietly(is);

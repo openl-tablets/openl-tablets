@@ -39,6 +39,7 @@ public class RulesProject extends UserWorkspaceProject {
         if (localFileData != null && designFileData != null) {
             String localVersion = localFileData.getVersion();
             if (localVersion == null || designFileData.getVersion().equals(localVersion)) {
+                // Set the path for local repository, other properties are equal to design repository properties
                 fullLocalFileData = new FileData();
                 fullLocalFileData.setName(localFileData.getName());
                 fullLocalFileData.setVersion(designFileData.getVersion());
@@ -49,8 +50,12 @@ public class RulesProject extends UserWorkspaceProject {
                 fullLocalFileData.setDeleted(designFileData.isDeleted());
                 setFileData(fullLocalFileData);
             } else {
-                // Lazy load properties
-                setFileData(null);
+                if (localFileData.getAuthor() == null || localFileData.getModifiedAt() == null) {
+                    // Lazy load properties
+                    setFileData(null);
+                } else {
+                    setFileData(localFileData);
+                }
             }
         }
 
@@ -68,6 +73,9 @@ public class RulesProject extends UserWorkspaceProject {
         String version = designProject.getFileData().getVersion();
         setLastHistoryVersion(version);
         setHistoryVersion(version);
+        if (!isRepositoryOnly()) {
+            localRepository.getProjectState(localFolderName).setProjectVersion(null);
+        }
         clearModifyStatus();
         unlock();
         refresh();
@@ -111,6 +119,9 @@ public class RulesProject extends UserWorkspaceProject {
                 setRepository(designRepository);
                 setFolderPath(designFolderName);
                 setHistoryVersion(null);
+                if (!isRepositoryOnly()) {
+                    localRepository.getProjectState(localFolderName).setProjectVersion(null);
+                }
                 setFolderStructure(false);
             }
         } finally {
@@ -276,6 +287,9 @@ public class RulesProject extends UserWorkspaceProject {
         refresh();
 
         localRepository.getProjectState(localFolderName).clearModifyStatus();
+        if (!isLastVersion()) {
+            localRepository.getProjectState(localFolderName).saveFileData(getFileData());
+        }
     }
 
     // Is Opened for Editing by me? -- in LW + locked by me
@@ -298,14 +312,6 @@ public class RulesProject extends UserWorkspaceProject {
     public void setModified() {
         if (!isRepositoryOnly()) {
             localRepository.getProjectState(localFolderName).notifyModified();
-        }
-    }
-
-    @Override
-    public void setHistoryVersion(String historyVersion) {
-        super.setHistoryVersion(historyVersion);
-        if (isOpened()) {
-            localRepository.getProjectState(localFolderName).setProjectVersion(historyVersion);
         }
     }
 

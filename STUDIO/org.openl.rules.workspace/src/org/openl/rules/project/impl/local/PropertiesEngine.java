@@ -67,7 +67,7 @@ class PropertiesEngine {
         return path.replace(File.separatorChar, '/').contains("/" + FolderHelper.PROPERTIES_FOLDER + "/");
     }
 
-    private File getPropertiesFolder(String path) {
+    File getPropertiesFolder(String path) {
         if (!new File(path).isAbsolute()) {
             path = path.replace(File.separatorChar, '/');
             File projectFolder = new File(root, path.split("/")[0]);
