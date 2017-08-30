@@ -86,8 +86,15 @@ public class FileRepository implements Repository, RRepositoryFactory, Closeable
         String name = data.getName();
         File file = new File(root, name);
         file.getParentFile().mkdirs();
-        FileOutputStream output = new FileOutputStream(file);
-        IOUtils.copyAndClose(stream, output);
+        FileOutputStream output = null;
+        try {
+            output = new FileOutputStream(file);
+            IOUtils.copy(stream, output);
+        } finally {
+            // Close only output stream. This class isn't responsible for input stream: stream must be closed in the
+            // place where it was created.
+            IOUtils.closeQuietly(output);
+        }
         return getFileData(file);
     }
 

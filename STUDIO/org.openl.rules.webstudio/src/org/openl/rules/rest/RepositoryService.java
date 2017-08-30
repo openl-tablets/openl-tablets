@@ -293,6 +293,8 @@ public class RepositoryService {
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         } catch (ProjectException ex) {
             return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
+        } finally {
+            IOUtils.closeQuietly(zipFile);
         }
     }
 

@@ -1,22 +1,19 @@
 package org.openl.rules.repository.file;
 
+import static org.junit.Assert.*;
+
+import java.io.*;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
+
 import org.junit.Test;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 public class FileRepositoryTest {
     @Test
@@ -63,6 +60,10 @@ public class FileRepositoryTest {
         assertList(repo, "", 11);
         assertNoRead(repo, "absent");
         assertRead(repo, ".override", "This new content");
+
+        ZipInputStream stream = createZipInputStream("first", "second", "folder/name", "very/deep/folder/file");
+        assertSaveFromZip(repo, stream);
+        stream.close();
     }
 
     private void assertNoRead(Repository repo, String name) throws IOException {
@@ -101,4 +102,34 @@ public class FileRepositoryTest {
         assertRead(repo, name, text);
         assertEquals("Wrong file name", name, result.getName());
     }
+
+    private void assertSaveFromZip(Repository repo, ZipInputStream inputStream) throws IOException {
+        ZipEntry entry;
+        while ((entry = inputStream.getNextEntry()) != null) {
+            String name = entry.getName();
+            String text = "Text for file " + name;
+
+            FileData data = new FileData();
+            data.setName(name);
+            FileData result = repo.save(data, inputStream);
+            assertEquals("Wrong file length", text.length(), result.getSize());
+            assertRead(repo, name, text);
+            assertEquals("Wrong file name", name, result.getName());
+        }
+    }
+
+    private ZipInputStream createZipInputStream(String... names) throws IOException {
+        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        ZipOutputStream outputStream = new ZipOutputStream(byteStream);
+        for (String name : names) {
+            ZipEntry entry = new ZipEntry(name);
+            outputStream.putNextEntry(entry);
+            String text = "Text for file " + name;
+            IOUtils.copy(IOUtils.toInputStream(text), outputStream);
+            outputStream.closeEntry();
+        }
+        outputStream.close();
+        return new ZipInputStream(new ByteArrayInputStream(byteStream.toByteArray()));
+    }
+
 }

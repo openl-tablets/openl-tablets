@@ -39,7 +39,7 @@ public class ZipWalker {
                         break;
                     }
                 } else {
-                    if (!command.execute(fileName, new NotClosableInputStream(zipInputStream))) {
+                    if (!command.execute(fileName, zipInputStream)) {
                         break;
                     }
                 }
@@ -71,15 +71,4 @@ public class ZipWalker {
         }
     }
 
-    private class NotClosableInputStream extends FilterInputStream {
-
-        protected NotClosableInputStream(InputStream in) {
-            super(in);
-        }
-
-        @Override
-        public void close() throws IOException {
-            // Skip closing
-        }
-    }
 }

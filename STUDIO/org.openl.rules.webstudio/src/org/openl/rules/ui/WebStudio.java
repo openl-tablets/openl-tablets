@@ -52,10 +52,7 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
-import org.openl.util.CollectionUtils;
-import org.openl.util.FileTypeHelper;
-import org.openl.util.StringTool;
-import org.openl.util.StringUtils;
+import org.openl.util.*;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -467,7 +464,9 @@ public class WebStudio {
             return null;
         }
 
+        InputStream stream = null;
         try {
+            stream = uploadedFile.getInput();
             XlsWorkbookSourceHistoryListener historyListener = new XlsWorkbookSourceHistoryListener(
                     model.getHistoryManager());
             Module module = getCurrentModule();
@@ -479,12 +478,14 @@ public class WebStudio {
 
             FileData data = new FileData();
             data.setName(getCurrentProjectDescriptor().getProjectFolder().getName() + "/" + sourceFile.getName());
-            repository.save(data, uploadedFile.getInput());
+            repository.save(data, stream);
 
             historyListener.afterSave(sourceFile);
         } catch (Exception e) {
             log.error("Error updating file in user workspace.", e);
             throw new IllegalStateException("Error while updating the module.", e);
+        } finally {
+            IOUtils.closeQuietly(stream);
         }
 
         model.resetSourceModified(); // Because we rewrite a file in the workspace

@@ -94,6 +94,7 @@ public class ProductionRepositoryDeployer {
         // Temp folders
         File zipFolder = Files.createTempDirectory("openl").toFile();
 
+        FileInputStream stream = null;
         try {
             String name = FileUtils.getBaseName(zipFile.getName());
 
@@ -146,8 +147,10 @@ public class ProductionRepositoryDeployer {
             dest.setName(target);
             dest.setAuthor("OpenL_Deployer");
             dest.setSize(zipFile.length());
-            deployRepo.save(dest, new FileInputStream(zipFile));
+            stream = new FileInputStream(zipFile);
+            deployRepo.save(dest, stream);
         } finally {
+            IOUtils.closeQuietly(stream);
             /* Clean up */
             FileUtils.deleteQuietly(zipFolder);
         }

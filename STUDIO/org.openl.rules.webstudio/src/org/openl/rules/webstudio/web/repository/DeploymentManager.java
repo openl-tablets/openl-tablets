@@ -27,6 +27,7 @@ import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.deploy.DeployUtils;
 import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,15 +92,21 @@ public class DeploymentManager implements InitializingBean {
             String deploymentPath = DeployUtils.DEPLOY_PATH + id.getName();
             Repository designRepo = designRepository.getRepository();
             for (ProjectDescriptor<?> pd : projectDescriptors) {
-                String version = pd.getProjectVersion().getVersionName();
-                String projectName = pd.getProjectName();
-                FileItem srcPrj = designRepo.readHistory("DESIGN/rules/" + projectName, version);
-                FileData dest = new FileData();
-                dest.setName(deploymentPath + "/" + projectName);
-                dest.setAuthor(userName);
-                dest.setComment(srcPrj.getData().getComment());
-                dest.setSize(srcPrj.getData().getSize());
-                deployRepo.save(dest, srcPrj.getStream());
+                InputStream stream = null;
+                try {
+                    String version = pd.getProjectVersion().getVersionName();
+                    String projectName = pd.getProjectName();
+                    FileItem srcPrj = designRepo.readHistory("DESIGN/rules/" + projectName, version);
+                    stream = srcPrj.getStream();
+                    FileData dest = new FileData();
+                    dest.setName(deploymentPath + "/" + projectName);
+                    dest.setAuthor(userName);
+                    dest.setComment(srcPrj.getData().getComment());
+                    dest.setSize(srcPrj.getData().getSize());
+                    deployRepo.save(dest, stream);
+                } finally {
+                    IOUtils.closeQuietly(stream);
+                }
             }
 
             // TODO: Some analogue of notifyChanges() possibly will be needed

@@ -393,12 +393,7 @@ public class AProject extends AProjectFolder {
                         fileData.setName(folderPath + "/" + entry.getName());
                         fileData.setSize(entry.getSize());
                         fileData.setModifiedAt(new Date(entry.getTime()));
-                        getRepository().save(fileData, new FilterInputStream(stream) {
-                            @Override
-                            public void close() throws IOException {
-                                // Skip closing
-                            }
-                        });
+                        getRepository().save(fileData, stream);
                     }
                 } catch (IOException e) {
                     throw new ProjectException("Can't update: " + e.getMessage(), e);
