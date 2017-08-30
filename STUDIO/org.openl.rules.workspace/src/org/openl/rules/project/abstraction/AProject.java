@@ -323,11 +323,7 @@ public class AProject extends AProjectFolder {
         if (fileItem == null) {
             return internalArtefacts;
         }
-        InputStream stream = fileItem.getStream();
-        if (stream == null) {
-            return internalArtefacts;
-        }
-        ZipInputStream zipInputStream = new ZipInputStream(stream);
+        ZipInputStream zipInputStream = new ZipInputStream(fileItem.getStream());
         try {
             ZipEntry entry;
             while ((entry = zipInputStream.getNextEntry()) != null) {

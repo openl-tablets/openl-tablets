@@ -416,7 +416,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         FileData fileData = createFileData(rs);
         InputStream data = rs.getBinaryStream("file_data");
         if (data == null) {
-            return new FileItem(fileData, null);
+            return null;
         }
 
         // ResultSet will be closed, so InputStream can be closed too, that's

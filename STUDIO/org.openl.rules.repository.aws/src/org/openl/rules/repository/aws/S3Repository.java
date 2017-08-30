@@ -196,7 +196,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
                 S3Object object = s3.getObject(bucketName, name);
                 objectContent = object.getObjectContent();
             }
-            return new FileItem(fileData, objectContent);
+            return objectContent == null ? null : new FileItem(fileData, objectContent);
         } catch (SdkClientException e) {
             throw new IOException(e);
         }
@@ -374,7 +374,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
                             S3Object object = s3.getObject(new GetObjectRequest(bucketName, name, version));
                             content = object.getObjectContent();
                         }
-                        return new FileItem(checkHistory(name, version), content);
+                        return content == null ? null : new FileItem(checkHistory(name, version), content);
                     }
                 }
             } while (versionListing.isTruncated());
