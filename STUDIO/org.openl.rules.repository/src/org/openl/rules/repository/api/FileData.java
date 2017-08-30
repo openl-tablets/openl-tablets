@@ -9,7 +9,7 @@ public class FileData {
     /**
      * If file size can't be determined in some rare cases this constant should be used.
      */
-    public static final long UNDEFINED_SIZE = -2;
+    public static final long UNDEFINED_SIZE = -1;
 
     private String name;
     private long size = UNDEFINED_SIZE;
@@ -34,7 +34,7 @@ public class FileData {
     }
 
     /**
-     * The file size in bytes. Allowed value for the deleted file is -1, but can
+     * The file size in bytes. The size of the deleted file is undefined, but can
      * be equals to the size of the deleted file.
      * 
      * @return the file size.
