@@ -34,8 +34,8 @@ public class ProjectDescriptorArtefactResolver {
     private final Map<String, ProjectDescriptor> cache = new WeakHashMap<String, ProjectDescriptor>();
 
     private ProjectDescriptor getProjectDescriptor(AProject project) throws ProjectException, ProjectResolvingException, XStreamException {
-        ProjectVersion version = project.getVersion();
-        String versionName = version == null ? "" : version.getVersionName();
+        String version = project.getFileData().getVersion();
+        String versionName = version == null ? "" : version;
         String key = String.format("%s:%s:%b", project.getName(), versionName, project.isModified());
 
         ProjectDescriptor descriptor = cache.get(key);

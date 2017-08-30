@@ -280,7 +280,7 @@ public class WebStudio {
             forExport.refresh();
             String userName = WebStudioUtils.getRulesUserSession(FacesUtils.getSession()).getUserName();
 
-            String fileName = String.format("%s-%s.zip", forExport.getName(), forExport.getVersion().getVersionName());
+            String fileName = String.format("%s-%s.zip", forExport.getName(), forExport.getFileData().getVersion());
             file = ProjectExportHelper.export(new WorkspaceUserImpl(userName), forExport);
 
             final FacesContext facesContext = FacesUtils.getFacesContext();

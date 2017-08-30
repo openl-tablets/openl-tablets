@@ -37,10 +37,10 @@ public class TreeProject extends TreeFolder {
         }
 
         if (userProject.isOpened()) {
-            ProjectVersion activeVersion = userProject.getVersion();
+            String activeVersion = userProject.getFileData().getVersion();
 
             if (activeVersion != null && userProject.isOpenedOtherVersion()) {
-                return "Revision " + activeVersion.getVersionName();
+                return "Revision " + activeVersion;
             }
         }
 
