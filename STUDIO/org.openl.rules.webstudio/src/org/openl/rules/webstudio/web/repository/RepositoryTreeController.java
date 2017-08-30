@@ -648,6 +648,8 @@ public class RepositoryTreeController {
             } catch (StreamException e) {
                 log.error("Broken rules.xml file. Can't remove modules from it", e);
                 return;
+            } finally {
+                IOUtils.closeQuietly(content);
             }
             for (String modulePath : modulePaths) {
                 Iterator<Module> itr = projectDescriptor.getModules().iterator();
@@ -1427,13 +1429,14 @@ public class RepositoryTreeController {
     private void registerInProjectDescriptor(AProjectResource addedFileResource) {
         if (FileTypeHelper.isExcelFile(fileName)) { // Excel. Add module to
             // rules.xml.
+            InputStream content = null;
             try {
                 UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
                 AProjectArtefact projectDescriptorArtifact = selectedProject
                     .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
                 if (projectDescriptorArtifact instanceof AProjectResource) {
                     AProjectResource resource = (AProjectResource) projectDescriptorArtifact;
-                    InputStream content = resource.getContent();
+                    content = resource.getContent();
                     ProjectDescriptor projectDescriptor = xmlProjectDescriptorSerializer.deserialize(content);
                     String modulePath = addedFileResource.getArtefactPath().withoutFirstSegment().getStringValue();
                     while (modulePath.charAt(0) == '/') {
@@ -1451,6 +1454,8 @@ public class RepositoryTreeController {
                 if (log.isDebugEnabled()) {
                     log.debug(ex.getMessage(), ex);
                 }
+            } finally {
+                IOUtils.closeQuietly(content);
             }
         }
     }

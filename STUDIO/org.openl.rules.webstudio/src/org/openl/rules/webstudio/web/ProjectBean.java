@@ -513,6 +513,7 @@ public class ProjectBean {
 
     private void save(ProjectDescriptor projectDescriptor) {
         UserWorkspaceProject project = studio.getCurrentProject();
+        InputStream rulesDeployContent = null;
         try {
             // validator.validate(descriptor);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -533,8 +534,9 @@ public class ProjectBean {
 
             if (project.hasArtefact(RULES_DEPLOY_XML)) {
                 AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_XML);
+                rulesDeployContent = artefact.getContent();
                 RulesDeploy rulesDeploy = rulesDeploySerializerFactory.getSerializer(SupportedVersion.getLastVersion())
-                        .deserialize(artefact.getContent());
+                        .deserialize(rulesDeployContent);
                 artefact.setContent(new ByteArrayInputStream(rulesDeploySerializer.serialize(rulesDeploy).getBytes("UTF-8")));
             }
 
@@ -544,6 +546,8 @@ public class ProjectBean {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new Message("Error while saving the project");
+        } finally {
+            IOUtils.closeQuietly(rulesDeployContent);
         }
         // postProcess(descriptor);
     }
