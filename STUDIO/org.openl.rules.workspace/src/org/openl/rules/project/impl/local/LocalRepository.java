@@ -150,7 +150,9 @@ public class LocalRepository extends FileRepository {
                 properties.setProperty(AUTHOR_PROPERTY, fileData.getAuthor());
                 properties.setProperty(MODIFIED_AT_PROPERTY, new SimpleDateFormat(DATE_FORMAT).format(fileData.getModifiedAt()));
                 properties.setProperty(SIZE_PROPERTY, "" + fileData.getSize());
-                properties.setProperty(COMMENT_PROPERTY, fileData.getComment());
+                if (fileData.getComment() != null) {
+                    properties.setProperty(COMMENT_PROPERTY, fileData.getComment());
+                }
                 FileOutputStream os = null;
                 try {
                     File file = propertiesEngine.createPropertiesFile(pathInProject, VERSION_FILE_NAME);
