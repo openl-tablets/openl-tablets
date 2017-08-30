@@ -163,24 +163,28 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         }
 
         if (callback != null) {
-            timer = new Timer(true);
+            timer = new Timer("DBRepository checker");
 
             timer.schedule(new TimerTask() {
                 private String lastChange = getLastChange();
 
                 @Override
                 public void run() {
-                    String currentChange = getLastChange();
-                    if (currentChange == null) {
-                        // Ignore unknown changes
-                        return;
+                    try {
+                        String currentChange = getLastChange();
+                        if (currentChange == null) {
+                            // Ignore unknown changes
+                            return;
+                        }
+                        if (currentChange.equals(lastChange)) {
+                            // Ignore no changes
+                            return;
+                        }
+                        lastChange = currentChange;
+                        callback.onChange();
+                    } catch (Throwable th) {
+                        log.warn("An exception has occurred durring checking the repository", th);
                     }
-                    if (currentChange.equals(lastChange)) {
-                        // Ignore no changes
-                        return;
-                    }
-                    lastChange = currentChange;
-                    callback.onChange();
                 }
             }, settings.timerPeriod, settings.timerPeriod);
         }
@@ -199,7 +203,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             if (rs.next()) {
                 changeSet = rs.getString(1);
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.warn(e.getMessage(), e);
         } finally {
             safeClose(rs);
@@ -446,7 +450,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         if (rs != null) {
             try {
                 rs.close();
-            } catch (SQLException e) {
+            } catch (Throwable e) {
                 log.warn("Unexpected sql failure", e);
             }
         }
@@ -456,7 +460,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         if (connection != null) {
             try {
                 connection.close();
-            } catch (SQLException e) {
+            } catch (Throwable e) {
                 log.warn("Unexpected sql failure", e);
             }
         }
@@ -470,7 +474,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
         if (st != null) {
             try {
                 st.close();
-            } catch (SQLException e) {
+            } catch (Throwable e) {
                 log.warn("Unexpected sql failure", e);
             }
         }
