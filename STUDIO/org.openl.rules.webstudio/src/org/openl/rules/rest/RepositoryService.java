@@ -180,7 +180,7 @@ public class RepositoryService {
             ZipUtils.archive(originalZipFolder, modifiedZip);
             modifiedZipStream = new FileInputStream(modifiedZip);
 
-            return addProject(uriInfo.getPath(false), name, modifiedZipStream, comment);
+            return addProject(uriInfo.getPath(false), name, modifiedZipStream, modifiedZip.length(), comment);
         } catch (IOException ex) {
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         } finally {
@@ -221,7 +221,7 @@ public class RepositoryService {
                 return Response.status(Status.NOT_ACCEPTABLE).entity("The uploaded file does not contain Project Name in the rules.xml ").build();
             }
 
-            return addProject(uriInfo.getPath(false) + "/" + StringTool.encodeURL(name), name, new FileInputStream(zipFile), comment);
+            return addProject(uriInfo.getPath(false) + "/" + StringTool.encodeURL(name), name, new FileInputStream(zipFile), zipFile.length(), comment);
         } catch (IOException ex) {
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         } finally {
@@ -244,7 +244,7 @@ public class RepositoryService {
         return addProject(uriInfo, zipFile, null);
     }
 
-    private Response addProject(String uri, String name, InputStream zipFile, String comment) throws WorkspaceException {
+    private Response addProject(String uri, String name, InputStream zipFile, long zipSize, String comment) throws WorkspaceException {
         try {
             UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(getUser());
             if (userWorkspace.hasProject(name)) {
@@ -275,6 +275,7 @@ public class RepositoryService {
             data.setName(fileName);
             data.setComment("[REST] " + StringUtils.trimToEmpty(comment));
             data.setAuthor(getUserName());
+            data.setSize(zipSize);
             FileData save = getRepository().save(data, zipFile);
             userWorkspace.getProject(name).unlock();
             return Response.created(new URI(uri + "/" + StringTool.encodeURL(save.getVersion()))).build();
