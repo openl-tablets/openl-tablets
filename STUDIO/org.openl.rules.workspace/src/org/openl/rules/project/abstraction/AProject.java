@@ -342,9 +342,10 @@ public class AProject extends AProjectFolder {
                 AProjectResource resource = new AProjectResource(getProject(), zipFolderRepository, fileData);
                 internalArtefacts.put(artefactName, resource);
             }
-
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
+        } finally {
+            IOUtils.closeQuietly(zipInputStream);
         }
 
         return internalArtefacts;
