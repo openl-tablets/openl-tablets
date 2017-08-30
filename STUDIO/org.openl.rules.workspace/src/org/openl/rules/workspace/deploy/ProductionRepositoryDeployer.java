@@ -40,14 +40,13 @@ public class ProductionRepositoryDeployer {
      *
      * @param zipFile the project to deploy
      * @param config the configuration file name
-     * @throws Exception
      */
     public void deploy(File zipFile, String config) throws Exception {
         if (config == null || config.isEmpty()) {
             config = "deployer.properties";
         }
         ConfigurationManagerFactory configManagerFactory = new ConfigurationManagerFactory(true, null, "");
-        ;
+
         Map<String, Object> properties = configManagerFactory.getConfigurationManager(config).getProperties();
         deployInternal(zipFile, properties, true);
     }
@@ -58,14 +57,13 @@ public class ProductionRepositoryDeployer {
      *
      * @param zipFile the project to deploy
      * @param config the configuration file name
-     * @throws Exception
      */
     public void redeploy(File zipFile, String config) throws Exception {
         if (config == null || config.isEmpty()) {
             config = "deployer.properties";
         }
         ConfigurationManagerFactory configManagerFactory = new ConfigurationManagerFactory(true, null, "");
-        ;
+
         Map<String, Object> properties = configManagerFactory.getConfigurationManager(config).getProperties();
         deployInternal(zipFile, properties, false);
     }

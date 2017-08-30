@@ -65,7 +65,6 @@ public class RepositoryService {
 
     /**
      * @return a list of project descriptions.
-     * @throws WorkspaceException
      */
     @GET
     @Path("projects")
@@ -87,7 +86,6 @@ public class RepositoryService {
      * 
      * @param name a project name
      * @return a zipped project
-     * @throws WorkspaceException
      */
     @GET
     @Path("project/{name}")
@@ -117,7 +115,6 @@ public class RepositoryService {
      * @param name a project name
      * @param version a project version
      * @return a zipped project
-     * @throws WorkspaceException
      */
     @GET
     @Path("project/{name}/{version}")
@@ -149,8 +146,6 @@ public class RepositoryService {
      * @param name a project name to update
      * @param zipFile a zipped project
      * @param comment a revision comment
-     * @return
-     * @throws WorkspaceException
      */
     @POST
     @Path("project/{name}")
@@ -202,8 +197,6 @@ public class RepositoryService {
      *
      * @param zipFile a zipped project
      * @param comment a revision comment
-     * @return
-     * @throws WorkspaceException
      */
     @POST
     @Path("project")
@@ -244,8 +237,6 @@ public class RepositoryService {
      * user.
      *
      * @param zipFile a zipped project
-     * @return
-     * @throws WorkspaceException
      */
     @POST
     @Path("project")
@@ -321,9 +312,6 @@ public class RepositoryService {
      * locked.
      * 
      * @param name a project name to lock
-     * @return
-     * @throws WorkspaceException
-     * @throws ProjectException
      */
     @POST
     @Path("lockProject/{name}")
@@ -346,9 +334,6 @@ public class RepositoryService {
      * locked by current user.
      * 
      * @param name a project name to unlock.
-     * @return
-     * @throws WorkspaceException
-     * @throws ProjectException
      */
     @POST
     @Path("unlockProject/{name}")
