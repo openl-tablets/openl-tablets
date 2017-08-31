@@ -127,7 +127,7 @@ public class XlsWorkbookSourceCodeModule extends SourceCodeModuleDelegator {
                     sourceFile = new File(uri);
                 }
             } catch (URISyntaxException me) {
-                log.warn("Can not get source file");
+                log.error("Can not get source file", me);
             }
             return sourceFile;
         }
