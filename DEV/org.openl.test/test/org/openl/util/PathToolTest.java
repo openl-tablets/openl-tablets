@@ -5,40 +5,35 @@
  */
 package org.openl.util;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.net.URL;
 
-import org.junit.Assert;
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * @author snshor
  */
-public class PathToolTest extends TestCase {
+public class PathToolTest {
 
+    @Test
     public void testMergePath() throws Exception {
-        URL url = new File("tst/org/util/PathToolTest.java").toURL();
+        URL url = new File("tst/org/util/PathToolTest.java").toURI().toURL();
 
-        String res = PathTool.mergePath(url.getPath(), "./../include/XyZ.java");
+        String originalPath = url.getPath();
+        String parent = "tst/org/";
+        String expected = originalPath.substring(0, originalPath.lastIndexOf(parent) + parent.length()) + "include/XyZ.java";
+        assertEquals(expected, PathTool.mergePath(originalPath, "./../include/XyZ.java"));
 
-        System.out.println(url.getPath());
-        System.out.println(res);
-
-        res = PathTool.mergePath("../include/", "foo.xls");
-
-        System.out.println(res);
-
-        // url = new URL("http://localhost:8080/1040EZ/gen.pdf");
-        // System.out.println( url.openConnection().getContentType());
-        // System.out.println( url.openConnection().getContentLength());
-        //
-        // url.openStream();
-
+        assertEquals("../include/foo.xls", PathTool.mergePath("../include/", "foo.xls"));
+        assertEquals("/some/path/bar.xls", PathTool.mergePath("/some/path/foo.xls", "bar.xls"));
     }
 
+    @Test
     public void testSplitPath() {
         String[] res = PathTool.splitPath("../../");
-        Assert.assertEquals(2, res.length);
+        assertEquals(2, res.length);
     }
 
 }
