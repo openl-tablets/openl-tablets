@@ -133,7 +133,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
      * Process datatype fields from source table.
      *
      * @param cxt binding context
-     * @throws Exception
      */
     private void addFields(IBindingContext cxt) throws Exception {
 
@@ -528,7 +527,10 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         addFields(cxt);
         // adding constructor with all fields after all fields have been added
         if (dataType.getFields().size() > 0) {
-            dataType.addConstructor(new OpenFieldsConstructor(dataType));
+            // Datatype with errors can't have constructor if it's class isn't generated
+            if (dataType.getInstanceClass() != null) {
+                dataType.addConstructor(new OpenFieldsConstructor(dataType));
+            }
         }
         // Add new type to internal types of module.
         //
