@@ -199,7 +199,7 @@ public class XlsLoader {
                     }
                 } else {
                     try {
-                        String newURL = PathTool.mergePath(sheetSource.getWorkbookSource().getUri(), include);
+                        String newURL = PathTool.mergePath(sheetSource.getWorkbookSource().getUri(), StringTool.encodeURL(include));
                         src = new URLSourceCodeModule(new URL(newURL));
                     } catch (Throwable t) {
                         registerIncludeError(tableSyntaxNode, table, i, include, t);
