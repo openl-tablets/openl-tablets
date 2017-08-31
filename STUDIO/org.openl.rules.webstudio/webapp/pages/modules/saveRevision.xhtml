@@ -20,10 +20,6 @@
           <h:outputText value="Project Name" />
           <h:outputText value="#{studio.getLogicalName(artefact)}"/>
 
-          <ui:remove>
-            <input value="#{artefact.name}" type="text" size="35" readonly="true" title="#{artefact.name}"/>
-          </ui:remove>
-
           <h:outputText value="Current Revision" />
           <h:outputText value="#{artefact.version.versionName}"/>
 
@@ -53,9 +49,12 @@
   </rich:popupPanel>
 
   <script>
-    function openSaveDialog() {
-      RichFaces.$("modalSave").show();
-      focusElement('saveForm:projectVersion');
-    }
+      function openSaveDialog() {
+          // Comment must always be empty when save new revision
+          $j("#saveForm\\:comment").val('');
+
+          RichFaces.$("modalSave").show();
+          focusElement('saveForm:projectVersion');
+      }
   </script>
 </ui:composition>
