@@ -83,7 +83,7 @@ public class TableSyntaxNode extends NaryNode {
         }
     }
     
-    public void crearErrors(){
+    public void clearErrors(){
         errors = null;
     }
     

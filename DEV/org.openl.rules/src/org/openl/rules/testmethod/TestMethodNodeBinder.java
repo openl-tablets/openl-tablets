@@ -94,7 +94,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             for (OpenLMessage message : messages) {
                 OpenLMessages.getCurrentInstance().addMessage(message);
             }
-            tableSyntaxNode.crearErrors();
+            tableSyntaxNode.clearErrors();
             TestMethodBoundNode testMethodBoundNode = (TestMethodBoundNode) makeNode(tableSyntaxNode, module);
             TestSuiteMethod testSuite = new TestSuiteMethod(testedMethod, header, testMethodBoundNode);
             testMethodBoundNode.setTestSuite(testSuite);
@@ -148,7 +148,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         }
 
         if (bestCaseTestMethodBoundNode != null) {
-            tableSyntaxNode.crearErrors();
+            tableSyntaxNode.clearErrors();
             OpenLMessages.getCurrentInstance().clear();
             for (OpenLMessage message : messages) {
                 OpenLMessages.getCurrentInstance().addMessage(message);
