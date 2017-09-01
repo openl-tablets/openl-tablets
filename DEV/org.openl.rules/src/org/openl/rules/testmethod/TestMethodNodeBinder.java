@@ -89,12 +89,18 @@ public class TestMethodNodeBinder extends DataNodeBinder {
 
         boolean hasNoErrorBinding = false;
         List<OpenLMessage> messages = OpenLMessages.getCurrentInstance().getMessages();
+        SyntaxNodeException[] errors = tableSyntaxNode.getErrors();
         for (IOpenMethod testedMethod : testedMethods) {
             OpenLMessages.getCurrentInstance().clear();
             for (OpenLMessage message : messages) {
                 OpenLMessages.getCurrentInstance().addMessage(message);
             }
             tableSyntaxNode.clearErrors();
+            if (errors != null) {
+                for (SyntaxNodeException error : errors) {
+                    tableSyntaxNode.addError(error);
+                }
+            }
             TestMethodBoundNode testMethodBoundNode = (TestMethodBoundNode) makeNode(tableSyntaxNode, module);
             TestSuiteMethod testSuite = new TestSuiteMethod(testedMethod, header, testMethodBoundNode);
             testMethodBoundNode.setTestSuite(testSuite);
@@ -152,6 +158,11 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             OpenLMessages.getCurrentInstance().clear();
             for (OpenLMessage message : messages) {
                 OpenLMessages.getCurrentInstance().addMessage(message);
+            }
+            if (errors != null) {
+                for (SyntaxNodeException error : errors) {
+                    tableSyntaxNode.addError(error);
+                }
             }
 
             ITable dataTable = makeTable(module,
