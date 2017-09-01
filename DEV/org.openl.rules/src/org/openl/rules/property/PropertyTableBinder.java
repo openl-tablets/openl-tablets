@@ -65,7 +65,7 @@ public class PropertyTableBinder extends DataNodeBinder {
         propertiesInstance.setCurrentTableType(tsn.getType());
         
         PropertiesChecker.checkProperties(propertiesInstance.getAllProperties().keySet(), tsn, 
-            InheritanceLevel.getEnumByValue((String)propertiesInstance.getPropertyValueAsString("scope")));
+            InheritanceLevel.getEnumByValue(propertiesInstance.getPropertyValueAsString(SCOPE_PROPERTY_NAME)));
         
         tsn.setTableProperties(propertiesInstance);
 
@@ -82,7 +82,6 @@ public class PropertyTableBinder extends DataNodeBinder {
      * 
      * @param tsn <code>{@link TableSyntaxNode}</code>
      * @return table name if exists.
-     * @throws Exception
      */
     private String parseHeader(TableSyntaxNode tsn) throws Exception {
         IOpenSourceCodeModule src = tsn.getHeader().getModule();

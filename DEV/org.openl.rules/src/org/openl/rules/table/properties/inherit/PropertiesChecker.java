@@ -36,35 +36,15 @@ public class PropertiesChecker {
      */
     public static void checkProperties(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode,
                                        InheritanceLevel level) {
-
-        checkPropertiesLevel(propertyNamesToCheck, tableSyntaxNode, level);
-        checkPropertiesForTableType(propertyNamesToCheck, tableSyntaxNode);
+        checkForErrors(propertyNamesToCheck, tableSyntaxNode, level);
         checkForDeprecation(propertyNamesToCheck, tableSyntaxNode);
     }
 
-    private static void checkPropertiesLevel(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode,
-                                            InheritanceLevel level) {
-
-        if (level == null) {
-            return;
-        }
-        for (String propertyNameToCheck : propertyNamesToCheck) {
-            if (!PropertiesChecker.isPropertySuitableForLevel(level, propertyNameToCheck)) {
-
-                String message = String.format("Property '%s' can`t be defined on the '%s' level",
-                        propertyNameToCheck,
-                        level.getDisplayName());
-
-                addError(tableSyntaxNode, message);
-            }
-        }
-    }
-
     /**
-     * Checks if properties can be defined for given type of table.
+     * Checks if properties can be defined for given type of table and for given inheritance level.
      */
-    private static void checkPropertiesForTableType(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode) {
-
+    private static void checkForErrors(Set<String> propertyNamesToCheck, TableSyntaxNode tableSyntaxNode,
+            InheritanceLevel level) {
         String tableType = tableSyntaxNode.getType();
         String typeName = getTypeName(tableSyntaxNode);
 
@@ -73,6 +53,12 @@ public class PropertiesChecker {
                 String message = String.format("Property '%s' can't be defined in %s Table",
                         propertyNameToCheck,
                         typeName);
+
+                addError(tableSyntaxNode, message);
+            } else if (level != null && !PropertiesChecker.isPropertySuitableForLevel(level, propertyNameToCheck)) {
+                String message = String.format("Property '%s' can't be defined on the '%s' level",
+                        propertyNameToCheck,
+                        level.getDisplayName());
 
                 addError(tableSyntaxNode, message);
             }
