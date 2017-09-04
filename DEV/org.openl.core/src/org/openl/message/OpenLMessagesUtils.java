@@ -13,6 +13,8 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OpenLMessagesUtils {
 
@@ -22,9 +24,14 @@ public class OpenLMessagesUtils {
 
     public static void addError(OpenLCompilationException error) {
         OpenLErrorMessage message = new OpenLErrorMessage(error);
+        if (errorExists(error)) {
+            Logger log = LoggerFactory.getLogger(OpenLMessagesUtils.class);
+            log.warn("Skip duplicated message: " + error.getMessage(), error);
+            return;
+        }
         addMessage(message);
     }
-    
+
     public static void addError(Throwable exception) {
         String errorMessage = exception.getMessage();
         
@@ -133,4 +140,22 @@ public class OpenLMessagesUtils {
         return Collections.emptyList();
     }
 
+    private static boolean errorExists(OpenLCompilationException error) {
+        for (OpenLMessage existingMessage : OpenLMessages.getCurrentInstance().getMessages()) {
+            if (existingMessage instanceof OpenLErrorMessage) {
+                OpenLException existingError = ((OpenLErrorMessage) existingMessage).getError();
+                if (existingError instanceof OpenLCompilationException) {
+                    OpenLCompilationException exception = (OpenLCompilationException) existingError;
+                    if (exception.getMessage() != null && exception.getMessage().equals(error.getMessage())) {
+                        String existingLocation = exception.getSourceLocation();
+                        String checkingLocation = error.getSourceLocation();
+                        if (checkingLocation == existingLocation || checkingLocation != null && checkingLocation.equals(existingLocation)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
 }
