@@ -22,9 +22,8 @@ import org.openl.types.IOpenMethod;
 import org.openl.vm.SimpleVM.SimpleRuntimeEnv;
 
 /**
- * Helper class for building IOpenClass and getting
- * XlsModuleSyntaxNode from it. To get everything you need for your tests just
- * extend this class.
+ * Helper class for building IOpenClass and getting XlsModuleSyntaxNode from it.
+ * To get everything you need for your tests just extend this class.
  * 
  * 
  * @author DLiauchuk
@@ -36,6 +35,7 @@ public abstract class BaseOpenlBuilderHelper {
     private CompiledOpenClass compiledOpenClass;
     private EngineFactory<Object> engineFactory;
     private IDependencyManager dependencyManager;
+    private boolean executionMode = false;
 
     public BaseOpenlBuilderHelper() {
 
@@ -46,36 +46,48 @@ public abstract class BaseOpenlBuilderHelper {
     }
 
     public BaseOpenlBuilderHelper(String src, IDependencyManager dependencyManager) {
+        this(src, dependencyManager, false);
+    }
+
+    public BaseOpenlBuilderHelper(String src, boolean executionMode) {
+        this(src, null, executionMode);
+    }
+
+    public BaseOpenlBuilderHelper(String src, IDependencyManager dependencyManager, boolean executionMode) {
         this.dependencyManager = dependencyManager;
+        this.executionMode = executionMode;
         build(src);
     }
 
     public void build(String sourceFile) {
         buildEngineFactory(sourceFile);
         buildCompiledOpenClass();
-        XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
-        xsn = xmi.getXlsModuleNode();
+        if (!executionMode) {
+            XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
+            xsn = xmi.getXlsModuleNode();
+        }
     }
 
     protected EngineFactory<Object> buildEngineFactory(String sourceFile) {
         if (engineFactory == null) {
             engineFactory = new RulesEngineFactory<Object>(sourceFile);
             engineFactory.setDependencyManager(dependencyManager);
+            engineFactory.setExecutionMode(executionMode);
         }
         return engineFactory;
     }
-    
+
     public EngineFactory<Object> getEngineFactory() {
         return engineFactory;
     }
-    
-    public Object newInstance(){
+
+    public Object newInstance() {
         SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         return getCompiledOpenClass().getOpenClass().newInstance(env);
     }
 
     protected CompiledOpenClass buildCompiledOpenClass() {
-        if (compiledOpenClass == null){
+        if (compiledOpenClass == null) {
             compiledOpenClass = getEngineFactory().getCompiledOpenClass();
         }
         return compiledOpenClass;
@@ -84,7 +96,7 @@ public abstract class BaseOpenlBuilderHelper {
     public CompiledOpenClass getCompiledOpenClass() {
         return compiledOpenClass;
     }
-    
+
     public Class<?> getClass(String name) throws ClassNotFoundException {
         Class<?> clazz = getCompiledOpenClass().getClassLoader().loadClass(name);
         assertNotNull(clazz);
