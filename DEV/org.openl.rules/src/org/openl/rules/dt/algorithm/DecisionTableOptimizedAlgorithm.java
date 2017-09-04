@@ -15,9 +15,11 @@ import org.openl.domain.IIntSelector;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.DecisionTableRuleNode;
+import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.algorithm.evaluator.ContainsInArrayIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.ContainsInOrNotInArrayIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
+import org.openl.rules.dt.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.RangeIndexedEvaluator;
@@ -29,8 +31,6 @@ import org.openl.rules.dt.type.BooleanTypeAdaptor;
 import org.openl.rules.dt.type.DoubleRangeAdaptor;
 import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.type.IntRangeAdaptor;
-import org.openl.rules.dt.IBaseCondition;
-import org.openl.rules.dt.algorithm.evaluator.DomainCanNotBeDefined;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -327,12 +327,15 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     }
 
     // TODO to do - fix _NO_PARAM_ issue
-
     @SuppressWarnings("unchecked")
     public static IConditionEvaluator makeEvaluator(ICondition condition,
             IOpenClass methodType,
             IBindingContext bindingContext) throws SyntaxNodeException {
-
+        
+        if (condition.hasFormulasInStorage()) {
+            return new DefaultConditionEvaluator();
+        }
+        
         IParameterDeclaration[] params = condition.getParams();
 
         switch (params.length) {
@@ -343,7 +346,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                 IOpenCast openCast = bindingContext.getCast(paramType, methodType);
                 
                 if (openCast != null) {
-                    return new EqualsIndexedEvaluator(openCast);
+                    return new EqualsIndexedEvaluator(openCast); 
                 }
 
                 IAggregateInfo aggregateInfo = paramType.getAggregateInfo();
