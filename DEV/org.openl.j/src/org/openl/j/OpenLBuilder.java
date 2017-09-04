@@ -81,8 +81,7 @@ public class OpenLBuilder extends AOpenLBuilder {
                 "identifier", org.openl.binding.impl.IdentifierBinder.class.getName(),
                 "identifier.sequence", org.openl.binding.impl.IdentifierSequenceBinder.class.getName(),
                 "range.variable", org.openl.binding.impl.RangeVariableBinder.class.getName(),
-                // ,"chain","org.openl.binding.impl.ChainBinder",
-                "chain", org.openl.binding.impl.BExChainBinder.class.getName(), 
+                "chain", org.openl.binding.impl.BExChainBinder.class.getName(),
                 "chain.suffix", org.openl.binding.impl.BExChainSuffixBinder.class.getName(),
                 "where.expression", org.openl.binding.impl.WhereExpressionNodeBinder.class.getName(),
                 "where.var.expalnation", org.openl.binding.impl.WhereVarNodeBinder.class.getName(), 
@@ -98,7 +97,6 @@ public class OpenLBuilder extends AOpenLBuilder {
             sbf.setNode(binders[2 * i]);
             sbf.setClassName(binders[2 * i + 1]);
             nbc.addConfiguredBinder(sbf);
-
         }
 
         LibraryFactoryConfiguration lfc = op.createLibraries();
@@ -109,7 +107,7 @@ public class OpenLBuilder extends AOpenLBuilder {
         nslc.addJavalib(javalib);
         lfc.addConfiguredLibrary(nslc);
 
-        /**
+        /*
          * <libraries> <library namespace="org.openl.operators"> <javalib
          * classname="org.openl.binding.impl.Operators"/> </library>
          * </libraries>
@@ -120,7 +118,7 @@ public class OpenLBuilder extends AOpenLBuilder {
         of.setImplementingClass(org.openl.types.java.JavaOpenFactory.class.getName());
         op.addConfiguredTypeFactory(of);
 
-        /**
+        /*
          * 
          * <typefactory name="java.factory"
          * implementingClass="org.openl.types.java.JavaOpenFactory"/>
@@ -152,7 +150,7 @@ public class OpenLBuilder extends AOpenLBuilder {
 
         types.addConfiguredTypeLibrary(nstc);
 
-        /**
+        /*
          * 
          * <types> <typelibrary namespace="org.openl.this"> <javatype
          * classname="org.openl.types.java.JavaPrimitiveTypeLibrary"/> <javatype
@@ -167,7 +165,7 @@ public class OpenLBuilder extends AOpenLBuilder {
 
         typecast.addJavaCast(javacast);
 
-        /**
+        /*
          * <typecast> <javacast
          * libraryclassname="org.openl.binding.impl.Operators"
          * classname="org.openl.binding.impl.ACastFactory"/> </typecast>
