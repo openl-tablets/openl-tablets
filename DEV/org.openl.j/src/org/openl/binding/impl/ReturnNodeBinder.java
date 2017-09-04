@@ -19,7 +19,7 @@ public class ReturnNodeBinder extends ANodeBinder {
 
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
-        IOpenClass returnType = JavaOpenClass.VOID;
+        IOpenClass returnType;
         IBoundNode exprNode = null;
 
         if (node.getNumberOfChildren() == 1) {
@@ -35,7 +35,7 @@ public class ReturnNodeBinder extends ANodeBinder {
 
         } else if (bindingContext.getReturnType() != JavaOpenClass.VOID) {
 
-            BindHelper.processError("The method must return a value", node, bindingContext);
+            BindHelper.processError("The method must return a value", node, bindingContext, false);
 
             return new ErrorBoundNode(node);
         }

@@ -205,7 +205,7 @@ public class MethodNodeBinder extends ANodeBinder {
         int childrenCount = node.getNumberOfChildren();
 
         if (childrenCount < 1) {
-            BindHelper.processError("New node should have at least one subnode", node, bindingContext);
+            BindHelper.processError("New node should have at least one subnode", node, bindingContext, false);
 
             return new ErrorBoundNode(node);
         }
@@ -235,7 +235,7 @@ public class MethodNodeBinder extends ANodeBinder {
             if (methodCaller.getMethod().isStatic()) {
                 BindHelper.processWarn("Access of a static method from non-static object", node, bindingContext);
             } else {
-                BindHelper.processError("Access of a non-static method from a static object", node, bindingContext);
+                BindHelper.processError("Access of a non-static method from a static object", node, bindingContext, false);
 
                 return new ErrorBoundNode(node);
             }

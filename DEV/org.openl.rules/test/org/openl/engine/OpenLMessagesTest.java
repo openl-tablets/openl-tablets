@@ -2,8 +2,11 @@ package org.openl.engine;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.List;
+
 import org.junit.Test;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.runtime.RulesEngineFactory;
@@ -70,5 +73,39 @@ public class OpenLMessagesTest {
         helper1.build(SRC3);
         OpenLMessages messages = OpenLMessages.getCurrentInstance();
         assertEquals("Must be only one message from current module", 1, messages.getMessages().size());
+    }
+
+    @Test
+    public void testNoDuplicatedErrors() {
+        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>("test/rules/messages/tables-with-errors.xls");
+        engineFactory.setExecutionMode(false);
+        List<OpenLMessage> messages = engineFactory.getCompiledOpenClass().getMessages();
+
+        assertOnlyOneMessage("Operator not defined: negative(int[])", messages);
+        assertOnlyOneMessage("Access non-static field from a static object", messages);
+        assertOnlyOneMessage("Access of a non-static method from a static object", messages);
+        assertOnlyOneMessage("Condition must have boolean type", messages);
+        assertOnlyOneMessage("Operator not defined for: add(int[], int)", messages);
+        assertOnlyOneMessage("Operator not defined for: and(int, int)", messages);
+        assertOnlyOneMessage("Operator not defined for: or(int, int)", messages);
+        assertOnlyOneMessage("Type 'int1' is not found", messages);
+        assertOnlyOneMessage("Constructor is not found: java.util.Calendar()", messages);
+        assertOnlyOneMessage("Order By expression must be Comparable", messages);
+        assertOnlyOneMessage("Operator not defined: inc(int[])", messages);
+        assertOnlyOneMessage("Operator not defined: dec(int[])", messages);
+        assertOnlyOneMessage("The method must return a value", messages);
+
+        assertEquals(13, messages.size());
+    }
+
+    private void assertOnlyOneMessage(String message, List<OpenLMessage> messages) {
+        int count = 0;
+        for (OpenLMessage openLMessage : messages) {
+            if (openLMessage.getSummary().equals(message)) {
+                count++;
+            }
+        }
+
+        assertEquals("Expected only one message \"" + message + "\"", 1, count);
     }
 }

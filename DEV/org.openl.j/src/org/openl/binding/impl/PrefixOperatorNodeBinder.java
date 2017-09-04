@@ -26,7 +26,7 @@ public class PrefixOperatorNodeBinder extends ANodeBinder {
 
         if (node.getNumberOfChildren() != 1) {
 
-            BindHelper.processError("Prefix node must have 1 subnode", node, bindingContext);
+            BindHelper.processError("Prefix node must have 1 subnode", node, bindingContext, false);
 
             return new ErrorBoundNode(node);
         }
@@ -51,7 +51,7 @@ public class PrefixOperatorNodeBinder extends ANodeBinder {
         if (methodCaller == null) {
 
             String message = UnaryOperatorNodeBinder.errorMsg(methodName, types[0]);
-            BindHelper.processError(message, node, bindingContext);
+            BindHelper.processError(message, node, bindingContext, false);
 
             return new ErrorBoundNode(node);
         }
@@ -59,7 +59,7 @@ public class PrefixOperatorNodeBinder extends ANodeBinder {
         IOpenClass methodType = methodCaller.getMethod().getType();
 
         if (ClassUtils.primitiveToWrapper(methodType.getInstanceClass()) != ClassUtils.primitiveToWrapper(types[0].getInstanceClass())) {
-            BindHelper.processError("Prefix operator must return the same type as an argument", node, bindingContext);
+            BindHelper.processError("Prefix operator must return the same type as an argument", node, bindingContext, false);
 
             return new ErrorBoundNode(node);
         }

@@ -19,7 +19,7 @@ import org.openl.vm.IRuntimeEnv;
 /**
  * Binds conditional index for arrays like: - arrayOfDrivers[@ age < 20]; -
  * arrayOfDrivers[select all having gender == "Male"]
- * 
+ *
  * @author PUdalau
  */
 public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
@@ -62,7 +62,7 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 				Comparable<?> key = (Comparable<?>) orderBy.evaluate(env);
 				Object prev = map.put(key, element);
 				if (prev != null) {
-					OrderList list = null;
+					OrderList list;
 					if (prev.getClass() != OrderList.class) {
 						list = new OrderList();
 						list.add(prev);
@@ -129,7 +129,7 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
     protected IBoundNode validateExpressionNode(IBoundNode expressionNode, IBindingContext bindingContext) {
 
         if (expressionNode == null) {
-            return expressionNode;
+            return null;
         }
 
         IOpenClass type = expressionNode.getType();
@@ -142,8 +142,9 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
         }
         if (type != NullOpenClass.the) {
             BindHelper.processError("Order By expression must be Comparable",
-                expressionNode.getSyntaxNode(),
-                bindingContext);
+                    expressionNode.getSyntaxNode(),
+                    bindingContext,
+                    false);
         }
         return new ErrorBoundNode(expressionNode.getSyntaxNode());
 

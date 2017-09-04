@@ -27,7 +27,7 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
 
         if (node.getNumberOfChildren() != 2) {
             
-            BindHelper.processError("Assign node must have 2 subnodes", node, bindingContext);
+            BindHelper.processError("Assign node must have 2 subnodes", node, bindingContext, false);
        
             return new ErrorBoundNode(node);
             //            throw new BoundError("Assign node must have 2 subnodes", node);
@@ -57,7 +57,7 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
             if (methodCaller == null) {
 
                 String message = BinaryOperatorNodeBinder.errorMsg(methodName, types[0], types[1]);
-                BindHelper.processError(message, node, bindingContext);
+                BindHelper.processError(message, node, bindingContext, false);
 
                 return new ErrorBoundNode(node);
                 //throw new BoundError(BinaryOperatorNodeBinder.errorMsg(methodName, types[0], types[1]), node);

@@ -141,7 +141,7 @@ public class BindHelper {
 				&& !isBooleanType(conditionNode.getType())) {
 			if (conditionNode.getType() != NullOpenClass.the) {
 				BindHelper.processError(CONDITION_TYPE_MESSAGE,
-						conditionNode.getSyntaxNode(), bindingContext);
+						conditionNode.getSyntaxNode(), bindingContext, false);
 			}
 			return new ErrorBoundNode(conditionNode.getSyntaxNode());
 		} else {
@@ -257,7 +257,7 @@ public class BindHelper {
 				} else {
 					BindHelper.processError(
 							"Access non-static field from a static object",
-							node, bindingContext);
+							node, bindingContext, false);
 
 					return new ErrorBoundNode(node);
 				}

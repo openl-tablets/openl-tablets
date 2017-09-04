@@ -25,7 +25,7 @@ public class SuffixOperatorNodeBinder extends ANodeBinder {
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         if (node.getNumberOfChildren() != 1) {
-            BindHelper.processError("Suffix node should have 1 subnode", node, bindingContext);
+            BindHelper.processError("Suffix node should have 1 subnode", node, bindingContext, false);
 
             return new ErrorBoundNode(node);
         }
@@ -48,7 +48,7 @@ public class SuffixOperatorNodeBinder extends ANodeBinder {
         if (methodCaller == null) {
 
             String message = UnaryOperatorNodeBinder.errorMsg(methodName, types[0]);
-            BindHelper.processError(message, node, bindingContext);
+            BindHelper.processError(message, node, bindingContext, false);
 
             return new ErrorBoundNode(node);
         }
@@ -57,7 +57,7 @@ public class SuffixOperatorNodeBinder extends ANodeBinder {
 
         if (ClassUtils.primitiveToWrapper(methodType.getInstanceClass()) != ClassUtils.primitiveToWrapper(types[0].getInstanceClass())) {
 //        if (!methodCaller.getMethod().getType().equals(types[0])) {
-            BindHelper.processError("Suffix operator must return the same type as an argument", node, bindingContext);
+            BindHelper.processError("Suffix operator must return the same type as an argument", node, bindingContext, false);
 
             return new ErrorBoundNode(node);
         }
