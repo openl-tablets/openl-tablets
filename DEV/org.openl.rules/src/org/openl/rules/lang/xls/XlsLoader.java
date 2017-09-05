@@ -112,24 +112,27 @@ public class XlsLoader {
         for (int i = 1; i < height; i++) {
             ILogicalTable row = logicalTable.getRow(i);
 
-            String name = row.getColumn(0).getSource().getCell(0, 0).getStringValue();
-
-            if (IXlsTableNames.LANG_PROPERTY.equals(name)) {
+            String value = row.getColumn(0).getSource().getCell(0, 0).getStringValue();
+            if (StringUtils.isNotBlank(value)) {
+                value = value.trim();
+            }
+            
+            if (IXlsTableNames.LANG_PROPERTY.equals(value)) {
                 preprocessOpenlTable(row.getSource(), source);
-            } else if (IXlsTableNames.DEPENDENCY.equals(name)) {
+            } else if (IXlsTableNames.DEPENDENCY.equals(value)) {
                 // process module dependency
                 //
                 preprocessDependency(tableSyntaxNode, row.getSource());
-            } else if (IXlsTableNames.INCLUDE_TABLE.equals(name)) {
+            } else if (IXlsTableNames.INCLUDE_TABLE.equals(value)) {
                 preprocessIncludeTable(tableSyntaxNode, row.getSource(), source);
-            } else if (IXlsTableNames.IMPORT_PROPERTY.equals(name)) {
+            } else if (IXlsTableNames.IMPORT_PROPERTY.equals(value)) {
                 preprocessImportTable(row.getSource());
-            } else if (IXlsTableNames.VOCABULARY_PROPERTY.equals(name)) {
+            } else if (IXlsTableNames.VOCABULARY_PROPERTY.equals(value)) {
                 preprocessVocabularyTable(row.getSource(), source);
-            } else if (ParserUtils.isBlankOrCommented(name)) {
+            } else if (ParserUtils.isBlankOrCommented(value)) {
                 // ignore comment
             } else {
-                String message = String.format("Error in Environment table: unrecognized keyword '%s'", name);
+                String message = String.format("Error in Environment table: unrecognized keyword '%s'", value);
                 log.warn(message);
                 OpenLMessagesUtils.addWarn(message, tableSyntaxNode);
             }
@@ -141,7 +144,6 @@ public class XlsLoader {
         int height = gridTable.getHeight();
 
         for (int i = 0; i < height; i++) {
-
             String dependency = gridTable.getCell(1, i).getStringValue();
             if (StringUtils.isNotBlank(dependency)) {
                 dependency = dependency.trim();
@@ -232,9 +234,10 @@ public class XlsLoader {
     }
 
     private void preprocessOpenlTable(IGridTable table, XlsSheetSourceCodeModule source) {
-
         String openlName = table.getCell(1, 0).getStringValue();
-
+        if (StringUtils.isNotBlank(openlName)) {
+            openlName = openlName.trim();
+        }
         setOpenl(new OpenlSyntaxNode(openlName, new GridLocation(table), source));
     }
 
@@ -269,7 +272,10 @@ public class XlsLoader {
     private void preprocessVocabularyTable(IGridTable table, XlsSheetSourceCodeModule source) {
 
         String vocabularyStr = table.getCell(1, 0).getStringValue();
-
+        if (StringUtils.isNotBlank(vocabularyStr)) {
+            vocabularyStr = vocabularyStr.trim();
+        }
+        
         setVocabulary(new IdentifierNode(IXlsTableNames.VOCABULARY_PROPERTY,
                 new GridLocation(table),
                 vocabularyStr,
