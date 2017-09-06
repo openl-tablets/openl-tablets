@@ -17,8 +17,6 @@ import java.util.Properties;
  */
 public interface IUserContext {
 
-    Object execute(IExecutable run);
-
     ClassLoader getUserClassLoader();
 
     String getUserHome();
