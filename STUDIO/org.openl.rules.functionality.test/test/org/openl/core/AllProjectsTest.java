@@ -49,6 +49,12 @@ public final class AllProjectsTest {
         LOG.info(">>> Positive projects tests...");
         boolean hasErrors = false;
         final File sourceDir = new File(DIR);
+
+        if (!sourceDir.exists()) {
+            LOG.warn("Tests directory doesn't exist!");
+            return;
+        }
+
         for (File file : sourceDir.listFiles()) {
             if (file.isDirectory()) {
                 SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> engineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();

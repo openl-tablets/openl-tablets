@@ -48,6 +48,12 @@ public final class AllExcelTest {
         LOG.info(">>> Positive tests...");
         boolean hasErrors = false;
         final File sourceDir = new File(DIR);
+        
+        if (!sourceDir.exists()) {
+            LOG.warn("Tests directory doesn't exist!");
+            return;
+        }
+        
         final String[] files = sourceDir.list();
         for (String sourceFile : files) {
 
