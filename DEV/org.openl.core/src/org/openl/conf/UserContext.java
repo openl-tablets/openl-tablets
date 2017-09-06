@@ -32,15 +32,10 @@ public final class UserContext extends AUserContext {
 
     public UserContext(ClassLoader userClassLoader, String userHome, Properties userProperties) {
         this.userClassLoader = userClassLoader;
-        this.userHome = normalizeUserHome(userHome);
+
+        this.userHome = new File(userHome).getAbsolutePath();
         this.userProperties = userProperties;
     }
-
-    public static String normalizeUserHome(String userHome) {
-        String currentWorkDirectory = new File(userHome).getAbsolutePath();
-
-        return currentWorkDirectory;
-	}
 
     public ClassLoader getUserClassLoader() {
         return userClassLoader;
