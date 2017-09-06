@@ -34,18 +34,10 @@ public class OpenLConfigurator extends Configurator {
 
     public static final String DEFAULT_BUILDER_CLASS_PATH_PROPERTY = "org.openl.builder.classpath";
     public static final String BUILDER_CLASS_PATH = ".builder.classpath";
-    // static final public String DEFAULT_BUILDER_CLASS_NAME =
 
     public static final String OPENL_BUILDER = "OpenLBuilder";
 
-    static PropertyFileLoader OPENL_GLOBAL_PROPERTY_PROVIDER = new PropertyFileLoader(OPENL_DEFAULT_PROPERTY_FILE_NAME,
-            "org.openl." + OPENL_PROPERTY_FILE_PROPERTY, new ConfigurableResourceContext(null), null);
-
-    // ClassLoaderFactory clFactory = new ClassLoaderFactory();
-
     public synchronized IOpenLBuilder getBuilder(String openlName, IUserContext ucxt) throws OpenConfigurationException {
-
-        // ClassLoaderFactory.setCurrentFactory(clFactory);
 
         String userHome = ucxt.getUserHome();
         String altHome = makeAlternativeHome(userHome);
@@ -59,10 +51,7 @@ public class OpenLConfigurator extends Configurator {
                         OPENL_DEFAULT_PROPERTY_FILE_NAME, "org.openl." + OPENL_PROPERTY_FILE_PROPERTY, cxt, null));
 
         Properties pp = propertyLoader.getProperties();
-        pp = mergeProperties(pp, ucxt.getUserProperties());
-        if (pp != PropertyFileLoader.NO_PROPERTIES) {
-            cxt.setProperties(pp);
-        }
+        cxt.setProperties(pp);
 
         try {
             IOpenLBuilder builder = makeBuilder(openlName, cxt, ucxt);
@@ -117,10 +106,6 @@ public class OpenLConfigurator extends Configurator {
             Log.error("Can not build " + openl + " using cp: " + builderClassPath + " UCXT: " + ucxt, e);
             throw e;
         }
-
-        // builderClassName = DEFAULT_BUILDER_CLASS_NAME;
-        // return makeBuilderInstance(builderClassName, builderClassPath, ucxt);
-
     }
 
     IOpenLBuilder makeBuilderInstance(String builderClassName, String builderClassPath, IUserContext ucxt)
@@ -134,23 +119,4 @@ public class OpenLConfigurator extends Configurator {
 
         return (IOpenLBuilder) ClassFactory.newInstanceForName(builderClassName, cl);
     }
-
-    Properties mergeProperties(Properties properties, Properties defaults) {
-        Properties result = null;
-
-        if (defaults != null && defaults != PropertyFileLoader.NO_PROPERTIES) {
-            result = new Properties(defaults);
-        }
-
-        if (properties != null && properties != PropertyFileLoader.NO_PROPERTIES) {
-            if (result == null) {
-                result = new Properties();
-            }
-
-            result.putAll(properties);
-        }
-
-        return result != null ? result : PropertyFileLoader.NO_PROPERTIES;
-    }
-
 }

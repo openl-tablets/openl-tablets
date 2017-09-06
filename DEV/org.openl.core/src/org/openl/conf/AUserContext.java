@@ -6,8 +6,6 @@
 
 package org.openl.conf;
 
-import java.util.Properties;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -17,11 +15,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * @author sam
  */
 public abstract class AUserContext implements IUserContext {
-    static Properties props(IUserContext cxt) {
-        Properties properties = cxt.getUserProperties();
-        return properties != null ? properties : PropertyFileLoader.NO_PROPERTIES;
-    }
-
     // Classloader is important part of user context, commonly each executable
     // instance of rules is made in separate classloader that serves an
     // identifier of this instance.
@@ -42,8 +35,7 @@ public abstract class AUserContext implements IUserContext {
 
         return new EqualsBuilder()
                 .append(getUserClassLoader(), c.getUserClassLoader())
-                .append(getUserHome(), c.getUserHome()).append(
-                        getUserProperties(), c.getUserProperties()).isEquals();
+                .append(getUserHome(), c.getUserHome()).isEquals();
     }
 
     @Override
@@ -51,7 +43,7 @@ public abstract class AUserContext implements IUserContext {
         return new HashCodeBuilder()
                 .append(getUserClassLoader())
                 .append(getUserHome())
-                .append(getUserProperties()).toHashCode();
+                .toHashCode();
     }
 
 }

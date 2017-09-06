@@ -9,7 +9,6 @@ package org.openl.conf;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Properties;
 
 /**
  * The class is designed as immutable, but not immutable because contains
@@ -24,17 +23,9 @@ public final class UserContext extends AUserContext {
 
     private String userHome;
 
-    private Properties userProperties;
-
     public UserContext(ClassLoader userClassLoader, String userHome) {
-        this(userClassLoader, userHome, null);
-    }
-
-    public UserContext(ClassLoader userClassLoader, String userHome, Properties userProperties) {
         this.userClassLoader = userClassLoader;
-
         this.userHome = new File(userHome).getAbsolutePath();
-        this.userProperties = userProperties;
     }
 
     public ClassLoader getUserClassLoader() {
@@ -43,10 +34,6 @@ public final class UserContext extends AUserContext {
 
     public String getUserHome() {
         return userHome;
-    }
-
-    public Properties getUserProperties() {
-        return new Properties(userProperties);
     }
 
     private String printClassloader(ClassLoader ucl) {
