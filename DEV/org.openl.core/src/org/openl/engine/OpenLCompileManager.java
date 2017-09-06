@@ -91,6 +91,7 @@ public class OpenLCompileManager extends OpenLHolder {
         SyntaxNodeException[] parsingErrors = processedCode.getParsingErrors();
         SyntaxNodeException[] bindingErrors = processedCode.getBindingErrors();
         if (!executionMode) {
+            // for WebStudio
             List<ValidationResult> validationResults = validationManager.validate(openClass);
 
             List<OpenLMessage> messages = new ArrayList<OpenLMessage>();

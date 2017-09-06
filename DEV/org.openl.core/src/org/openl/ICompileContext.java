@@ -23,9 +23,4 @@ public interface ICompileContext {
     void removeValidators();
 
     Set<IOpenLValidator> getValidators();
-
-    boolean isValidationEnabled();
-
-    void setValidationEnabled(boolean validationEnabled);
-
 }

@@ -6,7 +6,6 @@ import java.net.URL;
 import java.util.Properties;
 import java.util.Stack;
 
-import org.openl.ICompileContext;
 import org.openl.OpenL;
 import org.openl.binding.impl.Binder;
 import org.openl.impl.DefaultCompileContext;
@@ -85,7 +84,9 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
 
             op.setBinder(new Binder(conf, conf, conf, conf, conf, op));
             op.setVm(new SimpleVM());
-            op.setCompileContext(buildCompileContext());
+
+
+            op.setCompileContext(new DefaultCompileContext());
         } catch (Exception ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         } finally {
@@ -95,23 +96,6 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
             userCxt.pop();
         }
         return op;
-    }
-
-    private ICompileContext buildCompileContext() {
-        ICompileContext compileContext = new DefaultCompileContext();
-
-        IConfigurableResourceContext resourceContext = getResourceContext();
-
-        if (resourceContext != null) {
-            String propertyValue = resourceContext.findProperty("validation");
-
-            if (propertyValue != null) {
-                Boolean value = Boolean.valueOf(propertyValue);
-                compileContext.setValidationEnabled(value);
-            }
-        }
-
-        return compileContext;
     }
 
     public abstract NoAntOpenLTask getNoAntOpenLTask();

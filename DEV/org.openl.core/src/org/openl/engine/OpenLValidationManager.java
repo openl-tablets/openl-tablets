@@ -63,7 +63,7 @@ public class OpenLValidationManager extends OpenLHolder {
             // Check that compile context initialized. If context is null or
             // validation switched off then skip validation process.
             //
-            if (context != null && context.isValidationEnabled()) {
+            if (context != null) {
 
                 Set<IOpenLValidator> validators = context.getValidators();
 
