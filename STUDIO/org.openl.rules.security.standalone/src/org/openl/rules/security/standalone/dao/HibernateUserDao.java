@@ -3,6 +3,7 @@ package org.openl.rules.security.standalone.dao;
 import java.util.List;
 
 import org.hibernate.Criteria;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.openl.rules.security.standalone.persistence.User;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,9 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
     @Transactional
     @SuppressWarnings("unchecked")
     public List<User> getAllUsers() {
-        return getSession().createCriteria(User.class).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
+        return getSession().createCriteria(User.class)
+                .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+                .addOrder(Order.asc("loginName"))
+                .list();
     }
 }
