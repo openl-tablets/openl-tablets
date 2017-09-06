@@ -1,0 +1,21 @@
+<project>
+  <name>EnvironmentTableContentTest.xlsx</name>
+  <modules>
+    <module>
+      <name>EnvTable</name>
+      <rules-root path="EnvTable.xlsx"/>
+    </module>
+    <module>
+      <name>module1</name>
+      <rules-root path="module1.xlsx"/>
+    </module>
+    <module>
+      <name>module2</name>
+      <rules-root path="module2.xlsx"/>
+    </module>
+    <module>
+      <name>module3</name>
+      <rules-root path="module3.xlsx"/>
+    </module>
+  </modules>
+</project>
