@@ -26,7 +26,6 @@
         <module>org.openl.rules.gen</module>
         <module>org.openl.rules.ce</module>
         <!-- Tests -->
-        <module>org.openl.test</module>
         <module>org.openl.rules.test</module>
     </modules>
 </project>

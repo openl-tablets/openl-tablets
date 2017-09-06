@@ -7,11 +7,11 @@
         <version>5.20.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <groupId>org.openl</groupId>
-    <artifactId>org.openl.test</artifactId>
+    <groupId>org.openl.rules</groupId>
+    <artifactId>org.openl.rules.functionality.test</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL - DEV - Tests</name>
-    <description>Tests for OpenL core functionality</description>
+    <name>OpenL - STUDIO - Tests</name>
+    <description>OpenL functionality tests</description>
     <url>//openl-tablets.org</url>
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>

@@ -31,5 +31,7 @@
         <module>org.openl.extension.xmlrules</module>
         <module>org.openl.rules.activiti</module>
 	<module>org.openl.rules.jackson</module>
+	<!-- Tests -->
+	<module>org.openl.rules.functionality.test</module>
     </modules>
 </project>
