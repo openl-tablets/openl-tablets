@@ -8,7 +8,7 @@ import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.ResourceTransformer;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.impl.local.LockEngine;
+import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;

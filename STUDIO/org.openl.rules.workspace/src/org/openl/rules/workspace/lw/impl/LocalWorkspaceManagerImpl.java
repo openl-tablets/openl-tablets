@@ -1,6 +1,8 @@
 package org.openl.rules.workspace.lw.impl;
 
-import org.openl.rules.project.impl.local.LockEngine;
+import org.openl.rules.project.abstraction.LockEngine;
+import org.openl.rules.project.impl.local.DummyLockEngine;
+import org.openl.rules.project.impl.local.LockEngineImpl;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.lw.LocalWorkspace;
@@ -26,6 +28,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
     private String workspaceHome;
     private FileFilter localWorkspaceFolderFilter;
     private FileFilter localWorkspaceFileFilter;
+    private boolean enableLocks = true;
 
     // User name -> user workspace
     private Map<String, LocalWorkspaceImpl> localWorkspaces = new HashMap<String, LocalWorkspaceImpl>();
@@ -70,10 +73,13 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
 
     @Override
     public LockEngine getLockEngine(String type) {
+        if (!enableLocks) {
+            return new DummyLockEngine();
+        }
         synchronized (lockEngines) {
             LockEngine lockEngine = lockEngines.get(type);
             if (lockEngine == null) {
-                lockEngine = LockEngine.create(new File(workspaceHome), type);
+                lockEngine = LockEngineImpl.create(new File(workspaceHome), type);
                 lockEngines.put(type, lockEngine);
             }
 
@@ -91,6 +97,10 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
 
     public void setWorkspaceHome(String workspaceHome) {
         this.workspaceHome = workspaceHome;
+    }
+
+    public void setEnableLocks(boolean enableLocks) {
+        this.enableLocks = enableLocks;
     }
 
     public void workspaceReleased(LocalWorkspace workspace) {

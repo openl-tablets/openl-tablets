@@ -1,6 +1,6 @@
 package org.openl.rules.workspace.lw;
 
-import org.openl.rules.project.impl.local.LockEngine;
+import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUser;
 

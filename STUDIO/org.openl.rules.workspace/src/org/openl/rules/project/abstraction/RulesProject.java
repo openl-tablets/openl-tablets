@@ -10,7 +10,6 @@ import java.util.List;
 import org.openl.rules.common.*;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.impl.local.LocalRepository;
-import org.openl.rules.project.impl.local.LockEngine;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.uw.UserWorkspace;
