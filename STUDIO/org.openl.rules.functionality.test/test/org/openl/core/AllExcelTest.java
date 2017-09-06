@@ -95,6 +95,6 @@ public final class AllExcelTest {
             }
         }
         
-        assertFalse("Failed test!", hasErrors);
+        assertFalse("Some tests have been failed!", hasErrors);
     }
 }

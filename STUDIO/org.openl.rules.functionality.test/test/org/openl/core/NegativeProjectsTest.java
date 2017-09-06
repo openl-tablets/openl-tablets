@@ -4,7 +4,6 @@ import static org.junit.Assert.assertFalse;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,10 +22,10 @@ import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class NegativeTest {
-    private static final Logger LOG = LoggerFactory.getLogger(NegativeTest.class);
-    
-    public static final String DIR = "test-resources/negative-tests/";
+public final class NegativeProjectsTest {
+    private static final Logger LOG = LoggerFactory.getLogger(NegativeProjectsTest.class);
+
+    public static final String DIR = "test-resources/negative-projects/";
     private Locale defaultLocale;
     private TimeZone defaultTimeZone;
 
@@ -46,61 +45,48 @@ public final class NegativeTest {
 
     @Test
     public void testAllExcelFiles() throws NoSuchMethodException {
-        LOG.info(">>> Negative tests...");
-        
+        LOG.info(">>> Negative project tests...");
+
         boolean hasErrors = false;
         final File sourceDir = new File(DIR);
-        final String[] files = sourceDir.list(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                name = name.toLowerCase();
-                return name.endsWith(".xlsx") || name.endsWith(".xls");
-            }
-        });
-        for (String sourceFile : files) {
 
-            try {
-                new FileInputStream(new File(sourceDir, sourceFile)).close();
-            } catch (Exception ex) {
-                LOG.error("Failed to read file [" + sourceFile + "]", ex);
-                hasErrors = true;
-                continue;
-            }
+        for (File file : sourceDir.listFiles()) {
+            if (file.isDirectory()) {
+                RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(DIR + file.getName());
+                engineFactory.setExecutionMode(false);
+                final CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
 
-            RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(DIR + sourceFile);
-            engineFactory.setExecutionMode(false);
-            final CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
-
-            if (anyMessageFileExists(sourceDir, sourceFile)) {
-                List<OpenLMessage> actualMessages = compiledOpenClass.getMessages();
-                boolean hasAllMessages = true;
-                for (Severity severity : Severity.values()) {
-                    if (!isHasMessages(sourceDir, sourceFile, actualMessages, severity)) {
-                        hasAllMessages = false;
+                if (anyMessageFileExists(sourceDir, file.getName())) {
+                    List<OpenLMessage> actualMessages = compiledOpenClass.getMessages();
+                    boolean hasAllMessages = true;
+                    for (Severity severity : Severity.values()) {
+                        if (!isHasMessages(sourceDir, file.getName(), actualMessages, severity)) {
+                            hasAllMessages = false;
+                        }
                     }
-                }
 
-                if (hasAllMessages) {
-                    LOG.info("OK in [" + sourceFile + "].");
+                    if (hasAllMessages) {
+                        LOG.info("OK in [" + file.getName() + "].");
+                    } else {
+                        hasErrors = true;
+                    }
                 } else {
-                    hasErrors = true;
-                }
-            } else {
-                if (!compiledOpenClass.hasErrors()) {
-                    LOG.error("Expected compilation errors in [" + sourceFile + "].");
-                    hasErrors = true;
-                } else {
-                    LOG.info("OK in [" + sourceFile + "].");
+                    if (!compiledOpenClass.hasErrors()) {
+                        LOG.error("Expected compilation errors in [" + file.getName() + "].");
+                        hasErrors = true;
+                    } else {
+                        LOG.info("OK in [" + file.getName() + "].");
+                    }
                 }
             }
         }
-        
+
         assertFalse("Some tests have been failed!", hasErrors);
     }
 
-    private boolean anyMessageFileExists(File sourceDir, String sourceFile) {
+    private boolean anyMessageFileExists(File sourceDir, String projectFile) {
         for (Severity severity : Severity.values()) {
-            File messagesFile = new File(sourceDir, sourceFile + "." + severity.name().toLowerCase() + ".txt");
+            File messagesFile = new File(sourceDir, projectFile + "." + severity.name().toLowerCase() + ".txt");
             if (messagesFile.exists()) {
                 return true;
             }
@@ -109,14 +95,18 @@ public final class NegativeTest {
         return false;
     }
 
-    private boolean isHasMessages(File sourceDir, String sourceFile, List<OpenLMessage> actualMessages, Severity severity) {
+    private boolean isHasMessages(File sourceDir,
+            String projectFile,
+            List<OpenLMessage> actualMessages,
+            Severity severity) {
         boolean hasAllMessages = true;
 
-        File file = new File(sourceDir, sourceFile + "." + severity.name().toLowerCase() + ".txt");
+        File file = new File(sourceDir, projectFile + "." + severity.name().toLowerCase() + ".txt");
         try {
             for (String expectedMessage : getExpectedMessages(file)) {
                 if (!isMessageExists(actualMessages, expectedMessage, severity)) {
-                    LOG.error("The message \"" + expectedMessage + "\" with severity " + severity.name() + " is expected for [" + sourceFile + "].");
+                    LOG.error("The message \"" + expectedMessage + "\" with severity " + severity
+                        .name() + " is expected for [" + projectFile + "].");
                     hasAllMessages = false;
                 }
             }
