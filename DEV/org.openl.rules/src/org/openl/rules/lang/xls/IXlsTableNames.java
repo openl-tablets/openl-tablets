@@ -38,12 +38,10 @@ public interface IXlsTableNames {
 
     String LANG_PROPERTY = "language";
     String INCLUDE_TABLE = "include";
-    String IMPORT_MODULE = "module";
     String IMPORT_PROPERTY = "import";
 
     // For module dependencies
     String DEPENDENCY = "dependency";
-    String VOCABULARY_PROPERTY = "vocabulary";
 
     String VIEW_BUSINESS = "business";
     String VIEW_DEVELOPER = "developer";

@@ -31,11 +31,7 @@ public class OpenLProjectPropertiesLoader {
     
     public static final String OPENL_CLASSPATH_SEPARATOR_PROPERTY = "openl.project.classpath.separator";
 
-    static final public String OPENL_PROJECT_DISPLAY_NAME_PROPERTY = "openl.project.display.name";
-
     public static final String DISPLAY_NAME_SUFFIX = ".display.name";
-
-    public static final String VOCABULARY_CLASS_SUFFIX = ".vocabulary.clazz";
 
     static public String getOpenLPropertiesFolder(String projectHome) {
         return projectHome + "/build";

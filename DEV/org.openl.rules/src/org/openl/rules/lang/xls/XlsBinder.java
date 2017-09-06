@@ -39,7 +39,6 @@ import org.openl.dependency.CompiledDependency;
 import org.openl.engine.OpenLManager;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.meta.IVocabulary;
 import org.openl.rules.binding.RecursiveOpenMethodPreBinder;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.SpreadsheetNodeBinder;
@@ -246,12 +245,6 @@ public class XlsBinder implements IOpenBinder {
             XlsModuleOpenClass moduleOpenClass,
             IBindingContext bindingContext) {
         try{
-            IVocabulary vocabulary = makeVocabulary(moduleNode);
-    
-            if (vocabulary != null) {
-                processVocabulary(vocabulary, moduleContext);
-            }
-    
             //
             // Selectors
             //
@@ -393,28 +386,6 @@ public class XlsBinder implements IOpenBinder {
         }
     }
 
-    private void processVocabulary(IVocabulary vocabulary, RulesModuleBindingContext moduleContext) {
-        IOpenClass[] types = null;
-
-        try {
-            types = vocabulary.getVocabularyTypes();
-        } catch (SyntaxNodeException error) {
-            BindHelper.processError(error, moduleContext);
-        }
-
-        if (types != null) {
-
-            for (int i = 0; i < types.length; i++) {
-
-                try {
-                    moduleContext.addType(ISyntaxConstants.THIS_NAMESPACE, types[i]);
-                } catch (Throwable t) {
-                    BindHelper.processError(null, t, moduleContext);
-                }
-            }
-        }
-    }
-
     private void addImports(OpenLBuilderImpl builder, Collection<String> imports) {
         Collection<String> packageNames = new LinkedHashSet<String>();
         Collection<String> classNames = new LinkedHashSet<String>();
@@ -468,43 +439,6 @@ public class XlsBinder implements IOpenBinder {
         builder.setInheritExtendedConfigurationLoader(true);
 
         return OpenL.getInstance(category, userContext, builder);
-    }
-
-    private IVocabulary makeVocabulary(XlsModuleSyntaxNode moduleNode) {
-
-        final IdentifierNode vocabularyNode = moduleNode.getVocabularyNode();
-
-        if (vocabularyNode == null) {
-            return null;
-        }
-
-        ClassLoader previous = Thread.currentThread().getContextClassLoader();
-        try {
-            final ClassLoader userClassLoader = userContext.getUserClassLoader();
-            Thread.currentThread().setContextClassLoader(userClassLoader);
-
-            IVocabulary vocabulary = (IVocabulary) userContext.execute(new IExecutable() {
-
-                public Object execute() {
-
-                    String vocabularyClassName = vocabularyNode.getIdentifier();
-
-                    try {
-                        Class<?> vClass = userClassLoader.loadClass(vocabularyClassName);
-
-                        return vClass.newInstance();
-                    } catch (Throwable t) {
-                        String message = String.format("Vocabulary type '%s' cannot be loaded", vocabularyClassName);
-                        BindHelper.processError(message, vocabularyNode, t);
-
-                        return null;
-                    }
-                }
-            });
-            return vocabulary;
-        } finally {
-            Thread.currentThread().setContextClassLoader(previous);
-        }
     }
 
     private IMemberBoundNode preBindXlsNode(ISyntaxNode syntaxNode,

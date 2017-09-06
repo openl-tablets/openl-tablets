@@ -159,7 +159,6 @@ public class XmlRulesParser extends BaseParser {
             syntaxNode = new XmlRulesModuleSyntaxNode(workbooksArray,
                 workbookSourceCodeModule,
                 null,
-                null,
                 getImports(),
                 projectData);
         } catch (Exception e) {
@@ -175,7 +174,6 @@ public class XmlRulesParser extends BaseParser {
 
             syntaxNode = new XmlRulesModuleSyntaxNode(new WorkbookSyntaxNode[0],
                 sourceCodeModule,
-                null,
                 null,
                 getImports(),
                 projectData);
