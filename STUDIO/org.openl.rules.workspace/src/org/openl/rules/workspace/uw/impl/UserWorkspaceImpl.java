@@ -6,7 +6,7 @@ import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.impl.local.LocalRepository;
-import org.openl.rules.project.impl.local.LockEngine;
+import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;

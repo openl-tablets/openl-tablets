@@ -10,7 +10,6 @@ import java.util.List;
 import org.openl.rules.common.*;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.impl.local.LocalRepository;
-import org.openl.rules.project.impl.local.LockEngine;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -101,6 +100,8 @@ public class RulesProject extends UserWorkspaceProject {
     @Override
     public void delete(CommonUser user) throws ProjectException {
         if (isLocalOnly()) {
+            // If for some reason the project is locked we must unlock it.
+            unlock();
             erase();
         } else {
             super.delete(user);
@@ -176,7 +177,10 @@ public class RulesProject extends UserWorkspaceProject {
     @Override
     public void lock() throws ProjectException {
         synchronized (lockEngine) {
-            lockEngine.lock(getName(), getUser().getUserName());
+            // No need to lock local only projects. Other users don't see it.
+            if (!isLocalOnly()) {
+                lockEngine.lock(getName(), getUser().getUserName());
+            }
         }
     }
 
@@ -196,6 +200,10 @@ public class RulesProject extends UserWorkspaceProject {
      */
     public boolean tryLock() throws ProjectException {
         synchronized (lockEngine) {
+            if (isLocalOnly()) {
+                // No need to lock local only projects. Other users don't see it.
+                return true;
+            }
             LockInfo lockInfo = getLockInfo();
             if (lockInfo.isLocked()) {
                 return isLockedByMe(lockInfo);

@@ -6,7 +6,6 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.ADeploymentProject;
@@ -18,7 +17,7 @@ import org.openl.rules.project.abstraction.ResourceTransformer;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.impl.local.LocalRepository;
-import org.openl.rules.project.impl.local.LockEngine;
+import org.openl.rules.project.impl.local.LockEngineImpl;
 import org.openl.rules.project.model.*;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
@@ -794,7 +793,7 @@ public class RepositoryTreeController {
                 if (file.isDirectory()) {
                     String userName = file.getName();
                     // Check for reserved folder name
-                    if (!LockEngine.LOCKS_FOLDER_NAME.equals(userName)) {
+                    if (!LockEngineImpl.LOCKS_FOLDER_NAME.equals(userName)) {
                         try {
                             LocalRepository repository = new LocalRepository(file);
                             for (FileData fileData : repository.list(projectName)) {

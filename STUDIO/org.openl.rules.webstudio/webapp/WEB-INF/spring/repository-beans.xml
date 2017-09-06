@@ -8,6 +8,7 @@
     <property name="workspaceHome" value="#{systemConfig['user.workspace.home']}" />
     <property name="localWorkspaceFolderFilter" ref="localWorkspaceFolderFilter" />
     <property name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter" />
+    <property name="enableLocks" value="#{systemConfig['user.mode'] != 'single'}" />
   </bean>
 
   <bean id="designTimeRepository" class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl" destroy-method="destroy">

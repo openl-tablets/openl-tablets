@@ -9,13 +9,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 
-import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.LockInfo;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.workspace.WorkspaceUserImpl;
+import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.util.IOUtils;
 
-public class LockEngine {
+public class LockEngineImpl implements LockEngine {
     public static final String LOCKS_FOLDER_NAME = ".locks";
     private static final String USER_NAME = "user";
     private static final String DATE = "date";
@@ -32,13 +31,14 @@ public class LockEngine {
     public static LockEngine create(File workspacesRoot, String type) {
         File locksRoot = new File(workspacesRoot, LOCKS_FOLDER_NAME);
         File projectLocksRoot = new File(locksRoot, type);
-        return new LockEngine(projectLocksRoot);
+        return new LockEngineImpl(projectLocksRoot);
     }
 
-    private LockEngine(File locksRoot) {
+    private LockEngineImpl(File locksRoot) {
         this.locksRoot = locksRoot;
     }
 
+    @Override
     public void lock(String projectName, String userName) throws ProjectException {
         Properties properties = new Properties();
         properties.setProperty(USER_NAME, userName);
@@ -62,11 +62,13 @@ public class LockEngine {
 
     }
 
+    @Override
     public void unlock(String projectName) {
         File file = new File(locksRoot, projectName);
         file.delete();
     }
 
+    @Override
     public LockInfo getLockInfo(String projectName) {
         File file = new File(locksRoot, projectName);
         if (!file.exists()) {
@@ -88,33 +90,6 @@ public class LockEngine {
             throw new IllegalStateException(e);
         } finally {
             IOUtils.closeQuietly(is);
-        }
-    }
-
-    private static class SimpleLockInfo implements LockInfo {
-        private final boolean locked;
-        private final Date date;
-        private final String userName;
-
-        public SimpleLockInfo(boolean locked, Date date, String userName) {
-            this.locked = locked;
-            this.date = date;
-            this.userName = userName;
-        }
-
-        @Override
-        public Date getLockedAt() {
-            return date;
-        }
-
-        @Override
-        public CommonUser getLockedBy() {
-            return new WorkspaceUserImpl(userName);
-        }
-
-        @Override
-        public boolean isLocked() {
-            return locked;
         }
     }
 }

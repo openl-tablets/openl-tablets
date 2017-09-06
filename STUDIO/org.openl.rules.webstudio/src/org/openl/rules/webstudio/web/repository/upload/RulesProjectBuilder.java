@@ -7,7 +7,7 @@ import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.impl.local.LockEngine;
+import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.uw.UserWorkspace;
