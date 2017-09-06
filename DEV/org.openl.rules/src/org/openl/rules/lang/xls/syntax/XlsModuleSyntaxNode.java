@@ -15,7 +15,6 @@ import java.util.Set;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.NaryNode;
 
 /**
@@ -26,20 +25,16 @@ public class XlsModuleSyntaxNode extends NaryNode {
 
     private OpenlSyntaxNode openlNode;
 
-    private IdentifierNode vocabularyNode;
-
     private Set<String> imports = new HashSet<String>();
     private Set<String> libraries = new HashSet<String>();
 
     public XlsModuleSyntaxNode(WorkbookSyntaxNode[] nodes,
             IOpenSourceCodeModule module,
             OpenlSyntaxNode openlNode,
-            IdentifierNode vocabularyNode,
             Collection<String> imports) {
         super(XlsNodeTypes.XLS_MODULE.toString(), null, nodes, module);
 
         this.openlNode = openlNode;
-        this.vocabularyNode = vocabularyNode;
         this.imports.addAll(imports);
         this.libraries.addAll(libraries);
     }
@@ -54,10 +49,6 @@ public class XlsModuleSyntaxNode extends NaryNode {
     
     public OpenlSyntaxNode getOpenlNode() {
         return openlNode;
-    }
-
-    public IdentifierNode getVocabularyNode() {
-        return vocabularyNode;
     }
 
     public WorkbookSyntaxNode[] getWorkbookSyntaxNodes() {

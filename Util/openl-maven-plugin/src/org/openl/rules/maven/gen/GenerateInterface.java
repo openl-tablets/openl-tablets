@@ -31,7 +31,6 @@ import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
-import org.openl.meta.IVocabulary;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
@@ -358,7 +357,6 @@ public class GenerateInterface {
     private String web_inf_include = "";
 
     private String classpathExclude = ".*apache.ant.*|.*apache.commons.*|.*apache.tomcat.*|.*javacc.*";
-    private String vocabularyClass;
 
     private String projectHome = ".";
     private boolean ignoreNonJavaTypes = false;
@@ -564,10 +562,6 @@ public class GenerateInterface {
         return userHome;
     }
 
-    public String getVocabularyClass() {
-        return vocabularyClass;
-    }
-
     public String getWeb_inf_exclude() {
         return web_inf_exclude;
     }
@@ -743,20 +737,6 @@ public class GenerateInterface {
             p.put(targetClass + OpenLProjectPropertiesLoader.DISPLAY_NAME_SUFFIX, displayName);
         }
 
-        if (vocabularyClass != null) {
-            try {
-                Class<?> c = Class.forName(vocabularyClass);
-                c.newInstance();
-                if (IVocabulary.class.isAssignableFrom(c)){
-                    throw new ClassCastException(vocabularyClass + " doesn't implements IVocabulary.");
-                }
-            } catch (Throwable t) {
-                log("Error occured while trying instantiate vocabulary class:" + vocabularyClass, t, GenerateInterface.MSG_ERR);
-            }
-
-            p.put(targetClass + OpenLProjectPropertiesLoader.VOCABULARY_CLASS_SUFFIX, vocabularyClass);
-        }
-
         new OpenLProjectPropertiesLoader().saveProperties(classpathPropertiesOutputDir, p, false);
     }
 
@@ -874,10 +854,6 @@ public class GenerateInterface {
 
     public void setUserHome(String userHome) {
         this.userHome = userHome;
-    }
-
-    public void setVocabularyClass(String vocabularyClass) {
-        this.vocabularyClass = vocabularyClass;
     }
 
     public void setWeb_inf_exclude(String web_inf_exclude) {
