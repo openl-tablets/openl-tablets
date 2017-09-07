@@ -15,7 +15,7 @@ public class SpreadsheetCellField extends ASpreadsheetField {
             IOpenClass declaringClass,
             String name,
             SpreadsheetCell cell) {
-        if (cell.getKind() == SpreadsheetCellType.METHOD)
+        if (cell.getSpreadsheetCellType() == SpreadsheetCellType.METHOD)
             return new SpreadsheetCellField(structureBuilderContainer, declaringClass, name, cell);
         return new ConstSpreadsheetCellField(structureBuilderContainer, declaringClass, name, cell);
     }

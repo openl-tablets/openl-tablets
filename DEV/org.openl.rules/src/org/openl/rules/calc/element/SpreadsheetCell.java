@@ -23,16 +23,17 @@ public class SpreadsheetCell implements Invokable {
     private int columnIndex;
     private ICell sourceCell;
 
-    private SpreadsheetCellType kind = SpreadsheetCellType.EMPTY;
+    private SpreadsheetCellType spreadsheetCellType;
     private Object value;
     private IOpenClass type;
 
     private IOpenMethod method;
 
-    public SpreadsheetCell(int rowIndex, int columnIndex, ICell sourceCell) {
+    public SpreadsheetCell(int rowIndex, int columnIndex, ICell sourceCell, SpreadsheetCellType spreadsheetCellType) {
         this.rowIndex = rowIndex;
         this.columnIndex = columnIndex;
         this.sourceCell = sourceCell;
+        this.spreadsheetCellType = spreadsheetCellType;
     }
 
     public ICell getSourceCell() {
@@ -43,8 +44,8 @@ public class SpreadsheetCell implements Invokable {
         return columnIndex;
     }
 
-    public SpreadsheetCellType getKind() {
-        return kind;
+    public SpreadsheetCellType getSpreadsheetCellType() {
+        return spreadsheetCellType;
     }
 
     public IOpenMethod getMethod() {
@@ -64,19 +65,15 @@ public class SpreadsheetCell implements Invokable {
     }
 
     public boolean isEmpty() {
-        return kind == SpreadsheetCellType.EMPTY;
+        return spreadsheetCellType == SpreadsheetCellType.EMPTY;
     }
 
     public boolean isMethodCell() {
-        return kind == SpreadsheetCellType.METHOD;
+        return spreadsheetCellType == SpreadsheetCellType.METHOD;
     }
 
     public boolean isValueCell() {
-        return kind == SpreadsheetCellType.VALUE;
-    }
-
-    public void setKind(SpreadsheetCellType kind) {
-        this.kind = kind;
+        return spreadsheetCellType == SpreadsheetCellType.VALUE;
     }
 
     public void setMethod(IOpenMethod method) {

@@ -41,7 +41,7 @@ public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
             SpreadsheetCell[] row = cc[i];
             for (int j = 0; j < row.length; j++) {
                 SpreadsheetCell cell = row[j];
-                switch (cell.getKind()) {
+                switch (cell.getSpreadsheetCellType()) {
                     case EMPTY:
                         res[i][j] = SpreadsheetResultCalculator.EMPTY_CELL;
                         break;

@@ -223,15 +223,17 @@ public class SpreadsheetStructureBuilder {
     private void extractCellValue(IBindingContext rowBindingContext, int rowIndex, int columnIndex) {
         Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = componentsBuilder.getColumnHeaders();
         Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = componentsBuilder.getRowHeaders();
+        
+        SpreadsheetCell spreadsheetCell = cells[rowIndex][columnIndex];
+        
         if (columnHeaders.get(columnIndex) == null || rowHeaders.get(rowIndex) == null) {
-            cells[rowIndex][columnIndex].setKind(SpreadsheetCellType.EMPTY);
+            spreadsheetCell.setValue(null);
             return;
         }
 
         ILogicalTable cell = LogicalTableHelper.mergeBounds(
             componentsBuilder.getCellsHeadersExtractor().getRowNamesTable().getRow(rowIndex),
             componentsBuilder.getCellsHeadersExtractor().getColumnNamesTable().getColumn(columnIndex));
-        SpreadsheetCell spreadsheetCell = cells[rowIndex][columnIndex];
 
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(cell.getSource(), spreadsheetBindingContext);
         String code = StringUtils.trimToNull(source.getCode());
@@ -279,7 +281,8 @@ public class SpreadsheetStructureBuilder {
                 BindHelper.processError(e, spreadsheetBindingContext);
             } catch (Throwable t) {
                 String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
-                addError(SyntaxNodeExceptionUtils.createError(message, t, LocationUtils.createTextInterval(source.getCode()), source));
+                addError(SyntaxNodeExceptionUtils
+                    .createError(message, t, LocationUtils.createTextInterval(source.getCode()), source));
             }
 
         } else {
@@ -372,22 +375,26 @@ public class SpreadsheetStructureBuilder {
             componentsBuilder.getCellsHeadersExtractor().getColumnNamesTable().getColumn(columnIndex));
         ICell sourceCell = cell.getSource().getCell(0, 0);
 
-        SpreadsheetCell spreadsheetCell;
-        if (spreadsheetBindingContext.isExecutionMode()) {
-            spreadsheetCell = new SpreadsheetCell(rowIndex, columnIndex, null);
+        String cellCode = sourceCell.getStringValue();
+        
+        SpreadsheetCellType spreadsheetCellType = null;
+        if (cellCode == null || cellCode.isEmpty() || columnHeaders.get(columnIndex) == null || rowHeaders.get(rowIndex) == null) {
+            spreadsheetCellType = SpreadsheetCellType.EMPTY;
+        } else if (SpreadsheetExpressionMarker.isFormula(cellCode)) {
+            spreadsheetCellType = SpreadsheetCellType.METHOD;
         } else {
-            spreadsheetCell = new SpreadsheetCell(rowIndex, columnIndex, sourceCell);
+            spreadsheetCellType = SpreadsheetCellType.VALUE;
         }
 
-        String cellCode = sourceCell.getStringValue();
+        SpreadsheetCell spreadsheetCell;
+        if (spreadsheetBindingContext.isExecutionMode()) {
+            spreadsheetCell = new SpreadsheetCell(rowIndex, columnIndex, null, spreadsheetCellType);
+        } else {
+            spreadsheetCell = new SpreadsheetCell(rowIndex, columnIndex, sourceCell, spreadsheetCellType);
+        }
+        
         IOpenClass cellType = deriveCellType(columnHeaders.get(columnIndex), rowHeaders.get(rowIndex), cellCode);
         spreadsheetCell.setType(cellType);
-        if (cellCode == null || cellCode.isEmpty())
-            spreadsheetCell.setKind(SpreadsheetCellType.EMPTY);
-        else if (SpreadsheetExpressionMarker.isFormula(cellCode))
-            spreadsheetCell.setKind(SpreadsheetCellType.METHOD);
-        else
-            spreadsheetCell.setKind(SpreadsheetCellType.VALUE);
 
         return spreadsheetCell;
     }
@@ -557,9 +564,7 @@ public class SpreadsheetStructureBuilder {
     private SpreadsheetCellField createSpreadsheetCellField(IOpenClass rowOpenClass,
             SpreadsheetCell cell,
             String fieldName) {
-        return SpreadsheetCellField.createSpreadsheetCellField(getSpreadsheetStructureBuilderHolder(),
-            rowOpenClass,
-            fieldName,
-            cell);
+        return SpreadsheetCellField
+            .createSpreadsheetCellField(getSpreadsheetStructureBuilderHolder(), rowOpenClass, fieldName, cell);
     }
 }
