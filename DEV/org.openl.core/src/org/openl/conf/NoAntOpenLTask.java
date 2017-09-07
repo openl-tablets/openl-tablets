@@ -137,7 +137,6 @@ public class NoAntOpenLTask {
 
         ClassLoader myClassLoader = parentLoader;
         if (classpath != null && classpath.trim().length() != 0) {
-            // String baseDir = getProject().getBaseDir().getCanonicalPath();
             UserContext ucxt2 = new UserContext(null, baseDir);
 
             myClassLoader = ClassLoaderFactory.createUserClassloader(category, classpath, parentLoader, ucxt2);

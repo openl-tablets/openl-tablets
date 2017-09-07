@@ -47,24 +47,6 @@ public interface IBindingContext extends ICastFactory {
 	 */
 	void addType(String namespace, IOpenClass type) throws Exception;
 	
-	/**
-	 * Removes type from binding context.
-	 * 
-	 * @param namespace
-	 *            type namespace
-	 * @param type
-	 *            type
-	 * @throws Exception
-	 *             if an error occurs
-	 */
-	void removeType(String namespace, IOpenClass type) throws Exception;
-
-//	NOTE: A temporary implementation of multi-module feature.
-/*
- void addImport(IOpenClass type);
- Collection<IOpenClass> getImports();
-*/	
-
 	ILocalVar addVar(String namespace, String name, IOpenClass type)
 			throws DuplicatedVarException;
 

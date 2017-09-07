@@ -6,8 +6,6 @@
 
 package org.openl.conf;
 
-import java.util.Properties;
-
 /**
  * The <code>IUserContext</code> defines an user environment
  * configuration abstraction.
@@ -17,12 +15,7 @@ import java.util.Properties;
  */
 public interface IUserContext {
 
-    Object execute(IExecutable run);
-
     ClassLoader getUserClassLoader();
 
     String getUserHome();
-
-    Properties getUserProperties();
-
 }

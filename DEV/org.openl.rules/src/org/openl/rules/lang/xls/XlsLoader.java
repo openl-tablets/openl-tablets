@@ -4,8 +4,6 @@
 
 package org.openl.rules.lang.xls;
 
-import org.openl.conf.IConfigurableResourceContext;
-import org.openl.conf.IUserContext;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.syntax.*;
@@ -46,11 +44,7 @@ public class XlsLoader {
     
     private IncludeSearcher includeSeeker;
 
-    // private IUserContext userContext;
-
     private OpenlSyntaxNode openl;
-
-    private IdentifierNode vocabulary;
 
     private List<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
 
@@ -60,17 +54,8 @@ public class XlsLoader {
 
     private List<IDependency> dependencies = new ArrayList<IDependency>();
 
-    /**
-     * @deprecated use {@link #XlsLoader(IncludeSearcher, IUserContext)} {}
-     */
-    @Deprecated
-    public XlsLoader(IConfigurableResourceContext ucxt, String searchPath) {
-        this.includeSeeker = new IncludeSearcher(ucxt, searchPath);
-    }
-
-    public XlsLoader(IncludeSearcher includeSeeker, IUserContext userContext) {
+    public XlsLoader(IncludeSearcher includeSeeker) {
         this.includeSeeker = includeSeeker;
-        // this.userContext = userContext;
     }
 
     public void addError(SyntaxNodeException error) {
@@ -91,7 +76,6 @@ public class XlsLoader {
         XlsModuleSyntaxNode syntaxNode = new XlsModuleSyntaxNode(workbooksArray,
                 source,
                 openl,
-                vocabulary,
                 Collections.unmodifiableCollection(imports)
         );
 
@@ -127,8 +111,6 @@ public class XlsLoader {
                 preprocessIncludeTable(tableSyntaxNode, row.getSource(), source);
             } else if (IXlsTableNames.IMPORT_PROPERTY.equals(value)) {
                 preprocessImportTable(row.getSource());
-            } else if (IXlsTableNames.VOCABULARY_PROPERTY.equals(value)) {
-                preprocessVocabularyTable(row.getSource(), source);
             } else if (ParserUtils.isBlankOrCommented(value)) {
                 // ignore comment
             } else {
@@ -269,19 +251,6 @@ public class XlsLoader {
         return tsn;
     }
 
-    private void preprocessVocabularyTable(IGridTable table, XlsSheetSourceCodeModule source) {
-
-        String vocabularyStr = table.getCell(1, 0).getStringValue();
-        if (StringUtils.isNotBlank(vocabularyStr)) {
-            vocabularyStr = vocabularyStr.trim();
-        }
-        
-        setVocabulary(new IdentifierNode(IXlsTableNames.VOCABULARY_PROPERTY,
-                new GridLocation(table),
-                vocabularyStr,
-                source));
-    }
-
     private WorkbookSyntaxNode preprocessWorkbook(IOpenSourceCodeModule source) {
 
         String uri = source.getUri();
@@ -367,18 +336,4 @@ public class XlsLoader {
             }
         }
     }
-
-    private void setVocabulary(IdentifierNode vocabulary) {
-
-        if (this.vocabulary == null) {
-            this.vocabulary = vocabulary;
-        } else {
-            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Only one vocabulary is allowed",
-                    null,
-                    vocabulary);
-            OpenLMessagesUtils.addError(error);
-            addError(error);
-        }
-    }
-
 }

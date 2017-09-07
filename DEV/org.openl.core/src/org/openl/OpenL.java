@@ -98,9 +98,7 @@ public class OpenL {
     public static synchronized OpenL getInstance(String name, ClassLoader classLoader)
             throws OpenConfigurationException {
 
-        String currentWorkDirectory = new File(DEFAULT_USER_HOME).getAbsolutePath();
-
-        return getInstance(name, new UserContext(classLoader, currentWorkDirectory));
+        return getInstance(name, new UserContext(classLoader, DEFAULT_USER_HOME));
     }
 
     /**

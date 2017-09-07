@@ -480,35 +480,23 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         if (parentClassName != null) {
             IOpenClass parentClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, parentClassName);
             if (parentClass == null) {
-                // Remove invalid type from binding context.
-                //
-                cxt.removeType(ISyntaxConstants.THIS_NAMESPACE, dataType);
                 throw new OpenLCompilationException(String.format("Parent class '%s' is not defined", parentClassName));
             }
 
             if (parentClass.getInstanceClass() != null) {// parent class has
                                                          // errors
                 if (Modifier.isFinal(parentClass.getInstanceClass().getModifiers())) {
-                    // Remove invalid type from binding context.
-                    //
-                    cxt.removeType(ISyntaxConstants.THIS_NAMESPACE, dataType);
                     throw new OpenLCompilationException(
                         String.format("Cannot inherit from final class \"%s\"", parentClassName));
                 }
 
                 if (Modifier.isAbstract(parentClass.getInstanceClass().getModifiers())) {
-                    // Remove invalid type from binding context.
-                    //
-                    cxt.removeType(ISyntaxConstants.THIS_NAMESPACE, dataType);
                     throw new OpenLCompilationException(
                         String.format("Cannot inherit from abstract class \"%s\"", parentClassName));
                 }
             }
 
             if (parentClass instanceof DomainOpenClass) {
-                // Remove invalid type from binding context.
-                //
-                cxt.removeType(ISyntaxConstants.THIS_NAMESPACE, dataType);
                 throw new OpenLCompilationException(
                     String.format("Parent class '%s' cannot be domain type", parentClassName));
             }

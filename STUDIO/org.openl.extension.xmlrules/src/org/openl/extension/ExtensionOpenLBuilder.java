@@ -32,20 +32,6 @@ public abstract class ExtensionOpenLBuilder extends BaseOpenLBuilder {
     }
 
     protected ICompileContext getCompileContext() {
-        ICompileContext compileContext = new RulesCompileContext();
-
-        IConfigurableResourceContext resourceContext = getResourceContext();
-
-        if (resourceContext != null) {
-
-            String propertyValue = resourceContext.findProperty("validation");
-
-            if (propertyValue != null) {
-                Boolean value = Boolean.valueOf(propertyValue);
-                compileContext.setValidationEnabled(value);
-            }
-        }
-
-        return compileContext;
+        return new RulesCompileContext();
     }
 }
