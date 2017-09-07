@@ -7,6 +7,9 @@
 package org.openl.types.impl;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
@@ -27,8 +30,18 @@ public class ArrayIndex implements IOpenIndex {
         return JavaOpenClass.INT;
     }
 
+    @Override
+    public Collection getIndexes(Object container) {
+        int length = Array.getLength(container);
+        List<Integer> indexes = new ArrayList<>(length);
+        for (int i = 0; i < length; i++) {
+            indexes.add(i);
+        }
+        return indexes;
+    }
+
     public Object getValue(Object container, Object index) {
-        return Array.get(container, ((Integer) index).intValue());
+        return Array.get(container, (Integer) index);
     }
 
     public boolean isWritable() {
@@ -36,7 +49,7 @@ public class ArrayIndex implements IOpenIndex {
     }
 
     public void setValue(Object container, Object index, Object value) {
-        Array.set(container, ((Integer) index).intValue(), value);
+        Array.set(container, (Integer) index, value);
     }
 
 }

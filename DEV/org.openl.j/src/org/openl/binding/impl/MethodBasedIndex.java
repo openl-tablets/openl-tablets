@@ -1,5 +1,7 @@
 package org.openl.binding.impl;
 
+import java.util.Collection;
+
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
@@ -32,10 +34,17 @@ public class MethodBasedIndex implements IOpenIndex {
         return reader.getMethod().getSignature().getParameterTypes()[n - 1];
     }
 
+    @Override
+    public Collection getIndexes(Object container) {
+        // TODO Introduce a new method to get all available indexes (keys) from container.
+        throw new UnsupportedOperationException();
+    }
+
     /*
      * (non-Javadoc)
      * @see org.openl.types.IOpenIndex#getValue(java.lang.Object, java.lang.Object)
      */
+    @SuppressWarnings("unchecked")
     public Object getValue(Object container, Object index) {
 
         int n = reader.getMethod().getSignature().getParameterTypes().length;
@@ -55,6 +64,7 @@ public class MethodBasedIndex implements IOpenIndex {
         return writer != null;
     }
 
+    @SuppressWarnings("unchecked")
     public void setValue(Object container, Object index, Object value) {
 
         int n = writer.getMethod().getSignature().getParameterTypes().length;
