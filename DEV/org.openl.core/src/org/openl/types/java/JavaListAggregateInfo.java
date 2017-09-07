@@ -24,14 +24,8 @@ public class JavaListAggregateInfo extends AAggregateInfo {
 
     static class ListIndex implements IOpenIndex {
 
-        IOpenClass elementType;
-
-        public ListIndex(IOpenClass elementType) {
-            this.elementType = elementType;
-        }
-
         public IOpenClass getElementType() {
-            return elementType;
+            return JavaOpenClass.OBJECT;
         }
 
         public IOpenClass getIndexType() {
@@ -89,7 +83,7 @@ public class JavaListAggregateInfo extends AAggregateInfo {
     }
 
     private IOpenIndex makeListIndex(IOpenClass aggregateType) {
-        return new ListIndex(getComponentType(aggregateType));
+        return new ListIndex();
     }
 
 }

@@ -15,15 +15,8 @@ import org.openl.types.IOpenIndex;
 public class JavaMapAggregateInfo implements IAggregateInfo {
 
     static class MapIndex implements IOpenIndex {
-
-        IOpenClass elementType;
-
-        MapIndex(IOpenClass elementType) {
-            this.elementType = elementType;
-        }
-
         public IOpenClass getElementType() {
-            return elementType;
+            return JavaOpenClass.OBJECT;
         }
 
         public IOpenClass getIndexType() {
@@ -56,7 +49,7 @@ public class JavaMapAggregateInfo implements IAggregateInfo {
             return null;
         }
 
-        return makeListIndex(aggregateType);
+        return new MapIndex();
     }
 
     @SuppressWarnings("unchecked")
@@ -66,10 +59,6 @@ public class JavaMapAggregateInfo implements IAggregateInfo {
 
     public boolean isAggregate(IOpenClass type) {
         return Map.class.isAssignableFrom(type.getInstanceClass());
-    }
-
-    private IOpenIndex makeListIndex(IOpenClass aggregateType) {
-        return new MapIndex(getComponentType(aggregateType));
     }
 
     @Override
@@ -83,6 +72,6 @@ public class JavaMapAggregateInfo implements IAggregateInfo {
             throw new UnsupportedOperationException("Only one dimensional Java Maps are supported.");
         }
 
-        return new HashMap<Object, Object>(dimValues[0]);
+        return new HashMap(dimValues[0]);
     }
 }
