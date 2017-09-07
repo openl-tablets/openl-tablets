@@ -6,6 +6,7 @@
 
 package org.openl.types.java;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -55,12 +56,6 @@ public class JavaListAggregateInfo extends AAggregateInfo {
     static public final IAggregateInfo LIST_AGGREGATE = new JavaListAggregateInfo();
 
     public IOpenClass getComponentType(IOpenClass aggregateType) {
-
-        // TODO get component type info using Java reflection API?
-        // Class<?> listClass = aggregateType.getInstanceClass();
-
-        // TypeVariable<?> t = listClass.getTypeParameters()[0];
-
         return JavaOpenClass.OBJECT;
     }
 
@@ -78,17 +73,19 @@ public class JavaListAggregateInfo extends AAggregateInfo {
 
     @SuppressWarnings("unchecked")
     public Iterator<Object> getIterator(Object aggregate) {
-        // temporary return an empty iterator
-        // While the possibility to get an iterator from list won`t be added
-        // TODO: add the possibility to get an iterator from list
-
-    	
-    	
-    	return ((Collection<Object>)aggregate).iterator();        
+        return ((Collection<Object>) aggregate).iterator();
     }
 
     public boolean isAggregate(IOpenClass type) {
         return true;
+    }
+
+    @Override
+    public Object makeIndexedAggregate(IOpenClass componentClass, int[] dimValues) {
+        if (dimValues.length > 1) {
+            throw new UnsupportedOperationException("Only one dimensional Java Lists are supported.");
+        }
+        return new ArrayList(dimValues[0]);
     }
 
     private IOpenIndex makeListIndex(IOpenClass aggregateType) {
