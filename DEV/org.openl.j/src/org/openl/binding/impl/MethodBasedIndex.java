@@ -55,18 +55,6 @@ public class MethodBasedIndex implements IOpenIndex {
         return writer != null;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.openl.types.IOpenIndex#makeArrayInstance(int)
-     */
-    public Object makeArrayInstance(int length) {
-        throw new UnsupportedOperationException();
-    }
-
-    public Object makeArrayInstance(int[] length) {
-        throw new UnsupportedOperationException();
-    }
-
     public void setValue(Object container, Object index, Object value) {
 
         int n = writer.getMethod().getSignature().getParameterTypes().length;
