@@ -6,6 +6,7 @@
 
 package org.openl.types.java;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -23,18 +24,22 @@ public class JavaListAggregateInfo extends AAggregateInfo {
 
     static class ListIndex implements IOpenIndex {
 
-        IOpenClass elementType;
-
-        public ListIndex(IOpenClass elementType) {
-            this.elementType = elementType;
-        }
-
         public IOpenClass getElementType() {
-            return elementType;
+            return JavaOpenClass.OBJECT;
         }
 
         public IOpenClass getIndexType() {
             return JavaOpenClass.INT;
+        }
+
+        @Override
+        public Collection getIndexes(Object container) {
+            int length = ((List) container).size();
+            List<Integer> indexes = new ArrayList<>(length);
+            for (int i = 0; i < length; i++) {
+                indexes.add(i);
+            }
+            return indexes;
         }
 
         @SuppressWarnings("unchecked")
@@ -55,12 +60,6 @@ public class JavaListAggregateInfo extends AAggregateInfo {
     static public final IAggregateInfo LIST_AGGREGATE = new JavaListAggregateInfo();
 
     public IOpenClass getComponentType(IOpenClass aggregateType) {
-
-        // TODO get component type info using Java reflection API?
-        // Class<?> listClass = aggregateType.getInstanceClass();
-
-        // TypeVariable<?> t = listClass.getTypeParameters()[0];
-
         return JavaOpenClass.OBJECT;
     }
 
@@ -78,13 +77,7 @@ public class JavaListAggregateInfo extends AAggregateInfo {
 
     @SuppressWarnings("unchecked")
     public Iterator<Object> getIterator(Object aggregate) {
-        // temporary return an empty iterator
-        // While the possibility to get an iterator from list won`t be added
-        // TODO: add the possibility to get an iterator from list
-
-    	
-    	
-    	return ((Collection<Object>)aggregate).iterator();        
+        return ((Collection<Object>) aggregate).iterator();
     }
 
     public boolean isAggregate(IOpenClass type) {
@@ -92,7 +85,7 @@ public class JavaListAggregateInfo extends AAggregateInfo {
     }
 
     private IOpenIndex makeListIndex(IOpenClass aggregateType) {
-        return new ListIndex(getComponentType(aggregateType));
+        return new ListIndex();
     }
 
 }

@@ -7,6 +7,9 @@
 package org.openl.types.impl;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -30,6 +33,18 @@ public class ArrayFieldIndex implements IOpenIndex {
         return indexField.getType();
     }
 
+    @Override
+    public Collection getIndexes(Object container) {
+        int len = Array.getLength(container);
+        List<Object> indexes = new ArrayList<>(len);
+
+        for (int i = 0; i < len; i++) {
+            indexes.add(indexField.get(Array.get(container, i), null));
+        }
+
+        return indexes;
+    }
+
     public Object getValue(Object container, Object index) {
         if (index != null) {
             int len = Array.getLength(container);
@@ -47,7 +62,7 @@ public class ArrayFieldIndex implements IOpenIndex {
                     index = IntegerValuesUtils.createNewObjectByType(fieldValue.getClass(),(String)index);//castStringToInteger((String)index);
                 }
                 
-                if (index.equals(fieldValue)) {
+                if (fieldValue.equals(index)) {
                     return obj;
                 }
             }
