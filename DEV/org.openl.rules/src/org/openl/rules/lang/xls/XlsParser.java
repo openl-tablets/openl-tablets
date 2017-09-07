@@ -100,7 +100,7 @@ public class XlsParser extends BaseParser {
         
         IncludeSearcher includeSeeker = getIncludeSeeker();
         
-        XlsLoader xlsLoader = new XlsLoader(includeSeeker, userContext);
+        XlsLoader xlsLoader = new XlsLoader(includeSeeker);
 
         return xlsLoader.parse(source);
     }

@@ -4,8 +4,6 @@
 
 package org.openl.rules.lang.xls;
 
-import org.openl.conf.IConfigurableResourceContext;
-import org.openl.conf.IUserContext;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.syntax.*;
@@ -46,8 +44,6 @@ public class XlsLoader {
     
     private IncludeSearcher includeSeeker;
 
-    // private IUserContext userContext;
-
     private OpenlSyntaxNode openl;
 
     private List<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
@@ -58,17 +54,8 @@ public class XlsLoader {
 
     private List<IDependency> dependencies = new ArrayList<IDependency>();
 
-    /**
-     * @deprecated use {@link #XlsLoader(IncludeSearcher, IUserContext)} {}
-     */
-    @Deprecated
-    public XlsLoader(IConfigurableResourceContext ucxt, String searchPath) {
-        this.includeSeeker = new IncludeSearcher(ucxt, searchPath);
-    }
-
-    public XlsLoader(IncludeSearcher includeSeeker, IUserContext userContext) {
+    public XlsLoader(IncludeSearcher includeSeeker) {
         this.includeSeeker = includeSeeker;
-        // this.userContext = userContext;
     }
 
     public void addError(SyntaxNodeException error) {
