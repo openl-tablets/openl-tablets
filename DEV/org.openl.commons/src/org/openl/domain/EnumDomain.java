@@ -80,10 +80,10 @@ public class EnumDomain<T> extends FixedSizeDomain<T> {
     }
 
     public boolean contains(T obj) {
-        try{
+        try {
             int idx = enumeration.getIndex(obj);
             return bits.get(idx);
-        }catch(RuntimeException e){
+        } catch (RuntimeException e) {
             return false;
         }
     }
@@ -98,7 +98,6 @@ public class EnumDomain<T> extends FixedSizeDomain<T> {
         EnumDomain<T> ed = (EnumDomain<T>) obj;
 
         return enumeration.equals(ed.enumeration) && bits.equals(ed.bits);
-
     }
 
     public IType getElementType() {

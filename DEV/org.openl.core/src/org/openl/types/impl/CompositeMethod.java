@@ -79,17 +79,14 @@ public class CompositeMethod extends ExecutableMethod {
 	}
 	
 	public Map<String, Object> getProperties() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public ISyntaxNode getSyntaxNode() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public String getSourceUrl() {
-		// TODO Auto-generated method stub
 		return null;
 	}
   

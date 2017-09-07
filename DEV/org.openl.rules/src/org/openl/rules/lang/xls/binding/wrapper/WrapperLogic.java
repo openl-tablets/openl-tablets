@@ -1,5 +1,7 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
+import org.openl.binding.impl.cast.OutsideOfValidDomainException;
+import org.openl.domain.IDomain;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.prebind.LazyMethodWrapper;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
@@ -9,11 +11,32 @@ import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodDelegator;
+import org.openl.util.DomainUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public final class WrapperLogic {
 
     private WrapperLogic() {
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void validateParameters(IOpenMethod method, Object[] params) {
+        if (params != null) {
+            for (int i = 0; i < params.length; i++) {
+                IOpenClass parameterType = method.getSignature().getParameterType(i);
+                if (parameterType.getDomain() != null) {
+                    @SuppressWarnings("rawtypes")
+                    IDomain domain = parameterType.getDomain();
+                    if (!domain.selectObject(params[i])) {
+                        throw new OutsideOfValidDomainException(
+                            String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
+                                params[i],
+                                parameterType.getName(),
+                                DomainUtils.toString(domain)));
+                    }
+                }
+            }
+        }
     }
 
     public static Object invoke(XlsModuleOpenClass xlsModuleOpenClass,
@@ -41,7 +64,8 @@ public final class WrapperLogic {
                     IDynamicObject dynamicObject = (IDynamicObject) target;
                     typeClass = dynamicObject.getType();
                 } else if (java.lang.reflect.Proxy.isProxyClass(target.getClass())) {
-                    java.lang.reflect.InvocationHandler invocationHandler = java.lang.reflect.Proxy.getInvocationHandler(target);
+                    java.lang.reflect.InvocationHandler invocationHandler = java.lang.reflect.Proxy
+                        .getInvocationHandler(target);
                     if (invocationHandler instanceof OpenLInvocationHandler) {
                         OpenLInvocationHandler openLInvocationHandler = (OpenLInvocationHandler) invocationHandler;
                         Object openlInstance = openLInvocationHandler.getInstance();
@@ -59,6 +83,7 @@ public final class WrapperLogic {
                 }
                 simpleRulesRuntimeEnv.setTopClass(typeClass);
                 Thread.currentThread().setContextClassLoader(xlsModuleOpenClass.getClassLoader());
+                validateParameters(wrapper.getDelegate(), params);
                 return wrapper.getDelegate().invoke(target, params, env);
             } finally {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -70,7 +95,8 @@ public final class WrapperLogic {
                 if (matchedMethod != null) {
                     while (matchedMethod instanceof LazyMethodWrapper || matchedMethod instanceof MethodDelegator) {
                         if (matchedMethod instanceof LazyMethodWrapper) {
-                            matchedMethod = ((LazyMethodWrapper) matchedMethod).getCompiledMethod(simpleRulesRuntimeEnv);
+                            matchedMethod = ((LazyMethodWrapper) matchedMethod)
+                                .getCompiledMethod(simpleRulesRuntimeEnv);
                         }
                         if (matchedMethod instanceof MethodDelegator) {
                             MethodDelegator methodDelegator = (MethodDelegator) matchedMethod;
@@ -79,7 +105,7 @@ public final class WrapperLogic {
                     }
                     if (matchedMethod != wrapper) {
                         return matchedMethod.invoke(target, params, env);
-                    } 
+                    }
                 }
             }
         }

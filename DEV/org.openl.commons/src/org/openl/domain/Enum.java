@@ -6,6 +6,7 @@
 package org.openl.domain;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author snshor
@@ -14,7 +15,7 @@ public class Enum<T> {
 
     T[] allObjects;
 
-    public HashMap<T, Integer> indexMap;
+    public Map<T, Integer> indexMap;
 
     public Enum(T[] objs) {
         this.allObjects = objs;

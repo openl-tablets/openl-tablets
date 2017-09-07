@@ -9,6 +9,7 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.impl.BindHelper;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.meta.DoubleValue;
@@ -301,8 +302,9 @@ public class SpreadsheetStructureBuilder {
                     IMetaInfo meta = new ValueMetaInfo(name, null, source);
                     ((IMetaHolder) result).setMetaInfo(meta);
                 }
-
-                spreadsheetCell.setValue(result);
+                
+                IOpenCast openCast = bindingContext.getCast(JavaOpenClass.getOpenClass(instanceClass), type);
+                spreadsheetCell.setValue(openCast.convert(result));
             } catch (Throwable t) {
                 String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
                 addError(SyntaxNodeExceptionUtils.createError(message, t, null, source));
