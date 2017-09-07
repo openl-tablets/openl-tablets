@@ -84,14 +84,6 @@ public class JavaListAggregateInfo extends AAggregateInfo {
         return true;
     }
 
-    @Override
-    public Object makeIndexedAggregate(IOpenClass componentClass, int[] dimValues) {
-        if (dimValues.length > 1) {
-            throw new UnsupportedOperationException("Only one dimensional Java Lists are supported.");
-        }
-        return new ArrayList(dimValues[0]);
-    }
-
     private IOpenIndex makeListIndex(IOpenClass aggregateType) {
         return new ListIndex();
     }
