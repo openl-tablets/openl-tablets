@@ -20,26 +20,17 @@ import org.openl.util.StringTool;
 public class IncludeSearcher {
     
     private static final String INCLUDE = "include/";
-    private String searchPath;
     private IConfigurableResourceContext ucxt;
     
-    public IncludeSearcher(IConfigurableResourceContext ucxt, String searchPath) {
+    public IncludeSearcher(IConfigurableResourceContext ucxt) {
         this.ucxt = ucxt;
-        this.searchPath = searchPath;
     }
     
     public IOpenSourceCodeModule findInclude(String include) {
 
-        if (searchPath == null) {
-            searchPath = INCLUDE;
-        }
-
-        String[] paths = StringTool.tokenize(searchPath, ";");
-
-        for (String path : paths) {
 
             try {
-                String p = PathTool.mergePath(path, include);
+                String p = PathTool.mergePath(INCLUDE, include);
                 URL url = ucxt.findClassPathResource(p);
 
                 if (url != null) {
@@ -57,7 +48,7 @@ public class IncludeSearcher {
                 }
 
                 // let's try simple concat and use url
-                String u2 = path + include;
+                String u2 = INCLUDE + include;
                 URL xurl = new URL(u2);
 
                 // URLConnection uc;
@@ -77,7 +68,6 @@ public class IncludeSearcher {
             } catch (Throwable t) {
                 OpenLMessagesUtils.addWarn(String.format("Cannot find '%s' (%s)", include, t.getMessage()));
             }
-        }
 
         return null;
     }
