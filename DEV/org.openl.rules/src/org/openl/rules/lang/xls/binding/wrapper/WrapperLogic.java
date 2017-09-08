@@ -23,16 +23,18 @@ public final class WrapperLogic {
     private static void validateParameters(IOpenMethod method, Object[] params) {
         if (params != null) {
             for (int i = 0; i < params.length; i++) {
-                IOpenClass parameterType = method.getSignature().getParameterType(i);
-                if (parameterType.getDomain() != null) {
-                    @SuppressWarnings("rawtypes")
-                    IDomain domain = parameterType.getDomain();
-                    if (!domain.selectObject(params[i])) {
-                        throw new OutsideOfValidDomainException(
-                            String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
-                                params[i],
-                                parameterType.getName(),
-                                DomainUtils.toString(domain)));
+                if (params[i] != null) {
+                    IOpenClass parameterType = method.getSignature().getParameterType(i);
+                    if (parameterType.getDomain() != null) {
+                        @SuppressWarnings("rawtypes")
+                        IDomain domain = parameterType.getDomain();
+                        if (!domain.selectObject(params[i])) {
+                            throw new OutsideOfValidDomainException(
+                                String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
+                                    params[i],
+                                    parameterType.getName(),
+                                    DomainUtils.toString(domain)));
+                        }
                     }
                 }
             }
