@@ -88,7 +88,7 @@ public abstract class AEngineFactory {
             // parameter types.
             //
             IOpenClass[] params = OpenClassHelper.getOpenClasses(moduleOpenClass, interfaceMethod.getParameterTypes());
-            IOpenMethod rulesMethod = moduleOpenClass.getMethod(interfaceMethodName, params);
+            IOpenMethod rulesMethod = moduleOpenClass.getMatchingMethod(interfaceMethodName, params);
 
             if (rulesMethod != null) {
                 // If openClass has appropriate method then add new entry to

@@ -143,9 +143,9 @@ public synchronized void  reload(){reset();__init();__instance = __class.newInst
    // __env.set(wrapper.getEnv());
 
     this_Field = __class.getField("this");
-    driverRiskScoreOverloadTest_Method = __class.getMethod("driverRiskScoreOverloadTest", new IOpenClass[] {
+    driverRiskScoreOverloadTest_Method = __class.getMatchingMethod("driverRiskScoreOverloadTest", new IOpenClass[] {
       JavaOpenClass.getOpenClass(java.lang.String.class)});
-    driverRiskScoreNoOverloadTest_Method = __class.getMethod("driverRiskScoreNoOverloadTest", new IOpenClass[] {
+    driverRiskScoreNoOverloadTest_Method = __class.getMatchingMethod("driverRiskScoreNoOverloadTest", new IOpenClass[] {
       JavaOpenClass.getOpenClass(java.lang.String.class)});
 
     __initialized=true;

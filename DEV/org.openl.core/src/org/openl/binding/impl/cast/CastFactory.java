@@ -397,7 +397,7 @@ public class CastFactory implements ICastFactory {
 
         try {
             // Try to find matching auto cast method
-            castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[] { from, to });
+            castCaller = methodFactory.getMatchingMethod(AUTO_CAST_METHOD_NAME, new IOpenClass[] { from, to });
 
             if (castCaller == null) {
                 // If from parameter is wrapper for primitive type try to find
@@ -419,7 +419,7 @@ public class CastFactory implements ICastFactory {
                     IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
                     fromOpenClass = wrapperOpenClassFrom;
                     toOpenClass = to;
-                    castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME,
+                    castCaller = methodFactory.getMatchingMethod(AUTO_CAST_METHOD_NAME,
                         new IOpenClass[] { wrapperOpenClassFrom, to });
                 }
             }
@@ -442,7 +442,7 @@ public class CastFactory implements ICastFactory {
                 if (primitiveClassTo != null) {
                     // distance = 6;
                     IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
-                    castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME,
+                    castCaller = methodFactory.getMatchingMethod(AUTO_CAST_METHOD_NAME,
                         new IOpenClass[] { from, wrapperOpenClassTo });
                     fromOpenClass = from;
                     toOpenClass = wrapperOpenClassTo;
@@ -457,7 +457,7 @@ public class CastFactory implements ICastFactory {
                     IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
                     fromOpenClass = wrapperOpenClassFrom;
                     toOpenClass = wrapperOpenClassTo;
-                    castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME,
+                    castCaller = methodFactory.getMatchingMethod(AUTO_CAST_METHOD_NAME,
                         new IOpenClass[] { wrapperOpenClassFrom, wrapperOpenClassTo });
                 }
             }
@@ -472,7 +472,7 @@ public class CastFactory implements ICastFactory {
         if (castCaller == null) {
             auto = false;
             try {
-                castCaller = methodFactory.getMethod(CAST_METHOD_NAME, new IOpenClass[] { from, to });
+                castCaller = methodFactory.getMatchingMethod(CAST_METHOD_NAME, new IOpenClass[] { from, to });
                 distance = 9;
                 if (castCaller == null) {
                     if (primitiveClassFrom != null) {
@@ -480,7 +480,7 @@ public class CastFactory implements ICastFactory {
                         IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
                         fromOpenClass = wrapperOpenClassFrom;
                         toOpenClass = to;
-                        castCaller = methodFactory.getMethod(CAST_METHOD_NAME,
+                        castCaller = methodFactory.getMatchingMethod(CAST_METHOD_NAME,
                             new IOpenClass[] { wrapperOpenClassFrom, to });
                     }
                 }
@@ -489,7 +489,7 @@ public class CastFactory implements ICastFactory {
                     if (primitiveClassTo != null) {
                         distance = 9;
                         IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
-                        castCaller = methodFactory.getMethod(CAST_METHOD_NAME,
+                        castCaller = methodFactory.getMatchingMethod(CAST_METHOD_NAME,
                             new IOpenClass[] { from, wrapperOpenClassTo });
                         fromOpenClass = from;
                         toOpenClass = wrapperOpenClassTo;
@@ -504,7 +504,7 @@ public class CastFactory implements ICastFactory {
                         IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
                         fromOpenClass = wrapperOpenClassFrom;
                         toOpenClass = wrapperOpenClassTo;
-                        castCaller = methodFactory.getMethod(CAST_METHOD_NAME,
+                        castCaller = methodFactory.getMatchingMethod(CAST_METHOD_NAME,
                             new IOpenClass[] { wrapperOpenClassFrom, wrapperOpenClassTo });
                     }
                 }
@@ -522,7 +522,7 @@ public class CastFactory implements ICastFactory {
         IMethodCaller distanceCaller = null;
 
         try {
-            distanceCaller = methodFactory.getMethod(DISTANCE_METHOD_NAME,
+            distanceCaller = methodFactory.getMatchingMethod(DISTANCE_METHOD_NAME,
                 new IOpenClass[] { fromOpenClass, toOpenClass });
         } catch (AmbiguousMethodException ignored) {
         }

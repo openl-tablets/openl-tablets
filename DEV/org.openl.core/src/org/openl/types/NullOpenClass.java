@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;
@@ -65,6 +66,16 @@ public class NullOpenClass implements IOpenClass {
     }
 
     public Class<?> getInstanceClass() {
+        return null;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.openl.binding.IMethodFactory#getMatchingMethod(java.lang.String,
+     * org.openl.types.IOpenClass[])
+     */
+    public IOpenMethod getMatchingMethod(String name, IOpenClass[] params) throws AmbiguousMethodException {
         return null;
     }
 

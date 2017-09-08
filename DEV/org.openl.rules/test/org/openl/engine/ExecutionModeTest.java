@@ -65,7 +65,7 @@ public class ExecutionModeTest {
         assertEquals(120, result);
 
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
-        IOpenMethod openMethod = moduleOpenClass.getMethod("modification",
+        IOpenMethod openMethod = moduleOpenClass.getMatchingMethod("modification",
             new IOpenClass[] { JavaOpenClass.INT });
         if (openMethod instanceof Algorithm){
             assertNull(((Algorithm) openMethod).getBoundNode());
@@ -96,7 +96,7 @@ public class ExecutionModeTest {
         assertEquals(new DoubleValue(375), result);
 
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
-        IOpenMethod openMethod = moduleOpenClass.getMethod("calc", new IOpenClass[] {});
+        IOpenMethod openMethod = moduleOpenClass.getMatchingMethod("calc", new IOpenClass[] {});
         if (openMethod instanceof Spreadsheet){
             assertNull(((Spreadsheet) openMethod).getBoundNode());
         }else{
@@ -126,7 +126,7 @@ public class ExecutionModeTest {
         assertEquals(91, result);
 
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
-        IOpenMethod openMethod = moduleOpenClass.getMethod("runColumnMatch",
+        IOpenMethod openMethod = moduleOpenClass.getMatchingMethod("runColumnMatch",
             new IOpenClass[] { JavaOpenClass.INT, JavaOpenClass.INT, JavaOpenClass.INT, JavaOpenClass.INT });
         if (openMethod instanceof ColumnMatch){
             assertNull(((ColumnMatch) openMethod).getBoundNode());

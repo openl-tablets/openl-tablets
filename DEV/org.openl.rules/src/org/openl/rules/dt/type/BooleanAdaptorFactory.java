@@ -14,7 +14,7 @@ public class BooleanAdaptorFactory {
             return new BooleanTypeAdaptor();
         }
 
-        IOpenMethod method = openClass.getMethod(BOOLEAN_VALUE, IOpenClass.EMPTY);
+        IOpenMethod method = openClass.getMatchingMethod(BOOLEAN_VALUE, IOpenClass.EMPTY);
         if (method != null) {
             return new BooleanMethodAdaptor(method);
         }
