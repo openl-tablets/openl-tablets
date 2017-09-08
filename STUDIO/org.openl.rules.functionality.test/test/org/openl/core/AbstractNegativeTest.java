@@ -28,7 +28,7 @@ public abstract class AbstractNegativeTest {
         return false;
     }
 
-    protected boolean isHasMessages(File sourceDir,
+    protected boolean assertMessages(File sourceDir,
             String projectFile,
             List<OpenLMessage> actualMessages,
             Severity severity) {
@@ -37,9 +37,9 @@ public abstract class AbstractNegativeTest {
         File file = new File(sourceDir, projectFile + "." + severity.name().toLowerCase() + ".txt");
         try {
             for (String expectedMessage : getExpectedMessages(file)) {
-                if (!isMessageExists(actualMessages, expectedMessage, severity)) {
+                if (!findExpectedMessage(actualMessages, expectedMessage, severity)) {
                     LOG.error("The message \"" + expectedMessage + "\" with severity " + severity
-                        .name() + " is expected for [" + projectFile + "].");
+                        .name() + " is missed for [" + projectFile + "].");
                     hasAllMessages = false;
                 }
             }
@@ -47,6 +47,17 @@ public abstract class AbstractNegativeTest {
             LOG.error("Failed to read file [" + file + "].", e);
             hasAllMessages = false;
         }
+        
+        if (!hasAllMessages) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Actual messages:");
+            for (OpenLMessage openLMessage : actualMessages) {
+                sb.append(System.lineSeparator());
+                sb.append("\t\"" + openLMessage.getSummary() + "\" with severity " + openLMessage.getSeverity() + ".");
+            }
+            LOG.error(sb.toString());
+        }
+        
         return hasAllMessages;
     }
 
@@ -67,7 +78,7 @@ public abstract class AbstractNegativeTest {
         return result;
     }
 
-    protected boolean isMessageExists(List<OpenLMessage> actualMessages, String expectedMessage, Severity severity) {
+    protected boolean findExpectedMessage(List<OpenLMessage> actualMessages, String expectedMessage, Severity severity) {
         for (OpenLMessage message : actualMessages) {
             if (message.getSummary().equals(expectedMessage) && message.getSeverity() == severity) {
                 return true;

@@ -71,7 +71,7 @@ public final class NegativeTest extends AbstractNegativeTest {
                 List<OpenLMessage> actualMessages = compiledOpenClass.getMessages();
                 boolean hasAllMessages = true;
                 for (Severity severity : Severity.values()) {
-                    if (!isHasMessages(sourceDir, sourceFile, actualMessages, severity)) {
+                    if (!assertMessages(sourceDir, sourceFile, actualMessages, severity)) {
                         hasAllMessages = false;
                     }
                 }
