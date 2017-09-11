@@ -48,17 +48,35 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         }
         TreeSet<Integer> result = new TreeSet<Integer>();
 
-        String ranges[] = ids.trim().split(" *, *");
+        String ranges[] = ids.trim().split(",");
         for(String range: ranges) {
-            String edges[] = range.split(" *- *");
-            String start = edges[0];
-            String end = edges[edges.length - 1];
-
-            int startIndex = indeces.get(start);
-            int endIndex = indeces.get(end);
-
-            for (int i = startIndex; i<=endIndex; i++) {
-                result.add(i);
+            if (range.isEmpty() && indeces.containsKey(",")) {
+                result.add(indeces.get(","));
+                continue;
+            }
+            String v = range.trim();
+            if (indeces.containsKey(v)) {
+                result.add(indeces.get(v));
+                continue;
+            }
+            String edges[] = v.split("-");
+            if (edges.length > 2 || edges[edges.length - 1].trim().isEmpty()) {
+                edges = v.split("\\s[-]\\s");
+            }
+            if (edges.length == 0) {
+                if (indeces.containsKey("-")) {
+                    result.add(indeces.get("-"));
+                } 
+            } else {
+                String startIdValue = edges[0].trim();
+                String endIdValue = edges[edges.length - 1].trim();
+    
+                int startIndex = indeces.get(startIdValue);
+                int endIndex = indeces.get(endIdValue);
+    
+                for (int i = startIndex; i<=endIndex; i++) {
+                    result.add(i);
+                }
             }
         }
         Integer[] indices = new Integer[result.size()];

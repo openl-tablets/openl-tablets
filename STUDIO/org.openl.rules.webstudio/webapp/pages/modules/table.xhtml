@@ -1,4 +1,4 @@
-<ui:composition
+<ui:composition                   
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:f="http://java.sun.com/jsf/core"
@@ -674,14 +674,40 @@
             }
 
             // Validate the range of entered IDs
-            var ids = testRangesParam.trim().split(/\s*[,-]\s*/);
-            var allowed = $j(".test-id")
-                    .map(function() { return $j(this).val(); })
-                    .get();
-            for (var i = 0; i < ids.length; i++) {
-                if ($j.inArray( ids[i], allowed ) === -1) {
-                    ws.ui.error("Wrong [" + ids[i] + "] ID in the Range of IDs");
-                    return false;
+            if ($j("#useTestRanges").is(":checked")) {
+                var ranges = testRangesParam.trim().split(/,/);
+                var allowed = $j(".test-id")
+                        .map(function() { return $j(this).val(); })
+                        .get();
+                for (var i = 0; i < ranges.length; i++) {
+                    if (!ranges[i] || 0 === ranges[i].trim().length) {
+                        if ($j.inArray(",", allowed ) === -1) {
+                            ws.ui.error("Wrong [","] ID in the Range of IDs");
+                            return false;
+                        }
+                        continue;
+                    }
+                    if ($j.inArray(ranges[i].trim(), allowed ) === -1) {
+                        var edges = ranges[i].trim().split(/-/);
+                        if (edges.length > 2 || (!edges[edges.length - 1] || 0 === edges[edges.length - 1].trim().length)) {
+                            edges = ranges[i].trim().split(/\s[-]\s/);
+                        }
+                        if ((!edges[0] || 0 === edges[0].trim().length) && (!edges[edges.length - 1] || 0 === edges[edges.length - 1].trim().length)){
+                            if ($j.inArray("-", allowed ) === -1) {
+                                ws.ui.error("Wrong ["-"] ID in the Range of IDs");
+                                return false;
+                            }
+                        } else {
+                            if ($j.inArray( edges[0].trim(), allowed ) === -1) {
+                                ws.ui.error("Wrong [" + edges[0] + "] ID in the Range of IDs");
+                                return false;
+                            }
+                            if ($j.inArray( edges[edges.length - 1].trim(), allowed ) === -1) {
+                                ws.ui.error("Wrong [" + edges[edges.length - 1] + "] ID in the Range of IDs");
+                                return false;
+                            }
+                        }
+                    }
                 }
             }
 
