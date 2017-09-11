@@ -49,6 +49,11 @@ public class JavaMapAggregateInfo implements IAggregateInfo {
         return JavaOpenClass.getOpenClass(Map.Entry.class);
     }
 
+    @Override
+    public IOpenIndex getIndex(IOpenClass aggregateType) {
+        return getIndex(aggregateType, JavaOpenClass.OBJECT);
+    }
+
     public IOpenIndex getIndex(IOpenClass aggregateType, IOpenClass indexType) {
         if (!isAggregate(aggregateType)) {
             return null;

@@ -5,7 +5,6 @@ import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.*;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 import org.richfaces.component.UITree;
@@ -95,43 +94,20 @@ public class InputArgsBean {
     public void deleteFromCollection() {
         ParameterDeclarationTreeNode currentNode = getCurrentNode();
         ParameterDeclarationTreeNode parentNode = currentNode.getParent();
-        IOpenClass arrayType = parentNode.getType();
-
-        IAggregateInfo info = arrayType.getAggregateInfo();
-        int elementsCount = parentNode.getChildren().size();
-
-        IOpenClass componentType = currentNode.getType();
-        Object ary = info.makeIndexedAggregate(componentType, new int[]{elementsCount - 1});
-
-        IOpenIndex index = info.getIndex(arrayType, JavaOpenClass.INT);
 
         int i = 0;
         for (ParameterDeclarationTreeNode node : parentNode.getChildren()) {
-            if (node != currentNode) {
-                index.setValue(ary, i, node.getValue());
-                i++;
+            if (node == currentNode) {
+                parentNode.removeChild(i);
+                break;
             }
+            i++;
         }
-        parentNode.setValueForced(ary);
     }
 
     public void addToCollection() {
         ParameterDeclarationTreeNode currentnode = getCurrentNode();
-        IOpenClass fieldType = currentnode.getType();
-
-        IAggregateInfo info = fieldType.getAggregateInfo();
-        int elementsCount = currentnode.getChildren().size();
-
-        IOpenClass componentType = info.getComponentType(fieldType);
-        Object ary = info.makeIndexedAggregate(componentType, new int[]{elementsCount + 1});
-
-        IOpenIndex index = info.getIndex(fieldType, JavaOpenClass.INT);
-
-        for (int i = 0; i < elementsCount - 1; i++) {
-            Object obj = index.getValue(currentnode.getValue(), i);
-            index.setValue(ary, i, obj);
-        }
-        currentnode.setValueForced(ary);
+        currentnode.addChild(currentnode.getChildren().size() + 1, null);
     }
 
     public ParameterWithValueDeclaration[] initArguments() {

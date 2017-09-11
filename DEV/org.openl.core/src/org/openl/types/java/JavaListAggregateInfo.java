@@ -81,7 +81,25 @@ public class JavaListAggregateInfo extends AAggregateInfo {
     }
 
     public boolean isAggregate(IOpenClass type) {
-        return true;
+        return List.class.isAssignableFrom(type.getInstanceClass());
+    }
+
+    @Override
+    public Object makeIndexedAggregate(IOpenClass componentClass, int[] dimValues) {
+        if (dimValues.length > 1) {
+            throw new UnsupportedOperationException("Only one dimensional Java Lists are supported.");
+        }
+        int size = dimValues[0];
+        ArrayList<Object> list = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            list.add(null);
+        }
+        return list;
+    }
+
+    @Override
+    public IOpenClass getIndexedAggregateType(IOpenClass componentType, int dim) {
+        return JavaOpenClass.getOpenClass(List.class);
     }
 
     private IOpenIndex makeListIndex(IOpenClass aggregateType) {

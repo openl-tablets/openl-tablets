@@ -1,6 +1,5 @@
 package org.openl.binding.impl;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -13,6 +12,7 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenIndex;
 import org.openl.util.BooleanUtils;
 import org.openl.vm.IRuntimeEnv;
 
@@ -53,8 +53,9 @@ public class SelectAllIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 			Object result = aggregateInfo.makeIndexedAggregate(
 					tempVar.getType(),
 					new int[] { firedElements.size() });
+			IOpenIndex index = aggregateInfo.getIndex(container.getType());
 			for (int i = 0; i < firedElements.size(); i++) {
-				Array.set(result, i, firedElements.get(i));
+				index.setValue(result, i, firedElements.get(i));
 			}
 			return result;
 		}
@@ -64,9 +65,15 @@ public class SelectAllIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 		}
 
 		public IOpenClass getType() {
-			if (getContainer().getType().isArray())
-				return getContainer().getType();
-			
+			IOpenClass type = getContainer().getType();
+			if (type.isArray()) {
+				return type;
+			}
+
+			if (type.getAggregateInfo() != null && type.getAggregateInfo().isAggregate(type)) {
+				return type;
+			}
+
 			IOpenClass varType = tempVar.getType();
 			return varType.getAggregateInfo().getIndexedAggregateType(varType, 1);
 		}

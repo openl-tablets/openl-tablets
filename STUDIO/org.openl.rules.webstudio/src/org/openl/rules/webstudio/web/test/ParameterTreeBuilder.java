@@ -23,6 +23,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * @author DLiauchuk
@@ -44,6 +45,9 @@ public class ParameterTreeBuilder {
         }
 
         if (Utils.isCollection(fieldType)) {
+            if (ClassUtils.isAssignable(fieldType.getInstanceClass(), Map.class)) {
+                return new MapParameterTreeNode(fieldName, value, fieldType, parent, previewField, hasExplainLinks);
+            }
             return new CollectionParameterTreeNode(fieldName, value, fieldType, parent, previewField, hasExplainLinks);
         } else if (isSpreadsheetResult(value)) {
             return createSpreadsheetResultTreeNode(fieldType, value, fieldName, parent, hasExplainLinks);
