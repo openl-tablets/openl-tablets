@@ -13,6 +13,7 @@ import org.openl.util.StringTool;
 
 import com.sdicons.json.mapper.JSONMapper;
 import com.sdicons.json.mapper.MapperException;
+import org.openl.util.StringUtils;
 
 /**
  * JSF functions.
@@ -34,6 +35,10 @@ public final class JSFFunctions {
      */
     public static String concat(String str1, String str2) {
         return str1 + str2;
+    }
+
+    public static String joinAll(Object[] values, String separator) {
+        return StringUtils.join(values, separator);
     }
 
     /**

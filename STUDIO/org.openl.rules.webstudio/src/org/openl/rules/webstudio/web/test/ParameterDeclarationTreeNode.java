@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.test;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IOpenClass;
@@ -133,4 +134,13 @@ public abstract class ParameterDeclarationTreeNode extends ParameterWithValueDec
         getChildernMap().remove(key);
     }
 
+    public void replaceChild(ParameterDeclarationTreeNode oldNode, ParameterDeclarationTreeNode newNode) {
+        LinkedHashMap<Object, ParameterDeclarationTreeNode> childernMap = getChildernMap();
+        for (Map.Entry<Object, ParameterDeclarationTreeNode> entry : childernMap.entrySet()) {
+            if (entry.getValue() == oldNode) {
+                entry.setValue(newNode);
+                break;
+            }
+        }
+    }
 }

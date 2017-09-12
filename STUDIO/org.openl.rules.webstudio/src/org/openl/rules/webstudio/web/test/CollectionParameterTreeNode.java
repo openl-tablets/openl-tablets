@@ -15,8 +15,8 @@ import org.richfaces.model.TreeNode;
 
 public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
     public static final String COLLECTION_TYPE = "collection";
-    private final IOpenField previewField;
-    private final boolean hasExplainLinks;
+    protected final IOpenField previewField;
+    protected final boolean hasExplainLinks;
 
     public CollectionParameterTreeNode(String fieldName, Object value, IOpenClass fieldType, ParameterDeclarationTreeNode parent, IOpenField previewField, boolean hasExplainLinks) {
         super(fieldName, value, fieldType, parent);
@@ -67,7 +67,9 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
         IOpenIndex index = info.getIndex(getType());
 
         for (int i = 0; i < elementsCount; i++) {
-            index.setValue(ary, i, getChildernMap().get(i).getValueForced());
+            ParameterDeclarationTreeNode node = getChildernMap().get(i);
+            node.getValueForced();
+            index.setValue(ary, getKeyFromElementNum(i), getNodeValue(node));
         }
         return ary;
     }
@@ -81,29 +83,39 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
 
     @Override
     public void addChild(Object elementNum, TreeNode element) {
-        Object oldCollection = getValue();
+        int nextChildNum = getChildren().size();
+        Object value = element == null ? null : ((ParameterDeclarationTreeNode) element).getValue();
+        super.addChild(nextChildNum, createNode(null, value));
+        saveChildNodesToValue();
+    }
 
-        IOpenClass arrayType = getType();
-        IAggregateInfo info = arrayType.getAggregateInfo();
-        Object newCollection = info.makeIndexedAggregate(info.getComponentType(arrayType), new int[] { getChildren().size() + 1 });
-        IOpenIndex index = info.getIndex(arrayType);
-
+    public void removeChild(ParameterDeclarationTreeNode toDelete) {
         int i = 0;
         for (ParameterDeclarationTreeNode node : getChildren()) {
-            index.setValue(newCollection, getKeyFromElementNum(i), node.getValue());
+            if (node == toDelete) {
+                super.removeChild(i);
+                break;
+            }
             i++;
         }
 
-        index.setValue(newCollection, getKeyFromElementNum(null), getEmptyValue());
-
-        setValueForced(newCollection);
+        // Create new value based on changed child elements count
+        saveChildNodesToValue();
+        // Children keys in the map must be changed because element in the middle was deleted
+        reset();
     }
 
     @Override
-    public void removeChild(Object elementNum) {
-        super.removeChild(elementNum);
+    public void replaceChild(ParameterDeclarationTreeNode oldNode, ParameterDeclarationTreeNode newNode) {
+        super.replaceChild(oldNode, newNode);
+        saveChildNodesToValue();
+    }
 
-        // Create new value based on changed child elements count
+    protected ParameterDeclarationTreeNode createNode(Object key, Object value) {
+        return ParameterTreeBuilder.createNode(getType().getComponentClass(), value, previewField, null, this, hasExplainLinks);
+    }
+
+    private void saveChildNodesToValue() {
         IOpenClass arrayType = getType();
         IAggregateInfo info = arrayType.getAggregateInfo();
         Object newCollection = info.makeIndexedAggregate(arrayType.getComponentClass(), new int[] { getChildren().size()});
@@ -111,21 +123,21 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
 
         int i = 0;
         for (ParameterDeclarationTreeNode node : getChildren()) {
-            index.setValue(newCollection, getKeyFromElementNum(i), node.getValue());
+            index.setValue(newCollection, getKeyFromElementNum(i), getNodeValue(node));
             i++;
         }
 
-        setValueForced(newCollection);
+        setValue(newCollection);
     }
 
-    protected Object getEmptyValue() {
-        return null;
-    }
-
-    protected Object getKeyFromElementNum(Object elementNum) {
-        if (elementNum == null) {
+    protected Object getKeyFromElementNum(int elementNum) {
+        if (elementNum >= getChildren().size()) {
             return getChildren().size();
         }
         return elementNum;
+    }
+
+    protected Object getNodeValue(ParameterDeclarationTreeNode node) {
+        return node.getValue();
     }
 }
