@@ -7,6 +7,7 @@ import org.openl.rules.project.model.Extension;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
+import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.CollectionUtils;
 import org.slf4j.Logger;
@@ -18,7 +19,7 @@ public class ExtensionInstantiationStrategy extends SingleModuleInstantiationStr
     /**
      * Rules engine factory for module that contains only Excel file.
      */
-    private ExtensionEngineFactory<?> engineFactory;
+    private RulesEngineFactory<?> engineFactory;
     private final Extension extension;
 
     public ExtensionInstantiationStrategy(Module module,
@@ -63,7 +64,7 @@ public class ExtensionInstantiationStrategy extends SingleModuleInstantiationStr
     }
 
     @SuppressWarnings("unchecked")
-    protected ExtensionEngineFactory<?> getEngineFactory() {
+    protected RulesEngineFactory<?> getEngineFactory() {
         Class<Object> serviceClass;
         try {
             serviceClass = (Class<Object>) getServiceClass();
@@ -80,7 +81,7 @@ public class ExtensionInstantiationStrategy extends SingleModuleInstantiationStr
             source.setParams(prepareExternalParameters());
 
             String openlName = extensionDescriptor.getOpenLName();
-            engineFactory = new ExtensionEngineFactory<Object>(openlName, source, serviceClass);
+            engineFactory = new RulesEngineFactory<Object>(openlName, source, serviceClass);
 
             // Information for interface generation, if generation required.
             Module m = getModule();

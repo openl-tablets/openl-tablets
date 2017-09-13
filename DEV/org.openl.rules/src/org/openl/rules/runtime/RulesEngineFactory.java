@@ -98,6 +98,29 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
         super.setInterfaceClass(interfaceClass);
     }
 
+    public RulesEngineFactory(String openlName, IOpenSourceCodeModule sourceCode) {
+        super(openlName, sourceCode);
+    }
+
+    public RulesEngineFactory(String openlName, String userHome, IOpenSourceCodeModule sourceCode, Class<T> interfaceClass) {
+        super(openlName, sourceCode, userHome);
+        super.setInterfaceClass(interfaceClass);
+    }
+
+    public RulesEngineFactory(String openlName, String userHome, IOpenSourceCodeModule sourceCode) {
+        super(openlName, sourceCode, userHome);
+    }
+
+    public RulesEngineFactory(String openlName, String userHome, String sourceFile, Class<T> interfaceClass) {
+        super(openlName, sourceFile, userHome);
+        super.setInterfaceClass(interfaceClass);
+    }
+
+    public RulesEngineFactory(String openlName, String userHome, String sourceFile) {
+        super(openlName, sourceFile, userHome);
+    }
+
+    
     /**
      * Added to allow using other openl names, such as org.openl.xls.ce
      *
