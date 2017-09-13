@@ -16,7 +16,6 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.util.StringTool;
 
 /**
  * Binding context for different Openl components.<br>
@@ -40,7 +39,19 @@ public class ComponentBindingContext extends BindingContextDelegator {
         super(delegate);
         this.componentOpenClass = componentOpenClass;
     }
-    
+
+    /**
+     * Builds the type name with namespace.
+     *
+     * @param namespace for typeName
+     * @param typeName
+     * @return namespace::typeName
+     */
+    private String buildTypeName(String namespace, String typeName) {
+        final StringBuilder builder = new StringBuilder(64);
+        return builder.append(namespace).append("::").append(typeName).toString();
+    }
+
     public ComponentOpenClass getComponentOpenClass() {
         return componentOpenClass;
     }
@@ -52,7 +63,7 @@ public class ComponentBindingContext extends BindingContextDelegator {
 
     protected synchronized void add(String namespace, String typeName, IOpenClass type) throws OpenLCompilationException {
         Map<String, IOpenClass> map = initInternalTypes();
-        String nameWithNamespace = StringTool.buildTypeName(namespace, typeName);
+        String nameWithNamespace = buildTypeName(namespace, typeName);
         if (map.containsKey(nameWithNamespace)) {
             IOpenClass openClass = map.get(nameWithNamespace);
             if (openClass == type){
@@ -72,7 +83,7 @@ public class ComponentBindingContext extends BindingContextDelegator {
     public synchronized void removeType(String namespace, IOpenClass type)
             throws Exception {
 
-        String key = StringTool.buildTypeName(namespace, type.getName());
+        String key = buildTypeName(namespace, type.getName());
         Map<String, IOpenClass> map = initInternalTypes();
         map.remove(key);
     }
@@ -106,7 +117,7 @@ public class ComponentBindingContext extends BindingContextDelegator {
     
     @Override
     public IOpenClass findType(String namespace, String typeName) {
-        String key = StringTool.buildTypeName(namespace, typeName);
+        String key = buildTypeName(namespace, typeName);
         if (internalTypes != null) {
             IOpenClass ioc = internalTypes.get(key);
             if (ioc != null) {

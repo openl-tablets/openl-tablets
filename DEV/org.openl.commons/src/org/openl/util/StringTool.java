@@ -238,15 +238,4 @@ public class StringTool {
         return builder.append("get").append(StringUtils.capitalize(fieldName)).toString();
     }
 
-    /**
-     * Builds the type name with namespace.
-     * 
-     * @param namespace for typeName
-     * @param typeName
-     * @return namespace::typeName
-     */
-    public static final String buildTypeName(String namespace, String typeName) {
-        final StringBuilder builder = new StringBuilder(64);
-        return builder.append(namespace).append("::").append(typeName).toString();
-    }
 }
