@@ -24,16 +24,16 @@ public final class ExtensionDescriptorFactory {
 
             descriptor = (IExtensionDescriptor) extensionClass.newInstance();
         } catch (ClassNotFoundException e) {
-            Logger log = LoggerFactory.getLogger(ExtensionInstantiationStrategyFactory.class);
+            Logger log = LoggerFactory.getLogger(ExtensionDescriptorFactory.class);
             log.error(e.getMessage(), e);
             throw new ExtensionRuntimeException(String.format("Extension '%s' doesn't exist.", extension.getName()));
         } catch (InstantiationException e) {
-            Logger log = LoggerFactory.getLogger(ExtensionInstantiationStrategyFactory.class);
+            Logger log = LoggerFactory.getLogger(ExtensionDescriptorFactory.class);
             log.error(e.getMessage(), e);
             throw new ExtensionRuntimeException(String.format("Failed to instantiate extension '%s'",
                     extension.getName()));
         } catch (IllegalAccessException e) {
-            Logger log = LoggerFactory.getLogger(ExtensionInstantiationStrategyFactory.class);
+            Logger log = LoggerFactory.getLogger(ExtensionDescriptorFactory.class);
             log.error(e.getMessage(), e);
             throw new ExtensionRuntimeException(String.format("Extension '%s' isn't accessible!",
                     extension.getName()));

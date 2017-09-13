@@ -4,6 +4,8 @@ import java.io.File;
 import java.net.URL;
 
 import org.openl.dependency.IDependencyManager;
+import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
+import org.openl.rules.extension.instantiation.IExtensionDescriptor;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
@@ -72,6 +74,11 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
         }
     }
 
+    private IOpenSourceCodeModule getSourceCode(Module module) {
+        File sourceFile = new File(getModule().getRulesRootPath().getPath());
+        URL url = URLSourceCodeModule.toUrl(sourceFile);
+        return new ModuleFileSourceCodeModule(url, getModule().getName());
+    }
  
     @SuppressWarnings("unchecked")
     protected RulesEngineFactory<?> getEngineFactory() {
@@ -83,13 +90,21 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
             serviceClass = null;
         }
         if (engineFactory == null || (serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass))) {
-            File sourceFile = new File(getModule().getRulesRootPath().getPath());
-            URL url = URLSourceCodeModule.toUrl(sourceFile);
+            if (getModule().getExtension() != null) {
+                IExtensionDescriptor extensionDescriptor = ExtensionDescriptorFactory.getExtensionDescriptor(getModule().getExtension(),
+                        getClassLoader());
+    
+                IOpenSourceCodeModule source = extensionDescriptor.getSourceCode(getModule());
+                source.setParams(prepareExternalParameters());
+    
+                String openlName = extensionDescriptor.getOpenLName();
+                engineFactory = new RulesEngineFactory<Object>(openlName, source, serviceClass);
+            } else {
+                IOpenSourceCodeModule source = getSourceCode(getModule());
+                source.setParams(prepareExternalParameters());
 
-            IOpenSourceCodeModule source = new ModuleFileSourceCodeModule(url, getModule().getName());
-            source.setParams(prepareExternalParameters());
-
-            engineFactory = new RulesEngineFactory<Object>(source, serviceClass);
+                engineFactory = new RulesEngineFactory<Object>(source, serviceClass);
+            }
 
             // Information for interface generation, if generation required.
             Module m = getModule();
