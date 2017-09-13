@@ -168,7 +168,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
      * @param type IOpenClass instance
      * @throws Exception if an error had occurred.
      */
-    IOpenClass addType(IOpenClass type) throws Exception;
+    void addType(IOpenClass type) throws Exception;
 
     IOpenClass findType(String name);
 

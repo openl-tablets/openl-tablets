@@ -224,9 +224,8 @@ public class ModuleOpenClass extends ComponentOpenClass {
      *             if an error had occurred.
      */
     @Override
-    public IOpenClass addType(IOpenClass type) throws OpenLCompilationException {
+    public void addType(IOpenClass type) throws OpenLCompilationException {
         addTypeWithNamespace(type);
-        return type;
     }
     
     private void addTypeWithNamespace(IOpenClass type) throws OpenLCompilationException {

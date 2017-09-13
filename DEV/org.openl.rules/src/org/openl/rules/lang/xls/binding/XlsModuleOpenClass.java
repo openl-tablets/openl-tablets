@@ -177,18 +177,17 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
     
     @Override
-    public IOpenClass addType(IOpenClass type) throws OpenLCompilationException {
+    public void addType(IOpenClass type) throws OpenLCompilationException {
         if (type instanceof CustomDynamicOpenClass) {
             CustomDynamicOpenClass customDynamicOpenClass = (CustomDynamicOpenClass) type;
             IOpenClass openClass = findType(type.getName());
             if (openClass == null) {
-                return super.addType(customDynamicOpenClass.copy());
+                super.addType(customDynamicOpenClass.copy());
             } else {
                 customDynamicOpenClass.updateOpenClass(openClass);
-                return openClass;
             }
         } else {
-            return super.addType(type);
+            super.addType(type);
         }
     }
     

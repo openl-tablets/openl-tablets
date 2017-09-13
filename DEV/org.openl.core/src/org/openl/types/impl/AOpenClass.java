@@ -18,7 +18,6 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.binding.ICastFactory;
-import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.cast.CastFactory;
@@ -462,8 +461,7 @@ public abstract class AOpenClass implements IOpenClass {
      * @param type IOpenClass instance
      * @throws Exception if an error had occurred.
      */
-    public IOpenClass addType(IOpenClass type) throws Exception {
-        return type;
+    public void addType(IOpenClass type) throws Exception {
     }
     
     @Override
