@@ -22,14 +22,12 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CastingMethodCaller;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
-import org.openl.util.StringTool;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,20 +135,18 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         return method;
     }
     
-    protected synchronized void add(String nameWithNamespace, IOpenClass type) throws OpenLCompilationException {
+    protected synchronized void add(String namespace, String typeName, IOpenClass type) throws OpenLCompilationException {
         if (type instanceof CustomDynamicOpenClass) {
             CustomDynamicOpenClass customDynamicOpenClass = (CustomDynamicOpenClass) type;
-            String namespace = StringTool.getNamespace(nameWithNamespace);
-            String typeName = StringTool.getTypeName(nameWithNamespace);
             IOpenClass openClass = super.findType(namespace, typeName);
             if (openClass == null) {
                 IOpenClass t = getModule().addType(type);
-                super.add(nameWithNamespace, t);
+                super.add(namespace, typeName, t);
             } else {
                 customDynamicOpenClass.updateOpenClass(openClass);
             }
         } else {
-            super.add(nameWithNamespace, type);
+            super.add(namespace, typeName, type);
         }
     }
     
