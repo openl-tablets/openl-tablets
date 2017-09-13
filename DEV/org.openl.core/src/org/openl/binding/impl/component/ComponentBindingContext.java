@@ -62,17 +62,19 @@ public class ComponentBindingContext extends BindingContextDelegator {
     }
 
     protected synchronized void add(String namespace, String typeName, IOpenClass type) throws OpenLCompilationException {
-        Map<String, IOpenClass> map = initInternalTypes();
+        if (internalTypes == null) {
+            internalTypes = new HashMap<>();
+        }
         String nameWithNamespace = buildTypeName(namespace, typeName);
-        if (map.containsKey(nameWithNamespace)) {
-            IOpenClass openClass = map.get(nameWithNamespace);
+        if (internalTypes.containsKey(nameWithNamespace)) {
+            IOpenClass openClass = internalTypes.get(nameWithNamespace);
             if (openClass == type){
                 return;
             }
             throw new OpenLCompilationException("Type " + nameWithNamespace + " has been defined already");
         }
 
-        map.put(nameWithNamespace, type);
+        internalTypes.put(nameWithNamespace, type);
     }
 
     @Override
@@ -80,14 +82,7 @@ public class ComponentBindingContext extends BindingContextDelegator {
             throws DuplicatedVarException {
         throw new UnsupportedOperationException();
     }
-    
-    private synchronized Map<String, IOpenClass> initInternalTypes() {
-        if (internalTypes == null) {
-            internalTypes = new HashMap<String, IOpenClass>();
-        }
-        return internalTypes;
-    }
-    
+
     @Override
     public IMethodCaller findMethodCaller(String namespace, String methodName,
             IOpenClass[] parTypes) throws AmbiguousMethodException {
