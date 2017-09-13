@@ -74,15 +74,6 @@ public class ComponentBindingContext extends BindingContextDelegator {
 
         map.put(nameWithNamespace, type);
     }
-    
-    @Override
-    public synchronized void removeType(String namespace, IOpenClass type)
-            throws Exception {
-
-        String key = buildTypeName(namespace, type.getName());
-        Map<String, IOpenClass> map = initInternalTypes();
-        map.remove(key);
-    }
 
     @Override
     public ILocalVar addVar(String namespace, String name, IOpenClass type)
