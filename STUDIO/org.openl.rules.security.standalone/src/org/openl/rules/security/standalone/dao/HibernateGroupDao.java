@@ -34,7 +34,7 @@ public class HibernateGroupDao extends BaseHibernateDao<Group> implements GroupD
     public List<Group> getAllGroups() {
         return getSession().createCriteria(Group.class)
                 .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                .addOrder(Order.asc("name"))
+                .addOrder(Order.asc("name").ignoreCase())
                 .list();
     }
 }

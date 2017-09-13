@@ -34,7 +34,7 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
     public List<User> getAllUsers() {
         return getSession().createCriteria(User.class)
                 .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
-                .addOrder(Order.asc("loginName"))
+                .addOrder(Order.asc("loginName").ignoreCase())
                 .list();
     }
 }
