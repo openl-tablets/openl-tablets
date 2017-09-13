@@ -237,11 +237,6 @@ public class TestUnitsResults implements INamedThing {
         this.testUnits.addAll(testUnits);
     }
 
-    @Deprecated
-    public Object getExpected(int i) {
-        return testUnits.get(i).getExpectedResult();
-    }
-
     public int getNumberOfFailures() {
         int cnt = 0;
         for (int i = 0; i < getNumberOfTestUnits(); i++) {
