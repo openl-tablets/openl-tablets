@@ -140,8 +140,9 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             CustomDynamicOpenClass customDynamicOpenClass = (CustomDynamicOpenClass) type;
             IOpenClass openClass = super.findType(namespace, typeName);
             if (openClass == null) {
-                getModule().addType(type);
-                super.add(namespace, typeName, type);
+                IOpenClass copyOfCustomType = customDynamicOpenClass.copy();
+                getModule().addType(copyOfCustomType);
+                super.add(namespace, typeName, copyOfCustomType);
             } else {
                 customDynamicOpenClass.updateOpenClass(openClass);
             }

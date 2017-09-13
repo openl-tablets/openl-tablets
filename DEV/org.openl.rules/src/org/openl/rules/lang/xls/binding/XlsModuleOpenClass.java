@@ -175,22 +175,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                                                               // data tables.
         }
     }
-    
-    @Override
-    public void addType(IOpenClass type) throws OpenLCompilationException {
-        if (type instanceof CustomDynamicOpenClass) {
-            CustomDynamicOpenClass customDynamicOpenClass = (CustomDynamicOpenClass) type;
-            IOpenClass openClass = findType(type.getName());
-            if (openClass == null) {
-                super.addType(customDynamicOpenClass.copy());
-            } else {
-                customDynamicOpenClass.updateOpenClass(openClass);
-            }
-        } else {
-            super.addType(type);
-        }
-    }
-    
+
     public Collection<String> getImports() {
         return imports;
     }
