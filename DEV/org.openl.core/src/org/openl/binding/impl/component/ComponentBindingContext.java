@@ -75,10 +75,6 @@ public class ComponentBindingContext extends BindingContextDelegator {
         map.put(nameWithNamespace, type);
     }
     
-    public synchronized Map<String, IOpenClass> getInternalTypes() {
-    	return new HashMap<String, IOpenClass>(initInternalTypes());
-    }
-    
     @Override
     public synchronized void removeType(String namespace, IOpenClass type)
             throws Exception {
