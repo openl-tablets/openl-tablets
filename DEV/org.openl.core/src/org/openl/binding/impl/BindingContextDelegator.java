@@ -72,11 +72,6 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         throw new UnsupportedOperationException();
     }
 
-    // FIXME: method should throw any type of custom exception
-    public void removeType(String namespace, IOpenClass type) throws Exception {
-        throw new UnsupportedOperationException();
-    }
-
     public ILocalVar addVar(String namespace, String name, IOpenClass type) throws DuplicatedVarException {
         return delegate.addVar(namespace, name, type);
     }

@@ -77,15 +77,6 @@ public class ComponentBindingContext extends BindingContextDelegator {
     }
 
     @Override
-    public synchronized void removeType(String namespace, IOpenClass type)
-            throws Exception {
-
-        String key = StringTool.buildTypeName(namespace, type.getName());
-        Map<String, IOpenClass> map = initInternalTypes();
-        map.remove(key);
-    }
-
-    @Override
     public ILocalVar addVar(String namespace, String name, IOpenClass type)
             throws DuplicatedVarException {
         return null;
