@@ -84,14 +84,14 @@ public class SplitByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 					arrayType,
 					new int[] { size });
 			
-			
+
 			for (int i = 0; i < size; i++) {
 				
 				ArrayList<Object> list = list2d.get(i);
 				int listSize = list.size();
 				
-				Object ary = aggregateInfo.makeIndexedAggregate(componentType, new int[]{listSize});
-				
+				Object ary = componentType.getAggregateInfo().makeIndexedAggregate(componentType, new int[]{listSize});
+
 				for (int j = 0; j < listSize; j++) {
 					Array.set(ary, j, list.get(j));
 				}

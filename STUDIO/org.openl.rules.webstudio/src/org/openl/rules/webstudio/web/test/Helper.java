@@ -22,6 +22,9 @@ public final class Helper {
     }
 
     public TreeNode getRoot(ParameterDeclarationTreeNode parameter) {
+        if (parameter == null) {
+            return null;
+        }
         TreeNodeImpl root = new TreeNodeImpl();
         root.addChild(parameter.getName(), parameter);
         return root;

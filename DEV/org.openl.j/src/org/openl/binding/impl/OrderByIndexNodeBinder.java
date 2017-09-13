@@ -1,6 +1,5 @@
 package org.openl.binding.impl;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeMap;
@@ -13,6 +12,7 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenIndex;
 import org.openl.types.NullOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -79,14 +79,15 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 					aggregateInfo.getComponentType(getType()),
 					new int[] { size });
 
+			IOpenIndex index = aggregateInfo.getIndex(containerNode.getType());
 			int idx = 0;
 			for (Object element : map.values()) {
-				if (element.getClass() != OrderList.class)
-					Array.set(result, nextIdx(idx++, size), element);
-				else {
+				if (element.getClass() != OrderList.class) {
+                    index.setValue(result, nextIdx(idx++, size), element);
+                } else {
 					OrderList list = (OrderList) element;
 					for (int i = 0; i < list.size(); i++) {
-						Array.set(result, nextIdx(idx++, size), list.get(i));
+						index.setValue(result, nextIdx(idx++, size), list.get(i));
 					}
 				}
 			}
@@ -102,8 +103,14 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 		}
 
 		public IOpenClass getType() {
-			if (getContainer().getType().isArray())
-				return getContainer().getType();
+			IOpenClass type = getContainer().getType();
+			if (type.isArray()) {
+				return type;
+			}
+
+			if (type.getAggregateInfo() != null && type.getAggregateInfo().isAggregate(type)) {
+				return type;
+			}
 
 			IOpenClass varType = tempVar.getType();
 			return varType.getAggregateInfo().getIndexedAggregateType(varType,

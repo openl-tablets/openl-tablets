@@ -4,7 +4,8 @@
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich">
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:jsffn="http://rules.openl.org/taglibs/jsffn">
 
     <style>
         .dynamicTree a img {
@@ -15,7 +16,15 @@
         .dynamicTree a.date-picker-control:visited {
             vertical-align: text-bottom;
         }
+
+        .dynamicTree .rf-trn-ico-lf {
+            display: none;
+        }
     </style>
+
+    <a4j:jsFunction name="initClassName">
+        <a4j:param name="className" assignTo="#{inputArgsBean.className}"/>
+    </a4j:jsFunction>
 
     <table class="table">
         <thead>
@@ -34,6 +43,7 @@
                 <td width="100 px"><rich:panel id="dynamicTreePanel">
                         <rich:tree toggleType="client" selectionType="client"
                             value="#{helper.getRoot(argumentTreeNode)}" var="item"
+                            rowKeyVar="rowKeyVar"
                             nodeType="#{item.nodeType}" binding="#{inputArgsBean.currentTreeNode}"
                             styleClass="dynamicTree" rowKeyConverter="org.richfaces.IntegerSequenceRowKeyConverter">
                             <!-- rowKeyConverter is a temporary solution.
@@ -55,15 +65,10 @@
                                     <h:graphicImage value="/images/close.gif" />
                                 </a4j:commandLink>
                                 <a4j:commandLink action="#{inputArgsBean.addToCollection}"
-                                    rendered="#{not item.valueNull and not item.javaCollection}" render="dynamicTreePanel" styleClass="addButton"
+                                    rendered="#{not item.valueNull}" render="dynamicTreePanel" styleClass="addButton"
                                     oncomplete="createDatePickers()"
                                     title="Add new element to collection">
                                     <h:graphicImage value="/images/add_obj.gif" />
-                                </a4j:commandLink>
-                                <a4j:commandLink action="#{inputArgsBean.addToCollection}"
-                                    rendered="#{not item.valueNull and item.javaCollection}" render="dynamicTreePanel" styleClass="addButton"
-                                    title="Java collections are not supported. If you want to edit this field please rework you rules to use arrays." disabled="true">
-                                    <img style="opacity: 0.1; background-color: #000;" src="webresource/images/add_obj.gif" />
                                 </a4j:commandLink>
                             </rich:treeNode>
                             <rich:treeNode type="complex">
@@ -73,7 +78,19 @@
                                     <h:graphicImage value="/images/delete.png" />
                                 </a4j:commandLink>
                                 <h:outputText value="#{item.treeText}" />
+
+                                <ui:param name="row" value="#{jsffn:joinAll(rowKeyVar.simpleKeys, '_')}"/>
+
+                                <h:panelGroup rendered="#{item.valueNull and item.baseType}">
+                                    <select id="objectType#{row}">
+                                        <a4j:repeat value="#{inputArgsBean.getPossibleTypes(item)}" var="option">
+                                            <option value="#{option.value}">#{option.label}</option>
+                                        </a4j:repeat>
+                                    </select>
+                                </h:panelGroup>
+
                                 <a4j:commandLink action="#{inputArgsBean.initObject}" rendered="#{item.valueNull}"
+                                    onclick="initClassName($j('#objectType#{row}').find('option:selected').val())"
                                     oncomplete="createDatePickers()"
                                     render="dynamicTreePanel" title="Init">
                                     <h:graphicImage value="/images/newtable.gif" />

@@ -63,7 +63,7 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
                         fieldValue = "Exception while trying to get a value of a field: " + e;
                     }
 
-                    if (fieldType == JavaOpenClass.OBJECT) {
+                    if (fieldType == JavaOpenClass.OBJECT && fieldValue != null) {
                         fieldType = JavaOpenClass.getOpenClass(fieldValue.getClass());
                     }
 
@@ -121,5 +121,25 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
             }
         }
         return value;
+    }
+
+    @Override
+    public void replaceChild(ParameterDeclarationTreeNode oldNode, ParameterDeclarationTreeNode newNode) {
+        super.replaceChild(oldNode, newNode);
+
+        IOpenField field = getType().getField(newNode.getName());
+        if (!field.isConst() && field.isWritable()) {
+            try {
+                field.set(getValue(), newNode.getValue(), new SimpleVM().getRuntimeEnv());
+            } catch (Exception e) {
+                // Can throw NotSupportedOperationException for example.
+                log.debug("Exception while trying to set a value of a field:", e);
+            }
+        }
+    }
+
+    public boolean isBaseType() {
+        IOpenClass type = getType();
+        return type == JavaOpenClass.OBJECT || type.isAbstract();
     }
 }

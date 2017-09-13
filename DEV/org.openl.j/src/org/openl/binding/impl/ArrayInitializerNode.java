@@ -26,10 +26,6 @@ public class ArrayInitializerNode extends ABoundNode {
 
     IOpenCast[] casts;
 
-    /**
-     * @param syntaxNode
-     * @param children
-     */
     public ArrayInitializerNode(ISyntaxNode syntaxNode, IBoundNode[] children, IOpenClass type, IOpenCast[] casts) {
         super(syntaxNode, children);
         this.type = type;
@@ -64,7 +60,7 @@ public class ArrayInitializerNode extends ABoundNode {
             if (casts[i] != null) {
                 obj = casts[i].convert(obj);
             }
-            index.setValue(ary, new Integer(i), obj);
+            index.setValue(ary, i, obj);
         }
 
         return ary;

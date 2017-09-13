@@ -20,6 +20,11 @@ public class JavaCollectionAggregateInfo implements IAggregateInfo {
         return JavaOpenClass.OBJECT;
     }
 
+    @Override
+    public IOpenIndex getIndex(IOpenClass aggregateType) {
+        return getIndex(aggregateType, JavaOpenClass.OBJECT);
+    }
+
     public IOpenIndex getIndex(IOpenClass aggregateType, IOpenClass indexType) {
         // For general collection indexed operator x[i] isn't supported
         return null;
@@ -28,7 +33,7 @@ public class JavaCollectionAggregateInfo implements IAggregateInfo {
 
     @Override
     public IOpenClass getIndexedAggregateType(IOpenClass componentType, int dims) {
-        return componentType;
+        return JavaOpenClass.getOpenClass(Collection.class);
     }
 
     @SuppressWarnings("unchecked")
