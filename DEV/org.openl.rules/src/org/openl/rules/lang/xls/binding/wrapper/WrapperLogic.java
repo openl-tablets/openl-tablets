@@ -1,5 +1,7 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
+import java.lang.reflect.Array;
+
 import org.openl.binding.impl.cast.OutsideOfValidDomainException;
 import org.openl.domain.IDomain;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -20,21 +22,33 @@ public final class WrapperLogic {
     }
 
     @SuppressWarnings("unchecked")
+    private static void validateForAliasDatatypeParameter(IOpenClass parameterType, Object value) {
+        if (value.getClass().isArray()) {
+            int length = Array.getLength(value);
+            for (int i = 0; i < length; i++) {
+                Object v = Array.get(value, i);
+                validateForAliasDatatypeParameter(parameterType, v);
+            }
+            return;
+        }
+        @SuppressWarnings("rawtypes")
+        IDomain domain = parameterType.getDomain();
+        if (!domain.selectObject(value)) {
+            throw new OutsideOfValidDomainException(
+                String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
+                    value,
+                    parameterType.getName(),
+                    DomainUtils.toString(domain)));
+        }
+    }
+    
     private static void validateParameters(IOpenMethod method, Object[] params) {
         if (params != null) {
             for (int i = 0; i < params.length; i++) {
                 if (params[i] != null) {
                     IOpenClass parameterType = method.getSignature().getParameterType(i);
                     if (parameterType.getDomain() != null) {
-                        @SuppressWarnings("rawtypes")
-                        IDomain domain = parameterType.getDomain();
-                        if (!domain.selectObject(params[i])) {
-                            throw new OutsideOfValidDomainException(
-                                String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
-                                    params[i],
-                                    parameterType.getName(),
-                                    DomainUtils.toString(domain)));
-                        }
+                        validateForAliasDatatypeParameter(parameterType, params[i]);
                     }
                 }
             }
