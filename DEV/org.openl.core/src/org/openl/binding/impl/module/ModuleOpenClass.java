@@ -196,7 +196,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
         CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
         for (IOpenClass type : compiledOpenClass.getTypes()){
             try{
-                addTypeWithNamespace(type);
+                addType(type);
             } catch (OpenLCompilationException e) {
                 addError(e);
             }
@@ -225,16 +225,12 @@ public class ModuleOpenClass extends ComponentOpenClass {
      */
     @Override
     public void addType(IOpenClass type) throws OpenLCompilationException {
-        addTypeWithNamespace(type);
-    }
-    
-    private void addTypeWithNamespace(IOpenClass type) throws OpenLCompilationException {
         IOpenClass openClass = internalTypes.putIfAbsent(type.getName(), type);
         if (openClass != null && !openClass.equals(type)) {
             throw new OpenLCompilationException("The type " + type.getName() + " has been already defined.");
         }
     }
-
+    
     @Override
     public IOpenClass findType(String name) {
         return internalTypes.get(name);
