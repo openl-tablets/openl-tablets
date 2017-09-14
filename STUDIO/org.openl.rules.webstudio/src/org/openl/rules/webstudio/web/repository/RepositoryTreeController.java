@@ -693,6 +693,14 @@ public class RepositoryTreeController {
             studio.getModel().clearModuleInfo(); // Release resources like jars
             String nodeType = selectedNode.getType();
             unregisterSelectedNodeInProjectDescriptor();
+            if (projectArtefact instanceof RulesProject) {
+                if (projectArtefact.isLocked() && !((RulesProject) projectArtefact).isLockedByMe()) {
+                    FacesUtils.addErrorMessage("Project is locked by other user. Can't archive it.");
+                    return null;
+                }
+                File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
+                closeProjectForAllUsers(workspacesRoot, selectedNode.getName());
+            }
             projectArtefact.delete();
             TreeNode parent = selectedNode.getParent();
             if (parent != null && parent.getData() != null ){

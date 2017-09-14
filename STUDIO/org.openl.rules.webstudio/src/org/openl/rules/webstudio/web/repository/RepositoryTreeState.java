@@ -335,6 +335,17 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public void onRepositoryModified() {
         synchronized (lock) {
             root = null;
+            UserWorkspaceProject project = getSelectedProject();
+            if (project != null) {
+                String name = project.getName();
+                try {
+                    if (!userWorkspace.hasProject(name) || userWorkspace.getProject(name, false).isDeleted() && isHideDeleted()) {
+                        invalidateSelection();
+                    }
+                } catch (ProjectException e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
         }
     }
 
