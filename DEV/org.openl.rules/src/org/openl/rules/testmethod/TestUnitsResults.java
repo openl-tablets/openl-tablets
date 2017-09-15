@@ -73,6 +73,17 @@ public class TestUnitsResults implements INamedThing {
         return testUnits;
     }
 
+    public long getExecutionTime() {
+        long executionTime = 0;
+        if (testUnits != null) {
+            for (TestUnit testUnit : testUnits) {
+                executionTime += testUnit.getExecutionTime();
+            }
+        }
+
+        return executionTime;
+    }
+
     public void addTestUnit(TestUnit testUnit) {
         if (!testSuite.isVirtualTestSuite()) {
             testUnits.add(updateTestUnit(testUnit));

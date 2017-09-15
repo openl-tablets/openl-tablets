@@ -1,21 +1,19 @@
 package org.openl.rules.testmethod;
 
+import java.util.Map;
+
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.RowIdField;
 import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.vm.SimpleRulesRuntimeEnv;
-import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DynamicObject;
 import org.openl.util.Log;
 import org.openl.vm.IRuntimeEnv;
-
-import java.util.Map;
 
 public class TestDescription {
     private final static String PRECISION_PARAM = "precision";
@@ -156,6 +154,7 @@ public class TestDescription {
         return executionParams;
     }
 
+    @SuppressWarnings("unchecked")
     public TestUnit runTest(Object target, IRuntimeEnv env, long ntimes) {
         if (ntimes <= 0) {
             return runTest(target, env, 1);
@@ -163,20 +162,28 @@ public class TestDescription {
             Object res = null;
             Throwable exception = null;
             IRuntimeContext oldContext = env.getContext();
+            long time;
+            long start = System.nanoTime(); // Initialization here is needed if exception is thrown
+            long end;
             try {
                 IRuntimeContext context = getRuntimeContext();
                 env.setContext(context);
                 Object[] args = getArguments();
+                // Measure only actual test run time
+                start = System.nanoTime();
                 for (int j = 0; j < ntimes; j++) {
                     res = testedMethod.invoke(target, args, env);
                 }
+                end = System.nanoTime();
             } catch (Throwable t) {
+                end = System.nanoTime();
                 Log.error("Testing " + this, t);
                 exception = t;
             } finally {
                 env.setContext(oldContext);
             }
-            return exception == null ? new TestUnit(this, res) : new TestUnit(this, exception);
+            time = end - start;
+            return exception == null ? new TestUnit(this, res, time) : new TestUnit(this, exception, time);
         }
     }
 
