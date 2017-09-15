@@ -334,26 +334,38 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     @Override
     public void onRepositoryModified() {
         synchronized (lock) {
-            root = null;
-            UserWorkspaceProject project = getSelectedProject();
-            if (project != null) {
+            // We must not refresh the table when getting selected node.
+            AProjectArtefact artefact = repositorySelectNodeStateHolder.getSelectedNode().getData();
+            if (artefact != null) {
+                AProject project = artefact instanceof UserWorkspaceProject ? (UserWorkspaceProject) artefact : artefact.getProject();
+
                 String name = project.getName();
                 try {
                     if (project instanceof RulesProject) {
-                        if (!userWorkspace.hasProject(name) ||
-                                userWorkspace.getProject(name, false).isDeleted() && isHideDeleted()) {
-                            invalidateSelection();
-                        }
-                    } else {
-                        if (!userWorkspace.hasDDProject(name) ||
-                                userWorkspace.getDDProject(name).isDeleted() && isHideDeleted()) {
-                            invalidateSelection();
-                        }
+                        // We can't use hasProject() and then getProject(name) in multithreaded environment
+                        invalidateSelectionIfDeleted(name, userWorkspace.getProjects(false));
+                    } else if (project instanceof ADeploymentProject) {
+                        // We can't use hasDDProject() and then getDDProject(name) in multithreaded environment
+                        invalidateSelectionIfDeleted(name, userWorkspace.getDDProjects());
                     }
                 } catch (ProjectException e) {
                     log.error(e.getMessage(), e);
                 }
             }
+
+            root = null;
+        }
+    }
+
+    private void invalidateSelectionIfDeleted(String name, Collection<? extends UserWorkspaceProject> existingProjects) {
+        UserWorkspaceProject existing = null;
+        for (UserWorkspaceProject existingProject : existingProjects) {
+            if (name.equals(existingProject.getName())) {
+                existing = existingProject;
+            }
+        }
+        if (existing == null || existing.isDeleted() && isHideDeleted()) {
+            invalidateSelection();
         }
     }
 
