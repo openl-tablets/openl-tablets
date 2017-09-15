@@ -206,6 +206,8 @@ public interface ITableProperties {
 	void setPrecision(java.lang.String precision);
 	java.lang.Boolean getAutoType();
 	void setAutoType(java.lang.Boolean autoType);
+	java.lang.Boolean getParallel();
+	void setParallel(java.lang.Boolean parallel);
 // <<< END INSERT >>>
 	
 	

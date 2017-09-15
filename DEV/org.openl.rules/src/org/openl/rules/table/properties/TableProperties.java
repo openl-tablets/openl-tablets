@@ -336,6 +336,13 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 		setFieldValue("autoType", autoType);
 		allProperties = null;
 	}	
+	public java.lang.Boolean getParallel() {
+		return (java.lang.Boolean) getPropertyValue("parallel"); 
+	}
+	public void setParallel(java.lang.Boolean parallel) {
+		setFieldValue("parallel", parallel);
+		allProperties = null;
+	}	
 // <<< END INSERT >>>
 
     /**

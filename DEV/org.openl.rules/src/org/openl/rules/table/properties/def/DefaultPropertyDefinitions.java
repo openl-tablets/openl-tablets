@@ -17,7 +17,7 @@ public class DefaultPropertyDefinitions
     
     static {  
         // <<< INSERT TablePropertiesDefinition >>>
-		definitions = new TablePropertyDefinition[37];
+		definitions = new TablePropertyDefinition[38];
 		definitions[0] = new TablePropertyDefinition();
 		definitions[0].setConstraints(new org.openl.rules.table.constraints.Constraints("unique in:module"));
 		definitions[0].setDeprecation("removed");
@@ -483,8 +483,7 @@ public class DefaultPropertyDefinitions
 		definitions[35].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[36] = new TablePropertyDefinition();
 		definitions[36].setDefaultValue("true");
-		definitions[36].setDescription("Controls new Spreadsheet Auto Type Discovery feature. By default = false (old be"
-		 + "haviour)");
+		definitions[36].setDescription("Controls new Spreadsheet Auto Type Discovery feature.");
 		definitions[36].setDimensional(false);
 		definitions[36].setDisplayName("Auto Type Discovery");
 		definitions[36].setGroup("Dev");
@@ -495,6 +494,19 @@ public class DefaultPropertyDefinitions
 		definitions[36].setSystem(false);
 		definitions[36].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[36].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
+		definitions[37] = new TablePropertyDefinition();
+		definitions[37].setDefaultValue("false");
+		definitions[37].setDescription("Controls Parallel execution feature. By default = false.");
+		definitions[37].setDimensional(false);
+		definitions[37].setDisplayName("Cuncurrent Execution");
+		definitions[37].setGroup("Dev");
+		definitions[37].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
+		definitions[37].setName("parallel");
+		definitions[37].setPrimaryKey(false);
+		definitions[37].setSecurityFilter("no");
+		definitions[37].setSystem(false);
+		definitions[37].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
+		definitions[37].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
 // <<< END INSERT TablePropertiesDefinition >>>
     }
 
