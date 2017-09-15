@@ -258,6 +258,26 @@ public class TestUnitsResults implements INamedThing {
         return cnt;
     }
 
+    public int getNumberOfErrors() {
+        int cnt = 0;
+        for (int i = 0; i < getNumberOfTestUnits(); i++) {
+            if (testUnits.get(i).compareResult() == TestStatus.TR_EXCEPTION.getStatus()) {
+                ++cnt;
+            }
+        }
+        return cnt;
+    }
+
+    public int getNumberOfAssertionFailures() {
+        int cnt = 0;
+        for (int i = 0; i < getNumberOfTestUnits(); i++) {
+            if (testUnits.get(i).compareResult() == TestStatus.TR_NEQ.getStatus()) {
+                ++cnt;
+            }
+        }
+        return cnt;
+    }
+
     public int getNumberOfTestUnits() {
         return testUnits.size();
     }
