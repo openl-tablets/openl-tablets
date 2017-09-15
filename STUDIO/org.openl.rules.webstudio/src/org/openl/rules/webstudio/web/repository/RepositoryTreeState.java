@@ -339,8 +339,16 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             if (project != null) {
                 String name = project.getName();
                 try {
-                    if (!userWorkspace.hasProject(name) || userWorkspace.getProject(name, false).isDeleted() && isHideDeleted()) {
-                        invalidateSelection();
+                    if (project instanceof RulesProject) {
+                        if (!userWorkspace.hasProject(name) ||
+                                userWorkspace.getProject(name, false).isDeleted() && isHideDeleted()) {
+                            invalidateSelection();
+                        }
+                    } else {
+                        if (!userWorkspace.hasDDProject(name) ||
+                                userWorkspace.getDDProject(name).isDeleted() && isHideDeleted()) {
+                            invalidateSelection();
+                        }
                     }
                 } catch (ProjectException e) {
                     log.error(e.getMessage(), e);
