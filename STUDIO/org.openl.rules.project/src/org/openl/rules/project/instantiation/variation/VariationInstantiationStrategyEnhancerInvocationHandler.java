@@ -31,6 +31,7 @@ import org.openl.rules.variation.VariationsFactory;
 import org.openl.rules.variation.VariationsFromRules;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.rules.variation.VariationsResult;
+import org.openl.rules.vm.ArgumentCachingStorage;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.vm.IRuntimeEnv;
@@ -144,10 +145,10 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
 
             if (runtimeEnv instanceof SimpleRulesRuntimeEnv) {
                 SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = ((SimpleRulesRuntimeEnv) runtimeEnv);
-                simpleRulesRuntimeEnv.changeMethodArgumentsCache(org.openl.rules.vm.CacheMode.READ_WRITE);
+                simpleRulesRuntimeEnv.changeMethodArgumentsCacheMode(org.openl.rules.vm.CacheMode.READ_WRITE);
                 simpleRulesRuntimeEnv.setMethodArgumentsCacheEnable(true);
-                simpleRulesRuntimeEnv.resetOriginalCalculationSteps();
-                simpleRulesRuntimeEnv.resetMethodArgumentsCache();
+                simpleRulesRuntimeEnv.getArgumentCachingStorage().resetOriginalCalculationSteps();
+                simpleRulesRuntimeEnv.getArgumentCachingStorage().resetMethodArgumentsCache();
                 simpleRulesRuntimeEnv.setOriginalCalculation(true);
                 simpleRulesRuntimeEnv.setIgnoreRecalculate(false);
             } else {
@@ -176,9 +177,10 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
                     SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = ((SimpleRulesRuntimeEnv) runtimeEnv);
                     simpleRulesRuntimeEnv.setIgnoreRecalculate(true);
                     simpleRulesRuntimeEnv.setOriginalCalculation(true);
-                    simpleRulesRuntimeEnv.resetOriginalCalculationSteps();
+                    simpleRulesRuntimeEnv.getArgumentCachingStorage().resetOriginalCalculationSteps();
                     simpleRulesRuntimeEnv.setMethodArgumentsCacheEnable(false);
-                    simpleRulesRuntimeEnv.resetMethodArgumentsCache();
+                    simpleRulesRuntimeEnv.setIgnoreRecalculate(true);
+                    simpleRulesRuntimeEnv.getArgumentCachingStorage().resetMethodArgumentsCache();
                 }
             }
         } else {
@@ -274,9 +276,10 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
                     final OpenLRulesInvocationHandler handler = (OpenLRulesInvocationHandler) Proxy.getInvocationHandler(serviceClassInstance);
                     handler.setRuntimeEnv(runtimeEnv);
                     SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = ((SimpleRulesRuntimeEnv) runtimeEnv);
-                    simpleRulesRuntimeEnv.changeMethodArgumentsCache(org.openl.rules.vm.CacheMode.READ_ONLY);
+                    simpleRulesRuntimeEnv.changeMethodArgumentsCacheMode(org.openl.rules.vm.CacheMode.READ_ONLY);
                     simpleRulesRuntimeEnv.setOriginalCalculation(false);
-                    simpleRulesRuntimeEnv.initCurrentStep();
+                    simpleRulesRuntimeEnv.setIgnoreRecalculate(true);
+                    simpleRulesRuntimeEnv.getArgumentCachingStorage().initCurrentStep();
                 }else{
                     if (!f){
                         log.warn("Variation features aren't supported for Wrapper classses. This functionality was depricated!");
@@ -323,9 +326,10 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
                         handler.setRuntimeEnv(runtimeEnv);
                     }
                     SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = ((SimpleRulesRuntimeEnv) runtimeEnv);
-                    simpleRulesRuntimeEnv.changeMethodArgumentsCache(org.openl.rules.vm.CacheMode.READ_ONLY);
+                    simpleRulesRuntimeEnv.changeMethodArgumentsCacheMode(org.openl.rules.vm.CacheMode.READ_ONLY);
                     simpleRulesRuntimeEnv.setOriginalCalculation(false);
-                    simpleRulesRuntimeEnv.initCurrentStep();
+                    simpleRulesRuntimeEnv.setIgnoreRecalculate(true);
+                    simpleRulesRuntimeEnv.getArgumentCachingStorage().initCurrentStep();
                 }
 
                 return calculateSingleVariation(member, arguments, variation);
