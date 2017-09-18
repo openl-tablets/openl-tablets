@@ -5,8 +5,11 @@ import static org.openl.rules.testmethod.TestUnitResultComparator.TestStatus.TR_
 
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.maven.plugin.MojoFailureException;
@@ -70,12 +73,11 @@ public final class TestMojo extends BaseOpenLMojo {
                 int suitTests = result.getNumberOfTestUnits();
                 int suitFailures = result.getNumberOfAssertionFailures();
                 int suitErrors = result.getNumberOfErrors();
-                long time = result.getExecutionTime();
 
                 info("Tests run: ", suitTests,
                         ", Failures: ", suitFailures,
                         ", Errors: ", suitErrors,
-                        ". Time elapsed: ", time + " nano sec. ",
+                        ". Time elapsed: ", formatTime(result.getExecutionTime()), " sec. ",
                         result.getNumberOfFailures() > 0 ? FAILURE : "");
 
                 if (result.getNumberOfFailures() > 0) {
@@ -137,7 +139,7 @@ public final class TestMojo extends BaseOpenLMojo {
 
                 info("  Test case: #", num,
                         TestUnit.DEFAULT_DESCRIPTION.equals(description) ? "" : " (" + description + ")",
-                        ". Time elapsed: ", testUnit.getExecutionTime(), " nano sec. ",
+                        ". Time elapsed: ", formatTime(testUnit.getExecutionTime()), " sec. ",
                         failureType);
 
                 if (status == TR_NEQ.getStatus()) {
@@ -168,6 +170,13 @@ public final class TestMojo extends BaseOpenLMojo {
     @Override
     boolean isDisabled() {
         return skipTests;
+    }
+
+    private String formatTime(long nanoseconds) {
+        double time = (double) nanoseconds / 1000_000_000;
+        DecimalFormat df = (DecimalFormat) NumberFormat.getNumberInstance(Locale.US);
+        df.applyPattern("#.###");
+        return time < 0.001 ? "< 0.001" : df.format(time);
     }
 
 }
