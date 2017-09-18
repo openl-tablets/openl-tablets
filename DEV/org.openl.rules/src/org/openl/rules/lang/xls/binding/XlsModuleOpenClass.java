@@ -530,7 +530,11 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     private TestSuiteMethod createNewTestSuiteMethod(TestSuiteMethod testSuiteMethod) {
         IOpenMethod method = testSuiteMethod.getTestedMethod();
         IOpenMethod newTargetMethod = getDeclaredMethod(method.getName(), method.getSignature().getParameterTypes());
-        return new TestSuiteMethod(newTargetMethod, testSuiteMethod.getHeader(), testSuiteMethod.getBoundNode());
+        TestSuiteMethod copy = new TestSuiteMethod(newTargetMethod,
+                testSuiteMethod.getHeader(),
+                testSuiteMethod.getBoundNode());
+        copy.setModuleName(testSuiteMethod.getModuleName());
+        return copy;
     }
 
     protected void addTestSuiteMethodsFromDependencies() {
