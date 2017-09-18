@@ -22,7 +22,7 @@ try {
     assert lines.any { it.contains('Rules With Error.TryGreetingTestTestAll#2 java.lang.ArithmeticException') }
 
     // Check total tests statistics
-    assert lines.any { it.contains('Total tests run: 20, Failures: 7, Errors: 1')}
+    assert lines.any { it.contains('Total tests run: 20, Failures: 7, Errors: 1') }
 
     return true
 } catch(Throwable e) {

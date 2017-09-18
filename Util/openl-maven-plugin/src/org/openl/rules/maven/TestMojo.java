@@ -77,8 +77,8 @@ public final class TestMojo extends BaseOpenLMojo {
                 info("Tests run: ", suitTests,
                         ", Failures: ", suitFailures,
                         ", Errors: ", suitErrors,
-                        ". Time elapsed: ", formatTime(result.getExecutionTime()), " sec. ",
-                        result.getNumberOfFailures() > 0 ? FAILURE : "");
+                        ". Time elapsed: ", formatTime(result.getExecutionTime()), " sec.",
+                        result.getNumberOfFailures() > 0 ? " " + FAILURE : "");
 
                 if (result.getNumberOfFailures() > 0) {
                     showFailures(test, result, summaryFailures, summaryErrors);
