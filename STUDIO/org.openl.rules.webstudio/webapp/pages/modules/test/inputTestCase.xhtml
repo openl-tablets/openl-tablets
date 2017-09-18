@@ -57,7 +57,7 @@
                                 </a4j:commandLink>
                                 <h:outputText value="#{item.treeText}" />
                                 <a4j:commandLink action="#{inputArgsBean.initCollection}" rendered="#{item.valueNull}"
-                                    render="dynamicTreePanel" title="Init">
+                                    render="dynamicTreePanel" title="Create">
                                     <h:graphicImage value="/images/newtable.gif" />
                                 </a4j:commandLink>
                                 <a4j:commandLink action="#{inputArgsBean.disposeObject}"
@@ -92,7 +92,7 @@
                                 <a4j:commandLink action="#{inputArgsBean.initObject}" rendered="#{item.valueNull}"
                                     onclick="initClassName($j('#objectType#{row}').find('option:selected').val())"
                                     oncomplete="createDatePickers()"
-                                    render="dynamicTreePanel" title="Init">
+                                    render="dynamicTreePanel" title="Create">
                                     <h:graphicImage value="/images/newtable.gif" />
                                 </a4j:commandLink>
                                 <a4j:commandLink action="#{inputArgsBean.disposeObject}"
