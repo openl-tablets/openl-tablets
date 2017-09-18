@@ -24,7 +24,7 @@
         <module>org.openl.rules.calculation.result</module>
         <module>org.openl.rules.constrainer</module>
         <module>org.openl.rules.gen</module>
-        <module>org.openl.rules.ce</module>
+
         <!-- Tests -->
         <module>org.openl.rules.test</module>
     </modules>
