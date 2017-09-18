@@ -8,6 +8,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -88,7 +89,11 @@ public final class TestMojo extends BaseOpenLMojo {
                 error(e);
                 errors++;
                 String modulePrefix = moduleName == null ? "" : moduleName + ".";
-                summaryErrors.add(modulePrefix + test.getName() + e.getClass().getName());
+                Throwable cause = ExceptionUtils.getRootCause(e);
+                if (cause == null) {
+                    cause = e;
+                }
+                summaryErrors.add(modulePrefix + test.getName() + cause.getClass().getName());
             }
         }
 
@@ -144,8 +149,11 @@ public final class TestMojo extends BaseOpenLMojo {
                 } else {
                     Throwable error = (Throwable) testUnit.getActualResult();
                     info("  Error: ", error, "\n");
-                    summaryErrors.add(modulePrefix + test.getName() + "#" + num + " " +
-                            error.getClass().getName());
+                    Throwable cause = ExceptionUtils.getRootCause(error);
+                    if (cause == null) {
+                        cause = error;
+                    }
+                    summaryErrors.add(modulePrefix + test.getName() + "#" + num + " " + cause.getClass().getName());
                 }
             }
             num++;
