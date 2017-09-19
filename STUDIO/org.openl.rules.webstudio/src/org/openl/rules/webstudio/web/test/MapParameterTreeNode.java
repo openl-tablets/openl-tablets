@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.openl.base.INamedThing;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
@@ -48,7 +47,17 @@ public class MapParameterTreeNode extends CollectionParameterTreeNode {
     public void addChild(Object elementNum, TreeNode element) {
         Object value = element == null ? null : ((ParameterDeclarationTreeNode) element).getValue();
         LinkedHashMap<Object, ParameterDeclarationTreeNode> childrenMap = getChildernMap();
-        childrenMap.put(childrenMap.size(), createNode(null, value));
+        int nextChildNum = childrenMap.size();
+
+        ParameterDeclarationTreeNode node = createNode(null, value);
+        if (nextChildNum > 0) {
+            ParameterDeclarationTreeNode lastChild = getChild(nextChildNum - 1);
+
+            initComplexNode(lastChild.getChild("key"), node.getChild("key"));
+            initComplexNode(lastChild.getChild("value"), node.getChild("value"));
+        }
+
+        childrenMap.put(nextChildNum, node);
     }
 
     @Override

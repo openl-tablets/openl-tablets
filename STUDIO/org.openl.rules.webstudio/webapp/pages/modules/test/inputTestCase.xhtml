@@ -22,8 +22,8 @@
         }
     </style>
 
-    <a4j:jsFunction name="initClassName">
-        <a4j:param name="className" assignTo="#{inputArgsBean.className}"/>
+    <a4j:jsFunction name="saveComplexNodeTypes">
+        <a4j:param name="nodeValuesString" assignTo="#{inputArgsBean.complexNodeTypes}"/>
     </a4j:jsFunction>
 
     <table class="table">
@@ -52,20 +52,24 @@
                             <rich:treeNode type="collection">
                                 <a4j:commandLink action="#{inputArgsBean.deleteFromCollection}"
                                     rendered="#{item.elementOfCollection}" render="dynamicTreePanel"
+                                    onclick="saveAllComplexNodeTypes()"
                                     title="Delete from collection">
                                     <h:graphicImage value="/images/delete.png" />
                                 </a4j:commandLink>
                                 <h:outputText value="#{item.treeText}" />
                                 <a4j:commandLink action="#{inputArgsBean.initCollection}" rendered="#{item.valueNull}"
+                                    onclick="saveAllComplexNodeTypes()"
                                     render="dynamicTreePanel" title="Create">
                                     <h:graphicImage value="/images/newtable.gif" />
                                 </a4j:commandLink>
                                 <a4j:commandLink action="#{inputArgsBean.disposeObject}"
+                                    onclick="saveAllComplexNodeTypes()"
                                     rendered="#{not item.valueNull}" render="dynamicTreePanel" title="Dispose">
                                     <h:graphicImage value="/images/close.gif" />
                                 </a4j:commandLink>
                                 <a4j:commandLink action="#{inputArgsBean.addToCollection}"
                                     rendered="#{not item.valueNull}" render="dynamicTreePanel" styleClass="addButton"
+                                    onclick="saveAllComplexNodeTypes()"
                                     oncomplete="createDatePickers()"
                                     title="Add new element to collection">
                                     <h:graphicImage value="/images/add_obj.gif" />
@@ -74,28 +78,31 @@
                             <rich:treeNode type="complex">
                                 <a4j:commandLink action="#{inputArgsBean.deleteFromCollection}"
                                     rendered="#{item.elementOfCollection}" render="dynamicTreePanel"
+                                    onclick="saveAllComplexNodeTypes()"
                                     title="Delete from collection">
                                     <h:graphicImage value="/images/delete.png" />
                                 </a4j:commandLink>
                                 <h:outputText value="#{item.treeText}" />
 
-                                <ui:param name="row" value="#{jsffn:joinAll(rowKeyVar.simpleKeys, '_')}"/>
+                                <ui:param name="row" value="#{inputArgsBean.getRow(item, rowKeyVar)}"/>
 
                                 <h:panelGroup rendered="#{item.valueNull and item.baseType}">
-                                    <select id="objectType#{row}">
+                                    <!--If we try to use h:selectOneMenu, 'Create' button stops working -->
+                                    <select id="#{row}" class="object-type">
                                         <a4j:repeat value="#{inputArgsBean.getPossibleTypes(item)}" var="option">
-                                            <option value="#{option.value}">#{option.label}</option>
+                                            <option value="#{option.value}" selected="#{option.value == item.typeToCreate ? 'selected' : ''}">#{option.label}</option>
                                         </a4j:repeat>
                                     </select>
                                 </h:panelGroup>
 
                                 <a4j:commandLink action="#{inputArgsBean.initObject}" rendered="#{item.valueNull}"
-                                    onclick="initClassName($j('#objectType#{row}').find('option:selected').val())"
+                                    onclick="saveAllComplexNodeTypes()"
                                     oncomplete="createDatePickers()"
                                     render="dynamicTreePanel" title="Create">
                                     <h:graphicImage value="/images/newtable.gif" />
                                 </a4j:commandLink>
                                 <a4j:commandLink action="#{inputArgsBean.disposeObject}"
+                                    onclick="saveAllComplexNodeTypes()"
                                     rendered="#{not item.valueNull}" render="dynamicTreePanel" title="Dispose">
                                     <h:graphicImage value="/images/close.gif" />
                                 </a4j:commandLink>
@@ -104,6 +111,7 @@
                             <rich:treeNode type="string">
                                 <a4j:commandLink action="#{inputArgsBean.deleteFromCollection}"
                                     rendered="#{item.elementOfCollection}" render="dynamicTreePanel"
+                                    onclick="saveAllComplexNodeTypes()"
                                     title="Delete from collection">
                                     <h:graphicImage value="/images/delete.png" />
                                 </a4j:commandLink>
@@ -114,6 +122,7 @@
                             <rich:treeNode type="number">
                                 <a4j:commandLink action="#{inputArgsBean.deleteFromCollection}"
                                     rendered="#{item.elementOfCollection}" render="dynamicTreePanel"
+                                    onclick="saveAllComplexNodeTypes()"
                                     title="Delete from collection">
                                     <h:graphicImage value="/images/delete.png" />
                                 </a4j:commandLink>
@@ -124,6 +133,7 @@
                             <rich:treeNode type="boolean">
                                 <a4j:commandLink action="#{inputArgsBean.deleteFromCollection}"
                                     rendered="#{item.elementOfCollection}" render="dynamicTreePanel"
+                                    onclick="saveAllComplexNodeTypes()"
                                     title="Delete from collection">
                                     <h:graphicImage value="/images/delete.png" />
                                 </a4j:commandLink>
@@ -133,6 +143,7 @@
                             <rich:treeNode type="selection">
                                 <a4j:commandLink action="#{inputArgsBean.deleteFromCollection}"
                                     rendered="#{item.elementOfCollection}" render="dynamicTreePanel"
+                                    onclick="saveAllComplexNodeTypes()"
                                     title="Delete from collection">
                                     <h:graphicImage value="/images/delete.png" />
                                 </a4j:commandLink>
@@ -144,6 +155,7 @@
                             <rich:treeNode type="date">
                                 <a4j:commandLink action="#{inputArgsBean.deleteFromCollection}"
                                     rendered="#{item.elementOfCollection}" render="dynamicTreePanel"
+                                    onclick="saveAllComplexNodeTypes()"
                                     title="Delete from collection">
                                     <h:graphicImage value="/images/delete.png" />
                                 </a4j:commandLink>
@@ -198,6 +210,18 @@
             if (!char.match(/[-+.0-9]/)) {
                 event.preventDefault();
             }
+        }
+
+        function saveAllComplexNodeTypes() {
+            var result = '';
+            $j('.object-type').each(function () {
+                if (result.length > 0) {
+                    result += ','
+                }
+                var $element = $j(this);
+                result += $element.attr('id') + '=' + $element.find('option:selected').val();
+            });
+            saveComplexNodeTypes(result);
         }
 
         $j(function () {

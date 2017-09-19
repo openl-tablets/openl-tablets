@@ -17,6 +17,7 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
     private final Logger log = LoggerFactory.getLogger(ComplexParameterTreeNode.class);
     public static final String COMPLEX_TYPE = "complex";
     private String valuePreview;
+    private IOpenClass typeToCreate;
 
     public ComplexParameterTreeNode(String fieldName, Object value, IOpenClass fieldType, ParameterDeclarationTreeNode parent, String valuePreview) {
         super(fieldName, value, fieldType, parent);
@@ -141,5 +142,13 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
     public boolean isBaseType() {
         IOpenClass type = getType();
         return type == JavaOpenClass.OBJECT || type.isAbstract();
+    }
+
+    public IOpenClass getTypeToCreate() {
+        return typeToCreate;
+    }
+
+    public void setTypeToCreate(IOpenClass typeToCreate) {
+        this.typeToCreate = typeToCreate;
     }
 }

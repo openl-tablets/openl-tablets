@@ -2,6 +2,8 @@ package org.openl.rules.webstudio.web.test;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -17,9 +19,11 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 import org.richfaces.component.UITree;
+import org.richfaces.model.SequenceRowKey;
 
 @ManagedBean
 @ViewScoped
@@ -29,6 +33,7 @@ public class InputArgsBean {
     private ParameterWithValueDeclaration[] arguments;
     private ParameterDeclarationTreeNode[] argumentTreeNodes;
     private String className;
+    private Map<String, ComplexParameterTreeNode> complexParameters = new HashMap<>();
 
     public String getClassName() {
         return className;
@@ -89,15 +94,9 @@ public class InputArgsBean {
 
     public void initObject() {
         ComplexParameterTreeNode currentNode = (ComplexParameterTreeNode) getCurrentNode();
-        IOpenClass fieldType = currentNode.getType();
-
-        if (className != null) {
-            for (IOpenClass type : getAllClasses(currentNode)) {
-                if (className.equals(type.getJavaName())) {
-                    fieldType = type;
-                    break;
-                }
-            }
+        IOpenClass fieldType = currentNode.getTypeToCreate();
+        if (fieldType == null) {
+            fieldType = currentNode.getType();
         }
 
         ParameterDeclarationTreeNode parent = currentNode.getParent();
@@ -214,5 +213,34 @@ public class InputArgsBean {
             allClasses.add(type);
         }
         return allClasses;
+    }
+
+    public String getRow(ComplexParameterTreeNode node, SequenceRowKey rowKey) {
+        String row = StringUtils.join(rowKey.getSimpleKeys(), "_");
+        complexParameters.put(row, node);
+        return row;
+    }
+
+    public String getComplexNodeTypes() {
+        return null;
+    }
+
+    public void setComplexNodeTypes(String nodeValuesString) {
+        String[] nodeValues = nodeValuesString.split(",");
+        for (String nodeValue : nodeValues) {
+            if (StringUtils.isBlank(nodeValue)) {
+                continue;
+            }
+            String[] parts = nodeValue.split("=");
+            String row = parts[0];
+            String typeName = parts[1];
+            ComplexParameterTreeNode node = complexParameters.get(row);
+            for (IOpenClass type : getAllClasses(node)) {
+                if (typeName.equals(type.getJavaName())) {
+                    node.setTypeToCreate(type);
+                    break;
+                }
+            }
+        }
     }
 }

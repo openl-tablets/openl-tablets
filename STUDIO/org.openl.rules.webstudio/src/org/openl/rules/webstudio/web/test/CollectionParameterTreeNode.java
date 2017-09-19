@@ -1,7 +1,9 @@
 package org.openl.rules.webstudio.web.test;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
@@ -85,8 +87,27 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
     public void addChild(Object elementNum, TreeNode element) {
         int nextChildNum = getChildren().size();
         Object value = element == null ? null : ((ParameterDeclarationTreeNode) element).getValue();
-        super.addChild(nextChildNum, createNode(null, value));
+        ParameterDeclarationTreeNode node = createNode(null, value);
+        if (nextChildNum > 0) {
+            initComplexNode(getChild(nextChildNum - 1), node);
+        }
+        super.addChild(nextChildNum, node);
         saveChildNodesToValue();
+    }
+
+    protected void initComplexNode(ParameterDeclarationTreeNode from, ParameterDeclarationTreeNode to) {
+        if (!(to instanceof ComplexParameterTreeNode)) {
+            return;
+        }
+        ComplexParameterTreeNode complexNode = (ComplexParameterTreeNode) to;
+        IOpenClass type = from.getType();
+        if (from instanceof ComplexParameterTreeNode) {
+            IOpenClass typeToCreate = ((ComplexParameterTreeNode) from).getTypeToCreate();
+            if (typeToCreate != null) {
+                type = typeToCreate;
+            }
+        }
+        complexNode.setTypeToCreate(type);
     }
 
     public void removeChild(ParameterDeclarationTreeNode toDelete) {
@@ -101,8 +122,15 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
 
         // Create new value based on changed child elements count
         saveChildNodesToValue();
-        // Children keys in the map must be changed because element in the middle was deleted
-        reset();
+        // Children keys in children map must be remapped because element in the middle was deleted
+        LinkedHashMap<Object, ParameterDeclarationTreeNode> elements = getChildernMap();
+        // Values in LinkedHashMap are in the same order as they were inserted before
+        List<ParameterDeclarationTreeNode> values = new ArrayList<>(elements.values());
+        // Reinsert values with new keys
+        elements.clear();
+        for (int index = 0; index < values.size(); index++) {
+            elements.put(index, values.get(index));
+        }
     }
 
     @Override
