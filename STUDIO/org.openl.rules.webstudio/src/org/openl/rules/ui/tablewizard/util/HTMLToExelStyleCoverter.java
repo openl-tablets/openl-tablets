@@ -243,27 +243,27 @@ public class HTMLToExelStyleCoverter {
         return CellStyle.BORDER_NONE;
     }
 
-    public static XSSFColor getXSSFBackgroundColor(JSONObject style, XSSFWorkbook workbook) {
-        return getXSSFColorByHtmlStyleName("backgroundColor", style, workbook);
+    public static XSSFColor getXSSFBackgroundColor(JSONObject style) {
+        return getXSSFColorByHtmlStyleName("backgroundColor", style);
     }
 
-    public static XSSFColor getXSSFTopBorderColor(JSONObject style, XSSFWorkbook workbook) {
-        return getXSSFColorByHtmlStyleName("borderTopColor", style, workbook);
+    public static XSSFColor getXSSFTopBorderColor(JSONObject style) {
+        return getXSSFColorByHtmlStyleName("borderTopColor", style);
     }
 
-    public static XSSFColor getXSSFRightBorderColor(JSONObject style, XSSFWorkbook workbook) {
-        return getXSSFColorByHtmlStyleName("borderRightColor", style, workbook);
+    public static XSSFColor getXSSFRightBorderColor(JSONObject style) {
+        return getXSSFColorByHtmlStyleName("borderRightColor", style);
     }
 
-    public static XSSFColor getXSSFBottomBorderColor(JSONObject style, XSSFWorkbook workbook) {
-        return getXSSFColorByHtmlStyleName("borderBottomColor", style, workbook);
+    public static XSSFColor getXSSFBottomBorderColor(JSONObject style) {
+        return getXSSFColorByHtmlStyleName("borderBottomColor", style);
     }
 
-    public static XSSFColor getXSSFLeftBorderColor(JSONObject style, XSSFWorkbook workbook) {
-        return getXSSFColorByHtmlStyleName("borderLeftColor", style, workbook);
+    public static XSSFColor getXSSFLeftBorderColor(JSONObject style) {
+        return getXSSFColorByHtmlStyleName("borderLeftColor", style);
     }
     
-    public static XSSFColor getXSSFColorByHtmlStyleName(String styleName, JSONObject style, XSSFWorkbook workbook) {
+    private static XSSFColor getXSSFColorByHtmlStyleName(String styleName, JSONObject style) {
         if (!style.isNull(styleName)) {
             try {
                 if (StringUtils.isNotEmpty(style.getString(styleName))) {
