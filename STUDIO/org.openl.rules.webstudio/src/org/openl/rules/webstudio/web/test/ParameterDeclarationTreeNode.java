@@ -135,8 +135,8 @@ public abstract class ParameterDeclarationTreeNode extends ParameterWithValueDec
     }
 
     public void replaceChild(ParameterDeclarationTreeNode oldNode, ParameterDeclarationTreeNode newNode) {
-        LinkedHashMap<Object, ParameterDeclarationTreeNode> childernMap = getChildrenMap();
-        for (Map.Entry<Object, ParameterDeclarationTreeNode> entry : childernMap.entrySet()) {
+        LinkedHashMap<Object, ParameterDeclarationTreeNode> childrenMap = getChildrenMap();
+        for (Map.Entry<Object, ParameterDeclarationTreeNode> entry : childrenMap.entrySet()) {
             if (entry.getValue() == oldNode) {
                 entry.setValue(newNode);
                 break;

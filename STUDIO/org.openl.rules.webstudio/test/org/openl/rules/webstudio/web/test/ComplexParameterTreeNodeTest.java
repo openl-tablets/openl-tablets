@@ -17,23 +17,23 @@ public class ComplexParameterTreeNodeTest {
     public void testGetChildrenMap() {
         ComplexParameterTreeNode node = createNode(new My());
         
-        LinkedHashMap<Object, ParameterDeclarationTreeNode> childernMap = node.getChildrenMap();
+        LinkedHashMap<Object, ParameterDeclarationTreeNode> childrenMap = node.getChildrenMap();
         
-        assertTrue(childernMap.containsKey("name"));
-        assertEquals(childernMap.get("name").getValue(), "test");
+        assertTrue(childrenMap.containsKey("name"));
+        assertEquals(childrenMap.get("name").getValue(), "test");
         
-        assertFalse(childernMap.containsKey("value"));
+        assertFalse(childrenMap.containsKey("value"));
     }
     
     @Test
     public void testThrowingMethod() {
         ComplexParameterTreeNode node = createNode(new ThrowingField());
-        LinkedHashMap<Object, ParameterDeclarationTreeNode> childernMap = node.getChildrenMap();
+        LinkedHashMap<Object, ParameterDeclarationTreeNode> childrenMap = node.getChildrenMap();
         
-        assertTrue(childernMap.containsKey("name"));
-        assertEquals(childernMap.get("name").getValue(), "test");
+        assertTrue(childrenMap.containsKey("name"));
+        assertEquals(childrenMap.get("name").getValue(), "test");
 
-        assertTrue(childernMap.containsKey("value"));
+        assertTrue(childrenMap.containsKey("value"));
     }
 
     
@@ -67,7 +67,7 @@ public class ComplexParameterTreeNodeTest {
         // This method emulates a JSF's tree behavior
         
         Collection<ParameterDeclarationTreeNode> children = node.getChildrenMap().values();
-        List<ParameterDeclarationTreeNode> values = new ArrayList<ParameterDeclarationTreeNode>(children);
+        List<ParameterDeclarationTreeNode> values = new ArrayList<>(children);
         
         for (ParameterDeclarationTreeNode child : children) {
             values.addAll(getAllChildren(child));
