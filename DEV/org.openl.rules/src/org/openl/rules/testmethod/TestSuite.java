@@ -152,9 +152,4 @@ public class TestSuite implements INamedThing {
             return getTestedMethod().getInfo().getSourceUrl();
         }
     }
-
-    public static interface IRuntimeEnvFactory {
-        public IRuntimeEnv buildIRuntimeEnv();
-    }
-
 }
