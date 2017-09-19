@@ -11,6 +11,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public final class TestSuiteExecutor {
+    private static final Logger log = LoggerFactory.getLogger(TestSuiteExecutor.class);
+
     private static final int QUEUE_SIZE = 2000;
     public static final int DEFAULT_THREAD_COUNT = 4;
 
@@ -73,24 +75,21 @@ public final class TestSuiteExecutor {
         ThreadPoolExecutor threadPoolExecutor;
         try {
             testRunThreadCount = OpenLSystemProperties.getTestRunThreadCount(externalParameters);
-            threadPoolExecutor = new ThreadPoolExecutor(testRunThreadCount,
-                    testRunThreadCount,
-                    1l,
-                    TimeUnit.MINUTES,
-                    new ArrayBlockingQueue<Runnable>(QUEUE_SIZE),
-                    new ThreadPoolExecutor.CallerRunsPolicy());
         } catch (Exception e) {
-            Logger log = LoggerFactory.getLogger(TestSuiteExecutor.class);
-            log.error("Exception while configuring ThreadPoolExecutor. Default thread count will be used.", e);
             testRunThreadCount = DEFAULT_THREAD_COUNT;
-            threadPoolExecutor = new ThreadPoolExecutor(testRunThreadCount,
-                    testRunThreadCount,
-                    1l,
-                    TimeUnit.MINUTES,
-                    new ArrayBlockingQueue<Runnable>(QUEUE_SIZE),
-                    new ThreadPoolExecutor.CallerRunsPolicy());
+            log.warn("Exception while reading the configuration. Default thread count will be used.", e);
+        }
+        if (testRunThreadCount <= 0) {
+            log.warn("Illegal thread count has been defined. Default thread count will be used.");
+            testRunThreadCount = DEFAULT_THREAD_COUNT;
         }
 
+        threadPoolExecutor = new ThreadPoolExecutor(testRunThreadCount,
+                testRunThreadCount,
+                1L,
+                TimeUnit.MINUTES,
+                new ArrayBlockingQueue<Runnable>(QUEUE_SIZE),
+                new ThreadPoolExecutor.CallerRunsPolicy());
         threadPoolExecutor.allowCoreThreadTimeOut(true);
 
         threadCount = testRunThreadCount;
