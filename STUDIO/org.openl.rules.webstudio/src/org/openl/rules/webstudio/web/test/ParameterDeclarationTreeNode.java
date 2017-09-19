@@ -32,7 +32,7 @@ public abstract class ParameterDeclarationTreeNode extends ParameterWithValueDec
 
     @Override
     public boolean isLeaf() {
-        return getChildernMap().isEmpty();
+        return getChildrenMap().isEmpty();
     }
 
     public abstract String getDisplayedValue();
@@ -80,7 +80,7 @@ public abstract class ParameterDeclarationTreeNode extends ParameterWithValueDec
         children = null;
     }
 
-    protected LinkedHashMap<Object, ParameterDeclarationTreeNode> getChildernMap(){
+    protected LinkedHashMap<Object, ParameterDeclarationTreeNode> getChildrenMap(){
         if(children == null){
             children = initChildrenMap();
         }
@@ -92,22 +92,22 @@ public abstract class ParameterDeclarationTreeNode extends ParameterWithValueDec
     @Override
     public void addChild(Object key, TreeNode node) {
         if(node instanceof ParameterDeclarationTreeNode){
-            getChildernMap().put(key, (ParameterDeclarationTreeNode)node);
+            getChildrenMap().put(key, (ParameterDeclarationTreeNode)node);
         }
     }
     
     @Override
     public ParameterDeclarationTreeNode getChild(Object key) {
-        return getChildernMap().get(key);
+        return getChildrenMap().get(key);
     }
     
     public Collection<ParameterDeclarationTreeNode> getChildren(){
-        return getChildernMap().values();
+        return getChildrenMap().values();
     }
     
     @Override
     public Iterator<Object> getChildrenKeysIterator() {
-        return getChildernMap().keySet().iterator();
+        return getChildrenMap().keySet().iterator();
     }
 
     @Override
@@ -131,11 +131,11 @@ public abstract class ParameterDeclarationTreeNode extends ParameterWithValueDec
 
     @Override
     public void removeChild(Object key) {
-        getChildernMap().remove(key);
+        getChildrenMap().remove(key);
     }
 
     public void replaceChild(ParameterDeclarationTreeNode oldNode, ParameterDeclarationTreeNode newNode) {
-        LinkedHashMap<Object, ParameterDeclarationTreeNode> childernMap = getChildernMap();
+        LinkedHashMap<Object, ParameterDeclarationTreeNode> childernMap = getChildrenMap();
         for (Map.Entry<Object, ParameterDeclarationTreeNode> entry : childernMap.entrySet()) {
             if (entry.getValue() == oldNode) {
                 entry.setValue(newNode);

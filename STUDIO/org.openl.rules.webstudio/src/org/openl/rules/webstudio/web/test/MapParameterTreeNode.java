@@ -46,7 +46,7 @@ public class MapParameterTreeNode extends CollectionParameterTreeNode {
     @Override
     public void addChild(Object elementNum, TreeNode element) {
         Object value = element == null ? null : ((ParameterDeclarationTreeNode) element).getValue();
-        LinkedHashMap<Object, ParameterDeclarationTreeNode> childrenMap = getChildernMap();
+        LinkedHashMap<Object, ParameterDeclarationTreeNode> childrenMap = getChildrenMap();
         int nextChildNum = childrenMap.size();
 
         ParameterDeclarationTreeNode node = createNode(null, value);

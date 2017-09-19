@@ -63,13 +63,13 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
     protected Object constructValueInternal() {
         IAggregateInfo info = getType().getAggregateInfo();
         IOpenClass componentType = info.getComponentType(getType());
-        int elementsCount = getChildernMap().size();
+        int elementsCount = getChildrenMap().size();
         Object ary = info.makeIndexedAggregate(componentType, new int[] { elementsCount });
 
         IOpenIndex index = info.getIndex(getType());
 
         for (int i = 0; i < elementsCount; i++) {
-            ParameterDeclarationTreeNode node = getChildernMap().get(i);
+            ParameterDeclarationTreeNode node = getChildrenMap().get(i);
             node.getValueForced();
             index.setValue(ary, getKeyFromElementNum(i), getNodeValue(node));
         }
@@ -123,7 +123,7 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
         // Create new value based on changed child elements count
         saveChildNodesToValue();
         // Children keys in children map must be remapped because element in the middle was deleted
-        LinkedHashMap<Object, ParameterDeclarationTreeNode> elements = getChildernMap();
+        LinkedHashMap<Object, ParameterDeclarationTreeNode> elements = getChildrenMap();
         // Values in LinkedHashMap are in the same order as they were inserted before
         List<ParameterDeclarationTreeNode> values = new ArrayList<>(elements.values());
         // Reinsert values with new keys
