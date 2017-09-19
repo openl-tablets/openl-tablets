@@ -39,12 +39,12 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
     @Override
     protected LinkedHashMap<Object, ParameterDeclarationTreeNode> initChildrenMap() {
         if (isValueNull()) {
-            return new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
+            return new LinkedHashMap<>();
         } else {
             Iterator<Object> iterator = getType().getAggregateInfo().getIterator(getValue());
             IOpenClass collectionElementType = getType().getComponentClass();
             int index = 0;
-            LinkedHashMap<Object, ParameterDeclarationTreeNode> elements = new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
+            LinkedHashMap<Object, ParameterDeclarationTreeNode> elements = new LinkedHashMap<>();
             while (iterator.hasNext()) {
                 Object element = iterator.next();
                 IOpenClass type = collectionElementType;
@@ -71,7 +71,10 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
         for (int i = 0; i < elementsCount; i++) {
             ParameterDeclarationTreeNode node = getChildrenMap().get(i);
             node.getValueForced();
-            index.setValue(ary, getKeyFromElementNum(i), getNodeValue(node));
+            Object key = getKeyFromElementNum(i);
+            if (key != null) {
+                index.setValue(ary, key, getNodeValue(node));
+            }
         }
         return ary;
     }
@@ -123,6 +126,10 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
         // Create new value based on changed child elements count
         saveChildNodesToValue();
         // Children keys in children map must be remapped because element in the middle was deleted
+        updateChildrenKeys();
+    }
+
+    protected void updateChildrenKeys() {
         LinkedHashMap<Object, ParameterDeclarationTreeNode> elements = getChildrenMap();
         // Values in LinkedHashMap are in the same order as they were inserted before
         List<ParameterDeclarationTreeNode> values = new ArrayList<>(elements.values());
@@ -151,7 +158,10 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
 
         int i = 0;
         for (ParameterDeclarationTreeNode node : getChildren()) {
-            index.setValue(newCollection, getKeyFromElementNum(i), getNodeValue(node));
+            Object key = getKeyFromElementNum(i);
+            if (key != null) {
+                index.setValue(newCollection, key, getNodeValue(node));
+            }
             i++;
         }
 
