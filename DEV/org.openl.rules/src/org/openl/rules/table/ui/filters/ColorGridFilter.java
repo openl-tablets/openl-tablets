@@ -75,7 +75,7 @@ public class ColorGridFilter extends AGridFilter {
                     }
                 }
             }
-
+            cellStyle.setBorderRGB(bb);
         }
 
         return formattedCell;
