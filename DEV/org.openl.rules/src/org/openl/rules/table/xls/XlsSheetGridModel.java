@@ -22,6 +22,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellUtil;
@@ -408,10 +409,10 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         poiCell.setCellStyle(newPoiStyle);
     }
 
-    public void setCellAlignment(int col, int row, int alignment) {
+    public void setCellAlignment(int col, int row, HorizontalAlignment alignment) {
         Sheet sheet = getSheet();
         Cell cell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
-        CellUtil.setCellStyleProperty(cell, CellUtil.ALIGNMENT, (short) alignment);
+        CellUtil.setCellStyleProperty(cell, CellUtil.ALIGNMENT, alignment);
     }
 
     public void setCellIndent(int col, int row, int indent) {

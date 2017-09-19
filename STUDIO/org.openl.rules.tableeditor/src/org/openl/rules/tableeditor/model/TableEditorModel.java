@@ -4,6 +4,7 @@
  */
 package org.openl.rules.tableeditor.model;
 
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableUtils;
@@ -284,7 +285,7 @@ public class TableEditorModel {
         setProperty(name, (Object) null);
     }
 
-    public synchronized void setAlignment(int row, int col, int alignment) {
+    public synchronized void setAlignment(int row, int col, HorizontalAlignment alignment) {
         IGridRegion region = getOriginalTableRegion();
         IUndoableGridTableAction ua = new SetAlignmentAction(
                 region.getLeft() + col, region.getTop() + row, alignment);

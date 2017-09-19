@@ -1,5 +1,6 @@
 package org.openl.rules.table.actions.style;
 
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.actions.AUndoableCellAction;
@@ -7,10 +8,10 @@ import org.openl.rules.table.ui.ICellStyle;
 
 public class SetAlignmentAction extends AUndoableCellAction {
 
-    private int prevAlignment;
-    private int newAlignment;
+    private HorizontalAlignment prevAlignment;
+    private HorizontalAlignment newAlignment;
 
-    public SetAlignmentAction(int col, int row, int alignment) {
+    public SetAlignmentAction(int col, int row, HorizontalAlignment alignment) {
         super(col, row);
         this.newAlignment = alignment;
     }
@@ -19,7 +20,7 @@ public class SetAlignmentAction extends AUndoableCellAction {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
 
         ICellStyle style = grid.getCell(getCol(), getRow()).getStyle();
-        prevAlignment = style != null ? style.getHorizontalAlignment() : ICellStyle.ALIGN_GENERAL;
+        prevAlignment = style != null ? style.getHorizontalAlignment() : HorizontalAlignment.GENERAL;
 
         grid.setCellAlignment(getCol(), getRow(), newAlignment);
     }

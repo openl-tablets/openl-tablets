@@ -37,16 +37,16 @@ public class TableViewer {
         }
 
         switch (style.getHorizontalAlignment()) {
-            case ICellStyle.ALIGN_LEFT:
+            case LEFT:
                 // Left by default    
                 break;
-            case ICellStyle.ALIGN_RIGHT:
+            case RIGHT:
                 cm.setHalign("right");
                 break;
-            case ICellStyle.ALIGN_CENTER:
+            case CENTER:
                 cm.setHalign("center");
                 break;
-            case ICellStyle.ALIGN_JUSTIFY:
+            case JUSTIFY:
                 cm.setHalign("justify");
                 break;
             default:
@@ -58,13 +58,13 @@ public class TableViewer {
         }
 
         switch (style.getVerticalAlignment()) {
-            case ICellStyle.VERTICAL_BOTTOM:
+            case BOTTOM:
                 // Left by default
                 break;
-            case ICellStyle.VERTICAL_CENTER:
+            case CENTER:
                 cm.setValign("center");
                 break;
-            case ICellStyle.VERTICAL_TOP:
+            case TOP:
                 cm.setValign("top");
                 break;
         }
