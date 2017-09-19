@@ -1,7 +1,7 @@
-/**
- * Created Feb 27, 2007
- */
 package org.openl.rules.table.ui;
+
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 
 /**
  * @author snshor
@@ -21,9 +21,9 @@ public class CellStyle implements ICellStyle {
 
     private short fillForegroundColorIndex;
 
-    private short fillPattern;
+    private FillPatternType fillPattern;
 
-    private short[] borderStyle;
+    private BorderStyle[] borderStyle;
 
     private short[][] borderRGB;
     private int ident;
@@ -62,7 +62,7 @@ public class CellStyle implements ICellStyle {
         return borderRGB;
     }
 
-    public short[] getBorderStyle() {
+    public BorderStyle[] getBorderStyle() {
         return borderStyle;
     }
 
@@ -98,7 +98,7 @@ public class CellStyle implements ICellStyle {
         this.borderRGB = borderRGB;
     }
 
-    public void setBorderStyle(short[] borderStyle) {
+    public void setBorderStyle(BorderStyle[] borderStyle) {
         this.borderStyle = borderStyle;
     }
 
@@ -126,11 +126,11 @@ public class CellStyle implements ICellStyle {
         this.fillForegroundColorIndex = fillForegroundColorIndex;
     }
     
-    public short getFillPattern() {
+    public FillPatternType getFillPattern() {
         return fillPattern;
     }
 
-    public void setFillPattern(short fillPattern) {
+    public void setFillPattern(FillPatternType fillPattern) {
         this.fillPattern = fillPattern;
     }
 

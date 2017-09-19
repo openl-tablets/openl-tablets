@@ -5,14 +5,7 @@ import org.apache.poi.hssf.usermodel.HSSFOptimiser;
 import org.apache.poi.hssf.usermodel.HSSFPalette;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Color;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.FormulaEvaluator;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
@@ -25,28 +18,28 @@ public class PoiExcelHelper {
     private static final short MAX_STYLES = 4030;
 
     public static void copyCellValue(Cell cellFrom, Cell cellTo) {
-        cellTo.setCellType(Cell.CELL_TYPE_BLANK);
-        switch (cellFrom.getCellType()) {
-            case Cell.CELL_TYPE_BLANK:
+        cellTo.setCellType(CellType.BLANK);
+        switch (cellFrom.getCellTypeEnum()) {
+            case BLANK:
                 break;
-            case Cell.CELL_TYPE_BOOLEAN:
+            case BOOLEAN:
                 cellTo.setCellValue(cellFrom.getBooleanCellValue());
                 break;
-            case Cell.CELL_TYPE_FORMULA:
+            case FORMULA:
                 cellTo.setCellFormula(cellFrom.getCellFormula());
                 try {
                     evaluateFormula(cellTo);
                 } catch (Exception ignored) {
                 }
                 break;
-            case Cell.CELL_TYPE_NUMERIC:
+            case NUMERIC:
                 cellTo.setCellValue(cellFrom.getNumericCellValue());
                 break;
-            case Cell.CELL_TYPE_STRING:
+            case STRING:
                 cellTo.setCellValue(cellFrom.getRichStringCellValue());
                 break;
             default:
-                throw new RuntimeException("Unknown cell type: " + cellFrom.getCellType());
+                throw new RuntimeException("Unknown cell type: " + cellFrom.getCellTypeEnum());
         }
     }
 
@@ -65,7 +58,7 @@ public class PoiExcelHelper {
     public static Cell getCell(int colIndex, int rowIndex, Sheet sheet) {
         Row row = sheet.getRow(rowIndex);
         if (row != null) {
-            return row.getCell(colIndex, Row.RETURN_NULL_AND_BLANK);
+            return row.getCell(colIndex, Row.MissingCellPolicy.RETURN_NULL_AND_BLANK);
         }
         return null;
     }
@@ -75,7 +68,7 @@ public class PoiExcelHelper {
         if (row == null) {
             row = sheet.createRow(rowIndex);
         }
-        return row.getCell(colIndex, Row.CREATE_NULL_AS_BLANK);
+        return row.getCell(colIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
     }
     
     /**
@@ -132,7 +125,7 @@ public class PoiExcelHelper {
 
     public static void setCellStringValue(int col, int row, String value, Sheet sheet) {
         Cell cell = getOrCreateCell(col, row, sheet);
-        cell.setCellType(Cell.CELL_TYPE_STRING);
+        cell.setCellType(CellType.STRING);
         cell.setCellValue(value);
     }
  
@@ -146,7 +139,7 @@ public class PoiExcelHelper {
     public static void evaluateFormula(Cell cell) throws Exception {
         FormulaEvaluator formulaEvaluator = cell.getSheet().getWorkbook()
             .getCreationHelper().createFormulaEvaluator();
-        formulaEvaluator.evaluateFormulaCell(cell);
+        formulaEvaluator.evaluateFormulaCellEnum(cell);
     }
 
     public static <T extends CellStyle> T createCellStyle(Workbook workbook) {
@@ -183,7 +176,7 @@ public class PoiExcelHelper {
             short fontIndex = cell.getCellStyle().getFontIndex();
             Font fromFont = workbook.getFontAt(fontIndex);
 
-            newFont.setBoldweight(fromFont.getBoldweight());
+            newFont.setBold(fromFont.getBold());
             newFont.setColor(fromFont.getColor());
             newFont.setFontHeight(fromFont.getFontHeight());
             newFont.setFontName(fromFont.getFontName());
@@ -207,7 +200,7 @@ public class PoiExcelHelper {
     }
 
     public static void setCellFont(Cell cell,
-            short boldWeight, short color, short fontHeight, String name, boolean italic,
+            boolean boldWeight, short color, short fontHeight, String name, boolean italic,
             boolean strikeout, short typeOffset, byte underline) {
         if (cell != null) {
             Workbook workbook = cell.getSheet().getWorkbook();
@@ -215,7 +208,7 @@ public class PoiExcelHelper {
                     boldWeight, color, fontHeight, name, italic, strikeout, typeOffset, underline);
             if (font == null) { // Create new font
                 font = cell.getSheet().getWorkbook().createFont();
-                font.setBoldweight(boldWeight);
+                font.setBold(boldWeight);
                 font.setColor(color);
                 font.setFontHeight(fontHeight);
                 font.setFontName(name);
@@ -224,11 +217,11 @@ public class PoiExcelHelper {
                 font.setTypeOffset(typeOffset);
                 font.setUnderline(underline);
             }
-            CellUtil.setFont(cell, workbook, font);
+            CellUtil.setFont(cell, font);
         }
     }
 
-    public static void setCellFontBold(Cell cell, short boldweight) {
+    public static void setCellFontBold(Cell cell, boolean boldweight) {
         Font font = getCellFont(cell);
         setCellFont(cell,
                 boldweight, font.getColor(), font.getFontHeight(), font.getFontName(), font.getItalic(),
@@ -238,14 +231,14 @@ public class PoiExcelHelper {
     public static void setCellFontItalic(Cell cell, boolean italic) {
         Font font = getCellFont(cell);
         setCellFont(cell,
-                font.getBoldweight(), font.getColor(), font.getFontHeight(), font.getFontName(), italic,
+                font.getBold(), font.getColor(), font.getFontHeight(), font.getFontName(), italic,
                 font.getStrikeout(), font.getTypeOffset(), font.getUnderline());
     }
 
     public static void setCellFontUnderline(Cell cell, byte underline) {
         Font font = getCellFont(cell);
         setCellFont(cell,
-                font.getBoldweight(), font.getColor(), font.getFontHeight(), font.getFontName(), font.getItalic(),
+                font.getBold(), font.getColor(), font.getFontHeight(), font.getFontName(), font.getItalic(),
                 font.getStrikeout(), font.getTypeOffset(), underline);
     }
 
@@ -374,13 +367,13 @@ public class PoiExcelHelper {
         return colors;
     }
 
-    public static short[] getCellBorderStyles(CellStyle style) {
-        short[] styles = new short[4];
+    public static BorderStyle[] getCellBorderStyles(CellStyle style) {
+        BorderStyle[] styles = new BorderStyle[4];
 
-        styles[0] = style.getBorderTop();
-        styles[1] = style.getBorderRight();
-        styles[2] = style.getBorderBottom();
-        styles[3] = style.getBorderLeft();
+        styles[0] = style.getBorderTopEnum();
+        styles[1] = style.getBorderRightEnum();
+        styles[2] = style.getBorderBottomEnum();
+        styles[3] = style.getBorderLeftEnum();
 
         return styles;
     }
@@ -422,7 +415,9 @@ public class PoiExcelHelper {
         for (int i = 0; i < 3; i++) {
             rgb[i] = (byte) (color[i] & 0xFF);
         }
-        return new XSSFColor(rgb);
+        XSSFColor xssfColor = new XSSFColor();
+        xssfColor.setRGB(rgb);
+        return xssfColor;
     }
 
     private static short getOrAddColorIndex(short[] rgb, HSSFWorkbook wb) {

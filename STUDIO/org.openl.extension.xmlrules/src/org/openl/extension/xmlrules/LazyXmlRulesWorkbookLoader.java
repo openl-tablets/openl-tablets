@@ -8,10 +8,10 @@ import java.io.InputStream;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.util.IOUtils;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.extension.xmlrules.model.ExtensionModule;
 import org.openl.rules.lang.xls.load.LazyWorkbookLoader;
+import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

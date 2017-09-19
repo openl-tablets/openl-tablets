@@ -1,5 +1,7 @@
 package org.openl.rules.table.ui.filters;
 
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.ICellStyle;
@@ -20,9 +22,9 @@ public class CellStyleGridFilter extends AGridFilter {
 
     private Short fillForegroundColorIndex;
 
-    private Short fillPattern;
+    private FillPatternType fillPattern;
 
-    private Short[] borderStyle;
+    private BorderStyle[] borderStyle;
 
     private short[][] borderRGB;
     private Integer ident;
@@ -33,7 +35,7 @@ public class CellStyleGridFilter extends AGridFilter {
 
     protected CellStyleGridFilter(IGridSelector selector, Integer horizontalAlignment, Integer verticalAlignment,
             short[] fillBackgroundColor, short[] fillForegroundColor, Short fillBackgroundColorIndex,
-            Short fillForegroundColorIndex, Short fillPattern, Short[] borderStyle, short[][] borderRGB, Integer ident,
+            Short fillForegroundColorIndex, FillPatternType fillPattern, BorderStyle[] borderStyle, short[][] borderRGB, Integer ident,
             Boolean wrappedText, Integer rotation) {
         super(selector);
         this.horizontalAlignment = horizontalAlignment;
@@ -85,13 +87,13 @@ public class CellStyleGridFilter extends AGridFilter {
         if (borderStyle != null) {
             if (style.getBorderStyle() != null) {
                 for (int i = 0; i < borderStyle.length; i++) {
-                    Short border = borderStyle[i];
+                    BorderStyle border = borderStyle[i];
                     if (border == null) {
                         borderStyle[i] = style.getBorderStyle()[i];
                     }
                 }
             }
-            style.setBorderStyle(toPrimitive(borderStyle));
+            style.setBorderStyle(borderStyle);
         }
         if (borderRGB != null) {
             style.setBorderRGB(borderRGB);
@@ -117,8 +119,8 @@ public class CellStyleGridFilter extends AGridFilter {
             }
         };
 
-        Short[] bottomBorderStyle = new Short[4];
-        bottomBorderStyle[ICellStyle.BOTTOM] = ICellStyle.BORDER_NONE;
+        BorderStyle[] bottomBorderStyle = new BorderStyle[4];
+        bottomBorderStyle[ICellStyle.BOTTOM] = BorderStyle.NONE;
 
         short[][] bottomRGB = new short[4][];
         bottomRGB[ICellStyle.BOTTOM] = borderRGB[ICellStyle.TOP];
@@ -138,8 +140,8 @@ public class CellStyleGridFilter extends AGridFilter {
             }
         };
 
-        Short[] bottomBorderStyle = new Short[4];
-        bottomBorderStyle[ICellStyle.RIGHT] = ICellStyle.BORDER_NONE;
+        BorderStyle[] bottomBorderStyle = new BorderStyle[4];
+        bottomBorderStyle[ICellStyle.RIGHT] = BorderStyle.NONE;
 
         short[][] bottomRGB = new short[4][];
         bottomRGB[ICellStyle.RIGHT] = borderRGB[ICellStyle.LEFT];
@@ -149,14 +151,6 @@ public class CellStyleGridFilter extends AGridFilter {
             .setBorderStyle(bottomBorderStyle)
             .setBorderRGB(bottomRGB)
             .build();
-    }
-
-    private short[] toPrimitive(Short[] array) {
-        short[] primitive = new short[array.length];
-        for (int i = 0; i < array.length; i++) {
-            primitive[i] = array[i] != null ? array[i] : ICellStyle.BORDER_NONE;
-        }
-        return primitive;
     }
 
     public static class Builder {
@@ -174,9 +168,9 @@ public class CellStyleGridFilter extends AGridFilter {
 
         private Short fillForegroundColorIndex;
 
-        private Short fillPattern;
+        private FillPatternType fillPattern;
 
-        private Short[] borderStyle;
+        private BorderStyle[] borderStyle;
 
         private short[][] borderRGB;
         private Integer ident;
@@ -232,12 +226,12 @@ public class CellStyleGridFilter extends AGridFilter {
             return this;
         }
 
-        public Builder setFillPattern(short fillPattern) {
+        public Builder setFillPattern(FillPatternType fillPattern) {
             this.fillPattern = fillPattern;
             return this;
         }
 
-        public Builder setBorderStyle(Short[] borderStyle) {
+        public Builder setBorderStyle(BorderStyle[] borderStyle) {
             if (borderStyle == null) {
                 throw new IllegalArgumentException("borderStyle can't be null");
             }
@@ -246,7 +240,7 @@ public class CellStyleGridFilter extends AGridFilter {
             return this;
         }
 
-        public Builder setBorderStyle(short borderStyles) {
+        public Builder setBorderStyle(BorderStyle borderStyles) {
             return setBorderStyle(createBorderStyle(borderStyles));
         }
 
@@ -286,8 +280,8 @@ public class CellStyleGridFilter extends AGridFilter {
             return new CellStyleGridFilter(this);
         }
 
-        private Short[] createBorderStyle(short style) {
-            Short[] colors = new Short[BORDER_SIDES_COUNT];
+        private BorderStyle[] createBorderStyle(BorderStyle style) {
+            BorderStyle[] colors = new BorderStyle[BORDER_SIDES_COUNT];
             for (int i = 0; i < colors.length; i++) {
                 colors[i] = style;
             }

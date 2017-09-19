@@ -16,9 +16,11 @@ import org.apache.poi.hssf.record.PaletteRecord;
 import org.apache.poi.hssf.usermodel.HSSFPalette;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Comment;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -390,7 +392,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         newPoiStyle.cloneStyleFrom(poiCell.getCellStyle());
         
         if (style.getBorderStyle() != null) {
-            short[] borderStyle = style.getBorderStyle();
+            BorderStyle[] borderStyle = style.getBorderStyle();
             
             newPoiStyle.setBorderTop(borderStyle[0]);
             newPoiStyle.setBorderRight(borderStyle[1]);
@@ -409,13 +411,13 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     public void setCellAlignment(int col, int row, int alignment) {
         Sheet sheet = getSheet();
         Cell cell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
-        CellUtil.setCellStyleProperty(cell, sheet.getWorkbook(), CellUtil.ALIGNMENT, (short) alignment);
+        CellUtil.setCellStyleProperty(cell, CellUtil.ALIGNMENT, (short) alignment);
     }
 
     public void setCellIndent(int col, int row, int indent) {
         Sheet sheet = getSheet();
         Cell cell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
-        CellUtil.setCellStyleProperty(cell, sheet.getWorkbook(), CellUtil.INDENTION, (short) indent);
+        CellUtil.setCellStyleProperty(cell, CellUtil.INDENTION, (short) indent);
     }
 
     public void setCellFillColor(int col, int row, short[] color) {
@@ -423,12 +425,12 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         CellStyle newStyle = PoiExcelHelper.cloneStyleFrom(cell);
 
         if (color != null) {
-            if (newStyle.getFillPattern() == CellStyle.NO_FILL) {
-                newStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            if (newStyle.getFillPatternEnum() == FillPatternType.NO_FILL) {
+                newStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             }
             setCellFillColor(newStyle, color);
         } else {
-            newStyle.setFillPattern(CellStyle.NO_FILL);
+            newStyle.setFillPattern(FillPatternType.NO_FILL);
         }
 
         cell.setCellStyle(newStyle);
@@ -506,8 +508,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     public void setCellFontBold(int col, int row, boolean bold) {
         Cell cell = PoiExcelHelper.getOrCreateCell(col, row, getSheet());
-        short boldweight = bold ? Font.BOLDWEIGHT_BOLD : Font.BOLDWEIGHT_NORMAL;
-        PoiExcelHelper.setCellFontBold(cell, boldweight);
+        PoiExcelHelper.setCellFontBold(cell, bold);
     }
 
     public void setCellFontItalic(int col, int row, boolean italic) {

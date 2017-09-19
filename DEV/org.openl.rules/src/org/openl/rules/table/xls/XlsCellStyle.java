@@ -1,6 +1,8 @@
 package org.openl.rules.table.xls;
 
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.table.ui.ICellStyle;
 import static org.openl.rules.table.xls.PoiExcelHelper.*;
@@ -25,17 +27,17 @@ public class XlsCellStyle implements ICellStyle {
     }
 
     @Override
-    public short[] getBorderStyle() {
+    public BorderStyle[] getBorderStyle() {
         return getCellBorderStyles(xlsStyle);
     }
 
     @Override
-    public short getFillPattern() {
-        return xlsStyle.getFillPattern();
+    public FillPatternType getFillPattern() {
+        return xlsStyle.getFillPatternEnum();
     }
 
     public boolean hasNoFill() {
-        return (getFillPattern() == CellStyle.NO_FILL);
+        return (getFillPattern() == FillPatternType.NO_FILL);
     }
 
     @Override

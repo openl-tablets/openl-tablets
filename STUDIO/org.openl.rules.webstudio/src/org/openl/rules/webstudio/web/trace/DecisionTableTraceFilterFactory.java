@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.DecisionTableTraceObject;
 import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.CellStyleGridFilter;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
@@ -138,11 +138,11 @@ public class DecisionTableTraceFilterFactory {
 
         CellStyleGridFilter notResultBorderFilter = new CellStyleGridFilter.Builder().setSelector(new RegionGridSelector(toArray(resultRegions),
                 true))
-                .setBorderStyle(ICellStyle.BORDER_DOTTED)
+                .setBorderStyle(BorderStyle.DOTTED)
                 .build();
         CellStyleGridFilter resultBorderFilter = new CellStyleGridFilter.Builder().setSelector(new RegionGridSelector(toArray(resultRegions),
                 false))
-                .setBorderStyle(ICellStyle.BORDER_THICK)
+                .setBorderStyle(BorderStyle.THICK)
                 .setBorderRGB(resultColor)
                 .build();
 
