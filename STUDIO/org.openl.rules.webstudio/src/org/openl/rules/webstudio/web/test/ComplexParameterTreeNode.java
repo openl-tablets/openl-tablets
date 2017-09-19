@@ -42,9 +42,9 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
     @Override
     protected LinkedHashMap<Object, ParameterDeclarationTreeNode> initChildrenMap() {
         if (isValueNull()) {
-            return new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
+            return new LinkedHashMap<>();
         } else {
-            LinkedHashMap<Object, ParameterDeclarationTreeNode> fields = new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
+            LinkedHashMap<Object, ParameterDeclarationTreeNode> fields = new LinkedHashMap<>();
             IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
             for (Entry<String, IOpenField> fieldEntry : getType().getFields().entrySet()) {
                 IOpenField field = fieldEntry.getValue();
@@ -150,5 +150,9 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
 
     public void setTypeToCreate(IOpenClass typeToCreate) {
         this.typeToCreate = typeToCreate;
+    }
+
+    public boolean isDisposeRestricted() {
+        return getType().getInstanceClass().isAnnotationPresent(RestrictDispose.class);
     }
 }

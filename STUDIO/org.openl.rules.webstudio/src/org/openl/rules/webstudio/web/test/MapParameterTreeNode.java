@@ -106,6 +106,7 @@ public class MapParameterTreeNode extends CollectionParameterTreeNode {
         return (Map<Object, Object>) getValue();
     }
 
+    @RestrictDispose
     public static class Entry {
         private final Map<Object, Object> map;
         private Object key;

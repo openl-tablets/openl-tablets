@@ -103,7 +103,7 @@
                                 </a4j:commandLink>
                                 <a4j:commandLink action="#{inputArgsBean.disposeObject}"
                                     onclick="saveAllComplexNodeTypes()"
-                                    rendered="#{not item.valueNull}" render="dynamicTreePanel" title="Dispose">
+                                    rendered="#{not item.valueNull and not item.disposeRestricted}" render="dynamicTreePanel" title="Dispose">
                                     <h:graphicImage value="/images/close.gif" />
                                 </a4j:commandLink>
                             </rich:treeNode>
