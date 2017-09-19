@@ -62,22 +62,6 @@ public class PoiExcelHelper {
         }
     }
 
-    /*public static void copyCellComment(Cell cellFrom, Cell cellTo) {
-        Comment from = cellFrom.getCellComment();
-        Comment to = null;
-
-        if (from != null) {
-            Drawing drawing = cellTo.getSheet().createDrawingPatriarch();
-            to = drawing.createCellComment(new HSSFClientAnchor(0, 0, 0, 0, (short) 4, 2, (short) 6, 5));
-            CreationHelper creationHelper = cellTo.getSheet().getWorkbook().getCreationHelper();
-            RichTextString commentStr = creationHelper.createRichTextString(from.getString().getString());
-            to.setString(commentStr);
-            to.setRow(cellTo.getRowIndex());
-            to.setColumn(cellTo.getColumnIndex());
-            cellTo.setCellComment(to);
-        }
-    }*/
-
     public static Cell getCell(int colIndex, int rowIndex, Sheet sheet) {
         Row row = sheet.getRow(rowIndex);
         if (row != null) {
@@ -419,26 +403,26 @@ public class PoiExcelHelper {
         } else if(style instanceof XSSFCellStyle) {
             XSSFCellStyle xssfStyle = (XSSFCellStyle) style;
             if (colors[0] != null) {
-                xssfStyle.setTopBorderColor(new XSSFColor(shortToByte(colors[0])));
+                xssfStyle.setTopBorderColor(getColor(colors[0]));
             }
             if (colors[1] != null) {
-                xssfStyle.setRightBorderColor(new XSSFColor(shortToByte(colors[1])));
+                xssfStyle.setRightBorderColor(getColor(colors[1]));
             }
             if (colors[2] != null) {
-                xssfStyle.setBottomBorderColor(new XSSFColor(shortToByte(colors[2])));
+                xssfStyle.setBottomBorderColor(getColor(colors[2]));
             }
             if (colors[3] != null) {
-                xssfStyle.setLeftBorderColor(new XSSFColor(shortToByte(colors[3])));
+                xssfStyle.setLeftBorderColor(getColor(colors[3]));
             }
         }
     }
 
-    private static byte[] shortToByte(short[] shortRgb) {
+    public static XSSFColor getColor(short[] color) {
         byte rgb[] = new byte[3];
         for (int i = 0; i < 3; i++) {
-            rgb[i] = (byte) (shortRgb[i] & 0xFF);
+            rgb[i] = (byte) (color[i] & 0xFF);
         }
-        return rgb;
+        return new XSSFColor(rgb);
     }
 
     private static short getOrAddColorIndex(short[] rgb, HSSFWorkbook wb) {

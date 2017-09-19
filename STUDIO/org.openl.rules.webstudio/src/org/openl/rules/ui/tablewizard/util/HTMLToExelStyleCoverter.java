@@ -10,6 +10,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.util.StringUtils;
 import org.richfaces.json.JSONException;
 import org.richfaces.json.JSONObject;
@@ -217,16 +218,6 @@ public class HTMLToExelStyleCoverter {
         return returnRGB;
     }
 
-    private static byte[] shortToByte(short[] rgbColor) {
-        byte rgb[] = new byte[3];
-
-        for (int i = 0; i < 3; i++) {
-            rgb[i] = (byte) (rgbColor[i] & 0xFF);
-        }
-
-        return rgb;
-    }
-
     private static short getBorder(JSONObject style, String position) {
         String borderType = "border"+position+"Style";
         String borderSize = "border"+position+"Width";
@@ -276,21 +267,17 @@ public class HTMLToExelStyleCoverter {
         if (!style.isNull(styleName)) {
             try {
                 if (StringUtils.isNotEmpty(style.getString(styleName))) {
-                    return getXSSFColor(stringRGBToShort(style.getString(styleName)), workbook);
+                    short[] rgb = stringRGBToShort(style.getString(styleName));
+                    return PoiExcelHelper.getColor(rgb);
                 } else {
-                    return new XSSFColor(new byte[]{0,0,0});
+                    return PoiExcelHelper.getColor(new short[]{0,0,0});
                 }
             } catch (JSONException e) {
-                return new XSSFColor(new byte[]{0,0,0});
+                return PoiExcelHelper.getColor(new short[]{0,0,0});
             }
         }
 
-        return new XSSFColor(new byte[]{0,0,0});
-    }
-
-    private static XSSFColor getXSSFColor(short[] rgb, XSSFWorkbook workbook) {
-       XSSFColor color = new XSSFColor(shortToByte(rgb));
-        return color;
+        return PoiExcelHelper.getColor(new short[]{0,0,0});
     }
 
     public static short getColorByHtmlStyleName(String styleName, JSONObject style, Workbook workbook) {
@@ -339,7 +326,7 @@ public class HTMLToExelStyleCoverter {
                 String rgbColor = style.getString("color");
 
                 if(StringUtils.isNotEmpty(rgbColor)) {
-                    color = getXSSFColor(stringRGBToShort(rgbColor), workbook);
+                    color = PoiExcelHelper.getColor(stringRGBToShort(rgbColor));
                     indexedColor = color.getIndexed();
                 }
             }
