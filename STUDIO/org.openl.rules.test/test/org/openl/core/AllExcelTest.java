@@ -1,6 +1,9 @@
 package org.openl.core;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,6 +23,7 @@ import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.runtime.RulesEngineFactory;
+import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.vm.SimpleRulesVM;
@@ -50,6 +54,57 @@ public final class AllExcelTest {
     public void restoreLocale() {
         Locale.setDefault(defaultLocale);
         TimeZone.setDefault(defaultTimeZone);
+    }
+
+    @Test
+    public void checkTestBehavior() throws Exception {
+        SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> simpleProjectEngineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
+        SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = simpleProjectEngineFactoryBuilder
+            .setExecutionMode(false)
+            .setProject("test-resources/check-openl-test")
+            .build();
+        IOpenClass openClass = simpleProjectEngineFactory.getCompiledOpenClass().getOpenClass();
+
+        TestSuiteMethod[] tests = ProjectHelper.allTesters(openClass);
+        assertEquals(2, tests.length);
+        {
+            IOpenMethod method = openClass.getMethod("HelloTest12", new IOpenClass[]{});
+            assertNotNull(method);
+            assertTrue(method instanceof TestSuiteMethod);
+            TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
+            assertEquals("Module name must be initialized", "Main", testSuiteMethod.getModuleName());
+            Object instance = openClass.newInstance(new SimpleRulesVM().getRuntimeEnv());
+            Object result = testSuiteMethod.invoke(instance, new Object[]{}, new SimpleRulesVM().getRuntimeEnv());
+            assertTrue(result instanceof TestUnitsResults);
+            TestUnitsResults testUnitsResults = (TestUnitsResults) result;
+            assertEquals("Incorrect test name", "HelloTest12()", testUnitsResults.getName());
+            assertTrue("Incorrect execution time", testUnitsResults.getExecutionTime() > 0);
+            assertTrue("Shoud have a context", testUnitsResults.hasContext());
+            assertEquals("Incorrect count of test cases", 9, testUnitsResults.getNumberOfTestUnits());
+            assertEquals("Incorrect count of failures", 4, testUnitsResults.getNumberOfFailures());
+            assertEquals("Incorrect count of errors", 1, testUnitsResults.getNumberOfErrors());
+            assertEquals("Incorrect count of assertions", 3, testUnitsResults.getNumberOfAssertionFailures());
+        }
+
+        {
+            IOpenMethod method = openClass.getMethod("GreetingTest", new IOpenClass[]{});
+            assertNotNull(method);
+            assertTrue(method instanceof TestSuiteMethod);
+            TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
+            assertEquals("Module name must be initialized", "Main", testSuiteMethod.getModuleName());
+            Object instance = openClass.newInstance(new SimpleRulesVM().getRuntimeEnv());
+            Object result = testSuiteMethod.invoke(instance, new Object[]{}, new SimpleRulesVM().getRuntimeEnv());
+            assertTrue(result instanceof TestUnitsResults);
+            TestUnitsResults testUnitsResults = (TestUnitsResults) result;
+            assertEquals("Incorrect test name", "GreetingTest()", testUnitsResults.getName());
+            assertTrue("Incorrect execution time", testUnitsResults.getExecutionTime() > 0);
+            assertFalse("Shoud not have a context", testUnitsResults.hasContext());
+            assertEquals("Incorrect count of test cases", 4, testUnitsResults.getNumberOfTestUnits());
+            assertEquals("Incorrect count of failures", 0, testUnitsResults.getNumberOfFailures());
+            assertEquals("Incorrect count of errors", 0, testUnitsResults.getNumberOfErrors());
+            assertEquals("Incorrect count of assertions", 0, testUnitsResults.getNumberOfAssertionFailures());
+        }
+
     }
 
     @Test
