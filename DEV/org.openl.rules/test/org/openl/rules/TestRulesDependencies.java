@@ -157,7 +157,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
     @Test
     public void tesTestTable() {
         IOpenClass moduleOpenClass = getCompiledOpenClass().getOpenClass();
-        TestSuiteMethod testMethod = (TestSuiteMethod) moduleOpenClass.getMethod("riskScoreTestTestAll",
+        TestSuiteMethod testMethod = (TestSuiteMethod) moduleOpenClass.getMethod("riskScoreTest",
                 new IOpenClass[0]);
 
         BindingDependencies bindDep = testMethod.getDependencies();

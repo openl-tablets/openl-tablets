@@ -17,9 +17,9 @@ public class TestDoubleDelta {
     private static final String FILE_NAME = "test/rules/testmethod/DoubleDeltaTest.xlsx";
 
     public interface ITestDouble {
-        TestUnitsResults testSSTestTestAll();
-        TestUnitsResults geTestDoubleTestTestAll();
-        TestUnitsResults geTestDoubleTest2TestAll();
+        TestUnitsResults testSSTest();
+        TestUnitsResults geTestDoubleTest();
+        TestUnitsResults geTestDoubleTest2();
     }
 
     @Before
@@ -33,7 +33,7 @@ public class TestDoubleDelta {
         TestHelper<ITestDouble> testHelper = new TestHelper<ITestDouble>(xlsFile, ITestDouble.class);
 
         ITestDouble instance = testHelper.getInstance();
-        TestUnitsResults result = instance.testSSTestTestAll();
+        TestUnitsResults result = instance.testSSTest();
 
         assertEquals(0, result.getNumberOfFailures());
     }
@@ -44,7 +44,7 @@ public class TestDoubleDelta {
         TestHelper<ITestDouble> testHelper = new TestHelper<ITestDouble>(xlsFile, ITestDouble.class);
 
         ITestDouble instance = testHelper.getInstance();
-        TestUnitsResults result = instance.geTestDoubleTestTestAll();
+        TestUnitsResults result = instance.geTestDoubleTest();
         assertEquals(2, result.getNumberOfFailures());
     }
 
@@ -54,7 +54,7 @@ public class TestDoubleDelta {
         TestHelper<ITestDouble> testHelper = new TestHelper<ITestDouble>(xlsFile, ITestDouble.class);
 
         ITestDouble instance = testHelper.getInstance();
-        TestUnitsResults result = instance.geTestDoubleTest2TestAll();
+        TestUnitsResults result = instance.geTestDoubleTest2();
         assertEquals(1, result.getNumberOfFailures());
     }
 }

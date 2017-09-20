@@ -11,8 +11,8 @@ public class TestmethodTest {
     private static final String FILE_NAME = "test/rules/testmethod/UserExceptionTest.xlsx";
 
     public interface ITest {
-        TestUnitsResults driverRiskTest1TestAll();
-        TestUnitsResults driverRiskTest2TestAll();
+        TestUnitsResults driverRiskTest1();
+        TestUnitsResults driverRiskTest2();
     }
     
     @Test
@@ -21,7 +21,7 @@ public class TestmethodTest {
         TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile, ITest.class);
         
         ITest instance = testHelper.getInstance();
-        TestUnitsResults result = instance.driverRiskTest1TestAll();
+        TestUnitsResults result = instance.driverRiskTest1();
         assertEquals(0, result.getNumberOfFailures());
     }
     
@@ -31,7 +31,7 @@ public class TestmethodTest {
         TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile, ITest.class);
         
         ITest instance = testHelper.getInstance();
-        TestUnitsResults result = instance.driverRiskTest2TestAll();
+        TestUnitsResults result = instance.driverRiskTest2();
         assertEquals(0, result.getNumberOfFailures());
     }
 

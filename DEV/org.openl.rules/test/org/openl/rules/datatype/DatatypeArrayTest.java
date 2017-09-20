@@ -26,7 +26,7 @@ public class DatatypeArrayTest extends BaseOpenlBuilderHelper {
      */
     @Test
     public void testCase1() {
-        Object result = invokeMethod("testArraysTestTestAll");
+        Object result = invokeMethod("testArraysTest");
         
         TestUnitsResults testUnitsResult = (TestUnitsResults) result;        
         assertEquals(0, testUnitsResult.getNumberOfFailures());

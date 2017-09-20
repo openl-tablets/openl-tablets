@@ -18,8 +18,8 @@ public class DataTableArrayTest {
     private static final String FILE_NAME = "test/rules/testmethod/TestDataAccessFieldTest.xlsx";
 
     public interface ITestDataTableArray {
-        TestUnitsResults returnVehicleArryTestTestAll();
-        TestUnitsResults returnAddressArryTestTestAll();
+        TestUnitsResults returnVehicleArryTest();
+        TestUnitsResults returnAddressArryTest();
     }
 
     @Before
@@ -33,7 +33,7 @@ public class DataTableArrayTest {
         TestHelper<ITestDataTableArray> testHelper = new TestHelper<ITestDataTableArray>(xlsFile, ITestDataTableArray.class);
 
         ITestDataTableArray instance = testHelper.getInstance();
-        TestUnitsResults result = instance.returnVehicleArryTestTestAll();
+        TestUnitsResults result = instance.returnVehicleArryTest();
         assertEquals(2, result.getNumberOfFailures());
     }
 
@@ -43,7 +43,7 @@ public class DataTableArrayTest {
         TestHelper<ITestDataTableArray> testHelper = new TestHelper<ITestDataTableArray>(xlsFile, ITestDataTableArray.class);
 
         ITestDataTableArray instance = testHelper.getInstance();
-        TestUnitsResults result = instance.returnAddressArryTestTestAll();
+        TestUnitsResults result = instance.returnAddressArryTest();
         assertEquals(3, result.getNumberOfFailures());
     }
 }

@@ -27,7 +27,7 @@ public class ExpectedErrorTest {
         IOpenClass openClass = compiledOpenClass.getOpenClass();
         Object target = openClass.newInstance(env);
 
-        IOpenMethod helloTest = openClass.getMethod("HelloTestTestAll", new IOpenClass[0]);
+        IOpenMethod helloTest = openClass.getMethod("HelloTest", new IOpenClass[0]);
         TestUnitsResults res = (TestUnitsResults) helloTest.invoke(target, new Object[0], env);
         ArrayList<TestUnit> testUnits = res.getTestUnits();
 

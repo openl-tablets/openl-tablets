@@ -28,7 +28,7 @@ public class TestMethodHelper {
 
     public static IOpenMethodHeader makeHeader(String tableName, XlsModuleOpenClass module) {
 
-        return new OpenMethodHeader(tableName + "TestAll",
+        return new OpenMethodHeader(tableName,
             JavaOpenClass.getOpenClass(TestUnitsResults.class),
             IMethodSignature.VOID,
             module);

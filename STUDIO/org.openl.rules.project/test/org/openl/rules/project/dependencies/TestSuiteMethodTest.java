@@ -31,7 +31,7 @@ public class TestSuiteMethodTest {
     @Test
     public void test() throws Exception {
         IOpenClass openClass = simpleProjectEngineFactory.getCompiledOpenClass().getOpenClass();
-        IOpenMethod method = openClass.getMethod("HelloTest12TestAll", new IOpenClass[] {});
+        IOpenMethod method = openClass.getMethod("HelloTest12", new IOpenClass[] {});
         Assert.assertNotNull(method);
         Assert.assertTrue(method instanceof TestSuiteMethod);
         TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;

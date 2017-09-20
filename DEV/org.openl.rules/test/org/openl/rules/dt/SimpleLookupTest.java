@@ -21,7 +21,7 @@ public class SimpleLookupTest extends BaseOpenlBuilderHelper {
         TableSyntaxNode resultTsn = findTable(tableName);
         assertFalse(resultTsn.hasErrors());
 
-        TestUnitsResults result = (TestUnitsResults) invokeMethod("CarPriceTestTestAll");
+        TestUnitsResults result = (TestUnitsResults) invokeMethod("CarPriceTest");
         assertEquals(0, result.getNumberOfFailures());
     }
 
