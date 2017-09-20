@@ -79,13 +79,6 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
         return ary;
     }
 
-    public boolean isJavaCollection() {
-        IAggregateInfo aggregateInfo = getType().getAggregateInfo();
-        return aggregateInfo instanceof JavaListAggregateInfo
-                || aggregateInfo instanceof JavaCollectionAggregateInfo
-                || aggregateInfo instanceof JavaMapAggregateInfo;
-    }
-
     @Override
     public void addChild(Object elementNum, TreeNode element) {
         int nextChildNum = getChildren().size();
