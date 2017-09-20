@@ -65,7 +65,7 @@ public final class AllExcelTest {
 
         for (File file : sourceDir.listFiles()) {
             String sourceFile = file.getName();
-            final CompiledOpenClass compiledOpenClass;
+            CompiledOpenClass compiledOpenClass = null;
             if (file.isFile() && (sourceFile.endsWith(".xlsx") || sourceFile.endsWith(".xls"))) {
                 try {
                     new FileInputStream(file).close();
