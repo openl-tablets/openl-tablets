@@ -5,12 +5,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public final class TestSuiteExecutor {
-    private static final Logger log = LoggerFactory.getLogger(TestSuiteExecutor.class);
-
     private static final int QUEUE_SIZE = 2000;
     public static final int DEFAULT_THREAD_COUNT = 4;
 
