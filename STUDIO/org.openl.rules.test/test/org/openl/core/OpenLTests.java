@@ -35,10 +35,10 @@ import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class AllExcelTest {
+public final class OpenLTests {
 
     public static final String DIR = "test-resources/functionality/";
-    private static final Logger LOG = LoggerFactory.getLogger(AllExcelTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OpenLTests.class);
     private Locale defaultLocale;
     private TimeZone defaultTimeZone;
 
