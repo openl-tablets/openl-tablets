@@ -43,8 +43,7 @@ public class TestSuite implements INamedThing {
         return tests[testNumber];
     }
 
-    public TestUnitsResults invokeParallel(final IOpenClass openClass, final long ntimes) {
-        TestSuiteExecutor testSuiteExecutor = TestSuiteExecutor.getInstance();
+    public TestUnitsResults invokeParallel(TestSuiteExecutor testSuiteExecutor, final IOpenClass openClass, final long ntimes) {
         final int THREAD_COUNT = testSuiteExecutor.getThreadCount();
         Executor threadPoolExecutor = testSuiteExecutor.getExecutor();
 
