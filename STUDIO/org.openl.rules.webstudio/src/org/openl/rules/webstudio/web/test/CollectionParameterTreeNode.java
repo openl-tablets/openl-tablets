@@ -9,9 +9,6 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
-import org.openl.types.java.JavaCollectionAggregateInfo;
-import org.openl.types.java.JavaListAggregateInfo;
-import org.openl.types.java.JavaMapAggregateInfo;
 import org.openl.types.java.JavaOpenClass;
 import org.richfaces.model.TreeNode;
 
