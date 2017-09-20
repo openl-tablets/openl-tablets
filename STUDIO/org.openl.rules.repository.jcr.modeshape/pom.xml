@@ -15,6 +15,11 @@
     <dependencies>
         <dependency>
             <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.repository</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.repository.jcr</artifactId>
         </dependency>
         <dependency>
