@@ -21,8 +21,8 @@ public final class ServiceMT {
         return ServiceMTHolder.INSTANCE;
     }
 
-    public boolean isParallelismReasonableNow() {
-        return forkJoinPool.getActiveThreadCount() <= forkJoinPool.getParallelism();
+    public boolean isPoolBusyNow() {
+        return forkJoinPool.getActiveThreadCount() > forkJoinPool.getParallelism();
     }
     
     public void execute(IRuntimeEnv env, Runnable runnable) {

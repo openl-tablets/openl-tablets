@@ -28,7 +28,7 @@ public class MultiCallMethodBoundNodeMT extends MultiCallMethodBoundNode {
             Object[] callParameters,
             Object results,
             int index) {
-        if (!ServiceMT.getInstance().isParallelismReasonableNow()) {
+        if (ServiceMT.getInstance().isPoolBusyNow()) {
             super.invokeMethodAndSetResultToArray(target, env, callParameters, results, index);
         } else {
             InvokeMethodAndSetResultToArrayRunnable runnable = new InvokeMethodAndSetResultToArrayRunnable(
