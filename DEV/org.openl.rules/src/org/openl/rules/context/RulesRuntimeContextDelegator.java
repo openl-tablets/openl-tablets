@@ -1,8 +1,5 @@
 package org.openl.rules.context;
 
-import org.openl.runtime.IRuntimeContext;
-
-
 /**
  * Runtime context delegator.
  * 

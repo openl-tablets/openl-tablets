@@ -8,6 +8,8 @@ import org.openl.conf.LibraryFactoryConfiguration;
 import org.openl.conf.NameSpacedLibraryConfiguration;
 import org.openl.conf.NameSpacedTypeConfiguration;
 import org.openl.conf.NoAntOpenLTask;
+import org.openl.conf.NodeBinderFactoryConfiguration;
+import org.openl.conf.NodeBinderFactoryConfiguration.SingleBinderFactory;
 import org.openl.conf.OpenConfigurationException;
 import org.openl.conf.TypeFactoryConfiguration;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -54,6 +56,19 @@ public class OpenLBuilder extends AOpenLBuilder {
         op.setExtendsCategory(OpenL.OPENL_J_NAME);
         op.setCategory(OpenL.OPENL_JAVA_NAME);
 
+        String[] binders = {
+                "function", org.openl.binding.impl.ce.MethodNodeBinder.class.getName(),
+        };
+        
+        NodeBinderFactoryConfiguration nbc = op.createBindings();
+
+        for (int i = 0; i < binders.length / 2; i++) {
+            SingleBinderFactory sbf = new SingleBinderFactory();
+            sbf.setNode(binders[2 * i]);
+            sbf.setClassName(binders[2 * i + 1]);
+            nbc.addConfiguredBinder(sbf);
+        }
+        
         LibraryFactoryConfiguration libraries = op.createLibraries();
         
         NameSpacedLibraryConfiguration library = new NameSpacedLibraryConfiguration();

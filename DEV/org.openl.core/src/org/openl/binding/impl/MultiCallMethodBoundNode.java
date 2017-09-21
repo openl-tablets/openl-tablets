@@ -28,7 +28,7 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
      * the indexes of the arguments in the method signature that are arrays
      **/
     private final int[] arrayArgArguments;
-
+    
     /**
      * @param syntaxNode            will be represents like <code>'calculate(parameter)'</code>
      * @param children              its gonna be only one children, that represents the parameter in method call.
@@ -81,7 +81,7 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
     }
 
     private int call(Object target, IRuntimeEnv env, Object[] allParameters, Object[] callParameters, int iteratedArg, Object results, int callIndex) {
-        Integer iteratedParamNum = arrayArgArguments[iteratedArg];
+        int iteratedParamNum = arrayArgArguments[iteratedArg];
         Object iteratedParameter = allParameters[iteratedParamNum];
         int length = Array.getLength(iteratedParameter);
         for (int i = 0; i < length; i++) {
@@ -90,10 +90,7 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
             if (iteratedArg < arrayArgArguments.length - 1) {
                 callIndex = call(target, env, allParameters, callParameters, iteratedArg + 1, results, callIndex);
             } else {
-                Object result = getMethodCaller().invoke(target, callParameters, env);
-                if (results != null) {
-                    Array.set(results, callIndex, result);
-                }
+                invokeMethodAndSetResultToArray(target, env, callParameters, results, callIndex);
                 callIndex++;
             }
         }
@@ -101,6 +98,17 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
         return callIndex;
     }
 
+    protected void invokeMethodAndSetResultToArray(Object target,
+            IRuntimeEnv env,
+            Object[] callParameters,
+            Object results,
+            int index) {
+        Object value = getMethodCaller().invoke(target, callParameters, env);
+        if (results != null) {
+            Array.set(results, index, value);
+        }
+    }
+    
     public IOpenClass getType() {
         if (returnType == null) {
             returnType = getReturnType();

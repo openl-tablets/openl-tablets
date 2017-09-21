@@ -199,7 +199,7 @@ public class SimpleVM implements IOpenVM {
         }
 
         @Override
-        public IRuntimeEnv cloneEnvForMT() {
+        public IRuntimeEnv clone() {
             return new SimpleRuntimeEnv(this);
         }
     }

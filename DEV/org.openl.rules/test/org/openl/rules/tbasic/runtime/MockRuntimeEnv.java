@@ -82,7 +82,7 @@ public class MockRuntimeEnv implements IRuntimeEnv {
     }
 
 	@Override
-	public IRuntimeEnv cloneEnvForMT() {
+	public IRuntimeEnv clone() {
 		return new MockRuntimeEnv(this);
 	
 	}
