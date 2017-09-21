@@ -20,7 +20,7 @@ public final class ServiceMT {
         return ServiceMTHolder.INSTANCE;
     }
 
-    public <V> void invoke(IRuntimeEnv env, Runnable runnable) {
+    public <V> void execute(IRuntimeEnv env, Runnable runnable) {
         SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
         RunnableRecursiveAction action = new RunnableRecursiveAction(runnable, simpleRulesRuntimeEnv);
         simpleRulesRuntimeEnv.pushAction(action);
@@ -28,7 +28,7 @@ public final class ServiceMT {
             action.fork();
             return;
         }
-        forkJoinPool.invoke(action);
+        forkJoinPool.execute(action);
         return;
     }
 

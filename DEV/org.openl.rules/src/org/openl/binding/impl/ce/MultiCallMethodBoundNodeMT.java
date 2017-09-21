@@ -31,10 +31,10 @@ public class MultiCallMethodBoundNodeMT extends MultiCallMethodBoundNode {
         InvokeMethodAndSetResultToArrayRunnable runnable = new InvokeMethodAndSetResultToArrayRunnable(
             getMethodCaller(),
             target,
-            callParameters,
+            callParameters.clone(),
             results,
             index);
-        ServiceMT.getInstance().invoke(env, runnable);
+        ServiceMT.getInstance().execute(env, runnable);
     }
 
     @Override
