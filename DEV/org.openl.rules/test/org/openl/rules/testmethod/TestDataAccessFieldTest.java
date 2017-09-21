@@ -18,9 +18,9 @@ public class TestDataAccessFieldTest {
     private static final String FILE_NAME = "test/rules/testmethod/TestDataAccessFieldTest.xlsx";
 
     public interface ITestDataAccessField {
-        TestUnitsResults returnPolicyTestTestAll();
-        TestUnitsResults returnPolicyQuoteDateTestTestAll();
-        TestUnitsResults returnBrokerDiscountTestTestAll();
+        TestUnitsResults returnPolicyTest();
+        TestUnitsResults returnPolicyQuoteDateTest();
+        TestUnitsResults returnBrokerDiscountTest();
     }
 
     @Before
@@ -34,7 +34,7 @@ public class TestDataAccessFieldTest {
         TestHelper<ITestDataAccessField> testHelper = new TestHelper<ITestDataAccessField>(xlsFile, ITestDataAccessField.class);
 
         ITestDataAccessField instance = testHelper.getInstance();
-        TestUnitsResults result = instance.returnPolicyTestTestAll();
+        TestUnitsResults result = instance.returnPolicyTest();
         assertEquals(2, result.getNumberOfFailures());
     }
 
@@ -44,7 +44,7 @@ public class TestDataAccessFieldTest {
         TestHelper<ITestDataAccessField> testHelper = new TestHelper<ITestDataAccessField>(xlsFile, ITestDataAccessField.class);
 
         ITestDataAccessField instance = testHelper.getInstance();
-        TestUnitsResults result = instance.returnPolicyQuoteDateTestTestAll();
+        TestUnitsResults result = instance.returnPolicyQuoteDateTest();
         assertEquals(0, result.getNumberOfFailures());
     }
 
@@ -54,7 +54,7 @@ public class TestDataAccessFieldTest {
         TestHelper<ITestDataAccessField> testHelper = new TestHelper<ITestDataAccessField>(xlsFile, ITestDataAccessField.class);
 
         ITestDataAccessField instance = testHelper.getInstance();
-        TestUnitsResults result = instance.returnBrokerDiscountTestTestAll();
+        TestUnitsResults result = instance.returnBrokerDiscountTest();
         assertEquals(2, result.getNumberOfFailures());
     }
 

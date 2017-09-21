@@ -31,7 +31,7 @@ public class TestingSpreadsheetTest extends BaseOpenlBuilderHelper {
     public void testingSpreadsheet() throws ClassNotFoundException {
         build(SRC);
         assertNotNull(getCompiledOpenClass().getOpenClass());
-        TestUnitsResults res = (TestUnitsResults)invokeMethod("TestSprTestAll");
+        TestUnitsResults res = (TestUnitsResults)invokeMethod("TestSpr");
         assertEquals(1, res.getNumberOfTestUnits());
         assertEquals(0, res.getNumberOfFailures());
     }
@@ -40,7 +40,7 @@ public class TestingSpreadsheetTest extends BaseOpenlBuilderHelper {
     public void testingChainCall() throws ClassNotFoundException {
         build(SRC);
         assertNotNull(getCompiledOpenClass().getOpenClass());
-        TestUnitsResults res = (TestUnitsResults)invokeMethod("testing1TestAll");
+        TestUnitsResults res = (TestUnitsResults)invokeMethod("testing1");
         assertEquals(1, res.getNumberOfTestUnits());
         assertEquals(0, res.getNumberOfFailures());
     }
@@ -49,7 +49,7 @@ public class TestingSpreadsheetTest extends BaseOpenlBuilderHelper {
     public void testingSpreadsheetResultCall() throws ClassNotFoundException {
         build(SRC);
         assertNotNull(getCompiledOpenClass().getOpenClass());
-        TestUnitsResults res = (TestUnitsResults)invokeMethod("testing2TestAll");
+        TestUnitsResults res = (TestUnitsResults)invokeMethod("testing2");
         assertEquals(1, res.getNumberOfTestUnits());
         assertEquals(0, res.getNumberOfFailures());
     }
@@ -58,7 +58,7 @@ public class TestingSpreadsheetTest extends BaseOpenlBuilderHelper {
     public void testOldCellAccess() throws ClassNotFoundException {
         build(SRC);
         assertNotNull(getCompiledOpenClass().getOpenClass());
-        TestUnitsResults res = (TestUnitsResults)invokeMethod("method4TestTestTestAll");
+        TestUnitsResults res = (TestUnitsResults)invokeMethod("method4TestTest");
         assertEquals(1, res.getNumberOfTestUnits());
         assertEquals(0, res.getNumberOfFailures());
     }

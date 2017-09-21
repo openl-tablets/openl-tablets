@@ -15,7 +15,7 @@ public class TestingFieldsTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void checkTestTableResults() {
-        TestUnitsResults testResults = (TestUnitsResults) invokeMethod("returnObjectTestTestAll");
+        TestUnitsResults testResults = (TestUnitsResults) invokeMethod("returnObjectTest");
         for (int i = 0; i < testResults.getTestUnits().size() - 2; i++) {
             assertEquals(testResults.getTestUnits().get(i).compareResult(), TestStatus.TR_NEQ.getStatus());
         }

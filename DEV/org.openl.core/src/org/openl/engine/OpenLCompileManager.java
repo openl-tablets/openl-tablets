@@ -6,6 +6,7 @@ import java.util.List;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundCode;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.impl.ExecutionModeBindingContextDelegator;
@@ -80,13 +81,11 @@ public class OpenLCompileManager extends OpenLHolder {
      */
     public CompiledOpenClass compileModuleWithErrors(IOpenSourceCodeModule source, boolean executionMode,
         IDependencyManager dependencyManager) {    	
-        ProcessedCode processedCode;
+        IBindingContextDelegator context = null;
         if (executionMode) {
-            processedCode = sourceManager.processSource(source, SourceType.MODULE,
-                new ExecutionModeBindingContextDelegator(null), true, dependencyManager);
-        } else {
-            processedCode = sourceManager.processSource(source, SourceType.MODULE, null, true, dependencyManager);
+            context = new ExecutionModeBindingContextDelegator(null);
         }
+        ProcessedCode processedCode = sourceManager.processSource(source, SourceType.MODULE, context, true, dependencyManager);
         IOpenClass openClass = processedCode.getBoundCode().getTopNode().getType();
         SyntaxNodeException[] parsingErrors = processedCode.getParsingErrors();
         SyntaxNodeException[] bindingErrors = processedCode.getBindingErrors();

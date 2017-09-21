@@ -3,6 +3,7 @@ package org.openl.rules.table;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.openl.rules.table.actions.AUndoableCellAction;
 import org.openl.rules.table.actions.GridRegionAction;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
@@ -340,19 +341,19 @@ public class GridTool {
         CellStyle newCellStyle = new CellStyle(cell.getStyle());
 
         ICellStyle cellStyle =  cell.getStyle();
-        short[] borderStyle = cellStyle != null ? cellStyle.getBorderStyle() : null;
+        BorderStyle[] borderStyle = cellStyle != null ? cellStyle.getBorderStyle() : null;
 
         /*Create new cell style*/
 
         if (borderStyle != null && col == regionLeftCell) {
             // Only left border will be set
             if (borderStyle.length == 4) {
-                borderStyle = new short[] { CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, borderStyle[3] };
+                borderStyle = new BorderStyle[] { BorderStyle.NONE, BorderStyle.NONE, BorderStyle.NONE, borderStyle[3] };
             }
         } else if (borderStyle != null && (col - regionLeftCell == regionWidth - 1)) {
             // Only right border will be set
             if (borderStyle.length == 4) {
-                borderStyle = new short[]{CellStyle.BORDER_NONE, borderStyle[1], CellStyle.BORDER_NONE, CellStyle.BORDER_NONE};
+                borderStyle = new BorderStyle[]{BorderStyle.NONE, borderStyle[1], BorderStyle.NONE, BorderStyle.NONE};
                 /*FIXME add bottom border for expender row (only for last)
                 if (actionType != null && actionType == ActionType.EXPAND) {
                     borderStyle = new short[]{CellStyle.BORDER_NONE, borderStyle[1], borderStyle[2], CellStyle.BORDER_NONE};
@@ -362,7 +363,7 @@ public class GridTool {
                 */
            }
         } else {
-            borderStyle = new short[] { CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, CellStyle.BORDER_NONE, CellStyle.BORDER_NONE };
+            borderStyle = new BorderStyle[] { BorderStyle.NONE, BorderStyle.NONE, BorderStyle.NONE, BorderStyle.NONE };
         }
 
         newCellStyle.setBorderStyle(borderStyle);

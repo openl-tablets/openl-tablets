@@ -8,7 +8,7 @@ import org.openl.rules.TestHelper;
 public class RunMethodOverloadSupportTest {
 
     public interface ITestI {
-        void driverRiskTestTestAll();
+        void driverRiskTest();
     }
 
     @Test
@@ -17,6 +17,6 @@ public class RunMethodOverloadSupportTest {
         TestHelper<ITestI> testHelper = new TestHelper<ITestI>(xlsFile, ITestI.class);
 
         ITestI instance = testHelper.getInstance();
-        instance.driverRiskTestTestAll();
+        instance.driverRiskTest();
     }
 }

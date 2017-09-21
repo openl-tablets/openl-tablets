@@ -37,16 +37,16 @@ public class TableViewer {
         }
 
         switch (style.getHorizontalAlignment()) {
-            case ICellStyle.ALIGN_LEFT:
+            case LEFT:
                 // Left by default    
                 break;
-            case ICellStyle.ALIGN_RIGHT:
+            case RIGHT:
                 cm.setHalign("right");
                 break;
-            case ICellStyle.ALIGN_CENTER:
+            case CENTER:
                 cm.setHalign("center");
                 break;
-            case ICellStyle.ALIGN_JUSTIFY:
+            case JUSTIFY:
                 cm.setHalign("justify");
                 break;
             default:
@@ -58,13 +58,13 @@ public class TableViewer {
         }
 
         switch (style.getVerticalAlignment()) {
-            case ICellStyle.VERTICAL_BOTTOM:
+            case BOTTOM:
                 // Left by default
                 break;
-            case ICellStyle.VERTICAL_CENTER:
+            case CENTER:
                 cm.setValign("center");
                 break;
-            case ICellStyle.VERTICAL_TOP:
+            case TOP:
                 cm.setValign("top");
                 break;
         }
@@ -244,11 +244,11 @@ public class TableViewer {
 
     BorderStyle getBorderStyle(ICellStyle cs, int side) {
 
-        int xlsStyle;
+        org.apache.poi.ss.usermodel.BorderStyle xlsStyle;
         short[] rgb;
 
-        short[] bss = cs.getBorderStyle();
-        xlsStyle = bss == null ? ICellStyle.BORDER_NONE : bss[side];
+        org.apache.poi.ss.usermodel.BorderStyle[] bss = cs.getBorderStyle();
+        xlsStyle = bss == null ? org.apache.poi.ss.usermodel.BorderStyle.NONE : bss[side];
 
         short[][] rgbb = cs.getBorderRGB();
         rgb = rgbb == null ? new short[] { 0, 0, 0 } : rgbb[side];
@@ -256,42 +256,42 @@ public class TableViewer {
         BorderStyle bs = new BorderStyle();
         bs.setRgb(rgb);
         switch (xlsStyle) {
-            case ICellStyle.BORDER_NONE:
+            case NONE:
                 return BorderStyle.NONE;
-            case ICellStyle.BORDER_DASH_DOT_DOT:
-            case ICellStyle.BORDER_DASH_DOT:
-            case ICellStyle.BORDER_DASHED:
+            case DASH_DOT_DOT:
+            case DASH_DOT:
+            case DASHED:
                 bs.setWidth(1);
                 bs.setStyle("dashed");
                 break;
 
-            case ICellStyle.BORDER_DOTTED:
+            case DOTTED:
                 bs.setWidth(1);
                 bs.setStyle("dotted");
                 break;
-            case ICellStyle.BORDER_DOUBLE:
+            case DOUBLE:
                 bs.setWidth(1);
                 bs.setStyle("double");
                 break;
-            case ICellStyle.BORDER_THIN:
+            case THIN:
                 bs.setWidth(1);
                 bs.setStyle("solid");
                 break;
-            case ICellStyle.BORDER_THICK:
+            case THICK:
                 bs.setWidth(2);
                 bs.setStyle("solid");
                 break;
-            case ICellStyle.BORDER_HAIR:
+            case HAIR:
                 bs.setWidth(1);
                 bs.setStyle("dotted");
                 break;
-            case ICellStyle.BORDER_MEDIUM:
+            case MEDIUM:
                 bs.setWidth(2);
                 bs.setStyle("solid");
                 break;
-            case ICellStyle.BORDER_MEDIUM_DASH_DOT:
-            case ICellStyle.BORDER_MEDIUM_DASH_DOT_DOT:
-            case ICellStyle.BORDER_MEDIUM_DASHED:
+            case MEDIUM_DASH_DOT:
+            case MEDIUM_DASH_DOT_DOT:
+            case MEDIUM_DASHED:
                 bs.setWidth(2);
                 bs.setStyle("dashed");
                 break;

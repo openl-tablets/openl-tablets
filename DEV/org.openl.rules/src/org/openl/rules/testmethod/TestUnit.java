@@ -25,9 +25,11 @@ public class TestUnit {
     private TestUnitResultComparator testUnitComparator;
 
     private Integer precision = null;
+    private final long executionTime;
 
-    public TestUnit(TestDescription test, Object res) {
+    public TestUnit(TestDescription test, Object res, long executionTime) {
         this.test = test;
+        this.executionTime = executionTime;
         initExpectedResult(test);
         this.actualResult = res;
     }
@@ -58,6 +60,10 @@ public class TestUnit {
      */
     public Object getActualResult() {
         return actualResult;
+    }
+
+    public long getExecutionTime() {
+        return executionTime;
     }
 
     public ParameterWithValueDeclaration getActualParam() {

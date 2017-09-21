@@ -18,8 +18,6 @@ import java.util.Map;
  * @author Stanislav Shor
  */
 public final class WebTool {
-    private static final Logger log = LoggerFactory.getLogger(WebTool.class);
-
     private WebTool() {
     }
 
@@ -73,6 +71,7 @@ public final class WebTool {
             InetAddress addr = InetAddress.getByName(ip);
             return (addr != null) && addr.isLoopbackAddress();
         } catch (UnknownHostException e) {
+            Logger log = LoggerFactory.getLogger(WebTool.class);
             log.info("Cannot check '{}'.", ip, e);
             return false;
         }

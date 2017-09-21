@@ -1,15 +1,14 @@
 package org.openl.rules.webstudio.web.test;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
-import org.openl.types.java.JavaCollectionAggregateInfo;
-import org.openl.types.java.JavaListAggregateInfo;
-import org.openl.types.java.JavaMapAggregateInfo;
 import org.openl.types.java.JavaOpenClass;
 import org.richfaces.model.TreeNode;
 
@@ -37,12 +36,12 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
     @Override
     protected LinkedHashMap<Object, ParameterDeclarationTreeNode> initChildrenMap() {
         if (isValueNull()) {
-            return new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
+            return new LinkedHashMap<>();
         } else {
             Iterator<Object> iterator = getType().getAggregateInfo().getIterator(getValue());
             IOpenClass collectionElementType = getType().getComponentClass();
             int index = 0;
-            LinkedHashMap<Object, ParameterDeclarationTreeNode> elements = new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
+            LinkedHashMap<Object, ParameterDeclarationTreeNode> elements = new LinkedHashMap<>();
             while (iterator.hasNext()) {
                 Object element = iterator.next();
                 IOpenClass type = collectionElementType;
@@ -61,32 +60,47 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
     protected Object constructValueInternal() {
         IAggregateInfo info = getType().getAggregateInfo();
         IOpenClass componentType = info.getComponentType(getType());
-        int elementsCount = getChildernMap().size();
+        int elementsCount = getChildrenMap().size();
         Object ary = info.makeIndexedAggregate(componentType, new int[] { elementsCount });
 
         IOpenIndex index = info.getIndex(getType());
 
         for (int i = 0; i < elementsCount; i++) {
-            ParameterDeclarationTreeNode node = getChildernMap().get(i);
+            ParameterDeclarationTreeNode node = getChildrenMap().get(i);
             node.getValueForced();
-            index.setValue(ary, getKeyFromElementNum(i), getNodeValue(node));
+            Object key = getKeyFromElementNum(i);
+            if (key != null) {
+                index.setValue(ary, key, getNodeValue(node));
+            }
         }
         return ary;
-    }
-
-    public boolean isJavaCollection() {
-        IAggregateInfo aggregateInfo = getType().getAggregateInfo();
-        return aggregateInfo instanceof JavaListAggregateInfo
-                || aggregateInfo instanceof JavaCollectionAggregateInfo
-                || aggregateInfo instanceof JavaMapAggregateInfo;
     }
 
     @Override
     public void addChild(Object elementNum, TreeNode element) {
         int nextChildNum = getChildren().size();
         Object value = element == null ? null : ((ParameterDeclarationTreeNode) element).getValue();
-        super.addChild(nextChildNum, createNode(null, value));
+        ParameterDeclarationTreeNode node = createNode(null, value);
+        if (nextChildNum > 0) {
+            initComplexNode(getChild(nextChildNum - 1), node);
+        }
+        super.addChild(nextChildNum, node);
         saveChildNodesToValue();
+    }
+
+    protected void initComplexNode(ParameterDeclarationTreeNode from, ParameterDeclarationTreeNode to) {
+        if (!(to instanceof ComplexParameterTreeNode)) {
+            return;
+        }
+        ComplexParameterTreeNode complexNode = (ComplexParameterTreeNode) to;
+        IOpenClass type = from.getType();
+        if (from instanceof ComplexParameterTreeNode) {
+            IOpenClass typeToCreate = ((ComplexParameterTreeNode) from).getTypeToCreate();
+            if (typeToCreate != null) {
+                type = typeToCreate;
+            }
+        }
+        complexNode.setTypeToCreate(type);
     }
 
     public void removeChild(ParameterDeclarationTreeNode toDelete) {
@@ -101,8 +115,19 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
 
         // Create new value based on changed child elements count
         saveChildNodesToValue();
-        // Children keys in the map must be changed because element in the middle was deleted
-        reset();
+        // Children keys in children map must be remapped because element in the middle was deleted
+        updateChildrenKeys();
+    }
+
+    protected void updateChildrenKeys() {
+        LinkedHashMap<Object, ParameterDeclarationTreeNode> elements = getChildrenMap();
+        // Values in LinkedHashMap are in the same order as they were inserted before
+        List<ParameterDeclarationTreeNode> values = new ArrayList<>(elements.values());
+        // Reinsert values with new keys
+        elements.clear();
+        for (int index = 0; index < values.size(); index++) {
+            elements.put(index, values.get(index));
+        }
     }
 
     @Override
@@ -123,7 +148,10 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
 
         int i = 0;
         for (ParameterDeclarationTreeNode node : getChildren()) {
-            index.setValue(newCollection, getKeyFromElementNum(i), getNodeValue(node));
+            Object key = getKeyFromElementNum(i);
+            if (key != null) {
+                index.setValue(newCollection, key, getNodeValue(node));
+            }
             i++;
         }
 

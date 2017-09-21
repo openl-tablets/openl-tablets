@@ -11,7 +11,7 @@ import org.openl.rules.testmethod.TestUnitsResults;
 public class TypeCastTest {
 
     public interface ITest {
-        TestUnitsResults ReplaceSumInsuredTestTestAll();
+        TestUnitsResults ReplaceSumInsuredTest();
     }
 
     @Test
@@ -22,7 +22,7 @@ public class TypeCastTest {
         
         ITest instance = testHelper.getInstance();
                 
-        TestUnitsResults result = instance.ReplaceSumInsuredTestTestAll();
+        TestUnitsResults result = instance.ReplaceSumInsuredTest();
         assertEquals(3, result.getNumberOfTestUnits());
         assertEquals(0, result.getNumberOfFailures());
     }

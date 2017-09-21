@@ -8,8 +8,6 @@ import org.openl.rules.repository.RVersion;
 import org.openl.rules.repository.api.ArtefactAPI;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.table.properties.def.TablePropertyDefinition;
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +30,6 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
     */
     private Map<String, org.openl.rules.common.Property> properties;
     private Map<String, Object> props;
-    private List<TablePropertyDefinition> bussinedDimensionProps;
 
     private JcrVersion version;
     private ArtefactPath path;
@@ -42,8 +39,6 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         super(node, path.segment(path.segmentCount() - 1), oldVersion);
         this.path = path;
         version = new JcrVersion(node);
-
-        bussinedDimensionProps = TablePropertyDefinitionUtils.getDimensionalTableProperties();
 
         properties = new HashMap<String, org.openl.rules.common.Property>();
         initProperties();
@@ -137,30 +132,10 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
 
     private void initProperties() throws RepositoryException {
         properties.clear();
-
-        Node n = node();
-
-        for (TablePropertyDefinition prop : bussinedDimensionProps) {
-            String propName = prop.getName();
-
-            if (n.hasProperty(propName)) {
-                Property p = n.getProperty(propName);
-
-                properties.put(propName, new JcrProperty(node(), p));
-            }
-        }
     }
 
     private void loadProps() throws RepositoryException {
         Node n = node();
-        
-        /*Set dimension props*/
-        for (TablePropertyDefinition prop : bussinedDimensionProps) {
-            String propName = prop.getName();
-            if (n.hasProperty(propName)) {
-                props.put(propName, getPropValueByType(propName));
-            }
-        }
         
         /*Set attrs*/
         for (int i = 1; i <= ArtefactProperties.PROPS_COUNT; i++) {
@@ -398,30 +373,6 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
         Node frozenNode = NodeUtil.getNode4Version(node(), version);
         Map<String, Object> versProps = new HashMap<String, Object>();
 
-        for (TablePropertyDefinition prop : bussinedDimensionProps) {
-            String propName = prop.getName();
-
-            if (frozenNode.hasProperty(propName)) {
-                Value value = frozenNode.getProperty(propName).getValue();
-                Object propValue;
-                int valueType = value.getType();
-                switch (valueType) {
-                    case PropertyType.DATE:
-                        propValue = value.getDate().getTime();
-                        break;
-                    case PropertyType.LONG:
-                        propValue = new Date(value.getLong());
-                        break;
-                    case PropertyType.DOUBLE:
-                        propValue = value.getDouble();
-                        break;
-                    default:
-                        propValue = value.getString();
-                        break;
-                }
-                versProps.put(propName, propValue);
-            }
-        }
         return versProps;
     }
 
@@ -463,23 +414,6 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
             removeProperty(propertyName);
         }
         
-        
-        
-        /*Delete all posible props*/
-        try {
-            for (TablePropertyDefinition prop : bussinedDimensionProps) {
-                String propName = prop.getName();
-
-                if (node().hasProperty(propName)) {
-                    removeProperty(propName);
-                }
-            }
-        } catch (Exception e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
-        }
-
         try {
             for (int i = 1; i <= ArtefactProperties.PROPS_COUNT; i++) {
                 String propName = ArtefactProperties.PROP_ATTRIBUTE + i;
@@ -522,20 +456,6 @@ public class JcrEntityAPI extends JcrCommonArtefact implements ArtefactAPI {
                 inhProps = getParentProps(n.getParent());
             }
 
-            for (TablePropertyDefinition prop : bussinedDimensionProps) {
-                String propName = prop.getName();
-                if (n.hasProperty(propName)) {
-                    InheritedProperty inhProp;
-
-                    if (n instanceof JcrFolderAPI) {
-                        inhProp = new InheritedProperty(getPropValueByType(propName, n), ArtefactType.FOLDER, n.getName());
-                    } else {
-                        inhProp = new InheritedProperty(getPropValueByType(propName, n), ArtefactType.PROJECT, n.getName());
-                    }
-
-                    inhProps.put(propName, inhProp);
-                }
-            }
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
                 log.error(e.getMessage(), e);

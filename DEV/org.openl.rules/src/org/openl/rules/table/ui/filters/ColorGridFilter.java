@@ -1,6 +1,3 @@
-/**
- * Created Mar 1, 2007
- */
 package org.openl.rules.table.ui.filters;
 
 import org.openl.rules.table.FormattedCell;
@@ -19,12 +16,6 @@ public class ColorGridFilter extends AGridFilter {
     private int scope = ALL;
 
     private IColorFilter filter;
-
-    public static ColorGridFilter makeTransparentFilter(IGridSelector selector, double transparency, int color) {
-        TransparentColorFilter tf = new TransparentColorFilter(color, transparency);
-
-        return new ColorGridFilter(selector, tf);
-    }
 
     public ColorGridFilter(IGridSelector selector, IColorFilter filter) {
         super(selector);
@@ -75,7 +66,7 @@ public class ColorGridFilter extends AGridFilter {
                     }
                 }
             }
-
+            cellStyle.setBorderRGB(bb);
         }
 
         return formattedCell;

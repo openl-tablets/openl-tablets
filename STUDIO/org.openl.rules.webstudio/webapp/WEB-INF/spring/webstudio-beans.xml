@@ -122,4 +122,8 @@
             </bean>
         </property>
     </bean>
+
+    <bean class="org.openl.rules.testmethod.TestSuiteExecutor" destroy-method="destroy">
+        <constructor-arg value="#{systemConfig['test.run.thread.count']}"/>
+    </bean>
 </beans>

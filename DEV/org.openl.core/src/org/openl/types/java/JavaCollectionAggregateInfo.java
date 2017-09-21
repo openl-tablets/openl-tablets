@@ -6,8 +6,7 @@
 
 package org.openl.types.java;
 
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.*;
 
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
@@ -27,7 +26,8 @@ public class JavaCollectionAggregateInfo implements IAggregateInfo {
 
     public IOpenIndex getIndex(IOpenClass aggregateType, IOpenClass indexType) {
         // For general collection indexed operator x[i] isn't supported
-        return null;
+        // Returned index is limited: it supports only method collection.add(element)
+        return new CollectionIndex();
     }
 
 
@@ -47,6 +47,36 @@ public class JavaCollectionAggregateInfo implements IAggregateInfo {
 
     @Override
     public Object makeIndexedAggregate(IOpenClass componentType, int[] dimValues) {
-        throw new UnsupportedOperationException();
+        // HashSet is one of Collection implementations, so it's legal here.
+        // If more specific collection type is needed (for example Deque) implement more specific IAggregateInfo for it.
+        return new HashSet<>();
+    }
+
+    private static class CollectionIndex implements IOpenIndex {
+        public IOpenClass getElementType() {
+            return JavaOpenClass.OBJECT;
+        }
+
+        public IOpenClass getIndexType() {
+            return null;
+        }
+
+        @Override
+        public Collection getIndexes(Object container) {
+            throw new UnsupportedOperationException();
+        }
+
+        public Object getValue(Object container, Object index) {
+            throw new UnsupportedOperationException();
+        }
+
+        public boolean isWritable() {
+            return true;
+        }
+
+        @SuppressWarnings("unchecked")
+        public void setValue(Object container, Object index, Object value) {
+            ((Collection<Object>) container).add(value);
+        }
     }
 }

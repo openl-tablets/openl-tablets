@@ -31,7 +31,7 @@ public class XlsCellFont implements ICellFont {
 
     @Override
     public boolean isBold() {
-        return font.getBoldweight() == Font.BOLDWEIGHT_BOLD;
+        return font.getBold();
     }
 
     @Override

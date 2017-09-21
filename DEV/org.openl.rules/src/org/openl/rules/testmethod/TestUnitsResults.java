@@ -73,6 +73,17 @@ public class TestUnitsResults implements INamedThing {
         return testUnits;
     }
 
+    public long getExecutionTime() {
+        long executionTime = 0;
+        if (testUnits != null) {
+            for (TestUnit testUnit : testUnits) {
+                executionTime += testUnit.getExecutionTime();
+            }
+        }
+
+        return executionTime;
+    }
+
     public void addTestUnit(TestUnit testUnit) {
         if (!testSuite.isVirtualTestSuite()) {
             testUnits.add(updateTestUnit(testUnit));
@@ -241,6 +252,26 @@ public class TestUnitsResults implements INamedThing {
         int cnt = 0;
         for (int i = 0; i < getNumberOfTestUnits(); i++) {
             if (testUnits.get(i).compareResult() != TestStatus.TR_OK.getStatus()) {
+                ++cnt;
+            }
+        }
+        return cnt;
+    }
+
+    public int getNumberOfErrors() {
+        int cnt = 0;
+        for (int i = 0; i < getNumberOfTestUnits(); i++) {
+            if (testUnits.get(i).compareResult() == TestStatus.TR_EXCEPTION.getStatus()) {
+                ++cnt;
+            }
+        }
+        return cnt;
+    }
+
+    public int getNumberOfAssertionFailures() {
+        int cnt = 0;
+        for (int i = 0; i < getNumberOfTestUnits(); i++) {
+            if (testUnits.get(i).compareResult() == TestStatus.TR_NEQ.getStatus()) {
                 ++cnt;
             }
         }

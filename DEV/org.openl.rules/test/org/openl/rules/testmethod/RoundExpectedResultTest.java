@@ -65,7 +65,7 @@ public class RoundExpectedResultTest {
 
         for (IOpenMethod method : openClass.getDeclaredMethods()) {
             if (method instanceof TestSuiteMethod) {
-                String name = method.getName().replaceAll("TestAll$", ""); // Remove "TestAll" in the end of the string
+                String name = method.getName();
 
                 @SuppressWarnings("unchecked")
                 TestUnitsResults res = (TestUnitsResults) method.invoke(target, new Object[0], env);

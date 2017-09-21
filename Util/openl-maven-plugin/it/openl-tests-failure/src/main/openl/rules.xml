@@ -5,6 +5,10 @@
             <name>Simple Rules</name>
             <rules-root path="rules/SimpleRules.xlsx"/>
         </module>
+        <module>
+            <name>Rules With Error</name>
+            <rules-root path="rules/RulesWithError.xlsx"/>
+        </module>
     </modules>
     <classpath>
         <entry path="lib/*.jar"/>

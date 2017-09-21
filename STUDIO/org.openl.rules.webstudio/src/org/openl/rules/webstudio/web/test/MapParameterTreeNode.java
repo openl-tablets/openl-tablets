@@ -1,11 +1,7 @@
 package org.openl.rules.webstudio.web.test;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
-import org.openl.base.INamedThing;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
@@ -24,7 +20,11 @@ public class MapParameterTreeNode extends CollectionParameterTreeNode {
         if (elementNum >= getChildren().size()) {
             return null;
         }
-        return getChild(elementNum).getChild("key").getValue();
+        ParameterDeclarationTreeNode key = getChild(elementNum).getChild("key");
+        if (key == null) {
+            return null;
+        }
+        return key.getValue();
     }
 
     @Override
@@ -47,8 +47,30 @@ public class MapParameterTreeNode extends CollectionParameterTreeNode {
     @Override
     public void addChild(Object elementNum, TreeNode element) {
         Object value = element == null ? null : ((ParameterDeclarationTreeNode) element).getValue();
-        LinkedHashMap<Object, ParameterDeclarationTreeNode> childrenMap = getChildernMap();
-        childrenMap.put(childrenMap.size(), createNode(null, value));
+        LinkedHashMap<Object, ParameterDeclarationTreeNode> childrenMap = getChildrenMap();
+        int nextChildNum = childrenMap.size();
+
+        ParameterDeclarationTreeNode node = createNode(null, value);
+        ListIterator<ParameterDeclarationTreeNode> iterator = new ArrayList<>(childrenMap.values()).listIterator(nextChildNum);
+        if (iterator.hasPrevious()) {
+            ParameterDeclarationTreeNode lastChild = iterator.previous();
+            ParameterDeclarationTreeNode lastKey = lastChild.getChild("key");
+            ParameterDeclarationTreeNode lastValue = lastChild.getChild("value");
+            while ((lastKey == null || lastValue == null) && iterator.hasPrevious()) {
+                lastChild = iterator.previous();
+                lastKey = lastChild.getChild("key");
+                lastValue = lastChild.getChild("value");
+            }
+
+            if (lastKey != null) {
+                initComplexNode(lastKey, node.getChild("key"));
+            }
+            if (lastValue != null) {
+                initComplexNode(lastValue, node.getChild("value"));
+            }
+        }
+
+        childrenMap.put(nextChildNum, node);
     }
 
     @Override
@@ -64,6 +86,8 @@ public class MapParameterTreeNode extends CollectionParameterTreeNode {
                 break;
             }
         }
+
+        updateChildrenKeys();
     }
 
     @Override
@@ -82,6 +106,7 @@ public class MapParameterTreeNode extends CollectionParameterTreeNode {
         return (Map<Object, Object>) getValue();
     }
 
+    @RestrictDispose
     public static class Entry {
         private final Map<Object, Object> map;
         private Object key;

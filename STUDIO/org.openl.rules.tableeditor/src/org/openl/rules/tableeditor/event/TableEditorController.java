@@ -3,6 +3,7 @@ package org.openl.rules.tableeditor.event;
 import com.sdicons.json.mapper.JSONMapper;
 import com.sdicons.json.mapper.MapperException;
 import org.apache.poi.ss.formula.FormulaParseException;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
@@ -305,18 +306,18 @@ public class TableEditorController extends BaseTableEditorController {
         if (editorModel != null) {
             TableModificationResponse response = new TableModificationResponse(null, editorModel);
             String align = getRequestParam(Constants.REQUEST_PARAM_ALIGN);
-            int halign = -1;
+            HorizontalAlignment halign = null;
             if ("left".equalsIgnoreCase(align)) {
-                halign = ICellStyle.ALIGN_LEFT;
+                halign = HorizontalAlignment.LEFT;
             } else if ("center".equalsIgnoreCase(align)) {
-                halign = ICellStyle.ALIGN_CENTER;
+                halign = HorizontalAlignment.CENTER;
             } else if ("right".equalsIgnoreCase(align)) {
-                halign = ICellStyle.ALIGN_RIGHT;
+                halign = HorizontalAlignment.RIGHT;
             } else if ("justify".equalsIgnoreCase(align)) {
-                halign = ICellStyle.ALIGN_JUSTIFY;
+                halign = HorizontalAlignment.JUSTIFY;
             }
 
-            if (halign != -1) {
+            if (halign != null) {
                 ICellStyle style = editorModel.getOriginalGridTable().getCell(col, row).getStyle();
                 if (style == null || style.getHorizontalAlignment() != halign) {
                     try {

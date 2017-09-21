@@ -3,6 +3,7 @@
  */
 package org.openl.rules.table;
 
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ui.ICellStyle;
 
@@ -40,7 +41,7 @@ public interface IWritableGrid extends IGrid {
     
     void setCellBorderStyle(int col, int row, ICellStyle style);
 
-    void setCellAlignment(int col, int row, int alignment);
+    void setCellAlignment(int col, int row, HorizontalAlignment alignment);
 
     void setCellIndent(int col, int row, int indent);
 

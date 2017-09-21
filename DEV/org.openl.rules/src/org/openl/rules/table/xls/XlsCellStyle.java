@@ -1,6 +1,10 @@
 package org.openl.rules.table.xls;
 
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.table.ui.ICellStyle;
 import static org.openl.rules.table.xls.PoiExcelHelper.*;
@@ -25,17 +29,17 @@ public class XlsCellStyle implements ICellStyle {
     }
 
     @Override
-    public short[] getBorderStyle() {
+    public BorderStyle[] getBorderStyle() {
         return getCellBorderStyles(xlsStyle);
     }
 
     @Override
-    public short getFillPattern() {
-        return xlsStyle.getFillPattern();
+    public FillPatternType getFillPattern() {
+        return xlsStyle.getFillPatternEnum();
     }
 
     public boolean hasNoFill() {
-        return (getFillPattern() == CellStyle.NO_FILL);
+        return (getFillPattern() == FillPatternType.NO_FILL);
     }
 
     @Override
@@ -69,13 +73,13 @@ public class XlsCellStyle implements ICellStyle {
     }
 
     @Override
-    public int getHorizontalAlignment() {
-        return xlsStyle == null ? ALIGN_GENERAL : xlsStyle.getAlignment();
+    public HorizontalAlignment getHorizontalAlignment() {
+        return xlsStyle == null ? HorizontalAlignment.GENERAL : xlsStyle.getAlignmentEnum();
     }
 
     @Override
-    public int getVerticalAlignment() {
-        return xlsStyle == null ? ALIGN_GENERAL : xlsStyle.getVerticalAlignment();
+    public VerticalAlignment getVerticalAlignment() {
+        return xlsStyle == null ? VerticalAlignment.TOP : xlsStyle.getVerticalAlignmentEnum();
     }
 
     @Override

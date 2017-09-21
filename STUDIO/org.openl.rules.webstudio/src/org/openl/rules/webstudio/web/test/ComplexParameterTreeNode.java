@@ -17,6 +17,7 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
     private final Logger log = LoggerFactory.getLogger(ComplexParameterTreeNode.class);
     public static final String COMPLEX_TYPE = "complex";
     private String valuePreview;
+    private IOpenClass typeToCreate;
 
     public ComplexParameterTreeNode(String fieldName, Object value, IOpenClass fieldType, ParameterDeclarationTreeNode parent, String valuePreview) {
         super(fieldName, value, fieldType, parent);
@@ -41,9 +42,9 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
     @Override
     protected LinkedHashMap<Object, ParameterDeclarationTreeNode> initChildrenMap() {
         if (isValueNull()) {
-            return new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
+            return new LinkedHashMap<>();
         } else {
-            LinkedHashMap<Object, ParameterDeclarationTreeNode> fields = new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
+            LinkedHashMap<Object, ParameterDeclarationTreeNode> fields = new LinkedHashMap<>();
             IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
             for (Entry<String, IOpenField> fieldEntry : getType().getFields().entrySet()) {
                 IOpenField field = fieldEntry.getValue();
@@ -111,7 +112,7 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
         Object value = getValue();
 
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-        for (Entry<Object, ParameterDeclarationTreeNode> fieldEntry : getChildernMap().entrySet()) {
+        for (Entry<Object, ParameterDeclarationTreeNode> fieldEntry : getChildrenMap().entrySet()) {
             if (!(fieldEntry.getValue() instanceof UnmodifiableParameterTreeNode)) {
                 String fieldName = (String) fieldEntry.getKey();
                 IOpenField field = getType().getField(fieldName);
@@ -141,5 +142,17 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
     public boolean isBaseType() {
         IOpenClass type = getType();
         return type == JavaOpenClass.OBJECT || type.isAbstract();
+    }
+
+    public IOpenClass getTypeToCreate() {
+        return typeToCreate;
+    }
+
+    public void setTypeToCreate(IOpenClass typeToCreate) {
+        this.typeToCreate = typeToCreate;
+    }
+
+    public boolean isDisposeRestricted() {
+        return getType().getInstanceClass().isAnnotationPresent(RestrictDispose.class);
     }
 }

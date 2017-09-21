@@ -13,7 +13,7 @@ public class ArrayIndexOnSpreadsheetResultTest {
     private static final String FILE_NAME = "test/rules/binding/ArrayIndexOnSpreadsheetResult.xlsx";
 
     public interface ITest {
-        TestUnitsResults findEmployeeClassPremiumTestTestAll();
+        TestUnitsResults findEmployeeClassPremiumTest();
     }
     
     @Test
@@ -22,7 +22,7 @@ public class ArrayIndexOnSpreadsheetResultTest {
         TestHelper<ITest> testHelper = new TestHelper<ITest>(xlsFile, ITest.class);
         
         ITest instance = testHelper.getInstance();
-        TestUnitsResults result = instance.findEmployeeClassPremiumTestTestAll();
+        TestUnitsResults result = instance.findEmployeeClassPremiumTest();
         assertEquals(0, result.getNumberOfFailures());
     }
 }

@@ -63,10 +63,7 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
-import org.openl.rules.testmethod.ProjectHelper;
-import org.openl.rules.testmethod.TestSuite;
-import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.testmethod.*;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.benchmark.Benchmark;
 import org.openl.rules.ui.benchmark.BenchmarkInfo;
@@ -429,7 +426,7 @@ public class ProjectModel {
 
     /**
      * Checks that {@link IOpenMethod} object is instance that represents the
-     * given {@TableSyntaxNode} object. Actually,
+     * given {@link TableSyntaxNode} object. Actually,
      * {@link IOpenMethod} object must have the same syntax node as given one.
      * If given method is instance of {@link OpenMethodDispatcher}
      * <code>false</code> value will be returned.
@@ -502,7 +499,7 @@ public class ProjectModel {
     /**
      * Gets test methods for method by uri.
      *
-     * @param forTable
+     * @param forTable uri for method table
      * @return test methods
      */
     public IOpenMethod[] getTestMethods(String forTable) {
@@ -516,7 +513,7 @@ public class ProjectModel {
     /**
      * Gets all test methods for method by uri.
      *
-     * @param tableUri
+     * @param tableUri uri for method table
      * @return all test methods, including tests with test cases, runs with
      * filled runs, tests without cases(empty), runs without any
      * parameters and tests without cases and runs.
@@ -895,7 +892,7 @@ public class ProjectModel {
         if (!isParallel) {
             return test.invokeSequentially(openClass, 1);
         } else {
-            return test.invokeParallel(openClass, 1);
+            return test.invokeParallel(WebStudioUtils.getBean(TestSuiteExecutor.class), openClass, 1);
         }
     }
 

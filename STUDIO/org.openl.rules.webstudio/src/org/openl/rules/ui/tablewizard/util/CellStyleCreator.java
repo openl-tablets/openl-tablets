@@ -2,6 +2,7 @@ package org.openl.rules.ui.tablewizard.util;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -27,7 +28,7 @@ public class CellStyleCreator {
                 CellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
                 cellStyle.setFillForegroundColor((HTMLToExelStyleCoverter.getBackgroundColor(style, workbook)));
-                cellStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
+                cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
                 cellStyle.setTopBorderColor(HTMLToExelStyleCoverter.getTopBorderColor(style, workbook));
                 cellStyle.setRightBorderColor(HTMLToExelStyleCoverter.getRightBorderColor(style, workbook));
@@ -45,13 +46,13 @@ public class CellStyleCreator {
             } else if (workbook instanceof XSSFWorkbook) {
                 XSSFCellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
-                cellStyle.setFillForegroundColor((HTMLToExelStyleCoverter.getXSSFBackgroundColor(style, (XSSFWorkbook)workbook)));
-                cellStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
+                cellStyle.setFillForegroundColor((HTMLToExelStyleCoverter.getXSSFBackgroundColor(style)));
+                cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-                cellStyle.setTopBorderColor(HTMLToExelStyleCoverter.getXSSFTopBorderColor(style, (XSSFWorkbook)workbook));
-                cellStyle.setRightBorderColor(HTMLToExelStyleCoverter.getXSSFRightBorderColor(style, (XSSFWorkbook)workbook));
-                cellStyle.setBottomBorderColor(HTMLToExelStyleCoverter.getXSSFBottomBorderColor(style, (XSSFWorkbook)workbook));
-                cellStyle.setLeftBorderColor(HTMLToExelStyleCoverter.getXSSFLeftBorderColor(style, (XSSFWorkbook)workbook));
+                cellStyle.setTopBorderColor(HTMLToExelStyleCoverter.getXSSFTopBorderColor(style));
+                cellStyle.setRightBorderColor(HTMLToExelStyleCoverter.getXSSFRightBorderColor(style));
+                cellStyle.setBottomBorderColor(HTMLToExelStyleCoverter.getXSSFBottomBorderColor(style));
+                cellStyle.setLeftBorderColor(HTMLToExelStyleCoverter.getXSSFLeftBorderColor(style));
                 
                 cellStyle.setBorderTop(HTMLToExelStyleCoverter.getBorderTop(style));
                 cellStyle.setBorderRight(HTMLToExelStyleCoverter.getBorderRight(style));

@@ -15,7 +15,7 @@ public class TestDataInitTest {
     private static final String FILE_NAME = "test/rules/testmethod/TestDataArrayInitTest.xlsx";
 
     public interface ITestDataInit {
-        TestUnitsResults returnAddressArryTestTestAll();
+        TestUnitsResults returnAddressArryTest();
     }
 
     @Before
@@ -29,7 +29,7 @@ public class TestDataInitTest {
         TestHelper<ITestDataInit> testHelper = new TestHelper<ITestDataInit>(xlsFile, ITestDataInit.class);
 
         ITestDataInit instance = testHelper.getInstance();
-        TestUnitsResults result = instance.returnAddressArryTestTestAll();
+        TestUnitsResults result = instance.returnAddressArryTest();
         assertEquals(3, result.getNumberOfFailures());
     }
 }

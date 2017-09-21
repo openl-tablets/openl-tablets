@@ -17,23 +17,23 @@ public class ComplexParameterTreeNodeTest {
     public void testGetChildrenMap() {
         ComplexParameterTreeNode node = createNode(new My());
         
-        LinkedHashMap<Object, ParameterDeclarationTreeNode> childernMap = node.getChildernMap();
+        LinkedHashMap<Object, ParameterDeclarationTreeNode> childrenMap = node.getChildrenMap();
         
-        assertTrue(childernMap.containsKey("name"));
-        assertEquals(childernMap.get("name").getValue(), "test");
+        assertTrue(childrenMap.containsKey("name"));
+        assertEquals(childrenMap.get("name").getValue(), "test");
         
-        assertFalse(childernMap.containsKey("value"));
+        assertFalse(childrenMap.containsKey("value"));
     }
     
     @Test
     public void testThrowingMethod() {
         ComplexParameterTreeNode node = createNode(new ThrowingField());
-        LinkedHashMap<Object, ParameterDeclarationTreeNode> childernMap = node.getChildernMap();
+        LinkedHashMap<Object, ParameterDeclarationTreeNode> childrenMap = node.getChildrenMap();
         
-        assertTrue(childernMap.containsKey("name"));
-        assertEquals(childernMap.get("name").getValue(), "test");
+        assertTrue(childrenMap.containsKey("name"));
+        assertEquals(childrenMap.get("name").getValue(), "test");
 
-        assertTrue(childernMap.containsKey("value"));
+        assertTrue(childrenMap.containsKey("value"));
     }
 
     
@@ -42,7 +42,7 @@ public class ComplexParameterTreeNodeTest {
         // Wee need to check a cyclic references, because JSF loads all child nodes before building a tree
         
         ComplexParameterTreeNode node = createNode(new SelfReference());
-        assertTrue(node.getChildernMap().containsKey("value"));
+        assertTrue(node.getChildrenMap().containsKey("value"));
         
         // If there are a cyclic references, either StackOverflowError will be thrown or there will be a timeout
         assertFalse(getAllChildren(node).isEmpty());
@@ -66,8 +66,8 @@ public class ComplexParameterTreeNodeTest {
     private List<ParameterDeclarationTreeNode> getAllChildren(ParameterDeclarationTreeNode node) {
         // This method emulates a JSF's tree behavior
         
-        Collection<ParameterDeclarationTreeNode> children = node.getChildernMap().values();
-        List<ParameterDeclarationTreeNode> values = new ArrayList<ParameterDeclarationTreeNode>(children);
+        Collection<ParameterDeclarationTreeNode> children = node.getChildrenMap().values();
+        List<ParameterDeclarationTreeNode> values = new ArrayList<>(children);
         
         for (ParameterDeclarationTreeNode child : children) {
             values.addAll(getAllChildren(child));

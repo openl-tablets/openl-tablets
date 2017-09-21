@@ -1,0 +1,13 @@
+<project>
+    <name>OpenL Rules Simple Project</name>
+    <modules>
+        <module>
+            <name>Simple Rules</name>
+            <rules-root path="rules/SimpleRules.xlsx"/>
+        </module>
+        <module>
+            <name>Tests with Error</name>
+            <rules-root path="rules/TestsWithError.xlsx"/>
+        </module>
+    </modules>
+</project>

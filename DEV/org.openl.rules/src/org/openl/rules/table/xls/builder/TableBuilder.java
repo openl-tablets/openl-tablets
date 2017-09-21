@@ -7,6 +7,7 @@ import java.util.Set;
 
 import java.io.IOException;
 
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.ClientAnchor;
 import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -161,10 +162,10 @@ public class TableBuilder {
             Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
             CellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
-            cellStyle.setBorderBottom(ICellStyle.BORDER_THIN);
-            cellStyle.setBorderTop(ICellStyle.BORDER_THIN);
-            cellStyle.setBorderLeft(ICellStyle.BORDER_THIN);
-            cellStyle.setBorderRight(ICellStyle.BORDER_THIN);
+            cellStyle.setBorderBottom(BorderStyle.THIN);
+            cellStyle.setBorderTop(BorderStyle.THIN);
+            cellStyle.setBorderLeft(BorderStyle.THIN);
+            cellStyle.setBorderRight(BorderStyle.THIN);
 
             defaultCellStyle = cellStyle;
         }
@@ -176,10 +177,10 @@ public class TableBuilder {
             Workbook workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
             CellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
-            cellStyle.setBorderBottom(ICellStyle.BORDER_THIN);
-            cellStyle.setBorderTop(ICellStyle.BORDER_THIN);
-            cellStyle.setBorderLeft(ICellStyle.BORDER_THIN);
-            cellStyle.setBorderRight(ICellStyle.BORDER_THIN);
+            cellStyle.setBorderBottom(BorderStyle.THIN);
+            cellStyle.setBorderTop(BorderStyle.THIN);
+            cellStyle.setBorderLeft(BorderStyle.THIN);
+            cellStyle.setBorderRight(BorderStyle.THIN);
 
             cellStyle.setDataFormat((short) BuiltinFormats.getBuiltinFormat(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));
 

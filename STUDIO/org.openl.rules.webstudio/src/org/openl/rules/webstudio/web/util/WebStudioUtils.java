@@ -110,6 +110,12 @@ public abstract class WebStudioUtils {
         return userWorkspace;
     }
 
+    public static <T> T getBean(Class<T> clazz) {
+        ServletContext servletContext = FacesUtils.getServletContext();
+        WebApplicationContext appContext = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
+        return appContext.getBean(clazz);
+    }
+
     public static <T> T getBean(String name, Class<T> clazz) {
         ServletContext servletContext = FacesUtils.getServletContext();
         WebApplicationContext appContext = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
