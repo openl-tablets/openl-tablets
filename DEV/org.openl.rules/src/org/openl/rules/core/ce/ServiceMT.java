@@ -16,7 +16,7 @@ public final class ServiceMT {
     private static class ServiceMTHolder {
         private static final ServiceMT INSTANCE = new ServiceMT();
     }
-
+    
     public static ServiceMT getInstance() {
         return ServiceMTHolder.INSTANCE;
     }

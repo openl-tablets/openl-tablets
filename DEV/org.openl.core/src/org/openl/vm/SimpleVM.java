@@ -22,6 +22,8 @@ import org.openl.util.fast.FastStack;
  */
 public class SimpleVM implements IOpenVM {
 
+    private static final SimpleRunner SIMPLE_RUNNER = new SimpleRunner();
+
     static class SimpleRunner implements IOpenRunner {
 
         SimpleRunner() {
@@ -64,57 +66,28 @@ public class SimpleVM implements IOpenVM {
                 env.popLocalFrame();
             }
         }
-
-        // public Object run2(Object[] params)
-        // {
-        //
-        // return evaluate(node, new SimpleRuntimeEnv(frameSize));
-        // }
-
-        // Object evaluate(IBoundNode bnode, IRuntimeEnv env)
-        // {
-        //
-        // IBoundNode targetNode = bnode.getTargetNode();
-        // Object target = targetNode == null ? null : evaluate(targetNode,
-        // env);
-        //
-        //
-        // IBoundNode[] children = bnode.getChildren();
-        // Object[] res = null;
-        // if (children != null)
-        // {
-        // res = new Object[children.length];
-        // for (int i = 0; i < res.length; i++)
-        // {
-        // res[i] = evaluate(children[i], env);
-        // }
-        // }
-        // return bnode.evaluate(target != null ? target : env, res, env);
-        // }
-
     }
 
     public static class SimpleRuntimeEnv implements IRuntimeEnv {
 
         IOpenRunner runner;
 
-        FastStack thisStack = new FastStack(100);
+        protected FastStack thisStack = new FastStack(100);
 
-        FastStack frameStack = new FastStack(100);
+        protected FastStack frameStack = new FastStack(100);
 
-        private FastStack contextStack = new FastStack(5);
+        protected FastStack contextStack;
 
         public SimpleRuntimeEnv() {
-            this(new SimpleRunner(), 0, new Object[] {});
+            this(SIMPLE_RUNNER, 0, new Object[] {});
         }
 
         SimpleRuntimeEnv(IOpenRunner runner, int frameSize, Object[] params) {
             Object[] aLocalFrame = new Object[frameSize];
             this.runner = runner;
-
+            contextStack = new FastStack(5);
             System.arraycopy(params, 0, aLocalFrame, 0, params.length);
             pushLocalFrame(aLocalFrame);
-
             pushContext(buildDefaultRuntimeContext());
         }
 
@@ -123,9 +96,9 @@ public class SimpleVM implements IOpenVM {
         }
 
         public SimpleRuntimeEnv(SimpleRuntimeEnv env) {
-            this();
+            this.runner = SIMPLE_RUNNER;
+            contextStack = (FastStack) env.contextStack.clone();
             pushThis(env.getThis());
-            pushContext(env.getContext());
             pushLocalFrame(env.getLocalFrame());
         }
 
@@ -210,7 +183,7 @@ public class SimpleVM implements IOpenVM {
      * @see org.openl.IOpenVM#run(org.openl.binding.IBoundCode)
      */
     public IOpenRunner getRunner() {
-        return new SimpleRunner();
+        return SIMPLE_RUNNER;
     }
 
     public IRuntimeEnv getRuntimeEnv() {

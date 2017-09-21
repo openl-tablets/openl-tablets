@@ -14,6 +14,7 @@ public class SimpleRulesRuntimeEnvMT extends SimpleRulesRuntimeEnv {
     public SimpleRulesRuntimeEnvMT(SimpleRulesRuntimeEnv delegate) {
         this.delegate = delegate;
         pushThis(delegate.getThis());
+        this.contextStack = delegate.cloneContextStack();
         pushContext(delegate.getContext());
         pushLocalFrame(delegate.getLocalFrame());
     }

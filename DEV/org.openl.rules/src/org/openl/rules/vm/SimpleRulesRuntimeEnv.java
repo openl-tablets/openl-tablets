@@ -13,6 +13,7 @@ import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.util.fast.FastStack;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM.SimpleRuntimeEnv;
 
@@ -39,6 +40,10 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
     @Override
     public IRuntimeEnv clone() {
         return new SimpleRulesRuntimeEnv(this);
+    }
+    
+    public FastStack cloneContextStack() {
+        return (FastStack) contextStack.clone();
     }
 
     @Override
@@ -88,7 +93,7 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
     
     // This is workaround of too much creating MethodKeys in runtime
     private Map<IOpenMethodWrapper, IOpenMethod> wrapperMethodCache;
-    private ReentrantReadWriteLock wrapperMethodCacheReadWriteLock = new ReentrantReadWriteLock();
+    private ReentrantReadWriteLock wrapperMethodCacheReadWriteLock;
 
     public IOpenMethod getTopClassMethod(IOpenMethodWrapper wrapper) {
         if (topClass == null) {
@@ -119,18 +124,22 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
     public void setTopClass(IOpenClass topClass) {
         this.topClass = topClass;
         wrapperMethodCache = new HashMap<IOpenMethodWrapper, IOpenMethod>();
+        wrapperMethodCacheReadWriteLock = new ReentrantReadWriteLock();
     }
 
     private IOpenClass topClass;
     
-    private Queue<RecursiveAction> actionStack = new LinkedList<>();
+    private Queue<RecursiveAction> actionStack = null;
     
     public void pushAction(RecursiveAction action) {
+        if (actionStack == null) {
+            actionStack = new LinkedList<>();
+        }
         actionStack.add(action);
     }
     
     public boolean joinActionIfExists() {
-        if (!actionStack.isEmpty()) {
+        if (actionStack != null && !actionStack.isEmpty()) {
             RecursiveAction action = (RecursiveAction) actionStack.poll();
             action.join();
             return true;
@@ -139,7 +148,7 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
     }
     
     public boolean cancelActionIfExists() {
-        if (!actionStack.isEmpty()) {
+        if (actionStack != null && !actionStack.isEmpty()) {
             RecursiveAction action = (RecursiveAction) actionStack.poll();
             action.cancel(true);
             return true;
