@@ -8,20 +8,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.RecursiveTask;
 
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.core.ce.ServiceMT;
 import org.openl.rules.project.SafeCloner;
 import org.openl.rules.runtime.OpenLRulesInvocationHandler;
 import org.openl.rules.variation.NoVariation;
@@ -31,7 +26,6 @@ import org.openl.rules.variation.VariationsFactory;
 import org.openl.rules.variation.VariationsFromRules;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.rules.variation.VariationsResult;
-import org.openl.rules.vm.ArgumentCachingStorage;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.vm.IRuntimeEnv;
@@ -49,21 +43,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
 
     private static final String GET_RUNTIME_ENVIRONMENT_METHOD = "getRuntimeEnvironment";
 
-    private final static String VARIATION_CORE_POOL_SIZE = "variationCorePoolSize";
-    private final static String VARIATION_MAX_POOL_SIZE = "variationMaximumPoolSize";
-
-    static final ExecutorService executorService = new ThreadPoolExecutor(getSystemParam(VARIATION_CORE_POOL_SIZE,
-        8), getSystemParam(VARIATION_MAX_POOL_SIZE, 16), 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
-
-    SafeCloner cloner = new SafeCloner();
-
-    private static int getSystemParam(String name, int defaultValue) {
-        try {
-            return Integer.parseInt(System.getProperty(name));
-        } catch (NumberFormatException ex) {
-            return defaultValue;
-        }
-    }
+    private SafeCloner cloner = new SafeCloner();
 
     private final Logger log = LoggerFactory.getLogger(VariationInstantiationStrategyEnhancerInvocationHandler.class);
 
@@ -153,16 +133,15 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
                 final Collection<VariationsResult<Object>> results = new ArrayList<VariationsResult<Object>>();
                 results.add(calculateSingleVariation(member, arguments, new NoVariation()));
                 if (variationsPack != null) {
-                    final Collection<VariationCalculationTask> tasks = createTasks(member,
+                    final VariationCalculationTask[] tasks = createTasks(member,
                         variationsPack,
                         arguments,
                         runtimeEnv);
-                    if (!tasks.isEmpty()) {
-                        final List<Future<VariationsResult<Object>>> futures = executorService.invokeAll(tasks);
-                        for (Future<VariationsResult<Object>> item : futures) {
-                            results.add(item.get());
+                    if (tasks.length > 0) {
+                        ServiceMT.getInstance().executeAll(tasks);
+                        for (VariationCalculationTask task : tasks) {
+                            results.add(task.join());
                         }
-
                     }
                 }
                 mergeResults(variationsResults, results);
@@ -253,7 +232,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
         return variationsResults;
     }
 
-    private Collection<VariationCalculationTask> createTasks(Method member,
+    private VariationCalculationTask[] createTasks(Method member,
             VariationsPack variationsPack,
             Object[] arguments,
             SimpleRulesRuntimeEnv parentRuntimeEnv) {
@@ -289,10 +268,11 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
             tasks.add(item);
 
         }
-        return tasks;
+        return tasks.toArray(new VariationCalculationTask[] {});
     }
 
-    private class VariationCalculationTask implements Callable<VariationsResult<Object>> {
+    private class VariationCalculationTask extends RecursiveTask<VariationsResult<Object>> {
+        private static final long serialVersionUID = 1L;
         private final Method member;
         private final Object[] arguments;
         private final Variation variation;
@@ -307,9 +287,9 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
             this.variation = variation;
             this.runtimeEnv = runtimeEnv;
         }
-
+        
         @Override
-        public VariationsResult<Object> call() throws Exception {
+        protected VariationsResult<Object> compute() {
             OpenLRulesInvocationHandler handler = null;
             try {
                 if (runtimeEnv instanceof SimpleRulesRuntimeEnv) {

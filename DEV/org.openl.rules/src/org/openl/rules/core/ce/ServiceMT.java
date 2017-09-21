@@ -1,6 +1,7 @@
 package org.openl.rules.core.ce;
 
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveAction;
 
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
@@ -20,7 +21,11 @@ public final class ServiceMT {
         return ServiceMTHolder.INSTANCE;
     }
 
-    public <V> void execute(IRuntimeEnv env, Runnable runnable) {
+    public boolean isParallelismReasonableNow() {
+        return forkJoinPool.getActiveThreadCount() <= forkJoinPool.getParallelism();
+    }
+    
+    public void execute(IRuntimeEnv env, Runnable runnable) {
         SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
         RunnableRecursiveAction action = new RunnableRecursiveAction(runnable, simpleRulesRuntimeEnv);
         simpleRulesRuntimeEnv.pushAction(action);
@@ -30,6 +35,16 @@ public final class ServiceMT {
         }
         forkJoinPool.execute(action);
         return;
+    }
+    
+    public void execute(ForkJoinTask<?> task) {
+        forkJoinPool.execute(task);
+    }
+
+    public void executeAll(ForkJoinTask<?>... tasks) {
+        for (ForkJoinTask<?> task : tasks) {
+            forkJoinPool.execute(task);
+        }
     }
 
     public void join(IRuntimeEnv env) {

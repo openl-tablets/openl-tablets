@@ -28,13 +28,17 @@ public class MultiCallMethodBoundNodeMT extends MultiCallMethodBoundNode {
             Object[] callParameters,
             Object results,
             int index) {
-        InvokeMethodAndSetResultToArrayRunnable runnable = new InvokeMethodAndSetResultToArrayRunnable(
-            getMethodCaller(),
-            target,
-            callParameters.clone(),
-            results,
-            index);
-        ServiceMT.getInstance().execute(env, runnable);
+        if (!ServiceMT.getInstance().isParallelismReasonableNow()) {
+            super.invokeMethodAndSetResultToArray(target, env, callParameters, results, index);
+        } else {
+            InvokeMethodAndSetResultToArrayRunnable runnable = new InvokeMethodAndSetResultToArrayRunnable(
+                getMethodCaller(),
+                target,
+                callParameters.clone(),
+                results,
+                index);
+            ServiceMT.getInstance().execute(env, runnable);
+        }
     }
 
     @Override

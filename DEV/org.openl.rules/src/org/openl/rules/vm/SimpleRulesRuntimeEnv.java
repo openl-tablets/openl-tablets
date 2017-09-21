@@ -3,9 +3,7 @@ package org.openl.rules.vm;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -15,7 +13,6 @@ import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.util.fast.FastStack;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM.SimpleRuntimeEnv;
 
