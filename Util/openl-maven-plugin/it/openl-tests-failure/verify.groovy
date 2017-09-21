@@ -24,6 +24,8 @@ try {
     // Check total tests statistics
     assert lines.any { it.contains('Total tests run: 20, Failures: 7, Errors: 1') }
 
+    assert lines.any { it =~ /Run tests using \d+ threads/ }
+
     return true
 } catch(Throwable e) {
     e.printStackTrace()

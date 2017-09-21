@@ -37,6 +37,19 @@ public final class TestMojo extends BaseOpenLMojo {
     @Parameter(property = "skipTests")
     private boolean skipTests;
 
+    /**
+     * Thread count to run test cases. The parameter is as follows:
+     * <ul>
+     *     <li>4 - Runs tests with 4 threads</li>
+     *     <li>1.5C - 1.5 thread per cpu core</li>
+     *     <li>none - Run tests sequentially (don't create threads to run tests)</li>
+     *     <li>auto - Threads count will be configured automatically</li>
+     * </ul>
+     * Default value is "auto".
+     */
+    @Parameter(defaultValue = "auto")
+    private String threadCount;
+
     @Parameter(defaultValue = "${project.testClasspathElements}", readonly = true, required = true)
     private List<String> classpath;
 
@@ -61,6 +74,8 @@ public final class TestMojo extends BaseOpenLMojo {
         List<String> summaryFailures = new ArrayList<>();
         List<String> summaryErrors = new ArrayList<>();
 
+        TestSuiteExecutor testSuiteExecutor = getTestSuiteExecutor();
+
         TestSuiteMethod[] tests = ProjectHelper.allTesters(openClass);
         for (TestSuiteMethod test : tests) {
             String moduleName = test.getModuleName();
@@ -68,7 +83,12 @@ public final class TestMojo extends BaseOpenLMojo {
                 info("");
                 String moduleInfo = moduleName == null ? "" : " from the module " + moduleName;
                 info("Running ", test.getName(), moduleInfo);
-                TestUnitsResults result = new TestSuite(test).invokeSequentially(openClass, 1L);
+                TestUnitsResults result;
+                if (testSuiteExecutor == null) {
+                    result = new TestSuite(test).invokeSequentially(openClass, 1L);
+                } else {
+                    result = new TestSuite(test).invokeParallel(testSuiteExecutor, openClass, 1L);
+                }
 
                 int suitTests = result.getNumberOfTestUnits();
                 int suitFailures = result.getNumberOfAssertionFailures();
@@ -179,4 +199,29 @@ public final class TestMojo extends BaseOpenLMojo {
         return time < 0.001 ? "< 0.001" : df.format(time);
     }
 
+    private TestSuiteExecutor getTestSuiteExecutor() {
+        int threads;
+
+        switch (threadCount) {
+            case "none":
+                return null;
+            case "auto":
+                // Can be changed in the future
+                threads = Runtime.getRuntime().availableProcessors() + 2;
+                break;
+            default:
+                if (threadCount.matches("\\d+")) {
+                    threads = Integer.parseInt(threadCount);
+                } else if (threadCount.matches("\\d[\\d.]*[cC]")) {
+                    float multiplier = Float.parseFloat(threadCount.substring(0, threadCount.length() - 1));
+                    threads = (int) (multiplier * Runtime.getRuntime().availableProcessors());
+                } else {
+                    throw new IllegalArgumentException("Incorrect thread count '" + threadCount + "'");
+                }
+                break;
+        }
+        info("Run tests using ", threads, " threads.");
+
+        return new TestSuiteExecutor(threads);
+    }
 }

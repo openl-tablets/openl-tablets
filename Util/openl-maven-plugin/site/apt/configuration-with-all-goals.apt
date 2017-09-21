@@ -23,6 +23,7 @@ Configuration with all OpenL Maven Plugin Goals
               <isProvideVariations>true</isProvideVariations>
               <!-- test goal -->
               <skipTests>false</skipTests>
+              <threadCount>auto</threadCount>
               <!-- package -->
               <format>zip,jar</format>
               <classifier>openl</classifier>

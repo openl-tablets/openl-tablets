@@ -19,6 +19,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <interfaceClass>com.example.Service</interfaceClass>
+                    <threadCount>2.5C</threadCount>
                 </configuration>
                 <executions>
                     <execution>
