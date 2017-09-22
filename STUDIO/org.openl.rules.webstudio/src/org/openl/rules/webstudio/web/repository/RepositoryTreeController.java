@@ -65,9 +65,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.DELETE_DEPLOYMENT;
@@ -1417,7 +1415,11 @@ public class RepositoryTreeController {
         try {
             AProjectFolder node = (AProjectFolder) repositoryTreeState.getSelectedNode().getData();
 
-            AProjectResource addedFileResource = node.addResource(fileName, getLastUploadedFile().getInput());
+            ProjectFile lastUploadedFile = getLastUploadedFile();
+            if (lastUploadedFile == null) {
+                return "Please upload the file";
+            }
+            AProjectResource addedFileResource = node.addResource(fileName, lastUploadedFile.getInput());
 
             repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFileResource);
 
