@@ -745,8 +745,21 @@ public class RepositoryTreeController {
         return null;
     }
 
-    public String unlockNode() {
-        AProjectArtefact projectArtefact = repositoryTreeState.getSelectedNode().getData();
+    public String unlockSelectedProject() {
+        return unlockNode("Project");
+    }
+
+    public String unlockSelectedDeployConfiguration() {
+        return unlockNode("Deploy configuration");
+    }
+
+    private String unlockNode(String nodeTypeName) {
+        TreeNode selectedNode = repositoryTreeState.getSelectedNode();
+        AProjectArtefact projectArtefact = selectedNode.getData();
+        if (projectArtefact == null) {
+            FacesUtils.addInfoMessage(nodeTypeName + " was deleted already.");
+            return null;
+        }
         try {
             projectArtefact.unlock();
             repositoryTreeState.refreshSelectedNode();
@@ -756,7 +769,7 @@ public class RepositoryTreeController {
             }
             resetStudioModel();
 
-            FacesUtils.addInfoMessage("File was unlocked successfully.");
+            FacesUtils.addInfoMessage(nodeTypeName + " was unlocked successfully.");
         } catch (ProjectException e) {
             log.error("Failed to unlock node.", e);
             FacesUtils.addErrorMessage("Failed to unlock node.", e.getMessage());
@@ -770,6 +783,10 @@ public class RepositoryTreeController {
 
         try {
             RulesProject project = userWorkspace.getProject(projectName);
+            if (project == null) {
+                // It was deleted by other user
+                return null;
+            }
             project.unlock();
             File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
             closeProjectForAllUsers(workspacesRoot, projectName);
@@ -828,6 +845,10 @@ public class RepositoryTreeController {
 
         try {
             ADeploymentProject deploymentProject = userWorkspace.getDDProject(deploymentProjectName);
+            if (deploymentProject == null) {
+                // It was deleted by other user
+                return null;
+            }
             deploymentProject.unlock();
             resetStudioModel();
         } catch (ProjectException e) {
