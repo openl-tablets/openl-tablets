@@ -109,7 +109,7 @@ public class RepositoryTreeController {
     private String projectName;
     private String newProjectTemplate;
     private String folderName;
-    private List<ProjectFile> uploadedFiles = new ArrayList<ProjectFile>();
+    private List<ProjectFile> uploadedFiles = new ArrayList<>();
     private String fileName;
     private String uploadFrom;
     private String newProjectName;
@@ -235,7 +235,7 @@ public class RepositoryTreeController {
     }
 
     public List<String> getDependingProjects() {
-        List<String> projects = new ArrayList<String>();
+        List<String> projects = new ArrayList<>();
         TreeNode selectedNode = getSelectedNode();
         TreeProject projectNode = selectedNode instanceof TreeProject ? (TreeProject) selectedNode : null;
         if (projectNode != null) {
@@ -289,7 +289,7 @@ public class RepositoryTreeController {
         if (getSelectedProject() instanceof ADeploymentProject) {
             return Collections.emptyList();
         }
-        List<String> dependencies = new ArrayList<String>(getDependencies(getSelectedProject(), true));
+        List<String> dependencies = new ArrayList<>(getDependencies(getSelectedProject(), true));
         Collections.sort(dependencies);
         return dependencies;
     }
@@ -304,7 +304,7 @@ public class RepositoryTreeController {
             AProject selectedProject = repositoryTreeState.getSelectedProject();
             AProject newVersion = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
                 new CommonVersionImpl(version));
-            List<String> dependencies = new ArrayList<String>(getDependencies(newVersion, true));
+            List<String> dependencies = new ArrayList<>(getDependencies(newVersion, true));
             Collections.sort(dependencies);
             return dependencies;
         } catch (Exception e) {
@@ -314,7 +314,7 @@ public class RepositoryTreeController {
     }
 
     private Collection<String> getDependencies(AProject project, boolean recursive) {
-        Collection<String> dependencies = new HashSet<String>();
+        Collection<String> dependencies = new HashSet<>();
         if (project != null) {
             calcDependencies(dependencies, project, recursive);
         }
@@ -630,7 +630,7 @@ public class RepositoryTreeController {
             // Project doesn't contain rules.xml file
             return;
         }
-        Collection<String> modulePaths = new HashSet<String>();
+        Collection<String> modulePaths = new HashSet<>();
         findModulePaths(aProjectArtefact, modulePaths);
         if (projectDescriptorArtifact instanceof AProjectResource) {
             String projectDescriptorPath = projectDescriptorArtifact.getArtefactPath().withoutFirstSegment() .getStringValue();
@@ -1116,7 +1116,7 @@ public class RepositoryTreeController {
     }
 
     public Map<String, Object> getProperties() {
-        Map<String, Object> properties = new LinkedHashMap<String, Object>();
+        Map<String, Object> properties = new LinkedHashMap<>();
 
         /*
          * Object dataBean = FacesUtils.getFacesVariable(
@@ -1145,7 +1145,7 @@ public class RepositoryTreeController {
     public SelectItem[] getSelectedProjectVersions() {
         Collection<ProjectVersion> versions = repositoryTreeState.getSelectedNode().getVersions();
 
-        List<SelectItem> selectItems = new ArrayList<SelectItem>();
+        List<SelectItem> selectItems = new ArrayList<>();
         for (ProjectVersion version : versions) {
             selectItems.add(new SelectItem(version.getVersionName()));
         }
