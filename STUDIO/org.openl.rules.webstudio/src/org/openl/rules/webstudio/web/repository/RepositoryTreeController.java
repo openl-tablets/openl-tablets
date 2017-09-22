@@ -39,7 +39,6 @@ import org.openl.rules.webstudio.web.repository.upload.ProjectDescriptorUtils;
 import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
@@ -1113,16 +1112,6 @@ public class RepositoryTreeController {
             return project.getVersion();
         }
         return null;
-    }
-
-    public Map<String, Object> getProperties() {
-        Map<String, Object> properties = new LinkedHashMap<>();
-
-        /*
-         * Object dataBean = FacesUtils.getFacesVariable(
-         * "#{repositoryTreeController.selected.dataBean}");
-         */
-        return properties;
     }
 
     public String getRevision() {
