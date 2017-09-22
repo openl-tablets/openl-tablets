@@ -4,7 +4,6 @@ import java.lang.reflect.Array;
 import java.util.List;
 
 import org.openl.binding.IBoundNode;
-import org.openl.binding.impl.MultiCallMethodBoundNode;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.core.ce.Runnable;
 import org.openl.rules.core.ce.ServiceMT;
@@ -23,16 +22,17 @@ public class MultiCallMethodBoundNodeMT extends MultiCallMethodBoundNode {
     }
 
     @Override
-    protected void invokeMethodAndSetResultToArray(Object target,
+    protected void invokeMethodAndSetResultToArray(IMethodCaller methodCaller,
+            Object target,
             IRuntimeEnv env,
             Object[] callParameters,
             Object results,
             int index) {
         if (ServiceMT.getInstance().isPoolBusyNow()) {
-            super.invokeMethodAndSetResultToArray(target, env, callParameters, results, index);
+            super.invokeMethodAndSetResultToArray(methodCaller, target, env, callParameters, results, index);
         } else {
             InvokeMethodAndSetResultToArrayRunnable runnable = new InvokeMethodAndSetResultToArrayRunnable(
-                getMethodCaller(),
+                methodCaller,
                 target,
                 callParameters.clone(),
                 results,

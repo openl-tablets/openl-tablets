@@ -15,6 +15,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContextMutableUUID;
 import org.openl.rules.lang.xls.binding.TableVersionComparator;
 import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
@@ -172,11 +173,10 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     }
 
     /**
-     * Invokes appropriate method using runtime context.
+     * Finds appropriate method using runtime context. This method used to optimize runtime where the same method is used more that one time.
      */
-    protected Object invokeInner(Object target, Object[] params, IRuntimeEnv env) {
-
-        // Gets the runtime context.
+    public IOpenMethod findMatchingMethod(IRuntimeEnv env) {
+     // Gets the runtime context.
         //
         IRuntimeContext context = env.getContext();
 
@@ -243,7 +243,15 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         if (method instanceof IOpenMethodWrapper) {
             method = ((IOpenMethodWrapper) method).getDelegate();
         }
+        
+        return method;
+    }
 
+    /**
+     * Invokes appropriate method using runtime context.
+     */
+    protected Object invokeInner(Object target, Object[] params, IRuntimeEnv env) {
+        IOpenMethod method = findMatchingMethod(env);
         return method.invoke(target, params, env);
     }
 

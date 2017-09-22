@@ -67,20 +67,23 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
         Object[] callParameters = (Object[]) Array.newInstance(Object.class, methodParameters.length);
         System.arraycopy(methodParameters, 0, callParameters, 0, methodParameters.length);
 
+        IMethodCaller methodCaller = getMethodCaller(env);
+        
         if (!JavaOpenClass.VOID.equals(super.getType())) {
             // create an array of results
             //
             results = Array.newInstance(super.getType().getInstanceClass(), paramsLength);
         }
+        
         if (paramsLength > 0) {
             // populate the results array by invoking method for single parameter
-            call(target, env, methodParameters, callParameters, 0, results, 0);
+            call(methodCaller, target, env, methodParameters, callParameters, 0, results, 0);
         }
 
         return results;
     }
 
-    private int call(Object target, IRuntimeEnv env, Object[] allParameters, Object[] callParameters, int iteratedArg, Object results, int callIndex) {
+    private int call(IMethodCaller methodCaller, Object target, IRuntimeEnv env, Object[] allParameters, Object[] callParameters, int iteratedArg, Object results, int callIndex) {
         int iteratedParamNum = arrayArgArguments[iteratedArg];
         Object iteratedParameter = allParameters[iteratedParamNum];
         int length = Array.getLength(iteratedParameter);
@@ -88,22 +91,26 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
             callParameters[iteratedParamNum] = Array.get(iteratedParameter, i);
 
             if (iteratedArg < arrayArgArguments.length - 1) {
-                callIndex = call(target, env, allParameters, callParameters, iteratedArg + 1, results, callIndex);
+                callIndex = call(methodCaller, target, env, allParameters, callParameters, iteratedArg + 1, results, callIndex);
             } else {
-                invokeMethodAndSetResultToArray(target, env, callParameters, results, callIndex);
+                invokeMethodAndSetResultToArray(methodCaller, target, env, callParameters, results, callIndex);
                 callIndex++;
             }
         }
 
         return callIndex;
     }
+    
+    protected IMethodCaller getMethodCaller(IRuntimeEnv env) { //Optimize if possible
+        return getMethodCaller().getMethod();
+    }
 
-    protected void invokeMethodAndSetResultToArray(Object target,
+    protected void invokeMethodAndSetResultToArray(IMethodCaller methodCaller, Object target,
             IRuntimeEnv env,
             Object[] callParameters,
             Object results,
             int index) {
-        Object value = getMethodCaller().invoke(target, callParameters, env);
+        Object value = methodCaller.invoke(target, callParameters, env);
         if (results != null) {
             Array.set(results, index, value);
         }
