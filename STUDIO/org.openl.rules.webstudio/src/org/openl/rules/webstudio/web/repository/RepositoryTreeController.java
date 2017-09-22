@@ -175,7 +175,7 @@ public class RepositoryTreeController {
                             AProjectFolder addedFolder = folder.addFolder(folderName);
                             repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFolder);
                             resetStudioModel();
-                        } catch (ProjectException e) {
+                        } catch (Exception e) {
                             log.error("Failed to create folder '{}'.", folderName, e);
                             errorMessage = e.getMessage();
                         }
@@ -208,7 +208,7 @@ public class RepositoryTreeController {
 
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
-        } catch (ProjectException e) {
+        } catch (Exception e) {
             String msg = e.getMessage();
             log.error(msg, e);
             FacesUtils.addErrorMessage(msg);
@@ -274,7 +274,7 @@ public class RepositoryTreeController {
             AProject newVersion = userWorkspace.getDesignTimeRepository().getProject(selectedProject.getName(),
                 new CommonVersionImpl(version));
             return !getDependencies(newVersion, false).isEmpty();
-        } catch (ProjectException e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
         }
@@ -307,7 +307,7 @@ public class RepositoryTreeController {
             List<String> dependencies = new ArrayList<String>(getDependencies(newVersion, true));
             Collections.sort(dependencies);
             return dependencies;
-        } catch (RepositoryException e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
             return Collections.emptyList();
         }
@@ -370,7 +370,7 @@ public class RepositoryTreeController {
 
         try {
             project = userWorkspace.getDDProject(projectName);
-        } catch (ProjectException e) {
+        } catch (Exception e) {
             log.error("Cannot obtain deployment project '{}'.", projectName, e);
             FacesUtils.addErrorMessage(e.getMessage());
             return null;
@@ -395,7 +395,7 @@ public class RepositoryTreeController {
             userWorkspace.copyDDProject(project, newProjectName);
             ADeploymentProject newProject = userWorkspace.getDDProject(newProjectName);
             repositoryTreeState.addDeploymentProjectToTree(newProject);
-        } catch (ProjectException e) {
+        } catch (Exception e) {
             String msg = "Failed to copy deployment project.";
             log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
@@ -410,7 +410,7 @@ public class RepositoryTreeController {
 
         try {
             project = userWorkspace.getProject(projectName);
-        } catch (ProjectException e) {
+        } catch (Exception e) {
             log.error("Cannot obtain rules project '{}'.", projectName, e);
             FacesUtils.addErrorMessage(e.getMessage());
             return null;
@@ -463,7 +463,7 @@ public class RepositoryTreeController {
             AProject newProject = userWorkspace.getProject(newProjectName);
             repositoryTreeState.addRulesProjectToTree(newProject);
             resetStudioModel();
-        } catch (ProjectException e) {
+        } catch (Exception e) {
             String msg = "Failed to copy project.";
             log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
@@ -494,7 +494,7 @@ public class RepositoryTreeController {
             createdProject.open();
             repositoryTreeState.addDeploymentProjectToTree(createdProject);
             FacesUtils.addInfoMessage(String.format("Deploy configuration '%s' is successfully created", projectName));
-        } catch (ProjectException e) {
+        } catch (Exception e) {
             String msg = "Failed to create deploy configuration '" + projectName + "'.";
             log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
@@ -547,7 +547,7 @@ public class RepositoryTreeController {
                 /* Clear the load form */
                 this.clearForm();
                 this.openProject();
-            } catch (ProjectException e) {
+            } catch (Exception e) {
                 creationMessage = e.getMessage();
             }
         } else {
@@ -588,7 +588,7 @@ public class RepositoryTreeController {
             }
 
             FacesUtils.addInfoMessage("Deploy configuration was deleted successfully.");
-        } catch (ProjectException e) {
+        } catch (Exception e) {
             log.error("Cannot delete deploy configuration '" + projectName + "'.", e);
             FacesUtils.addErrorMessage("Failed to delete deploy configuration.", e.getMessage());
         }
@@ -679,7 +679,7 @@ public class RepositoryTreeController {
             resetStudioModel();
 
             FacesUtils.addInfoMessage("Element was deleted successfully.");
-        } catch (ProjectException e) {
+        } catch (Exception e) {
             log.error("Error deleting element.", e);
             FacesUtils.addErrorMessage("Error deleting.", e.getMessage());
         }
@@ -767,7 +767,7 @@ public class RepositoryTreeController {
             resetStudioModel();
 
             FacesUtils.addInfoMessage(nodeTypeName + " was unlocked successfully.");
-        } catch (ProjectException e) {
+        } catch (Exception e) {
             log.error("Failed to unlock node.", e);
             FacesUtils.addErrorMessage("Failed to unlock node.", e.getMessage());
         }
@@ -788,7 +788,7 @@ public class RepositoryTreeController {
             File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
             closeProjectForAllUsers(workspacesRoot, projectName);
             resetStudioModel();
-        } catch (ProjectException e) {
+        } catch (Exception e) {
             log.error("Cannot unlock rules project '{}'.", projectName, e);
             FacesUtils.addErrorMessage("Failed to unlock rules project.", e.getMessage());
         }
@@ -848,7 +848,7 @@ public class RepositoryTreeController {
             }
             deploymentProject.unlock();
             resetStudioModel();
-        } catch (ProjectException e) {
+        } catch (Exception e) {
             log.error("Cannot unlock deployment project '{}'.", deploymentProjectName, e);
             FacesUtils.addErrorMessage("Failed to unlock deployment project.", e.getMessage());
         }
@@ -884,7 +884,7 @@ public class RepositoryTreeController {
 
             resetStudioModel();
             FacesUtils.addInfoMessage("Project was erased successfully.");
-        } catch (ProjectException e) {
+        } catch (Exception e) {
             repositoryTreeState.invalidateTree();
             String msg = "Cannot erase project '" + project.getName() + "'.";
             log.error(msg, e);
@@ -918,7 +918,7 @@ public class RepositoryTreeController {
                 new CommonVersionImpl(version));
             zipFile = ProjectExportHelper.export(userWorkspace.getUser(), forExport);
             zipFileName = String.format("%s-%s.zip", selectedProject.getName(), version);
-        } catch (ProjectException e) {
+        } catch (Exception e) {
             String msg = "Failed to export project version.";
             log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
@@ -992,7 +992,7 @@ public class RepositoryTreeController {
             selectedProject.getArtefactByPath(artefactPath);
             FacesUtils.addErrorMessage(String.format("File '%s' exists already", path));
             return null;
-        } catch (ProjectException ignored) {
+        } catch (Exception ignored) {
             // Artefact by this path shouldn't exist
         }
 
@@ -1166,7 +1166,7 @@ public class RepositoryTreeController {
             openDependenciesIfNeeded();
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
-        } catch (ProjectException e) {
+        } catch (Exception e) {
             String msg = "Failed to open project.";
             log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
@@ -1200,7 +1200,7 @@ public class RepositoryTreeController {
             openDependenciesIfNeeded();
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
-        } catch (ProjectException e) {
+        } catch (Exception e) {
             String msg = "Failed to open project version.";
             log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
@@ -1340,7 +1340,7 @@ public class RepositoryTreeController {
             project.undelete();
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
-        } catch (ProjectException e) {
+        } catch (Exception e) {
             String msg = "Cannot undelete project '" + project.getName() + "'.";
             log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
@@ -1374,7 +1374,7 @@ public class RepositoryTreeController {
                 repositoryTreeState.addRulesProjectToTree(createdProject);
                 resetStudioModel();
                 FacesUtils.addInfoMessage("Project was created successfully.");
-            } catch (ProjectException e) {
+            } catch (Exception e) {
                 FacesUtils.addErrorMessage(e.getMessage());
             }
         }
@@ -1401,7 +1401,7 @@ public class RepositoryTreeController {
                     repositoryTreeState.addRulesProjectToTree(createdProject);
                     resetStudioModel();
                     FacesUtils.addInfoMessage("Project was created successfully.");
-                } catch (ProjectException e) {
+                } catch (Exception e) {
                     FacesUtils.addErrorMessage(e.getMessage());
                 }
         }
