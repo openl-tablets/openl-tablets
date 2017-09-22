@@ -80,10 +80,10 @@ public final class OpenLTests {
             assertEquals("Incorrect test name", "HelloTest12()", testUnitsResults.getName());
             assertTrue("Incorrect execution time", testUnitsResults.getExecutionTime() > 0);
             assertTrue("Shoud have a context", testUnitsResults.hasContext());
-            assertEquals("Incorrect count of test cases", 9, testUnitsResults.getNumberOfTestUnits());
-            assertEquals("Incorrect count of failures", 4, testUnitsResults.getNumberOfFailures());
+            assertEquals("Incorrect count of test cases", 19, testUnitsResults.getNumberOfTestUnits());
+            assertEquals("Incorrect count of failures", 10, testUnitsResults.getNumberOfFailures());
             assertEquals("Incorrect count of errors", 1, testUnitsResults.getNumberOfErrors());
-            assertEquals("Incorrect count of assertions", 3, testUnitsResults.getNumberOfAssertionFailures());
+            assertEquals("Incorrect count of assertions", 9, testUnitsResults.getNumberOfAssertionFailures());
         }
 
         {
@@ -91,7 +91,7 @@ public final class OpenLTests {
             assertNotNull(method);
             assertTrue(method instanceof TestSuiteMethod);
             TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
-            assertEquals("Module name must be initialized", "Main", testSuiteMethod.getModuleName());
+            assertEquals("Module name must be initialized", "Second Module", testSuiteMethod.getModuleName());
             Object instance = openClass.newInstance(new SimpleRulesVM().getRuntimeEnv());
             Object result = testSuiteMethod.invoke(instance, new Object[]{}, new SimpleRulesVM().getRuntimeEnv());
             assertTrue(result instanceof TestUnitsResults);
