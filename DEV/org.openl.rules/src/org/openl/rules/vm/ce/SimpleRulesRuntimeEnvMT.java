@@ -78,9 +78,4 @@ public class SimpleRulesRuntimeEnvMT extends SimpleRulesRuntimeEnv {
     public ArgumentCachingStorage getArgumentCachingStorage() {
         throw new UnsupportedOperationException();
     }
-
-    @Override
-    public IOpenMethod getTopClassMethod(IOpenMethodWrapper wrapper) {
-        return delegate.getTopClassMethod(wrapper);
-    }
 }

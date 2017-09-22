@@ -1,18 +1,12 @@
 package org.openl.rules.vm;
 
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.RecursiveAction;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.openl.rules.context.RulesRuntimeContextFactory;
-import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 import org.openl.util.fast.FastStack;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM.SimpleRuntimeEnv;
@@ -91,40 +85,8 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
         return topClass;
     }
     
-    // This is workaround of too much creating MethodKeys in runtime
-    private Map<IOpenMethodWrapper, IOpenMethod> wrapperMethodCache;
-    private ReentrantReadWriteLock wrapperMethodCacheReadWriteLock;
-
-    public IOpenMethod getTopClassMethod(IOpenMethodWrapper wrapper) {
-        if (topClass == null) {
-            return null;
-        }
-        Lock lock = wrapperMethodCacheReadWriteLock.readLock();
-        try {
-            lock.lock();
-            IOpenMethod method = wrapperMethodCache.get(wrapper);
-            if (method != null) {
-                return method;
-            }
-        } finally {
-            lock.unlock();
-        }
-        Lock writeLock = wrapperMethodCacheReadWriteLock.writeLock();
-        try {
-            writeLock.lock();
-            IOpenMethod method = topClass.getMethod(wrapper.getDelegate().getName(),
-                wrapper.getDelegate().getSignature().getParameterTypes());
-            wrapperMethodCache.put(wrapper, method);
-            return method;
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
     public void setTopClass(IOpenClass topClass) {
         this.topClass = topClass;
-        wrapperMethodCache = new HashMap<IOpenMethodWrapper, IOpenMethod>();
-        wrapperMethodCacheReadWriteLock = new ReentrantReadWriteLock();
     }
 
     private IOpenClass topClass;

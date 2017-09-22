@@ -107,7 +107,7 @@ public final class WrapperLogic {
             }
         } else {
             if (topClass != xlsModuleOpenClass) {
-                IOpenMethod matchedMethod = simpleRulesRuntimeEnv.getTopClassMethod(wrapper);
+                IOpenMethod matchedMethod = TopClassMethodCache.getInstance().getTopClassMethod(topClass, wrapper);
                 if (matchedMethod != null) {
                     while (matchedMethod instanceof LazyMethodWrapper || matchedMethod instanceof MethodDelegator) {
                         if (matchedMethod instanceof LazyMethodWrapper) {

@@ -15,7 +15,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContextMutableUUID;
 import org.openl.rules.lang.xls.binding.TableVersionComparator;
 import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
@@ -186,27 +185,10 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
 
         if (context instanceof IRulesRuntimeContextMutableUUID) {
             IRulesRuntimeContextMutableUUID contextMutableUUID = (IRulesRuntimeContextMutableUUID) context;
-            Lock readLock = readWriteLock.readLock();
-            try {
-                readLock.lock();
-                method = cache.get(contextMutableUUID.contextUUID());
-            } finally {
-                readLock.unlock();
-            }
+            method = findInCache(contextMutableUUID);
             if (method == null) {
                 method = findMatchingMethod(candidates, context);
-                Lock writeLock = readWriteLock.writeLock();
-                try {
-                    writeLock.lock();
-                    cache.put(contextMutableUUID.contextUUID(), method);
-                    if (cache.size() > MAX_ELEMENTS_IN_CAHCE) {
-                        Iterator<UUID> itr = cache.keySet().iterator();
-                        itr.next();
-                        itr.remove();
-                    }
-                } finally {
-                    writeLock.unlock();
-                }
+                putToCache(contextMutableUUID, method);
             }
         } else {
             method = findMatchingMethod(candidates, context);
@@ -244,6 +226,33 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
             method = ((IOpenMethodWrapper) method).getDelegate();
         }
         
+        return method;
+    }
+
+    private void putToCache(IRulesRuntimeContextMutableUUID contextMutableUUID, IOpenMethod method) {
+        Lock writeLock = readWriteLock.writeLock();
+        try {
+            writeLock.lock();
+            cache.put(contextMutableUUID.contextUUID(), method);
+            if (cache.size() > MAX_ELEMENTS_IN_CAHCE) {
+                Iterator<UUID> itr = cache.keySet().iterator();
+                itr.next();
+                itr.remove();
+            }
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    private IOpenMethod findInCache(IRulesRuntimeContextMutableUUID contextMutableUUID) {
+        IOpenMethod method;
+        Lock readLock = readWriteLock.readLock();
+        try {
+            readLock.lock();
+            method = cache.get(contextMutableUUID.contextUUID());
+        } finally {
+            readLock.unlock();
+        }
         return method;
     }
 
