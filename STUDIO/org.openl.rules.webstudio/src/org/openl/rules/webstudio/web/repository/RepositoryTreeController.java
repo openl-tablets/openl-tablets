@@ -734,9 +734,6 @@ public class RepositoryTreeController {
                 nodeTypeName = "File";
             }
             FacesUtils.addInfoMessage(nodeTypeName + " was deleted successfully.");
-        } catch (ProjectException e) {
-            log.error("Failed to delete node.", e);
-            FacesUtils.addErrorMessage("Failed to delete node.", e.getMessage());
         } catch (Exception e) {
             log.error("Failed to delete node.", e);
             FacesUtils.addErrorMessage("Failed to delete node.", e.getMessage());
