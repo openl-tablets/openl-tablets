@@ -53,6 +53,9 @@ public class ArrayArgumentsMethodBinder extends org.openl.binding.impl.ArrayArgu
             }
         }
 
-        return super.makeMultiCallMethodBoundNode(node, children, arrayArgArgumentList, singleParameterMethodCaller);
+        return new MultiCallMethodBoundNode(node,
+            children,
+            singleParameterMethodCaller,
+            arrayArgArgumentList);
     }
 }

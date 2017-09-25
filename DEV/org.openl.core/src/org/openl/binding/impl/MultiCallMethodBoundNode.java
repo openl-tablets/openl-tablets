@@ -102,7 +102,7 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
     }
     
     protected IMethodCaller getMethodCaller(IRuntimeEnv env) { //Optimize if possible
-        return getMethodCaller().getMethod();
+        return getMethodCaller();
     }
 
     protected void invokeMethodAndSetResultToArray(IMethodCaller methodCaller, Object target,
