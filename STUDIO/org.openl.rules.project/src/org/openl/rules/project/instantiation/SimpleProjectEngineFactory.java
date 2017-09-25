@@ -174,7 +174,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         return projectDescriptors;
     }
 
-    private void addDependentProjects(List<ProjectDescriptor> projectDescriptors,
+    private void addDependentProjects(List<ProjectDescriptor> projectDescriptors, 
                                       ProjectDescriptor project,
                                       Collection<ProjectDescriptor> projectsInWorkspace) {
         if (project.getDependencies() != null) {
@@ -206,7 +206,9 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             projectDescriptors.addAll(dependentProjects);
         }
         projectDescriptors.add(projectDescriptor);
-        return new SimpleProjectDependencyManager(projectDescriptors, classLoader, isSingleModuleMode(), isExecutionMode());
+        SimpleProjectDependencyManager dependencyManager =  new SimpleProjectDependencyManager(projectDescriptors, classLoader, isSingleModuleMode(), isExecutionMode());
+        dependencyManager.setExternalParameters(getExternalParameters());
+        return dependencyManager;
     }
 
     private IDependencyManager dependencyManager = null;
