@@ -66,9 +66,7 @@ public final class TestMojo extends BaseOpenLMojo {
             .build();
 
         CompiledOpenClass openLRules = factory.getCompiledOpenClass();
-        IOpenClass openClass = openLRules.getOpenClassWithErrors();
-
-        Summary summary = executeTests(openClass);
+        Summary summary = executeTests(openLRules);
 
         info("");
         info("Results:");
@@ -92,12 +90,14 @@ public final class TestMojo extends BaseOpenLMojo {
         info("");
         if (summary.getFailedTests() > 0 || summary.getErrors() > 0) {
             throw new MojoFailureException("There are errors in the OpenL tests");
-        } else if (openLRules.hasErrors()) {
+        } else if (summary.isHasCompilationErrors()) {
             throw new MojoFailureException("There are compilation errors in the OpenL tests ");
         }
     }
 
-    private Summary executeTests(IOpenClass openClass) {
+    private Summary executeTests(CompiledOpenClass openLRules) {
+        IOpenClass openClass = openLRules.getOpenClassWithErrors();
+
         int runTests = 0;
         int failedTests = 0;
         int errors = 0;
@@ -150,7 +150,7 @@ public final class TestMojo extends BaseOpenLMojo {
             }
         }
 
-        return new Summary(runTests, failedTests, errors, summaryFailures, summaryErrors);
+        return new Summary(runTests, failedTests, errors, summaryFailures, summaryErrors, openLRules.hasErrors());
     }
 
     private void showFailures(TestSuiteMethod test, TestUnitsResults result, List<String> summaryFailures, List<String> summaryErrors) {
@@ -238,17 +238,19 @@ public final class TestMojo extends BaseOpenLMojo {
         private final int errors;
         private final List<String> summaryFailures;
         private final List<String> summaryErrors;
+        private final boolean hasCompilationErrors;
 
         public Summary(int runTests,
                 int failedTests,
                 int errors,
                 List<String> summaryFailures,
-                List<String> summaryErrors) {
+                List<String> summaryErrors, boolean hasCompilationErrors) {
             this.runTests = runTests;
             this.failedTests = failedTests;
             this.errors = errors;
             this.summaryFailures = Collections.unmodifiableList(summaryFailures);
             this.summaryErrors = Collections.unmodifiableList(summaryErrors);
+            this.hasCompilationErrors = hasCompilationErrors;
         }
 
         public int getRunTests() {
@@ -269,6 +271,10 @@ public final class TestMojo extends BaseOpenLMojo {
 
         public List<String> getSummaryErrors() {
             return summaryErrors;
+        }
+
+        public boolean isHasCompilationErrors() {
+            return hasCompilationErrors;
         }
     }
 }
