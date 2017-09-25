@@ -8,6 +8,7 @@ import java.net.URLClassLoader;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -67,6 +68,36 @@ public final class TestMojo extends BaseOpenLMojo {
         CompiledOpenClass openLRules = factory.getCompiledOpenClass();
         IOpenClass openClass = openLRules.getOpenClassWithErrors();
 
+        Summary summary = executeTests(openClass);
+
+        info("");
+        info("Results:");
+        if (summary.getFailedTests() > 0) {
+            info("");
+            info("Failed Tests:");
+            for (String failure : summary.getSummaryFailures()) {
+                info("  ", failure);
+            }
+        }
+        if (summary.getErrors() > 0) {
+            info("");
+            info("Tests in error:");
+            for (String error : summary.getSummaryErrors()) {
+                info("  ", error);
+            }
+        }
+
+        info("");
+        info("Total tests run: ", summary.getRunTests(), ", Failures: ", summary.getFailedTests(), ", Errors: ", summary.getErrors());
+        info("");
+        if (summary.getFailedTests() > 0 || summary.getErrors() > 0) {
+            throw new MojoFailureException("There are errors in the OpenL tests");
+        } else if (openLRules.hasErrors()) {
+            throw new MojoFailureException("There are compilation errors in the OpenL tests ");
+        }
+    }
+
+    private Summary executeTests(IOpenClass openClass) {
         int runTests = 0;
         int failedTests = 0;
         int errors = 0;
@@ -119,31 +150,7 @@ public final class TestMojo extends BaseOpenLMojo {
             }
         }
 
-        info("");
-        info("Results:");
-        if (failedTests > 0) {
-            info("");
-            info("Failed Tests:");
-            for (String failure : summaryFailures) {
-                info("  ", failure);
-            }
-        }
-        if (errors > 0) {
-            info("");
-            info("Tests in error:");
-            for (String error : summaryErrors) {
-                info("  ", error);
-            }
-        }
-
-        info("");
-        info("Total tests run: ", runTests, ", Failures: ", failedTests, ", Errors: ", errors);
-        info("");
-        if (failedTests > 0 || errors > 0) {
-            throw new MojoFailureException("There are errors in the OpenL tests");
-        } else if (openLRules.hasErrors()) {
-            throw new MojoFailureException("There are compilation errors in the OpenL tests ");
-        }
+        return new Summary(runTests, failedTests, errors, summaryFailures, summaryErrors);
     }
 
     private void showFailures(TestSuiteMethod test, TestUnitsResults result, List<String> summaryFailures, List<String> summaryErrors) {
@@ -223,5 +230,45 @@ public final class TestMojo extends BaseOpenLMojo {
         info("Run tests using ", threads, " threads.");
 
         return new TestSuiteExecutor(threads);
+    }
+
+    private static class Summary {
+        private final int runTests;
+        private final int failedTests;
+        private final int errors;
+        private final List<String> summaryFailures;
+        private final List<String> summaryErrors;
+
+        public Summary(int runTests,
+                int failedTests,
+                int errors,
+                List<String> summaryFailures,
+                List<String> summaryErrors) {
+            this.runTests = runTests;
+            this.failedTests = failedTests;
+            this.errors = errors;
+            this.summaryFailures = Collections.unmodifiableList(summaryFailures);
+            this.summaryErrors = Collections.unmodifiableList(summaryErrors);
+        }
+
+        public int getRunTests() {
+            return runTests;
+        }
+
+        public int getFailedTests() {
+            return failedTests;
+        }
+
+        public int getErrors() {
+            return errors;
+        }
+
+        public List<String> getSummaryFailures() {
+            return summaryFailures;
+        }
+
+        public List<String> getSummaryErrors() {
+            return summaryErrors;
+        }
     }
 }
