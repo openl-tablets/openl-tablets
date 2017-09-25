@@ -1,7 +1,6 @@
 <ui:composition
   xmlns:f="http://java.sun.com/jsf/core"
   xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:a4j="http://richfaces.org/a4j"
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
@@ -21,11 +20,31 @@
       </h:panelGroup>
 
       <footer>
-        <h:commandButton value="Unlock" action="#{repositoryTreeController.unlockNode}" styleClass="button-primary" />
-        <input type="button" value="Cancel" onclick="#{rich:component('modalUnlockNode')}.hide();" />
+        <h:commandButton id="unlock-project"
+                         value="Unlock"
+                         action="#{repositoryTreeController.unlockSelectedProject}"
+                         styleClass="button-primary"/>
+        <h:commandButton id="unlock-deploy-configuration"
+                         value="Unlock"
+                         action="#{repositoryTreeController.unlockSelectedDeployConfiguration}"
+                         styleClass="button-primary"/>
+        <input type="button" value="Cancel" onclick="RichFaces.$('modalUnlockNode').hide();" />
       </footer>
     </h:form>
 
   </rich:popupPanel>
+
+  <script>
+      function openUnlockDialog(nodeType) {
+          if (nodeType === 'project') {
+              $j('#unlockNodeForm\\:unlock-project').show();
+              $j('#unlockNodeForm\\:unlock-deploy-configuration').hide();
+          } else {
+              $j('#unlockNodeForm\\:unlock-project').hide();
+              $j('#unlockNodeForm\\:unlock-deploy-configuration').show();
+          }
+          RichFaces.$('modalUnlockNode').show();
+      }
+  </script>
 
 </ui:composition>

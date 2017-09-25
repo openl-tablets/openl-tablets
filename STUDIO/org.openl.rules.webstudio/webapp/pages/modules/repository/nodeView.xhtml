@@ -87,7 +87,7 @@
         <h:commandButton id="copyId1" rendered="#{repositoryTreeState.canCreate}" value="Copy" onclick="openCopyProjectDialog();return false;" title="#{copyMessage}"/>
         <h:commandButton id="deleteId2" rendered="#{repositoryTreeState.canDelete}" value="Delete" onclick="#{rich:component('modalDeleteNode')}.show();return false;" title="#{deleteMessage}"/>
 
-        <h:commandButton id="unlockId1" rendered="#{repositoryTreeController.canUnlock and node.data.locked and not node.data.lockedByMe}" value="Unlock" onclick="#{rich:component('modalUnlockNode')}.show();return false;" title="#{unlockMessage}">
+        <h:commandButton id="unlockId1" rendered="#{repositoryTreeController.canUnlock and node.data.locked and not node.data.lockedByMe}" value="Unlock" onclick="openUnlockDialog('project');return false;" title="#{unlockMessage}">
             <f:ajax render="unlockId1"/>
         </h:commandButton>
 
@@ -237,7 +237,7 @@
       <h:commandButton id="copyId2" rendered="#{repositoryTreeState.canCreateDeployment}" value="Copy" onclick="openCopyDeploymentProjectDialog();return false;" title="#{copyMessage}"/>
       <h:commandButton id="deleteId3" rendered="#{repositoryTreeState.canDeleteDeployment}" value="Delete" onclick="#{rich:component('modalDeleteNode')}.show();return false;" title="#{deleteMessage}"/>
 
-      <h:commandButton id="unlockId2" rendered="#{repositoryTreeController.canUnlockDeployment and node.data.locked and not node.data.lockedByMe}" value="Unlock Deploy Configuration" onclick="#{rich:component('modalUnlockNode')}.show();return false;" title="#{unlockMessage}">
+      <h:commandButton id="unlockId2" rendered="#{repositoryTreeController.canUnlockDeployment and node.data.locked and not node.data.lockedByMe}" value="Unlock Deploy Configuration" onclick="openUnlockDialog('deployment');return false;" title="#{unlockMessage}">
           <f:ajax render="unlockId2"/>
        </h:commandButton>
     </h:panelGroup>

@@ -3,9 +3,7 @@ package org.openl.rules.webstudio.web.tableeditor;
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
@@ -361,6 +359,12 @@ public class TableBean {
             TableSyntaxNode syntaxNode = (TableSyntaxNode) test.getInfo().getSyntaxNode();
             tableDescriptions.add(new TableDescription(tableUri, syntaxNode.getId(), getTestName(test)));
         }
+        Collections.sort(tableDescriptions, new Comparator<TableDescription>() {
+            @Override
+            public int compare(TableDescription o1, TableDescription o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
         return tableDescriptions.toArray(new TableDescription[tableDescriptions.size()]);
     }
     
