@@ -88,6 +88,9 @@ public class MatchingOpenMethodDispatcherWrapper extends MatchingOpenMethodDispa
     public List<IOpenMethod> getCandidates() {
         return delegate.getCandidates();
     }
-
+    
+    public IOpenMethod findMatchingMethod(IRuntimeEnv env) {
+        return delegate.findMatchingMethod(env);
+    }
     
 }
