@@ -1,5 +1,13 @@
 package org.openl.rules.ruleservice.loader;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.List;
+
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
@@ -11,13 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-
-import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.List;
 
 /**
  * Bean to unpack jar with rules.xml to defined folder. This bean is used by
@@ -78,7 +79,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
     }
 
     public boolean isCreateAndClearDirectory() {
-        return createAndClearDirectory;
+        return createAndClearDirectory; 
     }
 
     /**
@@ -178,8 +179,9 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
         }
         PathMatchingResourcePatternResolver prpr = new PathMatchingResourcePatternResolver();
         Resource[] resources = prpr.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
-        if (CollectionUtils.isEmpty(resources)) {
-            log.info("No resources with rules.xml have been detected in the classpath.");
+        Resource[] deploymentResources = prpr.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + DEPLOYMENT_DESCRIPTOR_FILE_NAME);
+        if (CollectionUtils.isEmpty(resources) && CollectionUtils.isEmpty(deploymentResources)) {
+            log.error("No resources with rules.xml or deployment.xml have been detected in the classpath. Destination folder clearing was skipped.");
             return;
         }
         String destDirectory = getDestinationDirectory();
@@ -249,7 +251,6 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
         }
         
         if (!isUnpackAllJarsInOneDeployment()){
-            Resource[] deploymentResources = prpr.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + DEPLOYMENT_DESCRIPTOR_FILE_NAME);
             for (Resource deploymentResource : deploymentResources) {
                 File file = null;
                 try {
