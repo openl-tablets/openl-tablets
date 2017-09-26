@@ -3,6 +3,8 @@ package org.openl.rules.maven;
 import static org.openl.rules.testmethod.TestUnitResultComparator.TestStatus.TR_NEQ;
 import static org.openl.rules.testmethod.TestUnitResultComparator.TestStatus.TR_OK;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.DecimalFormat;
@@ -19,7 +21,12 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.openl.CompiledOpenClass;
+import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.ProjectResolver;
+import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.testmethod.*;
 import org.openl.types.IOpenClass;
 
@@ -51,22 +58,21 @@ public final class TestMojo extends BaseOpenLMojo {
     @Parameter(defaultValue = "auto")
     private String threadCount;
 
+    /**
+     * Compile the project in Single module mode.
+     * If true each module will be compiled in sequence and tests from that module will be run. Needed for big projects.
+     * If false all modules will be compiled at once and all tests from all modules will be run.
+     * By default false.
+     */
+    @Parameter(defaultValue = "false")
+    private boolean singleModuleMode;
+
     @Parameter(defaultValue = "${project.testClasspathElements}", readonly = true, required = true)
     private List<String> classpath;
 
     @Override
     public void execute(String sourcePath) throws Exception {
-        URL[] urls = toURLs(classpath);
-        ClassLoader classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
-
-        SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
-        SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
-            .setClassLoader(classLoader)
-            .setExecutionMode(false)
-            .build();
-
-        CompiledOpenClass openLRules = factory.getCompiledOpenClass();
-        Summary summary = executeTests(openLRules);
+        Summary summary = singleModuleMode ? executeModuleByModule(sourcePath) : executeAllAtOnce(sourcePath);
 
         info("");
         info("Results:");
@@ -93,6 +99,69 @@ public final class TestMojo extends BaseOpenLMojo {
         } else if (summary.isHasCompilationErrors()) {
             throw new MojoFailureException("There are compilation errors in the OpenL tests ");
         }
+    }
+
+    private Summary executeAllAtOnce(String sourcePath) throws
+                                                        MalformedURLException,
+                                                        RulesInstantiationException,
+                                                        ProjectResolvingException,
+                                                        ClassNotFoundException {
+        URL[] urls = toURLs(classpath);
+        ClassLoader classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
+
+        SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
+        SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
+                .setClassLoader(classLoader)
+                .setExecutionMode(false)
+                .build();
+
+        CompiledOpenClass openLRules = factory.getCompiledOpenClass();
+        return executeTests(openLRules);
+    }
+
+    private Summary executeModuleByModule(String sourcePath) throws
+                                                             MalformedURLException,
+                                                             RulesInstantiationException,
+                                                             ProjectResolvingException,
+                                                             ClassNotFoundException {
+        ProjectDescriptor pd = ProjectResolver.instance().resolve(new File(sourcePath));
+        if (pd == null) {
+            throw new ProjectResolvingException("Failed to resolve project. Defined location is not an OpenL project.");
+        }
+
+        int runTests = 0;
+        int failedTests = 0;
+        int errors = 0;
+
+        List<String> summaryFailures = new ArrayList<>();
+        List<String> summaryErrors = new ArrayList<>();
+        boolean hasCompilationErrors = false;
+
+        List<Module> modules = pd.getModules();
+
+        for (Module module : modules) {
+            URL[] urls = toURLs(classpath);
+            ClassLoader classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
+
+            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
+            SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
+                    .setClassLoader(classLoader)
+                    .setExecutionMode(false)
+                    .setModule(module.getName())
+                    .build();
+
+            CompiledOpenClass openLRules = factory.getCompiledOpenClass();
+            Summary summary = executeTests(openLRules);
+
+            runTests += summary.getRunTests();
+            failedTests += summary.getFailedTests();
+            errors += summary.getErrors();
+            summaryFailures.addAll(summary.getSummaryFailures());
+            summaryErrors.addAll(summary.getSummaryErrors());
+            hasCompilationErrors |= summary.isHasCompilationErrors();
+        }
+
+        return new Summary(runTests, failedTests, errors, summaryFailures, summaryErrors, hasCompilationErrors);
     }
 
     private Summary executeTests(CompiledOpenClass openLRules) {
