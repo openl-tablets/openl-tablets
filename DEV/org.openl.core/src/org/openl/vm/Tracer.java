@@ -30,6 +30,14 @@ public class Tracer {
     public static void put(Object source, String id, Object... args) {
         instance.doPut(source, id, args);
     }
+    
+    public boolean isOn() {
+        return false;
+    }
+    
+    public static boolean isEnabled() {
+        return instance.isOn();
+    }
 
     public static <T, E extends IRuntimeEnv, R> R invoke(Invokable<? super T, E> executor,
             T target,

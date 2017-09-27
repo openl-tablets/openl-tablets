@@ -193,7 +193,6 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         } else {
             method = findMatchingMethod(candidates, context);
         }
-        Tracer.put(this, "rule", method);
 
         // Check that founded required method.
         //
@@ -261,6 +260,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      */
     protected Object invokeInner(Object target, Object[] params, IRuntimeEnv env) {
         IOpenMethod method = findMatchingMethod(env);
+        Tracer.put(this, "rule", method);
         return method.invoke(target, params, env);
     }
 

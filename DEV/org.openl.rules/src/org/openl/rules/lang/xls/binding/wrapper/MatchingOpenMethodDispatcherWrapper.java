@@ -11,7 +11,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class MatchingOpenMethodDispatcherWrapper extends MatchingOpenMethodDispatcher implements IOpenMethodWrapper{
+public class MatchingOpenMethodDispatcherWrapper extends MatchingOpenMethodDispatcher implements IOpenMethodWrapper {
     MatchingOpenMethodDispatcher delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
     

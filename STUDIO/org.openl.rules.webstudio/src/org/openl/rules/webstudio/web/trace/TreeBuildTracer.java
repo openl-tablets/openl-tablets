@@ -6,6 +6,7 @@ package org.openl.rules.webstudio.web.trace;
 import org.openl.domain.IIntSelector;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.RangeIndex;
+import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.trace.node.SimpleTracerObject;
 import org.openl.rules.webstudio.web.trace.node.TracedObjectFactory;
@@ -74,6 +75,7 @@ public final class TreeBuildTracer extends Tracer {
             // Skip if tracing is switched off
             return executor.invoke(target, params, env);
         }
+
         SimpleTracerObject trObj = TracedObjectFactory.getTracedObject(source, executor, target, params, env);
         if (trObj == null) {
             // Skip if no tracing objects are
@@ -105,7 +107,8 @@ public final class TreeBuildTracer extends Tracer {
         return target;
     }
 
-    private boolean isOn() {
+    @Override
+    public boolean isOn() {
         return tree.get() != null;
     }
 
