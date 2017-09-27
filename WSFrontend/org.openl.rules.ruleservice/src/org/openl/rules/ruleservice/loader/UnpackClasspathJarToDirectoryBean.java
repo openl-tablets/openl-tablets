@@ -11,7 +11,6 @@ import java.util.List;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
-import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.ZipUtils;
 import org.slf4j.Logger;
@@ -34,7 +33,8 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
     
     private String destinationDirectory;
 
-    private boolean createAndClearDirectory = true;
+    private boolean createDestinationDirectory = true;
+    private boolean clearDestinationDirectory = false;
 
     private boolean unpackAllJarsInOneDeployment = true;
     private boolean supportDeploymentVersion = false;
@@ -74,14 +74,22 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
         return destinationDirectory;
     }
 
-    public void setCreateAndClearDirectory(boolean createAndClearDirectory) {
-        this.createAndClearDirectory = createAndClearDirectory;
+    public boolean isCreateDestinationDirectory() {
+        return createDestinationDirectory;
     }
-
-    public boolean isCreateAndClearDirectory() {
-        return createAndClearDirectory; 
+    
+    public void setCreateDestinationDirectory(boolean createDestinationDirectory) {
+        this.createDestinationDirectory = createDestinationDirectory;
     }
-
+    
+    public boolean isClearDestinationDirectory() {
+        return clearDestinationDirectory;
+    }
+    
+    public void setClearDestinationDirectory(boolean clearDestinationDirectory) {
+        this.clearDestinationDirectory = clearDestinationDirectory;
+    }
+    
     /**
      * Sets directory to unpack path.
      *
@@ -177,13 +185,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
         if (!isEnabled()){
             return;
         }
-        PathMatchingResourcePatternResolver prpr = new PathMatchingResourcePatternResolver();
-        Resource[] resources = prpr.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
-        Resource[] deploymentResources = prpr.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + DEPLOYMENT_DESCRIPTOR_FILE_NAME);
-        if (CollectionUtils.isEmpty(resources) && CollectionUtils.isEmpty(deploymentResources)) {
-            log.error("No resources with rules.xml or deployment.xml have been detected in the classpath. Destination folder clearing was skipped.");
-            return;
-        }
+                
         String destDirectory = getDestinationDirectory();
         if (destDirectory == null) {
             throw new IllegalStateException("Distination directory is null. Please, check the bean configuration.");
@@ -191,7 +193,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
 
         File desFile = new File(destDirectory);
 
-        if (!isCreateAndClearDirectory()) {
+        if (!isCreateDestinationDirectory()) {
             if (!desFile.exists()) {
                 throw new IOException("Destination folder doesn't exist. Path: " + destDirectory);
             }
@@ -207,9 +209,14 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
             }
         }
 
-        if (!FolderHelper.clearFolder(new File(destDirectory))) {
-            log.warn("Failed on a folder clear. Path: '{}'", destDirectory);
+        if (isClearDestinationDirectory()) {
+            if (!FolderHelper.clearFolder(new File(destDirectory))) {
+                log.error("Failed to clean a folder. Path: '{}'", destDirectory);
+            }
         }
+        
+        PathMatchingResourcePatternResolver prpr = new PathMatchingResourcePatternResolver();
+        Resource[] resources = prpr.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
         for (Resource rulesXmlResource : resources) {
             File file = null;
             try {
@@ -240,16 +247,17 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                     folderName = folderName + getDeploymentVersionSuffix();
                 }
                 d = new File(desFile, folderName);
-                d.mkdirs();
+                recreateFolderIfExists(d);
             }
 
             File destDir = new File(d, FileUtils.getBaseName(file.getCanonicalPath()));
-            destDir.mkdirs();
+            recreateFolderIfExists(destDir);
             ZipUtils.extractAll(file, destDir);
 
             log.info("Unpacking '{}' into '{}' was completed.", file.getAbsolutePath(), destDirectory);
         }
         
+        Resource[] deploymentResources = prpr.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + DEPLOYMENT_DESCRIPTOR_FILE_NAME);        
         if (!isUnpackAllJarsInOneDeployment()){
             for (Resource deploymentResource : deploymentResources) {
                 File file = null;
@@ -280,12 +288,21 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                 }
                 
                 File d = new File(desFile, folderName);
-                d.mkdirs();
+                recreateFolderIfExists(d);
     
                 ZipUtils.extractAll(file, d);
     
                 log.info("Unpacking '{}' into '{}' has been completed.", file.getAbsolutePath(), destDirectory);
             }
         }
+    }
+
+    private void recreateFolderIfExists(File d) {
+        if (!isClearDestinationDirectory() && d.exists()) {
+            if (!FolderHelper.deleteFolder(d)) {
+                log.error("Failed to remove a folder. Path: '{}'", d.getAbsolutePath());
+            }
+        }
+        d.mkdirs();
     }
 }
