@@ -93,7 +93,9 @@ public class Deployment extends AProjectFolder {
             Map<String, AProjectArtefact> result = new HashMap<String, AProjectArtefact>();
             if (files != null) {
                 for (File file : files) {
-                    result.put(file.getName(), new AProject(repository, getFolderPath() + "/" + file.getName(), true));
+                    if (file.isDirectory()) {
+                        result.put(file.getName(), new AProject(repository, getFolderPath() + "/" + file.getName(), true));
+                    }
                 }
             }
             return result;
