@@ -11,6 +11,7 @@ import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodCaller;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.Tracer;
 
 public class MultiCallMethodBoundNodeMT extends MultiCallMethodBoundNode {
 
@@ -28,7 +29,7 @@ public class MultiCallMethodBoundNodeMT extends MultiCallMethodBoundNode {
             Object[] callParameters,
             Object results,
             int index) {
-        if (ServiceMT.getInstance().isPoolBusyNow()) {
+        if (ServiceMT.getInstance().isPoolBusyNow() || Tracer.isEnabled()) {
             super.invokeMethodAndSetResultToArray(methodCaller, target, env, callParameters, results, index);
         } else {
             InvokeMethodAndSetResultToArrayRunnable runnable = new InvokeMethodAndSetResultToArrayRunnable(
