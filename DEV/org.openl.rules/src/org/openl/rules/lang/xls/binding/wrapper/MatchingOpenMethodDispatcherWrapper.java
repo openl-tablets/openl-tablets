@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
@@ -90,7 +91,8 @@ public class MatchingOpenMethodDispatcherWrapper extends MatchingOpenMethodDispa
     }
     
     public IOpenMethod findMatchingMethod(IRuntimeEnv env) {
-        return delegate.findMatchingMethod(env);
+        IOpenMethod openMethod = WrapperLogic.getTopClassMethod(this, env);
+        return ((OpenMethodDispatcher) openMethod).findMatchingMethod(env);
     }
     
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
@@ -11,19 +12,19 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDispatcherTable implements IOpenMethodWrapper{
+public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDispatcherTable implements IOpenMethodWrapper {
     OverloadedMethodsDispatcherTable delegate;
     XlsModuleOpenClass xlsModuleOpenClass;
-    
-    public OverloadedMethodsDispatcherTableWrapper(XlsModuleOpenClass xlsModuleOpenClass, OverloadedMethodsDispatcherTable delegate) {
+
+    public OverloadedMethodsDispatcherTableWrapper(XlsModuleOpenClass xlsModuleOpenClass,
+            OverloadedMethodsDispatcherTable delegate) {
         this.delegate = delegate;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
     }
-    
+
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return WrapperLogic.invoke(xlsModuleOpenClass, this, target, params, env);
     }
-
 
     public IOpenMethod getDecisionTableOpenMethod() {
         return delegate.getDecisionTableOpenMethod();
@@ -40,7 +41,7 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
     public IMethodSignature getSignature() {
         return delegate.getSignature();
     }
-    
+
     @Override
     public IOpenMethod getDelegate() {
         return delegate;
@@ -89,5 +90,9 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
     public List<IOpenMethod> getCandidates() {
         return delegate.getCandidates();
     }
-    
+
+    public IOpenMethod findMatchingMethod(IRuntimeEnv env) {
+        IOpenMethod openMethod = WrapperLogic.getTopClassMethod(this, env);
+        return ((OpenMethodDispatcher) openMethod).findMatchingMethod(env);
+    }
 }

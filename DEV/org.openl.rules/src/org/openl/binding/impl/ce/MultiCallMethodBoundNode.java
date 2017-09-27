@@ -26,9 +26,6 @@ public class MultiCallMethodBoundNode extends org.openl.binding.impl.MultiCallMe
         IMethodCaller methodCaller = getMethodCaller();
         if (methodCaller instanceof OpenMethodDispatcher) {
             OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) methodCaller;
-            if (openMethodDispatcher instanceof IOpenMethodWrapper) {
-                openMethodDispatcher = (OpenMethodDispatcher) ((IOpenMethodWrapper) openMethodDispatcher).getDelegate();
-            }
             IOpenMethod matchingMethod = openMethodDispatcher.findMatchingMethod(env);
             if (Tracer.isEnabled()) {
                 return new OpenMethodDispatcherTracerWrapper(openMethodDispatcher, matchingMethod);
@@ -45,12 +42,19 @@ public class MultiCallMethodBoundNode extends org.openl.binding.impl.MultiCallMe
 
         public OpenMethodDispatcherTracerWrapper(OpenMethodDispatcher openMethodDispatcher,
                 IMethodCaller matchingMethod) {
-            this.openMethodDispatcher = openMethodDispatcher;
+            if (openMethodDispatcher instanceof IOpenMethodWrapper) {
+                this.openMethodDispatcher = (OpenMethodDispatcher) ((IOpenMethodWrapper) openMethodDispatcher)
+                    .getDelegate();
+            } else {
+                this.openMethodDispatcher = openMethodDispatcher;
+            }
             this.matchingMethod = matchingMethod;
             this.invokeInner = new Invokable() {
                 @Override
                 public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-                    Tracer.put(OpenMethodDispatcherTracerWrapper.this.openMethodDispatcher, "rule", OpenMethodDispatcherTracerWrapper.this.matchingMethod);
+                    Tracer.put(OpenMethodDispatcherTracerWrapper.this.openMethodDispatcher,
+                        "rule",
+                        OpenMethodDispatcherTracerWrapper.this.matchingMethod);
                     return OpenMethodDispatcherTracerWrapper.this.matchingMethod.invoke(target, params, env);
                 }
             };
