@@ -1,9 +1,13 @@
 package org.openl.rules.project.abstraction;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.ZipInputStream;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
@@ -13,6 +17,7 @@ import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.common.impl.RepositoryVersionInfoImpl;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.file.FileRepository;
+import org.openl.util.IOUtils;
 
 /**
  * Class representing deployment from ProductionRepository. Deployment is set of
@@ -93,8 +98,22 @@ public class Deployment extends AProjectFolder {
             Map<String, AProjectArtefact> result = new HashMap<String, AProjectArtefact>();
             if (files != null) {
                 for (File file : files) {
+                    String projectPath = getFolderPath() + "/" + file.getName();
                     if (file.isDirectory()) {
-                        result.put(file.getName(), new AProject(repository, getFolderPath() + "/" + file.getName(), true));
+                        result.put(file.getName(), new AProject(repository, projectPath, true));
+                    } else {
+                        InputStream is = null;
+                        try {
+                            is = new FileInputStream(file);
+                            // Check that the file is zip
+                            if (new ZipInputStream(is).getNextEntry() != null) {
+                                result.put(file.getName(), new AProject(repository, projectPath, false));
+                            }
+                        } catch (IOException ignored) {
+                            // Not a zip. Such a file isn't a project, skip it
+                        } finally {
+                            IOUtils.closeQuietly(is);
+                        }
                     }
                 }
             }
