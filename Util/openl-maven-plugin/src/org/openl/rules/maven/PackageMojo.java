@@ -11,12 +11,7 @@ import java.util.Set;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
+import org.apache.maven.plugins.annotations.*;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
@@ -38,9 +33,6 @@ public final class PackageMojo extends BaseOpenLMojo {
 
     @Component
     ArchiverManager archiverManager;
-
-    @Parameter(defaultValue = "${project}", readonly = true)
-    private MavenProject project;
 
     @Parameter(defaultValue = "${project.packaging}", readonly = true)
     private String packaging;
@@ -93,7 +85,7 @@ public final class PackageMojo extends BaseOpenLMojo {
     private int dependenciesThreshold;
 
     @Override
-    void execute(String sourcePath) throws Exception {
+    void execute(String sourcePath, boolean hasDependencies) throws Exception {
 
         File openLSourceDir = new File(sourcePath);
         if (CollectionUtils.isEmpty(openLSourceDir.list())) {
@@ -188,7 +180,8 @@ public final class PackageMojo extends BaseOpenLMojo {
     private void collectToSkip(HashSet<String> skipped, Artifact artifact) {
         boolean skip = false;
         String scope = artifact.getScope();
-        if (Artifact.SCOPE_PROVIDED.equals(scope) || Artifact.SCOPE_RUNTIME.equals(scope)) {
+        // There is no need to add to OpenL project other zipped projects or provided / runtime dependencies.
+        if (Artifact.SCOPE_PROVIDED.equals(scope) || Artifact.SCOPE_RUNTIME.equals(scope) || OPENL_ARTIFACT_TYPE.equals(artifact.getType())) {
             skipped.add(ArtifactUtils.versionlessKey(artifact));
             skip = true;
         }

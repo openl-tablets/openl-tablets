@@ -42,15 +42,15 @@ public final class CompileMojo extends BaseOpenLMojo {
     private List<String> classpath;
 
     @Override
-    public void execute(String sourcePath) throws Exception {
+    public void execute(String sourcePath, boolean hasDependencies) throws Exception {
         if (singleModuleMode) {
-            executeModuleByModule(sourcePath);
+            executeModuleByModule(sourcePath, hasDependencies);
         } else {
-            executeAllAtOnce(sourcePath);
+            executeAllAtOnce(sourcePath, hasDependencies);
         }
     }
 
-    private void executeAllAtOnce(String sourcePath) throws
+    private void executeAllAtOnce(String sourcePath, boolean hasDependencies) throws
                                                      MalformedURLException,
                                                      RulesInstantiationException,
                                                      ProjectResolvingException,
@@ -59,6 +59,9 @@ public final class CompileMojo extends BaseOpenLMojo {
         ClassLoader classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
 
         SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
+        if (hasDependencies) {
+            builder.setWorkspace(workspaceFolder.getPath());
+        }
         SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
                 .setClassLoader(classLoader)
                 .setExecutionMode(true)
@@ -75,7 +78,7 @@ public final class CompileMojo extends BaseOpenLMojo {
         info("Warnings : " + warnings.size());
     }
 
-    private void executeModuleByModule(String sourcePath) throws
+    private void executeModuleByModule(String sourcePath, boolean hasDependencies) throws
                                                           ProjectResolvingException,
                                                           MalformedURLException,
                                                           ClassNotFoundException,
@@ -94,6 +97,9 @@ public final class CompileMojo extends BaseOpenLMojo {
             info("Compiling the module '" + module.getName() + "'...");
 
             SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
+            if (hasDependencies) {
+                builder.setWorkspace(workspaceFolder.getPath());
+            }
             SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
                     .setClassLoader(classLoader)
                     .setExecutionMode(true)

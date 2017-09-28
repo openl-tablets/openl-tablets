@@ -71,8 +71,10 @@ public final class TestMojo extends BaseOpenLMojo {
     private List<String> classpath;
 
     @Override
-    public void execute(String sourcePath) throws Exception {
-        Summary summary = singleModuleMode ? executeModuleByModule(sourcePath) : executeAllAtOnce(sourcePath);
+    public void execute(String sourcePath, boolean hasDependencies) throws Exception {
+        Summary summary = singleModuleMode ?
+                          executeModuleByModule(sourcePath, hasDependencies) :
+                          executeAllAtOnce(sourcePath, hasDependencies);
 
         info("");
         info("Results:");
@@ -101,7 +103,7 @@ public final class TestMojo extends BaseOpenLMojo {
         }
     }
 
-    private Summary executeAllAtOnce(String sourcePath) throws
+    private Summary executeAllAtOnce(String sourcePath, boolean hasDependencies) throws
                                                         MalformedURLException,
                                                         RulesInstantiationException,
                                                         ProjectResolvingException,
@@ -110,6 +112,9 @@ public final class TestMojo extends BaseOpenLMojo {
         ClassLoader classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
 
         SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
+        if (hasDependencies) {
+            builder.setWorkspace(workspaceFolder.getPath());
+        }
         SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
                 .setClassLoader(classLoader)
                 .setExecutionMode(false)
@@ -119,7 +124,7 @@ public final class TestMojo extends BaseOpenLMojo {
         return executeTests(openLRules);
     }
 
-    private Summary executeModuleByModule(String sourcePath) throws
+    private Summary executeModuleByModule(String sourcePath, boolean hasDependencies) throws
                                                              MalformedURLException,
                                                              RulesInstantiationException,
                                                              ProjectResolvingException,
@@ -144,6 +149,9 @@ public final class TestMojo extends BaseOpenLMojo {
             ClassLoader classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
 
             SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
+            if (hasDependencies) {
+                builder.setWorkspace(workspaceFolder.getPath());
+            }
             SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
                     .setClassLoader(classLoader)
                     .setExecutionMode(false)
