@@ -25,6 +25,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import com.helger.jcodemodel.*;
 import net.sf.cglib.beans.BeanGenerator;
@@ -97,6 +98,12 @@ public final class GenerateMojo extends BaseOpenLMojo {
      */
     @Parameter
     private boolean isProvideVariations;
+
+    /**
+     * If you want to override some parameters, define them here.
+     */
+    @Parameter
+    private Map<String, Object> externalParameters;
 
     /**
      * Tasks that will generate classes or data type.
@@ -343,6 +350,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
             .setProvideRuntimeContext(isProvideRuntimeContext)
             .setProvideVariations(isProvideVariations)
             .setExecutionMode(true)
+            .setExternalParameters(externalParameters)
             .build();
 
         CompiledOpenClass openLRules = factory.getCompiledOpenClass();

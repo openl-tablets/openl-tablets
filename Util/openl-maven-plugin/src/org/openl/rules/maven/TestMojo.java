@@ -9,10 +9,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.maven.plugin.MojoFailureException;
@@ -67,6 +64,12 @@ public final class TestMojo extends BaseOpenLMojo {
     @Parameter(defaultValue = "false")
     private boolean singleModuleMode;
 
+    /**
+     * If you want to override some parameters, define them here.
+     */
+    @Parameter
+    private Map<String, Object> externalParameters;
+
     @Parameter(defaultValue = "${project.testClasspathElements}", readonly = true, required = true)
     private List<String> classpath;
 
@@ -118,6 +121,7 @@ public final class TestMojo extends BaseOpenLMojo {
         SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
                 .setClassLoader(classLoader)
                 .setExecutionMode(false)
+                .setExternalParameters(externalParameters)
                 .build();
 
         CompiledOpenClass openLRules = factory.getCompiledOpenClass();
@@ -156,6 +160,7 @@ public final class TestMojo extends BaseOpenLMojo {
                     .setClassLoader(classLoader)
                     .setExecutionMode(false)
                     .setModule(module.getName())
+                    .setExternalParameters(externalParameters)
                     .build();
 
             CompiledOpenClass openLRules = factory.getCompiledOpenClass();

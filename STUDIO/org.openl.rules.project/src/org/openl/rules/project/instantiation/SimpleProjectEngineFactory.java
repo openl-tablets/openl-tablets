@@ -46,7 +46,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         private boolean provideRuntimeContext = false;
         private boolean provideVariations = false;
         private Class<T> interfaceClass = null;
-        private Map<String, Object> externalParameters = Collections.EMPTY_MAP;
+        private Map<String, Object> externalParameters = Collections.emptyMap();
         private boolean executionMode = true;
 
         public SimpleProjectEngineFactoryBuilder<T> setProject(String project) {
@@ -63,7 +63,11 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         }
 
         public SimpleProjectEngineFactoryBuilder<T> setExternalParameters(Map<String, Object> externalParameters) {
-            this.externalParameters = externalParameters;
+            if (externalParameters != null) {
+                this.externalParameters = externalParameters;
+            } else {
+                this.externalParameters = Collections.emptyMap();
+            }
             return this;
         }
 

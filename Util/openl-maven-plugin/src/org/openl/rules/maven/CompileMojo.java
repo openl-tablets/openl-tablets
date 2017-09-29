@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -38,6 +39,12 @@ public final class CompileMojo extends BaseOpenLMojo {
     @Parameter(defaultValue = "false")
     private boolean singleModuleMode;
 
+    /**
+     * If you want to override some parameters, define them here.
+     */
+    @Parameter
+    private Map<String, Object> externalParameters;
+
     @Parameter(defaultValue = "${project.compileClasspathElements}", readonly = true, required = true)
     private List<String> classpath;
 
@@ -65,6 +72,7 @@ public final class CompileMojo extends BaseOpenLMojo {
         SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
                 .setClassLoader(classLoader)
                 .setExecutionMode(true)
+                .setExternalParameters(externalParameters)
                 .build();
 
         CompiledOpenClass openLRules = factory.getCompiledOpenClass();
@@ -104,6 +112,7 @@ public final class CompileMojo extends BaseOpenLMojo {
                     .setClassLoader(classLoader)
                     .setExecutionMode(true)
                     .setModule(module.getName())
+                    .setExternalParameters(externalParameters)
                     .build();
 
             CompiledOpenClass openLRules = factory.getCompiledOpenClass();
