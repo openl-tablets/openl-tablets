@@ -264,7 +264,7 @@
                         <postBuildHookScript>verify</postBuildHookScript>
                         <goals>
                             <goal>clean</goal>
-                            <goal>verify</goal>
+                            <goal>install</goal>
                         </goals>
                     </configuration>
                 </plugin>
