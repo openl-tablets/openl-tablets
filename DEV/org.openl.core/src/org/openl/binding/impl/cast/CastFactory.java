@@ -103,8 +103,7 @@ public class CastFactory implements ICastFactory {
         if (ThrowableVoid.class.equals(from.getInstanceClass())) {
             return THROWABLE_VOID_CAST;
         }
-        /* END: This is very cheap operations, so no needs to chache it */
-
+        /* END: This is very cheap operations, so no needs to cache it */
         Object key = GenericKey.getInstance(from, to);
         Lock readLock = castCacheLock.readLock();
         try {
@@ -117,7 +116,7 @@ public class CastFactory implements ICastFactory {
             readLock.unlock();
         }
 
-        IOpenCast typeCast = searchCast(from, to);
+        IOpenCast typeCast = findCast(from, to);
         Lock writeLock = castCacheLock.writeLock();
         try {
             writeLock.lock();
@@ -128,7 +127,7 @@ public class CastFactory implements ICastFactory {
         return typeCast;
     }
 
-    private IOpenCast searchCast(IOpenClass from, IOpenClass to) {
+    private IOpenCast findCast(IOpenClass from, IOpenClass to) {
         IOpenCast typeCast = findArrayCast(from, to);
         if (typeCast != null) {
             return typeCast;
