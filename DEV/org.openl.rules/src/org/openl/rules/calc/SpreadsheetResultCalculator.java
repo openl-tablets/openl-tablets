@@ -141,7 +141,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         }
         result = Tracer.invoke(spreadsheetCell, this, params, env, this);
         results[row][column] = result;
-        return results[row][column];
+        return result;
     }
 
     public void setValue(int row, int column, Object res) {

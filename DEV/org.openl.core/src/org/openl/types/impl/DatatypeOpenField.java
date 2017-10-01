@@ -20,9 +20,13 @@ public class DatatypeOpenField extends AOpenField {
     private final Logger log = LoggerFactory.getLogger(DatatypeOpenField.class);
 
     private IOpenClass declaringClass;
+    private String getterMethodName;
+    private String setterMethodName;
 
     public DatatypeOpenField(IOpenClass declaringClass, String name, IOpenClass type) {
         super(name, type);
+        this.getterMethodName = StringTool.getGetterName(getName());
+        this.setterMethodName = StringTool.getSetterName(getName()); 
         this.declaringClass = declaringClass;
     }
 
@@ -40,7 +44,7 @@ public class DatatypeOpenField extends AOpenField {
         try {
             Method method;
             try {
-                method = targetClass.getMethod(StringTool.getGetterName(getName()));
+                method = targetClass.getMethod(getterMethodName);
                 res = method.invoke(target);
             } catch (NoSuchMethodException e1) {
                 processError(e1);
@@ -73,7 +77,7 @@ public class DatatypeOpenField extends AOpenField {
         try {
             Method method;
             try {
-                method = targetClass.getMethod(StringTool.getSetterName(getName()), getType().getInstanceClass());
+                method = targetClass.getMethod(setterMethodName, getType().getInstanceClass());
                 method.invoke(target, value);
             } catch (NoSuchMethodException e1) {
                 String errorMessage = String.format("There is no setter method in class %s for the field %s with type %s",
