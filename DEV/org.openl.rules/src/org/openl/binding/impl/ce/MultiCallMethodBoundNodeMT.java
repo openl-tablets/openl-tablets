@@ -7,11 +7,9 @@ import org.openl.binding.IBoundNode;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.core.ce.Runnable;
 import org.openl.rules.core.ce.ServiceMT;
-import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodCaller;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.Tracer;
 
 public class MultiCallMethodBoundNodeMT extends MultiCallMethodBoundNode {
 
@@ -29,11 +27,10 @@ public class MultiCallMethodBoundNodeMT extends MultiCallMethodBoundNode {
             Object[] callParameters,
             Object results,
             int index) {
-        if (ServiceMT.getInstance().isPoolBusyNow() || Tracer.isEnabled()) {
+        if (Array.getLength(results) <= 1) {
             super.invokeMethodAndSetResultToArray(methodCaller, target, env, callParameters, results, index);
         } else {
-            InvokeMethodAndSetResultToArrayRunnable runnable = new InvokeMethodAndSetResultToArrayRunnable(
-                methodCaller,
+            InvokeMethodAndSetResultToArrayRunnable runnable = new InvokeMethodAndSetResultToArrayRunnable(methodCaller,
                 target,
                 callParameters.clone(),
                 results,
@@ -69,7 +66,7 @@ public class MultiCallMethodBoundNodeMT extends MultiCallMethodBoundNode {
         }
 
         @Override
-        public void run(SimpleRulesRuntimeEnv env) {
+        public void run(IRuntimeEnv env) {
             Object value = methodCaller.invoke(target, callParameters, env);
             if (results != null) {
                 Array.set(results, index, value);

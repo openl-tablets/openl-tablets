@@ -6,7 +6,6 @@ import org.openl.rules.enumeration.RecalculateEnum;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.vm.ArgumentCachingStorage;
 import org.openl.rules.vm.CacheMode;
 import org.openl.rules.vm.ResultNotFoundException;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
@@ -72,17 +71,16 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
             SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) env;
             Object result;
             boolean isSimilarStep = false;
-            ArgumentCachingStorage argumentCaching = simpleRulesRuntimeEnv.getArgumentCachingStorage();
             boolean oldIsIgnoreRecalculate = simpleRulesRuntimeEnv.isIgnoreRecalculation();
             if (!simpleRulesRuntimeEnv.isIgnoreRecalculation()) {
                 if (!RecalculateEnum.ALWAYS.equals(getRecalculateType())) {
                     if (simpleRulesRuntimeEnv.isOriginalCalculation()) {
-                        argumentCaching.makeForwardStepForOriginalCalculation(this);
+                        simpleRulesRuntimeEnv.getArgumentCachingStorage().makeForwardStepForOriginalCalculation(this);
                     }
                     if (!simpleRulesRuntimeEnv.isOriginalCalculation()) {
-                        isSimilarStep = argumentCaching.makeForwardStep(this);
+                        isSimilarStep = simpleRulesRuntimeEnv.getArgumentCachingStorage().makeForwardStep(this);
                         if (isSimilarStep && RecalculateEnum.NEVER.equals(getRecalculateType())) {
-                            return argumentCaching.getValueFromOriginalCalculation(this);
+                            return simpleRulesRuntimeEnv.getArgumentCachingStorage().getValueFromOriginalCalculation(this);
                         }
                     }
                 } else {
@@ -93,11 +91,11 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
             }
             if (simpleRulesRuntimeEnv.isMethodArgumentsCacheEnable() && isMethodCacheable()) {
                 try {
-                    result = argumentCaching.findInCache(this, params);
+                    result = simpleRulesRuntimeEnv.getArgumentCachingStorage().findInCache(this, params);
                 } catch (ResultNotFoundException e) {
                     result = innerInvoke(target, params, env);
                     if (CacheMode.READ_WRITE.equals(simpleRulesRuntimeEnv.getCacheMode())) {
-                        argumentCaching.putToCache(this, params, result);
+                        simpleRulesRuntimeEnv.getArgumentCachingStorage().putToCache(this, params, result);
                     }
                 }
             } else {
@@ -107,10 +105,10 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
             if (!simpleRulesRuntimeEnv.isIgnoreRecalculation()) {
                 if (!RecalculateEnum.ALWAYS.equals(getRecalculateType())) {
                     if (simpleRulesRuntimeEnv.isOriginalCalculation()) {
-                        argumentCaching.makeBackwardStepForOriginalCalculation(this, result);
+                        simpleRulesRuntimeEnv.getArgumentCachingStorage().makeBackwardStepForOriginalCalculation(this, result);
                     }
                     if (isSimilarStep && !simpleRulesRuntimeEnv.isOriginalCalculation()) {
-                        argumentCaching.makeBackwardStep(this);
+                        simpleRulesRuntimeEnv.getArgumentCachingStorage().makeBackwardStep(this);
                     }
                 }
             }

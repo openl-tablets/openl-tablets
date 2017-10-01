@@ -1,11 +1,9 @@
 package org.openl.rules.vm.ce;
 
-import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
 import org.openl.rules.vm.ArgumentCachingStorage;
 import org.openl.rules.vm.CacheMode;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
 public class SimpleRulesRuntimeEnvMT extends SimpleRulesRuntimeEnv {
@@ -41,7 +39,6 @@ public class SimpleRulesRuntimeEnvMT extends SimpleRulesRuntimeEnv {
 
     @Override
     public void changeMethodArgumentsCacheMode(CacheMode mode) {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -51,7 +48,6 @@ public class SimpleRulesRuntimeEnvMT extends SimpleRulesRuntimeEnv {
 
     @Override
     public void setMethodArgumentsCacheEnable(boolean enable) {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -61,7 +57,6 @@ public class SimpleRulesRuntimeEnvMT extends SimpleRulesRuntimeEnv {
 
     @Override
     public void setIgnoreRecalculate(boolean ignoreRecalculate) {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -71,7 +66,6 @@ public class SimpleRulesRuntimeEnvMT extends SimpleRulesRuntimeEnv {
 
     @Override
     public void setOriginalCalculation(boolean originalCalculation) {
-        throw new UnsupportedOperationException();
     }
 
     @Override

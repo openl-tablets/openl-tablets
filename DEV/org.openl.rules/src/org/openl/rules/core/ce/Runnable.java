@@ -1,7 +1,7 @@
 package org.openl.rules.core.ce;
 
-import org.openl.rules.vm.SimpleRulesRuntimeEnv;
+import org.openl.vm.IRuntimeEnv;
 
 public interface Runnable {
-    public void run(SimpleRulesRuntimeEnv env);
+    public void run(IRuntimeEnv env);
 }

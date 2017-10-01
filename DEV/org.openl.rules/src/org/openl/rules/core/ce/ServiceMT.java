@@ -8,6 +8,7 @@ import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.rules.vm.ce.SimpleRulesRuntimeEnvMT;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.Tracer;
 
 public final class ServiceMT {
 
@@ -16,27 +17,28 @@ public final class ServiceMT {
     private static class ServiceMTHolder {
         private static final ServiceMT INSTANCE = new ServiceMT();
     }
-    
+
     public static ServiceMT getInstance() {
         return ServiceMTHolder.INSTANCE;
     }
 
-    public boolean isPoolBusyNow() {
-        return forkJoinPool.getActiveThreadCount() > forkJoinPool.getParallelism();
-    }
-    
     public void execute(IRuntimeEnv env, Runnable runnable) {
+        if (Tracer.isEnabled()) { // Avoid parallelism for tracing
+            runnable.run(env);
+            return;
+        }
         SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
-        RunnableRecursiveAction action = new RunnableRecursiveAction(runnable, simpleRulesRuntimeEnv);
+        RunnableRecursiveAction action = new RunnableRecursiveAction(runnable,
+            simpleRulesRuntimeEnv,
+            Thread.currentThread().getContextClassLoader());
         simpleRulesRuntimeEnv.pushAction(action);
         if (env instanceof SimpleRulesRuntimeEnvMT) {
             action.fork();
-            return;
+        } else {
+            forkJoinPool.execute(action);
         }
-        forkJoinPool.execute(action);
-        return;
     }
-    
+
     public void execute(ForkJoinTask<?> task) {
         forkJoinPool.execute(task);
     }
@@ -75,15 +77,27 @@ public final class ServiceMT {
         private static final long serialVersionUID = -6827837658658403954L;
         private Runnable runnable;
         private SimpleRulesRuntimeEnv env;
+        private ClassLoader classLoader;
 
-        private RunnableRecursiveAction(Runnable runnable, SimpleRulesRuntimeEnv env) {
+        private RunnableRecursiveAction(Runnable runnable, SimpleRulesRuntimeEnv env, ClassLoader classLoader) {
             this.runnable = runnable;
             this.env = env;
+            this.classLoader = classLoader;
         }
 
         @Override
         protected void compute() {
-            runnable.run((SimpleRulesRuntimeEnv) env.clone());
+            final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+            try {
+                Thread.currentThread().setContextClassLoader(classLoader);
+                if (env instanceof SimpleRulesRuntimeEnvMT) {
+                    runnable.run((SimpleRulesRuntimeEnv) env.clone());
+                } else {
+                    runnable.run(new SimpleRulesRuntimeEnvMT(env));
+                }
+            } finally {
+                Thread.currentThread().setContextClassLoader(oldClassLoader);
+            }
         }
     }
 }
