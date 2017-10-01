@@ -4,16 +4,21 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 import org.openl.util.CollectionUtils;
+import org.openl.util.ZipUtils;
 
 abstract class BaseOpenLMojo extends AbstractMojo {
     private static final String SEPARATOR = "--------------------------------------------------";
+    protected static final String OPENL_ARTIFACT_TYPE = "zip";
 
     /**
      * Folder that contains all OpenL-related resources (OpenL rules, project
@@ -29,6 +34,14 @@ abstract class BaseOpenLMojo extends AbstractMojo {
     @Deprecated
     @Parameter
     private String openlResourcesDirectory;
+
+    @Parameter(defaultValue = "${project}", readonly = true)
+    protected MavenProject project;
+    /**
+     * Directory containing the generated artifact.
+     */
+    @Parameter(defaultValue = "${project.build.directory}/openl-workspace", required = true)
+    protected File workspaceFolder;
 
     String getSourceDirectory() {
         File source;
@@ -61,8 +74,20 @@ abstract class BaseOpenLMojo extends AbstractMojo {
         info(getHeader());
         info(SEPARATOR);
         try {
+            Collection<Artifact> dependencies = getDependentOpenLProjects();
+            boolean hasDependencies = !dependencies.isEmpty();
+            if (hasDependencies) {
+                debug("Has ", dependencies.size(), " dependencies");
+                for (Artifact artifact : dependencies) {
+                    debug("Extract dependency ", artifact.getArtifactId());
+                    File projectFolder = new File(workspaceFolder, artifact.getArtifactId());
+                    if (!projectFolder.exists()) {
+                        ZipUtils.extractAll(artifact.getFile(), projectFolder);
+                    }
+                }
+            }
             String openlRoot = getSourceDirectory();
-            execute(openlRoot);
+            execute(openlRoot, hasDependencies);
         } catch (MojoFailureException ex) {
             throw ex; // skip
         } catch (Exception ex) {
@@ -72,7 +97,7 @@ abstract class BaseOpenLMojo extends AbstractMojo {
         }
     }
 
-    abstract void execute(String sourcePath) throws Exception;
+    abstract void execute(String sourcePath, boolean hasDependencies) throws Exception;
 
     boolean isDisabled() {
         return false;
@@ -131,5 +156,16 @@ abstract class BaseOpenLMojo extends AbstractMojo {
             sb.append(obj);
         }
         return sb;
+    }
+
+    private Collection<Artifact> getDependentOpenLProjects() {
+        List<Artifact> dependencies = new ArrayList<>();
+        for (Artifact artifact : project.getArtifacts()) {
+            if (OPENL_ARTIFACT_TYPE.equals(artifact.getType())) {
+                dependencies.add(artifact);
+            }
+        }
+
+        return dependencies;
     }
 }

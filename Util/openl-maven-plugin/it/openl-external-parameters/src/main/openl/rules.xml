@@ -1,0 +1,9 @@
+<project>
+    <name>Spreadsheets</name>
+    <modules>
+        <module>
+            <name>Simple Rules Test</name>
+            <rules-root path="rules/Spreadsheets.xlsx"/>
+        </module>
+    </modules>
+</project>

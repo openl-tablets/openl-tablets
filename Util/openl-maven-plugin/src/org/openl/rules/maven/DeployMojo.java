@@ -42,7 +42,7 @@ public class DeployMojo extends BaseOpenLMojo {
     private Settings settings;
 
     @Override
-    void execute(String sourcePath) throws Exception {
+    void execute(String sourcePath, boolean hasDependencies) throws Exception {
         if (StringUtils.isEmpty(deployServer)) {
             throw new IllegalArgumentException("The deploy server name cannot be empty");
         }

@@ -9,10 +9,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.maven.plugin.MojoFailureException;
@@ -67,12 +64,20 @@ public final class TestMojo extends BaseOpenLMojo {
     @Parameter(defaultValue = "false")
     private boolean singleModuleMode;
 
+    /**
+     * If you want to override some parameters, define them here.
+     */
+    @Parameter
+    private Map<String, Object> externalParameters;
+
     @Parameter(defaultValue = "${project.testClasspathElements}", readonly = true, required = true)
     private List<String> classpath;
 
     @Override
-    public void execute(String sourcePath) throws Exception {
-        Summary summary = singleModuleMode ? executeModuleByModule(sourcePath) : executeAllAtOnce(sourcePath);
+    public void execute(String sourcePath, boolean hasDependencies) throws Exception {
+        Summary summary = singleModuleMode ?
+                          executeModuleByModule(sourcePath, hasDependencies) :
+                          executeAllAtOnce(sourcePath, hasDependencies);
 
         info("");
         info("Results:");
@@ -101,7 +106,7 @@ public final class TestMojo extends BaseOpenLMojo {
         }
     }
 
-    private Summary executeAllAtOnce(String sourcePath) throws
+    private Summary executeAllAtOnce(String sourcePath, boolean hasDependencies) throws
                                                         MalformedURLException,
                                                         RulesInstantiationException,
                                                         ProjectResolvingException,
@@ -110,16 +115,20 @@ public final class TestMojo extends BaseOpenLMojo {
         ClassLoader classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
 
         SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
+        if (hasDependencies) {
+            builder.setWorkspace(workspaceFolder.getPath());
+        }
         SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
                 .setClassLoader(classLoader)
                 .setExecutionMode(false)
+                .setExternalParameters(externalParameters)
                 .build();
 
         CompiledOpenClass openLRules = factory.getCompiledOpenClass();
         return executeTests(openLRules);
     }
 
-    private Summary executeModuleByModule(String sourcePath) throws
+    private Summary executeModuleByModule(String sourcePath, boolean hasDependencies) throws
                                                              MalformedURLException,
                                                              RulesInstantiationException,
                                                              ProjectResolvingException,
@@ -144,10 +153,14 @@ public final class TestMojo extends BaseOpenLMojo {
             ClassLoader classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
 
             SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
+            if (hasDependencies) {
+                builder.setWorkspace(workspaceFolder.getPath());
+            }
             SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
                     .setClassLoader(classLoader)
                     .setExecutionMode(false)
                     .setModule(module.getName())
+                    .setExternalParameters(externalParameters)
                     .build();
 
             CompiledOpenClass openLRules = factory.getCompiledOpenClass();

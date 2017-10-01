@@ -25,7 +25,12 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
+import com.helger.jcodemodel.*;
+import net.sf.cglib.beans.BeanGenerator;
+import net.sf.cglib.core.NamingPolicy;
+import net.sf.cglib.core.Predicate;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -33,7 +38,6 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.MavenProject;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
@@ -47,26 +51,11 @@ import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.generation.GenUtils;
 
-import com.helger.jcodemodel.AbstractJClass;
-import com.helger.jcodemodel.EClassType;
-import com.helger.jcodemodel.JClassAlreadyExistsException;
-import com.helger.jcodemodel.JCodeModel;
-import com.helger.jcodemodel.JDefinedClass;
-import com.helger.jcodemodel.JMethod;
-import com.helger.jcodemodel.JMod;
-
-import net.sf.cglib.beans.BeanGenerator;
-import net.sf.cglib.core.NamingPolicy;
-import net.sf.cglib.core.Predicate;
-
 /**
  * Generate OpenL interface, domain classes, project descriptor and unit tests
  */
 @Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE)
 public final class GenerateMojo extends BaseOpenLMojo {
-
-    @Parameter(defaultValue = "${project}", readonly = true)
-    private MavenProject project;
 
     @Parameter(defaultValue = "${project.compileClasspathElements}", readonly = true, required = true)
     private List<String> classpath;
@@ -109,6 +98,12 @@ public final class GenerateMojo extends BaseOpenLMojo {
      */
     @Parameter
     private boolean isProvideVariations;
+
+    /**
+     * If you want to override some parameters, define them here.
+     */
+    @Parameter
+    private Map<String, Object> externalParameters;
 
     /**
      * Tasks that will generate classes or data type.
@@ -339,7 +334,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
     }
 
     @Override
-    public void execute(String sourcePath) throws Exception {
+    public void execute(String sourcePath, boolean hasDependencies) throws Exception {
         if (outputDirectory.isDirectory()) {
             info("Cleaning up '", outputDirectory, "' directory...");
             FileUtils.delete(outputDirectory);
@@ -347,11 +342,15 @@ public final class GenerateMojo extends BaseOpenLMojo {
         ClassLoader classLoader = composeClassLoader();
 
         SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
+        if (hasDependencies) {
+            builder.setWorkspace(workspaceFolder.getPath());
+        }
         SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
             .setClassLoader(classLoader)
             .setProvideRuntimeContext(isProvideRuntimeContext)
             .setProvideVariations(isProvideVariations)
             .setExecutionMode(true)
+            .setExternalParameters(externalParameters)
             .build();
 
         CompiledOpenClass openLRules = factory.getCompiledOpenClass();
