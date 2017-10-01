@@ -77,13 +77,13 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
         
         if (paramsLength > 0) {
             // populate the results array by invoking method for single parameter
-            call(methodCaller, target, env, methodParameters, callParameters, 0, results, 0);
+            call(methodCaller, target, env, methodParameters, callParameters, 0, results, 0, paramsLength);
         }
 
         return results;
     }
 
-    private int call(IMethodCaller methodCaller, Object target, IRuntimeEnv env, Object[] allParameters, Object[] callParameters, int iteratedArg, Object results, int callIndex) {
+    private int call(IMethodCaller methodCaller, Object target, IRuntimeEnv env, Object[] allParameters, Object[] callParameters, int iteratedArg, Object results, int callIndex, int resultLength) {
         int iteratedParamNum = arrayArgArguments[iteratedArg];
         Object iteratedParameter = allParameters[iteratedParamNum];
         int length = Array.getLength(iteratedParameter);
@@ -91,9 +91,9 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
             callParameters[iteratedParamNum] = Array.get(iteratedParameter, i);
 
             if (iteratedArg < arrayArgArguments.length - 1) {
-                callIndex = call(methodCaller, target, env, allParameters, callParameters, iteratedArg + 1, results, callIndex);
+                callIndex = call(methodCaller, target, env, allParameters, callParameters, iteratedArg + 1, results, callIndex, resultLength);
             } else {
-                invokeMethodAndSetResultToArray(methodCaller, target, env, callParameters, results, callIndex);
+                invokeMethodAndSetResultToArray(methodCaller, target, env, callParameters, results, callIndex, resultLength);
                 callIndex++;
             }
         }
@@ -109,7 +109,8 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
             IRuntimeEnv env,
             Object[] callParameters,
             Object results,
-            int index) {
+            int index,
+            int resultLength) {
         Object value = methodCaller.invoke(target, callParameters, env);
         if (results != null) {
             Array.set(results, index, value);

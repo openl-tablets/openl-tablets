@@ -26,9 +26,10 @@ public class MultiCallMethodBoundNodeMT extends MultiCallMethodBoundNode {
             IRuntimeEnv env,
             Object[] callParameters,
             Object results,
-            int index) {
-        if (Array.getLength(results) <= 1) {
-            super.invokeMethodAndSetResultToArray(methodCaller, target, env, callParameters, results, index);
+            int index,
+            int resultLength) {
+        if (resultLength <= 1) {
+            super.invokeMethodAndSetResultToArray(methodCaller, target, env, callParameters, results, index, resultLength);
         } else {
             InvokeMethodAndSetResultToArrayRunnable runnable = new InvokeMethodAndSetResultToArrayRunnable(methodCaller,
                 target,
