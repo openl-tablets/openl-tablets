@@ -32,7 +32,7 @@ public final class ServiceMT {
             simpleRulesRuntimeEnv,
             Thread.currentThread().getContextClassLoader());
         simpleRulesRuntimeEnv.pushAction(action);
-        if (env instanceof SimpleRulesRuntimeEnvMT) {
+        if (simpleRulesRuntimeEnv instanceof SimpleRulesRuntimeEnvMT) {
             action.fork();
         } else {
             forkJoinPool.execute(action);
