@@ -36,8 +36,7 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
     private boolean executionMode;
     private T original;
     private Map<String, Object> externalParameters;
-    private CompiledOpenClass compiledOpenClass;
-    
+
     /**
      * ClassLoader used in "lazy" compilation. It should be reused because it
      * contains generated classes for datatypes.(If we use different
@@ -47,10 +46,10 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
     private ClassLoader classLoader;
 
     public LazyMember(IDependencyManager dependencyManager,
-                      boolean executionMode,
-                      ClassLoader classLoader,
-                      T original,
-                      Map<String, Object> externalParameters) {
+            boolean executionMode,
+            ClassLoader classLoader,
+            T original,
+            Map<String, Object> externalParameters) {
         this.dependencyManager = dependencyManager;
         this.executionMode = executionMode;
         this.classLoader = classLoader;
@@ -60,19 +59,12 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
 
     protected abstract T getMemberForModule(DeploymentDescription deployment, Module module);
 
-    protected CompiledOpenClass getCompiledOpenClass(final DeploymentDescription deployment, final Module module) throws Exception {
-        Dependency dependency = new Dependency(DependencyType.MODULE, new IdentifierNode(null,
-                null,
-                module.getName(),
-                null));
+    protected CompiledOpenClass getCompiledOpenClass(final DeploymentDescription deployment,
+            final Module module) throws Exception {
+        Dependency dependency = new Dependency(DependencyType.MODULE,
+            new IdentifierNode(null, null, module.getName(), null));
         String dependencyName = dependency.getNode().getIdentifier();
-        if (compiledOpenClass == null){
-            synchronized (this) {
-                if (compiledOpenClass == null){
-                    compiledOpenClass = CompiledOpenClassCache.getInstance().get(deployment, dependencyName);
-                }
-            }
-        }
+        CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance().get(deployment, dependencyName);
         if (compiledOpenClass != null) {
             return compiledOpenClass;
         }
@@ -84,10 +76,8 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
             IPrebindHandler prebindHandler = LazyBinderInvocationHandler.getPrebindHandler();
             try {
                 LazyBinderInvocationHandler.removePrebindHandler();
-                RulesInstantiationStrategy rulesInstantiationStrategy = RulesInstantiationStrategyFactory.getStrategy(module,
-                        true,
-                        getDependencyManager(),
-                        getClassLoader());
+                RulesInstantiationStrategy rulesInstantiationStrategy = RulesInstantiationStrategyFactory
+                    .getStrategy(module, true, getDependencyManager(), getClassLoader());
                 rulesInstantiationStrategy.setServiceClass(EmptyInterface.class);// Prevent
                 // generation
                 // interface
@@ -99,7 +89,8 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
                 // method).
                 // Improve
                 // performance.
-                Map<String, Object> parameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(),
+                Map<String, Object> parameters = ProjectExternalDependenciesHelper
+                    .getExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(),
                         new ArrayList<Module>() {
                             private static final long serialVersionUID = 1L;
 
@@ -110,8 +101,12 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
                 rulesInstantiationStrategy.setExternalParameters(parameters);
                 compiledOpenClass = rulesInstantiationStrategy.compile();
                 CompiledOpenClassCache.getInstance().putToCache(deployment, dependencyName, compiledOpenClass);
-                if (log.isDebugEnabled()){
-                    log.debug("CompiledOpenClass for deploymentName='{}', deploymentVersion='{}', dependencyName='{}' was stored to cache.", deployment.getName(), deployment.getVersion().getVersionName(), dependencyName);
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                        "CompiledOpenClass for deploymentName='{}', deploymentVersion='{}', dependencyName='{}' was stored to cache.",
+                        deployment.getName(),
+                        deployment.getVersion().getVersionName(),
+                        dependencyName);
                 }
                 return compiledOpenClass;
             } catch (Exception ex) {
@@ -181,7 +176,7 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
     public boolean isStatic() {
         return original.isStatic();
     }
-    
+
     public IMemberMetaInfo getInfo() {
         return original.getInfo();
     }

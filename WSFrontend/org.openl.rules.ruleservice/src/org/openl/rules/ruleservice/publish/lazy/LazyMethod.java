@@ -65,7 +65,7 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
                 IOpenClass[] argOpenTypes = OpenClassHelper.getOpenClasses(compiledOpenClass.getOpenClass(), argTypes);
                 lastOpenMethod = compiledOpenClass.getOpenClass().getMethod(methodName, argOpenTypes);
                 return lastOpenMethod;
-            }finally{
+            } finally {
                 readWriteLock.writeLock().unlock();
             }
         } catch (Exception e) {

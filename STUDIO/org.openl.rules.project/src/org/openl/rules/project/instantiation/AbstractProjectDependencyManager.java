@@ -90,7 +90,7 @@ public abstract class AbstractProjectDependencyManager extends DependencyManager
 
     // Disable cache. if cache required it should be used in loaders.
     @Override
-    public synchronized CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
+    public CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
         String dependencyName = dependency.getNode().getIdentifier();
         CompiledDependency compiledDependency = handleLoadDependency(dependency);
         if (compiledDependency == null) {

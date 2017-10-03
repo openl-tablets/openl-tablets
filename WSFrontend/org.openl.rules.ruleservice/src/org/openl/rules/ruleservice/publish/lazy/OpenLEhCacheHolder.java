@@ -14,11 +14,9 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 public class OpenLEhCacheHolder {
 
-    private static final String LAZY_CACHE_NAME = "lazyModulesCache";
     private static final String CACHE_NAME = "modulesCache";
     private static final String OPENL_EHCACHE_FILE_NAME = "openl-ehcache.xml";
 
-    private volatile Cache<Key, CompiledOpenClass> lazyModulesCache = null;
     private volatile Cache<Key, CompiledOpenClass> modulesCache = null;
 
     private static class OpenLEhCacheHolderHolder {
@@ -50,22 +48,6 @@ public class OpenLEhCacheHolder {
         return modulesCache;
     }
     
-    public Cache<Key, CompiledOpenClass> getLazyModulesCache() {
-        if (lazyModulesCache == null) {
-            synchronized (this) {
-                if (lazyModulesCache == null) {
-                    try {
-                        CacheManager cacheManager = getCacheManager();
-                        lazyModulesCache = cacheManager.getCache(LAZY_CACHE_NAME, Key.class, CompiledOpenClass.class);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-        }
-        return lazyModulesCache;
-    }
-
     private CacheManager cacheManager = null;
 
     private synchronized CacheManager getCacheManager() throws IOException {
@@ -84,7 +66,6 @@ public class OpenLEhCacheHolder {
                 throw new IllegalStateException("Multiple " + OPENL_EHCACHE_FILE_NAME + " exist in classpath!");
             }
             Configuration config = new XmlConfiguration(resources[0].getURL());
-            config.getCacheConfigurations().get(LAZY_CACHE_NAME);
             cacheManager = new EhcacheManager(config);
             cacheManager.init();
         }
