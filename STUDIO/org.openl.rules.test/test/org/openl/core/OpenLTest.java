@@ -35,10 +35,10 @@ import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class OpenLTests {
+public final class OpenLTest {
 
     public static final String DIR = "test-resources/functionality/";
-    private static final Logger LOG = LoggerFactory.getLogger(OpenLTests.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OpenLTest.class);
     private Locale defaultLocale;
     private TimeZone defaultTimeZone;
 
@@ -109,7 +109,7 @@ public final class OpenLTests {
 
     @Test
     public void testAllExcelFiles() throws NoSuchMethodException {
-        LOG.info(">>> Negative tests...");
+        LOG.info(">>> Running all OpenL tests...");
         boolean hasErrors = false;
         final File sourceDir = new File(DIR);
 
