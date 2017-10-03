@@ -56,31 +56,13 @@ public final class WrapperLogic {
     }
     
     public static IOpenMethod getTopClassMethod(IOpenMethodWrapper wrapper, IRuntimeEnv env) {
-        IRuntimeEnv env1 = env;
-        if (env instanceof TBasicContextHolderEnv) {
-            TBasicContextHolderEnv tBasicContextHolderEnv = (TBasicContextHolderEnv) env;
-            env1 = tBasicContextHolderEnv.getEnv();
-            while (env1 instanceof TBasicContextHolderEnv) {
-                tBasicContextHolderEnv = (TBasicContextHolderEnv) env1;
-                env1 = tBasicContextHolderEnv.getEnv();
-            }
-        }
-        SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) env1;
-
+        SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
         IOpenClass topClass = simpleRulesRuntimeEnv.getTopClass();
-
+        
         if (topClass != null && topClass != wrapper.getDelegate().getType()) {
             IOpenMethod matchedMethod = TopClassMethodCache.getInstance().getTopClassMethod(topClass, wrapper);
             if (matchedMethod != null) {
-                while (matchedMethod instanceof LazyMethodWrapper || matchedMethod instanceof MethodDelegator) {
-                    if (matchedMethod instanceof LazyMethodWrapper) {
-                        matchedMethod = ((LazyMethodWrapper) matchedMethod).getCompiledMethod(simpleRulesRuntimeEnv);
-                    }
-                    if (matchedMethod instanceof MethodDelegator) {
-                        MethodDelegator methodDelegator = (MethodDelegator) matchedMethod;
-                        matchedMethod = methodDelegator.getMethod();
-                    }
-                }
+                matchedMethod = extractMatchedMethod(simpleRulesRuntimeEnv, matchedMethod);
                 if (matchedMethod != wrapper) {
                     return matchedMethod;
                 }
@@ -89,11 +71,7 @@ public final class WrapperLogic {
         return wrapper.getDelegate();
     }
 
-    public static Object invoke(XlsModuleOpenClass xlsModuleOpenClass,
-            IOpenMethodWrapper wrapper,
-            Object target,
-            Object[] params,
-            IRuntimeEnv env) {
+    private static SimpleRulesRuntimeEnv extractSimpleRulesRuntimeEnv(IRuntimeEnv env) {
         IRuntimeEnv env1 = env;
         if (env instanceof TBasicContextHolderEnv) {
             TBasicContextHolderEnv tBasicContextHolderEnv = (TBasicContextHolderEnv) env;
@@ -104,8 +82,32 @@ public final class WrapperLogic {
             }
         }
         SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) env1;
+        return simpleRulesRuntimeEnv;
+    }
 
+    private static IOpenMethod extractMatchedMethod(SimpleRulesRuntimeEnv simpleRulesRuntimeEnv,
+            IOpenMethod matchedMethod) {
+        while (matchedMethod instanceof LazyMethodWrapper || matchedMethod instanceof MethodDelegator) {
+            if (matchedMethod instanceof LazyMethodWrapper) {
+                matchedMethod = ((LazyMethodWrapper) matchedMethod)
+                    .getCompiledMethod(simpleRulesRuntimeEnv);
+            }
+            if (matchedMethod instanceof MethodDelegator) {
+                MethodDelegator methodDelegator = (MethodDelegator) matchedMethod;
+                matchedMethod = methodDelegator.getMethod();
+            }
+        }
+        return matchedMethod;
+    }
+    
+    public static Object invoke(XlsModuleOpenClass xlsModuleOpenClass,
+            IOpenMethodWrapper wrapper,
+            Object target,
+            Object[] params,
+            IRuntimeEnv env) {
+        SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
         IOpenClass topClass = simpleRulesRuntimeEnv.getTopClass();
+
         if (topClass == null) {
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
@@ -143,16 +145,7 @@ public final class WrapperLogic {
             if (topClass != xlsModuleOpenClass) {
                 IOpenMethod matchedMethod = TopClassMethodCache.getInstance().getTopClassMethod(topClass, wrapper);
                 if (matchedMethod != null) {
-                    while (matchedMethod instanceof LazyMethodWrapper || matchedMethod instanceof MethodDelegator) {
-                        if (matchedMethod instanceof LazyMethodWrapper) {
-                            matchedMethod = ((LazyMethodWrapper) matchedMethod)
-                                .getCompiledMethod(simpleRulesRuntimeEnv);
-                        }
-                        if (matchedMethod instanceof MethodDelegator) {
-                            MethodDelegator methodDelegator = (MethodDelegator) matchedMethod;
-                            matchedMethod = methodDelegator.getMethod();
-                        }
-                    }
+                    matchedMethod = extractMatchedMethod(simpleRulesRuntimeEnv, matchedMethod);
                     if (matchedMethod != wrapper) {
                         return matchedMethod.invoke(target, params, env);
                     }
