@@ -5,12 +5,10 @@ import static org.openl.rules.security.Privileges.CREATE_PROJECTS;
 
 import java.util.List;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import javax.faces.validator.ValidatorException;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectVersion;
@@ -19,6 +17,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -143,25 +142,22 @@ public class CopyBean {
             userWorkspace.refresh();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            throw new ValidatorException(new FacesMessage("Can't copy the project: " + e.getMessage()));
+            FacesUtils.throwValidationError("Can't copy the project: " + e.getMessage());
         }
     }
 
     public void newProjectNameValidator(FacesContext context, UIComponent toValidate, Object value) {
         String newProjectName = StringUtils.trim((String) value);
-        if (StringUtils.isBlank(newProjectName)) {
-            throw new ValidatorException(new FacesMessage("Can't be empty."));
-        }
+        FacesUtils.validate(StringUtils.isNotBlank(newProjectName), "Can not be empty");
+        FacesUtils.validate(NameChecker.checkName(newProjectName), NameChecker.BAD_PROJECT_NAME_MSG);
+
         RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(FacesUtils.getSession());
         try {
             UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
-            if (userWorkspace.hasProject(newProjectName)) {
-                throw new ValidatorException(new FacesMessage("Project " + newProjectName + " exists already."));
-            }
-            
+            FacesUtils.validate(!userWorkspace.hasProject(newProjectName), "Project with such name already exists");
         } catch (WorkspaceException e) {
             log.error(e.getMessage(), e);
-            throw new ValidatorException(new FacesMessage("Error during validation"));
+            FacesUtils.throwValidationError("Error during validation");
         }
     }
 }
