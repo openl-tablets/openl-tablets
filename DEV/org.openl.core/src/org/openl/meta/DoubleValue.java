@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
+import org.openl.binding.impl.operator.Comparison;
 import org.openl.meta.DoubleValue.DoubleValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
@@ -93,7 +94,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         if (value1 == null || value2 == null){
             return value1 == value2;
         }
-        return Operators.eq(value1.getValue(), value2.getValue());
+        return Comparison.eq(value1.getValue(), value2.getValue());
     }
     /**
      * Compares two values
@@ -104,7 +105,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     public static boolean ge(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
         validate(value1, value2, LogicalExpressions.GE.toString());
 
-        return Operators.ge(value1.getValue(), value2.getValue());
+        return Comparison.ge(value1.getValue(), value2.getValue());
     }
     /**
      * Compares two values
@@ -115,7 +116,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     public static boolean gt(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
         validate(value1, value2, LogicalExpressions.GT.toString());
 
-        return Operators.gt(value1.getValue(), value2.getValue());
+        return Comparison.gt(value1.getValue(), value2.getValue());
     }
     /**
      * Compares two values
@@ -126,7 +127,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     public static boolean le(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
         validate(value1, value2, LogicalExpressions.LE.toString());
 
-        return Operators.le(value1.getValue(), value2.getValue());
+        return Comparison.le(value1.getValue(), value2.getValue());
     }
     /**
      * Compares two values
@@ -137,7 +138,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     public static boolean lt(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
         validate(value1, value2, LogicalExpressions.LT.toString());
 
-        return Operators.lt(value1.getValue(), value2.getValue());
+        return Comparison.lt(value1.getValue(), value2.getValue());
     }
     /**
      * Compares two values
@@ -150,7 +151,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
             return value1 != value2;
         }
 
-        return Operators.ne(value1.getValue(), value2.getValue());
+        return Comparison.ne(value1.getValue(), value2.getValue());
     }
 
      /**
@@ -684,7 +685,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     public boolean equals(Object obj) {
         if (obj instanceof org.openl.meta.DoubleValue) {
             org.openl.meta.DoubleValue secondObj = (org.openl.meta.DoubleValue) obj;
-            return Operators.eq(getValue(), secondObj.getValue());
+            return Comparison.eq(getValue(), secondObj.getValue());
         }
 
         // FIXME: Temporary fix for the commercial line to support
@@ -702,7 +703,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
                 return false;
             }
 
-            return Operators.eq(getValue(), d);
+            return Comparison.eq(getValue(), d);
         }
 
         return false;
