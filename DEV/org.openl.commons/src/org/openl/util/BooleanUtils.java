@@ -211,40 +211,11 @@ public class BooleanUtils {
     }
 
     /**
-     * Returns true if all elements are true otherwise false.
-     */
-    public static boolean and(boolean[] values) {
-        if (values == null) {
-            return false;
-        }
-        for (boolean value : values) {
-            if (!value) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Returns true if all elements are true otherwise false.
-     */
-    public static boolean and(Boolean[] values) {
-        if (values == null) {
-            return false;
-        }
-        for (Boolean value : values) {
-            if (value == null || !value) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
      * Returns true if odd number of elements are true otherwise false.
      *
      * @exception java.lang.IllegalArgumentException for null or an empty array.
      */
+    @Deprecated
     public static boolean xor(boolean[] values) {
         checkOnEmptyArray(values);
         boolean result = values[0];
@@ -259,39 +230,12 @@ public class BooleanUtils {
      *
      * @exception java.lang.IllegalArgumentException for null or an empty array or null value in the array.
      */
+    @Deprecated
     public static boolean xor(Boolean[] values) {
         checkOnEmptyArray(values);
         Boolean result = values[0];
         for (int i = 1; i < values.length; i++) {
             result = result ^ values[i];
-        }
-        return result;
-    }
-
-    /**
-     * Returns true if at least one of elements are true otherwise false.
-     *
-     * @exception java.lang.IllegalArgumentException for null or an empty array.
-     */
-    public static boolean or(boolean[] values) {
-        checkOnEmptyArray(values);
-        boolean result = values[0];
-        for (int i = 1; i < values.length; i++) {
-            result = result || values[i];
-        }
-        return result;
-    }
-
-    /**
-     * Returns true if at least one of elements are true otherwise false.
-     *
-     * @exception java.lang.IllegalArgumentException for null or an empty array or null value in the array.
-     */
-    public static boolean or(Boolean[] values) {
-        checkOnEmptyArray(values);
-        Boolean result = values[0];
-        for (int i = 1; i < values.length; i++) {
-            result = result || values[i];
         }
         return result;
     }

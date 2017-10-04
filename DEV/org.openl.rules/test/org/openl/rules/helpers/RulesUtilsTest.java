@@ -3446,7 +3446,7 @@ public class RulesUtilsTest {
         assertFalse(instance.testBoolXor(inputArray));
     }
 
-    @Test(expected = OpenLRuntimeException.class)
+    @Test
     public void testAnyTrueBoolType() {
         boolean[] inputArray = {true, true, true};
         assertTrue(instance.testBoolTypeAnyTrue(inputArray));
@@ -3458,7 +3458,7 @@ public class RulesUtilsTest {
         assertFalse(instance.testBoolTypeAnyTrue(inputArray));
     }
 
-    @Test(expected = OpenLRuntimeException.class)
+    @Test
     public void testAnyTrueBool() {
         Boolean[] inputArray = {true, true, true};
         assertTrue(instance.testBoolAnyTrue(inputArray));
@@ -3469,7 +3469,7 @@ public class RulesUtilsTest {
         inputArray = new Boolean[]{};
         assertFalse(instance.testBoolAnyTrue(inputArray));
         inputArray = new Boolean[]{true, null, true};
-        assertFalse(instance.testBoolAnyTrue(inputArray));
+        assertTrue(instance.testBoolAnyTrue(inputArray));
     }
 
     @Test
@@ -4872,42 +4872,8 @@ public class RulesUtilsTest {
         assertFalse(callXor(true, true));
     }
 
-    @Test
-    public void testOR2arguments() {
-        assertFalse(callOr(false, false));
-
-        assertTrue(callOr(false, true));
-
-        assertTrue(callOr(true, false));
-
-        assertTrue(callOr(true, true));
-    }
-
-    @Test
-    public void testOR3arguments() {
-        assertFalse(callOr(false, false, false));
-
-        assertTrue(callOr(true, false, false));
-
-        assertTrue(callOr(false, true, false));
-
-        assertTrue(callOr(true, true, false));
-
-        assertTrue(callOr(false, false, true));
-
-        assertTrue(callOr(true, false, true));
-
-        assertTrue(callOr(false, true, true));
-
-        assertTrue(callOr(true, true, true));
-    }
-
     private boolean callXor(boolean... values) {
         return RulesUtils.xor(values);
-    }
-
-    private boolean callOr(boolean... values) {
-        return RulesUtils.anyTrue(values);
     }
 
     @Test

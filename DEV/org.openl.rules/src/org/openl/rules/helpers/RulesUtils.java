@@ -2611,47 +2611,15 @@ public class RulesUtils {
         return MathUtils.product(values);
     }
 
-    // logical AND
-    public static boolean allTrue(boolean[] values) {
-        return org.openl.util.BooleanUtils.and(values);
-    }
-
-    public static boolean allTrue(Boolean[] values) {
-        return org.openl.util.BooleanUtils.and(values);
-    }
-
-    public static boolean allFalse(boolean[] values) {
-        return !anyTrue(values);
-    }
-
-    public static boolean allFalse(Boolean[] values) {
-        return !anyTrue(values);
-    }
-
     // Exclusive or
+    @Deprecated
     public static boolean xor(boolean[] values) {
         return org.openl.util.BooleanUtils.xor(values);
     }
 
+    @Deprecated
     public static boolean xor(Boolean[] values) {
         return org.openl.util.BooleanUtils.xor(values);
-    }
-
-    // or
-    public static boolean anyTrue(boolean[] values) {
-        return org.openl.util.BooleanUtils.or(values);
-    }
-
-    public static boolean anyTrue(Boolean[] values) {
-        return org.openl.util.BooleanUtils.or(values);
-    }
-
-    public static boolean anyFalse(boolean[] values) {
-        return !allTrue(values);
-    }
-
-    public static boolean anyFalse(Boolean[] values) {
-        return !allTrue(values);
     }
 
     /**
