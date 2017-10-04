@@ -8,7 +8,6 @@ package org.openl.rules.helpers;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -2609,81 +2608,6 @@ public class RulesUtils {
 
     public static BigDecimal product(BigDecimal[] values) {
         return MathUtils.product(values);
-    }
-
-    // logical AND
-    public static boolean allTrue(boolean[] values) {
-        return org.openl.util.BooleanUtils.and(values);
-    }
-
-    public static boolean allYes(boolean[] values) {
-        return allTrue(values);
-    }
-
-    public static boolean allTrue(Boolean[] values) {
-        return org.openl.util.BooleanUtils.and(values);
-    }
-
-    public static boolean allYes(Boolean[] values) {
-        return allTrue(values);
-    }
-
-    public static boolean allFalse(boolean[] values) {
-        return !ArrayUtils.isEmpty(values) && !anyTrue(values);
-    }
-
-    public static boolean allNo(boolean[] values) {
-        return allFalse(values);
-    }
-
-    public static boolean allFalse(Boolean[] values) {
-        return !ArrayUtils.isEmpty(removeNulls(values)) && !anyTrue(values);
-    }
-
-    public static boolean allNo(Boolean[] values) {
-        return allFalse(values);
-    }
-
-    // Exclusive or
-    public static boolean xor(boolean[] values) {
-        return org.openl.util.BooleanUtils.xor(values);
-    }
-
-    public static boolean xor(Boolean[] values) {
-        return org.openl.util.BooleanUtils.xor(values);
-    }
-
-    // or
-    public static boolean anyTrue(boolean[] values) {
-        return org.openl.util.BooleanUtils.or(values);
-    }
-
-    public static boolean anyYes(boolean[] values) {
-        return anyTrue(values);
-    }
-
-    public static boolean anyTrue(Boolean[] values) {
-        return org.openl.util.BooleanUtils.or(values);
-    }
-
-    public static boolean anyYes(Boolean[] values) {
-        return anyTrue(values);
-    }
-
-    public static boolean anyFalse(boolean[] values) {
-        return !ArrayUtils.isEmpty(values) && !allTrue(values);
-    }
-
-    public static boolean anyNo(boolean[] values) {
-        return anyFalse(values);
-    }
-
-    public static boolean anyFalse(Boolean[] values) {
-        return !ArrayUtils.isEmpty(removeNulls(values)) && !allTrue(values);
-    }
-
-    public static boolean anyNo(Boolean[] values) {
-        return anyFalse(values);
     }
 
     /**

@@ -9,10 +9,6 @@ package org.openl.util;
  */
 public class BooleanUtils {
 
-    private static final String NULL_ARRAY_MSG = "The Array must not be null";
-    private static final String EMPTY_ARRAY_MSG = "Array is empty";
-    private static final String NULL_VALUE_IN_ARRAY_MSG = "Array shouldn`t contain null objects";
-
     /**
      * Converts an Object to a boolean. For String value 'true', 'on', 'yes',
      * 'y' or 't' (case insensitive) will return true. Otherwise, false is
@@ -208,118 +204,5 @@ public class BooleanUtils {
     public static Boolean toBooleanObject(Object value, Boolean defaultValue) {
         Boolean bValue = toBooleanObject(value);
         return bValue == null ? defaultValue : bValue;
-    }
-
-    /**
-     * Returns true if all elements are true otherwise false.
-     */
-    public static boolean and(boolean[] values) {
-        if (values == null || values.length == 0) {
-            return false;
-        }
-        for (boolean value : values) {
-            if (!value) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Returns true if all elements are true otherwise false.
-     */
-    public static boolean and(Boolean[] values) {
-        if (values == null || values.length == 0) {
-            return false;
-        }
-        for (Boolean value : values) {
-            if (value == null || !value) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Returns true if odd number of elements are true otherwise false.
-     *
-     * @exception java.lang.IllegalArgumentException for null or an empty array.
-     */
-    public static boolean xor(boolean[] values) {
-        checkOnEmptyArray(values);
-        boolean result = values[0];
-        for (int i = 1; i < values.length; i++) {
-            result = result ^ values[i];
-        }
-        return result;
-    }
-
-    /**
-     * Returns true if odd number of elements are true otherwise false.
-     *
-     * @exception java.lang.IllegalArgumentException for null or an empty array or null value in the array.
-     */
-    public static boolean xor(Boolean[] values) {
-        checkOnEmptyArray(values);
-        Boolean result = values[0];
-        for (int i = 1; i < values.length; i++) {
-            result = result ^ values[i];
-        }
-        return result;
-    }
-
-    /**
-     * Returns true if at least one of elements are true otherwise false.
-     *
-     * @exception java.lang.IllegalArgumentException for null or an empty array.
-     */
-    public static boolean or(boolean[] values) {
-        if (values == null || values.length == 0) {
-            return false;
-        }
-        for (boolean value : values) {
-            if (value) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Returns true if at least one of elements are true otherwise false.
-     *
-     * @exception java.lang.IllegalArgumentException for null or an empty array or null value in the array.
-     */
-    public static boolean or(Boolean[] values) {
-        if (values == null || values.length == 0) {
-            return false;
-        }
-        for (Boolean value : values) {
-            if (value != null && value) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static void checkOnEmptyArray(Boolean[] values) {
-        if (values == null) {
-            throw new IllegalArgumentException(NULL_ARRAY_MSG);
-        }
-        if (values.length == 0) {
-            throw new IllegalArgumentException(EMPTY_ARRAY_MSG);
-        }
-        if (CollectionUtils.hasNull(values)) {
-            throw new IllegalArgumentException(NULL_VALUE_IN_ARRAY_MSG);
-        }
-    }
-
-    private static void checkOnEmptyArray(boolean[] values) {
-        if (values == null) {
-            throw new IllegalArgumentException(NULL_ARRAY_MSG);
-        }
-        if (values.length == 0) {
-            throw new IllegalArgumentException(EMPTY_ARRAY_MSG);
-        }
     }
 }
