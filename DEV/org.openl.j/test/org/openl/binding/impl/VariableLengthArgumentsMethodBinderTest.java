@@ -48,7 +48,7 @@ public class VariableLengthArgumentsMethodBinderTest {
     @Test
     public void testCastable() {
         CastFactory cf = new CastFactory();
-        cf.setMethodFactory(new StaticClassLibrary(JavaOpenClass.getOpenClass(org.openl.binding.impl.Operators.class)));
+        cf.setMethodFactory(new StaticClassLibrary(JavaOpenClass.getOpenClass(org.openl.binding.impl.cast.CastOperators.class)));
         
         VarArgsInfo varArgs;
         
