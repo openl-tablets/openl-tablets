@@ -18,7 +18,12 @@
       <h:panelGroup id="modalSaveData">
         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
           <h:outputText value="Project Name" />
-          <h:outputText value="#{studio.getLogicalName(artefact)}"/>
+          <h:outputText value="#{artefact.name}"/>
+
+          <h:outputText rendered="#{studio.isRenamed(artefact)}" value=""/>
+          <h:panelGroup rendered="#{studio.isRenamed(artefact)}" styleClass="warning">
+            <h:outputText value="Project name in rules.xml is '#{studio.getLogicalName(artefact)}'. It will be replaced with '#{artefact.name}'."/>
+          </h:panelGroup>
 
           <h:outputText value="Current Revision" />
           <h:outputText value="#{artefact.version.versionName}"/>
@@ -32,29 +37,35 @@
           <h:outputText value="" />
           <h:message for="comment" styleClass="error" />
         </h:panelGrid>
-
-        <h:panelGroup rendered="#{studio.isRenamed(artefact)}" styleClass="warning">
-          <h:outputText value="Warning! This renaming will split the project on two parts."/> <br/>
-          <h:outputText value="This project will be closed: '#{artefact.name}'."/> <br/>
-          <h:outputText value="This project will be created: '#{studio.getLogicalName(artefact)}'."/>
-        </h:panelGroup>
       </h:panelGroup>
 
       <footer>
-        <a4j:commandButton value="Save" action="#{mainBean.saveProject}" render="@form" styleClass="button-primary" oncomplete="if (#{!facesContext.validationFailed}) {#{rich:component('modalSave')}.hide();ws.nav.reload(true);}" />
-        <input class="restore-changed-state" type="button" value="Cancel" onclick="#{rich:component('modalSave')}.hide();" />
+        <a4j:commandButton value="Save" action="#{mainBean.saveProject}" render="@form" styleClass="button-primary" oncomplete="if (#{!facesContext.validationFailed}) {RichFaces.$('modalSave').hide();goToNewProject();}" />
+        <input class="restore-changed-state" type="button" value="Cancel" onclick="RichFaces.$('modalSave').hide();" />
       </footer>
     </h:form>
 
   </rich:popupPanel>
 
   <script>
+      //<![CDATA[
       function openSaveDialog() {
           // Comment must always be empty when save new revision
           $j("#saveForm\\:comment").val('');
 
           RichFaces.$("modalSave").show();
-          focusElement('saveForm:projectVersion');
+          focusElement('saveForm:comment');
       }
+
+      function goToNewProject() {
+          var hash = $location.getHash(true);
+          var index = hash.indexOf('/');
+          var newUrl = '#{jsffn:encodeURL(artefact.name)}';
+          if (index > 0) {
+              newUrl += hash.substring(index);
+          }
+          ws.nav.go(newUrl, true);
+      }
+      //]]>
   </script>
 </ui:composition>

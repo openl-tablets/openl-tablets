@@ -3,11 +3,14 @@ package org.openl.rules.project.xml;
 import java.io.*;
 
 import org.openl.rules.project.IProjectDescriptorSerializer;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.xml.v5_11.XmlProjectDescriptorSerializer_v5_11;
 import org.openl.rules.project.xml.v5_12.XmlProjectDescriptorSerializer_v5_12;
 import org.openl.rules.project.xml.v5_13.XmlProjectDescriptorSerializer_v5_13;
 import org.openl.rules.project.xml.v5_16.XmlProjectDescriptorSerializer_v5_16;
-import org.openl.util.StringUtils;
+import org.openl.rules.repository.api.Repository;
 
 public class ProjectDescriptorSerializerFactory {
     private final SupportedVersionSerializer supportedVersionSerializer;
@@ -21,7 +24,24 @@ public class ProjectDescriptorSerializerFactory {
     }
 
     public IProjectDescriptorSerializer getSerializer(File projectFolder) {
-        return getSerializer(supportedVersionSerializer.getSupportedVersion(projectFolder));
+        return getSerializer(getSupportedVersion(projectFolder));
+    }
+
+    /**
+     * Get Project Descriptor serializer by any artefact
+     *
+     * @param artefact can be AProject instance or any resource inside it
+     * @return Project Descriptor serializer for supporting OpenL version
+     */
+    public IProjectDescriptorSerializer getSerializer(AProjectArtefact artefact) {
+        AProject project = artefact.getProject();
+        Repository repository = project.getRepository();
+        if (repository instanceof LocalRepository) {
+            File root = ((LocalRepository) repository).getRoot();
+            return getSerializer(new File(root, project.getFolderPath()));
+        } else {
+            return getDefaultSerializer();
+        }
     }
 
     public SupportedVersion getSupportedVersion(File projectFolder) {
