@@ -1563,22 +1563,6 @@ public class MathUtils {
 
     // <<< END INSERT Functions >>>
 
-    public static boolean eq(double x, double y) {
-        if (Double.compare(x, y) == 0)
-            return true;
-        if (Double.isInfinite(x) || Double.isInfinite(y) || Double.isNaN(x) || Double.isNaN(y))
-            return false;
-        return Math.abs(x - y) <= Math.ulp(x);
-    }
-
-    public static boolean eq(double x, double y, double delta) {
-        if (Double.compare(x, y) == 0)
-            return true;
-        if (Double.isInfinite(x) || Double.isInfinite(y) || Double.isNaN(x) || Double.isNaN(y))
-            return false;
-        return Math.abs(x - y) <= delta;
-    }
-
     public static boolean gt(double x, double y) {
         if (Double.POSITIVE_INFINITY == x && Double.POSITIVE_INFINITY != y && !Double.isNaN(y))
             return true;
