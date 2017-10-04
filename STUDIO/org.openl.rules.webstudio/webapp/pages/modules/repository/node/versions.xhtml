@@ -46,7 +46,7 @@
       <rich:column rendered="#{node.type == 'project'}">
         <ui:param name="projectReference" value="#{repositoryTreeState.getProjectReference(artefact, version)}"/>
         <h:outputText value="#{version.versionComment}" rendered="#{empty projectReference}" />
-        <h:outputText value="Renamed from: " rendered="#{not empty projectReference}" />
+        <h:outputText value="Copied from: " rendered="#{not empty projectReference}" />
         <h:commandLink value="#{projectReference}"
                        rendered="#{not empty projectReference}"
                        action="#{repositoryTreeController.selectRulesProject}"

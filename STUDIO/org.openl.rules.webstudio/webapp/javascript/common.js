@@ -120,3 +120,33 @@ function showAnimatedPanel(loadingPanel) {
     // Html must be replaced after form is submitted - that's why timeout is used.
     setTimeout(function() {loadingPanel.html(loadingPanel.html());}, 1);
 }
+
+/**
+ * Fix the bug related to not updating input when enter too big number and then lose the focus.
+ *
+ * @param id the id of inputNumberSpinner element
+ */
+function fixInputNumberSpinner(id) {
+    var component = RichFaces.$(id);
+    if (!component) {
+        return;
+    }
+
+    component.__setValue = function (value, event, skipOnchange) {
+        if (!isNaN(value)) {
+            if (value > component.maxValue) {
+                value = component.maxValue;
+            } else if (value < component.minValue) {
+                value = component.minValue;
+            }
+            // !!! The line below was changed. See inputNumberSpinner.js for comparison.
+            if (Number(value) !== Number(component.input.val())) {
+                component.input.val(value);
+                component.value = value;
+                if (component.onchange && !skipOnchange) {
+                    component.onchange.call(component.element[0], event);
+                }
+            }
+        }
+    };
+}

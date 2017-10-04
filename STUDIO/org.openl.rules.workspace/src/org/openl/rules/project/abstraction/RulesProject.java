@@ -332,4 +332,8 @@ public class RulesProject extends UserWorkspaceProject {
             return new ArtefactPathImpl(getName());
         }
     }
+
+    public String getDesignFolderName() {
+        return designFolderName;
+    }
 }

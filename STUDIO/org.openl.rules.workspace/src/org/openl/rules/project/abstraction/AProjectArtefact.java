@@ -143,7 +143,7 @@ public class AProjectArtefact implements PropertiesContainer {
         }
     }
 
-    protected int getFirstRevisionIndex() {
+    public int getFirstRevisionIndex() {
         return 0;
     }
 

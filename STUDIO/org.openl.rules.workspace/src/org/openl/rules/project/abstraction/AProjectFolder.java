@@ -76,7 +76,7 @@ public class AProjectFolder extends AProjectArtefact {
     }
 
     public AProjectResource addResource(String name, AProjectResource resource) throws ProjectException {
-        InputStream content = resourceTransformer != null ? resourceTransformer.tranform(resource) : resource.getContent();
+        InputStream content = resourceTransformer != null ? resourceTransformer.transform(resource) : resource.getContent();
         AProjectResource addedResource = addResource(name, content);
         addedResource.setResourceTransformer(resourceTransformer);
         return addedResource;
@@ -297,5 +297,9 @@ public class AProjectFolder extends AProjectArtefact {
 
     public boolean hasArtefacts() {
         return !getArtefacts().isEmpty();
+    }
+
+    public ResourceTransformer getResourceTransformer() {
+        return resourceTransformer;
     }
 }

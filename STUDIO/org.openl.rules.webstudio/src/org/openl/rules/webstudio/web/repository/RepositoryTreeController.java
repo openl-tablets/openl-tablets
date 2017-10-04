@@ -13,7 +13,6 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.rules.project.abstraction.ResourceTransformer;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.impl.local.LocalRepository;
@@ -27,6 +26,7 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportModule;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.ProjectDescriptorTransformer;
 import org.openl.rules.webstudio.web.repository.project.CustomTemplatesResolver;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
 import org.openl.rules.webstudio.web.repository.project.PredefinedTemplatesResolver;
@@ -429,34 +429,7 @@ public class RepositoryTreeController {
         }
 
         try {
-            userWorkspace.copyProject(project, newProjectName, new ResourceTransformer() {
-                @Override
-                public InputStream tranform(AProjectResource resource) throws ProjectException {
-                    if (isProjectDescriptor(resource)) {
-                        InputStream content = null;
-                        try {
-                            XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer(false);
-                            content = resource.getContent();
-                            ProjectDescriptor projectDescriptor = serializer.deserialize(content);
-                            projectDescriptor.setName(newProjectName);
-                            return IOUtils.toInputStream(serializer.serialize(projectDescriptor));
-                        } catch (XStreamException e) {
-                            // Can't parse rules.xml. Don't modify it.
-                            log.error(e.getMessage(), e);
-                        } finally {
-                            IOUtils.closeQuietly(content);
-                        }
-                    }
-
-                    return resource.getContent();
-                }
-
-                private boolean isProjectDescriptor(AProjectResource resource) {
-                    String actualFullPath = resource.getArtefactPath().withoutFirstSegment().getStringValue();
-                    String expectedFullPath = ArtefactPathImpl.SEGMENT_DELIMITER + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME;
-                    return expectedFullPath.equals(actualFullPath);
-                }
-            });
+            userWorkspace.copyProject(project, newProjectName, new ProjectDescriptorTransformer(newProjectName));
             AProject newProject = userWorkspace.getProject(newProjectName);
             repositoryTreeState.addRulesProjectToTree(newProject);
             resetStudioModel();
@@ -1653,4 +1626,5 @@ public class RepositoryTreeController {
     public String getLogicalName(RulesProject project) {
         return project == null ? null : projectDescriptorResolver.getLogicalName(project);
     }
+
 }

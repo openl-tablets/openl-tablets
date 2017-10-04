@@ -216,12 +216,12 @@ public class WebStudio {
                 String designPath = designTimeRepository.createProject(logicalName).getFolderPath();
                 FileData fileData = new FileData();
                 fileData.setName(designPath);
-                fileData.setComment(Constants.RENAMED_FROM_PREFIX + project.getName());
                 fileData.setAuthor(userWorkspace.getUser().getUserName());
                 fileData.setSize(0);
 
                 designTimeRepository.getRepository().save(fileData, new ByteArrayInputStream(new byte[0]));
 
+                // TODO: Reimplement
                 project.rename(logicalName);
 
                 resetProjects();

@@ -1,0 +1,105 @@
+<ui:composition
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <rich:popupPanel id="modalCopyProject" width="400" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Copy project"/>
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close" alt="Close" title="Close"
+                            onclick="RichFaces.$('modalCopyProject').hide();"/>
+        </f:facet>
+
+        <h:form id="copyProjectForm">
+            <h:panelGroup id="modalCopyProjectData">
+                <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+                    <h:outputText value="Project Name:"/>
+                    <h:outputText id="currentProjectName" value="#{copyBean.currentProjectName}"/>
+
+                    <h:outputLabel for="newProjectName" styleClass="required" value="New Project Name:"/>
+                    <h:inputText id="newProjectName" maxlength="50" value="#{copyBean.newProjectName}"
+                                 validator="#{copyBean.newProjectNameValidator}"/>
+                    <h:outputText value=""/>
+                    <h:message for="newProjectName" styleClass="error"/>
+
+                    <h:outputText value="Comment:"/>
+                    <h:inputTextarea id="comment" value="#{copyBean.comment}" type="text" size="35" readonly="false"
+                                     validatorMessage="Length is greater than allowable maximum of '255'">
+                        <f:validateLength maximum="255"/>
+                    </h:inputTextarea>
+                    <h:outputText value=""/>
+                    <h:message for="comment" styleClass="error"/>
+
+                    <ui:param name="hasRevisions" value="#{copyBean.maxRevisionsCount > 0}"/>
+
+                    <h:outputText value="Copy old revisions:" rendered="#{hasRevisions}"/>
+                    <h:selectBooleanCheckbox id="copyOldRevisions" value="#{copyBean.copyOldRevisions}"
+                                             onclick="updateRevisionsCountState()"
+                                             rendered="#{hasRevisions}">
+                    </h:selectBooleanCheckbox>
+
+                    <h:outputText id="revisionsCountLabel" value="Revisions to copy:"
+                                  rendered="#{hasRevisions}"/>
+                    <rich:inputNumberSpinner id="revisionsCount" value="#{copyBean.revisionsCount}"
+                                             minValue="1" maxValue="#{copyBean.maxRevisionsCount}" cycled="false"
+                                             rendered="#{hasRevisions}"/>
+                    <h:outputText value=""/>
+                    <h:message for="revisionsCount" styleClass="error"/>
+
+                    <h:outputText value="" rendered="#{copyBean.maxRevisionsCount > 10}"/>
+                    <h:outputText id="tooManyRevisionsWarning" value="Copying too many revisions can be slow"
+                                  styleClass="warning" rendered="#{copyBean.maxRevisionsCount > 10}"/>
+                </h:panelGrid>
+
+                <h:inputHidden id="hiddenProjectName" value="#{copyBean.currentProjectName}"/>
+
+            </h:panelGroup>
+
+            <footer>
+                <a4j:commandButton value="Copy" action="#{copyBean.copy}" render="@form" styleClass="button-primary"
+                                   oncomplete="updateRevisionsCountState(); if (#{!facesContext.validationFailed}) {RichFaces.$('modalCopyProject').hide(); ws.nav.reload(true);}"/>
+                <input type="button" value="Cancel" onclick="RichFaces.$('modalCopyProject').hide();"/>
+            </footer>
+
+            <a4j:jsFunction name="renderCopyProjectForm" render="copyProjectForm" oncomplete="showCopyProjectDialog()"/>
+
+        </h:form>
+
+    </rich:popupPanel>
+
+    <script>
+        //<![CDATA[
+        function openCopyProjectDialog() {
+            rerenderCopyProjectDialog();
+        }
+
+        function showCopyProjectDialog() {
+            $j('#copyProjectForm\\:hiddenProjectName').val($j('#copyProjectForm\\:currentProjectName').text());
+            fixInputNumberSpinner('copyProjectForm:revisionsCount');
+            updateRevisionsCountState();
+            RichFaces.$("modalCopyProject").show();
+            focusElement('copyProjectForm:newProjectName');
+        }
+
+        function updateRevisionsCountState() {
+            var shouldCopy = $j('#copyProjectForm\\:copyOldRevisions').is(':checked');
+            var $revisionsCount = $j('#copyProjectForm\\:revisionsCount');
+            var $row = $revisionsCount.closest('tr');
+            var $rowWarning = $j('#copyProjectForm\\:tooManyRevisionsWarning').closest('tr');
+            if (shouldCopy) {
+                $row.show();
+                $rowWarning.show();
+            } else {
+                $row.hide();
+                $rowWarning.hide();
+            }
+        }
+
+        //]]>
+    </script>
+</ui:composition>
