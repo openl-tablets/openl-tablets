@@ -1563,18 +1563,6 @@ public class MathUtils {
 
     // <<< END INSERT Functions >>>
 
-    public static boolean gt(double x, double y) {
-        if (Double.POSITIVE_INFINITY == x && Double.POSITIVE_INFINITY != y && !Double.isNaN(y))
-            return true;
-        return Math.abs(x - y) > Math.ulp(x) && x > y;
-    }
-
-    public static boolean lt(double x, double y) {
-        if (Double.NEGATIVE_INFINITY == x && Double.NEGATIVE_INFINITY != y && !Double.isNaN(y))
-            return true;
-        return Math.abs(x - y) > Math.ulp(x) && x < y;
-    }
-
     /**
      * Divide one BigDecimal to another. When providing a result of divide
      * operation, the precision '5' and {@link RoundingMode#HALF_UP} settings
