@@ -107,6 +107,9 @@ public class OpenLBuilder extends AOpenLBuilder {
         JavaLibraryConfiguration javalib = new JavaLibraryConfiguration();
         javalib.setClassName(org.openl.binding.impl.Operators.class.getName());
         nslc.addJavalib(javalib);
+        JavaLibraryConfiguration javalib2 = new JavaLibraryConfiguration();
+        javalib2.setClassName(org.openl.binding.impl.operator.Comparison.class.getName());
+        nslc.addJavalib(javalib2);
         lfc.addConfiguredLibrary(nslc);
 
         /**

@@ -31,7 +31,9 @@ public class OpenLBuilder extends AOpenLBuilder {
         org.openl.meta.BigDecimalValue.class.getName()};
     
     private static final String[] JAVA_OPERATORS_CLASSES = new String[]{
-        org.openl.meta.ByteValue.class.getName(), 
+        org.openl.binding.impl.Operators.class.getName(),
+        org.openl.binding.impl.operator.Comparison.class.getName(),
+        org.openl.meta.ByteValue.class.getName(),
         org.openl.meta.ShortValue.class.getName(),
         org.openl.meta.IntValue.class.getName(),  
         org.openl.meta.LongValue.class.getName(), 
@@ -70,9 +72,6 @@ public class OpenLBuilder extends AOpenLBuilder {
 
         NameSpacedLibraryConfiguration nslc = new NameSpacedLibraryConfiguration();
         nslc.setNamespace(ISyntaxConstants.OPERATORS_NAMESPACE);
-        JavaLibraryConfiguration javalib1 = new JavaLibraryConfiguration();
-        javalib1.setClassName(org.openl.binding.impl.Operators.class.getName());
-        nslc.addJavalib(javalib1);
         for (String className : JAVA_OPERATORS_CLASSES){
             JavaLibraryConfiguration javalib = new JavaLibraryConfiguration();
             javalib.setClassName(className);

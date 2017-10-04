@@ -2,7 +2,7 @@ package org.openl.extension.xmlrules.utils;
 
 import java.util.Date;
 
-import org.openl.binding.impl.Operators;
+import org.openl.binding.impl.operator.Comparison;
 
 public class XmlRulesOperators {
     public static boolean eq(Object x, Object y) {
@@ -18,7 +18,7 @@ public class XmlRulesOperators {
         x = HelperFunctions.convertArgument(expectedClass, x);
         y = HelperFunctions.convertArgument(expectedClass, y);
 
-        return Operators.eq(x, y);
+        return Comparison.eq(x, y);
     }
 
     public static boolean ne(Object x, Object y) {
@@ -42,7 +42,7 @@ public class XmlRulesOperators {
         x = HelperFunctions.convertArgument(expectedClass, x);
         y = HelperFunctions.convertArgument(expectedClass, y);
 
-        return Operators.strict_gt((Comparable) x, (Comparable) y);
+        return Comparison.gt((Comparable) x, (Comparable) y);
     }
 
     public static boolean ge(Object x, Object y) {
@@ -62,7 +62,7 @@ public class XmlRulesOperators {
         x = HelperFunctions.convertArgument(expectedClass, x);
         y = HelperFunctions.convertArgument(expectedClass, y);
 
-        return Operators.strict_ge((Comparable) x, (Comparable) y);
+        return Comparison.ge((Comparable) x, (Comparable) y);
     }
 
     public static boolean lt(Object x, Object y) {
@@ -82,7 +82,7 @@ public class XmlRulesOperators {
         x = HelperFunctions.convertArgument(expectedClass, x);
         y = HelperFunctions.convertArgument(expectedClass, y);
 
-        return Operators.strict_lt((Comparable) x, (Comparable) y);
+        return Comparison.lt((Comparable) x, (Comparable) y);
     }
 
     public static boolean le(Object x, Object y) {
@@ -102,7 +102,7 @@ public class XmlRulesOperators {
         x = HelperFunctions.convertArgument(expectedClass, x);
         y = HelperFunctions.convertArgument(expectedClass, y);
 
-        return Operators.strict_le((Comparable) x, (Comparable) y);
+        return Comparison.le((Comparable) x, (Comparable) y);
     }
 
     private static Class getExpectedClass(Object x, Object y) {

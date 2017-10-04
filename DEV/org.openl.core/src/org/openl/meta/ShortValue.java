@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
+import org.openl.binding.impl.operator.Comparison;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.ShortValue.ShortValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
@@ -54,7 +55,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         if (value1 == null || value2 == null){
             return value1 == value2;
         }
-        return Operators.eq(value1.getValue(), value2.getValue());
+        return Comparison.eq(value1.getValue(), value2.getValue());
     }
     /**
      * Compares two values
@@ -65,7 +66,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     public static boolean ge(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
         validate(value1, value2, LogicalExpressions.GE.toString());
 
-        return Operators.ge(value1.getValue(), value2.getValue());
+        return Comparison.ge(value1.getValue(), value2.getValue());
     }
     /**
      * Compares two values
@@ -76,7 +77,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     public static boolean gt(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
         validate(value1, value2, LogicalExpressions.GT.toString());
 
-        return Operators.gt(value1.getValue(), value2.getValue());
+        return Comparison.gt(value1.getValue(), value2.getValue());
     }
     /**
      * Compares two values
@@ -87,7 +88,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     public static boolean le(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
         validate(value1, value2, LogicalExpressions.LE.toString());
 
-        return Operators.le(value1.getValue(), value2.getValue());
+        return Comparison.le(value1.getValue(), value2.getValue());
     }
     /**
      * Compares two values
@@ -98,7 +99,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     public static boolean lt(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
         validate(value1, value2, LogicalExpressions.LT.toString());
 
-        return Operators.lt(value1.getValue(), value2.getValue());
+        return Comparison.lt(value1.getValue(), value2.getValue());
     }
     /**
      * Compares two values
@@ -111,7 +112,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
             return value1 != value2;
         }
 
-        return Operators.ne(value1.getValue(), value2.getValue());
+        return Comparison.ne(value1.getValue(), value2.getValue());
     }
 
      /**
@@ -589,7 +590,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     public boolean equals(Object obj) {
         if (obj instanceof org.openl.meta.ShortValue) {
             org.openl.meta.ShortValue secondObj = (org.openl.meta.ShortValue) obj;
-            return Operators.eq(getValue(), secondObj.getValue());
+            return Comparison.eq(getValue(), secondObj.getValue());
         }
 
         return false;

@@ -1563,38 +1563,6 @@ public class MathUtils {
 
     // <<< END INSERT Functions >>>
 
-    public static boolean eq(float x, float y) {
-        if (Float.compare(x, y) == 0)
-            return true;
-        if (Float.isInfinite(x) || Float.isInfinite(y) || Float.isNaN(x) || Float.isNaN(y))
-            return false;
-        return Math.abs(x - y) <= Math.ulp(x);
-    }
-
-    public static boolean ne(float x, float y) {
-        return !eq(x, y);
-    }
-
-    public static boolean gt(float x, float y) {
-        if (Float.POSITIVE_INFINITY == x && Float.POSITIVE_INFINITY != y && !Float.isNaN(y))
-            return true;
-        return Math.abs(x - y) > Math.ulp(x) && x > y;
-    }
-
-    public static boolean ge(float x, float y) {
-        return eq(x, y) || gt(x, y);
-    }
-
-    public static boolean lt(float x, float y) {
-        if (Float.NEGATIVE_INFINITY == x && Float.NEGATIVE_INFINITY != y && !Float.isNaN(y))
-            return true;
-        return Math.abs(x - y) > Math.ulp(x) && x < y;
-    }
-
-    public static boolean le(float x, float y) {
-        return eq(x, y) || lt(x, y);
-    }
-
     public static boolean eq(double x, double y) {
         if (Double.compare(x, y) == 0)
             return true;
@@ -1611,32 +1579,16 @@ public class MathUtils {
         return Math.abs(x - y) <= delta;
     }
 
-    public static boolean ne(double x, double y) {
-        return !eq(x, y);
-    }
-
     public static boolean gt(double x, double y) {
         if (Double.POSITIVE_INFINITY == x && Double.POSITIVE_INFINITY != y && !Double.isNaN(y))
             return true;
         return Math.abs(x - y) > Math.ulp(x) && x > y;
     }
 
-    public static boolean ge(double x, double y) {
-        return eq(x, y) || gt(x, y);
-    }
-
     public static boolean lt(double x, double y) {
         if (Double.NEGATIVE_INFINITY == x && Double.NEGATIVE_INFINITY != y && !Double.isNaN(y))
             return true;
         return Math.abs(x - y) > Math.ulp(x) && x < y;
-    }
-
-    public static boolean le(double x, double y) {
-        return eq(x, y) || lt(x, y);
-    }
-
-    public static boolean eq(BigDecimal x, BigDecimal y) {
-        return x.subtract(y).abs().compareTo(x.ulp()) <= 0;
     }
 
     /**
