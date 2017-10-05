@@ -5,6 +5,17 @@
         xmlns:rich="http://richfaces.org/rich"
         xmlns:ui="http://java.sun.com/jsf/facelets">
 
+    <style>
+        #copyProjectForm input[type="text"],
+        #copyProjectForm textarea {
+            min-width: 210px;
+        }
+
+        #copyProjectForm input[type="text"].rf-insp-inp {
+            min-width: 203px;
+        }
+    </style>
+
     <rich:popupPanel id="modalCopyProject" width="400" autosized="true">
         <f:facet name="header">
             <h:outputText value="Copy project"/>
