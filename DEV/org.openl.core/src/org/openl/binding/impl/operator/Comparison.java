@@ -1,6 +1,7 @@
 package org.openl.binding.impl.operator;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * Contains comparison operators for:
@@ -99,6 +100,10 @@ public class Comparison {
         return x == null && y == null || x != null && y != null && eq(x.doubleValue(), y.doubleValue());
     }
 
+    public static boolean eq(BigInteger x, BigInteger y) {
+        return equals(x, y);
+    }
+
     public static boolean eq(BigDecimal x, BigDecimal y) {
         return x == null && y == null || x != null && y != null && x.subtract(y).abs().compareTo(x.ulp()) <= 0;
     }
@@ -169,6 +174,10 @@ public class Comparison {
     }
 
     public static boolean ne(Double x, Double y) {
+        return !eq(x, y);
+    }
+
+    public static boolean ne(BigInteger x, BigInteger y) {
         return !eq(x, y);
     }
 
