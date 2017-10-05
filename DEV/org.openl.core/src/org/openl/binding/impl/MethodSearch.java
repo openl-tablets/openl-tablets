@@ -383,8 +383,12 @@ public class MethodSearch {
                     }
                 }
             }
-            if (mostSpecificMethods.size() == 1) {
+
+            int countOfFoundMethods = mostSpecificMethods.size();
+            if (countOfFoundMethods == 1) {
                 return mostSpecificMethods.get(0);
+            } else if (countOfFoundMethods == 0) {
+                throw new AmbiguousMethodException(name, params, matchingMethods);
             } else {
                 throw new AmbiguousMethodException(name, params, mostSpecificMethods);
             }
