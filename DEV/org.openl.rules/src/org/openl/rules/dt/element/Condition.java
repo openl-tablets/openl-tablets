@@ -4,7 +4,6 @@ import java.util.Iterator;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.ILocalVar;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
@@ -62,18 +61,12 @@ public class Condition extends FunctionalRow implements ICondition {
 
         Object[] params = mergeParams(target, dtParams, env, ruleN);
         Object result = getMethod().invoke(target, params, env);
-        Boolean res = (Boolean) result;
 
-        // Check that condition expression has returned the not null value.
-        //
-        if (res == null) {
-            throw new OpenLRuntimeException("Condition expression must be boolean type",
-                ((CompositeMethod) getMethod()).getMethodBodyBoundNode());
-        }
-
-        if (res.booleanValue()) {
+        if (Boolean.TRUE.equals(result)) {
+            // True
             return DecisionValue.TRUE_VALUE;
         } else {
+            // Null or False
             return DecisionValue.FALSE_VALUE;
         }
     }

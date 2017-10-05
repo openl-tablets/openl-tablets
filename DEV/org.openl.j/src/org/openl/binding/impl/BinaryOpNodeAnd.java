@@ -1,9 +1,3 @@
-/*
- * Created on May 19, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
 import org.openl.binding.IBoundNode;
@@ -14,27 +8,41 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
- * @author snshor
- *
+ * <ul>
+ * <li>FALSE and FALSE = FALSE</li>
+ * <li>FALSE and TRUE = FALSE</li>
+ * <li>TRUE and FALSE = FALSE</li>
+ * <li>TRUE and TRUE = TRUE</li>
+ * <li>FALSE and NULL = FALSE</li>
+ * <li>NULL and FALSE = FALSE</li>
+ * <li>TRUE and NULL = NULL</li>
+ * <li>NULL and TRUE = NULL</li>
+ * <li>NULL and NULL = NULL</li>
+ * </ul>
+ * 
+ * @author Yury Molchan
  */
 public class BinaryOpNodeAnd extends ABoundNode {
-    /**
-     * @param syntaxNode
-     * @param child
-     * @param method
-     */
-    public BinaryOpNodeAnd(ISyntaxNode syntaxNode, IBoundNode[] child) {
+
+    BinaryOpNodeAnd(ISyntaxNode syntaxNode, IBoundNode[] child) {
         super(syntaxNode, child);
     }
 
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
 
-        Boolean b1 = (Boolean) children[0].evaluate(env);
-        if (b1.booleanValue()) {
-            return children[1].evaluate(env);
+        Object res1 = children[0].evaluate(env);
+        if (Boolean.FALSE.equals(res1)) {
+            return Boolean.FALSE;
         }
-        return Boolean.FALSE;
-
+        Object res2 = children[1].evaluate(env);
+        if (Boolean.FALSE.equals(res2)) {
+            return Boolean.FALSE;
+        }
+        if (res1 == null || res2 == null) {
+            return null;
+        } else {
+            return Boolean.TRUE;
+        }
     }
 
     public IOpenClass getType() {
