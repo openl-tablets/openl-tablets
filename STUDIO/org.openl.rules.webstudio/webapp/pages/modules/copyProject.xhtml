@@ -73,7 +73,7 @@
             </h:panelGroup>
 
             <footer>
-                <a4j:commandButton value="Copy" action="#{copyBean.copy}" render="@form" styleClass="button-primary"
+                <a4j:commandButton id="copy" value="Copy" action="#{copyBean.copy}" render="@form" styleClass="button-primary"
                                    oncomplete="updateRevisionsCountState(); if (#{!facesContext.validationFailed}) {RichFaces.$('modalCopyProject').hide(); ws.nav.reload(true);}"/>
                 <input type="button" value="Cancel" onclick="RichFaces.$('modalCopyProject').hide();"/>
             </footer>
@@ -94,6 +94,15 @@
             $j('#copyProjectForm\\:hiddenProjectName').val($j('#copyProjectForm\\:currentProjectName').text());
             fixInputNumberSpinner('copyProjectForm:revisionsCount');
             updateRevisionsCountState();
+            $j('#copyProjectForm\\:copy').prop('disabled', true);
+            $j('#copyProjectForm\\:newProjectName').off().on('change keyup keydown cut paste', function () {
+                var $name = $j(this);
+                // setTimeout() is needed to correctly handle on paste / on cut events
+                setTimeout(function () {
+                    var value = $name.val().trim();
+                    $j('#copyProjectForm\\:copy').prop('disabled', value.length === 0);
+                }, 0);
+            });
             RichFaces.$("modalCopyProject").show();
             focusElement('copyProjectForm:newProjectName');
         }
