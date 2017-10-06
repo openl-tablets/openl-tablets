@@ -2,6 +2,7 @@ package org.openl.rules.maven.gen;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class DateInitializationWriter implements TypeInitializationWriter {
 
@@ -9,7 +10,7 @@ public class DateInitializationWriter implements TypeInitializationWriter {
 
     public String getInitialization(Object value) {
         Date date = (Date) value;
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT_FOR_DATE_CONSTRUCTOR);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT_FOR_DATE_CONSTRUCTOR, Locale.US);
         String stringValue = simpleDateFormat.format(date);
         return String.format("new %s(\"%s\")", JavaClassGeneratorHelper.filterTypeSimpleName(value.getClass()), stringValue);
     }
