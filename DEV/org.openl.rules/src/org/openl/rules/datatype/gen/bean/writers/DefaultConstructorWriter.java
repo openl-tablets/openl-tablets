@@ -2,19 +2,7 @@ package org.openl.rules.datatype.gen.bean.writers;
 
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -152,7 +140,7 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
             mg.newInstance(type);
             mg.dup();
             // SimpleDateFormat is thread-unsafe
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a", Locale.US);
             mg.push(simpleDateFormat.format((Date) value));
             mg.invokeConstructor(type, STR_CONSTR);
         } else if (boxed.containsKey(className)) {
