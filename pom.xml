@@ -254,7 +254,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-invoker-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>3.0.1</version>
                     <configuration>
                         <projectsDirectory>it</projectsDirectory>
                         <pomIncludes>
@@ -266,6 +266,10 @@
                             <goal>clean</goal>
                             <goal>install</goal>
                         </goals>
+                        <properties>
+                            <maven.compiler.source>1.6</maven.compiler.source>
+                            <maven.compiler.target>1.6</maven.compiler.target>
+                        </properties>
                     </configuration>
                 </plugin>
                 <plugin>
