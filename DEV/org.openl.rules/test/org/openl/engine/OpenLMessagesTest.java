@@ -31,7 +31,7 @@ public class OpenLMessagesTest {
         };
         helper2.build(SRC2);
         OpenLMessages messages1 = OpenLMessages.getCurrentInstance();
-        assertEquals("Messages should be 5, just from current module", 2, messages1.getMessages().size());
+        assertEquals("Messages should be 2, just from current module", 2, messages1.getMessages().size());
     }
 
     public interface Project1Int {
@@ -64,7 +64,7 @@ public class OpenLMessagesTest {
         } catch (OpenlNotCheckedException ignored) {
         }
         OpenLMessages messages1 = OpenLMessages.getCurrentInstance();
-        assertEquals("Messages should be 5, just from current module", 2, messages1.getMessages().size());
+        assertEquals("Messages should be 2, just from current module", 2, messages1.getMessages().size());
     }
 
     @Test

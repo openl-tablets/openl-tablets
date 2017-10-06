@@ -6,9 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -91,14 +88,13 @@ public class SimpleBeanByteCodeGenerator {
     private static void visitJAXBAnnotation(ClassWriter classWriter, String beannameWithPackage) {
         String namespace = getNamespace(beannameWithPackage);
 
-        AnnotationVisitor av = classWriter.visitAnnotation(Type.getDescriptor(XmlRootElement.class), true);
+        AnnotationVisitor av = classWriter.visitAnnotation("Ljavax/xml/bind/annotation/XmlRootElement;", true);
         av.visit("namespace", namespace);
         av.visitEnd();
 
-        av = classWriter.visitAnnotation(Type.getDescriptor(XmlType.class), true);
+        av = classWriter.visitAnnotation("Ljavax/xml/bind/annotation/XmlType;", true);
         av.visit("namespace", namespace);
         av.visitEnd();
-
     }
 
     private static void visitFields(ClassWriter classWriter, Map<String, FieldDescription> beanFields) {
