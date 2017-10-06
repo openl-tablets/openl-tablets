@@ -93,7 +93,7 @@
                                id="saveProjectButton"
                                title="Save the project changes in Design Repository as a new revision and make it available for editing to other users"
                                rendered="#{!empty rProject and rProject.openedForEditing and rProject.modified and studio.model.editable}" />
-                <h:commandLink styleClass="changes-listener" onclick="openCopyProjectDialog(); return false;"
+                <h:commandLink styleClass="changes-listener" onclick="openCopyProjectDialog('#{rProject.name}'); return false;"
                                id="copyProjectButton"
                                value="Copy" title="Copy project"
                                rendered="#{!empty rProject and copyBean.canCreate}" />

@@ -74,11 +74,13 @@
 
             <footer>
                 <a4j:commandButton id="copy" value="Copy" action="#{copyBean.copy}" render="@form" styleClass="button-primary"
-                                   oncomplete="updateRevisionsCountState(); if (#{!facesContext.validationFailed}) {RichFaces.$('modalCopyProject').hide(); ws.nav.reload(true);}"/>
+                                   oncomplete="updateRevisionsCountState(); if (#{!facesContext.validationFailed}) {RichFaces.$('modalCopyProject').hide(); location.href = location.href;}"/>
                 <input type="button" value="Cancel" onclick="RichFaces.$('modalCopyProject').hide();"/>
             </footer>
 
-            <a4j:jsFunction name="renderCopyProjectForm" render="copyProjectForm" oncomplete="showCopyProjectDialog()"/>
+            <a4j:jsFunction name="renderCopyProjectForm" render="copyProjectForm" oncomplete="showCopyProjectDialog()">
+                <a4j:param name="projectName" assignTo="#{copyBean.initProject}"/>
+            </a4j:jsFunction>
 
         </h:form>
 
@@ -86,8 +88,8 @@
 
     <script>
         //<![CDATA[
-        function openCopyProjectDialog() {
-            renderCopyProjectForm();
+        function openCopyProjectDialog(projectName) {
+            renderCopyProjectForm(projectName);
         }
 
         function showCopyProjectDialog() {

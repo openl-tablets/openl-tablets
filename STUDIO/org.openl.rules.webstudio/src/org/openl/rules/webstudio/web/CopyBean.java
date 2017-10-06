@@ -6,11 +6,12 @@ import static org.openl.rules.security.Privileges.CREATE_PROJECTS;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
+import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -28,8 +29,11 @@ import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * FIXME: Replace SessionScoped with RequestScoped when validation issues in inputNumberSpinner in Repository and Editor tabs will be fixed.
+ */
 @ManagedBean
-@RequestScoped
+@SessionScoped
 public class CopyBean {
     private final Logger log = LoggerFactory.getLogger(CopyBean.class);
 
@@ -44,10 +48,6 @@ public class CopyBean {
     }
 
     public String getCurrentProjectName() {
-        if (currentProjectName == null) {
-            RulesProject project = WebStudioUtils.getWebStudio().getCurrentProject();
-            return project == null ? null : project.getName();
-        }
         return currentProjectName;
     }
 
@@ -94,7 +94,7 @@ public class CopyBean {
     }
 
     public int getMaxRevisionsCount() {
-        RulesProject project = WebStudioUtils.getWebStudio().getCurrentProject();
+        RulesProject project = getCurrentProject();
         return project == null ? 0 : project.getVersionsCount() - project.getFirstRevisionIndex();
     }
 
@@ -158,6 +158,29 @@ public class CopyBean {
         } catch (WorkspaceException e) {
             log.error(e.getMessage(), e);
             FacesUtils.throwValidationError("Error during validation");
+        }
+    }
+
+    public void setInitProject(String currentProjectName) {
+        this.currentProjectName = currentProjectName;
+        newProjectName = null;
+        comment = null;
+        copyOldRevisions = null;
+        revisionsCount = null;
+    }
+
+    private RulesProject getCurrentProject() {
+        if (StringUtils.isBlank(currentProjectName)) {
+            return null;
+        }
+
+        try {
+            RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(FacesUtils.getSession());
+            UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
+            return userWorkspace.getProject(currentProjectName, false);
+        } catch (WorkspaceException | ProjectException e) {
+            log.error(e.getMessage(), e);
+            return null;
         }
     }
 }
