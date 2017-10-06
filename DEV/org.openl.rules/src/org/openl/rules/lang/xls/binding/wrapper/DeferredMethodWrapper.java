@@ -21,10 +21,17 @@ public class DeferredMethodWrapper extends DeferredMethod implements IOpenMethod
         this.xlsModuleOpenClass = xlsModuleOpenClass;
     }
     
+    @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return WrapperLogic.invoke(xlsModuleOpenClass, this, target, params, env);
+        return WrapperLogic.invoke(this, target, params, env);
     }
-
+    
+    @Override
+    public XlsModuleOpenClass getXlsModuleOpenClass() {
+        return xlsModuleOpenClass;
+    }
+    
+    @Override
     public IOpenClass getDeclaringClass() {
         return delegate.getDeclaringClass();
     }
@@ -34,46 +41,57 @@ public class DeferredMethodWrapper extends DeferredMethod implements IOpenMethod
         return delegate;
     }
     
+    @Override
     public String getDisplayName(int mode) {
         return delegate.getDisplayName(mode);
     }
 
+    @Override
     public IOpenMethodHeader getHeader() {
         return delegate.getHeader();
     }
 
+    @Override
     public IMemberMetaInfo getInfo() {
         return delegate.getInfo();
     }
 
+    @Override
     public IOpenMethod getMethod() {
         return delegate.getMethod();
     }
 
+    @Override
     public ISyntaxNode getMethodBodyNode() {
         return delegate.getMethodBodyNode();
     }
 
+    @Override
     public String getName() {
         return delegate.getName();
     }
 
+    @Override
     public IMethodSignature getSignature() {
         return delegate.getSignature();
     }
 
+    @Override
     public IOpenClass getType() {
         return delegate.getType();
     }
 
+    @Override
     public boolean isStatic() {
         return delegate.isStatic();
     }
 
+    @Override
     public void setMethodBodyBoundNode(IBoundMethodNode bnode) {
         delegate.setMethodBodyBoundNode(bnode);
     }
 
+    @Override
     public String toString() {
         return delegate.toString();
     }

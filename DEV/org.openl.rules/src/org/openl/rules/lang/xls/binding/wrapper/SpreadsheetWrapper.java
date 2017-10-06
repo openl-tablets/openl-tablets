@@ -33,8 +33,14 @@ public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrappe
         this.xlsModuleOpenClass = xlsModuleOpenClass;
     }
     
+    @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return WrapperLogic.invoke(xlsModuleOpenClass, this, target, params, env);
+        return WrapperLogic.invoke(this, target, params, env);
+    }
+    
+    @Override
+    public XlsModuleOpenClass getXlsModuleOpenClass() {
+        return xlsModuleOpenClass;
     }
     
     @Override
@@ -42,150 +48,187 @@ public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrappe
         return delegate;
     }
 
+    @Override
     public String toString() {
         return delegate.toString();
     }
 
+    @Override
     public IOpenClass getDeclaringClass() {
         return delegate.getDeclaringClass();
     }
 
+    @Override
     public String getDisplayName(int mode) {
         return delegate.getDisplayName(mode);
     }
 
+    @Override
     public IOpenMethodHeader getHeader() {
         return delegate.getHeader();
     }
 
+    @Override
     public String getTableUri() {
         return delegate.getTableUri();
     }
 
+    @Override
     public IOpenMethod getMethod() {
         return delegate.getMethod();
     }
 
+    @Override
     public String getName() {
         return delegate.getName();
     }
 
+    @Override
     public IMethodSignature getSignature() {
         return delegate.getSignature();
     }
 
+    @Override
     public boolean isStatic() {
         return delegate.isStatic();
     }
 
+    @Override
     public Constructor<?> getResultConstructor() throws SecurityException, NoSuchMethodException {
         return delegate.getResultConstructor();
     }
 
+    @Override
     public IOpenClass getType() {
         return delegate.getType();
     }
 
+    @Override
     public boolean isCustomSpreadsheetType() {
         return delegate.isCustomSpreadsheetType();
     }
 
+    @Override
     public SpreadsheetCell[][] getCells() {
         return delegate.getCells();
     }
 
+    @Override
     public BindingDependencies getDependencies() {
         return delegate.getDependencies();
     }
 
+    @Override
     public IResultBuilder getResultBuilder() {
         return delegate.getResultBuilder();
     }
 
+    @Override
     public String getSourceUrl() {
         return delegate.getSourceUrl();
     }
 
+    @Override
     public SpreadsheetOpenClass getSpreadsheetType() {
         return delegate.getSpreadsheetType();
     }
 
+    @Override
     public int getHeight() {
         return delegate.getHeight();
     }
 
+    @Override
     public void setCells(SpreadsheetCell[][] cells) {
         delegate.setCells(cells);
     }
 
+    @Override
     public void setBoundNode(ATableBoundNode node) {
         delegate.setBoundNode(node);
     }
 
+    @Override
     public void setColumnNames(String[] colNames) {
         delegate.setColumnNames(colNames);
     }
 
+    @Override
     public ATableBoundNode getBoundNode() {
         return delegate.getBoundNode();
     }
 
+    @Override
     public void setResultBuilder(IResultBuilder resultBuilder) {
         delegate.setResultBuilder(resultBuilder);
     }
 
+    @Override
     public Map<String, Object> getProperties() {
         return delegate.getProperties();
     }
 
+    @Override
     public void setRowNames(String[] rowNames) {
         delegate.setRowNames(rowNames);
     }
 
+    @Override
     public void setSpreadsheetType(SpreadsheetOpenClass spreadsheetType) {
         delegate.setSpreadsheetType(spreadsheetType);
     }
 
+    @Override
     public ITableProperties getMethodProperties() {
         return delegate.getMethodProperties();
     }
 
+    @Override
     public IMemberMetaInfo getInfo() {
         return delegate.getInfo();
     }
 
+    @Override
     public int getWidth() {
         return delegate.getWidth();
     }
 
+    @Override
     public String[] getRowNames() {
         return delegate.getRowNames();
     }
 
+    @Override
     public String[] getColumnNames() {
         return delegate.getColumnNames();
     }
 
+    @Override
     public TableSyntaxNode getSyntaxNode() {
         return delegate.getSyntaxNode();
     }
 
+    @Override
     public List<SpreadsheetCell> listNonEmptyCells(SpreadsheetHeaderDefinition definition) {
         return delegate.listNonEmptyCells(definition);
     }
 
+    @Override
     public int height() {
         return delegate.height();
     }
 
+    @Override
     public int width() {
         return delegate.width();
     }
 
+    @Override
     public void setInvoker(SpreadsheetInvoker invoker) {
         delegate.setInvoker(invoker);
     }
 
+    @Override
     public Map<String, Point> getFieldsCoordinates() {
         return delegate.getFieldsCoordinates();
     }

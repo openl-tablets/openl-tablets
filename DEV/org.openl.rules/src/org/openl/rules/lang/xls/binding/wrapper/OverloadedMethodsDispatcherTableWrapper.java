@@ -22,22 +22,32 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
         this.xlsModuleOpenClass = xlsModuleOpenClass;
     }
 
+    @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return WrapperLogic.invoke(xlsModuleOpenClass, this, target, params, env);
+        return WrapperLogic.invoke(this, target, params, env);
+    }
+    
+    @Override
+    public XlsModuleOpenClass getXlsModuleOpenClass() {
+        return xlsModuleOpenClass;
     }
 
+    @Override
     public IOpenMethod getDecisionTableOpenMethod() {
         return delegate.getDecisionTableOpenMethod();
     }
 
+    @Override
     public void setDecisionTableOpenMethod(IOpenMethod decisionTableOpenMethod) {
         delegate.setDecisionTableOpenMethod(decisionTableOpenMethod);
     }
 
+    @Override
     public TableSyntaxNode getDispatcherTable() {
         return delegate.getDispatcherTable();
     }
 
+    @Override
     public IMethodSignature getSignature() {
         return delegate.getSignature();
     }
@@ -47,50 +57,62 @@ public class OverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDi
         return delegate;
     }
 
+    @Override
     public IOpenClass getDeclaringClass() {
         return delegate.getDeclaringClass();
     }
 
+    @Override
     public void addMethod(IOpenMethod candidate) {
         delegate.addMethod(candidate);
     }
 
+    @Override
     public IOpenClass getType() {
         return delegate.getType();
     }
 
+    @Override
     public boolean isStatic() {
         return delegate.isStatic();
     }
 
+    @Override
     public String getDisplayName(int mode) {
         return delegate.getDisplayName(mode);
     }
 
+    @Override
     public String getName() {
         return delegate.getName();
     }
 
+    @Override
     public IOpenMethod getMethod() {
         return delegate.getMethod();
     }
 
+    @Override
     public IMemberMetaInfo getInfo() {
         return delegate.getInfo();
     }
 
+    @Override
     public String toString() {
         return delegate.toString();
     }
 
+    @Override
     public IOpenMethod getTargetMethod() {
         return delegate.getTargetMethod();
     }
 
+    @Override
     public List<IOpenMethod> getCandidates() {
         return delegate.getCandidates();
     }
 
+    @Override
     public IOpenMethod findMatchingMethod(IRuntimeEnv env) {
         IOpenMethod openMethod = WrapperLogic.getTopClassMethod(this, env);
         return ((OpenMethodDispatcher) openMethod).findMatchingMethod(env);

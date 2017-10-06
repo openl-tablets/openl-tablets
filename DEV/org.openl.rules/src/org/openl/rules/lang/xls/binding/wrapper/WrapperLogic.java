@@ -4,7 +4,6 @@ import java.lang.reflect.Array;
 
 import org.openl.binding.impl.cast.OutsideOfValidDomainException;
 import org.openl.domain.IDomain;
-import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.prebind.LazyMethodWrapper;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
@@ -58,13 +57,12 @@ public final class WrapperLogic {
     public static IOpenMethod getTopClassMethod(IOpenMethodWrapper wrapper, IRuntimeEnv env) {
         SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
         IOpenClass topClass = simpleRulesRuntimeEnv.getTopClass();
-        
-        if (topClass != null && topClass != wrapper.getDelegate().getType()) {
-            IOpenMethod matchedMethod = TopClassMethodCache.getInstance().getTopClassMethod(topClass, wrapper);
-            if (matchedMethod != null) {
-                matchedMethod = extractMatchedMethod(simpleRulesRuntimeEnv, matchedMethod);
-                if (matchedMethod != wrapper) {
-                    return matchedMethod;
+        if (topClass != null && topClass != wrapper.getXlsModuleOpenClass()) {
+            IOpenMethod method = TopClassMethodCache.getInstance().getTopClassMethod(topClass, wrapper);
+            if (method != null) {
+                method = extractMethod(simpleRulesRuntimeEnv, method);
+                if (method != wrapper) {
+                    return method;
                 }
             }
         }
@@ -85,29 +83,27 @@ public final class WrapperLogic {
         return simpleRulesRuntimeEnv;
     }
 
-    private static IOpenMethod extractMatchedMethod(SimpleRulesRuntimeEnv simpleRulesRuntimeEnv,
-            IOpenMethod matchedMethod) {
-        while (matchedMethod instanceof LazyMethodWrapper || matchedMethod instanceof MethodDelegator) {
-            if (matchedMethod instanceof LazyMethodWrapper) {
-                matchedMethod = ((LazyMethodWrapper) matchedMethod)
+    private static IOpenMethod extractMethod(SimpleRulesRuntimeEnv simpleRulesRuntimeEnv,
+            IOpenMethod method) {
+        while (method instanceof LazyMethodWrapper || method instanceof MethodDelegator) {
+            if (method instanceof LazyMethodWrapper) {
+                method = ((LazyMethodWrapper) method)
                     .getCompiledMethod(simpleRulesRuntimeEnv);
             }
-            if (matchedMethod instanceof MethodDelegator) {
-                MethodDelegator methodDelegator = (MethodDelegator) matchedMethod;
-                matchedMethod = methodDelegator.getMethod();
+            if (method instanceof MethodDelegator) {
+                MethodDelegator methodDelegator = (MethodDelegator) method;
+                method = methodDelegator.getMethod();
             }
         }
-        return matchedMethod;
+        return method;
     }
     
-    public static Object invoke(XlsModuleOpenClass xlsModuleOpenClass,
-            IOpenMethodWrapper wrapper,
+    public static Object invoke(IOpenMethodWrapper wrapper,
             Object target,
             Object[] params,
             IRuntimeEnv env) {
         SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
         IOpenClass topClass = simpleRulesRuntimeEnv.getTopClass();
-
         if (topClass == null) {
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
@@ -134,7 +130,7 @@ public final class WrapperLogic {
                     throw new IllegalStateException("Can't define openl class from target object");
                 }
                 simpleRulesRuntimeEnv.setTopClass(typeClass);
-                Thread.currentThread().setContextClassLoader(xlsModuleOpenClass.getClassLoader());
+                Thread.currentThread().setContextClassLoader(wrapper.getXlsModuleOpenClass().getClassLoader());
                 validateParameters(wrapper.getDelegate(), params);
                 return wrapper.getDelegate().invoke(target, params, env);
             } finally {
@@ -142,12 +138,12 @@ public final class WrapperLogic {
                 simpleRulesRuntimeEnv.setTopClass(null);
             }
         } else {
-            if (topClass != xlsModuleOpenClass) {
-                IOpenMethod matchedMethod = TopClassMethodCache.getInstance().getTopClassMethod(topClass, wrapper);
-                if (matchedMethod != null) {
-                    matchedMethod = extractMatchedMethod(simpleRulesRuntimeEnv, matchedMethod);
-                    if (matchedMethod != wrapper) {
-                        return matchedMethod.invoke(target, params, env);
+            if (topClass != wrapper.getXlsModuleOpenClass()) {
+                IOpenMethod method = TopClassMethodCache.getInstance().getTopClassMethod(topClass, wrapper);
+                if (method != null) {
+                    method = extractMethod(simpleRulesRuntimeEnv, method);
+                    if (method != wrapper) {
+                        return method.invoke(target, params, env);
                     }
                 }
             }
