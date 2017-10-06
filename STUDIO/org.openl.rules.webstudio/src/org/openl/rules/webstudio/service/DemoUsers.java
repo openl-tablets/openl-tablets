@@ -3,8 +3,7 @@ package org.openl.rules.webstudio.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Resource;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.openl.rules.security.Privilege;
@@ -24,13 +23,13 @@ public class DemoUsers {
      */
     private static boolean initialized = false;
 
-    @Resource
+    @Autowired
     private UserManagementService userManagementService;
 
-    @Resource
+    @Autowired
     private GroupManagementService groupManagementService;
 
-    @Resource
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     public void setUserManagementService(UserManagementService userManagementService) {

@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.annotation.Resource;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
@@ -40,6 +39,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -60,7 +60,7 @@ import org.xml.sax.InputSource;
 public class RepositoryService {
     private final Logger log = LoggerFactory.getLogger(RepositoryService.class);
 
-    @Resource
+    @Autowired
     private MultiUserWorkspaceManager workspaceManager;
 
     /**
