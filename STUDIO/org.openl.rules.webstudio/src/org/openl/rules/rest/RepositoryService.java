@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.annotation.Resource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -46,6 +45,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.ZipUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -65,7 +65,7 @@ import org.xml.sax.InputSource;
 @Produces(MediaType.APPLICATION_JSON)
 public class RepositoryService {
 
-    @Resource
+    @Autowired
     private MultiUserWorkspaceManager workspaceManager;
 
     /**

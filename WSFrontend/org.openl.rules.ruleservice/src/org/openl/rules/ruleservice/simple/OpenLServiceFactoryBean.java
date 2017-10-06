@@ -1,9 +1,9 @@
 package org.openl.rules.ruleservice.simple;
 
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Required;
-
-import javax.annotation.Resource;
 
 public class OpenLServiceFactoryBean<T> implements FactoryBean<T> {
     private Class<T> proxyInterface;
@@ -25,7 +25,8 @@ public class OpenLServiceFactoryBean<T> implements FactoryBean<T> {
         return Boolean.TRUE;
     }
 
-    @Resource(name = "frontend")
+    @Autowired
+    @Qualifier("frontend")
     public void setRulesFrontend(RulesFrontend rulesFrontend) {
         this.rulesFrontend = rulesFrontend;
     }
