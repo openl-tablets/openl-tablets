@@ -58,13 +58,14 @@
                                   rendered="#{hasRevisions}"/>
                     <rich:inputNumberSpinner id="revisionsCount" value="#{copyBean.revisionsCount}"
                                              minValue="1" maxValue="#{copyBean.maxRevisionsCount}" cycled="false"
+                                             onchange="updateCopyCanBeSlowWarning();"
                                              rendered="#{hasRevisions}"/>
                     <h:outputText value=""/>
                     <h:message for="revisionsCount" styleClass="error"/>
 
-                    <h:outputText value="" rendered="#{copyBean.maxRevisionsCount > 10}"/>
-                    <h:outputText id="tooManyRevisionsWarning" value="Copying too many revisions can be slow"
-                                  styleClass="warning" rendered="#{copyBean.maxRevisionsCount > 10}"/>
+                    <h:outputText value=""/>
+                    <h:outputText id="copyCanBeSlowWarning" value="Copying too many revisions can be slow"
+                                  styleClass="warning"/>
                 </h:panelGrid>
 
                 <h:inputHidden id="hiddenProjectName" value="#{copyBean.currentProjectName}"/>
@@ -101,12 +102,21 @@
             var shouldCopy = $j('#copyProjectForm\\:copyOldRevisions').is(':checked');
             var $revisionsCount = $j('#copyProjectForm\\:revisionsCount');
             var $row = $revisionsCount.closest('tr');
-            var $rowWarning = $j('#copyProjectForm\\:tooManyRevisionsWarning').closest('tr');
             if (shouldCopy) {
                 $row.show();
-                $rowWarning.show();
             } else {
                 $row.hide();
+            }
+            updateCopyCanBeSlowWarning();
+        }
+
+        function updateCopyCanBeSlowWarning() {
+            var shouldCopy = $j('#copyProjectForm\\:copyOldRevisions').is(':checked');
+            var $revisionsCount = $j('#copyProjectForm\\:revisionsCount');
+            var $rowWarning = $j('#copyProjectForm\\:copyCanBeSlowWarning').closest('tr');
+            if (shouldCopy && $revisionsCount.find('input').val() >= 10) {
+                $rowWarning.show();
+            } else {
                 $rowWarning.hide();
             }
         }
