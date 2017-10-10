@@ -2,6 +2,7 @@ package org.openl.binding.impl.operator;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Date;
 
 /**
  * Contains comparison operators for:
@@ -108,6 +109,14 @@ public class Comparison {
         return x == null && y == null || x != null && y != null && x.subtract(y).abs().compareTo(x.ulp()) <= 0;
     }
 
+    public static boolean eq(String x, String y) {
+        return equals(x, y);
+    }
+
+    public static boolean eq(Date x, Date y) {
+        return equals(x, y);
+    }
+
     public static boolean eq(Object x, Object y) {
         return equals(x, y);
     }
@@ -182,6 +191,14 @@ public class Comparison {
     }
 
     public static boolean ne(BigDecimal x, BigDecimal y) {
+        return !eq(x, y);
+    }
+
+    public static boolean ne(String x, String y) {
+        return !eq(x, y);
+    }
+
+    public static boolean ne(Date x, Date y) {
         return !eq(x, y);
     }
 
@@ -262,7 +279,19 @@ public class Comparison {
         return res;
     }
 
-    public static <T extends Comparable<T>> Boolean gt(T x, T y) {
+    public static Boolean gt(BigInteger x, BigInteger y) {
+        return greatThan(x, y);
+    }
+
+    public static Boolean gt(BigDecimal x, BigDecimal y) {
+        return greatThan(x, y);
+    }
+
+    public static Boolean gt(String x, String y) {
+        return greatThan(x, y);
+    }
+
+    public static Boolean gt(Date x, Date y) {
         return greatThan(x, y);
     }
 
@@ -331,7 +360,19 @@ public class Comparison {
         return gt(y, x);
     }
 
-    public static <T extends Comparable<T>> Boolean lt(T x, T y) {
+    public static Boolean lt(BigInteger x, BigInteger y) {
+        return gt(y, x);
+    }
+
+    public static Boolean lt(BigDecimal x, BigDecimal y) {
+        return gt(y, x);
+    }
+
+    public static Boolean lt(String x, String y) {
+        return gt(y, x);
+    }
+
+    public static Boolean lt(Date x, Date y) {
         return gt(y, x);
     }
 
@@ -412,7 +453,19 @@ public class Comparison {
         return res;
     }
 
-    public static <T extends Comparable<T>> Boolean ge(T x, T y) {
+    public static Boolean ge(BigInteger x, BigInteger y) {
+        return greatOrEquals(x, y);
+    }
+
+    public static Boolean ge(BigDecimal x, BigDecimal y) {
+        return greatOrEquals(x, y);
+    }
+
+    public static Boolean ge(String x, String y) {
+        return greatOrEquals(x, y);
+    }
+
+    public static Boolean ge(Date x, Date y) {
         return greatOrEquals(x, y);
     }
 
@@ -480,7 +533,19 @@ public class Comparison {
         return ge(y, x);
     }
 
-    public static <T extends Comparable<T>> Boolean le(T x, T y) {
+    public static Boolean le(BigInteger x, BigInteger y) {
+        return ge(y, x);
+    }
+
+    public static Boolean le(BigDecimal x, BigDecimal y) {
+        return ge(y, x);
+    }
+
+    public static Boolean le(String x, String y) {
+        return ge(y, x);
+    }
+
+    public static Boolean le(Date x, Date y) {
         return ge(y, x);
     }
 
