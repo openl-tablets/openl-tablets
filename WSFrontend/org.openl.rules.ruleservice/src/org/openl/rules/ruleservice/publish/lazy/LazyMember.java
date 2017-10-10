@@ -1,5 +1,8 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
+import java.util.ArrayList;
+import java.util.Map;
+
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.message.OpenLMessagesUtils;
@@ -15,12 +18,8 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
-import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * Lazy IOpenMember that contains info about module where it was declared. When
@@ -123,21 +122,21 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
      *
      * @return Real member in compiled module.
      */
-    protected final T getMember(IRuntimeEnv env) {
-        final Module module = getModule(env);
-        final DeploymentDescription deployment = getDeployment(env);
+    protected final T getMember() {
+        final Module module = getModule();
+        final DeploymentDescription deployment = getDeployment();
         return getMemberForModule(deployment, module);
     }
 
     /**
      * @return Module containing current member.
      */
-    public abstract Module getModule(IRuntimeEnv env);
+    public abstract Module getModule();
 
     /**
      * @return Deployment containing current module.
      */
-    public abstract DeploymentDescription getDeployment(IRuntimeEnv env);
+    public abstract DeploymentDescription getDeployment();
 
     /**
      * @return DependencyManager used for lazy compiling.

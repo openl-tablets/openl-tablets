@@ -34,7 +34,6 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
-import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,12 +151,12 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                             return new TablePropertiesLazyMethod(method
                                 .getName(), argTypes, method, dependencyManager, classLoader, true, parameters) {
                                 @Override
-                                public DeploymentDescription getDeployment(IRuntimeEnv env) {
+                                public DeploymentDescription getDeployment() {
                                     return deployment;
                                 }
 
                                 @Override
-                                public Module getModule(IRuntimeEnv env) {
+                                public Module getModule() {
                                     return declaringModule;
                                 }
                             };
@@ -165,12 +164,12 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                             return new LazyMethod(method
                                 .getName(), argTypes, method, dependencyManager, classLoader, true, parameters) {
                                 @Override
-                                public DeploymentDescription getDeployment(IRuntimeEnv env) {
+                                public DeploymentDescription getDeployment() {
                                     return deployment;
                                 }
 
                                 @Override
-                                public Module getModule(IRuntimeEnv env) {
+                                public Module getModule() {
                                     return declaringModule;
                                 }
                             };
@@ -181,12 +180,12 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                         final Module declaringModule = getModuleForMember(field);
                         return new LazyField(field.getName(), field, dependencyManager, classLoader, true, parameters) {
                             @Override
-                            public DeploymentDescription getDeployment(IRuntimeEnv env) {
+                            public DeploymentDescription getDeployment() {
                                 return deployment;
                             }
 
                             @Override
-                            public Module getModule(IRuntimeEnv env) {
+                            public Module getModule() {
                                 return declaringModule;
                             }
                         };

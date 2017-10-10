@@ -1,5 +1,13 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
+import java.io.File;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.io.FilenameUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
@@ -10,6 +18,7 @@ import org.openl.message.OpenLMessages;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
+import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.runtime.AOpenLRulesEngineFactory;
@@ -31,10 +40,6 @@ import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.lang.reflect.Method;
-import java.util.*;
 
 /**
  * Prebinds openclass and creates LazyMethod and LazyField that will compile
@@ -226,18 +231,43 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         for (int i = 0; i < argTypes.length; i++) {
             argTypes[i] = method.getSignature().getParameterType(i).getInstanceClass();
         }
-        return new LazyMethod(method.getName(), argTypes, method, dependencyManager, Thread.currentThread()
-                .getContextClassLoader(), true, externalParameters) {
-            @Override
-            public DeploymentDescription getDeployment(IRuntimeEnv env) {
-                return deployment;
-            }
+        if (method instanceof ITablePropertiesMethod) {
+            return new TablePropertiesLazyMethod(method.getName(),
+                argTypes,
+                method,
+                dependencyManager,
+                Thread.currentThread().getContextClassLoader(),
+                true,
+                externalParameters) {
+                @Override
+                public DeploymentDescription getDeployment() {
+                    return deployment;
+                }
 
-            @Override
-            public Module getModule(IRuntimeEnv env) {
-                return declaringModule;
-            }
-        };
+                @Override
+                public Module getModule() {
+                    return declaringModule;
+                }
+            };
+        } else {
+            return new LazyMethod(method.getName(),
+                argTypes,
+                method,
+                dependencyManager,
+                Thread.currentThread().getContextClassLoader(),
+                true,
+                externalParameters) {
+                @Override
+                public DeploymentDescription getDeployment() {
+                    return deployment;
+                }
+
+                @Override
+                public Module getModule() {
+                    return declaringModule;
+                }
+            };
+        }
     }
 
     private LazyField makeLazyField(IOpenField field) {
@@ -249,12 +279,12 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
                 true,
                 externalParameters) {
             @Override
-            public DeploymentDescription getDeployment(IRuntimeEnv env) {
+            public DeploymentDescription getDeployment() {
                 return deployment;
             }
 
             @Override
-            public Module getModule(IRuntimeEnv env) {
+            public Module getModule() {
                 return declaringModule;
             }
         };

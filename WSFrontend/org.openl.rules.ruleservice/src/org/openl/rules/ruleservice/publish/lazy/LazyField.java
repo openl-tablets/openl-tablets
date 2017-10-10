@@ -41,11 +41,11 @@ public abstract class LazyField extends LazyMember<IOpenField> implements IOpenF
     }
 
     public Object get(Object target, IRuntimeEnv env) {
-        return getMember(env).get(target, env);
+        return getMember().get(target, env);
     }
 
     public void set(Object target, Object value, IRuntimeEnv env) {
-        getMember(env).set(target, value, env);
+        getMember().set(target, value, env);
     }
 
     public boolean isConst() {

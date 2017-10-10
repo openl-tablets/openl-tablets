@@ -84,7 +84,7 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
     
     @Override
     public IOpenMethod getCompiledMethod(IRuntimeEnv env) {
-        return getMember(env);
+        return getMember();
     }
 
     @Override
@@ -101,6 +101,6 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return getMember(env).invoke(target, params, env);
+        return getMember().invoke(target, params, env);
     }
 }
