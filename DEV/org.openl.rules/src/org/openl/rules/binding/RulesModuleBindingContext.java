@@ -188,7 +188,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
     }
     
-    public final class CurrentRuntimeContextMethod implements IOpenMethod {
+    public final static class CurrentRuntimeContextMethod implements IOpenMethod {
         public final static  String CURRENT_CONTEXT_METHOD_NAME = "getContext";
         
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
@@ -196,7 +196,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             try {
                 return context.clone();
             } catch (CloneNotSupportedException e) {
-                log.warn("Failed to clone runtime context. Runtime context managing may work incorrectly.", e);
+                LoggerFactory.getLogger(RulesModuleBindingContext.class).warn("Failed to clone runtime context. Runtime context managing may work incorrectly.", e);
                 return context;
             }
         }
@@ -239,7 +239,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
     }
 
-    public final class EmptyRuntimeContextMethod implements IOpenMethod {
+    public static final class EmptyRuntimeContextMethod implements IOpenMethod {
         public final static  String EMPTY_CONTEXT_METHOD_NAME = "emptyContext";
 
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
@@ -284,14 +284,14 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
     }
 
-    public final class RestoreRuntimeContextMethod implements IOpenMethod {
+    public static final class RestoreRuntimeContextMethod implements IOpenMethod {
         public final static  String RESTORE_CONTEXT_METHOD_NAME = "restoreContext";
 
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             if(env.isContextManagingSupported()){
                 env.popContext();
             } else {
-                log.warn("Failed to restore runtime context. Runtime context does not support context modifications.");
+                LoggerFactory.getLogger(RulesModuleBindingContext.class).warn("Failed to restore runtime context. Runtime context does not support context modifications.");
             }
             return null;
         }
@@ -334,7 +334,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
     }
 
-    public final class SetRuntimeContextMethod implements IOpenMethod {
+    public final static class SetRuntimeContextMethod implements IOpenMethod {
         public final static  String SET_CONTEXT_METHOD_NAME = "setContext";
 
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
@@ -342,7 +342,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 IRulesRuntimeContext runtimeContext =  (IRulesRuntimeContext)params[0];
                 env.pushContext(runtimeContext);
             } else {
-                log.warn("Failed to set runtime context. Runtime context does not support context modifications.");
+                LoggerFactory.getLogger(RulesModuleBindingContext.class).warn("Failed to set runtime context. Runtime context does not support context modifications.");
             }
             return null;
         }
@@ -386,7 +386,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     }
 
-    public final class ModifyRuntimeContextMethod implements IOpenMethod {
+    public static final class ModifyRuntimeContextMethod implements IOpenMethod {
         public final static  String MODIFY_CONTEXT_METHOD_NAME = "modifyContext";
 
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
@@ -395,7 +395,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 runtimeContext.setValue((String)params[0], params[1]);
                 env.pushContext(runtimeContext);
             } else {
-                log.warn("Failed to modify runtime context. Runtime context does not support context modifications.");
+                LoggerFactory.getLogger(RulesModuleBindingContext.class).warn("Failed to modify runtime context. Runtime context does not support context modifications.");
             }
             return null;
         }
