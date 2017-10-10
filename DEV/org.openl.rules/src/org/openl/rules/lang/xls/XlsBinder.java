@@ -322,7 +322,7 @@ public class XlsBinder implements IOpenBinder {
             processErrors(moduleOpenClass.getErrors(), bindingContext);
     
             return topNode;
-        }finally {
+        } finally {
             OpenLFuzzySearch.clearCaches();
         }
     }

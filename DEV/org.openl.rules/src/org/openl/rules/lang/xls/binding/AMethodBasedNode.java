@@ -85,7 +85,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
         method = createMethodShell();
         openClass.addMethod(method);
         getTableSyntaxNode().setMember(method);
-        if(hasServiceName()){
+        if (hasServiceName()) {
             addServiceMethod(openClass, method);
         }
     }
@@ -97,23 +97,32 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
      *
      * @return <code>true</code> if "id" property is specified.
      */
-    protected boolean hasServiceName(){
+    protected boolean hasServiceName() {
         return StringUtils.isNotBlank(getTableSyntaxNode().getTableProperties().getId());
     }
 
-    protected IOpenMethod getServiceMethod(IOpenMethod originalMethod){
+    protected IOpenMethod getServiceMethod(IOpenMethod originalMethod) {
         final String serviceMethodName = getTableSyntaxNode().getTableProperties().getId();
-        return new MethodDelegator(originalMethod) {
-            @Override
-            public String getName() {
-                return serviceMethodName;
-            }
+        return new AMethodBasedNodeServiceMethod(originalMethod, serviceMethodName);
+    }
 
-            @Override
-            public String getDisplayName(int mode) {
-                return serviceMethodName;
-            }
-        };
+    private static final class AMethodBasedNodeServiceMethod extends MethodDelegator {
+        private String serviceMethodName;
+
+        public AMethodBasedNodeServiceMethod(IOpenMethod originalMethod, String serviceMethodName) {
+            super(originalMethod);
+            this.serviceMethodName = serviceMethodName;
+        }
+
+        @Override
+        public String getName() {
+            return serviceMethodName;
+        }
+
+        @Override
+        public String getDisplayName(int mode) {
+            return serviceMethodName;
+        }
     }
 
     /**
@@ -123,10 +132,10 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
      * @param openClass Module open class
      * @param originalMethod original method
      */
-    protected void addServiceMethod(ModuleOpenClass openClass, IOpenMethod originalMethod){
-        try{
+    protected void addServiceMethod(ModuleOpenClass openClass, IOpenMethod originalMethod) {
+        try {
             openClass.addMethod(getServiceMethod(originalMethod));
-        }catch (DuplicatedMethodException e) {
+        } catch (DuplicatedMethodException e) {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(null, e, getTableSyntaxNode());
             getTableSyntaxNode().addError(error);
             OpenLMessagesUtils.addError(error);
@@ -163,15 +172,21 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
                 metaInfo = type.getMetaInfo();
             }
 
-            IOpenSourceCodeModule src = new GridCellSourceCodeModule(getTableSyntaxNode().getGridTable(), bindingContext);
-            SubTextSourceCodeModule headerSyntaxNode = new SubTextSourceCodeModule(src, startPosition, src.getCode().length());
+            IOpenSourceCodeModule src = new GridCellSourceCodeModule(getTableSyntaxNode().getGridTable(),
+                bindingContext);
+            SubTextSourceCodeModule headerSyntaxNode = new SubTextSourceCodeModule(src,
+                startPosition,
+                src.getCode().length());
 
             ILocation typeLocation = tableHeader.getTypeLocation();
             if (metaInfo != null && typeLocation != null) {
                 int start = startPosition + typeLocation.getStart().getAbsolutePosition(tableHeaderText);
                 int end = startPosition + typeLocation.getEnd().getAbsolutePosition(tableHeaderText);
-                nodeUsages.add(new SimpleNodeUsage(start, end, metaInfo.getDisplayName(INamedThing.SHORT), metaInfo.getSourceUrl(),
-                        NodeType.DATATYPE));
+                nodeUsages.add(new SimpleNodeUsage(start,
+                    end,
+                    metaInfo.getDisplayName(INamedThing.SHORT),
+                    metaInfo.getSourceUrl(),
+                    NodeType.DATATYPE));
                 if (type.getInstanceClass() == null) {
                     addTypeError(type, typeLocation, headerSyntaxNode);
                 }
@@ -192,8 +207,11 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
                         ILocation sourceLocation = paramTypeLocations[i];
                         int start = startPosition + sourceLocation.getStart().getAbsolutePosition(tableHeaderText);
                         int end = startPosition + sourceLocation.getEnd().getAbsolutePosition(tableHeaderText);
-                        nodeUsages.add(new SimpleNodeUsage(start, end, metaInfo.getDisplayName(INamedThing.SHORT), metaInfo.getSourceUrl(),
-                                NodeType.DATATYPE));
+                        nodeUsages.add(new SimpleNodeUsage(start,
+                            end,
+                            metaInfo.getDisplayName(INamedThing.SHORT),
+                            metaInfo.getSourceUrl(),
+                            NodeType.DATATYPE));
 
                         if (parameterType.getInstanceClass() == null) {
                             addTypeError(parameterType, sourceLocation, headerSyntaxNode);
@@ -203,7 +221,8 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
             }
 
             if (CollectionUtils.isNotEmpty(nodeUsages)) {
-                cell.setMetaInfo(new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, nodeUsages));
+                cell.setMetaInfo(
+                    new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, nodeUsages));
             }
         }
     }
@@ -218,6 +237,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
     protected int getSignatureStartIndex() {
         ICell cell = getTableSyntaxNode().getGridTable().getCell(0, 0);
         TextInfo tableHeaderText = new TextInfo(cell.getStringValue());
-        return getTableSyntaxNode().getHeader().getHeaderToken().getLocation().getEnd().getAbsolutePosition(tableHeaderText);
+        return getTableSyntaxNode().getHeader().getHeaderToken().getLocation().getEnd().getAbsolutePosition(
+            tableHeaderText);
     }
 }

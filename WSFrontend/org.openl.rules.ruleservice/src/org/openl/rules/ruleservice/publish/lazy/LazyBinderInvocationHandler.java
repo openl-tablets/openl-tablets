@@ -67,9 +67,9 @@ public class LazyBinderInvocationHandler implements InvocationHandler {
         } else {
             binder = originalBinder;
         }
-        try{
+        try {
             return method.invoke(binder, args);
-        }catch(InvocationTargetException e){
+        } catch (InvocationTargetException e) {
             throw e.getTargetException();
         }
     }

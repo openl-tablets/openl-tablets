@@ -91,13 +91,13 @@ public class OpenLSourceManager extends OpenLHolder {
             return result;
         }
         Collection<String> dependencyNames;
-        try{
-             dependencyNames = dependencyManager.getAllDependencies();
-            if (dependencyNames == null){
-                result.addAll(Arrays.asList(dependencies));    
+        try {
+            dependencyNames = dependencyManager.getAllDependencies();
+            if (dependencyNames == null) {
+                result.addAll(Arrays.asList(dependencies));
                 return result;
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             return Arrays.asList(dependencies);
         }
         for (IDependency dependency : dependencies){

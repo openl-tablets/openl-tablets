@@ -42,18 +42,13 @@ public class XlsPreBinder extends XlsBinder {
         if (memberBoundNode instanceof DatatypeTableBoundNode || memberBoundNode instanceof AliasDatatypeBoundNode || memberBoundNode instanceof PropertyTableBoundNode) {
             try {
                 memberBoundNode.finalizeBind(moduleContext);
-
             } catch (SyntaxNodeException error) {
                 processError(error, tableSyntaxNode, moduleContext);
-
             } catch (CompositeSyntaxNodeException ex) {
-
                 for (SyntaxNodeException error : ex.getErrors()) {
                     processError(error, tableSyntaxNode, moduleContext);
                 }
-
             } catch (Throwable t) {
-
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tableSyntaxNode);
                 processError(error, tableSyntaxNode, moduleContext);
             }
