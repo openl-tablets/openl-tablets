@@ -2,22 +2,16 @@ package org.openl.rules.repository.file;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.TimerTask;
 
-import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.common.RevisionGetter;
 
-public final class FileChangesMonitor extends TimerTask {
+public final class FileChangesMonitor implements RevisionGetter {
     private final File baseDir;
-    private final Listener listener;
-    private ArrayList<FileTimeStamp> timestamps;
+    private ArrayList<FileTimeStamp> timestamps = new ArrayList<FileTimeStamp>(0);
+    private int revision;
 
-    FileChangesMonitor(File baseDir, Listener listener) {
+    FileChangesMonitor(File baseDir) {
         this.baseDir = baseDir;
-        this.listener = listener;
-
-        ArrayList<FileTimeStamp> timestamps = new ArrayList<FileTimeStamp>();
-        collect(baseDir, timestamps);
-        this.timestamps = timestamps;
     }
 
     private void collect(File file, ArrayList<FileTimeStamp> result) {
@@ -34,7 +28,8 @@ public final class FileChangesMonitor extends TimerTask {
         }
     }
 
-    public final void run() {
+    @Override
+    public Object getRevision() {
         int quantity = timestamps.size();
         // Allocate memory for scanning the base directory.
         // Usually directory size is not increased extensively from the previous scanning,
@@ -61,10 +56,8 @@ public final class FileChangesMonitor extends TimerTask {
         // After above checks if changes have been found, keep the scanned files and fire an event
         if (changed) {
             timestamps = newTimestamps;
-
-            synchronized (listener) {
-                listener.onChange();
-            }
+            revision++;
         }
+        return revision;
     }
 }

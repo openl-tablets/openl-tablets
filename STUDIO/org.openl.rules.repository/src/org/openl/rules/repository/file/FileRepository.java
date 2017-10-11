@@ -8,6 +8,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -25,8 +26,8 @@ public class FileRepository implements Repository, RRepositoryFactory, Closeable
 
     private File root;
     private int rootPathLength;
-    private Timer timer;
-    private Listener listener;
+    private ChangesMonitor monitor;
+
 
     public void setRoot(File root) {
         this.root = root;
@@ -51,6 +52,7 @@ public class FileRepository implements Repository, RRepositoryFactory, Closeable
         }
         String rootPath = root.getCanonicalPath();
         rootPathLength = rootPath.length() + 1;
+        monitor = new ChangesMonitor(new FileChangesMonitor(getRoot()), 10);
     }
 
     @Override
@@ -125,17 +127,7 @@ public class FileRepository implements Repository, RRepositoryFactory, Closeable
 
     @Override
     public void setListener(Listener callback) {
-        this.listener = callback;
-
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
-        }
-
-        if (callback != null) {
-            timer = new Timer(true);
-            timer.schedule(new FileChangesMonitor(getRoot(), callback), 1000, 10000);
-        }
+        monitor.setListener(callback);
     }
 
     @Override
@@ -231,17 +223,13 @@ public class FileRepository implements Repository, RRepositoryFactory, Closeable
 
     @Override
     public void close() throws IOException {
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
+        if (monitor != null) {
+            monitor.release();
+            monitor = null;
         }
     }
 
     protected void invokeListener() {
-        if (listener != null) {
-            synchronized (listener) {
-                listener.onChange();
-            }
-        }
+        monitor.fireOnChange();
     }
 }
