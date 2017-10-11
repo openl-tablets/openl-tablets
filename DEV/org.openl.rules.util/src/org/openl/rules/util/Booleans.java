@@ -14,6 +14,8 @@ package org.openl.rules.util;
  * </ul>
  * where null is unknown value (state).
  *
+ * Note: For OpenL rules only! Don't use it in Java code.
+ *
  * @author Yury Molchan
  */
 public class Booleans {
