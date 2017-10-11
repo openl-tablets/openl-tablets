@@ -10,7 +10,6 @@ import org.junit.Test;
 
 public class StringsTest {
 
-
     @Test
     public void testContains() {
         // String
@@ -57,7 +56,6 @@ public class StringsTest {
         assertTrue(containsAny("Testing string value", "string"));
         assertTrue(containsAny("Testing string value", "strong"));
 
-
         // char
         assertFalse(containsAny(null));
         assertFalse(containsAny(null, (char[]) null));
@@ -85,6 +83,15 @@ public class StringsTest {
         assertTrue(isEmpty(" "));
         assertFalse(isEmpty("  str  "));
         assertFalse(isEmpty("str"));
+    }
+
+    @Test
+    public void testIsNotEmpty() {
+        assertFalse(isNotEmpty(null));
+        assertFalse(isNotEmpty(""));
+        assertFalse(isNotEmpty(" "));
+        assertTrue(isNotEmpty("  str  "));
+        assertTrue(isNotEmpty("str"));
     }
 
     @Test
@@ -127,9 +134,9 @@ public class StringsTest {
 
     @Test
     public void testSubstring() {
-        assertNull( substring(null, -1));
-        assertNull( substring(null, 0));
-        assertNull( substring(null, 1));
+        assertNull(substring(null, -1));
+        assertNull(substring(null, 0));
+        assertNull(substring(null, 1));
         assertEquals("", substring("", -1));
         assertEquals("", substring("", 0));
         assertEquals("", substring("", 1));
@@ -146,9 +153,9 @@ public class StringsTest {
 
     @Test
     public void testSubstringWithEnd() {
-        assertNull( substring(null, -1, 0));
-        assertNull( substring(null, 0, 1));
-        assertNull( substring(null, 1, -1));
+        assertNull(substring(null, -1, 0));
+        assertNull(substring(null, 0, 1));
+        assertNull(substring(null, 1, -1));
         assertEquals("", substring("", -1, 0));
         assertEquals("", substring("", 0, 1));
         assertEquals("", substring("", 1, -1));
@@ -204,7 +211,6 @@ public class StringsTest {
         assertEquals("", substring("asd", 2, 1));
         assertEquals("", substring("asd", 2, 2));
         assertEquals("d", substring("asd", 2, 3));
-
 
         assertEquals("", substring("asd", 3, -3));
         assertEquals("", substring("asd", 3, -2));
@@ -326,7 +332,7 @@ public class StringsTest {
         assertNull(concatenate(new Object[0]));
         assertNull(concatenate(null));
         assertNull(concatenate(null, null));
-        assertEquals("", concatenate(null,"", null));
+        assertEquals("", concatenate(null, "", null));
         assertEquals("", concatenate(""));
         assertEquals(" ", concatenate(" "));
         assertEquals("  asd  ", concatenate("  asd  "));
