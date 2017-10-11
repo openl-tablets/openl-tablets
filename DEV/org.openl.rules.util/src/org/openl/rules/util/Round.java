@@ -5,7 +5,9 @@ import java.math.RoundingMode;
 
 /**
  * A set of rounding util methods.
- * 
+ *
+ * Note: For OpenL rules only! Don't use it in Java code.
+ *
  * @author Yury Molchan
  */
 public class Round {
