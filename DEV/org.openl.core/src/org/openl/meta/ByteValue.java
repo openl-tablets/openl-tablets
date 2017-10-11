@@ -63,9 +63,9 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * @return true if  value1 greater or equal value2
      */
     public static boolean ge(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-        validate(value1, value2, LogicalExpressions.GE.toString());
-
-        return Comparison.ge(value1.getValue(), value2.getValue());
+        Byte v1 = value1 == null ? null : value1.value;
+        Byte v2 = value2 == null ? null : value2.value;
+        return Comparison.ge(v1, v2);
     }
     /**
      * Compares two values
@@ -74,9 +74,9 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * @return true if  value1 greater value2
      */
     public static boolean gt(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-        validate(value1, value2, LogicalExpressions.GT.toString());
-
-        return Comparison.gt(value1.getValue(), value2.getValue());
+        Byte v1 = value1 == null ? null : value1.value;
+        Byte v2 = value2 == null ? null : value2.value;
+        return Comparison.gt(v1, v2);
     }
     /**
      * Compares two values
@@ -85,9 +85,9 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * @return true if  value1 less or equal value2
      */
     public static boolean le(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-        validate(value1, value2, LogicalExpressions.LE.toString());
-
-        return Comparison.le(value1.getValue(), value2.getValue());
+        Byte v1 = value1 == null ? null : value1.value;
+        Byte v2 = value2 == null ? null : value2.value;
+        return Comparison.le(v1, v2);
     }
     /**
      * Compares two values
@@ -96,9 +96,9 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * @return true if  value1 less value2
      */
     public static boolean lt(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-        validate(value1, value2, LogicalExpressions.LT.toString());
-
-        return Comparison.lt(value1.getValue(), value2.getValue());
+        Byte v1 = value1 == null ? null : value1.value;
+        Byte v2 = value2 == null ? null : value2.value;
+        return Comparison.lt(v1, v2);
     }
     /**
      * Compares two values

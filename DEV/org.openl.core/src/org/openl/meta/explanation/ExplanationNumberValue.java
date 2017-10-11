@@ -2,7 +2,6 @@ package org.openl.meta.explanation;
 
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
@@ -154,37 +153,5 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
         }
         return null;
     }
-    
-    protected static OpenlNotCheckedException getTwoArgumentsException(String operation) {
-        return new OpenlNotCheckedException(String.format("None of the arguments for '%s' operation can be null", 
-            operation));
-    }
-    
-    protected static OpenlNotCheckedException getOneArgumentException(NumberOperations operation) {
-        return new OpenlNotCheckedException(String.format("Argument couldn`t be null for '%s' operation", 
-            operation.toString()));
-    }
-    
-    protected static void validate(ExplanationNumberValue<?> value1, ExplanationNumberValue<?> value2, 
-            NumberOperations operation) {
-        if (value1 == null || value2 == null) {
-            throw getTwoArgumentsException(operation.toString());
-        }
-    }
-    
-    protected static void validate(ExplanationNumberValue<?> value, NumberOperations operation) {
-        if (value == null) {
-            throw getOneArgumentException(operation);
-        }
-    }
-    
-    protected static void validate(ExplanationNumberValue<?> value1, ExplanationNumberValue<?> value2, 
-            String operation) {
-        if (value1 == null || value2 == null) {
-            throw getTwoArgumentsException(operation);
-        }
-    }
-    
-    
-    
+
 }
