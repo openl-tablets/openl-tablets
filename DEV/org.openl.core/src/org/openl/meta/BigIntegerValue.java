@@ -67,7 +67,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
      * @param value2
      * @return true if value1 greater or equal value2
      */
-    public static boolean ge(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
+    public static Boolean ge(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
         BigInteger v1 = value1 == null ? null : value1.value;
         BigInteger v2 = value2 == null ? null : value2.value;
         return Comparison.ge(v1, v2);
@@ -80,7 +80,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
      * @param value2
      * @return true if value1 greater value2
      */
-    public static boolean gt(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
+    public static Boolean gt(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
         BigInteger v1 = value1 == null ? null : value1.value;
         BigInteger v2 = value2 == null ? null : value2.value;
         return Comparison.gt(v1, v2);
@@ -93,7 +93,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
      * @param value2
      * @return true if value1 less or equal value2
      */
-    public static boolean le(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
+    public static Boolean le(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
         BigInteger v1 = value1 == null ? null : value1.value;
         BigInteger v2 = value2 == null ? null : value2.value;
         return Comparison.le(v1, v2);
@@ -106,7 +106,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
      * @param value2
      * @return true if value1 less value2
      */
-    public static boolean lt(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
+    public static Boolean lt(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
         BigInteger v1 = value1 == null ? null : value1.value;
         BigInteger v2 = value2 == null ? null : value2.value;
         return Comparison.lt(v1, v2);
