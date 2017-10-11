@@ -11,13 +11,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.common.RevisionGetter;
+import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.db.JDBCDriverRegister;
@@ -28,8 +31,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
     private final Logger log = LoggerFactory.getLogger(DBRepository.class);
 
     private Settings settings;
-    private Listener listener;
-    private Timer timer;
+    private ChangesMonitor monitor;
 
     @Override
     public List<FileData> list(String path) throws IOException {
@@ -155,62 +157,7 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
 
     @Override
     public void setListener(final Listener callback) {
-        this.listener = callback;
-
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
-        }
-
-        if (callback != null) {
-            timer = new Timer("DBRepository checker");
-
-            timer.schedule(new TimerTask() {
-                private String lastChange = getLastChange();
-
-                @Override
-                public void run() {
-                    try {
-                        String currentChange = getLastChange();
-                        if (currentChange == null) {
-                            // Ignore unknown changes
-                            return;
-                        }
-                        if (currentChange.equals(lastChange)) {
-                            // Ignore no changes
-                            return;
-                        }
-                        lastChange = currentChange;
-                        callback.onChange();
-                    } catch (Throwable th) {
-                        log.warn("An exception has occurred durring checking the repository", th);
-                    }
-                }
-            }, settings.timerPeriod, settings.timerPeriod);
-        }
-    }
-
-    private String getLastChange() {
-        String changeSet = null;
-        Connection connection = null;
-        PreparedStatement statement = null;
-        ResultSet rs = null;
-        try {
-            connection = getConnection();
-            statement = connection.prepareStatement(settings.selectLastChange);
-            rs = statement.executeQuery();
-
-            if (rs.next()) {
-                changeSet = rs.getString(1);
-            }
-        } catch (Throwable e) {
-            log.warn(e.getMessage(), e);
-        } finally {
-            safeClose(rs);
-            safeClose(statement);
-            safeClose(connection);
-        }
-        return changeSet;
+        monitor.setListener(callback);
     }
 
     @Override
@@ -481,16 +428,14 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
     }
 
     private void invokeListener() {
-        if (listener != null) {
-            listener.onChange();
-        }
+        monitor.fireOnChange();
     }
 
     @Override
     public void close() throws IOException {
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
+        if (monitor != null) {
+            monitor.release();
+            monitor = null;
         }
     }
 
@@ -535,6 +480,8 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                 log.info("Database product name is [{}]", databaseCode);
                 settings = new Settings(databaseCode);
                 initializeDatabase(connection, databaseCode);
+                monitor = new ChangesMonitor(new DBRepositoryRevisionGetter(), settings.timerPeriod);
+
             } catch (Throwable e) {
                 actualException = e;
             } finally {
@@ -584,6 +531,33 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
             return rs.next();
         } finally {
             safeClose(rs);
+        }
+    }
+
+    private class DBRepositoryRevisionGetter implements RevisionGetter {
+
+        @Override
+        public Object getRevision() {
+            String changeSet = null;
+            Connection connection = null;
+            PreparedStatement statement = null;
+            ResultSet rs = null;
+            try {
+                connection = getConnection();
+                statement = connection.prepareStatement(settings.selectLastChange);
+                rs = statement.executeQuery();
+
+                if (rs.next()) {
+                    changeSet = rs.getString(1);
+                }
+            } catch (Throwable e) {
+                log.warn(e.getMessage(), e);
+            } finally {
+                safeClose(rs);
+                safeClose(statement);
+                safeClose(connection);
+            }
+            return changeSet;
         }
     }
 }
