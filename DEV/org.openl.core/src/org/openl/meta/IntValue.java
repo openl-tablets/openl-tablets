@@ -62,7 +62,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @param value2
      * @return true if  value1 greater or equal value2
      */
-    public static boolean ge(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+    public static Boolean ge(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
         Integer v1 = value1 == null ? null : value1.value;
         Integer v2 = value2 == null ? null : value2.value;
         return Comparison.ge(v1, v2);
@@ -73,7 +73,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @param value2
      * @return true if  value1 greater value2
      */
-    public static boolean gt(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+    public static Boolean gt(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
         Integer v1 = value1 == null ? null : value1.value;
         Integer v2 = value2 == null ? null : value2.value;
         return Comparison.gt(v1, v2);
@@ -84,7 +84,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @param value2
      * @return true if  value1 less or equal value2
      */
-    public static boolean le(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+    public static Boolean le(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
         Integer v1 = value1 == null ? null : value1.value;
         Integer v2 = value2 == null ? null : value2.value;
         return Comparison.le(v1, v2);
@@ -95,7 +95,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @param value2
      * @return true if  value1 less value2
      */
-    public static boolean lt(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+    public static Boolean lt(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
         Integer v1 = value1 == null ? null : value1.value;
         Integer v2 = value2 == null ? null : value2.value;
         return Comparison.lt(v1, v2);
