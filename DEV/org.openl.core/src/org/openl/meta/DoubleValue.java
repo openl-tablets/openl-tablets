@@ -11,11 +11,11 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.binding.impl.operator.Comparison;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.DoubleValue.DoubleValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
-import org.openl.meta.number.LogicalExpressions;
 import org.openl.meta.number.NumberOperations;
 import org.openl.rules.util.Round;
 import org.openl.util.ArrayTool;
@@ -103,9 +103,9 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
      * @return true if  value1 greater or equal value2
      */
     public static boolean ge(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
-        validate(value1, value2, LogicalExpressions.GE.toString());
-
-        return Comparison.ge(value1.getValue(), value2.getValue());
+        Double v1 = value1 == null ? null : value1.value;
+        Double v2 = value2 == null ? null : value2.value;
+        return Comparison.ge(v1, v2);
     }
     /**
      * Compares two values
@@ -114,9 +114,9 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
      * @return true if  value1 greater value2
      */
     public static boolean gt(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
-        validate(value1, value2, LogicalExpressions.GT.toString());
-
-        return Comparison.gt(value1.getValue(), value2.getValue());
+        Double v1 = value1 == null ? null : value1.value;
+        Double v2 = value2 == null ? null : value2.value;
+        return Comparison.gt(v1, v2);
     }
     /**
      * Compares two values
@@ -125,9 +125,9 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
      * @return true if  value1 less or equal value2
      */
     public static boolean le(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
-        validate(value1, value2, LogicalExpressions.LE.toString());
-
-        return Comparison.le(value1.getValue(), value2.getValue());
+        Double v1 = value1 == null ? null : value1.value;
+        Double v2 = value2 == null ? null : value2.value;
+        return Comparison.le(v1, v2);
     }
     /**
      * Compares two values
@@ -136,9 +136,9 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
      * @return true if  value1 less value2
      */
     public static boolean lt(org.openl.meta.DoubleValue value1, org.openl.meta.DoubleValue value2) {
-        validate(value1, value2, LogicalExpressions.LT.toString());
-
-        return Comparison.lt(value1.getValue(), value2.getValue());
+        Double v1 = value1 == null ? null : value1.value;
+        Double v2 = value2 == null ? null : value2.value;
+        return Comparison.lt(v1, v2);
     }
     /**
      * Compares two values
@@ -871,7 +871,9 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
      */
     @Deprecated
     public static DoubleValue round(DoubleValue d, DoubleValue p) {
-        validate(d, p, NumberOperations.ROUND);
+        if (d == null || p == null) {
+            throw new OpenlNotCheckedException("None of the arguments for 'round' operation can be null");
+        }
 
         int scale;
         double preRoundedValue;
