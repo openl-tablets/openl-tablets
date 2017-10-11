@@ -19,6 +19,8 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.common.ChangesMonitor;
+import org.openl.rules.repository.common.RevisionGetter;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -33,11 +35,10 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
     private String regionName;
     private String accessKey;
     private String secretKey;
-    private Long listenerTimerPeriod = 10000L;
+    private int listenerTimerPeriod = 10;
 
     private AmazonS3 s3;
-    private Listener listener;
-    private Timer timer;
+    private ChangesMonitor monitor;
 
     public void setBucketName(String bucketName) {
         this.bucketName = bucketName;
@@ -55,15 +56,15 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
         this.secretKey = secretKey;
     }
 
-    public void setListenerTimerPeriod(Long listenerTimerPeriod) {
+    public void setListenerTimerPeriod(int listenerTimerPeriod) {
         this.listenerTimerPeriod = listenerTimerPeriod;
     }
 
     @Override
     public void close() throws IOException {
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
+        if (monitor != null) {
+            monitor.release();
+            monitor = null;
         }
     }
 
@@ -101,6 +102,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
             // Check the connection
             s3.listObjectsV2(bucketName);
             list("");
+            monitor = new ChangesMonitor( new S3RevisionGetter(), listenerTimerPeriod);
         } catch (SdkClientException e) {
             throw new RRepositoryException(e.getMessage(), e);
         } catch (IOException e) {
@@ -264,45 +266,21 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
 
     @Override
     public void setListener(final Listener callback) {
-        this.listener = callback;
-
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
-        }
-
-        if (callback != null) {
-            timer = new Timer(true);
-
-            timer.schedule(new TimerTask() {
-                private String lastChange = getLastChange();
-
-                @Override
-                public void run() {
-                    String currentChange = getLastChange();
-                    if (currentChange == null) {
-                        // Ignore unknown changes
-                        return;
-                    }
-                    if (currentChange.equals(lastChange)) {
-                        // Ignore no changes
-                        return;
-                    }
-                    lastChange = currentChange;
-                    callback.onChange();
-                }
-            }, listenerTimerPeriod, listenerTimerPeriod);
-        }
+        monitor.setListener(callback);
     }
 
-    private String getLastChange() {
-        FileData fileData;
-        try {
-            fileData = check(MODIFICATION_FILE);
-            return fileData == null ? null : fileData.getVersion();
-        } catch (Exception e) {
-            log.warn(e.getMessage(), e);
-            return null;
+    private class S3RevisionGetter implements RevisionGetter {
+
+        @Override
+        public Object getRevision() {
+            FileData fileData;
+            try {
+                fileData = check(MODIFICATION_FILE);
+                return fileData == null ? null : fileData.getVersion();
+            } catch (Exception e) {
+                log.warn(e.getMessage(), e);
+                return null;
+            }
         }
     }
 
@@ -428,8 +406,8 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
         s3.putObject(bucketName, MODIFICATION_FILE, new ByteArrayInputStream(new byte[0]), metaData);
 
         // Invoke listener if exist
-        if (listener != null) {
-            listener.onChange();
+        if (monitor != null) {
+            monitor.fireOnChange();
         }
     }
 
