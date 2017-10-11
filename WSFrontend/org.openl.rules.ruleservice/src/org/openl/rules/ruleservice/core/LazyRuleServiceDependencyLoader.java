@@ -15,7 +15,6 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
-import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
@@ -27,7 +26,6 @@ import org.openl.rules.ruleservice.publish.lazy.LazyField;
 import org.openl.rules.ruleservice.publish.lazy.LazyInstantiationStrategy;
 import org.openl.rules.ruleservice.publish.lazy.LazyMember.EmptyInterface;
 import org.openl.rules.ruleservice.publish.lazy.LazyMethod;
-import org.openl.rules.ruleservice.publish.lazy.TablePropertiesLazyMethod;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.impl.IdentifierNode;
@@ -147,48 +145,13 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                         for (int i = 0; i < argTypes.length; i++) {
                             argTypes[i] = method.getSignature().getParameterType(i).getInstanceClass();
                         }
-                        if (method instanceof ITablePropertiesMethod) {
-                            return new TablePropertiesLazyMethod(method
-                                .getName(), argTypes, method, dependencyManager, classLoader, true, parameters) {
-                                @Override
-                                public DeploymentDescription getDeployment() {
-                                    return deployment;
-                                }
-
-                                @Override
-                                public Module getModule() {
-                                    return declaringModule;
-                                }
-                            };
-                        } else {
-                            return new LazyMethod(method
-                                .getName(), argTypes, method, dependencyManager, classLoader, true, parameters) {
-                                @Override
-                                public DeploymentDescription getDeployment() {
-                                    return deployment;
-                                }
-
-                                @Override
-                                public Module getModule() {
-                                    return declaringModule;
-                                }
-                            };
-                        }
+                        
+                        return LazyMethod.getLazyMethod(deployment, declaringModule, argTypes, method, dependencyManager, classLoader, true, parameters);
                     }
 
                     private LazyField makeLazyField(IOpenField field) {
-                        final Module declaringModule = getModuleForMember(field);
-                        return new LazyField(field.getName(), field, dependencyManager, classLoader, true, parameters) {
-                            @Override
-                            public DeploymentDescription getDeployment() {
-                                return deployment;
-                            }
-
-                            @Override
-                            public Module getModule() {
-                                return declaringModule;
-                            }
-                        };
+                        Module declaringModule = getModuleForMember(field);
+                        return LazyField.getLazyField(deployment, declaringModule, field, dependencyManager, classLoader, true, parameters);
                     }
 
                     @Override

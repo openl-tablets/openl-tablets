@@ -19,7 +19,8 @@ import org.openl.vm.IRuntimeEnv;
 public abstract class LazyField extends LazyMember<IOpenField> implements IOpenField {
     private String fieldName;
 
-    public LazyField(String fieldName, IOpenField original, 
+    private LazyField(String fieldName,
+            IOpenField original,
             IDependencyManager dependencyManager,
             ClassLoader classLoader,
             boolean executionMode,
@@ -28,13 +29,44 @@ public abstract class LazyField extends LazyMember<IOpenField> implements IOpenF
         this.fieldName = fieldName;
     }
 
-    public IOpenField getMemberForModule(DeploymentDescription deployment, Module module) {
-        try {
-            CompiledOpenClass compiledOpenClass = getCompiledOpenClass(deployment, module);
-            if (compiledOpenClass.hasErrors()){
-            	compiledOpenClass.throwErrorExceptionsIfAny();
+    public static final LazyField getLazyField(final DeploymentDescription deployment,
+            final Module module,
+            IOpenField original,
+            IDependencyManager dependencyManager,
+            ClassLoader classLoader,
+            boolean executionMode,
+            Map<String, Object> externalParameters) {
+        LazyField lazyField = new LazyField(original.getName(),
+            original,
+            dependencyManager,
+            classLoader,
+            executionMode,
+            externalParameters) {
+            @Override
+            public DeploymentDescription getDeployment() {
+                return deployment;
             }
-            return compiledOpenClass.getOpenClass().getField(fieldName);
+
+            @Override
+            public Module getModule() {
+                return module;
+            }
+        };
+        CompiledOpenClassCache.getInstance().registerLazyMember(lazyField);
+        return lazyField;
+    }
+
+    public IOpenField getMember() {
+        IOpenField cachedMember = getCachedMember();
+        if (cachedMember != null) {
+            return cachedMember;
+        }
+
+        try {
+            CompiledOpenClass compiledOpenClass = getCompiledOpenClassWithThrowErrorExceptionsIfAny();
+            IOpenField openField = compiledOpenClass.getOpenClass().getField(fieldName);
+            setCachedMember(openField);
+            return openField;
         } catch (Exception e) {
             throw new OpenlNotCheckedException("Failed to load lazy field.", e);
         }

@@ -1,17 +1,16 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
 import java.util.Map;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.lang.xls.prebind.LazyMethodWrapper;
-import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.method.TableUriMethod;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
+import org.openl.rules.table.properties.ITableProperties;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -22,14 +21,14 @@ import org.openl.vm.IRuntimeEnv;
  * Lazy method that will return real object from dependency manager. Dependency
  * Manager is responsible for loading/unloading modules.
  * 
- * @author PUdalau, Marat Kamalov
+ * @author Marat Kamalov
  */
 public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpenMethod, TableUriMethod, LazyMethodWrapper {
     private String methodName;
 
     private Class<?>[] argTypes;
 
-    public LazyMethod(String methodName,
+    private LazyMethod(String methodName,
             Class<?>[] argTypes,
             IOpenMethod original,
             IDependencyManager dependencyManager,
@@ -41,33 +40,63 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
         this.argTypes = argTypes;
     }
 
-    protected CompiledOpenClass lastCompiledOpenClass;
-    protected IOpenMethod lastOpenMethod;
-    private ReadWriteLock readWriteLock = new ReentrantReadWriteLock(); 
-    
-    protected IOpenMethod getMemberForModule(DeploymentDescription deployment, Module module) {
-        try {
-            CompiledOpenClass compiledOpenClass = getCompiledOpenClass(deployment, module);
-            if (compiledOpenClass.hasErrors()){
-            	compiledOpenClass.throwErrorExceptionsIfAny();
-            }
-            readWriteLock.readLock().lock();
-            try{
-                if (lastCompiledOpenClass == compiledOpenClass){
-                    return lastOpenMethod;
+    public static final LazyMethod getLazyMethod(final DeploymentDescription deployment,
+            final Module module,
+            Class<?>[] argTypes,
+            IOpenMethod original,
+            IDependencyManager dependencyManager,
+            ClassLoader classLoader,
+            boolean executionMode,
+            Map<String, Object> externalParameters) {
+        LazyMethod lazyMethod = null;
+
+        if (original instanceof ITablePropertiesMethod) {
+            lazyMethod = new TablePropertiesLazyMethod(original
+                .getName(), argTypes, original, dependencyManager, classLoader, executionMode, externalParameters) {
+                @Override
+                public DeploymentDescription getDeployment() {
+                    return deployment;
                 }
-            }finally{
-                readWriteLock.readLock().unlock();
-            }
-            readWriteLock.writeLock().lock();
-            try{
-                lastCompiledOpenClass = compiledOpenClass;
-                IOpenClass[] argOpenTypes = OpenClassHelper.getOpenClasses(compiledOpenClass.getOpenClass(), argTypes);
-                lastOpenMethod = compiledOpenClass.getOpenClass().getMethod(methodName, argOpenTypes);
-                return lastOpenMethod;
-            } finally {
-                readWriteLock.writeLock().unlock();
-            }
+
+                @Override
+                public Module getModule() {
+                    return module;
+                }
+            };
+        } else {
+            lazyMethod = new LazyMethod(original
+                .getName(), argTypes, original, dependencyManager, classLoader, executionMode, externalParameters) {
+                @Override
+                public DeploymentDescription getDeployment() {
+                    return deployment;
+                }
+
+                @Override
+                public Module getModule() {
+                    return module;
+                }
+            };
+        }
+        CompiledOpenClassCache.getInstance().registerLazyMember(lazyMethod);
+        return lazyMethod;
+    }
+
+    /**
+     * Compiles method declaring the member and returns it.
+     *
+     * @return member in compiled module.
+     */
+    protected IOpenMethod getMember() {
+        IOpenMethod cachedMember = getCachedMember();
+        if (cachedMember != null) {
+            return cachedMember;
+        }
+        try {
+            CompiledOpenClass compiledOpenClass = getCompiledOpenClassWithThrowErrorExceptionsIfAny();
+            IOpenClass[] argOpenTypes = OpenClassHelper.getOpenClasses(compiledOpenClass.getOpenClass(), argTypes);
+            IOpenMethod openMethod = compiledOpenClass.getOpenClass().getMethod(methodName, argOpenTypes);
+            setCachedMember(openMethod);
+            return openMethod;
         } catch (Exception e) {
             throw new OpenlNotCheckedException("Failed to load lazy method.", e);
         }
@@ -76,12 +105,12 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
     public IMethodSignature getSignature() {
         return getOriginal().getSignature();
     }
-    
+
     @Override
     public boolean isConstructor() {
         return getOriginal().isConstructor();
     }
-    
+
     @Override
     public IOpenMethod getCompiledMethod(IRuntimeEnv env) {
         return getMember();
@@ -89,8 +118,8 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
 
     @Override
     public String getTableUri() {
-        if (getOriginal() instanceof ExecutableRulesMethod) {
-            return ((ExecutableRulesMethod) getOriginal()).getTableUri();
+        if (getOriginal() instanceof TableUriMethod) {
+            return ((TableUriMethod) getOriginal()).getTableUri();
         } else {
             throw new IllegalStateException("Implementation doesn't support methods other than ExecutableRulesMethod!");
         }
@@ -103,4 +132,34 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return getMember().invoke(target, params, env);
     }
+
+    private static abstract class TablePropertiesLazyMethod extends LazyMethod implements ITablePropertiesMethod {
+
+        private TablePropertiesLazyMethod(String methodName,
+                Class<?>[] argTypes,
+                IOpenMethod original,
+                IDependencyManager dependencyManager,
+                ClassLoader classLoader,
+                boolean executionMode,
+                Map<String, Object> externalParameters) {
+            super(methodName, argTypes, original, dependencyManager, classLoader, executionMode, externalParameters);
+        }
+
+        @Override
+        public Map<String, Object> getProperties() {
+            if (getOriginal() instanceof ITablePropertiesMethod) {
+                return ((ITablePropertiesMethod) getOriginal()).getProperties();
+            }
+            throw new IllegalStateException("Original method must be the instance of ITablePropertiesMethod.");
+        }
+
+        @Override
+        public ITableProperties getMethodProperties() {
+            if (getOriginal() instanceof ITablePropertiesMethod) {
+                return ((ITablePropertiesMethod) getOriginal()).getMethodProperties();
+            }
+            throw new IllegalStateException("Original method must be the instance of ITablePropertiesMethod.");
+        }
+    }
+
 }

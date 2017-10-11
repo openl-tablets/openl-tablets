@@ -12,9 +12,6 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
-import org.openl.syntax.code.Dependency;
-import org.openl.syntax.code.DependencyType;
-import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
@@ -43,6 +40,7 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
      * datatypes have been loaded by different ClassLoaders).
      */
     private ClassLoader classLoader;
+    private volatile T cachedMember;
 
     public LazyMember(IDependencyManager dependencyManager,
             boolean executionMode,
@@ -56,19 +54,36 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
         this.externalParameters = externalParameters;
     }
 
-    protected abstract T getMemberForModule(DeploymentDescription deployment, Module module);
+    protected abstract T getMember();
 
-    protected CompiledOpenClass getCompiledOpenClass(final DeploymentDescription deployment,
-            final Module module) throws Exception {
-        Dependency dependency = new Dependency(DependencyType.MODULE,
-            new IdentifierNode(null, null, module.getName(), null));
-        String dependencyName = dependency.getNode().getIdentifier();
-        CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance().get(deployment, dependencyName);
+    protected T getCachedMember() {
+        return cachedMember;
+    }
+
+    protected void setCachedMember(T member) {
+        cachedMember = member;
+    }
+
+    public void onCompiledOpenClassCacheModified() {
+        cachedMember = null;
+    }
+
+    protected CompiledOpenClass getCompiledOpenClassWithThrowErrorExceptionsIfAny() throws Exception {
+        CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
+        if (compiledOpenClass.hasErrors()) {
+            compiledOpenClass.throwErrorExceptionsIfAny();
+        }
+        return compiledOpenClass;
+    }
+
+    protected CompiledOpenClass getCompiledOpenClass() throws Exception {
+        CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance().get(getDeployment(),
+            getModule().getName());
         if (compiledOpenClass != null) {
             return compiledOpenClass;
         }
         synchronized (CompiledOpenClassCache.getInstance()) {
-            compiledOpenClass = CompiledOpenClassCache.getInstance().get(deployment, dependencyName);
+            compiledOpenClass = CompiledOpenClassCache.getInstance().get(getDeployment(), getModule().getName());
             if (compiledOpenClass != null) {
                 return compiledOpenClass;
             }
@@ -76,7 +91,7 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
             try {
                 LazyBinderInvocationHandler.removePrebindHandler();
                 RulesInstantiationStrategy rulesInstantiationStrategy = RulesInstantiationStrategyFactory
-                    .getStrategy(module, true, getDependencyManager(), getClassLoader());
+                    .getStrategy(getModule(), true, getDependencyManager(), getClassLoader());
                 rulesInstantiationStrategy.setServiceClass(EmptyInterface.class);// Prevent
                 // generation
                 // interface
@@ -94,38 +109,28 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
                             private static final long serialVersionUID = 1L;
 
                             {
-                                add(module);
+                                add(getModule());
                             }
                         });
                 rulesInstantiationStrategy.setExternalParameters(parameters);
                 compiledOpenClass = rulesInstantiationStrategy.compile();
-                CompiledOpenClassCache.getInstance().putToCache(deployment, dependencyName, compiledOpenClass);
+                CompiledOpenClassCache.getInstance()
+                    .putToCache(getDeployment(), getModule().getName(), compiledOpenClass);
                 if (log.isDebugEnabled()) {
                     log.debug(
                         "CompiledOpenClass for deploymentName='{}', deploymentVersion='{}', dependencyName='{}' was stored to cache.",
-                        deployment.getName(),
-                        deployment.getVersion().getVersionName(),
-                        dependencyName);
+                        getDeployment().getName(),
+                        getDeployment().getVersion().getVersionName(),
+                        getModule().getName());
                 }
                 return compiledOpenClass;
             } catch (Exception ex) {
-                OpenLMessagesUtils.addError("Failed to load dependency '" + dependencyName + "'.");
+                OpenLMessagesUtils.addError("Failed to load dependency '" + getModule().getName() + "'.");
                 return compiledOpenClass;
             } finally {
                 LazyBinderInvocationHandler.setPrebindHandler(prebindHandler);
             }
         }
-    }
-
-    /**
-     * Compiles method declaring the member and returns it.
-     *
-     * @return Real member in compiled module.
-     */
-    protected final T getMember() {
-        final Module module = getModule();
-        final DeploymentDescription deployment = getDeployment();
-        return getMemberForModule(deployment, module);
     }
 
     /**
