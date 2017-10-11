@@ -17,6 +17,7 @@ public class OpenLBuilder extends AOpenLBuilder {
     private static final String[] JAVA_LIBRARY_NAMES = new String[]{
         org.openl.rules.util.Round.class.getName(),
         org.openl.rules.util.Booleans.class.getName(),
+        org.openl.rules.util.Strings.class.getName(),
         org.openl.rules.helpers.RulesUtils.class.getName(),
         org.openl.rules.dt.algorithm.evaluator.CtrUtils.class.getName(),
         org.openl.meta.ByteValue.class.getName(), 

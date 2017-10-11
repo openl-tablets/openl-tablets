@@ -2858,28 +2858,6 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsString() {
-        String searchString = "string";
-        char searchChar = 's';
-
-        assertTrue(RulesUtils.contains(str, searchString));
-        assertTrue(RulesUtils.contains(str, searchChar));
-        assertFalse(RulesUtils.contains(nullStr, searchChar));
-        assertFalse(RulesUtils.contains("", searchChar));
-    }
-
-    @Test
-    public void testContainsAny() {
-        char[] searchChars = {'s', 'i', 'g'};
-        String searchStr = "value";
-
-        assertTrue(RulesUtils.containsAny(str, searchChars));
-        assertTrue(RulesUtils.containsAny(str, searchStr));
-        assertFalse(RulesUtils.containsAny(nullStr, searchStr));
-        assertFalse(RulesUtils.containsAny("", searchStr));
-    }
-
-    @Test
     public void testObjectIndexOf() {
         assertEquals(-1, instance.testIndexOfObject(null, (Object) 3));
         assertEquals(-1, instance.testIndexOfObject(new Object[]{1, 2, 3, 4,
@@ -4821,20 +4799,6 @@ public class RulesUtilsTest {
         assertTrue(instance.testStringIsEmpty(inputArray));
         inputArray = null;
         assertTrue(instance.testStringIsEmpty(inputArray));
-        String str = null;
-        assertTrue(RulesUtils.isEmpty(str));
-
-        str = "";
-        assertTrue(RulesUtils.isEmpty(str));
-
-        str = " ";
-        assertTrue(RulesUtils.isEmpty(str));
-
-        str = "  str  ";
-        assertFalse(RulesUtils.isEmpty(str));
-
-        str = "str";
-        assertFalse(RulesUtils.isEmpty(str));
     }
 
     @Test
