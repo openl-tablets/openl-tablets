@@ -138,7 +138,7 @@ public class Strings {
     }
 
     /**
-     * Checks if a String is empty ("") or null.<br />
+     * Checks if a String is empty ("") or null or blank (" ").<br />
      * <br />
      * <code>
      * isEmpty(null)      = true <br />
@@ -149,10 +149,29 @@ public class Strings {
      * </code>
      *
      * @param str the String to check, may be null
-     * @return true if the String is empty or null
+     * @return true if the String is empty or null or blank
      */
     public static boolean isEmpty(String str) {
         return str == null || str.trim().isEmpty();
+    }
+
+    /**
+     * Checks if a String is NOT empty ("") or null or blank (" ").<br />
+     * <br />
+     * <code>
+     * isEmpty(null)      = false <br />
+     * isEmpty("")        = false <br />
+     * isEmpty(" ")       = false <br />
+     * isEmpty("bob")     = true <br />
+     * isEmpty("  bob  ") = true <br />
+     * </code>
+     *
+     * @param str the String to check, may be null
+     * @return true if the String is NOT empty or null or blank
+     * @see #isEmpty(String)
+     */
+    public static boolean isNotEmpty(String str) {
+        return !isEmpty(str);
     }
 
     /**
@@ -504,7 +523,7 @@ public class Strings {
             return null;
         }
         StringBuilder builder = null;
-        for(Object obj : objects) {
+        for (Object obj : objects) {
             if (obj != null) {
                 if (builder == null) {
                     builder = new StringBuilder(16 * objects.length);
@@ -521,42 +540,66 @@ public class Strings {
 
     /* OpenL does not support varargs, so... */
     public static String concatenate(Object o1) {
-        return concatenate(new Object[] {o1});
+        return concatenate(new Object[] { o1 });
     }
 
     public static String concatenate(Object o1, Object o2) {
-        return concatenate(new Object[] {o1, o2});
+        return concatenate(new Object[] { o1, o2 });
     }
 
     public static String concatenate(Object o1, Object o2, Object o3) {
-        return concatenate(new Object[] {o1, o2, o3});
+        return concatenate(new Object[] { o1, o2, o3 });
     }
 
     public static String concatenate(Object o1, Object o2, Object o3, Object o4) {
-        return concatenate(new Object[] {o1, o2, o3, o4});
+        return concatenate(new Object[] { o1, o2, o3, o4 });
     }
 
     public static String concatenate(Object o1, Object o2, Object o3, Object o4, Object o5) {
-        return concatenate(new Object[] {o1, o2, o3, o4, o5});
+        return concatenate(new Object[] { o1, o2, o3, o4, o5 });
     }
 
     public static String concatenate(Object o1, Object o2, Object o3, Object o4, Object o5, Object o6) {
-        return concatenate(new Object[] {o1, o2, o3, o4, o5, o6});
+        return concatenate(new Object[] { o1, o2, o3, o4, o5, o6 });
     }
 
     public static String concatenate(Object o1, Object o2, Object o3, Object o4, Object o5, Object o6, Object o7) {
-        return concatenate(new Object[] {o1, o2, o3, o4, o5, o6, o7});
+        return concatenate(new Object[] { o1, o2, o3, o4, o5, o6, o7 });
     }
 
-    public static String concatenate(Object o1, Object o2, Object o3, Object o4, Object o5, Object o6, Object o7, Object o8) {
-        return concatenate(new Object[] {o1, o2, o3, o4, o5, o6, o7, o8});
+    public static String concatenate(Object o1,
+            Object o2,
+            Object o3,
+            Object o4,
+            Object o5,
+            Object o6,
+            Object o7,
+            Object o8) {
+        return concatenate(new Object[] { o1, o2, o3, o4, o5, o6, o7, o8 });
     }
 
-    public static String concatenate(Object o1, Object o2, Object o3, Object o4, Object o5, Object o6, Object o7, Object o8, Object o9) {
-        return concatenate(new Object[] {o1, o2, o3, o4, o5, o6, o7, o8, o9});
+    public static String concatenate(Object o1,
+            Object o2,
+            Object o3,
+            Object o4,
+            Object o5,
+            Object o6,
+            Object o7,
+            Object o8,
+            Object o9) {
+        return concatenate(new Object[] { o1, o2, o3, o4, o5, o6, o7, o8, o9 });
     }
 
-    public static String concatenate(Object o1, Object o2, Object o3, Object o4, Object o5, Object o6, Object o7, Object o8, Object o9, Object o10) {
-        return concatenate(new Object[] {o1, o2, o3, o4, o5, o6, o7, o8, o9, o10});
+    public static String concatenate(Object o1,
+            Object o2,
+            Object o3,
+            Object o4,
+            Object o5,
+            Object o6,
+            Object o7,
+            Object o8,
+            Object o9,
+            Object o10) {
+        return concatenate(new Object[] { o1, o2, o3, o4, o5, o6, o7, o8, o9, o10 });
     }
 }
