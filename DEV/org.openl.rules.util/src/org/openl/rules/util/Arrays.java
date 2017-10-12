@@ -190,21 +190,21 @@ public class Arrays {
             return null;
         }
         // handle negatives
-        int length = Array.getLength(array);
-        if (length == 0) {
+        int size = Array.getLength(array);
+        if (size == 0) {
             return array;
         }
         if (endIndex < 0) {
-            endIndex = length + endIndex; // remember end is negative
+            endIndex = size + endIndex; // remember end is negative
         }
         if (beginIndex < 0) {
-            beginIndex = length + beginIndex; // remember start is negative
+            beginIndex = size + beginIndex; // remember start is negative
 
         }
 
         // check length next
-        if (endIndex > length) {
-            endIndex = length;
+        if (endIndex > size) {
+            endIndex = size;
         }
 
         if (beginIndex < 0) {
@@ -215,6 +215,9 @@ public class Arrays {
         }
 
         final int newSize = endIndex - beginIndex;
+        if (newSize == size && beginIndex == 0) {
+            return array;
+        }
         final Class<?> type = array.getClass().getComponentType();
         if (newSize <= 0) {
             return Array.newInstance(type, 0);
