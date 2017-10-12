@@ -17,7 +17,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.impl.cast.AutoCastReturnType;
 import org.openl.binding.impl.cast.DefaultAutoCastFactory.ReturnType;
 import org.openl.binding.impl.cast.ThrowableVoidCast.ThrowableVoid;
@@ -1379,123 +1378,6 @@ public class RulesUtils {
 
     public static double mod(double number, double divisor) {
         return MathUtils.mod(number, divisor);
-    }
-
-    // SLICE
-    public static java.lang.Byte[] slice(java.lang.Byte[] values, int startIndexInclusive) {
-        return MathUtils.slice(values, startIndexInclusive);
-    }
-
-    public static java.lang.Byte[] slice(java.lang.Byte[] values, int startIndexInclusive, int endIndexExclusive) {
-        return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
-    }
-
-    public static java.lang.Short[] slice(java.lang.Short[] values, int startIndexInclusive) {
-        return MathUtils.slice(values, startIndexInclusive);
-    }
-
-    public static java.lang.Short[] slice(java.lang.Short[] values, int startIndexInclusive, int endIndexExclusive) {
-        return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
-    }
-
-    public static java.lang.Integer[] slice(java.lang.Integer[] values, int startIndexInclusive) {
-        return MathUtils.slice(values, startIndexInclusive);
-    }
-
-    public static java.lang.Integer[] slice(java.lang.Integer[] values, int startIndexInclusive, int endIndexExclusive) {
-        return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
-    }
-
-    public static java.lang.Long[] slice(java.lang.Long[] values, int startIndexInclusive) {
-        return MathUtils.slice(values, startIndexInclusive);
-    }
-
-    public static java.lang.Long[] slice(java.lang.Long[] values, int startIndexInclusive, int endIndexExclusive) {
-        return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
-    }
-
-    public static java.lang.Float[] slice(java.lang.Float[] values, int startIndexInclusive) {
-        return MathUtils.slice(values, startIndexInclusive);
-    }
-
-    public static java.lang.Float[] slice(java.lang.Float[] values, int startIndexInclusive, int endIndexExclusive) {
-        return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
-    }
-
-    public static java.lang.Double[] slice(java.lang.Double[] values, int startIndexInclusive) {
-        return MathUtils.slice(values, startIndexInclusive);
-    }
-
-    public static java.lang.Double[] slice(java.lang.Double[] values, int startIndexInclusive, int endIndexExclusive) {
-        return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
-    }
-
-    public static java.math.BigInteger[] slice(java.math.BigInteger[] values, int startIndexInclusive) {
-        return MathUtils.slice(values, startIndexInclusive);
-    }
-
-    public static java.math.BigInteger[] slice(java.math.BigInteger[] values,
-            int startIndexInclusive,
-            int endIndexExclusive) {
-        return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
-    }
-
-    public static java.math.BigDecimal[] slice(java.math.BigDecimal[] values, int startIndexInclusive) {
-        return MathUtils.slice(values, startIndexInclusive);
-    }
-
-    public static java.math.BigDecimal[] slice(java.math.BigDecimal[] values,
-            int startIndexInclusive,
-            int endIndexExclusive) {
-        return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
-    }
-
-    public static byte[] slice(byte[] values, int startIndexInclusive) {
-        return MathUtils.slice(values, startIndexInclusive);
-    }
-
-    public static byte[] slice(byte[] values, int startIndexInclusive, int endIndexExclusive) {
-        return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
-    }
-
-    public static short[] slice(short[] values, int startIndexInclusive) {
-        return MathUtils.slice(values, startIndexInclusive);
-    }
-
-    public static short[] slice(short[] values, int startIndexInclusive, int endIndexExclusive) {
-        return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
-    }
-
-    public static int[] slice(int[] values, int startIndexInclusive) {
-        return MathUtils.slice(values, startIndexInclusive);
-    }
-
-    public static int[] slice(int[] values, int startIndexInclusive, int endIndexExclusive) {
-        return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
-    }
-
-    public static long[] slice(long[] values, int startIndexInclusive) {
-        return MathUtils.slice(values, startIndexInclusive);
-    }
-
-    public static long[] slice(long[] values, int startIndexInclusive, int endIndexExclusive) {
-        return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
-    }
-
-    public static float[] slice(float[] values, int startIndexInclusive) {
-        return MathUtils.slice(values, startIndexInclusive);
-    }
-
-    public static float[] slice(float[] values, int startIndexInclusive, int endIndexExclusive) {
-        return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
-    }
-
-    public static double[] slice(double[] values, int startIndexInclusive) {
-        return MathUtils.slice(values, startIndexInclusive);
-    }
-
-    public static double[] slice(double[] values, int startIndexInclusive, int endIndexExclusive) {
-        return MathUtils.slice(values, startIndexInclusive, endIndexExclusive);
     }
 
     // SORT
