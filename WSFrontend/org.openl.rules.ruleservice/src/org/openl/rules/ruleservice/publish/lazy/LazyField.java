@@ -2,10 +2,10 @@ package org.openl.rules.ruleservice.publish.lazy;
 
 import java.util.Map;
 
-import org.ehcache.event.CacheEvent;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.types.IOpenField;
@@ -30,7 +30,8 @@ public abstract class LazyField extends LazyMember<IOpenField> implements IOpenF
         this.fieldName = fieldName;
     }
 
-    public static final LazyField getLazyField(final DeploymentDescription deployment,
+    public static final LazyField getLazyField(final XlsLazyModuleOpenClass xlsLazyModuleOpenClass,
+            final DeploymentDescription deployment,
             final Module module,
             IOpenField original,
             IDependencyManager dependencyManager,
@@ -47,6 +48,11 @@ public abstract class LazyField extends LazyMember<IOpenField> implements IOpenF
             @Override
             public Module getModule() {
                 return module;
+            }
+            
+            @Override
+            public XlsLazyModuleOpenClass getXlsLazyModuleOpenClass() {
+                return xlsLazyModuleOpenClass;
             }
         };
         CompiledOpenClassCache.getInstance().registerEvent(deployment, module.getName(), new LazyMemberEvent(lazyField));

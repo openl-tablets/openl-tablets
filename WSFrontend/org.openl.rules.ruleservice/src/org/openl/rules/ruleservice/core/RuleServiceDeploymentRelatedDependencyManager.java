@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
-import java.util.concurrent.Semaphore;
 
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.loader.IDependencyLoader;
@@ -29,6 +28,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.ruleservice.conf.LastVersionProjectsServiceConfigurer;
+import org.openl.rules.ruleservice.core.MaxThreadsForCompileSemaphore.Callable;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.syntax.code.IDependency;
 import org.slf4j.Logger;
@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
-public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProjectDependencyManager implements CompilationTimeLoggingDependencyManager{
+public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProjectDependencyManager implements CompilationTimeLoggingDependencyManager {
 
     private final Logger log = LoggerFactory.getLogger(RuleServiceDeploymentRelatedDependencyManager.class);
 
@@ -70,80 +70,73 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
         return dependencyNames;
     }
 
-    private static class SemaphoreHolder {
-        private static Semaphore limitCompilationThreadsSemaphore = new Semaphore(
-            RuleServiceStaticConfigurationUtil.getMaxThreadsForCompile());
-        private static ThreadLocal<Object> threadsMarker = new ThreadLocal<Object>();
-    }
-    
-    ThreadLocal<Stack<CompilationInfo>> compliationInfoThreadLocal = new ThreadLocal<Stack<CompilationInfo>>(){
-    	protected Stack<CompilationInfo> initialValue() {
-    		return new Stack<CompilationInfo>();
-    	};
+    private ThreadLocal<Stack<CompilationInfo>> compliationInfoThreadLocal = new ThreadLocal<Stack<CompilationInfo>>() {
+        protected Stack<CompilationInfo> initialValue() {
+            return new Stack<CompilationInfo>();
+        };
     };
-    
-	private static class CompilationInfo {
-		long time;
-		long embeddedTime;
-		IDependencyLoader dependencyLoader;
-		Collection<Module> modules;
-	}
-    
+
+    private static class CompilationInfo {
+        long time;
+        long embeddedTime;
+        IDependencyLoader dependencyLoader;
+        Collection<Module> modules;
+    }
+
     @Override
     public void compilationBegin(IDependencyLoader dependencyLoader, Collection<Module> modules) {
-    	CompilationInfo compilationInfo = new CompilationInfo();
-    	compilationInfo.time = System.currentTimeMillis();
-    	compilationInfo.dependencyLoader = dependencyLoader;
-    	compilationInfo.modules = Collections.unmodifiableCollection(modules);
-    	Stack<CompilationInfo> compilationInfoStack = compliationInfoThreadLocal.get();
-    	compilationInfoStack.push(compilationInfo);
+        CompilationInfo compilationInfo = new CompilationInfo();
+        compilationInfo.time = System.currentTimeMillis();
+        compilationInfo.dependencyLoader = dependencyLoader;
+        compilationInfo.modules = Collections.unmodifiableCollection(modules);
+        Stack<CompilationInfo> compilationInfoStack = compliationInfoThreadLocal.get();
+        compilationInfoStack.push(compilationInfo);
     }
-    
-	@Override
-	public void compilationCompleted(IDependencyLoader dependencyLoader, boolean successed) {
-		try {
-			Stack<CompilationInfo> compilationInfoStack = compliationInfoThreadLocal.get();
-			CompilationInfo compilationInfo = compilationInfoStack.pop();
-			if (compilationInfo.dependencyLoader != dependencyLoader) {
-				throw new IllegalStateException("Illegal State!");
-			}
-			Collection<Module> modules = compilationInfo.modules;
-
-			long t = System.currentTimeMillis() - compilationInfo.time;
-
-			if (modules.size() == 1 && successed) {
-				Module module = modules.iterator().next();
-				log.info(String.format("Module '%s' in project '%s' has been compiled in %s ms.", module.getName(),
-						module.getProject().getName(), String.valueOf((t - compilationInfo.embeddedTime))));
-			}
-
-			if (!compilationInfoStack.isEmpty()) {
-				CompilationInfo compilationInfoParent = compilationInfoStack.peek();
-				compilationInfoParent.embeddedTime = compilationInfoParent.embeddedTime + t;
-			}
-		} catch (Exception e) {
-			log.error("Unexpected exception!", e);
-		}
-	}
 
     @Override
-    public CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
+    public void compilationCompleted(IDependencyLoader dependencyLoader, boolean successed) {
         try {
-            boolean requiredSemophore = SemaphoreHolder.threadsMarker.get() == null;
-            try {
-                if (requiredSemophore) {
-                    SemaphoreHolder.threadsMarker.set(Thread.currentThread());
-                    SemaphoreHolder.limitCompilationThreadsSemaphore.acquire();
-                }
-                return super.loadDependency(dependency);
-            } finally {
-                if (requiredSemophore) {
-                    SemaphoreHolder.threadsMarker.remove();
-                    SemaphoreHolder.limitCompilationThreadsSemaphore.release();
-                }
+            Stack<CompilationInfo> compilationInfoStack = compliationInfoThreadLocal.get();
+            CompilationInfo compilationInfo = compilationInfoStack.pop();
+            if (compilationInfo.dependencyLoader != dependencyLoader) {
+                throw new IllegalStateException("Illegal State!");
             }
+            Collection<Module> modules = compilationInfo.modules;
+
+            long t = System.currentTimeMillis() - compilationInfo.time;
+
+            if (modules.size() == 1 && successed && (!(dependencyLoader instanceof LazyRuleServiceDependencyLoader))) {
+                Module module = modules.iterator().next();
+                log.info(String.format("Module '%s' in project '%s' has been compiled in %s ms.",
+                    module.getName(),
+                    module.getProject().getName(),
+                    String.valueOf((t - compilationInfo.embeddedTime))));
+            }
+
+            if (!compilationInfoStack.isEmpty()) {
+                CompilationInfo compilationInfoParent = compilationInfoStack.peek();
+                compilationInfoParent.embeddedTime = compilationInfoParent.embeddedTime + t;
+            }
+        } catch (Exception e) {
+            log.error("Unexpected exception!", e);
+        }
+    }
+
+    @Override
+    public CompiledDependency loadDependency(final IDependency dependency) throws OpenLCompilationException {
+        try {
+            return MaxThreadsForCompileSemaphore.getInstance().run(new Callable<CompiledDependency>() {
+                @Override
+                public CompiledDependency call() throws Exception {
+                    return RuleServiceDeploymentRelatedDependencyManager.super.loadDependency(dependency);
+                }
+            });
+        } catch (OpenLCompilationException e) {
+            throw e;
         } catch (InterruptedException e) {
             throw new OpenLCompilationException("Interrupted exception!", e);
+        } catch (Exception e) {
+            throw new OpenLCompilationException("Something wrong!", e);
         }
     }
 
@@ -222,8 +215,8 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
                     for (AProject project : deployment.getProjects()) {
                         String projectName = project.getName();
                         try {
-                            Collection<Module> modulesOfProject = ruleServiceLoader.resolveModulesForProject(
-                                    deploymentName, deploymentVersion, projectName);
+                            Collection<Module> modulesOfProject = ruleServiceLoader
+                                .resolveModulesForProject(deploymentName, deploymentVersion, projectName);
                             ProjectDescriptor projectDescriptor = null;
                             Set<String> wildcardPatterns = new HashSet<String>();
                             if (!modulesOfProject.isEmpty()) {
@@ -239,7 +232,8 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
                                         AProjectResource resource = (AProjectResource) artifact;
                                         content = resource.getContent();
                                         rulesDeploy = getRulesDeploySerializer().deserialize(content);
-                                        RulesDeploy.WildcardPattern[] compilationPatterns = rulesDeploy.getLazyModulesForCompilationPatterns();
+                                        RulesDeploy.WildcardPattern[] compilationPatterns = rulesDeploy
+                                            .getLazyModulesForCompilationPatterns();
                                         if (compilationPatterns != null) {
                                             for (RulesDeploy.WildcardPattern wp : compilationPatterns) {
                                                 wildcardPatterns.add(wp.getValue());
@@ -263,7 +257,8 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
                                     List<Module> module = Arrays.asList(m);
                                     if (isLazy()) {
                                         boolean compileAfterLazyCompilation = compilationAfterLazyCompilationRequred(
-                                            wildcardPatterns, moduleName);
+                                            wildcardPatterns,
+                                            moduleName);
                                         moduleLoader = new LazyRuleServiceDependencyLoader(deploymentDescription,
                                             moduleName,
                                             module,
@@ -284,17 +279,17 @@ public class RuleServiceDeploymentRelatedDependencyManager extends AbstractProje
                                         projectDescriptor.getModules(),
                                         false);
                                 } else {
-                                    projectLoader = new RuleServiceDependencyLoader(ProjectExternalDependenciesHelper
-                                        .buildDependencyNameForProjectName(projectDescriptor.getName()),
+                                    projectLoader = new RuleServiceDependencyLoader(
+                                        ProjectExternalDependenciesHelper
+                                            .buildDependencyNameForProjectName(projectDescriptor.getName()),
                                         projectDescriptor.getModules());
                                 }
                                 projectDescriptors.add(projectDescriptor);
                                 dependencyLoaders.add(projectLoader);
                             }
                         } catch (Exception e) {
-                            log.error(
-                                "Failed to build dependency manager loaders for project '{}' in deployment '{}'!",
-                                    projectName,
+                            log.error("Failed to build dependency manager loaders for project '{}' in deployment '{}'!",
+                                projectName,
                                 deploymentName,
                                 e);
                         }

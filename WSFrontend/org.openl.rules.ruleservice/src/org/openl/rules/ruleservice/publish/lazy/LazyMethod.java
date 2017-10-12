@@ -6,6 +6,7 @@ import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.lang.xls.prebind.LazyMethodWrapper;
+import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.method.TableUriMethod;
 import org.openl.rules.project.model.Module;
@@ -40,7 +41,8 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
         this.argTypes = argTypes;
     }
 
-    public static final LazyMethod getLazyMethod(final DeploymentDescription deployment,
+    public static final LazyMethod getLazyMethod(final XlsLazyModuleOpenClass xlsLazyModuleOpenClass,
+            final DeploymentDescription deployment,
             final Module module,
             Class<?>[] argTypes,
             IOpenMethod original,
@@ -62,6 +64,11 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
                 public Module getModule() {
                     return module;
                 }
+
+                @Override
+                public XlsLazyModuleOpenClass getXlsLazyModuleOpenClass() {
+                    return xlsLazyModuleOpenClass;
+                }
             };
         } else {
             lazyMethod = new LazyMethod(original
@@ -74,6 +81,11 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
                 @Override
                 public Module getModule() {
                     return module;
+                }
+
+                @Override
+                public XlsLazyModuleOpenClass getXlsLazyModuleOpenClass() {
+                    return xlsLazyModuleOpenClass;
                 }
             };
         }

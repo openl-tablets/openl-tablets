@@ -5,13 +5,17 @@ import java.util.Map;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
+import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
+import org.openl.rules.ruleservice.core.MaxThreadsForCompileSemaphore;
+import org.openl.rules.ruleservice.core.MaxThreadsForCompileSemaphore.Callable;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
@@ -82,56 +86,63 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
         if (compiledOpenClass != null) {
             return compiledOpenClass;
         }
-        synchronized (CompiledOpenClassCache.getInstance()) {
+
+        synchronized (getXlsLazyModuleOpenClass()) {
             compiledOpenClass = CompiledOpenClassCache.getInstance().get(getDeployment(), getModule().getName());
             if (compiledOpenClass != null) {
                 return compiledOpenClass;
             }
-            IPrebindHandler prebindHandler = LazyBinderInvocationHandler.getPrebindHandler();
             try {
-                LazyBinderInvocationHandler.removePrebindHandler();
-                RulesInstantiationStrategy rulesInstantiationStrategy = RulesInstantiationStrategyFactory
-                    .getStrategy(getModule(), true, getDependencyManager(), getClassLoader());
-                rulesInstantiationStrategy.setServiceClass(EmptyInterface.class);// Prevent
-                // generation
-                // interface
-                // and
-                // Virtual
-                // module
-                // double
-                // (instantiate
-                // method).
-                // Improve
-                // performance.
-                Map<String, Object> parameters = ProjectExternalDependenciesHelper
-                    .getExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(),
-                        new ArrayList<Module>() {
-                            private static final long serialVersionUID = 1L;
+                return MaxThreadsForCompileSemaphore.getInstance().run(new Callable<CompiledOpenClass>() {
+                    @Override
+                    public CompiledOpenClass call() throws Exception {
+                        CompiledOpenClass compiledOpenClass = null;
+                        IPrebindHandler prebindHandler = LazyBinderInvocationHandler.getPrebindHandler();
+                        try {
+                            LazyBinderInvocationHandler.removePrebindHandler();
+                            RulesInstantiationStrategy rulesInstantiationStrategy = RulesInstantiationStrategyFactory
+                                .getStrategy(getModule(), true, getDependencyManager(), getClassLoader());
+                            rulesInstantiationStrategy.setServiceClass(EmptyInterface.class);// Prevent
+                            Map<String, Object> parameters = ProjectExternalDependenciesHelper
+                                .getExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(),
+                                    new ArrayList<Module>() {
+                                        private static final long serialVersionUID = 1L;
 
-                            {
-                                add(getModule());
+                                        {
+                                            add(getModule());
+                                        }
+                                    });
+                            rulesInstantiationStrategy.setExternalParameters(parameters);
+                            compiledOpenClass = rulesInstantiationStrategy.compile();
+                            CompiledOpenClassCache.getInstance()
+                                .putToCache(getDeployment(), getModule().getName(), compiledOpenClass);
+                            if (log.isDebugEnabled()) {
+                                log.debug(
+                                    "CompiledOpenClass for deploymentName='{}', deploymentVersion='{}', dependencyName='{}' was stored to cache.",
+                                    getDeployment().getName(),
+                                    getDeployment().getVersion().getVersionName(),
+                                    getModule().getName());
                             }
-                        });
-                rulesInstantiationStrategy.setExternalParameters(parameters);
-                compiledOpenClass = rulesInstantiationStrategy.compile();
-                CompiledOpenClassCache.getInstance()
-                    .putToCache(getDeployment(), getModule().getName(), compiledOpenClass);
-                if (log.isDebugEnabled()) {
-                    log.debug(
-                        "CompiledOpenClass for deploymentName='{}', deploymentVersion='{}', dependencyName='{}' was stored to cache.",
-                        getDeployment().getName(),
-                        getDeployment().getVersion().getVersionName(),
-                        getModule().getName());
-                }
-                return compiledOpenClass;
-            } catch (Exception ex) {
-                OpenLMessagesUtils.addError("Failed to load dependency '" + getModule().getName() + "'.");
-                return compiledOpenClass;
-            } finally {
-                LazyBinderInvocationHandler.setPrebindHandler(prebindHandler);
+                            return compiledOpenClass;
+                        } catch (Exception ex) {
+                            OpenLMessagesUtils.addError("Failed to load dependency '" + getModule().getName() + "'.");
+                            return compiledOpenClass;
+                        } finally {
+                            LazyBinderInvocationHandler.setPrebindHandler(prebindHandler);
+                        }
+                    }
+                });
+            } catch (OpenLCompilationException e) {
+                throw e;
+            } catch (InterruptedException e) {
+                throw new OpenLCompilationException("Interrupted exception!", e);
+            } catch (Exception e) {
+                throw new OpenLCompilationException("Something wrong!", e);
             }
         }
     }
+
+    public abstract XlsLazyModuleOpenClass getXlsLazyModuleOpenClass();
 
     /**
      * @return Module containing current member.

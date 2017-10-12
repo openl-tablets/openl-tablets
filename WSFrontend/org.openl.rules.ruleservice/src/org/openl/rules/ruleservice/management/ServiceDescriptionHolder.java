@@ -2,11 +2,14 @@ package org.openl.rules.ruleservice.management;
 
 import org.openl.rules.ruleservice.core.ServiceDescription;
 
-public class ServiceDescriptionHolder {
+public final class ServiceDescriptionHolder {
     private final static ServiceDescriptionHolder INSTANCE = new ServiceDescriptionHolder();
 
     private ThreadLocal<ServiceDescription> serviceDescriptionHolder = new ThreadLocal<ServiceDescription>();
 
+    private ServiceDescriptionHolder() {
+    }
+    
     public static ServiceDescriptionHolder getInstance() {
         return INSTANCE;
     }

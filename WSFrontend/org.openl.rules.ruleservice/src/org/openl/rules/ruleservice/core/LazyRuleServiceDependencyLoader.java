@@ -43,7 +43,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
     private final DeploymentDescription deployment;
     private final Collection<Module> modules;
     private final boolean realCompileRequred;
-    private CompiledOpenClass compiledOpenClass;
+    private CompiledOpenClass lazyCompiledOpenClass;
 
     LazyRuleServiceDependencyLoader(DeploymentDescription deployment,
             String dependencyName,
@@ -66,8 +66,8 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
 
     public CompiledOpenClass compile(final String dependencyName,
             final RuleServiceDeploymentRelatedDependencyManager dependencyManager) throws OpenLCompilationException {
-        if (compiledOpenClass != null) {
-            return compiledOpenClass;
+        if (lazyCompiledOpenClass != null) {
+            return lazyCompiledOpenClass;
         }
         IPrebindHandler prebindHandler = LazyBinderInvocationHandler.getPrebindHandler();
         try {
@@ -139,46 +139,38 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                         return null;
                     }
 
-                    private LazyMethod makeLazyMethod(IOpenMethod method) {
+                    @Override
+                    public IOpenMethod processMethodAdded(IOpenMethod method, XlsLazyModuleOpenClass moduleOpenClass) {
                         final Module declaringModule = getModuleForMember(method);
                         Class<?>[] argTypes = new Class<?>[method.getSignature().getNumberOfParameters()];
                         for (int i = 0; i < argTypes.length; i++) {
                             argTypes[i] = method.getSignature().getParameterType(i).getInstanceClass();
                         }
                         
-                        return LazyMethod.getLazyMethod(deployment, declaringModule, argTypes, method, dependencyManager, classLoader, true, parameters);
-                    }
-
-                    private LazyField makeLazyField(IOpenField field) {
-                        Module declaringModule = getModuleForMember(field);
-                        return LazyField.getLazyField(deployment, declaringModule, field, dependencyManager, classLoader, true, parameters);
-                    }
-
-                    @Override
-                    public IOpenMethod processMethodAdded(IOpenMethod method, XlsLazyModuleOpenClass moduleOpenClass) {
-                        return makeLazyMethod(method);
+                        return LazyMethod.getLazyMethod(moduleOpenClass, deployment, declaringModule, argTypes, method, dependencyManager, classLoader, true, parameters);
                     }
 
                     @Override
                     public IOpenField processFieldAdded(IOpenField field, XlsLazyModuleOpenClass moduleOpenClass) {
-                        return makeLazyField(field);
+                        Module declaringModule = getModuleForMember(field);
+                        return LazyField.getLazyField(moduleOpenClass, deployment, declaringModule, field, dependencyManager, classLoader, true, parameters);
                     }
                 });
                 try {
                     dependencyManager.compilationBegin(this, modules);
-                    compiledOpenClass = rulesInstantiationStrategy.compile(); // Check
+                    lazyCompiledOpenClass = rulesInstantiationStrategy.compile(); // Check
                                                                               // correct
                                                                               // compilation
-                    dependencyManager.compilationCompleted(this, !compiledOpenClass.hasErrors());
+                    dependencyManager.compilationCompleted(this, !lazyCompiledOpenClass.hasErrors());
                 } finally {
-                    if (compiledOpenClass == null) {
+                    if (lazyCompiledOpenClass == null) {
                         dependencyManager.compilationCompleted(this, false);
                     }
                 }
-                if (modules.size() == 1 && realCompileRequred) {
-                    compileAfterLazyCompile(dependencyName, dependencyManager, classLoader, modules.iterator().next());
+                if (modules.size() == 1 && realCompileRequred && lazyCompiledOpenClass != null) {
+                    compileAfterLazyCompile(lazyCompiledOpenClass, dependencyName, dependencyManager, classLoader, modules.iterator().next());
                 }
-                return compiledOpenClass;
+                return lazyCompiledOpenClass;
             } catch (Exception ex) {
                 throw new OpenLCompilationException("Failed to load dependency '" + dependencyName + "'.", ex);
             } finally {
@@ -189,11 +181,11 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
         }
     }
 
-    private void compileAfterLazyCompile(final String dependencyName,
+    private void compileAfterLazyCompile(CompiledOpenClass lazyCompiledOpenClass, final String dependencyName,
             final RuleServiceDeploymentRelatedDependencyManager dependencyManager,
             final ClassLoader classLoader,
             final Module module) throws OpenLCompilationException {
-        synchronized (CompiledOpenClassCache.getInstance()) {
+        synchronized (lazyCompiledOpenClass) {
             CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance().get(deployment, dependencyName);
             if (compiledOpenClass != null) {
                 return;

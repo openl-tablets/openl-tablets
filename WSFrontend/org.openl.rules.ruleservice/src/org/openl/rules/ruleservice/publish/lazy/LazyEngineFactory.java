@@ -18,7 +18,6 @@ import org.openl.message.OpenLMessages;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
-import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.runtime.AOpenLRulesEngineFactory;
@@ -221,19 +220,34 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         return null;
     }
 
-    private LazyMethod makeLazyMethod(IOpenMethod method) {
+    private LazyMethod makeLazyMethod(XlsLazyModuleOpenClass xlsLazyModuleOpenClass, IOpenMethod method) {
         final Module declaringModule = getModuleForMember(method);
         Class<?>[] argTypes = new Class<?>[method.getSignature().getNumberOfParameters()];
         for (int i = 0; i < argTypes.length; i++) {
             argTypes[i] = method.getSignature().getParameterType(i).getInstanceClass();
         }
-        
-        return LazyMethod.getLazyMethod(deployment, declaringModule, argTypes, method, dependencyManager, Thread.currentThread().getContextClassLoader(), true, externalParameters);
+
+        return LazyMethod.getLazyMethod(xlsLazyModuleOpenClass,
+            deployment,
+            declaringModule,
+            argTypes,
+            method,
+            dependencyManager,
+            Thread.currentThread().getContextClassLoader(),
+            true,
+            externalParameters);
     }
 
-    private LazyField makeLazyField(IOpenField field) {
+    private LazyField makeLazyField(XlsLazyModuleOpenClass xlsLazyModuleOpenClass, IOpenField field) {
         Module declaringModule = getModuleForMember(field);
-        return LazyField.getLazyField(deployment, declaringModule, field, dependencyManager, Thread.currentThread().getContextClassLoader(), true, externalParameters);
+        return LazyField.getLazyField(xlsLazyModuleOpenClass,
+            deployment,
+            declaringModule,
+            field,
+            dependencyManager,
+            Thread.currentThread().getContextClassLoader(),
+            true,
+            externalParameters);
     }
 
     private CompiledOpenClass initializeOpenClass() {
@@ -244,12 +258,12 @@ public class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
 
                 @Override
                 public IOpenMethod processMethodAdded(IOpenMethod method, XlsLazyModuleOpenClass moduleOpenClass) {
-                    return makeLazyMethod(method);
+                    return makeLazyMethod(moduleOpenClass, method);
                 }
 
                 @Override
                 public IOpenField processFieldAdded(IOpenField field, XlsLazyModuleOpenClass moduleOpenClass) {
-                    return makeLazyField(field);
+                    return makeLazyField(moduleOpenClass, field);
                 }
             });
 

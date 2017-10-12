@@ -11,14 +11,16 @@ import org.openl.CompiledOpenClass;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-
-public class OpenLEhCacheHolder {
+public final class OpenLEhCacheHolder {
 
     private static final String CACHE_NAME = "modulesCache";
     private static final String OPENL_EHCACHE_FILE_NAME = "openl-ehcache.xml";
 
     private volatile Cache<Key, CompiledOpenClass> modulesCache = null;
 
+    private OpenLEhCacheHolder() {
+    }
+    
     private static class OpenLEhCacheHolderHolder {
         public static final OpenLEhCacheHolder INSTANCE = new OpenLEhCacheHolder();
     }
