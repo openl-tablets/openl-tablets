@@ -2,6 +2,7 @@ package org.openl.rules.ruleservice.publish.lazy;
 
 import java.util.Map;
 
+import org.ehcache.event.CacheEvent;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenlNotCheckedException;
@@ -36,12 +37,8 @@ public abstract class LazyField extends LazyMember<IOpenField> implements IOpenF
             ClassLoader classLoader,
             boolean executionMode,
             Map<String, Object> externalParameters) {
-        LazyField lazyField = new LazyField(original.getName(),
-            original,
-            dependencyManager,
-            classLoader,
-            executionMode,
-            externalParameters) {
+        LazyField lazyField = new LazyField(original
+            .getName(), original, dependencyManager, classLoader, executionMode, externalParameters) {
             @Override
             public DeploymentDescription getDeployment() {
                 return deployment;
@@ -52,7 +49,7 @@ public abstract class LazyField extends LazyMember<IOpenField> implements IOpenF
                 return module;
             }
         };
-        CompiledOpenClassCache.getInstance().registerLazyMember(lazyField);
+        CompiledOpenClassCache.getInstance().registerEvent(deployment, module.getName(), new LazyMemberEvent(lazyField));
         return lazyField;
     }
 

@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.publish.lazy;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -18,7 +17,6 @@ import org.ehcache.event.EventOrdering;
 import org.ehcache.event.EventType;
 import org.openl.CompiledOpenClass;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
-import org.openl.types.IOpenMember;
 
 /**
  * Caches compiled modules. Uses EhCache. This is singleton and thread safe
@@ -28,38 +26,32 @@ import org.openl.types.IOpenMember;
  */
 public final class CompiledOpenClassCache {
 
-    private static final Set<EventType> ALL_EVENT_TYPES;
+    private static class CompiledOpenClassHolder {
+        public static final CompiledOpenClassCache INSTANCE = new CompiledOpenClassCache();
+    }
 
-    static {
+    private CompiledOpenClassCache() {
         Set<EventType> allEventTypes = new HashSet<>();
         allEventTypes.add(EventType.CREATED);
         allEventTypes.add(EventType.EVICTED);
         allEventTypes.add(EventType.EXPIRED);
         allEventTypes.add(EventType.REMOVED);
         allEventTypes.add(EventType.EXPIRED);
-        ALL_EVENT_TYPES = Collections.unmodifiableSet(allEventTypes);
-    }
-
-    private static class CompiledOpenClassHolder {
-        public static final CompiledOpenClassCache INSTANCE = new CompiledOpenClassCache();
-    }
-
-    private CompiledOpenClassCache() {
         OpenLEhCacheHolder.getInstance().getModulesCache().getRuntimeConfiguration().registerCacheEventListener(
             new CacheEventListener<Key, CompiledOpenClass>() {
                 @Override
                 public void onEvent(CacheEvent<? extends Key, ? extends CompiledOpenClass> event) {
-                    synchronized (CompiledOpenClassCache.this.lazyMembersMap) {
-                        Collection<LazyMember<? extends IOpenMember>> lazyMembers = CompiledOpenClassCache.this.lazyMembersMap.get(event.getKey());  
-                        for (LazyMember<? extends IOpenMember> lazyMember : lazyMembers) {
-                            lazyMember.onCompiledOpenClassCacheModified();
+                    synchronized (CompiledOpenClassCache.this.eventsMap) {
+                        Collection<Event> events = CompiledOpenClassCache.this.eventsMap.get(event.getKey());
+                        for (Event e : events) {
+                            e.onEvent(event);
                         }
                     }
                 }
             },
             EventOrdering.ORDERED,
             EventFiring.SYNCHRONOUS,
-            ALL_EVENT_TYPES);
+            allEventTypes);
     }
 
     /**
@@ -97,20 +89,23 @@ public final class CompiledOpenClassCache {
         cache.put(key, compiledOpenClass);
     }
 
-    private Map<Key, Collection<LazyMember<? extends IOpenMember>>> lazyMembersMap = new HashMap<>();
+    private Map<Key, Collection<Event>> eventsMap = new HashMap<>();
 
-    public void registerLazyMember(LazyMember<? extends IOpenMember> lazyMember) {
-        if (lazyMember == null) {
-            throw new IllegalArgumentException("lazyMember must not be null!");
+    public void registerEvent(DeploymentDescription deploymentDescription, String dependencyName, Event event) {
+        if (deploymentDescription == null) {
+            throw new IllegalArgumentException("deploymentDescription must not be null!");
         }
-        Key key = new Key(lazyMember.getDeployment(), lazyMember.getModule().getName());
-        synchronized (lazyMembersMap) {
-            Collection<LazyMember<? extends IOpenMember>> lazyMembers = lazyMembersMap.get(key);
-            if (lazyMembers == null) {
-                lazyMembers = new ArrayList<>();
-                lazyMembersMap.put(key, lazyMembers);
+        if (dependencyName == null) {
+            throw new IllegalArgumentException("dependencyName must not be null!");
+        }
+        Key key = new Key(deploymentDescription, dependencyName);
+        synchronized (eventsMap) {
+            Collection<Event> events = eventsMap.get(key);
+            if (events == null) {
+                events = new ArrayList<>();
+                eventsMap.put(key, events);
             }
-            lazyMembers.add(lazyMember);
+            events.add(event);
         }
     }
 
@@ -129,17 +124,14 @@ public final class CompiledOpenClassCache {
                 cache.remove(key);
             }
         }
-        synchronized (lazyMembersMap) {
-            Iterator<java.util.Map.Entry<Key, Collection<LazyMember<? extends IOpenMember>>>> lazyMembersMapIterator = lazyMembersMap
-                .entrySet()
-                .iterator();
-            while (lazyMembersMapIterator.hasNext()) {
-                java.util.Map.Entry<Key, Collection<LazyMember<? extends IOpenMember>>> entry = lazyMembersMapIterator
-                    .next();
+        synchronized (eventsMap) {
+            Iterator<java.util.Map.Entry<Key, Collection<Event>>> eventsMapIterator = eventsMap.entrySet().iterator();
+            while (eventsMapIterator.hasNext()) {
+                java.util.Map.Entry<Key, Collection<Event>> entry = eventsMapIterator.next();
                 if (deploymentDescription.getName()
                     .equals(entry.getKey().getDeploymentDescription().getName()) && deploymentDescription.getVersion()
                         .equals(entry.getKey().getDeploymentDescription().getVersion())) {
-                    lazyMembersMapIterator.remove();
+                    eventsMapIterator.remove();
                 }
             }
         }
@@ -148,8 +140,8 @@ public final class CompiledOpenClassCache {
     public void reset() {
         Cache<Key, CompiledOpenClass> cache = OpenLEhCacheHolder.getInstance().getModulesCache();
         cache.clear();
-        synchronized (lazyMembersMap) {
-            lazyMembersMap.clear();
+        synchronized (eventsMap) {
+            eventsMap.clear();
         }
     }
 }

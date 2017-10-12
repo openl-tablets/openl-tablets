@@ -64,7 +64,7 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
         cachedMember = member;
     }
 
-    public void onCompiledOpenClassCacheModified() {
+    public void clearCachedMember() {
         cachedMember = null;
     }
 

@@ -77,7 +77,8 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
                 }
             };
         }
-        CompiledOpenClassCache.getInstance().registerLazyMember(lazyMethod);
+        CompiledOpenClassCache.getInstance()
+            .registerEvent(deployment, module.getName(), new LazyMemberEvent(lazyMethod));
         return lazyMethod;
     }
 
