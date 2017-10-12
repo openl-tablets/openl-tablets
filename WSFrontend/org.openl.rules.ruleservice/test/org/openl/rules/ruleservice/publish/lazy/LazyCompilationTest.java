@@ -49,7 +49,7 @@ public class LazyCompilationTest {
             threads[i].start();
         }
 
-        Thread.sleep(120000);
+        Thread.sleep(10000);
 
         running = false;
         for (int i = 0; i < MAX_THREADS; i++) {
