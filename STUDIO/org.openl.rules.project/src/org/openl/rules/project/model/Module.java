@@ -2,11 +2,8 @@ package org.openl.rules.project.model;
 
 import java.util.Map;
 
-
 public class Module{
-
     private String name;
-    private String classname;
     private PathEntry rulesRootPath;
     private ProjectDescriptor project;
     private Map<String, Object> properties;

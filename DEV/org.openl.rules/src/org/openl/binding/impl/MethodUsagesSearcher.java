@@ -6,6 +6,7 @@ import java.util.List;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.method.TableUriMethod;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.types.IMethodCaller;
@@ -54,8 +55,8 @@ public class MethodUsagesSearcher {
 
         private static String getTableUri(IOpenMethod method) {
             try {
-                if (method instanceof ExecutableRulesMethod) {
-                    return ((ExecutableRulesMethod) method).getSyntaxNode().getUri();
+                if (method instanceof TableUriMethod) {
+                    return ((TableUriMethod) method).getTableUri();
                 } else if (method instanceof OverloadedMethodsDispatcherTable) {
                     return ((OverloadedMethodsDispatcherTable) method).getDispatcherTable().getUri();
                 } else if (method instanceof MatchingOpenMethodDispatcher) {

@@ -40,6 +40,8 @@ import org.openl.vm.IRuntimeEnv;
 @Executable
 public class DecisionTable extends ExecutableRulesMethod implements IDecisionTable {
 
+    private static final boolean ALG2 = false;
+    
     private IBaseCondition[] conditionRows;
     private IBaseAction[] actionRows;
     /**
@@ -55,9 +57,9 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
      * Object to invoke current method.
      */
     private Invokable invoker;
-    
+
     private DTInfo dtInfo;
-    
+
     public DecisionTable() {
         super(null, null);
     }
@@ -146,8 +148,13 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         this.ruleRow = ruleRow;
     }
 
-    public void bindTable(IBaseCondition[] conditionRows, IBaseAction[] actionRows, RuleRow ruleRow, OpenL openl,
-            ComponentOpenClass componentOpenClass, IBindingContextDelegator cxtd, int columns) throws Exception {
+    public void bindTable(IBaseCondition[] conditionRows,
+            IBaseAction[] actionRows,
+            RuleRow ruleRow,
+            OpenL openl,
+            ComponentOpenClass componentOpenClass,
+            IBindingContextDelegator cxtd,
+            int columns) throws Exception {
 
         this.conditionRows = conditionRows;
         this.actionRows = actionRows;
@@ -187,25 +194,22 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         return false;
     }
 
-
-    private void prepare(IOpenMethodHeader header, OpenL openl, ComponentOpenClass module,
+    private void prepare(IOpenMethodHeader header,
+            OpenL openl,
+            ComponentOpenClass module,
             IBindingContextDelegator bindingContextDelegator) throws Exception {
 
-        
         algorithm = getAlgorithmBuilder(header, openl, module, bindingContextDelegator).prepareAndBuildAlgorithm();
 
     }
-    
-    
-    public static boolean ALG2 = false;
 
-    private IAlgorithmBuilder getAlgorithmBuilder(IOpenMethodHeader header, OpenL openl,
-			ComponentOpenClass module,
-			IBindingContextDelegator bindingContextDelegator) {
-		return ALG2 ? new DecisionTableAlgorithmBuilder2(this, header, openl, module, bindingContextDelegator) 
-		            : new DecisionTableAlgorithmBuilder(this, header, openl, module, bindingContextDelegator);
-	}
-
+    private IAlgorithmBuilder getAlgorithmBuilder(IOpenMethodHeader header,
+            OpenL openl,
+            ComponentOpenClass module,
+            IBindingContextDelegator bindingContextDelegator) {
+        return ALG2 ? new DecisionTableAlgorithmBuilder2(this, header, openl, module, bindingContextDelegator)
+                    : new DecisionTableAlgorithmBuilder(this, header, openl, module, bindingContextDelegator);
+    }
 
     @Override
     public String toString() {
@@ -238,62 +242,53 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
 
     protected void updateValueDependency(FunctionalRow frow, BindingDependencies dependencies) {
 
+        int len = frow.getNumberOfRules();
+        int np = frow.getNumberOfParams();
+        for (int ruleN = 0; ruleN < len; ruleN++) {
 
-    	int len = frow.getNumberOfRules();
-    	int np = frow.getNumberOfParams();
-    	for (int ruleN = 0; ruleN < len; ruleN++) {
-
-                if (frow.isEmpty(ruleN)) {
-                    continue;
-                }
-
-                for (int paramIndex = 0; paramIndex < np; paramIndex++) {
-                	Object value = frow.getParamValue(paramIndex, ruleN);
-                	
-                    if (value instanceof CompositeMethod) {
-                        ((CompositeMethod) value).updateDependency(dependencies);
-                    }
-                    else if (value instanceof ArrayHolder) {
-						ArrayHolder ah = (ArrayHolder) value;
-						ah.updateDependency(dependencies);
-					}
-                }
+            if (frow.isEmpty(ruleN)) {
+                continue;
             }
 
+            for (int paramIndex = 0; paramIndex < np; paramIndex++) {
+                Object value = frow.getParamValue(paramIndex, ruleN);
+
+                if (value instanceof CompositeMethod) {
+                    ((CompositeMethod) value).updateDependency(dependencies);
+                } else if (value instanceof ArrayHolder) {
+                    ArrayHolder ah = (ArrayHolder) value;
+                    ah.updateDependency(dependencies);
+                }
+            }
+        }
+
     }
 
-    
-    public ICondition getCondition(int n)
-    {
-    	return (ICondition)conditionRows[n];
+    public ICondition getCondition(int n) {
+        return (ICondition) conditionRows[n];
     }
 
-    public IAction getAction(int n)
-    {
-    	return (IAction)actionRows[n];
+    public IAction getAction(int n) {
+        return (IAction) actionRows[n];
     }
-    
-    
- 
-	public DTInfo getDtInfo() {
-		return dtInfo;
-	}
 
-	public void setDtInfo(DTInfo dtInfo) {
-		this.dtInfo = dtInfo;
-	}
+    public DTInfo getDtInfo() {
+        return dtInfo;
+    }
 
-	@Override
-	public int getNumberOfConditions() {
-		
-		return conditionRows.length;
-	}
+    public void setDtInfo(DTInfo dtInfo) {
+        this.dtInfo = dtInfo;
+    }
 
-	public int getNumberOfActions() {
-		
-		return actionRows.length;
-	}
-	
-	
+    @Override
+    public int getNumberOfConditions() {
+
+        return conditionRows.length;
+    }
+
+    public int getNumberOfActions() {
+
+        return actionRows.length;
+    }
 
 }

@@ -167,7 +167,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
 
     /**
      * Overridden to get access to {@link TableSyntaxNode} from current
-     * implenmentation.
+     * implementation.
      */
     public TableSyntaxNode getSyntaxNode() {
         if (boundNode != null) {
