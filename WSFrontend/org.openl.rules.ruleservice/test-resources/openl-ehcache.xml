@@ -10,35 +10,7 @@
 
 		<!-- The maximal number of entries to be held in the Cache, prior to eviction 
 			starting -->
-		<ehcache:heap unit="entries">10</ehcache:heap>
-
-	</ehcache:cache>
-
-	<ehcache:cache alias="lazyModulesCache">
-		<ehcache:key-type>org.openl.rules.ruleservice.publish.lazy.Key</ehcache:key-type>
-		<ehcache:value-type>org.openl.CompiledOpenClass</ehcache:value-type>
-	
-		<!-- The maximal number of entries to be held in the Cache, prior to eviction 
-			starting -->
-		<ehcache:heap unit="entries">10</ehcache:heap>
+		<ehcache:heap unit="entries">2</ehcache:heap>
 	</ehcache:cache>
 	
-	<ehcache:cache alias="elementsRestrictionCache">
-		<ehcache:key-type>org.openl.rules.ruleservice.publish.lazy.Key</ehcache:key-type>
-		<ehcache:value-type>org.openl.CompiledOpenClass</ehcache:value-type>
-
-		<!-- The maximal number of entries to be held in the Cache, prior to eviction 
-			starting -->
-		<ehcache:heap unit="entries">1</ehcache:heap>
-	</ehcache:cache>
-
-	<ehcache:cache alias="memoryRestrictionCache">
-		<ehcache:key-type>org.openl.rules.ruleservice.publish.lazy.Key</ehcache:key-type>
-		<ehcache:value-type>org.openl.CompiledOpenClass</ehcache:value-type>
-	
-		<!-- The maximal number of entries to be held in the Cache, prior to eviction 
-			starting -->
-		<ehcache:heap unit="entries">1</ehcache:heap>
-	</ehcache:cache>
-
 </ehcache:config>

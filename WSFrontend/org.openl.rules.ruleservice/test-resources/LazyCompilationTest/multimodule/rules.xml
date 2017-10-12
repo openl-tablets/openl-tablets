@@ -1,0 +1,11 @@
+<project>
+	<id>lazy-compilation-test</id>
+	<name>Lazy Test</name>
+
+	<!-- OpenL project includes one or more modules.  -->
+	<modules>
+		<module>
+			<rules-root path="module*.xlsx"/>
+		</module>	
+	</modules>
+</project>
