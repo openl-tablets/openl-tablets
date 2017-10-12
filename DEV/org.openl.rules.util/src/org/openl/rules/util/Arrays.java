@@ -1,5 +1,7 @@
 package org.openl.rules.util;
 
+import java.lang.reflect.Array;
+
 /**
  * A set of util methods to work with arrays.
  *
@@ -90,5 +92,138 @@ public class Arrays {
 
     public static boolean isNotEmpty(boolean[] array) {
         return !isEmpty(array);
+    }
+
+    // SLICE
+    public static <T> T[] slice(T[] values, int startIndexInclusive) {
+        return slice(values, startIndexInclusive, Integer.MAX_VALUE);
+    }
+
+    public static byte[] slice(byte[] values, int startIndexInclusive) {
+        return slice(values, startIndexInclusive, Integer.MAX_VALUE);
+    }
+
+    public static char[] slice(char[] values, int startIndexInclusive) {
+        return slice(values, startIndexInclusive, Integer.MAX_VALUE);
+    }
+
+    public static short[] slice(short[] values, int startIndexInclusive) {
+        return slice(values, startIndexInclusive, Integer.MAX_VALUE);
+    }
+
+    public static int[] slice(int[] values, int startIndexInclusive) {
+        return slice(values, startIndexInclusive, Integer.MAX_VALUE);
+    }
+
+    public static long[] slice(long[] values, int startIndexInclusive) {
+        return slice(values, startIndexInclusive, Integer.MAX_VALUE);
+    }
+
+    public static float[] slice(float[] values, int startIndexInclusive) {
+        return slice(values, startIndexInclusive, Integer.MAX_VALUE);
+    }
+
+    public static double[] slice(double[] values, int startIndexInclusive) {
+        return slice(values, startIndexInclusive, Integer.MAX_VALUE);
+    }
+
+    public static boolean[] slice(boolean[] values, int startIndexInclusive) {
+        return slice(values, startIndexInclusive, Integer.MAX_VALUE);
+    }
+
+    public static <T> T[] slice(T[] values, int startIndexInclusive, int endIndexExclusive) {
+        @SuppressWarnings("unchecked") // OK, because array is of type T
+        T[] subarray = (T[]) subarray(values, startIndexInclusive, endIndexExclusive);
+        return subarray;
+    }
+
+    public static byte[] slice(byte[] values, int startIndexInclusive, int endIndexExclusive) {
+        @SuppressWarnings("unchecked") // OK, because array is of byte
+        byte[] subarray = (byte[]) subarray(values, startIndexInclusive, endIndexExclusive);
+        return subarray;
+    }
+
+    public static char[] slice(char[] values, int startIndexInclusive, int endIndexExclusive) {
+        @SuppressWarnings("unchecked") // OK, because array is of char
+        char[] subarray = (char[]) subarray(values, startIndexInclusive, endIndexExclusive);
+        return subarray;
+    }
+
+    public static short[] slice(short[] values, int startIndexInclusive, int endIndexExclusive) {
+        @SuppressWarnings("unchecked") // OK, because array is of short
+        short[] subarray = (short[]) subarray(values, startIndexInclusive, endIndexExclusive);
+        return subarray;
+    }
+
+    public static int[] slice(int[] values, int startIndexInclusive, int endIndexExclusive) {
+        @SuppressWarnings("unchecked") // OK, because array is of int
+        int[] subarray = (int[]) subarray(values, startIndexInclusive, endIndexExclusive);
+        return subarray;
+    }
+
+    public static long[] slice(long[] values, int startIndexInclusive, int endIndexExclusive) {
+        @SuppressWarnings("unchecked") // OK, because array is of long
+        long[] subarray = (long[]) subarray(values, startIndexInclusive, endIndexExclusive);
+        return subarray;
+    }
+
+    public static float[] slice(float[] values, int startIndexInclusive, int endIndexExclusive) {
+        @SuppressWarnings("unchecked") // OK, because array is of float
+        float[] subarray = (float[]) subarray(values, startIndexInclusive, endIndexExclusive);
+        return subarray;
+    }
+
+    public static double[] slice(double[] values, int startIndexInclusive, int endIndexExclusive) {
+        @SuppressWarnings("unchecked") // OK, because array is of double
+        double[] subarray = (double[]) subarray(values, startIndexInclusive, endIndexExclusive);
+        return subarray;
+    }
+
+    public static boolean[] slice(boolean[] values, int startIndexInclusive, int endIndexExclusive) {
+        @SuppressWarnings("unchecked") // OK, because array is of boolean
+        boolean[] subarray = (boolean[]) subarray(values, startIndexInclusive, endIndexExclusive);
+        return subarray;
+    }
+
+    private static Object subarray(Object array, int beginIndex, int endIndex) {
+        if (array == null) {
+            return null;
+        }
+        // handle negatives
+        int size = Array.getLength(array);
+        if (size == 0) {
+            return array;
+        }
+        if (endIndex < 0) {
+            endIndex = size + endIndex; // remember end is negative
+        }
+        if (beginIndex < 0) {
+            beginIndex = size + beginIndex; // remember start is negative
+
+        }
+
+        // check length next
+        if (endIndex > size) {
+            endIndex = size;
+        }
+
+        if (beginIndex < 0) {
+            beginIndex = 0;
+        }
+        if (endIndex < 0) {
+            endIndex = 0;
+        }
+
+        final int newSize = endIndex - beginIndex;
+        if (newSize == size && beginIndex == 0) {
+            return array;
+        }
+        final Class<?> type = array.getClass().getComponentType();
+        if (newSize <= 0) {
+            return Array.newInstance(type, 0);
+        }
+        final Object subarray = Array.newInstance(type, newSize);
+        System.arraycopy(array, beginIndex, subarray, 0, newSize);
+        return subarray;
     }
 }
