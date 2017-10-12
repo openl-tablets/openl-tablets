@@ -131,7 +131,7 @@ public class AProject extends AProjectFolder {
     }
 
     @Override
-    protected int getFirstRevisionIndex() {
+    public int getFirstRevisionIndex() {
         List<FileData> fileDatas = getHistoryFileDatas();
         if (fileDatas.isEmpty()) {
             return 0;
@@ -458,7 +458,8 @@ public class AProject extends AProjectFolder {
             ZipEntry entry = new ZipEntry(name);
             zipOutputStream.putNextEntry(entry);
 
-            InputStream content = resource.getContent();
+            ResourceTransformer transformer = getResourceTransformer();
+            InputStream content = transformer != null ? transformer.transform(resource) : resource.getContent();
             IOUtils.copy(content, zipOutputStream);
 
             content.close();

@@ -8,25 +8,29 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.CommonVersionImpl;
+import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.rules.project.abstraction.ResourceTransformer;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.LockEngineImpl;
-import org.openl.rules.project.model.*;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.PathEntry;
+import org.openl.rules.project.model.ProjectDependencyDescriptor;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
+import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportModule;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.ProjectDescriptorTransformer;
 import org.openl.rules.webstudio.web.repository.project.CustomTemplatesResolver;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
 import org.openl.rules.webstudio.web.repository.project.PredefinedTemplatesResolver;
@@ -100,6 +104,9 @@ public class RepositoryTreeController {
 
     @ManagedProperty("#{projectDescriptorArtefactResolver}")
     private ProjectDescriptorArtefactResolver projectDescriptorResolver;
+
+    @ManagedProperty(value = "#{projectDescriptorSerializerFactory}")
+    private ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory;
 
     private WebStudio studio = WebStudioUtils.getWebStudio(true);
 
@@ -429,34 +436,7 @@ public class RepositoryTreeController {
         }
 
         try {
-            userWorkspace.copyProject(project, newProjectName, new ResourceTransformer() {
-                @Override
-                public InputStream tranform(AProjectResource resource) throws ProjectException {
-                    if (isProjectDescriptor(resource)) {
-                        InputStream content = null;
-                        try {
-                            XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer(false);
-                            content = resource.getContent();
-                            ProjectDescriptor projectDescriptor = serializer.deserialize(content);
-                            projectDescriptor.setName(newProjectName);
-                            return IOUtils.toInputStream(serializer.serialize(projectDescriptor));
-                        } catch (XStreamException e) {
-                            // Can't parse rules.xml. Don't modify it.
-                            log.error(e.getMessage(), e);
-                        } finally {
-                            IOUtils.closeQuietly(content);
-                        }
-                    }
-
-                    return resource.getContent();
-                }
-
-                private boolean isProjectDescriptor(AProjectResource resource) {
-                    String actualFullPath = resource.getArtefactPath().withoutFirstSegment().getStringValue();
-                    String expectedFullPath = ArtefactPathImpl.SEGMENT_DELIMITER + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME;
-                    return expectedFullPath.equals(actualFullPath);
-                }
-            });
+            userWorkspace.copyProject(project, newProjectName, new ProjectDescriptorTransformer(newProjectName));
             AProject newProject = userWorkspace.getProject(newProjectName);
             repositoryTreeState.addRulesProjectToTree(newProject);
             resetStudioModel();
@@ -630,6 +610,8 @@ public class RepositoryTreeController {
         Collection<String> modulePaths = new HashSet<>();
         findModulePaths(aProjectArtefact, modulePaths);
         if (projectDescriptorArtifact instanceof AProjectResource) {
+            IProjectDescriptorSerializer serializer = projectDescriptorSerializerFactory.getSerializer(selectedProject);
+
             String projectDescriptorPath = projectDescriptorArtifact.getArtefactPath().withoutFirstSegment() .getStringValue();
             if (projectDescriptorPath.equals(aProjectArtefact.getArtefactPath().withoutFirstSegment().getStringValue())) {
                 // There is no need to unregister itself
@@ -640,7 +622,7 @@ public class RepositoryTreeController {
             InputStream content = resource.getContent();
             ProjectDescriptor projectDescriptor;
             try {
-                projectDescriptor = xmlProjectDescriptorSerializer.deserialize(content);
+                projectDescriptor = serializer.deserialize(content);
             } catch (StreamException e) {
                 log.error("Broken rules.xml file. Can't remove modules from it", e);
                 return;
@@ -656,7 +638,7 @@ public class RepositoryTreeController {
                     }
                 }
             }
-            String xmlString = xmlProjectDescriptorSerializer.serialize(projectDescriptor);
+            String xmlString = serializer.serialize(projectDescriptor);
             InputStream newContent = IOUtils.toInputStream(xmlString);
             resource.setContent(newContent);
         }
@@ -1405,8 +1387,6 @@ public class RepositoryTreeController {
         this.uploadedFiles.clear();
     }
 
-    private XmlProjectDescriptorSerializer xmlProjectDescriptorSerializer = new XmlProjectDescriptorSerializer();
-
     private String uploadAndAddFile() {
         if (!NameChecker.checkName(fileName)) {
             return "File name '" + fileName + "' is invalid. " + NameChecker.BAD_NAME_MSG;
@@ -1451,9 +1431,11 @@ public class RepositoryTreeController {
                 AProjectArtefact projectDescriptorArtifact = selectedProject
                     .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
                 if (projectDescriptorArtifact instanceof AProjectResource) {
+                    IProjectDescriptorSerializer serializer = projectDescriptorSerializerFactory.getSerializer(selectedProject);
+
                     AProjectResource resource = (AProjectResource) projectDescriptorArtifact;
                     content = resource.getContent();
-                    ProjectDescriptor projectDescriptor = xmlProjectDescriptorSerializer.deserialize(content);
+                    ProjectDescriptor projectDescriptor = serializer.deserialize(content);
                     String modulePath = addedFileResource.getArtefactPath().withoutFirstSegment().getStringValue();
                     while (modulePath.charAt(0) == '/') {
                         modulePath = modulePath.substring(1);
@@ -1462,7 +1444,7 @@ public class RepositoryTreeController {
                     module.setName(fileName.substring(0, fileName.lastIndexOf('.')));
                     module.setRulesRootPath(new PathEntry(modulePath));
                     projectDescriptor.getModules().add(module);
-                    String xmlString = xmlProjectDescriptorSerializer.serialize(projectDescriptor);
+                    String xmlString = serializer.serialize(projectDescriptor);
                     InputStream newContent = IOUtils.toInputStream(xmlString);
                     resource.setContent(newContent);
                 }
@@ -1652,5 +1634,9 @@ public class RepositoryTreeController {
 
     public String getLogicalName(RulesProject project) {
         return project == null ? null : projectDescriptorResolver.getLogicalName(project);
+    }
+
+    public void setProjectDescriptorSerializerFactory(ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory) {
+        this.projectDescriptorSerializerFactory = projectDescriptorSerializerFactory;
     }
 }

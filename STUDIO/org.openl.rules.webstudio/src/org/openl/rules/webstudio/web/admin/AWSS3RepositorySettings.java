@@ -7,7 +7,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     private String regionName;
     private String accessKey;
     private String secretKey;
-    private Long listenerTimerPeriod;
+    private int listenerTimerPeriod;
 
     private final String BUCKET_NAME;
     private final String REGION_NAME;
@@ -27,7 +27,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
         regionName = configManager.getStringProperty(REGION_NAME);
         accessKey = configManager.getStringProperty(ACCESS_KEY);
         secretKey = configManager.getStringProperty(SECRET_KEY);
-        listenerTimerPeriod = configManager.getLongProperty(LISTENER_TIMER_PERIOD, 10000L);
+        listenerTimerPeriod = configManager.getLongProperty(LISTENER_TIMER_PERIOD, 10L).intValue();
     }
 
     public String getBucketName() {
@@ -62,14 +62,14 @@ public class AWSS3RepositorySettings extends RepositorySettings {
         this.secretKey = secretKey;
     }
 
-    public Long getListenerTimerPeriod() {
+    public int getListenerTimerPeriod() {
         // Convert to seconds
-        return listenerTimerPeriod / 1000;
+        return listenerTimerPeriod;
     }
 
-    public void setListenerTimerPeriod(Long listenerTimerPeriod) {
+    public void setListenerTimerPeriod(int listenerTimerPeriod) {
         // Convert to milliseconds
-        this.listenerTimerPeriod = listenerTimerPeriod * 1000;
+        this.listenerTimerPeriod = listenerTimerPeriod;
     }
 
     @Override

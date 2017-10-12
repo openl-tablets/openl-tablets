@@ -322,20 +322,14 @@
                 </tr>
 
                 <tr>
-                    <td class="required">Name</td>
-                    <td><h:inputText id="projectName" value="#{project.name}"
-                        validator="#{projectBean.validateProjectName}" /></td>
+                    <td>Name</td>
+                    <td class="aligned-property"><h:outputText id="projectName" value="#{project.name}"/></td>
                 </tr>
                 <tr>
                     <td></td>
-                    <td><a4j:outputPanel ajaxRendered="true">
-                        <h:message for="projectName" styleClass="error" />
-                    </a4j:outputPanel>
-                        <div id="projectRenameWarning" class="warning hidden">
-                            <div>Warning! This renaming will split the project on two parts.</div>
-                            <div>This project will be closed: '<span id="projectPhysicalName">#{projectData.name}</span>'.</div>
-                            <div>This project will be created: '<span id="projectLogicalName">#{project.name}</span>'.</div>
-                        </div>
+                    <td><h:panelGroup styleClass="warning" rendered="#{projectData.name != project.name}">
+                        <h:outputText value="Project name in rules.xml is '#{project.name}'. It will be replaced with '#{projectData.name}'."/>
+                    </h:panelGroup>
                     </td>
                 </tr>
                 <tr>
@@ -394,7 +388,7 @@
             <footer>
                 <a4j:commandButton id="editProjectBtn" value="Update" action="#{projectBean.editName}"
                     styleClass="button-primary"
-                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editProjectPopup');ws.nav.go('##{jsffn:encodeURL(project.name)}', true)}" />
+                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('editProjectPopup');ws.nav.go('##{jsffn:encodeURL(projectData.name)}', true)}" />
                 <input type="button" value="Cancel" onclick="ws.ui.hide('editProjectPopup');" />
             </footer>
         </h:form>
@@ -501,7 +495,6 @@
 
     <script>
     //<![CDATA[
-        var initProjectName = $j("#projectName").val();               // Плохо, очень плохо!!!
         var initProjectDescription = $j("#projectDescription").val(); // Плохо, очень плохо!!!
 
         var initDependencies = $j("#dependenciesTable tr > td:first-child input:checked").get();
@@ -526,7 +519,6 @@
             var btn = $j("#editProjectBtn");
 
             btn.prop("disabled", true);
-            $j("#projectName").val(initProjectName);
             $j("#projectDescription").val(initProjectDescription);
             $j("#propertiesFileNamePattern").val(initPropertiesFileNamePattern);
             $j("#propertiesFileNameProcessor").val(initPropertiesFileNameProcessor);
@@ -538,29 +530,19 @@
             ws.ui.show("editProjectPopup");
 
             var updateButtonState = function () {
-                var name = $j("#projectName").val();
                 var description = $j("#projectDescription").val();
                 var propertiesFileNamePattern = $j("#propertiesFileNamePattern").val();
                 var propertiesFileNameProcessor = $j("#propertiesFileNameProcessor").val();
                 var supportedVersion = $j("#supportedVersion").val();
-                btn.prop("disabled", !name || (name == initProjectName && description == initProjectDescription &&
+                btn.prop("disabled", description == initProjectDescription &&
                         propertiesFileNamePattern == initPropertiesFileNamePattern &&
                         propertiesFileNameProcessor == initPropertiesFileNameProcessor &&
-                        supportedVersion == initSupportedVersion));
+                        supportedVersion == initSupportedVersion);
             };
 
-            var updateWarningVisibility = function () {
-                var logicalName = $j("#projectName").val();
-                var physicalName = $j("#projectPhysicalName").text();
-                $j("#projectLogicalName").text(logicalName);
-                $j("#projectRenameWarning").toggle(logicalName !== physicalName);
-            };
-            $j("#projectName").off().on("change keyup cut paste", updateWarningVisibility);
-            $j("#projectName, #projectDescription, #propertiesFileNamePattern, #propertiesFileNameProcessor").on("keyup", updateButtonState);
+            $j("#projectDescription, #propertiesFileNamePattern, #propertiesFileNameProcessor").on("change keyup cut paste", updateButtonState);
             $j("#customPropertiesFileNameProcessor").click(updateButtonState);
             $j("#supportedVersion").change(updateButtonState);
-
-            updateWarningVisibility();
         }
 
         function addModule() {

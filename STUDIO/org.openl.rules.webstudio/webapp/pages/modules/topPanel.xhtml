@@ -31,6 +31,10 @@
         <ui:include src="/pages/modules/saveRevision.xhtml" />
     </h:panelGroup>
 
+    <h:panelGroup rendered="#{!empty rProject and copyBean.canCreate}">
+        <ui:include src="/pages/modules/copyProject.xhtml" />
+    </h:panelGroup>
+
     <h:form id="headerForm" prependId="false" styleClass="navbar">
         <div class="breadcrumbs" style="margin-right:15px">
             <a href="#{contextPath}/" class="changes-listener">Projects</a>
@@ -82,23 +86,33 @@
         <div class="navbar-inner">
             <a4j:ajax oncomplete="ws.nav.reload(true)">
                 <h:commandLink styleClass="changes-listener primary" onclick="invokeManualCompile(); return false;"
+                               id="verifyButton"
                                title="Verify" value="Verify"
                                rendered="#{!empty module and studio.manualCompileNeeded}" />
                 <h:commandLink styleClass="changes-listener" onclick="openSaveDialog(); return false;" value="Save"
-                    title="Save the project changes in Design Repository as a new revision and make it available for editing to other users"
-                    rendered="#{!empty rProject and rProject.openedForEditing and rProject.modified and studio.model.editable}" />
+                               id="saveProjectButton"
+                               title="Save the project changes in Design Repository as a new revision and make it available for editing to other users"
+                               rendered="#{!empty rProject and rProject.openedForEditing and rProject.modified and studio.model.editable}" />
+                <h:commandLink styleClass="changes-listener" onclick="openCopyProjectDialog('#{rProject.name}'); return false;"
+                               id="copyProjectButton"
+                               value="Copy" title="Copy project"
+                               rendered="#{!empty rProject and copyBean.canCreate}" />
                 <h:commandLink onclick="if (!canOverwriteRevision()) return false; openUpdateProjectDialog();return false;"
+                               id="updateProjectButton"
                                title="Update project" value="Update"
                                rendered="#{!empty rProject and studio.model.editable and empty module}" />
                 <h:commandLink styleClass="changes-listener" onclick="openExportProjectDialog(); return false;"
+                               id="exportProjectButton"
                                title="Download the project as a zip archive" value="Export"
                                rendered="#{!empty rProject and empty module}" />
                 <h:commandLink styleClass="changes-listener" onclick="if (!canOverwriteRevision()) return false; openUpdateModuleDialog(); return false;"
-                    title="Update module" value="Update"
-                    rendered="#{!empty module and studio.model.editable}" />
+                               id="updateModuleButton"
+                               title="Update module" value="Update"
+                               rendered="#{!empty module and studio.model.editable}" />
                 <h:commandLink styleClass="changes-listener" onclick="openExportModuleDialog(); return false;"
-                    title="Export module" value="Export"
-                    rendered="#{!empty module}" />
+                               id="exportModuleButton"
+                               title="Export module" value="Export"
+                               rendered="#{!empty module}" />
             </a4j:ajax>
 
             <h:panelGroup rendered="#{!empty module and treeBean.projectTestsCount > 0 and treeBean.canRun}">

@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
+import org.openl.binding.impl.operator.Comparison;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.IntValue.IntValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
@@ -53,7 +54,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         if (value1 == null || value2 == null){
             return value1 == value2;
         }
-        return Operators.eq(value1.getValue(), value2.getValue());
+        return Comparison.eq(value1.getValue(), value2.getValue());
     }
     /**
      * Compares two values
@@ -61,10 +62,10 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @param value2
      * @return true if  value1 greater or equal value2
      */
-    public static boolean ge(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
-        validate(value1, value2, LogicalExpressions.GE.toString());
-
-        return Operators.ge(value1.getValue(), value2.getValue());
+    public static Boolean ge(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+        Integer v1 = value1 == null ? null : value1.value;
+        Integer v2 = value2 == null ? null : value2.value;
+        return Comparison.ge(v1, v2);
     }
     /**
      * Compares two values
@@ -72,10 +73,10 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @param value2
      * @return true if  value1 greater value2
      */
-    public static boolean gt(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
-        validate(value1, value2, LogicalExpressions.GT.toString());
-
-        return Operators.gt(value1.getValue(), value2.getValue());
+    public static Boolean gt(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+        Integer v1 = value1 == null ? null : value1.value;
+        Integer v2 = value2 == null ? null : value2.value;
+        return Comparison.gt(v1, v2);
     }
     /**
      * Compares two values
@@ -83,10 +84,10 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @param value2
      * @return true if  value1 less or equal value2
      */
-    public static boolean le(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
-        validate(value1, value2, LogicalExpressions.LE.toString());
-
-        return Operators.le(value1.getValue(), value2.getValue());
+    public static Boolean le(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+        Integer v1 = value1 == null ? null : value1.value;
+        Integer v2 = value2 == null ? null : value2.value;
+        return Comparison.le(v1, v2);
     }
     /**
      * Compares two values
@@ -94,10 +95,10 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @param value2
      * @return true if  value1 less value2
      */
-    public static boolean lt(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
-        validate(value1, value2, LogicalExpressions.LT.toString());
-
-        return Operators.lt(value1.getValue(), value2.getValue());
+    public static Boolean lt(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+        Integer v1 = value1 == null ? null : value1.value;
+        Integer v2 = value2 == null ? null : value2.value;
+        return Comparison.lt(v1, v2);
     }
     /**
      * Compares two values
@@ -110,7 +111,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
             return value1 != value2;
         }
 
-        return Operators.ne(value1.getValue(), value2.getValue());
+        return Comparison.ne(value1.getValue(), value2.getValue());
     }
 
      /**
@@ -615,7 +616,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     public boolean equals(Object obj) {
         if (obj instanceof org.openl.meta.IntValue) {
             org.openl.meta.IntValue secondObj = (org.openl.meta.IntValue) obj;
-            return Operators.eq(getValue(), secondObj.getValue());
+            return Comparison.eq(getValue(), secondObj.getValue());
         }
 
         return false;

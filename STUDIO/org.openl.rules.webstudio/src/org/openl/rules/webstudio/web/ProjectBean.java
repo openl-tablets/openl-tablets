@@ -26,7 +26,12 @@ import org.openl.rules.project.SafeCloner;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.project.model.*;
+import org.openl.rules.project.model.MethodFilter;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.PathEntry;
+import org.openl.rules.project.model.ProjectDependencyDescriptor;
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.project.resolving.FileNamePatternValidator;
 import org.openl.rules.project.resolving.InvalidFileNamePatternException;
@@ -45,7 +50,6 @@ import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.WorkspaceException;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -142,18 +146,6 @@ public class ProjectBean {
 
     public void setSources(String sources) {
         this.sources = sources;
-    }
-
-    // TODO Move messages to ValidationMessages.properties
-    public void validateProjectName(FacesContext context, UIComponent toValidate, Object value) {
-        String name = (String) value;
-
-        FacesUtils.validate(StringUtils.isNotBlank(name), "Can not be empty");
-
-        if (!studio.getCurrentProjectDescriptor().getName().equals(name)) {
-            FacesUtils.validate(NameChecker.checkName(name), NameChecker.BAD_PROJECT_NAME_MSG);
-            FacesUtils.validate(!studio.isProjectExists(name), "Project with such name already exists");
-        }
     }
 
     // TODO Move messages to ValidationMessages.properties
@@ -274,21 +266,14 @@ public class ProjectBean {
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
+        RulesProject currentProject = studio.getCurrentProject();
+        if (studio.isRenamed(currentProject)) {
+            // Restore physical project name
+            newProjectDescriptor.setName(currentProject.getName());
+        }
+
         clean(newProjectDescriptor);
         save(newProjectDescriptor);
-
-        RulesProject currentProject = studio.getCurrentProject();
-        if (currentProject.isLocalOnly() && studio.isRenamed(currentProject)) {
-            try {
-                studio.getModel().clearModuleInfo();
-                currentProject.rename(newProjectDescriptor.getName());
-                studio.resetProjects();
-                WebStudioUtils.getRulesUserSession(FacesUtils.getSession()).getUserWorkspace().refresh();
-            } catch (IOException | WorkspaceException e) {
-                log.error(e.getMessage(), e);
-                throw new Message("Error while renaming local project");
-            }
-        }
     }
 
     public void editModule() {

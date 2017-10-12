@@ -364,7 +364,22 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
 
     @Override
     public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
-        throw new UnsupportedOperationException();
+        FileItem fileItem = null;
+        try {
+            fileItem = readHistory(srcName, version);
+
+            FileData copy = new FileData();
+            copy.setName(destData.getName());
+            copy.setComment(destData.getComment());
+            copy.setAuthor(destData.getAuthor());
+            copy.setSize(fileItem.getData().getSize());
+
+            return save(copy, fileItem.getStream());
+        } finally {
+            if (fileItem != null) {
+                IOUtils.closeQuietly(fileItem.getStream());
+            }
+        }
     }
 
     private CommonUser getUser() {

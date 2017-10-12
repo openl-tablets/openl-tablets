@@ -2,8 +2,6 @@ package org.openl.extension.xmlrules.utils;
 
 import java.util.Date;
 
-import org.openl.binding.impl.Operators;
-
 public class XmlRulesOperators {
     public static boolean eq(Object x, Object y) {
         if (x == y) {
@@ -18,7 +16,7 @@ public class XmlRulesOperators {
         x = HelperFunctions.convertArgument(expectedClass, x);
         y = HelperFunctions.convertArgument(expectedClass, y);
 
-        return Operators.eq(x, y);
+        return x == y || x != null && y != null && x.equals(y);
     }
 
     public static boolean ne(Object x, Object y) {
@@ -42,7 +40,10 @@ public class XmlRulesOperators {
         x = HelperFunctions.convertArgument(expectedClass, x);
         y = HelperFunctions.convertArgument(expectedClass, y);
 
-        return Operators.strict_gt((Comparable) x, (Comparable) y);
+        if (x != null && y != null) {
+            return ((Comparable) x).compareTo(y) > 0;
+        }
+        return false;
     }
 
     public static boolean ge(Object x, Object y) {
@@ -62,47 +63,20 @@ public class XmlRulesOperators {
         x = HelperFunctions.convertArgument(expectedClass, x);
         y = HelperFunctions.convertArgument(expectedClass, y);
 
-        return Operators.strict_ge((Comparable) x, (Comparable) y);
+        if (x == y) {
+            return true;
+        } else if (x != null && y != null) {
+            return ((Comparable<Object>) x).compareTo(y) >= 0;
+        }
+        return false;
     }
 
     public static boolean lt(Object x, Object y) {
-        if (x == y) {
-            return false;
-        }
-
-        if (x == null) {
-            return true;
-        }
-
-        if (y == null) {
-            return false;
-        }
-
-        Class expectedClass = getExpectedClass(x, y);
-        x = HelperFunctions.convertArgument(expectedClass, x);
-        y = HelperFunctions.convertArgument(expectedClass, y);
-
-        return Operators.strict_lt((Comparable) x, (Comparable) y);
+        return gt(y, x);
     }
 
     public static boolean le(Object x, Object y) {
-        if (x == y) {
-            return true;
-        }
-
-        if (x == null) {
-            return true;
-        }
-
-        if (y == null) {
-            return false;
-        }
-
-        Class expectedClass = getExpectedClass(x, y);
-        x = HelperFunctions.convertArgument(expectedClass, x);
-        y = HelperFunctions.convertArgument(expectedClass, y);
-
-        return Operators.strict_le((Comparable) x, (Comparable) y);
+        return ge(y, x);
     }
 
     private static Class getExpectedClass(Object x, Object y) {

@@ -16,6 +16,14 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 import org.openl.util.CollectionUtils;
 
+/**
+ * Project Descriptor serializer/deserializer.
+ * <p>
+ * Keep in mind that this serializer is for last version of OpenL. Needed version can be obtained:
+ * 1) from each project settings (stored inside ".settings" folder)
+ * 2) from default.openl.compatibility.version property of WebStudio configuration.
+ * Thus if project descriptor serializing is needed consider using ProjectDescriptorSerializerFactory instead.
+ */
 public class XmlProjectDescriptorSerializer implements IProjectDescriptorSerializer {
 
     private static final String PROJECT_DESCRIPTOR_TAG = "project";
@@ -31,10 +39,20 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
 
     private final boolean postProcess;
 
+    /**
+     * Create Project Descriptor Serializer
+     * Note: please consider using ProjectDescriptorSerializerFactory instead
+     */
     public XmlProjectDescriptorSerializer() {
         this(true);
     }
 
+    /**
+     * Create Project Descriptor Serializer
+     * Note: please consider using ProjectDescriptorSerializerFactory instead
+     *
+     * @param postProcess is post processing of project descriptor is needed
+     */
     public XmlProjectDescriptorSerializer(boolean postProcess) {
         xstream = new XStream(new DomDriver());
         xstream.ignoreUnknownElements();

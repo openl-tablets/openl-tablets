@@ -7,8 +7,6 @@ import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.jws.WebService;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -121,7 +119,7 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
         assertNotNull(service);
         assertNotNull(service.getServiceClass());
 
-        Annotation webServiceAnn = service.getServiceClass().getAnnotation(WebService.class);
+        Annotation webServiceAnn = service.getServiceClass().getAnnotation(ClassLevelAnnotation.class);
         assertNotNull(webServiceAnn);
 
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();

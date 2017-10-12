@@ -1,9 +1,3 @@
-/*
- * Created on Jun 17, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
 import org.openl.binding.IBoundNode;
@@ -13,31 +7,29 @@ import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
- * @author snshor
- *
+ * It supports 3 state in condition: false, null, true. The first branch is executed only when the condition is true.
+ * 
+ * @author Yury Molchan
  */
 public class QMarkNode extends ABoundNode {
 
     private IOpenClass type;
-    
-    /**
-     * @param syntaxNode
-     * @param children
-     */
-    public QMarkNode(ISyntaxNode syntaxNode, IBoundNode[] children, IOpenClass type) {
+
+    QMarkNode(ISyntaxNode syntaxNode, IBoundNode[] children, IOpenClass type) {
         super(syntaxNode, children);
         this.type = type;
     }
 
     public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
-        Boolean res = (Boolean) children[0].evaluate(env);
+        Object res = children[0].evaluate(env);
 
-        return res.booleanValue() ? children[1].evaluate(env) : children[2].evaluate(env);
-
+        // To handle null in condition
+        // (condition) ? TrueResult : NullOrFalseResult
+        return (Boolean.TRUE.equals(res)) ? children[1].evaluate(env) : children[2].evaluate(env);
     }
 
     public IOpenClass getType() {
-       return type;
+        return type;
     }
 
     @Override

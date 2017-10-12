@@ -457,7 +457,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public String getProjectReference(AProjectArtefact artefact, ProjectVersion version) {
         if (artefact instanceof RulesProject) {
-            String prefix = Constants.RENAMED_FROM_PREFIX;
+            String prefix = Constants.COPIED_FROM_PREFIX;
 
             String comment = version.getVersionComment();
             if (comment != null && comment.startsWith(prefix)) {

@@ -1,6 +1,9 @@
 package org.openl.rules.ui;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -23,6 +26,8 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
+import org.openl.rules.project.IProjectDescriptorSerializer;
+import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.instantiation.ReloadType;
@@ -30,8 +35,10 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
+import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
+import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.ui.tree.view.*;
 import org.openl.rules.webstudio.util.ExportModule;
@@ -44,11 +51,9 @@ import org.openl.rules.webstudio.web.repository.upload.zip.DefaultZipEntryComman
 import org.openl.rules.webstudio.web.repository.upload.zip.FilePathsCollector;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipWalker;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
-import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
-import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
@@ -211,24 +216,20 @@ public class WebStudio {
                 RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(FacesUtils.getSession());
                 UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
                 getModel().clearModuleInfo();
-                DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
-                String designPath = designTimeRepository.createProject(logicalName).getFolderPath();
-                FileData fileData = new FileData();
-                fileData.setName(designPath);
-                fileData.setComment(Constants.RENAMED_FROM_PREFIX + project.getName());
-                fileData.setAuthor(userWorkspace.getUser().getUserName());
-                fileData.setSize(0);
-
-                designTimeRepository.getRepository().save(fileData, new ByteArrayInputStream(new byte[0]));
-
-                project.rename(logicalName);
+                // Revert project name in rules.xml
+                IProjectDescriptorSerializer serializer = WebStudioUtils.getBean(ProjectDescriptorSerializerFactory.class)
+                        .getSerializer(project);
+                AProjectResource artefact = (AProjectResource) project.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                ProjectDescriptor projectDescriptor = serializer.deserialize(artefact.getContent());
+                projectDescriptor.setName(project.getName());
+                artefact.setContent(IOUtils.toInputStream(serializer.serialize(projectDescriptor)));
 
                 resetProjects();
                 userWorkspace.refresh();
             }
             project.save();
-        } catch (WorkspaceException | IOException e) {
+        } catch (WorkspaceException e) {
             throw new ProjectException(e.getMessage(), e);
         }
     }

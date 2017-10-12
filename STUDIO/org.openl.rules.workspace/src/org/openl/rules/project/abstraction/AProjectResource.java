@@ -41,7 +41,7 @@ public class AProjectResource extends AProjectArtefact {
     }
 
     private void setContent(AProjectResource resource) throws ProjectException {
-        setContent(resourceTransformer != null ? resourceTransformer.tranform(resource) : resource.getContent());
+        setContent(resourceTransformer != null ? resourceTransformer.transform(resource) : resource.getContent());
     }
 
     @Override

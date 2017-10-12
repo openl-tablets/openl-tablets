@@ -18,7 +18,7 @@ public final class Constants {
     public static final String SESSION_PARAM_EXPLANATOR = "explanator";
 
     public static final String RULES_USER_SESSION = "rulesUserSession";
-    public static final String RENAMED_FROM_PREFIX = "Renamed from:";
+    public static final String COPIED_FROM_PREFIX = "Copied from:";
 
     private Constants() {
     }

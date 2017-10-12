@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
+import org.openl.binding.impl.operator.Comparison;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.ByteValue.ByteValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
@@ -53,7 +54,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         if (value1 == null || value2 == null){
             return value1 == value2;
         }
-        return Operators.eq(value1.getValue(), value2.getValue());
+        return Comparison.eq(value1.getValue(), value2.getValue());
     }
     /**
      * Compares two values
@@ -61,10 +62,10 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * @param value2
      * @return true if  value1 greater or equal value2
      */
-    public static boolean ge(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-        validate(value1, value2, LogicalExpressions.GE.toString());
-
-        return Operators.ge(value1.getValue(), value2.getValue());
+    public static Boolean ge(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
+        Byte v1 = value1 == null ? null : value1.value;
+        Byte v2 = value2 == null ? null : value2.value;
+        return Comparison.ge(v1, v2);
     }
     /**
      * Compares two values
@@ -72,10 +73,10 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * @param value2
      * @return true if  value1 greater value2
      */
-    public static boolean gt(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-        validate(value1, value2, LogicalExpressions.GT.toString());
-
-        return Operators.gt(value1.getValue(), value2.getValue());
+    public static Boolean gt(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
+        Byte v1 = value1 == null ? null : value1.value;
+        Byte v2 = value2 == null ? null : value2.value;
+        return Comparison.gt(v1, v2);
     }
     /**
      * Compares two values
@@ -83,10 +84,10 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * @param value2
      * @return true if  value1 less or equal value2
      */
-    public static boolean le(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-        validate(value1, value2, LogicalExpressions.LE.toString());
-
-        return Operators.le(value1.getValue(), value2.getValue());
+    public static Boolean le(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
+        Byte v1 = value1 == null ? null : value1.value;
+        Byte v2 = value2 == null ? null : value2.value;
+        return Comparison.le(v1, v2);
     }
     /**
      * Compares two values
@@ -94,10 +95,10 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * @param value2
      * @return true if  value1 less value2
      */
-    public static boolean lt(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-        validate(value1, value2, LogicalExpressions.LT.toString());
-
-        return Operators.lt(value1.getValue(), value2.getValue());
+    public static Boolean lt(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
+        Byte v1 = value1 == null ? null : value1.value;
+        Byte v2 = value2 == null ? null : value2.value;
+        return Comparison.lt(v1, v2);
     }
     /**
      * Compares two values
@@ -110,7 +111,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
             return value1 != value2;
         }
 
-        return Operators.ne(value1.getValue(), value2.getValue());
+        return Comparison.ne(value1.getValue(), value2.getValue());
     }
 
      /**
@@ -586,7 +587,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     public boolean equals(Object obj) {
         if (obj instanceof org.openl.meta.ByteValue) {
             org.openl.meta.ByteValue secondObj = (org.openl.meta.ByteValue) obj;
-            return Operators.eq(getValue(), secondObj.getValue());
+            return Comparison.eq(getValue(), secondObj.getValue());
         }
 
         return false;

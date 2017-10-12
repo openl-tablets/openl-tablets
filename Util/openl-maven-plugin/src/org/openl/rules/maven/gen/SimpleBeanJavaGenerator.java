@@ -14,10 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
 import org.openl.rules.datatype.gen.bean.writers.DefaultValue;
 import org.openl.util.ClassUtils;
 import org.slf4j.Logger;
@@ -96,9 +92,10 @@ public class SimpleBeanJavaGenerator extends JavaGenerator {
     }
 
     private void addJAXBAnnotations(StringBuilder buf) {
-        addImport(buf, filterTypeNameToImport(XmlRootElement.class));
-        addImport(buf, filterTypeNameToImport(XmlElement.class));
-        addImport(buf, filterTypeNameToImport(XmlType.class));
+
+        addImport(buf, "javax.xml.bind.annotation.XmlElement");
+        addImport(buf, "javax.xml.bind.annotation.XmlRootElement");
+        addImport(buf, "javax.xml.bind.annotation.XmlType");
 
         String packageName = ClassUtils.getPackageName(getClassForGeneration());
 

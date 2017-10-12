@@ -528,18 +528,6 @@ public class RulesUtilsTest {
 
         Object testByteTypeProduct(byte[] inputArray);
 
-        boolean testBoolTypeAllTrue(boolean[] inputArray);
-
-        boolean testBoolAllTrue(Boolean[] inputArray);
-
-        boolean testBoolTypeXor(boolean[] inputArray);
-
-        boolean testBoolXor(Boolean[] inputArray);
-
-        boolean testBoolTypeAnyTrue(boolean[] inputArray);
-
-        boolean testBoolAnyTrue(Boolean[] inputArray);
-
         Object testDoubleTypeRound(double d);
 
         Object testFloatTypeRound(float f);
@@ -2854,28 +2842,6 @@ public class RulesUtilsTest {
     }
 
     @Test
-    public void testContainsString() {
-        String searchString = "string";
-        char searchChar = 's';
-
-        assertTrue(RulesUtils.contains(str, searchString));
-        assertTrue(RulesUtils.contains(str, searchChar));
-        assertFalse(RulesUtils.contains(nullStr, searchChar));
-        assertFalse(RulesUtils.contains("", searchChar));
-    }
-
-    @Test
-    public void testContainsAny() {
-        char[] searchChars = {'s', 'i', 'g'};
-        String searchStr = "value";
-
-        assertTrue(RulesUtils.containsAny(str, searchChars));
-        assertTrue(RulesUtils.containsAny(str, searchStr));
-        assertFalse(RulesUtils.containsAny(nullStr, searchStr));
-        assertFalse(RulesUtils.containsAny("", searchStr));
-    }
-
-    @Test
     public void testObjectIndexOf() {
         assertEquals(-1, instance.testIndexOfObject(null, (Object) 3));
         assertEquals(-1, instance.testIndexOfObject(new Object[]{1, 2, 3, 4,
@@ -3392,93 +3358,6 @@ public class RulesUtilsTest {
                 BigDecimal.valueOf(7)};
         assertEquals(BigDecimal.valueOf(63),
                 instance.testBigDecimalProduct(inputArray));
-    }
-
-    @Test
-    public void testAllTrueBoolType() {
-        boolean[] inputArray = {true, true, true};
-        assertTrue(instance.testBoolTypeAllTrue(inputArray));
-        inputArray = new boolean[]{true, false, true};
-        assertFalse(instance.testBoolTypeAllTrue(inputArray));
-        inputArray = null;
-        assertFalse(instance.testBoolTypeAllTrue(inputArray));
-        assertFalse(instance.testBoolTypeAllTrue(new boolean[] {}));
-    }
-
-    @Test
-    public void testAllTrueBool() {
-        Boolean[] inputArray = {true, true, true};
-        assertTrue(instance.testBoolAllTrue(inputArray));
-        inputArray = new Boolean[]{true, false, true};
-        assertFalse(instance.testBoolAllTrue(inputArray));
-        inputArray = null;
-        assertFalse(instance.testBoolAllTrue(inputArray));
-        inputArray = new Boolean[]{true, null, true};
-        assertFalse(instance.testBoolAllTrue(inputArray));
-        assertFalse(instance.testBoolAllTrue(null));
-        assertFalse(instance.testBoolAllTrue(new Boolean[] {}));
-    }
-
-    @Test(expected = OpenLRuntimeException.class)
-    public void testXorBoolType() {
-        boolean[] inputArray;
-        try {
-            inputArray = new boolean[] { true, true, true };
-            assertTrue(instance.testBoolTypeXor(inputArray));
-            inputArray = new boolean[] { true, false, true };
-            assertFalse(instance.testBoolTypeXor(inputArray));
-        } catch (OpenLRuntimeException e) {
-            fail(e.getMessage());
-        }
-        inputArray = null;
-        assertFalse(instance.testBoolTypeXor(inputArray));
-        inputArray = new boolean[]{};
-        assertFalse(instance.testBoolTypeXor(inputArray));
-    }
-
-    @Test(expected = OpenLRuntimeException.class)
-    public void testXorBool() {
-        Boolean[] inputArray;
-        try {
-            inputArray = new Boolean[] {true, true, true};
-            assertTrue(instance.testBoolXor(inputArray));
-            inputArray = new Boolean[]{true, false, true};
-            assertFalse(instance.testBoolXor(inputArray));
-        } catch (OpenLRuntimeException e) {
-            fail(e.getMessage());
-        }
-        inputArray = null;
-        assertFalse(instance.testBoolXor(inputArray));
-        inputArray = new Boolean[]{};
-        assertFalse(instance.testBoolXor(inputArray));
-        inputArray = new Boolean[]{true, null, true};
-        assertFalse(instance.testBoolXor(inputArray));
-    }
-
-    @Test
-    public void testAnyTrueBoolType() {
-        boolean[] inputArray = {true, true, true};
-        assertTrue(instance.testBoolTypeAnyTrue(inputArray));
-        inputArray = new boolean[]{true, false, true};
-        assertTrue(instance.testBoolTypeAnyTrue(inputArray));
-        inputArray = null;
-        assertFalse(instance.testBoolTypeAnyTrue(inputArray));
-        inputArray = new boolean[]{};
-        assertFalse(instance.testBoolTypeAnyTrue(inputArray));
-    }
-
-    @Test
-    public void testAnyTrueBool() {
-        Boolean[] inputArray = new Boolean[] { true, true, true };
-        assertTrue(instance.testBoolAnyTrue(inputArray));
-        inputArray = new Boolean[]{true, false, true};
-        assertTrue(instance.testBoolAnyTrue(inputArray));
-        inputArray = null;
-        assertFalse(instance.testBoolAnyTrue(inputArray));
-        inputArray = new Boolean[]{};
-        assertFalse(instance.testBoolAnyTrue(inputArray));
-        inputArray = new Boolean[]{true, null, true};
-        assertTrue(instance.testBoolAnyTrue(inputArray));
     }
 
     @Test
@@ -4830,93 +4709,11 @@ public class RulesUtilsTest {
         assertTrue(instance.testStringIsEmpty(inputArray));
         inputArray = null;
         assertTrue(instance.testStringIsEmpty(inputArray));
-        String str = null;
-        assertTrue(RulesUtils.isEmpty(str));
-
-        str = "";
-        assertTrue(RulesUtils.isEmpty(str));
-
-        str = " ";
-        assertTrue(RulesUtils.isEmpty(str));
-
-        str = "  str  ";
-        assertFalse(RulesUtils.isEmpty(str));
-
-        str = "str";
-        assertFalse(RulesUtils.isEmpty(str));
     }
 
     @Test
     public void testOrCallingFromRules() {
         assertTrue(instance.checkOr());
-    }
-
-    @Test
-    public void testXOR3arguments() {
-        assertFalse(callXor(false, false, false));
-
-        assertTrue(callXor(true, false, false));
-
-        assertTrue(callXor(false, true, false));
-
-        assertFalse(callXor(true, true, false));
-
-        assertTrue(callXor(false, false, true));
-
-        assertFalse(callXor(true, false, true));
-
-        assertFalse(callXor(false, true, true));
-
-        assertTrue(callXor(true, true, true));
-    }
-
-    @Test
-    public void testXOR2arguments() {
-        assertFalse(callXor(false, false));
-
-        assertTrue(callXor(false, true));
-
-        assertTrue(callXor(true, false));
-
-        assertFalse(callXor(true, true));
-    }
-
-    @Test
-    public void testOR2arguments() {
-        assertFalse(callOr(false, false));
-
-        assertTrue(callOr(false, true));
-
-        assertTrue(callOr(true, false));
-
-        assertTrue(callOr(true, true));
-    }
-
-    @Test
-    public void testOR3arguments() {
-        assertFalse(callOr(false, false, false));
-
-        assertTrue(callOr(true, false, false));
-
-        assertTrue(callOr(false, true, false));
-
-        assertTrue(callOr(true, true, false));
-
-        assertTrue(callOr(false, false, true));
-
-        assertTrue(callOr(true, false, true));
-
-        assertTrue(callOr(false, true, true));
-
-        assertTrue(callOr(true, true, true));
-    }
-
-    private boolean callXor(boolean... values) {
-        return RulesUtils.xor(values);
-    }
-
-    private boolean callOr(boolean... values) {
-        return RulesUtils.anyTrue(values);
     }
 
     @Test

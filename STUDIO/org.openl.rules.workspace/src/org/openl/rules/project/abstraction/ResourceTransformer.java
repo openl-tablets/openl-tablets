@@ -8,5 +8,5 @@ import java.io.InputStream;
  * @author NSamatov.
  */
 public interface ResourceTransformer {
-    InputStream tranform(AProjectResource resource) throws ProjectException;
+    InputStream transform(AProjectResource resource) throws ProjectException;
 }

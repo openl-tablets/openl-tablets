@@ -18,6 +18,9 @@ public class OpenLBuilder extends AOpenLBuilder {
     
     private static final String[] JAVA_LIBRARY_NAMES = new String[]{
         org.openl.rules.util.Round.class.getName(),
+        org.openl.rules.util.Booleans.class.getName(),
+        org.openl.rules.util.Strings.class.getName(),
+        org.openl.rules.util.Arrays.class.getName(),
         org.openl.rules.helpers.RulesUtils.class.getName(),
         org.openl.rules.dt.algorithm.evaluator.CtrUtils.class.getName(),
         org.openl.meta.ByteValue.class.getName(), 
@@ -32,7 +35,9 @@ public class OpenLBuilder extends AOpenLBuilder {
         org.openl.meta.BigDecimalValue.class.getName()};
     
     private static final String[] JAVA_OPERATORS_CLASSES = new String[]{
-        org.openl.meta.ByteValue.class.getName(), 
+        org.openl.binding.impl.Operators.class.getName(),
+        org.openl.binding.impl.operator.Comparison.class.getName(),
+        org.openl.meta.ByteValue.class.getName(),
         org.openl.meta.ShortValue.class.getName(),
         org.openl.meta.IntValue.class.getName(),  
         org.openl.meta.LongValue.class.getName(), 
@@ -84,9 +89,6 @@ public class OpenLBuilder extends AOpenLBuilder {
 
         NameSpacedLibraryConfiguration nslc = new NameSpacedLibraryConfiguration();
         nslc.setNamespace(ISyntaxConstants.OPERATORS_NAMESPACE);
-        JavaLibraryConfiguration javalib1 = new JavaLibraryConfiguration();
-        javalib1.setClassName(org.openl.binding.impl.Operators.class.getName());
-        nslc.addJavalib(javalib1);
         for (String className : JAVA_OPERATORS_CLASSES){
             JavaLibraryConfiguration javalib = new JavaLibraryConfiguration();
             javalib.setClassName(className);

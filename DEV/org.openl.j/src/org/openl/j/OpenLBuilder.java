@@ -105,6 +105,9 @@ public class OpenLBuilder extends AOpenLBuilder {
         JavaLibraryConfiguration javalib = new JavaLibraryConfiguration();
         javalib.setClassName(org.openl.binding.impl.Operators.class.getName());
         nslc.addJavalib(javalib);
+        JavaLibraryConfiguration javalib2 = new JavaLibraryConfiguration();
+        javalib2.setClassName(org.openl.binding.impl.operator.Comparison.class.getName());
+        nslc.addJavalib(javalib2);
         lfc.addConfiguredLibrary(nslc);
 
         /*
@@ -160,7 +163,7 @@ public class OpenLBuilder extends AOpenLBuilder {
 
         TypeCastFactory typecast = op.createTypecast();
         TypeCastFactory.JavaCastComponent javacast = new TypeCastFactory.JavaCastComponent();
-        javacast.setLibraryClassName(org.openl.binding.impl.Operators.class.getName());
+        javacast.setLibraryClassName(org.openl.binding.impl.cast.CastOperators.class.getName());
         javacast.setClassName(org.openl.binding.impl.cast.CastFactory.class.getName());
 
         typecast.addJavaCast(javacast);
