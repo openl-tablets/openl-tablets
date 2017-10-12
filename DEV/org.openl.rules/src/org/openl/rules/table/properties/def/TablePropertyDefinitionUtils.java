@@ -1,18 +1,21 @@
 package org.openl.rules.table.properties.def;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.openl.rules.convertor.IString2DataConvertor;
+import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
 
-
 /**
- * Helper methods, for working with properties.<br> 
+ * Helper methods, for working with properties.<br>
  * See also {@link PropertiesChecker} for more methods.
  * 
  * @author DLiauchuk
@@ -20,37 +23,67 @@ import org.openl.rules.table.properties.inherit.PropertiesChecker;
  */
 public class TablePropertyDefinitionUtils {
     
-    /**
-     * Gets the array of properties names that are dimensional. 
-     * 
-     * @return names of properties that are dimensional.
-     */
-    public static String[] getDimensionalTablePropertiesNames() {        
-        List<String> names = new ArrayList<String>();         
-        List<TablePropertyDefinition> dimensionalProperties = getDimensionalTableProperties();
+    private static final List<TablePropertyDefinition> PROPERTIES_TO_BE_SET_BY_DEFAULT;
+    private static final Map<String, Object> PROPERTIES_MAP_TO_BE_SET_BY_DEFAULT;
+    
+    static {
+        List<TablePropertyDefinition> propertiesToBeSetByDefault = new ArrayList<TablePropertyDefinition>();
+        for (TablePropertyDefinition propDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
+            if (propDefinition.getDefaultValue() != null) {
+                propertiesToBeSetByDefault.add(propDefinition);
+            }
+        }
+        PROPERTIES_TO_BE_SET_BY_DEFAULT = Collections.unmodifiableList(propertiesToBeSetByDefault);
         
-        for (TablePropertyDefinition definition : dimensionalProperties) {
-                names.add(definition.getName());
+        Map<String, Object> propertiesMapToBeSetByDefault = new HashMap<String, Object>();
+
+        for (TablePropertyDefinition propertyWithDefaultValue : propertiesToBeSetByDefault) {
+            String defaultPropertyName = propertyWithDefaultValue.getName();
+            TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils
+                .getPropertyByName(defaultPropertyName);
+            Class<?> defaultPropertyValueType = propertyDefinition.getType().getInstanceClass();
+
+            IString2DataConvertor converter = String2DataConvertorFactory.getConvertor(defaultPropertyValueType);
+            Object defaultValue = converter.parse(propertyWithDefaultValue.getDefaultValue(),
+                propertyWithDefaultValue.getFormat());
+
+            propertiesMapToBeSetByDefault.put(defaultPropertyName, defaultValue);
         }
         
-        return names.toArray(new String[names.size()]);
+        PROPERTIES_MAP_TO_BE_SET_BY_DEFAULT = Collections.unmodifiableMap(propertiesMapToBeSetByDefault);
     }
-    
+
     /**
-     * Gets the array of properties names that are dimensional. 
+     * Gets the array of properties names that are dimensional.
      * 
      * @return names of properties that are dimensional.
      */
-    public static List<TablePropertyDefinition> getDimensionalTableProperties() {        
-        List<TablePropertyDefinition> dimensionalProperties = new ArrayList<TablePropertyDefinition>();         
+    public static String[] getDimensionalTablePropertiesNames() {
+        List<String> names = new ArrayList<String>();
+        List<TablePropertyDefinition> dimensionalProperties = getDimensionalTableProperties();
+
+        for (TablePropertyDefinition definition : dimensionalProperties) {
+            names.add(definition.getName());
+        }
+
+        return names.toArray(new String[names.size()]);
+    }
+
+    /**
+     * Gets the array of properties names that are dimensional.
+     * 
+     * @return names of properties that are dimensional.
+     */
+    public static List<TablePropertyDefinition> getDimensionalTableProperties() {
+        List<TablePropertyDefinition> dimensionalProperties = new ArrayList<TablePropertyDefinition>();
         TablePropertyDefinition[] definitions = DefaultPropertyDefinitions.getDefaultDefinitions();
-        
+
         for (TablePropertyDefinition definition : definitions) {
             if (definition.isDimensional()) {
                 dimensionalProperties.add(definition);
             }
         }
-        
+
         return dimensionalProperties;
     }
 
@@ -60,9 +93,9 @@ public class TablePropertyDefinitionUtils {
      * @param displayName
      * @return name
      */
-    public static String getPropertyName(String displayName) {        
-        for(TablePropertyDefinition propDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()){
-            if(propDefinition.getDisplayName().equals(displayName)){
+    public static String getPropertyName(String displayName) {
+        for (TablePropertyDefinition propDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
+            if (propDefinition.getDisplayName().equals(displayName)) {
                 return propDefinition.getName();
             }
         }
@@ -75,9 +108,9 @@ public class TablePropertyDefinitionUtils {
      * @param name
      * @return diplayName
      */
-    public static String getPropertyDisplayName(String name) {        
-        for(TablePropertyDefinition propDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()){
-            if(propDefinition.getName().equals(name)){
+    public static String getPropertyDisplayName(String name) {
+        for (TablePropertyDefinition propDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
+            if (propDefinition.getName().equals(name)) {
                 return propDefinition.getDisplayName();
             }
         }
@@ -90,9 +123,9 @@ public class TablePropertyDefinitionUtils {
      * @param name
      * @return property definition
      */
-    public static TablePropertyDefinition getPropertyByName(String name) {        
-        for(TablePropertyDefinition propDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()){
-            if(propDefinition.getName().equals(name)){
+    public static TablePropertyDefinition getPropertyByName(String name) {
+        for (TablePropertyDefinition propDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
+            if (propDefinition.getName().equals(name)) {
                 return propDefinition;
             }
         }
@@ -109,60 +142,66 @@ public class TablePropertyDefinitionUtils {
      * @return list of properties.
      */
     public static List<TablePropertyDefinition> getPropertiesToBeSetByDefault() {
-        List<TablePropertyDefinition> result = new ArrayList<TablePropertyDefinition>();
-        for(TablePropertyDefinition propDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()){
-            if(propDefinition.getDefaultValue() != null){
-                result.add(propDefinition);
-            }
-        }
-        return result;
+        return PROPERTIES_TO_BE_SET_BY_DEFAULT;
     }
-    
+
     /**
-     * Gets list of properties that must me set for particular table type by default.
-     * TODO: remove this method or fix it (see deprecation comment). See also DefaultPropertiesLoadingTest
-     * 
-     * @param tableType type of the table. see {@link XlsNodeTypes}. 
-     * @return list of properties that must me set for particular table type by default. If <b>tableType</b> is <code>null</code>,
-     * returns {@link #getPropertiesToBeSetByDefault()}
+     * Gets map of properties that must me set for every table by default.
      *
-     * @deprecated This method is incorrect (because tableType.equals(propDefinition.getTableType()) compares objects of
-     * inconvertible types). This method is used in unit test only, that test is incorrect and can be outdated.
+     * @return list of properties.
+     */
+    public static Map<String, Object> getPropertiesMapToBeSetByDefault() {
+        return PROPERTIES_MAP_TO_BE_SET_BY_DEFAULT;
+    }
+
+    /**
+     * Gets list of properties that must me set for particular table type by
+     * default. TODO: remove this method or fix it (see deprecation comment).
+     * See also DefaultPropertiesLoadingTest
+     * 
+     * @param tableType type of the table. see {@link XlsNodeTypes}.
+     * @return list of properties that must me set for particular table type by
+     *         default. If <b>tableType</b> is <code>null</code>, returns
+     *         {@link #getPropertiesToBeSetByDefault()}
+     *
+     * @deprecated This method is incorrect (because
+     *             tableType.equals(propDefinition.getTableType()) compares
+     *             objects of inconvertible types). This method is used in unit
+     *             test only, that test is incorrect and can be outdated.
      */
     @Deprecated
     public static List<TablePropertyDefinition> getPropertiesToBeSetByDefault(String tableType) {
         if (tableType != null) {
             List<TablePropertyDefinition> result = new ArrayList<TablePropertyDefinition>();
-            for(TablePropertyDefinition propDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()){
-                if(propDefinition.getDefaultValue() != null && tableType.equals(propDefinition.getTableType())){
+            for (TablePropertyDefinition propDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
+                if (propDefinition.getDefaultValue() != null && tableType.equals(propDefinition.getTableType())) {
                     result.add(propDefinition);
                 }
             }
             return result;
         }
         return getPropertiesToBeSetByDefault();
-        
+
     }
 
     /**
      * Gets list of properties that are marked as system.
-     *  
+     * 
      * @return list of properties.
      */
-    public static List<TablePropertyDefinition> getSystemProperties() {	    
+    public static List<TablePropertyDefinition> getSystemProperties() {
         List<TablePropertyDefinition> result = new ArrayList<TablePropertyDefinition>();
-            for (TablePropertyDefinition propDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()){
-                if (propDefinition.isSystem()){	                
-                    result.add(propDefinition);
-                }
+        for (TablePropertyDefinition propDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
+            if (propDefinition.isSystem()) {
+                result.add(propDefinition);
             }
+        }
         return result;
     }
 
-    public static TablePropertyDefinition[] getDefaultDefinitionsByInheritanceLevel(
-            InheritanceLevel inheritanceLevel) {
+    public static TablePropertyDefinition[] getDefaultDefinitionsByInheritanceLevel(InheritanceLevel inheritanceLevel) {
         List<TablePropertyDefinition> resultDefinitions = new ArrayList<TablePropertyDefinition>();
-        for(TablePropertyDefinition propertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
+        for (TablePropertyDefinition propertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             if (ArrayUtils.contains(propertyDefinition.getInheritanceLevel(), inheritanceLevel)) {
                 resultDefinitions.add(propertyDefinition);
             }
@@ -174,17 +213,18 @@ public class TablePropertyDefinitionUtils {
         return getDefaultDefinitionsForTable(tableType, null, false);
     }
 
-    public static TablePropertyDefinition[] getDefaultDefinitionsForTable(
-            String tableType, InheritanceLevel inheritanceLevel, boolean ignoreSystem) {
+    public static TablePropertyDefinition[] getDefaultDefinitionsForTable(String tableType,
+            InheritanceLevel inheritanceLevel,
+            boolean ignoreSystem) {
         List<TablePropertyDefinition> resultDefinitions = new ArrayList<TablePropertyDefinition>();
 
         for (TablePropertyDefinition propertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             String name = propertyDefinition.getName();
-            if (PropertiesChecker.isPropertySuitableForTableType(name, tableType)
-                    && (inheritanceLevel == null // any level
-                    ||  ArrayUtils.contains(propertyDefinition.getInheritanceLevel(), inheritanceLevel))
-                    && (!ignoreSystem || (ignoreSystem && !propertyDefinition.isSystem()))) {
-                    resultDefinitions.add(propertyDefinition);
+            if (PropertiesChecker.isPropertySuitableForTableType(name, tableType) && (inheritanceLevel == null // any
+                                                                                                               // level
+                    || ArrayUtils.contains(propertyDefinition.getInheritanceLevel(),
+                        inheritanceLevel)) && (!ignoreSystem || (ignoreSystem && !propertyDefinition.isSystem()))) {
+                resultDefinitions.add(propertyDefinition);
             }
         }
 
@@ -212,18 +252,19 @@ public class TablePropertyDefinitionUtils {
      * Gets the table types in which this property can be defined.
      * 
      * @param propertyName property name.
-     * @return the table type in which this property can be defined. <code>NULL</code> if property can be defined for 
-     * each type of tables.
+     * @return the table type in which this property can be defined.
+     *         <code>NULL</code> if property can be defined for each type of
+     *         tables.
      */
-    public static XlsNodeTypes[] getSuitableTableTypes(String propertyName) {        
+    public static XlsNodeTypes[] getSuitableTableTypes(String propertyName) {
         TablePropertyDefinition propDefinition = getPropertyByName(propertyName);
         if (propDefinition != null) {
             return propDefinition.getTableType();
         }
         return null;
     }
-    
-    public static Class<?> getPropertyTypeByPropertyName(String name) {        
+
+    public static Class<?> getPropertyTypeByPropertyName(String name) {
         TablePropertyDefinition propDefinition = getPropertyByName(name);
         if (propDefinition != null) {
             return propDefinition.getType().getInstanceClass();

@@ -1,10 +1,11 @@
 package org.openl.rules.table.properties;
 
+import java.util.Map;
+import java.util.Set;
+
 import org.openl.OpenL;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
-import org.openl.rules.convertor.IString2DataConvertor;
-import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -12,17 +13,11 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Loads all kinds of properties to tsn. At first load all properties defined in
@@ -134,55 +129,18 @@ public class PropertiesLoader {
         }
     }
 
-    private static HashMap<String, Object> commonDefaultProperties1 = new HashMap<String, Object>() {
-        {
-            put("active", true);
-        }
-    };
-
-    private static HashMap<String, Object> commonDefaultProperties2 = new HashMap<String, Object>() {
-        {
-            put("failOnMiss", true);
-        }
-    };
-
     /**
      * Load to tsn default properties.
      * 
      * @param tableSyntaxNode Tsn to load properties.
      */
     public void loadDefaultProperties(TableSyntaxNode tableSyntaxNode) {
-
         if (tableSyntaxNode.getTableProperties() == null) {
             createTableProperties(tableSyntaxNode);
         }
 
         ITableProperties properties = tableSyntaxNode.getTableProperties();
-        List<TablePropertyDefinition> propertiesWithDefaultValues = TablePropertyDefinitionUtils.getPropertiesToBeSetByDefault();
-        Map<String, Object> defaultProperties = new HashMap<String, Object>();
-
-        for (TablePropertyDefinition propertyWithDefaultValue : propertiesWithDefaultValues) {
-            String defaultPropertyName = propertyWithDefaultValue.getName();
-            TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils.getPropertyByName(defaultPropertyName);
-            Class<?> defaultPropertyValueType = propertyDefinition.getType().getInstanceClass();
-
-            IString2DataConvertor converter = String2DataConvertorFactory.getConvertor(defaultPropertyValueType);
-            Object defaultValue = converter.parse(propertyWithDefaultValue.getDefaultValue(),
-                propertyWithDefaultValue.getFormat()
-            );
-
-            defaultProperties.put(defaultPropertyName, defaultValue);
-        }
-
-        // Optimisation case.
-        // Use the same instance of the default properties for the most popular cases
-        //
-        if (commonDefaultProperties1.equals(defaultProperties)) {
-            defaultProperties = commonDefaultProperties1;
-        } else  if (commonDefaultProperties2.equals(defaultProperties)) {
-            defaultProperties = commonDefaultProperties2;
-        }
-
+        Map<String, Object> defaultProperties = TablePropertyDefinitionUtils.getPropertiesMapToBeSetByDefault();
         properties.setPropertiesAppliedByDefault(defaultProperties);
     }
 

@@ -33,13 +33,13 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 
     private ILogicalTable categoryPropertiesTable;
 
-    private Map<String, Object> categoryProperties = new HashMap<String, Object>();
+    private Map<String, Object> categoryProperties = Collections.emptyMap();
 
-    private Map<String, Object> externalModuleProperties = new HashMap<String, Object>();
+    private Map<String, Object> externalModuleProperties = Collections.emptyMap();
 
-    private Map<String, Object> moduleProperties = new HashMap<String, Object>();
+    private Map<String, Object> moduleProperties = Collections.emptyMap();;
 
-    private Map<String, Object> defaultProperties = new HashMap<String, Object>();
+    private Map<String, Object> defaultProperties = Collections.emptyMap();;
 
     /**
      * The result <code>{@link Map}</code> will contain all pairs from

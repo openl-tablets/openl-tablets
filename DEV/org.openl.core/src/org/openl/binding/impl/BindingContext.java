@@ -287,7 +287,7 @@ public class BindingContext implements IBindingContext {
 
 	Properties contextProperties = new Properties();
 
-// TODO the implementation must be more context-like, i.e. context should search for properties on it's level, and if not found delegate the search to the higher-level context  
+    // TODO the implementation must be more context-like, i.e. context should search for properties on it's level, and if not found delegate the search to the higher-level context  
 	public String getContextProperty(String name) {
 		return contextProperties == null ? null : contextProperties
 				.getProperty(name);

@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class RulesModuleBindingContext extends ModuleBindingContext {
-    private final Logger log = LoggerFactory.getLogger(RulesModuleBindingContext.class);
 
     public static String MODULE_PROPERTIES_KEY = "Properties:Module";
     public static String CATEGORY_PROPERTIES_KEY = "Properties:Category:";
