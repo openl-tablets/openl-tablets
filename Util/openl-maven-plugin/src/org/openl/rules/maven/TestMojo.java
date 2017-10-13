@@ -4,6 +4,7 @@ import static org.openl.rules.testmethod.TestUnitResultComparator.TestStatus.TR_
 import static org.openl.rules.testmethod.TestUnitResultComparator.TestStatus.TR_OK;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -26,6 +27,8 @@ import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.testmethod.*;
 import org.openl.types.IOpenClass;
+import org.openl.util.CollectionUtils;
+import org.openl.util.FileUtils;
 
 /**
  * Run OpenL tests
@@ -41,6 +44,9 @@ public final class TestMojo extends BaseOpenLMojo {
      */
     @Parameter(property = "skipTests")
     private boolean skipTests;
+
+    @Parameter(defaultValue = "${project.build.testSourceDirectory}/../openl")
+    private File testSourceDirectory;
 
     /**
      * Thread count to run test cases. The parameter is as follows:
@@ -75,9 +81,7 @@ public final class TestMojo extends BaseOpenLMojo {
 
     @Override
     public void execute(String sourcePath, boolean hasDependencies) throws Exception {
-        Summary summary = singleModuleMode ?
-                          executeModuleByModule(sourcePath, hasDependencies) :
-                          executeAllAtOnce(sourcePath, hasDependencies);
+        Summary summary = runAllTests(sourcePath, hasDependencies);
 
         info("");
         info("Results:");
@@ -104,6 +108,36 @@ public final class TestMojo extends BaseOpenLMojo {
         } else if (summary.isHasCompilationErrors()) {
             throw new MojoFailureException("There are compilation errors in the OpenL tests ");
         }
+    }
+
+    private Summary runAllTests(String sourcePath, boolean hasDependencies) throws
+                                                                       IOException,
+                                                                       RulesInstantiationException,
+                                                                       ProjectResolvingException,
+                                                                       ClassNotFoundException {
+
+        String path = sourcePath;
+
+        if (testSourceDirectory.isDirectory() && !CollectionUtils.isEmpty(testSourceDirectory.list())) {
+            File destination = new File(workspaceFolder, project.getArtifactId());
+            debug("Destination path: ", destination.getPath());
+
+            info("Copying main OpenL sources to workspace...");
+            FileUtils.copy(new File(sourcePath), destination);
+            info("Copying test OpenL sources to workspace...");
+            FileUtils.copy(testSourceDirectory, destination);
+
+            try {
+                path = destination.getCanonicalPath();
+            } catch (Exception e) {
+                warn("The path to OpenL directory in workspace cannot be converted to canonical form.");
+                path = destination.getPath();
+            }
+        }
+
+        return singleModuleMode ?
+               executeModuleByModule(path, hasDependencies) :
+               executeAllAtOnce(path, hasDependencies);
     }
 
     private Summary executeAllAtOnce(String sourcePath, boolean hasDependencies) throws

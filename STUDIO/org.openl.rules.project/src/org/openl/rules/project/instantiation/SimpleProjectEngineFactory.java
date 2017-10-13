@@ -205,7 +205,16 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         ProjectDescriptor projectDescriptor = getProjectDescriptor();
         if (workspace != null) {
             File[] files = workspace.listFiles();
-            List<ProjectDescriptor> projects = projectResolver.resolve(files);
+            List<ProjectDescriptor> projects;
+            ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+            try {
+                if (classLoader != null) {
+                    Thread.currentThread().setContextClassLoader(classLoader);
+                }
+                projects = projectResolver.resolve(files);
+            } finally {
+                Thread.currentThread().setContextClassLoader(oldClassLoader);
+            }
             List<ProjectDescriptor> dependentProjects = getDependentProjects(projectDescriptor, projects);
             projectDescriptors.addAll(dependentProjects);
         }
@@ -235,7 +244,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
     public boolean isProvideRuntimeContext() {
         return provideRuntimeContext;
     }
-    
+
     public boolean isProvideVariations() {
         return provideVariations;
     }
@@ -266,7 +275,16 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
     protected synchronized final ProjectDescriptor getProjectDescriptor() throws ProjectResolvingException {
         if (this.projectDescriptor == null) {
             ProjectResolver projectResolver = ProjectResolver.instance();
-            ProjectDescriptor pd = projectResolver.resolve(project);
+            ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+            ProjectDescriptor pd;
+            try {
+                if (classLoader != null) {
+                    Thread.currentThread().setContextClassLoader(classLoader);
+                }
+                pd = projectResolver.resolve(project);
+            } finally {
+                Thread.currentThread().setContextClassLoader(oldClassLoader);
+            }
             if (pd == null) {
                 throw new ProjectResolvingException("Failed to resolve project. Defined location is not a OpenL project.");
             }
