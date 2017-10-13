@@ -1,5 +1,7 @@
 package org.openl.rules.lang.xls.binding;
 
+import java.util.Comparator;
+
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.rules.table.properties.ITableProperties;
@@ -8,8 +10,6 @@ import org.openl.types.IOpenMethod;
 import org.openl.util.conf.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Comparator;
 
 /**
  * Finds table with biggest version(it will later table) or "active" table;
@@ -57,10 +57,13 @@ public final class TableVersionComparator implements Comparator<ITableProperties
     private static Version DEFAULT_VERSION = Version.parseVersion("0.0.0", 0, "..");
 
     private static Version parseVersionForComparison(String version) {
-        Logger log = LoggerFactory.getLogger(TableVersionComparator.class);
+        if (version == null) {
+            return DEFAULT_VERSION;
+        }
         try {
             return Version.parseVersion(version, 0, "..");
         } catch (RuntimeException e) {
+            Logger log = LoggerFactory.getLogger(TableVersionComparator.class);
             // it is just fix to avoid tree crashing.
             // we need to validate format of the versions, during compilation of
             // Openl and also on UI.
