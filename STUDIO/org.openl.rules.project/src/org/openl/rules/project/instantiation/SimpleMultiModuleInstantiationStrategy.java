@@ -8,7 +8,6 @@ import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
 import org.openl.rules.runtime.RulesEngineFactory;
-import org.openl.runtime.AOpenLEngineFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
