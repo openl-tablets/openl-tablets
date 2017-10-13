@@ -70,7 +70,7 @@ public final class PropertiesFileNameProcessorBuilder {
     
     protected ClassLoader getCustomClassLoader(ProjectDescriptor projectDescriptor) {
         URL[] urls = projectDescriptor.getClassPathUrls();
-        classLoader = new URLClassLoader(urls, PropertiesFileNameProcessorBuilder.class.getClassLoader());
+        classLoader = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
         return classLoader;
     }
 }
