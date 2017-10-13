@@ -1,5 +1,6 @@
 package org.openl.rules.testmethod;
 
+import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
 
@@ -79,7 +80,7 @@ public class TestUnitResultComparator {
         }
 
         if (expectedResult == null) {
-            if ((actualResult instanceof Object[] && ((Object[]) actualResult).length == 0)
+            if ((actualResult.getClass().isArray() && Array.getLength(actualResult) == 0)
                     || (actualResult instanceof Collection && ((Collection<?>) actualResult).isEmpty())
                     || (actualResult instanceof Map && ((Map<?, ?>) actualResult).isEmpty())
                     || (actualResult instanceof String && ((String) actualResult).isEmpty())) {
