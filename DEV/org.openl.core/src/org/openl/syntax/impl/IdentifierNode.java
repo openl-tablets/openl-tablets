@@ -18,7 +18,7 @@ public class IdentifierNode extends TerminalNode {
     public IdentifierNode(String type, ILocation location, String identifier, IOpenSourceCodeModule module) {
         super(type, location, module);
 
-       this.identifier = identifier.length() <= 4 ? identifier.intern() : identifier;
+        this.identifier = identifier.intern();
     }
 
     public String getIdentifier() {
