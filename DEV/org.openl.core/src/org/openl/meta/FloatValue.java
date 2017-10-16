@@ -16,7 +16,6 @@ import org.openl.meta.FloatValue.FloatValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
-import org.openl.meta.number.LogicalExpressions;
 import org.openl.meta.number.NumberOperations;
 import org.openl.rules.util.Round;
 import org.openl.util.ArrayTool;

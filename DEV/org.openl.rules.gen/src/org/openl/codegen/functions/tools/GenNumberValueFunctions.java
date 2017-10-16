@@ -18,7 +18,6 @@ import org.openl.meta.IntValue;
 import org.openl.meta.LongValue;
 import org.openl.meta.ShortValue;
 import org.openl.meta.number.Formulas;
-import org.openl.meta.number.LogicalExpressions;
 import org.openl.meta.number.NumberOperations;
 
 /**
@@ -104,7 +103,6 @@ public class GenNumberValueFunctions extends GenRulesCode {
             variables.put("remFormula", Formulas.REM);
 
             // variables.put("formulas", Formulas.values());
-            variables.put("logicalExpressions", LogicalExpressions.values());
             variables.put("mathFunctions1", MATH_FUNCTIONS1);
             variables.put("mathFunctions2", MATH_FUNCTIONS2);
             variables.put("mathFunctions3", MATH_FUNCTIONS3);
