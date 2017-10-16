@@ -1,8 +1,6 @@
 package org.openl.binding.impl;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.openl.binding.IBoundNode;
 import org.openl.exception.OpenLRuntimeException;
@@ -31,23 +29,15 @@ public class VariableArgumentsMethodBoundNode extends MethodBoundNode {
     }
 
     private Object[] modifyParameters(Object[] methodParameters) {
-        List<Object> parametersList = new ArrayList<Object>();
-        if (indexOfFirstVarArg > 0) {
-            // first parameters should be copied as is.
-            //
-            for (int i = 0; i < indexOfFirstVarArg; i++) {
-                parametersList.add(methodParameters[i]);
-            }
-        }
+        int parametersCount = getMethodCaller().getMethod().getSignature().getNumberOfParameters();
+        Object[] modifiedParameters = new Object[parametersCount];
+        System.arraycopy(methodParameters, 0, modifiedParameters, 0, indexOfFirstVarArg);
+
         // all the parameters of the same type in the tail of parameters sequence, 
         // should be wrapped by array of this type
         //
-        Object sameTypeParameters = getAllParametersOfTheSameType(methodParameters);
-        
-        parametersList.add(sameTypeParameters);        
-        
-        return (Object[]) parametersList.toArray(new Object[parametersList.size()]);
-
+        modifiedParameters[parametersCount - 1] = getAllParametersOfTheSameType(methodParameters);
+        return modifiedParameters;
     }
 
     private Object getAllParametersOfTheSameType(Object[] methodParameters) {        

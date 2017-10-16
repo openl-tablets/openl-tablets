@@ -24,7 +24,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.SimpleNodeUsage;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.fuzzy.OpenLFuzzySearch;
 import org.openl.rules.fuzzy.Token;

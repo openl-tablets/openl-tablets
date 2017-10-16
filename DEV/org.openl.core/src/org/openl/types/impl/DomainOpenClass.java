@@ -1,5 +1,9 @@
 package org.openl.types.impl;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
@@ -10,10 +14,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
 
 /**
  * {@link IOpenClass} implementation, that adds restriction for instances of this class by {@link IDomain}
@@ -221,4 +221,9 @@ public class DomainOpenClass implements IOpenClass {
     public Iterable<IOpenMethod> constructors(String name) {
         return baseClass.constructors(name);
     }
+    
+    public IOpenClass getArrayType(int dim) {
+        return AOpenClass.getArrayType(this, dim);
+    }
+
 }

@@ -206,4 +206,9 @@ public class NullOpenClass implements IOpenClass {
     public Iterable<IOpenMethod> constructors(String name) {
         return Collections.emptyList();
     }
+    
+    @Override
+    public IOpenClass getArrayType(int dim) {
+        return this;
+    }
 }

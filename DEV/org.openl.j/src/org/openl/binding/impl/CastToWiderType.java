@@ -1,13 +1,10 @@
 package org.openl.binding.impl;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
-import org.openl.types.java.JavaOpenClass;
+import org.openl.util.OpenClassUtils;
 
 /**
  * Contains information needed to cast two types to wider type
@@ -22,7 +19,6 @@ public final class CastToWiderType {
         this.cast1 = cast1;
         this.cast2 = cast2;
     }
-
 
     public IOpenClass getWiderType() {
         return widerType;
@@ -63,7 +59,7 @@ public final class CastToWiderType {
 
             if (cast1To2 == null && cast2To1 == null) {
                 // Find parent class for cast both nodes
-                IOpenClass parentClass = findParentClass(type1, type2);
+                IOpenClass parentClass = OpenClassUtils.findParentClass(type1, type2);
                 if (parentClass != null) {
                     IOpenCast castToParent1 = bindingContext.getCast(type1, parentClass);
                     IOpenCast castToParent2 = bindingContext.getCast(type2, parentClass);
@@ -90,44 +86,5 @@ public final class CastToWiderType {
             return new CastToWiderType(type1, null, null);
         }
 
-    }
-
-    private static IOpenClass findParentClass(IOpenClass child1Type, IOpenClass child2Type) {
-        Set<IOpenClass> superClasses = new HashSet<IOpenClass>();
-        IOpenClass openClass = child1Type;
-        while (!openClass.equals(JavaOpenClass.OBJECT)) {
-            Iterable<IOpenClass> itr = openClass.superClasses();
-            boolean f = false;
-            for (IOpenClass superClass : itr) {
-                if (!superClass.getInstanceClass().isInterface()) {
-                    superClasses.add(superClass);
-                    openClass = superClass;
-                    f = true;
-                    break;
-                }
-            }
-            if (!f) {
-                break;
-            }
-        }
-        openClass = child2Type;
-        while (!openClass.equals(JavaOpenClass.OBJECT)) {
-            Iterable<IOpenClass> itr = openClass.superClasses();
-            boolean f = false;
-            for (IOpenClass superClass : itr) {
-                if (!superClass.getInstanceClass().isInterface()) {
-                    if (superClasses.contains(superClass)) {
-                        return superClass;
-                    }
-                    openClass = superClass;
-                    f = true;
-                    break;
-                }
-            }
-            if (!f) {
-                break;
-            }
-        }
-        return null;
     }
 }

@@ -179,5 +179,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IOpenClassHolder, IMeta
      * @return map of internal types
      */
     Collection<IOpenClass> getTypes();
+    
+    IOpenClass getArrayType(int dim);
 
 }

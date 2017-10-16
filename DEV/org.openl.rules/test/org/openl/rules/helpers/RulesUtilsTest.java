@@ -43,7 +43,6 @@ public class RulesUtilsTest {
 
     private static TestInterf instance;
     private static String str;
-    private static String nullStr = null;
 
     public interface TestInterf {
         String testMaxByte(java.lang.Byte[] obj);

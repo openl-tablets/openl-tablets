@@ -6,7 +6,6 @@
 
 package org.openl.binding.impl;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,7 +22,6 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.CastingMethodCaller;
-import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.AutoCastResultOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenMethod;
@@ -91,7 +89,10 @@ public class MethodSearch {
 
             if (returnType != null && m.containsKey(returnType)) {
                 int dim = JavaGenericsUtils.getGenericTypeDim(method.getJavaMethod().getGenericReturnType());
-                IOpenClass type = buildTypeWithArrayLogic(m.get(returnType), dim);
+                IOpenClass type = m.get(returnType);
+                if (dim > 0) {
+                    type = type.getArrayType(dim);
+                }
                 IOpenCast returnCast = casts.getCast(method.getType(), type);
                 if (returnCast == null) {
                     return NO_MATCH;
@@ -102,8 +103,10 @@ public class MethodSearch {
 
             for (i = 0; i < callParam.length; i++) {
                 if (typeNames[i] != null) {
-                    IOpenClass type = buildTypeWithArrayLogic(m.get(typeNames[i]), arrayDims[i]);
-
+                    IOpenClass type = m.get(typeNames[i]);
+                    if (arrayDims[i] > 0) {
+                        type = type.getArrayType(arrayDims[i]);
+                    }
                     if (callParam[i] != type) {
                         IOpenCast gCast = casts.getCast(callParam[i], type);
                         if (type != methodParam[i]) {
@@ -152,27 +155,6 @@ public class MethodSearch {
         }
 
         return maxdiff * 100 + ndiff;
-    }
-
-    private static IOpenClass buildTypeWithArrayLogic(IOpenClass type, int dim) {
-        if (dim > 0) {
-            IOpenClass arrayType = JavaOpenClass
-                .getOpenClass(Array.newInstance(type.getInstanceClass(), dim).getClass());
-            if (type.getDomain() != null) {
-                StringBuilder domainOpenClassName = new StringBuilder(type.getName());
-                for (int j = 0; j < dim; j++) {
-                    domainOpenClassName.append("[]");
-                }
-                DomainOpenClass domainArrayType = new DomainOpenClass(domainOpenClassName.toString(),
-                    arrayType,
-                    type.getDomain(),
-                    null);
-                return domainArrayType;
-            } else {
-                return arrayType;
-            }
-        }
-        return type;
     }
 
     public static IMethodCaller getCastingMethodCaller(final String name,
