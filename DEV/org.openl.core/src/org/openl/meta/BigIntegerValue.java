@@ -10,13 +10,11 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
-import org.openl.binding.impl.operator.Comparison;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.BigIntegerValue.BigIntegerValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
-import org.openl.meta.number.LogicalExpressions;
 import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
 import org.openl.util.math.MathUtils;
@@ -44,88 +42,6 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
     }
 
     // <<< INSERT Functions >>>
-
-    /**
-     * Compares two values
-     * 
-     * @param value1
-     * @param value2
-     * @return true if value1 equal value2
-     */
-    public static boolean eq(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
-        if (value1 == null || value2 == null) {
-            return value1 == value2;
-        }
-
-        return Comparison.eq(value1.getValue(), value2.getValue());
-    }
-
-    /**
-     * Compares two values
-     * 
-     * @param value1
-     * @param value2
-     * @return true if value1 greater or equal value2
-     */
-    public static Boolean ge(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
-        BigInteger v1 = value1 == null ? null : value1.value;
-        BigInteger v2 = value2 == null ? null : value2.value;
-        return Comparison.ge(v1, v2);
-    }
-
-    /**
-     * Compares two values
-     * 
-     * @param value1
-     * @param value2
-     * @return true if value1 greater value2
-     */
-    public static Boolean gt(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
-        BigInteger v1 = value1 == null ? null : value1.value;
-        BigInteger v2 = value2 == null ? null : value2.value;
-        return Comparison.gt(v1, v2);
-    }
-
-    /**
-     * Compares two values
-     * 
-     * @param value1
-     * @param value2
-     * @return true if value1 less or equal value2
-     */
-    public static Boolean le(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
-        BigInteger v1 = value1 == null ? null : value1.value;
-        BigInteger v2 = value2 == null ? null : value2.value;
-        return Comparison.le(v1, v2);
-    }
-
-    /**
-     * Compares two values
-     * 
-     * @param value1
-     * @param value2
-     * @return true if value1 less value2
-     */
-    public static Boolean lt(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
-        BigInteger v1 = value1 == null ? null : value1.value;
-        BigInteger v2 = value2 == null ? null : value2.value;
-        return Comparison.lt(v1, v2);
-    }
-
-    /**
-     * Compares two values
-     * 
-     * @param value1
-     * @param value2
-     * @return true if value1 not equal value2
-     */
-    public static boolean ne(org.openl.meta.BigIntegerValue value1, org.openl.meta.BigIntegerValue value2) {
-        if (value1 == null || value2 == null) {
-            return value1 != value2;
-        }
-
-        return Comparison.ne(value1.getValue(), value2.getValue());
-    }
 
     /**
      * average
@@ -721,12 +637,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
      * org.openl.meta.BigIntegerValue variable.
      */
     public boolean equals(Object obj) {
-        if (obj instanceof org.openl.meta.BigIntegerValue) {
-            org.openl.meta.BigIntegerValue secondObj = (org.openl.meta.BigIntegerValue) obj;
-            return Comparison.eq(getValue(), secondObj.getValue());
-        }
-
-        return false;
+        return obj instanceof BigIntegerValue && value.equals(((BigIntegerValue) obj).value);
     }
 
     // sort
@@ -909,14 +820,8 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         return value.longValue();
     }
 
-    public int compareTo(Number o) {
-        if (o == null) {
-            return 1;
-        } else if (o instanceof BigIntegerValue) {
-            return value.compareTo(((BigIntegerValue) o).getValue());
-        } else {
-            throw new OpenlNotCheckedException("Can`t compare BigIntegerValue with unknown type.");
-        }
+    public int compareTo(BigIntegerValue o) {
+        return value.compareTo(o.value);
     }
 
     @Override

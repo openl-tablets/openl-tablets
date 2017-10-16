@@ -3,7 +3,6 @@ package org.openl.meta;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.openl.exception.OpenlNotCheckedException;
 
 public class BigIntegerValueTest {
     
@@ -15,27 +14,7 @@ public class BigIntegerValueTest {
         value2.setMetaInfo(value1.getMetaInfo());
         assertEquals(value1, value2);
     }
-    
-    @Test
-    public void testEq() {
-        BigIntegerValue value1 = new BigIntegerValue("1234");
-        BigIntegerValue value2 = new BigIntegerValue("1234");
-        boolean result = BigIntegerValue.eq(value1, value2);
-        assertTrue(result);
-        
-        value1 = new BigIntegerValue("34");
-        result = BigIntegerValue.eq(value1, value2);
-        assertFalse(result);        
-        
-        value1 = null;
-        try {
-            result = BigIntegerValue.eq(value1, value2);
-        } catch (OpenlNotCheckedException e) {
-            assertTrue(true);
-        }
-        assertFalse(result);        
-    }
-    
+
     @Test
     public void testMax() {
         BigIntegerValue value1 = new BigIntegerValue("1234");

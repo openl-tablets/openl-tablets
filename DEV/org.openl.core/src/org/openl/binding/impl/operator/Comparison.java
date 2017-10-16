@@ -30,18 +30,6 @@ public class Comparison {
         return x == y;
     }
 
-    public static boolean eq(byte x, byte y) {
-        return x == y;
-    }
-
-    public static boolean eq(short x, short y) {
-        return x == y;
-    }
-
-    public static boolean eq(char x, char y) {
-        return x == y;
-    }
-
     public static boolean eq(int x, int y) {
         return x == y;
     }
@@ -68,30 +56,6 @@ public class Comparison {
         return Math.abs(x - y) <= Math.ulp(x);
     }
 
-    public static boolean eq(Boolean x, Boolean y) {
-        return equals(x, y);
-    }
-
-    public static boolean eq(Byte x, Byte y) {
-        return equals(x, y);
-    }
-
-    public static boolean eq(Short x, Short y) {
-        return equals(x, y);
-    }
-
-    public static boolean eq(Character x, Character y) {
-        return equals(x, y);
-    }
-
-    public static boolean eq(Integer x, Integer y) {
-        return equals(x, y);
-    }
-
-    public static boolean eq(Long x, Long y) {
-        return equals(x, y);
-    }
-
     public static boolean eq(Float x, Float y) {
         return x == null && y == null || x != null && y != null && eq(x.floatValue(), y.floatValue());
     }
@@ -100,32 +64,16 @@ public class Comparison {
         return x == null && y == null || x != null && y != null && eq(x.doubleValue(), y.doubleValue());
     }
 
-    public static boolean eq(BigInteger x, BigInteger y) {
-        return equals(x, y);
-    }
-
     public static boolean eq(BigDecimal x, BigDecimal y) {
         return x == null && y == null || x != null && y != null && x.subtract(y).abs().compareTo(x.ulp()) <= 0;
     }
 
-    public static boolean eq(Object x, Object y) {
+    public static <T> boolean eq(T x, T y) {
         return equals(x, y);
     }
 
     // Not Equals
     public static boolean ne(boolean x, boolean y) {
-        return !eq(x, y);
-    }
-
-    public static boolean ne(byte x, byte y) {
-        return !eq(x, y);
-    }
-
-    public static boolean ne(short x, short y) {
-        return !eq(x, y);
-    }
-
-    public static boolean ne(char x, char y) {
         return !eq(x, y);
     }
 
@@ -145,30 +93,6 @@ public class Comparison {
         return !eq(x, y);
     }
 
-    public static boolean ne(Boolean x, Boolean y) {
-        return !eq(x, y);
-    }
-
-    public static boolean ne(Byte x, Byte y) {
-        return !eq(x, y);
-    }
-
-    public static boolean ne(Short x, Short y) {
-        return !eq(x, y);
-    }
-
-    public static boolean ne(Character x, Character y) {
-        return !eq(x, y);
-    }
-
-    public static boolean ne(Integer x, Integer y) {
-        return !eq(x, y);
-    }
-
-    public static boolean ne(Long x, Long y) {
-        return !eq(x, y);
-    }
-
     public static boolean ne(Float x, Float y) {
         return !eq(x, y);
     }
@@ -177,33 +101,17 @@ public class Comparison {
         return !eq(x, y);
     }
 
-    public static boolean ne(BigInteger x, BigInteger y) {
-        return !eq(x, y);
-    }
-
     public static boolean ne(BigDecimal x, BigDecimal y) {
         return !eq(x, y);
     }
 
-    public static boolean ne(Object x, Object y) {
+    public static <T> boolean ne(T x, T y) {
         return !eq(x, y);
     }
 
     // Greater Than
     public static boolean gt(boolean x, boolean y) {
         return x && !y;
-    }
-
-    public static boolean gt(byte x, byte y) {
-        return x > y;
-    }
-
-    public static boolean gt(short x, short y) {
-        return x > y;
-    }
-
-    public static boolean gt(char x, char y) {
-        return x > y;
     }
 
     public static boolean gt(int x, int y) {
@@ -222,33 +130,11 @@ public class Comparison {
         return x > y && (Double.isInfinite(x) || (x - y) > Math.ulp(x));
     }
 
-    public static Boolean gt(Boolean x, Boolean y) {
-        return greatThan(x, y);
-    }
-
-    public static Boolean gt(Byte x, Byte y) {
-        return greatThan(x, y);
-    }
-
-    public static Boolean gt(Short x, Short y) {
-        return greatThan(x, y);
-    }
-
-    public static Boolean gt(Character x, Character y) {
-        return greatThan(x, y);
-    }
-
-    public static Boolean gt(Integer x, Integer y) {
-        return greatThan(x, y);
-    }
-
-    public static Boolean gt(Long x, Long y) {
-        return greatThan(x, y);
-    }
-
     public static Boolean gt(Float x, Float y) {
         Boolean res = null;
-        if (x != null && y != null) {
+        if (x == y) {
+            return false;
+        } else if (x != null && y != null) {
             res = gt(x.floatValue(), y.floatValue());
         }
         return res;
@@ -256,7 +142,9 @@ public class Comparison {
 
     public static Boolean gt(Double x, Double y) {
         Boolean res = null;
-        if (x != null && y != null) {
+        if (x == y) {
+            return false;
+        } else if (x != null && y != null) {
             res = gt(x.doubleValue(), y.doubleValue());
         }
         return res;
@@ -268,18 +156,6 @@ public class Comparison {
 
     // Less Than
     public static boolean lt(boolean x, boolean y) {
-        return gt(y, x);
-    }
-
-    public static boolean lt(byte x, byte y) {
-        return gt(y, x);
-    }
-
-    public static boolean lt(short x, short y) {
-        return gt(y, x);
-    }
-
-    public static boolean lt(char x, char y) {
         return gt(y, x);
     }
 
@@ -296,30 +172,6 @@ public class Comparison {
     }
 
     public static boolean lt(double x, double y) {
-        return gt(y, x);
-    }
-
-    public static Boolean lt(Boolean x, Boolean y) {
-        return gt(y, x);
-    }
-
-    public static Boolean lt(Byte x, Byte y) {
-        return gt(y, x);
-    }
-
-    public static Boolean lt(Short x, Short y) {
-        return gt(y, x);
-    }
-
-    public static Boolean lt(Character x, Character y) {
-        return gt(y, x);
-    }
-
-    public static Boolean lt(Integer x, Integer y) {
-        return gt(y, x);
-    }
-
-    public static Boolean lt(Long x, Long y) {
         return gt(y, x);
     }
 
@@ -340,18 +192,6 @@ public class Comparison {
         return x || !y;
     }
 
-    public static boolean ge(byte x, byte y) {
-        return x >= y;
-    }
-
-    public static boolean ge(short x, short y) {
-        return x >= y;
-    }
-
-    public static boolean ge(char x, char y) {
-        return x >= y;
-    }
-
     public static boolean ge(int x, int y) {
         return x >= y;
     }
@@ -366,30 +206,6 @@ public class Comparison {
 
     public static boolean ge(double x, double y) {
         return eq(x, y) || gt(x, y);
-    }
-
-    public static Boolean ge(Boolean x, Boolean y) {
-        return greatOrEquals(x, y);
-    }
-
-    public static Boolean ge(Byte x, Byte y) {
-        return greatOrEquals(x, y);
-    }
-
-    public static Boolean ge(Short x, Short y) {
-        return greatOrEquals(x, y);
-    }
-
-    public static Boolean ge(Character x, Character y) {
-        return greatOrEquals(x, y);
-    }
-
-    public static Boolean ge(Integer x, Integer y) {
-        return greatOrEquals(x, y);
-    }
-
-    public static Boolean ge(Long x, Long y) {
-        return greatOrEquals(x, y);
     }
 
     public static Boolean ge(Float x, Float y) {
@@ -420,18 +236,6 @@ public class Comparison {
         return ge(y, x);
     }
 
-    public static boolean le(byte x, byte y) {
-        return ge(y, x);
-    }
-
-    public static boolean le(short x, short y) {
-        return ge(y, x);
-    }
-
-    public static boolean le(char x, char y) {
-        return ge(y, x);
-    }
-
     public static boolean le(int x, int y) {
         return ge(y, x);
     }
@@ -445,30 +249,6 @@ public class Comparison {
     }
 
     public static boolean le(double x, double y) {
-        return ge(y, x);
-    }
-
-    public static Boolean le(Boolean x, Boolean y) {
-        return ge(y, x);
-    }
-
-    public static Boolean le(Byte x, Byte y) {
-        return ge(y, x);
-    }
-
-    public static Boolean le(Short x, Short y) {
-        return ge(y, x);
-    }
-
-    public static Boolean le(Character x, Character y) {
-        return ge(y, x);
-    }
-
-    public static Boolean le(Integer x, Integer y) {
-        return ge(y, x);
-    }
-
-    public static Boolean le(Long x, Long y) {
         return ge(y, x);
     }
 
@@ -626,7 +406,9 @@ public class Comparison {
 
     private static <T extends Comparable<T>> Boolean greatThan(T x, T y) {
         Boolean res = null;
-        if (x != null && y != null) {
+        if (x == y) {
+            return false;
+        } else if (x != null && y != null) {
             res = x.compareTo(y) > 0;
         }
         return res;
