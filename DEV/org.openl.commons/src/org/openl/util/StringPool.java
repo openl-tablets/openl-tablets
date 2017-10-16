@@ -13,8 +13,8 @@ import java.util.WeakHashMap;
  * @author Yury Mmolchan
  *
  */
-public class StringPool {
-    static WeakHashMap<String, WeakReference<String>> stringPool = new WeakHashMap<String, WeakReference<String>>(5000);
+public final class StringPool {
+    static final WeakHashMap<String, WeakReference<String>> stringPool = new WeakHashMap<String, WeakReference<String>>(5000);
 
     /**
      * No instantiation.
@@ -39,7 +39,6 @@ public class StringPool {
             String cached = ref.get();
             if (cached != null)
                 return cached;
-
         }
 
         synchronized (stringPool) {

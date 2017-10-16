@@ -5,6 +5,7 @@
 package org.openl.syntax.impl;
 
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.util.StringPool;
 import org.openl.util.text.ILocation;
 
 /**
@@ -18,7 +19,7 @@ public class IdentifierNode extends TerminalNode {
     public IdentifierNode(String type, ILocation location, String identifier, IOpenSourceCodeModule module) {
         super(type, location, module);
 
-        this.identifier = identifier.intern();
+        this.identifier = StringPool.intern(identifier);
     }
 
     public String getIdentifier() {
