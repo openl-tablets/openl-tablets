@@ -75,6 +75,31 @@ public class ComparisonTest {
     }
 
     @Test
+    public void testIntegerEq() {
+        final Integer inf_pos = Integer.MAX_VALUE;
+        final Integer inf_neg = Integer.MIN_VALUE;
+        final Integer nil = null;
+        final Integer pos = 1;
+        final Integer neg = -pos;
+
+        assertTrue(Comparison.eq(pos, pos));
+        assertFalse(Comparison.eq(pos, neg));
+        assertFalse(Comparison.eq(neg, pos));
+        assertTrue(Comparison.eq(neg, neg));
+        assertTrue(Comparison.eq(inf_pos, inf_pos));
+        assertTrue(Comparison.eq(inf_neg, inf_neg));
+        assertFalse(Comparison.eq(inf_pos, inf_neg));
+        assertFalse(Comparison.eq(inf_neg, inf_pos));
+        assertFalse(Comparison.eq(pos, inf_pos));
+        assertFalse(Comparison.eq(inf_pos, pos));
+        assertFalse(Comparison.eq(pos, inf_neg));
+        assertFalse(Comparison.eq(inf_neg, pos));
+        assertTrue(Comparison.eq(nil, nil));
+        assertFalse(Comparison.eq(pos, nil));
+        assertFalse(Comparison.eq(nil, pos));
+    }
+
+    @Test
     public void testFloatNe() {
         final Float nan = Float.NaN;
         final Float inf_pos = Float.POSITIVE_INFINITY;
@@ -141,6 +166,31 @@ public class ComparisonTest {
     }
 
     @Test
+    public void testIntegerNe() {
+        final Integer inf_pos = Integer.MAX_VALUE;
+        final Integer inf_neg = Integer.MIN_VALUE;
+        final Integer nil = null;
+        final Integer pos = 1;
+        final Integer neg = -pos;
+
+        assertFalse(Comparison.ne(pos, pos));
+        assertTrue(Comparison.ne(pos, neg));
+        assertTrue(Comparison.ne(neg, pos));
+        assertFalse(Comparison.ne(neg, neg));
+        assertFalse(Comparison.ne(inf_pos, inf_pos));
+        assertFalse(Comparison.ne(inf_neg, inf_neg));
+        assertTrue(Comparison.ne(inf_pos, inf_neg));
+        assertTrue(Comparison.ne(inf_neg, inf_pos));
+        assertTrue(Comparison.ne(pos, inf_pos));
+        assertTrue(Comparison.ne(inf_pos, pos));
+        assertTrue(Comparison.ne(pos, inf_neg));
+        assertTrue(Comparison.ne(inf_neg, pos));
+        assertFalse(Comparison.ne(nil, nil));
+        assertTrue(Comparison.ne(pos, nil));
+        assertTrue(Comparison.ne(nil, pos));
+    }
+
+    @Test
     public void testFloatGt() {
         final Float nan = Float.NaN;
         final Float inf_pos = Float.POSITIVE_INFINITY;
@@ -168,7 +218,7 @@ public class ComparisonTest {
         assertTrue(Comparison.gt(inf_pos, pos));
         assertTrue(Comparison.gt(pos, inf_neg));
         assertFalse(Comparison.gt(inf_neg, pos));
-        assertNull(Comparison.gt(nil, nil));
+        assertFalse(Comparison.gt(nil, nil));
         assertNull(Comparison.gt(pos, nil));
         assertNull(Comparison.gt(nil, pos));
     }
@@ -201,7 +251,32 @@ public class ComparisonTest {
         assertTrue(Comparison.gt(inf_pos, pos));
         assertTrue(Comparison.gt(pos, inf_neg));
         assertFalse(Comparison.gt(inf_neg, pos));
-        assertNull(Comparison.gt(nil, nil));
+        assertFalse(Comparison.gt(nil, nil));
+        assertNull(Comparison.gt(pos, nil));
+        assertNull(Comparison.gt(nil, pos));
+    }
+
+    @Test
+    public void testIntegerGt() {
+        final Integer inf_pos = Integer.MAX_VALUE;
+        final Integer inf_neg = Integer.MIN_VALUE;
+        final Integer nil = null;
+        final Integer pos = 1;
+        final Integer neg = -pos;
+
+        assertFalse(Comparison.gt(pos, pos));
+        assertTrue(Comparison.gt(pos, neg));
+        assertFalse(Comparison.gt(neg, pos));
+        assertFalse(Comparison.gt(neg, neg));
+        assertFalse(Comparison.gt(inf_pos, inf_pos));
+        assertFalse(Comparison.gt(inf_neg, inf_neg));
+        assertTrue(Comparison.gt(inf_pos, inf_neg));
+        assertFalse(Comparison.gt(inf_neg, inf_pos));
+        assertFalse(Comparison.gt(pos, inf_pos));
+        assertTrue(Comparison.gt(inf_pos, pos));
+        assertTrue(Comparison.gt(pos, inf_neg));
+        assertFalse(Comparison.gt(inf_neg, pos));
+        assertFalse(Comparison.gt(nil, nil));
         assertNull(Comparison.gt(pos, nil));
         assertNull(Comparison.gt(nil, pos));
     }
@@ -234,7 +309,7 @@ public class ComparisonTest {
         assertFalse(Comparison.lt(inf_pos, pos));
         assertFalse(Comparison.lt(pos, inf_neg));
         assertTrue(Comparison.lt(inf_neg, pos));
-        assertNull(Comparison.lt(nil, nil));
+        assertFalse(Comparison.lt(nil, nil));
         assertNull(Comparison.lt(pos, nil));
         assertNull(Comparison.lt(nil, pos));
     }
@@ -267,7 +342,32 @@ public class ComparisonTest {
         assertFalse(Comparison.lt(inf_pos, pos));
         assertFalse(Comparison.lt(pos, inf_neg));
         assertTrue(Comparison.lt(inf_neg, pos));
-        assertNull(Comparison.lt(nil, nil));
+        assertFalse(Comparison.lt(nil, nil));
+        assertNull(Comparison.lt(pos, nil));
+        assertNull(Comparison.lt(nil, pos));
+    }
+
+    @Test
+    public void testIntegerLt() {
+        final Integer inf_pos = Integer.MAX_VALUE;
+        final Integer inf_neg = Integer.MIN_VALUE;
+        final Integer nil = null;
+        final Integer pos = 1;
+        final Integer neg = -pos;
+
+        assertFalse(Comparison.lt(pos, pos));
+        assertFalse(Comparison.lt(pos, neg));
+        assertTrue(Comparison.lt(neg, pos));
+        assertFalse(Comparison.lt(neg, neg));
+        assertFalse(Comparison.lt(inf_pos, inf_pos));
+        assertFalse(Comparison.lt(inf_neg, inf_neg));
+        assertFalse(Comparison.lt(inf_pos, inf_neg));
+        assertTrue(Comparison.lt(inf_neg, inf_pos));
+        assertTrue(Comparison.lt(pos, inf_pos));
+        assertFalse(Comparison.lt(inf_pos, pos));
+        assertFalse(Comparison.lt(pos, inf_neg));
+        assertTrue(Comparison.lt(inf_neg, pos));
+        assertFalse(Comparison.lt(nil, nil));
         assertNull(Comparison.lt(pos, nil));
         assertNull(Comparison.lt(nil, pos));
     }
@@ -339,6 +439,31 @@ public class ComparisonTest {
     }
 
     @Test
+    public void testIntegerGe() {
+        final Integer inf_pos = Integer.MAX_VALUE;
+        final Integer inf_neg = Integer.MIN_VALUE;
+        final Integer nil = null;
+        final Integer pos = 1;
+        final Integer neg = -pos;
+
+        assertTrue(Comparison.ge(pos, pos));
+        assertTrue(Comparison.ge(pos, neg));
+        assertFalse(Comparison.ge(neg, pos));
+        assertTrue(Comparison.ge(neg, neg));
+        assertTrue(Comparison.ge(inf_pos, inf_pos));
+        assertTrue(Comparison.ge(inf_neg, inf_neg));
+        assertTrue(Comparison.ge(inf_pos, inf_neg));
+        assertFalse(Comparison.ge(inf_neg, inf_pos));
+        assertFalse(Comparison.ge(pos, inf_pos));
+        assertTrue(Comparison.ge(inf_pos, pos));
+        assertTrue(Comparison.ge(pos, inf_neg));
+        assertFalse(Comparison.ge(inf_neg, pos));
+        assertTrue(Comparison.ge(nil, nil));
+        assertNull(Comparison.ge(pos, nil));
+        assertNull(Comparison.ge(nil, pos));
+    }
+
+    @Test
     public void testFloatLe() {
         final Float nan = Float.NaN;
         final Float inf_pos = Float.POSITIVE_INFINITY;
@@ -391,6 +516,31 @@ public class ComparisonTest {
         assertFalse(Comparison.le(nan, pos));
         assertFalse(Comparison.le(nan, inf_pos));
         assertFalse(Comparison.le(nan, inf_neg));
+        assertTrue(Comparison.le(inf_pos, inf_pos));
+        assertTrue(Comparison.le(inf_neg, inf_neg));
+        assertFalse(Comparison.le(inf_pos, inf_neg));
+        assertTrue(Comparison.le(inf_neg, inf_pos));
+        assertTrue(Comparison.le(pos, inf_pos));
+        assertFalse(Comparison.le(inf_pos, pos));
+        assertFalse(Comparison.le(pos, inf_neg));
+        assertTrue(Comparison.le(inf_neg, pos));
+        assertTrue(Comparison.le(nil, nil));
+        assertNull(Comparison.le(pos, nil));
+        assertNull(Comparison.le(nil, pos));
+    }
+
+    @Test
+    public void testIntegerLe() {
+        final Integer inf_pos = Integer.MAX_VALUE;
+        final Integer inf_neg = Integer.MIN_VALUE;
+        final Integer nil = null;
+        final Integer pos = 1;
+        final Integer neg = -pos;
+
+        assertTrue(Comparison.le(pos, pos));
+        assertFalse(Comparison.le(pos, neg));
+        assertTrue(Comparison.le(neg, pos));
+        assertTrue(Comparison.le(neg, neg));
         assertTrue(Comparison.le(inf_pos, inf_pos));
         assertTrue(Comparison.le(inf_neg, inf_neg));
         assertFalse(Comparison.le(inf_pos, inf_neg));

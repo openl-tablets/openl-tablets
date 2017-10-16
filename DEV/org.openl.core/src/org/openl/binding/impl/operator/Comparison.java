@@ -132,7 +132,9 @@ public class Comparison {
 
     public static Boolean gt(Float x, Float y) {
         Boolean res = null;
-        if (x != null && y != null) {
+        if (x == y) {
+            return false;
+        } else if (x != null && y != null) {
             res = gt(x.floatValue(), y.floatValue());
         }
         return res;
@@ -140,7 +142,9 @@ public class Comparison {
 
     public static Boolean gt(Double x, Double y) {
         Boolean res = null;
-        if (x != null && y != null) {
+        if (x == y) {
+            return false;
+        } else if (x != null && y != null) {
             res = gt(x.doubleValue(), y.doubleValue());
         }
         return res;
@@ -402,7 +406,9 @@ public class Comparison {
 
     private static <T extends Comparable<T>> Boolean greatThan(T x, T y) {
         Boolean res = null;
-        if (x != null && y != null) {
+        if (x == y) {
+            return false;
+        } else if (x != null && y != null) {
             res = x.compareTo(y) > 0;
         }
         return res;
