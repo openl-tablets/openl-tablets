@@ -10,7 +10,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
-import org.openl.binding.impl.operator.Comparison;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.ByteValue.ByteValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
@@ -42,76 +41,6 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     
     // <<< INSERT Functions >>>
     private final byte value;
-
-    /**
-     * Compares two values
-     * @param value1
-     * @param value2
-     * @return true if  value1 equal value2
-     */
-    public static boolean eq(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-        if (value1 == null || value2 == null){
-            return value1 == value2;
-        }
-        return Comparison.eq(value1.getValue(), value2.getValue());
-    }
-    /**
-     * Compares two values
-     * @param value1
-     * @param value2
-     * @return true if  value1 greater or equal value2
-     */
-    public static Boolean ge(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-        Byte v1 = value1 == null ? null : value1.value;
-        Byte v2 = value2 == null ? null : value2.value;
-        return Comparison.ge(v1, v2);
-    }
-    /**
-     * Compares two values
-     * @param value1
-     * @param value2
-     * @return true if  value1 greater value2
-     */
-    public static Boolean gt(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-        Byte v1 = value1 == null ? null : value1.value;
-        Byte v2 = value2 == null ? null : value2.value;
-        return Comparison.gt(v1, v2);
-    }
-    /**
-     * Compares two values
-     * @param value1
-     * @param value2
-     * @return true if  value1 less or equal value2
-     */
-    public static Boolean le(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-        Byte v1 = value1 == null ? null : value1.value;
-        Byte v2 = value2 == null ? null : value2.value;
-        return Comparison.le(v1, v2);
-    }
-    /**
-     * Compares two values
-     * @param value1
-     * @param value2
-     * @return true if  value1 less value2
-     */
-    public static Boolean lt(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-        Byte v1 = value1 == null ? null : value1.value;
-        Byte v2 = value2 == null ? null : value2.value;
-        return Comparison.lt(v1, v2);
-    }
-    /**
-     * Compares two values
-     * @param value1
-     * @param value2
-     * @return true if  value1 not equal value2
-     */
-    public static boolean ne(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
-        if (value1 == null || value2 == null){
-            return value1 != value2;
-        }
-
-        return Comparison.ne(value1.getValue(), value2.getValue());
-    }
 
      /**
      * average
@@ -584,12 +513,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * Indicates whether some other object is "equal to" this org.openl.meta.ByteValue variable. 
      */
     public boolean equals(Object obj) {
-        if (obj instanceof org.openl.meta.ByteValue) {
-            org.openl.meta.ByteValue secondObj = (org.openl.meta.ByteValue) obj;
-            return Comparison.eq(getValue(), secondObj.getValue());
-        }
-
-        return false;
+        return obj instanceof ByteValue && value == ((ByteValue) obj).value;
     }
 
     // sort
@@ -769,8 +693,8 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         return (long) value;
     }
 
-    public int compareTo(Number o) {
-        return (int) (value - o.byteValue());
+    public int compareTo(ByteValue o) {
+        return value - o.value;
     }
 
     @Override

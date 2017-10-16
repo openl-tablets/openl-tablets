@@ -904,8 +904,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         this.value = result.doubleValue();
     }
 
-    public int compareTo(Number o) {
-        return Double.compare(value, (o).doubleValue());
+    public int compareTo(DoubleValue o) {
+        return Double.compare(value, o.value);
     }
 
     @Override

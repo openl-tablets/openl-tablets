@@ -10,7 +10,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
-import org.openl.binding.impl.operator.Comparison;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.ShortValue.ShortValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
@@ -42,77 +41,6 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     
     // <<< INSERT Functions >>>
     private final short value;
-
-
-    /**
-     * Compares two values
-     * @param value1
-     * @param value2
-     * @return true if  value1 equal value2
-     */
-    public static boolean eq(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
-        if (value1 == null || value2 == null){
-            return value1 == value2;
-        }
-        return Comparison.eq(value1.getValue(), value2.getValue());
-    }
-    /**
-     * Compares two values
-     * @param value1
-     * @param value2
-     * @return true if  value1 greater or equal value2
-     */
-    public static Boolean ge(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
-        Short v1 = value1 == null ? null : value1.value;
-        Short v2 = value2 == null ? null : value2.value;
-        return Comparison.ge(v1, v2);
-    }
-    /**
-     * Compares two values
-     * @param value1
-     * @param value2
-     * @return true if  value1 greater value2
-     */
-    public static Boolean gt(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
-        Short v1 = value1 == null ? null : value1.value;
-        Short v2 = value2 == null ? null : value2.value;
-        return Comparison.gt(v1, v2);
-    }
-    /**
-     * Compares two values
-     * @param value1
-     * @param value2
-     * @return true if  value1 less or equal value2
-     */
-    public static Boolean le(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
-        Short v1 = value1 == null ? null : value1.value;
-        Short v2 = value2 == null ? null : value2.value;
-        return Comparison.le(v1, v2);
-    }
-    /**
-     * Compares two values
-     * @param value1
-     * @param value2
-     * @return true if  value1 less value2
-     */
-    public static Boolean lt(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
-        Short v1 = value1 == null ? null : value1.value;
-        Short v2 = value2 == null ? null : value2.value;
-        return Comparison.lt(v1, v2);
-    }
-    /**
-     * Compares two values
-     * @param value1
-     * @param value2
-     * @return true if  value1 not equal value2
-     */
-    public static boolean ne(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
-        if (value1 == null || value2 == null){
-            return value1 != value2;
-        }
-
-        return Comparison.ne(value1.getValue(), value2.getValue());
-    }
 
      /**
      * average
@@ -593,12 +521,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
      * Indicates whether some other object is "equal to" this org.openl.meta.ShortValue variable. 
      */
     public boolean equals(Object obj) {
-        if (obj instanceof org.openl.meta.ShortValue) {
-            org.openl.meta.ShortValue secondObj = (org.openl.meta.ShortValue) obj;
-            return Comparison.eq(getValue(), secondObj.getValue());
-        }
-
-        return false;
+        return obj instanceof ShortValue && value == ((ShortValue) obj).value;
     }
 
     // sort
@@ -773,8 +696,8 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         return (long) value;
     }
 
-    public int compareTo(Number o) {
-        return value - o.shortValue();
+    public int compareTo(ShortValue o) {
+        return value - o.value;
     }
 
     @Override

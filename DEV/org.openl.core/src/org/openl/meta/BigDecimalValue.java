@@ -833,14 +833,8 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         return value.longValue();
     }
 
-    public int compareTo(Number o) {
-        if (o == null) {
-            return 1;
-        } else if (o instanceof BigDecimalValue) {
-            return value.compareTo(((BigDecimalValue) o).getValue());
-        } else {
-            throw new OpenlNotCheckedException("Can`t compare BigDecimalValue with unknown type.");
-        }
+    public int compareTo(BigDecimalValue o) {
+        return value.compareTo(o.value);
     }
 
     @Override

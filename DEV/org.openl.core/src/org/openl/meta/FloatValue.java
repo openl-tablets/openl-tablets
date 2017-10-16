@@ -815,8 +815,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         return (long) value;
     }
 
-    public int compareTo(Number o) {
-        return Float.compare(value, o.floatValue());
+    public int compareTo(FloatValue o) {
+        return Float.compare(value, o.value);
     }
 
     @Override

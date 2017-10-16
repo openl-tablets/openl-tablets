@@ -10,7 +10,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
-import org.openl.binding.impl.operator.Comparison;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.LongValue.LongValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
@@ -42,77 +41,6 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     
     // <<< INSERT Functions >>>
     private final long value;
-
-
-    /**
-     * Compares two values
-     * @param value1
-     * @param value2
-     * @return true if  value1 equal value2
-     */
-    public static boolean eq(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        if (value1 == null || value2 == null){
-            return value1 == value2;
-        }
-        return Comparison.eq(value1.getValue(), value2.getValue());
-    }
-    /**
-     * Compares two values
-     * @param value1
-     * @param value2
-     * @return true if  value1 greater or equal value2
-     */
-    public static Boolean ge(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        Long v1 = value1 == null ? null : value1.value;
-        Long v2 = value2 == null ? null : value2.value;
-        return Comparison.ge(v1, v2);
-    }
-    /**
-     * Compares two values
-     * @param value1
-     * @param value2
-     * @return true if  value1 greater value2
-     */
-    public static Boolean gt(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        Long v1 = value1 == null ? null : value1.value;
-        Long v2 = value2 == null ? null : value2.value;
-        return Comparison.gt(v1, v2);
-    }
-    /**
-     * Compares two values
-     * @param value1
-     * @param value2
-     * @return true if  value1 less or equal value2
-     */
-    public static Boolean le(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        Long v1 = value1 == null ? null : value1.value;
-        Long v2 = value2 == null ? null : value2.value;
-        return Comparison.le(v1, v2);
-    }
-    /**
-     * Compares two values
-     * @param value1
-     * @param value2
-     * @return true if  value1 less value2
-     */
-    public static Boolean lt(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        Long v1 = value1 == null ? null : value1.value;
-        Long v2 = value2 == null ? null : value2.value;
-        return Comparison.lt(v1, v2);
-    }
-    /**
-     * Compares two values
-     * @param value1
-     * @param value2
-     * @return true if  value1 not equal value2
-     */
-    public static boolean ne(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
-        if (value1 == null || value2 == null){
-            return value1 != value2;
-        }
-
-        return Comparison.ne(value1.getValue(), value2.getValue());
-    }
 
      /**
      * average
@@ -623,12 +551,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
      * Indicates whether some other object is "equal to" this org.openl.meta.LongValue variable. 
      */
     public boolean equals(Object obj) {
-        if (obj instanceof org.openl.meta.LongValue) {
-            org.openl.meta.LongValue secondObj = (org.openl.meta.LongValue) obj;
-            return Comparison.eq(getValue(), secondObj.getValue());
-        }
-
-        return false;
+        return obj instanceof LongValue && value == ((LongValue) obj).value;
     }
 
     // sort
@@ -789,8 +712,8 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
         return value;
     }
 
-    public int compareTo(Number o) {
-        return value < o.longValue() ? -1 : (value == o.longValue() ? 0 : 1);
+    public int compareTo(LongValue o) {
+        return Long.compare(value, o.value);
     }
 
     @Override
