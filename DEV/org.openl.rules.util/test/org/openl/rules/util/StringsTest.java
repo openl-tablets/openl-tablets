@@ -95,6 +95,24 @@ public class StringsTest {
     }
 
     @Test
+    public void testLength() {
+        assertEquals(0, length(null));
+        assertEquals(0, length(""));
+        assertEquals(1, length(" "));
+        assertEquals(7, length("  str  "));
+        assertEquals(3, length("str"));
+    }
+
+    @Test
+    public void testTrim() {
+        assertNull(trim(null));
+        assertEquals("", trim(""));
+        assertEquals("", trim(" "));
+        assertEquals("str", trim("  str  "));
+        assertEquals("str", trim("str"));
+    }
+
+    @Test
     public void testStartsWith() {
         assertTrue(startsWith(null, null));
         assertFalse(startsWith(null, ""));

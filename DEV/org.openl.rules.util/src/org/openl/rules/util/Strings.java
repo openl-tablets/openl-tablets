@@ -175,6 +175,25 @@ public class Strings {
     }
 
     /**
+     * Returns the length of this string.
+     *
+     * @return the length of the sequence of characters represented by this object, or 0 for null.
+     */
+    public static int length(String str) {
+        return str == null ? 0 : str.length();
+    }
+
+    /**
+     * Returns a string whose value is this string, with any leading and trailing whitespace removed.
+     *
+     * @return A string whose value is this string, with any leading and trailing white space removed, or this string if
+     *         it has no leading or trailing white space.
+     */
+    public static String trim(String str) {
+        return str == null ? null : str.trim();
+    }
+
+    /**
      * Check if a String starts with a specified prefix.<br />
      * <br />
      * Two null references are considered to be equal. The comparison is case sensitive.<br />
@@ -227,6 +246,10 @@ public class Strings {
             return false;
         }
         return str.endsWith(suffix);
+    }
+
+    public static String substr(String str, int pos, int length) {
+        return substring(str, pos, pos + length);
     }
 
     /**
