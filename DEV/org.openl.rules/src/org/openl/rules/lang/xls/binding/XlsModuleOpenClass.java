@@ -238,9 +238,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                         }
                     }
                 } catch (OpenlNotCheckedException e) {
+                    ITable table = dataOpenField.getTable();
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e.getMessage(),
                         e,
-                        dataOpenField.getTable().getTableSyntaxNode());
+                        table == null ? null : table.getTableSyntaxNode());
                     addError(error);
                 }
             }
