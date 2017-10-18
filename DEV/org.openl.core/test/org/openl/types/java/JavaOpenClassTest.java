@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.StringValue;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 
 public class JavaOpenClassTest {
 
@@ -43,5 +44,74 @@ public class JavaOpenClassTest {
         assertNotSame(myType, JavaOpenClass.getOpenClass(MyType.class));
     }
 
-    private static class MyType {}
+    @Test
+    public void testGetMethod() {
+        IOpenClass myType = JavaOpenClass.getOpenClass(MyType.class);
+        assertNotNull(myType);
+        IOpenMethod myTypeMethod1 = myType.getMethod("method1", new IOpenClass[]{JavaOpenClass.INT, JavaOpenClass.DOUBLE});
+        IOpenMethod myTypeMethod2 = myType.getMethod("method1", new IOpenClass[]{JavaOpenClass.getOpenClass(Byte.class), JavaOpenClass.getOpenClass(Double.class)});
+        IOpenMethod myTypeMethod3 = myType.getMethod("method1", new IOpenClass[]{JavaOpenClass.BYTE});
+
+        assertNotNull(myTypeMethod1);
+        assertNotNull(myTypeMethod2);
+        assertNotNull(myTypeMethod3);
+
+        assertNotEquals(myTypeMethod1, myTypeMethod2);
+        assertNotEquals(myTypeMethod2, myTypeMethod3);
+        assertNotEquals(myTypeMethod1, myTypeMethod3);
+
+        assertSame(myTypeMethod1, myType.getMethod("method1", new IOpenClass[]{JavaOpenClass.INT, JavaOpenClass.DOUBLE}));
+        assertSame(myTypeMethod2, myType.getMethod("method1", new IOpenClass[]{JavaOpenClass.getOpenClass(Byte.class), JavaOpenClass.getOpenClass(Double.class)}));
+        assertSame(myTypeMethod3, myType.getMethod("method1", new IOpenClass[]{JavaOpenClass.BYTE}));
+
+        IOpenClass extended = JavaOpenClass.getOpenClass(Extended.class);
+        assertNotNull(extended);
+        IOpenMethod extended1 = extended.getMethod("method1", new IOpenClass[]{JavaOpenClass.INT, JavaOpenClass.DOUBLE});
+        IOpenMethod extended2 = extended.getMethod("method1", new IOpenClass[]{JavaOpenClass.getOpenClass(Byte.class), JavaOpenClass.getOpenClass(Double.class)});
+        IOpenMethod extended3 = extended.getMethod("method1", new IOpenClass[]{JavaOpenClass.BYTE});
+
+        assertNotNull(extended1);
+        assertNotNull(extended2);
+        assertNotNull(extended3);
+
+        assertNotEquals(extended1, extended2);
+        assertNotEquals(extended2, extended3);
+        assertNotEquals(extended1, extended3);
+
+        assertSame(extended1, extended.getMethod("method1", new IOpenClass[]{JavaOpenClass.INT, JavaOpenClass.DOUBLE}));
+        assertSame(extended2, extended.getMethod("method1", new IOpenClass[]{JavaOpenClass.getOpenClass(Byte.class), JavaOpenClass.getOpenClass(Double.class)}));
+        assertSame(extended3, extended.getMethod("method1", new IOpenClass[]{JavaOpenClass.BYTE}));
+
+        assertNotEquals(myTypeMethod1, extended1);
+        assertSame(myTypeMethod2, extended2);
+        assertSame(myTypeMethod3, extended3);
+
+        assertNull(myType.getMethod("method1", new IOpenClass[]{JavaOpenClass.getOpenClass(Integer.class), JavaOpenClass.DOUBLE}));
+        assertNull(myType.getMethod("method1", new IOpenClass[]{JavaOpenClass.INT, JavaOpenClass.getOpenClass(Double.class)}));
+        assertNull(myType.getMethod("method1", new IOpenClass[]{JavaOpenClass.getOpenClass(Integer.class), JavaOpenClass.getOpenClass(Double.class)}));
+        assertNull(myType.getMethod("method1", new IOpenClass[]{JavaOpenClass.BYTE, JavaOpenClass.DOUBLE}));
+        assertNull(myType.getMethod("method1", new IOpenClass[]{JavaOpenClass.getOpenClass(Byte.class)}));
+        assertNull(myType.getMethod("method", new IOpenClass[]{JavaOpenClass.BYTE}));
+        assertNull(myType.getMethod("method11", new IOpenClass[]{JavaOpenClass.BYTE}));
+
+        assertNotNull(extended.getMethod("method1", new IOpenClass[]{JavaOpenClass.getOpenClass(Integer.class), JavaOpenClass.DOUBLE}));
+        assertNull(extended.getMethod("method1", new IOpenClass[]{JavaOpenClass.INT, JavaOpenClass.getOpenClass(Double.class)}));
+        assertNull(extended.getMethod("method1", new IOpenClass[]{JavaOpenClass.getOpenClass(Integer.class), JavaOpenClass.getOpenClass(Double.class)}));
+        assertNull(extended.getMethod("method1", new IOpenClass[]{JavaOpenClass.BYTE, JavaOpenClass.DOUBLE}));
+        assertNull(extended.getMethod("method1", new IOpenClass[]{JavaOpenClass.getOpenClass(Byte.class)}));
+        assertNull(extended.getMethod("method", new IOpenClass[]{JavaOpenClass.BYTE}));
+        assertNull(extended.getMethod("method11", new IOpenClass[]{JavaOpenClass.BYTE}));
+    }
+
+    public static class MyType {
+        public void method1(int i, double j) {}
+        public void method1(Byte i, Double j) {}
+        public void method1(byte i) {}
+    }
+
+    public  static  class Extended extends MyType {
+        public void method1(int i, double j) {}
+        public void method1(Integer i, double j) {}
+
+    }
 }

@@ -42,7 +42,8 @@ public abstract class AbstractMethodSearchTest {
             .findMethod(methodName, JavaOpenClass.getOpenClasses(classes), castFactory, aClass);
 
         assertNotNull("Method " + methodDescriptor(methodName, classes) + " has not been matched", method);
-        Object result = method.invoke(null, args, null);
+        Object targetInstance = instance(target);
+        Object result = method.invoke(targetInstance, args, null);
         assertEquals("Method " + methodDescriptor(methodName, classes) + " has been matched", expected, result);
     }
 
@@ -53,6 +54,16 @@ public abstract class AbstractMethodSearchTest {
             .findMethod(methodName, JavaOpenClass.getOpenClasses(classes), castFactory, aClass);
 
         assertNull("Method " + methodDescriptor(methodName, classes) + " has been matched", method);
+    }
+
+    final void assertAmbigiouse(Class<?> target, String methodName, Class<?>... classes) {
+        try {
+            JavaOpenClass aClass = JavaOpenClass.getOpenClass(target);
+            MethodSearch.findMethod(methodName, JavaOpenClass.getOpenClasses(classes), castFactory, aClass);
+            fail("AmbiguousMethodException should be thrown for " + methodDescriptor(methodName, classes));
+        } catch (AmbiguousMethodException ex) {
+            // expected
+        }
     }
 
     final void assertMethod(Class<?> target, String methodName, Class<?>[] classes, String... expectes) {
@@ -69,44 +80,37 @@ public abstract class AbstractMethodSearchTest {
         }
     }
 
-    final void assertAmbigiouse(Class<?> target, String methodName, Class<?>... classes) {
-        try {
-            JavaOpenClass aClass = JavaOpenClass.getOpenClass(target);
-            MethodSearch.findMethod(methodName, JavaOpenClass.getOpenClasses(classes), castFactory, aClass);
-            fail("AmbiguousMethodException should be thrown for " + methodDescriptor(methodName, classes));
-        } catch (AmbiguousMethodException ex) {
-            // expected
-        }
-    }
-
     private Object[] toArgs(Class<?>... classes) {
         Object[] args = new Object[classes.length];
         for (int i = 0; i < classes.length; i++) {
-            Object o;
-            Class<?> clazz = classes[i];
-            if (clazz.isPrimitive()) {
-                clazz = ClassUtils.primitiveToWrapper(clazz);
-            }
+            args[i] = instance(classes[i]);
+        }
+        return args;
+    }
+
+    private Object instance(Class<?> clazz) {
+        Object o;
+        if (clazz.isPrimitive()) {
+            clazz = ClassUtils.primitiveToWrapper(clazz);
+        }
+        try {
+            o = clazz.getDeclaredConstructor().newInstance();
+        } catch (Exception exc) {
             try {
-                o = clazz.getDeclaredConstructor().newInstance();
-            } catch (Exception exc) {
+                o = clazz.getMethod("valueOf", String.class).invoke(null, "1");
+            } catch (Exception exc2) {
                 try {
-                    o = clazz.getMethod("valueOf", String.class).invoke(null, "1");
-                } catch (Exception exc2) {
+                    o = clazz.getDeclaredConstructor(String.class).newInstance("2");
+                } catch (Exception exc3) {
                     try {
-                        o = clazz.getDeclaredConstructor(String.class).newInstance("2");
-                    } catch (Exception exc3) {
-                        try {
-                            o = clazz.getMethod("valueOf", char.class).invoke(null, 'A');
-                        } catch (Exception exc4) {
-                            o = null;
-                        }
+                        o = clazz.getMethod("valueOf", char.class).invoke(null, 'A');
+                    } catch (Exception exc4) {
+                        o = null;
                     }
                 }
             }
-            args[i] = o;
         }
-        return args;
+        return o;
     }
 
     final ICastFactory getCastFactory() {

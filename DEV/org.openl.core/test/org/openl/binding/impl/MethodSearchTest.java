@@ -1,171 +1,83 @@
 package org.openl.binding.impl;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.Serializable;
 
 import org.junit.Test;
-import org.openl.binding.ICastFactory;
-import org.openl.binding.impl.method.MethodSearch;
-import org.openl.conf.ConfigurableResourceContext;
-import org.openl.conf.OpenLConfiguration;
-import org.openl.conf.TypeCastFactory;
-import org.openl.types.IMethodCaller;
-import org.openl.types.IOpenClass;
-import org.openl.types.java.JavaOpenClass;
 
 public class MethodSearchTest extends AbstractMethodSearchTest {
 
+    @Test
+    public void testMethodChoosing() {
+        assertInvoke("M1", ClassWithMethods.class, "method1", int.class, double.class);
+        assertInvoke("M1", ClassWithMethods.class, "method1", int.class, int.class);
+        assertInvoke("M2", ClassWithMethods.class, "method1", byte.class, byte.class);
+        assertInvoke("M3", ClassWithMethods.class, "method2", byte.class, byte.class);
+        assertNotFound(ClassWithMethods.class, "method3", int.class, double.class);
+
+        assertInvoke("M4", SecondClassWithMethods.class, "method1", int.class, double.class);
+        assertInvoke("M4", SecondClassWithMethods.class, "method1", int.class, int.class);
+        assertInvoke("M2", SecondClassWithMethods.class, "method1", byte.class, byte.class);
+        assertInvoke("M3", SecondClassWithMethods.class, "method2", byte.class, byte.class);
+        assertInvoke("M5", SecondClassWithMethods.class, "method3", int.class, double.class);
+
+        assertInvoke("M4", ThirdClassWithMethods.class, "method1", int.class, double.class);
+        assertInvoke("M4", ThirdClassWithMethods.class, "method1", int.class, int.class);
+        assertInvoke("M2", ThirdClassWithMethods.class, "method1", byte.class, byte.class);
+        assertInvoke("M3", ThirdClassWithMethods.class, "method2", byte.class, byte.class);
+        assertInvoke("M5", ThirdClassWithMethods.class, "method3", int.class, double.class);
+    }
+
+    @Test
+    public void testMethodChoosingWithGenerics() {
+        assertInvoke("M6", ClassWithGenerics.class, "method1", String.class, String.class);
+        assertInvoke("M6", ClassWithGenerics.class, "method1", int.class, short.class);
+        assertInvoke("M6", ClassWithGenerics.class, "method1", Byte.class, Long.class);
+        assertInvoke("M6", ClassWithGenerics.class, "method1", Double.class, short.class);
+        assertNotFound(ClassWithGenerics.class, "method1", Integer.class, String.class);
+
+        assertInvoke("String", ClassWithGenerics.class, "method2", String.class, String.class);
+        assertInvoke("Integer", ClassWithGenerics.class, "method2", short.class, int.class);
+        assertInvoke("Long", ClassWithGenerics.class, "method2", Byte.class, Long.class);
+        assertInvoke("Double", ClassWithGenerics.class, "method2", Double.class, short.class);
+    }
+
     public static class ClassWithMethods {
-        public void method1(int arg1, double arg2) {
+        public String method1(int arg1, double arg2) {
+            return "M1";
         };
 
-        public void method1(int arg1, byte arg2) {
+        public String method1(int arg1, byte arg2) {
+            return "M2";
         };
 
-        public void method2(int arg1, double arg2) {
+        public String method2(int arg1, double arg2) {
+            return "M3";
         };
     }
 
     public static class SecondClassWithMethods extends ClassWithMethods implements Serializable {
         private static final long serialVersionUID = 1L;
 
-        public void method1(int arg1, double arg2) {
+        public String method1(int arg1, double arg2) {
+            return "M4";
         };
 
-        public void method3(int arg1, double arg2) {
+        public String method3(int arg1, double arg2) {
+            return "M5";
         };
     }
 
     public static class ClassWithGenerics {
-        public <T> T[] method1(T arg1, T arg2) {
-            return null;
+        public <T> String method1(T arg1, T arg2) {
+            return "M6";
         };
 
-        public <T> T[] method2(T arg1, T arg2) {
-            return null;
+        public <T> String method2(T arg1, T arg2) {
+            return arg1.getClass().getSimpleName();
         };
     }
 
     public static class ThirdClassWithMethods extends SecondClassWithMethods {
         private static final long serialVersionUID = 1L;
     }
-
-    private static boolean methodEquals(IMethodCaller methodCaller1, IMethodCaller methodCaller2) {
-        if (methodCaller1.getMethod().getName().equals(methodCaller2.getMethod().getName())) {
-            if (methodCaller1.getMethod().getSignature().equals(methodCaller2.getMethod().getSignature())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Test
-    public void testMethodChoosing() {
-        ICastFactory castFactory = getCastFactory();
-
-        JavaOpenClass javaOpenClass = JavaOpenClass.getOpenClass(ClassWithMethods.class);
-        JavaOpenClass javaOpenClass2 = JavaOpenClass.getOpenClass(SecondClassWithMethods.class);
-
-        IMethodCaller methodCaller1 = MethodSearch.findMethod("method1",
-            new IOpenClass[] { JavaOpenClass.INT, JavaOpenClass.INT },
-            castFactory,
-            javaOpenClass);
-
-        assertTrue(methodEquals(
-            javaOpenClass.getMethod("method1", new IOpenClass[] { JavaOpenClass.INT, JavaOpenClass.DOUBLE }),
-            methodCaller1));
-
-        IMethodCaller methodCaller2 = MethodSearch.findMethod("method1",
-            new IOpenClass[] { JavaOpenClass.INT, JavaOpenClass.INT },
-            castFactory,
-            javaOpenClass2);
-
-        assertTrue(methodEquals(
-            javaOpenClass2.getMethod("method1", new IOpenClass[] { JavaOpenClass.INT, JavaOpenClass.DOUBLE }),
-            methodCaller2));
-
-    }
-
-    @Test
-    public void testMethodChoosingWithGenerics() {
-        ICastFactory castFactory = getCastFactory();
-
-        JavaOpenClass javaOpenClass = JavaOpenClass.getOpenClass(ClassWithGenerics.class);
-
-        IMethodCaller methodCaller1 = MethodSearch.findMethod("method1",
-            new IOpenClass[] { JavaOpenClass.STRING, JavaOpenClass.STRING },
-            castFactory,
-            javaOpenClass);
-
-        assertNotNull(methodCaller1);
-
-        IMethodCaller methodCaller2 = MethodSearch.findMethod("method1",
-            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class), JavaOpenClass.STRING },
-            castFactory,
-            javaOpenClass);
-
-        assertNull(methodCaller2);
-
-        IMethodCaller methodCaller3 = MethodSearch.findMethod("method2",
-            new IOpenClass[] { JavaOpenClass.STRING, JavaOpenClass.STRING },
-            castFactory,
-            javaOpenClass);
-
-        assertNotNull(methodCaller3);
-
-        IMethodCaller methodCaller4 = MethodSearch.findMethod("method2",
-            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class), JavaOpenClass.getOpenClass(Long.class) },
-            castFactory,
-            javaOpenClass);
-
-        assertNotNull(methodCaller4);
-        
-        javaOpenClass = JavaOpenClass.getOpenClass(org.openl.binding.impl.operator.Comparison.class);
-
-        IMethodCaller methodCaller5 = MethodSearch.findMethod("gt",
-            new IOpenClass[] { JavaOpenClass.getOpenClass(Byte.class), JavaOpenClass.getOpenClass(Integer.class) },
-            castFactory,
-            javaOpenClass);
-        
-        assertNotNull(methodCaller5);
-        
-        IMethodCaller methodCaller6 = MethodSearch.findMethod("gt",
-            new IOpenClass[] { JavaOpenClass.STRING, JavaOpenClass.getOpenClass(Integer.class) },
-            castFactory,
-            javaOpenClass);
-        
-        assertNull(methodCaller6);
-
-    }
-
-    @Test
-    public void testMethodInheritance() {
-        ICastFactory castFactory = getCastFactory();
-
-        JavaOpenClass javaOpenClass = JavaOpenClass.getOpenClass(ClassWithMethods.class);
-        JavaOpenClass javaOpenClass2 = JavaOpenClass.getOpenClass(SecondClassWithMethods.class);
-        JavaOpenClass javaOpenClass3 = JavaOpenClass.getOpenClass(ThirdClassWithMethods.class);
-        assertNotNull(javaOpenClass.getMethod("method2", new IOpenClass[] { JavaOpenClass.INT, JavaOpenClass.DOUBLE }));
-        assertNotNull(
-            javaOpenClass2.getMethod("method2", new IOpenClass[] { JavaOpenClass.INT, JavaOpenClass.DOUBLE }));
-
-        assertNotNull(MethodSearch.findMethod("method2",
-            new IOpenClass[] { JavaOpenClass.INT, JavaOpenClass.DOUBLE },
-            castFactory,
-            javaOpenClass2));
-
-        assertNotNull(MethodSearch.findMethod("method3",
-            new IOpenClass[] { JavaOpenClass.INT, JavaOpenClass.DOUBLE },
-            castFactory,
-            javaOpenClass2));
-
-        assertNotNull(MethodSearch.findMethod("method3",
-            new IOpenClass[] { JavaOpenClass.INT, JavaOpenClass.DOUBLE },
-            castFactory,
-            javaOpenClass3));
-    }
-
 }
