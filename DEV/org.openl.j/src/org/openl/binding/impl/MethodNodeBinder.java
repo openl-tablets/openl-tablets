@@ -11,6 +11,7 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.cast.AutoCastFactory;
 import org.openl.binding.impl.cast.AutoCastReturnType;
+import org.openl.binding.impl.method.MethodSearch;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
@@ -156,18 +157,6 @@ public class MethodNodeBinder extends ANodeBinder {
             }
         }
 
-        // Try to bind method call as method with variable length of arguments
-        //
-        if (argumentTypes.length >= 1) {
-            IBoundNode varArgsMethod = new VariableLengthArgumentsMethodBinder(methodName, argumentTypes, children)
-                .bind(methodNode, bindingContext);
-            if (varArgsMethod != null) {
-                String bindingType = VARIABLE_NUMBER_OF_ARGUMENTS_METHOD;
-                log(methodName, argumentTypes, bindingType);
-                return varArgsMethod;
-            }
-        }
-
         return cantFindMethodError(methodNode, bindingContext, methodName, argumentTypes);
     }
 
@@ -217,7 +206,7 @@ public class MethodNodeBinder extends ANodeBinder {
         IBoundNode[] children = bindChildren(node, bindingContext, 0, childrenCount - 1);
         IOpenClass[] types = getTypes(children);
 
-        IMethodCaller methodCaller = MethodSearch.getMethodCaller(methodName, types, bindingContext, target.getType());
+        IMethodCaller methodCaller = MethodSearch.findMethod(methodName, types, bindingContext, target.getType());
 
         if (methodCaller == null) {
 

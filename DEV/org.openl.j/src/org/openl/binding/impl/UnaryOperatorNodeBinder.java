@@ -6,6 +6,7 @@ package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
+import org.openl.binding.impl.method.MethodSearch;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
@@ -32,13 +33,13 @@ public class UnaryOperatorNodeBinder extends ANodeBinder {
             return methodCaller;
         }
 
-        methodCaller = MethodSearch.getMethodCaller(methodName, IOpenClass.EMPTY, bindingContext, types[0]);
+        methodCaller = MethodSearch.findMethod(methodName, IOpenClass.EMPTY, bindingContext, types[0]);
 
         if (methodCaller != null) {
             return methodCaller;
         }
 
-        methodCaller = MethodSearch.getMethodCaller(methodName, types, bindingContext, types[0]);
+        methodCaller = MethodSearch.findMethod(methodName, types, bindingContext, types[0]);
 
         return methodCaller;
     }

@@ -6,6 +6,7 @@ package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
+import org.openl.binding.impl.method.MethodSearch;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IAggregateInfo;
@@ -95,7 +96,7 @@ public class IndexNodeBinder extends ANodeBinder {
 
         if (reader == null) {
             IOpenClass[] params = { types[1] };
-            reader = MethodSearch.getMethodCaller(INDEX_METHOD_NAME, params, bindingContext, types[0]);
+            reader = MethodSearch.findMethod(INDEX_METHOD_NAME, params, bindingContext, types[0]);
         }
 
         if (reader == null) {
@@ -110,7 +111,7 @@ public class IndexNodeBinder extends ANodeBinder {
 
         if (writer == null) {
             IOpenClass[] params = { types[1], returnType };
-            writer = MethodSearch.getMethodCaller(INDEX_METHOD_NAME, params, bindingContext, types[0]);
+            writer = MethodSearch.findMethod(INDEX_METHOD_NAME, params, bindingContext, types[0]);
         }
 
         return new MethodBasedIndex(reader, writer);

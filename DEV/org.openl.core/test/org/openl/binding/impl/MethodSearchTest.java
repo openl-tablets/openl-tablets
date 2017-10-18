@@ -8,6 +8,7 @@ import java.io.Serializable;
 
 import org.junit.Test;
 import org.openl.binding.ICastFactory;
+import org.openl.binding.impl.method.MethodSearch;
 import org.openl.conf.ConfigurableResourceContext;
 import org.openl.conf.OpenLConfiguration;
 import org.openl.conf.TypeCastFactory;
@@ -80,7 +81,7 @@ public class MethodSearchTest {
         JavaOpenClass javaOpenClass = JavaOpenClass.getOpenClass(ClassWithMethods.class);
         JavaOpenClass javaOpenClass2 = JavaOpenClass.getOpenClass(SecondClassWithMethods.class);
 
-        IMethodCaller methodCaller1 = MethodSearch.getMethodCaller("method1",
+        IMethodCaller methodCaller1 = MethodSearch.findMethod("method1",
             new IOpenClass[] { JavaOpenClass.INT, JavaOpenClass.INT },
             castFactory,
             javaOpenClass);
@@ -89,7 +90,7 @@ public class MethodSearchTest {
             javaOpenClass.getMethod("method1", new IOpenClass[] { JavaOpenClass.INT, JavaOpenClass.DOUBLE }),
             methodCaller1));
 
-        IMethodCaller methodCaller2 = MethodSearch.getMethodCaller("method1",
+        IMethodCaller methodCaller2 = MethodSearch.findMethod("method1",
             new IOpenClass[] { JavaOpenClass.INT, JavaOpenClass.INT },
             castFactory,
             javaOpenClass2);
@@ -106,28 +107,28 @@ public class MethodSearchTest {
 
         JavaOpenClass javaOpenClass = JavaOpenClass.getOpenClass(ClassWithGenerics.class);
 
-        IMethodCaller methodCaller1 = MethodSearch.getMethodCaller("method1",
+        IMethodCaller methodCaller1 = MethodSearch.findMethod("method1",
             new IOpenClass[] { JavaOpenClass.STRING, JavaOpenClass.STRING },
             castFactory,
             javaOpenClass);
 
         assertNotNull(methodCaller1);
 
-        IMethodCaller methodCaller2 = MethodSearch.getMethodCaller("method1",
+        IMethodCaller methodCaller2 = MethodSearch.findMethod("method1",
             new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class), JavaOpenClass.STRING },
             castFactory,
             javaOpenClass);
 
         assertNull(methodCaller2);
 
-        IMethodCaller methodCaller3 = MethodSearch.getMethodCaller("method2",
+        IMethodCaller methodCaller3 = MethodSearch.findMethod("method2",
             new IOpenClass[] { JavaOpenClass.STRING, JavaOpenClass.STRING },
             castFactory,
             javaOpenClass);
 
         assertNotNull(methodCaller3);
 
-        IMethodCaller methodCaller4 = MethodSearch.getMethodCaller("method2",
+        IMethodCaller methodCaller4 = MethodSearch.findMethod("method2",
             new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class), JavaOpenClass.getOpenClass(Long.class) },
             castFactory,
             javaOpenClass);
@@ -136,14 +137,14 @@ public class MethodSearchTest {
         
         javaOpenClass = JavaOpenClass.getOpenClass(org.openl.binding.impl.operator.Comparison.class);
 
-        IMethodCaller methodCaller5 = MethodSearch.getMethodCaller("gt",
+        IMethodCaller methodCaller5 = MethodSearch.findMethod("gt",
             new IOpenClass[] { JavaOpenClass.getOpenClass(Byte.class), JavaOpenClass.getOpenClass(Integer.class) },
             castFactory,
             javaOpenClass);
         
         assertNotNull(methodCaller5);
         
-        IMethodCaller methodCaller6 = MethodSearch.getMethodCaller("gt",
+        IMethodCaller methodCaller6 = MethodSearch.findMethod("gt",
             new IOpenClass[] { JavaOpenClass.STRING, JavaOpenClass.getOpenClass(Integer.class) },
             castFactory,
             javaOpenClass);
@@ -163,17 +164,17 @@ public class MethodSearchTest {
         assertNotNull(
             javaOpenClass2.getMethod("method2", new IOpenClass[] { JavaOpenClass.INT, JavaOpenClass.DOUBLE }));
 
-        assertNotNull(MethodSearch.getMethodCaller("method2",
+        assertNotNull(MethodSearch.findMethod("method2",
             new IOpenClass[] { JavaOpenClass.INT, JavaOpenClass.DOUBLE },
             castFactory,
             javaOpenClass2));
 
-        assertNotNull(MethodSearch.getMethodCaller("method3",
+        assertNotNull(MethodSearch.findMethod("method3",
             new IOpenClass[] { JavaOpenClass.INT, JavaOpenClass.DOUBLE },
             castFactory,
             javaOpenClass2));
 
-        assertNotNull(MethodSearch.getMethodCaller("method3",
+        assertNotNull(MethodSearch.findMethod("method3",
             new IOpenClass[] { JavaOpenClass.INT, JavaOpenClass.DOUBLE },
             castFactory,
             javaOpenClass3));

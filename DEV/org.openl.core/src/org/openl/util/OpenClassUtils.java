@@ -21,6 +21,9 @@ public final class OpenClassUtils {
                 class2 = class2.getComponentClass();
             }
             IOpenClass parentClass = findParentClass(class1, class2);
+            if (parentClass == null) {
+                return null;
+            }
             return parentClass.getArrayType(dim);
         }
 

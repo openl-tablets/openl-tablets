@@ -7,6 +7,7 @@ package org.openl.binding.impl;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
+import org.openl.binding.impl.method.MethodSearch;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
@@ -52,7 +53,7 @@ public class NewNodeBinder extends ANodeBinder {
         }
         IOpenClass[] types = getTypes(children);
 
-        IMethodCaller methodCaller = MethodSearch.getConstructorCaller(type.getName(), types, bindingContext, type);
+        IMethodCaller methodCaller = MethodSearch.findConstructor(type.getName(), types, bindingContext, type);
 
         if (methodCaller == null) {
 

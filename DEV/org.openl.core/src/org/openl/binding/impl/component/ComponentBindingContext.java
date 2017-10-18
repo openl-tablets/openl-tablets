@@ -9,7 +9,7 @@ import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.BindingContextDelegator;
-import org.openl.binding.impl.MethodSearch;
+import org.openl.binding.impl.method.MethodSearch;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -89,7 +89,7 @@ public class ComponentBindingContext extends BindingContextDelegator {
 
         IMethodCaller imc = null;
         if (ISyntaxConstants.THIS_NAMESPACE.equals(namespace)) {
-            imc = MethodSearch.getMethodCaller(methodName, parTypes, this,
+            imc = MethodSearch.findMethod(methodName, parTypes, this,
                 componentOpenClass);
         }
 

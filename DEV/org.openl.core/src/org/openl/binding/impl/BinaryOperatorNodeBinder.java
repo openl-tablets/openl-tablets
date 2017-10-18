@@ -6,6 +6,7 @@ package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
+import org.openl.binding.impl.method.MethodSearch;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -125,7 +126,7 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
         // for foo(Type1, Type2). Why it has more priority than next items for search?
         // @author DLiauchuk
         //
-        methodCaller = MethodSearch.getMethodCaller(methodName, types2, bindingContext, argumentTypes[0]);
+        methodCaller = MethodSearch.findMethod(methodName, types2, bindingContext, argumentTypes[0]);
         if (methodCaller != null) {
             return methodCaller;
         }
@@ -133,7 +134,7 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
         // An attempt to find method <methodName>(argumentTypes), using the first argument type as a possible
         // collection of suitable methods, e.g. {@link DoubleValue#add(DoubleValue value1, DoubleValue value2).
         //
-        methodCaller = MethodSearch.getMethodCaller(methodName, argumentTypes, bindingContext, argumentTypes[0]);
+        methodCaller = MethodSearch.findMethod(methodName, argumentTypes, bindingContext, argumentTypes[0]);
         if (methodCaller != null) {
             return methodCaller;
         }
@@ -141,7 +142,7 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
         // An attempt to find method <methodName>(argumentTypes), using the second argument type as a possible
         // collection of suitable methods.
         //
-        methodCaller = MethodSearch.getMethodCaller(methodName, argumentTypes, bindingContext, argumentTypes[1]);
+        methodCaller = MethodSearch.findMethod(methodName, argumentTypes, bindingContext, argumentTypes[1]);
 
         return methodCaller;
     }

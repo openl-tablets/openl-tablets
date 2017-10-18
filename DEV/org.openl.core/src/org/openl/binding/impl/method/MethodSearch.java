@@ -4,7 +4,7 @@
  * Developed by Intelligent ChoicePoint Inc. 2003
  */
 
-package org.openl.binding.impl;
+package org.openl.binding.impl.method;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -22,11 +22,11 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.CastingMethodCaller;
-import org.openl.types.java.AutoCastResultOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenMethod;
 import org.openl.util.CollectionUtils;
 import org.openl.util.JavaGenericsUtils;
+import org.openl.util.OpenClassUtils;
 
 /**
  * @author snshor, Marat Kamalov
@@ -36,7 +36,7 @@ public class MethodSearch {
 
     static final int NO_MATCH = Integer.MAX_VALUE;
 
-    protected static int calcMatch(JavaOpenMethod method,
+    private static int calcMatch(JavaOpenMethod method,
             IOpenClass[] methodParam,
             IOpenClass[] callParam,
             ICastFactory casts,
@@ -157,7 +157,7 @@ public class MethodSearch {
         return maxdiff * 100 + ndiff;
     }
 
-    public static IMethodCaller getCastingMethodCaller(final String name,
+    private static IMethodCaller findCastingMethod(final String name,
             IOpenClass[] params,
             ICastFactory casts,
             Iterable<IOpenMethod> methods) throws AmbiguousMethodException {
@@ -221,7 +221,6 @@ public class MethodSearch {
                 matchingMethodsReturnCast.add(returnCastHolder[0]);
                 matchingMethodsReturnType.add(returnTypeHolder[0]);
             }
-
         }
 
         switch (matchingMethods.size()) {
@@ -234,7 +233,7 @@ public class MethodSearch {
                     IOpenCast c = matchingMethodsReturnCast.get(0);
                     IOpenClass t = matchingMethodsReturnType.get(0);
                     if (c != null && t != m.getType()) {
-                        return new AutoCastResultOpenMethod(methodCaller, t, c);
+                        return new AutoCastableResultOpenMethod(methodCaller.getMethod(), t, c);
                     } else {
                         return methodCaller;
                     }
@@ -265,7 +264,7 @@ public class MethodSearch {
                     IOpenCast c = matchingMethodsReturnCast.get(k);
                     IOpenClass t = matchingMethodsReturnType.get(k);
                     if (c != null && t != mostSecificMethod.getType()) {
-                        return new AutoCastResultOpenMethod(methodCaller, t, c);
+                        return new AutoCastableResultOpenMethod(methodCaller.getMethod(), t, c);
                     } else {
                         return methodCaller;
                     }
@@ -273,18 +272,71 @@ public class MethodSearch {
         }
     }
 
-    public static IMethodCaller getCastingMethodCaller(String name,
+    private static IMethodCaller findVarArgMethod(final String name,
             IOpenClass[] params,
             ICastFactory casts,
-            IMethodFactory factory) throws AmbiguousMethodException {
-        return getCastingMethodCaller(name, params, casts, factory.methods(name));
+            Iterable<IOpenMethod> methods) throws AmbiguousMethodException {
+        Iterable<IOpenMethod> filtered = (methods == null) ? Collections
+            .<IOpenMethod> emptyList() : CollectionUtils.findAll(methods, new CollectionUtils.Predicate<IOpenMethod>() {
+                @Override
+                public boolean evaluate(IOpenMethod method) {
+                    return method.getName().equals(name) && method.getSignature().getNumberOfParameters() > 0 && method
+                        .getSignature()
+                        .getParameterType(method.getSignature().getNumberOfParameters() - 1)
+                        .isArray();
+                }
+            });
+        if (filtered.iterator().hasNext()) {
+            for (int i = params.length - 1; i >= 0; i--) {
+                IOpenClass[] args = new IOpenClass[i + 1];
+                System.arraycopy(params, 0, args, 0, i);
+                IOpenClass varArgType = params[i];
+                for (int j = i + 1; j < params.length; j++) {
+                    varArgType = OpenClassUtils.findParentClass(varArgType, params[j]);
+                    if (varArgType == null) {
+                        break;
+                    }
+                }
+                if (varArgType == null) {
+                    continue;
+                }
+                args[i] = varArgType.getAggregateInfo().getIndexedAggregateType(varArgType, 1);
+
+                IMethodCaller matchedMethod = findCastingMethod(name, args, casts, filtered);
+                if (matchedMethod != null) {
+                    return new VarArgsOpenMethod(matchedMethod.getMethod(), varArgType.getInstanceClass(), i);
+                }
+            }
+        }
+        return null;
     }
 
-    public static IMethodCaller getCastingConstructorCaller(String name,
+    private static IMethodCaller findCastingMethod(String name,
             IOpenClass[] params,
             ICastFactory casts,
             IMethodFactory factory) throws AmbiguousMethodException {
-        return getCastingMethodCaller(name, params, casts, factory.constructors(name));
+        return findCastingMethod(name, params, casts, factory.methods(name));
+    }
+
+    private static IMethodCaller findVarArgMethod(String name,
+            IOpenClass[] params,
+            ICastFactory casts,
+            IMethodFactory factory) throws AmbiguousMethodException {
+        return findVarArgMethod(name, params, casts, factory.methods(name));
+    }
+
+    private static IMethodCaller findCastingConstructor(String name,
+            IOpenClass[] params,
+            ICastFactory casts,
+            IMethodFactory factory) throws AmbiguousMethodException {
+        return findCastingMethod(name, params, casts, factory.constructors(name));
+    }
+
+    private static IMethodCaller findVarArgConstructor(String name,
+            IOpenClass[] params,
+            ICastFactory casts,
+            IMethodFactory factory) throws AmbiguousMethodException {
+        return findCastingMethod(name, params, casts, factory.constructors(name));
     }
 
     /**
@@ -415,21 +467,21 @@ public class MethodSearch {
      * @see org.openl.binding.IMethodFactory#getMethod(java.lang.String,
      * org.openl.types.IOpenClass[], org.openl.binding.ICastFactory)
      */
-    public static IMethodCaller getMethodCaller(String name,
+    public static IMethodCaller findMethod(String name,
             IOpenClass[] params,
             ICastFactory casts,
             IMethodFactory factory) throws AmbiguousMethodException {
-        return getMethodCaller(name, params, casts, factory, false);
+        return findMethod(name, params, casts, factory, false);
     }
 
-    public static IMethodCaller getConstructorCaller(String name,
+    public static IMethodCaller findConstructor(String name,
             IOpenClass[] params,
             ICastFactory casts,
             IMethodFactory factory) throws AmbiguousMethodException {
-        return getConstructorCaller(name, params, casts, factory, false);
+        return findConstructor(name, params, casts, factory, false);
     }
 
-    public static IMethodCaller getMethodCaller(String name,
+    public static IMethodCaller findMethod(String name,
             IOpenClass[] params,
             ICastFactory casts,
             IMethodFactory factory,
@@ -438,17 +490,31 @@ public class MethodSearch {
         if (caller != null) {
             return caller;
         }
-
         if (params.length == 0 || casts == null) {
             return null;
         }
         if (!strictMatch) {
-            return getCastingMethodCaller(name, params, casts, factory);
+            caller = findCastingMethod(name, params, casts, factory);
+            if (caller != null) {
+                return caller;
+            }
+            return findVarArgMethod(name, params, casts, factory);
         }
         return null;
     }
 
-    public static IMethodCaller getConstructorCaller(String name,
+    public static IMethodCaller findMethod(String name,
+            IOpenClass[] params,
+            ICastFactory casts,
+            Iterable<IOpenMethod> methods) throws AmbiguousMethodException {
+        IMethodCaller caller = findCastingMethod(name, params, casts, methods);
+        if (caller != null) {
+            return caller;
+        }
+        return findVarArgMethod(name, params, casts, methods);
+    }
+
+    public static IMethodCaller findConstructor(String name,
             IOpenClass[] params,
             ICastFactory casts,
             IMethodFactory factory,
@@ -457,12 +523,15 @@ public class MethodSearch {
         if (caller != null) {
             return caller;
         }
-
         if (params.length == 0 || casts == null) {
             return null;
         }
         if (!strictMatch) {
-            return getCastingConstructorCaller(name, params, casts, factory);
+            caller = findCastingConstructor(name, params, casts, factory);
+            if (caller != null) {
+                return caller;
+            }
+            return findVarArgConstructor(name, params, casts, factory);
         }
         return null;
     }

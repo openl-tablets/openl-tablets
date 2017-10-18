@@ -17,8 +17,8 @@ import java.util.Set;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.INodeBinder;
 import org.openl.binding.exception.AmbiguousMethodException;
-import org.openl.binding.impl.MethodSearch;
 import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.binding.impl.method.MethodSearch;
 import org.openl.cache.GenericKey;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.grammar.IGrammar;
@@ -154,7 +154,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         
         IOpenMethod[] mcs = getMethods(namespace, name);
 
-        return MethodSearch.getCastingMethodCaller(name, params, casts, Arrays.asList(mcs));
+        return MethodSearch.findMethod(name, params, casts, Arrays.asList(mcs));
     }
     
     public IOpenMethod[] getMethods(String namespace, String name) {

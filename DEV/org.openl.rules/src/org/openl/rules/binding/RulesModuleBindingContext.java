@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.AmbiguousMethodException;
-import org.openl.binding.impl.MethodSearch;
+import org.openl.binding.impl.method.MethodSearch;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLSystemProperties;
@@ -29,7 +29,6 @@ import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
 import org.openl.vm.IRuntimeEnv;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -45,14 +44,13 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     private Map<String, TableSyntaxNode> bindedTables = new HashMap<String, TableSyntaxNode>();
 
     /**
-     * Internal OpenL service methods. 
+     * Internal OpenL service methods.
      */
     private List<IOpenMethod> internalMethods;
-    
+
     private PreBinderMethods preBinderMethods = new PreBinderMethods();
-    
-    public RulesModuleBindingContext(IBindingContext delegate,
-            ModuleOpenClass module) {
+
+    public RulesModuleBindingContext(IBindingContext delegate, ModuleOpenClass module) {
         super(delegate, module);
         internalMethods = new ArrayList<IOpenMethod>();
         internalMethods.add(new CurrentRuntimeContextMethod());
@@ -61,7 +59,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         internalMethods.add(new SetRuntimeContextMethod());
         internalMethods.add(new ModifyRuntimeContextMethod());
     }
-    
+
     /**
      * Registers the tsn by specified key.
      * 
@@ -83,9 +81,11 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     public TableSyntaxNode getTableSyntaxNode(String key) {
         return bindedTables.get(key);
     }
-    
+
     @Override
-    public IMethodCaller findMethodCaller(String namespace, final String methodName, IOpenClass[] parTypes) throws AmbiguousMethodException {
+    public IMethodCaller findMethodCaller(String namespace,
+            final String methodName,
+            IOpenClass[] parTypes) throws AmbiguousMethodException {
         Iterable<IOpenMethod> select = CollectionUtils.findAll(preBinderMethods.values(),
             new CollectionUtils.Predicate<IOpenMethod>() {
                 @Override
@@ -93,7 +93,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                     return methodName.equals(method.getName());
                 }
             });
-        IMethodCaller method = MethodSearch.getCastingMethodCaller(methodName, parTypes, this, select);
+        IMethodCaller method = MethodSearch.findMethod(methodName, parTypes, this, select);
         if (method != null) {
             RecursiveOpenMethodPreBinder openMethodBinder = null;
             if (method instanceof RecursiveOpenMethodPreBinder) {
@@ -103,17 +103,19 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 openMethodBinder = (RecursiveOpenMethodPreBinder) ((CastingMethodCaller) method).getMethod();
             }
             method = null;
-            if (openMethodBinder.isPreBinding()){
+            if (openMethodBinder.isPreBinding()) {
                 method = super.findMethodCaller(namespace, methodName, parTypes);
                 if (method == null) {
-                    Iterable<IOpenMethod> internalselect = CollectionUtils.findAll(internalMethods, new CollectionUtils.Predicate<IOpenMethod>() {
-                        @Override public boolean evaluate(IOpenMethod method) {
-                            return methodName.equals(method.getName());
-                        }
-                    });
-                    method = MethodSearch.getCastingMethodCaller(methodName, parTypes, this, internalselect);
+                    Iterable<IOpenMethod> internalselect = CollectionUtils.findAll(internalMethods,
+                        new CollectionUtils.Predicate<IOpenMethod>() {
+                            @Override
+                            public boolean evaluate(IOpenMethod method) {
+                                return methodName.equals(method.getName());
+                            }
+                        });
+                    method = MethodSearch.findMethod(methodName, parTypes, this, internalselect);
                 }
-                if (method != null){
+                if (method != null) {
                     return method;
                 }
                 throw new RecursiveMethodPreBindingException();
@@ -121,20 +123,24 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             openMethodBinder.preBind();
             preBinderMethods.remove(openMethodBinder.getHeader());
         }
-        
+
         method = super.findMethodCaller(namespace, methodName, parTypes);
         if (method == null) {
-            Iterable<IOpenMethod> internalselect = CollectionUtils.findAll(internalMethods, new CollectionUtils.Predicate<IOpenMethod>() {
-                @Override public boolean evaluate(IOpenMethod method) {
-                    return methodName.equals(method.getName());
-                }
-            });
-            method = MethodSearch.getCastingMethodCaller(methodName, parTypes, this, internalselect);
+            Iterable<IOpenMethod> internalselect = CollectionUtils.findAll(internalMethods,
+                new CollectionUtils.Predicate<IOpenMethod>() {
+                    @Override
+                    public boolean evaluate(IOpenMethod method) {
+                        return methodName.equals(method.getName());
+                    }
+                });
+            method = MethodSearch.findMethod(methodName, parTypes, this, internalselect);
         }
         return method;
     }
-    
-    protected synchronized void add(String namespace, String typeName, IOpenClass type) throws OpenLCompilationException {
+
+    protected synchronized void add(String namespace,
+            String typeName,
+            IOpenClass type) throws OpenLCompilationException {
         if (type instanceof CustomDynamicOpenClass) {
             CustomDynamicOpenClass customDynamicOpenClass = (CustomDynamicOpenClass) type;
             IOpenClass openClass = super.findType(namespace, typeName);
@@ -149,20 +155,21 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             super.add(namespace, typeName, type);
         }
     }
-    
+
     @Override
     public IOpenClass findType(String namespace, String typeName) {
         if (OpenLSystemProperties.isCustomSpreadsheetType(getExternalParams())) {
-            if (typeName.startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX) && typeName.length() > Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()){
+            if (typeName.startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX) && typeName
+                .length() > Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()) {
                 String sprMethodName = typeName.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
                 IOpenMethod method = preBinderMethods.get(sprMethodName);
-                if (method != null){
+                if (method != null) {
                     RecursiveOpenMethodPreBinder openMethodBinder = (RecursiveOpenMethodPreBinder) method;
-                    if (openMethodBinder.isPreBinding()){
+                    if (openMethodBinder.isPreBinding()) {
                         IOpenClass type = super.findType(namespace, typeName);
-                        if (type != null){
+                        if (type != null) {
                             return type;
-                        }else{
+                        } else {
                             throw new RecursiveMethodPreBindingException();
                         }
                     }
@@ -173,33 +180,34 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
         return super.findType(namespace, typeName);
     }
-    
-    public void addBinderMethod(OpenMethodHeader openMethodHeader, RecursiveOpenMethodPreBinder method){
+
+    public void addBinderMethod(OpenMethodHeader openMethodHeader, RecursiveOpenMethodPreBinder method) {
         preBinderMethods.put(openMethodHeader, method);
     }
-    
-    public void preBindMethod(OpenMethodHeader openMethodHeader){
+
+    public void preBindMethod(OpenMethodHeader openMethodHeader) {
         IOpenMethod method = preBinderMethods.get(openMethodHeader);
-        if (method != null){
+        if (method != null) {
             RecursiveOpenMethodPreBinder openMethodBinder = (RecursiveOpenMethodPreBinder) method;
             openMethodBinder.preBind();
             preBinderMethods.remove(openMethodBinder.getHeader());
         }
     }
-    
+
     public final static class CurrentRuntimeContextMethod implements IOpenMethod {
-        public final static  String CURRENT_CONTEXT_METHOD_NAME = "getContext";
-        
+        public final static String CURRENT_CONTEXT_METHOD_NAME = "getContext";
+
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-            IRulesRuntimeContext context = (IRulesRuntimeContext)env.getContext();
+            IRulesRuntimeContext context = (IRulesRuntimeContext) env.getContext();
             try {
                 return context.clone();
             } catch (CloneNotSupportedException e) {
-                LoggerFactory.getLogger(RulesModuleBindingContext.class).warn("Failed to clone runtime context. Runtime context managing may work incorrectly.", e);
+                LoggerFactory.getLogger(RulesModuleBindingContext.class)
+                    .warn("Failed to clone runtime context. Runtime context managing may work incorrectly.", e);
                 return context;
             }
         }
-        
+
         public IOpenMethod getMethod() {
             return this;
         }
@@ -231,7 +239,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         public IMethodSignature getSignature() {
             return IMethodSignature.VOID;
         }
-        
+
         @Override
         public boolean isConstructor() {
             return false;
@@ -239,7 +247,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     public static final class EmptyRuntimeContextMethod implements IOpenMethod {
-        public final static  String EMPTY_CONTEXT_METHOD_NAME = "emptyContext";
+        public final static String EMPTY_CONTEXT_METHOD_NAME = "emptyContext";
 
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             return RulesRuntimeContextFactory.buildRulesRuntimeContext();
@@ -276,7 +284,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         public IMethodSignature getSignature() {
             return IMethodSignature.VOID;
         }
-        
+
         @Override
         public boolean isConstructor() {
             return false;
@@ -284,13 +292,14 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     public static final class RestoreRuntimeContextMethod implements IOpenMethod {
-        public final static  String RESTORE_CONTEXT_METHOD_NAME = "restoreContext";
+        public final static String RESTORE_CONTEXT_METHOD_NAME = "restoreContext";
 
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-            if(env.isContextManagingSupported()){
+            if (env.isContextManagingSupported()) {
                 env.popContext();
             } else {
-                LoggerFactory.getLogger(RulesModuleBindingContext.class).warn("Failed to restore runtime context. Runtime context does not support context modifications.");
+                LoggerFactory.getLogger(RulesModuleBindingContext.class)
+                    .warn("Failed to restore runtime context. Runtime context does not support context modifications.");
             }
             return null;
         }
@@ -326,7 +335,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         public IMethodSignature getSignature() {
             return IMethodSignature.VOID;
         }
-        
+
         @Override
         public boolean isConstructor() {
             return false;
@@ -334,14 +343,15 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     public final static class SetRuntimeContextMethod implements IOpenMethod {
-        public final static  String SET_CONTEXT_METHOD_NAME = "setContext";
+        public final static String SET_CONTEXT_METHOD_NAME = "setContext";
 
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-            if(env.isContextManagingSupported()){
-                IRulesRuntimeContext runtimeContext =  (IRulesRuntimeContext)params[0];
+            if (env.isContextManagingSupported()) {
+                IRulesRuntimeContext runtimeContext = (IRulesRuntimeContext) params[0];
                 env.pushContext(runtimeContext);
             } else {
-                LoggerFactory.getLogger(RulesModuleBindingContext.class).warn("Failed to set runtime context. Runtime context does not support context modifications.");
+                LoggerFactory.getLogger(RulesModuleBindingContext.class)
+                    .warn("Failed to set runtime context. Runtime context does not support context modifications.");
             }
             return null;
         }
@@ -375,9 +385,10 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
 
         public IMethodSignature getSignature() {
-            return new MethodSignature(new ParameterDeclaration(JavaOpenClass.getOpenClass(IRulesRuntimeContext.class), "context"));
+            return new MethodSignature(
+                new ParameterDeclaration(JavaOpenClass.getOpenClass(IRulesRuntimeContext.class), "context"));
         }
-        
+
         @Override
         public boolean isConstructor() {
             return false;
@@ -386,15 +397,17 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     public static final class ModifyRuntimeContextMethod implements IOpenMethod {
-        public final static  String MODIFY_CONTEXT_METHOD_NAME = "modifyContext";
+        public final static String MODIFY_CONTEXT_METHOD_NAME = "modifyContext";
 
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-            if(env.isContextManagingSupported()){
-                IRulesRuntimeContext runtimeContext = new RulesRuntimeContextDelegator((IRulesRuntimeContext)env.getContext());
-                runtimeContext.setValue((String)params[0], params[1]);
+            if (env.isContextManagingSupported()) {
+                IRulesRuntimeContext runtimeContext = new RulesRuntimeContextDelegator(
+                    (IRulesRuntimeContext) env.getContext());
+                runtimeContext.setValue((String) params[0], params[1]);
                 env.pushContext(runtimeContext);
             } else {
-                LoggerFactory.getLogger(RulesModuleBindingContext.class).warn("Failed to modify runtime context. Runtime context does not support context modifications.");
+                LoggerFactory.getLogger(RulesModuleBindingContext.class)
+                    .warn("Failed to modify runtime context. Runtime context does not support context modifications.");
             }
             return null;
         }
@@ -429,9 +442,9 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
         public IMethodSignature getSignature() {
             return new MethodSignature(new ParameterDeclaration(JavaOpenClass.STRING, "property"),
-                        new ParameterDeclaration(JavaOpenClass.OBJECT, "value"));
+                new ParameterDeclaration(JavaOpenClass.OBJECT, "value"));
         }
-        
+
         @Override
         public boolean isConstructor() {
             return false;

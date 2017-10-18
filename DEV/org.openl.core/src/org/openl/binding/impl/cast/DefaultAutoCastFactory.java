@@ -8,12 +8,12 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
 import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.method.AutoCastableResultOpenMethod;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.CastingMethodCaller;
 import org.openl.types.impl.ComponentTypeArrayOpenClass;
 import org.openl.types.impl.DomainOpenClass;
-import org.openl.types.java.AutoCastResultOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenMethod;
 
@@ -76,7 +76,7 @@ public class DefaultAutoCastFactory implements AutoCastFactory {
 		if (!method.getType().isArray()) {
 			IOpenCast cast = bindingContext.getCast(method.getType(), simpleType);
 			if (cast != null) {
-				return new AutoCastResultOpenMethod(methodCaller, simpleType, cast);
+				return new AutoCastableResultOpenMethod(methodCaller.getMethod(), simpleType, cast);
 			}
 		} else {
 			IOpenClass v = method.getType();
@@ -97,12 +97,12 @@ public class DefaultAutoCastFactory implements AutoCastFactory {
 						simpleType.getDomain(), null);
 				IOpenCast cast = bindingContext.getCast(method.getType(), domainArrayType);
 				if (cast != null) {
-					return new AutoCastResultOpenMethod(methodCaller, domainArrayType, cast);
+					return new AutoCastableResultOpenMethod(methodCaller.getMethod(), domainArrayType, cast);
 				}
 			} else {
 				IOpenCast cast = bindingContext.getCast(method.getType(), componentTypeArrayOpenClass);
 				if (cast != null) {
-					return new AutoCastResultOpenMethod(methodCaller, componentTypeArrayOpenClass, cast);
+					return new AutoCastableResultOpenMethod(methodCaller.getMethod(), componentTypeArrayOpenClass, cast);
 				}
 			}
 		}
