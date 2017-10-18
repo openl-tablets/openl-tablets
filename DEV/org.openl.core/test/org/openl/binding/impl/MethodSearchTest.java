@@ -16,7 +16,7 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
-public class MethodSearchTest {
+public class MethodSearchTest extends AbstractMethodSearchTest {
 
     public static class ClassWithMethods {
         public void method1(int arg1, double arg2) {
@@ -51,18 +51,6 @@ public class MethodSearchTest {
 
     public static class ThirdClassWithMethods extends SecondClassWithMethods {
         private static final long serialVersionUID = 1L;
-    }
-
-    private ICastFactory getCastFactory() {
-        TypeCastFactory typecast = new TypeCastFactory();
-        TypeCastFactory.JavaCastComponent javacast = new TypeCastFactory.JavaCastComponent();
-        javacast.setLibraryClassName(org.openl.binding.impl.cast.CastOperators.class.getName());
-        javacast.setClassName(org.openl.binding.impl.cast.CastFactory.class.getName());
-        typecast.addJavaCast(javacast);
-        OpenLConfiguration openLConfiguration = new OpenLConfiguration();
-        openLConfiguration.setTypeCastFactory(typecast);
-        openLConfiguration.setConfigurationContext(new ConfigurableResourceContext(null));
-        return openLConfiguration;
     }
 
     private static boolean methodEquals(IMethodCaller methodCaller1, IMethodCaller methodCaller2) {
