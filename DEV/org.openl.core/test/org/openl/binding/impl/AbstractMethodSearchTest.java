@@ -38,12 +38,14 @@ public abstract class AbstractMethodSearchTest {
         JavaOpenClass aClass = JavaOpenClass.getOpenClass(target);
 
         Object[] args = toArgs(classes);
-        IMethodCaller method = MethodSearch
-            .findMethod(methodName, JavaOpenClass.getOpenClasses(classes), castFactory, aClass);
+        IMethodCaller method = MethodSearch.findMethod(methodName, JavaOpenClass.getOpenClasses(classes), castFactory, aClass);
 
         assertNotNull("Method " + methodDescriptor(methodName, classes) + " has not been matched", method);
         Object targetInstance = instance(target);
         Object result = method.invoke(targetInstance, args, null);
+        if (!expected.equals(result)) {
+            System.out.println();
+        }
         assertEquals("Method " + methodDescriptor(methodName, classes) + " has been matched", expected, result);
     }
 

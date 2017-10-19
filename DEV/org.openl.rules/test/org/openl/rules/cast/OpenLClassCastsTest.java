@@ -38,11 +38,11 @@ public class OpenLClassCastsTest {
         JavaOpenClass comparableClass = JavaOpenClass.getOpenClass(Comparable.class);
         IOpenCast cast = castFactory.getCast(JavaOpenClass.INT, comparableClass);
         assertNotNull(cast);
-        assertEquals(JavaUpCast.UP_CAST_DISTANCE, cast.getDistance(JavaOpenClass.INT, comparableClass));
+        assertEquals(12, cast.getDistance(JavaOpenClass.INT, comparableClass));
 
         cast = castFactory.getCast(JavaOpenClass.DOUBLE, JavaOpenClass.OBJECT);
         assertNotNull(cast);
-        assertEquals(JavaUpCast.UP_CAST_DISTANCE, cast.getDistance(JavaOpenClass.DOUBLE, JavaOpenClass.OBJECT));
+        assertEquals(12, cast.getDistance(JavaOpenClass.DOUBLE, JavaOpenClass.OBJECT));
     }
     
     @Test

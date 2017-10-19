@@ -6,18 +6,18 @@ import org.openl.types.IOpenClass;
 public class AliasToTypeCast implements IOpenCast {
 
     private IOpenClass fromClass;
-//    private IOpenClass toClass;
+    // private IOpenClass toClass;
 
     public AliasToTypeCast(IOpenClass from, IOpenClass to) {
         this.fromClass = from;
-//        this.toClass = to;
+        // this.toClass = to;
     }
 
     public Object convert(Object from) {
-        if (from == null){
+        if (from == null) {
             return null;
         }
-        
+
         IDomain domain = fromClass.getDomain();
 
         // Try to get given object from type domain. If object belongs to domain
@@ -41,7 +41,7 @@ public class AliasToTypeCast implements IOpenCast {
     }
 
     public int getDistance(IOpenClass from, IOpenClass to) {
-        return 3;
+        return 0;
     }
 
     public boolean isImplicit() {

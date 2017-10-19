@@ -10,7 +10,7 @@ public class JavaBoxingCast implements IOpenCast {
     private final int distance;
 
     public JavaBoxingCast() {
-        this(1);
+        this(3);
     }
 
     public JavaBoxingCast(int distance) {

@@ -65,7 +65,7 @@ public class TypeToAliasCast implements IOpenCast {
     }
 
     public int getDistance(IOpenClass from, IOpenClass to) {
-        return 4;
+        return 1;
     }
 
     public boolean isImplicit() {

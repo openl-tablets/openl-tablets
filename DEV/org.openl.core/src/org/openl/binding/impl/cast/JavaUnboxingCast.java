@@ -9,7 +9,7 @@ public class JavaUnboxingCast implements IOpenCast {
     }
 
     public int getDistance(IOpenClass from, IOpenClass to) {
-        return 2;
+        return 4;
     }
 
     public boolean isImplicit() {

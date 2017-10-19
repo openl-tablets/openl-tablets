@@ -73,15 +73,15 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
         assertMethod(target, "m0_Boxed", nonNumbers, NF, "Integer", NF, "Integer");
         assertMethod(target, "m0_Boxed", valued, NF, NF, NF, NF, NF, NF, NF, NF);
 
-        assertMethod(target, "m0_mixed", primitives, "int", "int", "int", "float", "float", "BigDecimal");
+        assertMethod(target, "m0_mixed", primitives, "int", "Short", "int", "float", "float", "BigDecimal");
         assertMethod(target,
             "m0_mixed",
             boxed,
             "Short",
             "Short",
+            "int",
             "BigDecimal",
-            "BigDecimal",
-            "BigDecimal",
+            "float",
             "BigDecimal",
             "BigDecimal",
             "BigDecimal");
@@ -92,15 +92,15 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
         assertMethod(target,
             "m0_comp",
             boxed,
-            "Short",
-            "Short",
-            "BigDecimal",
-            "BigDecimal",
+            "Comparable",
+            "Comparable",
+            "Comparable",
+            "Long",
             "Comparable",
             "Comparable",
             "Comparable",
             "Comparable");
-        assertMethod(target, "m0_comp", nonNumbers, "Comparable", "Long", "Comparable", "Long");
+        assertMethod(target, "m0_comp", nonNumbers, "Comparable", "Long", "Comparable", "Comparable");
         assertMethod(target,
             "m0_comp",
             valued,

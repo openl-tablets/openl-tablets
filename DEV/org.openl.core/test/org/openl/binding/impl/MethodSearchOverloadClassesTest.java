@@ -3,7 +3,7 @@ package org.openl.binding.impl;
 import org.junit.Test;
 
 public class MethodSearchOverloadClassesTest extends AbstractMethodSearchTest {
-    private Class target = OverloadedMethods.class;
+    private Class<?> target = OverloadedMethods.class;
 
     @Test
     public void testSearch() {

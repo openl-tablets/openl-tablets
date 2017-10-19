@@ -29,9 +29,18 @@ import org.openl.util.ClassUtils;
  * Base implementation of {@link ICastFactory} abstraction that used by engine
  * for type conversion operations.
  * 
- * @author snshor, Yury Molchan
+ * @author snshor, Yury Molchan, Marat Kamalov
  */
 public class CastFactory implements ICastFactory {
+
+    private static final int DEFAULT_NONPRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 10;
+    private static final int DEFAULT_PRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 9;
+    private static final int DEFAULT_NONPRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 8;
+    private static final int DEFAULT_AUTOCAST_DISTANCE = 7;
+    private static final int DEFAULT_CAST_DISTANCE = 11;
+    private static final int DEFAULT_NONPRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE = 16;
+    private static final int DEFAULT_PRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE = 17;
+    private static final int DEFAULT_NONPRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE = 15;
 
     private static final String AUTO_CAST_METHOD_NAME = "autocast";
     private static final String CAST_METHOD_NAME = "cast";
@@ -46,7 +55,7 @@ public class CastFactory implements ICastFactory {
     private static final JavaUpCast JAVA_UP_CAST = new JavaUpCast();
     private static final JavaBoxingCast JAVA_BOXING_CAST = new JavaBoxingCast();
     private static final JavaUnboxingCast JAVA_UNBOXING_CAST = new JavaUnboxingCast();
-    private static final JavaBoxingCast JAVA_BOXING_UP_CAST = new JavaBoxingCast(JavaUpCast.UP_CAST_DISTANCE);
+    private static final JavaBoxingCast JAVA_BOXING_UP_CAST = new JavaBoxingCast(12);
     private static final ThrowableVoidCast THROWABLE_VOID_CAST = new ThrowableVoidCast(); // for
                                                                                           // error("message")
                                                                                           // method
@@ -74,8 +83,8 @@ public class CastFactory implements ICastFactory {
     }
 
     /**
-     * Gets cast operation for given types. This is method is using internal cache
-     * for cast operations.
+     * Gets cast operation for given types. This is method is using internal
+     * cache for cast operations.
      * 
      * @param from from type
      * @param to to type
@@ -202,26 +211,14 @@ public class CastFactory implements ICastFactory {
     }
 
     /**
-     * Finds appropriate cast type operation using cast rules of java language. If
-     * result type is not java class <code>null</code> will be returned.
+     * Finds appropriate cast type operation using cast rules of java language.
+     * If result type is not java class <code>null</code> will be returned.
      * 
      * @param from from type
      * @param to to type
      * @return cast operation if conversion is found; null - otherwise
      */
     private IOpenCast findJavaCast(IOpenClass from, IOpenClass to) {
-
-        IOpenCast typeCast = findBoxingCast(from, to);
-
-        if (typeCast != null) {
-            return typeCast;
-        }
-
-        typeCast = findUnBoxingCast(from, to);
-
-        if (typeCast != null) {
-            return typeCast;
-        }
 
         // Try to find cast using instance classes.
         //
@@ -236,6 +233,18 @@ public class CastFactory implements ICastFactory {
             return JAVA_UP_CAST;
         }
 
+        IOpenCast typeCast = findBoxingCast(from, to);
+
+        if (typeCast != null) {
+            return typeCast;
+        }
+
+        typeCast = findUnBoxingCast(from, to);
+
+        if (typeCast != null) {
+            return typeCast;
+        }
+
         if (isAllowJavaDowncast(fromClass, toClass)) {
             return new JavaDownCast(to, this);
         }
@@ -244,11 +253,13 @@ public class CastFactory implements ICastFactory {
     }
 
     /**
-     * Finds appropriate auto boxing (primitive to wrapper object) cast operation.
+     * Finds appropriate auto boxing (primitive to wrapper object) cast
+     * operation.
      * 
      * @param from primitive type
      * @param to wrapper type
-     * @return auto boxing cast operation if conversion is found; null - otherwise
+     * @return auto boxing cast operation if conversion is found; null -
+     *         otherwise
      */
     private IOpenCast findBoxingCast(IOpenClass from, IOpenClass to) {
 
@@ -378,9 +389,7 @@ public class CastFactory implements ICastFactory {
 
         // Is auto cast ?
         boolean auto = true;
-
-        // Distance value
-        int distance = 5;
+        int distance = DEFAULT_AUTOCAST_DISTANCE;
 
         // Matching method
         IMethodCaller castCaller = null;
@@ -414,7 +423,11 @@ public class CastFactory implements ICastFactory {
                 // engine by end-user.
                 //
                 if (primitiveClassFrom != null) {
-                    // distance = 6;
+                    if (to.getInstanceClass().isPrimitive()) {
+                        distance = DEFAULT_NONPRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE;
+                    } else {
+                        distance = DEFAULT_NONPRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE;
+                    }
                     IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
                     fromOpenClass = wrapperOpenClassFrom;
                     toOpenClass = to;
@@ -439,7 +452,11 @@ public class CastFactory implements ICastFactory {
                 // engine by end-user.
                 //
                 if (primitiveClassTo != null) {
-                    // distance = 6;
+                    if (from.getInstanceClass().isPrimitive()) {
+                        distance = DEFAULT_PRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE;
+                    } else {
+                        distance = DEFAULT_NONPRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE;
+                    }
                     IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
                     castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME,
                         new IOpenClass[] { from, wrapperOpenClassTo });
@@ -451,7 +468,7 @@ public class CastFactory implements ICastFactory {
 
             if (castCaller == null) {
                 if (primitiveClassFrom != null && primitiveClassTo != null) {
-                    // distance = 6;
+                    distance = DEFAULT_NONPRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE;
                     IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
                     IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
                     fromOpenClass = wrapperOpenClassFrom;
@@ -472,10 +489,14 @@ public class CastFactory implements ICastFactory {
             auto = false;
             try {
                 castCaller = methodFactory.getMethod(CAST_METHOD_NAME, new IOpenClass[] { from, to });
-                distance = 9;
+                distance = DEFAULT_CAST_DISTANCE;
                 if (castCaller == null) {
                     if (primitiveClassFrom != null) {
-                        distance = 9;
+                        if (to.getInstanceClass().isPrimitive()) {
+                            distance = DEFAULT_NONPRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE;
+                        } else {
+                            distance = DEFAULT_NONPRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE;
+                        }
                         IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
                         fromOpenClass = wrapperOpenClassFrom;
                         toOpenClass = to;
@@ -486,7 +507,11 @@ public class CastFactory implements ICastFactory {
 
                 if (castCaller == null) {
                     if (primitiveClassTo != null) {
-                        distance = 9;
+                        if (from.getInstanceClass().isPrimitive()) {
+                            distance = DEFAULT_PRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE;
+                        } else {
+                            distance = DEFAULT_NONPRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE;
+                        }
                         IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
                         castCaller = methodFactory.getMethod(CAST_METHOD_NAME,
                             new IOpenClass[] { from, wrapperOpenClassTo });
@@ -498,7 +523,7 @@ public class CastFactory implements ICastFactory {
 
                 if (castCaller == null) {
                     if (primitiveClassFrom != null && primitiveClassTo != null) {
-                        distance = 9;
+                        distance = DEFAULT_NONPRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE;
                         IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
                         IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
                         fromOpenClass = wrapperOpenClassFrom;
@@ -537,27 +562,28 @@ public class CastFactory implements ICastFactory {
     /**
      * The following conversions are called the narrowing reference conversions:
      * 
-     * From any class type S to any class type T, provided that S is a superclass of
-     * T. (An important special case is that there is a narrowing conversion from
-     * the class type Object to any other class type.) From any class type S to any
-     * interface type K, provided that S is not final and does not implement K. (An
-     * important special case is that there is a narrowing conversion from the class
-     * type Object to any interface type.) From type Object to any array type. From
-     * type Object to any interface type. From any interface type J to any class
-     * type T that is not final. From any interface type J to any class type T that
-     * is final, provided that T implements J. From any interface type J to any
-     * interface type K, provided that J is not a subinterface of K and there is no
-     * method name m such that J and K both contain a method named m with the same
-     * signature but different return types. From any array type SC[] to any array
-     * type TC[], provided that SC and TC are reference types and there is a
+     * From any class type S to any class type T, provided that S is a
+     * superclass of T. (An important special case is that there is a narrowing
+     * conversion from the class type Object to any other class type.) From any
+     * class type S to any interface type K, provided that S is not final and
+     * does not implement K. (An important special case is that there is a
+     * narrowing conversion from the class type Object to any interface type.)
+     * From type Object to any array type. From type Object to any interface
+     * type. From any interface type J to any class type T that is not final.
+     * From any interface type J to any class type T that is final, provided
+     * that T implements J. From any interface type J to any interface type K,
+     * provided that J is not a subinterface of K and there is no method name m
+     * such that J and K both contain a method named m with the same signature
+     * but different return types. From any array type SC[] to any array type
+     * TC[], provided that SC and TC are reference types and there is a
      * narrowing conversion from SC to TC.
      * 
      * @link http://java.sun.com/docs/books/jls/second_edition/html/conversions.doc
      *       .html
      * @param from from type
      * @param to to type
-     * @return <code>true</code> is downcast operation is allowed for given types;
-     *         <code>false</code> - otherwise
+     * @return <code>true</code> is downcast operation is allowed for given
+     *         types; <code>false</code> - otherwise
      */
     private boolean isAllowJavaDowncast(Class<?> from, Class<?> to) {
 
