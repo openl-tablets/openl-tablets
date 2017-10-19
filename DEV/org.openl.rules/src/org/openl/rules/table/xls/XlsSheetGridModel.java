@@ -386,6 +386,10 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
      * Set only BorderStyle and BorderRGB properties
      * */
     public void setCellBorderStyle(int col, int row, ICellStyle style) {
+        if (style == null) {
+            // no needs to set absent styles.
+            return;
+        }
         Sheet sheet = getSheet();
         Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
         CellStyle newPoiStyle = PoiExcelHelper.createCellStyle(sheet.getWorkbook());
