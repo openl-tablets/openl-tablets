@@ -237,6 +237,10 @@ public class FileRepository implements Repository, RRepositoryFactory, Closeable
     }
 
     protected void invokeListener() {
-        monitor.fireOnChange();
+        if (monitor != null) {
+            // Workaround
+            // Can be null because in some cases LocalRepository can be not initialized
+            monitor.fireOnChange();
+        }
     }
 }
