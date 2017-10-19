@@ -28,9 +28,11 @@ public class CastsLinkageCast implements IOpenCast {
 	public int getDistance(IOpenClass from, IOpenClass to) {
 		int distance = 0;
 		for (IOpenCast cast : casts) {
-			distance = distance + cast.getDistance(from, to);
+		    int d = cast.getDistance(from, to);
+		    if (distance < d) {
+		        distance = d;
+		    }
 		}
-
 		return distance;
 	}
 

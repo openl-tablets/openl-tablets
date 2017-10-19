@@ -24,6 +24,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.impl.CastingMethodCaller;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenMethod;
+import org.openl.util.ClassUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.util.JavaGenericsUtils;
 import org.openl.util.OpenClassUtils;
@@ -57,6 +58,11 @@ public class MethodSearch {
                     arrayDims[i] = JavaGenericsUtils.getGenericTypeDim(type);
                     int arrayDim = arrayDims[i];
                     IOpenClass t = callParam[i];
+                    
+                    if (t.getInstanceClass() != null && t.getInstanceClass().isPrimitive()) {
+                        t = JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(t.getInstanceClass()));
+                    }
+                    
                     while (t.isArray() && arrayDim > 0) {
                         arrayDim--;
                         t = t.getComponentClass();
