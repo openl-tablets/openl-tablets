@@ -36,11 +36,12 @@ public class CastFactory implements ICastFactory {
     private static final int DEFAULT_NONPRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 10;
     private static final int DEFAULT_PRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 9;
     private static final int DEFAULT_NONPRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 8;
-    private static final int DEFAULT_AUTOCAST_DISTANCE = 7;
-    private static final int DEFAULT_CAST_DISTANCE = 11;
+    private static final int DEFAULT_PRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 7;
+    
     private static final int DEFAULT_NONPRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE = 16;
     private static final int DEFAULT_PRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE = 17;
     private static final int DEFAULT_NONPRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE = 15;
+    private static final int DEFAULT_PRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE = 14;
 
     private static final String AUTO_CAST_METHOD_NAME = "autocast";
     private static final String CAST_METHOD_NAME = "cast";
@@ -55,7 +56,7 @@ public class CastFactory implements ICastFactory {
     private static final JavaUpCast JAVA_UP_CAST = new JavaUpCast();
     private static final JavaBoxingCast JAVA_BOXING_CAST = new JavaBoxingCast();
     private static final JavaUnboxingCast JAVA_UNBOXING_CAST = new JavaUnboxingCast();
-    private static final JavaBoxingCast JAVA_BOXING_UP_CAST = new JavaBoxingCast(12);
+    private static final JavaBoxingCast JAVA_BOXING_UP_CAST = new JavaBoxingCast(9);
     private static final ThrowableVoidCast THROWABLE_VOID_CAST = new ThrowableVoidCast(); // for
                                                                                           // error("message")
                                                                                           // method
@@ -389,7 +390,16 @@ public class CastFactory implements ICastFactory {
 
         // Is auto cast ?
         boolean auto = true;
-        int distance = DEFAULT_AUTOCAST_DISTANCE;
+        int distance;
+        if (from.getInstanceClass().isPrimitive() && !to.getInstanceClass().isPrimitive()) {
+            distance = DEFAULT_PRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE;
+        } else if (!from.getInstanceClass().isPrimitive() && to.getInstanceClass().isPrimitive()) {
+            distance = DEFAULT_NONPRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE;
+        } else if (!from.getInstanceClass().isPrimitive() && !to.getInstanceClass().isPrimitive()) {
+            distance = DEFAULT_NONPRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE;
+        } else {
+            distance = DEFAULT_PRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE;
+        }
 
         // Matching method
         IMethodCaller castCaller = null;
@@ -423,11 +433,6 @@ public class CastFactory implements ICastFactory {
                 // engine by end-user.
                 //
                 if (primitiveClassFrom != null) {
-                    if (to.getInstanceClass().isPrimitive()) {
-                        distance = DEFAULT_NONPRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE;
-                    } else {
-                        distance = DEFAULT_NONPRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE;
-                    }
                     IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
                     fromOpenClass = wrapperOpenClassFrom;
                     toOpenClass = to;
@@ -452,11 +457,6 @@ public class CastFactory implements ICastFactory {
                 // engine by end-user.
                 //
                 if (primitiveClassTo != null) {
-                    if (from.getInstanceClass().isPrimitive()) {
-                        distance = DEFAULT_PRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE;
-                    } else {
-                        distance = DEFAULT_NONPRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE;
-                    }
                     IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
                     castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME,
                         new IOpenClass[] { from, wrapperOpenClassTo });
@@ -468,7 +468,6 @@ public class CastFactory implements ICastFactory {
 
             if (castCaller == null) {
                 if (primitiveClassFrom != null && primitiveClassTo != null) {
-                    distance = DEFAULT_NONPRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE;
                     IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
                     IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
                     fromOpenClass = wrapperOpenClassFrom;
@@ -489,14 +488,18 @@ public class CastFactory implements ICastFactory {
             auto = false;
             try {
                 castCaller = methodFactory.getMethod(CAST_METHOD_NAME, new IOpenClass[] { from, to });
-                distance = DEFAULT_CAST_DISTANCE;
+                if (from.getInstanceClass().isPrimitive() && !to.getInstanceClass().isPrimitive()) {
+                    distance = DEFAULT_PRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE;
+                } else if (!from.getInstanceClass().isPrimitive() && to.getInstanceClass().isPrimitive()) {
+                    distance = DEFAULT_NONPRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE;
+                } else if (!from.getInstanceClass().isPrimitive() && !to.getInstanceClass().isPrimitive()) {
+                    distance = DEFAULT_NONPRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE;
+                } else {
+                    distance = DEFAULT_PRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE;
+                }
+
                 if (castCaller == null) {
                     if (primitiveClassFrom != null) {
-                        if (to.getInstanceClass().isPrimitive()) {
-                            distance = DEFAULT_NONPRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE;
-                        } else {
-                            distance = DEFAULT_NONPRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE;
-                        }
                         IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
                         fromOpenClass = wrapperOpenClassFrom;
                         toOpenClass = to;
@@ -507,11 +510,6 @@ public class CastFactory implements ICastFactory {
 
                 if (castCaller == null) {
                     if (primitiveClassTo != null) {
-                        if (from.getInstanceClass().isPrimitive()) {
-                            distance = DEFAULT_PRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE;
-                        } else {
-                            distance = DEFAULT_NONPRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE;
-                        }
                         IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
                         castCaller = methodFactory.getMethod(CAST_METHOD_NAME,
                             new IOpenClass[] { from, wrapperOpenClassTo });
@@ -523,7 +521,6 @@ public class CastFactory implements ICastFactory {
 
                 if (castCaller == null) {
                     if (primitiveClassFrom != null && primitiveClassTo != null) {
-                        distance = DEFAULT_NONPRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE;
                         IOpenClass wrapperOpenClassFrom = JavaOpenClass.getOpenClass(primitiveClassFrom);
                         IOpenClass wrapperOpenClassTo = JavaOpenClass.getOpenClass(primitiveClassTo);
                         fromOpenClass = wrapperOpenClassFrom;
