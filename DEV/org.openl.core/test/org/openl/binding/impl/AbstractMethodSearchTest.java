@@ -43,9 +43,6 @@ public abstract class AbstractMethodSearchTest {
         assertNotNull("Method " + methodDescriptor(methodName, classes) + " has not been matched", method);
         Object targetInstance = instance(target);
         Object result = method.invoke(targetInstance, args, null);
-        if (!expected.equals(result)) {
-            System.out.println();
-        }
         assertEquals("Method " + methodDescriptor(methodName, classes) + " has been matched", expected, result);
     }
 
