@@ -180,7 +180,22 @@ public final class TestMojo extends BaseOpenLMojo {
         List<String> summaryErrors = new ArrayList<>();
         boolean hasCompilationErrors = false;
 
-        List<Module> modules = pd.getModules();
+        List<Module> modules = new ArrayList<>(pd.getModules());
+        // Set higher priority to modules containing "test" keyword.
+        Collections.sort(modules, new Comparator<Module>() {
+            @Override
+            public int compare(Module o1, Module o2) {
+                String name1 = o1.getName();
+                String name2 = o2.getName();
+                boolean isTest1 = name1.toLowerCase().contains("test");
+                boolean isTest2 = name2.toLowerCase().contains("test");
+                if (isTest1 == isTest2) {
+                    return name1.compareTo(name2);
+                }
+
+                return isTest1 ? -1 : 1;
+            }
+        });
 
         for (Module module : modules) {
             URL[] urls = toURLs(classpath);
@@ -197,6 +212,7 @@ public final class TestMojo extends BaseOpenLMojo {
                     .setExternalParameters(externalParameters)
                     .build();
 
+            info("Searching tests in the module '", module.getName(), "'...");
             CompiledOpenClass openLRules = factory.getCompiledOpenClass();
             Summary summary = executeTests(openLRules);
 
