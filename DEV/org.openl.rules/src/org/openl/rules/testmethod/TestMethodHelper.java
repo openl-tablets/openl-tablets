@@ -1,13 +1,4 @@
-/**
- * Created Jan 2, 2007
- */
 package org.openl.rules.testmethod;
-
-import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.types.IMethodSignature;
-import org.openl.types.IOpenMethodHeader;
-import org.openl.types.impl.OpenMethodHeader;
-import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author snshor
@@ -25,13 +16,5 @@ public class TestMethodHelper {
     
     /** Field name for test unit description in test*/ 
     public static final String DESCRIPTION_NAME = "_description_";
-
-    public static IOpenMethodHeader makeHeader(String tableName, XlsModuleOpenClass module) {
-
-        return new OpenMethodHeader(tableName,
-            JavaOpenClass.getOpenClass(TestUnitsResults.class),
-            IMethodSignature.VOID,
-            module);
-    }
 
 }

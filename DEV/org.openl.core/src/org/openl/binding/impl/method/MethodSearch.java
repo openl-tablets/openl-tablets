@@ -58,11 +58,14 @@ public class MethodSearch {
                     arrayDims[i] = JavaGenericsUtils.getGenericTypeDim(type);
                     int arrayDim = arrayDims[i];
                     IOpenClass t = callParam[i];
-                    
+                    if (t.getInstanceClass() != null) {
+                        t = JavaOpenClass.getOpenClass(t.getInstanceClass()); //don't use alias datatypes as Generics
+                    }
+
                     if (t.getInstanceClass() != null && t.getInstanceClass().isPrimitive()) {
                         t = JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(t.getInstanceClass()));
                     }
-                    
+
                     while (t.isArray() && arrayDim > 0) {
                         arrayDim--;
                         t = t.getComponentClass();
@@ -168,12 +171,6 @@ public class MethodSearch {
             ICastFactory casts,
             Iterable<IOpenMethod> methods) throws AmbiguousMethodException {
 
-        List<IOpenMethod> matchingMethods = new ArrayList<IOpenMethod>();
-        List<IOpenCast[]> matchingMethodsCastHolder = new ArrayList<IOpenCast[]>();
-        List<IOpenCast> matchingMethodsReturnCast = new ArrayList<IOpenCast>();
-        List<IOpenClass> matchingMethodsReturnType = new ArrayList<IOpenClass>();
-        int bestMatch = NO_MATCH;
-
         final int nParams = params.length;
         Iterable<IOpenMethod> filtered = (methods == null) ? Collections
             .<IOpenMethod> emptyList() : CollectionUtils.findAll(methods, new CollectionUtils.Predicate<IOpenMethod>() {
@@ -182,6 +179,13 @@ public class MethodSearch {
                     return method.getName().equals(name) && method.getSignature().getParameterTypes().length == nParams;
                 }
             });
+
+        List<IOpenMethod> matchingMethods = new ArrayList<IOpenMethod>();
+        List<IOpenCast[]> matchingMethodsCastHolder = new ArrayList<IOpenCast[]>();
+        List<IOpenCast> matchingMethodsReturnCast = new ArrayList<IOpenCast>();
+        List<IOpenClass> matchingMethodsReturnType = new ArrayList<IOpenClass>();
+        int bestMatch = NO_MATCH;
+
         for (IOpenMethod method : filtered) {
             IOpenCast[] castHolder = new IOpenCast[nParams];
             IOpenCast[] returnCastHolder = new IOpenCast[1];

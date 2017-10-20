@@ -27,9 +27,12 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
+import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
+import org.openl.types.impl.OpenMethodHeader;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
 
 /**
@@ -37,8 +40,9 @@ import org.openl.util.CollectionUtils;
  */
 public class TestMethodNodeBinder extends DataNodeBinder {
 
-    private static final String FORMAT_ERROR_MESSAGE = "Test table format: Test <methodname> <testname>";
-
+    // indexes of names in header
+    private static final int TESTED_METHOD_INDEX = 1;
+    private static final int TABLE_NAME_INDEX = 2;
     /**
      * Workaround for ability to run tests when executionMode is true.
      * In future we should remove this field and replace executionMode with a type with 3 possible states: execute only
@@ -59,10 +63,6 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         keepTests.remove();
     }
 
-    @Override
-    protected String getFormatErrorMessage() {
-        return FORMAT_ERROR_MESSAGE;
-    }
 
     @Override
     protected ATableBoundNode makeNode(TableSyntaxNode tableSyntaxNode, XlsModuleOpenClass module) {
@@ -83,23 +83,35 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(table.getSource(), bindingContext);
 
         IdentifierNode[] parsedHeader = Tokenizer.tokenize(source, " \n\r");
-        checkParsedHeader(parsedHeader, source);
 
-        final String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
-        String tableName = parsedHeader[TABLE_NAME_INDEX].getIdentifier();
+        if (parsedHeader.length < 2) {
+            throw SyntaxNodeExceptionUtils.createError("Test table format: Test <methodname> <testname>", source);
+        }
+
+        final String methodName = parsedHeader[TESTED_METHOD_INDEX].getIdentifier();
+        String tableName;
+        if (parsedHeader.length == 2) {
+            // $Test or $Run
+            tableName = methodName + "$" + parsedHeader[0].getIdentifier();;
+        } else {
+            tableName = parsedHeader[TABLE_NAME_INDEX].getIdentifier();
+        }
 
         List<IOpenMethod> testedMethods = CollectionUtils.findAll(module.getMethods(),
             new CollectionUtils.Predicate<IOpenMethod>() {
                 @Override
                 public boolean evaluate(IOpenMethod method) {
-                    return typeName.equals(method.getName());
+                    return methodName.equals(method.getName());
                 }
             });
         if (testedMethods.isEmpty()) {
-            throw new MethodNotFoundException(null, typeName, IOpenClass.EMPTY);
+            throw new MethodNotFoundException(null, methodName, IOpenClass.EMPTY);
         }
 
-        IOpenMethodHeader header = TestMethodHelper.makeHeader(tableName, module);
+        IOpenMethodHeader header = new OpenMethodHeader(tableName,
+            JavaOpenClass.getOpenClass(TestUnitsResults.class),
+            IMethodSignature.VOID,
+            module);
 
         int i = 0;
         TestMethodBoundNode bestCaseTestMethodBoundNode = null;
@@ -129,8 +141,8 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             // Check that table type loaded properly.
             //
             if (testMethodOpenClass.getInstanceClass() == null) {
-                String message = String.format("Type '%s' was defined with errors", typeName);
-                throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
+                String message = String.format("Table '%s' was defined with errors", methodName);
+                throw SyntaxNodeExceptionUtils.createError(message, parsedHeader[TESTED_METHOD_INDEX]);
             }
             try {
                 ITable dataTable = makeTable(module,
@@ -200,8 +212,8 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             return bestCaseTestMethodBoundNode;
         }
 
-        String message = String.format("Type '%s' is not found", typeName);
-        throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
+        String message = String.format("Table '%s' is not found", methodName);
+        throw SyntaxNodeExceptionUtils.createError(message, parsedHeader[TESTED_METHOD_INDEX]);
     }
 
     @Override
