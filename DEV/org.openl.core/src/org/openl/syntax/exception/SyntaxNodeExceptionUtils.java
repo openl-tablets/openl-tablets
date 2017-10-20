@@ -14,15 +14,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SyntaxNodeExceptionUtils {
-    
-    private static Map<Class<?>, ExceptionMessageFormatter> formatters = new HashMap<Class<?>, ExceptionMessageFormatter>();
-    
+
+    private static Map<Class<?>, ExceptionMessageFormatter> formatters = new HashMap<>();
+
     static {
         formatters.put(ArrayIndexOutOfBoundsException.class, new IndexOutOfBoundsExceptionFormatter());
         formatters.put(NoClassDefFoundError.class, new NoClassDefFoundErrorFormatter());
         formatters.put(NullPointerException.class, new NullPointerExceptionFormatter());
     }
-    
+
     private SyntaxNodeExceptionUtils() {
     }
 
@@ -39,20 +39,20 @@ public class SyntaxNodeExceptionUtils {
             ILocation location,
             IOpenSourceCodeModule source) {
         Logger logger = LoggerFactory.getLogger(SyntaxNodeExceptionUtils.class);
-        logger.info(message, throwable);
+        logger.debug(message, throwable);
         return new SyntaxNodeException(message, throwable, location, source);
     }
 
     public static SyntaxNodeException createError(String message, Throwable throwable, ISyntaxNode syntaxNode) {
         Logger logger = LoggerFactory.getLogger(SyntaxNodeExceptionUtils.class);
-        logger.info(message, throwable);
+        logger.debug(message, throwable);
         return new SyntaxNodeException(message, throwable, syntaxNode);
     }
 
     public static SyntaxNodeException createError(Throwable throwable, ISyntaxNode syntaxNode) {
         return createError(formatErrorMessage(throwable), throwable, syntaxNode);
     }
-    
+
     private static String formatErrorMessage(Throwable throwable) {
         String formattedMessage = throwable.getMessage();
         ExceptionMessageFormatter filter = formatters.get(throwable.getClass());
@@ -60,5 +60,5 @@ public class SyntaxNodeExceptionUtils {
             formattedMessage = filter.format(throwable);
         }
         return formattedMessage;
-     }
+    }
 }
