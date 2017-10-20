@@ -33,7 +33,7 @@ public class ArgumentCachingStorage {
         throw new ResultNotFoundException();
     }
 
-    private static final OpenLArgumentsCloner cloner = new OpenLArgumentsCloner();
+    private final OpenLArgumentsCloner cloner = new OpenLArgumentsCloner();
 
     public void putToCache(Object member, Object[] params, Object result) {
         Data data = storage.get(member);
