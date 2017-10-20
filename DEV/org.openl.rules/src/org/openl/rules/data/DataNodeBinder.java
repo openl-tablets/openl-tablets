@@ -10,7 +10,6 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.NodeType;
-import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -22,7 +21,6 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
@@ -35,16 +33,9 @@ import org.openl.types.IOpenClass;
  */
 public class DataNodeBinder extends AXlsTableBinder {
 
-    protected static final int HEADER_NUM_TOKENS = 3;
-    protected static final String FORMAT_ERROR_MESSAGE = "Data table format: Data <typename> <tablename>";
-
     // indexes of names in header
-    protected static final int TYPE_INDEX = 1;
-    protected static final int TABLE_NAME_INDEX = 2;
-
-    protected String getFormatErrorMessage() {
-        return FORMAT_ERROR_MESSAGE;
-    }
+    private static final int TYPE_INDEX = 1;
+    private static final int TABLE_NAME_INDEX = 2;
 
     protected IOpenClass getTableType(String typeName,
             IBindingContext bindingContext,
@@ -76,7 +67,10 @@ public class DataNodeBinder extends AXlsTableBinder {
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(table.getSource(), bindingContext);
 
         IdentifierNode[] parsedHeader = Tokenizer.tokenize(source, " \n\r");
-        checkParsedHeader(parsedHeader, source);
+
+        if (parsedHeader.length < 3) {
+            throw SyntaxNodeExceptionUtils.createError("Data table format: Data <typename> <tablename>", source);
+        }
 
         String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
         String tableName = parsedHeader[TABLE_NAME_INDEX].getIdentifier();
@@ -85,7 +79,7 @@ public class DataNodeBinder extends AXlsTableBinder {
 
         if (tableType == null) {
             String message = String.format("Type is not found: '%s'", typeName);
-            throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
+            throw SyntaxNodeExceptionUtils.createError(message, parsedHeader[TYPE_INDEX]);
         }
 
         if (!bindingContext.isExecutionMode()) {
@@ -99,7 +93,7 @@ public class DataNodeBinder extends AXlsTableBinder {
         //
         if (tableType.getInstanceClass() == null) {
             String message = String.format("Type '%s' was defined with errors", typeName);
-            throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
+            throw SyntaxNodeExceptionUtils.createError(message, parsedHeader[TYPE_INDEX]);
         }
 
         ITable dataTable = makeTable(module, tableSyntaxNode, tableName, tableType, bindingContext, openl);
@@ -236,25 +230,4 @@ public class DataNodeBinder extends AXlsTableBinder {
         return resultTable;
     }
 
-    /**
-     * Checks format of the data table header.
-     * 
-     * @param source source code
-     * @throws error if length of header is less than {@link #HEADER_NUM_TOKENS}
-     */
-    protected void checkParsedHeader(IdentifierNode[] parsedHeader,
-            IOpenSourceCodeModule source) throws SyntaxNodeException {
-
-        try {
-            parsedHeader = Tokenizer.tokenize(source, " \n\r");
-        } catch (OpenLCompilationException e) {
-            throw SyntaxNodeExceptionUtils.createError("Cannot parse header", null, null, source);
-        }
-
-        if (parsedHeader.length < HEADER_NUM_TOKENS) {
-            String message = getFormatErrorMessage();
-
-            throw SyntaxNodeExceptionUtils.createError(message, null, null, source);
-        }
-    }
 }
