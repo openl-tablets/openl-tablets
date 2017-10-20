@@ -1,14 +1,18 @@
 package org.openl.rules.testmethod;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
+import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.types.IOpenMethod;
@@ -21,6 +25,9 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     private IOpenMethod testedMethod;
     private TestDescription[] tests;
     private Map<String, Integer> indeces;
+    private final boolean runmethod;
+    private DynamicObject[] testObjects;
+    private ColumnDescriptor[] descriptors;
 
     public TestSuiteMethod(IOpenMethod testedMethod, IOpenMethodHeader header,
             TestMethodBoundNode boundNode) {
@@ -28,6 +35,18 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
 
         this.testedMethod = testedMethod;
         initProperties(getSyntaxNode().getTableProperties());
+        runmethod = XlsNodeTypes.XLS_RUN_METHOD.toString().equals(getSyntaxNode().getType());
+    }
+
+    public TestSuiteMethod(IOpenMethod testedMethod, TestSuiteMethod copy) {
+        super(copy.getHeader(), copy.getBoundNode());
+
+        this.testedMethod = testedMethod;
+        initProperties(copy.getMethodProperties());
+        this.runmethod = copy.isRunmethod();
+        this.testObjects = copy.getTestObjects();
+        this.descriptors = copy.getDescriptors();
+        this.setTableUri(copy.getTableUri());
     }
 
     private TestDescription[] initTestsAndIndexes() {
@@ -35,7 +54,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         TestDescription[] tests = new TestDescription[testObjects.length];
         indeces = new HashMap<String, Integer>(tests.length);
         for (int i = 0; i < tests.length; i++) {
-            tests[i] = new TestDescription(getTestedMethod(), testObjects[i], getProperties(), getBoundNode().getTable().getDataModel().getDescriptor());
+            tests[i] = new TestDescription(getTestedMethod(), testObjects[i], getProperties(), getDescriptors());
             tests[i].setIndex(i);
             indeces.put(tests[i].getId(), i);
         }
@@ -112,8 +131,8 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     }
 
     public DynamicObject[] getTestObjects() {
-        Object testArray = getBoundNode().getField().getData();
-        return (DynamicObject[]) testArray;
+        initializeTestData();
+        return testObjects;
     }
 
     public synchronized TestDescription[] getTests() {
@@ -132,13 +151,29 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     }
 
     public String getColumnDisplayName(String columnTechnicalName) {
-        int columnIndex = getBoundNode().getTable().getColumnIndex(columnTechnicalName);
+        int columnIndex = getColumnIndex(columnTechnicalName);
         return getColumnDisplayName(columnIndex);
     }
 
+    public int getColumnIndex(String columnName) {
+        ColumnDescriptor[] descriptors = getDescriptors();
+        for (int i = 0; i < descriptors.length; i++) {
+            if (descriptors[i] == null) {
+                continue;
+            }
+            if (descriptors[i].getName().equals(columnName)) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+
     public String getColumnName(int index) {
         if (index >= 0) {
-            return getBoundNode().getTable().getColumnName(index);
+            ColumnDescriptor[] descriptors = getDescriptors();
+            return descriptors[index] == null ? null : descriptors[index].getName();
         } else {
             return null;
         }
@@ -146,14 +181,15 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
 
     public String getColumnDisplayName(int index) {
         if (index >= 0) {
-            return getBoundNode().getTable().getColumnDisplay(index);
+            ColumnDescriptor[] descriptors = getDescriptors();
+            return descriptors[index] == null ? null : descriptors[index].getDisplayName();
         } else {
             return null;
         }
     }
 
     public int getColumnsCount() {
-        return getBoundNode().getTable().getNumberOfColumns();
+        return getDescriptors().length;
     }
 
     public IOpenMethod getTestedMethod() {
@@ -170,8 +206,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     }
 
     public boolean isRunmethod() {
-        TableSyntaxNode tsn = getSyntaxNode();
-        return XlsNodeTypes.XLS_RUN_METHOD.toString().equals(tsn.getType());
+        return runmethod;
     }
 
     /**
@@ -203,5 +238,28 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
             }
         }
         return false;
+    }
+
+    @Override
+    public void setBoundNode(ATableBoundNode node) {
+        if (node == null) {
+            // removeDebugInformation() is invoked.
+            // Initialize data needed to run tests before removing debug info
+            initializeTestData();
+        }
+
+        super.setBoundNode(node);
+    }
+
+    public ColumnDescriptor[] getDescriptors() {
+        initializeTestData();
+        return descriptors;
+    }
+
+    private void initializeTestData() {
+        if (descriptors == null) {
+            testObjects = (DynamicObject[]) getBoundNode().getField().getData();
+            descriptors = getBoundNode().getTable().getDataModel().getDescriptor();
+        }
     }
 }

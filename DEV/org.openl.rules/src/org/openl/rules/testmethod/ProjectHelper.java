@@ -6,7 +6,6 @@ package org.openl.rules.testmethod;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -48,7 +47,7 @@ public final class ProjectHelper {
     public static boolean isTester(IOpenMethod tester) {
         if (tester instanceof TestSuiteMethod) {
             TestSuiteMethod testSuiteMethod = (TestSuiteMethod) tester;
-            return !testSuiteMethod.isRunmethod() && testSuiteMethod.isRunmethodTestable() && !testSuiteMethod.getSyntaxNode().hasErrors();
+            return !testSuiteMethod.isRunmethod() && testSuiteMethod.isRunmethodTestable() && (testSuiteMethod.getSyntaxNode() == null || !testSuiteMethod.getSyntaxNode().hasErrors());
 
         }
         return false;

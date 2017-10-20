@@ -39,6 +39,26 @@ public class TestMethodNodeBinder extends DataNodeBinder {
 
     private static final String FORMAT_ERROR_MESSAGE = "Test table format: Test <methodname> <testname>";
 
+    /**
+     * Workaround for ability to run tests when executionMode is true.
+     * In future we should remove this field and replace executionMode with a type with 3 possible states: execute only
+     * business rules, execute rules and tests, keep all tables and meta info for edit in WebStudio.
+     */
+    private static ThreadLocal<Boolean> keepTests = new ThreadLocal<>();
+
+    private static boolean isKeepTestsInExecutionMode() {
+        Boolean keep = keepTests.get();
+        return keep != null && keep;
+    }
+
+    public static void keepTestsInExecutionMode() {
+        keepTests.set(Boolean.TRUE);
+    }
+
+    public static void removeTestsInExecutionMode() {
+        keepTests.remove();
+    }
+
     @Override
     protected String getFormatErrorMessage() {
         return FORMAT_ERROR_MESSAGE;
@@ -54,7 +74,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             OpenL openl,
             IBindingContext bindingContext,
             XlsModuleOpenClass module) throws Exception {
-        if (bindingContext.isExecutionMode()) {
+        if (bindingContext.isExecutionMode() && !isKeepTestsInExecutionMode()) {
             return null;// skipped in execution mode
         }
 
@@ -154,6 +174,10 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         }
 
         if (bestCaseTestMethodBoundNode != null) {
+            if (bindingContext.isExecutionMode() && ((TableSyntaxNode) bestCaseTestMethodBoundNode.getSyntaxNode()).hasErrors()) {
+                // In execution mode we don't need test tables that can't be run because of errors (even if isKeepTestsInExecutionMode() == true)
+                return null;
+            }
             tableSyntaxNode.clearErrors();
             OpenLMessages.getCurrentInstance().clear();
             for (OpenLMessage message : messages) {

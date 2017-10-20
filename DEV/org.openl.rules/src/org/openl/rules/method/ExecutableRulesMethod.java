@@ -32,7 +32,14 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
         }
         return tableUri;
     }
-    
+
+    /**
+     * Must be invoked from inherited class constructor only
+     */
+    protected final void setTableUri(String tableUri) {
+        this.tableUri = tableUri;
+    }
+
     public ExecutableRulesMethod(IOpenMethodHeader header, ATableBoundNode boundNode) {
         super(header);
         this.boundNode = boundNode;

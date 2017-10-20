@@ -154,11 +154,17 @@ public final class TestMojo extends BaseOpenLMojo {
         }
         SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
                 .setClassLoader(classLoader)
-                .setExecutionMode(false)
+                .setExecutionMode(true)
                 .setExternalParameters(externalParameters)
                 .build();
 
-        CompiledOpenClass openLRules = factory.getCompiledOpenClass();
+        CompiledOpenClass openLRules;
+        try {
+            TestMethodNodeBinder.keepTestsInExecutionMode();
+            openLRules = factory.getCompiledOpenClass();
+        } finally {
+            TestMethodNodeBinder.removeTestsInExecutionMode();
+        }
         return executeTests(openLRules);
     }
 
@@ -207,13 +213,19 @@ public final class TestMojo extends BaseOpenLMojo {
             }
             SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
                     .setClassLoader(classLoader)
-                    .setExecutionMode(false)
+                    .setExecutionMode(true)
                     .setModule(module.getName())
                     .setExternalParameters(externalParameters)
                     .build();
 
             info("Searching tests in the module '", module.getName(), "'...");
-            CompiledOpenClass openLRules = factory.getCompiledOpenClass();
+            CompiledOpenClass openLRules;
+            try {
+                TestMethodNodeBinder.keepTestsInExecutionMode();
+                openLRules = factory.getCompiledOpenClass();
+            } finally {
+                TestMethodNodeBinder.removeTestsInExecutionMode();
+            }
             Summary summary = executeTests(openLRules);
 
             runTests += summary.getRunTests();

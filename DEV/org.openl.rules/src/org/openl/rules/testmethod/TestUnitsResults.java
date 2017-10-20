@@ -13,7 +13,6 @@ import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.DataTableBindHelper;
 import org.openl.rules.data.FieldChain;
-import org.openl.rules.data.ITableModel;
 import org.openl.rules.data.PrecisionFieldChain;
 import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
 import org.openl.rules.testmethod.result.TestResultComparator;
@@ -129,12 +128,11 @@ public class TestUnitsResults implements INamedThing {
      *         comparator should be located in {@link TestDescription}
      */
     public TestUnit updateTestUnit(TestUnit testUnit) {
-        ITableModel dataModel = testSuite.getTestSuiteMethod().getBoundNode().getTable().getDataModel();
         List<IOpenField> fieldsToTest = new ArrayList<IOpenField>();
 
         IOpenClass resultType = testSuite.getTestedMethod().getType();
         Integer precision = null;
-        for (ColumnDescriptor columnDescriptor : dataModel.getDescriptor()) {
+        for (ColumnDescriptor columnDescriptor : testSuite.getTestSuiteMethod().getDescriptors()) {
             Integer fieldPrecision = null;
             if (columnDescriptor != null) {
                 IdentifierNode[] nodes = columnDescriptor.getFieldChainTokens();
