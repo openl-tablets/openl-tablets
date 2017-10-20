@@ -21,17 +21,11 @@ import org.openl.util.DomainUtils;
 public class TypeToAliasCast implements IOpenCast {
 
     /**
-     * Original type of object before type conversion.
-     */
-//	private IOpenClass fromClass;
-
-    /**
      * Result type of object after conversion.
      */
     private IOpenClass toClass;
 
     public TypeToAliasCast(IOpenClass from, IOpenClass to) {
-//        this.fromClass = from;
         this.toClass = to;
     }
 
