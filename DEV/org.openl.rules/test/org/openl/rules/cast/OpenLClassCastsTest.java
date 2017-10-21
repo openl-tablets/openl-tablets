@@ -9,6 +9,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.OpenL;
 import org.openl.binding.ICastFactory;
+import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.java.JavaOpenClass;
 
@@ -39,11 +40,11 @@ public class OpenLClassCastsTest {
         JavaOpenClass comparableClass = JavaOpenClass.getOpenClass(Comparable.class);
         IOpenCast cast = castFactory.getCast(JavaOpenClass.INT, comparableClass);
         assertNotNull(cast);
-        assertEquals(9, cast.getDistance(JavaOpenClass.INT, comparableClass));
+        assertEquals(CastFactory.JAVA_BOXING_UP_CAST_DISTANCE, cast.getDistance(JavaOpenClass.INT, comparableClass));
 
         cast = castFactory.getCast(JavaOpenClass.DOUBLE, JavaOpenClass.OBJECT);
         assertNotNull(cast);
-        assertEquals(9, cast.getDistance(JavaOpenClass.DOUBLE, JavaOpenClass.OBJECT));
+        assertEquals(CastFactory.JAVA_BOXING_UP_CAST_DISTANCE, cast.getDistance(JavaOpenClass.DOUBLE, JavaOpenClass.OBJECT));
     }
     
     @Test

@@ -18,8 +18,8 @@ import org.openl.meta.number.Formulas;
 @OperatorsNamespace
 public class StringOperators extends Operators {
 
-    private static final int TYPE_TO_STRING_DISTANCE = 21;
-    private static final int STRING_TO_TYPE_DISTANCE = 20;
+    private static final int STRING_TO_TYPE_DISTANCE = 40;
+    private static final int TYPE_TO_STRING_DISTANCE = 41;
 
     public static Byte add(Byte x, String y) {
         return (byte) (x + Byte.valueOf(y));

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
+import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.cast.JavaNoCast;
 import org.openl.rules.enumeration.CaProvincesEnum;
@@ -108,7 +109,7 @@ public class ObjectToDataOpenCastConvertor {
 
         @Override
         public int getDistance(IOpenClass from, IOpenClass to) {
-            return 12;
+            return CastFactory.ENUM_TO_STRING_CAST_DISTANCE;
         }
 
         @Override

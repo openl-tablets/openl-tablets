@@ -17,7 +17,7 @@ public class JavaNoCast implements IOpenCast {
 
 
     public int getDistance(IOpenClass from, IOpenClass to) {
-        return 0;
+        return CastFactory.NO_CAST_DISTANCE;
     }
 
     /*

@@ -13,7 +13,7 @@ public class ThrowableVoidCast implements IOpenCast {
             return 0;
         }
 
-        return 6;
+        return CastFactory.THROWABLE_VOID_CAST_DISTANCE;
     }
 
     public boolean isImplicit() {

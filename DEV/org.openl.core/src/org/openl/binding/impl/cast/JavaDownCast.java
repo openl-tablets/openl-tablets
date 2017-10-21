@@ -47,7 +47,7 @@ public class JavaDownCast implements IOpenCast {
      * org.openl.types.IOpenClass)
      */
     public int getDistance(IOpenClass from, IOpenClass to) {
-        return 9;
+        return CastFactory.JAVA_DOWN_CAST_DISTANCE;
     }
 
     /*

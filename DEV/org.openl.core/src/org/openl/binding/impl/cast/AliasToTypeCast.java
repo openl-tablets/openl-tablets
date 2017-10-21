@@ -41,7 +41,7 @@ public class AliasToTypeCast implements IOpenCast {
     }
 
     public int getDistance(IOpenClass from, IOpenClass to) {
-        return 0;
+        return CastFactory.ALIAS_TO_TYPE_CAST_DISTANCE;
     }
 
     public boolean isImplicit() {

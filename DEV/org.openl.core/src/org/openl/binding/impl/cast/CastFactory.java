@@ -33,15 +33,29 @@ import org.openl.util.ClassUtils;
  */
 public class CastFactory implements ICastFactory {
 
-    private static final int DEFAULT_NONPRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 10;
-    private static final int DEFAULT_PRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 9;
-    private static final int DEFAULT_NONPRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 8;
-    private static final int DEFAULT_PRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 7;
+    public static final int NO_CAST_DISTANCE = 0;
+    public static final int ALIAS_TO_TYPE_CAST_DISTANCE = 0;
+    public static final int TYPE_ALIAS_CAST_DISTANCE = 1;
+    public static final int JAVA_UP_CAST_DISTANCE = 2;
+    public static final int JAVA_BOXING_CAST_DISTANCE = 3;
     
-    private static final int DEFAULT_NONPRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE = 16;
-    private static final int DEFAULT_PRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE = 17;
-    private static final int DEFAULT_NONPRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE = 15;
-    private static final int DEFAULT_PRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE = 14;
+    public static final int THROWABLE_VOID_CAST_DISTANCE = 5;
+        
+    public static final int PRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 6;
+    public static final int PRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 7;
+    public static final int JAVA_BOXING_UP_CAST_DISTANCE = 8;
+    public static final int JAVA_UNBOXING_CAST_DISTANCE = 9;
+    public static final int NONPRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 10;
+    
+    public static final int ENUM_TO_STRING_CAST_DISTANCE = 11;
+    
+    public static final int NONPRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 12;
+
+    public static final int JAVA_DOWN_CAST_DISTANCE = 30;
+    public static final int PRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE = 31;
+    public static final int NONPRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE = 32;
+    public static final int NONPRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE = 33;
+    public static final int PRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE = 34;
 
     private static final String AUTO_CAST_METHOD_NAME = "autocast";
     private static final String CAST_METHOD_NAME = "cast";
@@ -56,7 +70,7 @@ public class CastFactory implements ICastFactory {
     private static final JavaUpCast JAVA_UP_CAST = new JavaUpCast();
     private static final JavaBoxingCast JAVA_BOXING_CAST = new JavaBoxingCast();
     private static final JavaUnboxingCast JAVA_UNBOXING_CAST = new JavaUnboxingCast();
-    private static final JavaBoxingCast JAVA_BOXING_UP_CAST = new JavaBoxingCast(9);
+    private static final JavaBoxingCast JAVA_BOXING_UP_CAST = new JavaBoxingCast(JAVA_BOXING_UP_CAST_DISTANCE);
     private static final ThrowableVoidCast THROWABLE_VOID_CAST = new ThrowableVoidCast(); // for
                                                                                           // error("message")
                                                                                           // method
@@ -392,13 +406,13 @@ public class CastFactory implements ICastFactory {
         boolean auto = true;
         int distance;
         if (from.getInstanceClass().isPrimitive() && !to.getInstanceClass().isPrimitive()) {
-            distance = DEFAULT_PRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE;
+            distance = PRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE;
         } else if (!from.getInstanceClass().isPrimitive() && to.getInstanceClass().isPrimitive()) {
-            distance = DEFAULT_NONPRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE;
+            distance = NONPRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE;
         } else if (!from.getInstanceClass().isPrimitive() && !to.getInstanceClass().isPrimitive()) {
-            distance = DEFAULT_NONPRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE;
+            distance = NONPRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE;
         } else {
-            distance = DEFAULT_PRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE;
+            distance = PRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE;
         }
 
         // Matching method
@@ -489,13 +503,13 @@ public class CastFactory implements ICastFactory {
             try {
                 castCaller = methodFactory.getMethod(CAST_METHOD_NAME, new IOpenClass[] { from, to });
                 if (from.getInstanceClass().isPrimitive() && !to.getInstanceClass().isPrimitive()) {
-                    distance = DEFAULT_PRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE;
+                    distance = PRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE;
                 } else if (!from.getInstanceClass().isPrimitive() && to.getInstanceClass().isPrimitive()) {
-                    distance = DEFAULT_NONPRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE;
+                    distance = NONPRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE;
                 } else if (!from.getInstanceClass().isPrimitive() && !to.getInstanceClass().isPrimitive()) {
-                    distance = DEFAULT_NONPRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE;
+                    distance = NONPRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE;
                 } else {
-                    distance = DEFAULT_PRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE;
+                    distance = PRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE;
                 }
 
                 if (castCaller == null) {
