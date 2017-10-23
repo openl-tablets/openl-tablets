@@ -455,7 +455,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
         assertMethod(target, "m2", short.class, primitives, "long", "long", "long", "long", "double", "double");
         assertMethod(target, "m2", int.class, primitives, "long", "long", "long", "long", "double", "double");
         assertMethod(target, "m2", long.class, primitives, "long", "long", "long", "long", "double", "double");
-        assertMethod(target, "m2", float.class, primitives, "long", "long", "long", "long", "double", "double");
-        assertMethod(target, "m2", double.class, primitives, "long", "long", "long", "long", "double", "double");
+        assertMethod(target, "m2", float.class, primitives, "double", "double", "double", "double", "double", "double");
+        assertMethod(target, "m2", double.class, primitives, "double", "double", "double", "double", "double", "double");
     }
 }
