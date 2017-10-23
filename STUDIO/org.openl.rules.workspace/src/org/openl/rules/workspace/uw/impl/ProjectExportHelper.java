@@ -52,13 +52,13 @@ public final class ProjectExportHelper {
                 zipOutputStream.putNextEntry(entry);
                 packDir(zipOutputStream, (AProjectFolder) artefact, path + artefact.getName() + "/");
             } else {
-                packFile(zipOutputStream, (AProjectResource) artefact, path);
+                packFile(zipOutputStream, (AProjectResource) artefact);
             }
         }
     }
 
-    protected static void packFile(ZipOutputStream zipOutputStream, AProjectResource file, String path) throws IOException, ProjectException {
-        ZipEntry entry = new ZipEntry(path + file.getInternalPath());
+    protected static void packFile(ZipOutputStream zipOutputStream, AProjectResource file) throws IOException, ProjectException {
+        ZipEntry entry = new ZipEntry(file.getInternalPath());
         zipOutputStream.putNextEntry(entry);
 
         InputStream source = null;
