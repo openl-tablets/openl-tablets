@@ -20,6 +20,9 @@ public abstract class AbstractMethodSearchTest {
     static final String AMB = "AMBIGUOUS";
     static final String NF = "NOT FOUND";
     static ICastFactory castFactory;
+    private static class Not {
+        Object notExpected;
+    }
 
     @BeforeClass
     public static void init() {
@@ -34,7 +37,7 @@ public abstract class AbstractMethodSearchTest {
         castFactory = openLConfiguration;
     }
 
-    final void assertInvoke(String expected, Class<?> target, String methodName, Class<?>... classes) {
+    final void assertInvoke(Object expected, Class<?> target, String methodName, Class<?>... classes) {
         JavaOpenClass aClass = JavaOpenClass.getOpenClass(target);
 
         Object[] args = toArgs(classes);
@@ -65,30 +68,42 @@ public abstract class AbstractMethodSearchTest {
         }
     }
 
-    final void assertMethod(Class<?> target, String methodName, Class<?>[] classes, String... expectes) {
+    final void assertMethod(Class<?> target, String methodName, Class<?>[] classes, Object... expectes) {
         assertEquals(classes.length, expectes.length);
         for (int i = 0; i < classes.length; i++) {
-            String expected = expectes[i];
+            Object expected = expectes[i];
             assertMethod(expected, target, methodName, classes[i]);
         }
     }
 
-    final void assertMethod(Class<?> target, String methodName, Class<?> class1, Class<?>[] classes, String... expectes) {
+    final void assertMethod(Class<?> target, String methodName, Class<?> class1, Class<?>[] classes, Object... expectes) {
         assertEquals(classes.length, expectes.length);
         for (int i = 0; i < classes.length; i++) {
-            String expected = expectes[i];
+            Object expected = expectes[i];
             assertMethod(expected, target, methodName, class1, classes[i]);
         }
     }
 
-    final void assertMethod(String expected, Class<?> target, String methodName, Class<?>... classes) {
+    final void assertMethod(Object expected, Class<?> target, String methodName, Class<?>... classes) {
         if (NF.equals(expected)) {
             assertNotFound(target, methodName, classes);
         } else if (AMB.equals(expected)) {
             assertAmbigiouse(target, methodName, classes);
+        } else if (expected instanceof Not) {
+            try {
+                Object notExpected = ((Not) expected).notExpected;
+                assertInvoke(notExpected, target, methodName, classes);
+                fail("Not expected '" + notExpected +  "' result for Metod " + methodDescriptor(methodName, classes));
+            } catch (AssertionError ex) {
+                // It is expected an assertion error
+            }
         } else {
             assertInvoke(expected, target, methodName, classes);
         }
+    }
+
+    final Object not (final Object expected) {
+        return new Not() {{notExpected = expected;}};
     }
 
     private Object[] toArgs(Class<?>... classes) {
