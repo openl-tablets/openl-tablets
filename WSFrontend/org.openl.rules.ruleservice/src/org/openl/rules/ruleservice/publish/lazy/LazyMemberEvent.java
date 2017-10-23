@@ -1,7 +1,5 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
-import org.ehcache.event.CacheEvent;
-import org.openl.CompiledOpenClass;
 import org.openl.types.IOpenMember;
 
 public class LazyMemberEvent implements Event{
@@ -16,7 +14,7 @@ public class LazyMemberEvent implements Event{
     }
     
     @Override
-    public void onEvent(CacheEvent<? extends Key, ? extends CompiledOpenClass> event) {
+    public void onEvent() {
         lazyMember.clearCachedMember();
     }
 }

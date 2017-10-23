@@ -3,20 +3,17 @@ package org.openl.rules.ruleservice.publish.lazy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
-import org.ehcache.Cache;
-import org.ehcache.Cache.Entry;
-import org.ehcache.event.CacheEvent;
-import org.ehcache.event.CacheEventListener;
-import org.ehcache.event.EventFiring;
-import org.ehcache.event.EventOrdering;
-import org.ehcache.event.EventType;
 import org.openl.CompiledOpenClass;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.event.CacheEventListenerAdapter;
 
 /**
  * Caches compiled modules. Uses EhCache. This is singleton and thread safe
@@ -31,27 +28,43 @@ public final class CompiledOpenClassCache {
     }
 
     private CompiledOpenClassCache() {
-        Set<EventType> allEventTypes = new HashSet<>();
-        allEventTypes.add(EventType.CREATED);
-        allEventTypes.add(EventType.EVICTED);
-        allEventTypes.add(EventType.EXPIRED);
-        allEventTypes.add(EventType.REMOVED);
-        allEventTypes.add(EventType.EXPIRED);
-        OpenLEhCacheHolder.getInstance().getModulesCache().getRuntimeConfiguration().registerCacheEventListener(
-            new CacheEventListener<Key, CompiledOpenClass>() {
+
+        OpenLEhCacheHolder.getInstance().getModulesCache().getCacheEventNotificationService().registerListener(
+            new CacheEventListenerAdapter() {
                 @Override
-                public void onEvent(CacheEvent<? extends Key, ? extends CompiledOpenClass> event) {
+                public void notifyElementEvicted(Ehcache cache, Element element) {
+                    process(element.getObjectKey());
+                }
+
+                @Override
+                public void notifyElementExpired(Ehcache cache, Element element) {
+                    process(element.getObjectKey());
+                }
+
+                @Override
+                public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
+                    process(element.getObjectKey());
+                }
+
+                @Override
+                public void notifyElementPut(Ehcache cache, Element element) throws CacheException {
+                    process(element.getObjectKey());
+                }
+
+                @Override
+                public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
+                    process(element.getObjectKey());
+                }
+
+                void process(Object key) {
                     synchronized (CompiledOpenClassCache.this.eventsMap) {
-                        Collection<Event> events = CompiledOpenClassCache.this.eventsMap.get(event.getKey());
+                        Collection<Event> events = CompiledOpenClassCache.this.eventsMap.get(key);
                         for (Event e : events) {
-                            e.onEvent(event);
+                            e.onEvent();
                         }
                     }
                 }
-            },
-            EventOrdering.ORDERED,
-            EventFiring.SYNCHRONOUS,
-            allEventTypes);
+            });
     }
 
     /**
@@ -71,8 +84,12 @@ public final class CompiledOpenClassCache {
             throw new IllegalArgumentException("dependencyName must not be null!");
         }
         Key key = new Key(deploymentDescription, dependencyName);
-        Cache<Key, CompiledOpenClass> cache = OpenLEhCacheHolder.getInstance().getModulesCache();
-        return cache.get(key);
+        Cache cache = OpenLEhCacheHolder.getInstance().getModulesCache();
+        Element element = cache.get(key);
+        if (element == null) {
+            return null;
+        }
+        return (CompiledOpenClass) element.getObjectValue();
     }
 
     public void putToCache(DeploymentDescription deploymentDescription,
@@ -85,8 +102,9 @@ public final class CompiledOpenClassCache {
             throw new IllegalArgumentException("dependencyName must not be null!");
         }
         Key key = new Key(deploymentDescription, dependencyName);
-        Cache<Key, CompiledOpenClass> cache = OpenLEhCacheHolder.getInstance().getModulesCache();
-        cache.put(key, compiledOpenClass);
+        Element newElement = new Element(key, compiledOpenClass);
+        Cache cache = OpenLEhCacheHolder.getInstance().getModulesCache();
+        cache.put(newElement);
     }
 
     private Map<Key, Collection<Event>> eventsMap = new HashMap<>();
@@ -113,11 +131,10 @@ public final class CompiledOpenClassCache {
         if (deploymentDescription == null) {
             throw new IllegalArgumentException("deploymentDescription must not be null!");
         }
-        Cache<Key, CompiledOpenClass> cache = OpenLEhCacheHolder.getInstance().getModulesCache();
-        Iterator<Entry<Key, CompiledOpenClass>> itr = cache.iterator();
+        Cache cache = OpenLEhCacheHolder.getInstance().getModulesCache();
+        Iterator<Key> itr = cache.getKeys().iterator();
         while (itr.hasNext()) {
-            Entry<Key, CompiledOpenClass> entry = itr.next();
-            Key key = entry.getKey();
+            Key key = itr.next();
             DeploymentDescription deployment = key.getDeploymentDescription();
             if (deploymentDescription.getName().equals(deployment.getName()) && deploymentDescription.getVersion()
                 .equals(deployment.getVersion())) {
@@ -138,8 +155,8 @@ public final class CompiledOpenClassCache {
     }
 
     public void reset() {
-        Cache<Key, CompiledOpenClass> cache = OpenLEhCacheHolder.getInstance().getModulesCache();
-        cache.clear();
+        Cache cache = OpenLEhCacheHolder.getInstance().getModulesCache();
+        cache.removeAll();
         synchronized (eventsMap) {
             eventsMap.clear();
         }
