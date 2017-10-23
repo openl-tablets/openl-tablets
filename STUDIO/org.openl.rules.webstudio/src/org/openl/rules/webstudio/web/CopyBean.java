@@ -124,7 +124,7 @@ public class CopyBean {
             }
 
             AProject designProject = new AProject(designRepository, designPath, false);
-            AProject localProject = new AProject(localRepository, project.getFolderPath(), true);
+            AProject localProject = new AProject(project.getRepository(), project.getFolderPath(), project.isFolder());
             designProject.getFileData().setComment(comment);
             designProject.setResourceTransformer(new ProjectDescriptorTransformer(newProjectName));
             designProject.update(localProject, userWorkspace.getUser());

@@ -400,49 +400,57 @@ public class AProject extends AProjectFolder {
             }
         } else {
             if (!projectFrom.isFolder()) {
-                // Just copy a single file
-                FileData fileData = getFileData();
-
-                InputStream stream = null;
-                try {
-                if (projectFrom.isHistoric()) {
-                    FileItem fileItem = projectFrom.getRepository().readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
-                    fileData.setSize(fileItem.getData().getSize());
-                    stream = fileItem.getStream();
+                if (getResourceTransformer() != null) {
+                    // projectFrom will be unarchived, transformed and then archived
+                    transformAndArchive(projectFrom, user);
                 } else {
-                    FileItem fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
-                    fileData.setSize(fileItem.getData().getSize());
-                    stream = fileItem.getStream();
-                }
-                fileData.setAuthor(user.getUserName());
-                setFileData(getRepository().save(fileData, stream));
-                } catch (IOException ex) {
-                    throw new ProjectException("Can't update: " + ex.getMessage(), ex);
-                } finally {
-                    IOUtils.closeQuietly(stream);
+                    // Just copy a single file
+                    FileData fileData = getFileData();
+
+                    InputStream stream = null;
+                    try {
+                        if (projectFrom.isHistoric()) {
+                            FileItem fileItem = projectFrom.getRepository().readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
+                            fileData.setSize(fileItem.getData().getSize());
+                            stream = fileItem.getStream();
+                        } else {
+                            FileItem fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
+                            fileData.setSize(fileItem.getData().getSize());
+                            stream = fileItem.getStream();
+                        }
+                        fileData.setAuthor(user.getUserName());
+                        setFileData(getRepository().save(fileData, stream));
+                    } catch (IOException ex) {
+                        throw new ProjectException("Can't update: " + ex.getMessage(), ex);
+                    } finally {
+                        IOUtils.closeQuietly(stream);
+                    }
                 }
             } else {
-                // Archive the folder using zip
-                FileData fileData = getFileData();
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                ZipOutputStream zipOutputStream = null;
-                try {
-                    zipOutputStream = new ZipOutputStream(out);
-
-                    for (AProjectArtefact artefact : projectFrom.getArtefacts()) {
-                        writeArtefact(zipOutputStream, artefact);
-                    }
-
-                    fileData.setAuthor(user.getUserName());
-                    fileData.setSize(out.size());
-                    setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
-                } catch (IOException e) {
-                    throw new ProjectException(e.getMessage(), e);
-                } finally {
-                    IOUtils.closeQuietly(zipOutputStream);
-                }
-
+                transformAndArchive(projectFrom, user);
             }
+        }
+    }
+
+    private void transformAndArchive(AProject projectFrom, CommonUser user) throws ProjectException {
+        // Archive the folder using zip
+        FileData fileData = getFileData();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ZipOutputStream zipOutputStream = null;
+        try {
+            zipOutputStream = new ZipOutputStream(out);
+
+            for (AProjectArtefact artefact : projectFrom.getArtefacts()) {
+                writeArtefact(zipOutputStream, artefact);
+            }
+
+            fileData.setAuthor(user.getUserName());
+            fileData.setSize(out.size());
+            setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
+        } catch (IOException e) {
+            throw new ProjectException(e.getMessage(), e);
+        } finally {
+            IOUtils.closeQuietly(zipOutputStream);
         }
     }
 
@@ -451,12 +459,7 @@ public class AProject extends AProjectFolder {
                                                                                            ProjectException {
         if ((artefact instanceof AProjectResource)) {
             AProjectResource resource = (AProjectResource) artefact;
-            String name = resource.getArtefactPath().withoutFirstSegment().getStringValue();
-            if (name.startsWith("/")) {
-                name = name.substring(1);
-            }
-            ZipEntry entry = new ZipEntry(name);
-            zipOutputStream.putNextEntry(entry);
+            zipOutputStream.putNextEntry(new ZipEntry(resource.getInternalPath()));
 
             ResourceTransformer transformer = getResourceTransformer();
             InputStream content = transformer != null ? transformer.transform(resource) : resource.getContent();

@@ -55,8 +55,6 @@ public class ProjectDescriptorTransformer implements ResourceTransformer {
     }
 
     private boolean isProjectDescriptor(AProjectResource resource) {
-        String actualFullPath = resource.getArtefactPath().withoutFirstSegment().getStringValue();
-        String expectedFullPath = ArtefactPathImpl.SEGMENT_DELIMITER + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME;
-        return expectedFullPath.equals(actualFullPath);
+        return ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME.equals(resource.getInternalPath());
     }
 }
