@@ -452,7 +452,15 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     @Test
     public void testTwoArguments() {
         assertMethod(target, "m2", byte.class, primitives, "long", "long", "long", "long", "double", "double");
+        assertMethod(target, "m2", byte.class, boxed, "GenericByte", "GenericShort", "GenericInteger", "GenericLong", "GenericFloat", "Double", "GenericBigInteger", "BigDecimal");
+        assertMethod(target, "m2", byte.class, nonNumbers, NF, "long", NF, "GenericInteger");
+        assertMethod(target, "m2", byte.class, valued, "GenericByteValue", "GenericShortValue", "GenericIntValue", "GenericLongValue", "GenericFloatValue", "GenericDoubleValue","GenericBigIntegerValue","GenericBigDecimalValue");
+
         assertMethod(target, "m2", short.class, primitives, "long", "long", "long", "long", "double", "double");
+        assertMethod(target, "m2", short.class, boxed, "GenericShort", "GenericShort", "GenericInteger", "GenericLong", "GenericFloat", "Double", "GenericBigInteger", "BigDecimal");
+        assertMethod(target, "m2", short.class, nonNumbers, NF, "long", NF, "GenericInteger");
+        assertMethod(target, "m2", short.class, valued, "GenericShortValue", "GenericShortValue", "GenericIntValue", "GenericLongValue", "GenericFloatValue", "GenericDoubleValue","GenericBigIntegerValue","GenericBigDecimalValue");
+
         assertMethod(target, "m2", int.class, primitives, "long", "long", "long", "long", "double", "double");
         assertMethod(target, "m2", long.class, primitives, "long", "long", "long", "long", "double", "double");
         assertMethod(target, "m2", float.class, primitives, "double", "double", "double", "double", "double", "double");
