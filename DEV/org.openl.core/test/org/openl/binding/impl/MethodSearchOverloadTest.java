@@ -448,4 +448,14 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
             "BigIntegerValue",
             "BigDecimalValue");
     }
+
+    @Test
+    public void testTwoArguments() {
+        assertMethod(target, "m2", byte.class, primitives, "long", "long", "long", "long", "double", "double");
+        assertMethod(target, "m2", short.class, primitives, "long", "long", "long", "long", "double", "double");
+        assertMethod(target, "m2", int.class, primitives, "long", "long", "long", "long", "double", "double");
+        assertMethod(target, "m2", long.class, primitives, "long", "long", "long", "long", "double", "double");
+        assertMethod(target, "m2", float.class, primitives, "long", "long", "long", "long", "double", "double");
+        assertMethod(target, "m2", double.class, primitives, "long", "long", "long", "long", "double", "double");
+    }
 }

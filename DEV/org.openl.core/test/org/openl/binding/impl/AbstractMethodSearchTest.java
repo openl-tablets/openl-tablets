@@ -69,13 +69,25 @@ public abstract class AbstractMethodSearchTest {
         assertEquals(classes.length, expectes.length);
         for (int i = 0; i < classes.length; i++) {
             String expected = expectes[i];
-            if (NF.equals(expected)) {
-                assertNotFound(target, methodName, classes[i]);
-            } else if (AMB.equals(expected)) {
-                assertAmbigiouse(target, methodName, classes[i]);
-            } else {
-                assertInvoke(expected, target, methodName, classes[i]);
-            }
+            assertMethod(expected, target, methodName, classes[i]);
+        }
+    }
+
+    final void assertMethod(Class<?> target, String methodName, Class<?> class1, Class<?>[] classes, String... expectes) {
+        assertEquals(classes.length, expectes.length);
+        for (int i = 0; i < classes.length; i++) {
+            String expected = expectes[i];
+            assertMethod(expected, target, methodName, class1, classes[i]);
+        }
+    }
+
+    final void assertMethod(String expected, Class<?> target, String methodName, Class<?>... classes) {
+        if (NF.equals(expected)) {
+            assertNotFound(target, methodName, classes);
+        } else if (AMB.equals(expected)) {
+            assertAmbigiouse(target, methodName, classes);
+        } else {
+            assertInvoke(expected, target, methodName, classes);
         }
     }
 

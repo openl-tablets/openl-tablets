@@ -264,4 +264,24 @@ public class OverloadedMethods {
     public static String m1(BigDecimalValue arg) {
         return "BigDecimalValue";
     }
+
+    public static <T> String m2(T arg1, T arg2) {
+        return "Generic" + (arg1 != null ? arg1.getClass().getSimpleName() : "");
+    }
+
+    public static <T> String m2(BigDecimal arg1, BigDecimal arg2) {
+        return "BigDecimal";
+    }
+
+    public static <T> String m2(Double arg1, Double arg2) {
+        return "Double";
+    }
+
+    public static <T> String m2(double arg1, double arg2) {
+        return "double";
+    }
+
+    public static <T> String m2(long arg1, long arg2) {
+        return "long";
+    }
 }
