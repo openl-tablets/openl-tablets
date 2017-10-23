@@ -8,6 +8,7 @@ package org.openl.binding.impl.method;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -35,17 +36,15 @@ import org.openl.util.OpenClassUtils;
  */
 public class MethodSearch {
 
-    static final int NO_MATCH = Integer.MAX_VALUE;
+    static final int[] NO_MATCH = new int[0];
 
-    private static int calcMatch(JavaOpenMethod method,
+    private static int[] calcMatch(JavaOpenMethod method,
             IOpenClass[] methodParam,
             IOpenClass[] callParam,
             ICastFactory casts,
             IOpenCast[] castHolder,
             IOpenCast[] returnCastHolder,
             IOpenClass[] returnTypeHolder) {
-        int maxdiff = 0;
-        int ndiff = 0;
         Integer[] castHolderDistance = new Integer[callParam.length];
         if (method != null) {
             Map<String, IOpenClass> m = new HashMap<String, IOpenClass>();
@@ -167,19 +166,69 @@ public class MethodSearch {
             }
         }
 
+        int[] m = new int[callParam.length];
+
         for (int i = 0; i < callParam.length; i++) {
             if (castHolder[i] != null) {
-                maxdiff = Math.max(maxdiff, castHolder[i].getDistance(callParam[i], methodParam[i]));
                 if (castHolderDistance[i] == null) {
-                    maxdiff = Math.max(maxdiff, castHolder[i].getDistance(callParam[i], methodParam[i]));
+                    m[i] = castHolder[i].getDistance(callParam[i], methodParam[i]);
                 } else {
-                    maxdiff = Math.max(maxdiff, castHolderDistance[i]);
+                    m[i] = castHolderDistance[i];
                 }
-                ndiff++;
             }
         }
 
-        return maxdiff * 1000 + ndiff;
+        return m;
+    }
+
+    private static final boolean zeroCasts(int[] m) {
+        for (int i = 0; i < m.length; i++) {
+            if (m[i] != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static final boolean lq(int[] m1, int[] m2) {
+        if (m1 == NO_MATCH) {
+            return false;
+        }
+        if (m2 == NO_MATCH) {
+            return true;
+        }
+        int[] d1 = m1.clone();
+        int[] d2 = m2.clone();
+        Arrays.sort(d1);
+        Arrays.sort(d2);
+        for (int i = d1.length - 1; i >= 0; i--) {
+            if (d1[i] < d2[i]) {
+                return true;
+            }
+            if (d1[i] > d2[i]) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    private static final boolean eq(int[] distances1, int[] distances2) {
+        if (distances1 == distances2) {
+            return true;
+        }
+        if (distances1.length != distances2.length) {
+            return false;
+        }
+        int[] d1 = distances1.clone();
+        int[] d2 = distances2.clone();
+        Arrays.sort(d1);
+        Arrays.sort(d2);
+        for (int i = d1.length - 1; i >= 0; i--) {
+            if (d1[i] != d2[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static IMethodCaller findCastingMethod(final String name,
@@ -200,13 +249,13 @@ public class MethodSearch {
         List<IOpenCast[]> matchingMethodsCastHolder = new ArrayList<IOpenCast[]>();
         List<IOpenCast> matchingMethodsReturnCast = new ArrayList<IOpenCast>();
         List<IOpenClass> matchingMethodsReturnType = new ArrayList<IOpenClass>();
-        int bestMatch = NO_MATCH;
+        int[] bestMatch = NO_MATCH;
 
         for (IOpenMethod method : filtered) {
             IOpenCast[] castHolder = new IOpenCast[nParams];
             IOpenCast[] returnCastHolder = new IOpenCast[1];
             IOpenClass[] returnTypeHolder = new IOpenClass[1];
-            int match;
+            int[] match;
             if (method instanceof JavaOpenMethod) { // Process Java Generics
                 JavaOpenMethod javaOpenMethod = (JavaOpenMethod) method;
                 match = calcMatch(javaOpenMethod,
@@ -228,7 +277,7 @@ public class MethodSearch {
             if (match == NO_MATCH) {
                 continue;
             }
-            if (match < bestMatch) {
+            if (lq(match, bestMatch)) {
                 bestMatch = match;
                 matchingMethods.clear();
                 matchingMethodsCastHolder.clear();
@@ -241,7 +290,7 @@ public class MethodSearch {
                 continue;
             }
 
-            if (match == bestMatch) {
+            if (eq(match, bestMatch)) {
                 matchingMethods.add(method);
                 matchingMethodsCastHolder.add(castHolder);
                 matchingMethodsReturnCast.add(returnCastHolder[0]);
@@ -254,7 +303,7 @@ public class MethodSearch {
                 return null;
             case 1:
                 IOpenMethod m = matchingMethods.get(0);
-                if (bestMatch != 0) {
+                if (!(zeroCasts(bestMatch))) {
                     CastingMethodCaller methodCaller = new CastingMethodCaller(m, matchingMethodsCastHolder.get(0));
                     return buildMethod(matchingMethodsReturnCast.get(0),
                         matchingMethodsReturnType.get(0),
