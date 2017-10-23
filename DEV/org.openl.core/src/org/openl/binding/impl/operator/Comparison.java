@@ -1,7 +1,6 @@
 package org.openl.binding.impl.operator;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 /**
  * Contains comparison operators for:
@@ -25,6 +24,10 @@ import java.math.BigInteger;
  * @author Yury Molchan
  */
 public class Comparison {
+
+    private static final BigDecimal HALF = new BigDecimal("0.5");
+    private static final BigDecimal MAX_ULP = new BigDecimal("0.01");
+
     // Equals
     public static boolean eq(boolean x, boolean y) {
         return x == y;
@@ -65,7 +68,24 @@ public class Comparison {
     }
 
     public static boolean eq(BigDecimal x, BigDecimal y) {
-        return x == null && y == null || x != null && y != null && x.subtract(y).abs().compareTo(x.ulp()) <= 0;
+        if (x != null && y != null) {
+            BigDecimal xUlp = x.ulp();
+            BigDecimal yUlp = y.ulp();
+            BigDecimal ulp;
+            if (xUlp.compareTo(yUlp) > 0) {
+                ulp = xUlp;
+            } else {
+                ulp = yUlp;
+            }
+            if (MAX_ULP.compareTo(ulp) < 0) {
+                ulp = MAX_ULP;
+            }
+            ulp = ulp.multiply(HALF);
+
+            return x.subtract(y).abs().compareTo(ulp) < 0;
+        } else {
+            return x == null && y == null;
+        }
     }
 
     public static <T> boolean eq(T x, T y) {

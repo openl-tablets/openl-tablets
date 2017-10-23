@@ -2551,7 +2551,7 @@ public class RulesUtilsTest {
                 new BigDecimalValue("1.9"), new BigDecimalValue("-0.1")};
         BigDecimalValue[] nullArray = null;
         BigDecimalValue[] expectedArray = {new BigDecimalValue("-0.1"),
-                new BigDecimalValue("1.9"), new BigDecimalValue("2.2")};
+                new BigDecimalValue("1.9"), new BigDecimalValue("2.3")};
 
         assertNull(BigDecimalValue.sort(nullArray));
         assertArrayEquals(expectedArray,

@@ -4,6 +4,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.math.BigDecimal;
+
 import org.junit.Test;
 
 public class ComparisonTest {
@@ -552,5 +554,82 @@ public class ComparisonTest {
         assertTrue(Comparison.le(nil, nil));
         assertNull(Comparison.le(pos, nil));
         assertNull(Comparison.le(nil, pos));
+    }
+
+    @Test
+    public void testBigDecimalEq() {
+        final BigDecimal inf_pos = BigDecimal.valueOf(Long.MAX_VALUE);
+        final BigDecimal inf_neg = BigDecimal.valueOf(Long.MIN_VALUE);
+        final BigDecimal nil = null;
+        final BigDecimal pos = BigDecimal.ONE;
+        final BigDecimal neg = pos.negate();
+
+        assertTrue(Comparison.eq(pos, pos));
+        assertFalse(Comparison.eq(pos, neg));
+        assertFalse(Comparison.eq(neg, pos));
+        assertTrue(Comparison.eq(neg, neg));
+        assertTrue(Comparison.eq(inf_pos, inf_pos));
+        assertTrue(Comparison.eq(inf_neg, inf_neg));
+        assertFalse(Comparison.eq(inf_pos, inf_neg));
+        assertFalse(Comparison.eq(inf_neg, inf_pos));
+        assertFalse(Comparison.eq(pos, inf_pos));
+        assertFalse(Comparison.eq(inf_pos, pos));
+        assertFalse(Comparison.eq(pos, inf_neg));
+        assertFalse(Comparison.eq(inf_neg, pos));
+        assertTrue(Comparison.eq(nil, nil));
+        assertFalse(Comparison.eq(pos, nil));
+        assertFalse(Comparison.eq(nil, pos));
+    }
+
+    @Test
+    public void testBigDecimalEqUlp() {
+        final BigDecimal zero = BigDecimal.ZERO;
+        final BigDecimal a = new BigDecimal("0.0050");
+        final BigDecimal b = new BigDecimal("0.005");
+        final BigDecimal c = new BigDecimal("0.0049");
+        final BigDecimal ma = a.negate();
+        final BigDecimal mb = b.negate();
+        final BigDecimal mc = c.negate();
+        final BigDecimal b2 = new BigDecimal("0.05");
+        final BigDecimal c2 = new BigDecimal("0.049");
+
+        final BigDecimal b3 = new BigDecimal("0.5");
+        final BigDecimal c3 = new BigDecimal("0.49");
+
+        assertTrue(Comparison.eq(a, b)); // precision is 0.0005
+        assertTrue(Comparison.eq(b, a));
+        assertTrue(Comparison.eq(ma, mb));
+        assertTrue(Comparison.eq(mb, ma));
+
+        assertTrue(Comparison.eq(b, c)); // precision is 0.0005
+        assertTrue(Comparison.eq(c, b));
+        assertTrue(Comparison.eq(mb, mc));
+        assertTrue(Comparison.eq(mc, mb));
+
+        assertFalse(Comparison.eq(a, c)); // precision is 0.00005
+        assertFalse(Comparison.eq(c, a));
+        assertFalse(Comparison.eq(ma, mc));
+        assertFalse(Comparison.eq(mc, ma));
+
+        assertFalse(Comparison.eq(a, zero)); // precision is 0.005
+        assertFalse(Comparison.eq(zero, a));
+        assertFalse(Comparison.eq(ma, zero));
+        assertFalse(Comparison.eq(zero, ma));
+
+        assertFalse(Comparison.eq(b, zero)); // precision is 0.005
+        assertFalse(Comparison.eq(zero, b));
+        assertFalse(Comparison.eq(mb, zero));
+        assertFalse(Comparison.eq(zero, mb));
+
+        assertTrue(Comparison.eq(c, zero)); // precision is 0.005
+        assertTrue(Comparison.eq(zero, c));
+        assertTrue(Comparison.eq(mc, zero));
+        assertTrue(Comparison.eq(zero, mc));
+
+        assertTrue(Comparison.eq(b2, c2)); // precision is 0.005
+        assertTrue(Comparison.eq(c2, b2));
+
+        assertFalse(Comparison.eq(b3, c3));// precision is 0.005
+        assertFalse(Comparison.eq(c3, b3));
     }
 }
