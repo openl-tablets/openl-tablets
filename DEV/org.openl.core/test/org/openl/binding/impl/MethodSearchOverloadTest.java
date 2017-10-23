@@ -73,7 +73,7 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
         assertMethod(target, "m0_Boxed", nonNumbers, NF, "Integer", NF, "Integer");
         assertMethod(target, "m0_Boxed", valued, NF, NF, NF, NF, NF, NF, NF, NF);
 
-        assertMethod(target, "m0_mixed", primitives, "int", "Short", "int", "float", "float", "BigDecimal");
+        assertMethod(target, "m0_mixed", primitives, "int", "int", "int", "float", "float", "BigDecimal");
         assertMethod(target,
             "m0_mixed",
             boxed,

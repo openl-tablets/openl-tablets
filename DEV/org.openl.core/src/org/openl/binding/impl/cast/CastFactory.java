@@ -37,11 +37,12 @@ public class CastFactory implements ICastFactory {
     public static final int ALIAS_TO_TYPE_CAST_DISTANCE = 0;
     public static final int TYPE_ALIAS_CAST_DISTANCE = 1;
     public static final int JAVA_UP_CAST_DISTANCE = 2;
-    public static final int JAVA_BOXING_CAST_DISTANCE = 3;
     
-    public static final int THROWABLE_VOID_CAST_DISTANCE = 5;
+    public static final int THROWABLE_VOID_CAST_DISTANCE = 3;
         
-    public static final int PRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 6;
+    public static final int PRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 4;
+    public static final int JAVA_BOXING_CAST_DISTANCE = 5;
+    
     public static final int PRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 7;
     public static final int JAVA_BOXING_UP_CAST_DISTANCE = 8;
     public static final int JAVA_UNBOXING_CAST_DISTANCE = 9;
