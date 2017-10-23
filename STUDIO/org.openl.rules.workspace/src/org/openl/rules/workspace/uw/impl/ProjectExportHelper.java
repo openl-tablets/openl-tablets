@@ -39,7 +39,7 @@ public final class ProjectExportHelper {
         }
     }
 
-    protected static void packDir(ZipOutputStream zipOutputStream, AProjectFolder dir, String path) throws IOException, ProjectException {
+    protected static void packDir(ZipOutputStream zipOutputStream, AProjectFolder dir) throws IOException, ProjectException {
         Collection<AProjectArtefact> artefacts = dir.getArtefacts();
         if (artefacts.isEmpty()) {
             return;
@@ -48,9 +48,9 @@ public final class ProjectExportHelper {
         for (AProjectArtefact artefact : artefacts) {
             if (artefact.isFolder()) {
                 // Create zip entry for the folder even if it's empty, but don't add root folder to the zip
-                ZipEntry entry = new ZipEntry(path + artefact.getName() + "/");
+                ZipEntry entry = new ZipEntry(artefact.getInternalPath() + "/");
                 zipOutputStream.putNextEntry(entry);
-                packDir(zipOutputStream, (AProjectFolder) artefact, path + artefact.getName() + "/");
+                packDir(zipOutputStream, (AProjectFolder) artefact);
             } else {
                 packFile(zipOutputStream, (AProjectResource) artefact);
             }
@@ -84,7 +84,7 @@ public final class ProjectExportHelper {
             zipOutputStream.setLevel(9);
             zipOutputStream.setComment(zipComment);
 
-            packDir(zipOutputStream, (AProjectFolder) rootDir, "");
+            packDir(zipOutputStream, (AProjectFolder) rootDir);
         } finally {
             if (zipOutputStream != null) {
                 zipOutputStream.close();
