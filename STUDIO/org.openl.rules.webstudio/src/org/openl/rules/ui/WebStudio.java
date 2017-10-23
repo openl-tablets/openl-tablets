@@ -477,8 +477,10 @@ public class WebStudio {
             RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession(FacesUtils.getSession());
             LocalRepository repository = rulesUserSession.getUserWorkspace().getLocalWorkspace().getRepository();
 
+            File projectFolder = getCurrentProjectDescriptor().getProjectFolder();
+            String relativePath = getRelativePath(projectFolder, sourceFile);
             FileData data = new FileData();
-            data.setName(getCurrentProjectDescriptor().getProjectFolder().getName() + "/" + sourceFile.getName());
+            data.setName(projectFolder.getName() + "/" + relativePath);
             repository.save(data, stream);
 
             historyListener.afterSave(sourceFile);
