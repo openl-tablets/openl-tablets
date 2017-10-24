@@ -3,6 +3,7 @@ package org.openl.rules.tbasic;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.TableParserSpecificationBean.ValueNecessity;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 
@@ -28,12 +29,20 @@ public class RowParser implements IRowParser {
         this.specifications = specifications;
     }
 
-    private void checkRowValue(String columnName, StringValue columnValue, ValueNecessity columnNecessity)
+    private void checkRowValue(StringValue operation, String columnName, StringValue columnValue, ValueNecessity columnNecessity)
             throws SyntaxNodeException {
 
         if (columnNecessity == ValueNecessity.REQUIRED && columnValue.isEmpty()) {
-            String errMsg = String.format("Operation must have value in %s!", columnName);
-            throw SyntaxNodeExceptionUtils.createError(errMsg, columnValue.asSourceCodeModule());
+            IOpenSourceCodeModule source = columnValue.asSourceCodeModule();
+            if (source.getUri() == null) {
+                // Column <columnName> is absent. Point to <operation> cell instead.
+                String errMsg = String.format("%s is required for operation \"%s\"!", columnName, operation);
+                throw SyntaxNodeExceptionUtils.createError(errMsg, operation.asSourceCodeModule());
+            } else {
+                // Column <columnName> exists but still is empty. Point to empty <columnValue> cell.
+                String errMsg = String.format("Operation must have value in %s!", columnName);
+                throw SyntaxNodeExceptionUtils.createError(errMsg, source);
+            }
         }
 
         if (columnNecessity == ValueNecessity.PROHIBITED && !columnValue.isEmpty()) {
@@ -194,10 +203,10 @@ public class RowParser implements IRowParser {
             throw SyntaxNodeExceptionUtils.createError(errMsg, row.getLabel().asSourceCodeModule());
         }
 
-        checkRowValue(CONDITION, row.getCondition(), spec.getCondition());
-        checkRowValue(ACTION, row.getAction(), spec.getAction());
-        checkRowValue(BEFORE, row.getBefore(), spec.getBeforeAndAfter());
-        checkRowValue(AFTER, row.getAfter(), spec.getBeforeAndAfter());
+        checkRowValue(operation, CONDITION, row.getCondition(), spec.getCondition());
+        checkRowValue(operation, ACTION, row.getAction(), spec.getAction());
+        checkRowValue(operation, BEFORE, row.getBefore(), spec.getBeforeAndAfter());
+        checkRowValue(operation, AFTER, row.getAfter(), spec.getBeforeAndAfter());
 
         // check Top Level
         int indent = row.getOperationLevel();
