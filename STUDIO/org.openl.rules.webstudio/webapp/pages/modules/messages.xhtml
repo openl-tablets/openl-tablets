@@ -22,17 +22,17 @@
                 summary.innerHTML = summary.innerHTML.replace(/&amp;lt;br&amp;gt;/ig, '&lt;br/&gt;');
             </script>
 
-            <h:panelGroup rendered="#{not empty messagesBean.errorCode}">
-                <br />
-                <br />
-
+            <h:panelGroup rendered="#{messagesBean.hasLinkToCell}">
                 <ui:param name="linkTitle" value="#{msg[message.severity == 'ERROR' ? 'ws.table.error.edit' : (message.severity == 'WARN' ? 'ws.table.warning.edit' : 'ws.table.info.edit')]}"/>
 
-                <span class="code">
+                <h:panelGroup rendered="#{not empty messagesBean.errorCode}" styleClass="code">
+                    <br />
+                    <br />
+
                     <h:outputText value="#{messagesBean.errorCode[0]}" />
                     <h:outputText value=" #{messagesBean.errorCode[1]}" styleClass="codeerror" />
                     <h:outputText value=" #{messagesBean.errorCode[2]}" />
-                </span>
+                </h:panelGroup>
 
                 <h:panelGroup rendered="#{editable}">
                     <h:outputLink title="#{linkTitle}" value="#{studio.url('table')}"

@@ -12,6 +12,7 @@ import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.util.StringUtils;
 import org.openl.util.text.ILocation;
@@ -63,6 +64,26 @@ public class MessagesBean {
         return getErrorCode(location, module);
     }
 
+    public boolean isHasLinkToCell() {
+        OpenLMessage message = (OpenLMessage) messages.getRowData();
+
+        IOpenSourceCodeModule module = null;
+        String code = null;
+        if (message instanceof OpenLErrorMessage) {
+            OpenLException error = ((OpenLErrorMessage) message).getError();
+            module = error.getSourceModule();
+            code = module.getCode();
+        } else if (message instanceof OpenLWarnMessage) {
+            ISyntaxNode source = ((OpenLWarnMessage) message).getSource();
+            module = source.getModule();
+            code = module.getCode();
+        }
+
+        // Support the case when cell with error is empty (code == ""). See example in EPBDS-2481 (need to add column Condition).
+        // But error message containing link to table entirely must not show "Edit cell containing error" link.
+        return getErrorUri() != null && (StringUtils.isNotBlank(code) || module instanceof StringSourceCodeModule);
+    }
+
     public String getTableId() {
         String errorUri = getErrorUri();
 
@@ -73,6 +94,9 @@ public class MessagesBean {
 
     public String getErrorCell() {
         String errorUri = getErrorUri();
+        if (errorUri == null) {
+            return null;
+        }
 
         XlsUrlParser uriParser = new XlsUrlParser();
         uriParser.parse(errorUri);
