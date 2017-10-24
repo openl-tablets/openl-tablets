@@ -22,13 +22,13 @@
                 <rich:column>
                   <h:outputText value="Name" />
                 </rich:column>
-                <rich:column>
+                <rich:column rendered="#{node.type == 'proddeployment'}">
                   <h:outputText value="Revision" />
                 </rich:column>
-                <rich:column>
+                <rich:column rendered="#{node.type == 'proddeployment'}">
                   <h:outputText value="Modified By" />
                 </rich:column>
-                <rich:column>
+                <rich:column rendered="#{node.type == 'proddeployment'}">
                   <h:outputText value="Modified At" />
                 </rich:column>
               </rich:columnGroup>
@@ -39,13 +39,13 @@
                   <f:param name="projectName" value="#{prj.name}" />
                 </h:commandLink>
               </rich:column>
-              <rich:column style="text-align:center">
+              <rich:column rendered="#{node.type == 'proddeployment'}" style="text-align:center">
                 <h:outputText value="#{prj.data.version.versionName}" />
               </rich:column>
-              <rich:column style="text-align:center">
+              <rich:column rendered="#{node.type == 'proddeployment'}" style="text-align:center">
                 <h:outputText value="#{prj.modifiedBy}" />
               </rich:column>
-              <rich:column style="text-align:center">
+              <rich:column rendered="#{node.type == 'proddeployment'}" style="text-align:center">
                 <h:outputText value="#{prj.modifiedAt}">
                     <f:convertDateTime type="date" pattern="#{systemConfig['data.format.date']}" />
                 </h:outputText>
