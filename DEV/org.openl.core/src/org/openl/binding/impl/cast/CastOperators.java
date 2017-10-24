@@ -127,7 +127,7 @@ public class CastOperators {
     }
 
     public static double autocast(float x, double y) {
-        return x;
+        return Double.valueOf(Float.toString(x));
     }
 
     public static BigDecimal autocast(float x, BigDecimal y) {
