@@ -418,8 +418,21 @@ public class WebStudio {
 
     public synchronized void init(String projectName, String moduleName) {
         try {
+            log.debug("Project='{}'  Module='{}'", projectName, moduleName);
             ProjectDescriptor project = getProjectByName(projectName);
+            if (StringUtils.isNotBlank(projectName) && project == null) {
+                // Not empty project name is requested but it's not found
+                FacesUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
+                FacesUtils.getFacesContext().responseComplete();
+                return;
+            }
             Module module = getModule(project, moduleName);
+            if (StringUtils.isNotBlank(moduleName) && module == null) {
+                // Not empty module name is requested but it's not found
+                FacesUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
+                FacesUtils.getFacesContext().responseComplete();
+                return;
+            }
             boolean moduleChanged = currentProject != project || currentModule != module;
             currentModule = module;
             currentProject = project;
