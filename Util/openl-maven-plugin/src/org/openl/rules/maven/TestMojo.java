@@ -290,7 +290,7 @@ public final class TestMojo extends BaseOpenLMojo {
                 if (cause == null) {
                     cause = e;
                 }
-                summaryErrors.add(modulePrefix + test.getName() + cause.getClass().getName());
+                summaryErrors.add(modulePrefix + test.getName() + " " + cause.getClass().getName());
             }
         }
 
