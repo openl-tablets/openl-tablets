@@ -455,7 +455,9 @@ public class WebStudio {
                 manualCompile = false;
             }
         } catch (Exception e) {
-            log.warn("Failed initialization. Project='{}'  Module='{}'", projectName, moduleName, e);
+            log.error("Failed initialization. Project='{}'  Module='{}'", projectName, moduleName, e);
+            FacesUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            FacesUtils.getFacesContext().responseComplete();
         }
     }
 
