@@ -177,7 +177,6 @@ public class TestDescription {
                 end = System.nanoTime();
             } catch (Throwable t) {
                 end = System.nanoTime();
-                Log.error("Testing " + this, t);
                 exception = t;
             } finally {
                 env.setContext(oldContext);
