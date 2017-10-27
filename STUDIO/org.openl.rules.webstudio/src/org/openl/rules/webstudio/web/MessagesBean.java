@@ -72,10 +72,11 @@ public class MessagesBean {
         if (message instanceof OpenLErrorMessage) {
             OpenLException error = ((OpenLErrorMessage) message).getError();
             module = error.getSourceModule();
-            code = module.getCode();
         } else if (message instanceof OpenLWarnMessage) {
             ISyntaxNode source = ((OpenLWarnMessage) message).getSource();
             module = source.getModule();
+        }
+        if (module != null) {
             code = module.getCode();
         }
 
