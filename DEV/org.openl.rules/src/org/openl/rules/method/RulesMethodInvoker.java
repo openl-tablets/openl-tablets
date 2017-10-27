@@ -1,7 +1,7 @@
 package org.openl.rules.method;
 
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
 
@@ -22,8 +22,12 @@ public abstract class RulesMethodInvoker<T extends ExecutableRulesMethod> implem
         // check if the object can be invoked
         if (!canInvoke()) {
             // object can`t be invoked, inform user about the problem.
-            SyntaxNodeException cause = getInvokableMethod().getSyntaxNode().getErrors()[0];
-            throw new OpenLRuntimeException(cause);
+            TableSyntaxNode syntaxNode = getInvokableMethod().getSyntaxNode();
+            if (syntaxNode != null) {
+                throw new OpenLRuntimeException(syntaxNode.getErrors()[0]);
+            } else {
+                throw new OpenLRuntimeException("Method can't be invoked");
+            }
         } else {
             // simple run invoke
             return invokeSimple(target, params, env);
