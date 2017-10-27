@@ -2,6 +2,8 @@ package org.openl.rules.project.impl.local;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.util.FileUtils;
@@ -73,8 +75,10 @@ class PropertiesEngine {
             File projectFolder = new File(root, path.split("/")[0]);
             return new File(projectFolder, FolderHelper.PROPERTIES_FOLDER);
         } else {
-            String rootAbsolutePath = root.getAbsolutePath();
-            return getPropertiesFolder(path.substring(rootAbsolutePath.length() + 1));
+            Path base = Paths.get(root.getAbsolutePath()).normalize();
+            Path pathAbsolute = Paths.get(path).normalize();
+            String relativePath = base.relativize(pathAbsolute).toString();
+            return getPropertiesFolder(relativePath);
         }
     }
 
