@@ -7,8 +7,11 @@ import java.nio.file.Paths;
 
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.util.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class PropertiesEngine {
+    private final Logger log = LoggerFactory.getLogger(PropertiesEngine.class);
     private final File root;
 
     PropertiesEngine(File root) {
@@ -75,9 +78,19 @@ class PropertiesEngine {
             File projectFolder = new File(root, path.split("/")[0]);
             return new File(projectFolder, FolderHelper.PROPERTIES_FOLDER);
         } else {
-            Path base = Paths.get(root.getAbsolutePath()).normalize();
-            Path pathAbsolute = Paths.get(path).normalize();
+            log.debug("Base: {}", root.getAbsolutePath());
+            log.debug("File path: {}", path);
+
+            Path base;
+            Path pathAbsolute;
+            try {
+                base = Paths.get(root.getAbsolutePath()).toRealPath();
+                pathAbsolute = Paths.get(path).toRealPath();
+            } catch (IOException e) {
+                throw new IllegalStateException("Can't determine properties folder: " + e.getMessage(), e);
+            }
             String relativePath = base.relativize(pathAbsolute).toString();
+            log.debug("Relative: {}", relativePath);
             return getPropertiesFolder(relativePath);
         }
     }
