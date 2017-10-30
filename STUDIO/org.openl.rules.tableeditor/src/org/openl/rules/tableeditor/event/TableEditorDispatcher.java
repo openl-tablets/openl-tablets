@@ -32,7 +32,7 @@ public class TableEditorDispatcher implements PhaseListener {
         HttpServletResponse response = (HttpServletResponse) extContext.getResponse();
 
         String uri = request.getRequestURI();
-        if (uri.indexOf(Constants.TABLE_EDITOR_PATTERN) > -1) {
+        if (uri.contains(Constants.TABLE_EDITOR_PATTERN)) {
             String path = uri.substring(uri
                     .indexOf(Constants.TABLE_EDITOR_PATTERN)
                     + Constants.TABLE_EDITOR_PATTERN.length());
@@ -86,7 +86,7 @@ public class TableEditorDispatcher implements PhaseListener {
             }
             OutputStream out = response.getOutputStream();
             byte buffer[] = new byte[2048];
-            int read = 0;
+            int read;
             for (read = bis.read(buffer); read != -1; read = bis.read(buffer)) {
                 out.write(buffer, 0, read);
             }
@@ -109,9 +109,7 @@ public class TableEditorDispatcher implements PhaseListener {
         if (pos >= 0) {
             request = request.substring(0, pos);
         }
-        return new StringBuilder("#{").append(
-                Constants.TABLE_EDITOR_CONTROLLER_NAME).append(".").append(
-                request).append('}').toString();
+        return "#{" + Constants.TABLE_EDITOR_CONTROLLER_NAME + "." + request + '}';
     }
 
     public PhaseId getPhaseId() {
