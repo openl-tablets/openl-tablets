@@ -46,7 +46,7 @@ public class TableEditorDispatcher implements PhaseListener {
 
     private void handleAjaxRequest(FacesContext context, HttpServletResponse response, String path) {
         try {
-            String methodExpressionString = makeMehtodExpressionString(path.replaceFirst(AJAX_MATCH, ""));
+            String methodExpressionString = makeMethodExpressionString(path.replaceFirst(AJAX_MATCH, ""));
             String res = (String) FacesUtils.invokeMethodExpression(methodExpressionString);
 
             response.setHeader("Pragma", "no-cache");
@@ -104,7 +104,7 @@ public class TableEditorDispatcher implements PhaseListener {
         }
     }
 
-    private String makeMehtodExpressionString(String request) {
+    private String makeMethodExpressionString(String request) {
         int pos = request.indexOf('?');
         if (pos >= 0) {
             request = request.substring(0, pos);
