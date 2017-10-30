@@ -8,6 +8,7 @@ import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.formatters.FormulaFormatter;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -25,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Date;
 
 /**
  * Table editor controller.
@@ -125,6 +127,9 @@ public class TableEditorController extends BaseTableEditorController {
             value = "=" + cell.getFormula();
         } else if (CellMetaInfo.isCellContainsNodeUsages(cell)) {
             value = cell.getStringValue();
+        } else if (editorType.equals(ICellEditor.CE_DATE)) {
+            // Format must be same as in DateEditor.js
+            value = FormattersManager.format(cell.getObjectValue());
         }
         return value;
     }
@@ -268,6 +273,13 @@ public class TableEditorController extends BaseTableEditorController {
         } else if (ICellEditor.CE_TEXT.equals(cellEditor)
                 || ICellEditor.CE_MULTILINE.equals(cellEditor)) {
             formatter = new DefaultFormatter();
+        } else if (cellEditor == null) {
+            // Format must be same as in DateEditor.js
+            ICell cell = editorModel.getOriginalGridTable().getCell(col, row);
+            ICellEditor editor = new CellEditorSelector().selectEditor(cell);
+            if (ICellEditor.CE_DATE.equals(editor.getEditorTypeAndMetadata().getEditor())) {
+                return FormattersManager.getFormatter(Date.class);
+            }
         }
 
         return formatter;
