@@ -7,7 +7,10 @@
 package org.openl.binding.impl.cast;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -20,6 +23,7 @@ import org.openl.cache.GenericKey;
 import org.openl.ie.constrainer.ConstrainerObject;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
@@ -31,25 +35,25 @@ import org.openl.util.ClassUtils;
  * 
  * @author snshor, Yury Molchan, Marat Kamalov
  */
-public class CastFactory implements ICastFactory {
+public class CastFactory implements ICastFactory { 
 
     public static final int NO_CAST_DISTANCE = 0;
     public static final int ALIAS_TO_TYPE_CAST_DISTANCE = 0;
     public static final int TYPE_ALIAS_CAST_DISTANCE = 1;
     public static final int JAVA_UP_CAST_DISTANCE = 2;
-    
+
     public static final int THROWABLE_VOID_CAST_DISTANCE = 3;
-        
+
     public static final int PRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 4;
     public static final int JAVA_BOXING_CAST_DISTANCE = 5;
-    
+
     public static final int PRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 7;
     public static final int JAVA_BOXING_UP_CAST_DISTANCE = 8;
     public static final int JAVA_UNBOXING_CAST_DISTANCE = 9;
     public static final int NONPRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 10;
-    
+
     public static final int ENUM_TO_STRING_CAST_DISTANCE = 11;
-    
+
     public static final int NONPRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 12;
 
     public static final int JAVA_DOWN_CAST_DISTANCE = 30;
@@ -58,9 +62,9 @@ public class CastFactory implements ICastFactory {
     public static final int NONPRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE = 33;
     public static final int PRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE = 34;
 
-    private static final String AUTO_CAST_METHOD_NAME = "autocast";
-    private static final String CAST_METHOD_NAME = "cast";
-    private static final String DISTANCE_METHOD_NAME = "distance";
+    public static final String AUTO_CAST_METHOD_NAME = "autocast";
+    public static final String CAST_METHOD_NAME = "cast";
+    public static final String DISTANCE_METHOD_NAME = "distance";
 
     /**
      * The several predefined cast operations what are used for type conversion
@@ -96,6 +100,63 @@ public class CastFactory implements ICastFactory {
 
     public void setMethodFactory(IMethodFactory factory) {
         methodFactory = factory;
+    }
+
+    @Override
+    public IOpenClass getImplicitCastableClass(IOpenClass openClass1, IOpenClass openClass2) {
+        Iterable<IOpenMethod> autocastMethods = methodFactory.methods(AUTO_CAST_METHOD_NAME);
+        return getImplicitCastableClass(openClass1, openClass2, this, autocastMethods);
+    }
+
+    public static IOpenClass getImplicitCastableClass(IOpenClass openClass1,
+            IOpenClass openClass2, ICastFactory casts,
+            Iterable<IOpenMethod> autocastMethods) {
+        Iterator<IOpenMethod> itr = autocastMethods.iterator();
+        Set<IOpenClass> openClass1Candidates = new HashSet<>();
+        Set<IOpenClass> openClass2Candidates = new HashSet<>();
+        while (itr.hasNext()) {
+            IOpenMethod method = itr.next();
+            if (method.getSignature().getNumberOfParameters() == 2) {
+                if (method.getSignature().getParameterType(0).equals(openClass1)) {
+                    openClass1Candidates.add(method.getSignature().getParameterType(1));
+                } else {
+                    if (method.getSignature().getParameterType(0).getInstanceClass().isPrimitive()) {
+                        IOpenClass t = JavaOpenClass.getOpenClass(ClassUtils
+                            .primitiveToWrapper(method.getSignature().getParameterType(0).getInstanceClass()));
+                        if (t.equals(openClass1)) {
+                            openClass1Candidates.add(method.getSignature().getParameterType(1));
+                        }
+                    }
+                }
+                if (method.getSignature().getParameterType(0).equals(openClass2)) {
+                    openClass2Candidates.add(method.getSignature().getParameterType(1));
+                } else {
+                    if (method.getSignature().getParameterType(0).getInstanceClass().isPrimitive()) {
+                        IOpenClass t = JavaOpenClass.getOpenClass(ClassUtils
+                            .primitiveToWrapper(method.getSignature().getParameterType(0).getInstanceClass()));
+                        if (t.equals(openClass2)) {
+                            openClass2Candidates.add(method.getSignature().getParameterType(1));
+                        }
+                    }
+                }
+            }
+        }
+        openClass1Candidates.retainAll(openClass2Candidates);
+        IOpenClass ret = null;
+        for (IOpenClass openClass : openClass1Candidates) {
+            if (ret == null) {
+                ret = openClass;
+            } else {
+                IOpenCast cast = casts.getCast(ret, openClass);
+                if (cast == null || !cast.isImplicit()) {
+                    cast = casts.getCast(openClass, ret);
+                    if (cast != null && cast.isImplicit()) {
+                        ret = openClass;
+                    }
+                }
+            }
+        }
+        return ret;
     }
 
     /**
@@ -612,5 +673,9 @@ public class CastFactory implements ICastFactory {
         }
 
         return false;
+    }
+    
+    public IMethodFactory getMethodFactory() {
+        return methodFactory;
     }
 }

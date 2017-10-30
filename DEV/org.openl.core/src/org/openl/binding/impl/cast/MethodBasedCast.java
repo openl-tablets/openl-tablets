@@ -40,8 +40,6 @@ public class MethodBasedCast implements IOpenCast {
         return distance;
     }
     
-    
-    
     /*
      * (non-Javadoc)
      *

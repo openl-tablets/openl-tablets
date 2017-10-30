@@ -174,6 +174,13 @@ public class BindingContext implements IBindingContext {
 
 		return binder.getCastFactory().getCast(from, to);
 	}
+	
+	@Override
+	public IOpenClass getImplicitCastableClass(IOpenClass openClass1, IOpenClass openClass2) {
+	    
+	    return binder.getCastFactory().getImplicitCastableClass(openClass1, openClass2);
+	    
+	}
 
 	static final SyntaxNodeException[] NO_ERRORS = {};
 

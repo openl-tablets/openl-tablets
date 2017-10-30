@@ -35,14 +35,14 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     protected IBindingContext delegate;
 
     public String getContextProperty(String name) {
-		return delegate.getContextProperty(name);
-	}
+        return delegate.getContextProperty(name);
+    }
 
-	public void setContextProperty(String name, String value) {
-		delegate.setContextProperty(name, value);
-	}
+    public void setContextProperty(String name, String value) {
+        delegate.setContextProperty(name, value);
+    }
 
-	public BindingContextDelegator(IBindingContext delegate) {
+    public BindingContextDelegator(IBindingContext delegate) {
         this.delegate = delegate;
     }
 
@@ -50,9 +50,9 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         delegate.addAlias(name, value);
     }
 
-    public IOpenField findRange(String namespace, String rangeStartName, String rangeEndName) throws AmbiguousVarException,
-                                                                                             FieldNotFoundException,
-                                                                                             OpenLCompilationException {
+    public IOpenField findRange(String namespace,
+            String rangeStartName,
+            String rangeEndName) throws AmbiguousVarException, FieldNotFoundException, OpenLCompilationException {
         return delegate.findRange(namespace, rangeStartName, rangeEndName);
     }
 
@@ -80,7 +80,9 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         return delegate.findFieldFor(type, fieldName, strictMatch);
     }
 
-    public IMethodCaller findMethodCaller(String namespace, String name, IOpenClass[] parTypes) throws AmbiguousMethodException {
+    public IMethodCaller findMethodCaller(String namespace,
+            String name,
+            IOpenClass[] parTypes) throws AmbiguousMethodException {
         return delegate.findMethodCaller(namespace, name, parTypes);
     }
 
@@ -98,6 +100,11 @@ public class BindingContextDelegator implements IBindingContextDelegator {
 
     public IOpenCast getCast(IOpenClass from, IOpenClass to) {
         return delegate.getCast(from, to);
+    }
+
+    @Override
+    public IOpenClass getImplicitCastableClass(IOpenClass openClass1, IOpenClass openClass2) {
+        return delegate.getImplicitCastableClass(openClass1, openClass2);
     }
 
     public IBindingContext getDelegate() {
@@ -155,9 +162,8 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.openl.binding.IBindingContextDelegator#setTopDelegate(org.openl.binding
-     * .IBindingContext)
+     * @see org.openl.binding.IBindingContextDelegator#setTopDelegate(org.openl.
+     * binding .IBindingContext)
      */
     public void setTopDelegate(IBindingContext delegate) {
         if (this.delegate == null) {

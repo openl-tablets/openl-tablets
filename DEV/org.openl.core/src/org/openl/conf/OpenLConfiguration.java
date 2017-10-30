@@ -34,7 +34,7 @@ import org.openl.types.impl.MethodKey;
  *
  */
 public class OpenLConfiguration implements IOpenLConfiguration {
-    
+
     private static HashMap<Object, IOpenLConfiguration> configurations = new HashMap<Object, IOpenLConfiguration>();
 
     private String uri;
@@ -48,7 +48,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     private NodeBinderFactoryConfiguration binderFactory;
 
     private LibraryFactoryConfiguration methodFactory;
-    
+
     private TypeCastFactory typeCastFactory;
 
     private TypeFactoryConfiguration typeFactory;
@@ -68,8 +68,10 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     }
 
-    public static synchronized  void register(String name, IUserContext ucxt, IOpenLConfiguration oplc, boolean shared)
-            throws OpenConfigurationException {
+    public static synchronized void register(String name,
+            IUserContext ucxt,
+            IOpenLConfiguration oplc,
+            boolean shared) throws OpenConfigurationException {
         Object key;
 
         if (shared) {
@@ -86,7 +88,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     }
 
-    //FIXME: multithreading issue: users can reset foreign OpenL calculation
+    // FIXME: multithreading issue: users can reset foreign OpenL calculation
     public static void reset() {
         configurations = new HashMap<Object, IOpenLConfiguration>();
     }
@@ -114,7 +116,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         openFactories.put(opfc.getName(), opfc);
     }
 
-   public NodeBinderFactoryConfiguration getBinderFactory() {
+    public NodeBinderFactoryConfiguration getBinderFactory() {
         return binderFactory;
     }
 
@@ -122,7 +124,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
      * (non-Javadoc)
      *
      * @see org.openl.binding.ICastFactory#getCast(java.lang.String,
-     *      org.openl.types.IOpenClass, org.openl.types.IOpenClass)
+     * org.openl.types.IOpenClass, org.openl.types.IOpenClass)
      */
     public IOpenCast getCast(IOpenClass from, IOpenClass to) {
         IOpenCast cast = typeCastFactory == null ? null : typeCastFactory.getCast(from, to, configurationContext);
@@ -132,11 +134,22 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return parent == null ? null : parent.getCast(from, to);
     }
 
+    @Override
+    public IOpenClass getImplicitCastableClass(IOpenClass openClass1, IOpenClass openClass2) {
+        IOpenClass openClass = typeCastFactory == null ? null
+                                                       : typeCastFactory.getImplicitCastableClass(openClass1,
+                                                           openClass2,
+                                                           configurationContext);
+        if (openClass != null) {
+            return openClass;
+        }
+        return parent == null ? null : parent.getImplicitCastableClass(openClass1, openClass2);
+    }
+
     public IConfigurableResourceContext getConfigurationContext() {
         return configurationContext;
     }
 
-   
     public synchronized IGrammar getGrammar() throws OpenConfigurationException {
         if (grammarFactory == null) {
             return parent.getGrammar();
@@ -149,19 +162,19 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return grammarFactory;
     }
 
-    public IMethodCaller getMethodCaller(String namespace, String name, IOpenClass[] params, ICastFactory casts)
-            throws AmbiguousMethodException {
-        
+    public IMethodCaller getMethodCaller(String namespace,
+            String name,
+            IOpenClass[] params,
+            ICastFactory casts) throws AmbiguousMethodException {
+
         IOpenMethod[] mcs = getMethods(namespace, name);
 
         return MethodSearch.findMethod(name, params, casts, Arrays.asList(mcs));
     }
-    
+
     public IOpenMethod[] getMethods(String namespace, String name) {
         IOpenMethod[] mcs = methodFactory == null ? new IOpenMethod[] {}
-                                                    : methodFactory.getMethods(namespace,
-                                                        name,
-                                                        configurationContext);
+                                                  : methodFactory.getMethods(namespace, name, configurationContext);
         IOpenMethod[] pmcs = parent == null ? new IOpenMethod[] {} : parent.getMethods(namespace, name);
 
         // Shadowing
@@ -192,7 +205,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
             }
             callers.add(method);
         }
-        
+
         Collection<IOpenMethod> openMethods = new ArrayList<IOpenMethod>();
         for (Collection<IOpenMethod> m : methods.values()) {
             openMethods.addAll(m);
@@ -213,8 +226,8 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     }
 
     public IOpenFactory getOpenFactory(String name) {
-        OpenFactoryConfiguration conf = openFactories == null ? null : (OpenFactoryConfiguration) openFactories
-                .get(name);
+        OpenFactoryConfiguration conf = openFactories == null ? null
+                                                              : (OpenFactoryConfiguration) openFactories.get(name);
 
         if (conf != null) {
             return conf.getOpenFactory(configurationContext);
@@ -226,29 +239,29 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
         return null;
     }
-    
+
     Map<String, Map<String, IOpenClass>> cache = new HashMap<String, Map<String, IOpenClass>>();
 
     public IOpenClass getType(String namespace, String name) {
         Map<String, IOpenClass> namespaceCache = cache.get(namespace);
-        if (namespaceCache == null){
+        if (namespaceCache == null) {
             namespaceCache = new HashMap<String, IOpenClass>();
             cache.put(namespace, namespaceCache);
         }
-        if (namespaceCache.containsKey(name)){
+        if (namespaceCache.containsKey(name)) {
             return namespaceCache.get(name);
         }
-        
+
         IOpenClass type = typeFactory == null ? null : typeFactory.getType(namespace, name, configurationContext);
         if (type != null) {
             namespaceCache.put(name, type);
             return type;
         }
-        
-        if (parent == null){
+
+        if (parent == null) {
             namespaceCache.put(name, null);
             return null;
-        }else{
+        } else {
             type = parent.getType(namespace, name);
             namespaceCache.put(name, type);
             return type;
@@ -264,8 +277,9 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     }
 
     public IOpenField getVar(String namespace, String name, boolean strictMatch) {
-        IOpenField field = methodFactory == null ? null : methodFactory.getVar(namespace, name, configurationContext,
-                strictMatch);
+        IOpenField field = methodFactory == null ? null
+                                                 : methodFactory
+                                                     .getVar(namespace, name, configurationContext, strictMatch);
         if (field != null) {
             return field;
         }

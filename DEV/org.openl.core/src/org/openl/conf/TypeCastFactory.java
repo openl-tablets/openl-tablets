@@ -7,12 +7,14 @@
 package org.openl.conf;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.StaticClassLibrary;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -27,16 +29,19 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
 
         CastFactory factory = null;
 
-        public synchronized ICastFactory getCastFactory(IConfigurableResourceContext cxt) {
+        public synchronized CastFactory getCastFactory(IConfigurableResourceContext cxt) {
             if (factory == null) {
-                Class<?> libClass = ClassFactory.validateClassExistsAndPublic(libraryClassName,
-                    cxt.getClassLoader(),
-                    getUri());
-                Class<?> implClass = ClassFactory.validateClassExistsAndPublic(className,
-                    cxt.getClassLoader(),
-                    getUri());
+                Class<?> libClass = ClassFactory
+                    .validateClassExistsAndPublic(libraryClassName, cxt.getClassLoader(), getUri());
+                Class<?> implClass = ClassFactory
+                    .validateClassExistsAndPublic(className, cxt.getClassLoader(), getUri());
 
-                factory = (CastFactory) ClassFactory.newInstance(implClass, getUri());
+                factory = (CastFactory) ClassFactory.newInstance(implClass, getUri()); // Strange
+                                                                                       // reflection
+                                                                                       // logic
+                                                                                       // with
+                                                                                       // implementation
+                                                                                       // cast!
                 factory.setMethodFactory(new StaticClassLibrary(JavaOpenClass.getOpenClass(libClass)));
             }
             return factory;
@@ -94,6 +99,30 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
             }
         }
         return null;
+    }
+
+    public IOpenClass getImplicitCastableClass(IOpenClass openClass1,
+            IOpenClass openClass2,
+            final IConfigurableResourceContext cxt) {
+        Collection<IOpenMethod> allMethods = new ArrayList<>();
+        for (JavaCastComponent component : components) {
+            CastFactory castFactory = component.getCastFactory(cxt);
+            Iterable<IOpenMethod> methods = castFactory.getMethodFactory().methods(CastFactory.AUTO_CAST_METHOD_NAME);
+            for (IOpenMethod method : methods) {
+                allMethods.add(method);
+            }
+        }
+        return CastFactory.getImplicitCastableClass(openClass1, openClass2, new ICastFactory() {
+            @Override
+            public IOpenClass getImplicitCastableClass(IOpenClass openClass1, IOpenClass openClass2) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public IOpenCast getCast(IOpenClass from, IOpenClass to) {
+                return TypeCastFactory.this.getCast(from, to, cxt);
+            }
+        }, allMethods);
     }
 
     /*

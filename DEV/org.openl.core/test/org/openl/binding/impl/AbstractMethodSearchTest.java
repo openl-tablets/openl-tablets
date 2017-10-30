@@ -23,14 +23,30 @@ public abstract class AbstractMethodSearchTest {
     private static class Not {
         Object notExpected;
     }
+    
+    private static final String[] CAST_LIBRARY_NAMES = new String[]{
+            org.openl.binding.impl.cast.CastOperators.class.getName(),
+            org.openl.meta.ByteValue.class.getName(), 
+            org.openl.meta.ShortValue.class.getName(),
+            org.openl.meta.IntValue.class.getName(),  
+            org.openl.meta.LongValue.class.getName(), 
+            org.openl.meta.FloatValue.class.getName(),
+            org.openl.meta.DoubleValue.class.getName(),
+            org.openl.meta.StringValue.class.getName(),
+            org.openl.meta.ObjectValue.class.getName(),
+            org.openl.meta.BigIntegerValue.class.getName(),
+            org.openl.meta.BigDecimalValue.class.getName()};
 
     @BeforeClass
     public static void init() {
         TypeCastFactory typecast = new TypeCastFactory();
-        TypeCastFactory.JavaCastComponent javacast = new TypeCastFactory.JavaCastComponent();
-        javacast.setLibraryClassName(org.openl.binding.impl.cast.CastOperators.class.getName());
-        javacast.setClassName(org.openl.binding.impl.cast.CastFactory.class.getName());
-        typecast.addJavaCast(javacast);
+        for (String libName : CAST_LIBRARY_NAMES) {
+            TypeCastFactory.JavaCastComponent javacast = new TypeCastFactory.JavaCastComponent();
+            javacast.setLibraryClassName(libName);
+            javacast.setClassName(org.openl.binding.impl.cast.CastFactory.class.getName());
+            typecast.addJavaCast(javacast);
+        }        
+        
         OpenLConfiguration openLConfiguration = new OpenLConfiguration();
         openLConfiguration.setTypeCastFactory(typecast);
         openLConfiguration.setConfigurationContext(new ConfigurableResourceContext(null));

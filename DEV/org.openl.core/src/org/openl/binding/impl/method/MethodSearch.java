@@ -85,7 +85,17 @@ public class MethodSearch {
                         IOpenCast cast1 = casts.getCast(existedType, t);
                         IOpenCast cast2 = casts.getCast(t, existedType);
                         if ((cast1 == null || !cast1.isImplicit()) && (cast2 == null || !cast2.isImplicit())) {
-                            return NO_MATCH;
+                            IOpenClass clazz = casts.getImplicitCastableClass(t, existedType);
+                            if (clazz != null && clazz.getInstanceClass() != null && clazz.getInstanceClass()
+                                .isPrimitive()) {
+                                clazz = JavaOpenClass
+                                    .getOpenClass(ClassUtils.primitiveToWrapper(clazz.getInstanceClass()));
+                            }
+                            if (clazz != null) {
+                                m.put(typeNames[i], clazz);
+                            } else {
+                                return NO_MATCH;
+                            }
                         } else if ((cast1 == null || !cast1.isImplicit())) {
                         } else if ((cast2 == null || !cast2.isImplicit())) {
                             m.put(typeNames[i], t);
