@@ -418,8 +418,21 @@ public class WebStudio {
 
     public synchronized void init(String projectName, String moduleName) {
         try {
+            log.debug("Project='{}'  Module='{}'", projectName, moduleName);
             ProjectDescriptor project = getProjectByName(projectName);
+            if (StringUtils.isNotBlank(projectName) && project == null) {
+                // Not empty project name is requested but it's not found
+                FacesUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
+                FacesUtils.getFacesContext().responseComplete();
+                return;
+            }
             Module module = getModule(project, moduleName);
+            if (StringUtils.isNotBlank(moduleName) && module == null) {
+                // Not empty module name is requested but it's not found
+                FacesUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
+                FacesUtils.getFacesContext().responseComplete();
+                return;
+            }
             boolean moduleChanged = currentProject != project || currentModule != module;
             currentModule = module;
             currentProject = project;
@@ -442,7 +455,9 @@ public class WebStudio {
                 manualCompile = false;
             }
         } catch (Exception e) {
-            log.warn("Failed initialization. Project='{}'  Module='{}'", projectName, moduleName, e);
+            log.error("Failed initialization. Project='{}'  Module='{}'", projectName, moduleName, e);
+            FacesUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            FacesUtils.getFacesContext().responseComplete();
         }
     }
 

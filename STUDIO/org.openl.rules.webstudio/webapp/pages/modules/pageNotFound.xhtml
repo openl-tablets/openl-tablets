@@ -1,0 +1,18 @@
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html">
+
+    <div class="page">
+        <h1 class="page-header">#{msg['ws.common.error.404']}</h1>
+
+        <div class="block-column">
+            <div class="block">
+                <div class="block-content">
+                    <h:outputText rendered="#{notFoundBean.type == 'PROJECT'}" value="Project '#{notFoundBean.project}' is not found."/>
+                    <h:outputText rendered="#{notFoundBean.type == 'MODULE'}" value="Module '#{notFoundBean.module}' in the project '#{notFoundBean.project}' is not found."/>
+                    <h:outputText rendered="#{notFoundBean.type == 'OTHER'}" value="Page not found"/>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</ui:composition>

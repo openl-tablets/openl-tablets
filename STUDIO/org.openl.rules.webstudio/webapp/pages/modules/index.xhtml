@@ -175,11 +175,13 @@
 
             var api = {
                 ajax: {
-                    get: function(urls, done) {
+                    get: function(urls, done, error) {
                         if (typeof urls === "string") {
                             // One page
                             $.get(urls, function() {
                                 done(arguments);
+                            }).error(function (response) {
+                                error && error(response);
                             });
                         } else {
                             // Few pages
@@ -619,9 +621,8 @@
             var handleError = function(code) {
                 if (code == 399) { // Session Timeout
                     location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
-                } else if (code == 404) { // File Not Found
-                    api.ui.info("#{msg['ws.common.error.404']}");
-                } else {
+                } else if (code != 404) {
+                    // 404 error is handled in other place. Other errors are unexpected errors
                     api.ui.info("#{msg['ws.common.error.500']}");
                 }
             };
@@ -728,14 +729,46 @@
                     }
                 }
 
-                api.ajax.get(initUrl, function() {
-                    // Load all pages after project/module model initialized
-                    api.ajax.load(content, function() {
-                        for (var i = 0; i < callbacks.length; i++) {
-                            callbacks[i].call();
+                api.ajax.get(initUrl, function () {
+                        // Load all pages after project/module model initialized
+                        api.ajax.load(content, function () {
+                                for (var i = 0; i < callbacks.length; i++) {
+                                    callbacks[i].call();
+                                }
+                            }
+                        );
+                    },
+                    function (response) {
+                        // Something gone wrong
+                        if (response.status == 404) {
+                            // Project or module isn't found
+                            var notFoundUrl = urlRewrite.prefix + 'pageNotFound.xhtml';
+                            if (init && init.project) {
+                                notFoundUrl += ("?project=" + init.project);
+                                if (init.module) {
+                                    notFoundUrl += "&module=" + init.module;
+                                }
+                            }
+
+                            var notFoundContent = [];
+                            load.left   && notFoundContent.push(DEFAULT_CONTENT.left);
+                            load.top    && notFoundContent.push(DEFAULT_CONTENT.top);
+                            notFoundContent.push({ target: DEFAULT_CONTENT.content.target, url: notFoundUrl });
+
+                            api.ajax.load(notFoundContent, function () {
+                                $(DEFAULT_CONTENT.right.target).html('');
+
+                                var state = ws.storage.get(WS_PANEL_STATE_VAR);
+                                mainLayout.hide("east");
+                                if (state.right) {
+                                    ws.storage.set(WS_PANEL_STATE_VAR, state);
+                                }
+
+                                centerLayout.hide("south");
+                            });
                         }
-                    });
-                });
+                    }
+                );
             };
 
             var openTreeNode = function(pageToOpen) {

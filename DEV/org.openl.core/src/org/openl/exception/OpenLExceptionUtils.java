@@ -62,8 +62,10 @@ public class OpenLExceptionUtils {
         
         if (error.getNode() != null) {
             ISyntaxNode syntaxNode = error.getNode().getSyntaxNode();
-            SourceCodeURLTool.printCodeAndError(syntaxNode.getSourceLocation(), syntaxNode.getModule(), writer);
-            SourceCodeURLTool.printSourceLocation(syntaxNode.getSourceLocation(), syntaxNode.getModule(), writer);
+            if (syntaxNode != null) {
+                SourceCodeURLTool.printCodeAndError(syntaxNode.getSourceLocation(), syntaxNode.getModule(), writer);
+                SourceCodeURLTool.printSourceLocation(syntaxNode.getSourceLocation(), syntaxNode.getModule(), writer);
+            }
         }
 
         Stack<IBoundNode> nodes = error.getOpenlCallStack();

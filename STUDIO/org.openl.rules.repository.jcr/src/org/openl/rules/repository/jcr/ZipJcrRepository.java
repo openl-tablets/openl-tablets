@@ -197,7 +197,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
                     } else {
                         artefact = createResource(resourceName, in);
                     }
-                    artefact.commit(user, Integer.parseInt(artefact.getVersion().getRevision()) + 1);
+                    artefact.commit(user, Integer.parseInt(project.getVersion().getRevision()) + 1);
                 }
 
                 entry = zipInputStream.getNextEntry();
@@ -209,7 +209,7 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
             while (foldersIterator.hasNext()) {
                 String folder = foldersIterator.next();
                 ArtefactAPI artefact = getArtefact(name + "/" + folder);
-                artefact.commit(user, Integer.parseInt(artefact.getVersion().getRevision()) + 1);
+                artefact.commit(user, Integer.parseInt(project.getVersion().getRevision()) + 1);
             }
 
             project.commit(user, Integer.parseInt(project.getVersion().getRevision()) + 1);
@@ -536,8 +536,9 @@ public class ZipJcrRepository implements Repository, Closeable, EventListener {
 
     private ResourceAPI createResource(String name, InputStream inputStream) throws RRepositoryException {
         try {
-            Node node = checkFolder(session.getRootNode(), name.substring(0, name.lastIndexOf("/")), true);
-            ArtefactAPI artefact = createArtefactAPI(node, name);
+            String folderPath = name.substring(0, name.lastIndexOf("/"));
+            Node node = checkFolder(session.getRootNode(), folderPath, true);
+            ArtefactAPI artefact = createArtefactAPI(node, folderPath);
             if (!(artefact instanceof FolderAPI)) {
                 throw new RepositoryException("Incorrect node type");
             }
