@@ -52,6 +52,7 @@ public class TableEditorDispatcher implements PhaseListener {
             response.setHeader("Pragma", "no-cache");
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
+            response.setCharacterEncoding("UTF-8");
             PrintWriter writer = response.getWriter();
             if (res != null) {
                 writer.write(res);
