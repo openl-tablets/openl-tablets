@@ -111,7 +111,9 @@
                 $("#tree").fancytree({
                     toggleEffect: false,
                     activate: function (event, data) {
-                        window.open("#{contextPath}/faces/pages/modules/trace/showTraceTable.xhtml?id=" + data.node.key, "mainFrame");
+                        if (!isNaN(data.node.key)) {
+                            window.open("#{contextPath}/faces/pages/modules/trace/showTraceTable.xhtml?id=" + data.node.key, "mainFrame");
+                        }
                     },
                     lazyLoad: function (event, data) {
                         data.result = {
