@@ -140,7 +140,7 @@ function fixInputNumberSpinner(id) {
                 value = component.minValue;
             }
             // !!! The line below was changed. See inputNumberSpinner.js for comparison.
-            if (Number(value) !== Number(component.input.val())) {
+            if (Number(value) !== Number(component.input.val()) || event && event.type === 'change') {
                 component.input.val(value);
                 component.value = value;
                 if (component.onchange && !skipOnchange) {
