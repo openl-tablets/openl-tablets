@@ -100,6 +100,14 @@
             .hide_details .fancytree-node.fail, .hide_details .fancytree-node.no_result {
                 display: none;
             }
+
+            #loadingPanel {
+                top: 0
+            }
+
+            #loadingPanel img {
+                right: 200px;
+            }
         </style>
         <script src="#{contextPath}/javascript/vendor/jquery-1.7.2.min.js"></script>
         <script src="#{contextPath}/javascript/vendor/jquery-ui-1.8.16.custom.min.js"></script>
@@ -108,10 +116,17 @@
 
         <script type="text/javascript">
             $(function () {
+                $.ajaxSetup({
+                    beforeSend: showLoader,
+                    complete: hideLoader
+                });
+
                 $("#tree").fancytree({
                     toggleEffect: false,
                     activate: function (event, data) {
-                        window.open("#{contextPath}/faces/pages/modules/trace/showTraceTable.xhtml?id=" + data.node.key, "mainFrame");
+                        if (!isNaN(data.node.key)) {
+                            window.open("#{contextPath}/faces/pages/modules/trace/showTraceTable.xhtml?id=" + data.node.key, "mainFrame");
+                        }
                     },
                     lazyLoad: function (event, data) {
                         data.result = {
