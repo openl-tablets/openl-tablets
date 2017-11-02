@@ -481,4 +481,37 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
         assertMethod(target, "m2", double.class, nonNumbers, NF, "double", NF, "Double");
         assertMethod(target, "m2", double.class, valued, "GenericDoubleValue", "GenericDoubleValue", "GenericDoubleValue", "GenericDoubleValue", "GenericDoubleValue", "GenericDoubleValue", "GenericBigDecimalValue", "GenericBigDecimalValue");
     }
+
+    @Test
+    public void testVarArguments() {
+        assertMethod("Integer", target, "vararg", Integer.class);
+        assertMethod("Integer", target, "vararg", int.class);
+        assertMethod("Integer", target, "vararg", Short.class);
+        assertMethod("Short[]", target, "vararg", Short.class, Short.class);
+        assertMethod("Number[]", target, "vararg", Short.class, Double.class);
+        assertMethod("Double[]", target, "vararg", Double.class);
+        assertMethod("Object[]", target, "vararg", String.class, Integer.class);
+        assertMethod("Integer[]", target, "vararg", int.class, int.class);
+        assertMethod("Double[]", target, "vararg", Integer.class, double.class);
+        assertMethod("Integer[]", target, "vararg", Integer.class, int.class);
+
+        assertMethod("Integer[]", target, "vararg1", Integer.class);
+        assertMethod("Object[]", target, "vararg1", String.class, Integer.class);
+        assertMethod("Object[]", target, "vararg1", String.class, int.class);
+
+        assertMethod("Number...Integer[]", target, "vararg2", Integer.class);
+        assertMethod("Number...Number[]", target, "vararg2", Double.class, Integer.class);
+        assertMethod("Generic...Object[]", target, "vararg2", String.class, Integer.class);
+        assertMethod("Generic...Object[]", target, "vararg2", String.class, int.class);
+        assertMethod("Number...Integer[]", target, "vararg2", Integer.class, int.class);
+
+        assertMethod("Integer", target, "vararg3", Integer.class);
+        assertMethod("Integer", target, "vararg3", int.class);
+        assertMethod("Object", target, "vararg3", Short.class);
+        assertMethod("Short[]", target, "vararg3", Short.class, Short.class);
+        assertMethod("Number[]", target, "vararg3", Short.class, Double.class);
+        assertMethod("Object", target, "vararg3", Double.class);
+        assertNotFound(target, "vararg3", String.class, Integer.class);
+        assertMethod("Integer[]", target, "vararg3", Integer.class, int.class);
+    }
 }

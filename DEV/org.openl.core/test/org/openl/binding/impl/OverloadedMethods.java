@@ -284,4 +284,36 @@ public class OverloadedMethods {
     public static <T> String m2(long arg1, long arg2) {
         return "long";
     }
+
+    public static String vararg(Object... args) {
+        return args.getClass().getSimpleName();
+    }
+
+    public static String vararg(Integer args) {
+        return "Integer";
+    }
+
+    public static String vararg1(Object... args) {
+        return args.getClass().getSimpleName();
+    }
+
+    public static String vararg2(Number... args) {
+        return "Number..." + args.getClass().getSimpleName();
+    }
+
+    public static <T> String vararg2(T... args) {
+        return "Generic..." + args.getClass().getSimpleName();
+    }
+
+    public static String vararg3(Number... args) {
+        return args.getClass().getSimpleName();
+    }
+
+    public static String vararg3(Object args) {
+        return "Object";
+    }
+
+    public static String vararg3(Integer args) {
+        return "Integer";
+    }
 }
