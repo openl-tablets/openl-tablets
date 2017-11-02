@@ -2,6 +2,7 @@ package org.openl.binding.impl.method;
 
 import java.lang.reflect.Array;
 
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
@@ -9,11 +10,20 @@ public class VarArgsOpenMethod extends AOpenMethodDelegator {
 
     private int indexOfFirstVarArg;
     private Class<?> componentVarArgClass;
+    private IOpenCast[] parameterCasts;
 
     public VarArgsOpenMethod(IOpenMethod openMethod, Class<?> componentVarArgClass, int indexOfFirstVarArg) {
+        this(openMethod, componentVarArgClass, indexOfFirstVarArg, null);
+    }
+
+    public VarArgsOpenMethod(IOpenMethod openMethod,
+            Class<?> componentVarArgClass,
+            int indexOfFirstVarArg,
+            IOpenCast[] parameterCasts) {
         super(openMethod);
         this.componentVarArgClass = componentVarArgClass;
         this.indexOfFirstVarArg = indexOfFirstVarArg;
+        this.parameterCasts = parameterCasts;
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
@@ -29,17 +39,21 @@ public class VarArgsOpenMethod extends AOpenMethodDelegator {
         // sequence,
         // should be wrapped by array of this type
         //
-        modifiedParameters[parametersCount - 1] = getAllParametersOfTheSameType(methodParameters);
+        modifiedParameters[parametersCount - 1] = buildVarArgsParameter(methodParameters);
         return modifiedParameters;
     }
 
-    private Object getAllParametersOfTheSameType(Object[] methodParameters) {
-        int parametersOfTheSameType = methodParameters.length - indexOfFirstVarArg;
-        Object sameTypeParameters = Array.newInstance(componentVarArgClass, parametersOfTheSameType);
+    private Object buildVarArgsParameter(Object[] methodParameters) {
+        int countOfParametersForVarArgs = methodParameters.length - indexOfFirstVarArg;
+        Object params = Array.newInstance(componentVarArgClass, countOfParametersForVarArgs);
 
-        for (int i = 0; i < parametersOfTheSameType; i++) {
-            Array.set(sameTypeParameters, i, methodParameters[i + indexOfFirstVarArg]);
+        for (int i = 0; i < countOfParametersForVarArgs; i++) {
+            if (parameterCasts == null) {
+                Array.set(params, i, methodParameters[i + indexOfFirstVarArg]);
+            } else {
+                Array.set(params, i, parameterCasts[i].convert(methodParameters[i + indexOfFirstVarArg]));
+            }
         }
-        return sameTypeParameters;
+        return params;
     }
 }

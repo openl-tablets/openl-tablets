@@ -400,6 +400,33 @@ public class MethodSearch {
                     return new VarArgsOpenMethod(matchedMethod.getMethod(), varArgType.getInstanceClass(), i);
                 }
             }
+            for (int i = params.length - 1; i >= 0; i--) {
+                IOpenClass[] args = new IOpenClass[i + 1];
+                System.arraycopy(params, 0, args, 0, i);
+                IOpenClass varArgType = params[i];
+                for (int j = i + 1; j < params.length; j++) {
+                    varArgType = casts.getImplicitCastableClass(varArgType, params[j]);
+                    if (varArgType == null) {
+                        break;
+                    }
+                }
+                if (varArgType == null) {
+                    continue;
+                }
+                args[i] = varArgType.getAggregateInfo().getIndexedAggregateType(varArgType, 1);
+
+                IMethodCaller matchedMethod = findCastingMethod(name, args, casts, filtered);
+                if (matchedMethod != null) {
+                    IOpenCast[] parameterCasts = new IOpenCast[params.length - i];
+                    for (int j = 0; j < params.length - i; j++) {
+                        parameterCasts[j] = casts.getCast(params[params.length - i - 1 + j], varArgType);
+                    }
+                    return new VarArgsOpenMethod(matchedMethod.getMethod(),
+                        varArgType.getInstanceClass(),
+                        i,
+                        parameterCasts);
+                }
+            }
         }
         return null;
     }

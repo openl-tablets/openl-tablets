@@ -19,6 +19,7 @@ public class VarArgsMethodBindingTest {
         boolean test2Arguments();
         int test3Arguments();
         int test4Arguments();
+        int test5Arguments();
         int testArrayOfArrays();
     }
     
@@ -51,6 +52,11 @@ public class VarArgsMethodBindingTest {
     @Test
     public void test4Arguments() {
         assertEquals(5, instance.test4Arguments());
+    }
+
+    @Test
+    public void test5Arguments() {
+        assertEquals(11, instance.test5Arguments());
     }
 
     @Test
