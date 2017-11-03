@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -47,9 +48,7 @@ import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.ProjectDescriptorUtils;
 import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
-import org.openl.rules.webstudio.web.repository.upload.zip.DefaultZipEntryCommand;
-import org.openl.rules.webstudio.web.repository.upload.zip.FilePathsCollector;
-import org.openl.rules.webstudio.web.repository.upload.zip.ZipWalker;
+import org.openl.rules.webstudio.web.repository.upload.zip.*;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
@@ -88,7 +87,7 @@ public class WebStudio {
     private final WebStudioLinkBuilder linkBuilder = new WebStudioLinkBuilder(this);
 
     private String workspacePath;
-    private ArrayList<BenchmarkInfoView> benchmarks = new ArrayList<BenchmarkInfoView>();
+    private ArrayList<BenchmarkInfoView> benchmarks = new ArrayList<>();
     private String tableUri;
     private ProjectModel model = new ProjectModel(this);
     private ProjectResolver projectResolver;
@@ -117,7 +116,7 @@ public class WebStudio {
     private boolean needCompile = true;
     private boolean manualCompile = false;
 
-    private List<ProjectFile> uploadedFiles = new ArrayList<ProjectFile>();
+    private List<ProjectFile> uploadedFiles = new ArrayList<>();
 
     public WebStudio(HttpSession session) {
         systemConfigManager = WebStudioUtils.getBean("configManager", ConfigurationManager.class);
@@ -528,7 +527,13 @@ public class WebStudio {
             projectDescriptor = getCurrentProjectDescriptor();
             PathFilter filter = getZipFilter();
 
-            String errorMessage = validateUploadedFiles(lastUploadedFile, filter, projectDescriptor);
+            List<String> filesInProject = getFilesInProject(filter);
+            Charset charset = getZipCharsetDetector().detectCharset(new ZipFromProjectFile(lastUploadedFile), filesInProject);
+            if (charset == null) {
+                throw new ValidationException("Can't detect a charset for the zip file");
+            }
+
+            String errorMessage = validateUploadedFiles(lastUploadedFile, filter, projectDescriptor, charset);
             if (errorMessage != null) {
                 // TODO Replace exceptions with FacesUtils.addErrorMessage()
                 throw new ValidationException(errorMessage);
@@ -544,7 +549,7 @@ public class WebStudio {
             // Release resources that can be deleted or replaced
             getModel().clearModuleInfo();
 
-            ZipWalker zipWalker = new ZipWalker(lastUploadedFile, filter);
+            ZipWalker zipWalker = new ZipWalker(lastUploadedFile, filter, charset);
 
             FilePathsCollector filesCollector = new FilePathsCollector();
             zipWalker.iterateEntries(filesCollector);
@@ -639,18 +644,17 @@ public class WebStudio {
         }
         try {
             PathFilter filter = getZipFilter();
-            ZipWalker zipWalker = new ZipWalker(lastUploadedFile, filter);
+            List<String> filesInProject = getFilesInProject(filter);
+
+            Charset charset = getZipCharsetDetector().detectCharset(new ZipFromProjectFile(lastUploadedFile), filesInProject);
+            if (charset == null) {
+                return true;
+            }
+            ZipWalker zipWalker = new ZipWalker(lastUploadedFile, filter, charset);
 
             FilePathsCollector filesCollector = new FilePathsCollector();
             zipWalker.iterateEntries(filesCollector);
             List<String> filesInZip = filesCollector.getFilePaths();
-
-            final File projectFolder = getCurrentProjectDescriptor().getProjectFolder();
-            Collection<File> files = getProjectFiles(projectFolder, filter);
-            final List<String> filesInProject = new ArrayList<String>();
-            for (File file : files) {
-                filesInProject.add(getRelativePath(projectFolder, file));
-            }
 
             for (String filePath : filesInProject) {
                 if (!filesInZip.contains(filePath)) {
@@ -670,6 +674,16 @@ public class WebStudio {
         }
 
         return false;
+    }
+
+    private List<String> getFilesInProject(PathFilter filter) {
+        final File projectFolder = getCurrentProjectDescriptor().getProjectFolder();
+        Collection<File> files = getProjectFiles(projectFolder, filter);
+        final List<String> filesInProject = new ArrayList<>();
+        for (File file : files) {
+            filesInProject.add(getRelativePath(projectFolder, file));
+        }
+        return filesInProject;
     }
 
     public boolean isUploadedModuleChanged() {
@@ -692,10 +706,10 @@ public class WebStudio {
         return false;
     }
 
-    private String validateUploadedFiles(ProjectFile zipFile, PathFilter zipFilter, ProjectDescriptor oldProjectDescriptor) throws IOException, ProjectException {
+    private String validateUploadedFiles(ProjectFile zipFile, PathFilter zipFilter, ProjectDescriptor oldProjectDescriptor, Charset charset) throws IOException, ProjectException {
         ProjectDescriptor newProjectDescriptor;
         try {
-            newProjectDescriptor = ZipProjectDescriptorExtractor.getProjectDescriptorOrThrow(zipFile, zipFilter);
+            newProjectDescriptor = ZipProjectDescriptorExtractor.getProjectDescriptorOrThrow(zipFile, zipFilter, charset);
         } catch (XStreamException e) {
             return ProjectDescriptorUtils.getErrorMessage(e);
         }
@@ -725,6 +739,10 @@ public class WebStudio {
 
     private PathFilter getZipFilter() {
         return (PathFilter) WebApplicationContextUtils.getWebApplicationContext(FacesUtils.getServletContext()).getBean("zipFilter");
+    }
+
+    private ZipCharsetDetector getZipCharsetDetector() {
+        return WebStudioUtils.getBean(ZipCharsetDetector.class);
     }
 
     private Collection<File> getProjectFiles(File projectFolder, final PathFilter filter) {
