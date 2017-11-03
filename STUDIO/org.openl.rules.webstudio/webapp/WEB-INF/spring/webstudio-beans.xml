@@ -126,4 +126,9 @@
     <bean class="org.openl.rules.testmethod.TestSuiteExecutor" destroy-method="destroy">
         <constructor-arg value="#{systemConfig['test.run.thread.count']}"/>
     </bean>
+
+    <bean name="zipCharsetDetector" class="org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector">
+        <constructor-arg name="charsetNames" value="#{systemConfig['zip.charsets.support']}" />
+        <constructor-arg name="zipFilter" ref="zipFilter"/>
+    </bean>
 </beans>

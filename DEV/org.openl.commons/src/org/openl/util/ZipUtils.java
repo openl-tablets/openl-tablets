@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.zip.ZipEntry;
@@ -29,8 +31,19 @@ public class ZipUtils {
      * @param outputFolder the output folder for extracted files
      */
     public static void extractAll(File zipFile, File outputFolder) throws IOException {
+        extractAll(zipFile, StandardCharsets.UTF_8, outputFolder);
+    }
+
+    /**
+     * Extract all files from a zip file into a directory.
+     *
+     * @param zipFile the input zip file
+     * @param charset charset used to uncompress zip from input stream
+     * @param outputFolder the output folder for extracted files
+     */
+    public static void extractAll(File zipFile, Charset charset, File outputFolder) throws IOException {
         final FileInputStream zippedStream = new FileInputStream(zipFile);
-        extractAll(zippedStream, outputFolder);
+        extractAll(zippedStream, charset, outputFolder);
     }
 
     /**
@@ -40,10 +53,21 @@ public class ZipUtils {
      * @param outputFolder the output folder for extracted files
      */
     public static void extractAll(InputStream zippedStream, File outputFolder) throws IOException {
+        extractAll(zippedStream, StandardCharsets.UTF_8, outputFolder);
+    }
+
+    /**
+     * Extract all files from a zipped stream into a directory.
+     *
+     * @param zippedStream the zipped input stream
+     * @param charset charset used to uncompress zip from input stream
+     * @param outputFolder the output folder for extracted files
+     */
+    public static void extractAll(InputStream zippedStream, Charset charset, File outputFolder) throws IOException {
 
         byte[] buffer = new byte[BUFFER_SIZE];
 
-        ZipInputStream zis = new ZipInputStream(zippedStream);
+        ZipInputStream zis = new ZipInputStream(zippedStream, charset);
         try {
             // get the zipped file list entry
             ZipEntry ze = zis.getNextEntry();
