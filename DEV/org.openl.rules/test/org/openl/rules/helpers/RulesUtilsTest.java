@@ -1241,7 +1241,7 @@ public class RulesUtilsTest {
     @Test
     public void testBigDecimalValueAvg() {
         assertEquals(
-                new BigDecimalValue("12.66667"),
+                new BigDecimalValue("12.666667"),
                 instance.testAvgBigDecimal(new BigDecimalValue[]{
                         new BigDecimalValue("10"), new BigDecimalValue("15"),
                         new BigDecimalValue("13")}));

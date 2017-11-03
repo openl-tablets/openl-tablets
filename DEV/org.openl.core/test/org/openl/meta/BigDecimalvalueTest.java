@@ -86,7 +86,7 @@ public class BigDecimalvalueTest {
     public void testDivide1_31() {
         BigDecimalValue result = BigDecimalValue.divide(new BigDecimalValue("1"), new BigDecimalValue("31"));
         assertEquals(new BigDecimalValue("0.03225806451612903225806451612903226"), result);
-        assertEquals(new BigDecimalValue("0.03"), result);
+        assertEquals(new BigDecimalValue("0.032258"), result);
     }
 
     @Test
@@ -129,7 +129,7 @@ public class BigDecimalvalueTest {
     @Test
     public void testAvg() {
         BigDecimalValue[] la = getTestArray();
-        assertEquals(new BigDecimalValue("38.67667"), BigDecimalValue.avg(la));
+        assertEquals(new BigDecimalValue("38.676667"), BigDecimalValue.avg(la));
 
         BigDecimalValue[] nullArray = null;
         assertEquals(null, BigDecimalValue.avg(nullArray));

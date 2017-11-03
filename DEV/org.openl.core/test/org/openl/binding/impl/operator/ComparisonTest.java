@@ -584,52 +584,52 @@ public class ComparisonTest {
     @Test
     public void testBigDecimalEqUlp() {
         final BigDecimal zero = BigDecimal.ZERO;
-        final BigDecimal a = new BigDecimal("0.0050");
-        final BigDecimal b = new BigDecimal("0.005");
-        final BigDecimal c = new BigDecimal("0.0049");
+        final BigDecimal a = new BigDecimal("0.00000050");
+        final BigDecimal b = new BigDecimal("0.0000005");
+        final BigDecimal c = new BigDecimal("0.00000049");
         final BigDecimal ma = a.negate();
         final BigDecimal mb = b.negate();
         final BigDecimal mc = c.negate();
-        final BigDecimal b2 = new BigDecimal("0.05");
-        final BigDecimal c2 = new BigDecimal("0.049");
+        final BigDecimal b2 = new BigDecimal("0.000005");
+        final BigDecimal c2 = new BigDecimal("0.0000049");
 
-        final BigDecimal b3 = new BigDecimal("0.5");
-        final BigDecimal c3 = new BigDecimal("0.49");
+        final BigDecimal b3 = new BigDecimal("0.00005");
+        final BigDecimal c3 = new BigDecimal("0.000049");
 
-        assertTrue(Comparison.eq(a, b)); // precision is 0.0005
+        assertTrue(Comparison.eq(a, b));
         assertTrue(Comparison.eq(b, a));
         assertTrue(Comparison.eq(ma, mb));
         assertTrue(Comparison.eq(mb, ma));
 
-        assertTrue(Comparison.eq(b, c)); // precision is 0.0005
+        assertTrue(Comparison.eq(b, c));
         assertTrue(Comparison.eq(c, b));
         assertTrue(Comparison.eq(mb, mc));
         assertTrue(Comparison.eq(mc, mb));
 
-        assertFalse(Comparison.eq(a, c)); // precision is 0.00005
+        assertFalse(Comparison.eq(a, c));
         assertFalse(Comparison.eq(c, a));
         assertFalse(Comparison.eq(ma, mc));
         assertFalse(Comparison.eq(mc, ma));
 
-        assertFalse(Comparison.eq(a, zero)); // precision is 0.005
+        assertFalse(Comparison.eq(a, zero));
         assertFalse(Comparison.eq(zero, a));
         assertFalse(Comparison.eq(ma, zero));
         assertFalse(Comparison.eq(zero, ma));
 
-        assertFalse(Comparison.eq(b, zero)); // precision is 0.005
+        assertFalse(Comparison.eq(b, zero));
         assertFalse(Comparison.eq(zero, b));
         assertFalse(Comparison.eq(mb, zero));
         assertFalse(Comparison.eq(zero, mb));
 
-        assertTrue(Comparison.eq(c, zero)); // precision is 0.005
+        assertTrue(Comparison.eq(c, zero));
         assertTrue(Comparison.eq(zero, c));
         assertTrue(Comparison.eq(mc, zero));
         assertTrue(Comparison.eq(zero, mc));
 
-        assertTrue(Comparison.eq(b2, c2)); // precision is 0.005
+        assertTrue(Comparison.eq(b2, c2));
         assertTrue(Comparison.eq(c2, b2));
 
-        assertFalse(Comparison.eq(b3, c3));// precision is 0.005
+        assertFalse(Comparison.eq(b3, c3));
         assertFalse(Comparison.eq(c3, b3));
     }
 }
