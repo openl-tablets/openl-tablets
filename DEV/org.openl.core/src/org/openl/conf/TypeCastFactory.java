@@ -101,7 +101,7 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
         return null;
     }
 
-    public IOpenClass getImplicitCastableClass(IOpenClass openClass1,
+    public IOpenClass findImplicitCastableClassInAutocasts(IOpenClass openClass1,
             IOpenClass openClass2,
             final IConfigurableResourceContext cxt) {
         Collection<IOpenMethod> allMethods = new ArrayList<>();
@@ -112,9 +112,9 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
                 allMethods.add(method);
             }
         }
-        return CastFactory.getImplicitCastableClass(openClass1, openClass2, new ICastFactory() {
+        return CastFactory.findImplicitCastableClassInAutocasts(openClass1, openClass2, new ICastFactory() {
             @Override
-            public IOpenClass getImplicitCastableClass(IOpenClass openClass1, IOpenClass openClass2) {
+            public IOpenClass findImplicitCastableClassInAutocasts(IOpenClass openClass1, IOpenClass openClass2) {
                 throw new UnsupportedOperationException();
             }
 

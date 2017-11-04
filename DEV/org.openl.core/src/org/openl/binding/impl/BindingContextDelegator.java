@@ -103,8 +103,8 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     }
 
     @Override
-    public IOpenClass getImplicitCastableClass(IOpenClass openClass1, IOpenClass openClass2) {
-        return delegate.getImplicitCastableClass(openClass1, openClass2);
+    public IOpenClass findImplicitCastableClassInAutocasts(IOpenClass openClass1, IOpenClass openClass2) {
+        return delegate.findImplicitCastableClassInAutocasts(openClass1, openClass2);
     }
 
     public IBindingContext getDelegate() {

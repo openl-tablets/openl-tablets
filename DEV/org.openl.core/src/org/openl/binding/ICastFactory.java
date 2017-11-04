@@ -19,5 +19,5 @@ import org.openl.types.IOpenClass;
 public interface ICastFactory {
     IOpenCast getCast(IOpenClass from, IOpenClass to);
 
-    IOpenClass getImplicitCastableClass(IOpenClass openClass1, IOpenClass openClass2);
+    IOpenClass findImplicitCastableClassInAutocasts(IOpenClass openClass1, IOpenClass openClass2);
 }

@@ -6,13 +6,13 @@ import java.util.List;
 
 import org.openl.types.IOpenClass;
 
-public class ArrayDownCast implements IOpenCast {
+public class ArrayCast implements IOpenCast {
 
     private IOpenClass toComponentType;
     private IOpenCast openCast;
     private int dim;
 
-    public ArrayDownCast(IOpenClass to, IOpenCast openCast, int dim) {
+    public ArrayCast(IOpenClass to, IOpenCast openCast, int dim) {
         if (to == null) {
             throw new IllegalArgumentException("to arg can't be null!");
         }
@@ -88,11 +88,11 @@ public class ArrayDownCast implements IOpenCast {
     }
 
     public int getDistance(IOpenClass from, IOpenClass to) {
-        return openCast.getDistance(from, to);
+        return CastFactory.ARRAY_CAST_DISTANCE + openCast.getDistance(from, to);
     }
 
     public boolean isImplicit() {
-        return false;
+        return openCast.isImplicit();
     }
 
 }

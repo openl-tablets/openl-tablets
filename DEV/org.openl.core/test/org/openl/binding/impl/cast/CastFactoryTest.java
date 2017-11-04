@@ -32,6 +32,10 @@ public class CastFactoryTest {
         javaArrayCastTest(int[].class, Integer[].class);
         javaArrayCastTest(Boolean[][][].class, boolean[][][].class);
         javaArrayCastTest(boolean[][][][].class, Boolean[][][][].class);
+        javaArrayCastTest(Object.class, Integer[][].class);
+        javaArrayCastTest(Object[].class, Integer[][][].class);
+        javaArrayCastTest(Integer[][][].class, Object[].class);
+        javaArrayCastTest(int[].class, Object[].class);
 
         Integer[][][][] x = new Integer[5][4][0][1];
         IOpenCast cast = factory.getCast(JavaOpenClass.getOpenClass(Integer[][][][].class),

@@ -135,15 +135,15 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     }
 
     @Override
-    public IOpenClass getImplicitCastableClass(IOpenClass openClass1, IOpenClass openClass2) {
+    public IOpenClass findImplicitCastableClassInAutocasts(IOpenClass openClass1, IOpenClass openClass2) {
         IOpenClass openClass = typeCastFactory == null ? null
-                                                       : typeCastFactory.getImplicitCastableClass(openClass1,
+                                                       : typeCastFactory.findImplicitCastableClassInAutocasts(openClass1,
                                                            openClass2,
                                                            configurationContext);
         if (openClass != null) {
             return openClass;
         }
-        return parent == null ? null : parent.getImplicitCastableClass(openClass1, openClass2);
+        return parent == null ? null : parent.findImplicitCastableClassInAutocasts(openClass1, openClass2);
     }
 
     public IConfigurableResourceContext getConfigurationContext() {

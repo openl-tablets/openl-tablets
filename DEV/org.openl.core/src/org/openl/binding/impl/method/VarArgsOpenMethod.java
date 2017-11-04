@@ -3,7 +3,7 @@ package org.openl.binding.impl.method;
 import java.lang.reflect.Array;
 
 import org.openl.binding.impl.cast.IOpenCast;
-import org.openl.types.IOpenMethod;
+import org.openl.types.IMethodCaller;
 import org.openl.vm.IRuntimeEnv;
 
 public class VarArgsOpenMethod extends AOpenMethodDelegator {
@@ -11,23 +11,25 @@ public class VarArgsOpenMethod extends AOpenMethodDelegator {
     private int indexOfFirstVarArg;
     private Class<?> componentVarArgClass;
     private IOpenCast[] parameterCasts;
+    private IMethodCaller methodCaller;
 
-    public VarArgsOpenMethod(IOpenMethod openMethod, Class<?> componentVarArgClass, int indexOfFirstVarArg) {
-        this(openMethod, componentVarArgClass, indexOfFirstVarArg, null);
+    public VarArgsOpenMethod(IMethodCaller methodCaller, Class<?> componentVarArgClass, int indexOfFirstVarArg) {
+        this(methodCaller, componentVarArgClass, indexOfFirstVarArg, null);
     }
 
-    public VarArgsOpenMethod(IOpenMethod openMethod,
+    public VarArgsOpenMethod(IMethodCaller methodCaller,
             Class<?> componentVarArgClass,
             int indexOfFirstVarArg,
             IOpenCast[] parameterCasts) {
-        super(openMethod);
+        super(methodCaller.getMethod());
+        this.methodCaller = methodCaller;
         this.componentVarArgClass = componentVarArgClass;
         this.indexOfFirstVarArg = indexOfFirstVarArg;
         this.parameterCasts = parameterCasts;
     }
 
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return getDelegate().invoke(target, modifyParameters(params), env);
+        return methodCaller.invoke(target, modifyParameters(params), env);
     }
 
     private Object[] modifyParameters(Object[] methodParameters) {

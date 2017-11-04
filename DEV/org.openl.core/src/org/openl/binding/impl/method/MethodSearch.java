@@ -85,7 +85,7 @@ public class MethodSearch {
                         IOpenCast cast1 = casts.getCast(existedType, t);
                         IOpenCast cast2 = casts.getCast(t, existedType);
                         if ((cast1 == null || !cast1.isImplicit()) && (cast2 == null || !cast2.isImplicit())) {
-                            IOpenClass clazz = casts.getImplicitCastableClass(t, existedType);
+                            IOpenClass clazz = casts.findImplicitCastableClassInAutocasts(t, existedType);
                             if (clazz != null && clazz.getInstanceClass() != null && clazz.getInstanceClass()
                                 .isPrimitive()) {
                                 clazz = JavaOpenClass
@@ -385,7 +385,7 @@ public class MethodSearch {
                 System.arraycopy(params, 0, args, 0, i);
                 IOpenClass varArgType = params[i];
                 for (int j = i + 1; j < params.length; j++) {
-                    varArgType = OpenClassUtils.findParentClass(varArgType, params[j]);
+                    varArgType = OpenClassUtils.findParentClassWithBoxing(varArgType, params[j]);
                     if (varArgType == null) {
                         break;
                     }
@@ -397,7 +397,7 @@ public class MethodSearch {
 
                 IMethodCaller matchedMethod = findCastingMethod(name, args, casts, filtered);
                 if (matchedMethod != null) {
-                    return new VarArgsOpenMethod(matchedMethod.getMethod(), varArgType.getInstanceClass(), i);
+                    return new VarArgsOpenMethod(matchedMethod, varArgType.getInstanceClass(), i);
                 }
             }
             for (int i = params.length - 1; i >= 0; i--) {
@@ -405,7 +405,7 @@ public class MethodSearch {
                 System.arraycopy(params, 0, args, 0, i);
                 IOpenClass varArgType = params[i];
                 for (int j = i + 1; j < params.length; j++) {
-                    varArgType = casts.getImplicitCastableClass(varArgType, params[j]);
+                    varArgType = casts.findImplicitCastableClassInAutocasts(varArgType, params[j]);
                     if (varArgType == null) {
                         break;
                     }
@@ -419,12 +419,9 @@ public class MethodSearch {
                 if (matchedMethod != null) {
                     IOpenCast[] parameterCasts = new IOpenCast[params.length - i];
                     for (int j = 0; j < params.length - i; j++) {
-                        parameterCasts[j] = casts.getCast(params[params.length - i - 1 + j], varArgType);
+                        parameterCasts[j] = casts.getCast(params[i + j], varArgType);
                     }
-                    return new VarArgsOpenMethod(matchedMethod.getMethod(),
-                        varArgType.getInstanceClass(),
-                        i,
-                        parameterCasts);
+                    return new VarArgsOpenMethod(matchedMethod, varArgType.getInstanceClass(), i, parameterCasts);
                 }
             }
         }

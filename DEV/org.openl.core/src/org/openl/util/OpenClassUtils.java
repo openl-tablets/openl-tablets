@@ -11,6 +11,23 @@ public final class OpenClassUtils {
     private OpenClassUtils() {
     }
 
+    public static IOpenClass findParentClassWithBoxing(IOpenClass openClass1, IOpenClass openClass2) {
+        IOpenClass t1 = openClass1;
+        IOpenClass t2 = openClass2;
+        if (t1.getInstanceClass() != null && t2.getInstanceClass() != null) {
+            if ((t1.getInstanceClass().isPrimitive() && !t2.getInstanceClass().isPrimitive()) || (!t1.getInstanceClass()
+                .isPrimitive() && t2.getInstanceClass().isPrimitive())) {
+                if (t1.getInstanceClass().isPrimitive()) {
+                    t1 = JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(t1.getInstanceClass()));
+                }
+                if (t2.getInstanceClass().isPrimitive()) {
+                    t2 = JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(t2.getInstanceClass()));
+                }
+            }
+        }
+        return findParentClass(t1, t2);
+    }
+    
     public static IOpenClass findParentClass(IOpenClass class1, IOpenClass class2) {
 
         if (class1.isArray() && class2.isArray()) {
@@ -27,6 +44,28 @@ public final class OpenClassUtils {
             return parentClass.getArrayType(dim);
         }
 
+        if (class1.getInstanceClass() == null && class2.getInstanceClass() == null) {
+            return class1;
+        }
+        
+        //If class1 is NULL literal
+        if (class1.getInstanceClass() == null) {
+            if (class2.getInstanceClass().isPrimitive()) {
+                return null;
+            } else {
+                return class2;
+            }
+        }
+
+        //If class2 is NULL literal
+        if (class2.getInstanceClass() == null) {
+            if (class1.getInstanceClass().isPrimitive()) {
+                return null;
+            } else {
+                return class1;
+            }
+        }
+        
         if (class1.getInstanceClass().isPrimitive() || class2.getInstanceClass().isPrimitive()) { // If
                                                                                                   // one
                                                                                                   // is
