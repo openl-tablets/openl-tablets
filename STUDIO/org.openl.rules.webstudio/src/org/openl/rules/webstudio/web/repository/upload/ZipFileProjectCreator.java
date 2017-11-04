@@ -1,9 +1,7 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,6 +14,8 @@ import java.util.zip.ZipInputStream;
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
+import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromFile;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -31,22 +31,28 @@ public class ZipFileProjectCreator extends AProjectCreator {
     private ZipFile zipFile;
     private PathFilter zipFilter;
     private File uploadedFile;
+    private final Charset charset;
 
     public ZipFileProjectCreator(String uploadedFileName,
-                                 InputStream uploadedFileStream,
-                                 String projectName,
-                                 UserWorkspace userWorkspace,
-                                 PathFilter zipFilter) throws IOException{
+            InputStream uploadedFileStream,
+            String projectName,
+            UserWorkspace userWorkspace,
+            PathFilter zipFilter,
+            ZipCharsetDetector zipCharsetDetector) throws IOException{
         super(projectName, userWorkspace);
 
         uploadedFile = FileTool.toTempFile(uploadedFileStream, uploadedFileName);
-        
+        charset = zipCharsetDetector.detectCharset(new ZipFromFile(uploadedFile));
+        if (charset == null) {
+            throw new IOException("Can't detect a charset for the zip file");
+        }
+
         if (isEmptyZip(uploadedFile)) {
             throw new IOException("Can`t create project from the given file. Zip file is empty!");
         }
 
         try {
-            this.zipFile = new ZipFile(uploadedFile);
+            this.zipFile = new ZipFile(uploadedFile, charset);
         } catch (IOException e) {
             destroy();
             throw e;
@@ -57,7 +63,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
     private boolean isEmptyZip(File uploadedFile) {
         ZipInputStream zipInputStream = null;
         try {
-            zipInputStream = new ZipInputStream(new FileInputStream(uploadedFile));
+            zipInputStream = new ZipInputStream(new FileInputStream(uploadedFile), charset);
             if (zipInputStream.getNextEntry() == null) {
                 return true;
             }
@@ -75,7 +81,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
 
     private Set<String> sortZipEntriesNames(ZipFile zipFile) {
         // Sort zip entries names alphabetically
-        Set<String> sortedNames = new TreeSet<String>();
+        Set<String> sortedNames = new TreeSet<>();
         if (zipFile == null) {
             return sortedNames;
         }
@@ -180,7 +186,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
      * @return List of incorrect names of folders and files
      */
     private List<String> incorrectNames() {
-        List<String> invalidNames = new LinkedList<String>();
+        List<String> invalidNames = new LinkedList<>();
         if (zipFile == null) {
             return invalidNames;
         }

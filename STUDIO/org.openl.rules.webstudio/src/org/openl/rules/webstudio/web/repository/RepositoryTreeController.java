@@ -27,6 +27,7 @@ import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromProjectFile;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportModule;
 import org.openl.rules.webstudio.util.NameChecker;
@@ -42,6 +43,7 @@ import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.webstudio.web.repository.upload.ProjectDescriptorUtils;
 import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
+import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -64,6 +66,8 @@ import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -107,6 +111,9 @@ public class RepositoryTreeController {
 
     @ManagedProperty(value = "#{projectDescriptorSerializerFactory}")
     private ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory;
+
+    @ManagedProperty(value = "#{zipCharsetDetector}")
+    private ZipCharsetDetector zipCharsetDetector;
 
     private WebStudio studio = WebStudioUtils.getWebStudio(true);
 
@@ -1232,8 +1239,14 @@ public class RepositoryTreeController {
             setProjectName(fileName.substring(0, fileName.lastIndexOf('.')));
 
             if (FileTypeHelper.isZipFile(fileName)) {
-                ProjectDescriptor projectDescriptor = ZipProjectDescriptorExtractor.getProjectDescriptorOrNull(file,
-                    zipFilter);
+                Charset charset = zipCharsetDetector.detectCharset(new ZipFromProjectFile(file));
+
+                if (charset == null) {
+                    log.warn("Can't detect a charset for the zip file");
+                    charset = StandardCharsets.UTF_8;
+                }
+
+                ProjectDescriptor projectDescriptor = ZipProjectDescriptorExtractor.getProjectDescriptorOrNull(file, zipFilter, charset);
                 if (projectDescriptor != null) {
                     setProjectName(projectDescriptor.getName());
                 }
@@ -1361,7 +1374,7 @@ public class RepositoryTreeController {
         } else if (uploadedFiles == null || uploadedFiles.isEmpty()) {
             FacesUtils.addErrorMessage("There are no uploaded files.");
         } else {
-            errorMessage = new ProjectUploader(uploadedFiles, projectName, userWorkspace, zipFilter).uploadProject();
+            errorMessage = new ProjectUploader(uploadedFiles, projectName, userWorkspace, zipFilter, zipCharsetDetector).uploadProject();
             if (errorMessage != null) {
                 FacesUtils.addErrorMessage(errorMessage);
             } else
@@ -1492,7 +1505,8 @@ public class RepositoryTreeController {
                 ProjectUploader projectUploader = new ProjectUploader(uploadedItem,
                     projectName,
                     userWorkspace,
-                    zipFilter);
+                    zipFilter,
+                    zipCharsetDetector);
                 errorMessage = validateProjectName();
                 if (errorMessage == null) {
                     errorMessage = projectUploader.uploadProject();
@@ -1505,7 +1519,20 @@ public class RepositoryTreeController {
         }
 
         try {
-            ZipProjectDescriptorExtractor.getProjectDescriptorOrThrow(getLastUploadedFile(), zipFilter);
+            if (errorMessage != null) {
+                final ProjectFile lastUploadedFile = getLastUploadedFile();
+                if (lastUploadedFile != null) {
+                    Charset charset = zipCharsetDetector.detectCharset(new ZipFromProjectFile(lastUploadedFile));
+
+                    if (charset == null) {
+                        errorMessage = "Can't detect a charset for the zip file";
+                        throw new IllegalArgumentException(errorMessage);
+                    }
+
+                    ZipProjectDescriptorExtractor.getProjectDescriptorOrThrow(lastUploadedFile, zipFilter, charset);
+                }
+            }
+
         } catch (XStreamException e) {
             // Add warning that uploaded project contains incorrect rules.xml
             FacesUtils.addWarnMessage("Warning: " + ProjectDescriptorUtils.getErrorMessage(e));
@@ -1638,5 +1665,9 @@ public class RepositoryTreeController {
 
     public void setProjectDescriptorSerializerFactory(ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory) {
         this.projectDescriptorSerializerFactory = projectDescriptorSerializerFactory;
+    }
+
+    public void setZipCharsetDetector(ZipCharsetDetector zipCharsetDetector) {
+        this.zipCharsetDetector = zipCharsetDetector;
     }
 }

@@ -26,7 +26,7 @@ import java.math.BigDecimal;
 public class Comparison {
 
     private static final BigDecimal HALF = new BigDecimal("0.5");
-    private static final BigDecimal MAX_ULP = new BigDecimal("0.01");
+    private static final BigDecimal MAX_ULP = new BigDecimal("0.000001");
 
     // Equals
     public static boolean eq(boolean x, boolean y) {

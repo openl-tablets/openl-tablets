@@ -10,14 +10,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 public final class ZipProjectDescriptorExtractor {
     private ZipProjectDescriptorExtractor() {
     }
 
-    public static ProjectDescriptor getProjectDescriptorOrNull(ProjectFile uploadedFile, PathFilter zipFilter) {
+    public static ProjectDescriptor getProjectDescriptorOrNull(ProjectFile uploadedFile, PathFilter zipFilter, Charset charset) {
         try {
-            return getProjectDescriptorOrThrow(uploadedFile, zipFilter);
+            return getProjectDescriptorOrThrow(uploadedFile, zipFilter, charset);
         } catch (Exception e) {
             final Logger log = LoggerFactory.getLogger(ZipProjectDescriptorExtractor.class);
             log.error(e.getMessage(), e);
@@ -25,8 +26,8 @@ public final class ZipProjectDescriptorExtractor {
         }
     }
 
-    public static ProjectDescriptor getProjectDescriptorOrThrow(ProjectFile uploadedFile, PathFilter zipFilter) throws IOException, XStreamException {
-        ZipWalker zipWalker = new ZipWalker(uploadedFile, zipFilter);
+    public static ProjectDescriptor getProjectDescriptorOrThrow(ProjectFile uploadedFile, PathFilter zipFilter, Charset charset) throws IOException, XStreamException {
+        ZipWalker zipWalker = new ZipWalker(uploadedFile, zipFilter, charset);
         ProjectDescriptorFinder finder = new ProjectDescriptorFinder();
         zipWalker.iterateEntries(finder);
         return finder.getProjectDescriptor();
