@@ -26,13 +26,14 @@ public abstract class AbstractMethodSearchTest {
 
     @BeforeClass
     public static void init() {
-        TypeCastFactory typecast = new TypeCastFactory();
+        OpenLConfiguration openLConfiguration = new OpenLConfiguration();
+        
+        TypeCastFactory typecast = openLConfiguration.createTypeCastFactory();
         TypeCastFactory.JavaCastComponent javacast = new TypeCastFactory.JavaCastComponent();
         javacast.setLibraryClassName(org.openl.binding.impl.cast.CastOperators.class.getName());
         javacast.setClassName(org.openl.binding.impl.cast.CastFactory.class.getName());
         typecast.addJavaCast(javacast);
-        OpenLConfiguration openLConfiguration = new OpenLConfiguration();
-        openLConfiguration.setTypeCastFactory(typecast);
+        
         openLConfiguration.setConfigurationContext(new ConfigurableResourceContext(null));
         castFactory = openLConfiguration;
     }
