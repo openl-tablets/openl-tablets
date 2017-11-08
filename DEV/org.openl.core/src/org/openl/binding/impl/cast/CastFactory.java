@@ -56,6 +56,7 @@ public class CastFactory implements ICastFactory {
      * java methods.
      */
     private IMethodFactory methodFactory;
+    private ICastFactory globalCastFactory;
 
     /**
      * Internal cache of cast operations.
@@ -191,6 +192,17 @@ public class CastFactory implements ICastFactory {
         return null;
     }
 
+    public ICastFactory getGlobalCastFactory() {
+        if (globalCastFactory == null) {
+            return this;
+        }
+        return globalCastFactory;
+    }
+
+    public void setGlobalCastFactory(ICastFactory globalCastFactory) {
+        this.globalCastFactory = globalCastFactory;
+    }
+
     /**
      * Checks that instance class of open class is primitive.
      * 
@@ -238,7 +250,7 @@ public class CastFactory implements ICastFactory {
         }
 
         if (isAllowJavaDowncast(fromClass, toClass)) {
-            return new JavaDownCast(to, this);
+            return new JavaDownCast(to, getGlobalCastFactory());
         }
 
         return null;

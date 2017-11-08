@@ -82,7 +82,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
                 }
                 thisNamespaceLibrary.addJavalib(javalib);
 
-                JavaCastComponent javaCastComponent = new JavaCastComponent();
+                JavaCastComponent javaCastComponent = typeCastFactory.new JavaCastComponent();
                 javaCastComponent.setLibraryClassName(libraryName);
                 javaCastComponent.setClassName(org.openl.binding.impl.cast.CastFactory.class.getName());
                 typeCastFactory.addJavaCast(javaCastComponent);
