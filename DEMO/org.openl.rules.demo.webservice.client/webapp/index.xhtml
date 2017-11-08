@@ -132,7 +132,7 @@
         <div>
             <div class="description">
                 This demo allows you to call rules from "Example 3 - Auto Policy Calculation" that are deployed as
-                <a href="#{initParam['ws.path']}" target="_blank">web services</a> on the remote server.
+                <a href="#{initParam['ws.path']}?_wadl" target="_blank">RESTful Web Services</a> on the remote server.
                 Keep in mind that the demo shows only the rules listed below. Any new added rules will not be displayed.
             </div>
             <div>
@@ -145,7 +145,7 @@
                                 <table class="method-params">
                                     <tr>
                                         <td>Age</td>
-                                        <td><h:inputText id="age" size="4" binding="#{age}" value="22"
+                                        <td><h:inputText id="age" size="4" binding="#{wSBean.map.age}" value="22"
                                                          required="true" requiredMessage="The field is required"
                                                          converter="javax.faces.Integer"
                                                          converterMessage="Must be in the range from 0 to 150"
@@ -155,7 +155,7 @@
                                     </tr>
                                     <tr>
                                         <td>Gender</td>
-                                        <td><h:selectOneMenu binding="#{gender}">
+                                        <td><h:selectOneMenu binding="#{wSBean.map.gender}">
                                             <f:selectItem itemValue="Male" itemLabel="Male"/>
                                             <f:selectItem itemValue="Female" itemLabel="Female"/>
                                         </h:selectOneMenu></td>
@@ -163,7 +163,7 @@
                                     </tr>
                                 </table>
                                 <h:commandButton value="Execute"
-                                                 action="#{wSBean.invoke('DriverAgeType', gender.value, age.value)}"/>
+                                                 action="#{wSBean.invoke('DriverAgeType', wSBean.map)}"/>
                             </h:form>
                         </td>
                     </tr>
@@ -183,7 +183,7 @@
                                 <table class="method-params">
                                     <tr>
                                         <td>DUI</td>
-                                        <td><h:inputText id="numDUI" size="4" binding="#{numDUI}" value="0"
+                                        <td><h:inputText id="numDUI" size="4" binding="#{wSBean.map.numDUI}" value="0"
                                                          required="true" requiredMessage="The field is required"
                                                          converter="javax.faces.Integer"
                                                          converterMessage="Must be a nonnegative integer"
@@ -193,7 +193,7 @@
                                     </tr>
                                     <tr>
                                         <td>Accidents</td>
-                                        <td><h:inputText id="accidents" size="4" binding="#{accidents}" value="1"
+                                        <td><h:inputText id="accidents" size="4" binding="#{wSBean.map.numAccidents}" value="1"
                                                          required="true" requiredMessage="The field is required"
                                                          converter="javax.faces.Integer"
                                                          converterMessage="Must be a nonnegative integer"
@@ -203,7 +203,7 @@
                                     </tr>
                                     <tr>
                                         <td>Moving Violations</td>
-                                        <td><h:inputText id="violations" size="4" binding="#{violations}" value="2"
+                                        <td><h:inputText id="violations" size="4" binding="#{wSBean.map.numMovingViolations}" value="2"
                                                          required="true" requiredMessage="The field is required"
                                                          converter="javax.faces.Integer"
                                                          converterMessage="Must be a nonnegative integer"
@@ -213,7 +213,7 @@
                                     </tr>
                                 </table>
                                 <h:commandButton value="Execute"
-                                                 action="#{wSBean.invoke('DriverRisk', numDUI.value, accidents.value, violations.value)}"/>
+                                                 action="#{wSBean.invoke('DriverRisk', wSBean.map)}"/>
                             </h:form>
                         </td>
                     </tr>
