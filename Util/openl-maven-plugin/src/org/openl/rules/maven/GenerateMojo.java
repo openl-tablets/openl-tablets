@@ -496,8 +496,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
             return;
         }
 
-        @SuppressWarnings("unchecked")
-        List<Resource> resources = (List<Resource>) project.getResources();
+        List<Resource> resources = project.getResources();
         for (Resource resource : resources) {
             String resourceDirectory = resource.getDirectory();
             resourceDirectory = getSubDirectory(baseDir, resourceDirectory).replace("\\", "/");
@@ -615,7 +614,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
         public String getClassName(String s, String s1, Object o, Predicate predicate) {
             return className;
         }
-    };
+    }
 
     /**
      * A utility class to convert Java classes in CodeModel class descriptors.
