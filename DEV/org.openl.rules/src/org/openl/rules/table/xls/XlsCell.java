@@ -160,6 +160,15 @@ public class XlsCell implements ICell {
         if (value != null) {
             IFormatter cellDataFormatter = getDataFormatter();
 
+            if (cellDataFormatter == null && value instanceof Date) {
+                // Cell type is unknown but in Excel it's stored as a Date.
+                // We can't override getDataFormatter() or XlsDataFormatterFactory.getFormatter() to support this case
+                // because they are also invoked when editing a cell. When editing cells with unknown type null must be
+                // returned to be able to edit such cell as if it can contain any text.
+                // But we can safely format it's value when just viewing it's value.
+                cellDataFormatter = XlsDataFormatterFactory.getDateFormatter(this);
+            }
+
             if (cellDataFormatter != null) {
                 formattedValue = cellDataFormatter.format(value);
             }
@@ -189,8 +198,7 @@ public class XlsCell implements ICell {
 
     private boolean isCurrentCellATopLeftCellInRegion() {
         ICell topLeftCell = getTopLeftCellFromRegion();
-        boolean isTopLeft = topLeftCell.getColumn() == this.column && topLeftCell.getRow() == this.row;
-        return isTopLeft;
+        return topLeftCell.getColumn() == this.column && topLeftCell.getRow() == this.row;
     }
 
     private Object extractValueFromRegion() {

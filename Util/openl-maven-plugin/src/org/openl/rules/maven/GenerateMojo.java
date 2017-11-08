@@ -23,6 +23,7 @@ import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +63,9 @@ public final class GenerateMojo extends BaseOpenLMojo {
 
     @Parameter(defaultValue = "${project.compileSourceRoots}", readonly = true, required = true)
     private List<String> sourceRoots;
+
+    @Parameter(defaultValue = "${project.build.outputDirectory}", required = true, readonly = true)
+    private String classesDirectory;
 
     /**
      * An output directory of generated Java beans and OpenL java interface.
@@ -373,7 +377,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
         for (String dir : sourceRoots) {
             info("  # source roots > ", dir);
         }
-        URL[] urls = toURLs(classpath);
+        URL[] urls = toURLs(dependencyClasspath(classpath));
         return new URLClassLoader(urls, this.getClass().getClassLoader()) {
             @Override
             public Class<?> findClass(String name) throws ClassNotFoundException {
@@ -391,6 +395,13 @@ public final class GenerateMojo extends BaseOpenLMojo {
                 return super.findClass(name);
             }
         };
+    }
+
+    private List<String> dependencyClasspath(List<String> classpath) {
+        List<String> dependencyClasspath = new ArrayList<>(classpath);
+        // No need to use target/classes folder in generate phase. Keep only classpath for dependency jars.
+        dependencyClasspath.remove(classesDirectory);
+        return dependencyClasspath;
     }
 
     @Override
@@ -485,8 +496,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
             return;
         }
 
-        @SuppressWarnings("unchecked")
-        List<Resource> resources = (List<Resource>) project.getResources();
+        List<Resource> resources = project.getResources();
         for (Resource resource : resources) {
             String resourceDirectory = resource.getDirectory();
             resourceDirectory = getSubDirectory(baseDir, resourceDirectory).replace("\\", "/");
@@ -604,7 +614,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
         public String getClassName(String s, String s1, Object o, Predicate predicate) {
             return className;
         }
-    };
+    }
 
     /**
      * A utility class to convert Java classes in CodeModel class descriptors.

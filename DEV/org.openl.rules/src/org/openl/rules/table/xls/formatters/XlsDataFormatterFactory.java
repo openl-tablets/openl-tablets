@@ -92,7 +92,7 @@ public class XlsDataFormatterFactory {
         return formatter;
     }
 
-    private static IFormatter getDateFormatter(XlsCell cell) {
+    public static IFormatter getDateFormatter(XlsCell cell) {
         IFormatter formatter = null;
 
         Cell xlsCell = cell.getXlsCell();
