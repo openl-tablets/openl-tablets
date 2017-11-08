@@ -7,118 +7,150 @@ import org.openl.domain.AIntIterator;
 import org.openl.domain.IIntIterator;
 import org.openl.vm.IRuntimeEnv;
 
-public class TwoDimensionalAlgorithm implements IDecisionTableAlgorithm {
+public class TwoDimensionalAlgorithm implements IDecisionTableAlgorithm{
 
-    private IDecisionTableAlgorithm va, ha;
+	
+	
+	
+	
+	private IDecisionTableAlgorithm va, ha;
+	public TwoDimensionalAlgorithm(IDecisionTableAlgorithm va,
+			IDecisionTableAlgorithm ha) {
+		super();
+		this.va = va;
+		this.ha = ha;
+	}
 
-    public TwoDimensionalAlgorithm(IDecisionTableAlgorithm va, IDecisionTableAlgorithm ha) {
-        super();
-        this.va = va;
-        this.ha = ha;
-    }
 
-    @Override
-    public void removeParamValuesForIndexedConditions() {
-        va.removeParamValuesForIndexedConditions();
-        ha.removeParamValuesForIndexedConditions();
-    }
 
-    @Override
-    public IIntIterator checkedRules(Object target, Object[] params, IRuntimeEnv env) {
-        IIntIterator iv = va.checkedRules(target, params, env);
-        IIntIterator ih = ha.checkedRules(target, params, env);
 
-        return ih.isResetable() ? new TwoDScaleIterator(iv, ih) : new TwoDScaleIteratorNotResetable(iv, ih);
-    }
+	@Override
+	public void removeParamValuesForIndexedConditions() {
+		va.removeParamValuesForIndexedConditions();
+		ha.removeParamValuesForIndexedConditions();
+	}
 
-    class TwoDScaleIterator extends AIntIterator {
-        IIntIterator iv;
-        IIntIterator ih;
-        int vValue = -1;
+	@Override
+	public IIntIterator checkedRules(Object target, Object[] params,
+			IRuntimeEnv env) {
+		IIntIterator iv = va.checkedRules(target, params, env);
+		IIntIterator ih = ha.checkedRules(target, params, env);
+		
+		
+		
+		
+		return ih.isResetable() ? new TwoDScaleIterator(iv,  ih) : new TwoDScaleIteratorNotResetable(iv,  ih);
+	}
 
-        public TwoDScaleIterator(IIntIterator iv, IIntIterator ih) {
-            this.iv = iv;
-            this.ih = ih;
-            nextV();
-        }
+	class TwoDScaleIterator extends AIntIterator
+	{
+		IIntIterator iv; 
+		IIntIterator ih;
+		int vValue = -1;
+		
+		
 
-        protected void nextV() {
-            if (iv.hasNext())
-                vValue = iv.next();
-            else
-                vValue = -1;
+		public TwoDScaleIterator(IIntIterator iv, IIntIterator ih) {
+			this.iv = iv;
+			this.ih = ih;
+			nextV();
+		}
 
-        }
+		protected void nextV() {
+			if (iv.hasNext())
+				vValue = iv.next();
+			else
+				vValue = -1;
+			
+		}
 
-        @Override
-        public int nextInt() {
-            return vValue + nextH();
-        }
+		@Override
+		public int nextInt() {
+			return vValue + nextH();
+		}
 
-        protected int nextH() {
-            return ih.nextInt();
-        }
+		protected int nextH() {
+			return ih.nextInt();
+		}
 
-        @Override
-        public boolean hasNext() {
-            while (vValue >= 0) {
+		@Override
+		public boolean hasNext() {
+			while(vValue >= 0)
+			{	
+			
+				if (hasNextH())
+					return true;
+			
+				resetH();
+				nextV();
+			}
+			return false;
+		}
 
-                if (hasNextH())
-                    return true;
+		protected void resetH() {
+			ih.reset();
+		}
 
-                resetH();
-                nextV();
-            }
-            return false;
-        }
+		protected boolean hasNextH() {
+			return ih.hasNext();
+		}
 
-        protected void resetH() {
-            ih.reset();
-        }
+		@Override
+		public boolean isResetable() {
+			return false;
+		}
+		
+		
 
-        protected boolean hasNextH() {
-            return ih.hasNext();
-        }
+		@Override
+		public void reset() {
+			throw new UnsupportedOperationException();
+		}
+	}
 
-        @Override
-        public boolean isResetable() {
-            return false;
-        }
+	
+	
+	class TwoDScaleIteratorNotResetable extends TwoDScaleIterator
+	{
 
-        @Override
-        public void reset() {
-            throw new UnsupportedOperationException();
-        }
-    }
+		ArrayList<Integer> storeIh = new ArrayList<Integer>();
+		Iterator<Integer> itH;
+		
+		public TwoDScaleIteratorNotResetable(IIntIterator iv, IIntIterator ih) {
+			super(iv, ih);
+		}
 
-    class TwoDScaleIteratorNotResetable extends TwoDScaleIterator {
+		
 
-        ArrayList<Integer> storeIh = new ArrayList<Integer>();
-        Iterator<Integer> itH;
 
-        public TwoDScaleIteratorNotResetable(IIntIterator iv, IIntIterator ih) {
-            super(iv, ih);
-        }
+		@Override
+		protected int nextH() {
+			if (itH != null)
+				return itH.next();
+			int i = ih.nextInt();
+			storeIh.add(i);
+			return i;
+		}
 
-        @Override
-        protected int nextH() {
-            if (itH != null)
-                return itH.next();
-            int i = ih.nextInt();
-            storeIh.add(i);
-            return i;
-        }
 
-        @Override
-        protected void resetH() {
-            itH = storeIh.iterator();
-        }
+		@Override
+		protected void resetH() {
+			itH = storeIh.iterator();
+		}
 
-        @Override
-        protected boolean hasNextH() {
-            return itH == null ? ih.hasNext() : itH.hasNext();
-        }
 
-    }
+
+
+		@Override
+		protected boolean hasNextH() {
+			return itH == null ? ih.hasNext() : itH.hasNext();
+		}
+
+		
+		
+	}
+	
+	
+	
 
 }
