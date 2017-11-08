@@ -22,8 +22,14 @@ import org.openl.types.java.JavaOpenClass;
  *
  */
 public class TypeCastFactory extends AConfigurationElement implements IConfigurationElement {
+    
+    TypeCastFactory(IOpenLConfiguration configuration) {
+        this.configuration = configuration;
+    }
+    
+    private IOpenLConfiguration configuration;
 
-    public static class JavaCastComponent extends AConfigurationElement {
+    public class JavaCastComponent extends AConfigurationElement {
         String libraryClassName;
         String className;
 
@@ -43,6 +49,7 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
                                                                                        // implementation
                                                                                        // cast!
                 factory.setMethodFactory(new StaticClassLibrary(JavaOpenClass.getOpenClass(libClass)));
+                factory.setGlobalCastFactory(configuration);
             }
             return factory;
         }
@@ -79,7 +86,7 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
 
     }
 
-    ArrayList<JavaCastComponent> components = new ArrayList<JavaCastComponent>();
+    private ArrayList<JavaCastComponent> components = new ArrayList<JavaCastComponent>();
 
     public void addJavaCast(JavaCastComponent cmp) {
         components.add(cmp);

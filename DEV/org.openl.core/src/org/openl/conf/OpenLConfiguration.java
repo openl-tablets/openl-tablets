@@ -271,6 +271,11 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     public TypeCastFactory getTypeCastFactory() {
         return typeCastFactory;
     }
+    
+    public TypeCastFactory createTypeCastFactory() {
+        this.typeCastFactory = new TypeCastFactory(this);
+        return this.typeCastFactory;
+    }
 
     public String getUri() {
         return uri;

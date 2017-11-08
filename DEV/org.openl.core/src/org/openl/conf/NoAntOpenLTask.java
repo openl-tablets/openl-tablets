@@ -59,9 +59,8 @@ public class NoAntOpenLTask {
     }
 
     public TypeCastFactory createTypecast() {
-        TypeCastFactory tcf = new TypeCastFactory();
-        conf.setTypeCastFactory(tcf);
-        return tcf;
+        conf.createTypeCastFactory();
+        return conf.getTypeCastFactory();
     }
 
     public TypeFactoryConfiguration createTypes() {
