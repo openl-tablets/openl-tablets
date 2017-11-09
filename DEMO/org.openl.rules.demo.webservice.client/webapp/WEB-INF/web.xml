@@ -23,6 +23,6 @@
 
     <context-param>
         <param-name>ws.path</param-name>
-        <param-value>/webservice/Example3-AutoPolicyCalculation?wsdl</param-value>
+        <param-value>/webservice/REST/Example3-AutoPolicyCalculation</param-value>
     </context-param>
 </web-app>
