@@ -6,6 +6,7 @@
     <property name="logPath" value="${logPath:-${catalina.base}/logs}"/>
     <property name="logLevel" value="${logLevel:-INFO}"/>
     <property name="logLevel.console" value="${logLevel.console:-${logLevel}}"/>
+    <property name="extConfig" value="${extConfig:-logback-ext.xml}"/>
     <!-- priority of appName resolving: -->
     <!-- 1. JNDI -->
     <!-- 2. logback.properties -->
@@ -36,6 +37,10 @@
             <pattern>%d{HH:mm:ss.SSS} %5p [%t] [%c{30}]: %m%n</pattern>
         </encoder>
     </appender>
+
+    <!-- Append new or override exist appenders and configurations -->
+    <include resource="${extConfig}"/>
+
     <root level="${logLevel}">
         <appender-ref ref="Console"/>
         <appender-ref ref="File"/>
