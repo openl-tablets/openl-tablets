@@ -242,12 +242,12 @@ public class DecisionTableHelper {
 
     private static int writeConditions(IWritableGrid grid, ILogicalTable originalTable, DecisionTable decisionTable,
             int numberOfHcondition) throws OpenLCompilationException {
-        int numberOfConditions = getNumberOfConditions(decisionTable);
+        int numberOfConditions = getNumberOfConditions(decisionTable); 
         int column = 0;
         int vColumnCounter = 0;
         
         for (int i = 0; i < numberOfConditions; i++) {
-            if (column > originalTable.getWidth()) {
+            if (column > originalTable.getSource().getWidth()) {
                 String message = "Wrong table structure: Columns count is less than parameters count";
                 throw new OpenLCompilationException(message);
             }
