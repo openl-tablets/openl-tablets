@@ -1,1 +1,0 @@
-Condition is always true
