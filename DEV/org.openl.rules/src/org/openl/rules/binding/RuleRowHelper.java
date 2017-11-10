@@ -257,7 +257,7 @@ public class RuleRowHelper {
                         if (theCell.getAbsoluteRegion().getTop() != cell.getAbsoluteRegion()
                             .getTop() || theCell.getAbsoluteRegion().getLeft() != cell.getAbsoluteRegion().getLeft()) {
                             IGridTable cellTable = getTopLeftCellFromMergedRegion(table.getSource());
-                            throw SyntaxNodeExceptionUtils.createError("Expected one cell for non array type!",
+                            throw SyntaxNodeExceptionUtils.createError("More than one cell for non array type is used!",
                                 new GridCellSourceCodeModule(cellTable, bindingContext));
                         }
                     }
