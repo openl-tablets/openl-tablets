@@ -1,0 +1,1 @@
+ERROR: Operator not defined for: le(java.lang.String, org.openl.meta.DoubleValue)

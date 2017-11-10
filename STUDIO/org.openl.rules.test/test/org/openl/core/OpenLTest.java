@@ -9,8 +9,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.junit.After;
@@ -68,13 +70,13 @@ public final class OpenLTest {
         TestSuiteMethod[] tests = ProjectHelper.allTesters(openClass);
         assertEquals(2, tests.length);
         {
-            IOpenMethod method = openClass.getMethod("HelloTest12", new IOpenClass[]{});
+            IOpenMethod method = openClass.getMethod("HelloTest12", new IOpenClass[] {});
             assertNotNull(method);
             assertTrue(method instanceof TestSuiteMethod);
             TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
             assertEquals("Module name must be initialized", "Main", testSuiteMethod.getModuleName());
             Object instance = openClass.newInstance(new SimpleRulesVM().getRuntimeEnv());
-            Object result = testSuiteMethod.invoke(instance, new Object[]{}, new SimpleRulesVM().getRuntimeEnv());
+            Object result = testSuiteMethod.invoke(instance, new Object[] {}, new SimpleRulesVM().getRuntimeEnv());
             assertTrue(result instanceof TestUnitsResults);
             TestUnitsResults testUnitsResults = (TestUnitsResults) result;
             assertEquals("Incorrect test name", "HelloTest12()", testUnitsResults.getName());
@@ -87,13 +89,13 @@ public final class OpenLTest {
         }
 
         {
-            IOpenMethod method = openClass.getMethod("GreetingTest", new IOpenClass[]{});
+            IOpenMethod method = openClass.getMethod("GreetingTest", new IOpenClass[] {});
             assertNotNull(method);
             assertTrue(method instanceof TestSuiteMethod);
             TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
             assertEquals("Module name must be initialized", "Second Module", testSuiteMethod.getModuleName());
             Object instance = openClass.newInstance(new SimpleRulesVM().getRuntimeEnv());
-            Object result = testSuiteMethod.invoke(instance, new Object[]{}, new SimpleRulesVM().getRuntimeEnv());
+            Object result = testSuiteMethod.invoke(instance, new Object[] {}, new SimpleRulesVM().getRuntimeEnv());
             assertTrue(result instanceof TestUnitsResults);
             TestUnitsResults testUnitsResults = (TestUnitsResults) result;
             assertEquals("Incorrect test name", "GreetingTest()", testUnitsResults.getName());
@@ -119,13 +121,14 @@ public final class OpenLTest {
         }
 
         for (File file : sourceDir.listFiles()) {
+            int errors = 0;
             String sourceFile = file.getName();
             CompiledOpenClass compiledOpenClass = null;
             if (file.isFile() && (sourceFile.endsWith(".xlsx") || sourceFile.endsWith(".xls"))) {
                 try {
                     new FileInputStream(file).close();
                 } catch (Exception ex) {
-                    LOG.error("Failed to read file [" + sourceFile + "]", ex);
+                    error(errors++, sourceFile, "Failed to read file.", ex);
                     hasErrors = true;
                     continue;
                 }
@@ -142,7 +145,7 @@ public final class OpenLTest {
                 try {
                     compiledOpenClass = engineFactory.getCompiledOpenClass();
                 } catch (ClassNotFoundException | ProjectResolvingException | RulesInstantiationException e) {
-                    LOG.error("Compilation fails for [" + sourceFile + "].", e);
+                    error(errors++, sourceFile, "Compilation fails.", e);
                     hasErrors = true;
                     continue;
                 }
@@ -151,123 +154,109 @@ public final class OpenLTest {
                 continue;
             }
 
-            if (anyMessageFileExists(sourceDir, sourceFile)) {
+            boolean success = true;
+
+            // Check messages
+            File msgFile = new File(sourceDir, sourceFile + ".msg.txt");
+            Set<String> expectedMessages = new LinkedHashSet<>();
+            ;
+            if (msgFile.exists()) {
+                try {
+                    String content = IOUtils.toStringAndClose(new FileInputStream(msgFile));
+                    for (String message : content
+                        .split("\\u000D\\u000A|[\\u000A\\u000B\\u000C\\u000D\\u0085\\u2028\\u2029]")) {
+                        if (!StringUtils.isBlank(message)) {
+                            expectedMessages.add(message.trim());
+                        }
+                    }
+                } catch (IOException exc) {
+                    error(errors++, sourceFile, "Cannot read a file {}", msgFile, exc);
+                }
+
                 List<OpenLMessage> actualMessages = compiledOpenClass.getMessages();
-                boolean hasAllMessages = true;
-                for (Severity severity : Severity.values()) {
-                    if (!assertMessages(sourceDir, sourceFile, actualMessages, severity)) {
-                        hasAllMessages = false;
+                List<OpenLMessage> missedMessages = new ArrayList<>();
+                Set<String> restMessages = new LinkedHashSet<>(expectedMessages.size());
+                restMessages.addAll(expectedMessages);
+                for (OpenLMessage msg : actualMessages) {
+                    String actual = msg.getSeverity() + ": " + msg.getSummary();
+                    if (msg.getSeverity().equals(Severity.ERROR) || msg.getSeverity().equals(Severity.FATAL)) {
+                        success = false;
+                    }
+                    restMessages.remove(actual);
+                    if (!expectedMessages.contains(actual)) {
+                        missedMessages.add(msg);
                     }
                 }
-
-                if (hasAllMessages) {
-                    LOG.info("OK in [" + sourceFile + "].");
-                } else {
-                    hasErrors = true;
+                if (!missedMessages.isEmpty()) {
+                    success = false;
+                    error(errors++, sourceFile, "  UNEXPECTED messages:");
+                    for (OpenLMessage msg : missedMessages) {
+                        error(errors++,
+                            sourceFile,
+                            "   {}: {}    at {}",
+                            msg.getSeverity(),
+                            msg.getSummary(),
+                            msg.getSourceLocation());
+                    }
                 }
-            } else {
-                if (compiledOpenClass.hasErrors()) {
-                    LOG.error("Compilation errors in [" + sourceFile + "].");
-                    LOG.error(compiledOpenClass.getMessages().toString());
-
-                    hasErrors = true;
-                    continue;
+                if (!restMessages.isEmpty()) {
+                    success = false;
+                    error(errors++, sourceFile, "  MISSED messages:");
+                    for (String msg : restMessages) {
+                        error(errors++, sourceFile, "   {}", msg);
+                    }
                 }
+            }
 
+            // Check compilation
+            if (success && compiledOpenClass.hasErrors()) {
+                List<OpenLMessage> messages = compiledOpenClass.getMessages();
+                for (OpenLMessage msg : messages) {
+                    error(errors++,
+                        sourceFile,
+                        "   {}: {}    at {}",
+                        msg.getSeverity(),
+                        msg.getSummary(),
+                        msg.getSourceLocation());
+                }
+                success = false;
+            }
+
+            // Run tests
+            if (success) {
                 IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
                 IOpenClass openClass = compiledOpenClass.getOpenClass();
                 Object target = openClass.newInstance(env);
-                int errors = 0;
                 for (IOpenMethod method : openClass.getDeclaredMethods()) {
                     if (method instanceof TestSuiteMethod) {
                         TestUnitsResults res = (TestUnitsResults) method.invoke(target, new Object[0], env);
                         final int numberOfFailures = res.getNumberOfFailures();
-                        errors += numberOfFailures;
                         if (numberOfFailures != 0) {
-                            LOG.error("Errors in [" + sourceFile + "]. Failed test: " + res.getName() + "  Errors #:" + numberOfFailures);
+                            error(errors++,
+                                sourceFile,
+                                "Failed test: {}  Errors #: {}",
+                                res.getName(),
+                                numberOfFailures);
                         }
-
                     }
                 }
-                if (errors != 0) {
-                    hasErrors = true;
-                    LOG.error("Errors in [" + sourceFile + "]. Total failures #: " + errors);
-                } else {
-                    LOG.info("OK in [" + sourceFile + "]. ");
-                }
+            }
+
+            // Output
+            if (errors != 0) {
+                hasErrors = true;
+            } else {
+                LOG.info("OK in [{}].", sourceFile);
             }
         }
 
         assertFalse("Some tests have been failed!", hasErrors);
     }
 
-    private boolean anyMessageFileExists(File sourceDir, String projectFile) {
-        for (Severity severity : Severity.values()) {
-            File messagesFile = new File(sourceDir, projectFile + "." + severity.name().toLowerCase() + ".txt");
-            if (messagesFile.exists()) {
-                return true;
-            }
+    private void error(int count, String sourceFile, String msg, Object... args) {
+        if (count == 0) {
+            LOG.error("ERROR in [{}].", sourceFile);
         }
-
-        return false;
-    }
-
-    private boolean assertMessages(File sourceDir,
-                                   String projectFile,
-                                   List<OpenLMessage> actualMessages,
-                                   Severity severity) {
-        boolean hasAllMessages = true;
-
-        File file = new File(sourceDir, projectFile + "." + severity.name().toLowerCase() + ".txt");
-        try {
-            for (String expectedMessage : getExpectedMessages(file)) {
-                if (!findExpectedMessage(actualMessages, expectedMessage, severity)) {
-                    LOG.error("The message \"" + expectedMessage + "\" with severity " + severity
-                            .name() + " is missed for [" + projectFile + "].");
-                    hasAllMessages = false;
-                }
-            }
-        } catch (IOException e) {
-            LOG.error("Failed to read file [" + file + "].", e);
-            hasAllMessages = false;
-        }
-
-        if (!hasAllMessages) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Actual messages:");
-            for (OpenLMessage openLMessage : actualMessages) {
-                sb.append(System.lineSeparator());
-                sb.append("\t\"" + openLMessage.getSummary() + "\" with severity " + openLMessage.getSeverity() + ".");
-            }
-            LOG.error(sb.toString());
-        }
-
-        return hasAllMessages;
-    }
-
-    private List<String> getExpectedMessages(File file) throws IOException {
-        List<String> result = new ArrayList<>();
-
-        if (!file.exists()) {
-            return result;
-        }
-
-        String content = IOUtils.toStringAndClose(new FileInputStream(file));
-        for (String message : content.split("\\u000D\\u000A|[\\u000A\\u000B\\u000C\\u000D\\u0085\\u2028\\u2029]")) {
-            if (!StringUtils.isBlank(message)) {
-                result.add(message.trim());
-            }
-        }
-
-        return result;
-    }
-
-    private boolean findExpectedMessage(List<OpenLMessage> actualMessages, String expectedMessage, Severity severity) {
-        for (OpenLMessage message : actualMessages) {
-            if (message.getSummary().equals(expectedMessage) && message.getSeverity() == severity) {
-                return true;
-            }
-        }
-        return false;
+        LOG.error(msg, args);
     }
 }
