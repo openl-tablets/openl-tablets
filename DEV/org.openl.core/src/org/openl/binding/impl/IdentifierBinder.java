@@ -37,6 +37,7 @@ public class IdentifierBinder extends ANodeBinder {
 
         IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, fieldName);
 
+        BindHelper.checkOnDeprecation(node, bindingContext, type);
         if (type != null) {
             return new TypeBoundNode(node, type);
         }
@@ -53,7 +54,36 @@ public class IdentifierBinder extends ANodeBinder {
         try {
             String fieldName = ((IdentifierNode) node).getIdentifier();
 
-            return BindHelper.bindAsField(fieldName, node, bindingContext, target);
+            try {
+                IOpenField field = bindingContext.findFieldFor(target.getType(), fieldName, false);
+
+                if (field == null) {
+                    String message = String.format("Field not found: '%s'", fieldName);
+                    BindHelper.processError(message, node, bindingContext, false);
+
+                    return new ErrorBoundNode(node);
+                }
+
+                if (target.isStaticTarget() != field.isStatic()) {
+
+                    if (field.isStatic()) {
+                        BindHelper.processWarn("Access of a static field from non-static object", node, bindingContext);
+                    } else {
+                        BindHelper
+                            .processError("Access non-static field from a static object", node, bindingContext, false);
+
+                        return new ErrorBoundNode(node);
+                    }
+                }
+
+                BindHelper.checkOnDeprecation(node, bindingContext, field);
+                return new FieldBoundNode(node, field, target);
+
+            } catch (Throwable t) {
+                BindHelper.processError(node, t, bindingContext);
+
+                return new ErrorBoundNode(node);
+            }
         } catch (Throwable t) {
             BindHelper.processError(node, t, bindingContext);
 

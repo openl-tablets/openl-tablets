@@ -104,4 +104,7 @@ public class JavaOpenField implements IOpenField {
         return getName();
     }
 
+    public Field getJavaField() {
+        return field;
+    }
 }

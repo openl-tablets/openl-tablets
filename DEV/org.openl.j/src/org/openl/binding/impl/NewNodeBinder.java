@@ -54,6 +54,7 @@ public class NewNodeBinder extends ANodeBinder {
         IOpenClass[] types = getTypes(children);
 
         IMethodCaller methodCaller = MethodSearch.findConstructor(type.getName(), types, bindingContext, type);
+        BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
 
         if (methodCaller == null) {
 
