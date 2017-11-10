@@ -31,8 +31,6 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
         this.argumentsTypes = argumentsTypes.clone();
         this.children = children.clone();
     }
-    
-
 
     private IBoundNode getMultiCallMethodNode(ISyntaxNode node, IBindingContext bindingContext,
             IOpenClass[] methodArguments, Deque<Integer> arrayArgArguments) {
@@ -48,6 +46,7 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
             return null;
         }
 
+        BindHelper.checkOnDeprecation(node, bindingContext, singleParameterMethodCaller);
         // bound node that is going to call the single parameter method by several times on runtime and return an array
         // of results.
         //
