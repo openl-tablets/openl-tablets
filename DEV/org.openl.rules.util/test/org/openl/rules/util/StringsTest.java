@@ -8,6 +8,9 @@ import static org.openl.rules.util.Strings.*;
 
 import org.junit.Test;
 
+import java.text.ParseException;
+import java.util.Date;
+
 public class StringsTest {
 
     @Test
@@ -342,6 +345,118 @@ public class StringsTest {
         assertEquals("qxyzfasdg", replace("qasdfasdg", "asd", "xyz", 1));
         assertEquals("qfasdg", replace("qasdfasdg", "asd", "", 1));
         assertEquals("qasdfasdg", replace("qasdfasdg", "qsf", "", 1));
+    }
+
+    @Test
+    public void testToString() {
+        assertNull(Strings.toString(null));
+        assertEquals("", Strings.toString(""));
+        assertEquals("    ", Strings.toString("    "));
+        assertEquals("1", Strings.toString(1));
+        assertEquals("0.0", Strings.toString(0d));
+        assertEquals("0.01", Strings.toString(0.01d));
+        assertEquals("0.01", Strings.toString(0.01f));
+        assertEquals("-0.01", Strings.toString(-0.01d));
+        assertEquals("-0.01", Strings.toString(-0.01f));
+        assertEquals("true", Strings.toString(true));
+        assertEquals("false", Strings.toString(false));
+        assertEquals("07/12/1980", Strings.toString(new Date(80, 6, 12, 23, 59)));
+        assertEquals("07/12/1980", Strings.toString(new Date(80, 6, 12)));
+        assertEquals("12.07.1980", Strings.toString(new Date(80, 6, 12, 23, 59), "dd.MM.yyyy"));
+        assertEquals("12-Jul-1980", Strings.toString(new Date(80, 6, 12), "dd-MMM-yyyy"));
+    }
+
+    @Test
+    public void testToInteger() {
+        assertNull(toInteger(null));
+        assertNull(toInteger(""));
+        assertNull(toInteger(" "));
+        assertNull(toInteger("  \t  "));
+        assertEquals(Integer.valueOf(1), toInteger("1"));
+        assertEquals(Integer.valueOf(0), toInteger("0"));
+        assertEquals(Integer.valueOf(0), toInteger("0000"));
+        assertEquals(Integer.valueOf(-1), toInteger("-1"));
+        assertEquals(Integer.valueOf(10000000), toInteger("10000000"));
+    }
+
+    @Test(expected = Exception.class)
+    public void testToIntegerDot() {
+        toInteger("1.0");
+    }
+
+    @Test(expected = Exception.class)
+    public void testToIntegerWhitespace() {
+        toInteger("1 ");
+    }
+
+    @Test
+    public void testToDouble() {
+        assertNull(toDouble(null));
+        assertNull(toDouble(""));
+        assertNull(toDouble(" "));
+        assertNull(toDouble("  \t  "));
+        assertEquals(Double.valueOf(1), toDouble("1"));
+        assertEquals(Double.valueOf(0), toDouble("0"));
+        assertEquals(Double.valueOf(0), toDouble("0000.0000"));
+        assertEquals(Double.valueOf(-1), toDouble("-1"));
+        assertEquals(Double.valueOf(10000000), toDouble("10000000"));
+        assertEquals(Double.valueOf(1), toDouble("1.0"));
+        assertEquals(Double.valueOf(0.01), toDouble("0.01"));
+        assertEquals(Double.valueOf(-0.01), toDouble("-.01"));
+        assertEquals(Double.valueOf(-10000000.1), toDouble("-10000000.1"));
+    }
+
+    @Test(expected = Exception.class)
+    public void testToDoubleLetter() {
+        toDouble("a");
+    }
+
+    @Test
+    public void testToDoubleWhitespace() {
+        assertEquals(Double.valueOf(1.1), toDouble("  1.1 \t  "));
+    }
+
+    @Test
+    public void testToNumber() throws Exception {
+        assertNull(toNumber(null));
+        assertNull(toNumber(""));
+        assertNull(toNumber(" "));
+        assertNull(toNumber("  \t  "));
+        assertEquals(Long.valueOf(1), toNumber("1"));
+        assertEquals(Long.valueOf(0), toNumber("0"));
+        assertEquals(Long.valueOf(-1), toNumber("-1"));
+        assertEquals(Long.valueOf(10000000), toNumber("10000000"));
+        assertEquals(Long.valueOf(1), toNumber("1.0"));
+        assertEquals(Double.valueOf(0.01), toNumber("0.01"));
+        assertEquals(Double.valueOf(-0.01), toNumber("-.01"));
+        assertEquals(Double.valueOf(-10000000.1), toNumber("-10000000.1"));
+        assertEquals(Double.valueOf(1), toNumber("1.000000000000000000000000000000000000000000000000000000001"));
+        assertEquals(Double.POSITIVE_INFINITY, toNumber("∞"));
+    }
+
+    @Test(expected = Exception.class)
+    public void testToNumberLetter() throws Exception {
+        toNumber("X");
+    }
+
+    @Test(expected = Exception.class)
+    public void testToNumberIncorrect() throws Exception {
+        toNumber("13..");
+    }
+
+    @Test
+    public void testToDate() throws Exception {
+        assertNull(toDate(null));
+        assertNull(toDate(""));
+        assertNull(toDate(" "));
+        assertNull(toDate("  \t  "));
+        assertEquals(new Date(80, 6, 12), toDate("7/12/80"));
+        assertEquals(new Date(80, 6, 12), toDate("07/12/1980"));
+    }
+
+    @Test(expected = Exception.class)
+    public void testToDateLetter() throws Exception {
+        toDate("13/13/2013");
     }
 
     @Test

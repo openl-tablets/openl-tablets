@@ -2103,6 +2103,7 @@ public class RulesUtils {
      * @param dateFormat
      * @return String formated date value
      */
+    @Deprecated
     public static String dateToString(Date date, String dateFormat) {
         String stringDate = "Incorrect date format";
         try {
@@ -2120,6 +2121,7 @@ public class RulesUtils {
      * @return String formated date value
      * @see DateTool#dateToString;
      */
+    @Deprecated
     public static String dateToString(Date date) {
         String stringDate = "Incorrect date format";
         try {
@@ -2130,6 +2132,7 @@ public class RulesUtils {
         return stringDate;
     }
 
+    @Deprecated
     public static Date stringToDate(String value) throws ParseException {
         DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
 
