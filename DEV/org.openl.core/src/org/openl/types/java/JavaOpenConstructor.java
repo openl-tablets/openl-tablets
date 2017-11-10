@@ -145,4 +145,8 @@ public class JavaOpenConstructor implements IOpenMethod, IMethodSignature {
     public String toString() {
         return getDeclaringClass().getName();
     }
+
+    public Constructor<?> getJavaConstructor() {
+        return constructor;
+    }
 }

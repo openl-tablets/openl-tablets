@@ -48,7 +48,7 @@ public class TypeBinder extends ANodeBinder {
         if (dimension > 0) {
             varType = varType.getAggregateInfo().getIndexedAggregateType(varType, dimension);
         }
-
+        BindHelper.checkOnDeprecation(node, bindingContext, varType);
         return new TypeBoundNode(node, varType);
     }
 

@@ -1,5 +1,10 @@
 package org.openl.binding.impl;
 
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -14,8 +19,15 @@ import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.types.IMethodCaller;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.NullOpenClass;
+import org.openl.types.impl.CastingMethodCaller;
+import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.JavaOpenConstructor;
+import org.openl.types.java.JavaOpenField;
+import org.openl.types.java.JavaOpenMethod;
 import org.openl.types.java.OpenClassHelper;
 
 public class BindHelper {
@@ -152,6 +164,51 @@ public class BindHelper {
 		}
 	}
 
+    public static void checkOnDeprecation(ISyntaxNode node, IBindingContext context, IMethodCaller caller) {
+        if (caller instanceof JavaOpenMethod) {
+            Method javaMethod = ((JavaOpenMethod) caller).getJavaMethod();
+            if (isDeprecated(javaMethod)) {
+                String msg = "DEPRECATED '" + javaMethod.getName() + "' function will be removed in the next version!";
+                processWarn(msg, node, context);
+            }
+        } else if (caller instanceof JavaOpenConstructor) {
+            Constructor constr = ((JavaOpenConstructor) caller).getJavaConstructor();
+            if (isDeprecated(constr)) {
+                String msg = "DEPRECATED '" + constr.getName() + "' constructor will be removed in the next version!";
+                processWarn(msg, node, context);
+            }
+        } else if (caller instanceof CastingMethodCaller) {
+            checkOnDeprecation(node, context, caller.getMethod());
+        }
+    }
+
+    public static void checkOnDeprecation(ISyntaxNode node, IBindingContext context, IOpenClass aClass) {
+        if (aClass instanceof JavaOpenClass) {
+            Class<?> javaClass = ((JavaOpenClass) aClass).getInstanceClass();
+            if (javaClass.isAnnotationPresent(Deprecated.class)) {
+                String msg = "DEPRECATED '" + javaClass.getName() + "' class will be removed in the next version!";
+                processWarn(msg, node, context);
+            }
+        } else if (aClass!= null && aClass.isArray()) {
+        	checkOnDeprecation(node, context, aClass.getComponentClass());
+		}
+    }
+
+    public static void checkOnDeprecation(ISyntaxNode node, IBindingContext context, IOpenField filed) {
+        if (filed instanceof JavaOpenField) {
+            Field javaField = ((JavaOpenField) filed).getJavaField();
+            if (isDeprecated(javaField)) {
+                String msg = "DEPRECATED '" + javaField.getName() + "' field will be removed in the next version!";
+                processWarn(msg, node, context);
+            }
+        }
+    }
+
+	private static <T extends Member & AnnotatedElement> boolean isDeprecated(T javaField) {
+		return javaField.isAnnotationPresent(Deprecated.class) || javaField.getDeclaringClass()
+                .isAnnotationPresent(Deprecated.class);
+	}
+
 	private static void checkForSameLeftAndRightExpression(IBoundNode conditionNode, IBindingContext bindingContext) {
 		IBoundNode[] children = conditionNode.getChildren();
 		if (children.length == 2) {
@@ -211,44 +268,6 @@ public class BindHelper {
 		}
 
 		return context;
-	}
-
-	public static IBoundNode bindAsField(String fieldName, ISyntaxNode node,
-			IBindingContext bindingContext, IBoundNode target) {
-		try {
-			IOpenField field = bindingContext.findFieldFor(target.getType(),
-					fieldName, false);
-
-			if (field == null) {
-				String message = String.format("Field not found: '%s'",
-						fieldName);
-				BindHelper.processError(message, node, bindingContext, false);
-
-				return new ErrorBoundNode(node);
-			}
-
-			if (target.isStaticTarget() != field.isStatic()) {
-
-				if (field.isStatic()) {
-					BindHelper.processWarn(
-							"Access of a static field from non-static object",
-							node, bindingContext);
-				} else {
-					BindHelper.processError(
-							"Access non-static field from a static object",
-							node, bindingContext);
-
-					return new ErrorBoundNode(node);
-				}
-			}
-
-			return new FieldBoundNode(node, field, target);
-
-		} catch (Throwable t) {
-			BindHelper.processError(node, t, bindingContext);
-
-			return new ErrorBoundNode(node);
-		}
 	}
 
 	/**
