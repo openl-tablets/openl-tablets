@@ -1,5 +1,14 @@
 package org.openl.rules.util;
 
+import java.text.DateFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+
 /**
  * A set of util methods to work with strings.
  *
@@ -539,6 +548,50 @@ public class Strings {
         }
         buf.append(str.substring(start));
         return buf.toString();
+    }
+
+    public static String toString(Object obj) {
+        return obj == null ? null : obj.toString();
+    }
+
+    public static String toString(Date date) {
+        return toString(date, null);
+    }
+
+    public static String toString(Date date, String pattern) {
+        return date == null ? null : new SimpleDateFormat(pattern == null ? "MM/dd/yyyy" : pattern, Locale.US).format(date);
+    }
+
+    public static Integer toInteger(String str) {
+        return isEmpty(str) ? null : Integer.valueOf(str);
+    }
+
+    public static Double toDouble(String str) {
+        return isEmpty(str) ? null : Double.valueOf(str);
+    }
+
+    public static Number toNumber(String str) throws ParseException {
+        if (isEmpty(str)) {
+            return null;
+        }
+        ParsePosition parsePosition = new ParsePosition(0);
+        Number parsed = NumberFormat.getInstance(Locale.US).parse(str, parsePosition);
+        if (parsePosition.getIndex() != str.length()) {
+            throw new ParseException("Unparseable number: \"" + str + "\"", parsePosition.getIndex());
+        }
+        return parsed;
+    }
+
+    public static Date toDate(String str) throws ParseException {
+        return isEmpty(str) ? null : getDateFormat().parse(str);
+    }
+
+    private static DateFormat getDateFormat() {
+        DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, Locale.US);
+        df.setLenient(false); // Strict matching
+        df.getCalendar().set(0, 0, 0, 0, 0, 0); // at
+        df.getCalendar().set(Calendar.MILLISECOND, 0);
+        return df;
     }
 
     public static String concatenate(Object... objects) {
