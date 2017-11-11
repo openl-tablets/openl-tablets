@@ -1,5 +1,7 @@
 package org.openl.rules.util;
 
+import java.util.Collection;
+
 /**
  * A set of util methods to work with arrays.
  *
@@ -16,6 +18,10 @@ public class Arrays {
      */
     public static <T> boolean isEmpty(T[] array) {
         return array == null || array.length == 0;
+    }
+
+    public static boolean isEmpty(Collection<?> array) {
+        return array == null || array.isEmpty();
     }
 
     public static boolean isEmpty(byte[] array) {
@@ -60,6 +66,10 @@ public class Arrays {
         return !isEmpty(array);
     }
 
+    public static int length(Collection<?> array) {
+        return array == null ? 0 : array.size();
+    }
+
     public static boolean isNotEmpty(byte[] array) {
         return !isEmpty(array);
     }
@@ -90,5 +100,45 @@ public class Arrays {
 
     public static boolean isNotEmpty(boolean[] array) {
         return !isEmpty(array);
+    }
+
+    public static boolean isNotEmpty(Collection<?> array) {
+        return !isEmpty(array);
+    }
+
+    public static <T> int length(T[] array) {
+        return array == null ? 0 : array.length;
+    }
+
+    public static int length(byte[] array) {
+        return array == null ? 0 : array.length;
+    }
+
+    public static int length(char[] array) {
+        return array == null ? 0 : array.length;
+    }
+
+    public static int length(short[] array) {
+        return array == null ? 0 : array.length;
+    }
+
+    public static int length(int[] array) {
+        return array == null ? 0 : array.length;
+    }
+
+    public static int length(long[] array) {
+        return array == null ? 0 : array.length;
+    }
+
+    public static int length(float[] array) {
+        return array == null ? 0 : array.length;
+    }
+
+    public static int length(double[] array) {
+        return array == null ? 0 : array.length;
+    }
+
+    public static int length(boolean[] array) {
+        return array == null ? 0 : array.length;
     }
 }

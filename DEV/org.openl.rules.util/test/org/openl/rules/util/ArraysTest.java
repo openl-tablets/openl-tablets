@@ -1,9 +1,14 @@
 package org.openl.rules.util;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.openl.rules.util.Arrays.isEmpty;
 import static org.openl.rules.util.Arrays.isNotEmpty;
+import static org.openl.rules.util.Arrays.length;
+
+import java.util.ArrayList;
+import java.util.HashSet;
 
 import org.junit.Test;
 
@@ -46,6 +51,14 @@ public class ArraysTest {
         assertTrue(isEmpty(new boolean[0]));
         assertFalse(isEmpty(new boolean[] { false }));
 
+        assertTrue(isEmpty((ArrayList<?>) null));
+        assertTrue(isEmpty(new ArrayList()));
+        assertFalse(isEmpty(new ArrayList() {
+            {
+                add(1);
+            }
+        }));
+
     }
 
     @Test
@@ -85,5 +98,60 @@ public class ArraysTest {
         assertFalse(isNotEmpty((boolean[]) null));
         assertFalse(isNotEmpty(new boolean[0]));
         assertTrue(isNotEmpty(new boolean[] { false }));
+
+        assertFalse(isNotEmpty((HashSet<?>) null));
+        assertFalse(isNotEmpty(new HashSet()));
+        assertTrue(isNotEmpty(new HashSet() {
+            {
+                add(false);
+            }
+        }));
+    }
+
+    @Test
+    public void testLength() {
+        assertEquals(0, length((Object[]) null));
+        assertEquals(0, length(new Object[0]));
+        assertEquals(1, length(new Object[] { 0 }));
+
+        assertEquals(0, length((byte[]) null));
+        assertEquals(0, length(new byte[0]));
+        assertEquals(1, length(new byte[] { 0 }));
+
+        assertEquals(0, length((char[]) null));
+        assertEquals(0, length(new char[0]));
+        assertEquals(1, length(new char[] { 0 }));
+
+        assertEquals(0, length((short[]) null));
+        assertEquals(0, length(new short[0]));
+        assertEquals(1, length(new short[] { 0 }));
+
+        assertEquals(0, length((int[]) null));
+        assertEquals(0, length(new int[0]));
+        assertEquals(1, length(new int[] { 0 }));
+
+        assertEquals(0, length((long[]) null));
+        assertEquals(0, length(new long[0]));
+        assertEquals(1, length(new long[] { 0 }));
+
+        assertEquals(0, length((float[]) null));
+        assertEquals(0, length(new float[0]));
+        assertEquals(1, length(new float[] { 0 }));
+
+        assertEquals(0, length((double[]) null));
+        assertEquals(0, length(new double[0]));
+        assertEquals(1, length(new double[] { 0 }));
+
+        assertEquals(0, length((boolean[]) null));
+        assertEquals(0, length(new boolean[0]));
+        assertEquals(1, length(new boolean[] { false }));
+
+        assertEquals(0, length((HashSet<?>) null));
+        assertEquals(0, length(new HashSet()));
+        assertEquals(1, length(new HashSet() {
+            {
+                add(false);
+            }
+        }));
     }
 }
