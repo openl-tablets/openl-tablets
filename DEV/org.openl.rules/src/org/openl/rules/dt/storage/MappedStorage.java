@@ -3,9 +3,7 @@ package org.openl.rules.dt.storage;
 
 public abstract class MappedStorage extends ReadOnlyStorage<Object> {
 
-	Object[] uniqueValues;
-	
-	
+	private Object[] uniqueValues;
 	
 	public MappedStorage(Object[] uniqueValues, StorageInfo info) {
 		super(info);
@@ -16,7 +14,6 @@ public abstract class MappedStorage extends ReadOnlyStorage<Object> {
 	public Object getValue(int index) {
 		return uniqueValues[mapIndex(index)];
 	}
-	
 	
 	protected abstract int mapIndex(int index); 
 
@@ -35,10 +32,6 @@ public abstract class MappedStorage extends ReadOnlyStorage<Object> {
 		return uniqueValues[mapIndex(index)] == IStorage.StorageType.ELSE;
 	}
 	
-	
-
-
-	
 	/**
 	 * 
 	 * @param map  integer map array containing indexes in uniqueValues. The indexes may contain only values from 0 to uniqueValues.length - 1 
@@ -48,7 +41,7 @@ public abstract class MappedStorage extends ReadOnlyStorage<Object> {
 	public static IStorage<Object> makeNewStorage(int[] map,
 			Object[] uniqueValues, StorageInfo info) {
 		
-		int mapMaxValue = uniqueValues.length - 1;
+		int mapMaxValue = uniqueValues.length - 1; 
 		
 		if (mapMaxValue <= Byte.MAX_VALUE)
 			return new ByteMappedStorage(map, uniqueValues, info);
@@ -65,11 +58,9 @@ public abstract class MappedStorage extends ReadOnlyStorage<Object> {
 		return new IntMappedStorage(map, uniqueValues, info);
 	}
 	
-	
-	
-	static class ByteMappedStorage  extends MappedStorage {
+	static class ByteMappedStorage extends MappedStorage {
 
-		byte[] bmap;
+		private byte[] bmap;
 		
 		public ByteMappedStorage(int[] map,  Object[] uniqueValues, StorageInfo info) {
 			super(uniqueValues, info);
@@ -97,7 +88,7 @@ public abstract class MappedStorage extends ReadOnlyStorage<Object> {
 	
 	static class ByteExtMappedStorage  extends MappedStorage {
 
-		byte[] bmap;
+		private byte[] bmap;
 		
 		public ByteExtMappedStorage(int[] map,  Object[] uniqueValues, StorageInfo info) {
 			super(uniqueValues, info);
@@ -127,7 +118,7 @@ public abstract class MappedStorage extends ReadOnlyStorage<Object> {
 	
 	static class ShortMappedStorage  extends MappedStorage {
 
-		short[] bmap;
+		private short[] bmap;
 		
 		public ShortMappedStorage(int[] map,  Object[] uniqueValues, StorageInfo info) {
 			super(uniqueValues, info);
@@ -156,7 +147,7 @@ public abstract class MappedStorage extends ReadOnlyStorage<Object> {
 
 	static class ShortExtMappedStorage  extends MappedStorage {
 
-		short[] bmap;
+		private short[] bmap;
 		
 		public ShortExtMappedStorage(int[] map,  Object[] uniqueValues, StorageInfo info) {
 			super(uniqueValues, info);
@@ -185,7 +176,7 @@ public abstract class MappedStorage extends ReadOnlyStorage<Object> {
 	
 	static class IntMappedStorage  extends MappedStorage {
 
-		int[] map;
+		private int[] map;
 		
 		public IntMappedStorage(int[] map,  Object[] uniqueValues, StorageInfo info) {
 			super(uniqueValues, info);

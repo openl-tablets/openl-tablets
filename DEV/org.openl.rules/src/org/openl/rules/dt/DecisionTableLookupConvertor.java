@@ -69,9 +69,14 @@ public class DecisionTableLookupConvertor {
 
         IGridTable lookupValuesTable = getLookupValuesTable(table, firstLookupGridColumn, grid);
 
+        Integer lookupValuesTableHeight = getlookupValuesTableHeight(table, firstLookupGridColumn, grid);
+
         isMultiplier(lookupValuesTable);
 
-        CoordinatesTransformer transformer = getTransformer(headerRow, table, lookupValuesTable);
+        CoordinatesTransformer transformer = getTransformer(headerRow,
+            table,
+            lookupValuesTable,
+            lookupValuesTableHeight);
 
         return new TransformedGridTable(table.getSource(), transformer);
     }
@@ -96,12 +101,16 @@ public class DecisionTableLookupConvertor {
 
     private CoordinatesTransformer getTransformer(ILogicalTable headerRow,
             ILogicalTable table,
-            IGridTable lookupValuesTable) throws OpenLCompilationException {
+            IGridTable lookupValuesTable,
+            Integer lookupValuesTableHeight) throws OpenLCompilationException {
         int retColumnStart = findRetColumnStart(headerRow);
         int firstEmptyCell = findFirstEmptyCellInHeader(headerRow);
         int retTableWidth = retTable.getSource().getWidth();
 
-        scale = new DTScale(lookupValuesTable.getHeight(), lookupValuesTable.getWidth() / retTableWidth);
+        if (lookupValuesTableHeight == null) {
+            lookupValuesTableHeight = lookupValuesTable.getHeight();
+        }
+        scale = new DTScale(lookupValuesTableHeight, lookupValuesTable.getWidth() / retTableWidth);
 
         if (isRetLastColumn(retColumnStart, retTableWidth, firstEmptyCell)) {
             return new TwoDimensionDecisionTableTranformer(table.getSource(), lookupValuesTable, retTableWidth);
@@ -181,6 +190,21 @@ public class DecisionTableLookupConvertor {
         return new GridTable(lookupValuesRegion, grid);
     }
 
+    private Integer getlookupValuesTableHeight(ILogicalTable originaltable, int firstLookupGridColumn, IGrid grid) {
+        String stringValue = originaltable.getCell(0, 0).getStringValue();
+        if (stringValue == null) {
+            stringValue = "";
+        }
+        stringValue = stringValue.toUpperCase();
+        ILogicalTable valueTable = originaltable.getRows(DISPLAY_ROW + 1);
+        if (DecisionTableHelper.isValidRuleHeader(stringValue) || DecisionTableHelper
+            .isValidMergedConditionHeader(stringValue)) {
+            return valueTable.getHeight();
+        } else {
+            return null;
+        }
+    }
+
     private int getWidthWithIgnoredEmptyCells(IGridTable table) {
         int width = table.getWidth();
         while (width > 0) {
@@ -189,7 +213,7 @@ public class DecisionTableLookupConvertor {
                     return width;
                 }
             }
-            width--; 
+            width--;
         }
 
         return 0;

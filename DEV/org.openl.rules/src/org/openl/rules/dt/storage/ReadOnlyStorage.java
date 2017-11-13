@@ -2,14 +2,11 @@ package org.openl.rules.dt.storage;
 
 public abstract class ReadOnlyStorage<T> implements IStorage<T> {
 
-
-	StorageInfo info;
+	private StorageInfo info;
 	
-	public ReadOnlyStorage(StorageInfo info)
-	{
+	public ReadOnlyStorage(StorageInfo info) {
 		this.info = info;
 	}
-	
 	
 	@Override
 	public void setValue(int index, Object o) {
@@ -31,11 +28,9 @@ public abstract class ReadOnlyStorage<T> implements IStorage<T> {
 		
 	}
 
-
 	public StorageInfo getInfo() {
 		return info;
 	}
-
 
 	public void setInfo(StorageInfo info) {
 		this.info = info;

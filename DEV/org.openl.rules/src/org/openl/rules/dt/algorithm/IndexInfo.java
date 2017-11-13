@@ -61,12 +61,12 @@ public class IndexInfo {
 		DTInfo dti = table.getDtInfo();
 		DTScale dts = dti.getScale();
 		
-		int hSize = dts.getVScale().getMultiplier();
-		int vSize = dts.getHScale().getMultiplier();
+		int vSize = dts.getVScale().getMultiplier();
+		int hSize = dts.getHScale().getMultiplier();
 		
 		
 		return new IndexInfo().withTable(table).withFromCondition(dti.getNumberVConditions())
-				.withToCondition(toCondition).withToRule((hSize-1) * vSize).withStep(vSize);
+				.withToCondition(toCondition).withToRule((vSize-1) * hSize).withStep(hSize);
 	}
 	
 	
