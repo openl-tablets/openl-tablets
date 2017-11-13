@@ -1,7 +1,6 @@
 package org.openl.rules.dt.algorithm;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.openl.OpenL;
@@ -10,7 +9,6 @@ import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.impl.TypeBoundNode;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
-import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;

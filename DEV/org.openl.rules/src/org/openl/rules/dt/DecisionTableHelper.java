@@ -1208,7 +1208,7 @@ public class DecisionTableHelper {
             if (value != null) {
                 value = value.toUpperCase();
 
-                if (isValidConditionHeader(value)) {
+                if (isValidConditionHeader(value) || isValidMergedConditionHeader(value)) {
                     ++cnt;
                 }
             }
