@@ -12,6 +12,7 @@ package org.openl.rules.serialization.jackson.org.openl.meta;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.databind.deser.std.NumberDeserializers;
 import org.openl.meta.LongValue;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -39,6 +40,8 @@ public class LongValueType {
     @SuppressWarnings("serial")
     public static class LongValueDeserializer extends StdScalarDeserializer<LongValue> {
 
+        private static final NumberDeserializers.LongDeserializer DESERIALIZER = new NumberDeserializers.LongDeserializer(Long.class, null);
+
         public LongValueDeserializer() {
             super(LongValue.class);
         }
@@ -46,7 +49,7 @@ public class LongValueType {
         @Override
         public LongValue deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException,
                                                                                 JsonProcessingException {
-            Long value = _parseLong(jp, ctxt);
+            Long value = DESERIALIZER.deserialize(jp, ctxt);
             if (value == null) {
                 return null;
             }
