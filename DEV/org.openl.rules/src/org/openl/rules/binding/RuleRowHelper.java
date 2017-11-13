@@ -255,9 +255,9 @@ public class RuleRowHelper {
                 for (int j = 0; j < table.getWidth(); j++) {
                     if ((!(i == 0 && j == 0))) {
                         ICell cell = table.getCell(j, i);
-                        if (theCell.getAbsoluteRegion().getTop() != cell.getAbsoluteRegion()
+                        if ((theCell.getAbsoluteRegion().getTop() != cell.getAbsoluteRegion()
                             .getTop() || theCell.getAbsoluteRegion().getLeft() != cell.getAbsoluteRegion()
-                                .getLeft() && cell.getStringValue() != null) {
+                                .getLeft()) && cell.getStringValue() != null) {
                             if (!cell.getStringValue().startsWith(COMMETARY)) {
                                 IGridTable cellTable = getTopLeftCellFromMergedRegion(table.getSource());
                                 throw SyntaxNodeExceptionUtils.createError(
