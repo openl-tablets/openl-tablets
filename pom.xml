@@ -1145,12 +1145,12 @@
             <dependency>
                 <groupId>com.datastax.cassandra</groupId>
                 <artifactId>cassandra-driver-core</artifactId>
-                <version>3.0.2</version>
+                <version>3.0.7</version>
             </dependency>
             <dependency>
                 <groupId>com.datastax.cassandra</groupId>
                 <artifactId>cassandra-driver-mapping</artifactId>
-                <version>3.0.2</version>
+                <version>3.0.7</version>
             </dependency>
             <dependency>
                 <groupId>dom4j</groupId>
