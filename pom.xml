@@ -75,8 +75,8 @@
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
         <staging.hg.repo.url>https://vno-hg.exigengroup.com/hg/openl-pub</staging.hg.repo.url>
-        <org.springframework.version>4.1.5.RELEASE</org.springframework.version>
-        <org.springsecurity.version>3.2.4.RELEASE</org.springsecurity.version>
+        <org.springframework.version>4.3.12.RELEASE</org.springframework.version>
+        <org.springsecurity.version>4.2.3.RELEASE</org.springsecurity.version>
         <org.hibernate.version>4.3.11.Final</org.hibernate.version>
         <org.mojarra.version>2.1.19</org.mojarra.version>
         <asm.version>4.2</asm.version>
@@ -763,16 +763,34 @@
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-core</artifactId>
                 <version>${org.springsecurity.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>aopalliance</groupId>
+                        <artifactId>aopalliance</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-config</artifactId>
                 <version>${org.springsecurity.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>aopalliance</groupId>
+                        <artifactId>aopalliance</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-web</artifactId>
                 <version>${org.springsecurity.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>aopalliance</groupId>
+                        <artifactId>aopalliance</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
