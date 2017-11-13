@@ -261,7 +261,7 @@ public class RuleRowHelper {
                             if (!cell.getStringValue().startsWith(COMMETARY)) {
                                 IGridTable cellTable = getTopLeftCellFromMergedRegion(table.getSource());
                                 throw SyntaxNodeExceptionUtils.createError(
-                                    "More than one cell for non array type is used!",
+                                    "Table structure is wrong. More than one cell with data found where only one cell is expected.",
                                     new GridCellSourceCodeModule(cellTable, bindingContext));
                             }
                         }
