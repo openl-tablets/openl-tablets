@@ -12,6 +12,8 @@ package org.openl.rules.serialization.jackson.org.openl.meta;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.deser.std.NumberDeserializers;
 import org.openl.meta.DoubleValue;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -39,6 +41,8 @@ public class DoubleValueType {
     @SuppressWarnings("serial")
     public static class DoubleValueDeserializer extends StdScalarDeserializer<DoubleValue> {
 
+        private static final NumberDeserializers.DoubleDeserializer DESERIALIZER = new NumberDeserializers.DoubleDeserializer(Double.class, null);
+
         public DoubleValueDeserializer() {
             super(DoubleValue.class);
         }
@@ -46,7 +50,7 @@ public class DoubleValueType {
         @Override
         public DoubleValue deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException,
                                                                                   JsonProcessingException {
-            Double value = _parseDouble(jp, ctxt);
+            Double value = DESERIALIZER.deserialize(jp, ctxt);
             if (value == null) {
                 return null;
             }

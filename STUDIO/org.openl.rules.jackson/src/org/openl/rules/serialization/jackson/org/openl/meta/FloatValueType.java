@@ -12,6 +12,7 @@ package org.openl.rules.serialization.jackson.org.openl.meta;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.databind.deser.std.NumberDeserializers;
 import org.openl.meta.FloatValue;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -39,6 +40,8 @@ public class FloatValueType {
     @SuppressWarnings("serial")
     public static class FloatValueDeserializer extends StdScalarDeserializer<FloatValue> {
 
+        private static final NumberDeserializers.FloatDeserializer DESERIALIZER = new NumberDeserializers.FloatDeserializer(Float.class, null);
+
         public FloatValueDeserializer() {
             super(FloatValue.class);
         }
@@ -46,7 +49,7 @@ public class FloatValueType {
         @Override
         public FloatValue deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException,
                                                                                 JsonProcessingException {
-            Float value = _parseFloat(jp, ctxt);
+            Float value = DESERIALIZER.deserialize(jp, ctxt);
             if (value == null) {
                 return null;
             }

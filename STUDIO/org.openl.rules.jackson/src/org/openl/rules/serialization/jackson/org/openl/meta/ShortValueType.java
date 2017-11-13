@@ -12,6 +12,7 @@ package org.openl.rules.serialization.jackson.org.openl.meta;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.databind.deser.std.NumberDeserializers;
 import org.openl.meta.ShortValue;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -39,6 +40,8 @@ public class ShortValueType {
     @SuppressWarnings("serial")
     public static class ShortValueDeserializer extends StdScalarDeserializer<ShortValue> {
 
+        private static final NumberDeserializers.ShortDeserializer DESERIALIZER = new NumberDeserializers.ShortDeserializer(Short.class, null);
+
         public ShortValueDeserializer() {
             super(ShortValue.class);
         }
@@ -46,7 +49,7 @@ public class ShortValueType {
         @Override
         public ShortValue deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException,
                                                                                  JsonProcessingException {
-            Short value = _parseShort(jp, ctxt);
+            Short value = DESERIALIZER.deserialize(jp, ctxt);
             if (value == null) {
                 return null;
             }
