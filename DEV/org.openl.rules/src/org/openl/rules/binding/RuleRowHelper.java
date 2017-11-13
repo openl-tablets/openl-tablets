@@ -255,7 +255,7 @@ public class RuleRowHelper {
                     if ((!(i == 0 && j == 0))) {
                         ICell cell = table.getCell(j, i);
                         if (theCell.getAbsoluteRegion().getTop() != cell.getAbsoluteRegion()
-                            .getTop() || theCell.getAbsoluteRegion().getLeft() != cell.getAbsoluteRegion().getLeft()) {
+                            .getTop() || theCell.getAbsoluteRegion().getLeft() != cell.getAbsoluteRegion().getLeft() && cell.getStringValue() != null) {
                             IGridTable cellTable = getTopLeftCellFromMergedRegion(table.getSource());
                             throw SyntaxNodeExceptionUtils.createError("More than one cell for non array type is used!",
                                 new GridCellSourceCodeModule(cellTable, bindingContext));
