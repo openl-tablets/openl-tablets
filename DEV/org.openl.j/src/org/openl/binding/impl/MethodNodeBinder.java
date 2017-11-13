@@ -73,7 +73,7 @@ public class MethodNodeBinder extends ANodeBinder {
 
         return methodCaller;
     }
-    
+
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         int childrenCount = node.getNumberOfChildren();
@@ -98,6 +98,7 @@ public class MethodNodeBinder extends ANodeBinder {
             methodName,
             parameterTypes);
 
+        BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
         methodCaller = autoCastReturnTypeWrap(bindingContext, methodCaller, parameterTypes);
 
         // can`t find directly the method with given name and parameters. so,
@@ -207,6 +208,7 @@ public class MethodNodeBinder extends ANodeBinder {
         IOpenClass[] types = getTypes(children);
 
         IMethodCaller methodCaller = MethodSearch.findMethod(methodName, types, bindingContext, target.getType());
+        BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
 
         if (methodCaller == null) {
 
