@@ -48,6 +48,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public class RuleRowHelper {
 
+    public static final String COMMETARY = "//";
     public static final String ARRAY_ELEMENTS_SEPARATOR_ESCAPER = "\\";
     public static final String ARRAY_ELEMENTS_SEPARATOR = ",";
     public static final String CONSTRUCTOR = "constructor";
@@ -255,10 +256,14 @@ public class RuleRowHelper {
                     if ((!(i == 0 && j == 0))) {
                         ICell cell = table.getCell(j, i);
                         if (theCell.getAbsoluteRegion().getTop() != cell.getAbsoluteRegion()
-                            .getTop() || theCell.getAbsoluteRegion().getLeft() != cell.getAbsoluteRegion().getLeft() && cell.getStringValue() != null) {
-                            IGridTable cellTable = getTopLeftCellFromMergedRegion(table.getSource());
-                            throw SyntaxNodeExceptionUtils.createError("More than one cell for non array type is used!",
-                                new GridCellSourceCodeModule(cellTable, bindingContext));
+                            .getTop() || theCell.getAbsoluteRegion().getLeft() != cell.getAbsoluteRegion()
+                                .getLeft() && cell.getStringValue() != null) {
+                            if (!cell.getStringValue().startsWith(COMMETARY)) {
+                                IGridTable cellTable = getTopLeftCellFromMergedRegion(table.getSource());
+                                throw SyntaxNodeExceptionUtils.createError(
+                                    "More than one cell for non array type is used!",
+                                    new GridCellSourceCodeModule(cellTable, bindingContext));
+                            }
                         }
                     }
                 }
