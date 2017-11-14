@@ -1306,6 +1306,12 @@
                 <artifactId>c3p0</artifactId>
                 <version>0.9.1.2</version>
             </dependency>
+            <!-- Microsoft JDBC Driver for SQL Server -->
+            <dependency>
+                <groupId>com.microsoft.sqlserver</groupId>
+                <artifactId>mssql-jdbc</artifactId>
+                <version>6.2.2.jre7</version>
+            </dependency>
             <!-- the Java in-memory SQL DB -->
             <dependency>
                 <groupId>com.h2database</groupId>
