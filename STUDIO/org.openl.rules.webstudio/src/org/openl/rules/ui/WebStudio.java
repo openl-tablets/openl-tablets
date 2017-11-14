@@ -259,7 +259,7 @@ public class WebStudio {
 
             final FacesContext facesContext = FacesUtils.getFacesContext();
             HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
-            ExportFile.writeOutContent(response, file, file.getName());
+            ExportFile.writeOutContent(response, file);
             facesContext.responseComplete();
         } catch (ProjectException e) {
             log.error("Failed to export module", e);
