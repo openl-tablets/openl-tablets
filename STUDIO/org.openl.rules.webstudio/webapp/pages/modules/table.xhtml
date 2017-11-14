@@ -180,7 +180,7 @@
             <div style="padding: 6px 5px">
                 <a4j:commandButton id="testButton" value="Test"
                                    rendered="#{tableBean.canRun}"
-                                   title="Test" onclick="ws.nav.go('#{studio.url('test/test')}' + getTestQuery());"
+                                   title="Test" onclick="runTestCases();"
                                    styleClass="hidden b-test"/>
                 <a4j:commandButton id="runButton" value="Run"
                                    rendered="#{tableBean.canRun}"
