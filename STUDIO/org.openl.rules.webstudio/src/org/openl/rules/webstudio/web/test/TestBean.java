@@ -319,8 +319,7 @@ public class TestBean {
     }
 
     public String getTestTableInfo(Object testResults) {
-        TestSuiteMethod testSuiteMethod = ((TestUnitsResults) testResults).getTestSuite().getTestSuiteMethod();
-        return ProjectHelper.getTestInfo(testSuiteMethod);
+        return ProjectHelper.getTestInfo(((TestUnitsResults) testResults).getTestSuite());
     }
 
     public String getTestedTableName() {

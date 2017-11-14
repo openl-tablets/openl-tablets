@@ -101,11 +101,22 @@ public final class ProjectHelper {
     }
 
     public static String getTestInfo(IOpenMethod testMethod) {
+        if (!(testMethod instanceof TestSuiteMethod)) {
+            return null;
+        }
+
+        return getTestInfo(testMethod, ((TestSuiteMethod) testMethod).getNumberOfTests());
+    }
+
+    public static String getTestInfo(TestSuite testSuite) {
+        return getTestInfo(testSuite.getTestSuiteMethod(), testSuite.getNumberOfTests());
+    }
+
+    private static String getTestInfo(IOpenMethod testMethod, int numberOfTests) {
         String info = null;
 
         if (testMethod instanceof TestSuiteMethod) {
             TestSuiteMethod testSuite = (TestSuiteMethod) testMethod;
-            int numberOfTests = testSuite.getNumberOfTests();
             if (testSuite.isRunmethod()) {
                 if (numberOfTests < 1) {
                     info = "No runs";
