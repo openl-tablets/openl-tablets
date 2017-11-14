@@ -29,7 +29,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromProjectFile;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
-import org.openl.rules.webstudio.util.ExportModule;
+import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.ProjectDescriptorTransformer;
 import org.openl.rules.webstudio.web.repository.project.CustomTemplatesResolver;
@@ -913,7 +913,7 @@ public class RepositoryTreeController {
         if (zipFile != null) {
             final FacesContext facesContext = FacesUtils.getFacesContext();
             HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
-            ExportModule.writeOutContent(response, zipFile, zipFileName);
+            ExportFile.writeOutContent(response, zipFile, zipFileName);
             facesContext.responseComplete();
 
             if (!zipFile.delete()) {
@@ -943,7 +943,7 @@ public class RepositoryTreeController {
 
             final FacesContext facesContext = FacesUtils.getFacesContext();
             HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
-            ExportModule.writeOutContent(response, file, fileName);
+            ExportFile.writeOutContent(response, file, fileName);
             facesContext.responseComplete();
         } catch (Exception e) {
             String msg = "Failed to export file version.";

@@ -42,7 +42,7 @@ import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.ui.tree.view.*;
-import org.openl.rules.webstudio.util.ExportModule;
+import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
@@ -259,7 +259,7 @@ public class WebStudio {
 
             final FacesContext facesContext = FacesUtils.getFacesContext();
             HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
-            ExportModule.writeOutContent(response, file, file.getName());
+            ExportFile.writeOutContent(response, file, file.getName());
             facesContext.responseComplete();
         } catch (ProjectException e) {
             log.error("Failed to export module", e);
@@ -284,7 +284,7 @@ public class WebStudio {
             HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
             FacesUtils.addCookie(cookieName, "success", -1);
 
-            ExportModule.writeOutContent(response, file, fileName);
+            ExportFile.writeOutContent(response, file, fileName);
             facesContext.responseComplete();
         } catch (ProjectException e) {
             String message;

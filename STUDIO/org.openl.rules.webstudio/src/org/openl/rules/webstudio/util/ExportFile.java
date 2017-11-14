@@ -12,8 +12,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-public final class ExportModule {
-    private ExportModule() {
+public final class ExportFile {
+    private ExportFile() {
     }
 
     public static void writeOutContent(final HttpServletResponse res, final File content, final String filename) {
@@ -31,7 +31,7 @@ public final class ExportModule {
             IOUtils.copy(input, res.getOutputStream());
         } catch (final IOException e) {
             String msg = "Failed to write content of '" + content.getAbsolutePath() + "' into response!";
-            final Logger log = LoggerFactory.getLogger(ExportModule.class);
+            final Logger log = LoggerFactory.getLogger(ExportFile.class);
             log.error(msg, e);
             FacesUtils.addErrorMessage(msg, e.getMessage());
         } finally {
