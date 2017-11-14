@@ -285,7 +285,7 @@
             <artifactId>mssql-jdbc</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.oracle</groupId>
+            <groupId>oracle</groupId>
             <artifactId>ojdbc6</artifactId>
         </dependency>
         <dependency>

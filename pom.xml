@@ -1314,9 +1314,9 @@
             </dependency>
             <!-- Oracle ojdbc6 driver -->
             <dependency>
-                <groupId>com.oracle</groupId>
+                <groupId>oracle</groupId>
                 <artifactId>ojdbc6</artifactId>
-                <version>12.1.0.1-atlassian-hosted</version>
+                <version>11.2.0.3</version>
             </dependency>
             <!-- the Java in-memory SQL DB -->
             <dependency>
