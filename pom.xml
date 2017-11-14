@@ -1312,12 +1312,6 @@
                 <artifactId>mssql-jdbc</artifactId>
                 <version>6.2.2.jre7</version>
             </dependency>
-            <!-- Oracle ojdbc6 driver -->
-            <dependency>
-                <groupId>oracle</groupId>
-                <artifactId>ojdbc6</artifactId>
-                <version>11.2.0.3</version>
-            </dependency>
             <!-- the Java in-memory SQL DB -->
             <dependency>
                 <groupId>com.h2database</groupId>
