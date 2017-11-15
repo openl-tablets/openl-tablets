@@ -42,7 +42,7 @@ import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.ui.tree.view.*;
-import org.openl.rules.webstudio.util.ExportModule;
+import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
@@ -97,6 +97,7 @@ public class WebStudio {
     private RulesTreeView treeView;
     private String tableView;
     private boolean showFormulas;
+    private boolean testsExportToExcel;
     private int testsPerPage;
     private boolean testsFailuresOnly;
     private int testsFailuresPerTest;
@@ -153,6 +154,7 @@ public class WebStudio {
         treeView = getTreeView(userSettingsManager.getStringProperty("rules.tree.view"));
         tableView = userSettingsManager.getStringProperty("table.view");
         showFormulas = userSettingsManager.getBooleanProperty("table.formulas.show");
+        testsExportToExcel = userSettingsManager.getBooleanProperty("test.export.to.excel");
         testsPerPage = userSettingsManager.getIntegerProperty("test.tests.perpage");
         testsFailuresOnly = userSettingsManager.getBooleanProperty("test.failures.only");
         testsFailuresPerTest = userSettingsManager.getIntegerProperty("test.failures.pertest");
@@ -259,7 +261,7 @@ public class WebStudio {
 
             final FacesContext facesContext = FacesUtils.getFacesContext();
             HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
-            ExportModule.writeOutContent(response, file, file.getName());
+            ExportFile.writeOutContent(response, file);
             facesContext.responseComplete();
         } catch (ProjectException e) {
             log.error("Failed to export module", e);
@@ -284,7 +286,7 @@ public class WebStudio {
             HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
             FacesUtils.addCookie(cookieName, "success", -1);
 
-            ExportModule.writeOutContent(response, file, fileName);
+            ExportFile.writeOutContent(response, file, fileName);
             facesContext.responseComplete();
         } catch (ProjectException e) {
             String message;
@@ -865,6 +867,15 @@ public class WebStudio {
     public void setShowFormulas(boolean showFormulas) {
         this.showFormulas = showFormulas;
         userSettingsManager.setProperty("table.formulas.show", showFormulas);
+    }
+
+    public boolean isTestsExportToExcel() {
+        return testsExportToExcel;
+    }
+
+    public void setTestsExportToExcel(boolean testsExportToExcel) {
+        this.testsExportToExcel = testsExportToExcel;
+        userSettingsManager.setProperty("test.export.to.excel", testsExportToExcel);
     }
 
     public int getTestsPerPage() {

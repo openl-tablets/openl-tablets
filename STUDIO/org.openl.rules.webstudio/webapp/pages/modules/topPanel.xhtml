@@ -133,6 +133,14 @@
                         </span>
                     </li>
                     <li onclick="event.stopPropagation()">
+                        <span tabindex="-1" title="Export test results to Excel">
+                            <span>Export to Excel</span>
+                            <input name="exportToExcel" type="checkbox"
+                                value="true" checked="#{studio.testsExportToExcel ? 'checked' : ''}"
+                                style="vertical-align:-2px;margin:-4px" />
+                        </span>
+                    </li>
+                    <li onclick="event.stopPropagation()">
                         <span tabindex="-1" title="Show only failed test cases">
                             <span>Failures Only</span>
                             <input name="failuresOnly" type="checkbox"

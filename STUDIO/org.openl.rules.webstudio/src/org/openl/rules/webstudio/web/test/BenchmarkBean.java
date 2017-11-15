@@ -46,7 +46,7 @@ public class BenchmarkBean {
         IOpenMethod table = studio.getModel().getMethod(testSuiteUri);
         String tableId = TableUtils.makeTableId(testSuiteUri);
         String testName = TableSyntaxNodeUtils.getTestName(table);
-        String testInfo = ProjectHelper.getTestInfo(table);
+        String testInfo = ProjectHelper.getTestInfo(testSuite);
         if (isTestForOverallTestSuiteMethod(testSuite)) {
             try {
                 BenchmarkInfo buLast = studio.getModel().benchmarkTestsSuite(testSuite, 3000);
