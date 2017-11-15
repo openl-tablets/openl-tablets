@@ -137,10 +137,10 @@
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.ruleservice.ws.logging</artifactId>
         </dependency>
-        <dependency>
+        <!-- <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.ruleservice.ws.logging.cassandra</artifactId>
-        </dependency>
+        </dependency> -->
         <!-- Other -->
         <dependency>
             <groupId>org.apache.cxf</groupId>

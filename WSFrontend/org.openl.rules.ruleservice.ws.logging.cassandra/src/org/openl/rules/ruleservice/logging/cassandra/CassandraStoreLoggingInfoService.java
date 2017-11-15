@@ -6,9 +6,11 @@ import org.openl.rules.ruleservice.logging.LoggingInfo;
 import org.openl.rules.ruleservice.logging.LoggingInfoMapper;
 import org.openl.rules.ruleservice.logging.StoreLoggingInfoService;
 import org.openl.rules.ruleservice.logging.cassandra.annotation.UseEntity;
+import org.openl.rules.ruleservice.logging.conf.StoreLoggingConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@StoreLoggingConfiguration
 public class CassandraStoreLoggingInfoService implements StoreLoggingInfoService {
 
     private final Logger log = LoggerFactory.getLogger(CassandraStoreLoggingInfoService.class);
