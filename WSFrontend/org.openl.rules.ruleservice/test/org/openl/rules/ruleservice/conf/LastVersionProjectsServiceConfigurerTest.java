@@ -17,6 +17,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource(properties = { "ruleservice.datasource.type = local",
+        "ruleservice.datasource.deploy.clean.datasource=false",
         "ruleservice.datasource.dir=test-resources/LastVersionProjectsServiceConfigurerTest" })
 @ContextConfiguration({ "classpath:openl-ruleservice-property-placeholder.xml",
         "classpath:openl-ruleservice-datasource-beans.xml",
