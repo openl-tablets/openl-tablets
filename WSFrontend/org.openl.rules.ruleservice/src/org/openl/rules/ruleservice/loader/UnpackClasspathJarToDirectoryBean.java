@@ -34,7 +34,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
     private String destinationDirectory;
 
     private boolean createDestinationDirectory = true;
-    private boolean clearDestinationDirectory = false;
+    private boolean clearDestinationDirectory = true;
 
     private boolean unpackAllJarsInOneDeployment = true;
     private boolean supportDeploymentVersion = false;

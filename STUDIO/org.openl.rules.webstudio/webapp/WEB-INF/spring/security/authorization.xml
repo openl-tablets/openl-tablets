@@ -5,7 +5,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
           http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
           http://www.springframework.org/schema/security
-          http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+          http://www.springframework.org/schema/security/spring-security-4.2.xsd">
 
     <!-- Note the order that entries are placed against the objectDefinitionSource is critical.
       The FilterSecurityInterceptor will work from the top of the list down to the FIRST pattern that matches the request URL.
@@ -14,7 +14,7 @@
         <property name="authenticationManager" ref="authenticationManager" />
         <property name="accessDecisionManager" ref="accessDecisionManager" />
         <property name="securityMetadataSource">
-            <security:filter-security-metadata-source lowercase-comparisons="true">
+            <security:filter-security-metadata-source request-matcher="ant" use-expressions="false">
                 <security:intercept-url pattern="/faces/pages/modules/administration/**" access="ADMIN" />
                 <!-- Don't allow unprivileged users to run install wizard by manually entering install wizard url when studio is configured already -->
                 <security:intercept-url pattern="/faces/pages/modules/install/**" access="ADMINISTRATE" />

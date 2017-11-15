@@ -12,6 +12,7 @@ package org.openl.rules.serialization.jackson.org.openl.meta;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.databind.deser.std.NumberDeserializers;
 import org.openl.meta.ByteValue;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -39,6 +40,8 @@ public class ByteValueType {
     @SuppressWarnings("serial")
     public static class ByteValueDeserializer extends StdScalarDeserializer<ByteValue> {
 
+        private static final NumberDeserializers.ByteDeserializer DESERIALIZER = new NumberDeserializers.ByteDeserializer(Byte.class, null);
+
         public ByteValueDeserializer() {
             super(ByteValue.class);
         }
@@ -46,7 +49,7 @@ public class ByteValueType {
         @Override
         public ByteValue deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException,
                                                                                 JsonProcessingException {
-            Byte value = _parseByte(jp, ctxt);
+            Byte value = DESERIALIZER.deserialize(jp, ctxt);
             if (value == null) {
                 return null;
             }
