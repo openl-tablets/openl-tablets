@@ -15,6 +15,9 @@
       <includes>
         <include>${project.groupId}:${project.artifactId}*</include>
       </includes>
+      <excludes>
+	<exclude>org.slf4j:slf4j-api</exclude>
+      </excludes>
     </dependencySet>
     <dependencySet>
       <useTransitiveDependencies>true</useTransitiveDependencies>
@@ -23,7 +26,10 @@
       <includes>
         <include>com.datastax.cassandra:*</include>
       </includes>
+      <excludes>
+	<exclude>org.slf4j:slf4j-api</exclude>
+      </excludes>
     </dependencySet>
   </dependencySets>
-  
+ 
 </assembly>
