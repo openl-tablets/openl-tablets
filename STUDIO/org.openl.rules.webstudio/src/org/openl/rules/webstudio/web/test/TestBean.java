@@ -1,9 +1,12 @@
 package org.openl.rules.webstudio.web.test;
 
+import java.io.File;
 import java.util.*;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletResponse;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -16,6 +19,7 @@ import org.openl.rules.testmethod.result.BeanResultComparator;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
 import org.openl.rules.ui.*;
+import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
@@ -67,6 +71,8 @@ public class TestBean {
     private Integer numberOfFailedTests = null;
     private Integer numberOfFailedTestCases = null;
 
+    private boolean exportToExcel;
+
     /**
      * URI of tested table
      */
@@ -82,6 +88,7 @@ public class TestBean {
 
         testAll();
 
+        initExportToExcel();
         initPagination();
         initFailures();
         initComplexResult();
@@ -117,6 +124,14 @@ public class TestBean {
                 testsFailuresPerTest);
         if (failuresPerTest == ALL || failuresPerTest > 0) {
             testsFailuresPerTest = failuresPerTest;
+        }
+    }
+
+    private void initExportToExcel() {
+        exportToExcel = studio.isTestsExportToExcel();
+        String exportToExcelParameter = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_EXPORT_TO_EXCEL);
+        if (exportToExcelParameter != null) {
+            exportToExcel = Boolean.parseBoolean(exportToExcelParameter);
         }
     }
 
@@ -348,5 +363,28 @@ public class TestBean {
 
     public boolean isShowComplexResult() {
         return showComplexResult;
+    }
+
+    public boolean isExportToExcel() {
+        return exportToExcel;
+    }
+
+    public void exportTestResults() {
+        String cookePrefix = "response-monitor";
+        String cookieName = cookePrefix + "_" + FacesUtils.getRequestParameter(cookePrefix);
+        try (TestResultExport export = new TestResultExport(ranResults, testsPerPage)) {
+            File file = export.createExcelFile();
+
+            final FacesContext facesContext = FacesUtils.getFacesContext();
+            HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
+            FacesUtils.addCookie(cookieName, "success", -1);
+
+            ExportFile.writeOutContent(response, file);
+            facesContext.responseComplete();
+        } catch (Exception e) {
+            String message = "Failed to export results.";
+            log.error(message, e);
+            FacesUtils.addCookie(cookieName, message, -1);
+        }
     }
 }

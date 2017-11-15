@@ -112,6 +112,12 @@
         <h:form prependId="false">
             <h:panelGroup id="runCasesSettings" layout="block" rendered="#{tableBean.table.type != 'xls.run.method'}"
                           styleClass="hidden b-run b-test">
+                <div title="Export test results to Excel">
+                    <span>Export to Excel</span>
+                    <input name="exportToExcel" type="checkbox"
+                           value="true" checked="#{studio.testsExportToExcel ? 'checked' : ''}"
+                           style="vertical-align:-2px;margin:-4px" />
+                </div>
                 <div title="Show only failed test cases">
                     <span>Failures Only</span>
                     <input name="failuresOnly" type="checkbox"

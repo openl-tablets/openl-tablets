@@ -97,6 +97,7 @@ public class WebStudio {
     private RulesTreeView treeView;
     private String tableView;
     private boolean showFormulas;
+    private boolean testsExportToExcel;
     private int testsPerPage;
     private boolean testsFailuresOnly;
     private int testsFailuresPerTest;
@@ -153,6 +154,7 @@ public class WebStudio {
         treeView = getTreeView(userSettingsManager.getStringProperty("rules.tree.view"));
         tableView = userSettingsManager.getStringProperty("table.view");
         showFormulas = userSettingsManager.getBooleanProperty("table.formulas.show");
+        testsExportToExcel = userSettingsManager.getBooleanProperty("test.export.to.excel");
         testsPerPage = userSettingsManager.getIntegerProperty("test.tests.perpage");
         testsFailuresOnly = userSettingsManager.getBooleanProperty("test.failures.only");
         testsFailuresPerTest = userSettingsManager.getIntegerProperty("test.failures.pertest");
@@ -865,6 +867,15 @@ public class WebStudio {
     public void setShowFormulas(boolean showFormulas) {
         this.showFormulas = showFormulas;
         userSettingsManager.setProperty("table.formulas.show", showFormulas);
+    }
+
+    public boolean isTestsExportToExcel() {
+        return testsExportToExcel;
+    }
+
+    public void setTestsExportToExcel(boolean testsExportToExcel) {
+        this.testsExportToExcel = testsExportToExcel;
+        userSettingsManager.setProperty("test.export.to.excel", testsExportToExcel);
     }
 
     public int getTestsPerPage() {

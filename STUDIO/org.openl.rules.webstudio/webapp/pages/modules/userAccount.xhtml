@@ -136,6 +136,9 @@
                             <h3>Testing Settings</h3>
                             <div>
                                 <h:panelGrid columns="2" columnClasses="titleColumn">
+                                    <label>Export to Excel</label>
+                                    <h:selectBooleanCheckbox id="testsExportToExcel" value="#{studio.testsExportToExcel}"/>
+
                                     <label>Tests per page</label>
                                     <h:selectOneMenu id="pp" value="#{studio.testsPerPage}">
                                         <f:selectItem itemLabel="1" itemValue="1" />

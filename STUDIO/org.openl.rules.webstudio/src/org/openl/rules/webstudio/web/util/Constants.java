@@ -8,6 +8,7 @@ public final class Constants {
     public static final String REQUEST_PARAM_URI = "uri";
     public static final String REQUEST_PARAM_PAGE = "p";
     public static final String REQUEST_PARAM_PERPAGE = "pp";
+    public static final String REQUEST_PARAM_EXPORT_TO_EXCEL = "exportToExcel";
     public static final String REQUEST_PARAM_FAILURES_ONLY = "failuresOnly";
     public static final String REQUEST_PARAM_FAILURES_NUMBER = "failures";
     public static final String REQUEST_PARAM_COMPLEX_RESULT = "complexResult";
