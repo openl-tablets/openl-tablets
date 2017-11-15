@@ -1,28 +1,20 @@
 package org.openl.rules.ruleservice.logging;
 
+import java.util.Map;
+
+import org.openl.rules.ruleservice.logging.conf.StoreLoggingConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-public class StoreLoggingConfigurationFactoryBean implements FactoryBean<StoreLoggingInfoService>, ApplicationContextAware, InitializingBean {
+public class StoreLoggingConfigurationFactoryBean implements FactoryBean<StoreLoggingInfoService>, ApplicationContextAware {
 
     private final Logger log = LoggerFactory.getLogger(StoreLoggingConfigurationFactoryBean.class);
 
-    private static final String CASSANDRA_STORING_SERVICE_BEAN_NAME = "cassandraLoggingInfoStoreService";
-
-    private static final String ELASTICSEARCH_STORING_SERVICE_BEAN_NAME = "elasticSearchLoggingInfoStoreService";
-
-    private static final String CASSANDRA_TYPE = "cassandra";
-
-    private static final String ELASTICSEARCH_TYPE = "elasticsearch";
-
     private ApplicationContext applicationContext;
-
-    private String type = CASSANDRA_TYPE;
 
     private boolean loggingStoreEnable = false;
 
@@ -39,14 +31,6 @@ public class StoreLoggingConfigurationFactoryBean implements FactoryBean<StoreLo
         this.applicationContext = applicationContext;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
     @Override
     public boolean isSingleton() {
         return false;
@@ -57,32 +41,24 @@ public class StoreLoggingConfigurationFactoryBean implements FactoryBean<StoreLo
         if (!isLoggingStoreEnable()) {
             return null;
         }
-        if (CASSANDRA_TYPE.equalsIgnoreCase(getType().trim())) {
-            log.info("Cassandra logging store is enabled!");
-            return applicationContext.getBean(CASSANDRA_STORING_SERVICE_BEAN_NAME, StoreLoggingInfoService.class);
-        } else if (ELASTICSEARCH_TYPE.equalsIgnoreCase(getType().trim())) {
-            log.info("Elastic Search logging store is enabled!");
-            StoreLoggingInfoService loggingInfoStoringService = applicationContext.getBean(ELASTICSEARCH_STORING_SERVICE_BEAN_NAME, StoreLoggingInfoService.class);
-            if (loggingInfoStoringService == null){
-                log.error("Elastic Search logging store isn't configured! Please, refer to OpenL documentation.");
-            }
-            return loggingInfoStoringService;
+
+        Map<String, Object> storeLoggingInfoServices = applicationContext
+            .getBeansWithAnnotation(StoreLoggingConfiguration.class);
+        if (storeLoggingInfoServices.isEmpty()) {
+            log.error("Failed to load logging store service! Please, check your configuration!");
         } else {
-            return null;   
+            if (storeLoggingInfoServices.size() > 1) {
+                log.error("Failed to load logging store service! More that one logging info service was found!");
+                return null;
+            }
+            log.info("Logging store service is loaded!");
         }
+        return (StoreLoggingInfoService) storeLoggingInfoServices.entrySet().iterator().next().getValue();
     }
 
     @Override
     public Class<?> getObjectType() {
         return StoreLoggingInfoService.class;
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        if (!(CASSANDRA_TYPE.equalsIgnoreCase(getType())) && !(ELASTICSEARCH_TYPE.equalsIgnoreCase(getType()))) {
-            throw new IllegalArgumentException(
-                "Property 'type' is required! Supported value is '" + CASSANDRA_TYPE + "','" + ELASTICSEARCH_TYPE + "!");
-        }
     }
 
 }

@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 
 import org.openl.rules.ruleservice.logging.LoggingInfo;
 import org.openl.rules.ruleservice.logging.StoreLoggingInfoService;
+import org.openl.rules.ruleservice.logging.conf.StoreLoggingConfiguration;
 import org.openl.rules.ruleservice.logging.elasticsearch.annotation.UseIndexBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
 
+@StoreLoggingConfiguration
 public class ElasticSearchStoreLoggingInfoService implements StoreLoggingInfoService {
 
     private final Logger log = LoggerFactory.getLogger(ElasticSearchStoreLoggingInfoService.class);
