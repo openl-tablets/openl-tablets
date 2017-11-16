@@ -15,6 +15,7 @@ import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.CompiledOpenClass;
@@ -39,6 +40,12 @@ public class TestResultExportTest {
     public static void runTests() throws Exception {
         testResults = runTests("test-resources/test/export/example3");
         trivialResults = runTests("test-resources/test/export/trivial");
+    }
+
+    @AfterClass
+    public static void cleanUp() {
+        testResults = null;
+        trivialResults = null;
     }
 
     private static TestUnitsResults[] runTests(String path) throws Exception {
