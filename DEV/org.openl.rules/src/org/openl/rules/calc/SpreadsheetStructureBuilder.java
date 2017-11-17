@@ -81,7 +81,7 @@ public class SpreadsheetStructureBuilder {
     }
 
     private Map<Integer, IBindingContext> rowContexts = new HashMap<Integer, IBindingContext>();
-    private Map<Integer, IBindingContextDelegator> colContexts = new HashMap<Integer, IBindingContextDelegator>();
+    private Map<Integer, Map<Integer, IBindingContext>> colContexts = new HashMap<Integer, Map<Integer, IBindingContext>>();
 
     private List<SpreadsheetCell> formulaCells = new ArrayList<SpreadsheetCell>();
 
@@ -261,7 +261,7 @@ public class SpreadsheetStructureBuilder {
             IMethodSignature signature = spreadsheetHeader.getSignature();
             IOpenClass declaringClass = spreadsheetHeader.getDeclaringClass();
             IOpenMethodHeader header = new OpenMethodHeader(name, type, signature, declaringClass);
-            IBindingContext columnBindingContext = getColumnContext(columnIndex, rowBindingContext);
+            IBindingContext columnBindingContext = getColumnContext(columnIndex, rowIndex, rowBindingContext);
             OpenL openl = columnBindingContext.getOpenL();
             // columnBindingContext - is never null
             try {
@@ -295,7 +295,7 @@ public class SpreadsheetStructureBuilder {
             }
 
             try {
-                IBindingContext bindingContext = getColumnContext(columnIndex, rowBindingContext);
+                IBindingContext bindingContext = getColumnContext(columnIndex, rowIndex, rowBindingContext);
                 Object result = String2DataConvertorFactory.parse(instanceClass, code, bindingContext);
 
                 if (bindingContext.isExecutionMode() && result instanceof IMetaHolder) {
@@ -442,17 +442,18 @@ public class SpreadsheetStructureBuilder {
         return rowContext;
     }
 
-    private IBindingContext getColumnContext(int columnIndex, IBindingContext rowBindingContext) {
-        IBindingContextDelegator columnContext = colContexts.get(columnIndex);
-
-        if (columnContext == null) {
-            columnContext = makeColumnContext(columnIndex, rowBindingContext);
-            colContexts.put(columnIndex, columnContext);
-        } else {
-            columnContext.setDelegate(rowBindingContext);
+    private IBindingContext getColumnContext(int columnIndex, int rowIndex, IBindingContext rowBindingContext) {
+        Map<Integer, IBindingContext> contexts = colContexts.get(columnIndex);
+        if (contexts == null) {
+            contexts = new HashMap<Integer, IBindingContext>();
+            colContexts.put(columnIndex, contexts);
         }
-
-        return columnContext;
+        IBindingContext context = contexts.get(rowIndex);
+        if (context == null) {
+            context = makeColumnContext(columnIndex, rowBindingContext);
+            contexts.put(rowIndex, context);
+        }
+        return context;
     }
 
     private IBindingContextDelegator makeColumnContext(int columnIndex, IBindingContext rowBindingContext) {
