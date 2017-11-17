@@ -13,7 +13,6 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modules>
-        <module>org.openl.rules.demo.repository</module>
         <module>org.openl.rules.demo</module>
     </modules>
 </project>

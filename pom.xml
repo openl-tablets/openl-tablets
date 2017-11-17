@@ -1596,14 +1596,6 @@
                 <artifactId>elasticsearch</artifactId>
                 <version>2.3.1</version>
             </dependency>
-            <!-- DEMO -->
-            <dependency>
-                <groupId>org.openl.rules.demo</groupId>
-                <artifactId>org.openl.rules.demo.repository</artifactId>
-                <type>war</type>
-                <scope>runtime</scope>
-                <version>${project.version}</version>
-            </dependency>
             <!-- Util -->
             <dependency>
                 <groupId>org.openl.rules</groupId>
