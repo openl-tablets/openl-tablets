@@ -1,5 +1,7 @@
 package org.openl.rules.ui;
 
+import java.lang.reflect.Array;
+
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.ui.filters.AGridFilter;
@@ -12,14 +14,13 @@ class CollectionCellFilter extends AGridFilter {
     public FormattedCell filterFormat(FormattedCell cell) {
         Object cellValue = cell.getObjectValue();
         if (cellValue != null) {
-            if (cellValue.getClass().isArray()) {
-                Object[] array = (Object[]) cellValue;
-                String formattedValue = null;
-                if (array.length == 0) {
-                    formattedValue = Utils.displayNameForCollection(JavaOpenClass.getOpenClass(array.getClass()),
-                            true);
+            Class<?> valueType = cellValue.getClass();
+            if (valueType.isArray()) {
+                String formattedValue;
+                if (Array.getLength(cellValue) == 0) {
+                    formattedValue = Utils.displayNameForCollection(JavaOpenClass.getOpenClass(valueType), true);
                 } else {
-                    formattedValue = FormattersManager.format(array);
+                    formattedValue = FormattersManager.format(cellValue);
                 }
                 cell.setFormattedValue(formattedValue);
             }
