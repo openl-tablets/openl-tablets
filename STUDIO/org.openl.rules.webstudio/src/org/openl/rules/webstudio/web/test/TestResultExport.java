@@ -356,6 +356,8 @@ class TestResultExport implements AutoCloseable {
             if (font != null) {
                 style.setFont(font);
             }
+
+            style.setWrapText(true);
             return style;
         }
 
