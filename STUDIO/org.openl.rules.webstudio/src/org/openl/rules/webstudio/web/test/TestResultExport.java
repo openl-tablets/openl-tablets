@@ -240,17 +240,17 @@ class TestResultExport implements AutoCloseable {
         }
 
         if (value instanceof ParameterWithValueDeclaration) {
-            IOpenField previewField;
+            Object simpleValue = ((ParameterWithValueDeclaration) value).getValue();
 
             if (value instanceof ParameterWithValueAndPreviewDeclaration) {
                 // Return preview field for complex objects
-                ParameterWithValueAndPreviewDeclaration wrapper = (ParameterWithValueAndPreviewDeclaration) value;
-                previewField = wrapper.getPreviewField();
-                Object preview = previewField == null ? null : previewField.get(wrapper.getValue(), null);
-                return getSimpleValue(preview);
+                IOpenField previewField = ((ParameterWithValueAndPreviewDeclaration) value).getPreviewField();
+                if (previewField != null) {
+                    simpleValue = previewField.get(simpleValue, null);
+                }
             }
 
-            return getSimpleValue(((ParameterWithValueDeclaration) value).getValue());
+            return getSimpleValue(simpleValue);
         }
 
         return value;
@@ -356,6 +356,8 @@ class TestResultExport implements AutoCloseable {
             if (font != null) {
                 style.setFont(font);
             }
+
+            style.setWrapText(true);
             return style;
         }
 

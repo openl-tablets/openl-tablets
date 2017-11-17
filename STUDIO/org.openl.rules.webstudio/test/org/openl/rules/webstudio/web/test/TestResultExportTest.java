@@ -15,6 +15,7 @@ import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.CompiledOpenClass;
@@ -33,14 +34,23 @@ public class TestResultExportTest {
     private static final String DATE_FORMAT = "yyyy-MM-dd";
 
     private static TestUnitsResults[] testResults;
+    private static TestUnitsResults[] trivialResults;
 
     @BeforeClass
-    public static void runTests() throws
-                            org.openl.rules.project.instantiation.RulesInstantiationException,
-                            org.openl.rules.project.resolving.ProjectResolvingException,
-                            ClassNotFoundException {
+    public static void runTests() throws Exception {
+        testResults = runTests("test-resources/test/export/example3");
+        trivialResults = runTests("test-resources/test/export/trivial");
+    }
+
+    @AfterClass
+    public static void cleanUp() {
+        testResults = null;
+        trivialResults = null;
+    }
+
+    private static TestUnitsResults[] runTests(String path) throws Exception {
         SimpleProjectEngineFactory<?> factory = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>()
-                .setProject("test-resources/test/export/example3")
+                .setProject(path)
                 .setExecutionMode(false)
                 .build();
 
@@ -68,7 +78,7 @@ public class TestResultExportTest {
             }
         });
 
-        testResults = results;
+        return results;
     }
 
     @Test
@@ -120,6 +130,43 @@ public class TestResultExportTest {
                 sheet = workbook.getSheetAt(2);
                 rowNum = TestResultExport.FIRST_ROW;
                 rowNum = checkVehiclePremiumTest(sheet, rowNum);
+                assertEquals(rowNum, sheet.getLastRowNum());
+            }
+        }
+
+        assertFalse(xlsx.exists());
+    }
+
+    @Test
+    public void testTrivialParameters() throws Exception {
+        File xlsx;
+        try (TestResultExport export = new TestResultExport(trivialResults, -1)) {
+            xlsx = export.createExcelFile();
+            assertTrue(xlsx.exists());
+
+            try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
+                assertEquals(1, workbook.getNumberOfSheets());
+
+                XSSFSheet sheet = workbook.getSheetAt(0);
+                int rowNum = TestResultExport.FIRST_ROW;
+                assertRowText(sheet.getRow(rowNum), "HelloTest");
+
+                rowNum++;
+                assertRowText(sheet.getRow(rowNum), "2 test cases (1 failed)");
+
+                rowNum += 2;
+                XSSFRow row = sheet.getRow(rowNum);
+                assertRowText(row, "ID", "Status", "Hour", "Result");
+                assertRowColors(row, HEADER, HEADER, HEADER, HEADER);
+
+                row = sheet.getRow(++rowNum);
+                assertRowText(row, "1", "Failed", "5", "Good Morning");
+                assertRowColors(row, RED_MAIN, RED_MAIN, null, RED_FIELDS);
+
+                row = sheet.getRow(++rowNum);
+                assertRowText(row, "2", "Passed", "22", "Good Night");
+                assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS);
+
                 assertEquals(rowNum, sheet.getLastRowNum());
             }
         }
