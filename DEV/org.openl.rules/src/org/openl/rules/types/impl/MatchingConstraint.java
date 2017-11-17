@@ -1,5 +1,7 @@
 package org.openl.rules.types.impl;
 
+import java.lang.reflect.Array;
+
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.table.properties.ITableProperties;
 
@@ -18,8 +20,8 @@ public abstract class MatchingConstraint<P, C> {
         if (propertyValue == null || contextValue == null) {
             return MatchingResult.MATCH_BY_DEFAULT;
         }
-        
-        if (propertyValue.getClass().isArray() && ((Object[]) propertyValue).length == 0) {
+
+        if (propertyValue.getClass().isArray() && Array.getLength(propertyValue) == 0) {
             return MatchingResult.MATCH_BY_DEFAULT;
         }
 
