@@ -25,6 +25,7 @@ import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.ArrayTool;
+import org.openl.util.ClassUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.util.DateTool;
 import org.openl.util.math.MathUtils;
@@ -3835,7 +3836,7 @@ public class RulesUtils {
      * returned whose component type is the same as the element.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.add(null, true)          = [true]
      * ArrayUtils.add([true], false)       = [true, false]
@@ -3869,7 +3870,7 @@ public class RulesUtils {
      * returned whose component type is the same as the element.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.add(null, 0, true)          = [true]
      * ArrayUtils.add([true], 0, false)       = [false, true]
@@ -3905,7 +3906,7 @@ public class RulesUtils {
      * returned whose component type is the same as the element.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.add(null, 0)   = [0]
      * ArrayUtils.add([1], 0)    = [1, 0]
@@ -3938,7 +3939,7 @@ public class RulesUtils {
      * returned whose component type is the same as the element.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.add(null, 0)   = [0]
      * ArrayUtils.add([1], 0)    = [1, 0]
@@ -3972,7 +3973,7 @@ public class RulesUtils {
      * returned whose component type is the same as the element.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.add(null, '0')       = ['0']
      * ArrayUtils.add(['1'], '0')      = ['1', '0']
@@ -4006,7 +4007,7 @@ public class RulesUtils {
      * returned whose component type is the same as the element.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.add(null, 0, 'a')            = ['a']
      * ArrayUtils.add(['a'], 0, 'b')           = ['b', 'a']
@@ -4043,7 +4044,7 @@ public class RulesUtils {
      * returned whose component type is the same as the element.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.add(null, 0)   = [0]
      * ArrayUtils.add([1], 0)    = [1, 0]
@@ -4077,7 +4078,7 @@ public class RulesUtils {
      * returned whose component type is the same as the element.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.add([1.1], 0, 2.2)              = [2.2, 1.1]
      * ArrayUtils.add([2.3, 6.4], 2, 10.5)        = [2.3, 6.4, 10.5]
@@ -4113,7 +4114,7 @@ public class RulesUtils {
      * returned whose component type is the same as the element.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.add(null, 0)   = [0]
      * ArrayUtils.add([1], 0)    = [1, 0]
@@ -4146,7 +4147,7 @@ public class RulesUtils {
      * returned whose component type is the same as the element.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.add(null, 0)   = [0]
      * ArrayUtils.add([1], 0)    = [1, 0]
@@ -4179,7 +4180,7 @@ public class RulesUtils {
      * returned whose component type is the same as the element.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.add(null, 0)   = [0]
      * ArrayUtils.add([1], 0)    = [1, 0]
@@ -4213,7 +4214,7 @@ public class RulesUtils {
      * returned whose component type is the same as the element.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.add([1], 0, 2)         = [2, 1]
      * ArrayUtils.add([2, 6], 2, 10)     = [2, 6, 10]
@@ -4250,7 +4251,7 @@ public class RulesUtils {
      * returned whose component type is the same as the element.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.add([1L], 0, 2L)           = [2L, 1L]
      * ArrayUtils.add([2L, 6L], 2, 10L)      = [2L, 6L, 10L]
@@ -4286,7 +4287,7 @@ public class RulesUtils {
      * returned whose component type is the same as the element.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.add(null, 0)   = [0]
      * ArrayUtils.add([1], 0)    = [1, 0]
@@ -4320,7 +4321,7 @@ public class RulesUtils {
      * returned whose component type is the same as the element.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.add(null, 0, null)      = [null]
      * ArrayUtils.add(null, 0, "a")       = ["a"]
@@ -4336,7 +4337,7 @@ public class RulesUtils {
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0
      *             || index > array.length).
      */
-    
+
 	public static <T> T[] add(T[] array, int index, T element) {
         return (T[]) ArrayUtils.add(array, index, element);
     }
@@ -4359,7 +4360,7 @@ public class RulesUtils {
      * element itself is null, in which case the return type is Object[]
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.add(null, null)      = [null]
      * ArrayUtils.add(null, "a")       = ["a"]
@@ -4396,7 +4397,7 @@ public class RulesUtils {
      * returned whose component type is the same as the element.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.add([1], 0, 2)         = [2, 1]
      * ArrayUtils.add([2, 6], 2, 10)     = [2, 6, 10]
@@ -4432,7 +4433,7 @@ public class RulesUtils {
      * returned whose component type is the same as the element.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.add(null, 0)   = [0]
      * ArrayUtils.add([1], 0)    = [1, 0]
@@ -4530,7 +4531,7 @@ public class RulesUtils {
      * returned whose component type is the same as the element.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.add(null, 0, null)      = [null]
      * ArrayUtils.add(null, 0, "a")       = ["a"]
@@ -4571,7 +4572,7 @@ public class RulesUtils {
      * returned whose component type is the same as the element.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.add(null, 0, null)      = [null]
      * ArrayUtils.add(null, 0, "a")       = ["a"]
@@ -4619,7 +4620,7 @@ public class RulesUtils {
      * is always a new array.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.addAll(array1, null)   = cloned copy of array1
      * ArrayUtils.addAll(null, array2)   = cloned copy of array2
@@ -4644,7 +4645,7 @@ public class RulesUtils {
      * is always a new array.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.addAll(array1, null)   = cloned copy of array1
      * ArrayUtils.addAll(null, array2)   = cloned copy of array2
@@ -4669,7 +4670,7 @@ public class RulesUtils {
      * is always a new array.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.addAll(array1, null)   = cloned copy of array1
      * ArrayUtils.addAll(null, array2)   = cloned copy of array2
@@ -4694,7 +4695,7 @@ public class RulesUtils {
      * is always a new array.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.addAll(array1, null)   = cloned copy of array1
      * ArrayUtils.addAll(null, array2)   = cloned copy of array2
@@ -4719,7 +4720,7 @@ public class RulesUtils {
      * is always a new array.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.addAll(array1, null)   = cloned copy of array1
      * ArrayUtils.addAll(null, array2)   = cloned copy of array2
@@ -4744,7 +4745,7 @@ public class RulesUtils {
      * is always a new array.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.addAll(array1, null)   = cloned copy of array1
      * ArrayUtils.addAll(null, array2)   = cloned copy of array2
@@ -4769,7 +4770,7 @@ public class RulesUtils {
      * is always a new array.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.addAll(array1, null)   = cloned copy of array1
      * ArrayUtils.addAll(null, array2)   = cloned copy of array2
@@ -4794,7 +4795,7 @@ public class RulesUtils {
      * is always a new array.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.addAll(null, null)     = null
      * ArrayUtils.addAll(array1, null)   = cloned copy of array1
@@ -4828,7 +4829,7 @@ public class RulesUtils {
      * is always a new array.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.addAll(array1, null)   = cloned copy of array1
      * ArrayUtils.addAll(null, array2)   = cloned copy of array2
@@ -4889,7 +4890,7 @@ public class RulesUtils {
      * will be thrown, because in that case no valid index can be specified.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.remove([true], 0)              = []
      * ArrayUtils.remove([true, false], 0)       = [false]
@@ -4928,7 +4929,7 @@ public class RulesUtils {
      * will be thrown, because in that case no valid index can be specified.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.remove([true], 0)              = []
      * ArrayUtils.remove([true, false], 0)       = [false]
@@ -4967,7 +4968,7 @@ public class RulesUtils {
      * will be thrown, because in that case no valid index can be specified.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.remove(['a'], 0)           = []
      * ArrayUtils.remove(['a', 'b'], 0)      = ['b']
@@ -5006,7 +5007,7 @@ public class RulesUtils {
      * will be thrown, because in that case no valid index can be specified.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.remove([1.1], 0)           = []
      * ArrayUtils.remove([2.5, 6.0], 0)      = [6.0]
@@ -5045,7 +5046,7 @@ public class RulesUtils {
      * will be thrown, because in that case no valid index can be specified.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.remove([1.1], 0)           = []
      * ArrayUtils.remove([2.5, 6.0], 0)      = [6.0]
@@ -5084,7 +5085,7 @@ public class RulesUtils {
      * will be thrown, because in that case no valid index can be specified.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.remove([1], 0)         = []
      * ArrayUtils.remove([2, 6], 0)      = [6]
@@ -5123,7 +5124,7 @@ public class RulesUtils {
      * will be thrown, because in that case no valid index can be specified.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.remove([1], 0)         = []
      * ArrayUtils.remove([2, 6], 0)      = [6]
@@ -5162,7 +5163,7 @@ public class RulesUtils {
      * will be thrown, because in that case no valid index can be specified.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.remove(["a"], 0)           = []
      * ArrayUtils.remove(["a", "b"], 0)      = ["b"]
@@ -5201,7 +5202,7 @@ public class RulesUtils {
      * will be thrown, because in that case no valid index can be specified.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.remove([1], 0)         = []
      * ArrayUtils.remove([2, 6], 0)      = [6]
@@ -5268,7 +5269,7 @@ public class RulesUtils {
      * of the returned array is always the same as that of the input array.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.removeElement(null, true)                = null
      * ArrayUtils.removeElement([], true)                  = []
@@ -5301,7 +5302,7 @@ public class RulesUtils {
      * of the returned array is always the same as that of the input array.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.removeElement(null, 1)        = null
      * ArrayUtils.removeElement([], 1)          = []
@@ -5334,7 +5335,7 @@ public class RulesUtils {
      * of the returned array is always the same as that of the input array.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.removeElement(null, 'a')            = null
      * ArrayUtils.removeElement([], 'a')              = []
@@ -5367,7 +5368,7 @@ public class RulesUtils {
      * of the returned array is always the same as that of the input array.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.removeElement(null, 1.1)            = null
      * ArrayUtils.removeElement([], 1.1)              = []
@@ -5400,7 +5401,7 @@ public class RulesUtils {
      * of the returned array is always the same as that of the input array.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.removeElement(null, 1.1)            = null
      * ArrayUtils.removeElement([], 1.1)              = []
@@ -5433,7 +5434,7 @@ public class RulesUtils {
      * of the returned array is always the same as that of the input array.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.removeElement(null, 1)      = null
      * ArrayUtils.removeElement([], 1)        = []
@@ -5466,7 +5467,7 @@ public class RulesUtils {
      * of the returned array is always the same as that of the input array.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.removeElement(null, 1)      = null
      * ArrayUtils.removeElement([], 1)        = []
@@ -5499,7 +5500,7 @@ public class RulesUtils {
      * of the returned array is always the same as that of the input array.
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * ArrayUtils.removeElement(null, 1)      = null
      * ArrayUtils.removeElement([], 1)        = []
@@ -5650,6 +5651,9 @@ public class RulesUtils {
         }
 
         Class<?> type = clazz.getInstanceClass();
+        if (type.isPrimitive()) {
+            type = ClassUtils.primitiveToWrapper(type);
+        }
         Object[] result = (Object[]) Array.newInstance(type, 0);
         result = values.toArray(result);
         return result;
