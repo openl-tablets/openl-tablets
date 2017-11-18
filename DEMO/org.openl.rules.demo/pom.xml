@@ -7,10 +7,11 @@
         <version>5.21.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>org.openl.rules.demo.demo</artifactId>
+    <groupId>org.openl.rules.demo</groupId>
+    <artifactId>openl-demo-app</artifactId>
     <packaging>pom</packaging>
-    <name>OpenL Tablets - DEMO - Demo</name>
-    <description>OpenL Tablets Demo</description>
+    <name>OpenL Tablets - DEMO App</name>
+    <description>OpenL Tablets Demo Application (zip)</description>
     <url>//openl-tablets.org</url>
     <properties>
         <tomcat.version>8.5.23</tomcat.version>
