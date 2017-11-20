@@ -119,7 +119,7 @@ public class HTMLToExcelStyleCoverter {
             if (!style.isNull("fontSize")) {
                 String fontSize = style.getString("fontSize");
 
-                if (fontSize.indexOf("px") > -1) {
+                if (fontSize.contains("px")) {
                     fontSize = fontSize.replace("px", "");
                 }
 
@@ -334,7 +334,7 @@ public class HTMLToExcelStyleCoverter {
             if (!style.isNull("fontSize")) {
                 String fontSize = style.getString("fontSize");
 
-                if (fontSize.indexOf("px") > -1) {
+                if (fontSize.contains("px")) {
                     fontSize = fontSize.replace("px", "");
                 }
 
