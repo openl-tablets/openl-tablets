@@ -187,7 +187,7 @@ public class RepositoryDiffController extends AbstractDiffController {
         return (AProjectFolder) project.getArtefactByPath(new ArtefactPathImpl(path));
     }
 
-    private File downloadExelFile(AProjectArtefact excelArtefact) {
+    private File downloadExcelFile(AProjectArtefact excelArtefact) {
         if (excelArtefact == null) {
             return null;
         }
@@ -237,10 +237,10 @@ public class RepositoryDiffController extends AbstractDiffController {
             return null;
         }
         AProjectArtefact excelArtefact1 = getExcelArtefactByPath(excelArtefactsUW, selectedExcelFileUW);
-        File excelFile1 = downloadExelFile(excelArtefact1);
+        File excelFile1 = downloadExcelFile(excelArtefact1);
 
         AProjectArtefact excelArtefact2 = getExcelArtefactByPath(excelArtefactsRepo, selectedExcelFileRepo);
-        File excelFile2 = downloadExelFile(excelArtefact2);
+        File excelFile2 = downloadExcelFile(excelArtefact2);
 
         try {
             if (excelFile1 == null) {

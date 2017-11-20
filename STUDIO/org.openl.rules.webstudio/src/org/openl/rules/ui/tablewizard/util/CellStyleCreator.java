@@ -27,39 +27,39 @@ public class CellStyleCreator {
             if (workbook instanceof HSSFWorkbook) {
                 CellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
-                cellStyle.setFillForegroundColor((HTMLToExelStyleCoverter.getBackgroundColor(style, workbook)));
+                cellStyle.setFillForegroundColor((HTMLToExcelStyleCoverter.getBackgroundColor(style, workbook)));
                 cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-                cellStyle.setTopBorderColor(HTMLToExelStyleCoverter.getTopBorderColor(style, workbook));
-                cellStyle.setRightBorderColor(HTMLToExelStyleCoverter.getRightBorderColor(style, workbook));
-                cellStyle.setBottomBorderColor(HTMLToExelStyleCoverter.getBottomBorderColor(style, workbook));
-                cellStyle.setLeftBorderColor(HTMLToExelStyleCoverter.getLeftBorderColor(style, workbook));
+                cellStyle.setTopBorderColor(HTMLToExcelStyleCoverter.getTopBorderColor(style, workbook));
+                cellStyle.setRightBorderColor(HTMLToExcelStyleCoverter.getRightBorderColor(style, workbook));
+                cellStyle.setBottomBorderColor(HTMLToExcelStyleCoverter.getBottomBorderColor(style, workbook));
+                cellStyle.setLeftBorderColor(HTMLToExcelStyleCoverter.getLeftBorderColor(style, workbook));
 
-                cellStyle.setBorderTop(HTMLToExelStyleCoverter.getBorderTop(style));
-                cellStyle.setBorderRight(HTMLToExelStyleCoverter.getBorderRight(style));
-                cellStyle.setBorderBottom(HTMLToExelStyleCoverter.getBorderBottom(style));
-                cellStyle.setBorderLeft(HTMLToExelStyleCoverter.getBorderLeft(style));
-                cellStyle.setAlignment(HTMLToExelStyleCoverter.getAlignment(style));
-                cellStyle.setFont(HTMLToExelStyleCoverter.getFont(style, workbook));
+                cellStyle.setBorderTop(HTMLToExcelStyleCoverter.getBorderTop(style));
+                cellStyle.setBorderRight(HTMLToExcelStyleCoverter.getBorderRight(style));
+                cellStyle.setBorderBottom(HTMLToExcelStyleCoverter.getBorderBottom(style));
+                cellStyle.setBorderLeft(HTMLToExcelStyleCoverter.getBorderLeft(style));
+                cellStyle.setAlignment(HTMLToExcelStyleCoverter.getAlignment(style));
+                cellStyle.setFont(HTMLToExcelStyleCoverter.getFont(style, workbook));
  
                 return new XlsCellStyle(cellStyle, workbook);
             } else if (workbook instanceof XSSFWorkbook) {
                 XSSFCellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
-                cellStyle.setFillForegroundColor((HTMLToExelStyleCoverter.getXSSFBackgroundColor(style)));
+                cellStyle.setFillForegroundColor((HTMLToExcelStyleCoverter.getXSSFBackgroundColor(style)));
                 cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-                cellStyle.setTopBorderColor(HTMLToExelStyleCoverter.getXSSFTopBorderColor(style));
-                cellStyle.setRightBorderColor(HTMLToExelStyleCoverter.getXSSFRightBorderColor(style));
-                cellStyle.setBottomBorderColor(HTMLToExelStyleCoverter.getXSSFBottomBorderColor(style));
-                cellStyle.setLeftBorderColor(HTMLToExelStyleCoverter.getXSSFLeftBorderColor(style));
+                cellStyle.setTopBorderColor(HTMLToExcelStyleCoverter.getXSSFTopBorderColor(style));
+                cellStyle.setRightBorderColor(HTMLToExcelStyleCoverter.getXSSFRightBorderColor(style));
+                cellStyle.setBottomBorderColor(HTMLToExcelStyleCoverter.getXSSFBottomBorderColor(style));
+                cellStyle.setLeftBorderColor(HTMLToExcelStyleCoverter.getXSSFLeftBorderColor(style));
                 
-                cellStyle.setBorderTop(HTMLToExelStyleCoverter.getBorderTop(style));
-                cellStyle.setBorderRight(HTMLToExelStyleCoverter.getBorderRight(style));
-                cellStyle.setBorderBottom(HTMLToExelStyleCoverter.getBorderBottom(style));
-                cellStyle.setBorderLeft(HTMLToExelStyleCoverter.getBorderLeft(style));
-                cellStyle.setAlignment(HTMLToExelStyleCoverter.getAlignment(style));
-                cellStyle.setFont(HTMLToExelStyleCoverter.getXSSFFont(style, (XSSFWorkbook) workbook));
+                cellStyle.setBorderTop(HTMLToExcelStyleCoverter.getBorderTop(style));
+                cellStyle.setBorderRight(HTMLToExcelStyleCoverter.getBorderRight(style));
+                cellStyle.setBorderBottom(HTMLToExcelStyleCoverter.getBorderBottom(style));
+                cellStyle.setBorderLeft(HTMLToExcelStyleCoverter.getBorderLeft(style));
+                cellStyle.setAlignment(HTMLToExcelStyleCoverter.getAlignment(style));
+                cellStyle.setFont(HTMLToExcelStyleCoverter.getXSSFFont(style, (XSSFWorkbook) workbook));
 
                 return new XlsCellStyle(cellStyle, workbook);
             }

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Web Services Client Demo</title>
+    <script>
+        function url(req) {
+            return "/webservice/REST/Example3-AutoPolicyCalculation/" + req;
+        }
+
+        function execute(req, method, button) {
+            var resultBlock = document.getElementsByClassName('result')[0];
+            var output = document.getElementById("output");
+
+            // Clean previous results
+            resultBlock.style.visibility = "hidden";
+            output.innerHTML = "&nbsp;";
+            output.className = "";
+            document.getElementById("methodName").innerHTML = method;
+
+            // get the block with inputs
+            var div = button.parentNode;
+
+            // Clear all errors
+            var errors = document.getElementsByClassName("error");
+            for (var i = 0; i < errors.length; i++) {
+                errors[i].innerHTML = "";
+            }
+
+            // The request data
+            var json = {};
+
+            // Gather and validate all inputs
+            var inputs = div.getElementsByTagName('input')
+            for (var i = 0; i < inputs.length; i++) {
+                var input = inputs[i];
+                var name = input.name;
+                var value = input.value;
+                var regexp = input.dataset.regexp;
+                if (regexp) {
+                    var regexp = new RegExp("^(" + regexp + ")$");
+                    var errorEl = input.parentNode.parentNode.getElementsByClassName("error")[0];
+                    if (!regexp.test(value)) {
+                        errorEl.innerHTML = input.dataset.msg;
+                        return;
+                    }
+                }
+                json[name] = value;
+            }
+
+            var selects = div.getElementsByTagName('select')
+            for (var i = 0; i < selects.length; i++) {
+                input = selects[i];
+                json[input.name] = input.value;
+            }
+
+            // REST request
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState != 4) {
+                    return;
+                }
+                if (this.status == 200) {
+                    output.className = "";
+                    output.innerHTML = this.responseText;
+                } else {
+                    output.className = "error";
+                    output.innerHTML = "Response code: " + this.status + ". " + (this.status < 500 ? this.responseText : "Server error.");
+                }
+                resultBlock.style.visibility = "visible";
+                resultBlock.scrollIntoView();
+            };
+            xhttp.open(req, url(method), true);
+            xhttp.setRequestHeader('Content-Type', 'application/json');
+            xhttp.send(JSON.stringify(json));
+        }
+    </script>
+    <style>
+        body {
+            margin: 0;
+            color: #444;
+            font-family: Verdana, Helvetica, Arial;
+            font-size: 12px;
+        }
+
+        #header {
+            border-bottom: 1px solid #ccc;
+            font-family: Georgia, Verdana, Helvetica, Arial;
+            font-size: 20px;
+            color: #777;
+            padding: 11px 15px;
+        }
+
+        #main {
+            padding: 20px 20px 60px;
+            text-align: center;
+        }
+
+        #main > div {
+            display: inline-block;
+            text-align: left;
+            width: 700px;
+        }
+
+        #footer {
+            border-top: 1px solid #ccc;
+            font-size: 11px;
+            color: #666;
+            padding: 11px;
+            text-align: center;
+            background: #fff;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        #footer a {
+            color: #666;
+        }
+
+        .description {
+            padding: 15px 0 32px;
+            border-bottom: 1px dashed #ddd;
+            line-height: 21px;
+        }
+
+        .description a {
+            color: #28b;
+            text-decoration: none;
+        }
+
+        h2 {
+            font-weight: normal;
+            font-size: 16px;
+            color: #28b;
+            margin: 29px 0 16px;
+        }
+
+        .methods > tbody > tr > td {
+            padding: 11px 5px;
+        }
+
+        .method-desc {
+            color: #9a9a9a;
+            line-height: 23px;
+        }
+
+        .methods button {
+            border: 0;
+            border-left: 1px solid #ff8111;
+            padding: 6px 10px;
+            margin: 1px 1px;
+            color: #ff8111;
+            background: #fff;
+        }
+
+        .methods button:hover {
+            cursor: pointer;
+        }
+
+        .methods > tbody > tr:hover button {
+            color: #fff;
+            background: #ff8111;
+        }
+
+        .method-params td {
+            padding: 0 5px;
+        }
+
+        .method-params input[type="text"] {
+            padding: 2px 3px;
+            border: 0;
+            border-bottom: 1px solid #bbb;
+            color: #444;
+        }
+
+        .result {
+            margin-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .result table td {
+            padding: 6px 5px;
+        }
+
+        .messages ul {
+            margin: 0 0 10px 5px;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+<div id="header">Web Services Demo Client</div>
+<div id="main">
+    <div>
+        <div class="description">
+            This demo allows you to call rules from "Example 3 - Auto Policy Calculation" that are deployed as
+            <a id="link" target="_blank">RESTful Web Services</a> on the remote server.
+            Keep in mind that the demo shows only the rules listed below. Any new added rules will not be displayed.
+            <script>document.getElementById("link").href = url("?_wadl")</script>
+        </div>
+        <div>
+            <h2>Rules to call</h2>
+            <table class="methods">
+                <tr>
+                    <td>DriverAgeType
+                        <div class="method-desc">Returns a type of driver by age and gender</div>
+                        <table class="method-params">
+                            <tr>
+                                <td>Age</td>
+                                <td><input name="age" value="22" maxlength="3" size="4" type="text"
+                                           data-msg="Must be in the range from 0 to 150"
+                                           data-regexp="(\d\d?)|(1[0-5]\d)"></td>
+                                <td class="error"></td>
+                            </tr>
+                            <tr>
+                                <td>Gender</td>
+                                <td><select name="gender" size="1">
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select></td>
+                                <td></td>
+                            </tr>
+                        </table>
+                        <button type="button" onclick="execute('POST', 'DriverAgeType', this)">Execute</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>AccidentPremium
+                        <div class="method-desc">Returns auto accident premium</div>
+                        <button type="button" onclick="execute('GET', 'AccidentPremium', this)">Execute</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>DriverRisk
+                        <div class="method-desc">Returns a type of driver risk by number of incidents</div>
+                        <table class="method-params">
+                            <tr>
+                                <td>DUI</td>
+                                <td>
+                                    <input name="numDUI" value="0" maxlength="3" size="4" type="text"
+                                           data-msg="Must be in the range from 0 to 9"
+                                           data-regexp="\d">
+                                </td>
+                                <td class="error"></td>
+                            </tr>
+                            <tr>
+                                <td>Accidents</td>
+                                <td>
+                                    <input name="numAccidents" value="1" maxlength="3" size="4" type="text"
+                                           data-msg="Must be in the range from 0 to 9"
+                                           data-regexp="\d">
+                                </td>
+                                <td class="error"></td>
+                            </tr>
+                            <tr>
+                                <td>Moving Violations</td>
+                                <td>
+                                    <input name="numMovingViolations" value="2" maxlength="3" size="4" type="text"
+                                           data-msg="Must be in the range from 0 to 9"
+                                           data-regexp="\d">
+                                </td>
+                                <td class="error"></td>
+                            </tr>
+                        </table>
+                        <button type="button" onclick="execute('POST', 'DriverRisk', this)">Execute</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="result" style="visibility:hidden;">
+            <div>
+                <h2>
+                    Result of calling
+                    <i style="color: #444" id="methodName"></i> rule
+                </h2>
+                <span id="output"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="footer">
+    &#169; 2017 <a style="text-decoration: none" href="http://openl-tablets.org" target="_blank">OpenL Tablets</a>
+</div>
+</body>
+</html>
