@@ -56,7 +56,7 @@
 		<property name="linkAnyMediaTypeToXmlSchema" value="true" />
 		<property name="supportCollections" value="false" />
 	</bean>
-
+	
 	<bean id="JAXRSServicesServerPrototype" class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean"
 		scope="prototype">
 		<property name="features">
@@ -102,5 +102,6 @@
 		<property name="storeLoggingFeatureFactoryBean" ref="storeLoggingFeaturePrototypeFactory"/>
 		<property name="loggingStoreEnable" value="${ruleservice.logging.store.enabled}" />
 		<property name="publisherType" value="RESTFUL"/>
+		<property name="swaggerPrettyPrint" value="${ruleservice.jaxrs.swagger.prettyprint}"/>
 	</bean>
 </beans>

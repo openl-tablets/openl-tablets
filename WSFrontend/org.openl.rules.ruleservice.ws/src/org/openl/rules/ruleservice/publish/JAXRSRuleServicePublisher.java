@@ -15,6 +15,7 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.Feature;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
+import org.apache.cxf.jaxrs.swagger.Swagger2Feature;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
@@ -24,6 +25,7 @@ import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSInterfaceEnhancerHelper;
 import org.openl.rules.ruleservice.servlet.AvailableServicesGroup;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
+import org.openl.rules.ruleservice.servlet.ServiceInfoDescriptionUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
@@ -44,6 +46,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
     private List<ServiceInfo> availableServices = new ArrayList<ServiceInfo>();
     private boolean loggingStoreEnable = false;
     private ObjectFactory<? extends Feature> storeLoggingFeatureFactoryBean;
+    private boolean swaggerPrettyPrint = false;
 
     public ObjectFactory<? extends Feature> getStoreLoggingFeatureFactoryBean() {
         return storeLoggingFeatureFactoryBean;
@@ -91,6 +94,14 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
         throw new IllegalArgumentException("loggingInfoStoringService doesn't defined.");
     }
 
+    public void setSwaggerPrettyPrint(boolean swaggerPrettyPrint) {
+        this.swaggerPrettyPrint = swaggerPrettyPrint;
+    }
+
+    public boolean isSwaggerPrettyPrint() {
+        return swaggerPrettyPrint;
+    }
+
     protected Class<?> enhanceServiceClassWithJAXRSAnnotations(Class<?> serviceClass,
             OpenLService service) throws Exception {
         return JAXRSInterfaceEnhancerHelper.decorateInterface(serviceClass, service, true);
@@ -125,8 +136,13 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 svrFactory.getInFaultInterceptors().add(new CollectPublisherTypeInterceptor(getPublisherType()));
                 svrFactory.getInFaultInterceptors().add(new CollectOperationResourceInfoInterceptor());
             }
+
             Class<?> serviceClass = enhanceServiceClassWithJAXRSAnnotations(service.getServiceClass(), service);
             svrFactory.setResourceClasses(serviceClass);
+
+            Swagger2Feature swagger2Feature = getSwagger2Feature(service, serviceClass);
+            svrFactory.getFeatures().add(swagger2Feature);
+
             Object target = createWrappedBean(service.getServiceBean(),
                 service,
                 serviceClass,
@@ -138,18 +154,29 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 Server wsServer = svrFactory.create();
                 runningServices.put(service, wsServer);
                 availableServices.add(createServiceInfo(service));
-                log.info("Service '{}' has been exposed with URL '{}'.",
-                    service.getName(),
-                    url);
+                log.info("Service '{}' has been exposed with URL '{}'.", service.getName(), url);
             } finally {
                 svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
             }
         } catch (Throwable t) {
-            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'.", service.getName()),
-                t);
+            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'.", service.getName()), t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
+    }
+
+    private Swagger2Feature getSwagger2Feature(final OpenLService service, Class<?> serviceClass) {
+        Swagger2Feature swagger2Feature = new Swagger2Feature();
+        swagger2Feature.setRunAsFilter(true);
+        swagger2Feature.setScan(false);
+        swagger2Feature.setPrettyPrint(isSwaggerPrettyPrint());
+        if (serviceClass.getPackage() == null) {
+            swagger2Feature.setResourcePackage("default");
+        } else {
+            swagger2Feature.setResourcePackage(serviceClass.getPackage().getName());
+        }
+        swagger2Feature.setTitle(service.getName());
+        return swagger2Feature;
     }
 
     public Collection<OpenLService> getServices() {
@@ -174,10 +201,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
         }
         try {
             runningServices.get(service).destroy();
-            log.info("Service '{}' has been undeployed succesfully.",
-                serviceName,
-                baseAddress,
-                service.getUrl());
+            log.info("Service '{}' has been undeployed succesfully.", serviceName, baseAddress, service.getUrl());
             runningServices.remove(service);
             removeServiceInfo(serviceName);
             service.destroy();
@@ -214,12 +238,31 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 return o1.compareToIgnoreCase(o2);
             }
         });
-        String url = processURL(service.getUrl());
-        url = url + "?_wadl";
+        final String url = processURL(service.getUrl());
+        String wadlUrl = url;
+        wadlUrl = wadlUrl + "?_wadl";
         if (service.getPublishers().size() != 1) {
-            url = REST_PREFIX + url;
+            wadlUrl = REST_PREFIX + wadlUrl;
         }
-        return new ServiceInfo(new Date(), service.getName(), methodNames, url, "WADL");
+
+        String swaggerUrl = url;
+        swaggerUrl = swaggerUrl + "/api-docs/swagger.json";
+        if (service.getPublishers().size() != 1) {
+            swaggerUrl = REST_PREFIX + swaggerUrl;
+        }
+
+        String swaggerYamlUrl = url;
+        swaggerYamlUrl = swaggerYamlUrl + "/api-docs/swagger.yaml";
+        if (service.getPublishers().size() != 1) {
+            swaggerYamlUrl = REST_PREFIX + swaggerYamlUrl;
+        }
+
+        return new ServiceInfo(new Date(),
+            service.getName(),
+            methodNames,
+            new ServiceInfoDescriptionUrl[] { new ServiceInfoDescriptionUrl(wadlUrl, "WADL"),
+                    new ServiceInfoDescriptionUrl(swaggerUrl, "Swagger (JSON)"),
+                    new ServiceInfoDescriptionUrl(swaggerYamlUrl, "Swagger (YAML)") });
     }
 
     @Override

@@ -144,13 +144,15 @@
                                                             </c:forEach>
                                                         </div>
                                                     </div>
-
-                                                    <c:if test="${!empty service.url}">
-                                                        <div class="url" >
-                                                            ${service.urlDescription}:
-                                                            <a href="${contextPath}/${service.url}">${contextPath}/${service.url}</a>
-                                                        </div>
-                                                    </c:if>
+                                                    
+													<c:forEach items="${service.serviceInfoDescriptionUrls}" var="serviceInfoDescriptionUrl" varStatus="i">
+                                                        <c:if test="${!empty serviceInfoDescriptionUrl.url}">
+                                                            <div class="url" >
+                                                                ${serviceInfoDescriptionUrl.description}:
+                                                                <a href="${contextPath}/${serviceInfoDescriptionUrl.url}">${contextPath}/${serviceInfoDescriptionUrl.url}</a>
+                                                            </div>
+                                                        </c:if>
+                                                    </c:forEach>
                                                     
                                                     <c:if test="${!empty service.address}">
                                                         <div class="url" >

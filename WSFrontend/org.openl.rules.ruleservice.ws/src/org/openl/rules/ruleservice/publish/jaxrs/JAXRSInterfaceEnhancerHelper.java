@@ -34,6 +34,8 @@ import org.openl.util.StringUtils;
 import org.openl.util.generation.GenUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import net.sf.cglib.core.ReflectUtils;
 
 /**
@@ -93,6 +95,11 @@ public class JAXRSInterfaceEnhancerHelper {
                     requiredPathAnnotation = false;
                     break;
                 }
+            }
+            
+            //Swagger annotation
+            if (originalClass.getAnnotation(Api.class) == null) {
+                this.visitAnnotation(Type.getDescriptor(Api.class), true);
             }
 
             if (requiredPathAnnotation) {
@@ -333,6 +340,8 @@ public class JAXRSInterfaceEnhancerHelper {
             }
 
             addJAXRSMethodAnnotation(mv, originalMethod.getName());
+            
+            addSwaggerMethodAnnotation(mv, originalMethod);
             return mv;
         }
         
@@ -387,6 +396,14 @@ public class JAXRSInterfaceEnhancerHelper {
             AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(JAXRSMethod.class), true);
             av.visit("value", methodName);
             av.visitEnd();
+        }
+        
+        private void addSwaggerMethodAnnotation(MethodVisitor mv, Method originalMethod) {
+            if (!originalMethod.isAnnotationPresent(ApiOperation.class)) {
+                AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(ApiOperation.class), true);
+                av.visit("value", "Method: " + originalMethod.getName());
+                av.visitEnd();
+            }
         }
 
         private void addPathParamAnnotation(MethodVisitor mv, int index, String paramName) {

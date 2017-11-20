@@ -1120,6 +1120,12 @@
                 <artifactId>cxf-rt-transports-http-hc</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
+            <!-- CXF Runtime CORBA Binding -->		
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-rs-service-description-swagger</artifactId>
+                <version>${org.apache.cxf.version}</version>
+            </dependency>
             <!-- Apache CXF Runtime CORBA Binding -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
