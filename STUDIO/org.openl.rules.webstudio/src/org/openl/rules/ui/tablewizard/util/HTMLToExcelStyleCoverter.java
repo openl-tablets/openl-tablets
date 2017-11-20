@@ -15,7 +15,7 @@ import org.openl.util.StringUtils;
 import org.richfaces.json.JSONException;
 import org.richfaces.json.JSONObject;
 
-public class HTMLToExelStyleCoverter {
+public class HTMLToExcelStyleCoverter {
     private final static String TOP = "Top";
     private final static String RIGHT = "Right";
     private final static String BOTTOM = "Bottom";
@@ -28,7 +28,7 @@ public class HTMLToExelStyleCoverter {
     }
 
     static public BorderStyle getBorderTop(JSONObject style) {
-        return getBorder(style, HTMLToExelStyleCoverter.TOP);
+        return getBorder(style, HTMLToExcelStyleCoverter.TOP);
     }
 
     static public short getTopBorderColor(JSONObject style, Workbook workbook) {
@@ -36,7 +36,7 @@ public class HTMLToExelStyleCoverter {
     }
 
     static public BorderStyle getBorderRight(JSONObject style) {
-        return getBorder(style, HTMLToExelStyleCoverter.RIGHT);
+        return getBorder(style, HTMLToExcelStyleCoverter.RIGHT);
     }
 
     static public short getRightBorderColor(JSONObject style, Workbook workbook) {
@@ -44,7 +44,7 @@ public class HTMLToExelStyleCoverter {
     }
 
     static public BorderStyle getBorderBottom(JSONObject style) {
-        return getBorder(style, HTMLToExelStyleCoverter.BOTTOM);
+        return getBorder(style, HTMLToExcelStyleCoverter.BOTTOM);
     }
 
     static public short getBottomBorderColor(JSONObject style, Workbook workbook) {
@@ -52,7 +52,7 @@ public class HTMLToExelStyleCoverter {
     }
 
     static public BorderStyle getBorderLeft(JSONObject style) {
-        return getBorder(style, HTMLToExelStyleCoverter.LEFT);
+        return getBorder(style, HTMLToExcelStyleCoverter.LEFT);
     }
 
     static public short getLeftBorderColor(JSONObject style, Workbook workbook) {
@@ -162,7 +162,7 @@ public class HTMLToExelStyleCoverter {
         return font;
     }
 
-    static private BorderStyle borderStyleHtmlToExel(String borderStyle, int size) {
+    static private BorderStyle borderStyleHtmlToExcel(String borderStyle, int size) {
         if ("solid".equalsIgnoreCase(borderStyle)) {
             if (size > 2) {
                 return BorderStyle.THICK;
@@ -234,7 +234,7 @@ public class HTMLToExelStyleCoverter {
                     }
                 }
 
-                return borderStyleHtmlToExel(style.getString(borderType), size);
+                return borderStyleHtmlToExcel(style.getString(borderType), size);
             } catch (JSONException e) {
                 return BorderStyle.NONE;
             }
