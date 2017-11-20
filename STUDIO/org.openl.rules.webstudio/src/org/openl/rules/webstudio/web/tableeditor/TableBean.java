@@ -65,7 +65,7 @@ public class TableBean {
     private String id;
     private IOpenLTable table;
     private boolean editable;
-    private boolean canBeOpenInExel;
+    private boolean canBeOpenInExcel;
     private boolean copyable;
 
     private List<OpenLMessage> errors;
@@ -97,7 +97,7 @@ public class TableBean {
             method = model.getMethod(uri);
 
             editable = model.isEditableTable(uri) && !isDispatcherValidationNode();
-            canBeOpenInExel = model.isEditable() && !isDispatcherValidationNode();
+            canBeOpenInExcel = model.isEditable() && !isDispatcherValidationNode();
             copyable = editable && table.isCanContainProperties()
                     && !XlsNodeTypes.XLS_DATATYPE.toString().equals(table.getType())
                     && isGranted(CREATE_TABLES);
@@ -437,8 +437,8 @@ public class TableBean {
         return isEditable() && isGranted(EDIT_TABLES);
     }
 
-    public boolean isCanOpenInExel() {
-        return canBeOpenInExel;
+    public boolean isCanOpenInExcel() {
+        return canBeOpenInExcel;
     }
 
     public boolean getCanRemove() {
