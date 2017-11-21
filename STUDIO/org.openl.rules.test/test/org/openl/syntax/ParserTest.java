@@ -203,7 +203,7 @@ public class ParserTest extends TestCase {
     }
 
     public void testErr2() throws OpenConfigurationException {
-        _testErrorMsg("\"abc", "Need to close");
+        _testErrorMsg("\"abc", "Lexical error at line");
     }
 
     public void testErr3() throws OpenConfigurationException {
@@ -215,7 +215,7 @@ public class ParserTest extends TestCase {
     }
 
     public void testErr5() throws OpenConfigurationException {
-        _testErrorMsg("\"ab\\zc\"", "Unexpected symbol 'z'");
+        _testErrorMsg("\"ab\\zc\"", "Lexical error at line");
     }
 
     public void testIf() {

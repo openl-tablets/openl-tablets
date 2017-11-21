@@ -27,7 +27,7 @@ basedir is eclipse.project.dir
 	<javacc 
 		target="${grammar.dir}/${grammar.name}.jj" 
 		outputdirectory="${grammar.src.output.dir}/${grammar.name}"
-		javacchome="${lib.root.dir}/javacc-5.0/bin/lib" 
+		javacchome="${lib.root.dir}/javacc-7.0.3/bin/lib" 
 		static="false"
 	/>
 
