@@ -186,9 +186,9 @@ TOKEN :
 
 TOKEN :
 {
-  < ABSTRACT : "abstract" >
+  //< ABSTRACT : "abstract" >
   //| < BOOLEAN: "boolean" >
-| < BREAK : "break" >
+  < BREAK : "break" >
   //| < BYTE: "byte" >
 | < CALCULATE : "Calculate" >
 | < CASE : "case" >
@@ -201,42 +201,42 @@ TOKEN :
 | < DO : "do" >
   //| < DOUBLE: "double" >
 | < ELSE : "else" >
-| < EXTENDS : "extends" >
+//| < EXTENDS : "extends" >
 | < FALSE : "false" >
-| < FINAL : "final" >
+//| < FINAL : "final" >
 | < FINALLY : "finally" >
   //| < FLOAT: "float" >
 | < FOR : "for" >
 | < GOTO : "goto" >
 | < IF : "if" >
 | < PLUSSTR : "plus" >
-| < IMPLEMENTS : "implements" >
-| < IMPORT : "import" >
+//| < IMPLEMENTS : "implements" >
+//| < IMPORT : "import" >
 | < INSTANCEOF : "instanceof" >
-  //| < INT: "int" >
-| < INTERFACE : "interface" >
-  //| < LONG: "long" >
-| < NATIVE : "native" >
+//| < INT: "int" >
+//| < INTERFACE : "interface" >
+//| < LONG: "long" >
+//| < NATIVE : "native" >
 | < NEW : "new" >
 | < NULL : "null" >
-| < PACKAGE : "package" >
-| < PRIVATE : "private" >
-| < PROTECTED : "protected" >
-| < PUBLIC : "public" >
+//| < PACKAGE : "package" >
+//| < PRIVATE : "private" >
+//| < PROTECTED : "protected" >
+//| < PUBLIC : "public" >
 | < RETURN : "return" >
-  //| < SHORT: "short" >
-| < STATIC : "static" >
+//| < SHORT: "short" >
+//| < STATIC : "static" >
 | < SUPER : "super" >
 | < SWITCH : "switch" >
-| < SYNCHRONIZED : "synchronized" >
-  //| < THIS: "this" >
+//| < SYNCHRONIZED : "synchronized" >
+//| < THIS: "this" >
 | < THROW : "throw" >
 | < THROWS : "throws" >
-| < TRANSIENT : "transient" >
+//| < TRANSIENT : "transient" >
 | < TRUE : "true" >
 | < TRY : "try" >
 | < VOID : "void" >
-| < VOLATILE : "volatile" >
+//| < VOLATILE : "volatile" >
 | < WHILE : "while" >
 }
 
@@ -3004,16 +3004,7 @@ void ContinueStatement() :
 void MethodHeader() :
 {}
 {
-  (
-    "public"
-  | "protected"
-  | "private"
-  | "static"
-  | "abstract"
-  | "final"
-  | "native"
-  | "synchronized"
-  )*
+  //("public" | "protected" | "private" | "static" | "abstract" | "final" | "native" | "synchronized")*
   ResultType() MethodDeclarator()
   {
     syntaxBuilder.nop("method.header", null, 3);
@@ -3024,16 +3015,7 @@ void MethodDeclaration() :
 {}
 {
   //  ( "public" | "protected" | "private" | "static" | "abstract" | "final" | "native" | "synchronized" | "strictfp")*
-  (
-    "public"
-  | "protected"
-  | "private"
-  | "static"
-  | "abstract"
-  | "final"
-  | "native"
-  | "synchronized"
-  )*
+  //("public" | "protected" | "private" | "static" | "abstract" | "final" | "native" | "synchronized")*
   ResultType() MethodDeclarator()
   //[ "throws" NameList() ]
   (
