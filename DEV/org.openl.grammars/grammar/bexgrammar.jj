@@ -312,6 +312,7 @@ TOKEN :
 | < GE: ">=" >
 | < STRICT_GE: ">===" >
 | < NE: "!=" >
+| < NE_ALT: "<>" >
 | < STRICT_NE: "!===" >
 | < BOOL_OR: "||" >
 | < BOOL_AND: "&&" >
@@ -538,11 +539,8 @@ void Expression() :
 }
 {
 	
-	
   ConditionalTernaryExpression()
   [
-
-
       ( x = "=" {func="op.assign";}
       | x = "+=" {func="op.assign.add";} 
       | x = "-=" {func="op.assign.subtract";}
@@ -584,7 +582,7 @@ void ConditionalImplExpression() :
 void ConditionalOrExpression() :
 {Token x;}
 {
-  ConditionalAndExpression() ( (x=<BOOL_OR> | x = "or") ConditionalAndExpression() 
+  ConditionalAndExpression() ( (x=<BOOL_OR> | x = <OR>) ConditionalAndExpression() 
   { syntaxBuilder.bop("op.binary.or", pos(x)); } )*
 }
 
@@ -593,7 +591,7 @@ void ConditionalAndExpression() :
 {Token x;}
 {
   BitwiseOrExpression() 
-  ( (x=<BOOL_AND>| x = "and") BitwiseOrExpression()  
+  ( (x=<BOOL_AND> | x = <AND>) BitwiseOrExpression()  
   { syntaxBuilder.bop("op.binary.and", pos(x)); } )*
 }
 
@@ -637,6 +635,7 @@ void EqualityExpression() :
       	| x = "equals to"
       	| x = "is same as") { func="op.binary.eq"; }
       |(x = <NE>
+        | x = <NE_ALT>
       	| x = "does not equal to"
       	| x = "is different from") { func="op.binary.ne"; }
       |(x = <STRICT_EQ>) { func="op.binary.strict_eq"; }
@@ -776,6 +775,9 @@ void UnaryExpression() :
   {syntaxBuilder.uop("op.unary.bitnot", pos(x));}
 |
   x=<BANG> UnaryExpression() 
+  {syntaxBuilder.uop("op.unary.not", pos(x));}
+|
+  x=<NOT> UnaryExpression() 
   {syntaxBuilder.uop("op.unary.not", pos(x));}
 |
   PreIncrementExpression()
@@ -1000,7 +1002,7 @@ void CastExpression() :
 void CastLookahead() :
 {}
 {
-  "(" Type() ")" (<PLUS> | <MINUS> | <TILDE> | <BANG> | <LPAREN> | <LBRACKET> | <IDENTIFIER> | <NEW> | Literal() )
+  "(" Type() ")" (<PLUS> | <MINUS> | <TILDE> | <BANG> | <NOT> | <LPAREN> | <LBRACKET> | <IDENTIFIER> | <NEW> | Literal() )
 }
 
 void identifier() :
@@ -1209,8 +1211,6 @@ void AbsExpression() :
     syntaxBuilder.uop("op.unary.abs", pos(x1,x2));
   }
 }
-
-
 
 void Literal() :
 {}
