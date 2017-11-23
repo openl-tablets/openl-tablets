@@ -126,13 +126,20 @@ public class ProjectModel {
     private SourceHistoryManager<File> historyManager;
 
     private RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
-    private TestSuiteExecutor testSuiteExecutor;
+    private final TestSuiteExecutor testSuiteExecutor;
 
-    public ProjectModel(WebStudio studio) {
+    /**
+     * For tests only
+     */
+    ProjectModel(WebStudio studio) {
+        this(studio, null);
+    }
+
+    public ProjectModel(WebStudio studio, TestSuiteExecutor testSuiteExecutor) {
         this.studio = studio;
         this.openedInSingleModuleMode = studio.isSingleModuleModeByDefault();
         this.webStudioWorkspaceDependencyManagerFactory = new WebStudioWorkspaceDependencyManagerFactory(studio);
-        testSuiteExecutor = WebStudioUtils.getBean(TestSuiteExecutor.class);
+        this.testSuiteExecutor = testSuiteExecutor;
     }
 
     public RulesProject getProject() {
