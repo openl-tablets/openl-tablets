@@ -8,13 +8,11 @@
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
-    <ui:param name="exportToExcel" value="#{testBean.exportToExcel}" />
     <ui:param name="failuresOnly" value="#{testBean.testsFailuresOnly}" />
     <ui:param name="complexResult" value="#{testBean.showComplexResult}" />
     <c:set var="failuresPerTest" value="#{testBean.testsFailuresPerTest}" />
 
     <script src="webresource/js/tooltip.js"></script>
-    <script src="#{contextPath}/javascript/vendor/response-monitor.js"></script>
     <script>
         function explain(url) {
            window.open('#{contextPath}/faces/pages/layout/frameView.xhtml' + url
@@ -22,54 +20,6 @@
         }
     </script>
 
-    <h:panelGroup rendered="#{exportToExcel}">
-        <div class="page">
-            <h1 class="page-header">
-                Export tests
-            </h1>
-
-            <div style="font-size: 13px;">
-                <div>
-                    <h:outputText value="Exporting test results to Excel... "/>
-                    <span class="done" style="display: none">Done.</span>
-                </div>
-                <div class="done" style="display: none">
-                    <a href="#" onclick="history.back(); return false;">Back</a>
-                </div>
-            </div>
-            <h:form id="exportForm">
-                <h:commandButton id="exportToExcel" action="#{testBean.exportTestResults}" value="Export" styleClass="hidden"/>
-            </h:form>
-        </div>
-
-        <script>
-            $j(function () {
-                var options = {
-                    timeout: 1200,
-                    onRequest: function(token){
-                        ws.ui.showLoader();
-                    },
-                    onResponse: function(status){
-                        ws.ui.hideLoader();
-                        if (status === "success") {
-                            $j('.done').show();
-                        } else {
-                            ws.ui.info(status);
-                        }
-                    },
-                    onTimeout: function(){
-                        ws.ui.hideLoader();
-                        ws.ui.info('File generation is too long');
-                    }
-                };
-                ResponseMonitor.register($j('#exportForm').get(), options);
-
-                $j('#exportForm\\:exportToExcel').click();
-            });
-        </script>
-    </h:panelGroup>
-
-    <h:panelGroup rendered="#{!exportToExcel}">
     <div class="page">
 
         <h:panelGroup rendered="#{!testBean.test}">
@@ -338,6 +288,5 @@
             </h:panelGroup>
         </div>
     </div>
-    </h:panelGroup>
 
 </ui:composition>

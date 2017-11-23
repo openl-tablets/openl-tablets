@@ -126,11 +126,13 @@ public class ProjectModel {
     private SourceHistoryManager<File> historyManager;
 
     private RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
+    private TestSuiteExecutor testSuiteExecutor;
 
     public ProjectModel(WebStudio studio) {
         this.studio = studio;
         this.openedInSingleModuleMode = studio.isSingleModuleModeByDefault();
         this.webStudioWorkspaceDependencyManagerFactory = new WebStudioWorkspaceDependencyManagerFactory(studio);
+        testSuiteExecutor = WebStudioUtils.getBean(TestSuiteExecutor.class);
     }
 
     public RulesProject getProject() {
@@ -892,7 +894,7 @@ public class ProjectModel {
         if (!isParallel) {
             return test.invokeSequentially(openClass, 1);
         } else {
-            return test.invokeParallel(WebStudioUtils.getBean(TestSuiteExecutor.class), openClass, 1);
+            return test.invokeParallel(testSuiteExecutor, openClass, 1);
         }
     }
 

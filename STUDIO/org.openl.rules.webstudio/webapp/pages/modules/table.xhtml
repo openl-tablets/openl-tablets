@@ -112,12 +112,6 @@
         <h:form prependId="false">
             <h:panelGroup id="runCasesSettings" layout="block" rendered="#{tableBean.table.type != 'xls.run.method'}"
                           styleClass="hidden b-run b-test">
-                <div title="Export test results to Excel">
-                    <span>Export to Excel</span>
-                    <input name="exportToExcel" type="checkbox"
-                           value="true" checked="#{studio.testsExportToExcel ? 'checked' : ''}"
-                           style="vertical-align:-2px;margin:-4px" />
-                </div>
                 <div title="Show only failed test cases">
                     <span>Failures Only</span>
                     <input name="failuresOnly" type="checkbox"
@@ -190,8 +184,18 @@
                                    styleClass="hidden b-test"/>
                 <a4j:commandButton id="runButton" value="Run"
                                    rendered="#{tableBean.canRun}"
-                                   title="Run" onclick="return  isAnyTestSelected(); " oncomplete="runTestCases();"
+                                   title="Run" onclick="return isAnyTestSelected();" oncomplete="runTestCases();"
                                    styleClass="hidden b-run"/>
+                <a4j:commandButton id="runToExcel"
+                                   rendered="#{tableBean.canRun}"
+                                   onclick="return isAnyTestSelected();" oncomplete="downloadTestCases();"
+                                   value="Run into File" title="Run into File"
+                                   styleClass="hidden b-run"/>
+                <a4j:commandButton id="testToExcel"
+                                   rendered="#{tableBean.canRun}"
+                                   onclick="return isAnyTestSelected();" oncomplete="downloadTestCases();"
+                                   value="Test into File" title="Test into File"
+                                   styleClass="hidden b-test"/>
                 <a4j:commandButton id="traceButton"
                                    rendered="#{tableBean.canTrace}"
                                    value="Trace" title="Trace"
@@ -767,6 +771,11 @@
         function runTestCases() {
             var link="#{tableBean.table.type == 'xls.run.method' ? studio.url('test/run') : studio.url('test/test')}";
             ws.nav.go(link + getTestQuery());
+        }
+
+        function downloadTestCases() {
+            var link="#{contextPath}/web/test/download";
+            ws.nav.download(link + getTestQuery());
         }
 
         function getCurrentTable() {
