@@ -110,6 +110,7 @@
             <list>
                 <bean class="org.openl.rules.rest.RepositoryService"/>
                 <bean class="org.openl.rules.webstudio.web.trace.TraceService"/>
+                <bean class="org.openl.rules.webstudio.web.test.TestDownloadService"/>
             </list>
         </property>
         <property name="providers">

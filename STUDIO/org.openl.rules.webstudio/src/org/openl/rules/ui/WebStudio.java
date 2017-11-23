@@ -50,6 +50,7 @@ import org.openl.rules.webstudio.web.repository.upload.ProjectDescriptorUtils;
 import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
 import org.openl.rules.webstudio.web.repository.upload.zip.*;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
+import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
@@ -97,7 +98,6 @@ public class WebStudio {
     private RulesTreeView treeView;
     private String tableView;
     private boolean showFormulas;
-    private boolean testsExportToExcel;
     private int testsPerPage;
     private boolean testsFailuresOnly;
     private int testsFailuresPerTest;
@@ -154,7 +154,6 @@ public class WebStudio {
         treeView = getTreeView(userSettingsManager.getStringProperty("rules.tree.view"));
         tableView = userSettingsManager.getStringProperty("table.view");
         showFormulas = userSettingsManager.getBooleanProperty("table.formulas.show");
-        testsExportToExcel = userSettingsManager.getBooleanProperty("test.export.to.excel");
         testsPerPage = userSettingsManager.getIntegerProperty("test.tests.perpage");
         testsFailuresOnly = userSettingsManager.getBooleanProperty("test.failures.only");
         testsFailuresPerTest = userSettingsManager.getIntegerProperty("test.failures.pertest");
@@ -271,7 +270,7 @@ public class WebStudio {
 
     public String exportProject() {
         File file = null;
-        String cookePrefix = "response-monitor";
+        String cookePrefix = Constants.RESPONSE_MONITOR_COOKIE;
         String cookieName = cookePrefix + "_" + FacesUtils.getRequestParameter(cookePrefix);
         try {
             RulesProject forExport = getCurrentProject();
@@ -867,15 +866,6 @@ public class WebStudio {
     public void setShowFormulas(boolean showFormulas) {
         this.showFormulas = showFormulas;
         userSettingsManager.setProperty("table.formulas.show", showFormulas);
-    }
-
-    public boolean isTestsExportToExcel() {
-        return testsExportToExcel;
-    }
-
-    public void setTestsExportToExcel(boolean testsExportToExcel) {
-        this.testsExportToExcel = testsExportToExcel;
-        userSettingsManager.setProperty("test.export.to.excel", testsExportToExcel);
     }
 
     public int getTestsPerPage() {
