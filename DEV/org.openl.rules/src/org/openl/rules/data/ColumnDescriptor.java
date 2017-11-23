@@ -32,18 +32,22 @@ public class ColumnDescriptor {
     private StringValue displayValue;
     private OpenL openl;
     private boolean valuesAnArray = false;
-    
+
     /**
      * Flag indicating that current column descriptor is a constructor.<br>
-     * See {@link DataTableBindHelper#CONSTRUCTOR_FIELD}. 
+     * See {@link DataTableBindHelper#CONSTRUCTOR_FIELD}.
      */
-    private boolean constructor = false;    
+    private boolean constructor = false;
 
     private Map<String, Integer> uniqueIndex = null;
     private Map<String, Integer> formattedUniqueIndex = null;
     private IdentifierNode[] fieldChainTokens;
 
-    public ColumnDescriptor(IOpenField field, StringValue displayValue, OpenL openl, boolean constructor, IdentifierNode[] fieldChainTokens) {
+    public ColumnDescriptor(IOpenField field,
+            StringValue displayValue,
+            OpenL openl,
+            boolean constructor,
+            IdentifierNode[] fieldChainTokens) {
         this.field = field;
         this.displayValue = displayValue;
         this.openl = openl;
@@ -82,15 +86,14 @@ public class ColumnDescriptor {
     /**
      * Method is using to load data. Is used when data table is represents
      * <b>AS</b> a constructor (see {@link #isConstructor()}).
-     * @throws SyntaxNodeException 
+     * 
+     * @throws SyntaxNodeException
      */
-    public Object getLiteral(IOpenClass paramType, ILogicalTable valuesTable, OpenlToolAdaptor ota) throws SyntaxNodeException  {
+    public Object getLiteral(IOpenClass paramType,
+            ILogicalTable valuesTable,
+            OpenlToolAdaptor ota) throws SyntaxNodeException {
         Object resultLiteral = null;
         boolean valuesAnArray = isValuesAnArray(paramType);
-
-        if (valuesAnArray) {
-            paramType = paramType.getAggregateInfo().getComponentType(paramType);
-        }
 
         valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
 
@@ -100,6 +103,17 @@ public class ColumnDescriptor {
                 null,
                 valuesTable,
                 ota);
+        } else {
+            paramType = paramType.getAggregateInfo().getComponentType(paramType);
+            if (valuesTable.getHeight() == 1 && valuesTable.getWidth() == 1) {
+                resultLiteral = RuleRowHelper.loadCommaSeparatedParam(paramType,
+                    field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(),
+                    null,
+                    valuesTable,
+                    ota);
+            } else {
+                resultLiteral = loadMultiRowArray(valuesTable, ota, paramType);
+            }
         }
 
         return resultLiteral;
@@ -127,7 +141,7 @@ public class ColumnDescriptor {
         return formattedUniqueIndex;
     }
 
-    public boolean isConstructor() {        
+    public boolean isConstructor() {
         return constructor;
     }
 
@@ -139,9 +153,12 @@ public class ColumnDescriptor {
      * Method is using to load data. Is used when data table is represents as
      * <b>NOT</b> a constructor (see {@link #isConstructor()}). Support loading
      * single value, array of values.
-     * @throws SyntaxNodeException 
+     * 
+     * @throws SyntaxNodeException
      */
-    public void populateLiteral(Object literal, ILogicalTable valuesTable, OpenlToolAdaptor toolAdapter) throws SyntaxNodeException {        
+    public Object populateLiteral(Object literal,
+            ILogicalTable valuesTable,
+            OpenlToolAdaptor toolAdapter) throws SyntaxNodeException {
         if (field != null) {
             IOpenClass paramType = field.getType();
 
@@ -150,34 +167,38 @@ public class ColumnDescriptor {
             }
 
             valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
-
+            IRuntimeEnv env = getRuntimeEnv();
             if (!valuesAnArray) {
-                Object res = RuleRowHelper.loadSingleParam(paramType, field.getName(), null, valuesTable, toolAdapter);
-
+                Object res = RuleRowHelper.loadSingleParam(paramType, field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(), null, valuesTable, toolAdapter);
                 if (res != null) {
-                    field.set(literal, res, getRuntimeEnv());
+                    env.pushThis(literal);
+                    field.set(literal, res, env);
+                    return env.popThis();
                 }
             } else {
                 Object arrayValues = getArrayValues(valuesTable, toolAdapter, paramType);
+                env.pushThis(literal);
                 field.set(literal, arrayValues, getRuntimeEnv());
+                return env.popThis();
             }
         } else {
             /**
-             * field == null, in this case don`t do anything. The appropriate information why it is null would have been
-             * processed during prepDaring column descriptor. 
-             * See {@link DataTableBindHelper#makeDescriptors(IBindingContext bindingContext, ITable table, IOpenClass type,
-             * OpenL openl, ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows, boolean hasForeignKeysRow,
-             * boolean hasColumnTytleRow)}
+             * field == null, in this case don`t do anything. The appropriate
+             * information why it is null would have been processed during
+             * prepDaring column descriptor. See
+             * {@link DataTableBindHelper#makeDescriptors(IBindingContext bindingContext, ITable table, IOpenClass type, OpenL openl, ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows, boolean hasForeignKeysRow, boolean hasColumnTytleRow)}
              */
         }
+        return literal;
     }
 
     public boolean isReference() {
         return false;
     }
 
-    private Object getArrayValues(ILogicalTable valuesTable, OpenlToolAdaptor ota, IOpenClass paramType)
-        throws SyntaxNodeException {
+    private Object getArrayValues(ILogicalTable valuesTable,
+            OpenlToolAdaptor ota,
+            IOpenClass paramType) throws SyntaxNodeException {
 
         if (valuesTable.getHeight() == 1 && valuesTable.getWidth() == 1) {
             return RuleRowHelper.loadCommaSeparatedParam(paramType, field.getName(), null, valuesTable.getRow(0), ota);
@@ -186,21 +207,20 @@ public class ColumnDescriptor {
         return loadMultiRowArray(valuesTable, ota, paramType);
     }
 
-    private Object loadMultiRowArray(ILogicalTable logicalTable, OpenlToolAdaptor openlAdaptor, IOpenClass paramType)
-        throws SyntaxNodeException {
+    private Object loadMultiRowArray(ILogicalTable logicalTable,
+            OpenlToolAdaptor openlAdaptor,
+            IOpenClass paramType) throws SyntaxNodeException {
 
         // get height of table without empty cells at the end
         //
-        int valuesTableHeight = RuleRowHelper.calculateHeight(logicalTable);/*logicalTable.getHeight();*/
+        int valuesTableHeight = RuleRowHelper
+            .calculateHeight(logicalTable);/* logicalTable.getHeight(); */
         ArrayList<Object> values = new ArrayList<Object>(valuesTableHeight);
 
         for (int i = 0; i < valuesTableHeight; i++) {
 
-            Object res = RuleRowHelper.loadSingleParam(paramType,
-                field.getName(),
-                null,
-                logicalTable.getRow(i),
-                openlAdaptor);
+            Object res = RuleRowHelper
+                .loadSingleParam(paramType, field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(), null, logicalTable.getRow(i), openlAdaptor);
 
             // Change request: null value cells should be loaded into array as a
             // null value elements.
@@ -208,7 +228,7 @@ public class ColumnDescriptor {
             if (res == null) {
                 res = paramType.nullObject();
             }
-            
+
             values.add(res);
         }
 

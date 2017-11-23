@@ -40,7 +40,9 @@ public class DataTableBindHelper {
 
     private static final String FPK = "_PK_";
 
-    /** Indicates that field is a constructor.<br> */
+    /**
+     * Indicates that field is a constructor.<br>
+     */
     // Protected to make javadoc reference.
     protected static final String CONSTRUCTOR_FIELD = "this";
 
@@ -50,6 +52,7 @@ public class DataTableBindHelper {
 
     // patter for field like addressArry[0]
     public static final String ARRAY_ACCESS_PATTERN = ".+\\[[0-9]+\\]$";
+    public static final String THIS_ARRAY_ACCESS_PATTERN = "\\s*\\[[0-9]+\\]$";
     public static final String PRECISION_PATTERN = "^\\(\\-?[0-9]+\\)$";
     public static final String SPREADSHEETRESULTFIELD_PATTERN = "^\\$.+\\$.+$";
     private static final Pattern FIELD_WITH_PRECISION_PATTERN = Pattern.compile("^(.*\\S)\\s*(\\(-?[0-9]+\\))$");
@@ -107,7 +110,8 @@ public class DataTableBindHelper {
 
     /**
      * Checks if table representation is horizontal. Horizontal is data table
-     * where parameters are listed from left to right.</br> Example:
+     * where parameters are listed from left to right.</br>
+     * Example:
      *
      * <table cellspacing="2">
      * <tr bgcolor="#ccffff">
@@ -360,8 +364,10 @@ public class DataTableBindHelper {
             // remove extra spaces
             value = StringUtils.trimToEmpty(value);
 
-            return new StringValue(value, value, value, new GridCellSourceCodeModule(titleCell.getSource(),
-                bindingContext));
+            return new StringValue(value,
+                value,
+                value,
+                new GridCellSourceCodeModule(titleCell.getSource(), bindingContext));
         }
 
         return new StringValue(value, value, value, null);
@@ -399,19 +405,22 @@ public class DataTableBindHelper {
 
                 IdentifierNode foreignKeyTable = null;
                 IdentifierNode foreignKey = null;
-                IdentifierNode[] accessorChainTokens = null;
+                IdentifierNode[] accessorChainTokens = null; 
                 ICell foreignKeyCell = null;
 
                 if (fieldAccessorChainTokens.length == 1 && !hasForeignKeysRow) {
                     // process single field in chain, e.g. driver;
                     IdentifierNode fieldNameNode = fieldAccessorChainTokens[0];
-
-                    if (supportConstructorFields && CONSTRUCTOR_FIELD.equals(fieldNameNode.getIdentifier())) {
-                        constructorField = true;
-                    } else if (fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_PATTERN)) {
+                    if (fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_PATTERN)) {
                         descriptorField = getWritableArrayElement(fieldNameNode, table, type);
-                    } else {
-                        descriptorField = getWritableField(fieldNameNode, table, type);
+                    } else if (fieldNameNode.getIdentifier().matches(THIS_ARRAY_ACCESS_PATTERN) && type.isArray()) {
+                        descriptorField = new ThisArrayElementField(getArrayIndex(fieldNameNode), type.getComponentClass()); 
+                    } else { 
+                        if (supportConstructorFields && CONSTRUCTOR_FIELD.equals(fieldNameNode.getIdentifier())) {
+                            constructorField = true;
+                        } else {
+                            descriptorField = getWritableField(fieldNameNode, table, type);
+                        }
                     }
                 } else {
                     // process the chain of fields, e.g.
@@ -425,9 +434,8 @@ public class DataTableBindHelper {
                     foreignKeyCell = descriptorRows.getSubtable(columnNum, 1, 1, 1).getSource().getCell(0, 0);
 
                     if (foreignKeyTable != null) {
-                        accessorChainTokens = Tokenizer.tokenize(foreignKeyTable.getModule(),
-                            LINK_DELIMETERS,
-                            foreignKeyTable.getLocation());
+                        accessorChainTokens = Tokenizer
+                            .tokenize(foreignKeyTable.getModule(), LINK_DELIMETERS, foreignKeyTable.getLocation());
 
                         if (!ArrayUtils.isEmpty(accessorChainTokens)) {
                             foreignKeyTable = accessorChainTokens.length > 0 ? accessorChainTokens[0] : null;
@@ -435,10 +443,8 @@ public class DataTableBindHelper {
                     }
                 }
 
-                StringValue header = DataTableBindHelper.makeColumnTitle(bindingContext,
-                    dataWithTitleRows,
-                    columnNum,
-                    hasColumnTytleRow);
+                StringValue header = DataTableBindHelper
+                    .makeColumnTitle(bindingContext, dataWithTitleRows, columnNum, hasColumnTytleRow);
 
                 ColumnDescriptor currentColumnDescriptor = getColumnDescriptor(openl,
                     descriptorField,
@@ -481,7 +487,8 @@ public class DataTableBindHelper {
                 IdentifierNode[] fieldAccessorChainTokens = null;
                 try {
                     // fields names nodes
-                    fieldAccessorChainTokens = trimAndSplitPrecisionToken(Tokenizer.tokenize(cellSourceModule, CODE_DELIMETERS));
+                    fieldAccessorChainTokens = trimAndSplitPrecisionToken(
+                        Tokenizer.tokenize(cellSourceModule, CODE_DELIMETERS));
                 } catch (OpenLCompilationException e) {
                     String message = String.format("Cannot parse field source \"%s\"", code);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
@@ -515,11 +522,9 @@ public class DataTableBindHelper {
             if (trimmed.length() != identifier.length()) {
                 int tokenStart = token.getLocation().getStart().getAbsolutePosition(null) + identifier.indexOf(trimmed);
 
-                TextInterval fieldInterval = LocationUtils.createTextInterval(tokenStart, tokenStart + trimmed.length());
-                chainTokens[i] = new IdentifierNode(token.getType(),
-                        fieldInterval,
-                        trimmed,
-                        token.getModule());
+                TextInterval fieldInterval = LocationUtils.createTextInterval(tokenStart,
+                    tokenStart + trimmed.length());
+                chainTokens[i] = new IdentifierNode(token.getType(), fieldInterval, trimmed, token.getModule());
             }
         }
 
@@ -536,18 +541,18 @@ public class DataTableBindHelper {
             int tokenStart = token.getLocation().getStart().getAbsolutePosition(null);
             int fieldStart = identifier.indexOf(field);
             int precisionStart = identifier.lastIndexOf(precision);
-            TextInterval fieldInterval = LocationUtils.createTextInterval(tokenStart + fieldStart, tokenStart + fieldStart + field.length());
-            TextInterval precisionInterval = LocationUtils.createTextInterval(tokenStart + precisionStart, tokenStart + precisionStart + precision.length());
+            TextInterval fieldInterval = LocationUtils.createTextInterval(tokenStart + fieldStart,
+                tokenStart + fieldStart + field.length());
+            TextInterval precisionInterval = LocationUtils.createTextInterval(tokenStart + precisionStart,
+                tokenStart + precisionStart + precision.length());
 
             chainTokens[chainTokens.length - 1] = new IdentifierNode(token.getType(),
-                    fieldInterval,
-                    field,
-                    token.getModule());
+                fieldInterval,
+                field,
+                token.getModule());
 
-            chainTokens = ArrayUtils.add(chainTokens, new IdentifierNode(token.getType(),
-                    precisionInterval,
-                    precision,
-                    token.getModule()));
+            chainTokens = ArrayUtils.add(chainTokens,
+                new IdentifierNode(token.getType(), precisionInterval, precision, token.getModule()));
         }
 
         return chainTokens;
@@ -594,59 +599,73 @@ public class DataTableBindHelper {
      *
      * @return {@link IOpenField} for fields chain.
      */
-    private static IOpenField processFieldsChain(ITable table, IOpenClass type, 
+    private static IOpenField processFieldsChain(ITable table,
+            IOpenClass type,
             IdentifierNode[] fieldAccessorChainTokens) {
         IOpenField chainField = null;
         IOpenClass loadedFieldType = type;
 
         // the chain of fields to access the target field, e.g. for
         // driver.name it will be array consisting of two fields:
-        // 1st for driver, 2nd for name     
+        // 1st for driver, 2nd for name
         IOpenField[] fieldAccessorChain = new IOpenField[fieldAccessorChainTokens.length];
         boolean hasAccessByArrayId = false;
 
         for (int fieldIndex = 0; fieldIndex < fieldAccessorChain.length; fieldIndex++) {
             IdentifierNode fieldNameNode = fieldAccessorChainTokens[fieldIndex];
             IOpenField fieldInChain;
-            boolean arrayAccess = fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_PATTERN);
-
-            if(fieldNameNode.getIdentifier().matches(PRECISION_PATTERN)) {
-                fieldAccessorChain = ArrayUtils.remove(fieldAccessorChain, fieldIndex);
-                fieldAccessorChainTokens = ArrayUtils.remove(fieldAccessorChainTokens, fieldIndex);
-                //Skip creation of IOpenField
+            
+            if (fieldIndex == 0 && fieldNameNode.getIdentifier().matches(THIS_ARRAY_ACCESS_PATTERN)) {
+                fieldAccessorChain[fieldIndex] = new ThisArrayElementField(getArrayIndex(fieldNameNode), type.getComponentClass());
+                loadedFieldType = type.getComponentClass();
                 continue;
             }
             
+            boolean arrayAccess = fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_PATTERN);
+
+            if (fieldNameNode.getIdentifier().matches(PRECISION_PATTERN)) {
+                fieldAccessorChain = ArrayUtils.remove(fieldAccessorChain, fieldIndex);
+                fieldAccessorChainTokens = ArrayUtils.remove(fieldAccessorChainTokens, fieldIndex);
+                // Skip creation of IOpenField
+                continue;
+            }
+
             if (arrayAccess) {
                 hasAccessByArrayId = true;
                 fieldInChain = getWritableArrayElement(fieldNameNode, table, loadedFieldType);
             } else {
                 fieldInChain = getWritableField(fieldNameNode, table, loadedFieldType);
             }
-            
-            if (fieldIndex > 0 && (fieldAccessorChain[fieldIndex - 1] instanceof DatatypeArrayElementField || fieldAccessorChain[fieldIndex - 1] instanceof SpreadsheetResultField) && fieldAccessorChain[fieldIndex - 1].getType().getOpenClass().equals(JavaOpenClass.OBJECT)){
-                if (fieldNameNode.getIdentifier().matches(SPREADSHEETRESULTFIELD_PATTERN)){
+
+            if (fieldIndex > 0 && (fieldAccessorChain[fieldIndex - 1] instanceof DatatypeArrayElementField || fieldAccessorChain[fieldIndex - 1] instanceof SpreadsheetResultField) && fieldAccessorChain[fieldIndex - 1]
+                .getType()
+                .getOpenClass()
+                .equals(JavaOpenClass.OBJECT)) {
+                if (fieldNameNode.getIdentifier().matches(SPREADSHEETRESULTFIELD_PATTERN)) {
                     AOpenField aOpenField = (AOpenField) fieldAccessorChain[fieldIndex - 1];
                     aOpenField.setType(new SpreadsheetResultOpenClass(SpreadsheetResult.class));
                 }
             }
-            
+
             if (fieldInChain == null) {
-                // in this case current field and all the followings in fieldAccessorChain will be nulls.
+                // in this case current field and all the followings in
+                // fieldAccessorChain will be nulls.
                 //
                 break;
             }
-            
+
             if (fieldInChain.getType() != null && fieldInChain.getType().isArray() && arrayAccess) {
                 loadedFieldType = fieldInChain.getType().getComponentClass();
             } else {
                 loadedFieldType = fieldInChain.getType();
             }
-            
+
             fieldAccessorChain[fieldIndex] = fieldInChain;
         }
-        if (!CollectionUtils.hasNull(fieldAccessorChain)) { // check successful loading of all
-                                                                // fields in fieldAccessorChain.
+        if (!CollectionUtils.hasNull(fieldAccessorChain)) { // check successful
+                                                            // loading of all
+                                                            // fields in
+                                                            // fieldAccessorChain.
             chainField = new FieldChain(type, fieldAccessorChain, fieldAccessorChainTokens, hasAccessByArrayId);
         }
         return chainField;
@@ -722,7 +741,8 @@ public class DataTableBindHelper {
                 new org.openl.rules.calc.SpreadsheetResultOpenClass(org.openl.rules.calc.SpreadsheetResult.class));
         }
         if (field == null) {
-            String errorMessage = String.format("Field \"%s\" is not found in %s", fieldName, loadedFieldType.getName());
+            String errorMessage = String
+                .format("Field \"%s\" is not found in %s", fieldName, loadedFieldType.getName());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(errorMessage, currentFieldNameNode);
             processError(table, error);
             return null;
@@ -744,23 +764,23 @@ public class DataTableBindHelper {
         String arrayName = getArrayName(currentFieldNameNode);
         int arrayIndex = getArrayIndex(currentFieldNameNode);
         IOpenField field = DataTableBindHelper.findField(arrayName, table, loadedFieldType);
-        //Try find field in SpreadsheetResult type
+        // Try find field in SpreadsheetResult type
         if (field == null && loadedFieldType.equals(JavaOpenClass.OBJECT)) {
             field = DataTableBindHelper.findField(arrayName,
                 table,
                 new org.openl.rules.calc.SpreadsheetResultOpenClass(org.openl.rules.calc.SpreadsheetResult.class));
         }
-        
-        if (field == null){
+
+        if (field == null) {
             String message = String.format("Field '%s' is not found!", arrayName);
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
             processError(table, error);
             return null;
         }
-        
+
         if (!field.getType().isArray() && !field.getType().getOpenClass().getInstanceClass().equals(Object.class)) {
-            String message = String.format("Field '%s' isn't array! The field type is '%s'", arrayName, field.getType()
-                .toString());
+            String message = String
+                .format("Field '%s' isn't array! The field type is '%s'", arrayName, field.getType().toString());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
             processError(table, error);
             return null;

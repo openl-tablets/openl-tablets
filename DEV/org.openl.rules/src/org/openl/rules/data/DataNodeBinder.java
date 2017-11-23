@@ -6,6 +6,9 @@
 
 package org.openl.rules.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
@@ -22,10 +25,10 @@ import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
+import org.openl.util.text.TextInterval;
 
 /**
  * @author snshor
@@ -43,8 +46,8 @@ public class DataNodeBinder extends AXlsTableBinder {
             DataTableBoundNode dataNode,
             String tableName,
             TableSyntaxNode tsn) {
-
-        return bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
+        
+        return RuleRowHelper.getType(typeName, bindingContext);
     }
 
     protected ATableBoundNode makeNode(TableSyntaxNode tsn, XlsModuleOpenClass module) {
@@ -69,6 +72,12 @@ public class DataNodeBinder extends AXlsTableBinder {
         IdentifierNode[] parsedHeader = Tokenizer.tokenize(source, " \n\r");
 
         if (parsedHeader.length < 3) {
+            throw SyntaxNodeExceptionUtils.createError("Data table format: Data <typename> <tablename>", source);
+        }
+
+        parsedHeader = mergeArraySimbols(parsedHeader);
+
+        if (parsedHeader.length > 3) {
             throw SyntaxNodeExceptionUtils.createError("Data table format: Data <typename> <tablename>", source);
         }
 
@@ -100,6 +109,30 @@ public class DataNodeBinder extends AXlsTableBinder {
         dataNode.setTable(dataTable);
 
         return dataNode;
+    }
+
+    private IdentifierNode[] mergeArraySimbols(IdentifierNode[] parsedHeader) {
+        List<IdentifierNode> parsedHeader1 = new ArrayList<IdentifierNode>();
+        parsedHeader1.add(parsedHeader[0]);
+        int i = 2;
+        StringBuilder sb = new StringBuilder();
+        while (i < parsedHeader.length - 1) {
+            if ("[]".equals(parsedHeader[i].getIdentifier()) || "]".equals(parsedHeader[i].getIdentifier()) || "["
+                .equals(parsedHeader[i].getIdentifier())) {
+                sb.append(parsedHeader[i].getIdentifier());
+            } else {
+                break;
+            }
+            i++;
+        }
+        parsedHeader1.add(new IdentifierNode(parsedHeader[1].getType(),
+            new TextInterval(parsedHeader[1].getLocation().getStart(), parsedHeader[i - 1].getLocation().getEnd()),
+            parsedHeader[1].getIdentifier() + sb.toString(),
+            parsedHeader[1].getModule()));
+        for (int j = i; j < parsedHeader.length; j++) {
+            parsedHeader1.add(parsedHeader[j]);
+        }
+        return parsedHeader1.toArray(new IdentifierNode[] {});
     }
 
     /**
@@ -137,9 +170,8 @@ public class DataNodeBinder extends AXlsTableBinder {
                 ILogicalTable descriptorRows = DataTableBindHelper.getDescriptorRows(horizDataTableBody);
                 ILogicalTable dataWithTitleRows = DataTableBindHelper.getHorizontalDataWithTitle(horizDataTableBody);
 
-                dataWithTitleRows = LogicalTableHelper.logicalTable(dataWithTitleRows.getSource(),
-                    descriptorRows,
-                    null);
+                dataWithTitleRows = LogicalTableHelper
+                    .logicalTable(dataWithTitleRows.getSource(), descriptorRows, null);
 
                 ColumnDescriptor[] descriptors = makeDescriptors(tableToProcess,
                     tableType,

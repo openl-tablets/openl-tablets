@@ -308,7 +308,17 @@ public class Table implements ITable {
         int rowIndex = rowNum - startRow;
 
         if (!constructor) {
-            literal = dataModel.newInstance();
+            if (dataModel.getInstanceClass().isArray()) {
+                int dim = 0;
+                Class<?> type = dataModel.getInstanceClass();
+                while (type.isArray()) {
+                    type = type.getComponentType();
+                    dim++;
+                }
+                literal = Array.newInstance(type, new int[dim]);
+            } else {
+                literal = dataModel.newInstance();
+            }
             if (literal == null) {
                 String errorMessage = String.format("Can`t create instance of %s", dataModel.getName());
                 throw new OpenLCompilationException(errorMessage);
@@ -346,7 +356,7 @@ public class Table implements ITable {
                 try {
                     ILogicalTable lTable = logicalTable.getSubtable(columnNum, rowNum, 1, 1);
                     if (!(lTable.getHeight() == 1 && lTable.getWidth() == 1) || lTable.getCell(0, 0).getStringValue() != null) { //EPBDS-6104. For empty values should be used data type default value.
-                        columnDescriptor.populateLiteral(literal, lTable, openlAdapter);
+                        return columnDescriptor.populateLiteral(literal, lTable, openlAdapter);
                     } else {
                         // Set meta info for empty cells. To suggest an appropriate editor
                         // according to cell type.

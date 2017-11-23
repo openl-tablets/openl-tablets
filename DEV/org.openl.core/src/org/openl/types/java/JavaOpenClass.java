@@ -349,7 +349,6 @@ public class JavaOpenClass extends AOpenClass {
     }
 
     public Object newInstance(IRuntimeEnv env) {
-
         try {
             return getInstanceClass().newInstance();
         } catch (Exception e) {
