@@ -317,7 +317,7 @@ public class DecisionTableLookupConvertor {
 
         int ncol = rowHeader.getWidth();
 
-        for (; firstLookupColumn < ncol; firstLookupColumn++) {
+        while (firstLookupColumn < ncol) {
 
             ILogicalTable htable = rowHeader.getColumn(firstLookupColumn);
             String headerStr = htable.getSource().getCell(0, 0).getStringValue();
@@ -338,6 +338,8 @@ public class DecisionTableLookupConvertor {
                     throw new OpenLCompilationException(message);
                 }
             }
+
+            firstLookupColumn = firstLookupColumn + htable.getSource().getCell(0, 0).getWidth();
         }
     }
 
