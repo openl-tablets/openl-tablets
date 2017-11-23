@@ -105,7 +105,7 @@ public class DecisionTableLookupConvertor {
             Integer lookupValuesTableHeight) throws OpenLCompilationException {
         int retColumnStart = findRetColumnStart(headerRow);
         int firstEmptyCell = findFirstEmptyCellInHeader(headerRow);
-        int retTableWidth = retTable.getSource().getWidth();
+        int retTableWidth = retTable.getSource().getCell(0, 0).getWidth();
 
         if (lookupValuesTableHeight == null) {
             lookupValuesTableHeight = lookupValuesTable.getHeight();
