@@ -503,10 +503,6 @@ public class Operators {
         return x.abs();
     }
     
-    public static boolean and(boolean x, boolean y) {
-        return x && y;
-    }
-
     // Bitwise operators
     //
     public static byte bitand(byte x, byte y) {
@@ -821,12 +817,19 @@ public class Operators {
         return x;
     }
 
-    public static boolean not(boolean x) {
-        return !x;
+    public static Boolean not(Boolean x) {
+        return x == null ? null : !x;
     }
 
-    public static boolean or(boolean x, boolean y) {
-        return x || y;
+    public static Boolean or(Boolean x, Boolean y) {
+        return Boolean.TRUE.equals(
+            x) ? Boolean.TRUE : Boolean.TRUE.equals(y) ? Boolean.TRUE : (x == null || y == null) ? null : Boolean.FALSE;
+    }
+
+    public static Boolean and(Boolean x, Boolean y) {
+        return Boolean.FALSE.equals(x) ? Boolean.FALSE
+                                       : Boolean.FALSE.equals(y) ? Boolean.FALSE
+                                                                 : (x == null || y == null) ? null : Boolean.TRUE;
     }
 
     public static int rshift(int x, int y) {
