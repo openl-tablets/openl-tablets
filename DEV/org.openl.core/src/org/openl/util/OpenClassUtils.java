@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 public final class OpenClassUtils {
@@ -29,7 +30,13 @@ public final class OpenClassUtils {
     }
     
     public static IOpenClass findParentClass(IOpenClass class1, IOpenClass class2) {
-
+        /*if (NullOpenClass.isAnyNull(class1)) {
+            return class2;
+        }
+        if (NullOpenClass.isAnyNull(class2)) {
+            return class1;
+        }*/
+        
         if (class1.isArray() && class2.isArray()) {
             int dim = 0;
             while (class1.isArray() && class2.isArray()) {

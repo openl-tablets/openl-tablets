@@ -13,6 +13,8 @@ import org.openl.conf.ConfigurableResourceContext;
 import org.openl.conf.OpenLConfiguration;
 import org.openl.conf.TypeCastFactory;
 import org.openl.types.IMethodCaller;
+import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 
@@ -20,36 +22,36 @@ public abstract class AbstractMethodSearchTest {
     static final String AMB = "AMBIGUOUS";
     static final String NF = "NOT FOUND";
     static ICastFactory castFactory;
+
     private static class Not {
         Object notExpected;
     }
-    
-    private static final String[] CAST_LIBRARY_NAMES = new String[]{
+
+    private static final String[] CAST_LIBRARY_NAMES = new String[] {
             org.openl.binding.impl.cast.CastOperators.class.getName(),
-            org.openl.meta.ByteValue.class.getName(), 
+            org.openl.meta.ByteValue.class.getName(),
             org.openl.meta.ShortValue.class.getName(),
-            org.openl.meta.IntValue.class.getName(),  
-            org.openl.meta.LongValue.class.getName(), 
+            org.openl.meta.IntValue.class.getName(),
+            org.openl.meta.LongValue.class.getName(),
             org.openl.meta.FloatValue.class.getName(),
             org.openl.meta.DoubleValue.class.getName(),
             org.openl.meta.StringValue.class.getName(),
             org.openl.meta.ObjectValue.class.getName(),
             org.openl.meta.BigIntegerValue.class.getName(),
-            org.openl.meta.BigDecimalValue.class.getName()};
+            org.openl.meta.BigDecimalValue.class.getName() };
 
     @BeforeClass
     public static void init() {
         OpenLConfiguration openLConfiguration = new OpenLConfiguration();
-        
+
         TypeCastFactory typecast = openLConfiguration.createTypeCastFactory();
         for (String libName : CAST_LIBRARY_NAMES) {
             TypeCastFactory.JavaCastComponent javacast = typecast.new JavaCastComponent();
             javacast.setLibraryClassName(libName);
             javacast.setClassName(org.openl.binding.impl.cast.CastFactory.class.getName());
             typecast.addJavaCast(javacast);
-        }        
+        }
 
-        
         openLConfiguration.setConfigurationContext(new ConfigurableResourceContext(null));
         castFactory = openLConfiguration;
     }
@@ -58,28 +60,45 @@ public abstract class AbstractMethodSearchTest {
         JavaOpenClass aClass = JavaOpenClass.getOpenClass(target);
 
         Object[] args = toArgs(classes);
-        IMethodCaller method = MethodSearch.findMethod(methodName, JavaOpenClass.getOpenClasses(classes), castFactory, aClass);
 
-        assertNotNull("Method " + methodDescriptor(methodName, classes) + " has not been matched", method);
+        IOpenClass[] openClasses = toOpenClasses(classes);
+
+        IMethodCaller method = MethodSearch.findMethod(methodName, openClasses, castFactory, aClass);
+
+        assertNotNull("Method " + methodDescriptor(methodName, openClasses) + " has not been matched", method);
         Object targetInstance = instance(target);
         Object result = method.invoke(targetInstance, args, null);
-        assertEquals("Method " + methodDescriptor(methodName, classes) + " has been matched", expected, result);
+        assertEquals("Method " + methodDescriptor(methodName, openClasses) + " has been matched", expected, result);
+    }
+
+    private IOpenClass[] toOpenClasses(Class<?>... classes) {
+        IOpenClass[] openClasses = new IOpenClass[classes.length];
+        for (int i = 0; i < classes.length; i++) {
+            if (classes[i] != null) {
+                openClasses[i] = JavaOpenClass.getOpenClass(classes[i]);
+            } else {
+                openClasses[i] = NullOpenClass.the;
+            }
+        }
+        return openClasses;
     }
 
     final void assertNotFound(Class<?> target, String methodName, Class<?>... classes) {
         JavaOpenClass aClass = JavaOpenClass.getOpenClass(target);
 
-        IMethodCaller method = MethodSearch
-            .findMethod(methodName, JavaOpenClass.getOpenClasses(classes), castFactory, aClass);
+        IOpenClass[] openClasses = toOpenClasses(classes);
 
-        assertNull("Method " + methodDescriptor(methodName, classes) + " has been matched", method);
+        IMethodCaller method = MethodSearch.findMethod(methodName, openClasses, castFactory, aClass);
+
+        assertNull("Method " + methodDescriptor(methodName, openClasses) + " has been matched", method);
     }
 
     final void assertAmbigiouse(Class<?> target, String methodName, Class<?>... classes) {
         try {
             JavaOpenClass aClass = JavaOpenClass.getOpenClass(target);
-            MethodSearch.findMethod(methodName, JavaOpenClass.getOpenClasses(classes), castFactory, aClass);
-            fail("AmbiguousMethodException should be thrown for " + methodDescriptor(methodName, classes));
+            IOpenClass[] openClasses = toOpenClasses(classes);
+            MethodSearch.findMethod(methodName, openClasses, castFactory, aClass);
+            fail("AmbiguousMethodException should be thrown for " + methodDescriptor(methodName, openClasses));
         } catch (AmbiguousMethodException ex) {
             // expected
         }
@@ -93,7 +112,11 @@ public abstract class AbstractMethodSearchTest {
         }
     }
 
-    final void assertMethod(Class<?> target, String methodName, Class<?> class1, Class<?>[] classes, Object... expectes) {
+    final void assertMethod(Class<?> target,
+            String methodName,
+            Class<?> class1,
+            Class<?>[] classes,
+            Object... expectes) {
         assertEquals(classes.length, expectes.length);
         for (int i = 0; i < classes.length; i++) {
             Object expected = expectes[i];
@@ -110,7 +133,9 @@ public abstract class AbstractMethodSearchTest {
             try {
                 Object notExpected = ((Not) expected).notExpected;
                 assertInvoke(notExpected, target, methodName, classes);
-                fail("Not expected '" + notExpected +  "' result for Metod " + methodDescriptor(methodName, classes));
+                IOpenClass[] openClasses = toOpenClasses(classes);
+                fail(
+                    "Not expected '" + notExpected + "' result for Metod " + methodDescriptor(methodName, openClasses));
             } catch (AssertionError ex) {
                 // It is expected an assertion error
             }
@@ -119,8 +144,12 @@ public abstract class AbstractMethodSearchTest {
         }
     }
 
-    final Object not (final Object expected) {
-        return new Not() {{notExpected = expected;}};
+    final Object not(final Object expected) {
+        return new Not() {
+            {
+                notExpected = expected;
+            }
+        };
     }
 
     private Object[] toArgs(Class<?>... classes) {
@@ -132,6 +161,9 @@ public abstract class AbstractMethodSearchTest {
     }
 
     private Object instance(Class<?> clazz) {
+        if (clazz == null) {
+            return null;
+        }
         Object o;
         if (clazz.isPrimitive()) {
             clazz = ClassUtils.primitiveToWrapper(clazz);
@@ -160,16 +192,16 @@ public abstract class AbstractMethodSearchTest {
         return castFactory;
     }
 
-    private String methodDescriptor(String name, Class<?>... args) {
+    private String methodDescriptor(String name, IOpenClass[] args) {
         StringBuilder builder = new StringBuilder(100);
         builder.append(name).append('(');
         boolean flag = false;
-        for (Class<?> arg : args) {
+        for (IOpenClass arg : args) {
             if (flag) {
                 builder.append(", ");
             }
             flag = true;
-            builder.append(arg.getSimpleName());
+            builder.append(arg.getName());
         }
         builder.append(')');
         return builder.toString();

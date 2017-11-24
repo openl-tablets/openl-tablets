@@ -41,6 +41,15 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
         assertInvoke("Double", ClassWithGenerics.class, "method2", Double.class, short.class);
     }
 
+    @Test
+    public void testMethodChoosingWithNulls() {
+        assertAmbigiouse(ForthClassWithMethods.class, "method1", null, null);
+        assertInvoke("M8", ForthClassWithMethods.class, "method1", int.class, null);
+        assertInvoke("M9", ForthClassWithMethods.class, "method1", String.class, null);
+        assertAmbigiouse(ForthClassWithMethods.class, "method2", null, null);
+        assertInvoke("M12", ForthClassWithMethods.class, "method3", null, null, null);
+    }
+
     public static class ClassWithMethods {
         public String method1(int arg1, double arg2) {
             return "M1";
@@ -79,5 +88,32 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
 
     public static class ThirdClassWithMethods extends SecondClassWithMethods {
         private static final long serialVersionUID = 1L;
+    }
+
+    public static class ForthClassWithMethods {
+        public <T> String method1(int arg1, int arg2) {
+            return "M7";
+        };
+
+        public <T> String method1(T arg1, T arg2) {
+            return "M8";
+        };
+
+        public String method1(String arg1, String arg2) {
+            return "M9";
+        };
+
+        public String method2(String[] arg1) {
+            return "M10";
+        };
+
+        public String method2(Integer[] arg1) {
+            return "M11";
+        };
+
+        public String method3(String[] arg1) {
+            return "M12";
+        };
+
     }
 }

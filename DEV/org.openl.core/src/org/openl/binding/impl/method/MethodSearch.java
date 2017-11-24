@@ -22,6 +22,7 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CastingMethodCaller;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenMethod;
@@ -393,11 +394,20 @@ public class MethodSearch {
                 if (varArgType == null) {
                     continue;
                 }
-                args[i] = varArgType.getAggregateInfo().getIndexedAggregateType(varArgType, 1);
+                if (NullOpenClass.isAnyNull(varArgType)) {
+                    args[i] = varArgType;
+                } else {
+                    args[i] = varArgType.getAggregateInfo().getIndexedAggregateType(varArgType, 1);
+                }
 
                 IMethodCaller matchedMethod = findCastingMethod(name, args, casts, filtered);
                 if (matchedMethod != null) {
-                    return new VarArgsOpenMethod(matchedMethod, varArgType.getInstanceClass(), i);
+                    if (NullOpenClass.isAnyNull(varArgType)) {
+                        int lastParameterIndex = matchedMethod.getMethod().getSignature().getNumberOfParameters() - 1;
+                        return new VarArgsOpenMethod(matchedMethod, matchedMethod.getMethod().getSignature().getParameterType(lastParameterIndex).getComponentClass().getInstanceClass(), i);
+                    } else {
+                        return new VarArgsOpenMethod(matchedMethod, varArgType.getInstanceClass(), i);
+                    }
                 }
             }
             for (int i = params.length - 1; i >= 0; i--) {
@@ -413,6 +423,11 @@ public class MethodSearch {
                 if (varArgType == null) {
                     continue;
                 }
+                if (NullOpenClass.isAnyNull(varArgType)) {
+                    args[i] = varArgType;
+                } else {
+                    args[i] = varArgType.getAggregateInfo().getIndexedAggregateType(varArgType, 1);
+                }
                 args[i] = varArgType.getAggregateInfo().getIndexedAggregateType(varArgType, 1);
 
                 IMethodCaller matchedMethod = findCastingMethod(name, args, casts, filtered);
@@ -421,7 +436,12 @@ public class MethodSearch {
                     for (int j = 0; j < params.length - i; j++) {
                         parameterCasts[j] = casts.getCast(params[i + j], varArgType);
                     }
-                    return new VarArgsOpenMethod(matchedMethod, varArgType.getInstanceClass(), i, parameterCasts);
+                    if (NullOpenClass.isAnyNull(varArgType)) {
+                        int lastParameterIndex = matchedMethod.getMethod().getSignature().getNumberOfParameters() - 1;
+                        return new VarArgsOpenMethod(matchedMethod, matchedMethod.getMethod().getSignature().getParameterType(lastParameterIndex).getComponentClass().getInstanceClass(), i, parameterCasts);
+                    } else {
+                        return new VarArgsOpenMethod(matchedMethod, varArgType.getInstanceClass(), i, parameterCasts);
+                    }
                 }
             }
         }
@@ -482,7 +502,7 @@ public class MethodSearch {
         for (IOpenMethod res : matchingMethods) {
             boolean f = true;
             for (IOpenMethod next : matchingMethods) {
-                if (res != next && !isMoreSpecificMethod(res, next, casts)) {
+                if (res != next && !isMoreSpecificMethod(res, next, params, casts)) {
                     f = false;
                     break;
                 }
@@ -546,7 +566,10 @@ public class MethodSearch {
         }
     }
 
-    private static boolean isMoreSpecificMethod(IOpenMethod first, IOpenMethod second, ICastFactory casts) {
+    private static boolean isMoreSpecificMethod(IOpenMethod first,
+            IOpenMethod second,
+            IOpenClass[] params,
+            ICastFactory casts) {
         if (first.getSignature().getNumberOfParameters() != second.getSignature().getNumberOfParameters()) {
             return false;
         }
@@ -555,7 +578,7 @@ public class MethodSearch {
         for (int i = 0; i < first.getSignature().getNumberOfParameters(); i++) {
             IOpenClass firstArgType = first.getSignature().getParameterType(i);
             IOpenClass secondArgType = second.getSignature().getParameterType(i);
-            if (!firstArgType.equals(secondArgType)) {
+            if (!firstArgType.equals(secondArgType) && !NullOpenClass.isAnyNull(params[i])) {
                 differenceInArgTypes = true;
                 IOpenCast cast = casts.getCast(firstArgType, secondArgType);
                 if (cast == null || !cast.isImplicit()) {
