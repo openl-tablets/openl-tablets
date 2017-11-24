@@ -8,6 +8,7 @@ import static org.openl.rules.util.Strings.*;
 
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.Date;
 
@@ -353,11 +354,21 @@ public class StringsTest {
         assertEquals("", Strings.toString(""));
         assertEquals("    ", Strings.toString("    "));
         assertEquals("1", Strings.toString(1));
-        assertEquals("0.0", Strings.toString(0d));
+        assertEquals("1", Strings.toString(1d));
+        assertEquals("1", Strings.toString(1f));
+        assertEquals("0", Strings.toString(0d));
+        assertEquals("0", Strings.toString(0f));
+        assertEquals("1000", Strings.toString(1000d));
+        assertEquals("1000", Strings.toString(1000f));
+        assertEquals("-1000", Strings.toString(-1000d));
+        assertEquals("-1000", Strings.toString(-1000f));
         assertEquals("0.01", Strings.toString(0.01d));
         assertEquals("0.01", Strings.toString(0.01f));
         assertEquals("-0.01", Strings.toString(-0.01d));
         assertEquals("-0.01", Strings.toString(-0.01f));
+        assertEquals("1000", Strings.toString(new BigDecimal("1000.000")));
+        assertEquals("1000", Strings.toString(new BigDecimal("1000")));
+        assertEquals("100.001", Strings.toString(new BigDecimal("100.00100")));
         assertEquals("true", Strings.toString(true));
         assertEquals("false", Strings.toString(false));
         assertEquals("07/12/1980", Strings.toString(new Date(80, 6, 12, 23, 59)));

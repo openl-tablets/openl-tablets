@@ -1,5 +1,6 @@
 package org.openl.rules.util;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -551,7 +552,12 @@ public class Strings {
     }
 
     public static String toString(Object obj) {
-        return obj == null ? null : obj.toString();
+        if (obj == null) {
+            return null;
+        } else if (obj instanceof Double || obj instanceof Float || obj instanceof BigDecimal) {
+            return obj.toString().replaceAll("(\\.0+$)|(?<=\\.\\d{0,20})0+$", ""); // remove zeros
+        }
+        return obj.toString();
     }
 
     public static String toString(Date date) {
