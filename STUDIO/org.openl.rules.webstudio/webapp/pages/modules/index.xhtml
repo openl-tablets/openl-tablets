@@ -37,6 +37,7 @@
     <script src="#{contextPath}/javascript/jquery.multiselect.js"></script>
     <script src="#{contextPath}/javascript/bomjs.js"></script>
     <script src="#{contextPath}/javascript/vendor/jsf-2.1.19-customized.min.js"></script>
+    <script src="#{contextPath}/javascript/vendor/response-monitor.js"></script>
 
     <script>
         //<![CDATA[
@@ -270,6 +271,28 @@
                                 location.hash = page;
                             }
                         }
+                    },
+                    download: function (url) {
+                        var $a = $j('<a>', {href: url});
+
+                        var options = {
+                            timeout: 1200,
+                            onRequest: function (token) {
+                                api.ui.showLoader();
+                            },
+                            onResponse: function (status) {
+                                api.ui.hideLoader();
+                                if (status !== "success") {
+                                    api.ui.info(status);
+                                }
+                            },
+                            onTimeout: function () {
+                                api.ui.hideLoader();
+                                api.ui.info('File generation is too long');
+                            }
+                        };
+                        ResponseMonitor.register($a.get(), options);
+                        $a.click();
                     },
                     // prefixPage will be removed when Global Search will be implemented
                     search: function(params, prefixPage) {

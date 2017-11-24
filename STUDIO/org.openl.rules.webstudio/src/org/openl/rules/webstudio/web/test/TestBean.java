@@ -1,12 +1,9 @@
 package org.openl.rules.webstudio.web.test;
 
-import java.io.File;
 import java.util.*;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletResponse;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -18,11 +15,11 @@ import org.openl.rules.testmethod.*;
 import org.openl.rules.testmethod.result.BeanResultComparator;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
-import org.openl.rules.ui.*;
-import org.openl.rules.webstudio.util.ExportFile;
+import org.openl.rules.ui.ObjectViewer;
+import org.openl.rules.ui.TableSyntaxNodeUtils;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.types.IOpenMethod;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,8 +68,6 @@ public class TestBean {
     private Integer numberOfFailedTests = null;
     private Integer numberOfFailedTestCases = null;
 
-    private boolean exportToExcel;
-
     /**
      * URI of tested table
      */
@@ -88,7 +83,6 @@ public class TestBean {
 
         testAll();
 
-        initExportToExcel();
         initPagination();
         initFailures();
         initComplexResult();
@@ -127,14 +121,6 @@ public class TestBean {
         }
     }
 
-    private void initExportToExcel() {
-        exportToExcel = studio.isTestsExportToExcel();
-        String exportToExcelParameter = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_EXPORT_TO_EXCEL);
-        if (exportToExcelParameter != null) {
-            exportToExcel = Boolean.parseBoolean(exportToExcelParameter);
-        }
-    }
-
     private void initComplexResult() {
         showComplexResult = studio.isShowComplexResult();
         String isShowComplexResultParameter = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_COMPLEX_RESULT);
@@ -152,56 +138,11 @@ public class TestBean {
     }
 
     private void testAll() {
-        ProjectModel model = WebStudioUtils.getProjectModel();
-
         String id = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
+        String testRanges = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_RANGES);
 
-        IOpenLTable table = model.getTableById(id);
-        if (table != null) {
-            String uri = table.getUri();
-            IOpenMethod method = model.getMethod(uri);
-
-            if (method instanceof TestSuiteMethod) {
-                TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
-
-                TestSuite testSuite;
-                String testRanges = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_RANGES);
-                if (testRanges == null) {
-                    // Run all test cases of selected test suite
-                    testSuite = new TestSuiteWithPreview(testSuiteMethod);
-                } else {
-                    // Run only selected test cases of selected test suite
-                    int[] indices = testSuiteMethod.getIndices(testRanges);
-                    testSuite = new TestSuiteWithPreview(testSuiteMethod, indices);
-                }
-                // Concrete test with cases
-                ranResults = new TestUnitsResults[1];
-                ranResults[0] = model.runTest(testSuite);
-            } else {
-                // All tests for table
-                IOpenMethod[] tests = model.getTestMethods(uri);
-                ranResults = runAllTests(tests);
-            }
-        } else {
-            // All tests for project
-            IOpenMethod[] tests = model.getAllTestMethods();
-            ranResults = runAllTests(tests);
-        }
+        this.ranResults = Utils.runTests(id, testRanges, FacesUtils.getSession());
     }
-
-    private TestUnitsResults[] runAllTests(IOpenMethod[] tests) {
-        if (tests != null) {
-            ProjectModel model = WebStudioUtils.getProjectModel();
-            TestUnitsResults[] results = new TestUnitsResults[tests.length];
-            for (int i = 0; i < tests.length; i++) {
-                TestSuiteWithPreview testSuite = new TestSuiteWithPreview((TestSuiteMethod) tests[i]);
-                results[i] = model.runTest(testSuite);
-            }
-            return results;
-        }
-        return new TestUnitsResults[0];
-    }
-
 
     public TestUnitsResults[] getRanTests() {
         if (!ranTestsSorted) {
@@ -365,26 +306,4 @@ public class TestBean {
         return showComplexResult;
     }
 
-    public boolean isExportToExcel() {
-        return exportToExcel;
-    }
-
-    public void exportTestResults() {
-        String cookePrefix = "response-monitor";
-        String cookieName = cookePrefix + "_" + FacesUtils.getRequestParameter(cookePrefix);
-        try (TestResultExport export = new TestResultExport(ranResults, testsPerPage)) {
-            File file = export.createExcelFile();
-
-            final FacesContext facesContext = FacesUtils.getFacesContext();
-            HttpServletResponse response = (HttpServletResponse) FacesUtils.getResponse();
-            FacesUtils.addCookie(cookieName, "success", -1);
-
-            ExportFile.writeOutContent(response, file);
-            facesContext.responseComplete();
-        } catch (Exception e) {
-            String message = "Failed to export results.";
-            log.error(message, e);
-            FacesUtils.addCookie(cookieName, message, -1);
-        }
-    }
 }
