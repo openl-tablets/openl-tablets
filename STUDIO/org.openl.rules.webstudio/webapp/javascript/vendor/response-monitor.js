@@ -32,8 +32,9 @@
             //default options
             this.options = {
                 timeout: 120,                     //seconds to wait for a response
+                interval: 1000,                   //milliseconds interval to check the cookie
                 onRequest: f,                     //request to the server made
-                onMonitor: f,                     //called once a second while checking for the cookie
+                onMonitor: f,                     //called once in defined interval while checking for the cookie
                 onTimeout: f,                     //the download didn't start within the time limit
                 onResponse: f,                    //the wait is over, the response from the server is ready
                 cookiePrefix: 'response-monitor'  //should match the prefix on the server
@@ -96,7 +97,7 @@
 
             if( typeof this.trigger.href !== 'undefined' )
                 this.trigger.href="javascript:void(0);";//prevent navigation away from the page during the request
-            this.countdown=this.options.timeout;
+            this.countdown=this.options.timeout * 1000 / this.options.interval;
 
             // if( typeof event !== 'undefined' )
             //     event.preventDefault(); //we are overriding form.submit and a.click
@@ -128,7 +129,7 @@
             this.options.onRequest(this.cookie.name);
 
             this.monitor();//check immediately
-            this.downloadTimer = window.setInterval(this.monitor, 100);
+            this.downloadTimer = window.setInterval(this.monitor, this.options.interval);
         };
 
         ResponseMonitor.prototype._terminate = function () {
