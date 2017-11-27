@@ -1,22 +1,13 @@
 package org.openl.rules.convertor;
 
-import java.text.DecimalFormat;
+class String2LongConvertor extends String2IntegersConvertor<Long> {
 
-class String2LongConvertor extends String2NumberConverter<Long> {
-
-    @Override
-    Long convert(Number number, String data) {
-        if (number instanceof Long) {
-            return (Long) number;
-        } else {
-            throw new NumberFormatException("A number is out of range");
-        }
+    String2LongConvertor() {
+        super(Long.MIN_VALUE, Long.MAX_VALUE);
     }
 
     @Override
-    DecimalFormat getFormatter(String format) {
-        DecimalFormat formatter = super.getFormatter(format);
-        formatter.setParseIntegerOnly(true);
-        return formatter;
+    Long toNumber(long number) {
+        return number;
     }
 }
