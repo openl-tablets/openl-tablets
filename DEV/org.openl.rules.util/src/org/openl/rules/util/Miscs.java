@@ -9,38 +9,35 @@ public class Miscs {
             return true;
         } else if (obj.getClass().isArray()) {
             return Array.getLength(obj) == 0;
-        } else if (obj instanceof Collection) {
-            return ((Collection) obj).isEmpty();
-        } else {
-            return false;
-        }
+        } else
+            return obj instanceof Collection && ((Collection) obj).isEmpty();
     }
 
     public static boolean isNotEmpty(Object obj) {
         return !isEmpty(obj);
     }
 
-    public static Boolean isNaN(Double num) {
-        return (num == null) ? null : Double.isNaN(num);
+    public static boolean isNaN(Double num) {
+        return (num != null) && Double.isNaN(num);
     }
 
     public static Boolean isNaN(Float num) {
-        return (num == null) ? null : Float.isNaN(num);
+        return (num != null) && Float.isNaN(num);
     }
 
     public static Boolean isInfinite(Double num) {
-        return (num == null) ? null : Double.isInfinite(num);
+        return (num != null) && Double.isInfinite(num);
     }
 
     public static Boolean isInfinite(Float num) {
-        return (num == null) ? null : Float.isInfinite(num);
+        return (num != null) && Float.isInfinite(num);
     }
 
     public static Boolean isInfinite(Long num) {
-        return (num == null) ? null : Long.MAX_VALUE == num || Long.MIN_VALUE == num;
+        return (num != null) && (Long.MAX_VALUE == num || Long.MIN_VALUE == num );
     }
 
     public static Boolean isInfinite(Integer num) {
-        return (num == null) ? null : Integer.MAX_VALUE == num || Integer.MIN_VALUE == num;
+        return (num != null) && (Integer.MAX_VALUE == num || Integer.MIN_VALUE == num);
     }
 }

@@ -45,7 +45,7 @@ public class Comparison {
         if (x == y) {
             return true;
         } else if (Float.isInfinite(x) || Float.isInfinite(y) || Float.isNaN(x) || Float.isNaN(y)) {
-            return false;
+            return Float.isNaN(x) && Float.isNaN(y);
         }
         return Math.abs(x - y) <= Math.ulp(x);
     }
@@ -54,7 +54,7 @@ public class Comparison {
         if (x == y) {
             return true;
         } else if (Double.isInfinite(x) || Double.isInfinite(y) || Double.isNaN(x) || Double.isNaN(y)) {
-            return false;
+            return Double.isNaN(x) && Double.isNaN(y);
         }
         return Math.abs(x - y) <= Math.ulp(x);
     }
@@ -142,11 +142,17 @@ public class Comparison {
         return x > y;
     }
 
-    public static boolean gt(float x, float y) {
+    public static Boolean gt(float x, float y) {
+        if (Float.isNaN(x) || Float.isNaN(y)) {
+            return null;
+        }
         return x > y && (Float.isInfinite(x) || (x - y) > Math.ulp(x));
     }
 
-    public static boolean gt(double x, double y) {
+    public static Boolean gt(double x, double y) {
+        if (Double.isNaN(x) || Double.isNaN(y)) {
+            return null;
+        }
         return x > y && (Double.isInfinite(x) || (x - y) > Math.ulp(x));
     }
 
@@ -220,12 +226,20 @@ public class Comparison {
         return x >= y;
     }
 
-    public static boolean ge(float x, float y) {
-        return eq(x, y) || gt(x, y);
+    public static Boolean ge(float x, float y) {
+        if (eq(x, y)) {
+            return true;
+        } else {
+            return gt(x, y);
+        }
     }
 
-    public static boolean ge(double x, double y) {
-        return eq(x, y) || gt(x, y);
+    public static Boolean ge(double x, double y) {
+        if (eq(x, y)) {
+            return true;
+        } else {
+            return gt(x, y);
+        }
     }
 
     public static Boolean ge(Float x, Float y) {
