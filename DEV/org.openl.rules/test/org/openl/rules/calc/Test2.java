@@ -1,10 +1,10 @@
 package org.openl.rules.calc;
 
 import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 
 import org.junit.Test;
-import org.openl.meta.DoubleValue;
 import org.openl.rules.TestHelper;
 
 public class Test2 {
@@ -45,6 +45,7 @@ public class Test2 {
         assertEquals(null, result.getValue(1, 1));
         assertEquals(null, result.getValue(1, 2));
         assertEquals(null, result.getValue(3, 0));
-        assertEquals(DoubleValue.ZERO, result.getValue(4, 0));
+        assertEquals(Double.valueOf(0), result.getValue(4, 0));
     }
+
 }

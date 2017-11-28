@@ -4,12 +4,11 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 
-import junit.framework.AssertionFailedError;
-
 import org.junit.Test;
-import org.openl.meta.DoubleValue;
 import org.openl.rules.TestHelper;
 import org.openl.rules.TestUtils;
+
+import junit.framework.AssertionFailedError;
 
 public class Test0 {
     public interface ITestCalc {
@@ -29,10 +28,10 @@ public class Test0 {
         for (int y = 0; y < 2; y++) {
             for (int x = 0; x < 3; x++) {
                 // Note, implied type can be changed, for now it is DoubleValue
-                DoubleValue i = new DoubleValue(y * 3 + x);
+                Double a = new Double(y * 3 + x);
                 Object r = result.getValue(y, x);
-                if (i.compareTo((DoubleValue) r) != 0) {
-                    throw new AssertionFailedError(String.format("<%s> != <%s>", i, r));
+                if (a.compareTo((Double) r) != 0) {
+                    throw new AssertionFailedError(String.format("<%s> != <%s>", a, r));
                 }
             }
         }

@@ -224,9 +224,9 @@ public class SpreadsheetStructureBuilder {
     private void extractCellValue(IBindingContext rowBindingContext, int rowIndex, int columnIndex) {
         Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = componentsBuilder.getColumnHeaders();
         Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = componentsBuilder.getRowHeaders();
-        
+
         SpreadsheetCell spreadsheetCell = cells[rowIndex][columnIndex];
-        
+
         if (columnHeaders.get(columnIndex) == null || rowHeaders.get(rowIndex) == null) {
             spreadsheetCell.setValue(null);
             return;
@@ -302,7 +302,7 @@ public class SpreadsheetStructureBuilder {
                     IMetaInfo meta = new ValueMetaInfo(name, null, source);
                     ((IMetaHolder) result).setMetaInfo(meta);
                 }
-                
+
                 IOpenCast openCast = bindingContext.getCast(JavaOpenClass.getOpenClass(instanceClass), type);
                 spreadsheetCell.setValue(openCast.convert(result));
             } catch (Throwable t) {
@@ -378,9 +378,10 @@ public class SpreadsheetStructureBuilder {
         ICell sourceCell = cell.getSource().getCell(0, 0);
 
         String cellCode = sourceCell.getStringValue();
-        
+
         SpreadsheetCellType spreadsheetCellType = null;
-        if (cellCode == null || cellCode.isEmpty() || columnHeaders.get(columnIndex) == null || rowHeaders.get(rowIndex) == null) {
+        if (cellCode == null || cellCode.isEmpty() || columnHeaders.get(columnIndex) == null || rowHeaders
+            .get(rowIndex) == null) {
             spreadsheetCellType = SpreadsheetCellType.EMPTY;
         } else if (SpreadsheetExpressionMarker.isFormula(cellCode)) {
             spreadsheetCellType = SpreadsheetCellType.METHOD;
@@ -394,7 +395,7 @@ public class SpreadsheetStructureBuilder {
         } else {
             spreadsheetCell = new SpreadsheetCell(rowIndex, columnIndex, sourceCell, spreadsheetCellType);
         }
-        
+
         IOpenClass cellType = deriveCellType(columnHeaders.get(columnIndex), rowHeaders.get(rowIndex), cellCode);
         spreadsheetCell.setType(cellType);
 
@@ -422,11 +423,19 @@ public class SpreadsheetStructureBuilder {
                 // If parse process will be finished with success then return
                 // double type else string type.
                 //
-                String2DataConvertorFactory.getConvertor(double.class).parse(cellValue, null);
-
-                return JavaOpenClass.getOpenClass(DoubleValue.class);
+                if (autoType) {
+                    String2DataConvertorFactory.getConvertor(Double.class).parse(cellValue, null);
+                    return JavaOpenClass.getOpenClass(Double.class);
+                } else {
+                    String2DataConvertorFactory.getConvertor(DoubleValue.class).parse(cellValue, null);
+                    return JavaOpenClass.getOpenClass(DoubleValue.class);
+                }
             } catch (Throwable t) {
-                return JavaOpenClass.getOpenClass(StringValue.class);
+                if (autoType) {
+                    return JavaOpenClass.getOpenClass(String.class);
+                } else {
+                    return JavaOpenClass.getOpenClass(StringValue.class);
+                }
             }
         }
     }

@@ -21,6 +21,7 @@ import org.openl.meta.FloatValue;
 import org.openl.meta.IntValue;
 import org.openl.meta.LongValue;
 import org.openl.meta.ShortValue;
+import org.openl.meta.StringValue;
 import org.openl.rules.helpers.IntRange;
 import org.openl.util.RuntimeExceptionWrapper;
 
@@ -210,7 +211,7 @@ public class ObjectToDataConvertorFactory {
             convertors.put(new ClassCastPair(DoubleValue.class, Double.class), new GetValueConvertor());
             convertors.put(new ClassCastPair(BigIntegerValue.class, BigInteger.class), new GetValueConvertor());
             convertors.put(new ClassCastPair(BigDecimalValue.class, BigDecimal.class), new GetValueConvertor());
-            convertors.put(new ClassCastPair(org.openl.meta.StringValue.class, String.class), new GetValueConvertor());
+            convertors.put(new ClassCastPair(StringValue.class, String.class), new GetValueConvertor());
             
             
         } catch (Exception e) {
