@@ -17,6 +17,7 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.impl.CastingMethodCaller;
 import org.openl.types.java.JavaOpenMethod;
 import org.openl.util.StringUtils;
@@ -30,7 +31,6 @@ import org.slf4j.LoggerFactory;
 public class MethodNodeBinder extends ANodeBinder {
 
     protected static final String FIELD_ACCESS_METHOD = "field access method";
-    protected static final String VARIABLE_NUMBER_OF_ARGUMENTS_METHOD = "method with varialble number of arguments";
     protected static final String ARRAY_ARGUMENT_METHOD = "array argument method";
     protected static final String APPROPRIATE_BY_SIGNATURE_METHOD = "entirely appropriate by signature method";
     protected static final String NO_PARAMETERS = "no parameters";
@@ -55,17 +55,14 @@ public class MethodNodeBinder extends ANodeBinder {
         }
 
         if (method instanceof JavaOpenMethod) {
-            JavaOpenMethod javaOpenMethod = (JavaOpenMethod) method;
-            Method javaMethod = javaOpenMethod.getJavaMethod();
+            Method javaMethod = method.getJavaMethod();
             AutoCastReturnType autoCastReturnType = javaMethod.getAnnotation(AutoCastReturnType.class);
             if (autoCastReturnType != null) {
                 Class<? extends AutoCastFactory> clazz = autoCastReturnType.value();
                 try {
                     AutoCastFactory autoCastFactory = clazz.newInstance();
                     return autoCastFactory.build(bindingContext, methodCaller, parameterTypes);
-                } catch (InstantiationException e) {
-                    return method;
-                } catch (IllegalAccessException e) {
+                } catch (InstantiationException | IllegalAccessException e) {
                     return method;
                 }
             }
@@ -146,11 +143,33 @@ public class MethodNodeBinder extends ANodeBinder {
             return arrayParametersMethod;
         }
 
-        // Try to bind method call Name(driver) as driver.name;
+        // Try to bind method call Name(driver) as driver.Name;
         //
         if (childrenCount == 2) {
-            IBoundNode accessorChain = new FieldAccessMethodBinder(methodName, children).bind(methodNode,
-                bindingContext);
+
+            ISyntaxNode argumentNode = methodNode.getChild(0);
+            // only one child, as there are 2 nodes, one of them is the function itself.
+            //
+            IOpenClass argumentType = getTypes(children)[0];
+
+
+            IBoundNode accessorChain = null;
+
+            IBoundNode target = bindChildNode(argumentNode, bindingContext);
+            if (argumentType.isArray()) {
+                IOpenClass targetClass = argumentType.getComponentClass();
+                IOpenField field = bindingContext.findFieldFor(targetClass, methodName, false);
+
+                accessorChain = field == null ? null : new MultiCallFieldAccessMethodBoundNode(argumentNode.getParent(), target, field);
+            } else {
+                IOpenClass targetClass = target.getType();
+                IOpenField field = bindingContext.findFieldFor(targetClass, methodName, false);
+
+                if (field != null) {
+                    accessorChain = new FieldBoundNode(argumentNode.getParent(), field, target);
+                }
+            }
+
             if (accessorChain != null && !(accessorChain instanceof ErrorBoundNode)) {
                 String bindingType = FIELD_ACCESS_METHOD;
                 log(methodName, argumentTypes, bindingType);
