@@ -35,7 +35,7 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
         }
     }
     
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+    public Object evaluateRuntime(IRuntimeEnv env) {
         // don`t need to ????
         return null;
     }

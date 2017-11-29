@@ -14,7 +14,6 @@ import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -73,7 +72,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
         return false;
     }
 
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+    public Object evaluateRuntime(IRuntimeEnv env) {
         throw new UnsupportedOperationException("Should not be called");
     }
 

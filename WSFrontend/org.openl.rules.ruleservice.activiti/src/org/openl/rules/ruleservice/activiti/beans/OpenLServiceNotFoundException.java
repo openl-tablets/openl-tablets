@@ -1,9 +1,10 @@
 package org.openl.rules.ruleservice.activiti.beans;
 
-import org.openl.binding.IBoundNode;
-import org.openl.exception.OpenLRuntimeException;
+import org.openl.exception.OpenlNotCheckedException;
+import org.openl.source.IOpenSourceCodeModule;
+import org.openl.util.text.ILocation;
 
-public class OpenLServiceNotFoundException extends OpenLRuntimeException {
+public class OpenLServiceNotFoundException extends OpenlNotCheckedException {
 
     private static final long serialVersionUID = -2134177718752351064L;
 
@@ -11,8 +12,11 @@ public class OpenLServiceNotFoundException extends OpenLRuntimeException {
         super();
     }
 
-    public OpenLServiceNotFoundException(String message, IBoundNode node) {
-        super(message, node);
+    public OpenLServiceNotFoundException(String message,
+            Throwable cause,
+            ILocation location,
+            IOpenSourceCodeModule sourceModule) {
+        super(message, cause, location, sourceModule);
     }
 
     public OpenLServiceNotFoundException(String message, Throwable cause) {
@@ -21,10 +25,6 @@ public class OpenLServiceNotFoundException extends OpenLRuntimeException {
 
     public OpenLServiceNotFoundException(String message) {
         super(message);
-    }
-
-    public OpenLServiceNotFoundException(Throwable cause, IBoundNode node) {
-        super(cause, node);
     }
 
     public OpenLServiceNotFoundException(Throwable cause) {

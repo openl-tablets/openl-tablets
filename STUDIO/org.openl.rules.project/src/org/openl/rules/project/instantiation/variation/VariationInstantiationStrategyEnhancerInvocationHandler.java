@@ -155,7 +155,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
                 runtimeEnv.getArgumentCachingStorage().resetMethodArgumentsCache();
             }
         } else {
-            throw new OpenLRuntimeException(
+            throw new OpenlNotCheckedException(
                 "Service instance class must to implement IEngineWrapper or OpenLWrapper interface.");
         }
     }

@@ -10,7 +10,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -48,7 +47,7 @@ public class DataTableBoundNode extends ATableBoundNode implements IMemberBoundN
         this.table = table;
     }
 
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+    public Object evaluateRuntime(IRuntimeEnv env) {
         return null;
     }
 

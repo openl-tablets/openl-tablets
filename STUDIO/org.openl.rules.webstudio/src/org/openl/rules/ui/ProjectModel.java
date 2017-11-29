@@ -25,7 +25,7 @@ import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.exception.OpenLRuntimeException;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.extension.ExtensionWrapperGrid;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessages;
@@ -63,7 +63,11 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
-import org.openl.rules.testmethod.*;
+import org.openl.rules.testmethod.ProjectHelper;
+import org.openl.rules.testmethod.TestSuite;
+import org.openl.rules.testmethod.TestSuiteExecutor;
+import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.benchmark.Benchmark;
 import org.openl.rules.ui.benchmark.BenchmarkInfo;
@@ -621,7 +625,7 @@ public class ProjectModel {
                         .getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
                 return xmi == null ? null : xmi.getXlsModuleNode();
             } catch (OpenLCompilationException e) {
-                throw new OpenLRuntimeException(e);
+                throw new OpenlNotCheckedException(e);
             }
         }
     }

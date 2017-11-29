@@ -5,6 +5,7 @@ import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.source.IOpenSourceCodeModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ final class WorkbookLoadUtils {
 
             String message = "Can't open source file or file is corrupted: " +
                     ExceptionUtils.getRootCauseMessage(e);
-            throw new OpenLRuntimeException(message, e);
+            throw new OpenlNotCheckedException(message, e);
         } finally {
             try {
                 if (is != null) {

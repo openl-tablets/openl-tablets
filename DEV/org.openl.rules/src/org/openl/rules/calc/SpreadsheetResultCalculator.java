@@ -2,7 +2,6 @@ package org.openl.rules.calc;
 
 import java.util.Map;
 
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.element.SpreadsheetCellField;
 import org.openl.types.IDynamicObject;
@@ -95,30 +94,6 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
     
     public String getRowTitle(int row) {
         return spreadsheet.getRowTitles()[row];
-    }
-
-    public int getRowIndex(String name) {
-
-        String[] names = spreadsheet.getRowNames();
-
-        for (int i = 0; i < names.length; i++) {
-            if (name.equals(names[i]))
-                return i;
-        }
-
-        throw new OpenLRuntimeException("Row name <" + name + "> is not found", spreadsheet.getBoundNode());
-    }
-
-    public int getColumnIndex(String name) {
-
-        String[] names = spreadsheet.getColumnNames();
-
-        for (int i = 0; i < names.length; i++) {
-            if (name.equals(names[i]))
-                return i;
-        }
-
-        throw new OpenLRuntimeException("Column name <" + name + "> is not found", spreadsheet.getBoundNode());
     }
 
     public Spreadsheet getSpreadsheet() {
