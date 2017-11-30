@@ -17,9 +17,9 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.impl.CastingMethodCaller;
 import org.openl.types.java.JavaOpenMethod;
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,12 +28,6 @@ import org.slf4j.LoggerFactory;
  */
 
 public class MethodNodeBinder extends ANodeBinder {
-
-    protected static final String FIELD_ACCESS_METHOD = "field access method";
-    protected static final String VARIABLE_NUMBER_OF_ARGUMENTS_METHOD = "method with varialble number of arguments";
-    protected static final String ARRAY_ARGUMENT_METHOD = "array argument method";
-    protected static final String APPROPRIATE_BY_SIGNATURE_METHOD = "entirely appropriate by signature method";
-    protected static final String NO_PARAMETERS = "no parameters";
 
     private final Logger log = LoggerFactory.getLogger(MethodNodeBinder.class);
 
@@ -55,17 +49,14 @@ public class MethodNodeBinder extends ANodeBinder {
         }
 
         if (method instanceof JavaOpenMethod) {
-            JavaOpenMethod javaOpenMethod = (JavaOpenMethod) method;
-            Method javaMethod = javaOpenMethod.getJavaMethod();
+            Method javaMethod = method.getJavaMethod();
             AutoCastReturnType autoCastReturnType = javaMethod.getAnnotation(AutoCastReturnType.class);
             if (autoCastReturnType != null) {
                 Class<? extends AutoCastFactory> clazz = autoCastReturnType.value();
                 try {
                     AutoCastFactory autoCastFactory = clazz.newInstance();
                     return autoCastFactory.build(bindingContext, methodCaller, parameterTypes);
-                } catch (InstantiationException e) {
-                    return method;
-                } catch (IllegalAccessException e) {
+                } catch (InstantiationException | IllegalAccessException e) {
                     return method;
                 }
             }
@@ -108,8 +99,7 @@ public class MethodNodeBinder extends ANodeBinder {
             return bindWithAdditionalBinders(node, bindingContext, methodName, parameterTypes, children, childrenCount);
         }
 
-        String bindingType = APPROPRIATE_BY_SIGNATURE_METHOD;
-        log(methodName, parameterTypes, bindingType);
+        log(methodName, parameterTypes, "entirely appropriate by signature method");
         return new MethodBoundNode(node, children, methodCaller);
     }
 
@@ -141,52 +131,50 @@ public class MethodNodeBinder extends ANodeBinder {
             children);
 
         if (arrayParametersMethod != null) {
-            String bindingType = ARRAY_ARGUMENT_METHOD;
-            log(methodName, argumentTypes, bindingType);
+            log(methodName, argumentTypes, "array argument method");
             return arrayParametersMethod;
         }
 
-        // Try to bind method call Name(driver) as driver.name;
+        // Try to bind method call Name(driver) as driver.Name;
         //
         if (childrenCount == 2) {
-            IBoundNode accessorChain = new FieldAccessMethodBinder(methodName, children).bind(methodNode,
-                bindingContext);
-            if (accessorChain != null && !(accessorChain instanceof ErrorBoundNode)) {
-                String bindingType = FIELD_ACCESS_METHOD;
-                log(methodName, argumentTypes, bindingType);
+
+            // only one child, as there are 2 nodes, one of them is the function itself.
+            //
+            IOpenClass argumentType = argumentTypes[0];
+
+            IBoundNode accessorChain = null;
+
+            boolean isTargetArray = argumentType.isArray();
+            if (isTargetArray) {
+                argumentType = argumentType.getComponentClass();
+            }
+            IOpenField field = bindingContext.findFieldFor(argumentType, methodName, false);
+            if (field != null) {
+                if (isTargetArray) {
+                    accessorChain = new MultiCallFieldAccessMethodBoundNode(methodNode, children[0], field);
+                } else {
+                    accessorChain = new FieldBoundNode(methodNode, field, children[0]);
+                }
+            }
+
+            if (accessorChain != null) {
+                log(methodName, argumentTypes, "field access method");
                 return accessorChain;
             }
         }
 
-        return cantFindMethodError(methodNode, bindingContext, methodName, argumentTypes);
+        String message = String.format("Method '%s' is not found", MethodUtil.printMethod(methodName, argumentTypes));
+        BindHelper.processError(message, methodNode, bindingContext, false);
+
+        return new ErrorBoundNode(methodNode);
     }
 
-    protected void log(String methodName, IOpenClass[] argumentTypes, String bindingType) {
+    private void log(String methodName, IOpenClass[] argumentTypes, String bindingType) {
         if (log.isTraceEnabled()) {
-            log.trace("Method '{}' with parameters '{}' was binded as {}",
-                methodName,
-                getArgumentsAsString(argumentTypes),
-                bindingType);
+            String method = MethodUtil.printMethod(methodName, argumentTypes);
+            log.trace("Method {} was binded as {}", method, bindingType);
         }
-    }
-
-    private String getArgumentsAsString(IOpenClass[] argumentTypes) {
-        String result = StringUtils.join(argumentTypes, ",");
-        if (StringUtils.isNotBlank(result)) {
-            return result;
-        }
-        return NO_PARAMETERS;
-    }
-
-    private IBoundNode cantFindMethodError(ISyntaxNode node,
-            IBindingContext bindingContext,
-            String methodName,
-            IOpenClass[] parameterTypes) {
-
-        String message = String.format("Method '%s' is not found", MethodUtil.printMethod(methodName, parameterTypes));
-        BindHelper.processError(message, node, bindingContext, false);
-
-        return new ErrorBoundNode(node);
     }
 
     @Override
@@ -232,10 +220,7 @@ public class MethodNodeBinder extends ANodeBinder {
             }
         }
 
-        MethodBoundNode result = new MethodBoundNode(node, children, methodCaller, target);
-        result.setTargetNode(target);
-
-        return result;
+        return new MethodBoundNode(node, children, methodCaller, target);
     }
 
 }

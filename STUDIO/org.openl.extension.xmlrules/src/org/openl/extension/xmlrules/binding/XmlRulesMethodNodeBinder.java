@@ -139,8 +139,6 @@ public class XmlRulesMethodNodeBinder extends MethodNodeBinder {
             return boundNode;
         }
 
-        String bindingType = APPROPRIATE_BY_SIGNATURE_METHOD;
-        log(methodName, parameterTypes, bindingType);
         if (isArrayCall) {
             return new ArrayCallMethodBoundNode(node, children, methodCaller, arrayCallArguments);
         }

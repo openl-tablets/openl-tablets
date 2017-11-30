@@ -44,7 +44,8 @@ public class MultiCallFieldAccessMethodBoundNode extends ATargetBoundNode {
 
     public IOpenClass getType() {
         if (returnType == null) {
-            returnType = singleField.getType().getAggregateInfo().getIndexedAggregateType(singleField.getType(), 1);
+            IOpenClass fieldType = singleField.getType();
+            returnType = fieldType.getAggregateInfo().getIndexedAggregateType(fieldType, 1);
         }
        
         return returnType;
