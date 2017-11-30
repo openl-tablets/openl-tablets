@@ -57,7 +57,7 @@
 		<property name="supportCollections" value="false" />
 	</bean>
     
-	<bean id="JAXRSExceptionMapper" class="org.openl.rules.ruleservice.publish.JAXRSExceptionMapper"/>
+	<bean id="JAXRSExceptionMapper" class="org.openl.rules.ruleservice.publish.jaxrs.JAXRSExceptionMapper"/>
 	
 	<bean id="JAXRSServicesServerPrototype" class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean"
 		scope="prototype">

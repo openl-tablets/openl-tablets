@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.publish;
+package org.openl.rules.ruleservice.publish.jaxrs;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -9,7 +9,6 @@ import javax.ws.rs.ext.ExceptionMapper;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
-import org.openl.rules.ruleservice.publish.jaxrs.JAXRSErrorResponse;
 
 public class JAXRSExceptionMapper implements ExceptionMapper<Exception> {
 
