@@ -158,7 +158,7 @@ public class SimpleVM implements IOpenVM {
             if (contextStack.size() > 0) {
                 return (IRuntimeContext) contextStack.pop();
             } else {
-                throw new OpenlNotCheckedException(
+                throw new OpenLRuntimeException(
                     "Failed to restore context. The context modification history is empty.");
             }
         }
