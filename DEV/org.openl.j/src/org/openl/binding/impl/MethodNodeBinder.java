@@ -135,32 +135,24 @@ public class MethodNodeBinder extends ANodeBinder {
             return arrayParametersMethod;
         }
 
+        // Get the root component type and dimension of the array.
+        IOpenClass argumentType = argumentTypes[0];
+        int dims = 0;
+        while (argumentType.isArray()) {
+            dims++;
+            argumentType = argumentType.getComponentClass();
+        }
+
         // Try to bind method call Name(driver) as driver.Name;
         //
         if (childrenCount == 2) {
 
             // only one child, as there are 2 nodes, one of them is the function itself.
             //
-            IOpenClass argumentType = argumentTypes[0];
-
-            IBoundNode accessorChain = null;
-
-            boolean isTargetArray = argumentType.isArray();
-            if (isTargetArray) {
-                argumentType = argumentType.getComponentClass();
-            }
             IOpenField field = bindingContext.findFieldFor(argumentType, methodName, false);
             if (field != null) {
-                if (isTargetArray) {
-                    accessorChain = new MultiCallFieldAccessMethodBoundNode(methodNode, children[0], field);
-                } else {
-                    accessorChain = new FieldBoundNode(methodNode, field, children[0]);
-                }
-            }
-
-            if (accessorChain != null) {
                 log(methodName, argumentTypes, "field access method");
-                return accessorChain;
+                return new FieldBoundNode(methodNode, field, children[0], dims);
             }
         }
 

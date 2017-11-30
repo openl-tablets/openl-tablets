@@ -186,7 +186,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertTrue(CellMetaInfo.isCellContainsNodeUsages(returnCell));
 
         usedNodes = returnCell.getMetaInfo().getUsedNodes();
-        assertEquals(3, usedNodes.size());
+        assertEquals(4, usedNodes.size());
 
         assertEquals(typeB.getUri(), usedNodes.get(0).getUri());
         assertEquals(24, usedNodes.get(0).getStart());
@@ -196,8 +196,12 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals(30, usedNodes.get(1).getStart());
         assertEquals(36, usedNodes.get(1).getEnd());
 
-        assertEquals(typeB.getUri(), usedNodes.get(2).getUri());
-        assertEquals(51, usedNodes.get(2).getStart());
-        assertEquals(53, usedNodes.get(2).getEnd());
+        assertEquals(typeC.getUri(), usedNodes.get(2).getUri());
+        assertEquals(38, usedNodes.get(2).getStart());
+        assertEquals(42, usedNodes.get(2).getEnd());
+
+        assertEquals(typeB.getUri(), usedNodes.get(3).getUri());
+        assertEquals(51, usedNodes.get(3).getStart());
+        assertEquals(53, usedNodes.get(3).getEnd());
     }
 }

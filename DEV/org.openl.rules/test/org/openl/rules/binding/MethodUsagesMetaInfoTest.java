@@ -77,14 +77,17 @@ public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
             for (int col = 0; col < methodTableGrid.getWidth(); col++) {
                 ICell cell = methodTableGrid.getCell(col, row);
                 if (CellMetaInfo.isCellContainsNodeUsages(cell)) {
-                    cellWithMethodUsagesCount++;
                     for (NodeUsage methodUsage : cell.getMetaInfo().getUsedNodes()) {
-                        usedMethods.add(((MethodUsage) methodUsage).getMethod().getName());
+                        cellWithMethodUsagesCount++;
+                        if (methodUsage instanceof MethodUsage) {
+                            usedMethods.add(((MethodUsage)methodUsage).getMethod().getName());
+                        }
                     }
                 }
             }
         }
-        assertTrue(cellWithMethodUsagesCount == 2);
+        assertEquals(8, cellWithMethodUsagesCount);
+        assertEquals(2, usedMethods.size());
         assertTrue(usedMethods.contains("testTBasic"));
         assertTrue(usedMethods.contains("testDT"));
     }

@@ -14,7 +14,7 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
-import org.openl.binding.impl.TableUsage;
+import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
@@ -35,6 +35,7 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringTool;
 import org.openl.util.text.ILocation;
+import org.openl.util.text.TextInfo;
 
 /**
  * Handles column descriptors that are represented as foreign keys to data from
@@ -539,7 +540,12 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             ITable foreignTable = db.getTable(foreignKeyTable.getIdentifier());
             if (foreignTable != null) {
                 ILocation location = foreignKeyTable.getLocation();
-                NodeUsage nodeUsage = new TableUsage(foreignTable, location, NodeType.DATA);
+                NodeUsage nodeUsage = new SimpleNodeUsage(
+                    location.getStart().getAbsolutePosition(new TextInfo(foreignTable.getName())),
+                    location.getEnd().getAbsolutePosition(new TextInfo(foreignTable.getName())) - 1,
+                    foreignTable.getTableSyntaxNode().getHeaderLineValue().getValue(),
+                    foreignTable.getTableSyntaxNode().getUri(),
+                    NodeType.DATA);
                 CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, Arrays.asList(nodeUsage));
                 foreignKeyCell.setMetaInfo(meta);
             }
