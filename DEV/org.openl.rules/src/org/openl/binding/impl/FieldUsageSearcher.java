@@ -52,22 +52,6 @@ public final class FieldUsageSearcher {
             }
         } else if (boundNode instanceof IndexNode) {
             findAllFields(fields, boundNode.getTargetNode(), sourceString, startPosition);
-        } else if (boundNode instanceof MultiCallFieldAccessMethodBoundNode) {
-            findAllFields(fields, boundNode.getTargetNode(), sourceString, startPosition);
-            IOpenField boundField = ((MultiCallFieldAccessMethodBoundNode) boundNode).getBoundField();
-            IOpenClass type = boundField.getDeclaringClass();
-            if (type == null) {
-                return;
-            }
-            TextInfo tableHeaderText = new TextInfo(sourceString);
-            SimpleNodeUsage simpleNodeUsage = createFieldOfDatatype(boundNode.getSyntaxNode(),
-                    startPosition,
-                    tableHeaderText,
-                    type,
-                    boundField);
-            if (simpleNodeUsage != null) {
-                fields.add(simpleNodeUsage);
-            }
         } else {
             if (boundNode.getChildren() == null) {
                 return;
