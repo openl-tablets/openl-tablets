@@ -139,26 +139,22 @@ public class MethodNodeBinder extends ANodeBinder {
         //
         if (childrenCount == 2) {
 
-            ISyntaxNode argumentNode = methodNode.getChild(0);
             // only one child, as there are 2 nodes, one of them is the function itself.
             //
-            IOpenClass argumentType = getTypes(children)[0];
-
+            IOpenClass argumentType = argumentTypes[0];
 
             IBoundNode accessorChain = null;
 
-            IBoundNode target = bindChildNode(argumentNode, bindingContext);
-            if (argumentType.isArray()) {
-                IOpenClass targetClass = argumentType.getComponentClass();
-                IOpenField field = bindingContext.findFieldFor(targetClass, methodName, false);
-
-                accessorChain = field == null ? null : new MultiCallFieldAccessMethodBoundNode(argumentNode.getParent(), target, field);
-            } else {
-                IOpenClass targetClass = target.getType();
-                IOpenField field = bindingContext.findFieldFor(targetClass, methodName, false);
-
-                if (field != null) {
-                    accessorChain = new FieldBoundNode(argumentNode.getParent(), field, target);
+            boolean isTargetArray = argumentType.isArray();
+            if (isTargetArray) {
+                argumentType = argumentType.getComponentClass();
+            }
+            IOpenField field = bindingContext.findFieldFor(argumentType, methodName, false);
+            if (field != null) {
+                if (isTargetArray) {
+                    accessorChain = new MultiCallFieldAccessMethodBoundNode(methodNode, children[0], field);
+                } else {
+                    accessorChain = new FieldBoundNode(methodNode, field, children[0]);
                 }
             }
 
