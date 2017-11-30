@@ -220,10 +220,7 @@ public class MethodNodeBinder extends ANodeBinder {
             }
         }
 
-        MethodBoundNode result = new MethodBoundNode(node, children, methodCaller, target);
-        result.setTargetNode(target);
-
-        return result;
+        return new MethodBoundNode(node, children, methodCaller, target);
     }
 
 }
