@@ -12,8 +12,12 @@ import java.util.Map;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.beanutils.MethodUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.rules.lang.xls.binding.wrapper.InputParameterOutsideOfValidDomainException;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
@@ -24,6 +28,7 @@ import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallArou
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptors;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallInterceptorGroup;
+import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.runtime.IEngineWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,10 +110,11 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                     ServiceMethodAroundAdvice<?> aroundInterceptor = interceptorClass.getConstructor().newInstance();
                     aroundInterceptors.put(method, aroundInterceptor);
                 } catch (Exception e) {
-                    throw new RuleServiceRuntimeException(String.format(
-                        "Failed to instante 'around' interceptor for method '%s' in class '%s'.",
-                        method.getName(),
-                        serviceClass.getName()), e);
+                    throw new RuleServiceRuntimeException(
+                        String.format("Failed to instante 'around' interceptor for method '%s' in class '%s'.",
+                            method.getName(),
+                            serviceClass.getName()),
+                        e);
                 }
             }
         }
@@ -131,10 +137,11 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                         ServiceMethodBeforeAdvice preInterceptor = interceptorClass.getConstructor().newInstance();
                         interceptors.add(preInterceptor);
                     } catch (Exception e) {
-                        throw new RuleServiceRuntimeException(String.format(
-                            "Failed to instante 'before' interceptor for method '%s' in class '%s'.",
-                            method.getName(),
-                            serviceClass.getName()), e);
+                        throw new RuleServiceRuntimeException(
+                            String.format("Failed to instante 'before' interceptor for method '%s' in class '%s'.",
+                                method.getName(),
+                                serviceClass.getName()),
+                            e);
                     }
                 }
             }
@@ -147,17 +154,18 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
             }
         }
     }
-    
-    
+
     private void checkForServiceExtraMethodAnnotation(Method method, Annotation annotation) {
         if (annotation instanceof ServiceExtraMethod) {
-            Class<? extends ServiceExtraMethodHandler<?>> serviceExtraMethodHandlerClass = ((ServiceExtraMethod) annotation).value();
+            Class<? extends ServiceExtraMethodHandler<?>> serviceExtraMethodHandlerClass = ((ServiceExtraMethod) annotation)
+                .value();
             try {
-                ServiceExtraMethodHandler<?> serviceMethodAdvice = serviceExtraMethodHandlerClass.getConstructor().newInstance();
+                ServiceExtraMethodHandler<?> serviceMethodAdvice = serviceExtraMethodHandlerClass.getConstructor()
+                    .newInstance();
                 serviceExtraMethodAnnotations.put(method, serviceMethodAdvice);
             } catch (Exception e) {
-                throw new RuleServiceRuntimeException(String.format(
-                    "Failed to instante service method handler for method '%s' in class '%s'.",
+                throw new RuleServiceRuntimeException(
+                    String.format("Failed to instante service method handler for method '%s' in class '%s'.",
                         method.getName(),
                         serviceClass.getName()),
                     e);
@@ -208,7 +216,9 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
         }
     }
 
-    protected Object serviceExtraMethodInvoke(Method interfaceMethod, Object serviceBean, Object... args) throws Throwable {
+    protected Object serviceExtraMethodInvoke(Method interfaceMethod,
+            Object serviceBean,
+            Object... args) throws Throwable {
         ServiceExtraMethodHandler<?> serviceExtraMethodHandler = serviceExtraMethodAnnotations.get(interfaceMethod);
         if (serviceExtraMethodHandler != null) {
             return serviceExtraMethodHandler.invoke(interfaceMethod, serviceBean, args);
@@ -254,9 +264,8 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
     public Object invoke(MethodInvocation invocation) throws Throwable {
         Method calledMethod = invocation.getMethod();
         Object[] args = invocation.getArguments();
-        Method interfaceMethod = MethodUtils.getMatchingAccessibleMethod(serviceClass,
-            calledMethod.getName(),
-            calledMethod.getParameterTypes());
+        Method interfaceMethod = MethodUtils
+            .getMatchingAccessibleMethod(serviceClass, calledMethod.getName(), calledMethod.getParameterTypes());
         Object result = null;
         try {
             Method beanMethod = null;
@@ -286,10 +295,8 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                     Thread.currentThread().setContextClassLoader(serviceClassLoader);
                     beforeInvocation(interfaceMethod, args);
                     if (aroundInterceptors.containsKey(interfaceMethod)) {
-                        result = aroundInterceptors.get(interfaceMethod).around(interfaceMethod,
-                            beanMethod,
-                            serviceBean,
-                            args);
+                        result = aroundInterceptors.get(interfaceMethod)
+                            .around(interfaceMethod, beanMethod, serviceBean, args);
                     } else {
                         if (beanMethod != null) {
                             result = beanMethod.invoke(serviceBean, args);
@@ -321,8 +328,12 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                 }
             }
             return result;
-        } catch (Throwable t) {
-            throw new RuleServiceWrapperException(getExceptionMessage(calledMethod, t, args), t);
+        } catch (Exception t) {
+            Pair<RuleServiceWrapperException.ExceptionType, String> p = getExceptionDetailAndType(t);
+            throw new RuleServiceWrapperException(p.getRight(),
+                p.getLeft(),
+                getExceptionMessage(calledMethod, t, args),
+                t);
         } finally {
             // Memory leaks fix.
             if (serviceBean instanceof IEngineWrapper) {
@@ -333,6 +344,59 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                     "Service bean doesn't implement IEngineWrapper interface. Plese, don't use deprecated static wrapper classes. It can be cause of memory leaks!!!");
             }
         }
+    }
+
+    protected Pair<RuleServiceWrapperException.ExceptionType, String> getExceptionDetailAndType(Throwable ex) {
+        Throwable t = ex;
+        boolean isUserException = false;
+        boolean isRulesException = false;
+        boolean isCompilationException = false;
+        boolean isValidationException = false;
+
+        String userDetailMessage = null;
+        String rulesRuntimeDetailMessage = null;
+        String compilationDetailMessage = null;
+        String validationDetailMessage = null;
+
+        while (t != null && t.getCause() != t) {
+            if (t instanceof InputParameterOutsideOfValidDomainException) {
+                isValidationException = true;
+                validationDetailMessage = t.getMessage();
+            }
+            if (t instanceof OpenLUserRuntimeException) {
+                isUserException = true;
+                userDetailMessage = ((OpenLUserRuntimeException) t).getOriginalMessage();
+            } else if (t instanceof OpenLRuntimeException) {
+                isRulesException = true;
+                rulesRuntimeDetailMessage = ((OpenLRuntimeException) t).getOriginalMessage();
+            } else if (t instanceof OpenLCompilationException) {
+                isCompilationException = true;
+                compilationDetailMessage = t.getMessage();
+            }
+            t = t.getCause();
+        }
+
+        if (isValidationException) {
+            return new ImmutablePair<RuleServiceWrapperException.ExceptionType, String>(
+                RuleServiceWrapperException.ExceptionType.VALIDATION,
+                validationDetailMessage);
+        } else if (isCompilationException) {
+            return new ImmutablePair<RuleServiceWrapperException.ExceptionType, String>(
+                RuleServiceWrapperException.ExceptionType.COMPILATION,
+                compilationDetailMessage);
+        } else if (isUserException) {
+            return new ImmutablePair<RuleServiceWrapperException.ExceptionType, String>(
+                RuleServiceWrapperException.ExceptionType.USER_ERROR,
+                userDetailMessage);
+        } else if (isRulesException) {
+            return new ImmutablePair<RuleServiceWrapperException.ExceptionType, String>(
+                RuleServiceWrapperException.ExceptionType.RULES_RUNTIME,
+                rulesRuntimeDetailMessage);
+        }
+
+        return new ImmutablePair<RuleServiceWrapperException.ExceptionType, String>(
+            RuleServiceWrapperException.ExceptionType.SYSTEM,
+            ex.getCause().getMessage());
     }
 
     protected String getExceptionMessage(Method method, Throwable ex, Object... args) {
@@ -383,11 +447,15 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                 if (isNotFirst)
                     sb.append(MSG_SEPARATOR);
                 isNotFirst = true;
-                sb.append(t.getMessage());
+                if (t instanceof OpenLRuntimeException) {
+                    sb.append(((OpenLRuntimeException) t).getOriginalMessage());
+                } else {
+                    sb.append(t.getMessage());
+                }
             }
             t = t.getCause();
         }
-        throw new RuleServiceWrapperException(sb.toString(), ex);
+        return sb.toString();
     }
 
     public int getOrder() {

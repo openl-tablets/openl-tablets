@@ -98,7 +98,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
             Object proxyServiceBean = factory.getProxy();
             service.setServiceBean(proxyServiceBean);
-        } catch (Throwable t) {
+        } catch (Exception t) {
             throw new RuleServiceRuntimeException("Failed to create a proxy of service bean object.", t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);

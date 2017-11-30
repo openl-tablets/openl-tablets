@@ -6,10 +6,12 @@
 
 package org.openl.types.java;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import org.openl.binding.MethodUtil;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -88,7 +90,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
     public String getParameterName(int i) {
         return null;
     }
-    
+
     /*
      * (non-Javadoc)
      *
@@ -100,10 +102,10 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
 
     public IOpenClass[] getParameterTypes() {
         if (parameterTypes == null) {
-        	synchronized(this){
-            	parameterTypes = JavaOpenClass.getOpenClasses(method.getParameterTypes());
-        	}	
-        	
+            synchronized (this) {
+                parameterTypes = JavaOpenClass.getOpenClasses(method.getParameterTypes());
+            }
+
         }
 
         return parameterTypes;
@@ -131,15 +133,19 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
      * (non-Javadoc)
      *
      * @see org.openl.types.IOpenMethod#invoke(java.lang.Object,
-     *      java.lang.Object[])
+     * java.lang.Object[])
      */
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         try {
             return method.invoke(target, params);
+        } catch (InvocationTargetException t) {
+            String msg = "Failure in the method: " + method + " on the target: " + String
+                .valueOf(target) + " with values: [" + StringUtils.join(params, "], [") + "]. Cause: " + t.getTargetException().getMessage();
+            throw new OpenLRuntimeException(msg, t);
         } catch (Throwable t) {
             String msg = "Failure in the method: " + method + " on the target: " + String
-                .valueOf(target) + " with values: [" + StringUtils.join(params, "], [") + "]";
-            throw RuntimeExceptionWrapper.wrap(msg, t);
+                .valueOf(target) + " with values: [" + StringUtils.join(params, "], [") + "]. Cause: " + t.getMessage();
+            throw new OpenLRuntimeException(msg, t);
         }
     }
 
@@ -151,8 +157,8 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
     public boolean isStatic() {
         return Modifier.isStatic(method.getModifiers());
     }
-    
-    public Method getJavaMethod(){
+
+    public Method getJavaMethod() {
         return method;
     }
 
@@ -160,7 +166,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
     public String toString() {
         return getName();
     }
-    
+
     @Override
     public boolean isConstructor() {
         return false;

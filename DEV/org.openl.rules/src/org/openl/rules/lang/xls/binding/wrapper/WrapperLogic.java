@@ -2,7 +2,6 @@ package org.openl.rules.lang.xls.binding.wrapper;
 
 import java.lang.reflect.Array;
 
-import org.openl.binding.impl.cast.OutsideOfValidDomainException;
 import org.openl.domain.IDomain;
 import org.openl.rules.lang.xls.prebind.LazyMethodWrapper;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
@@ -33,7 +32,7 @@ public final class WrapperLogic {
         @SuppressWarnings("rawtypes")
         IDomain domain = parameterType.getDomain();
         if (!domain.selectObject(value)) {
-            throw new OutsideOfValidDomainException(
+            throw new InputParameterOutsideOfValidDomainException(
                 String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
                     value,
                     parameterType.getName(),

@@ -56,6 +56,8 @@
 		<property name="linkAnyMediaTypeToXmlSchema" value="true" />
 		<property name="supportCollections" value="false" />
 	</bean>
+    
+	<bean id="JAXRSExceptionMapper" class="org.openl.rules.ruleservice.publish.JAXRSExceptionMapper"/>
 	
 	<bean id="JAXRSServicesServerPrototype" class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean"
 		scope="prototype">
@@ -76,6 +78,7 @@
 		</property>
 		<property name="providers">
 			<list>
+				<ref bean="JAXRSExceptionMapper"/>
 				<ref bean="wadlGenerator" />
 				<ref bean="JAXRSJSONProvider" />
 				<ref bean="JAXRSWebApplicationExceptionMapper" />
