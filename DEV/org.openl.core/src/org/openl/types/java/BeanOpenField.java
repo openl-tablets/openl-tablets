@@ -96,7 +96,7 @@ public class BeanOpenField implements IOpenField {
     /**
      *
      */
-    public BeanOpenField(PropertyDescriptor descriptor) {
+    private BeanOpenField(PropertyDescriptor descriptor) {
         this.descriptor = descriptor;
         this.readMethod = descriptor.getReadMethod();
         this.writeMethod = descriptor.getWriteMethod();
@@ -108,6 +108,10 @@ public class BeanOpenField implements IOpenField {
 
     public Object get(Object target, IRuntimeEnv env) {
         try {
+            if (target == null) {
+                // assuming it is a non static read method.
+                return null;
+            }
             return readMethod.invoke(target, ArrayTool.ZERO_OBJECT);
         } catch (Exception ex) {
             throw RuntimeExceptionWrapper.wrap("", ex);
