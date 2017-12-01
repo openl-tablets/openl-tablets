@@ -10,7 +10,7 @@ public class RuleServiceWrapperException extends RuleServiceRuntimeException {
 
     private static final long serialVersionUID = 3618613334261575918L;
 
-    private String details;
+    private String simpleMessage;
 
     private ExceptionType type;
 
@@ -27,9 +27,9 @@ public class RuleServiceWrapperException extends RuleServiceRuntimeException {
      *            permitted, and indicates that the cause is nonexistent or
      *            unknown.)
      */
-    public RuleServiceWrapperException(String details, ExceptionType type, String message, Throwable cause) {
+    public RuleServiceWrapperException(String simpleMessage, ExceptionType type, String message, Throwable cause) {
         super(message, cause);
-        this.details = details;
+        this.simpleMessage = simpleMessage;
         this.type = type;
     }
 
@@ -43,21 +43,21 @@ public class RuleServiceWrapperException extends RuleServiceRuntimeException {
      *            permitted, and indicates that the cause is nonexistent or
      *            unknown.)
      */
-    public RuleServiceWrapperException(String details, ExceptionType type, Throwable cause) {
+    public RuleServiceWrapperException(String simpleMessage, ExceptionType type, Throwable cause) {
         super(cause);
-        this.details = details;
+        this.simpleMessage = simpleMessage;
         this.type = type;
     }
 
     /**
-     * Returns error details
+     * Returns simple Message
      * 
      * @return
      */
-    public String getDetails() {
-        return details;
+    public String getSimpleMessage() {
+        return simpleMessage;
     }
-
+    
     /**
      * Returns error type
      * 
@@ -65,13 +65,5 @@ public class RuleServiceWrapperException extends RuleServiceRuntimeException {
      */
     public ExceptionType getType() {
         return type;
-    }
-
-    public enum ExceptionType {
-        USER_ERROR,
-        RULES_RUNTIME,
-        COMPILATION,
-        VALIDATION,
-        SYSTEM;
     }
 }

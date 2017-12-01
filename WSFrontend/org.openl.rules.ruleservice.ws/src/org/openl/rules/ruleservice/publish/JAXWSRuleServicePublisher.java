@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.publish;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -22,6 +23,7 @@ import org.openl.rules.ruleservice.logging.CollectOpenLServiceIntercepror;
 import org.openl.rules.ruleservice.logging.CollectOperationResourceInfoInterceptor;
 import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
 import org.openl.rules.ruleservice.publish.jaxws.JAXWSInterfaceEnhancerHelper;
+import org.openl.rules.ruleservice.publish.jaxws.JAXWSInvocationHandler;
 import org.openl.rules.ruleservice.servlet.AvailableServicesGroup;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.slf4j.Logger;
@@ -42,17 +44,17 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
     private String baseAddress;
     private List<ServiceInfo> availableServices = new ArrayList<ServiceInfo>();
     private boolean loggingStoreEnable = false;
-    
+
     private ObjectFactory<? extends Feature> storeLoggingFeatureFactoryBean;
 
     public ObjectFactory<? extends Feature> getStoreLoggingFeatureFactoryBean() {
         return storeLoggingFeatureFactoryBean;
-    } 
+    }
 
     public void setStoreLoggingFeatureFactoryBean(ObjectFactory<? extends Feature> storeLoggingFeatureFactoryBean) {
         this.storeLoggingFeatureFactoryBean = storeLoggingFeatureFactoryBean;
     }
-    
+
     public void setLoggingStoreEnable(boolean loggingStoreEnable) {
         this.loggingStoreEnable = loggingStoreEnable;
     }
@@ -83,7 +85,7 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
         }
         return new ServerFactoryBean();
     }
-    
+
     /* internal for test */Feature getStoreLoggingFeatureBean() {
         if (storeLoggingFeatureFactoryBean != null) {
             return storeLoggingFeatureFactoryBean.getObject();
@@ -94,6 +96,10 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
     protected Class<?> enhanceServiceClassWithJAXWSAnnotations(Class<?> serviceClass,
             OpenLService service) throws Exception {
         return JAXWSInterfaceEnhancerHelper.decorateInterface(serviceClass, service);
+    }
+
+    protected Object createWrappedBean(Object serviceBean, OpenLService service) {
+        return Proxy.newProxyInstance(service.getClassLoader(), new Class<?>[] {service.getServiceClass()}, new JAXWSInvocationHandler(serviceBean));
     }
 
     @Override
@@ -107,11 +113,16 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
             try {
                 String serviceAddress = getBaseAddress() + processURL(service.getUrl());
                 svrFactory.setAddress(serviceAddress);
-                svrFactory.setServiceClass(enhanceServiceClassWithJAXWSAnnotations(service.getServiceClass(), service));
-                svrFactory.setServiceBean(service.getServiceBean());
                 
+                Class<?> serviceClass = enhanceServiceClassWithJAXWSAnnotations(service.getServiceClass(), service);
+                svrFactory.setServiceClass(serviceClass);
+
+                Object target = createWrappedBean(service.getServiceBean(), service);
+
+                svrFactory.setServiceBean(target);
+
                 svrFactory.getBus().setExtension(service.getClassLoader(), ClassLoader.class);
-                if (isLoggingStoreEnable()){
+                if (isLoggingStoreEnable()) {
                     svrFactory.getFeatures().add(getStoreLoggingFeatureBean());
                     svrFactory.getInInterceptors().add(new CollectOpenLServiceIntercepror(service));
                     svrFactory.getInInterceptors().add(new CollectPublisherTypeInterceptor(getPublisherType()));
@@ -125,15 +136,12 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 ServiceServer serviceServer = new ServiceServer(wsServer, svrFactory.getDataBinding());
                 runningServices.put(service, serviceServer);
                 availableServices.add(createServiceInfo(service));
-                log.info("Service '{}' has been exposed with URL '{}'.",
-                    service.getName(),
-                    serviceAddress);
+                log.info("Service '{}' has been exposed with URL '{}'.", service.getName(), serviceAddress);
             } finally {
                 svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
             }
         } catch (Exception t) {
-            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'", service.getName()),
-                t);
+            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'", service.getName()), t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
@@ -164,8 +172,7 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
     protected void undeployService(String serviceName) throws RuleServiceUndeployException {
         OpenLService service = getServiceByName(serviceName);
         if (service == null) {
-            throw new RuleServiceUndeployException(
-                String.format("There is no running service '%s'", serviceName));
+            throw new RuleServiceUndeployException(String.format("There is no running service '%s'", serviceName));
         }
         try {
             runningServices.get(service).getServer().destroy();

@@ -52,7 +52,12 @@ public class JAXWSInterfaceEnhancerHelper {
         }
 
         @Override
-        public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+        public void visit(int version,
+                int access,
+                String name,
+                String signature,
+                String superName,
+                String[] interfaces) {
             super.visit(version, access, name, signature, superName, interfaces);
             boolean requiredWebServiceAnnotation = true;
             for (Annotation annotation : originalClass.getAnnotations()) {
@@ -86,7 +91,9 @@ public class JAXWSInterfaceEnhancerHelper {
                 throw new RuleServiceRuntimeException("Method is not found in the original class");
             }
 
-            MethodVisitor mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
+            String[] exceotions = extendExceptionsWithJAXWSException(arg4);
+
+            MethodVisitor mv = super.visitMethod(arg0, methodName, arg2, arg3, exceotions);
 
             boolean foundWebMethodAnnotation = false;
             if (originalMethod.getAnnotation(WebMethod.class) != null) {
@@ -99,8 +106,14 @@ public class JAXWSInterfaceEnhancerHelper {
                 av.visit("operationName", operationName);
                 av.visitEnd();
             }
-            
-            if (service != null && service.getServiceClassName() == null){ //Set parameter names only for generated interfaces
+
+            if (service != null && service.getServiceClassName() == null) { // Set
+                                                                            // parameter
+                                                                            // names
+                                                                            // only
+                                                                            // for
+                                                                            // generated
+                                                                            // interfaces
                 String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
                 int i = 0;
                 for (String paramName : parameterNames) {
@@ -119,6 +132,17 @@ public class JAXWSInterfaceEnhancerHelper {
                 }
             }
             return mv;
+        }
+
+        private String[] extendExceptionsWithJAXWSException(String[] arg4) {
+            Set<String> exceptions = new HashSet<>();
+            if (arg4 != null) {
+                for (String s : arg4) {
+                    exceptions.add(s);
+                }
+            }
+            exceptions.add(Type.getInternalName(JAXWSException.class));
+            return exceptions.toArray(new String[] {});
         }
 
         private String getOperationName(Method method) {
@@ -199,10 +223,12 @@ public class JAXWSInterfaceEnhancerHelper {
         if (!originalClass.isInterface()) {
             throw new IllegalArgumentException("Original class must be an interface!");
         }
-        String enchancedClassName = originalClass.getCanonicalName() + JAXWSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
+        String enchancedClassName = originalClass
+            .getCanonicalName() + JAXWSInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
 
         ClassWriter cw = new ClassWriter(0);
-        JAXWSInterfaceAnnotationEnhancerClassVisitor jaxrsAnnotationEnhancerClassVisitor = new JAXWSInterfaceAnnotationEnhancerClassVisitor(cw,
+        JAXWSInterfaceAnnotationEnhancerClassVisitor jaxrsAnnotationEnhancerClassVisitor = new JAXWSInterfaceAnnotationEnhancerClassVisitor(
+            cw,
             originalClass,
             service);
         InterfaceTransformer transformer = new InterfaceTransformer(originalClass, enchancedClassName);

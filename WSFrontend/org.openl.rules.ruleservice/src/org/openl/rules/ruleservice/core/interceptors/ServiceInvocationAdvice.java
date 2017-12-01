@@ -18,6 +18,7 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.lang.xls.binding.wrapper.InputParameterOutsideOfValidDomainException;
+import org.openl.rules.ruleservice.core.ExceptionType;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
@@ -329,7 +330,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
             }
             return result;
         } catch (Exception t) {
-            Pair<RuleServiceWrapperException.ExceptionType, String> p = getExceptionDetailAndType(t);
+            Pair<ExceptionType, String> p = getExceptionDetailAndType(t);
             throw new RuleServiceWrapperException(p.getRight(),
                 p.getLeft(),
                 getExceptionMessage(calledMethod, t, args),
@@ -346,7 +347,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
         }
     }
 
-    protected Pair<RuleServiceWrapperException.ExceptionType, String> getExceptionDetailAndType(Throwable ex) {
+    protected Pair<ExceptionType, String> getExceptionDetailAndType(Throwable ex) {
         Throwable t = ex;
         boolean isUserException = false;
         boolean isRulesException = false;
@@ -377,26 +378,16 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
         }
 
         if (isValidationException) {
-            return new ImmutablePair<RuleServiceWrapperException.ExceptionType, String>(
-                RuleServiceWrapperException.ExceptionType.VALIDATION,
-                validationDetailMessage);
+            return new ImmutablePair<ExceptionType, String>(ExceptionType.VALIDATION, validationDetailMessage);
         } else if (isCompilationException) {
-            return new ImmutablePair<RuleServiceWrapperException.ExceptionType, String>(
-                RuleServiceWrapperException.ExceptionType.COMPILATION,
-                compilationDetailMessage);
+            return new ImmutablePair<ExceptionType, String>(ExceptionType.COMPILATION, compilationDetailMessage);
         } else if (isUserException) {
-            return new ImmutablePair<RuleServiceWrapperException.ExceptionType, String>(
-                RuleServiceWrapperException.ExceptionType.USER_ERROR,
-                userDetailMessage);
+            return new ImmutablePair<ExceptionType, String>(ExceptionType.USER_ERROR, userDetailMessage);
         } else if (isRulesException) {
-            return new ImmutablePair<RuleServiceWrapperException.ExceptionType, String>(
-                RuleServiceWrapperException.ExceptionType.RULES_RUNTIME,
-                rulesRuntimeDetailMessage);
+            return new ImmutablePair<ExceptionType, String>(ExceptionType.RULES_RUNTIME, rulesRuntimeDetailMessage);
         }
 
-        return new ImmutablePair<RuleServiceWrapperException.ExceptionType, String>(
-            RuleServiceWrapperException.ExceptionType.SYSTEM,
-            ex.getCause().getMessage());
+        return new ImmutablePair<ExceptionType, String>(ExceptionType.SYSTEM, ex.getCause().getMessage());
     }
 
     protected String getExceptionMessage(Method method, Throwable ex, Object... args) {

@@ -8,6 +8,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.openl.rules.ruleservice.core.ExceptionType;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 
 public class JAXRSExceptionMapper implements ExceptionMapper<Exception> {
@@ -30,14 +31,14 @@ public class JAXRSExceptionMapper implements ExceptionMapper<Exception> {
         if (t instanceof RuleServiceWrapperException) {
             RuleServiceWrapperException ruleServiceWrapperException = (RuleServiceWrapperException) t;
             Response.Status status = Response.Status.INTERNAL_SERVER_ERROR;
-            if (RuleServiceWrapperException.ExceptionType.USER_ERROR.equals(ruleServiceWrapperException.getType())) {
+            if (ExceptionType.USER_ERROR.equals(ruleServiceWrapperException.getType())) {
                 status = Response.Status.BAD_REQUEST;
             }
-            if (RuleServiceWrapperException.ExceptionType.VALIDATION.equals(ruleServiceWrapperException.getType())) {
+            if (ExceptionType.VALIDATION.equals(ruleServiceWrapperException.getType())) {
                 status = Response.Status.BAD_REQUEST;
             } 
 
-            JAXRSErrorResponse errorResponse = new JAXRSErrorResponse(ruleServiceWrapperException.getDetails(),
+            JAXRSErrorResponse errorResponse = new JAXRSErrorResponse(ruleServiceWrapperException.getSimpleMessage(),
                 ruleServiceWrapperException.getType().toString(),
                 Response.Status.INTERNAL_SERVER_ERROR.equals(status)
                                                                      ? ExceptionUtils
@@ -50,7 +51,7 @@ public class JAXRSExceptionMapper implements ExceptionMapper<Exception> {
         }
 
         JAXRSErrorResponse errorResponse = new JAXRSErrorResponse(ExceptionUtils.getRootCauseMessage(e),
-            RuleServiceWrapperException.ExceptionType.SYSTEM.toString(), 
+            ExceptionType.SYSTEM.toString(), 
             ExceptionUtils.getStackTrace(e).replaceAll("\t", "    ").split(System.lineSeparator()));
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
             .type(MediaType.APPLICATION_JSON)
