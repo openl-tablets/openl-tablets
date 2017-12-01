@@ -55,10 +55,22 @@ public class IdentifierBinder extends ANodeBinder {
             String fieldName = ((IdentifierNode) node).getIdentifier();
 
             try {
-                IOpenField field = bindingContext.findFieldFor(target.getType(), fieldName, false);
+                IOpenClass type = target.getType();
+                int dims = 0;
+                while (type.isArray()) {
+                    dims++;
+                    type = type.getComponentClass();
+                }
+                if (dims > 0 && "length".equals(fieldName)) {
+                    // special case for arr[].length
+                    dims = 0;
+                    type = target.getType();
+                    BindHelper.processWarn("DEPRECATED 'length' field for arrays will be removed in the next version. Use length() function instead!", node, bindingContext);
+                }
+                IOpenField field = bindingContext.findFieldFor(type, fieldName, false);
 
                 if (field == null) {
-                    String message = String.format("Field not found: '%s'", fieldName);
+                    String message = String.format("Field not found: '%s' inside '%s' type", fieldName, type);
                     BindHelper.processError(message, node, bindingContext, false);
 
                     return new ErrorBoundNode(node);
@@ -77,7 +89,7 @@ public class IdentifierBinder extends ANodeBinder {
                 }
 
                 BindHelper.checkOnDeprecation(node, bindingContext, field);
-                return new FieldBoundNode(node, field, target);
+                return new FieldBoundNode(node, field, target, dims);
 
             } catch (Throwable t) {
                 BindHelper.processError(node, t, bindingContext);
