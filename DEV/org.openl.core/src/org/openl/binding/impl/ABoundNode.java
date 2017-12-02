@@ -10,6 +10,8 @@ import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundNode;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -21,6 +23,10 @@ public abstract class ABoundNode implements IBoundNode {
 
     protected ISyntaxNode syntaxNode;
     protected IBoundNode[] children;
+
+    protected ABoundNode(ISyntaxNode syntaxNode) {
+        this.syntaxNode = syntaxNode;
+    }
 
     protected ABoundNode(ISyntaxNode syntaxNode, IBoundNode[] children) {
         this.syntaxNode = syntaxNode;
@@ -44,6 +50,10 @@ public abstract class ABoundNode implements IBoundNode {
     }
 
     abstract protected Object evaluateRuntime(IRuntimeEnv env) throws Exception;
+
+    public IOpenClass getType() {
+        return NullOpenClass.the;
+    }
 
     public Object[] evaluateChildren(IRuntimeEnv env) throws OpenLRuntimeException {
 
