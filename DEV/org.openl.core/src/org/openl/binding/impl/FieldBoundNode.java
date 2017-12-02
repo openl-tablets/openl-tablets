@@ -62,7 +62,7 @@ public class FieldBoundNode extends ATargetBoundNode {
     }
 
     @Override
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+    protected Object evaluateRuntime(IRuntimeEnv env) {
         Object target = getTargetNode() == null ? env.getThis() : getTargetNode().evaluate(env);
 
         return evaluateDim(target, env, dims, null);

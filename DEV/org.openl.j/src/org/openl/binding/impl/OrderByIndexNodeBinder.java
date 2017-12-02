@@ -7,7 +7,6 @@ import java.util.TreeMap;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IAggregateInfo;
@@ -42,8 +41,8 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 			this.isDecreasing = isDecreasing;
 		}
 
-		public Object evaluateRuntime(IRuntimeEnv env)
-				throws OpenLRuntimeException {
+		@Override
+		protected Object evaluateRuntime(IRuntimeEnv env) {
 			IBoundNode containerNode = getContainer();
 			IBoundNode orderBy = getChildren()[1];
 			IAggregateInfo aggregateInfo = containerNode.getType()

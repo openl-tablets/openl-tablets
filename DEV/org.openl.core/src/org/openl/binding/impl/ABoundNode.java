@@ -31,7 +31,7 @@ public abstract class ABoundNode implements IBoundNode {
         throw new UnsupportedOperationException();
     }
 
-    public Object evaluate(IRuntimeEnv env) throws OpenLRuntimeException {
+    final public Object evaluate(IRuntimeEnv env) throws OpenLRuntimeException {
         try {
             return evaluateRuntime(env);
         } catch (OpenLRuntimeException ore) {
@@ -42,6 +42,8 @@ public abstract class ABoundNode implements IBoundNode {
             throw new OpenLRuntimeException(t, this);
         }
     }
+
+    abstract protected Object evaluateRuntime(IRuntimeEnv env) throws Exception;
 
     public Object[] evaluateChildren(IRuntimeEnv env) throws OpenLRuntimeException {
 

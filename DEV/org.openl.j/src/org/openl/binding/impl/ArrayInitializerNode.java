@@ -1,14 +1,7 @@
-/*
- * Created on Jul 2, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.cast.IOpenCast;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
@@ -32,23 +25,8 @@ public class ArrayInitializerNode extends ABoundNode {
         this.casts = casts;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#evaluate(java.lang.Object,
-     *      java.lang.Object[], org.openl.vm.IRuntimeEnv)
-     */
-    // public Object evaluate(Object target, Object[] pars, IRuntimeEnv env)
-    // {
-    // throw new UnsupportedOperationException();
-    // }
-    //
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
-     */
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+    @Override
+    protected Object evaluateRuntime(IRuntimeEnv env) {
         IAggregateInfo info = type.getAggregateInfo();
 
         Object ary = info.makeIndexedAggregate(info.getComponentType(type), new int[] { children.length });

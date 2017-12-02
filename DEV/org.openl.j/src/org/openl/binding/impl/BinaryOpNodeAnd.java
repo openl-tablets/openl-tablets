@@ -1,7 +1,6 @@
 package org.openl.binding.impl;
 
 import org.openl.binding.IBoundNode;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
@@ -28,7 +27,8 @@ public class BinaryOpNodeAnd extends ABoundNode {
         super(syntaxNode, child);
     }
 
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+    @Override
+    protected Object evaluateRuntime(IRuntimeEnv env) {
 
         Object res1 = children[0].evaluate(env);
         if (Boolean.FALSE.equals(res1)) {

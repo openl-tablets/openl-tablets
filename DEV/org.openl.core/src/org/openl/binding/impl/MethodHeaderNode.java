@@ -1,15 +1,7 @@
-/*
- * Created on Oct 6, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
-import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundMethodHeader;
 import org.openl.binding.IBoundNode;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
@@ -32,12 +24,7 @@ public class MethodHeaderNode extends ABoundNode implements IBoundMethodHeader {
         this.methodHeader = methodHeader;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#evaluateRuntime(org.openl.vm.IRuntimeEnv)
-     */
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+    protected Object evaluateRuntime(IRuntimeEnv env) {
         throw new UnsupportedOperationException();
     }
 
@@ -58,10 +45,4 @@ public class MethodHeaderNode extends ABoundNode implements IBoundMethodHeader {
     public IOpenClass getType() {
         return methodHeader.getType();
     }
-
-    @Override
-    public void updateDependency(BindingDependencies dependencies) {
-
-    }
-
 }

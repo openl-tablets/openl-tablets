@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.MethodBoundNode;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.extension.xmlrules.utils.HelperFunctions;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
@@ -35,7 +34,7 @@ public class MethodWithAttributesBoundNode extends MethodBoundNode {
     }
 
     @Override
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+    protected Object evaluateRuntime(IRuntimeEnv env) {
         Object target = getTargetNode() == null ? env.getThis() : getTargetNode().evaluate(env);
         Object[] arguments = evaluateChildren(env);
         Object[] methodParameters = Arrays.copyOfRange(arguments, 0, parameterCount);

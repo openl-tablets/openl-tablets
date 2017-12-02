@@ -1,9 +1,3 @@
-/*
- * Created on Jul 9, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
 import org.openl.binding.BindingDependencies;
@@ -47,12 +41,8 @@ public class CastNode extends ABoundNode {
         children[0].assign(value, env);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
-     */
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+    @Override
+    protected Object evaluateRuntime(IRuntimeEnv env) {
         Object res = children[0].evaluate(env);
         return cast.convert(res);
     }

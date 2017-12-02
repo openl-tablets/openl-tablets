@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.MethodBoundNode;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
@@ -28,7 +27,7 @@ public class ArrayCallMethodBoundNode extends MethodBoundNode {
     }
 
     @Override
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+    protected Object evaluateRuntime(IRuntimeEnv env) {
         Object target = getTargetNode() == null ? env.getThis() : getTargetNode().evaluate(env);
         Object[] methodParameters = evaluateChildren(env);
 

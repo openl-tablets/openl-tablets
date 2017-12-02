@@ -1,7 +1,3 @@
-/*
- * Created on May 20, 2003 Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
 import org.openl.binding.IBoundNode;
@@ -31,11 +27,7 @@ public class ErrorBoundNode extends ABoundNode {
         throw new UnsupportedOperationException();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.openl.binding.IBoundNode#evaluateRuntime(org.openl.vm.IRuntimeEnv)
-     */
-    public Object evaluateRuntime(IRuntimeEnv env) {
+    protected Object evaluateRuntime(IRuntimeEnv env) {
         throw new UnsupportedOperationException("You are trying to run openl code with a compile error in it");
     }
 

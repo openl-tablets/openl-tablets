@@ -2,7 +2,6 @@ package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
@@ -14,8 +13,8 @@ public class IndexParameterDeclarationBinder extends ANodeBinder {
 	public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext)
 			throws Exception {
 
-		ISyntaxNode nameSyntaxNode = null;
-		ISyntaxNode typeSyntaxNode = null;
+		ISyntaxNode nameSyntaxNode;
+		ISyntaxNode typeSyntaxNode;
 		IBoundNode typeBoundNode = null;
 		
 		if (node.getNumberOfChildren() == 1)
@@ -49,8 +48,7 @@ public class IndexParameterDeclarationBinder extends ANodeBinder {
 		}
 
 		@Override
-		public Object evaluateRuntime(IRuntimeEnv env)
-				throws OpenLRuntimeException {
+		protected Object evaluateRuntime(IRuntimeEnv env) {
 			return null;
 		}
 

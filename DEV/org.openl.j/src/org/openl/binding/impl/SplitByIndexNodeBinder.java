@@ -8,7 +8,6 @@ import java.util.Iterator;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IAggregateInfo;
@@ -36,8 +35,8 @@ public class SplitByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 			this.tempVar = tempVar;
 		}
 
-		public Object evaluateRuntime(IRuntimeEnv env)
-				throws OpenLRuntimeException {
+		@Override
+		protected Object evaluateRuntime(IRuntimeEnv env) {
 			IBoundNode containerNode = getContainer();
 			IBoundNode splitBy = getChildren()[1];
 			IOpenClass containerType = containerNode.getType();

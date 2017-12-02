@@ -9,7 +9,6 @@ import java.util.List;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IAggregateInfo;
@@ -37,7 +36,8 @@ public class TransformIndexNodeBinder extends BaseAggregateIndexNodeBinder {
             this.isUnique = isUnique;
         }
 
-        public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+        @Override
+        protected Object evaluateRuntime(IRuntimeEnv env) {
             IBoundNode container = getContainer();
             IBoundNode transformer = getTransformer();
             IAggregateInfo aggregateInfo = getType().getAggregateInfo();
@@ -77,15 +77,6 @@ public class TransformIndexNodeBinder extends BaseAggregateIndexNodeBinder {
         
 
         public IOpenClass getType() {
-//        	IOpenClass containerType = getContainer().getType();
-//        	if (containerType.isArray())
-//        	{	
-//        		IAggregateInfo info = getContainer().getType().getAggregateInfo();
-//        		return info.getIndexedAggregateType(getTransformer().getType(), 1);
-//        	}
-//        	
-//        	IOpenClass componentType = tempVar.getType();
-        	
         	IOpenClass targetType = getTransformer().getType();
     		return targetType.getAggregateInfo().getIndexedAggregateType(targetType, 1);
         }

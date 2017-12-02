@@ -1,9 +1,3 @@
-/*
- * Created on Jun 18, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
 import org.openl.binding.BindingDependencies;
@@ -44,22 +38,8 @@ public class IndexNode extends ATargetBoundNode {
         index.setValue(target, children[0].evaluate(env), value);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#evaluate(java.lang.Object,
-     *      java.lang.Object[], org.openl.vm.IRuntimeEnv)
-     */
-    // public Object evaluate(Object target, Object[] pars, IRuntimeEnv env)
-    // {
-    // throw new UnsupportedOperationException();
-    // }
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
-     */
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+    @Override
+    protected Object evaluateRuntime(IRuntimeEnv env) {
         return index.getValue(getTargetNode().evaluate(env), children[0].evaluate(env));
     }
 

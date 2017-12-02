@@ -67,7 +67,8 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
         return module;
     }
 
-    public Object evaluateRuntime(IRuntimeEnv env) {
+    @Override
+    protected Object evaluateRuntime(IRuntimeEnv env) {
         throw new UnsupportedOperationException("Should not be called");
     }
 

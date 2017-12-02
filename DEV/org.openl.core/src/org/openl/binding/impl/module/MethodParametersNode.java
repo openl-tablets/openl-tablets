@@ -1,15 +1,7 @@
-/*
- * Created on Jul 24, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl.module;
 
-import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.ABoundNode;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodSignature;
@@ -30,7 +22,8 @@ public class MethodParametersNode extends ABoundNode {
         super(syntaxNode, children);
     }
 
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+    @Override
+    protected Object evaluateRuntime(IRuntimeEnv env) {
         throw new UnsupportedOperationException();
     }
 
@@ -61,12 +54,6 @@ public class MethodParametersNode extends ABoundNode {
 
     public IOpenClass getType() {
         return NullOpenClass.the;
-    }
-
-    @Override
-    public void updateDependency(BindingDependencies dependencies) {
-        // TODO Auto-generated method stub
-
     }
 
 }

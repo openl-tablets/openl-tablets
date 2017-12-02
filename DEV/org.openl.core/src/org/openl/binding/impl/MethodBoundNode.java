@@ -1,9 +1,3 @@
-/*
- * Created on May 19, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
 import org.openl.binding.BindingDependencies;
@@ -13,7 +7,6 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOwnTargetMethod;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -33,7 +26,8 @@ public class MethodBoundNode extends ATargetBoundNode {
         boundMethod = methodCaller;
     }
 
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+    @Override
+    protected Object evaluateRuntime(IRuntimeEnv env) {
 
         try {
             Object target = getTargetNode() == null ? env.getThis() : getTargetNode().evaluate(env);
@@ -64,9 +58,4 @@ public class MethodBoundNode extends ATargetBoundNode {
     public IMethodCaller getMethodCaller() {
         return boundMethod;
     }
-
-    private boolean hasLiteralReturnType(IOpenClass type) {
-        return type != JavaOpenClass.VOID;
-    }
-
 }

@@ -1,9 +1,3 @@
-/*
- * Created on May 29, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
 import org.openl.binding.BindingDependencies;
@@ -30,23 +24,8 @@ public class LiteralBoundNode extends ABoundNode {
         this.type = type;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#evaluate(java.lang.Object,
-     *      java.lang.Object[], org.openl.env.IRuntimeEnv)
-     */
-    // public Object evaluate(Object target, Object[] pars, IRuntimeEnv env)
-    // {
-    // return value;
-    // }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
-     */
-    public Object evaluateRuntime(IRuntimeEnv env) {
+    @Override
+    protected Object evaluateRuntime(IRuntimeEnv env) {
         return value;
     }
 

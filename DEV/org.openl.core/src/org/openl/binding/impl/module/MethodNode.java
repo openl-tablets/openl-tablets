@@ -1,12 +1,5 @@
-/*
- * Created on Jul 24, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl.module;
 
-import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.IBoundNode;
@@ -29,20 +22,14 @@ public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberB
 
     DeferredMethod deferredMethod;
 
-    // MethodParametersNode boundParametersNode;
-
     /**
      * @param syntaxNode
      * @param elements
      */
     public MethodNode(ISyntaxNode syntaxNode,
-    // IBoundNode[] children,// int localFrameSize, int parametersSize,
             DeferredMethod deferredMethod) {
         super(syntaxNode, new IBoundNode[0]);
-        // this.localFrameSize = localFrameSize;
-        // this.parametersSize = parametersSize;
         this.deferredMethod = deferredMethod;
-        // this.boundParametersNode = boundParametersNode;
     }
 
     /*
@@ -55,12 +42,8 @@ public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberB
 
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
-     */
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+    @Override
+    protected Object evaluateRuntime(IRuntimeEnv env) {
         try {
             return children[0].evaluate(env);
         } catch (ControlSignalReturn signal) {
@@ -78,8 +61,6 @@ public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberB
      */
     public void finalizeBind(IBindingContext cxt) throws Exception {
         MethodBindingContext mbc = new MethodBindingContext(deferredMethod, cxt);
-
-        // mbc.setReturnType(deferredMethod.getType());
 
         ISyntaxNode bodyNode = deferredMethod.getMethodBodyNode();
 
@@ -116,12 +97,6 @@ public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberB
      */
     public IOpenClass getType() {
         return deferredMethod.getType();
-    }
-
-    @Override
-    public void updateDependency(BindingDependencies dependencies) {
-        // TODO Auto-generated method stub
-
     }
 
     public void removeDebugInformation(IBindingContext cxt) throws Exception {

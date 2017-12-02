@@ -1,9 +1,3 @@
-/*
- * Created on May 19, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.extension.xmlrules.binding;
 
 import org.openl.binding.IBoundNode;
@@ -20,7 +14,8 @@ public class IfErrorFunctionBoundNode extends ATargetBoundNode {
         super(syntaxNode, child, null);
     }
 
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+    @Override
+    protected Object evaluateRuntime(IRuntimeEnv env) {
 
         try {
             try {

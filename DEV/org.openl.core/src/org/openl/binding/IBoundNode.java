@@ -20,8 +20,6 @@ public interface IBoundNode {
 
     Object evaluate(IRuntimeEnv env) throws OpenLRuntimeException;
 
-    Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException;
-
     IBoundNode[] getChildren();
 
     ISyntaxNode getSyntaxNode();

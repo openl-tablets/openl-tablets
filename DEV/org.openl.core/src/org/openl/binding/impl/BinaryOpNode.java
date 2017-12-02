@@ -1,13 +1,6 @@
-/*
- * Created on May 19, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
 import org.openl.binding.IBoundNode;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodCaller;
 import org.openl.vm.IRuntimeEnv;
@@ -17,8 +10,7 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class BinaryOpNode extends MethodBoundNode {
-    static public Object evaluateBinaryMethod(IRuntimeEnv env, Object[] pars, IMethodCaller boundMethod)
-            throws OpenLRuntimeException {
+    static public Object evaluateBinaryMethod(IRuntimeEnv env, Object[] pars, IMethodCaller boundMethod) {
 
         if (boundMethod.getMethod().getSignature().getParameterTypes().length == 2) {
             return boundMethod.invoke(null, pars, env);
@@ -40,7 +32,7 @@ public class BinaryOpNode extends MethodBoundNode {
     }
 
     @Override
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+    protected Object evaluateRuntime(IRuntimeEnv env) {
         Object[] pars = evaluateChildren(env);
 
         if (useBinaryMethod)
@@ -49,5 +41,4 @@ public class BinaryOpNode extends MethodBoundNode {
         return boundMethod.invoke(pars[0], new Object[] { pars[1] }, env);
 
     }
-
 }

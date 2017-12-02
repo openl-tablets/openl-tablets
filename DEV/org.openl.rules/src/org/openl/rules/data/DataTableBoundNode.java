@@ -1,9 +1,3 @@
-/*
- * Created on Oct 7, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.rules.data;
 
 import org.openl.binding.IBindingContext;
@@ -47,7 +41,8 @@ public class DataTableBoundNode extends ATableBoundNode implements IMemberBoundN
         this.table = table;
     }
 
-    public Object evaluateRuntime(IRuntimeEnv env) {
+    @Override
+    protected Object evaluateRuntime(IRuntimeEnv env) {
         return null;
     }
 
