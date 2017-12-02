@@ -6,15 +6,11 @@
 
 package org.openl.extension.xmlrules.binding;
 
-import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.ATargetBoundNode;
-import org.openl.binding.impl.ControlSignalReturn;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 public class IfErrorFunctionBoundNode extends ATargetBoundNode {
@@ -41,11 +37,6 @@ public class IfErrorFunctionBoundNode extends ATargetBoundNode {
 
     public IOpenClass getType() {
         return children[0].getType();
-    }
-
-    @Override
-    public boolean isLiteralExpressionParent() {
-        return true;
     }
 
 }

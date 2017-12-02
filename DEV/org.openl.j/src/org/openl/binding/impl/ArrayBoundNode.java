@@ -66,9 +66,4 @@ public class ArrayBoundNode extends ABoundNode {
         dependencies.addTypeDependency(componentType, this);
     }
 
-    @Override
-    public boolean isLiteralExpressionParent() {
-        return true;
-    }
-
 }

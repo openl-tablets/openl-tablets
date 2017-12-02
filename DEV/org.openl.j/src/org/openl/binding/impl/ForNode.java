@@ -79,9 +79,4 @@ public class ForNode extends ABoundNode {
         return NullOpenClass.the;
     }
 
-    @Override
-    public boolean isLiteralExpressionParent() {
-        return true;
-    }
-
 }

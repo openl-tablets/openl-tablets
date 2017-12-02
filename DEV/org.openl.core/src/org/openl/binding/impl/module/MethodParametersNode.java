@@ -69,10 +69,4 @@ public class MethodParametersNode extends ABoundNode {
 
     }
 
-    @Override
-    public boolean isLiteralExpressionParent() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
 }

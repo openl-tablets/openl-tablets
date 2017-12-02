@@ -64,9 +64,4 @@ public class MethodHeaderNode extends ABoundNode implements IBoundMethodHeader {
 
     }
 
-    @Override
-    public boolean isLiteralExpressionParent() {
-        return false;
-    }
-
 }

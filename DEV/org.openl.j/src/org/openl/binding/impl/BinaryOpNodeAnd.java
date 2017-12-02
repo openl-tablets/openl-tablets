@@ -49,9 +49,4 @@ public class BinaryOpNodeAnd extends ABoundNode {
         return JavaOpenClass.BOOLEAN;
     }
 
-    @Override
-    public boolean isLiteralExpressionParent() {
-        return true;
-    }
-
 }

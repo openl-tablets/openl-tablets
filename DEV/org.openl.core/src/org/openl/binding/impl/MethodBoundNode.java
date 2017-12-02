@@ -61,11 +61,6 @@ public class MethodBoundNode extends ATargetBoundNode {
         dependencies.addMethodDependency(boundMethod.getMethod(), this);
     }
 
-    @Override
-    public boolean isLiteralExpressionParent() {
-        return boundMethod.getMethod().isStatic() && hasLiteralReturnType(boundMethod.getMethod().getType());
-    }
-    
     public IMethodCaller getMethodCaller() {
         return boundMethod;
     }

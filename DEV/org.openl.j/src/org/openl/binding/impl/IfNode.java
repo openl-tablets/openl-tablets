@@ -43,9 +43,4 @@ public class IfNode extends ABoundNode {
         return children[1].getType();
     }
 
-    @Override
-    public boolean isLiteralExpressionParent() {
-        return true;
-    }
-
 }

@@ -64,9 +64,4 @@ public class BlockNode extends ABoundNode implements IBoundMethodNode {
         return (children == null || children.length == 0) ? NullOpenClass.the : children[children.length - 1].getType();
     }
 
-    @Override
-    public boolean isLiteralExpressionParent() {
-        return true;
-    }
-
 }

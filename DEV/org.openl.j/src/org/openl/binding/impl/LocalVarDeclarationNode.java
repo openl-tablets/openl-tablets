@@ -76,9 +76,4 @@ public class LocalVarDeclarationNode extends ABoundNode {
         dependencies.addFieldDependency(var, this);
     }
 
-    @Override
-    public boolean isLiteralExpressionParent() {
-        return true;
-    }
-
 }

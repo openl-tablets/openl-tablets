@@ -75,9 +75,4 @@ public class ArrayInitializerNode extends ABoundNode {
         return type;
     }
 
-    @Override
-    public boolean isLiteralExpressionParent() {
-        return true;
-    }
-
 }

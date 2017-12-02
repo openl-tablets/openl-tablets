@@ -67,11 +67,6 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
         return module;
     }
 
-    @Override
-    public boolean isLiteralExpressionParent() {
-        return false;
-    }
-
     public Object evaluateRuntime(IRuntimeEnv env) {
         throw new UnsupportedOperationException("Should not be called");
     }

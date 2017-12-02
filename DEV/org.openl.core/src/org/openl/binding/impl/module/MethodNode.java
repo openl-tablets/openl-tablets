@@ -124,12 +124,6 @@ public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberB
 
     }
 
-    @Override
-    public boolean isLiteralExpressionParent() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
     public void removeDebugInformation(IBindingContext cxt) throws Exception {
         //nothing to remove
     }

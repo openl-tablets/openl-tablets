@@ -70,9 +70,4 @@ public class ErrorBoundNode extends ABoundNode {
         return false;
     }
 
-    @Override
-    public boolean isLiteralExpressionParent() {
-        return false;
-    }
-
 }

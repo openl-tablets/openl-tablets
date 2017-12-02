@@ -63,10 +63,4 @@ public class ParameterNode extends ABoundNode {
         dependencies.addTypeDependency(type, this);
     }
 
-    @Override
-    public boolean isLiteralExpressionParent() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
 }

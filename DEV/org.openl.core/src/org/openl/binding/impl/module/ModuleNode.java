@@ -56,12 +56,6 @@ public class ModuleNode extends ABoundNode // implements IBoundModuleNode
 
     }
 
-    @Override
-    public boolean isLiteralExpressionParent() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
     // /* (non-Javadoc)
     // * @see org.openl.binding.IBoundModuleNode#getMethodNode(java.lang.String)
     // */

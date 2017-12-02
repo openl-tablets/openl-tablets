@@ -87,9 +87,4 @@ public class IndexNode extends ATargetBoundNode {
         getTargetNode().updateAssignFieldDependency(dependencies);
     }
 
-    @Override
-    public boolean isLiteralExpressionParent() {
-        return true;
-    }
-
 }

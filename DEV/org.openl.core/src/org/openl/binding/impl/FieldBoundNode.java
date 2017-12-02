@@ -124,8 +124,4 @@ public class FieldBoundNode extends ATargetBoundNode {
         dependencies.addFieldDependency(boundField, this);
     }
 
-    @Override
-    public boolean isLiteralExpressionParent() {
-        return boundField.isConst();
-    }
 }
