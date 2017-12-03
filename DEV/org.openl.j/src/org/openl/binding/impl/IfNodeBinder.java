@@ -24,11 +24,9 @@ public class IfNodeBinder extends ANodeBinder {
         IBoundNode thenNode = bindChildNode(node.getChild(1), bindingContext);
         IOpenClass type = thenNode.getType();
 
-        IBoundNode elseNode = null;
-
         if (node.getNumberOfChildren() == 3) {
             // else branch
-            elseNode = bindChildNode(node.getChild(2), bindingContext);
+            IBoundNode elseNode = bindChildNode(node.getChild(2), bindingContext);
             IOpenClass elseType = elseNode.getType();
 
             CastToWiderType castToWiderType = CastToWiderType.create(bindingContext, type, elseType);
@@ -42,9 +40,12 @@ public class IfNodeBinder extends ANodeBinder {
             if (cast2 != null) {
                 elseNode = new CastNode(null, elseNode, cast2, type);
             }
+            return new IfNode(node, conditionNode, thenNode, elseNode, type);
+        } else {
+            return new IfNode(node, conditionNode, thenNode, type);
+
         }
 
-        return new IfNode(node, conditionNode, thenNode, elseNode, type);
     }
 
 }
