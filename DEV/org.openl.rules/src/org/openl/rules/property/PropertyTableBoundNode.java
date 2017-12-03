@@ -3,7 +3,6 @@ package org.openl.rules.property;
 import java.util.Map.Entry;
 
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBoundNode;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
@@ -22,7 +21,7 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
     private String tableName;
     
     public PropertyTableBoundNode(TableSyntaxNode syntaxNode, XlsModuleOpenClass module) {
-        super(syntaxNode, new IBoundNode[0]);        
+        super(syntaxNode);
     }
 
     public void addTo(ModuleOpenClass openClass) {             

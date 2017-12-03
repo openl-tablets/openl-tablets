@@ -15,7 +15,7 @@ public class BlockNode extends ABoundNode implements IBoundMethodNode {
 
     private int localFrameSize = 0;
 
-    public BlockNode(ISyntaxNode node, IBoundNode[] children, int localFrameSize) {
+    public BlockNode(ISyntaxNode node, int localFrameSize, IBoundNode... children) {
         super(node, children);
         this.localFrameSize = localFrameSize;
     }

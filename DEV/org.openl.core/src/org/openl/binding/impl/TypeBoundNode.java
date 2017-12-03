@@ -1,7 +1,6 @@
 package org.openl.binding.impl;
 
 import org.openl.binding.BindingDependencies;
-import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
@@ -13,12 +12,8 @@ import org.openl.vm.IRuntimeEnv;
 public class TypeBoundNode extends ABoundNode {
     private IOpenClass type;
 
-    /**
-     * @param syntaxNode
-     * @param children
-     */
-    public TypeBoundNode(ISyntaxNode syntaxNode, IOpenClass type) {
-        super(syntaxNode, new IBoundNode[0]);
+    TypeBoundNode(ISyntaxNode syntaxNode, IOpenClass type) {
+        super(syntaxNode);
         this.type = type;
     }
 
@@ -30,11 +25,7 @@ public class TypeBoundNode extends ABoundNode {
         return type;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#getType()
-     */
+    @Override
     public IOpenClass getType() {
         return type;
     }
@@ -44,9 +35,8 @@ public class TypeBoundNode extends ABoundNode {
         dependencies.addTypeDependency(type, this);
     }
 
+    @Override
     public boolean isStaticTarget() {
         return true;
     }
-
-    
 }

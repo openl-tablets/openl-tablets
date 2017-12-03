@@ -1,6 +1,5 @@
 package org.openl.binding.impl.module;
 
-import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.ABoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
@@ -10,17 +9,13 @@ import org.openl.vm.IRuntimeEnv;
  * @author snshor
  *
  */
-public class ModuleNode extends ABoundNode // implements IBoundModuleNode
+public class ModuleNode extends ABoundNode
 {
 
     IOpenClass type;
 
-    /**
-     * @param syntaxNode
-     * @param children
-     */
     public ModuleNode(ISyntaxNode syntaxNode, IOpenClass type) {
-        super(syntaxNode, new IBoundNode[0]);
+        super(syntaxNode);
         this.type = type;
     }
 
@@ -29,11 +24,7 @@ public class ModuleNode extends ABoundNode // implements IBoundModuleNode
         throw new UnsupportedOperationException();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#getType()
-     */
+    @Override
     public IOpenClass getType() {
         return type;
     }

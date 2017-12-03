@@ -1,7 +1,6 @@
 package org.openl.rules.data;
 
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBoundNode;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
@@ -21,7 +20,7 @@ public class DataTableBoundNode extends ATableBoundNode implements IMemberBoundN
     private ITable table;
 
     public DataTableBoundNode(TableSyntaxNode tableSyntaxNode, XlsModuleOpenClass module) {
-        super(tableSyntaxNode, new IBoundNode[0]);
+        super(tableSyntaxNode);
         this.module = module;
     }
 

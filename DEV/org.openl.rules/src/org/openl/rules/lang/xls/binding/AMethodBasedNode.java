@@ -6,7 +6,6 @@ import java.util.List;
 import org.openl.OpenL;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBoundNode;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.BindHelper;
@@ -45,7 +44,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
     private ModuleOpenClass module;
 
     public AMethodBasedNode(TableSyntaxNode methodNode, OpenL openl, IOpenMethodHeader header, ModuleOpenClass module) {
-        super(methodNode, new IBoundNode[0]);
+        super(methodNode);
         this.header = header;
         this.openl = openl;
         this.module = module;

@@ -70,7 +70,7 @@ public class LocalVarBinder extends ANodeBinder {
             }
         }
 
-        return new BlockNode(node, (boundNodes.toArray(new IBoundNode[boundNodes.size()])), 0);
+        return new BlockNode(node, 0, (boundNodes.toArray(new IBoundNode[boundNodes.size()])));
     }
 
 }

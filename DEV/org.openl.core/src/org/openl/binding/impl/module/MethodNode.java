@@ -22,13 +22,9 @@ public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberB
 
     DeferredMethod deferredMethod;
 
-    /**
-     * @param syntaxNode
-     * @param elements
-     */
     public MethodNode(ISyntaxNode syntaxNode,
             DeferredMethod deferredMethod) {
-        super(syntaxNode, new IBoundNode[0]);
+        super(syntaxNode);
         this.deferredMethod = deferredMethod;
     }
 
