@@ -21,26 +21,21 @@ public class IndexNode extends ATargetBoundNode {
      * @param children
      * @param targetNode
      */
-    public IndexNode(ISyntaxNode syntaxNode, IBoundNode[] children, IBoundNode targetNode, IOpenIndex index) {
-        super(syntaxNode, children, targetNode);
+    IndexNode(ISyntaxNode syntaxNode, IBoundNode[] children, IBoundNode targetNode, IOpenIndex index) {
+        super(syntaxNode, targetNode, children);
         this.index = index;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#assign(java.lang.Object)
-     */
     @Override
     public void assign(Object value, IRuntimeEnv env) throws OpenLRuntimeException {
-        Object target = getTargetNode().evaluate(env);
+        Object target = getTarget(env);
 
         index.setValue(target, children[0].evaluate(env), value);
     }
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        return index.getValue(getTargetNode().evaluate(env), children[0].evaluate(env));
+        return index.getValue(getTarget(env), children[0].evaluate(env));
     }
 
     /*

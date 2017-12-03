@@ -47,7 +47,7 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        Object target = getTargetNode() == null ? env.getThis() : getTargetNode().evaluate(env);
+        Object target = getTarget(env);
         Object[] methodParameters = evaluateChildren(env);
 
         // gets the values of array parameters

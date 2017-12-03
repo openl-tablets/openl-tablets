@@ -22,7 +22,7 @@ public class MethodBoundNode extends ATargetBoundNode {
     }
 
     public MethodBoundNode(ISyntaxNode syntaxNode, IBoundNode[] child, IMethodCaller methodCaller, IBoundNode targetNode) {
-        super(syntaxNode, child, targetNode);
+        super(syntaxNode, targetNode, child);
         boundMethod = methodCaller;
     }
 
@@ -30,7 +30,7 @@ public class MethodBoundNode extends ATargetBoundNode {
     protected Object evaluateRuntime(IRuntimeEnv env) {
 
         try {
-            Object target = getTargetNode() == null ? env.getThis() : getTargetNode().evaluate(env);
+            Object target = getTarget(env);
             Object[] pars = evaluateChildren(env);
             if (target == null && !(boundMethod instanceof IOwnTargetMethod) && !boundMethod.getMethod().isStatic() && !boundMethod.getMethod().getType().getClass().isPrimitive()) {
                 return null;

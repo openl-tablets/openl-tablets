@@ -35,7 +35,7 @@ public class MethodWithAttributesBoundNode extends MethodBoundNode {
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        Object target = getTargetNode() == null ? env.getThis() : getTargetNode().evaluate(env);
+        Object target = getTarget(env);
         Object[] arguments = evaluateChildren(env);
         Object[] methodParameters = Arrays.copyOfRange(arguments, 0, parameterCount);
         Object[] attributeParameters = Arrays.copyOfRange(arguments, parameterCount, arguments.length);

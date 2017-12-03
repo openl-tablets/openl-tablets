@@ -28,7 +28,7 @@ public class ArrayCallMethodBoundNode extends MethodBoundNode {
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        Object target = getTargetNode() == null ? env.getThis() : getTargetNode().evaluate(env);
+        Object target = getTarget(env);
         Object[] methodParameters = evaluateChildren(env);
 
         convertToTwoDimensionalArrays(methodParameters);
