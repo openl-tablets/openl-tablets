@@ -33,18 +33,19 @@ public class IndexParameterDeclarationBinder extends ANodeBinder {
 
 		
 		
-		return new IndexParameterNode(node, new IBoundNode[]{typeBoundNode}, name);
+		return new IndexParameterNode(node, typeBoundNode, name);
 	}
 
 	static public class IndexParameterNode extends ABoundNode {
 
+
+		private final String name;
+		private final IBoundNode typeBoundNode;
 		
-		String name;
-		
-		protected IndexParameterNode(ISyntaxNode syntaxNode,
-				IBoundNode[] children, String name) {
-			super(syntaxNode, children);
+		IndexParameterNode(ISyntaxNode syntaxNode, IBoundNode typeBoundNode, String name) {
+			super(syntaxNode, typeBoundNode);
 			this.name = name;
+			this.typeBoundNode = typeBoundNode;
 		}
 
 		@Override
@@ -54,7 +55,6 @@ public class IndexParameterDeclarationBinder extends ANodeBinder {
 
 		@Override
 		public IOpenClass getType() {
-			IBoundNode typeBoundNode = getChildren()[0];
 			return typeBoundNode == null ? null : typeBoundNode.getType() ;
 		}
 

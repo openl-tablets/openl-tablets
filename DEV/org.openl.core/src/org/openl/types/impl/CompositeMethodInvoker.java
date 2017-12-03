@@ -32,9 +32,10 @@ public class CompositeMethodInvoker implements Invokable {
     	
     	if (methodBodyBoundNode instanceof BlockNode) {
 			BlockNode mbb = (BlockNode) methodBodyBoundNode;
-			if (mbb.getChildren().length == 1 && mbb.getLocalFrameSize() == method.getSignature().getNumberOfParameters())
+            IBoundNode[] children = mbb.getChildren();
+            if (children != null && children.length == 1 && mbb.getLocalFrameSize() == method.getSignature().getNumberOfParameters())
 			{
-				expressionNode = mbb.getChildren()[0];
+				expressionNode = children[0];
 			}
 		}
         if (expressionNode != null) {

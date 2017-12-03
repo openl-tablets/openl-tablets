@@ -290,8 +290,9 @@ public class DependentParametersOptimizedAlgorithm {
 
     private static String buildFieldName(IndexNode indexNode) {
         String value = "[";
-        if (indexNode.getChildren().length == 1 && indexNode.getChildren()[0] instanceof LiteralBoundNode) {
-            LiteralBoundNode literalBoundNode = (LiteralBoundNode) indexNode.getChildren()[0];
+        IBoundNode[] children = indexNode.getChildren();
+        if (children != null && children.length == 1 && children[0] instanceof LiteralBoundNode) {
+            LiteralBoundNode literalBoundNode = (LiteralBoundNode) children[0];
             value = value + literalBoundNode.getValue().toString() + "]";
         } else {
             throw new IllegalSelectorException();
@@ -324,7 +325,8 @@ public class DependentParametersOptimizedAlgorithm {
     }
 
     private static String[] parseBinaryOpExpression(BinaryOpNode binaryOpNode) {
-        if (binaryOpNode.getChildren().length == 2 && binaryOpNode.getChildren()[0] instanceof FieldBoundNode && binaryOpNode.getChildren()[1] instanceof FieldBoundNode) {
+        IBoundNode[] children = binaryOpNode.getChildren();
+        if (children != null && children.length == 2 && children[0] instanceof FieldBoundNode && children[1] instanceof FieldBoundNode) {
             String[] ret = new String[3];
             if (binaryOpNode.getSyntaxNode().getType().endsWith("ge")) {
                 ret[1] = ">=";
@@ -344,8 +346,8 @@ public class DependentParametersOptimizedAlgorithm {
             if (ret[1] == null) {
                 return null;
             }
-            FieldBoundNode fieldBoundNode0 = (FieldBoundNode) binaryOpNode.getChildren()[0];
-            FieldBoundNode fieldBoundNode1 = (FieldBoundNode) binaryOpNode.getChildren()[1];
+            FieldBoundNode fieldBoundNode0 = (FieldBoundNode) children[0];
+            FieldBoundNode fieldBoundNode1 = (FieldBoundNode) children[1];
 
             ret[0] = buildFieldName(fieldBoundNode0);
             ret[2] = buildFieldName(fieldBoundNode1);
@@ -359,10 +361,12 @@ public class DependentParametersOptimizedAlgorithm {
             IBoundNode boundNode = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode();
             if (boundNode instanceof BlockNode) {
                 BlockNode blockNode = (BlockNode) boundNode;
-                if (blockNode.getChildren().length == 1 && blockNode.getChildren()[0] instanceof BlockNode) {
-                    blockNode = (BlockNode) blockNode.getChildren()[0];
-                    if (blockNode.getChildren().length == 1 && blockNode.getChildren()[0] instanceof BinaryOpNode) {
-                        BinaryOpNode binaryOpNode = (BinaryOpNode) blockNode.getChildren()[0];
+                IBoundNode[] children = blockNode.getChildren();
+                if (children != null && children.length == 1 && children[0] instanceof BlockNode) {
+                    blockNode = (BlockNode) children[0];
+                    children = blockNode.getChildren();
+                    if (children.length == 1 && children[0] instanceof BinaryOpNode) {
+                        BinaryOpNode binaryOpNode = (BinaryOpNode) children[0];
                         return parseBinaryOpExpression(binaryOpNode);
                     }
                 }
@@ -377,13 +381,16 @@ public class DependentParametersOptimizedAlgorithm {
             IBoundNode boundNode = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode();
             if (boundNode instanceof BlockNode) {
                 BlockNode blockNode = (BlockNode) boundNode;
-                if (blockNode.getChildren().length == 1 && blockNode.getChildren()[0] instanceof BlockNode) {
-                    blockNode = (BlockNode) blockNode.getChildren()[0];
-                    if (blockNode.getChildren().length == 1 && blockNode.getChildren()[0] instanceof BinaryOpNodeAnd) {
-                        BinaryOpNodeAnd binaryOpNode = (BinaryOpNodeAnd) blockNode.getChildren()[0];
-                        if (binaryOpNode.getChildren().length == 2 && binaryOpNode.getChildren()[0] instanceof BinaryOpNode && binaryOpNode.getChildren()[1] instanceof BinaryOpNode) {
-                            BinaryOpNode binaryOpNode0 = (BinaryOpNode) binaryOpNode.getChildren()[0];
-                            BinaryOpNode binaryOpNode1 = (BinaryOpNode) binaryOpNode.getChildren()[1];
+                IBoundNode[] children = blockNode.getChildren();
+                if (children.length == 1 && children[0] instanceof BlockNode) {
+                    blockNode = (BlockNode) children[0];
+                    children = blockNode.getChildren();
+                    if (children.length == 1 && children[0] instanceof BinaryOpNodeAnd) {
+                        BinaryOpNodeAnd binaryOpNode = (BinaryOpNodeAnd) children[0];
+                        children = binaryOpNode.getChildren();
+                        if (children.length == 2 && children[0] instanceof BinaryOpNode && children[1] instanceof BinaryOpNode) {
+                            BinaryOpNode binaryOpNode0 = (BinaryOpNode) children[0];
+                            BinaryOpNode binaryOpNode1 = (BinaryOpNode) children[1];
                             String[] ret0 = parseBinaryOpExpression(binaryOpNode0);
                             String[] ret1 = parseBinaryOpExpression(binaryOpNode1);
                             if (ret0 != null && ret1 != null) {

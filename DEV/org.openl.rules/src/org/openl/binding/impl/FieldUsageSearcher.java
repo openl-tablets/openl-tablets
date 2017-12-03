@@ -29,8 +29,9 @@ public final class FieldUsageSearcher {
         }
         IBoundNode targetNode = boundNode.getTargetNode();
         findAllFields(fields, targetNode, sourceString, startPosition);
-        if (boundNode.getChildren() != null) {
-            for (IBoundNode child : boundNode.getChildren()) {
+        IBoundNode[] children = boundNode.getChildren();
+        if (children != null) {
+            for (IBoundNode child : children) {
                 findAllFields(fields, child, sourceString, startPosition);
             }
         }
