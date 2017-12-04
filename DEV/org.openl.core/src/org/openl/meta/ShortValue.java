@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
-import org.openl.exception.OpenlNotCheckedException;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.ShortValue.ShortValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
@@ -295,7 +295,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         }
 
         if (value2.doubleValue() == 0) {
-            throw new OpenlNotCheckedException("Division by zero");
+            throw new OpenLRuntimeException("Division by zero");
         }
 
         return new org.openl.meta.DoubleValue(new DoubleValue(value1.doubleValue()), new DoubleValue(value2.doubleValue()), Operators.divide(value1.getValue(), value2.getValue()),

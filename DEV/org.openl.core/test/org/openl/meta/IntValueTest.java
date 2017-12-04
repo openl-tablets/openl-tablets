@@ -6,7 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
-import org.openl.exception.OpenlNotCheckedException;
+import org.openl.exception.OpenLRuntimeException;
 
 public class IntValueTest {
     
@@ -77,7 +77,7 @@ public class IntValueTest {
         try {
             assertEquals(1, IntValue.divide(value1, value2));
             fail();
-        } catch (OpenlNotCheckedException e) {
+        } catch (OpenLRuntimeException e) {
             assertTrue(true);
         }
         

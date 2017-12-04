@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
-import org.openl.exception.OpenlNotCheckedException;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.BigIntegerValue.BigIntegerValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
@@ -337,7 +337,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         }
 
         if (value2.doubleValue() == 0) {
-            throw new OpenlNotCheckedException("Division by zero");
+            throw new OpenLRuntimeException("Division by zero");
         }
 
         return new org.openl.meta.BigDecimalValue(new BigDecimalValue(new BigDecimal(value1.getValue())),

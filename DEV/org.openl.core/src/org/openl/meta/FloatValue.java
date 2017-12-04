@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.binding.impl.operator.Comparison;
-import org.openl.exception.OpenlNotCheckedException;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.FloatValue.FloatValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
@@ -369,7 +369,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         }
 
         if (value2.doubleValue() == 0) {
-            throw new OpenlNotCheckedException("Division by zero");
+            throw new OpenLRuntimeException("Division by zero");
         }
 
         return new org.openl.meta.FloatValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()),

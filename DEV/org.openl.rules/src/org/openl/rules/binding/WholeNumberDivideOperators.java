@@ -3,7 +3,7 @@ package org.openl.rules.binding;
 import java.math.BigInteger;
 
 import org.openl.conf.OperatorsNamespace;
-import org.openl.exception.OpenlNotCheckedException;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.BigIntegerValue;
 import org.openl.meta.ByteValue;
 import org.openl.meta.IntValue;
@@ -91,7 +91,7 @@ public class WholeNumberDivideOperators {
         }
 
         if (value2.doubleValue() == 0) {
-            throw new OpenlNotCheckedException("Division by zero");
+            throw new OpenLRuntimeException("Division by zero");
         }
 
         return new ByteValue(value1, value2, divide(value1.getValue(), value2.getValue()), Formulas.DIVIDE);
@@ -113,7 +113,7 @@ public class WholeNumberDivideOperators {
         }
 
         if (value2.doubleValue() == 0) {
-            throw new OpenlNotCheckedException("Division by zero");
+            throw new OpenLRuntimeException("Division by zero");
         }
 
         return new ShortValue(value1, value2, divide(value1.getValue(), value2.getValue()), Formulas.DIVIDE);
@@ -135,7 +135,7 @@ public class WholeNumberDivideOperators {
         }
 
         if (value2.doubleValue() == 0) {
-            throw new OpenlNotCheckedException("Division by zero");
+            throw new OpenLRuntimeException("Division by zero");
         }
 
         return new IntValue(value1, value2, divide(value1.getValue(), value2.getValue()), Formulas.DIVIDE);
@@ -157,7 +157,7 @@ public class WholeNumberDivideOperators {
         }
 
         if (value2.doubleValue() == 0) {
-            throw new OpenlNotCheckedException("Division by zero");
+            throw new OpenLRuntimeException("Division by zero");
         }
 
         return new LongValue(value1, value2, divide(value1.getValue(), value2.getValue()), Formulas.DIVIDE);
@@ -182,7 +182,7 @@ public class WholeNumberDivideOperators {
         }
 
         if (value2.doubleValue() == 0) {
-            throw new OpenlNotCheckedException("Division by zero");
+            throw new OpenLRuntimeException("Division by zero");
         }
 
         return new BigIntegerValue(value1, value2, divide(value1.getValue(), value2.getValue()), Formulas.DIVIDE);

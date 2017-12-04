@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.binding.impl.operator.Comparison;
-import org.openl.exception.OpenlNotCheckedException;
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.DoubleValue.DoubleValueAdapter;
 import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.meta.number.CastOperand;
@@ -872,7 +872,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     @Deprecated
     public static DoubleValue round(DoubleValue d, DoubleValue p) {
         if (d == null || p == null) {
-            throw new OpenlNotCheckedException("None of the arguments for 'round' operation can be null");
+            throw new OpenLRuntimeException("None of the arguments for 'round' operation can be null");
         }
 
         int scale;
