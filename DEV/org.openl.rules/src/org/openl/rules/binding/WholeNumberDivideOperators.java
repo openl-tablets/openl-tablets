@@ -11,6 +11,7 @@ import org.openl.meta.LongValue;
 import org.openl.meta.ShortValue;
 import org.openl.meta.number.Formulas;
 
+@Deprecated
 @OperatorsNamespace
 public class WholeNumberDivideOperators {
     public static byte divide(byte x, byte y) {
