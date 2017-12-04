@@ -4,7 +4,6 @@ import java.lang.reflect.Array;
 import java.util.List;
 
 import org.openl.binding.IBoundNode;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
@@ -46,8 +45,9 @@ public class MultiCallMethodBoundNode extends MethodBoundNode {
         }
     }
 
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
-        Object target = getTargetNode() == null ? env.getThis() : getTargetNode().evaluate(env);
+    @Override
+    protected Object evaluateRuntime(IRuntimeEnv env) {
+        Object target = getTarget(env);
         Object[] methodParameters = evaluateChildren(env);
 
         // gets the values of array parameters

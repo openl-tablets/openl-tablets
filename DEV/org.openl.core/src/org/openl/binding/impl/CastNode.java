@@ -1,14 +1,7 @@
-/*
- * Created on Jul 9, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.impl.ABoundNode;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
@@ -48,12 +41,8 @@ public class CastNode extends ABoundNode {
         children[0].assign(value, env);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
-     */
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+    @Override
+    protected Object evaluateRuntime(IRuntimeEnv env) {
         Object res = children[0].evaluate(env);
         return cast.convert(res);
     }
@@ -90,11 +79,6 @@ public class CastNode extends ABoundNode {
     @Override
     public void updateDependency(BindingDependencies dependencies) {
         dependencies.addTypeDependency(castedType, this);
-    }
-
-    @Override
-    public boolean isLiteralExpressionParent() {
-        return true;
     }
 
 }

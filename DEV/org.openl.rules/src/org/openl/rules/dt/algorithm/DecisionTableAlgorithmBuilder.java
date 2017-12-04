@@ -6,6 +6,7 @@ import java.util.List;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.IBoundMethodNode;
+import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.TypeBoundNode;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
@@ -203,8 +204,8 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
 
         // tested in TypeInExpressionTest
         //
-        if (methodNode.getChildren().length == 1 && methodNode.getChildren()[0]
-            .getChildren()[0] instanceof TypeBoundNode) {
+        IBoundNode[] children = methodNode.getChildren();
+        if (children != null && children.length == 1 && children[0].getChildren()[0] instanceof TypeBoundNode) {
             String message = String.format("Cannot execute expression with only type definition %s", source.getCode());
             throw SyntaxNodeExceptionUtils.createError(message, source);
         }

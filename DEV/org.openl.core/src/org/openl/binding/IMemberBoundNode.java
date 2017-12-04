@@ -6,7 +6,6 @@
 
 package org.openl.binding;
 
-import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 
 /**

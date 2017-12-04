@@ -8,23 +8,23 @@ package org.openl.binding.impl;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.IBoundNodeVisitor;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
  * 
  */
-@SuppressWarnings("deprecation")
 public abstract class ABoundNode implements IBoundNode {
     private static final IBoundNode[] EMPTY = new IBoundNode[0];
 
     protected ISyntaxNode syntaxNode;
     protected IBoundNode[] children;
 
-    protected ABoundNode(ISyntaxNode syntaxNode, IBoundNode[] children) {
+    protected ABoundNode(ISyntaxNode syntaxNode, IBoundNode... children) {
         this.syntaxNode = syntaxNode;
         this.children = children != null && children.length == 0 ? EMPTY : children;
     }
@@ -33,7 +33,7 @@ public abstract class ABoundNode implements IBoundNode {
         throw new UnsupportedOperationException();
     }
 
-    public Object evaluate(IRuntimeEnv env) throws OpenLRuntimeException {
+    final public Object evaluate(IRuntimeEnv env) throws OpenLRuntimeException {
         try {
             return evaluateRuntime(env);
         } catch (OpenLRuntimeException ore) {
@@ -43,6 +43,12 @@ public abstract class ABoundNode implements IBoundNode {
         } catch (Throwable t) {
             throw new OpenLRuntimeException(t, this);
         }
+    }
+
+    abstract protected Object evaluateRuntime(IRuntimeEnv env) throws Exception;
+
+    public IOpenClass getType() {
+        return NullOpenClass.the;
     }
 
     public Object[] evaluateChildren(IRuntimeEnv env) throws OpenLRuntimeException {
@@ -83,52 +89,7 @@ public abstract class ABoundNode implements IBoundNode {
     public void updateAssignFieldDependency(BindingDependencies dependencies) {
     }
 
-    public boolean isLiteralExpression() {
-        return isLiteralExpressionParent() && hasAllLiteralExpressionChildren(this);
-    }
-
-    private boolean hasAllLiteralExpressionChildren(IBoundNode boundNode) {
-        
-        IBoundNodeVisitor checkLiteral = new IBoundNodeVisitor() {
-
-            public boolean visit(IBoundNode node) {
-                return node == ABoundNode.this || node.isLiteralExpression();
-            }
-        };
-
-        return boundNode.visit(checkLiteral);
-    }
-
-    public boolean isLiteralExpressionParent() {
-        return false;
-    }
-
     public void updateDependency(BindingDependencies dependencies) {
-    }
-    
-    // FIXME: Not right implementation of Visitor pattern.
-    // http://en.wikipedia.org/wiki/Visitor_pattern
-    // Accepter should simply redirect to the visitors method visit.
-    // Currently, as there is an inside logic, it doesn`t allow to 
-    // create custom visitor for other purposes.
-    //
-    public boolean visit(IBoundNodeVisitor visitor) {
-
-        if (!visitor.visit(this)) {
-            return false;
-        }
-        
-        if (children == null) {
-            return true;
-        }
-        
-        for (int i = 0; i < children.length; i++) {
-            if (!children[i].visit(visitor)) {
-                return false;
-            }
-        }
-        
-        return true;
     }
 
     public boolean isStaticTarget() {

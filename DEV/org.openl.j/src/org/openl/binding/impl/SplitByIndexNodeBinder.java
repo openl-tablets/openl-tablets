@@ -8,7 +8,6 @@ import java.util.Iterator;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IAggregateInfo;
@@ -29,23 +28,24 @@ public class SplitByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 	private static class SplitByIndexNode extends ABoundNode {
 
 		private ILocalVar tempVar;
+		private IBoundNode splitBy;
+		private IBoundNode targetNode;
 
-		public SplitByIndexNode(ISyntaxNode syntaxNode, IBoundNode[] children,
+		SplitByIndexNode(ISyntaxNode syntaxNode, IBoundNode targetNode, IBoundNode splitBy,
 				ILocalVar tempVar) {
-			super(syntaxNode, children);
+			super(syntaxNode, targetNode, splitBy);
 			this.tempVar = tempVar;
+			this.targetNode = targetNode;
+			this.splitBy = splitBy;
 		}
 
-		public Object evaluateRuntime(IRuntimeEnv env)
-				throws OpenLRuntimeException {
-			IBoundNode containerNode = getContainer();
-			IBoundNode splitBy = getChildren()[1];
-			IOpenClass containerType = containerNode.getType();
+		@Override
+		protected Object evaluateRuntime(IRuntimeEnv env) {
+			IOpenClass containerType = targetNode.getType();
 			IAggregateInfo aggregateInfo = containerType.getAggregateInfo();
-			Object container = containerNode.evaluate(env);
+			Object container = targetNode.evaluate(env);
 
-			Iterator<Object> elementsIterator = aggregateInfo
-					.getIterator(container);
+			Iterator<Object> elementsIterator = aggregateInfo.getIterator(container);
 			
 			
 			Object tempKey = new Object();
@@ -104,15 +104,11 @@ public class SplitByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 
 			return result;
 		}
-		
 
-		private IBoundNode getContainer() {
-			return getChildren()[0];
-		}
 
 		public IOpenClass getType() {
-			
-			IOpenClass containerType = getContainer().getType();
+
+			IOpenClass containerType = targetNode.getType();
 			if (containerType.isArray())
 			{	
 				IAggregateInfo info =  containerType.getAggregateInfo();
@@ -137,8 +133,7 @@ public class SplitByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 	@Override
 	protected IBoundNode createBoundNode(ISyntaxNode node,
 			IBoundNode targetNode, IBoundNode expressionNode, ILocalVar localVar) {
-		return new SplitByIndexNode(node, new IBoundNode[] {
-				targetNode, expressionNode }, localVar);
+		return new SplitByIndexNode(node, targetNode, expressionNode, localVar);
 	}
 
 	@Override

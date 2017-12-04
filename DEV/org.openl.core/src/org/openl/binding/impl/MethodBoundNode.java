@@ -1,9 +1,3 @@
-/*
- * Created on May 19, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
 import org.openl.binding.BindingDependencies;
@@ -13,7 +7,6 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOwnTargetMethod;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -29,14 +22,15 @@ public class MethodBoundNode extends ATargetBoundNode {
     }
 
     public MethodBoundNode(ISyntaxNode syntaxNode, IBoundNode[] child, IMethodCaller methodCaller, IBoundNode targetNode) {
-        super(syntaxNode, child, targetNode);
+        super(syntaxNode, targetNode, child);
         boundMethod = methodCaller;
     }
 
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+    @Override
+    protected Object evaluateRuntime(IRuntimeEnv env) {
 
         try {
-            Object target = getTargetNode() == null ? env.getThis() : getTargetNode().evaluate(env);
+            Object target = getTarget(env);
             Object[] pars = evaluateChildren(env);
             if (target == null && !(boundMethod instanceof IOwnTargetMethod) && !boundMethod.getMethod().isStatic() && !boundMethod.getMethod().getType().getClass().isPrimitive()) {
                 return null;
@@ -61,17 +55,7 @@ public class MethodBoundNode extends ATargetBoundNode {
         dependencies.addMethodDependency(boundMethod.getMethod(), this);
     }
 
-    @Override
-    public boolean isLiteralExpressionParent() {
-        return boundMethod.getMethod().isStatic() && hasLiteralReturnType(boundMethod.getMethod().getType());
-    }
-    
     public IMethodCaller getMethodCaller() {
         return boundMethod;
     }
-
-    private boolean hasLiteralReturnType(IOpenClass type) {
-        return type != JavaOpenClass.VOID;
-    }
-
 }

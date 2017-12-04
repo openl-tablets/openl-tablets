@@ -36,7 +36,7 @@ public class WhereExpressionNodeBinder extends ANodeBinder {
 
         boundNodes[boundNodes.length - 1] = exprNode;
 
-        return new BlockNode(node, boundNodes, 0);
+        return new BlockNode(node, 0, boundNodes);
     }
 
 }

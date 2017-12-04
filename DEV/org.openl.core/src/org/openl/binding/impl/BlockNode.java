@@ -1,14 +1,7 @@
-/*
- * Created on May 28, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.IBoundNode;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
@@ -22,17 +15,13 @@ public class BlockNode extends ABoundNode implements IBoundMethodNode {
 
     private int localFrameSize = 0;
 
-    public BlockNode(ISyntaxNode node, IBoundNode[] children, int localFrameSize) {
+    public BlockNode(ISyntaxNode node, int localFrameSize, IBoundNode... children) {
         super(node, children);
         this.localFrameSize = localFrameSize;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
-     */
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+    @Override
+    protected Object evaluateRuntime(IRuntimeEnv env) {
         Object[] res = evaluateChildren(env);
         return res == null ? null : (res.length == 0 ? null : res[res.length - 1]);
     }
@@ -62,11 +51,6 @@ public class BlockNode extends ABoundNode implements IBoundMethodNode {
      */
     public IOpenClass getType() {
         return (children == null || children.length == 0) ? NullOpenClass.the : children[children.length - 1].getType();
-    }
-
-    @Override
-    public boolean isLiteralExpressionParent() {
-        return true;
     }
 
 }

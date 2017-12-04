@@ -210,7 +210,7 @@ public class BindHelper {
 
 	private static void checkForSameLeftAndRightExpression(IBoundNode conditionNode, IBindingContext bindingContext) {
 		IBoundNode[] children = conditionNode.getChildren();
-		if (children.length == 2) {
+		if (children != null && children.length == 2) {
 			IBoundNode left = children[0];
 			IBoundNode right = children[1];
 			if (isSame(left, right)) {

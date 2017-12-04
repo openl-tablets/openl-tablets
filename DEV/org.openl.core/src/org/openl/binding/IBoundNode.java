@@ -20,8 +20,6 @@ public interface IBoundNode {
 
     Object evaluate(IRuntimeEnv env) throws OpenLRuntimeException;
 
-    Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException;
-
     IBoundNode[] getChildren();
 
     ISyntaxNode getSyntaxNode();
@@ -38,27 +36,9 @@ public interface IBoundNode {
      * @return
      */
     boolean isStaticTarget();
-    
-    /**
-     * 
-     * @return true if it is a literal constant, or if this is an expression 
-     * containing only literal constants, operators and static methods(except void). In general,
-     * if node is literal, it must be able to evaluate properly into some value at compile-time.
-     * This property will be used for compile-time optimization, or for checking the literal 
-     * constraint on some methods. The literal constraint on parameter or method will imply that 
-     * this parameter or all parameters of the method are literal expressions. 
-     */
-    boolean isLiteralExpression();
 
     void updateAssignFieldDependency(BindingDependencies dependencies);
 
     void updateDependency(BindingDependencies dependencies);
-    
-    /** 
-     * Not right implementation of Visitor pattern.
-     * Don`t use it
-     */
-    @Deprecated
-    boolean visit(IBoundNodeVisitor visitor);
-    
+
 }

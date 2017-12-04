@@ -1,15 +1,8 @@
-/*
- * Created on Jun 17, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.cast.IOpenCast;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
@@ -32,14 +25,9 @@ public class AssignNode extends MethodBoundNode {
         this.cast = cast;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
-     */
     @Override
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
-        Object res = null;        
+    protected Object evaluateRuntime(IRuntimeEnv env) {
+        Object res;
         if (boundMethod != null) {
             Object[] pars = evaluateChildren(env);
 

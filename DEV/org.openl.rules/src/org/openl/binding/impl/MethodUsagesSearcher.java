@@ -143,8 +143,9 @@ public class MethodUsagesSearcher {
                 }
             }
         }
-        if (CollectionUtils.isNotEmpty(boundNode.getChildren())) {
-            for (IBoundNode child : boundNode.getChildren()) {
+        IBoundNode[] children = boundNode.getChildren();
+        if (CollectionUtils.isNotEmpty(children)) {
+            for (IBoundNode child : children) {
                 findAllMethods(child, methods, sourceString, startIndex);
             }
         }

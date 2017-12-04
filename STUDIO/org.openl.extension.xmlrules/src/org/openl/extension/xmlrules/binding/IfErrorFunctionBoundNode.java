@@ -1,30 +1,20 @@
-/*
- * Created on May 19, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.extension.xmlrules.binding;
 
-import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.impl.ATargetBoundNode;
-import org.openl.binding.impl.ControlSignalReturn;
+import org.openl.binding.impl.ABoundNode;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
-public class IfErrorFunctionBoundNode extends ATargetBoundNode {
+public class IfErrorFunctionBoundNode extends ABoundNode {
 
-    public IfErrorFunctionBoundNode(ISyntaxNode syntaxNode,
-            IBoundNode[] child) {
-        super(syntaxNode, child, null);
+    IfErrorFunctionBoundNode(ISyntaxNode syntaxNode, IBoundNode[] child) {
+        super(syntaxNode, child);
     }
 
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+    @Override
+    protected Object evaluateRuntime(IRuntimeEnv env) {
 
         try {
             try {
@@ -42,10 +32,4 @@ public class IfErrorFunctionBoundNode extends ATargetBoundNode {
     public IOpenClass getType() {
         return children[0].getType();
     }
-
-    @Override
-    public boolean isLiteralExpressionParent() {
-        return true;
-    }
-
 }

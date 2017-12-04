@@ -1,7 +1,6 @@
 package org.openl.binding.impl;
 
 import org.openl.binding.IBoundNode;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
@@ -13,39 +12,45 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class IfNode extends ABoundNode {
 
-    IfNode(ISyntaxNode syntaxNode, IBoundNode[] children) {
-        super(syntaxNode, children);
+    private final IBoundNode conditionNode;
+    private final IBoundNode elseNode;
+    private final IBoundNode thenNode;
+    private final IOpenClass type;
+
+    IfNode(ISyntaxNode syntaxNode,
+            IBoundNode conditionNode,
+            IBoundNode thenNode,
+            IOpenClass type) {
+        super(syntaxNode, conditionNode, thenNode);
+        this.conditionNode = conditionNode;
+        this.thenNode = thenNode;
+        this.elseNode = null;
+        this.type = type;
     }
 
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
-
-        Object cond = children[0].evaluate(env);
-
-        // if (condition) { TrueBranch } else { NullOrFalseBranch }
-        Object res;
-        if (Boolean.TRUE.equals(cond)) {
-            res = children[1].evaluate(env);
-        } else if (children.length > 2) {
-            res = children[2].evaluate(env);
-        } else {
-            res = null;
-        }
-
-        return res;
-    }
-
-    public IOpenClass getType() {
-        // return NullOpenClass.the;
-        // TODO use both branches, see QMarkNode
-        // var = if (condition) { res1 } else { res2 }
-        // var = (condition) ? res1 : res2
-
-        return children[1].getType();
+    IfNode(ISyntaxNode syntaxNode,
+           IBoundNode conditionNode,
+           IBoundNode thenNode,
+           IBoundNode elseNode,
+           IOpenClass type) {
+        super(syntaxNode, conditionNode, thenNode, elseNode);
+        this.conditionNode = conditionNode;
+        this.thenNode = thenNode;
+        this.elseNode = elseNode;
+        this.type = type;
     }
 
     @Override
-    public boolean isLiteralExpressionParent() {
-        return true;
+    protected Object evaluateRuntime(IRuntimeEnv env) {
+
+        Object res = conditionNode.evaluate(env);
+
+        // if (condition) { TrueBranch } else { NullOrFalseBranch }
+        return (Boolean.TRUE.equals(res)) ? thenNode.evaluate(env) : (elseNode != null ? elseNode.evaluate(env) : null);
+    }
+
+    public IOpenClass getType() {
+        return type;
     }
 
 }

@@ -2,7 +2,6 @@ package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
@@ -14,8 +13,8 @@ public class IndexParameterDeclarationBinder extends ANodeBinder {
 	public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext)
 			throws Exception {
 
-		ISyntaxNode nameSyntaxNode = null;
-		ISyntaxNode typeSyntaxNode = null;
+		ISyntaxNode nameSyntaxNode;
+		ISyntaxNode typeSyntaxNode;
 		IBoundNode typeBoundNode = null;
 		
 		if (node.getNumberOfChildren() == 1)
@@ -34,29 +33,28 @@ public class IndexParameterDeclarationBinder extends ANodeBinder {
 
 		
 		
-		return new IndexParameterNode(node, new IBoundNode[]{typeBoundNode}, name);
+		return new IndexParameterNode(node, typeBoundNode, name);
 	}
 
 	static public class IndexParameterNode extends ABoundNode {
 
+
+		private final String name;
+		private final IBoundNode typeBoundNode;
 		
-		String name;
-		
-		protected IndexParameterNode(ISyntaxNode syntaxNode,
-				IBoundNode[] children, String name) {
-			super(syntaxNode, children);
+		IndexParameterNode(ISyntaxNode syntaxNode, IBoundNode typeBoundNode, String name) {
+			super(syntaxNode, typeBoundNode);
 			this.name = name;
+			this.typeBoundNode = typeBoundNode;
 		}
 
 		@Override
-		public Object evaluateRuntime(IRuntimeEnv env)
-				throws OpenLRuntimeException {
+		protected Object evaluateRuntime(IRuntimeEnv env) {
 			return null;
 		}
 
 		@Override
 		public IOpenClass getType() {
-			IBoundNode typeBoundNode = getChildren()[0];
 			return typeBoundNode == null ? null : typeBoundNode.getType() ;
 		}
 

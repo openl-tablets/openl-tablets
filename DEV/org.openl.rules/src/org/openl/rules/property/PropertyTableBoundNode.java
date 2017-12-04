@@ -3,10 +3,8 @@ package org.openl.rules.property;
 import java.util.Map.Entry;
 
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBoundNode;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -23,7 +21,7 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
     private String tableName;
     
     public PropertyTableBoundNode(TableSyntaxNode syntaxNode, XlsModuleOpenClass module) {
-        super(syntaxNode, new IBoundNode[0]);        
+        super(syntaxNode);
     }
 
     public void addTo(ModuleOpenClass openClass) {             
@@ -34,8 +32,9 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
             tsn.setMember(field);   
         }
     }
-    
-    public Object evaluateRuntime(IRuntimeEnv env) {
+
+    @Override
+    protected Object evaluateRuntime(IRuntimeEnv env) {
         // don`t need to ????
         return null;
     }

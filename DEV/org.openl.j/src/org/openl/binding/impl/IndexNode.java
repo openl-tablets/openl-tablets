@@ -1,9 +1,3 @@
-/*
- * Created on Jun 18, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
 import org.openl.binding.BindingDependencies;
@@ -27,40 +21,21 @@ public class IndexNode extends ATargetBoundNode {
      * @param children
      * @param targetNode
      */
-    public IndexNode(ISyntaxNode syntaxNode, IBoundNode[] children, IBoundNode targetNode, IOpenIndex index) {
-        super(syntaxNode, children, targetNode);
+    IndexNode(ISyntaxNode syntaxNode, IBoundNode[] children, IBoundNode targetNode, IOpenIndex index) {
+        super(syntaxNode, targetNode, children);
         this.index = index;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#assign(java.lang.Object)
-     */
     @Override
     public void assign(Object value, IRuntimeEnv env) throws OpenLRuntimeException {
-        Object target = getTargetNode().evaluate(env);
+        Object target = getTarget(env);
 
         index.setValue(target, children[0].evaluate(env), value);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#evaluate(java.lang.Object,
-     *      java.lang.Object[], org.openl.vm.IRuntimeEnv)
-     */
-    // public Object evaluate(Object target, Object[] pars, IRuntimeEnv env)
-    // {
-    // throw new UnsupportedOperationException();
-    // }
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
-     */
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
-        return index.getValue(getTargetNode().evaluate(env), children[0].evaluate(env));
+    @Override
+    protected Object evaluateRuntime(IRuntimeEnv env) {
+        return index.getValue(getTarget(env), children[0].evaluate(env));
     }
 
     /*
@@ -85,11 +60,6 @@ public class IndexNode extends ATargetBoundNode {
     @Override
     public void updateAssignFieldDependency(BindingDependencies dependencies) {
         getTargetNode().updateAssignFieldDependency(dependencies);
-    }
-
-    @Override
-    public boolean isLiteralExpressionParent() {
-        return true;
     }
 
 }

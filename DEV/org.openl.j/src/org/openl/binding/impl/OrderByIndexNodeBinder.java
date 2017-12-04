@@ -7,7 +7,6 @@ import java.util.TreeMap;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IAggregateInfo;
@@ -34,24 +33,24 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 
 		private ILocalVar tempVar;
 		private boolean isDecreasing;
+		private IBoundNode orderBy;
+		private IBoundNode targetNode;
 
-		public OrderByIndexNode(ISyntaxNode syntaxNode, IBoundNode[] children,
+		OrderByIndexNode(ISyntaxNode syntaxNode, IBoundNode targetNode, IBoundNode orderBy,
 				ILocalVar tempVar, boolean isDecreasing) {
-			super(syntaxNode, children);
+			super(syntaxNode, targetNode, orderBy);
 			this.tempVar = tempVar;
 			this.isDecreasing = isDecreasing;
+			this.orderBy = orderBy;
+			this.targetNode = targetNode;
 		}
 
-		public Object evaluateRuntime(IRuntimeEnv env)
-				throws OpenLRuntimeException {
-			IBoundNode containerNode = getContainer();
-			IBoundNode orderBy = getChildren()[1];
-			IAggregateInfo aggregateInfo = containerNode.getType()
-					.getAggregateInfo();
-			Object container = containerNode.evaluate(env);
+		@Override
+		protected Object evaluateRuntime(IRuntimeEnv env) {
+			IAggregateInfo aggregateInfo = targetNode.getType().getAggregateInfo();
+			Object container = targetNode.evaluate(env);
 
-			Iterator<Object> elementsIterator = aggregateInfo
-					.getIterator(container);
+			Iterator<Object> elementsIterator = aggregateInfo.getIterator(container);
 
 			TreeMap<Comparable<?>, Object> map = new TreeMap<Comparable<?>, Object>();
 
@@ -79,7 +78,7 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 					aggregateInfo.getComponentType(getType()),
 					new int[] { size });
 
-			IOpenIndex index = aggregateInfo.getIndex(containerNode.getType());
+			IOpenIndex index = aggregateInfo.getIndex(targetNode.getType());
 			int idx = 0;
 			for (Object element : map.values()) {
 				if (element.getClass() != OrderList.class) {
@@ -98,12 +97,8 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 			return isDecreasing ? size - 1 - idx : idx;
 		}
 
-		private IBoundNode getContainer() {
-			return getChildren()[0];
-		}
-
 		public IOpenClass getType() {
-			IOpenClass type = getContainer().getType();
+			IOpenClass type = targetNode.getType();
 			if (type.isArray()) {
 				return type;
 			}
@@ -128,8 +123,7 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 	protected IBoundNode createBoundNode(ISyntaxNode node,
 			IBoundNode targetNode, IBoundNode expressionNode, ILocalVar localVar) {
 		boolean isDecreasing = node.getType().contains("decreasing");
-		return new OrderByIndexNode(node, new IBoundNode[] { targetNode,
-				expressionNode }, localVar, isDecreasing);
+		return new OrderByIndexNode(node, targetNode, expressionNode, localVar, isDecreasing);
 	}
 
     @Override

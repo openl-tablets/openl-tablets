@@ -19,6 +19,7 @@ import org.openl.types.NullOpenClass;
  * 
  */
 public abstract class ANodeBinder implements INodeBinder {
+    private static final IBoundNode[] EMPTY = new IBoundNode[0];
 
     public static IBoundNode bindChildNode(ISyntaxNode node, IBindingContext bindingContext) {
 
@@ -95,7 +96,7 @@ public abstract class ANodeBinder implements INodeBinder {
         int n = to - from;
 
         if (n == 0) {
-            return new IBoundNode[0];
+            return EMPTY;
         }
 
         IBoundNode[] children = new IBoundNode[n];
@@ -139,7 +140,7 @@ public abstract class ANodeBinder implements INodeBinder {
         int n = to - from;
 
         if (n == 0) {
-            return new IBoundNode[0];
+            return EMPTY;
         }
 
         IBoundNode[] children = new IBoundNode[n];

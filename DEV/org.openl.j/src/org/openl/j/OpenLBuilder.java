@@ -73,7 +73,7 @@ public class OpenLBuilder extends AOpenLBuilder {
                 "transformunique.index", org.openl.binding.impl.TransformIndexNodeBinder.class.getName(), 
                 "index.parameter.declaration", org.openl.binding.impl.IndexParameterDeclarationBinder.class.getName(),
                 
-                "op.ternary.qmark", org.openl.binding.impl.QMarkNodeBinder.class.getName(), 
+                "op.ternary.qmark", org.openl.binding.impl.IfNodeBinder.class.getName(),
                 "type.cast", org.openl.binding.impl.TypeCastBinder.class.getName(),
                 "local.var.declaration", org.openl.binding.impl.LocalVarBinder.class.getName(),
                 "type.declaration", org.openl.binding.impl.TypeBinder.class.getName(),

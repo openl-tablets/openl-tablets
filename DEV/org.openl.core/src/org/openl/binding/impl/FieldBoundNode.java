@@ -31,24 +31,20 @@ public class FieldBoundNode extends ATargetBoundNode {
     private IOpenClass returnType;
 
     FieldBoundNode(ISyntaxNode syntaxNode, IOpenField field) {
-        this(syntaxNode, field, null);
-    }
-
-    FieldBoundNode(ISyntaxNode syntaxNode, IOpenField field, IBoundNode target) {
-        super(syntaxNode, new IBoundNode[0], target);
+        super(syntaxNode, null);
         this.dims = 0;
         boundField = field;
     }
 
     FieldBoundNode(ISyntaxNode syntaxNode, IOpenField field, IBoundNode target, int dims) {
-        super(syntaxNode, new IBoundNode[0], target);
+        super(syntaxNode, target);
         this.dims = dims;
         boundField = field;
     }
 
     @Override
     public void assign(Object value, IRuntimeEnv env) throws OpenLRuntimeException {
-        Object target = getTargetNode() == null ? env.getThis() : getTargetNode().evaluate(env);
+        Object target = getTarget(env);
 
         boundField.set(target, value, env);
     }
@@ -57,13 +53,13 @@ public class FieldBoundNode extends ATargetBoundNode {
         return boundField.getName();
     }
 
-    public IOpenField getBoundField() {
+    IOpenField getBoundField() {
         return boundField;
     }
 
     @Override
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
-        Object target = getTargetNode() == null ? env.getThis() : getTargetNode().evaluate(env);
+    protected Object evaluateRuntime(IRuntimeEnv env) {
+        Object target = getTarget(env);
 
         return evaluateDim(target, env, dims, null);
     }
@@ -124,8 +120,4 @@ public class FieldBoundNode extends ATargetBoundNode {
         dependencies.addFieldDependency(boundField, this);
     }
 
-    @Override
-    public boolean isLiteralExpressionParent() {
-        return boundField.isConst();
-    }
 }

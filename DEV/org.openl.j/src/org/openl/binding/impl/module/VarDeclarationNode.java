@@ -1,9 +1,3 @@
-/*
- * Created on Jun 16, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl.module;
 
 import org.openl.binding.IBindingContext;
@@ -11,7 +5,6 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.ABoundNode;
 import org.openl.binding.impl.cast.IOpenCast;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -55,25 +48,8 @@ public class VarDeclarationNode extends ABoundNode implements IMemberBoundNode {
 
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#evaluate(java.lang.Object,
-     *      java.lang.Object[], org.openl.vm.IRuntimeEnv)
-     */
-    // public Object evaluate(Object target, Object[] pars, IRuntimeEnv env)
-    // {
-    // Object[] localFrame = env.getLocalFrame();
-    //
-    // localFrame[var.getIndexInLocalFrame()] = pars == null ? null : pars[0];
-    // return null;
-    // }
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
-     */
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+    @Override
+    protected Object evaluateRuntime(IRuntimeEnv env) {
         Object[] init = evaluateChildren(env);
 
         Object initObj = init == null || init.length == 0 ? field.getType().nullObject() : init[0];
@@ -99,11 +75,6 @@ public class VarDeclarationNode extends ABoundNode implements IMemberBoundNode {
      */
     public IOpenClass getType() {
         return JavaOpenClass.VOID;
-    }
-
-    @Override
-    public boolean isLiteralExpressionParent() {
-        return true;
     }
 
     public void removeDebugInformation(IBindingContext cxt) throws Exception {

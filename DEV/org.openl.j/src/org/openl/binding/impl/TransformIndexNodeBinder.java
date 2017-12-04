@@ -9,7 +9,6 @@ import java.util.List;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IAggregateInfo;
@@ -30,18 +29,22 @@ public class TransformIndexNodeBinder extends BaseAggregateIndexNodeBinder {
     private static class TransformIndexNode extends ABoundNode {
         private ILocalVar tempVar;
         private boolean isUnique;
+        private IBoundNode transformer;
+        private IBoundNode targetNode;
 
-        public TransformIndexNode(ISyntaxNode syntaxNode, IBoundNode[] children,ILocalVar tempVar, boolean isUnique) {
-            super(syntaxNode, children);
+        TransformIndexNode(ISyntaxNode syntaxNode, IBoundNode targetNode, IBoundNode transformer,
+                                  ILocalVar tempVar, boolean isUnique) {
+            super(syntaxNode, targetNode, transformer);
             this.tempVar = tempVar;
             this.isUnique = isUnique;
+            this.targetNode = targetNode;
+            this.transformer = transformer;
         }
 
-        public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
-            IBoundNode container = getContainer();
-            IBoundNode transformer = getTransformer();
+        @Override
+        protected Object evaluateRuntime(IRuntimeEnv env) {
             IAggregateInfo aggregateInfo = getType().getAggregateInfo();
-            Iterator<Object> elementsIterator = container.getType().getAggregateInfo().getIterator(container.evaluate(env));
+            Iterator<Object> elementsIterator = targetNode.getType().getAggregateInfo().getIterator(targetNode.evaluate(env));
             List<Object> firedElements = new ArrayList<Object>();
             HashSet<Object> uniqueSet = null;
             if (isUnique)
@@ -67,26 +70,9 @@ public class TransformIndexNodeBinder extends BaseAggregateIndexNodeBinder {
             return result;
         }
 
-        private IBoundNode getContainer() {
-            return getChildren()[0];
-        }
-        
-        private IBoundNode getTransformer() {
-            return getChildren()[1];
-        }
-        
 
         public IOpenClass getType() {
-//        	IOpenClass containerType = getContainer().getType();
-//        	if (containerType.isArray())
-//        	{	
-//        		IAggregateInfo info = getContainer().getType().getAggregateInfo();
-//        		return info.getIndexedAggregateType(getTransformer().getType(), 1);
-//        	}
-//        	
-//        	IOpenClass componentType = tempVar.getType();
-        	
-        	IOpenClass targetType = getTransformer().getType();
+            IOpenClass targetType = transformer.getType();
     		return targetType.getAggregateInfo().getIndexedAggregateType(targetType, 1);
         }
     }
@@ -102,8 +88,7 @@ public class TransformIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 	protected IBoundNode createBoundNode(ISyntaxNode node,
 			IBoundNode targetNode, IBoundNode expressionNode, ILocalVar localVar) {
 		boolean isUnique = node.getType().contains("unique");
-		return new TransformIndexNode(node, new IBoundNode[] {
-				targetNode, expressionNode }, localVar, isUnique);
+		return new TransformIndexNode(node, targetNode, expressionNode, localVar, isUnique);
 	}
 
 	@Override

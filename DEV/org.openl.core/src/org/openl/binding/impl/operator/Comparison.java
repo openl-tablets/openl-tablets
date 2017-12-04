@@ -1,6 +1,7 @@
 package org.openl.binding.impl.operator;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 /**
  * Contains comparison operators for:
@@ -92,6 +93,10 @@ public class Comparison {
         return equals(x, y);
     }
 
+    public static <T> boolean eq(T[] x, T[] y) {
+        return Arrays.deepEquals(x, y);
+    }
+
     // Not Equals
     public static boolean ne(boolean x, boolean y) {
         return !eq(x, y);
@@ -126,6 +131,10 @@ public class Comparison {
     }
 
     public static <T> boolean ne(T x, T y) {
+        return !eq(x, y);
+    }
+
+    public static <T> boolean ne(T[] x, T[] y) {
         return !eq(x, y);
     }
 

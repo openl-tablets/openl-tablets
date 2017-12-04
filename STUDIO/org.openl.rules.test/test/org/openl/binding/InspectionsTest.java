@@ -38,7 +38,7 @@ public class InspectionsTest {
     public void testDifferentExpressionTypes() {
         checkWarning("Integer num = 7; num == num ? 1 : 2", ALWAYS_TRUE);
         // Same field of same object
-        checkWarning("String[] arr = {\"bb\"}; arr.length == arr.length ? 1 : 2", ALWAYS_TRUE);
+        checkWarning("String[] arr = {\"bb\"}; arr == arr ? 1 : 2", ALWAYS_TRUE);
         // Literal
         checkWarning("1 == 1 ? 5 : 6", ALWAYS_TRUE);
 
@@ -58,16 +58,22 @@ public class InspectionsTest {
     public void testNoWarning() {
         Object result;
 
-        result = checkNoMessage("Integer[] arr = {1, 0, 2, 3}; arr[(a) @ a == 0].length == arr.length ? \"All zero\" : \"Has non zero values\"");
+        result = checkNoMessage("Integer[] arr = {1, 0, 2, 3}; arr[(a) @ a == 0] == arr ? \"All zero\" : \"Has non zero values\"");
         assertEquals("Has non zero values", result);
 
-        result = checkNoMessage("Integer[] arr = {0, 0, 0}; arr[(a) @ a == 0].length == arr.length ? \"All zero\" : \"Has non zero values\"");
+        result = checkNoMessage("Integer[] arr = {0, 0, 0}; arr[(a) @ a == 0] == arr ? \"All zero\" : \"Has non zero values\"");
         assertEquals("All zero", result);
 
-        checkNoMessage("String[] arr1 = {\"bb\"}; String[] arr2 = {\"bb\"}; arr1.length == arr2.length ? 1 : 2");
+        result = checkNoMessage("String[] arr1 = {\"bb\"}; String[] arr2 = {\"bb\"}; arr1 == arr2 ? \"1\" : \"2\"");
+        assertEquals("1", result);
+
+        result = checkNoMessage("Integer[] arr = {0, 0, 1}; arr[(a) @ a == 0] != arr ? \"1\" : \"2\"");
+        assertEquals("1", result);
+        result = checkNoMessage("Integer[] arr = {0, 0, 0}; arr[(a) @ a == 0] != arr ? \"1\" : \"2\"");
+        assertEquals("2", result);
     }
 
-    private <T> T checkWarning(String expression, String expectedMessage) {
+    private <T> T checkWarning(String expression, String... expectedMessage) {
         OpenLMessages.removeCurrentInstance();
 
         @SuppressWarnings("unchecked")
@@ -76,9 +82,11 @@ public class InspectionsTest {
                 SourceType.METHOD_BODY);
 
         List<OpenLMessage> messages = OpenLMessages.getCurrentInstance().getMessages();
-        assertEquals(1, messages.size());
-        assertEquals(Severity.WARN, messages.get(0).getSeverity());
-        assertEquals(expectedMessage, messages.get(0).getSummary());
+        assertEquals(expectedMessage.length, messages.size());
+        for(int i = 0; i < expectedMessage.length; i++) {
+            assertEquals(Severity.WARN, messages.get(i).getSeverity());
+            assertEquals(expectedMessage[i], messages.get(i).getSummary());
+        }
 
         OpenLMessages.removeCurrentInstance();
         return result;

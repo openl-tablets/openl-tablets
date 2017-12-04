@@ -4,7 +4,6 @@ import java.lang.reflect.Array;
 import java.util.List;
 
 import org.openl.binding.IBoundNode;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.core.ce.Runnable;
 import org.openl.rules.core.ce.ServiceMT;
 import org.openl.syntax.ISyntaxNode;
@@ -41,7 +40,7 @@ public class MultiCallMethodBoundNodeMT extends MultiCallMethodBoundNode {
     }
 
     @Override
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+    protected Object evaluateRuntime(IRuntimeEnv env) {
         Object result = super.evaluateRuntime(env);
         ServiceMT.getInstance().join(env);
         return result;

@@ -1,1 +1,2 @@
 ERROR: Field not found: 'value'
+WARN: DEPRECATED 'length' field for arrays will be removed in the next version. Use length() function instead!

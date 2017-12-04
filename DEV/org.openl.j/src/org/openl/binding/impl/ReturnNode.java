@@ -1,13 +1,6 @@
-/*
- * Created on Jul 28, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
 import org.openl.binding.IBoundNode;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
@@ -27,12 +20,8 @@ public class ReturnNode extends ABoundNode {
         super(syntaxNode, children);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#evaluate(org.openl.vm.IRuntimeEnv)
-     */
-    public Object evaluateRuntime(IRuntimeEnv env) throws OpenLRuntimeException {
+    @Override
+    protected Object evaluateRuntime(IRuntimeEnv env) {
         IBoundNode exprNode = children.length == 0 ? null : children[0];
         Object returnValue = exprNode == null ? null : exprNode.evaluate(env);
 
@@ -48,10 +37,5 @@ public class ReturnNode extends ABoundNode {
         return children.length == 0 ? NullOpenClass.the : children[0].getType();
     }
 
-    
-    @Override
-    public boolean isLiteralExpressionParent() {
-        return true;
-    }
-    
+
 }

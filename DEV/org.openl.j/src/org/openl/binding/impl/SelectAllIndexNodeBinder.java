@@ -7,7 +7,6 @@ import java.util.List;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IAggregateInfo;
@@ -28,20 +27,21 @@ public class SelectAllIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 
 	private static class ConditionalSelectIndexNode extends ABoundNode {
 		private ILocalVar tempVar;
+		private IBoundNode condition;
+		private IBoundNode targetNode;
 
-		public ConditionalSelectIndexNode(ISyntaxNode syntaxNode,
-				IBoundNode[] children, ILocalVar tempVar) {
-			super(syntaxNode, children);
+		ConditionalSelectIndexNode(ISyntaxNode syntaxNode,
+				IBoundNode targetNode, IBoundNode condition, ILocalVar tempVar) {
+			super(syntaxNode, targetNode, condition);
 			this.tempVar = tempVar;
+			this.targetNode = targetNode;
+			this.condition = condition;
 		}
 
-		public Object evaluateRuntime(IRuntimeEnv env)
-				throws OpenLRuntimeException {
-			IBoundNode container = getContainer();
-			IBoundNode condition = getChildren()[1];
-			IAggregateInfo aggregateInfo = container.getType().getAggregateInfo();
-			Iterator<Object> elementsIterator = aggregateInfo
-					.getIterator(container.evaluate(env));
+		@Override
+		protected Object evaluateRuntime(IRuntimeEnv env) {
+			IAggregateInfo aggregateInfo = targetNode.getType().getAggregateInfo();
+			Iterator<Object> elementsIterator = aggregateInfo.getIterator(targetNode.evaluate(env));
 			List<Object> firedElements = new ArrayList<Object>();
 			while (elementsIterator.hasNext()) {
 				Object element = elementsIterator.next();
@@ -53,19 +53,15 @@ public class SelectAllIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 			Object result = aggregateInfo.makeIndexedAggregate(
 					tempVar.getType(),
 					new int[] { firedElements.size() });
-			IOpenIndex index = aggregateInfo.getIndex(container.getType());
+			IOpenIndex index = aggregateInfo.getIndex(targetNode.getType());
 			for (int i = 0; i < firedElements.size(); i++) {
 				index.setValue(result, i, firedElements.get(i));
 			}
 			return result;
 		}
 
-		private IBoundNode getContainer() {
-			return getChildren()[0];
-		}
-
 		public IOpenClass getType() {
-			IOpenClass type = getContainer().getType();
+			IOpenClass type = targetNode.getType();
 			if (type.isArray()) {
 				return type;
 			}
@@ -89,8 +85,7 @@ public class SelectAllIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 	@Override
 	protected IBoundNode createBoundNode(ISyntaxNode node,
 			IBoundNode targetNode, IBoundNode expressionNode, ILocalVar localVar) {
-		return new ConditionalSelectIndexNode(node, new IBoundNode[] {
-				targetNode, expressionNode }, localVar);
+		return new ConditionalSelectIndexNode(node, targetNode, expressionNode, localVar);
 	}
 
 	@Override

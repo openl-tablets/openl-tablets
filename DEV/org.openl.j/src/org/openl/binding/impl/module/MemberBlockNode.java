@@ -8,8 +8,8 @@ import org.openl.syntax.ISyntaxNode;
 
 public class MemberBlockNode extends BlockNode implements IMemberBoundNode {
 
-    public MemberBlockNode(ISyntaxNode node, IBoundNode[] children) {
-        super(node, children, 0);
+    MemberBlockNode(ISyntaxNode node, IBoundNode... children) {
+        super(node, 0, children);
     }
 
     /*

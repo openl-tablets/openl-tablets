@@ -22,7 +22,7 @@ public class BlockBinder extends ANodeBinder {
      */
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) {
 
-        IBoundNode[] children = new IBoundNode[0];
+        IBoundNode[] children = null;
 
         try {
             bindingContext.pushLocalVarContext();
@@ -33,7 +33,7 @@ public class BlockBinder extends ANodeBinder {
             bindingContext.popLocalVarContext();
         }
 
-        return new BlockNode(node, children, bindingContext.getLocalVarFrameSize());
+        return new BlockNode(node, bindingContext.getLocalVarFrameSize(), children);
     }
 
 }
