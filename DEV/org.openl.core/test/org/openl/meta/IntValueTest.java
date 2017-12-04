@@ -71,7 +71,7 @@ public class IntValueTest {
     public void testDivide() {
         IntValue value1 = new IntValue(10000);
         IntValue value2 = new IntValue(10000);
-        assertEquals(1, IntValue.divide(value1, value2).getValue());
+        assertEquals(1, IntValue.divide(value1, value2).getValue(), 1e-6);
         
         value2 = new IntValue(0);
         try {

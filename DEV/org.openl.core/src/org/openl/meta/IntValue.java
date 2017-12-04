@@ -25,9 +25,9 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     
     private static final long serialVersionUID = -3821702883606493390L;    
     
-    private static final IntValue ZERO = new IntValue((int) 0);
-    private static final IntValue ONE = new IntValue((int) 1);
-    private static final IntValue MINUS_ONE = new IntValue((int) -1);
+    public static final IntValue ZERO = new IntValue((int) 0);
+    public static final IntValue ONE = new IntValue((int) 1);
+    public static final IntValue MINUS_ONE = new IntValue((int) -1);
 
     public static class IntValueAdapter extends XmlAdapter<Integer,IntValue> {
         public IntValue unmarshal(Integer val) throws Exception {
@@ -277,7 +277,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @param value2 org.openl.meta.IntValue
      * @return the result of division  operation
      */
-    public static org.openl.meta.IntValue divide(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
+    public static org.openl.meta.DoubleValue divide(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
         // temporary commented to support operations with nulls
         //
         //        validate(value1, value2, Formulas.DIVIDE.toString());
@@ -287,20 +287,21 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
 
         if (value1 == null) {
             if (value2 != null && value2.doubleValue() != 0) {
-                return new org.openl.meta.IntValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
+                return new org.openl.meta.DoubleValue(null, new DoubleValue(value2.doubleValue()), divide(ONE, value2).getValue(), Formulas.DIVIDE);
             }
         }
 
         if (value2 == null) {
-            return new org.openl.meta.IntValue(value1, value2, value1.getValue(), Formulas.DIVIDE);
+            return new org.openl.meta.DoubleValue(new DoubleValue(value1.doubleValue()), null, value1.getValue(), Formulas.DIVIDE);
         }
 
         if (value2.doubleValue() == 0) {
             throw new OpenlNotCheckedException("Division by zero");
         }
 
-        return new org.openl.meta.IntValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.DoubleValue(new DoubleValue(value1.doubleValue()), new DoubleValue(value2.doubleValue()), Operators.divide(value1.getValue(), value2.getValue()),
             Formulas.DIVIDE);
+
     }
 
     // QUAOTIENT

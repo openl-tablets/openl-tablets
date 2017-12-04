@@ -25,7 +25,7 @@ public class Operators {
 
     // Add
 
-    public static String add(Object x, String y) { 
+    public static String add(Object x, String y) {
         return x + y;
     }
 
@@ -36,7 +36,7 @@ public class Operators {
     public static String add(String x, String y) {
         return x + y;
     }
-    
+
     public static String add(boolean x, String y) {
         return x + y;
     }
@@ -44,15 +44,15 @@ public class Operators {
     public static String add(String x, boolean y) {
         return x + y;
     }
-    
+
     public static String add(char x, String y) {
         return x + y;
     }
-    
+
     public static String add(String y, char x) {
         return y + x;
     }
-    
+
     public static Date add(Date d, int days) {
         // We should use calendar to take into account daylight saving
         Calendar c = Calendar.getInstance();
@@ -147,7 +147,7 @@ public class Operators {
         }
         return x.add(y);
     }
-    
+
     public static BigDecimal add(BigDecimal x, BigDecimal y) {
         if (x == null) {
             return y;
@@ -258,7 +258,7 @@ public class Operators {
         }
         return x.subtract(y);
     }
-    
+
     public static BigDecimal subtract(BigDecimal x, BigDecimal y) {
         if (x == null && y != null) {
             return y.negate();
@@ -361,7 +361,7 @@ public class Operators {
         }
         return x.multiply(y);
     }
-    
+
     public static BigDecimal multiply(BigDecimal x, BigDecimal y) {
         if (x == null) {
             return y;
@@ -372,20 +372,20 @@ public class Operators {
     }
 
     // Divide
-    public static byte divide(byte x, byte y) {
-        return (byte) (x / y);
+    public static double divide(byte x, byte y) {
+        return ((double) x) / y;
     }
 
-    public static short divide(short x, short y) {
-        return (short) (x / y);
+    public static double divide(short x, short y) {
+        return ((double) x) / y;
     }
 
-    public static int divide(int x, int y) {
-        return x / y;
+    public static double divide(int x, int y) {
+        return ((double) x) / y;
     }
 
-    public static long divide(long x, long y) {
-        return x / y;
+    public static double divide(long x, long y) {
+        return ((double) x) / y;
     }
 
     public static float divide(float x, float y) {
@@ -396,40 +396,48 @@ public class Operators {
         return x / y;
     }
 
-    public static Byte divide(Byte x, Byte y) {
-        if (y == null) {
-            return x;
+    public static Double divide(Byte x, Byte y) {
+        if (x == null && y == null) {
+            return null;
+        } else if (y == null) {
+            return Double.valueOf(x);
         } else if (x == null) {
             x = 1;
         }
-        return (byte) (x / y);
+        return ((double) x / y);
     }
 
-    public static Short divide(Short x, Short y) {
-        if (y == null) {
-            return x;
+    public static Double divide(Short x, Short y) {
+        if (x == null && y == null) {
+            return null;
+        } else if (y == null) {
+            return Double.valueOf(x);
         } else if (x == null) {
             x = 1;
         }
-        return (short) (x / y);
+        return ((double) x / y);
     }
 
-    public static Integer divide(Integer x, Integer y) {
-        if (y == null) {
-            return x;
+    public static Double divide(Integer x, Integer y) {
+        if (x == null && y == null) {
+            return null;
+        } else if (y == null) {
+            return Double.valueOf(x);
         } else if (x == null) {
             x = 1;
         }
-        return x / y;
+        return ((double) x / y);
     }
 
-    public static Long divide(Long x, Long y) {
-        if (y == null) {
-            return x;
+    public static Double divide(Long x, Long y) {
+        if (x == null && y == null) {
+            return null;
+        } else if (y == null) {
+            return Double.valueOf(x);
         } else if (x == null) {
             x = 1l;
         }
-        return x / y;
+        return ((double) x / y);
     }
 
     public static Float divide(Float x, Float y) {
@@ -450,15 +458,18 @@ public class Operators {
         return x / y;
     }
 
-    public static BigInteger divide(BigInteger x, BigInteger y) {
-        if (y == null) {
-            return x;
+    public static BigDecimal divide(BigInteger x, BigInteger y) {
+        if (x == null && y == null) {
+            return null;
+        } else if (y == null) {
+            return new BigDecimal(x);
         } else if (x == null) {
             x = BigInteger.ONE;
         }
-        return x.divide(y);
+
+        return new BigDecimal(x).divide(new BigDecimal(y), MathContext.DECIMAL128);
     }
-    
+
     public static BigDecimal divide(BigDecimal x, BigDecimal y) {
         if (y == null) {
             return x;
@@ -494,15 +505,15 @@ public class Operators {
     public static double abs(double x) {
         return Math.abs(x);
     }
-    
+
     public static BigInteger abs(BigInteger x) {
         return x.abs();
     }
-    
+
     public static BigDecimal abs(BigDecimal x) {
         return x.abs();
     }
-    
+
     // Bitwise operators
     //
     public static byte bitand(byte x, byte y) {
@@ -628,7 +639,7 @@ public class Operators {
     public static long inc(long x) {
         return x + 1;
     }
-    
+
     public static BigInteger inc(BigInteger x) {
         return x.add(BigInteger.ONE);
     }
@@ -741,7 +752,7 @@ public class Operators {
         }
         return x.pow(y.intValue());
     }
-    
+
     public static BigDecimal pow(BigDecimal x, BigDecimal y) {
         if (x == null) {
             return null;
@@ -776,7 +787,7 @@ public class Operators {
     public static long negative(long x) {
         return -x;
     }
-    
+
     public static BigInteger negative(BigInteger x) {
         return x.negate();
     }
@@ -808,7 +819,7 @@ public class Operators {
     public static long positive(long x) {
         return +x;
     }
-    
+
     public static BigInteger positive(BigInteger x) {
         return x;
     }

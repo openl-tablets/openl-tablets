@@ -25,9 +25,9 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
 
     private static final long serialVersionUID = -3137978912171407672L;
 
-    private static final ByteValue ZERO = new ByteValue((byte) 0);
-    private static final ByteValue ONE = new ByteValue((byte) 1);
-    private static final ByteValue MINUS_ONE = new ByteValue((byte) -1);
+    public static final ByteValue ZERO = new ByteValue((byte) 0);
+    public static final ByteValue ONE = new ByteValue((byte) 1);
+    public static final ByteValue MINUS_ONE = new ByteValue((byte) -1);
 
     public static class ByteValueAdapter extends XmlAdapter<Byte,ByteValue> {
         public ByteValue unmarshal(Byte val) throws Exception {
@@ -277,7 +277,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * @param value2 org.openl.meta.ByteValue
      * @return the result of division  operation
      */
-    public static org.openl.meta.ByteValue divide(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
+    public static org.openl.meta.DoubleValue divide(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
         // temporary commented to support operations with nulls
         //
         //        validate(value1, value2, Formulas.DIVIDE.toString());
@@ -287,19 +287,19 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
 
         if (value1 == null) {
             if (value2 != null && value2.doubleValue() != 0) {
-                return new org.openl.meta.ByteValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
+                return new org.openl.meta.DoubleValue(null, new DoubleValue(value2.doubleValue()), divide(ONE, value2).getValue(), Formulas.DIVIDE);
             }
         }
 
         if (value2 == null) {
-            return new org.openl.meta.ByteValue(value1, value2, value1.getValue(), Formulas.DIVIDE);
+            return new org.openl.meta.DoubleValue(new DoubleValue(value1.doubleValue()), null, value1.getValue(), Formulas.DIVIDE);
         }
 
         if (value2.doubleValue() == 0) {
             throw new OpenlNotCheckedException("Division by zero");
         }
 
-        return new org.openl.meta.ByteValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.DoubleValue(new DoubleValue(value1.doubleValue()), new DoubleValue(value2.doubleValue()), Operators.divide(value1.getValue(), value2.getValue()),
             Formulas.DIVIDE);
     }
 

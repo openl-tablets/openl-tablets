@@ -25,9 +25,9 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
 
     private static final long serialVersionUID = -437788531108803012L;
 
-    private static final LongValue ZERO = new LongValue((long) 0);
-    private static final LongValue ONE = new LongValue((long) 1);
-    private static final LongValue MINUS_ONE = new LongValue((long) -1);
+    public static final LongValue ZERO = new LongValue((long) 0);
+    public static final LongValue ONE = new LongValue((long) 1);
+    public static final LongValue MINUS_ONE = new LongValue((long) -1);
 
     public static class LongValueAdapter extends XmlAdapter<Long,LongValue> {
         public LongValue unmarshal(Long val) throws Exception {
@@ -277,7 +277,7 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
      * @param value2 org.openl.meta.LongValue
      * @return the result of division  operation
      */
-    public static org.openl.meta.LongValue divide(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
+    public static org.openl.meta.DoubleValue divide(org.openl.meta.LongValue value1, org.openl.meta.LongValue value2) {
         // temporary commented to support operations with nulls
         //
         //        validate(value1, value2, Formulas.DIVIDE.toString());
@@ -287,20 +287,21 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
 
         if (value1 == null) {
             if (value2 != null && value2.doubleValue() != 0) {
-                return new org.openl.meta.LongValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
+                return new org.openl.meta.DoubleValue(null, new DoubleValue(value2.doubleValue()), divide(ONE, value2).getValue(), Formulas.DIVIDE);
             }
         }
 
         if (value2 == null) {
-            return new org.openl.meta.LongValue(value1, value2, value1.getValue(), Formulas.DIVIDE);
+            return new org.openl.meta.DoubleValue(new DoubleValue(value1.doubleValue()), null, value1.getValue(), Formulas.DIVIDE);
         }
 
         if (value2.doubleValue() == 0) {
             throw new OpenlNotCheckedException("Division by zero");
         }
 
-        return new org.openl.meta.LongValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.DoubleValue(new DoubleValue(value1.doubleValue()), new DoubleValue(value2.doubleValue()), Operators.divide(value1.getValue(), value2.getValue()),
             Formulas.DIVIDE);
+
     }
 
     // QUAOTIENT

@@ -25,9 +25,9 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 
     private static final long serialVersionUID = 5259931539737847856L;
     
-    private static final ShortValue ZERO = new ShortValue((short) 0);
-    private static final ShortValue ONE = new ShortValue((short) 1);
-    private static final ShortValue MINUS_ONE = new ShortValue((short) -1);
+    public static final ShortValue ZERO = new ShortValue((short) 0);
+    public static final ShortValue ONE = new ShortValue((short) 1);
+    public static final ShortValue MINUS_ONE = new ShortValue((short) -1);
 
     public static class ShortValueAdapter extends XmlAdapter<Short,ShortValue> {
         public ShortValue unmarshal(Short val) throws Exception {
@@ -276,7 +276,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
      * @param value2 org.openl.meta.ShortValue
      * @return the result of division  operation
      */
-    public static org.openl.meta.ShortValue divide(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+    public static org.openl.meta.DoubleValue divide(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
         // temporary commented to support operations with nulls
         //
         //        validate(value1, value2, Formulas.DIVIDE.toString());
@@ -286,19 +286,19 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 
         if (value1 == null) {
             if (value2 != null && value2.doubleValue() != 0) {
-                return new org.openl.meta.ShortValue(value1, value2, divide(ONE, value2).getValue(), Formulas.DIVIDE);
+                return new org.openl.meta.DoubleValue(null, new DoubleValue(value2.doubleValue()), divide(ONE, value2).getValue(), Formulas.DIVIDE);
             }
         }
 
         if (value2 == null) {
-            return new org.openl.meta.ShortValue(value1, value2, value1.getValue(), Formulas.DIVIDE);
+            return new org.openl.meta.DoubleValue(new DoubleValue(value1.doubleValue()), null, value1.getValue(), Formulas.DIVIDE);
         }
 
         if (value2.doubleValue() == 0) {
             throw new OpenlNotCheckedException("Division by zero");
         }
 
-        return new org.openl.meta.ShortValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.DoubleValue(new DoubleValue(value1.doubleValue()), new DoubleValue(value2.doubleValue()), Operators.divide(value1.getValue(), value2.getValue()),
             Formulas.DIVIDE);
     }
 

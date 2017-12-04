@@ -25,9 +25,9 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 
     private static final long serialVersionUID = -3936317402079096501L;
 
-    private static final BigIntegerValue ZERO = new BigIntegerValue("0");
-    private static final BigIntegerValue ONE = new BigIntegerValue("1");
-    private static final BigIntegerValue MINUS_ONE = new BigIntegerValue("-1");
+    public static final BigIntegerValue ZERO = new BigIntegerValue("0");
+    public static final BigIntegerValue ONE = new BigIntegerValue("1");
+    public static final BigIntegerValue MINUS_ONE = new BigIntegerValue("-1");
 
     private final java.math.BigInteger value;
 
@@ -317,7 +317,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
      * @param value2 org.openl.meta.BigIntegerValue
      * @return the result of division operation
      */
-    public static org.openl.meta.BigIntegerValue divide(org.openl.meta.BigIntegerValue value1,
+    public static org.openl.meta.BigDecimalValue divide(org.openl.meta.BigIntegerValue value1,
             org.openl.meta.BigIntegerValue value2) {
         // temporary commented to support operations with nulls
         //
@@ -328,23 +328,20 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 
         if (value1 == null) {
             if (value2 != null && value2.doubleValue() != 0) {
-                return new org.openl.meta.BigIntegerValue(value1,
-                    value2,
-                    divide(ONE, value2).getValue(),
-                    Formulas.DIVIDE);
+                return new org.openl.meta.BigDecimalValue(null, new BigDecimalValue(new BigDecimal(value2.getValue())), divide(ONE, value2).getValue(), Formulas.DIVIDE);
             }
         }
 
         if (value2 == null) {
-            return new org.openl.meta.BigIntegerValue(value1, value2, value1.getValue(), Formulas.DIVIDE);
+            return new org.openl.meta.BigDecimalValue(new BigDecimalValue(new BigDecimal(value1.getValue())), null, new BigDecimal(value1.getValue()), Formulas.DIVIDE);
         }
 
         if (value2.doubleValue() == 0) {
             throw new OpenlNotCheckedException("Division by zero");
         }
 
-        return new org.openl.meta.BigIntegerValue(value1,
-            value2,
+        return new org.openl.meta.BigDecimalValue(new BigDecimalValue(new BigDecimal(value1.getValue())),
+            new BigDecimalValue(new BigDecimal(value2.getValue())),
             Operators.divide(value1.getValue(), value2.getValue()),
             Formulas.DIVIDE);
     }
