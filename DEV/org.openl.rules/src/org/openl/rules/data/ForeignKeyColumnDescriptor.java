@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.NodeType;
@@ -362,49 +363,56 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
                 boolean valueAnArray = isValuesAnArray(fieldType);
                 boolean isList = List.class.isAssignableFrom(fieldType.getInstanceClass());
-
-                if (!valueAnArray && !isList) {
-                    IOpenClass resType = foreignTable.getDataModel().getType();
-                    String s = getCellStringValue(valuesTable);
-
-                    if (s == null || s.length() == 0) {
+                IOpenClass resType = foreignTable.getDataModel().getType();
+                String s = getCellStringValue(valuesTable);
+                if (!StringUtils.isEmpty(s)) {
+                    try {
+                        Object result = foreignTable.findObject(foreignKeyIndex, s, cxt);
+                        if (result != null) {
+                            ResultChainObject chainRes = getChainObject(result, foreignKeyTableAccessorChainTokens);
+                            Class<?> instanceClass = chainRes.instanceClass;
+                            int dim = 0;
+                            while (instanceClass.isArray()) {
+                                instanceClass = instanceClass.getComponentType();
+                                dim++;
+                            }
+                            resType = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, instanceClass.getSimpleName());
+                            if (dim > 0) {
+                                resType = resType.getArrayType(dim);
+                            }
+                        }
+                    } catch (SyntaxNodeException ex) {
+                        throwIndexNotFound(foreignTable, valuesTable, s, ex, cxt);
+                    }
+                }
+                
+                if (!(fieldType.isArray() && fieldType.getComponentClass().getInstanceClass().equals(resType.getInstanceClass()))) {
+                    if (StringUtils.isEmpty(s)) {
                         // Set meta info for empty cells
                         if(!cxt.isExecutionMode())
                             RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
                     } else {
-                        if (s.length() > 0) {
-                            if(!cxt.isExecutionMode())
-                                RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
-                            Object res = getValueByForeignKeyIndex(cxt, foreignTable, foreignKeyIndex, foreignKeyTableAccessorChainTokens, valuesTable, s);
-                            try {
-                                Object result = foreignTable.findObject(foreignKeyIndex, s, cxt);
-                                ResultChainObject chainRes = getChainObject(result, foreignKeyTableAccessorChainTokens);
-                                if (chainRes.instanceClass.isArray()) { 
-                                    String message = String.format("Wrong types: Field '%s' has type [%s], but tried to convert into [%s]",
-                                            getField().getName(),
-                                            getField().getType(),
-                                            chainRes.instanceClass.getSimpleName());
-                                        throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-                                } else {
-                                    resType = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, chainRes.getInstanceClass().getSimpleName());
-                                }
-                            } catch (SyntaxNodeException ex) {
-                                throwIndexNotFound(foreignTable, valuesTable, s, ex, cxt);
-                            }
-
-                            IOpenCast cast = cxt.getCast(resType,fieldType);
-                            if (cast == null || !cast.isImplicit()) {
-                                String message = String.format("Incompatible types: Field '%s' has type [%s] that differs from type of foreign table [%s]",
-                                    getField().getName(),
-                                    fieldType,
-                                    resType);
-                                throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-                            }
-
-                            getField().set(target, res, getRuntimeEnv());
+                        if (!cxt.isExecutionMode())
+                            RuleRowHelper.setCellMetaInfo(valuesTable, getField().getName(), domainClass, false);
+                        Object res = getValueByForeignKeyIndex(cxt,
+                            foreignTable,
+                            foreignKeyIndex,
+                            foreignKeyTableAccessorChainTokens,
+                            valuesTable,
+                            s);
+                        IOpenCast cast = cxt.getCast(resType, fieldType);
+                        if (cast == null || !cast.isImplicit()) {
+                            String message = String.format(
+                                "Incompatible types: Field '%s' has type [%s] that differs from type of foreign table [%s]",
+                                getField().getName(),
+                                fieldType,
+                                resType);
+                            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
                         }
+                        getField().set(target, cast.convert(res), getRuntimeEnv());
                     }
                 } else {
+                    
                     // processing array or list values.
                     List<Object> cellValues = getArrayValuesByForeignKey(valuesTable, cxt, foreignTable,
                         foreignKeyIndex,
