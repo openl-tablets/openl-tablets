@@ -39,23 +39,28 @@ public class CastFactory implements ICastFactory {
 
     public static final int NO_CAST_DISTANCE = 0;
     public static final int ALIAS_TO_TYPE_CAST_DISTANCE = 0;
-    public static final int TYPE_ALIAS_CAST_DISTANCE = 1;
+    public static final int TYPE_TO_ALIAS_CAST_DISTANCE = 1;
     public static final int JAVA_UP_ARRAY_TO_ARRAY_CAST_DISTANCE = 2;
     public static final int JAVA_UP_CAST_DISTANCE = 3;
 
     public static final int THROWABLE_VOID_CAST_DISTANCE = 4;
 
     public static final int PRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 5;
-    public static final int JAVA_BOXING_CAST_DISTANCE = 6;
 
-    public static final int PRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 7;
-    public static final int JAVA_BOXING_UP_CAST_DISTANCE = 8;
-    public static final int JAVA_UNBOXING_CAST_DISTANCE = 9;
-    public static final int NONPRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 10;
+    public static final int TYPE_TO_ALIAS_WITH_JAVA_BOXING_CAST_DISTANCE = 6;
+    public static final int JAVA_BOXING_CAST_DISTANCE = 7;
 
-    public static final int ENUM_TO_STRING_CAST_DISTANCE = 11;
+    public static final int PRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 8;
+    public static final int JAVA_BOXING_UP_CAST_DISTANCE = 9;
 
-    public static final int NONPRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 12;
+    public static final int TYPE_TO_ALIAS_WITH_JAVA_UNBOXING_CAST_DISTANCE = 10;
+    public static final int JAVA_UNBOXING_CAST_DISTANCE = 11;
+
+    public static final int NONPRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 12;
+
+    public static final int ENUM_TO_STRING_CAST_DISTANCE = 13;
+
+    public static final int NONPRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 14;
 
     public static final int JAVA_DOWN_CAST_DISTANCE = 30;
     public static final int PRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE = 31;
@@ -461,6 +466,18 @@ public class CastFactory implements ICastFactory {
             if (to instanceof DomainOpenClass && !(from instanceof DomainOpenClass) && from.getInstanceClass()
                 .isAssignableFrom(to.getInstanceClass())) {
                 return new TypeToAliasCast(from, to);
+            }
+
+            if (to instanceof DomainOpenClass && !(from instanceof DomainOpenClass) && isPrimitive(from) && ClassUtils
+                .primitiveToWrapper(from.getInstanceClass())
+                .isAssignableFrom(to.getInstanceClass())) {
+                return new TypeToAliasWithJavaBoxingCast(from, to);
+            }
+
+            if (to instanceof DomainOpenClass && !(from instanceof DomainOpenClass) && org.apache.commons.lang3.ClassUtils
+                .isPrimitiveWrapper(from.getInstanceClass()) && ClassUtils.wrapperToPrimitive(from.getInstanceClass())
+                    .isAssignableFrom(to.getInstanceClass())) {
+                return new TypeToAliasWithJavaUnboxingCast(from, to);
             }
 
             if (from instanceof DomainOpenClass && to.getInstanceClass().isAssignableFrom(from.getClass())) {

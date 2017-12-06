@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 public final class OpenLTest {
 
     public static final String DIR = "test-resources/functionality/";
+    public static final String FAILURES_DIR = "test-resources/expected-test-failures/";
     private static final Logger LOG = LoggerFactory.getLogger(OpenLTest.class);
     private Locale defaultLocale;
     private TimeZone defaultTimeZone;
@@ -110,10 +111,14 @@ public final class OpenLTest {
     }
 
     @Test
-    public void testAllExcelFiles() throws NoSuchMethodException {
+    public void testAllFailuresExcelFiles() throws NoSuchMethodException {
+        testAllExcelFilesInFolder(FAILURES_DIR, false);
+    }
+
+    private void testAllExcelFilesInFolder(String folderName, boolean pass) {
         LOG.info(">>> Running all OpenL tests...");
         boolean hasErrors = false;
-        final File sourceDir = new File(DIR);
+        final File sourceDir = new File(folderName);
 
         if (!sourceDir.exists()) {
             LOG.warn("Tests directory doesn't exist!");
@@ -133,7 +138,7 @@ public final class OpenLTest {
                     continue;
                 }
 
-                RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(DIR + sourceFile);
+                RulesEngineFactory<?> engineFactory = new RulesEngineFactory<Object>(folderName + sourceFile);
                 engineFactory.setExecutionMode(false);
                 compiledOpenClass = engineFactory.getCompiledOpenClass();
             } else if (file.isDirectory()) {
@@ -157,53 +162,55 @@ public final class OpenLTest {
             boolean success = true;
 
             // Check messages
-            File msgFile = new File(sourceDir, sourceFile + ".msg.txt");
-            Set<String> expectedMessages = new LinkedHashSet<>();
-            ;
-            if (msgFile.exists()) {
-                try {
-                    String content = IOUtils.toStringAndClose(new FileInputStream(msgFile));
-                    for (String message : content
-                        .split("\\u000D\\u000A|[\\u000A\\u000B\\u000C\\u000D\\u0085\\u2028\\u2029]")) {
-                        if (!StringUtils.isBlank(message)) {
-                            expectedMessages.add(message.trim());
+            if (pass) {
+                File msgFile = new File(sourceDir, sourceFile + ".msg.txt");
+                Set<String> expectedMessages = new LinkedHashSet<>();
+                ;
+                if (msgFile.exists()) {
+                    try {
+                        String content = IOUtils.toStringAndClose(new FileInputStream(msgFile));
+                        for (String message : content
+                            .split("\\u000D\\u000A|[\\u000A\\u000B\\u000C\\u000D\\u0085\\u2028\\u2029]")) {
+                            if (!StringUtils.isBlank(message)) {
+                                expectedMessages.add(message.trim());
+                            }
+                        }
+                    } catch (IOException exc) {
+                        error(errors++, sourceFile, "Cannot read a file {}", msgFile, exc);
+                    }
+
+                    List<OpenLMessage> actualMessages = compiledOpenClass.getMessages();
+                    List<OpenLMessage> missedMessages = new ArrayList<>();
+                    Set<String> restMessages = new LinkedHashSet<>(expectedMessages.size());
+                    restMessages.addAll(expectedMessages);
+                    for (OpenLMessage msg : actualMessages) {
+                        String actual = msg.getSeverity() + ": " + msg.getSummary();
+                        if (msg.getSeverity().equals(Severity.ERROR) || msg.getSeverity().equals(Severity.FATAL)) {
+                            success = false;
+                        }
+                        restMessages.remove(actual);
+                        if (!expectedMessages.contains(actual)) {
+                            missedMessages.add(msg);
                         }
                     }
-                } catch (IOException exc) {
-                    error(errors++, sourceFile, "Cannot read a file {}", msgFile, exc);
-                }
-
-                List<OpenLMessage> actualMessages = compiledOpenClass.getMessages();
-                List<OpenLMessage> missedMessages = new ArrayList<>();
-                Set<String> restMessages = new LinkedHashSet<>(expectedMessages.size());
-                restMessages.addAll(expectedMessages);
-                for (OpenLMessage msg : actualMessages) {
-                    String actual = msg.getSeverity() + ": " + msg.getSummary();
-                    if (msg.getSeverity().equals(Severity.ERROR) || msg.getSeverity().equals(Severity.FATAL)) {
+                    if (!missedMessages.isEmpty()) {
                         success = false;
+                        error(errors++, sourceFile, "  UNEXPECTED messages:");
+                        for (OpenLMessage msg : missedMessages) {
+                            error(errors++,
+                                sourceFile,
+                                "   {}: {}    at {}",
+                                msg.getSeverity(),
+                                msg.getSummary(),
+                                msg.getSourceLocation());
+                        }
                     }
-                    restMessages.remove(actual);
-                    if (!expectedMessages.contains(actual)) {
-                        missedMessages.add(msg);
-                    }
-                }
-                if (!missedMessages.isEmpty()) {
-                    success = false;
-                    error(errors++, sourceFile, "  UNEXPECTED messages:");
-                    for (OpenLMessage msg : missedMessages) {
-                        error(errors++,
-                            sourceFile,
-                            "   {}: {}    at {}",
-                            msg.getSeverity(),
-                            msg.getSummary(),
-                            msg.getSourceLocation());
-                    }
-                }
-                if (!restMessages.isEmpty()) {
-                    success = false;
-                    error(errors++, sourceFile, "  MISSED messages:");
-                    for (String msg : restMessages) {
-                        error(errors++, sourceFile, "   {}", msg);
+                    if (!restMessages.isEmpty()) {
+                        success = false;
+                        error(errors++, sourceFile, "  MISSED messages:");
+                        for (String msg : restMessages) {
+                            error(errors++, sourceFile, "   {}", msg);
+                        }
                     }
                 }
             }
@@ -231,12 +238,22 @@ public final class OpenLTest {
                     if (method instanceof TestSuiteMethod) {
                         TestUnitsResults res = (TestUnitsResults) method.invoke(target, new Object[0], env);
                         final int numberOfFailures = res.getNumberOfFailures();
-                        if (numberOfFailures != 0) {
-                            error(errors++,
-                                sourceFile,
-                                "Failed test: {}  Errors #: {}",
-                                res.getName(),
-                                numberOfFailures);
+                        if (pass) {
+                            if (numberOfFailures != 0) {
+                                error(errors++,
+                                    sourceFile,
+                                    "Failed test: {}  Errors #: {}",
+                                    res.getName(),
+                                    numberOfFailures);
+                            }
+                        } else {
+                            if (numberOfFailures != res.getNumberOfTestUnits()) {
+                                error(errors++,
+                                    sourceFile,
+                                    "Unexpected result test: {}  Errors #: {}",
+                                    res.getName(),
+                                    res.getNumberOfTestUnits() - numberOfFailures);
+                            }
                         }
                     }
                 }
@@ -251,6 +268,11 @@ public final class OpenLTest {
         }
 
         assertFalse("Some tests have been failed!", hasErrors);
+    }
+
+    @Test
+    public void testAllExcelFiles() {
+        testAllExcelFilesInFolder(DIR, true);
     }
 
     private void error(int count, String sourceFile, String msg, Object... args) {

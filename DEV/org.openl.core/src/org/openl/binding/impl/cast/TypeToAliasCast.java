@@ -34,6 +34,7 @@ public class TypeToAliasCast implements IOpenCast {
             return null;
         }
 
+        @SuppressWarnings("rawtypes")
         IDomain domain = toClass.getDomain();
 
         // Try to get given object from type domain. If object belongs to domain
@@ -59,7 +60,7 @@ public class TypeToAliasCast implements IOpenCast {
     }
 
     public int getDistance(IOpenClass from, IOpenClass to) {
-        return 1;
+        return CastFactory.TYPE_TO_ALIAS_CAST_DISTANCE;
     }
 
     public boolean isImplicit() {
