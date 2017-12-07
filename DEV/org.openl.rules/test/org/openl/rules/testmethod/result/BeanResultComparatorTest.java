@@ -1,4 +1,4 @@
-package org.openl.rules.testmethod.test;
+package org.openl.rules.testmethod.result;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
-import org.openl.rules.testmethod.result.BeanResultComparator;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 

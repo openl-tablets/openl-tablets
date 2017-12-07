@@ -1,9 +1,5 @@
 package org.openl.rules.testmethod;
 
-import java.lang.reflect.Array;
-import java.util.Collection;
-import java.util.Map;
-
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.testmethod.result.TestResultComparator;
@@ -74,23 +70,6 @@ public class TestUnitResultComparator {
     private Boolean comapreResult = null;
 
     public boolean compareResult(Object actualResult, Object expectedResult, Double delta) {
-
-        if (actualResult == expectedResult) {
-            return true;
-        }
-
-        if (expectedResult == null) {
-            if ((actualResult.getClass().isArray() && Array.getLength(actualResult) == 0)
-                    || (actualResult instanceof Collection && ((Collection<?>) actualResult).isEmpty())
-                    || (actualResult instanceof Map && ((Map<?, ?>) actualResult).isEmpty())
-                    || (actualResult instanceof String && ((String) actualResult).isEmpty())) {
-                return true;
-            }
-        }
-
-        if (actualResult == null) {
-            return false;
-        }
 
         if (comapreResult == null) {
             comapreResult = resultComparator.compareResult(actualResult, expectedResult, delta);

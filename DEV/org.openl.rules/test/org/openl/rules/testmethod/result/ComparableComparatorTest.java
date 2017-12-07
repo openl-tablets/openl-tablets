@@ -1,14 +1,13 @@
-package org.openl.rules.testmethod.test;
+package org.openl.rules.testmethod.result;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.openl.rules.testmethod.result.ComparableResultComparator;
 
-public class ComparableResultComparatorTest {
+public class ComparableComparatorTest {
     @Test
     public void test() {
-        ComparableResultComparator comp = new ComparableResultComparator();
+        ComparableComparator comp = new ComparableComparator();
 
         assertTrue(comp.compareResult(null, null, null));
 

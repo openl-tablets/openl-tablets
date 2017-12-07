@@ -1,9 +1,8 @@
-package org.openl.rules.testmethod.test;
+package org.openl.rules.testmethod.result;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.openl.rules.testmethod.result.ArrayComparator;
 
 public class ArrayComparatorTest {
     @Test

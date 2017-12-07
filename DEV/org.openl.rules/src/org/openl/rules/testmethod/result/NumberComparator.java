@@ -2,7 +2,7 @@ package org.openl.rules.testmethod.result;
 
 import org.openl.rules.helpers.NumberUtils;
 
-public class NumberComparator implements TestResultComparator {
+class NumberComparator implements TestResultComparator {
 
     public boolean compareResult(Object actualResult, Object expectedResult, Double delta) {
         if (actualResult == null || expectedResult == null) {
