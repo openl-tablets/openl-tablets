@@ -55,12 +55,16 @@ public class TestUnitResultComparator {
      * <b>1</b> if the expected result is not equal to the actual one.<br>
      * <b>2</b> if the was an exception, during running, that we didn`t expect.
      */
-    public int getCompareResult(TestUnit testUnit, Double delta) {
+    int getCompareResult(TestUnit testUnit) {
         if (testUnit.getActualResult() instanceof Throwable) {
-            return compareExceptionResult(testUnit, delta);
+            return compareExceptionResult(testUnit);
         }
 
-        if (compareResult(testUnit.getActualResult(), testUnit.getExpectedResult(), delta)) {
+        if (comapreResult == null) {
+            comapreResult = resultComparator.compareResult(testUnit.getActualResult(), testUnit.getExpectedResult());
+        }
+
+        if (comapreResult) {
             return TestStatus.TR_OK.getStatus();
         }
 
@@ -69,16 +73,7 @@ public class TestUnitResultComparator {
 
     private Boolean comapreResult = null;
 
-    public boolean compareResult(Object actualResult, Object expectedResult, Double delta) {
-
-        if (comapreResult == null) {
-            comapreResult = resultComparator.compareResult(actualResult, expectedResult, delta);
-        }
-
-        return comapreResult;
-    }
-
-    private int compareExceptionResult(TestUnit testUnit, Double delta) {
+    private int compareExceptionResult(TestUnit testUnit) {
         Throwable rootCause = ExceptionUtils.getRootCause((Throwable)testUnit.getActualResult());
         if (rootCause instanceof OpenLUserRuntimeException) {
             String actualMessage = ((OpenLUserRuntimeException) rootCause).getOriginalMessage();

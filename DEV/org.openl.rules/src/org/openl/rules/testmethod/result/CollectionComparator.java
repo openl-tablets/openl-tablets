@@ -40,7 +40,7 @@ class CollectionComparator extends GenericComparator<Collection<?>> {
         } else {
             return true;
         }
-        TestResultComparator comparator = TestResultComparatorFactory.getComparator(clazz);
-        return comparator.compareResult(actualVal, expectedVal, 0.00001);
+        TestResultComparator comparator = TestResultComparatorFactory.getComparator(clazz, null);
+        return comparator.compareResult(actualVal, expectedVal);
     }
 }

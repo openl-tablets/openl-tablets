@@ -3,8 +3,15 @@ package org.openl.rules.testmethod.result;
 import org.openl.rules.helpers.NumberUtils;
 
 class NumberComparator implements TestResultComparator {
+    private Double delta;
 
-    public boolean compareResult(Object actualResult, Object expectedResult, Double delta) {
+    NumberComparator(){}
+
+    NumberComparator(Double delta) {
+        this.delta = delta;
+    }
+
+    public boolean compareResult(Object actualResult, Object expectedResult) {
         if (actualResult == null || expectedResult == null) {
             return actualResult == expectedResult;
         }

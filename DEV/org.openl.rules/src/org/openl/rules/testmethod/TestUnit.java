@@ -1,13 +1,13 @@
 package org.openl.rules.testmethod;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openl.message.OpenLMessage;
 import org.openl.rules.testmethod.result.BeanResultComparator;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
 import org.openl.rules.testmethod.result.TestResultComparatorFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Representation of the single test unit in the test.
@@ -131,7 +131,8 @@ public class TestUnit {
 
     public TestUnitResultComparator getTestUnitResultComparator() {
         if (testUnitComparator == null) {
-            testUnitComparator = new TestUnitResultComparator(TestResultComparatorFactory.getComparator(test.getTestedMethod().getType().getInstanceClass()));
+            testUnitComparator = new TestUnitResultComparator(TestResultComparatorFactory
+                .getComparator(test.getTestedMethod().getType().getInstanceClass(), getDelta()));
         }
         return testUnitComparator;
     }
@@ -139,10 +140,10 @@ public class TestUnit {
     /**
      * Return the comparasion of the expected result and actual.
      *
-     * @return see {@link TestUnitResultComparator#getCompareResult(TestUnit, Double)}
+     * @return see {@link TestUnitResultComparator#getCompareResult(TestUnit)}
      */
     public int compareResult() {
-        return getTestUnitResultComparator().getCompareResult(this, getDelta());
+        return getTestUnitResultComparator().getCompareResult(this);
     }
 
     /**

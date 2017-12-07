@@ -9,12 +9,12 @@ public class ComparableComparatorTest {
     public void test() {
         ComparableComparator comp = new ComparableComparator();
 
-        assertTrue(comp.compareResult(null, null, null));
+        assertTrue(comp.compareResult(null, null));
 
-        assertFalse(comp.compareResult(null, Integer.valueOf(10), null));
+        assertFalse(comp.compareResult(null, Integer.valueOf(10)));
 
-        assertFalse(comp.compareResult(Integer.valueOf(10), null, null));
+        assertFalse(comp.compareResult(Integer.valueOf(10), null));
 
-        assertTrue(comp.compareResult(Integer.valueOf(10), Integer.valueOf(10), null));
+        assertTrue(comp.compareResult(Integer.valueOf(10), Integer.valueOf(10)));
     }
 }

@@ -7,7 +7,7 @@ package org.openl.rules.testmethod.result;
  */
 class GenericComparator<T> implements TestResultComparator {
     @Override
-    public final boolean compareResult(Object actualResult, Object expectedResult, Double delta) {
+    public final boolean compareResult(Object actualResult, Object expectedResult) {
         if (actualResult == expectedResult) {
             return true;
         }

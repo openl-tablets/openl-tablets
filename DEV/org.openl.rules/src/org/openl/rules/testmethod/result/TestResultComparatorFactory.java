@@ -19,13 +19,17 @@ public class TestResultComparatorFactory {
     private TestResultComparatorFactory() {
     }
 
-    public static TestResultComparator getComparator(Class<?> clazz) {
+    public static TestResultComparator getComparator(Class<?> clazz, Double delta) {
         if (clazz.isArray()) {
-            return new ArrayComparator(clazz.getComponentType());
+            return new ArrayComparator(clazz.getComponentType(), delta);
         } else if (clazz.equals(String.class)) {
             return STRING;
         } else if (NumberUtils.isFloatPointType(clazz)) {
-            return NUMBER;
+            if (delta == null) {
+                return NUMBER;
+            } else {
+                return new NumberComparator(delta);
+            }
         } else if (clazz.isAssignableFrom(Comparable.class)) {
             // Expected result and actual result can be different types (StubSpreadsheet)
             return COMPARABLE;

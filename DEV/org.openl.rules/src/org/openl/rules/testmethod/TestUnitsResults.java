@@ -201,6 +201,7 @@ public class TestUnitsResults implements INamedThing {
                                 }
                             }
 
+                            fieldPrecision = testUnit.getTest().getTestTablePrecision();
                             if (fieldSequence[i] == null) {
                                 if (nodes[i + 1 - startIndex].getIdentifier()
                                     .matches(DataTableBindHelper.PRECISION_PATTERN)) {
