@@ -1,6 +1,13 @@
 @rem set JRE_HOME=C:\Program Files\Java\jre1.8.0_92
+@rem set _JAVA_MEMORY=-Xms512m -Xmx2g
 
 @setlocal
+@if exist "setenv.cmd" (
+@echo ### Loading environment from setenv.cmd ...
+@echo.
+@call setenv.cmd
+@echo.
+)
 @set errorcode=0
 @set delay=20
 @echo ### Checking Java environment ...
@@ -70,13 +77,58 @@ rem SUBROUTINES
 @echo ### Trying to use JRE_HOME=%JRE_HOME% ...
 
 :start
+@rem check JAVA installation and save valid JRE_HOME
 @setlocal & pushd %~dp0 & call bin\setclasspath.bat > NUL & popd & endlocal & if errorlevel 1 exit /b 1 & endlocal
+@setlocal & pushd %~dp0 & call bin\setclasspath.bat & popd
+@endlocal & set _JRE_HOME=%JRE_HOME%
+
+@rem Determine Java version
+@FOR /f "tokens=3" %%G IN ('%_JRE_HOME%\bin\java.exe -version 2^>^&1 ^| find "java version"') DO set _JAVA_VERSION=%%~G
+@if "%_JAVA_VERSION%" == "" set _JAVA_VERSION=UNKNOWN
+
+@if not defined _JAVA_OPTS (
+@rem set parameters for Java 9
+@if "%_JAVA_VERSION%" == "9" set _JAVA_OPTS=--add-modules java.se.ee
+
+@rem set parameters for Java 8
+@if "%_JAVA_VERSION:~0,3%" == "1.8" set _JAVA_OPTS=-XX:+UseParNewGC -XX:+UseConcMarkSweepGC
+
+@rem set parameters for Java 7
+@if "%_JAVA_VERSION:~0,3%" == "1.7" set _JAVA_OPTS=-XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:PermSize=128m -XX:MaxPermSize=512m
+)
+
+@rem Determine memory size
+@for /f %%G in ('wmic ComputerSystem get TotalPhysicalMemory ^| findstr [0123456789]') do set _MEMORY=%%G
+@if "%_MEMORY%" == "" set _MEMORY=0
+set _MEMORY=%_MEMORY:~0,-9%
+
+%if not defined _JAVA_MEMORY (
+@rem default memory settings
+@set _JAVA_MEMORY=-Xms512m -Xmx2g
+
+@rem 4GiB
+@if %_MEMORY% GEQ 4 set _JAVA_MEMORY=-Xms2g -Xmx3g
+
+@rem 6GiB
+@if %_MEMORY% GEQ 6 set _JAVA_MEMORY=-Xms3g -Xmx5g
+
+@rem 8GiB
+@if %_MEMORY% GEQ 8 set _JAVA_MEMORY=-Xms4g -Xmx7g
+
+@rem 12GiB
+@if %_MEMORY% GEQ 12 set _JAVA_MEMORY=-Xms8g -Xmx10g
+)
+
+@rem Run Apache Tomcat
 @setlocal
 @echo.
 @echo ### Starting OpenL Tablets DEMO ...
 @echo.
-@set JAVA_OPTS=%JAVA_OPTS% -Xms512m -Xmx2g -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:PermSize=128m -XX:MaxPermSize=512m
+@set JAVA_OPTS=%JAVA_OPTS% %_JAVA_MEMORY% %_JAVA_OPTS%
 @set CATALINA_OPTS=-DDEMO=DEMO -Dwebstudio.home=openl-demo -Dwebstudio.configured=true -Dws.port=8080 %CATALINA_OPTS%
+@echo Memory size:           "%_MEMORY%GBytes"
+@echo Java version:          "%_JAVA_VERSION%"
+@echo Using JRE_HOME:        "%_JRE_HOME%"
 @echo Using JAVA_OPTS:       "%JAVA_OPTS%"
 @echo Using CATALINA_OPTS:   "%CATALINA_OPTS%"
 @pushd %~dp0
