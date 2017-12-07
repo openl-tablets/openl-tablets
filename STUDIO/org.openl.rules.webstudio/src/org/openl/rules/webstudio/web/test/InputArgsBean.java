@@ -24,10 +24,14 @@ import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 import org.richfaces.component.UITree;
 import org.richfaces.model.SequenceRowKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ManagedBean
 @ViewScoped
 public class InputArgsBean {
+    private final Logger log = LoggerFactory.getLogger(InputArgsBean.class);
+
     private String uri;
     private UITree currentTreeNode;
     private ParameterWithValueDeclaration[] arguments;
@@ -182,14 +186,19 @@ public class InputArgsBean {
     }
 
     public SelectItem[] getPossibleTypes(ParameterDeclarationTreeNode currentNode) {
-        Collection<IOpenClass> allClasses = getAllClasses(currentNode);
+        try {
+            Collection<IOpenClass> allClasses = getAllClasses(currentNode);
 
-        Collection<SelectItem> result = new ArrayList<>();
-        for (IOpenClass type : allClasses) {
-            result.add(new SelectItem(type.getJavaName(), type.getDisplayName(INamedThing.SHORT)));
+            Collection<SelectItem> result = new ArrayList<>();
+            for (IOpenClass type : allClasses) {
+                result.add(new SelectItem(type.getJavaName(), type.getDisplayName(INamedThing.SHORT)));
+            }
+
+            return result.toArray(new SelectItem[0]);
+        } catch (Throwable e) {
+            log.error(e.getMessage(), e);
+            return new SelectItem[0];
         }
-
-        return result.toArray(new SelectItem[0]);
     }
 
     private Collection<IOpenClass> getAllClasses(ParameterDeclarationTreeNode currentNode) {
