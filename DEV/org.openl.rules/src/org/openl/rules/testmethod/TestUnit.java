@@ -131,7 +131,7 @@ public class TestUnit {
 
     public TestUnitResultComparator getTestUnitResultComparator() {
         if (testUnitComparator == null) {
-            testUnitComparator = new TestUnitResultComparator(TestResultComparatorFactory.getComparator(getActualResult(), getExpectedResult()));
+            testUnitComparator = new TestUnitResultComparator(TestResultComparatorFactory.getComparator(test.getTestedMethod().getType().getInstanceClass()));
         }
         return testUnitComparator;
     }

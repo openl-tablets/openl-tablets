@@ -103,8 +103,7 @@ public class BeanResultComparator implements TestResultComparator {
                         IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(actualFieldValue.getClass());
                         expectedFieldValue = convertor.parse((String) expectedFieldValue, null);
                     }
-                    TestResultComparator comparator = TestResultComparatorFactory.getComparator(actualFieldValue,
-                        expectedFieldValue);
+                    TestResultComparator comparator = TestResultComparatorFactory.getComparator(field.getType().getInstanceClass());
                     compare = comparator.compareResult(actualFieldValue, expectedFieldValue, columnDelta);
                 }catch(Exception e){
                 }

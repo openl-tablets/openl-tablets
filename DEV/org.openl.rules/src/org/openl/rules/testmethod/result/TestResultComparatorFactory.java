@@ -8,19 +8,17 @@ import org.openl.types.IOpenField;
 public class TestResultComparatorFactory {
     private TestResultComparatorFactory(){}
 
-    public static TestResultComparator getComparator(Object actualResult, Object expectedResult) {
-        if (NumberUtils.isFloatPointNumber(actualResult) && NumberUtils.isFloatPointNumber(expectedResult)) {
+    public static TestResultComparator getComparator(Class<?> clazz) {
+        if (NumberUtils.isFloatPointType(clazz)) {
             return new NumberComparator();
         }
         //Expected result and actual result can be different types (StubSpreadsheet)
-        if (actualResult instanceof Comparable && (expectedResult == null || actualResult.getClass().equals(expectedResult.getClass()))) {
+        if (clazz.isAssignableFrom(Comparable.class)) {
             return new ComparableResultComparator();
         }
 
-        if (actualResult != null && expectedResult != null) {
-            if (actualResult.getClass().isArray() && expectedResult.getClass().isArray()) {
-                return new ArrayComparator();
-            }
+        if (clazz.isArray()) {
+            return new ArrayComparator(clazz.getComponentType());
         }
 
         return new DefaultComparator();

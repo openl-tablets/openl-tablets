@@ -8,7 +8,7 @@ import org.openl.rules.testmethod.result.ArrayComparator;
 public class ArrayComparatorTest {
     @Test
     public void test() {
-        ArrayComparator comparator = new ArrayComparator();
+        ArrayComparator comparator = new ArrayComparator(Integer.class);
 
         assertTrue(comparator.compareResult(null, null, null));
         Integer[] intArray = new Integer[] {1, 2};
