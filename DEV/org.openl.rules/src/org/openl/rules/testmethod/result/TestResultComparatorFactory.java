@@ -11,10 +11,11 @@ public class TestResultComparatorFactory {
 
     private static final StringComparator STRING = new StringComparator();
     private static final NumberComparator NUMBER = new NumberComparator();
-    private static final ComparableComparator<?> COMPARABLE = new ComparableComparator<>();
+    private static final ComparableComparator COMPARABLE = new ComparableComparator();
     private static final CollectionComparator COLLECTION = new CollectionComparator();
     private static final MapComparator MAP = new MapComparator();
-    private static final GenericComparator<?> OBJECT = new GenericComparator<>();
+    private static final ObjectComparator OBJECT = new ObjectComparator();
+    private static final GenericComparator GENERIC = new GenericComparator();
 
     private TestResultComparatorFactory() {
     }
@@ -22,7 +23,7 @@ public class TestResultComparatorFactory {
     public static TestResultComparator getComparator(Class<?> clazz, Double delta) {
         if (clazz.isArray()) {
             return new ArrayComparator(clazz.getComponentType(), delta);
-        } else if (clazz.equals(String.class)) {
+        } else if (String.class.equals(clazz)) {
             return STRING;
         } else if (NumberUtils.isFloatPointType(clazz)) {
             if (delta == null) {
@@ -30,16 +31,22 @@ public class TestResultComparatorFactory {
             } else {
                 return new NumberComparator(delta);
             }
-        } else if (clazz.isAssignableFrom(Comparable.class)) {
+        } else if (Comparable.class.isAssignableFrom(clazz)) {
             // Expected result and actual result can be different types (StubSpreadsheet)
             return COMPARABLE;
-        } else if (clazz.isAssignableFrom(Collection.class)) {
+        } else if (Collection.class.isAssignableFrom(clazz)) {
             return COLLECTION;
-        } else if (clazz.isAssignableFrom(Map.class)) {
+        } else if (Map.class.isAssignableFrom(clazz)) {
             return MAP;
+        } else if (Object.class.equals(clazz)) {
+            if (delta == null) {
+                return OBJECT;
+            } else {
+                return new ObjectComparator(delta);
+            }
         }
 
-        return OBJECT;
+        return GENERIC;
     }
 
     public static TestResultComparator getOpenLBeanComparator(List<IOpenField> fieldsToTest) {

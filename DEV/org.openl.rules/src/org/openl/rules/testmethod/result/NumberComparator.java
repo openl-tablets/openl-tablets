@@ -5,7 +5,8 @@ import org.openl.rules.helpers.NumberUtils;
 class NumberComparator implements TestResultComparator {
     private Double delta;
 
-    NumberComparator(){}
+    NumberComparator() {
+    }
 
     NumberComparator(Double delta) {
         this.delta = delta;
@@ -25,7 +26,8 @@ class NumberComparator implements TestResultComparator {
                 // -Inf == -Inf
                 // Number == Number
                 return true;
-            } else if (Double.isInfinite(actual) || Double.isInfinite(expected) || Double.isNaN(actual) || Double.isNaN(expected)) {
+            } else if (Double.isInfinite(actual) || Double.isInfinite(expected) || Double.isNaN(actual) || Double
+                .isNaN(expected)) {
                 return false;
             } else {
                 // Number ~= Number

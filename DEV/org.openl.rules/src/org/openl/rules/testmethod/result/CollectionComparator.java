@@ -8,6 +8,8 @@ import java.util.Iterator;
  */
 class CollectionComparator extends GenericComparator<Collection<?>> {
 
+    private TestResultComparator comparator = TestResultComparatorFactory.getComparator(Object.class, null);
+
     @Override
     boolean isEmpty(Collection<?> object) {
         return object.isEmpty();
@@ -24,23 +26,11 @@ class CollectionComparator extends GenericComparator<Collection<?>> {
         while (expectedItr.hasNext() && actualItr.hasNext()) {
             Object expectedVal = expectedItr.next();
             Object actualVal = actualItr.next();
-            if (!compare(expectedVal, actualVal)) {
+            if (!comparator.compareResult(actualVal, expectedVal)) {
                 return false;
             }
         }
         return !expectedItr.hasNext() && !actualItr.hasNext();
     }
 
-    private boolean compare(Object expectedVal, Object actualVal) {
-        Class<?> clazz;
-        if (expectedVal != null) {
-            clazz = expectedVal.getClass();
-        } else if (actualVal != null) {
-            clazz = actualVal.getClass();
-        } else {
-            return true;
-        }
-        TestResultComparator comparator = TestResultComparatorFactory.getComparator(clazz, null);
-        return comparator.compareResult(actualVal, expectedVal);
-    }
 }
