@@ -1,40 +1,13 @@
 package org.openl.rules.testmethod;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.testmethod.result.TestResultComparator;
 import org.openl.util.StringUtils;
 
 public class TestUnitResultComparator {
 
-    public static enum TestStatus {
-        TR_EXCEPTION(2),
-        TR_NEQ(1),
-        TR_OK(0);
-
-        private int status;
-
-        private TestStatus(int status) {
-            this.status = status;
-        }
-
-        public int getStatus() {
-            return status;
-        }
-
-        public static TestStatus getConstant(int status) {
-            switch (status) {
-                case 0:
-                    return TR_OK;
-                case 1:
-                    return TR_NEQ;
-                case 2:
-                    return TR_EXCEPTION;
-                default:
-                    throw new OpenlNotCheckedException(String.format("Cant get the constant for compare result for status %d",
-                        status));
-            }
-        }
+    public enum TestStatus {
+        TR_EXCEPTION, TR_NEQ, TR_OK;
     }
 
     private TestResultComparator resultComparator;
@@ -55,7 +28,7 @@ public class TestUnitResultComparator {
      * <b>1</b> if the expected result is not equal to the actual one.<br>
      * <b>2</b> if the was an exception, during running, that we didn`t expect.
      */
-    int getCompareResult(TestUnit testUnit) {
+    TestStatus getCompareResult(TestUnit testUnit) {
         if (testUnit.getActualResult() instanceof Throwable) {
             return compareExceptionResult(testUnit);
         }
@@ -65,22 +38,22 @@ public class TestUnitResultComparator {
         }
 
         if (comapreResult) {
-            return TestStatus.TR_OK.getStatus();
+            return TestStatus.TR_OK;
         }
 
-        return TestStatus.TR_NEQ.getStatus();
+        return TestStatus.TR_NEQ;
     }
 
     private Boolean comapreResult = null;
 
-    private int compareExceptionResult(TestUnit testUnit) {
+    private TestStatus compareExceptionResult(TestUnit testUnit) {
         Throwable rootCause = ExceptionUtils.getRootCause((Throwable)testUnit.getActualResult());
         if (rootCause instanceof OpenLUserRuntimeException) {
             String actualMessage = ((OpenLUserRuntimeException) rootCause).getOriginalMessage();
             Object expectedResult = testUnit.getExpectedResult();
             if (expectedResult != null
                     && !(expectedResult instanceof String)) {
-                return TestStatus.TR_NEQ.getStatus();
+                return TestStatus.TR_NEQ;
             }
             String expectedMessage = (String) expectedResult;
 
@@ -93,14 +66,13 @@ public class TestUnitResultComparator {
                 expectedMessage = StringUtils.EMPTY;
             }
 
-//            if (compareResult(actualMessage, expectedMessage, delta)) {
             if (expectedMessage.equals(actualMessage)) {
-                return TestStatus.TR_OK.getStatus();
+                return TestStatus.TR_OK;
             } else {
-                return TestStatus.TR_NEQ.getStatus();
+                return TestStatus.TR_NEQ;
             }
         }
 
-        return TestStatus.TR_EXCEPTION.getStatus();
+        return TestStatus.TR_EXCEPTION;
     }
 }

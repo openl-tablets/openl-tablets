@@ -29,6 +29,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.testmethod.*;
+import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
 import org.openl.types.IOpenClass;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
@@ -319,9 +320,9 @@ public final class TestMojo extends BaseOpenLMojo {
         String modulePrefix = moduleName == null ? "" : moduleName + ".";
 
         for (TestUnit testUnit : result.getTestUnits()) {
-            int status = testUnit.compareResult();
-            if (status != TR_OK.getStatus()) {
-                String failureType = status == TR_NEQ.getStatus() ? FAILURE : ERROR;
+            TestStatus status = testUnit.compareResult();
+            if (status != TR_OK) {
+                String failureType = status == TR_NEQ ? FAILURE : ERROR;
                 String description = testUnit.getDescription();
 
                 info("  Test case: #", num,
@@ -329,7 +330,7 @@ public final class TestMojo extends BaseOpenLMojo {
                         ". Time elapsed: ", formatTime(testUnit.getExecutionTime()), " sec. ",
                         failureType);
 
-                if (status == TR_NEQ.getStatus()) {
+                if (status == TR_NEQ) {
                     info("    Expected: <", testUnit.getExpectedResult(),
                             "> but was: <", testUnit.getActualResult() + ">");
                     summaryFailures.add(modulePrefix + test.getName() + "#" + num +

@@ -106,7 +106,7 @@ public class TestUnit {
         }
 
         ComparedResult result = new ComparedResult();
-        result.setStatus(TestUnitResultComparator.TestStatus.getConstant(compareResult()));
+        result.setStatus(compareResult());
         result.setActualValue(new ParameterWithValueDeclaration("actual", actual));
         result.setExpectedValue(new ParameterWithValueDeclaration("expected", expected));
         params.add(result);
@@ -142,7 +142,7 @@ public class TestUnit {
      *
      * @return see {@link TestUnitResultComparator#getCompareResult(TestUnit)}
      */
-    public int compareResult() {
+    public TestUnitResultComparator.TestStatus compareResult() {
         return getTestUnitResultComparator().getCompareResult(this);
     }
 

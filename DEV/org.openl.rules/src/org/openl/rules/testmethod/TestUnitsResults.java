@@ -61,7 +61,7 @@ public class TestUnitsResults implements INamedThing {
         if (testUnits != null && failuresOnly) {
             List<TestUnit> failedUnits = new ArrayList<TestUnit>();
             for (TestUnit testUnit : testUnits) {
-                if (testUnit.compareResult() != 0 // Failed unit
+                if (testUnit.compareResult() != TestStatus.TR_OK // Failed unit
                         && (failedUnits.size() < size || size == -1)) {
                     failedUnits.add(testUnit);
                 }
@@ -250,7 +250,7 @@ public class TestUnitsResults implements INamedThing {
     public int getNumberOfFailures() {
         int cnt = 0;
         for (int i = 0; i < getNumberOfTestUnits(); i++) {
-            if (testUnits.get(i).compareResult() != TestStatus.TR_OK.getStatus()) {
+            if (testUnits.get(i).compareResult() != TestStatus.TR_OK) {
                 ++cnt;
             }
         }
@@ -260,7 +260,7 @@ public class TestUnitsResults implements INamedThing {
     public int getNumberOfErrors() {
         int cnt = 0;
         for (int i = 0; i < getNumberOfTestUnits(); i++) {
-            if (testUnits.get(i).compareResult() == TestStatus.TR_EXCEPTION.getStatus()) {
+            if (testUnits.get(i).compareResult() == TestStatus.TR_EXCEPTION) {
                 ++cnt;
             }
         }
@@ -270,7 +270,7 @@ public class TestUnitsResults implements INamedThing {
     public int getNumberOfAssertionFailures() {
         int cnt = 0;
         for (int i = 0; i < getNumberOfTestUnits(); i++) {
-            if (testUnits.get(i).compareResult() == TestStatus.TR_NEQ.getStatus()) {
+            if (testUnits.get(i).compareResult() == TestStatus.TR_NEQ) {
                 ++cnt;
             }
         }
@@ -385,7 +385,7 @@ public class TestUnitsResults implements INamedThing {
             .append(" FAILED!");
 
         for (int i = 0; i < getNumberOfTestUnits(); i++) {
-            if (testUnits.get(i).compareResult() != TestStatus.TR_OK.getStatus()) {
+            if (testUnits.get(i).compareResult() != TestStatus.TR_OK) {
                 sb.append('\n')
                     .append(i + 1)
                     .append(". ")
