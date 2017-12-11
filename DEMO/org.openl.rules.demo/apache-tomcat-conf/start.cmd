@@ -20,8 +20,12 @@
 @if errorlevel 1 (
   @echo       Probably, you have not installed Java...
 ) else (
-  @for /f "tokens=*" %%i in ('@where java.exe') do @call :startJAVA "%%i" & echo. & if not errorlevel 1 goto :end
+  @for /f "tokens=*" %%i in ('@where java.exe') do @call :startJava "%%i" & echo. & if not errorlevel 1 goto :end
 )
+
+@rem Try to all known locations of java
+@for /f "tokens=*" %%i in ('dir "%ProgramFiles%\Java\" /O-D /AD /B') do @call :startJava "%ProgramFiles%\Java\%%~i\bin\java.exe" & echo. & if not errorlevel 1 goto :end
+@for /f "tokens=*" %%i in ('dir "%ProgramFiles(x86)%\Java\" /O-D /AD /B') do @call :startJava "%ProgramFiles(x86)%\Java\%%~i\bin\java.exe" & echo. & if not errorlevel 1 goto :end
 
 @set errorcode=1
 @echo       Check JRE_HOME and JAVA_HOME environment variables.
@@ -54,6 +58,7 @@ rem SUBROUTINES
 
 :startJava
 @setlocal
+@if not exist "%~1" exit /b 2 & endlocal
 @set _ARG=%~1
 @echo ### Found executable java.exe is located at:
 @echo        %_ARG%
@@ -83,12 +88,15 @@ rem SUBROUTINES
 @endlocal & set _JRE_HOME=%JRE_HOME%
 
 @rem Determine Java version
-@FOR /f "tokens=3" %%G IN ('%_JRE_HOME%\bin\java.exe -version 2^>^&1 ^| find "java version"') DO set _JAVA_VERSION=%%~G
+@pushd "%_JRE_HOME%"
+@FOR /f "tokens=3" %%G IN ('bin\java.exe -version 2^>^&1 ^| find "java version"') DO set _JAVA_VERSION=%%~G
+@popd
 @if "%_JAVA_VERSION%" == "" set _JAVA_VERSION=UNKNOWN
 
 @if not defined _JAVA_OPTS (
 @rem set parameters for Java 9
 @if "%_JAVA_VERSION%" == "9" set _JAVA_OPTS=--add-modules java.se.ee
+@if "%_JAVA_VERSION:~0,2%" == "9." set _JAVA_OPTS=--add-modules java.se.ee
 
 @rem set parameters for Java 8
 @if "%_JAVA_VERSION:~0,3%" == "1.8" set _JAVA_OPTS=-XX:+UseParNewGC -XX:+UseConcMarkSweepGC
