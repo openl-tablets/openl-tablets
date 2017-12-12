@@ -20,7 +20,7 @@ public class TestUnitTest {
         unit.setTestUnitResultComparator(TestResultComparatorFactory.getComparator(Double.class, null));
 
         assertEquals(0.93, unit.getActualResult());
-        assertEquals(TestUnitResultComparator.TestStatus.TR_OK, unit.compareResult());
+        assertEquals(TestStatus.TR_OK, unit.compareResult());
     }
 
 }

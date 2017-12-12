@@ -10,9 +10,9 @@ import org.openl.rules.testmethod.result.TestResultComparator;
 import org.openl.rules.testmethod.result.TestResultComparatorFactory;
 import org.openl.util.StringUtils;
 
-import static org.openl.rules.testmethod.TestUnitResultComparator.TestStatus.TR_NEQ;
-import static org.openl.rules.testmethod.TestUnitResultComparator.TestStatus.TR_OK;
-import static org.openl.rules.testmethod.TestUnitResultComparator.TestStatus.TR_EXCEPTION;
+import static org.openl.rules.testmethod.TestStatus.TR_NEQ;
+import static org.openl.rules.testmethod.TestStatus.TR_OK;
+import static org.openl.rules.testmethod.TestStatus.TR_EXCEPTION;
 /**
  * Representation of the single test unit in the test.
  *
@@ -27,7 +27,7 @@ public class TestUnit {
     public static final String DEFAULT_DESCRIPTION = "No Description";
 
     private TestResultComparator resultComparator;
-    private TestUnitResultComparator.TestStatus comapreResult;
+    private TestStatus comapreResult;
 
     private Integer precision = null;
     private final long executionTime;
@@ -146,7 +146,7 @@ public class TestUnit {
      * Return the comparasion of the expected result and actual.
      *
      */
-    public TestUnitResultComparator.TestStatus compareResult() {
+    public TestStatus compareResult() {
         if (comapreResult != null) {
             return comapreResult;
         }

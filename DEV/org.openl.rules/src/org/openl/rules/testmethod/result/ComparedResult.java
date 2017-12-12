@@ -1,6 +1,6 @@
 package org.openl.rules.testmethod.result;
 
-import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
+import org.openl.rules.testmethod.TestStatus;
 
 public class ComparedResult {
     private String fieldName;

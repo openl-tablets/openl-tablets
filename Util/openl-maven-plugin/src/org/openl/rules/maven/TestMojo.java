@@ -1,7 +1,7 @@
 package org.openl.rules.maven;
 
-import static org.openl.rules.testmethod.TestUnitResultComparator.TestStatus.TR_NEQ;
-import static org.openl.rules.testmethod.TestUnitResultComparator.TestStatus.TR_OK;
+import static org.openl.rules.testmethod.TestStatus.TR_NEQ;
+import static org.openl.rules.testmethod.TestStatus.TR_OK;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +29,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.testmethod.*;
-import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
+import org.openl.rules.testmethod.TestStatus;
 import org.openl.types.IOpenClass;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;

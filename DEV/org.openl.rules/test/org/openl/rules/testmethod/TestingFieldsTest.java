@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.openl.rules.BaseOpenlBuilderHelper;
-import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
 
 public class TestingFieldsTest extends BaseOpenlBuilderHelper {
     private static final String SRC = "test/rules/testmethod/TestingFieldsTest.xls";

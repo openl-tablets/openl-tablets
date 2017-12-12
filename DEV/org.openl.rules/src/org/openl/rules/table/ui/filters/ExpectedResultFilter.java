@@ -7,7 +7,7 @@ import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.Point;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.testmethod.IParameterWithValueDeclaration;
-import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
+import org.openl.rules.testmethod.TestStatus;
 import org.openl.rules.testmethod.result.ComparedResult;
 
 public class ExpectedResultFilter extends AGridFilter {

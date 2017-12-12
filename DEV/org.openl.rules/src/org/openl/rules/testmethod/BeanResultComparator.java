@@ -8,7 +8,6 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.data.PrecisionFieldChain;
-import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
 import org.openl.rules.testmethod.result.TestResultComparatorFactory;

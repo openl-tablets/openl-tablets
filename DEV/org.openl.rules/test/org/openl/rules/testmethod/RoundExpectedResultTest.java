@@ -79,9 +79,9 @@ public class RoundExpectedResultTest {
                     ArrayList<TestUnit> testUnits = res.getTestUnits();
                     for (int i = 0; i < testUnits.size(); i++) {
                         if (successfulRows.contains(i)) {
-                            assertEquals(TestUnitResultComparator.TestStatus.TR_OK, testUnits.get(i).compareResult());
+                            assertEquals(TestStatus.TR_OK, testUnits.get(i).compareResult());
                         } else {
-                            assertEquals(TestUnitResultComparator.TestStatus.TR_NEQ, testUnits.get(i).compareResult());
+                            assertEquals(TestStatus.TR_NEQ, testUnits.get(i).compareResult());
                         }
                     }
                 }

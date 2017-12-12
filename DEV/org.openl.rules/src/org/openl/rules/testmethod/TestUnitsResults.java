@@ -14,8 +14,6 @@ import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.DataTableBindHelper;
 import org.openl.rules.data.FieldChain;
 import org.openl.rules.data.PrecisionFieldChain;
-import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
-import org.openl.rules.testmethod.result.TestResultComparator;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
