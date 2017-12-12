@@ -1,4 +1,4 @@
-package org.openl.rules.testmethod.result;
+package org.openl.rules.testmethod;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -14,7 +14,7 @@ import org.openl.types.java.JavaOpenClass;
 public class BeanResultComparatorTest {
 
     @Test
-    public void test() throws NoSuchFieldException {
+    public void test() {
         BeanResultComparator comparator = new BeanResultComparator(Collections.<IOpenField> emptyList());
         assertTrue(comparator.isEqual(null, null));
 

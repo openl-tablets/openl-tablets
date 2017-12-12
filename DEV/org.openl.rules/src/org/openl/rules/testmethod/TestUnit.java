@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.message.OpenLMessage;
-import org.openl.rules.testmethod.result.BeanResultComparator;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
 import org.openl.rules.testmethod.result.TestResultComparatorFactory;

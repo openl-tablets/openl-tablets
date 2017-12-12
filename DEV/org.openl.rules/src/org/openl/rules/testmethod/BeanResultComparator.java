@@ -1,4 +1,4 @@
-package org.openl.rules.testmethod.result;
+package org.openl.rules.testmethod;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,8 +8,10 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.data.PrecisionFieldChain;
-import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
+import org.openl.rules.testmethod.result.ComparedResult;
+import org.openl.rules.testmethod.result.TestResultComparator;
+import org.openl.rules.testmethod.result.TestResultComparatorFactory;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
@@ -18,7 +20,7 @@ public class BeanResultComparator implements TestResultComparator {
     private List<IOpenField> fields;
     private List<ComparedResult> comparisonResults = new ArrayList<ComparedResult>();
 
-    public BeanResultComparator(List<IOpenField> fields) {
+    BeanResultComparator(List<IOpenField> fields) {
         this.fields = fields;
     }
 
