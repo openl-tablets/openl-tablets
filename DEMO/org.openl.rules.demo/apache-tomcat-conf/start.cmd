@@ -24,8 +24,9 @@
 )
 
 @rem Try to all known locations of java
-@for /f "tokens=*" %%i in ('dir "%ProgramFiles%\Java\" /O-D /AD /B') do @call :startJava "%ProgramFiles%\Java\%%~i\bin\java.exe" & echo. & if not errorlevel 1 goto :end
-@for /f "tokens=*" %%i in ('dir "%ProgramFiles(x86)%\Java\" /O-D /AD /B') do @call :startJava "%ProgramFiles(x86)%\Java\%%~i\bin\java.exe" & echo. & if not errorlevel 1 goto :end
+@call :findJava "%ProgramW6432%\Java" & if not errorlevel 1 goto :end
+@call :findJava "%ProgramFiles%\Java" & if not errorlevel 1 goto :end
+@call :findJava "%ProgramFiles(x86)%\Java" & if not errorlevel 1 goto :end
 
 @set errorcode=1
 @echo       Check JRE_HOME and JAVA_HOME environment variables.
@@ -55,6 +56,17 @@
 goto :end
 
 rem SUBROUTINES
+@rem errorlevel=0 JRE has been found and executed successfully
+@rem errorlevel=1 JRE_HOME is not valid
+@rem errorlevel=2 java.exe has not been found
+@rem errorlevel=3 java.exe is not suitable
+@rem errorlevel=4 Not suitable Java version
+
+:findJava
+@if not exist "%~1" exit /b 2
+@for /f "tokens=*" %%i in ('dir "%~1" /O-D /AD /B') do @call :startJava "%~1\%%~i\bin\java.exe" & echo. & if not errorlevel 1 exit /b 0
+@exit /b 2
+
 
 :startJava
 @setlocal
@@ -68,7 +80,7 @@ rem SUBROUTINES
 
 @rem Try to resolve JRE_HOME from the symlink on the found executable java.
 @for /f "tokens=2 delims=[]" %%i in ('@dir "%_ARG%" ^| findstr /l \bin\java.exe') do @set _VAR=%%i
-@if "%_VAR%" == "" exit /b 4 & endlocal
+@if "%_VAR%" == "" exit /b 3 & endlocal
 @echo ### Resolving symlink...
 @call :startJRE "%_VAR%" & if not errorlevel 1 exit /b 0 & endlocal
 @exit /b 3 & endlocal
@@ -77,7 +89,7 @@ rem SUBROUTINES
 @setlocal
 @set _ARG=%~1
 @echo ### Composing JRE_HOME from %_ARG% ...
-@if "%_ARG:~-13%" neq "\bin\java.exe" @echo ###    ... it does not match & exit /b 2 & endlocal
+@if "%_ARG:~-13%" neq "\bin\java.exe" @echo ###    ... it does not match & exit /b 3 & endlocal
 @set JRE_HOME=%_ARG:~0,-13%
 @echo ### Trying to use JRE_HOME=%JRE_HOME% ...
 
@@ -92,6 +104,7 @@ rem SUBROUTINES
 @FOR /f "tokens=3" %%G IN ('bin\java.exe -version 2^>^&1 ^| find "java version"') DO set _JAVA_VERSION=%%~G
 @popd
 @if "%_JAVA_VERSION%" == "" set _JAVA_VERSION=UNKNOWN
+@if "%_JAVA_VERSION:~0,3%" == "1.6" echo Java version %_JAVA_VERSION% is not supported. & exit /b 4 & endlocal
 
 @if not defined _JAVA_OPTS (
 @rem set parameters for Java 9
