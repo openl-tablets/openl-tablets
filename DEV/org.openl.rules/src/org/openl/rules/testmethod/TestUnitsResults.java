@@ -15,8 +15,8 @@ import org.openl.rules.data.DataTableBindHelper;
 import org.openl.rules.data.FieldChain;
 import org.openl.rules.data.PrecisionFieldChain;
 import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
+import org.openl.rules.testmethod.result.BeanResultComparator;
 import org.openl.rules.testmethod.result.TestResultComparator;
-import org.openl.rules.testmethod.result.TestResultComparatorFactory;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -235,7 +235,7 @@ public class TestUnitsResults implements INamedThing {
         }
 
         if (fieldsToTest.size() > 0) {
-            TestResultComparator resultComparator = TestResultComparatorFactory.getOpenLBeanComparator(fieldsToTest);
+            TestResultComparator resultComparator = new BeanResultComparator(fieldsToTest);
             testUnit.setTestUnitResultComparator(new TestUnitResultComparator(resultComparator));
         } else if (precision != null) {
             testUnit.setPrecision(precision);

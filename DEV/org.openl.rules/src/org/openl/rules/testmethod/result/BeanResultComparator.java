@@ -18,7 +18,7 @@ public class BeanResultComparator implements TestResultComparator {
     private List<IOpenField> fields;
     private List<ComparedResult> comparisonResults = new ArrayList<ComparedResult>();
 
-    BeanResultComparator(List<IOpenField> fields) {
+    public BeanResultComparator(List<IOpenField> fields) {
         this.fields = fields;
     }
 

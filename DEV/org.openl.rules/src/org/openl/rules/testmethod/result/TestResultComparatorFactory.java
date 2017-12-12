@@ -45,11 +45,6 @@ public class TestResultComparatorFactory {
                 return new ObjectComparator(delta);
             }
         }
-
         return GENERIC;
-    }
-
-    public static TestResultComparator getOpenLBeanComparator(List<IOpenField> fieldsToTest) {
-        return new BeanResultComparator(fieldsToTest);
     }
 }
