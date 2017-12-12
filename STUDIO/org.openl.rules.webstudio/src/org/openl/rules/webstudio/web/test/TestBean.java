@@ -240,7 +240,7 @@ public class TestBean {
 
     private Map<Point, ComparedResult> getFieldsCoordinates(TestUnit testUnit, SpreadsheetResult spreadsheetResult) {
         Map<Point, ComparedResult> fieldsCoordinates = new HashMap<Point, ComparedResult>();
-        TestResultComparator testUnitResultComparator = testUnit.getTestUnitResultComparator().getComparator();
+        TestResultComparator testUnitResultComparator = testUnit.getTestUnitResultComparator();
         if (!(testUnitResultComparator instanceof BeanResultComparator)) {
             return fieldsCoordinates;
         }

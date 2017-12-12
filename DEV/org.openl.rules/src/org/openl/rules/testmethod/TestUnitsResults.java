@@ -234,8 +234,7 @@ public class TestUnitsResults implements INamedThing {
         }
 
         if (fieldsToTest.size() > 0) {
-            TestResultComparator resultComparator = new BeanResultComparator(fieldsToTest);
-            testUnit.setTestUnitResultComparator(new TestUnitResultComparator(resultComparator));
+            testUnit.setTestUnitResultComparator(new BeanResultComparator(fieldsToTest));
         } else if (precision != null) {
             testUnit.setPrecision(precision);
         }

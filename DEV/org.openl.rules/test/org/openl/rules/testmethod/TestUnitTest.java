@@ -17,7 +17,7 @@ public class TestUnitTest {
         when(test.getExpectedResult()).thenReturn(new DoubleValue(0.93));
 
         TestUnit unit = new TestUnit(test, 0.93, 100);
-        unit.setTestUnitResultComparator(new TestUnitResultComparator(TestResultComparatorFactory.getComparator(Double.class, null)));
+        unit.setTestUnitResultComparator(TestResultComparatorFactory.getComparator(Double.class, null));
 
         assertEquals(0.93, unit.getActualResult());
         assertEquals(TestUnitResultComparator.TestStatus.TR_OK, unit.compareResult());
