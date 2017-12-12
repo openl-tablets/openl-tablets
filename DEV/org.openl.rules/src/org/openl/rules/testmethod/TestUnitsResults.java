@@ -14,6 +14,8 @@ import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.DataTableBindHelper;
 import org.openl.rules.data.FieldChain;
 import org.openl.rules.data.PrecisionFieldChain;
+import org.openl.rules.testmethod.result.TestResultComparator;
+import org.openl.rules.testmethod.result.TestResultComparatorFactory;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -129,6 +131,8 @@ public class TestUnitsResults implements INamedThing {
 
         IOpenClass resultType = testSuite.getTestedMethod().getType();
         Integer precision = null;
+        TestDescription test = testUnit.getTest();
+        Integer testTablePrecision = test.getTestTablePrecision();
         for (ColumnDescriptor columnDescriptor : testSuite.getTestSuiteMethod().getDescriptors()) {
             Integer fieldPrecision = null;
             if (columnDescriptor != null) {
@@ -198,7 +202,7 @@ public class TestUnitsResults implements INamedThing {
                                 }
                             }
 
-                            fieldPrecision = testUnit.getTest().getTestTablePrecision();
+                            fieldPrecision = testTablePrecision;
                             if (fieldSequence[i] == null) {
                                 if (nodes[i + 1 - startIndex].getIdentifier()
                                     .matches(DataTableBindHelper.PRECISION_PATTERN)) {
@@ -233,8 +237,12 @@ public class TestUnitsResults implements INamedThing {
 
         if (fieldsToTest.size() > 0) {
             testUnit.setTestUnitResultComparator(new BeanResultComparator(fieldsToTest));
-        } else if (precision != null) {
-            testUnit.setPrecision(precision);
+        } else {
+            Integer prec = precision != null ? precision : testTablePrecision;
+            Double delta = prec != null ?  Math.pow(10.0, -prec) : null;
+            Class<?> clazz = test.getTestedMethod().getType().getInstanceClass();
+            TestResultComparator resultComparator = TestResultComparatorFactory.getComparator(clazz, delta);
+            testUnit.setTestUnitResultComparator(resultComparator);
         }
         return testUnit;
     }

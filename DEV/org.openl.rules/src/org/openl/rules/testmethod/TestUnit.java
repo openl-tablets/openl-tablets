@@ -7,7 +7,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
-import org.openl.rules.testmethod.result.TestResultComparatorFactory;
 import org.openl.util.StringUtils;
 
 import static org.openl.rules.testmethod.TestStatus.TR_NEQ;
@@ -29,7 +28,6 @@ public class TestUnit {
     private TestResultComparator resultComparator;
     private TestStatus comapreResult;
 
-    private Integer precision = null;
     private final long executionTime;
 
     public TestUnit(TestDescription test, Object res, long executionTime) {
@@ -86,14 +84,13 @@ public class TestUnit {
         Object actual = getActualResult();
         Object expected = getExpectedResult();
 
-        TestResultComparator testComparator = getTestUnitResultComparator();
-        if (testComparator instanceof BeanResultComparator) {
+        if (resultComparator instanceof BeanResultComparator) {
             if (expected != test.getExpectedError() || test.getExpectedError() == null) {
                 List<ComparedResult> results;
                 if (actual instanceof Throwable) {
-                    results = ((BeanResultComparator) testComparator).getExceptionResults((Throwable) actual, expected);
+                    results = ((BeanResultComparator) resultComparator).getExceptionResults((Throwable) actual, expected);
                 } else {
-                    results = ((BeanResultComparator) testComparator).getComparisonResults();
+                    results = ((BeanResultComparator) resultComparator).getComparisonResults();
                 }
                 for (ComparedResult comparedResult : results) {
                     if (!(comparedResult.getActualValue() instanceof ParameterWithValueDeclaration)) {
@@ -135,10 +132,6 @@ public class TestUnit {
     }
 
     public TestResultComparator getTestUnitResultComparator() {
-        if (resultComparator == null) {
-            resultComparator = TestResultComparatorFactory
-                .getComparator(test.getTestedMethod().getType().getInstanceClass(), getDelta());
-        }
         return resultComparator;
     }
 
@@ -169,8 +162,7 @@ public class TestUnit {
             } else {
                 comapreResult = TR_EXCEPTION;
             }
-        } else {
-            TestResultComparator resultComparator = getTestUnitResultComparator();
+        } else if (resultComparator != null){
             comapreResult = resultComparator.isEqual(expectedResult, actualResult) ? TR_OK : TR_NEQ;
         }
 
@@ -199,18 +191,5 @@ public class TestUnit {
 
     public List<OpenLMessage> getErrors() {
         return TestUtils.getErrors(getActualResult());
-    }
-
-    private Double getDelta() {
-        Integer precision = this.precision != null ? this.precision : this.test.getTestTablePrecision();
-
-        if (precision != null) {
-            return Math.pow(10.0, -precision);
-        }
-        return null;
-    }
-
-    public void setPrecision(Integer precision) {
-        this.precision = precision;
     }
 }
