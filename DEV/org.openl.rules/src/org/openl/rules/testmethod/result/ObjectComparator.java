@@ -41,6 +41,6 @@ class ObjectComparator extends GenericComparator<Object> {
             }
         }
         TestResultComparator comparator = TestResultComparatorFactory.getComparator(clazz, delta);
-        return comparator.compareResult(actualVal, expectedVal);
+        return comparator.isEqual(expectedVal, actualVal);
     }
 }

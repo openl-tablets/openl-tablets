@@ -16,15 +16,15 @@ public class BeanResultComparatorTest {
     @Test
     public void test() throws NoSuchFieldException {
         BeanResultComparator comparator = new BeanResultComparator(Collections.<IOpenField> emptyList());
-        assertTrue(comparator.compareResult(null, null));
+        assertTrue(comparator.isEqual(null, null));
 
         List<IOpenField> fields = new ArrayList<IOpenField>(JavaOpenClass.STRING.getFields().values());
         BeanResultComparator comparator1 = new BeanResultComparator(fields);
 
-        assertFalse(comparator1.compareResult(null, "Hello"));
-        assertFalse(comparator1.compareResult("Hello", null));
-        assertTrue(comparator1.compareResult("Hello", "Hello"));
-        assertTrue(comparator1.compareResult(new String("Hello"), new String("Hello")));
-        assertFalse(comparator1.compareResult("Hello", "By-by"));
+        assertFalse(comparator1.isEqual("Hello", null));
+        assertFalse(comparator1.isEqual(null, "Hello"));
+        assertTrue(comparator1.isEqual("Hello", "Hello"));
+        assertTrue(comparator1.isEqual(new String("Hello"), new String("Hello")));
+        assertFalse(comparator1.isEqual("By-by", "Hello"));
     }
 }

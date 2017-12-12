@@ -9,12 +9,12 @@ public class ArrayComparatorTest {
     public void test() {
         ArrayComparator comparator = new ArrayComparator(Integer.class, null);
 
-        assertTrue(comparator.compareResult(null, null));
+        assertTrue(comparator.isEqual(null, null));
         Integer[] intArray = new Integer[] {1, 2};
-        assertFalse(comparator.compareResult(null, intArray));
+        assertFalse(comparator.isEqual(intArray, null));
 
-        assertFalse(comparator.compareResult(intArray, null));
+        assertFalse(comparator.isEqual(null, intArray));
 
-        assertTrue(comparator.compareResult(intArray, intArray));
+        assertTrue(comparator.isEqual(intArray, intArray));
     }
 }

@@ -26,7 +26,7 @@ class CollectionComparator extends GenericComparator<Collection<?>> {
         while (expectedItr.hasNext() && actualItr.hasNext()) {
             Object expectedVal = expectedItr.next();
             Object actualVal = actualItr.next();
-            if (!comparator.compareResult(actualVal, expectedVal)) {
+            if (!comparator.isEqual(expectedVal, actualVal)) {
                 return false;
             }
         }

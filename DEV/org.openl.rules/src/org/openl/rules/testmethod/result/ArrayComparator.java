@@ -28,7 +28,7 @@ class ArrayComparator extends GenericComparator<Object> {
             Object actualArrayResult = Array.get(actual, i);
             Object expectedArrayResult = Array.get(expected, i);
 
-            if (!elementComporator.compareResult(actualArrayResult, expectedArrayResult)) {
+            if (!elementComporator.isEqual(expectedArrayResult, actualArrayResult)) {
                 return false;
             }
         }

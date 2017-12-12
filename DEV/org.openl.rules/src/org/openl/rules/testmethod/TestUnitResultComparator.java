@@ -34,7 +34,7 @@ public class TestUnitResultComparator {
         }
 
         if (comapreResult == null) {
-            comapreResult = resultComparator.compareResult(testUnit.getActualResult(), testUnit.getExpectedResult());
+            comapreResult = resultComparator.isEqual(testUnit.getExpectedResult(), testUnit.getActualResult());
         }
 
         if (comapreResult) {

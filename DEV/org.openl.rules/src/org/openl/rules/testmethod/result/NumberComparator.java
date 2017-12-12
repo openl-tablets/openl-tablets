@@ -12,7 +12,7 @@ class NumberComparator implements TestResultComparator {
         this.delta = delta;
     }
 
-    public boolean compareResult(Object actualResult, Object expectedResult) {
+    public boolean isEqual(Object expectedResult, Object actualResult) {
         if (actualResult == null || expectedResult == null) {
             return actualResult == expectedResult;
         }

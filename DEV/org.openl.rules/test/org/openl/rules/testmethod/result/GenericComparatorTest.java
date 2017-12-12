@@ -8,9 +8,9 @@ public class GenericComparatorTest {
     @Test
     public void test() {
         GenericComparator comparator = new GenericComparator();
-        assertTrue(comparator.compareResult(null, null));
-        assertTrue(comparator.compareResult(Integer.valueOf(10), Integer.valueOf(10)));
-        assertFalse(comparator.compareResult("hello", null));
-        assertFalse(comparator.compareResult(null, "no hello"));
+        assertTrue(comparator.isEqual(null, null));
+        assertTrue(comparator.isEqual(Integer.valueOf(10), Integer.valueOf(10)));
+        assertFalse(comparator.isEqual(null, "hello"));
+        assertFalse(comparator.isEqual("no hello", null));
     }
 }

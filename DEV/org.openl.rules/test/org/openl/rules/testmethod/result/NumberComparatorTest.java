@@ -9,23 +9,23 @@ public class NumberComparatorTest {
     public void test() {
         NumberComparator comp = new NumberComparator();
 
-        assertTrue(comp.compareResult(null, null));
+        assertTrue(comp.isEqual(null, null));
 
         Double value = Double.valueOf(10);
 
-        assertFalse(comp.compareResult(null, value));
+        assertFalse(comp.isEqual(value, null));
 
-        assertFalse(comp.compareResult(value, null));
+        assertFalse(comp.isEqual(null, value));
 
-        assertTrue(comp.compareResult(value, value));
+        assertTrue(comp.isEqual(value, value));
 
         //Tests with delta
         Double value1 = Double.valueOf(590.4563546464);
         Double value2 = Double.valueOf(590.456377867);
         Double value3 = Double.valueOf(550.46);
 
-        assertFalse(new NumberComparator(null).compareResult(value1, value2));
-        assertFalse(new NumberComparator(0.00001).compareResult(value1, value2));
-        assertTrue(new NumberComparator(0.0001).compareResult(value1, value2));
-        assertTrue(new NumberComparator(100.0).compareResult(value1, value3));    }
+        assertFalse(new NumberComparator(null).isEqual(value2, value1));
+        assertFalse(new NumberComparator(0.00001).isEqual(value2, value1));
+        assertTrue(new NumberComparator(0.0001).isEqual(value2, value1));
+        assertTrue(new NumberComparator(100.0).isEqual(value3, value1));    }
 }

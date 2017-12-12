@@ -59,7 +59,7 @@ public class BeanResultComparator implements TestResultComparator {
         return comparisonResults;
     }
 
-    public boolean compareResult(Object actualResult, Object expectedResult) {
+    public boolean isEqual(Object expectedResult, Object actualResult) {
         boolean success = true;
         if (actualResult == null || expectedResult == null) {
 
@@ -104,7 +104,7 @@ public class BeanResultComparator implements TestResultComparator {
                         expectedFieldValue = convertor.parse((String) expectedFieldValue, null);
                     }
                     TestResultComparator comparator = TestResultComparatorFactory.getComparator(field.getType().getInstanceClass(), columnDelta);
-                    compare = comparator.compareResult(actualFieldValue, expectedFieldValue);
+                    compare = comparator.isEqual(expectedFieldValue, actualFieldValue);
                 }catch(Exception e){
                 }
 
