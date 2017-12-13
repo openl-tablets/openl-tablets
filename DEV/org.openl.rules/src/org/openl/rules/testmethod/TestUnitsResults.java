@@ -361,45 +361,4 @@ public class TestUnitsResults implements INamedThing {
         }
         return res;
     }
-
-    @Deprecated
-    public Object getTestValue(String fname, int i) {
-
-        TestUnit testUnit = testUnits.get(i);
-
-        return testUnit.getFieldValue(fname);
-    }
-
-    public StringBuilder printFailedUnits(StringBuilder sb) {
-        sb.append(getName());
-        if (getNumberOfFailures() == 0) {
-            return sb.append(" - ").append(getNumberOfTestUnits()).append(" tests ALL OK!");
-        }
-
-        sb.append(" - ")
-            .append(getNumberOfTestUnits())
-            .append(" tests / ")
-            .append(getNumberOfFailures())
-            .append(" FAILED!");
-
-        for (int i = 0; i < getNumberOfTestUnits(); i++) {
-            if (testUnits.get(i).compareResult() != TestStatus.TR_OK) {
-                sb.append('\n')
-                    .append(i + 1)
-                    .append(". ")
-                    .append(testUnits.get(i).getDescription())
-                    .append("\t")
-                    .append(testUnits.get(i).getExpectedResult())
-                    .append(" / ")
-                    .append(testUnits.get(i).getActualResult());
-            }
-        }
-
-        return sb;
-    }
-
-    @Override
-    public String toString() {
-        return printFailedUnits(new StringBuilder()).toString();
-    }
 }

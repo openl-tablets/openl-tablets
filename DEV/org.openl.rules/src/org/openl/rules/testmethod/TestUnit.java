@@ -172,18 +172,6 @@ public class TestUnit {
         return comapreResult;
     }
 
-    /**
-     * Gets the value from the field by it`s fieldName.
-     *
-     * @param fieldName field name
-     * @return the value from the field.
-     * @deprecated It would be better to retrieve test description and use it to get arguments.
-     */
-    @Deprecated
-    public Object getFieldValue(String fieldName) {
-        return test.getArgumentValue(fieldName);
-    }
-
     public TestDescription getTest() {
         return test;
     }
