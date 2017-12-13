@@ -5,9 +5,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.convertor.IString2DataConvertor;
-import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.data.PrecisionFieldChain;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
@@ -68,7 +65,7 @@ public class BeanResultComparator implements TestResultComparator {
         for (IOpenField field : fields) {
             Object actualFieldValue = getFieldValueOrNull(actualResult, field);
             Object expectedFieldValue = getFieldValueOrNull(expectedResult, field);
-            boolean equal = isCompare(actualFieldValue, expectedFieldValue, expectedResult, field);
+            boolean equal = isCompare(actualFieldValue, expectedFieldValue, field);
             success = success && equal;
 
             ComparedResult fieldComparisonResults = new ComparedResult();
@@ -84,7 +81,6 @@ public class BeanResultComparator implements TestResultComparator {
 
     private boolean isCompare(Object actualFieldValue,
             Object expectedFieldValue,
-            Object expectedResult,
             IOpenField field) {
         // Get delta for field if setted
         Double columnDelta = null;
@@ -92,18 +88,6 @@ public class BeanResultComparator implements TestResultComparator {
             if (((PrecisionFieldChain) field).hasDelta()) {
                 columnDelta = ((PrecisionFieldChain) field).getDelta();
             }
-        }
-
-        try {
-            // Additional convertation for spreadsheet. It is required for spreadsheet(StubSpreadsheet) created on
-            // compilation state.
-            if (expectedFieldValue != null && (actualFieldValue != null && expectedFieldValue
-                .getClass() != actualFieldValue
-                    .getClass()) && expectedResult instanceof SpreadsheetResult && expectedFieldValue instanceof String) {
-                IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(actualFieldValue.getClass());
-                expectedFieldValue = convertor.parse((String) expectedFieldValue, null);
-            }
-        } catch (Exception e) {
         }
         Class<?> clazz = field.getType().getInstanceClass();
         TestResultComparator comparator = TestResultComparatorFactory.getComparator(clazz, columnDelta);
