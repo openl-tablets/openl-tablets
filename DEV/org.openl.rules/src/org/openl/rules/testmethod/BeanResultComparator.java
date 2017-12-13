@@ -13,7 +13,7 @@ import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
-public class BeanResultComparator implements TestResultComparator {
+class BeanResultComparator implements TestResultComparator {
     private List<IOpenField> fields;
     private List<ComparedResult> comparisonResults = new ArrayList<ComparedResult>();
 

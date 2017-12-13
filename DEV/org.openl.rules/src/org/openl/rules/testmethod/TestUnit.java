@@ -131,8 +131,11 @@ public class TestUnit {
         this.resultComparator = resultComparator;
     }
 
-    public TestResultComparator getTestUnitResultComparator() {
-        return resultComparator;
+    public List<ComparedResult> getComparisonResults() {
+        if (resultComparator instanceof BeanResultComparator) {
+            return ((BeanResultComparator) resultComparator).getComparisonResults();
+        }
+        return null;
     }
 
     /**
