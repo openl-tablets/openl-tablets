@@ -1,4 +1,4 @@
-package org.openl.rules.testmethod.result;
+package org.openl.rules.testmethod;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,8 +8,9 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.data.PrecisionFieldChain;
-import org.openl.rules.testmethod.OpenLUserRuntimeException;
-import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
+import org.openl.rules.testmethod.result.ComparedResult;
+import org.openl.rules.testmethod.result.TestResultComparator;
+import org.openl.rules.testmethod.result.TestResultComparatorFactory;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
@@ -18,7 +19,7 @@ public class BeanResultComparator implements TestResultComparator {
     private List<IOpenField> fields;
     private List<ComparedResult> comparisonResults = new ArrayList<ComparedResult>();
 
-    public BeanResultComparator(List<IOpenField> fields) {
+    BeanResultComparator(List<IOpenField> fields) {
         this.fields = fields;
     }
 
@@ -59,7 +60,7 @@ public class BeanResultComparator implements TestResultComparator {
         return comparisonResults;
     }
 
-    public boolean compareResult(Object actualResult, Object expectedResult, Double delta) {
+    public boolean isEqual(Object expectedResult, Object actualResult) {
         boolean success = true;
         if (actualResult == null || expectedResult == null) {
 
@@ -80,7 +81,7 @@ public class BeanResultComparator implements TestResultComparator {
                 comparisonResults.add(fieldComparisonResults);
             }
         } else {
-            comparisonResults = new ArrayList<ComparedResult>();
+            comparisonResults = new ArrayList<>();
             for (IOpenField field : fields) {
                 Object actualFieldValue = getFieldValueOrNull(actualResult, field);
                 Object expectedFieldValue = getFieldValueOrNull(expectedResult, field);
@@ -90,7 +91,7 @@ public class BeanResultComparator implements TestResultComparator {
 
 
                 // Get delta for field if setted
-                Double columnDelta = delta;
+                Double columnDelta = null;
                 if (field instanceof PrecisionFieldChain) {
                     if (((PrecisionFieldChain) field).hasDelta()) {
                         columnDelta = ((PrecisionFieldChain) field).getDelta();
@@ -103,9 +104,8 @@ public class BeanResultComparator implements TestResultComparator {
                         IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(actualFieldValue.getClass());
                         expectedFieldValue = convertor.parse((String) expectedFieldValue, null);
                     }
-                    TestResultComparator comparator = TestResultComparatorFactory.getComparator(actualFieldValue,
-                        expectedFieldValue);
-                    compare = comparator.compareResult(actualFieldValue, expectedFieldValue, columnDelta);
+                    TestResultComparator comparator = TestResultComparatorFactory.getComparator(field.getType().getInstanceClass(), columnDelta);
+                    compare = comparator.isEqual(expectedFieldValue, actualFieldValue);
                 }catch(Exception e){
                 }
 

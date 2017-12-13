@@ -12,7 +12,7 @@ import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.Point;
 import org.openl.rules.testmethod.*;
-import org.openl.rules.testmethod.result.BeanResultComparator;
+import org.openl.rules.testmethod.BeanResultComparator;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
 import org.openl.rules.ui.ObjectViewer;
@@ -240,7 +240,7 @@ public class TestBean {
 
     private Map<Point, ComparedResult> getFieldsCoordinates(TestUnit testUnit, SpreadsheetResult spreadsheetResult) {
         Map<Point, ComparedResult> fieldsCoordinates = new HashMap<Point, ComparedResult>();
-        TestResultComparator testUnitResultComparator = testUnit.getTestUnitResultComparator().getComparator();
+        TestResultComparator testUnitResultComparator = testUnit.getTestUnitResultComparator();
         if (!(testUnitResultComparator instanceof BeanResultComparator)) {
             return fieldsCoordinates;
         }

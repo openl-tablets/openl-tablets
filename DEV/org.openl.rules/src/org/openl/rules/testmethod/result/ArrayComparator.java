@@ -2,29 +2,37 @@ package org.openl.rules.testmethod.result;
 
 import java.lang.reflect.Array;
 
-public class ArrayComparator implements TestResultComparator {
+/**
+ * @author Yury Molchan
+ */
+class ArrayComparator extends GenericComparator<Object> {
 
-    public boolean compareResult(Object actualResult, Object expectedResult, Double delta) {
-        if (actualResult == null || expectedResult == null) {
-            return actualResult == expectedResult;
-        }
-        int len = Array.getLength(actualResult);
-        if (len != Array.getLength(expectedResult)) {
+    private final TestResultComparator elementComporator;
+    ArrayComparator(Class<?> clazz, Double delta) {
+        this.elementComporator = TestResultComparatorFactory.getComparator(clazz, delta);
+    }
+
+    @Override
+    boolean isEmpty(Object object) {
+        return Array.getLength(object) == 0;
+    }
+
+    @Override
+    boolean equals(Object expected, Object actual) {
+        int len = Array.getLength(actual);
+        if (len != Array.getLength(expected)) {
             return false;
         }
 
         for (int i = 0; i < len; i++) {
-            Object actualArrayResult = Array.get(actualResult, i);
-            Object expectedArrayResult = Array.get(expectedResult, i);
+            Object actualArrayResult = Array.get(actual, i);
+            Object expectedArrayResult = Array.get(expected, i);
 
-            TestResultComparator comp = TestResultComparatorFactory.getComparator(actualArrayResult,
-                    expectedArrayResult);
-            if (!comp.compareResult(actualArrayResult, expectedArrayResult, delta)) {
+            if (!elementComporator.isEqual(expectedArrayResult, actualArrayResult)) {
                 return false;
             }
         }
 
         return true;
     }
-
 }

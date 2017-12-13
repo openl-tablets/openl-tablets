@@ -2,9 +2,17 @@ package org.openl.rules.testmethod.result;
 
 import org.openl.rules.helpers.NumberUtils;
 
-public class NumberComparator implements TestResultComparator {
+class NumberComparator implements TestResultComparator {
+    private Double delta;
 
-    public boolean compareResult(Object actualResult, Object expectedResult, Double delta) {
+    NumberComparator() {
+    }
+
+    NumberComparator(Double delta) {
+        this.delta = delta;
+    }
+
+    public boolean isEqual(Object expectedResult, Object actualResult) {
         if (actualResult == null || expectedResult == null) {
             return actualResult == expectedResult;
         }
@@ -18,7 +26,8 @@ public class NumberComparator implements TestResultComparator {
                 // -Inf == -Inf
                 // Number == Number
                 return true;
-            } else if (Double.isInfinite(actual) || Double.isInfinite(expected) || Double.isNaN(actual) || Double.isNaN(expected)) {
+            } else if (Double.isInfinite(actual) || Double.isInfinite(expected) || Double.isNaN(actual) || Double
+                .isNaN(expected)) {
                 return false;
             } else {
                 // Number ~= Number

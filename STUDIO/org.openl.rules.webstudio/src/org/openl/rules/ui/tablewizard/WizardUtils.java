@@ -18,6 +18,8 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Aliaksandr Antonik.
@@ -97,9 +99,18 @@ public final class WizardUtils {
             }
             ClassLoader classLoader = WebStudioUtils.getProjectModel().getCompiledOpenClass().getClassLoader();
             for (Class<?> type : finder.getClasses(packageName, classLoader)) {
-                IOpenClass openType = JavaOpenClass.getOpenClass(type);
-                if (!isValid(openType))
+                IOpenClass openType;
+                try {
+                    openType = JavaOpenClass.getOpenClass(type);
+                } catch (Throwable e) {
+                    // For example NoClassDefFoundError when the class for some of the fields is absent.
+                    final Logger log = LoggerFactory.getLogger(WizardUtils.class);
+                    log.debug("Can't load the class, skip it because it's not valid. Cause: {}", e.getMessage(), e);
                     continue;
+                }
+                if (!isValid(openType)) {
+                    continue;
+                }
                 
                 classes.add(openType);
             }

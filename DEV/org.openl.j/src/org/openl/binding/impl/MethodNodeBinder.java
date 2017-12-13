@@ -1,7 +1,3 @@
-/*
- * Created on May 19, 2003 Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
 import java.lang.reflect.Method;
@@ -24,9 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author snshor
+ * @author snshor, Yury Molchan
  */
-
 public class MethodNodeBinder extends ANodeBinder {
 
     private final Logger log = LoggerFactory.getLogger(MethodNodeBinder.class);
@@ -67,13 +62,12 @@ public class MethodNodeBinder extends ANodeBinder {
 
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
-        int childrenCount = node.getNumberOfChildren();
-
-        if (childrenCount < 1) {
-            BindHelper.processError("Method node should have at least one subnode", node, bindingContext, false);
-
-            return new ErrorBoundNode(node);
+        IBoundNode errorNode = validateNode(node, bindingContext);
+        if (errorNode != null) {
+            return errorNode;
         }
+
+        int childrenCount = node.getNumberOfChildren();
 
         ISyntaxNode lastNode = node.getChild(childrenCount - 1);
 
@@ -92,15 +86,21 @@ public class MethodNodeBinder extends ANodeBinder {
         BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
         methodCaller = autoCastReturnTypeWrap(bindingContext, methodCaller, parameterTypes);
 
+        if (methodCaller != null) {
+            log(methodName, parameterTypes, "entirely appropriate by signature method");
+            return new MethodBoundNode(node, children, methodCaller);
+        }
+
         // can`t find directly the method with given name and parameters. so,
-        // try to bind it some additional ways
+        // if there are any parameters, try to bind it some additional ways
+        // someMethod( parameter1, ... )
         //
-        if (methodCaller == null) {
+        if (childrenCount > 1) {
             return bindWithAdditionalBinders(node, bindingContext, methodName, parameterTypes, children, childrenCount);
         }
 
-        log(methodName, parameterTypes, "entirely appropriate by signature method");
-        return new MethodBoundNode(node, children, methodCaller);
+        // There are no other variants - so error.
+        return methodNotFoundError(node, bindingContext, methodName, parameterTypes, null);
     }
 
     protected IBoundNode makeArrayParametersMethod(ISyntaxNode methodNode,
@@ -156,10 +156,7 @@ public class MethodNodeBinder extends ANodeBinder {
             }
         }
 
-        String message = String.format("Method '%s' is not found", MethodUtil.printMethod(methodName, argumentTypes));
-        BindHelper.processError(message, methodNode, bindingContext, false);
-
-        return new ErrorBoundNode(methodNode);
+        return methodNotFoundError(methodNode, bindingContext, methodName, argumentTypes, null);
     }
 
     private void log(String methodName, IOpenClass[] argumentTypes, String bindingType) {
@@ -172,14 +169,13 @@ public class MethodNodeBinder extends ANodeBinder {
     @Override
     public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode target) throws Exception {
 
-        int childrenCount = node.getNumberOfChildren();
 
-        if (childrenCount < 1) {
-            BindHelper.processError("New node should have at least one subnode", node, bindingContext, false);
-
-            return new ErrorBoundNode(node);
+        IBoundNode errorNode = validateNode(node, bindingContext);
+        if (errorNode != null) {
+            return errorNode;
         }
 
+        int childrenCount = node.getNumberOfChildren();
         ISyntaxNode lastNode = node.getChild(childrenCount - 1);
 
         String methodName = ((IdentifierNode) lastNode).getIdentifier();
@@ -187,32 +183,50 @@ public class MethodNodeBinder extends ANodeBinder {
         IBoundNode[] children = bindChildren(node, bindingContext, 0, childrenCount - 1);
         IOpenClass[] types = getTypes(children);
 
-        IMethodCaller methodCaller = MethodSearch.findMethod(methodName, types, bindingContext, target.getType());
+        IOpenClass type = target.getType();
+        IMethodCaller methodCaller = MethodSearch.findMethod(methodName, types, bindingContext, type);
         BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
 
         if (methodCaller == null) {
-
-            StringBuilder buf = new StringBuilder("Method ");
-            MethodUtil.printMethod(methodName, types, buf);
-            buf.append(" is not found in '").append(target.getType().getName()).append("'");
-
-            BindHelper.processError(buf.toString(), node, bindingContext, false);
-
-            return new ErrorBoundNode(node);
+            return methodNotFoundError(node, bindingContext, methodName, types, type);
         }
 
-        if (target.isStaticTarget() != methodCaller.getMethod().isStatic()) {
-
-            if (methodCaller.getMethod().isStatic()) {
-                BindHelper.processWarn("Access of a static method from non-static object", node, bindingContext);
-            } else {
-                BindHelper.processError("Access of a non-static method from a static object", node, bindingContext, false);
-
-                return new ErrorBoundNode(node);
-            }
+        errorNode = validateMethod(node, bindingContext, target, methodCaller);
+        if (errorNode != null) {
+            return errorNode;
         }
-
         return new MethodBoundNode(node, children, methodCaller, target);
     }
 
+    private IBoundNode validateMethod(ISyntaxNode node, IBindingContext bindingContext, IBoundNode target, IMethodCaller methodCaller) {
+        boolean methodIsStatic = methodCaller.getMethod().isStatic();
+        if (target.isStaticTarget() != methodIsStatic) {
+            if (methodIsStatic) {
+                BindHelper.processWarn("Access of a static method from non-static object", node, bindingContext);
+            } else {
+                BindHelper.processError("Access of a non-static method from a static object", node, bindingContext, false);
+                return new ErrorBoundNode(node);
+            }
+        }
+        return null;
+    }
+
+    private IBoundNode methodNotFoundError(ISyntaxNode node, IBindingContext bindingContext, String methodName, IOpenClass[] types, IOpenClass target) {
+        StringBuilder buf = new StringBuilder("Method '");
+        MethodUtil.printMethod(methodName, types, buf);
+        buf.append("' is not found");
+        if (target != null) {
+            buf.append("in '").append(target.getName()).append("'");
+        }
+        BindHelper.processError(buf.toString(), node, bindingContext, false);
+        return new ErrorBoundNode(node);
+    }
+
+    private IBoundNode validateNode(ISyntaxNode node, IBindingContext bindingContext) {
+        if (node.getNumberOfChildren() < 1) {
+            BindHelper.processError("New node should have at least one subnode", node, bindingContext, false);
+            return new ErrorBoundNode(node);
+        }
+        return null;
+    }
 }

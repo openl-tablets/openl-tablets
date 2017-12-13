@@ -31,11 +31,11 @@ public class ExpectedErrorTest {
         TestUnitsResults res = (TestUnitsResults) helloTest.invoke(target, new Object[0], env);
         ArrayList<TestUnit> testUnits = res.getTestUnits();
 
-        assertEquals("Expected Good Evening", TestUnitResultComparator.TestStatus.TR_OK.getStatus(), testUnits.get(0).compareResult());
-        assertEquals("Expected user error 'Incorrect argument'", TestUnitResultComparator.TestStatus.TR_OK.getStatus(), testUnits.get(1).compareResult());
-        assertEquals("Expected user error comparison failure", TestUnitResultComparator.TestStatus.TR_NEQ.getStatus(), testUnits.get(2).compareResult());
-        assertEquals("Unexpected exception must be thrown. It can't be compared with user error", TestUnitResultComparator.TestStatus.TR_NEQ.getStatus(), testUnits.get(3).compareResult());
-        assertEquals("Unexpected exception must be thrown. It can't be compared with user error", TestUnitResultComparator.TestStatus.TR_NEQ.getStatus(), testUnits.get(4).compareResult());
+        assertEquals("Expected Good Evening", TestStatus.TR_OK, testUnits.get(0).compareResult());
+        assertEquals("Expected user error 'Incorrect argument'", TestStatus.TR_OK, testUnits.get(1).compareResult());
+        assertEquals("Expected user error comparison failure", TestStatus.TR_NEQ, testUnits.get(2).compareResult());
+        assertEquals("Unexpected exception must be thrown. It can't be compared with user error", TestStatus.TR_NEQ, testUnits.get(3).compareResult());
+        assertEquals("Unexpected exception must be thrown. It can't be compared with user error", TestStatus.TR_NEQ, testUnits.get(4).compareResult());
     }
 
 }

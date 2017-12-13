@@ -1,7 +1,7 @@
 package org.openl.rules.maven;
 
-import static org.openl.rules.testmethod.TestUnitResultComparator.TestStatus.TR_NEQ;
-import static org.openl.rules.testmethod.TestUnitResultComparator.TestStatus.TR_OK;
+import static org.openl.rules.testmethod.TestStatus.TR_NEQ;
+import static org.openl.rules.testmethod.TestStatus.TR_OK;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +19,9 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.openl.CompiledOpenClass;
+import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.Severity;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.model.Module;
@@ -26,6 +29,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.testmethod.*;
+import org.openl.rules.testmethod.TestStatus;
 import org.openl.types.IOpenClass;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
@@ -242,6 +246,19 @@ public final class TestMojo extends BaseOpenLMojo {
     private Summary executeTests(CompiledOpenClass openLRules) {
         IOpenClass openClass = openLRules.getOpenClassWithErrors();
 
+        if (openLRules.hasErrors()) {
+            warn("");
+            warn("There are compilation errors. It can affect test execution.");
+            List<OpenLMessage> errors = OpenLMessagesUtils.filterMessagesBySeverity(openLRules.getMessages(),
+                    Severity.ERROR);
+            for (int i = 0; i < errors.size(); i++) {
+                OpenLMessage error = errors.get(i);
+                String location = error.getSourceLocation() == null ? "" : " at " + error.getSourceLocation();
+                warn((i + 1) + ". '", error.getSummary(), "'", location);
+            }
+            warn("");
+        }
+
         int runTests = 0;
         int failedTests = 0;
         int errors = 0;
@@ -303,9 +320,9 @@ public final class TestMojo extends BaseOpenLMojo {
         String modulePrefix = moduleName == null ? "" : moduleName + ".";
 
         for (TestUnit testUnit : result.getTestUnits()) {
-            int status = testUnit.compareResult();
-            if (status != TR_OK.getStatus()) {
-                String failureType = status == TR_NEQ.getStatus() ? FAILURE : ERROR;
+            TestStatus status = testUnit.compareResult();
+            if (status != TR_OK) {
+                String failureType = status == TR_NEQ ? FAILURE : ERROR;
                 String description = testUnit.getDescription();
 
                 info("  Test case: #", num,
@@ -313,7 +330,7 @@ public final class TestMojo extends BaseOpenLMojo {
                         ". Time elapsed: ", formatTime(testUnit.getExecutionTime()), " sec. ",
                         failureType);
 
-                if (status == TR_NEQ.getStatus()) {
+                if (status == TR_NEQ) {
                     info("    Expected: <", testUnit.getExpectedResult(),
                             "> but was: <", testUnit.getActualResult() + ">");
                     summaryFailures.add(modulePrefix + test.getName() + "#" + num +

@@ -14,7 +14,6 @@ import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.DataTableBindHelper;
 import org.openl.rules.data.FieldChain;
 import org.openl.rules.data.PrecisionFieldChain;
-import org.openl.rules.testmethod.TestUnitResultComparator.TestStatus;
 import org.openl.rules.testmethod.result.TestResultComparator;
 import org.openl.rules.testmethod.result.TestResultComparatorFactory;
 import org.openl.syntax.impl.IdentifierNode;
@@ -61,7 +60,7 @@ public class TestUnitsResults implements INamedThing {
         if (testUnits != null && failuresOnly) {
             List<TestUnit> failedUnits = new ArrayList<TestUnit>();
             for (TestUnit testUnit : testUnits) {
-                if (testUnit.compareResult() != 0 // Failed unit
+                if (testUnit.compareResult() != TestStatus.TR_OK // Failed unit
                         && (failedUnits.size() < size || size == -1)) {
                     failedUnits.add(testUnit);
                 }
@@ -83,7 +82,7 @@ public class TestUnitsResults implements INamedThing {
         return executionTime;
     }
 
-    public void addTestUnit(TestUnit testUnit) {
+    void addTestUnit(TestUnit testUnit) {
         if (!testSuite.isVirtualTestSuite()) {
             testUnits.add(updateTestUnit(testUnit));
         } else {
@@ -127,16 +126,28 @@ public class TestUnitsResults implements INamedThing {
      *         FIXME it should be moved to compile phase and all info about bean
      *         comparator should be located in {@link TestDescription}
      */
-    public TestUnit updateTestUnit(TestUnit testUnit) {
+    private TestUnit updateTestUnit(TestUnit testUnit) {
         List<IOpenField> fieldsToTest = new ArrayList<IOpenField>();
 
         IOpenClass resultType = testSuite.getTestedMethod().getType();
-        Integer precision = null;
+        TestDescription test = testUnit.getTest();
+        Integer testTablePrecision = test.getTestTablePrecision();
+        Integer precision = testTablePrecision;
         for (ColumnDescriptor columnDescriptor : testSuite.getTestSuiteMethod().getDescriptors()) {
-            Integer fieldPrecision = null;
             if (columnDescriptor != null) {
                 IdentifierNode[] nodes = columnDescriptor.getFieldChainTokens();
-                if (nodes.length > 0 && nodes[0].getIdentifier().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)) {
+                if (nodes.length == 0 || !nodes[0].getIdentifier().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)) {
+                    // skip empty or non-'_res_' columns
+                    continue;
+                }
+                Integer fieldPrecision = testTablePrecision;
+                if (nodes.length > 1 && nodes[nodes.length - 1].getIdentifier().matches(DataTableBindHelper.PRECISION_PATTERN)) {
+                    // set the precision of the field
+                    fieldPrecision = DataTableBindHelper.getPrecisionValue(nodes[nodes.length - 1]);
+                    nodes = ArrayUtils.remove(nodes, nodes.length - 1);
+                    precision = fieldPrecision;
+                }
+
                     if (columnDescriptor.isReference()) {
                         if (!resultType.isSimple()) {
                             if (resultType.isArray()) {
@@ -201,16 +212,6 @@ public class TestUnitsResults implements INamedThing {
                                 }
                             }
 
-                            if (fieldSequence[i] == null) {
-                                if (nodes[i + 1 - startIndex].getIdentifier()
-                                    .matches(DataTableBindHelper.PRECISION_PATTERN)) {
-                                    fieldPrecision = DataTableBindHelper.getPrecisionValue(nodes[i + 1 - startIndex]);
-                                    precision = fieldPrecision;
-                                    fieldSequence = ArrayUtils.remove(fieldSequence, i);
-                                    break;
-                                }
-                            }
-
                             if (fieldSequence[i].getType().isArray() && isArray) {
                                 currentType = fieldSequence[i].getType().getComponentClass();
                             } else {
@@ -229,27 +230,25 @@ public class TestUnitsResults implements INamedThing {
                             }
                         }
                     }
-                }
             }
         }
 
         if (fieldsToTest.size() > 0) {
-            TestResultComparator resultComparator = TestResultComparatorFactory.getOpenLBeanComparator(fieldsToTest);
-            testUnit.setTestUnitResultComparator(new TestUnitResultComparator(resultComparator));
-        } else if (precision != null) {
-            testUnit.setPrecision(precision);
+            testUnit.setTestUnitResultComparator(new BeanResultComparator(fieldsToTest));
+        } else {
+            Integer prec = precision != null ? precision : testTablePrecision;
+            Double delta = prec != null ?  Math.pow(10.0, -prec) : null;
+            Class<?> clazz = test.getTestedMethod().getType().getInstanceClass();
+            TestResultComparator resultComparator = TestResultComparatorFactory.getComparator(clazz, delta);
+            testUnit.setTestUnitResultComparator(resultComparator);
         }
         return testUnit;
-    }
-
-    public void addTestUnits(List<TestUnit> testUnits) {
-        this.testUnits.addAll(testUnits);
     }
 
     public int getNumberOfFailures() {
         int cnt = 0;
         for (int i = 0; i < getNumberOfTestUnits(); i++) {
-            if (testUnits.get(i).compareResult() != TestStatus.TR_OK.getStatus()) {
+            if (testUnits.get(i).compareResult() != TestStatus.TR_OK) {
                 ++cnt;
             }
         }
@@ -259,7 +258,7 @@ public class TestUnitsResults implements INamedThing {
     public int getNumberOfErrors() {
         int cnt = 0;
         for (int i = 0; i < getNumberOfTestUnits(); i++) {
-            if (testUnits.get(i).compareResult() == TestStatus.TR_EXCEPTION.getStatus()) {
+            if (testUnits.get(i).compareResult() == TestStatus.TR_EXCEPTION) {
                 ++cnt;
             }
         }
@@ -269,7 +268,7 @@ public class TestUnitsResults implements INamedThing {
     public int getNumberOfAssertionFailures() {
         int cnt = 0;
         for (int i = 0; i < getNumberOfTestUnits(); i++) {
-            if (testUnits.get(i).compareResult() == TestStatus.TR_NEQ.getStatus()) {
+            if (testUnits.get(i).compareResult() == TestStatus.TR_NEQ) {
                 ++cnt;
             }
         }
@@ -384,7 +383,7 @@ public class TestUnitsResults implements INamedThing {
             .append(" FAILED!");
 
         for (int i = 0; i < getNumberOfTestUnits(); i++) {
-            if (testUnits.get(i).compareResult() != TestStatus.TR_OK.getStatus()) {
+            if (testUnits.get(i).compareResult() != TestStatus.TR_OK) {
                 sb.append('\n')
                     .append(i + 1)
                     .append(". ")

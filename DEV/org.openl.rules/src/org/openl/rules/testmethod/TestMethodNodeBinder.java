@@ -5,6 +5,7 @@ package org.openl.rules.testmethod;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -43,6 +44,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
     // indexes of names in header
     private static final int TESTED_METHOD_INDEX = 1;
     private static final int TABLE_NAME_INDEX = 2;
+    private static final AtomicInteger counter = new AtomicInteger();
     /**
      * Workaround for ability to run tests when executionMode is true.
      * In future we should remove this field and replace executionMode with a type with 3 possible states: execute only
@@ -91,8 +93,8 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         final String methodName = parsedHeader[TESTED_METHOD_INDEX].getIdentifier();
         String tableName;
         if (parsedHeader.length == 2) {
-            // $Test or $Run
-            tableName = methodName + "$" + parsedHeader[0].getIdentifier();;
+            // $Test$0 or $Run$0
+            tableName = methodName + "$" + parsedHeader[0].getIdentifier() + "$" + counter.getAndIncrement();
         } else {
             tableName = parsedHeader[TABLE_NAME_INDEX].getIdentifier();
         }

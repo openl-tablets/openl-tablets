@@ -33,8 +33,7 @@ public class RulesUtilsGetValuesAutoCastFactory implements AutoCastFactory {
         }
 
         if (method instanceof JavaOpenMethod) {
-            JavaOpenMethod javaOpenMethod = (JavaOpenMethod) method;
-            Method javaMethod = javaOpenMethod.getJavaMethod();
+            Method javaMethod = method.getJavaMethod();
             AutoCastReturnType autoCastReturnType = javaMethod.getAnnotation(AutoCastReturnType.class);
             if (autoCastReturnType != null) {
                 IOpenClass arrayType = JavaOpenClass

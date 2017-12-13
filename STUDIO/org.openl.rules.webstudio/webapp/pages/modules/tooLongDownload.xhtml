@@ -1,0 +1,74 @@
+<ui:composition
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:ui="http://java.sun.com/jsf/facelets">
+
+
+    <rich:popupPanel id="tooLongDownload" width="400" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="File download"/>
+        </f:facet>
+
+        <h:form id="tooLongDownloadForm">
+            <p><span>File generation is too long. Do you want to wait more time?</span></p>
+
+            <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label," id="exportProjectData">
+                <h:outputText value="Seconds to wait:" />
+                <rich:inputNumberSpinner id="seconds" value="120" minValue="1" maxValue="10000" cycled="false"/>
+            </h:panelGrid>
+
+            <footer>
+                <input id="waitDownload" type="button" value="Wait" onclick="downloadPage.wait();"/>
+                <input id="abortDownload" type="button" value="Abort" onclick="downloadPage.abort();"/>
+            </footer>
+        </h:form>
+    </rich:popupPanel>
+
+
+    <script>
+        //<![CDATA[
+        var LongDownloadPage = function () {
+            var dummy = function () {};
+            var onWait = dummy;
+            var onAbort = dummy;
+
+            var opened = false;
+
+            return {
+                isOpened: function () {
+                    return opened;
+                },
+                open: function (options) {
+                    opened = true;
+
+                    if (options) {
+                        if (options.onWait) {
+                            onWait = options.onWait;
+                        }
+                        if (options.onAbort) {
+                            onAbort = options.onAbort;
+                        }
+                    }
+
+                    RichFaces.$('tooLongDownload').show();
+                },
+                close: function () {
+                    RichFaces.$('tooLongDownload').hide();
+                    opened = false;
+                },
+                wait: function () {
+                    this.close();
+                    onWait($j('#tooLongDownloadForm\\:seconds').find('input').val());
+                },
+                abort: function () {
+                    this.close();
+                    onAbort();
+                }
+            };
+        };
+
+        var downloadPage = new LongDownloadPage();
+        //]]>
+    </script>
+</ui:composition>

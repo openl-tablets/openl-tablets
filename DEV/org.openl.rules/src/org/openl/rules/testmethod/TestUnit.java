@@ -1,14 +1,17 @@
 package org.openl.rules.testmethod;
 
-import org.openl.message.OpenLMessage;
-import org.openl.rules.testmethod.result.BeanResultComparator;
-import org.openl.rules.testmethod.result.ComparedResult;
-import org.openl.rules.testmethod.result.TestResultComparator;
-import org.openl.rules.testmethod.result.TestResultComparatorFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.openl.message.OpenLMessage;
+import org.openl.rules.testmethod.result.ComparedResult;
+import org.openl.rules.testmethod.result.TestResultComparator;
+import org.openl.util.StringUtils;
+
+import static org.openl.rules.testmethod.TestStatus.TR_NEQ;
+import static org.openl.rules.testmethod.TestStatus.TR_OK;
+import static org.openl.rules.testmethod.TestStatus.TR_EXCEPTION;
 /**
  * Representation of the single test unit in the test.
  *
@@ -22,9 +25,9 @@ public class TestUnit {
 
     public static final String DEFAULT_DESCRIPTION = "No Description";
 
-    private TestUnitResultComparator testUnitComparator;
+    private TestResultComparator resultComparator;
+    private TestStatus comapreResult;
 
-    private Integer precision = null;
     private final long executionTime;
 
     public TestUnit(TestDescription test, Object res, long executionTime) {
@@ -81,14 +84,13 @@ public class TestUnit {
         Object actual = getActualResult();
         Object expected = getExpectedResult();
 
-        TestResultComparator testComparator = getTestUnitResultComparator().getComparator();
-        if (testComparator instanceof BeanResultComparator) {
+        if (resultComparator instanceof BeanResultComparator) {
             if (expected != test.getExpectedError() || test.getExpectedError() == null) {
                 List<ComparedResult> results;
                 if (actual instanceof Throwable) {
-                    results = ((BeanResultComparator) testComparator).getExceptionResults((Throwable) actual, expected);
+                    results = ((BeanResultComparator) resultComparator).getExceptionResults((Throwable) actual, expected);
                 } else {
-                    results = ((BeanResultComparator) testComparator).getComparisonResults();
+                    results = ((BeanResultComparator) resultComparator).getComparisonResults();
                 }
                 for (ComparedResult comparedResult : results) {
                     if (!(comparedResult.getActualValue() instanceof ParameterWithValueDeclaration)) {
@@ -106,7 +108,7 @@ public class TestUnit {
         }
 
         ComparedResult result = new ComparedResult();
-        result.setStatus(TestUnitResultComparator.TestStatus.getConstant(compareResult()));
+        result.setStatus(compareResult());
         result.setActualValue(new ParameterWithValueDeclaration("actual", actual));
         result.setExpectedValue(new ParameterWithValueDeclaration("expected", expected));
         params.add(result);
@@ -125,24 +127,46 @@ public class TestUnit {
         return descr == null ? DEFAULT_DESCRIPTION : descr;
     }
 
-    public void setTestUnitResultComparator(TestUnitResultComparator testUnitComparator) {
-        this.testUnitComparator = testUnitComparator;
+    public void setTestUnitResultComparator(TestResultComparator resultComparator) {
+        this.resultComparator = resultComparator;
     }
 
-    public TestUnitResultComparator getTestUnitResultComparator() {
-        if (testUnitComparator == null) {
-            testUnitComparator = new TestUnitResultComparator(TestResultComparatorFactory.getComparator(getActualResult(), getExpectedResult()));
-        }
-        return testUnitComparator;
+    public TestResultComparator getTestUnitResultComparator() {
+        return resultComparator;
     }
 
     /**
      * Return the comparasion of the expected result and actual.
      *
-     * @return see {@link TestUnitResultComparator#getCompareResult(TestUnit, Double)}
      */
-    public int compareResult() {
-        return getTestUnitResultComparator().getCompareResult(this, getDelta());
+    public TestStatus compareResult() {
+        if (comapreResult != null) {
+            return comapreResult;
+        }
+        Object actualResult = getActualResult();
+        Object expectedResult = getExpectedResult();
+        if (actualResult instanceof Throwable) {
+            Throwable rootCause = ExceptionUtils.getRootCause((Throwable) actualResult);
+            if (rootCause instanceof OpenLUserRuntimeException) {
+                // OpenL engine recognizes empty cell as 'null' value.
+                // When user define 'error' expression with empty string as message
+                // test cannot be passed because expected message will be 'null' value.
+                // To avoid mentioned above use case we are using the following check.
+                //
+                if (expectedResult == null) {
+                    expectedResult = StringUtils.EMPTY;
+                }
+
+                String actualMessage = ((OpenLUserRuntimeException) rootCause).getOriginalMessage();
+                comapreResult = expectedResult.equals(actualMessage) ? TR_OK : TR_NEQ;
+            } else {
+                comapreResult = TR_EXCEPTION;
+            }
+        } else if (resultComparator != null){
+            comapreResult = resultComparator.isEqual(expectedResult, actualResult) ? TR_OK : TR_NEQ;
+        }
+
+        return comapreResult;
     }
 
     /**
@@ -167,18 +191,5 @@ public class TestUnit {
 
     public List<OpenLMessage> getErrors() {
         return TestUtils.getErrors(getActualResult());
-    }
-
-    private Double getDelta() {
-        Integer precision = this.precision != null ? this.precision : this.test.getTestTablePrecision();
-
-        if (precision != null) {
-            return Math.pow(10.0, -precision);
-        }
-        return null;
-    }
-
-    public void setPrecision(Integer precision) {
-        this.precision = precision;
     }
 }

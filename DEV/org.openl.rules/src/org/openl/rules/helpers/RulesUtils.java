@@ -5643,22 +5643,23 @@ public class RulesUtils {
     }
 
     @AutoCastReturnType(RulesUtilsGetValuesAutoCastFactory.class)
-    public static Object[] getValues(DomainOpenClass clazz) {
+    public static Object getValues(DomainOpenClass clazz) {
         IDomain<?> domain = clazz.getDomain();
-        List<Object> values = new ArrayList<Object>();
+        int size = 0;
         for (Object item : domain) {
-            values.add(item);
+            size++;
         }
 
         Class<?> type = clazz.getInstanceClass();
-        if (type.isPrimitive()) {
-            type = ClassUtils.primitiveToWrapper(type);
+        Object result = Array.newInstance(type, size);
+        int i=0;
+        for (Object item : domain) {
+            Array.set(result, i, item);
+            i++;
         }
-        Object[] result = (Object[]) Array.newInstance(type, 0);
-        result = values.toArray(result);
         return result;
     }
-    
+
     public static boolean instanceOf(Object o, Class<?> clazz){
         if (o == null){
             return false;

@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import org.junit.Test;
 import org.openl.meta.DoubleValue;
+import org.openl.rules.testmethod.result.TestResultComparatorFactory;
 
 public class TestUnitTest {
 
@@ -13,17 +14,13 @@ public class TestUnitTest {
     public void testResultValueModification() {
         TestDescription test = mock(TestDescription.class);
         when(test.isExpectedResultDefined()).thenReturn(true);
-        when(test.getExpectedResult()).thenReturn(new DoubleValue(0.9));
+        when(test.getExpectedResult()).thenReturn(new DoubleValue(0.93));
 
-        DoubleValue testResult = new DoubleValue(0.93);
+        TestUnit unit = new TestUnit(test, 0.93, 100);
+        unit.setTestUnitResultComparator(TestResultComparatorFactory.getComparator(Double.class, null));
 
-        TestUnit unit = new TestUnit(test, testResult, 100);
-
-        assertEquals(new DoubleValue(0.93), unit.getActualResult());
-        assertEquals(0, unit.compareResult());
-
-        // check that original value is not changed
-        assertEquals(new DoubleValue(0.93), testResult);
+        assertEquals(0.93, unit.getActualResult());
+        assertEquals(TestStatus.TR_OK, unit.compareResult());
     }
 
 }

@@ -1,4 +1,4 @@
-package org.openl.rules.testmethod.test;
+package org.openl.rules.testmethod;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -8,24 +8,23 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
-import org.openl.rules.testmethod.result.BeanResultComparator;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 
 public class BeanResultComparatorTest {
 
     @Test
-    public void test() throws NoSuchFieldException {
+    public void test() {
         BeanResultComparator comparator = new BeanResultComparator(Collections.<IOpenField> emptyList());
-        assertTrue(comparator.compareResult(null, null, null));
+        assertTrue(comparator.isEqual(null, null));
 
         List<IOpenField> fields = new ArrayList<IOpenField>(JavaOpenClass.STRING.getFields().values());
         BeanResultComparator comparator1 = new BeanResultComparator(fields);
 
-        assertFalse(comparator1.compareResult(null, "Hello", null));
-        assertFalse(comparator1.compareResult("Hello", null, null));
-        assertTrue(comparator1.compareResult("Hello", "Hello", null));
-        assertTrue(comparator1.compareResult(new String("Hello"), new String("Hello"), null));
-        assertFalse(comparator1.compareResult("Hello", "By-by", null));
+        assertFalse(comparator1.isEqual("Hello", null));
+        assertFalse(comparator1.isEqual(null, "Hello"));
+        assertTrue(comparator1.isEqual("Hello", "Hello"));
+        assertTrue(comparator1.isEqual(new String("Hello"), new String("Hello")));
+        assertFalse(comparator1.isEqual("By-by", "Hello"));
     }
 }

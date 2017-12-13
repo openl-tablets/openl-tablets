@@ -151,8 +151,8 @@ class TestResultExport implements AutoCloseable {
         Row row;
         int colNum;
         for (TestUnit testUnit : result.getTestUnits()) {
-            TestUnitResultComparator.TestStatus testStatus = TestUnitResultComparator.TestStatus.getConstant(testUnit.compareResult());
-            boolean ok = testStatus == TestUnitResultComparator.TestStatus.TR_OK;
+            TestStatus testStatus = testUnit.compareResult();
+            boolean ok = testStatus == TestStatus.TR_OK;
 
             row = sheet.createRow(rowNum++);
             // ID
@@ -196,7 +196,7 @@ class TestResultExport implements AutoCloseable {
 
             // Result
             for (ComparedResult parameter : testUnit.getResultParams()) {
-                boolean okField = parameter.getStatus() == TestUnitResultComparator.TestStatus.TR_OK;
+                boolean okField = parameter.getStatus() == TestStatus.TR_OK;
 
                 Cell cell = createCell(row,
                         colNum++,

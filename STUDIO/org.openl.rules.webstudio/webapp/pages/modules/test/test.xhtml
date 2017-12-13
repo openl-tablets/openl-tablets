@@ -179,11 +179,11 @@
                                         <ui:param name="parameter" value="#{parameter}" />
                                     </ui:include></td>
                                 </ui:repeat>
-                                <h:panelGroup rendered="#{compareResult == 0 or compareResult == 1}">
+                                <h:panelGroup rendered="#{compareResult != 'TR_EXCEPTION'}">
                                     <h:panelGroup>
                                         <ui:repeat value="#{testCase.resultParams}" var="resultParam">
                                             <td>
-                                                <div class="case-result #{!test.runmethod ? (resultParam.status.status == 0 ? 'case-success' : 'case-error') : ''}">
+                                                <div class="case-result #{!test.runmethod ? (resultParam.status == 'TR_OK' ? 'case-success' : 'case-error') : ''}">
                                                     <h:panelGroup rendered="#{!testBean.isResultThrowable(testCase)}">
                                                         <h:panelGroup rendered="#{helper.isSpreadsheetResult(resultParam.actualValue.value)}">
                                                             <h:outputText value="#{testBean.getFormattedSpreadsheetResult(resultParam.actualValue.value)}"
@@ -213,7 +213,7 @@
                                             </td>
                                             <td style="padding-left:0">
                                                 <div class="case-result">
-                                                    <h:panelGroup rendered="#{resultParam.status.status == 1}"><span class="case-expected">Expected: </span>
+                                                    <h:panelGroup rendered="#{resultParam.status == 'TR_NEQ'}"><span class="case-expected">Expected: </span>
                                                         <ui:repeat value="" var="dontRemove!!!">
                                                         <ui:include src="/pages/modules/test/parameter.xhtml">
                                                             <ui:param name="parameter" value="#{resultParam.expectedValue}" />
@@ -225,7 +225,7 @@
                                         </ui:repeat>
                                     </h:panelGroup>
                                 </h:panelGroup>
-                                <h:panelGroup rendered="#{compareResult == 2}">
+                                <h:panelGroup rendered="#{compareResult == 'TR_EXCEPTION'}">
                                     <td colspan="#{fn:length(test.testResultColumnDisplayNames) * 2 + (testBean.hasComplexResults(test) ? 1 : 0)}">
                                         <ui:include src="/pages/modules/messages.xhtml">
                                             <ui:param name="messages" value="#{testCase.errors}" />
@@ -236,7 +236,7 @@
                                 <h:panelGroup rendered="#{complexResult and testBean.isComplexResult(testCase)}">
                                     <h:panelGroup rendered="#{helper.isSpreadsheetResult(testCase.actualResult)}">
                                         <td>
-                                            <div class="case-result #{!test.runmethod ? (compareResult == 0 ? 'case-success' : 'case-error') : ''}">
+                                            <div class="case-result #{!test.runmethod ? (compareResult == 'TR_OK' ? 'case-success' : 'case-error') : ''}">
                                                 <h:outputText escape="false"
                                                               value="#{testBean.getFormattedSpreadsheetResultFromTestUnit(testCase)}"/>
                                             </div>
@@ -244,7 +244,7 @@
                                     </h:panelGroup>
                                     <h:panelGroup rendered="#{!helper.isSpreadsheetResult(testCase.actualResult)}">
                                         <td>
-                                            <div class="case-result #{!test.runmethod ? (compareResult == 0 ? 'case-success' : 'case-error') : ''}">
+                                            <div class="case-result #{!test.runmethod ? (compareResult == 'TR_OK' ? 'case-success' : 'case-error') : ''}">
                                                 <ui:include src="/pages/modules/test/parameter.xhtml">
                                                     <ui:param name="parameter" value="#{testCase.actualParam}"/>
                                                 </ui:include>
