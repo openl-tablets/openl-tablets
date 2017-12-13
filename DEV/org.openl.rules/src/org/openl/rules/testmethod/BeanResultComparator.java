@@ -65,7 +65,16 @@ public class BeanResultComparator implements TestResultComparator {
         for (IOpenField field : fields) {
             Object actualFieldValue = getFieldValueOrNull(actualResult, field);
             Object expectedFieldValue = getFieldValueOrNull(expectedResult, field);
-            boolean equal = isCompare(actualFieldValue, expectedFieldValue, field);
+            // Get delta for field if setted
+            Double columnDelta = null;
+            if (field instanceof PrecisionFieldChain) {
+                if (((PrecisionFieldChain) field).hasDelta()) {
+                    columnDelta = ((PrecisionFieldChain) field).getDelta();
+                }
+            }
+            Class<?> clazz = field.getType().getInstanceClass();
+            TestResultComparator comparator = TestResultComparatorFactory.getComparator(clazz, columnDelta);
+            boolean equal = comparator.isEqual(expectedFieldValue, actualFieldValue);
             success = success && equal;
 
             ComparedResult fieldComparisonResults = new ComparedResult();
@@ -77,21 +86,6 @@ public class BeanResultComparator implements TestResultComparator {
         }
         return success;
 
-    }
-
-    private boolean isCompare(Object actualFieldValue,
-            Object expectedFieldValue,
-            IOpenField field) {
-        // Get delta for field if setted
-        Double columnDelta = null;
-        if (field instanceof PrecisionFieldChain) {
-            if (((PrecisionFieldChain) field).hasDelta()) {
-                columnDelta = ((PrecisionFieldChain) field).getDelta();
-            }
-        }
-        Class<?> clazz = field.getType().getInstanceClass();
-        TestResultComparator comparator = TestResultComparatorFactory.getComparator(clazz, columnDelta);
-        return comparator.isEqual(expectedFieldValue, actualFieldValue);
     }
 
     private Object getFieldValueOrNull(Object result, IOpenField field) {
