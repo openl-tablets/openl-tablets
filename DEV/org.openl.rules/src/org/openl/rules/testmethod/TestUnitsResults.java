@@ -82,7 +82,7 @@ public class TestUnitsResults implements INamedThing {
         return executionTime;
     }
 
-    public void addTestUnit(TestUnit testUnit) {
+    void addTestUnit(TestUnit testUnit) {
         if (!testSuite.isVirtualTestSuite()) {
             testUnits.add(updateTestUnit(testUnit));
         } else {
@@ -126,18 +126,28 @@ public class TestUnitsResults implements INamedThing {
      *         FIXME it should be moved to compile phase and all info about bean
      *         comparator should be located in {@link TestDescription}
      */
-    public TestUnit updateTestUnit(TestUnit testUnit) {
+    private TestUnit updateTestUnit(TestUnit testUnit) {
         List<IOpenField> fieldsToTest = new ArrayList<IOpenField>();
 
         IOpenClass resultType = testSuite.getTestedMethod().getType();
-        Integer precision = null;
         TestDescription test = testUnit.getTest();
         Integer testTablePrecision = test.getTestTablePrecision();
+        Integer precision = testTablePrecision;
         for (ColumnDescriptor columnDescriptor : testSuite.getTestSuiteMethod().getDescriptors()) {
-            Integer fieldPrecision = null;
             if (columnDescriptor != null) {
                 IdentifierNode[] nodes = columnDescriptor.getFieldChainTokens();
-                if (nodes.length > 0 && nodes[0].getIdentifier().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)) {
+                if (nodes.length == 0 || !nodes[0].getIdentifier().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)) {
+                    // skip empty or non-'_res_' columns
+                    continue;
+                }
+                Integer fieldPrecision = testTablePrecision;
+                if (nodes.length > 1 && nodes[nodes.length - 1].getIdentifier().matches(DataTableBindHelper.PRECISION_PATTERN)) {
+                    // set the precision of the field
+                    fieldPrecision = DataTableBindHelper.getPrecisionValue(nodes[nodes.length - 1]);
+                    nodes = ArrayUtils.remove(nodes, nodes.length - 1);
+                    precision = fieldPrecision;
+                }
+
                     if (columnDescriptor.isReference()) {
                         if (!resultType.isSimple()) {
                             if (resultType.isArray()) {
@@ -202,17 +212,6 @@ public class TestUnitsResults implements INamedThing {
                                 }
                             }
 
-                            fieldPrecision = testTablePrecision;
-                            if (fieldSequence[i] == null) {
-                                if (nodes[i + 1 - startIndex].getIdentifier()
-                                    .matches(DataTableBindHelper.PRECISION_PATTERN)) {
-                                    fieldPrecision = DataTableBindHelper.getPrecisionValue(nodes[i + 1 - startIndex]);
-                                    precision = fieldPrecision;
-                                    fieldSequence = ArrayUtils.remove(fieldSequence, i);
-                                    break;
-                                }
-                            }
-
                             if (fieldSequence[i].getType().isArray() && isArray) {
                                 currentType = fieldSequence[i].getType().getComponentClass();
                             } else {
@@ -231,7 +230,6 @@ public class TestUnitsResults implements INamedThing {
                             }
                         }
                     }
-                }
             }
         }
 
@@ -245,10 +243,6 @@ public class TestUnitsResults implements INamedThing {
             testUnit.setTestUnitResultComparator(resultComparator);
         }
         return testUnit;
-    }
-
-    public void addTestUnits(List<TestUnit> testUnits) {
-        this.testUnits.addAll(testUnits);
     }
 
     public int getNumberOfFailures() {
