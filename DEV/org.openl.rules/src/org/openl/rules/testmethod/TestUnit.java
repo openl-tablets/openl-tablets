@@ -85,13 +85,9 @@ public class TestUnit {
         Object expected = getExpectedResult();
 
         if (resultComparator instanceof BeanResultComparator) {
-            if (expected != test.getExpectedError() || test.getExpectedError() == null) {
-                List<ComparedResult> results;
-                if (actual instanceof Throwable) {
-                    results = ((BeanResultComparator) resultComparator).getExceptionResults((Throwable) actual, expected);
-                } else {
-                    results = ((BeanResultComparator) resultComparator).getComparisonResults();
-                }
+            String expectedError = test.getExpectedError();
+            if (expectedError == null) {
+                List<ComparedResult> results = ((BeanResultComparator) resultComparator).getComparisonResults();
                 for (ComparedResult comparedResult : results) {
                     if (!(comparedResult.getActualValue() instanceof ParameterWithValueDeclaration)) {
                         comparedResult.setActualValue(new ParameterWithValueDeclaration(

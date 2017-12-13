@@ -3,8 +3,6 @@ package org.openl.rules.testmethod;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
-
 import org.openl.rules.data.PrecisionFieldChain;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
@@ -22,39 +20,6 @@ class BeanResultComparator implements TestResultComparator {
     }
 
     public List<ComparedResult> getComparisonResults() {
-        return comparisonResults;
-    }
-
-    public List<ComparedResult> getExceptionResults(Throwable actualResult, Object expectedResult) {
-        if (comparisonResults.isEmpty()) {
-            List<ComparedResult> results = new ArrayList<ComparedResult>();
-            Throwable rootCause = ExceptionUtils.getRootCause(actualResult);
-            if (rootCause == null) {
-                rootCause = actualResult;
-            }
-            String actualFieldValue;
-            if (rootCause instanceof OpenLUserRuntimeException) {
-                actualFieldValue = ((OpenLUserRuntimeException) rootCause).getOriginalMessage();
-            } else {
-                actualFieldValue = rootCause.getMessage();
-            }
-
-            for (IOpenField field : fields) {
-                ComparedResult fieldComparisonResults = new ComparedResult();
-                fieldComparisonResults.setFieldName(field.getName());
-
-                fieldComparisonResults.setActualValue(actualFieldValue);
-                fieldComparisonResults.setExpectedValue(getFieldValueOrNull(expectedResult, field));
-
-                // For BeanResultComparator expectedResult is complex object - that's why expectedResult
-                // always doesn't equal to exception
-                fieldComparisonResults.setStatus(TestStatus.TR_NEQ);
-
-                results.add(fieldComparisonResults);
-            }
-
-            comparisonResults = results;
-        }
         return comparisonResults;
     }
 
