@@ -148,7 +148,7 @@ public class TestUnitsResults implements INamedThing {
                         }
                     } else {
                         IOpenField[] fieldSequence;
-                        boolean resIsArray = nodes[0].getIdentifier().matches(DataTableBindHelper.ARRAY_ACCESS_PATTERN);
+                        boolean resIsArray = nodes[0].getIdentifier().matches(DataTableBindHelper.ARRAY_ACCESS_BY_INDEX_PATTERN);
                         int startIndex = 0;
                         IOpenClass currentType = resultType;
 
@@ -175,7 +175,7 @@ public class TestUnitsResults implements INamedThing {
 
                         for (int i = startIndex; i < fieldSequence.length; i++) {
                             boolean isArray = nodes[i + 1 - startIndex].getIdentifier()
-                                .matches(DataTableBindHelper.ARRAY_ACCESS_PATTERN);
+                                .matches(DataTableBindHelper.ARRAY_ACCESS_BY_INDEX_PATTERN);
                             if (isArray) {
                                 IOpenField arrayField = currentType.getField(getArrayName(nodes[i + 1 - startIndex]));
                                 // Try process field as SpreadsheetResult

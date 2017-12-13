@@ -38,7 +38,7 @@ public class DataTableBindHelper {
 
     private static final char INDEX_ROW_REFERENCE_START_SYMBOL = '>';
 
-    private static final String FPK = "_PK_";
+    public static final String FPK = "_PK_";
 
     /**
      * Indicates that field is a constructor.<br>
@@ -51,7 +51,8 @@ public class DataTableBindHelper {
     private static final String LINK_DELIMETERS = ".";
 
     // patter for field like addressArry[0]
-    public static final String ARRAY_ACCESS_PATTERN = ".+\\[[0-9]+\\]$";
+    public static final String ARRAY_ACCESS_BY_INDEX_PATTERN = ".+\\[\\s*[0-9]+\\s*\\]$";
+    public static final String ARRAY_ACCESS_MULTI_ROWS_PATTERN = ".+\\[\\s*\\]$";
     public static final String THIS_ARRAY_ACCESS_PATTERN = "\\s*\\[[0-9]+\\]$";
     public static final String PRECISION_PATTERN = "^\\(\\-?[0-9]+\\)$";
     public static final String SPREADSHEETRESULTFIELD_PATTERN = "^\\$.+\\$.+$";
@@ -405,17 +406,18 @@ public class DataTableBindHelper {
 
                 IdentifierNode foreignKeyTable = null;
                 IdentifierNode foreignKey = null;
-                IdentifierNode[] accessorChainTokens = null; 
+                IdentifierNode[] accessorChainTokens = null;
                 ICell foreignKeyCell = null;
 
                 if (fieldAccessorChainTokens.length == 1 && !hasForeignKeysRow) {
                     // process single field in chain, e.g. driver;
                     IdentifierNode fieldNameNode = fieldAccessorChainTokens[0];
-                    if (fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_PATTERN)) {
-                        descriptorField = getWritableArrayElement(fieldNameNode, table, type);
+                    if (fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_BY_INDEX_PATTERN)) {
+                        descriptorField = getWritableArrayElement(fieldNameNode, table, type, StringUtils.EMPTY, false);
                     } else if (fieldNameNode.getIdentifier().matches(THIS_ARRAY_ACCESS_PATTERN) && type.isArray()) {
-                        descriptorField = new ThisArrayElementField(getArrayIndex(fieldNameNode), type.getComponentClass()); 
-                    } else { 
+                        descriptorField = new ThisArrayElementField(getArrayIndex(fieldNameNode),
+                            type.getComponentClass());
+                    } else {
                         if (supportConstructorFields && CONSTRUCTOR_FIELD.equals(fieldNameNode.getIdentifier())) {
                             constructorField = true;
                         } else {
@@ -459,6 +461,21 @@ public class DataTableBindHelper {
                 columnDescriptors[columnNum] = currentColumnDescriptor;
             }
         }
+
+        boolean hasSupportMultirowsAfter = false;
+
+        for (int columnNum = columnIdentifiers.size() - 1; columnNum >= 0; columnNum--) {
+            if (columnDescriptors[columnNum] != null) {
+                if (hasSupportMultirowsAfter) {
+                    columnDescriptors[columnNum].setSupportMultirows(true);
+                } else {
+                    if (columnDescriptors[columnNum].isSupportMultirows()) {
+                        hasSupportMultirowsAfter = true;
+                    }
+                }
+            }
+        }
+
         return columnDescriptors;
     }
 
@@ -610,18 +627,40 @@ public class DataTableBindHelper {
         // 1st for driver, 2nd for name
         IOpenField[] fieldAccessorChain = new IOpenField[fieldAccessorChainTokens.length];
         boolean hasAccessByArrayId = false;
+        StringBuilder partPathFromRoot = new StringBuilder();
 
         for (int fieldIndex = 0; fieldIndex < fieldAccessorChain.length; fieldIndex++) {
             IdentifierNode fieldNameNode = fieldAccessorChainTokens[fieldIndex];
             IOpenField fieldInChain;
-            
+
+            if (fieldIndex > 0 && (fieldIndex == fieldAccessorChain.length - 1) && fieldNameNode.getIdentifier()
+                .matches(FPK) && (fieldAccessorChain[fieldIndex - 1] instanceof DatatypeArrayMultiRowElementField)) { // Multi-rows
+                                                                                                                      // support.
+                                                                                                                      // PK
+                                                                                                                      // for
+                                                                                                                      // arrays.
+                DatatypeArrayMultiRowElementField datatypeArrayMultiRowElementField = (DatatypeArrayMultiRowElementField) fieldAccessorChain[fieldIndex - 1];
+                DatatypeArrayMultiRowElementField newDatatypeArrayMultiRowElementField = new DatatypeArrayMultiRowElementField(
+                    datatypeArrayMultiRowElementField.getField(),
+                    datatypeArrayMultiRowElementField.getFieldPathFromRoot(),
+                    JavaOpenClass.STRING,
+                    true);
+                IOpenField[] fieldAccessorChainTmp = new IOpenField[fieldAccessorChainTokens.length - 1];
+                System.arraycopy(fieldAccessorChain, 0, fieldAccessorChainTmp, 0, fieldAccessorChainTokens.length - 1);
+                fieldAccessorChain = fieldAccessorChainTmp;
+                fieldAccessorChain[fieldAccessorChain.length - 1] = newDatatypeArrayMultiRowElementField;
+                continue;
+            }
+
             if (fieldIndex == 0 && fieldNameNode.getIdentifier().matches(THIS_ARRAY_ACCESS_PATTERN)) {
-                fieldAccessorChain[fieldIndex] = new ThisArrayElementField(getArrayIndex(fieldNameNode), type.getComponentClass());
+                fieldAccessorChain[fieldIndex] = new ThisArrayElementField(getArrayIndex(fieldNameNode),
+                    type.getComponentClass());
                 loadedFieldType = type.getComponentClass();
                 continue;
             }
-            
-            boolean arrayAccess = fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_PATTERN);
+
+            boolean arrayAccessByIndex = fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_BY_INDEX_PATTERN);
+            boolean arrayAccessMultiRows = fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_MULTI_ROWS_PATTERN);
 
             if (fieldNameNode.getIdentifier().matches(PRECISION_PATTERN)) {
                 fieldAccessorChain = ArrayUtils.remove(fieldAccessorChain, fieldIndex);
@@ -630,9 +669,13 @@ public class DataTableBindHelper {
                 continue;
             }
 
-            if (arrayAccess) {
+            if (arrayAccessByIndex || arrayAccessMultiRows) {
                 hasAccessByArrayId = true;
-                fieldInChain = getWritableArrayElement(fieldNameNode, table, loadedFieldType);
+                fieldInChain = getWritableArrayElement(fieldNameNode,
+                    table,
+                    loadedFieldType,
+                    partPathFromRoot.toString(),
+                    arrayAccessMultiRows);
             } else {
                 fieldInChain = getWritableField(fieldNameNode, table, loadedFieldType);
             }
@@ -654,13 +697,18 @@ public class DataTableBindHelper {
                 break;
             }
 
-            if (fieldInChain.getType() != null && fieldInChain.getType().isArray() && arrayAccess) {
+            if (fieldInChain.getType() != null && fieldInChain.getType()
+                .isArray() && (arrayAccessByIndex || arrayAccessMultiRows)) {
                 loadedFieldType = fieldInChain.getType().getComponentClass();
             } else {
                 loadedFieldType = fieldInChain.getType();
             }
 
             fieldAccessorChain[fieldIndex] = fieldInChain;
+            if (fieldIndex > 0) {
+                partPathFromRoot.append(".");
+            }
+            partPathFromRoot.append(fieldInChain.getName());
         }
         if (!CollectionUtils.hasNull(fieldAccessorChain)) { // check successful
                                                             // loading of all
@@ -684,7 +732,7 @@ public class DataTableBindHelper {
 
     private static int getArrayIndex(IdentifierNode fieldNameNode) {
         String fieldName = fieldNameNode.getIdentifier();
-        String txtIndex = fieldName.substring(fieldName.indexOf("[") + 1, fieldName.indexOf("]"));
+        String txtIndex = fieldName.substring(fieldName.indexOf("[") + 1, fieldName.indexOf("]")).trim();
 
         return Integer.parseInt(txtIndex);
     }
@@ -758,11 +806,20 @@ public class DataTableBindHelper {
         return field;
     }
 
+    private static String buildRootPathForDatatypeArrayMultiRowElementField(String partPathFromRoot, String fieldName) {
+        if (StringUtils.isEmpty(partPathFromRoot)) {
+            return fieldName + "[]";
+        } else {
+            return partPathFromRoot + "." + fieldName + "[]";
+        }
+    }
+
     private static IOpenField getWritableArrayElement(IdentifierNode currentFieldNameNode,
             ITable table,
-            IOpenClass loadedFieldType) {
+            IOpenClass loadedFieldType,
+            String partPathFromRoot,
+            boolean multiRowElement) {
         String arrayName = getArrayName(currentFieldNameNode);
-        int arrayIndex = getArrayIndex(currentFieldNameNode);
         IOpenField field = DataTableBindHelper.findField(arrayName, table, loadedFieldType);
         // Try find field in SpreadsheetResult type
         if (field == null && loadedFieldType.equals(JavaOpenClass.OBJECT)) {
@@ -786,10 +843,22 @@ public class DataTableBindHelper {
             return null;
         }
         IOpenField arrayAccessField;
-        if (!field.getType().isArray() && field.getType().getOpenClass().getInstanceClass().equals(Object.class)) {
-            arrayAccessField = new DatatypeArrayElementField(field, arrayIndex, JavaOpenClass.OBJECT);
+        if (multiRowElement) {
+            if (!field.getType().isArray() && field.getType().getOpenClass().getInstanceClass().equals(Object.class)) {
+                arrayAccessField = new DatatypeArrayMultiRowElementField(field,
+                    buildRootPathForDatatypeArrayMultiRowElementField(partPathFromRoot, field.getName()),
+                    JavaOpenClass.OBJECT);
+            } else {
+                arrayAccessField = new DatatypeArrayMultiRowElementField(field,
+                    buildRootPathForDatatypeArrayMultiRowElementField(partPathFromRoot, field.getName()));
+            }
         } else {
-            arrayAccessField = new DatatypeArrayElementField(field, arrayIndex);
+            int arrayIndex = getArrayIndex(currentFieldNameNode);
+            if (!field.getType().isArray() && field.getType().getOpenClass().getInstanceClass().equals(Object.class)) {
+                arrayAccessField = new DatatypeArrayElementField(field, arrayIndex, JavaOpenClass.OBJECT);
+            } else {
+                arrayAccessField = new DatatypeArrayElementField(field, arrayIndex);
+            }
         }
         if (!arrayAccessField.isWritable()) {
             String message = String.format("Field '%s' is not writable in %s", arrayName, loadedFieldType.getName());

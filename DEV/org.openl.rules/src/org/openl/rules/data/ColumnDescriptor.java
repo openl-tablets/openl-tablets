@@ -32,6 +32,7 @@ public class ColumnDescriptor {
     private StringValue displayValue;
     private OpenL openl;
     private boolean valuesAnArray = false;
+    private boolean supportMultirows = false;
 
     /**
      * Flag indicating that current column descriptor is a constructor.<br>
@@ -53,8 +54,17 @@ public class ColumnDescriptor {
         this.openl = openl;
         this.constructor = constructor;
         this.fieldChainTokens = fieldChainTokens;
-        if (field != null)
+        if (field != null) {
             this.valuesAnArray = isValuesAnArray(field.getType());
+            if (field instanceof FieldChain) {
+                FieldChain fieldChain = (FieldChain) field;
+                for (IOpenField f : fieldChain.getFields()) {
+                    if (f instanceof DatatypeArrayMultiRowElementField) {
+                        this.supportMultirows = true;
+                    }
+                }
+            }
+        }
     }
 
     protected IRuntimeEnv getRuntimeEnv() {
@@ -158,7 +168,8 @@ public class ColumnDescriptor {
      */
     public Object populateLiteral(Object literal,
             ILogicalTable valuesTable,
-            OpenlToolAdaptor toolAdapter) throws SyntaxNodeException {
+            OpenlToolAdaptor toolAdapter,
+            IRuntimeEnv env) throws SyntaxNodeException {
         if (field != null) {
             IOpenClass paramType = field.getType();
 
@@ -167,14 +178,18 @@ public class ColumnDescriptor {
             }
 
             valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
-            IRuntimeEnv env = getRuntimeEnv();
+
             if (!valuesAnArray) {
-                Object res = RuleRowHelper.loadSingleParam(paramType, field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(), null, valuesTable, toolAdapter);
-                if (res != null) {
-                    env.pushThis(literal);
-                    field.set(literal, res, env);
-                    return env.popThis();
+                env.pushThis(literal);
+                if (supportMultirows) {
+                    processWithMultiRowsSupport(literal, valuesTable, toolAdapter, env, paramType);    
+                } else {
+                    Object res = RuleRowHelper.loadSingleParam(paramType, field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(), null, valuesTable, toolAdapter);
+                    if (res != null) {
+                        field.set(literal, res, env);
+                    }
                 }
+                return env.popThis();
             } else {
                 Object arrayValues = getArrayValues(valuesTable, toolAdapter, paramType);
                 env.pushThis(literal);
@@ -190,6 +205,32 @@ public class ColumnDescriptor {
              */
         }
         return literal;
+    }
+
+    private void processWithMultiRowsSupport(Object literal,
+            ILogicalTable valuesTable,
+            OpenlToolAdaptor toolAdapter,
+            IRuntimeEnv env,
+            IOpenClass paramType) throws SyntaxNodeException {
+        DatatypeArrayMultiRowElementContext datatypeArrayMultiRowElementContext = (DatatypeArrayMultiRowElementContext) env.getLocalFrame()[0];
+        Object prevRes = null;
+        for (int i = 0; i < valuesTable.getSource().getHeight(); i++) {
+            datatypeArrayMultiRowElementContext.setRow(i);
+            Object res = RuleRowHelper.loadSingleParam(paramType,
+                field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(),
+                null,
+                LogicalTableHelper.logicalTable(valuesTable.getSource().getSubtable(0, i, 1, i + 1)).getSubtable(0, 0, 1, 1),
+                toolAdapter);
+            if (prevRes != null && prevRes.equals(res)) {
+                datatypeArrayMultiRowElementContext.setRowValueIsTheSameAsPrevious(true);
+            } else {
+                datatypeArrayMultiRowElementContext.setRowValueIsTheSameAsPrevious(false);
+            }
+            if (res != null) {
+                field.set(literal, res, env);
+            }
+            prevRes = res;
+        }
     }
 
     public boolean isReference() {
@@ -219,8 +260,11 @@ public class ColumnDescriptor {
 
         for (int i = 0; i < valuesTableHeight; i++) {
 
-            Object res = RuleRowHelper
-                .loadSingleParam(paramType, field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(), null, logicalTable.getRow(i), openlAdaptor);
+            Object res = RuleRowHelper.loadSingleParam(paramType,
+                field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(),
+                null,
+                logicalTable.getRow(i),
+                openlAdaptor);
 
             // Change request: null value cells should be loaded into array as a
             // null value elements.
@@ -260,5 +304,13 @@ public class ColumnDescriptor {
                 }
             }
         }
+    }
+    
+    public boolean isSupportMultirows() {
+        return supportMultirows;
+    }
+    
+    public void setSupportMultirows(boolean supportMultirows) {
+        this.supportMultirows = supportMultirows;
     }
 }
