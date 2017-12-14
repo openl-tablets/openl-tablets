@@ -6,7 +6,11 @@ import static org.mockito.Mockito.when;
 
 import org.junit.Test;
 import org.openl.meta.DoubleValue;
-import org.openl.rules.testmethod.result.TestResultComparatorFactory;
+import org.openl.types.IOpenField;
+import org.openl.types.impl.ThisField;
+import org.openl.types.java.JavaOpenClass;
+
+import java.util.Collections;
 
 public class TestUnitTest {
 
@@ -17,7 +21,7 @@ public class TestUnitTest {
         when(test.getExpectedResult()).thenReturn(new DoubleValue(0.93));
 
         TestUnit unit = new TestUnit(test, 0.93, 100);
-        unit.setTestUnitResultComparator(TestResultComparatorFactory.getComparator(Double.class, null));
+        unit.setFieldsToTest(Collections.<IOpenField>singletonList(new ThisField(JavaOpenClass.DOUBLE)));
 
         assertEquals(0.93, unit.getActualResult());
         assertEquals(TestStatus.TR_OK, unit.compareResult());

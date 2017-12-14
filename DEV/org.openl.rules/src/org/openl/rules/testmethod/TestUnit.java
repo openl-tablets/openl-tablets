@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.testmethod.result.ComparedResult;
-import org.openl.rules.testmethod.result.TestResultComparator;
+import org.openl.types.IOpenField;
 import org.openl.util.StringUtils;
 
 import static org.openl.rules.testmethod.TestStatus.TR_NEQ;
@@ -25,7 +25,7 @@ public class TestUnit {
 
     public static final String DEFAULT_DESCRIPTION = "No Description";
 
-    private TestResultComparator resultComparator;
+    private BeanResultComparator resultComparator;
     private TestStatus comapreResult;
 
     private final long executionTime;
@@ -84,10 +84,9 @@ public class TestUnit {
         Object actual = getActualResult();
         Object expected = getExpectedResult();
 
-        if (resultComparator instanceof BeanResultComparator) {
             String expectedError = test.getExpectedError();
             if (expectedError == null) {
-                List<ComparedResult> results = ((BeanResultComparator) resultComparator).getComparisonResults();
+                List<ComparedResult> results = resultComparator.getComparisonResults();
                 for (ComparedResult comparedResult : results) {
                     if (!(comparedResult.getActualValue() instanceof ParameterWithValueDeclaration)) {
                         comparedResult.setActualValue(new ParameterWithValueDeclaration(
@@ -100,7 +99,6 @@ public class TestUnit {
                     params.add(comparedResult);
                 }
                 return params;
-            }
         }
 
         ComparedResult result = new ComparedResult();
@@ -123,15 +121,12 @@ public class TestUnit {
         return descr == null ? DEFAULT_DESCRIPTION : descr;
     }
 
-    public void setTestUnitResultComparator(TestResultComparator resultComparator) {
-        this.resultComparator = resultComparator;
+    public void setFieldsToTest(List<IOpenField> fieldsToTest) {
+        this.resultComparator = new BeanResultComparator(fieldsToTest);
     }
 
     public List<ComparedResult> getComparisonResults() {
-        if (resultComparator instanceof BeanResultComparator) {
-            return ((BeanResultComparator) resultComparator).getComparisonResults();
-        }
-        return null;
+        return resultComparator.getComparisonResults();
     }
 
     /**

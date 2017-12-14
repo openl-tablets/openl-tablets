@@ -204,7 +204,7 @@ public class TestUnitsResults implements INamedThing {
             }
         }
 
-        testUnit.setTestUnitResultComparator(new BeanResultComparator(fieldsToTest));
+        testUnit.setFieldsToTest(fieldsToTest);
         return testUnit;
     }
 
