@@ -14,17 +14,14 @@ import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.DataTableBindHelper;
 import org.openl.rules.data.FieldChain;
 import org.openl.rules.data.PrecisionFieldChain;
-import org.openl.rules.testmethod.result.TestResultComparator;
-import org.openl.rules.testmethod.result.TestResultComparatorFactory;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.impl.AOpenField;
 import org.openl.types.impl.DatatypeArrayElementField;
+import org.openl.types.impl.ThisField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
-import org.openl.vm.IRuntimeEnv;
 
 /**
  * Test units results for the test table. Consist of the test suit method
@@ -102,21 +99,6 @@ public class TestUnitsResults implements INamedThing {
         return fieldName.substring(0, fieldName.indexOf("["));
     }
 
-    private class WrapClassWithThisField extends AOpenField {
-
-        protected WrapClassWithThisField(IOpenClass clazz) {
-            super("this", clazz);
-        }
-
-        public Object get(Object target, IRuntimeEnv env) {
-            return target;
-        }
-
-        public void set(Object target, Object value, IRuntimeEnv env) {
-            throw new RuntimeException("Can not assign to 'this'");
-        }
-    }
-
     /**
      * Creates the list of test unit results.
      * 
@@ -127,12 +109,11 @@ public class TestUnitsResults implements INamedThing {
      *         comparator should be located in {@link TestDescription}
      */
     private TestUnit updateTestUnit(TestUnit testUnit) {
-        List<IOpenField> fieldsToTest = new ArrayList<IOpenField>();
+        List<IOpenField> fieldsToTest = new ArrayList<>();
 
         IOpenClass resultType = testSuite.getTestedMethod().getType();
         TestDescription test = testUnit.getTest();
         Integer testTablePrecision = test.getTestTablePrecision();
-        Integer precision = testTablePrecision;
         for (ColumnDescriptor columnDescriptor : testSuite.getTestSuiteMethod().getDescriptors()) {
             if (columnDescriptor != null) {
                 IdentifierNode[] nodes = columnDescriptor.getFieldChainTokens();
@@ -145,17 +126,15 @@ public class TestUnitsResults implements INamedThing {
                     // set the precision of the field
                     fieldPrecision = DataTableBindHelper.getPrecisionValue(nodes[nodes.length - 1]);
                     nodes = ArrayUtils.remove(nodes, nodes.length - 1);
-                    precision = fieldPrecision;
                 }
 
                     if (columnDescriptor.isReference()) {
-                        if (!resultType.isSimple()) {
-                            if (resultType.isArray()) {
-                                IOpenField arrayField = new WrapClassWithThisField(resultType);
-                                fieldsToTest.add(arrayField);
-                            } else {
-                                fieldsToTest.addAll(resultType.getFields().values());
-                            }
+                        if (resultType.isSimple()) {
+                            fieldsToTest.add(new ThisField(resultType));
+                        } else if (resultType.isArray()) {
+                            fieldsToTest.add(new ThisField(resultType));
+                        } else {
+                            fieldsToTest.addAll(resultType.getFields().values());
                         }
                     } else {
                         IOpenField[] fieldSequence;
@@ -166,7 +145,7 @@ public class TestUnitsResults implements INamedThing {
                         if (resIsArray) {
                             startIndex = 1;
                             fieldSequence = new IOpenField[nodes.length];
-                            IOpenField arrayField = new WrapClassWithThisField(resultType);
+                            IOpenField arrayField = new ThisField(resultType);
                             int arrayIndex = getArrayIndex(nodes[0]);
                             IOpenField arrayAccessField = new DatatypeArrayElementField(arrayField, arrayIndex);
                             if (arrayAccessField.getType().isArray()) {
@@ -179,11 +158,6 @@ public class TestUnitsResults implements INamedThing {
                             fieldSequence = new IOpenField[nodes.length - 1];
                         }
 
-                        if (fieldSequence.length == 0) {
-                            continue;// optimization and exclude additional
-                                     // conditions
-                        }
-
                         for (int i = startIndex; i < fieldSequence.length; i++) {
                             boolean isArray = nodes[i + 1 - startIndex].getIdentifier()
                                 .matches(DataTableBindHelper.ARRAY_ACCESS_PATTERN);
@@ -194,7 +168,6 @@ public class TestUnitsResults implements INamedThing {
                                     .matches(DataTableBindHelper.SPREADSHEETRESULTFIELD_PATTERN)) {
                                     SpreadsheetResultOpenClass spreadsheetResultOpenClass = new SpreadsheetResultOpenClass(SpreadsheetResult.class);
                                     arrayField = spreadsheetResultOpenClass.getField(getArrayName(nodes[i + 1 - startIndex]));
-                                    currentType = spreadsheetResultOpenClass;
                                 }
                                 int arrayIndex = getArrayIndex(nodes[i + 1 - startIndex]);
                                 IOpenField arrayAccessField = new DatatypeArrayElementField(arrayField, arrayIndex);
@@ -207,7 +180,6 @@ public class TestUnitsResults implements INamedThing {
                                     IOpenField openField = spreadsheetResultOpenClass.getField(nodes[i + 1 - startIndex].getIdentifier());
                                     if (openField != null) {
                                         fieldSequence[i] = openField;
-                                        currentType = spreadsheetResultOpenClass;
                                     }
                                 }
                             }
@@ -218,30 +190,21 @@ public class TestUnitsResults implements INamedThing {
                                 currentType = fieldSequence[i].getType();
                             }
                         }
-                        if (fieldSequence.length > 0) {
-                            if (fieldSequence.length > 1 || fieldPrecision != null) {
-                                if (fieldPrecision != null) {
-                                    fieldsToTest.add(new PrecisionFieldChain(currentType, fieldSequence, fieldPrecision));
-                                } else {
-                                    fieldsToTest.add(new FieldChain(currentType, fieldSequence));
-                                }
-                            } else {
-                                fieldsToTest.add(fieldSequence[0]);
-                            }
-                        }
+                    if (fieldSequence.length == 0) {
+                        fieldSequence = new IOpenField[] { new ThisField(resultType) };
                     }
+                    if (fieldPrecision != null) {
+                        fieldsToTest.add(new PrecisionFieldChain(currentType, fieldSequence, fieldPrecision));
+                    } else if (fieldSequence.length > 1) {
+                        fieldsToTest.add(new FieldChain(currentType, fieldSequence));
+                    } else {
+                        fieldsToTest.add(fieldSequence[0]);
+                    }
+                }
             }
         }
 
-        if (fieldsToTest.size() > 0) {
-            testUnit.setTestUnitResultComparator(new BeanResultComparator(fieldsToTest));
-        } else {
-            Integer prec = precision != null ? precision : testTablePrecision;
-            Double delta = prec != null ?  Math.pow(10.0, -prec) : null;
-            Class<?> clazz = test.getTestedMethod().getType().getInstanceClass();
-            TestResultComparator resultComparator = TestResultComparatorFactory.getComparator(clazz, delta);
-            testUnit.setTestUnitResultComparator(resultComparator);
-        }
+        testUnit.setTestUnitResultComparator(new BeanResultComparator(fieldsToTest));
         return testUnit;
     }
 
