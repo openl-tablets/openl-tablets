@@ -30,7 +30,6 @@ public class TestUnit {
 
     public static final String DEFAULT_DESCRIPTION = "No Description";
 
-    private List<IOpenField> fieldsToTest;
     private List<ComparedResult> comparisonResults = new ArrayList<ComparedResult>();
     private TestStatus comapreResult;
 
@@ -126,10 +125,6 @@ public class TestUnit {
         return descr == null ? DEFAULT_DESCRIPTION : descr;
     }
 
-    public void setFieldsToTest(List<IOpenField> fieldsToTest) {
-        this.fieldsToTest = fieldsToTest;
-    }
-
     public List<ComparedResult> getComparisonResults() {
         return comparisonResults;
     }
@@ -161,7 +156,7 @@ public class TestUnit {
             } else {
                 comapreResult = TR_EXCEPTION;
             }
-        } else if (fieldsToTest != null) {
+        } else {
             comapreResult = isEqual(expectedResult, actualResult) ? TR_OK : TR_NEQ;
         }
 
@@ -184,7 +179,7 @@ public class TestUnit {
         boolean success = true;
         comparisonResults = new ArrayList<>();
 
-        for (IOpenField field : fieldsToTest) {
+        for (IOpenField field : test.getFields()) {
             Object actualFieldValue = getFieldValueOrNull(actualResult, field);
             Object expectedFieldValue = getFieldValueOrNull(expectedResult, field);
             // Get delta for field if setted
