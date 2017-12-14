@@ -5,9 +5,14 @@ import java.util.List;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.message.OpenLMessage;
+import org.openl.rules.data.PrecisionFieldChain;
 import org.openl.rules.testmethod.result.ComparedResult;
+import org.openl.rules.testmethod.result.TestResultComparator;
+import org.openl.rules.testmethod.result.TestResultComparatorFactory;
 import org.openl.types.IOpenField;
 import org.openl.util.StringUtils;
+import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.SimpleVM;
 
 import static org.openl.rules.testmethod.TestStatus.TR_NEQ;
 import static org.openl.rules.testmethod.TestStatus.TR_OK;
@@ -25,7 +30,8 @@ public class TestUnit {
 
     public static final String DEFAULT_DESCRIPTION = "No Description";
 
-    private BeanResultComparator resultComparator;
+    private List<IOpenField> fieldsToTest;
+    private List<ComparedResult> comparisonResults = new ArrayList<ComparedResult>();
     private TestStatus comapreResult;
 
     private final long executionTime;
@@ -86,7 +92,7 @@ public class TestUnit {
 
             String expectedError = test.getExpectedError();
             if (expectedError == null) {
-                List<ComparedResult> results = resultComparator.getComparisonResults();
+                List<ComparedResult> results = comparisonResults;
                 for (ComparedResult comparedResult : results) {
                     if (!(comparedResult.getActualValue() instanceof ParameterWithValueDeclaration)) {
                         comparedResult.setActualValue(new ParameterWithValueDeclaration(
@@ -122,11 +128,11 @@ public class TestUnit {
     }
 
     public void setFieldsToTest(List<IOpenField> fieldsToTest) {
-        this.resultComparator = new BeanResultComparator(fieldsToTest);
+        this.fieldsToTest = fieldsToTest;
     }
 
     public List<ComparedResult> getComparisonResults() {
-        return resultComparator.getComparisonResults();
+        return comparisonResults;
     }
 
     /**
@@ -156,8 +162,8 @@ public class TestUnit {
             } else {
                 comapreResult = TR_EXCEPTION;
             }
-        } else if (resultComparator != null){
-            comapreResult = resultComparator.isEqual(expectedResult, actualResult) ? TR_OK : TR_NEQ;
+        } else if (fieldsToTest != null) {
+            comapreResult = isEqual(expectedResult, actualResult) ? TR_OK : TR_NEQ;
         }
 
         return comapreResult;
@@ -173,5 +179,48 @@ public class TestUnit {
 
     public List<OpenLMessage> getErrors() {
         return TestUtils.getErrors(getActualResult());
+    }
+
+    private boolean isEqual(Object expectedResult, Object actualResult) {
+        boolean success = true;
+        comparisonResults = new ArrayList<>();
+
+        for (IOpenField field : fieldsToTest) {
+            Object actualFieldValue = getFieldValueOrNull(actualResult, field);
+            Object expectedFieldValue = getFieldValueOrNull(expectedResult, field);
+            // Get delta for field if setted
+            Double columnDelta = null;
+            if (field instanceof PrecisionFieldChain) {
+                if (((PrecisionFieldChain) field).hasDelta()) {
+                    columnDelta = ((PrecisionFieldChain) field).getDelta();
+                }
+            }
+            Class<?> clazz = field.getType().getInstanceClass();
+            TestResultComparator comparator = TestResultComparatorFactory.getComparator(clazz, columnDelta);
+            boolean equal = comparator.isEqual(expectedFieldValue, actualFieldValue);
+            success = success && equal;
+
+            ComparedResult fieldComparisonResults = new ComparedResult();
+            fieldComparisonResults.setFieldName(field.getName());
+            fieldComparisonResults.setActualValue(actualFieldValue);
+            fieldComparisonResults.setExpectedValue(expectedFieldValue);
+            fieldComparisonResults.setStatus(equal ? TestStatus.TR_OK : TestStatus.TR_NEQ);
+            comparisonResults.add(fieldComparisonResults);
+        }
+        return success;
+
+    }
+
+    private Object getFieldValueOrNull(Object result, IOpenField field) {
+        Object fieldValue = null;
+        if (result != null) {
+            try {
+                IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+                fieldValue = field.get(result, env);
+            } catch (Exception ex) {
+                fieldValue = ex;
+            }
+        }
+        return fieldValue;
     }
 }
