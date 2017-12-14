@@ -2,7 +2,6 @@ package org.openl.rules.testmethod;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -29,20 +28,19 @@ import org.openl.util.Log;
 import org.openl.vm.IRuntimeEnv;
 
 public class TestDescription {
-    private final static String PRECISION_PARAM = "precision";
 
     private ParameterWithValueDeclaration[] executionParams;
     private IOpenMethod testedMethod;
     private DynamicObject testObject;
-    private Map<String, Object> testTableProps = null; // TODO Store testTablePrecision value instead of full map
+    private Integer precision; // TODO Store testTablePrecision value instead of full map
     private int index;
     private ColumnDescriptor[] columnDescriptors;
     private List<IOpenField> fields;
 
-    public TestDescription(IOpenMethod testedMethod, DynamicObject testObject, Map<String, Object> testTableProps, ColumnDescriptor[] columnDescriptors) {
+    public TestDescription(IOpenMethod testedMethod, DynamicObject testObject, Integer precision, ColumnDescriptor[] columnDescriptors) {
         this.testedMethod = testedMethod;
         this.testObject = testObject;
-        this.testTableProps = testTableProps;
+        this.precision = precision;
         this.columnDescriptors = columnDescriptors;
         executionParams = initExecutionParams(testedMethod, testObject);
     }
@@ -232,18 +230,14 @@ public class TestDescription {
         return columnDescriptors;
     }
 
-    public Map<String, Object> getTestTableProps() {
-        return testTableProps;
+    public Integer getPrecision() {
+        return precision;
     }
 
     public List<IOpenField> getFields() {
         if (fields == null) {
             ColumnDescriptor[] descriptors = getColumnDescriptors();
             IOpenMethod testedMethod = getTestedMethod();
-            Integer precision = null;
-            if (testTableProps != null && testTableProps.containsKey(PRECISION_PARAM)) {
-                precision = Integer.parseInt(testTableProps.get(PRECISION_PARAM).toString());
-            }
             fields = createFieldsToTest(testedMethod, descriptors, precision);
         }
         return fields;

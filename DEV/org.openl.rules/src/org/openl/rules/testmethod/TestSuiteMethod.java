@@ -22,6 +22,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public class TestSuiteMethod extends ExecutableRulesMethod {
 
+    private final static String PRECISION_PARAM = "precision";
     private IOpenMethod testedMethod;
     private TestDescription[] tests;
     private Map<String, Integer> indeces;
@@ -53,8 +54,14 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         DynamicObject[] testObjects = getTestObjects();
         TestDescription[] tests = new TestDescription[testObjects.length];
         indeces = new HashMap<String, Integer>(tests.length);
+        Map<String, Object> properties = getProperties();
+        Integer precision = null;
+        if (properties != null && properties.containsKey(PRECISION_PARAM)) {
+            precision = Integer.parseInt(properties.get(PRECISION_PARAM).toString());
+        }
+
         for (int i = 0; i < tests.length; i++) {
-            tests[i] = new TestDescription(getTestedMethod(), testObjects[i], getProperties(), getDescriptors());
+            tests[i] = new TestDescription(getTestedMethod(), testObjects[i], precision, getDescriptors());
             tests[i].setIndex(i);
             indeces.put(tests[i].getId(), i);
         }
