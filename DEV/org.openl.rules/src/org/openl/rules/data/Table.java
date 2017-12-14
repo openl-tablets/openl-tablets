@@ -20,6 +20,7 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.util.BiMap;
+import org.openl.vm.IRuntimeEnv;
 
 public class Table implements ITable {
 
@@ -327,11 +328,13 @@ public class Table implements ITable {
         }
 
         int columns = logicalTable.getWidth();
-
+        
+        IRuntimeEnv env = openlAdapter.getOpenl().getVm().getRuntimeEnv();
+        env.pushLocalFrame(new Object[] { new DatatypeArrayMultiRowElementContext() });
         for (int columnNum = 0; columnNum < columns; columnNum++) {
-            literal = processColumn(openlAdapter, constructor, rowNum, literal, columnNum);
+            literal = processColumn(openlAdapter, constructor, rowNum, literal, columnNum, env);
         }
-
+        env.popLocalFrame();
         if (literal == null) {
             literal = dataModel.getType().nullObject();
         }
@@ -343,7 +346,8 @@ public class Table implements ITable {
             boolean constructor,
             int rowNum,
             Object literal,
-            int columnNum) throws SyntaxNodeException {
+            int columnNum,
+            IRuntimeEnv env) throws SyntaxNodeException {
 
         ColumnDescriptor columnDescriptor = dataModel.getDescriptor()[columnNum];
 
@@ -356,7 +360,7 @@ public class Table implements ITable {
                 try {
                     ILogicalTable lTable = logicalTable.getSubtable(columnNum, rowNum, 1, 1);
                     if (!(lTable.getHeight() == 1 && lTable.getWidth() == 1) || lTable.getCell(0, 0).getStringValue() != null) { //EPBDS-6104. For empty values should be used data type default value.
-                        return columnDescriptor.populateLiteral(literal, lTable, openlAdapter);
+                        return columnDescriptor.populateLiteral(literal, lTable, openlAdapter, env);
                     } else {
                         // Set meta info for empty cells. To suggest an appropriate editor
                         // according to cell type.

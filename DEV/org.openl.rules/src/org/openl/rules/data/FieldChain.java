@@ -90,7 +90,6 @@ public class FieldChain extends AOpenField {
 
         // find last target, make if necessary
         for (int i = 0; i < fields.length - 1; i++) {
-
             Object newTarget = fields[i].get(target, env);
 
             if (newTarget == null) {
@@ -102,5 +101,9 @@ public class FieldChain extends AOpenField {
         }
 
         fields[fields.length - 1].set(target, value, env);
+    }
+    
+    public IOpenField[] getFields() {
+        return fields.clone();
     }
 }
