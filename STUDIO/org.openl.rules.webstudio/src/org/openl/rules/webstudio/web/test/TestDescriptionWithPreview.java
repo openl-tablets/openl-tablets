@@ -12,7 +12,7 @@ public class TestDescriptionWithPreview extends TestDescription {
     private ParameterWithValueAndPreviewDeclaration[] paramsWithPreview;
 
     public TestDescriptionWithPreview(TestDescription delegate) {
-        super(delegate.getTestedMethod(), delegate.getTestObject(), delegate.getPrecision(), delegate.getColumnDescriptors());
+        super(delegate.getTestedMethod(), delegate.getTestObject(), delegate.getFields(), delegate.getColumnDescriptors());
         setIndex(delegate.getIndex());
     }
 

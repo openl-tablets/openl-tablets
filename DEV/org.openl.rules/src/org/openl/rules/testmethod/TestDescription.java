@@ -1,29 +1,18 @@
 package org.openl.rules.testmethod;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.data.ColumnDescriptor;
-import org.openl.rules.data.DataTableBindHelper;
-import org.openl.rules.data.FieldChain;
-import org.openl.rules.data.PrecisionFieldChain;
 import org.openl.rules.data.RowIdField;
 import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.runtime.IRuntimeContext;
-import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.DatatypeArrayElementField;
 import org.openl.types.impl.DynamicObject;
-import org.openl.types.impl.ThisField;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.util.Log;
 import org.openl.vm.IRuntimeEnv;
 
@@ -32,15 +21,14 @@ public class TestDescription {
     private ParameterWithValueDeclaration[] executionParams;
     private IOpenMethod testedMethod;
     private DynamicObject testObject;
-    private Integer precision; // TODO Store testTablePrecision value instead of full map
     private int index;
     private ColumnDescriptor[] columnDescriptors;
     private List<IOpenField> fields;
 
-    public TestDescription(IOpenMethod testedMethod, DynamicObject testObject, Integer precision, ColumnDescriptor[] columnDescriptors) {
+    public TestDescription(IOpenMethod testedMethod, DynamicObject testObject, List<IOpenField> fields, ColumnDescriptor[] columnDescriptors) {
         this.testedMethod = testedMethod;
         this.testObject = testObject;
-        this.precision = precision;
+        this.fields = fields;
         this.columnDescriptors = columnDescriptors;
         executionParams = initExecutionParams(testedMethod, testObject);
     }
@@ -230,123 +218,7 @@ public class TestDescription {
         return columnDescriptors;
     }
 
-    public Integer getPrecision() {
-        return precision;
-    }
-
     public List<IOpenField> getFields() {
-        if (fields == null) {
-            ColumnDescriptor[] descriptors = getColumnDescriptors();
-            IOpenMethod testedMethod = getTestedMethod();
-            fields = createFieldsToTest(testedMethod, descriptors, precision);
-        }
         return fields;
-    }
-
-    private static List<IOpenField> createFieldsToTest(IOpenMethod testedMethod, ColumnDescriptor[] descriptors, Integer testTablePrecision) {
-        IOpenClass resultType = testedMethod.getType();
-        List<IOpenField> fieldsToTest = new ArrayList<>();
-        for (ColumnDescriptor columnDescriptor : descriptors) {
-            if (columnDescriptor != null) {
-                IdentifierNode[] nodes = columnDescriptor.getFieldChainTokens();
-                if (nodes.length == 0 || !nodes[0].getIdentifier().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)) {
-                    // skip empty or non-'_res_' columns
-                    continue;
-                }
-                Integer fieldPrecision = testTablePrecision;
-                if (nodes.length > 1 && nodes[nodes.length - 1].getIdentifier().matches(DataTableBindHelper.PRECISION_PATTERN)) {
-                    // set the precision of the field
-                    fieldPrecision = DataTableBindHelper.getPrecisionValue(nodes[nodes.length - 1]);
-                    nodes = ArrayUtils.remove(nodes, nodes.length - 1);
-                }
-
-                if (columnDescriptor.isReference()) {
-                    if (resultType.isSimple()) {
-                        fieldsToTest.add(new ThisField(resultType));
-                    } else if (resultType.isArray()) {
-                        fieldsToTest.add(new ThisField(resultType));
-                    } else {
-                        fieldsToTest.addAll(resultType.getFields().values());
-                    }
-                } else {
-                    IOpenField[] fieldSequence;
-                    boolean resIsArray = nodes[0].getIdentifier().matches(DataTableBindHelper.ARRAY_ACCESS_PATTERN);
-                    int startIndex = 0;
-                    IOpenClass currentType = resultType;
-
-                    if (resIsArray) {
-                        startIndex = 1;
-                        fieldSequence = new IOpenField[nodes.length];
-                        IOpenField arrayField = new ThisField(resultType);
-                        int arrayIndex = getArrayIndex(nodes[0]);
-                        IOpenField arrayAccessField = new DatatypeArrayElementField(arrayField, arrayIndex);
-                        if (arrayAccessField.getType().isArray()) {
-                            currentType = arrayAccessField.getType().getComponentClass();
-                        } else {
-                            currentType = arrayAccessField.getType();
-                        }
-                        fieldSequence[0] = arrayAccessField;
-                    } else {
-                        fieldSequence = new IOpenField[nodes.length - 1];
-                    }
-
-                    for (int i = startIndex; i < fieldSequence.length; i++) {
-                        boolean isArray = nodes[i + 1 - startIndex].getIdentifier()
-                                .matches(DataTableBindHelper.ARRAY_ACCESS_PATTERN);
-                        if (isArray) {
-                            IOpenField arrayField = currentType.getField(getArrayName(nodes[i + 1 - startIndex]));
-                            // Try process field as SpreadsheetResult
-                            if (arrayField == null && currentType.equals(JavaOpenClass.OBJECT) && nodes[i + 1 - startIndex].getIdentifier()
-                                    .matches(DataTableBindHelper.SPREADSHEETRESULTFIELD_PATTERN)) {
-                                SpreadsheetResultOpenClass spreadsheetResultOpenClass = new SpreadsheetResultOpenClass(SpreadsheetResult.class);
-                                arrayField = spreadsheetResultOpenClass.getField(getArrayName(nodes[i + 1 - startIndex]));
-                            }
-                            int arrayIndex = getArrayIndex(nodes[i + 1 - startIndex]);
-                            IOpenField arrayAccessField = new DatatypeArrayElementField(arrayField, arrayIndex);
-                            fieldSequence[i] = arrayAccessField;
-                        } else {
-                            fieldSequence[i] = currentType.getField(nodes[i + 1 - startIndex].getIdentifier());
-                            if (fieldSequence[i] == null) {
-                                // Try process field as SpreadsheetResult
-                                SpreadsheetResultOpenClass spreadsheetResultOpenClass = new SpreadsheetResultOpenClass(SpreadsheetResult.class);
-                                IOpenField openField = spreadsheetResultOpenClass.getField(nodes[i + 1 - startIndex].getIdentifier());
-                                if (openField != null) {
-                                    fieldSequence[i] = openField;
-                                }
-                            }
-                        }
-
-                        if (fieldSequence[i].getType().isArray() && isArray) {
-                            currentType = fieldSequence[i].getType().getComponentClass();
-                        } else {
-                            currentType = fieldSequence[i].getType();
-                        }
-                    }
-                    if (fieldSequence.length == 0) {
-                        fieldSequence = new IOpenField[] { new ThisField(resultType) };
-                    }
-                    if (fieldPrecision != null) {
-                        fieldsToTest.add(new PrecisionFieldChain(currentType, fieldSequence, fieldPrecision));
-                    } else if (fieldSequence.length > 1) {
-                        fieldsToTest.add(new FieldChain(currentType, fieldSequence));
-                    } else {
-                        fieldsToTest.add(fieldSequence[0]);
-                    }
-                }
-            }
-        }
-        return fieldsToTest;
-    }
-
-    private static int getArrayIndex(IdentifierNode fieldNameNode) {
-        String fieldName = fieldNameNode.getIdentifier();
-        String txtIndex = fieldName.substring(fieldName.indexOf("[") + 1, fieldName.indexOf("]"));
-
-        return Integer.parseInt(txtIndex);
-    }
-
-    private static String getArrayName(IdentifierNode fieldNameNode) {
-        String fieldName = fieldNameNode.getIdentifier();
-        return fieldName.substring(0, fieldName.indexOf("["));
     }
 }
