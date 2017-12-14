@@ -65,10 +65,12 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
     public String getMessage() {
         StringWriter messageWriter = new StringWriter();
         PrintWriter pw = new PrintWriter(messageWriter);
-        pw.println(super.getMessage());
         if (node != null) {
+            pw.println(super.getMessage());
             SourceCodeURLTool.printCodeAndError(getLocation(), getSourceModule(), pw);
             SourceCodeURLTool.printSourceLocation(this, pw);
+        }else {
+            pw.print(super.getMessage());    
         }
         return messageWriter.toString();
     }

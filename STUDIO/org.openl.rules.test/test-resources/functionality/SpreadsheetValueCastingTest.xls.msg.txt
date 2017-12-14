@@ -1,1 +1,3 @@
-ERROR: Cannot parse cell value: [ONE2] to the necessary type
+ERROR: Object 'ONE2' is outside of valid domain 'StringType'. Valid values: [ONE, TWO, THREE]
+
+

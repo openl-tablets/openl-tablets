@@ -17,8 +17,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.rules.lang.xls.binding.wrapper.InputParameterOutsideOfValidDomainException;
 import org.openl.rules.ruleservice.core.ExceptionType;
+import org.openl.rules.ruleservice.core.RuleServiceOpenLCompilationException;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
@@ -311,14 +311,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
                 }
             } catch (Exception e) {
                 if (e instanceof InvocationTargetException) {
-                    Throwable t = e;
-                    while (t instanceof InvocationTargetException) {
-                        Throwable t1 = ((InvocationTargetException) t).getTargetException();
-                        if (t1 instanceof UndeclaredThrowableException) {
-                            t1 = ((UndeclaredThrowableException) t1).getUndeclaredThrowable();
-                        }
-                        t = t1;
-                    }
+                    Throwable t = extractInvocationTargetException(e);
                     if (t instanceof Exception) {
                         result = afterInvocation(interfaceMethod, null, (Exception) t, args);
                     } else {
@@ -347,7 +340,22 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
         }
     }
 
-    protected Pair<ExceptionType, String> getExceptionDetailAndType(Throwable ex) {
+    private Throwable extractInvocationTargetException(Throwable e) {
+        Throwable t = e;
+        while (t instanceof InvocationTargetException || t instanceof UndeclaredThrowableException) {
+            if (t instanceof InvocationTargetException) {
+                Throwable t1 = ((InvocationTargetException) t).getTargetException();
+                t = t1;
+            }
+            if (t instanceof UndeclaredThrowableException) {
+                Throwable t1 = ((UndeclaredThrowableException) t).getUndeclaredThrowable();
+                t = t1;
+            }
+        }
+        return t;
+    }
+
+    protected Pair<ExceptionType, String> getExceptionDetailAndType(Exception ex) {
         Throwable t = ex;
         boolean isUserException = false;
         boolean isRulesException = false;
@@ -359,22 +367,24 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
         String compilationDetailMessage = null;
         String validationDetailMessage = null;
 
-        while (t != null && t.getCause() != t) {
-            if (t instanceof InputParameterOutsideOfValidDomainException) {
-                isValidationException = true;
-                validationDetailMessage = t.getMessage();
-            }
+        boolean f = true;
+        while (f) {
+            t = extractInvocationTargetException(t);
             if (t instanceof OpenLUserRuntimeException) {
                 isUserException = true;
                 userDetailMessage = ((OpenLUserRuntimeException) t).getOriginalMessage();
             } else if (t instanceof OpenLRuntimeException) {
                 isRulesException = true;
                 rulesRuntimeDetailMessage = ((OpenLRuntimeException) t).getOriginalMessage();
-            } else if (t instanceof OpenLCompilationException) {
+            } else if (t instanceof OpenLCompilationException || t instanceof RuleServiceOpenLCompilationException) {
                 isCompilationException = true;
                 compilationDetailMessage = t.getMessage();
             }
-            t = t.getCause();
+            if (t.getCause() == null) {
+                f = false;
+            }else {
+                t = t.getCause();
+            }
         }
 
         if (isValidationException) {
@@ -383,11 +393,11 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
             return new ImmutablePair<ExceptionType, String>(ExceptionType.COMPILATION, compilationDetailMessage);
         } else if (isUserException) {
             return new ImmutablePair<ExceptionType, String>(ExceptionType.USER_ERROR, userDetailMessage);
-        } else if (isRulesException) {
+        } else if (isRulesException) { 
             return new ImmutablePair<ExceptionType, String>(ExceptionType.RULES_RUNTIME, rulesRuntimeDetailMessage);
         }
-
-        return new ImmutablePair<ExceptionType, String>(ExceptionType.SYSTEM, ex.getCause().getMessage());
+        
+        return new ImmutablePair<ExceptionType, String>(ExceptionType.SYSTEM, ex.getMessage());
     }
 
     protected String getExceptionMessage(Method method, Throwable ex, Object... args) {

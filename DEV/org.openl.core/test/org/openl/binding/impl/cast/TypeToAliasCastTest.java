@@ -3,15 +3,11 @@ package org.openl.binding.impl.cast;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
-import java.util.Arrays;
 
 import org.junit.Test;
 import org.openl.domain.IDomain;
 import org.openl.domain.StringDomain;
-import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
@@ -31,8 +27,8 @@ public class TypeToAliasCastTest {
         try {
             cast.convert("Not Existing");
             fail("Should be exception");
-        } catch (RuntimeException e) {
-            assertEquals(e.getMessage(), "Object 'Not Existing' is outside of valid domain 'TestDomain'. Valid values: [Val1, Val2]");
+        } catch (OutsideOfValidDomainException e) {
+            assertEquals(((OutsideOfValidDomainException) e).getOriginalMessage(), "Object 'Not Existing' is outside of valid domain 'TestDomain'. Valid values: [Val1, Val2]");
         }
     }
 }

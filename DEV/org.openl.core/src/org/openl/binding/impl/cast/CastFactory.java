@@ -292,7 +292,7 @@ public class CastFactory implements ICastFactory {
     private IOpenCast findArrayCast(IOpenClass from, IOpenClass to) {
         Class<?> fromClass = from.getInstanceClass();
         if ((from.isArray() || Object.class.equals(fromClass)) && to.isArray()) {
-            if (to.getInstanceClass().isAssignableFrom(fromClass)) { // Improve
+            if (to.getInstanceClass().isAssignableFrom(fromClass) && !(to instanceof DomainOpenClass)) { // Improve
                                                                      // for up
                                                                      // cast
                 return getUpCast(fromClass, to.getInstanceClass());
@@ -308,6 +308,9 @@ public class CastFactory implements ICastFactory {
             while (t.isArray()) {
                 t = t.getComponentClass();
                 dimt++;
+            }
+            if (to instanceof DomainOpenClass) {
+                t = to.getAggregateInfo().getComponentType(to);
             }
             if (dimf == dimt || Object.class.equals(fromClass)) {
                 IOpenCast arrayElementCast = getCast(f, t);

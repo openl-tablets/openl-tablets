@@ -18,16 +18,12 @@ import java.util.Map;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.openl.binding.ICastFactory;
 import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.DuplicatedMethodException;
-import org.openl.binding.impl.cast.CastFactory;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;
 import org.openl.syntax.impl.ISyntaxConstants;
-import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -181,15 +177,6 @@ public abstract class AOpenClass implements IOpenClass {
         return metaInfo;
     }
 
-    private ICastFactory castFactory;
-
-    private ICastFactory getCastFactory() {
-        if (castFactory == null) {
-            castFactory = new CastFactory();
-        }
-        return castFactory;
-    }
-
     public IOpenMethod getMethod(String name, IOpenClass[] classes) {
 
         IOpenMethod method = getDeclaredMethod(name, classes);
@@ -204,38 +191,7 @@ public abstract class AOpenClass implements IOpenClass {
             }
         }
 
-        if (method != null && hasAliasTypeParams(method)) {
-
-            IOpenClass[] methodParams = method.getSignature().getParameterTypes();
-            IOpenCast[] typeCasts = new IOpenCast[methodParams.length];
-
-            ICastFactory castFactory = getCastFactory();
-
-            for (int i = 0; i < methodParams.length; i++) {
-                IOpenClass methodParam = methodParams[i];
-                IOpenClass param = classes[i];
-
-                IOpenCast castObject = castFactory.getCast(param, methodParam);
-                typeCasts[i] = castObject;
-            }
-
-            IMethodCaller methodCaller = new CastingMethodCaller(method, typeCasts);
-            method = new MethodDelegator(methodCaller);
-        }
-
         return method;
-    }
-
-    private boolean hasAliasTypeParams(IOpenMethod method) {
-        IOpenClass[] params = method.getSignature().getParameterTypes();
-
-        for (IOpenClass param : params) {
-            if (param instanceof DomainOpenClass) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public String getNameSpace() {

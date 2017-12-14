@@ -1,5 +1,6 @@
 package org.openl.rules.lang.xls.prebind;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import org.openl.OpenL;
@@ -8,6 +9,7 @@ import org.openl.rules.data.IDataBase;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.types.OpenMethodDispatcher;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 
@@ -50,6 +52,22 @@ public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {
         } else {
             super.addField(field);
         }
+    }
+    
+    @Override
+    public IOpenMethod getMethod(String name, IOpenClass[] classes) {
+        //Do not wrap with validation alias data types for lazy methods
+        IOpenMethod method = getDeclaredMethod(name, classes);
+
+        if (method == null) {
+            Iterator<IOpenClass> superClasses = superClasses().iterator();
+
+            while (method == null && superClasses.hasNext()) {
+                method = superClasses.next().getMethod(name, classes);
+            }
+        }
+        
+        return method;
     }
     
     @Override
