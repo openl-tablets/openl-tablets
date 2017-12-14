@@ -14,9 +14,12 @@ import java.util.Set;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
+import org.openl.binding.ICastFactory;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.exception.DuplicatedVarException;
+import org.openl.binding.impl.cast.CastFactory;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.module.DeferredMethod;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.dependency.CompiledDependency;
@@ -66,12 +69,16 @@ import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IMethodCaller;
 import org.openl.types.IModuleInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AMethod;
+import org.openl.types.impl.CastingMethodCaller;
 import org.openl.types.impl.CompositeMethod;
+import org.openl.types.impl.DomainOpenClass;
+import org.openl.types.impl.MethodDelegator;
 import org.openl.util.Log;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -435,6 +442,53 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 super.addMethod(m);
             }
         }
+    }
+    
+    private ICastFactory castFactory;
+    
+    private boolean hasAliasTypeParams(IOpenMethod method) {
+        IOpenClass[] params = method.getSignature().getParameterTypes();
+
+        for (IOpenClass param : params) {
+            if (param instanceof DomainOpenClass) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    
+    private ICastFactory getCastFactory() {
+        if (castFactory == null) {
+            castFactory = new CastFactory();
+        }
+        return castFactory;
+    }
+    
+    @Override
+    public IOpenMethod getMethod(String name, IOpenClass[] classes) {
+        IOpenMethod method =  super.getMethod(name, classes);
+        
+        if (method != null && hasAliasTypeParams(method)) {
+
+            IOpenClass[] methodParams = method.getSignature().getParameterTypes();
+            IOpenCast[] typeCasts = new IOpenCast[methodParams.length];
+
+            ICastFactory castFactory = getCastFactory();
+
+            for (int i = 0; i < methodParams.length; i++) {
+                IOpenClass methodParam = methodParams[i];
+                IOpenClass param = classes[i];
+
+                IOpenCast castObject = castFactory.getCast(param, methodParam);
+                typeCasts[i] = castObject;
+            }
+
+            IMethodCaller methodCaller = new CastingMethodCaller(method, typeCasts);
+            method = new MethodDelegator(methodCaller);
+        }
+        
+        return method;
     }
 
     private void validateTestSuiteMethod(IOpenMethod method, IOpenMethod existedMethod) {

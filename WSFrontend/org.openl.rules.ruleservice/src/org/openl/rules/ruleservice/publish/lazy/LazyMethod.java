@@ -4,13 +4,13 @@ import java.util.Map;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
-import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.lang.xls.prebind.LazyMethodWrapper;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.method.TableUriMethod;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
+import org.openl.rules.ruleservice.core.RuleServiceOpenLCompilationException;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -111,7 +111,7 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
             setCachedMember(openMethod);
             return openMethod;
         } catch (Exception e) {
-            throw new OpenlNotCheckedException("Failed to load lazy method.", e);
+            throw new RuleServiceOpenLCompilationException("Failed to load lazy method.", e);
         }
     }
 

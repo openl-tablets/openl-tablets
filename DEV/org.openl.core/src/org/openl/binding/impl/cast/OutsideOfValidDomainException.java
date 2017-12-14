@@ -1,6 +1,8 @@
 package org.openl.binding.impl.cast;
 
-public class OutsideOfValidDomainException extends RuntimeException {
+import org.openl.exception.OpenLRuntimeException;
+
+public class OutsideOfValidDomainException extends OpenLRuntimeException {
 
     private static final long serialVersionUID = 8536909104810936082L;
 

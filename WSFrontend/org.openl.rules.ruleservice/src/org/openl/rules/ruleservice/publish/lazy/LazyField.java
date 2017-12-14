@@ -8,6 +8,7 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
+import org.openl.rules.ruleservice.core.RuleServiceOpenLCompilationException;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 
@@ -71,7 +72,7 @@ public abstract class LazyField extends LazyMember<IOpenField> implements IOpenF
             setCachedMember(openField);
             return openField;
         } catch (Exception e) {
-            throw new OpenlNotCheckedException("Failed to load lazy field.", e);
+            throw new RuleServiceOpenLCompilationException("Failed to load lazy field.", e);
         }
     }
 
