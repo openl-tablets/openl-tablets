@@ -79,9 +79,8 @@ public class TestUnit {
         return new ParameterWithValueDeclaration("actual", getActualResult());
     }
 
-    public ParameterWithValueDeclaration[] getContextParams(Object objTestResult) {
-        return TestUtils.getContextParams(
-                ((TestUnitsResults) objTestResult).getTestSuite(), getTest());
+    public ParameterWithValueDeclaration[] getContextParams(TestUnitsResults objTestResult) {
+        return TestUtils.getContextParams(objTestResult.getTestSuite(), test);
     }
 
     public List<ComparedResult> getResultParams() {
