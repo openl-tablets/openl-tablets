@@ -15,9 +15,9 @@ import org.openl.rules.data.FieldChain;
 import org.openl.rules.data.PrecisionFieldChain;
 import org.openl.rules.data.RowIdField;
 import org.openl.rules.table.OpenLArgumentsCloner;
-import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.syntax.impl.IdentifierNode;
+import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -36,74 +36,30 @@ public class TestDescription {
     private DynamicObject testObject;
     private Map<String, Object> testTableProps = null; // TODO Store testTablePrecision value instead of full map
     private int index;
-    protected ColumnDescriptor[] columnDescriptors;
+    private ColumnDescriptor[] columnDescriptors;
     private List<IOpenField> fields;
 
-    public TestDescription(IOpenMethod testedMethod, DynamicObject testObject) {
+    public TestDescription(IOpenMethod testedMethod, DynamicObject testObject, Map<String, Object> testTableProps, ColumnDescriptor[] columnDescriptors) {
         this.testedMethod = testedMethod;
         this.testObject = testObject;
-        executionParams = initExecutionParams();
-    }
-
-    public TestDescription(IOpenMethod testedMethod, DynamicObject testObject, Map<String, Object> testTableProps, ColumnDescriptor[] columnDescriptors) {
-        this(testedMethod, testObject);
         this.testTableProps = testTableProps;
         this.columnDescriptors = columnDescriptors;
+        executionParams = initExecutionParams(testedMethod, testObject);
     }
 
     public TestDescription(IOpenMethod testedMethod, Object[] arguments) {
-        this(testedMethod, arguments, null, null);
+        this.testedMethod = testedMethod;
+        this.testObject = createTestObject(testedMethod, arguments);
+        executionParams = initExecutionParams(testedMethod, testObject);
     }
 
-    public TestDescription(IOpenMethod testedMethod, Object[] arguments, Object expectedResult, String expectedError) {
-        this(testedMethod, createTestObject(testedMethod, arguments, expectedResult, expectedError, null, null));
-    }
-
-    public TestDescription(IOpenMethod testedMethod,
-                           Object[] arguments,
-                           Object expectedResult,
-                           String expectedError,
-                           IRulesRuntimeContext context) {
-        this(testedMethod, createTestObject(testedMethod, arguments, expectedResult, expectedError, context, null));
-    }
-
-    public TestDescription(IOpenMethod testedMethod,
-                           Object[] arguments,
-                           Object expectedResult,
-                           String expectedError,
-                           IRulesRuntimeContext context,
-                           String description) {
-        this(testedMethod, createTestObject(testedMethod,
-                arguments,
-                expectedResult,
-                expectedError,
-                context,
-                description));
-    }
-
-    public static DynamicObject createTestObject(IOpenMethod testedMethod,
-                                                 Object[] arguments,
-                                                 Object expectedResult,
-                                                 String expectedError,
-                                                 IRulesRuntimeContext context,
-                                                 String description) {
+    private static DynamicObject createTestObject(IOpenMethod testedMethod, Object[] arguments) {
         // TODO should be created OpenClass like in TestSuiteMethod
         DynamicObject testObj = new DynamicObject();
-        for (int i = 0; i < testedMethod.getSignature().getNumberOfParameters(); i++) {
-            String paramName = testedMethod.getSignature().getParameterName(i);
+        IMethodSignature signature = testedMethod.getSignature();
+        for (int i = 0; i < signature.getNumberOfParameters(); i++) {
+            String paramName = signature.getParameterName(i);
             testObj.setFieldValue(paramName, arguments[i]);
-        }
-        if (description != null) {
-            testObj.setFieldValue(TestMethodHelper.DESCRIPTION_NAME, context);
-        }
-        if (context != null) {
-            testObj.setFieldValue(TestMethodHelper.CONTEXT_NAME, context);
-        }
-        if (expectedResult != null) {
-            testObj.setFieldValue(TestMethodHelper.EXPECTED_RESULT_NAME, context);
-        }
-        if (expectedError != null) {
-            testObj.setFieldValue(TestMethodHelper.EXPECTED_ERROR, context);
         }
         return testObj;
     }
@@ -153,7 +109,7 @@ public class TestDescription {
         return args;
     }
 
-    protected ParameterWithValueDeclaration[] initExecutionParams() {
+    private static ParameterWithValueDeclaration[] initExecutionParams(IOpenMethod testedMethod, DynamicObject testObject) {
         ParameterWithValueDeclaration[] executionParams = new ParameterWithValueDeclaration[testedMethod.getSignature()
                 .getNumberOfParameters()];
         for (int i = 0; i < executionParams.length; i++) {
@@ -200,7 +156,7 @@ public class TestDescription {
         }
     }
 
-    public Object getArgumentValue(String paramName) {
+    private Object getArgumentValue(String paramName) {
         return testObject.getFieldValue(paramName);
     }
 
@@ -249,32 +205,6 @@ public class TestDescription {
         }
     }
 
-    @Override
-    public String toString() {
-        String description = getDescription();
-
-        if (description == null) {
-            if (testedMethod.getSignature().getNumberOfParameters() > 0) {
-                String name = testedMethod.getSignature().getParameterName(0);
-                Object value = testObject.getFieldValue(name);
-                description = FormattersManager.format(value);
-            } else {
-                description = "Run with no parameters";
-            }
-        }
-        return description;
-    }
-
-    public Integer getTestTablePrecision() {
-        if (this.testTableProps != null) {
-            return this.testTableProps.containsKey(PRECISION_PARAM) ? Integer.parseInt(this.testTableProps.get(PRECISION_PARAM)
-                    .toString())
-                    : null;
-        }
-
-        return null;
-    }
-
     /**
      * Returns an ID of the test case. The ID is get from _id_ column or generated on index base.
      */
@@ -284,7 +214,6 @@ public class TestDescription {
         } else {
             return String.valueOf(index + 1);
         }
-
     }
 
     public boolean hasId() {
@@ -311,13 +240,16 @@ public class TestDescription {
         if (fields == null) {
             ColumnDescriptor[] descriptors = getColumnDescriptors();
             IOpenMethod testedMethod = getTestedMethod();
-            Integer testTablePrecision = getTestTablePrecision();
-            fields = createFieldsToTest(testedMethod, descriptors, testTablePrecision);
+            Integer precision = null;
+            if (testTableProps != null && testTableProps.containsKey(PRECISION_PARAM)) {
+                precision = Integer.parseInt(testTableProps.get(PRECISION_PARAM).toString());
+            }
+            fields = createFieldsToTest(testedMethod, descriptors, precision);
         }
         return fields;
     }
 
-    private List<IOpenField> createFieldsToTest(IOpenMethod testedMethod, ColumnDescriptor[] descriptors, Integer testTablePrecision) {
+    private static List<IOpenField> createFieldsToTest(IOpenMethod testedMethod, ColumnDescriptor[] descriptors, Integer testTablePrecision) {
         IOpenClass resultType = testedMethod.getType();
         List<IOpenField> fieldsToTest = new ArrayList<>();
         for (ColumnDescriptor columnDescriptor : descriptors) {
