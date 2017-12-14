@@ -2,6 +2,9 @@ package org.openl.rules.method;
 
 import java.util.Map;
 
+import org.openl.binding.ICastFactory;
+import org.openl.binding.impl.cast.CastFactory;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.enumeration.RecalculateEnum;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -10,9 +13,12 @@ import org.openl.rules.vm.CacheMode;
 import org.openl.rules.vm.ResultNotFoundException;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.ExecutableMethod;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
 
@@ -25,9 +31,12 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
     private ATableBoundNode boundNode;
 
     private String tableUri;
-    
-    public String getTableUri(){
-        if (this.tableUri == null){
+
+    private boolean hasAliasTypeParams;
+    private IOpenCast[] aliasDatatypesCasts;
+
+    public String getTableUri() {
+        if (this.tableUri == null) {
             throw new IllegalStateException("Table uri isn't defined in the method!");
         }
         return tableUri;
@@ -43,8 +52,24 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
     public ExecutableRulesMethod(IOpenMethodHeader header, ATableBoundNode boundNode) {
         super(header);
         this.boundNode = boundNode;
-        if (this.boundNode != null){
+        if (this.boundNode != null) {
             tableUri = boundNode.getTableSyntaxNode().getTable().getSource().getUri();
+        }
+        hasAliasTypeParams = false;
+        if (header != null) {
+            int i = 0;
+            ICastFactory castFactory = new CastFactory();
+            for (IOpenClass param : header.getSignature().getParameterTypes()) {
+                if (param instanceof DomainOpenClass) {
+                    hasAliasTypeParams = true;
+                    if (aliasDatatypesCasts == null) {
+                        aliasDatatypesCasts = new IOpenCast[header.getSignature().getNumberOfParameters()];
+                    }
+                    IOpenClass methodParam = header.getSignature().getParameterTypes()[i];
+                    aliasDatatypesCasts[i++] = castFactory
+                        .getCast(JavaOpenClass.getOpenClass(methodParam.getInstanceClass()), methodParam);
+                }
+            }
         }
     }
 
@@ -68,12 +93,21 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
     }
 
     private Invokable invoke2 = new Invokable() {
-        @Override public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+        @Override
+        public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             return invoke2(target, params, env);
         }
     };
 
     private Object invoke2(Object target, Object[] params, IRuntimeEnv env) {
+        if (hasAliasTypeParams) {
+            for (int i = 0; i < getSignature().getNumberOfParameters(); i++) {
+                if (aliasDatatypesCasts[i] != null) {
+                    aliasDatatypesCasts[i].convert(params[i]); // Validate alias
+                                                               // datatypes
+                }
+            }
+        }
         if (env instanceof SimpleRulesRuntimeEnv) {
             SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) env;
             Object result;
@@ -87,7 +121,8 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
                     if (!simpleRulesRuntimeEnv.isOriginalCalculation()) {
                         isSimilarStep = simpleRulesRuntimeEnv.getArgumentCachingStorage().makeForwardStep(this);
                         if (isSimilarStep && RecalculateEnum.NEVER.equals(getRecalculateType())) {
-                            return simpleRulesRuntimeEnv.getArgumentCachingStorage().getValueFromOriginalCalculation(this);
+                            return simpleRulesRuntimeEnv.getArgumentCachingStorage()
+                                .getValueFromOriginalCalculation(this);
                         }
                     }
                 } else {
@@ -112,7 +147,8 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
             if (!simpleRulesRuntimeEnv.isIgnoreRecalculation()) {
                 if (!RecalculateEnum.ALWAYS.equals(getRecalculateType())) {
                     if (simpleRulesRuntimeEnv.isOriginalCalculation()) {
-                        simpleRulesRuntimeEnv.getArgumentCachingStorage().makeBackwardStepForOriginalCalculation(this, result);
+                        simpleRulesRuntimeEnv.getArgumentCachingStorage().makeBackwardStepForOriginalCalculation(this,
+                            result);
                     }
                     if (isSimilarStep && !simpleRulesRuntimeEnv.isOriginalCalculation()) {
                         simpleRulesRuntimeEnv.getArgumentCachingStorage().makeBackwardStep(this);
@@ -134,8 +170,8 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
             } else {
                 recalculateType = getMethodProperties().getRecalculate();
             }
-            if (recalculateType == null){
-            	recalculateType = RecalculateEnum.ALWAYS;
+            if (recalculateType == null) {
+                recalculateType = RecalculateEnum.ALWAYS;
             }
         }
         return recalculateType;
