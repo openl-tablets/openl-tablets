@@ -5,15 +5,12 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.openl.exception.OpenLException;
-import org.openl.exception.OpenLExceptionUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.data.PrecisionFieldChain;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
 import org.openl.rules.testmethod.result.TestResultComparatorFactory;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.types.IOpenField;
 import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
@@ -170,40 +167,6 @@ public class TestUnit {
 
     public TestDescription getTest() {
         return test;
-    }
-
-    public List<String> getResultMessages() {
-        Object error = getActualResult();
-        if (error instanceof Throwable) {
-            Throwable exception = (Throwable) error;
-            exception = ExceptionUtils.getRootCause(exception);
-            List<String> messages = new ArrayList<>();
-
-            if (exception instanceof OpenLUserRuntimeException) {
-                messages.add(exception.getMessage());
-            } else if (exception instanceof CompositeSyntaxNodeException) {
-                CompositeSyntaxNodeException compositeException = (CompositeSyntaxNodeException) exception;
-
-                for (OpenLException openLException : compositeException.getErrors()) {
-                    if (openLException instanceof OpenLUserRuntimeException) {
-                        messages.add(openLException.getMessage());
-                    } else {
-                        messages.add(OpenLExceptionUtils.getOpenLExceptionMessage(openLException));
-                    }
-                }
-
-            } else {
-                if (exception instanceof OpenLException) {
-                    messages.add(OpenLExceptionUtils.getOpenLExceptionMessage((OpenLException) exception));
-                } else {
-                    messages.add(ExceptionUtils.getRootCauseMessage(exception));
-                }
-            }
-
-            return messages;
-        }
-
-        return Collections.emptyList();
     }
 
     public List<OpenLMessage> getErrors() {

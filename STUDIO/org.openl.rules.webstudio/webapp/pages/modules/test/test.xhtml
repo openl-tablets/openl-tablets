@@ -205,9 +205,10 @@
                                                         </h:panelGroup>
                                                     </h:panelGroup>
                                                     <h:panelGroup rendered="#{testBean.isResultThrowable(testCase)}">
-                                                        <ui:repeat value="#{testCase.resultMessages}" var="message">
-                                                            <span>#{message}</span><br />
-                                                        </ui:repeat>
+                                                        <ui:include src="/pages/modules/messages.xhtml">
+                                                            <ui:param name="messages" value="#{testCase.errors}" />
+                                                            <ui:param name="editable" value="#{studio.model.editable}" />
+                                                        </ui:include>
                                                     </h:panelGroup>
                                                 </div>
                                             </td>
