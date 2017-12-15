@@ -447,8 +447,6 @@ public class RulesUtilsTest {
 
         void testError(String string);
 
-        void testErrorThrowable(Throwable ex);
-
         Object formatDouble(double d);
 
         Object formatDoubleWithFrm(double d, String string);
@@ -2943,11 +2941,6 @@ public class RulesUtilsTest {
     @Test(expected = OpenLRuntimeException.class)
     public void testError() {
         instance.testError("Ya oshibka, trololo :)");
-    }
-
-    @Test(expected = OpenLRuntimeException.class)
-    public void testErrorThrowable() throws Throwable {
-        instance.testErrorThrowable(new FileNotFoundException());
     }
 
     @Test

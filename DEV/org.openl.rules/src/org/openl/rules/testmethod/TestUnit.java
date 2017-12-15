@@ -156,7 +156,7 @@ public class TestUnit {
                     expectedResult = StringUtils.EMPTY;
                 }
 
-                String actualMessage = ((OpenLUserRuntimeException) rootCause).getOriginalMessage();
+                String actualMessage = rootCause.getMessage();
                 comapreResult = expectedResult.equals(actualMessage) ? TR_OK : TR_NEQ;
             } else {
                 comapreResult = TR_EXCEPTION;
@@ -180,15 +180,13 @@ public class TestUnit {
             List<String> messages = new ArrayList<>();
 
             if (exception instanceof OpenLUserRuntimeException) {
-                OpenLUserRuntimeException userException = (OpenLUserRuntimeException) exception;
-                messages.add(userException.getOriginalMessage());
+                messages.add(exception.getMessage());
             } else if (exception instanceof CompositeSyntaxNodeException) {
                 CompositeSyntaxNodeException compositeException = (CompositeSyntaxNodeException) exception;
 
                 for (OpenLException openLException : compositeException.getErrors()) {
                     if (openLException instanceof OpenLUserRuntimeException) {
-                        OpenLUserRuntimeException userException = (OpenLUserRuntimeException) openLException;
-                        messages.add(userException.getOriginalMessage());
+                        messages.add(openLException.getMessage());
                     } else {
                         messages.add(OpenLExceptionUtils.getOpenLExceptionMessage(openLException));
                     }
