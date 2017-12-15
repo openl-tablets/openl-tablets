@@ -1,14 +1,19 @@
 package org.openl.rules.testmethod;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.openl.exception.OpenLException;
+import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.data.PrecisionFieldChain;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
 import org.openl.rules.testmethod.result.TestResultComparatorFactory;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.types.IOpenField;
 import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
@@ -168,11 +173,48 @@ public class TestUnit {
     }
 
     public List<OpenLMessage> getResultMessages() {
-        return TestUtils.getUserMessagesAndErrors(getActualResult());
+        Object error = getActualResult();
+        if (error instanceof Throwable) {
+            Throwable exception = (Throwable) error;
+            exception = ExceptionUtils.getRootCause(exception);
+            List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
+
+            if (exception instanceof OpenLUserRuntimeException) {
+                OpenLUserRuntimeException userException = (OpenLUserRuntimeException) exception;
+                messages.add(new OpenLMessage(userException.getOriginalMessage()));
+            } else if (exception instanceof CompositeSyntaxNodeException) {
+                CompositeSyntaxNodeException compositeException = (CompositeSyntaxNodeException) exception;
+
+                for (OpenLException openLException : compositeException.getErrors()) {
+                    if (openLException instanceof OpenLUserRuntimeException) {
+                        OpenLUserRuntimeException userException = (OpenLUserRuntimeException) openLException;
+                        messages.add(new OpenLMessage(userException.getOriginalMessage()));
+                    } else {
+                        messages.add(new OpenLErrorMessage(openLException));
+                    }
+                }
+
+            } else {
+                if (exception instanceof OpenLException) {
+                    messages.add(new OpenLErrorMessage((OpenLException) exception));
+                } else {
+                    messages.add(new OpenLErrorMessage(ExceptionUtils.getRootCauseMessage(exception)));
+                }
+            }
+
+            return messages;
+        }
+
+        return Collections.emptyList();
     }
 
     public List<OpenLMessage> getErrors() {
-        return TestUtils.getErrors(getActualResult());
+        Object error = getActualResult();
+        if (error instanceof Throwable) {
+            return OpenLMessagesUtils.newMessages((Throwable) error);
+        }
+
+        return Collections.emptyList();
     }
 
     private boolean isEqual(Object expectedResult, Object actualResult) {
