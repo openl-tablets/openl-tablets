@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.exception.OpenLException;
-import org.openl.message.OpenLErrorMessage;
+import org.openl.exception.OpenLExceptionUtils;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.data.PrecisionFieldChain;
@@ -172,33 +172,33 @@ public class TestUnit {
         return test;
     }
 
-    public List<OpenLMessage> getResultMessages() {
+    public List<String> getResultMessages() {
         Object error = getActualResult();
         if (error instanceof Throwable) {
             Throwable exception = (Throwable) error;
             exception = ExceptionUtils.getRootCause(exception);
-            List<OpenLMessage> messages = new ArrayList<OpenLMessage>();
+            List<String> messages = new ArrayList<>();
 
             if (exception instanceof OpenLUserRuntimeException) {
                 OpenLUserRuntimeException userException = (OpenLUserRuntimeException) exception;
-                messages.add(new OpenLMessage(userException.getOriginalMessage()));
+                messages.add(userException.getOriginalMessage());
             } else if (exception instanceof CompositeSyntaxNodeException) {
                 CompositeSyntaxNodeException compositeException = (CompositeSyntaxNodeException) exception;
 
                 for (OpenLException openLException : compositeException.getErrors()) {
                     if (openLException instanceof OpenLUserRuntimeException) {
                         OpenLUserRuntimeException userException = (OpenLUserRuntimeException) openLException;
-                        messages.add(new OpenLMessage(userException.getOriginalMessage()));
+                        messages.add(userException.getOriginalMessage());
                     } else {
-                        messages.add(new OpenLErrorMessage(openLException));
+                        messages.add(OpenLExceptionUtils.getOpenLExceptionMessage(openLException));
                     }
                 }
 
             } else {
                 if (exception instanceof OpenLException) {
-                    messages.add(new OpenLErrorMessage((OpenLException) exception));
+                    messages.add(OpenLExceptionUtils.getOpenLExceptionMessage((OpenLException) exception));
                 } else {
-                    messages.add(new OpenLErrorMessage(ExceptionUtils.getRootCauseMessage(exception)));
+                    messages.add(ExceptionUtils.getRootCauseMessage(exception));
                 }
             }
 
