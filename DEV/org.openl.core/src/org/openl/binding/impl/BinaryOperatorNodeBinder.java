@@ -15,10 +15,21 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author snshor
  */
 public class BinaryOperatorNodeBinder extends ANodeBinder {
+    private static Map<String, String> inverseMethod = new HashMap<String, String>(6){{
+        put("le", "ge");
+        put("lt", "gt");
+        put("ge", "le");
+        put("gt", "lt");
+        put("eq", "eq");
+        put("add", "add");
+    }};
 
     public static IBoundNode bindOperator(ISyntaxNode node,
                                           String operatorName,
@@ -46,8 +57,8 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
     }
 
     public static IMethodCaller findBinaryOperatorMethodCaller(String methodName,
-                                                               IOpenClass[] types,
-                                                               IBindingContext bindingContext) {
+            IOpenClass[] types,
+            IBindingContext bindingContext) {
 
         IMethodCaller methodCaller = findSingleBinaryOperatorMethodCaller(methodName, types, bindingContext);
 
@@ -55,45 +66,12 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
             return methodCaller;
         }
 
-        BinaryOperatorMap binaryOperations = BinaryOperatorMap.findOp(methodName);
+        String inverse = inverseMethod.get(methodName);
 
-        if (binaryOperations == null) {
-            return methodCaller;
-        }
-
-        methodCaller = findWithSynonims(methodName, types, bindingContext, binaryOperations.getSynonims());
-
-        if (methodCaller != null) {
-            return methodCaller;
-        }
-
-        if (binaryOperations.isSymmetrical()) {
-
-            IOpenClass[] symTypes = new IOpenClass[] { types[1], types[0] };
-            methodCaller = findSingleBinaryOperatorMethodCaller(methodName, symTypes, bindingContext);
-
-            if (methodCaller != null) {
-                return new BinaryMethodCallerSwapParams(methodCaller);
-            }
-
-            methodCaller = findWithSynonims(methodName, symTypes, bindingContext, binaryOperations.getSynonims());
-
-            if (methodCaller != null) {
-                return new BinaryMethodCallerSwapParams(methodCaller);
-            }
-        }
-
-        if (binaryOperations.getInverse() != null) {
+        if (inverse != null) {
 
             IOpenClass[] invTypes = new IOpenClass[] { types[1], types[0] };
-            methodCaller = findSingleBinaryOperatorMethodCaller(binaryOperations.getInverse(), invTypes, bindingContext);
-
-            if (methodCaller != null) {
-                return new BinaryMethodCallerSwapParams(methodCaller);
-            }
-
-            BinaryOperatorMap bopInv = BinaryOperatorMap.findOp(binaryOperations.getInverse());
-            methodCaller = findWithSynonims(methodName, invTypes, bindingContext, bopInv.getSynonims());
+            methodCaller = findSingleBinaryOperatorMethodCaller(inverse, invTypes, bindingContext);
 
             if (methodCaller != null) {
                 return new BinaryMethodCallerSwapParams(methodCaller);
@@ -143,27 +121,6 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
         // collection of suitable methods.
         //
         methodCaller = MethodSearch.findMethod(methodName, argumentTypes, bindingContext, argumentTypes[1]);
-
-        return methodCaller;
-    }
-
-    private static IMethodCaller findWithSynonims(String methodName,
-                                                  IOpenClass[] types,
-                                                  IBindingContext bindingContext,
-                                                  String[] synonims) {
-
-        IMethodCaller methodCaller = null;
-
-        if (synonims != null) {
-            for (int i = 0; i < synonims.length; i++) {
-
-                methodCaller = findSingleBinaryOperatorMethodCaller(synonims[i], types, bindingContext);
-
-                if (methodCaller != null) {
-                    return methodCaller;
-                }
-            }
-        }
 
         return methodCaller;
     }

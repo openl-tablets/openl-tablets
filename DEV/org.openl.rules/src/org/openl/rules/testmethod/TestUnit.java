@@ -1,10 +1,12 @@
 package org.openl.rules.testmethod;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.data.PrecisionFieldChain;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
@@ -151,7 +153,7 @@ public class TestUnit {
                     expectedResult = StringUtils.EMPTY;
                 }
 
-                String actualMessage = ((OpenLUserRuntimeException) rootCause).getOriginalMessage();
+                String actualMessage = rootCause.getMessage();
                 comapreResult = expectedResult.equals(actualMessage) ? TR_OK : TR_NEQ;
             } else {
                 comapreResult = TR_EXCEPTION;
@@ -167,12 +169,13 @@ public class TestUnit {
         return test;
     }
 
-    public List<OpenLMessage> getResultMessages() {
-        return TestUtils.getUserMessagesAndErrors(getActualResult());
-    }
-
     public List<OpenLMessage> getErrors() {
-        return TestUtils.getErrors(getActualResult());
+        Object error = getActualResult();
+        if (error instanceof Throwable) {
+            return OpenLMessagesUtils.newMessages((Throwable) error);
+        }
+
+        return Collections.emptyList();
     }
 
     private boolean isEqual(Object expectedResult, Object actualResult) {

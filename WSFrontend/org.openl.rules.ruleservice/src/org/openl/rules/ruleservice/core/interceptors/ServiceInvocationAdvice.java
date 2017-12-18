@@ -372,7 +372,7 @@ public final class ServiceInvocationAdvice implements MethodInterceptor, Ordered
             t = extractInvocationTargetException(t);
             if (t instanceof OpenLUserRuntimeException) {
                 isUserException = true;
-                userDetailMessage = ((OpenLUserRuntimeException) t).getOriginalMessage();
+                userDetailMessage = t.getMessage();
             } else if (t instanceof OpenLRuntimeException) {
                 isRulesException = true;
                 rulesRuntimeDetailMessage = ((OpenLRuntimeException) t).getOriginalMessage();
