@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.BindHelper;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.StringValue;
@@ -20,6 +21,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.TableProperties;
+import org.openl.rules.testmethod.TestMethodOpenClass;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
@@ -652,7 +654,7 @@ public class DataTableBindHelper {
                 continue;
             }
 
-            if (fieldIndex == 0 && fieldNameNode.getIdentifier().matches(THIS_ARRAY_ACCESS_PATTERN)) {
+            if (fieldIndex == 0 && fieldNameNode.getIdentifier().matches(THIS_ARRAY_ACCESS_PATTERN) && (!(type instanceof TestMethodOpenClass))) {
                 fieldAccessorChain[fieldIndex] = new ThisArrayElementField(getArrayIndex(fieldNameNode),
                     type.getComponentClass());
                 loadedFieldType = type.getComponentClass();
@@ -789,8 +791,14 @@ public class DataTableBindHelper {
                 new org.openl.rules.calc.SpreadsheetResultOpenClass(org.openl.rules.calc.SpreadsheetResult.class));
         }
         if (field == null) {
-            String errorMessage = String
-                .format("Field \"%s\" is not found in %s", fieldName, loadedFieldType.getName());
+            String errorMessage;
+            if (loadedFieldType instanceof TestMethodOpenClass) {
+                StringBuilder sb = new StringBuilder();
+                MethodUtil.printMethod(((TestMethodOpenClass) loadedFieldType).getTestedMethod(), sb);
+                errorMessage = String.format("Found \"%s\", but expected one of the parameters from the method \"%s\".", fieldName, sb.toString());
+            } else {
+                errorMessage = String.format("Field \"%s\" is not found in %s", fieldName, loadedFieldType.getName());
+            }
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(errorMessage, currentFieldNameNode);
             processError(table, error);
             return null;

@@ -23,8 +23,13 @@ public class TestMethodOpenClass extends ADynamicClass {
     public Object newInstance(IRuntimeEnv env) {
         return new DynamicObject(this);
     }
+    
+    private IOpenMethod testedMethod;
 
     protected void init(IOpenMethod testedMethod) {
+        
+        this.testedMethod = testedMethod;
+        
         addParameterFields(testedMethod);
 
         addExpectedResult(testedMethod);
@@ -82,5 +87,9 @@ public class TestMethodOpenClass extends ADynamicClass {
                 RowIdField.ROW_ID,
                 JavaOpenClass.STRING);
         addField(idField);
+    }
+    
+    public IOpenMethod getTestedMethod() {
+        return testedMethod;
     }
 }

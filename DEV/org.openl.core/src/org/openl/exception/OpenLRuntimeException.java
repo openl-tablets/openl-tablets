@@ -69,7 +69,7 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
             pw.println(super.getMessage());
             SourceCodeURLTool.printCodeAndError(getLocation(), getSourceModule(), pw);
             SourceCodeURLTool.printSourceLocation(this, pw);
-        }else {
+        } else {
             pw.print(super.getMessage());    
         }
         return messageWriter.toString();
