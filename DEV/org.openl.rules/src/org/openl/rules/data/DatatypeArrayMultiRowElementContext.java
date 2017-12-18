@@ -25,7 +25,7 @@ public class DatatypeArrayMultiRowElementContext {
         } else {
             if (getRow() > 0) {
                 Pair<Integer, Object> prevIndex = a.get(getRow() - 1);
-                if (prevIndex.getRight() == target) {
+                if (prevIndex != null && prevIndex.getRight() == target) {
                     if (isRowValueIsTheSameAsPrevious()) {
                         index = new ImmutablePair<Integer, Object>(prevIndex.getLeft(), target);
                     } else {
