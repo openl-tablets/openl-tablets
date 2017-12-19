@@ -1,10 +1,15 @@
 package org.openl.rules.testmethod;
 
+import static org.openl.rules.testmethod.TestStatus.TR_EXCEPTION;
+import static org.openl.rules.testmethod.TestStatus.TR_NEQ;
+import static org.openl.rules.testmethod.TestStatus.TR_OK;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.data.PrecisionFieldChain;
@@ -15,9 +20,6 @@ import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
-import static org.openl.rules.testmethod.TestStatus.TR_NEQ;
-import static org.openl.rules.testmethod.TestStatus.TR_OK;
-import static org.openl.rules.testmethod.TestStatus.TR_EXCEPTION;
 /**
  * Representation of the single test unit in the test.
  *
@@ -45,6 +47,10 @@ public class TestUnit {
         this.expectedResult = test.getExpectedResult();
         this.actualResult = res;
         this.actualError = error;
+        if (expectedError != null && expectedResult != null) {
+            throw new IllegalArgumentException(
+                "Ambiguous expectation in the test case. Two expected result has been declared.");
+        }
     }
 
     /**
@@ -59,8 +65,7 @@ public class TestUnit {
     /**
      * Return the result of running current test case.
      *
-     * @return exception that occurred during running, if it was. If no, returns
-     *         the calculated result.
+     * @return exception that occurred during running, if it was. If no, returns the calculated result.
      */
     public Object getActualResult() {
         return actualError == null ? actualResult : actualError;
@@ -81,20 +86,20 @@ public class TestUnit {
     public List<ComparedResult> getResultParams() {
         List<ComparedResult> params = new ArrayList<ComparedResult>();
 
-            if (expectedError == null) {
-                List<ComparedResult> results = comparisonResults;
-                for (ComparedResult comparedResult : results) {
-                    if (!(comparedResult.getActualValue() instanceof ParameterWithValueDeclaration)) {
-                        comparedResult.setActualValue(new ParameterWithValueDeclaration(
-                                comparedResult.getFieldName(), comparedResult.getActualValue()));
-                    }
-                    if (!(comparedResult.getExpectedValue() instanceof ParameterWithValueDeclaration)) {
-                        comparedResult.setExpectedValue(new ParameterWithValueDeclaration(
-                                comparedResult.getFieldName(), comparedResult.getExpectedValue()));
-                    }
-                    params.add(comparedResult);
+        if (expectedError == null && actualError == null) {
+            List<ComparedResult> results = comparisonResults;
+            for (ComparedResult comparedResult : results) {
+                if (!(comparedResult.getActualValue() instanceof ParameterWithValueDeclaration)) {
+                    comparedResult.setActualValue(new ParameterWithValueDeclaration(comparedResult.getFieldName(),
+                        comparedResult.getActualValue()));
                 }
-                return params;
+                if (!(comparedResult.getExpectedValue() instanceof ParameterWithValueDeclaration)) {
+                    comparedResult.setExpectedValue(new ParameterWithValueDeclaration(comparedResult.getFieldName(),
+                        comparedResult.getExpectedValue()));
+                }
+                params.add(comparedResult);
+            }
+            return params;
         }
 
         ComparedResult result = new ComparedResult();
@@ -109,8 +114,8 @@ public class TestUnit {
     /**
      * Gets the description field value.
      *
-     * @return if the description field value presents, return it`s value. In
-     *         other case return {@link TestUnit#DEFAULT_DESCRIPTION}
+     * @return if the description field value presents, return it`s value. In other case return
+     *         {@link TestUnit#DEFAULT_DESCRIPTION}
      */
     public String getDescription() {
         String descr = test.getDescription();
@@ -133,7 +138,7 @@ public class TestUnit {
             Throwable rootCause = ExceptionUtils.getRootCause(actualError);
             if (rootCause instanceof OpenLUserRuntimeException) {
                 String actualMessage = rootCause.getMessage();
-                comapreResult = expectedError != null && expectedError.equals(actualMessage) ? TR_OK : TR_NEQ;
+                comapreResult = actualMessage.equals(expectedError == null ? "" : expectedError) ? TR_OK : TR_NEQ;
             } else {
                 comapreResult = TR_EXCEPTION;
             }
