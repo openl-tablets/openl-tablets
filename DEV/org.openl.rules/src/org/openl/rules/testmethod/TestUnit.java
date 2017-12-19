@@ -12,7 +12,6 @@ import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
 import org.openl.rules.testmethod.result.TestResultComparatorFactory;
 import org.openl.types.IOpenField;
-import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
@@ -27,8 +26,10 @@ public class TestUnit {
     private TestDescription test;
 
     private Object expectedResult;
+    private String expectedError;
 
     private Object actualResult;
+    private Throwable actualError;
 
     public static final String DEFAULT_DESCRIPTION = "No Description";
 
@@ -37,20 +38,13 @@ public class TestUnit {
 
     private final long executionTime;
 
-    public TestUnit(TestDescription test, Object res, long executionTime) {
+    public TestUnit(TestDescription test, Object res, Throwable error, long executionTime) {
         this.test = test;
         this.executionTime = executionTime;
-        initExpectedResult(test);
+        this.expectedError = test.getExpectedError();
+        this.expectedResult = test.getExpectedResult();
         this.actualResult = res;
-    }
-
-    private void initExpectedResult(TestDescription test) {
-        Object expectedError = test.getExpectedError();
-        if (expectedError != null) { // check that it was expected to get an exception
-            expectedResult = expectedError;
-        } else {
-            expectedResult = test.getExpectedResult();
-        }
+        this.actualError = error;
     }
 
     /**
@@ -59,7 +53,7 @@ public class TestUnit {
      * @return the value of expected result.
      */
     public Object getExpectedResult() {
-        return expectedResult;
+        return expectedError == null ? expectedResult : expectedError;
     }
 
     /**
@@ -69,7 +63,7 @@ public class TestUnit {
      *         the calculated result.
      */
     public Object getActualResult() {
-        return actualResult;
+        return actualError == null ? actualResult : actualError;
     }
 
     public long getExecutionTime() {
@@ -87,10 +81,6 @@ public class TestUnit {
     public List<ComparedResult> getResultParams() {
         List<ComparedResult> params = new ArrayList<ComparedResult>();
 
-        Object actual = getActualResult();
-        Object expected = getExpectedResult();
-
-            String expectedError = test.getExpectedError();
             if (expectedError == null) {
                 List<ComparedResult> results = comparisonResults;
                 for (ComparedResult comparedResult : results) {
@@ -109,8 +99,8 @@ public class TestUnit {
 
         ComparedResult result = new ComparedResult();
         result.setStatus(compareResult());
-        result.setActualValue(new ParameterWithValueDeclaration("actual", actual));
-        result.setExpectedValue(new ParameterWithValueDeclaration("expected", expected));
+        result.setActualValue(new ParameterWithValueDeclaration("actualResult", getActualResult()));
+        result.setExpectedValue(new ParameterWithValueDeclaration("expectedResult", getExpectedResult()));
         params.add(result);
 
         return params;
@@ -139,29 +129,21 @@ public class TestUnit {
         if (comapreResult != null) {
             return comapreResult;
         }
-        Object actualResult = getActualResult();
-        Object expectedResult = getExpectedResult();
-        if (actualResult instanceof Throwable) {
-            Throwable rootCause = ExceptionUtils.getRootCause((Throwable) actualResult);
+        if (actualError != null) {
+            Throwable rootCause = ExceptionUtils.getRootCause(actualError);
             if (rootCause instanceof OpenLUserRuntimeException) {
-                // OpenL engine recognizes empty cell as 'null' value.
-                // When user define 'error' expression with empty string as message
-                // test cannot be passed because expected message will be 'null' value.
-                // To avoid mentioned above use case we are using the following check.
-                //
-                if (expectedResult == null) {
-                    expectedResult = StringUtils.EMPTY;
-                }
-
                 String actualMessage = rootCause.getMessage();
-                comapreResult = expectedResult.equals(actualMessage) ? TR_OK : TR_NEQ;
+                comapreResult = expectedError != null && expectedError.equals(actualMessage) ? TR_OK : TR_NEQ;
             } else {
                 comapreResult = TR_EXCEPTION;
             }
         } else {
-            comapreResult = isEqual(expectedResult, actualResult) ? TR_OK : TR_NEQ;
+            if (expectedError != null) {
+                comapreResult = TR_NEQ;
+            } else {
+                comapreResult = isEqual(expectedResult, actualResult) ? TR_OK : TR_NEQ;
+            }
         }
-
         return comapreResult;
     }
 
@@ -170,12 +152,11 @@ public class TestUnit {
     }
 
     public List<OpenLMessage> getErrors() {
-        Object error = getActualResult();
-        if (error instanceof Throwable) {
-            return OpenLMessagesUtils.newMessages((Throwable) error);
+        if (actualError != null) {
+            return OpenLMessagesUtils.newMessages(actualError);
+        } else {
+            return Collections.emptyList();
         }
-
-        return Collections.emptyList();
     }
 
     private boolean isEqual(Object expectedResult, Object actualResult) {

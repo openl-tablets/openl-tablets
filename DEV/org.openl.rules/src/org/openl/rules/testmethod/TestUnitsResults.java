@@ -132,16 +132,6 @@ public class TestUnitsResults implements INamedThing {
         return testSuite.getTestSuiteMethod().isRunmethod();
     }
 
-    @Deprecated
-    public Object getUnitResult(int i) {
-        return testUnits.get(i).getActualResult();
-    }
-
-    @Deprecated
-    public Object getUnitDescription(int i) {
-        return testUnits.get(i).getDescription();
-    }
-
     public String[] getTestDataColumnDisplayNames() {
         String[] columnTechnicalNames = getTestDataColumnHeaders();
         String[] columnDisplayNames = new String[columnTechnicalNames.length];

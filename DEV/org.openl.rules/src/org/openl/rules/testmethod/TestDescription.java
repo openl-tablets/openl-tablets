@@ -138,7 +138,7 @@ public class TestDescription {
                 env.setContext(oldContext);
             }
             time = end - start;
-            return exception == null ? new TestUnit(this, res, time) : new TestUnit(this, exception, time);
+            return new TestUnit(this, res, exception, time);
         }
     }
 
