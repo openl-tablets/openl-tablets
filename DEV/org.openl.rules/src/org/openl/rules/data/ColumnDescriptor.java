@@ -182,9 +182,14 @@ public class ColumnDescriptor {
             if (!valuesAnArray) {
                 env.pushThis(literal);
                 if (supportMultirows) {
-                    processWithMultiRowsSupport(literal, valuesTable, toolAdapter, env, paramType);    
+                    processWithMultiRowsSupport(literal, valuesTable, toolAdapter, env, paramType);
                 } else {
-                    Object res = RuleRowHelper.loadSingleParam(paramType, field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(), null, valuesTable, toolAdapter);
+                    Object res = RuleRowHelper.loadSingleParam(paramType,
+                        field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(),
+                        null,
+                        LogicalTableHelper.logicalTable(valuesTable.getSource().getSubtable(0, 0, 1, 1))
+                            .getSubtable(0, 0, 1, 1),
+                        toolAdapter);
                     if (res != null) {
                         field.set(literal, res, env);
                     }
@@ -212,22 +217,26 @@ public class ColumnDescriptor {
             OpenlToolAdaptor toolAdapter,
             IRuntimeEnv env,
             IOpenClass paramType) throws SyntaxNodeException {
-        DatatypeArrayMultiRowElementContext datatypeArrayMultiRowElementContext = (DatatypeArrayMultiRowElementContext) env.getLocalFrame()[0];
-        Object prevRes = null;
+        DatatypeArrayMultiRowElementContext datatypeArrayMultiRowElementContext = (DatatypeArrayMultiRowElementContext) env
+            .getLocalFrame()[0];
+        Object prevRes = new Object();
         for (int i = 0; i < valuesTable.getSource().getHeight(); i++) {
             datatypeArrayMultiRowElementContext.setRow(i);
             Object res = RuleRowHelper.loadSingleParam(paramType,
                 field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(),
                 null,
-                LogicalTableHelper.logicalTable(valuesTable.getSource().getSubtable(0, i, 1, i + 1)).getSubtable(0, 0, 1, 1),
+                LogicalTableHelper.logicalTable(valuesTable.getSource().getSubtable(0, i, 1, i + 1))
+                    .getSubtable(0, 0, 1, 1),
                 toolAdapter);
-            if (prevRes != null && prevRes.equals(res)) {
+            if ((prevRes == null && res == null) || (prevRes != null && prevRes.equals(res))) {
                 datatypeArrayMultiRowElementContext.setRowValueIsTheSameAsPrevious(true);
             } else {
                 datatypeArrayMultiRowElementContext.setRowValueIsTheSameAsPrevious(false);
             }
             if (res != null) {
                 field.set(literal, res, env);
+            } else {
+                field.get(literal, env); //Do not delete this line!!! 
             }
             prevRes = res;
         }
@@ -305,11 +314,11 @@ public class ColumnDescriptor {
             }
         }
     }
-    
+
     public boolean isSupportMultirows() {
         return supportMultirows;
     }
-    
+
     public void setSupportMultirows(boolean supportMultirows) {
         this.supportMultirows = supportMultirows;
     }

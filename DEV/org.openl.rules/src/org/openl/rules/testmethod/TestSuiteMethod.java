@@ -43,8 +43,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     private DynamicObject[] testObjects;
     private ColumnDescriptor[] descriptors;
 
-    public TestSuiteMethod(IOpenMethod testedMethod, IOpenMethodHeader header,
-            TestMethodBoundNode boundNode) {
+    public TestSuiteMethod(IOpenMethod testedMethod, IOpenMethodHeader header, TestMethodBoundNode boundNode) {
         super(header, boundNode);
 
         this.testedMethod = testedMethod;
@@ -85,13 +84,13 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     }
 
     public synchronized int[] getIndices(String ids) {
-        if (tests == null){
+        if (tests == null) {
             initTestsAndIndexes();
         }
         TreeSet<Integer> result = new TreeSet<Integer>();
 
         String ranges[] = ids.trim().split(",");
-        for(String range: ranges) {
+        for (String range : ranges) {
             if (range.isEmpty() && indeces.containsKey(",")) {
                 result.add(indeces.get(","));
                 continue;
@@ -108,15 +107,15 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
             if (edges.length == 0) {
                 if (indeces.containsKey("-")) {
                     result.add(indeces.get("-"));
-                } 
+                }
             } else {
                 String startIdValue = edges[0].trim();
                 String endIdValue = edges[edges.length - 1].trim();
-    
+
                 int startIndex = indeces.get(startIdValue);
                 int endIndex = indeces.get(endIdValue);
-    
-                for (int i = startIndex; i<=endIndex; i++) {
+
+                for (int i = startIndex; i <= endIndex; i++) {
                     result.add(i);
                 }
             }
@@ -168,7 +167,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     public TestDescription getTest(int numberOfTest) {
         return getTests()[numberOfTest];
     }
-    
+
     public void setTestedMethod(IOpenMethod testedMethod) {
         this.testedMethod = testedMethod;
     }
@@ -191,7 +190,6 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
 
         return -1;
     }
-
 
     public String getColumnName(int index) {
         if (index >= 0) {
@@ -244,9 +242,9 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
      */
     public boolean isRunmethodTestable() {
         for (int i = 0; i < getNumberOfTests(); i++) {
-            if (getTest(i).isExpectedResultDefined() || getTest(i).isExpectedErrorDefined()
-                    || containsFieldsForSprCellTests(getTest(i).getTestObject().getFieldValues().keySet())
-                    || (testedMethod instanceof Spreadsheet)) {
+            if (getTest(i).isExpectedResultDefined() || getTest(i)
+                .isExpectedErrorDefined() || containsFieldsForSprCellTests(
+                    getTest(i).getTestObject().getFieldValues().keySet()) || (testedMethod instanceof Spreadsheet)) {
                 return true;
             }
         }
@@ -286,7 +284,9 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         }
     }
 
-    private static List<IOpenField> createFieldsToTest(IOpenMethod testedMethod, ColumnDescriptor[] descriptors, Integer testTablePrecision) {
+    private static List<IOpenField> createFieldsToTest(IOpenMethod testedMethod,
+            ColumnDescriptor[] descriptors,
+            Integer testTablePrecision) {
         IOpenClass resultType = testedMethod.getType();
         List<IOpenField> fieldsToTest = new ArrayList<>();
         for (ColumnDescriptor columnDescriptor : descriptors) {
@@ -297,7 +297,8 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                     continue;
                 }
                 Integer fieldPrecision = testTablePrecision;
-                if (nodes.length > 1 && nodes[nodes.length - 1].getIdentifier().matches(DataTableBindHelper.PRECISION_PATTERN)) {
+                if (nodes.length > 1 && nodes[nodes.length - 1].getIdentifier()
+                    .matches(DataTableBindHelper.PRECISION_PATTERN)) {
                     // set the precision of the field
                     fieldPrecision = DataTableBindHelper.getPrecisionValue(nodes[nodes.length - 1]);
                     nodes = ArrayUtils.remove(nodes, nodes.length - 1);
@@ -313,7 +314,8 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                     }
                 } else {
                     IOpenField[] fieldSequence;
-                    boolean resIsArray = nodes[0].getIdentifier().matches(DataTableBindHelper.ARRAY_ACCESS_BY_INDEX_PATTERN);
+                    boolean resIsArray = nodes[0].getIdentifier()
+                        .matches(DataTableBindHelper.ARRAY_ACCESS_BY_INDEX_PATTERN);
                     int startIndex = 0;
                     IOpenClass currentType = resultType;
 
@@ -332,17 +334,20 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                     } else {
                         fieldSequence = new IOpenField[nodes.length - 1];
                     }
-
-                    for (int i = startIndex; i < fieldSequence.length; i++) {
+                    int i;
+                    for (i = startIndex; i < fieldSequence.length; i++) {
                         boolean isArray = nodes[i + 1 - startIndex].getIdentifier()
-                                .matches(DataTableBindHelper.ARRAY_ACCESS_BY_INDEX_PATTERN);
+                            .matches(DataTableBindHelper.ARRAY_ACCESS_BY_INDEX_PATTERN);
                         if (isArray) {
                             IOpenField arrayField = currentType.getField(getArrayName(nodes[i + 1 - startIndex]));
                             // Try process field as SpreadsheetResult
-                            if (arrayField == null && currentType.equals(JavaOpenClass.OBJECT) && nodes[i + 1 - startIndex].getIdentifier()
+                            if (arrayField == null && currentType
+                                .equals(JavaOpenClass.OBJECT) && nodes[i + 1 - startIndex].getIdentifier()
                                     .matches(DataTableBindHelper.SPREADSHEETRESULTFIELD_PATTERN)) {
-                                SpreadsheetResultOpenClass spreadsheetResultOpenClass = new SpreadsheetResultOpenClass(SpreadsheetResult.class);
-                                arrayField = spreadsheetResultOpenClass.getField(getArrayName(nodes[i + 1 - startIndex]));
+                                SpreadsheetResultOpenClass spreadsheetResultOpenClass = new SpreadsheetResultOpenClass(
+                                    SpreadsheetResult.class);
+                                arrayField = spreadsheetResultOpenClass
+                                    .getField(getArrayName(nodes[i + 1 - startIndex]));
                             }
                             int arrayIndex = getArrayIndex(nodes[i + 1 - startIndex]);
                             IOpenField arrayAccessField = new DatatypeArrayElementField(arrayField, arrayIndex);
@@ -351,29 +356,35 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                             fieldSequence[i] = currentType.getField(nodes[i + 1 - startIndex].getIdentifier());
                             if (fieldSequence[i] == null) {
                                 // Try process field as SpreadsheetResult
-                                SpreadsheetResultOpenClass spreadsheetResultOpenClass = new SpreadsheetResultOpenClass(SpreadsheetResult.class);
-                                IOpenField openField = spreadsheetResultOpenClass.getField(nodes[i + 1 - startIndex].getIdentifier());
+                                SpreadsheetResultOpenClass spreadsheetResultOpenClass = new SpreadsheetResultOpenClass(
+                                    SpreadsheetResult.class);
+                                IOpenField openField = spreadsheetResultOpenClass
+                                    .getField(nodes[i + 1 - startIndex].getIdentifier());
                                 if (openField != null) {
                                     fieldSequence[i] = openField;
                                 }
                             }
                         }
-
+                        if (fieldSequence[i] == null) {
+                            break;
+                        }
                         if (fieldSequence[i].getType().isArray() && isArray) {
                             currentType = fieldSequence[i].getType().getComponentClass();
                         } else {
                             currentType = fieldSequence[i].getType();
                         }
                     }
-                    if (fieldSequence.length == 0) {
-                        fieldSequence = new IOpenField[] { new ThisField(resultType) };
-                    }
-                    if (fieldPrecision != null) {
-                        fieldsToTest.add(new PrecisionFieldChain(currentType, fieldSequence, fieldPrecision));
-                    } else if (fieldSequence.length > 1) {
-                        fieldsToTest.add(new FieldChain(currentType, fieldSequence));
-                    } else {
-                        fieldsToTest.add(fieldSequence[0]);
+                    if (i == 0 || i == fieldSequence.length) {
+                        if (fieldSequence.length == 0) {
+                            fieldSequence = new IOpenField[] { new ThisField(resultType) };
+                        }
+                        if (fieldPrecision != null) {
+                            fieldsToTest.add(new PrecisionFieldChain(currentType, fieldSequence, fieldPrecision));
+                        } else if (fieldSequence.length > 1) {
+                            fieldsToTest.add(new FieldChain(currentType, fieldSequence));
+                        } else {
+                            fieldsToTest.add(fieldSequence[0]);
+                        }
                     }
                 }
             }

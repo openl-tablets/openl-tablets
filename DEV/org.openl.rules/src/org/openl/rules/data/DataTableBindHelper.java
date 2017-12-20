@@ -21,6 +21,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.TableProperties;
+import org.openl.rules.testmethod.TestMethodHelper;
 import org.openl.rules.testmethod.TestMethodOpenClass;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -630,6 +631,8 @@ public class DataTableBindHelper {
         IOpenField[] fieldAccessorChain = new IOpenField[fieldAccessorChainTokens.length];
         boolean hasAccessByArrayId = false;
         StringBuilder partPathFromRoot = new StringBuilder();
+        
+        boolean multiRowsArentSupported = type instanceof TestMethodOpenClass && fieldAccessorChainTokens[0].getIdentifier().trim().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME);
 
         for (int fieldIndex = 0; fieldIndex < fieldAccessorChain.length; fieldIndex++) {
             IdentifierNode fieldNameNode = fieldAccessorChainTokens[fieldIndex];
@@ -661,7 +664,7 @@ public class DataTableBindHelper {
                 continue;
             }
 
-            boolean arrayAccessByIndex = fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_BY_INDEX_PATTERN);
+            boolean arrayAccessByIndex = fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_BY_INDEX_PATTERN); 
             boolean arrayAccessMultiRows = fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_MULTI_ROWS_PATTERN);
 
             if (fieldNameNode.getIdentifier().matches(PRECISION_PATTERN)) {
@@ -677,7 +680,7 @@ public class DataTableBindHelper {
                     table,
                     loadedFieldType,
                     partPathFromRoot.toString(),
-                    arrayAccessMultiRows);
+                    arrayAccessMultiRows && !multiRowsArentSupported);
             } else {
                 fieldInChain = getWritableField(fieldNameNode, table, loadedFieldType);
             }
@@ -735,7 +738,6 @@ public class DataTableBindHelper {
     private static int getArrayIndex(IdentifierNode fieldNameNode) {
         String fieldName = fieldNameNode.getIdentifier();
         String txtIndex = fieldName.substring(fieldName.indexOf("[") + 1, fieldName.indexOf("]")).trim();
-
         return Integer.parseInt(txtIndex);
     }
 
@@ -861,7 +863,15 @@ public class DataTableBindHelper {
                     buildRootPathForDatatypeArrayMultiRowElementField(partPathFromRoot, field.getName()));
             }
         } else {
-            int arrayIndex = getArrayIndex(currentFieldNameNode);
+            int arrayIndex;
+            try {
+                arrayIndex = getArrayIndex(currentFieldNameNode);
+            } catch (Exception e) {
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse array index.",
+                    currentFieldNameNode);
+                processError(table, error);
+                return null;
+            }
             if (!field.getType().isArray() && field.getType().getOpenClass().getInstanceClass().equals(Object.class)) {
                 arrayAccessField = new DatatypeArrayElementField(field, arrayIndex, JavaOpenClass.OBJECT);
             } else {
