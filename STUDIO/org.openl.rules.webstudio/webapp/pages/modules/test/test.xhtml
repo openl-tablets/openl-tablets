@@ -205,7 +205,7 @@
                                                         </h:panelGroup>
                                                     </h:panelGroup>
                                                     <h:panelGroup rendered="#{testBean.isResultThrowable(testCase)}">
-                                                        <ui:repeat value="#{testCase.resultMessages}" var="message">
+                                                        <ui:repeat value="#{testCase.errors}" var="message">
                                                             <span>#{message.summary}</span><br />
                                                         </ui:repeat>
                                                     </h:panelGroup>

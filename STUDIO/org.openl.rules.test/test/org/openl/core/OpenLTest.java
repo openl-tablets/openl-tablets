@@ -84,9 +84,9 @@ public final class OpenLTest {
             assertTrue("Incorrect execution time", testUnitsResults.getExecutionTime() > 0);
             assertTrue("Shoud have a context", testUnitsResults.hasContext());
             assertEquals("Incorrect count of test cases", 19, testUnitsResults.getNumberOfTestUnits());
-            assertEquals("Incorrect count of failures", 10, testUnitsResults.getNumberOfFailures());
+            assertEquals("Incorrect count of failures", 11, testUnitsResults.getNumberOfFailures());
             assertEquals("Incorrect count of errors", 1, testUnitsResults.getNumberOfErrors());
-            assertEquals("Incorrect count of assertions", 9, testUnitsResults.getNumberOfAssertionFailures());
+            assertEquals("Incorrect count of assertions", 10, testUnitsResults.getNumberOfAssertionFailures());
         }
 
         {

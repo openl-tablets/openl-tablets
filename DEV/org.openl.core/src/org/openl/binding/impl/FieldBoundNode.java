@@ -44,8 +44,16 @@ public class FieldBoundNode extends ATargetBoundNode {
 
     @Override
     public void assign(Object value, IRuntimeEnv env) throws OpenLRuntimeException {
+        if (dims > 0) {
+            throw new UnsupportedOperationException("Multi-reference assignment is not supported.");
+        }
         Object target = getTarget(env);
 
+        IBoundNode targetNode = getTargetNode();
+        if (target == null && targetNode != null) {
+            target = targetNode.getType().newInstance(env);
+            targetNode.assign(target, env);
+        }
         boundField.set(target, value, env);
     }
 

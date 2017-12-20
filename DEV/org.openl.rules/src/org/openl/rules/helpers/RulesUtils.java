@@ -25,7 +25,6 @@ import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.ArrayTool;
-import org.openl.util.ClassUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.util.DateTool;
 import org.openl.util.math.MathUtils;
@@ -2068,10 +2067,6 @@ public class RulesUtils {
 
     public static ThrowableVoid error(String msg) {
         throw new OpenLUserRuntimeException(msg);
-    }
-
-    public static ThrowableVoid error(Throwable t) throws Throwable {
-        throw new OpenLUserRuntimeException(t);
     }
 
     /**
