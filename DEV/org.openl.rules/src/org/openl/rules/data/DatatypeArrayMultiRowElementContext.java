@@ -11,7 +11,6 @@ public class DatatypeArrayMultiRowElementContext {
 
     private int row;
 
-    private boolean rowValueIsEmpty;
     private boolean rowValueIsTheSameAsPrevious;
 
     public int getIndex(String array, Object target) {
@@ -51,14 +50,6 @@ public class DatatypeArrayMultiRowElementContext {
         return rowValueIsTheSameAsPrevious;
     }
     
-    public void setRowValueIsEmpty(boolean rowValueIsEmpty) {
-        this.rowValueIsEmpty = rowValueIsEmpty;
-    }
-    
-    public boolean isRowValueIsEmpty() {
-        return rowValueIsEmpty;
-    }
-
     public void setRow(int row) {
         this.row = row;
     }
