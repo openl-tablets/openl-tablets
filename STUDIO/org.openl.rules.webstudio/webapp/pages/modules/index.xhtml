@@ -274,7 +274,8 @@
                     },
                     download: function (url) {
                         var options = {
-                            interval: 100,
+                            timeout: 120, // seconds
+                            interval: 100, // milliseconds
                             onRequest: function (token) {
                                 api.ui.showLoader();
                             },
