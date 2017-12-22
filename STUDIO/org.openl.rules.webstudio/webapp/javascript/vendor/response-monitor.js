@@ -31,7 +31,7 @@
 
             //default options
             this.options = {
-                timeout: 120,                     //seconds to wait for a response
+                timeout: 120,                     //seconds to wait for a response (required)
                 interval: 1000,                   //milliseconds interval to check the cookie
                 onRequest: f,                     //request to the server made
                 onMonitor: f,                     //called once in defined interval while checking for the cookie
