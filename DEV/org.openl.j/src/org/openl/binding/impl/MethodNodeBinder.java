@@ -8,6 +8,7 @@ import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.cast.AutoCastFactory;
 import org.openl.binding.impl.cast.AutoCastReturnType;
 import org.openl.binding.impl.method.MethodSearch;
+import org.openl.binding.impl.method.VarArgsOpenMethod;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
@@ -39,6 +40,13 @@ public class MethodNodeBinder extends ANodeBinder {
             }
         }
 
+        if (methodCaller instanceof VarArgsOpenMethod) {
+            VarArgsOpenMethod varArgsOpenMethod = (VarArgsOpenMethod) methodCaller;
+            if (varArgsOpenMethod.getDelegate() instanceof JavaOpenMethod) {
+                method = (JavaOpenMethod) varArgsOpenMethod.getDelegate();
+            }
+        }
+
         if (methodCaller instanceof JavaOpenMethod) {
             method = (JavaOpenMethod) methodCaller;
         }
@@ -50,7 +58,7 @@ public class MethodNodeBinder extends ANodeBinder {
                 Class<? extends AutoCastFactory> clazz = autoCastReturnType.value();
                 try {
                     AutoCastFactory autoCastFactory = clazz.newInstance();
-                    return autoCastFactory.build(bindingContext, methodCaller, parameterTypes);
+                    return autoCastFactory.build(bindingContext, methodCaller, method, parameterTypes);
                 } catch (InstantiationException | IllegalAccessException e) {
                     return method;
                 }
