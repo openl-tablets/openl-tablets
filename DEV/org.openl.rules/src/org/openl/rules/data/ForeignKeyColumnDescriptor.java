@@ -188,7 +188,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 ColumnDescriptor foreignColumnDescriptor = foreignTable.getDataModel().getDescriptor()[foreignKeyIndex];
                 if (foreignColumnDescriptor.isReference() && foreignColumnDescriptor instanceof ForeignKeyColumnDescriptor) {
                     // In the case when foreign key is like: ">policies.driver"
-                    String[] endOfChain = ((ForeignKeyColumnDescriptor) foreignColumnDescriptor).getForeignKeyColumnChainTokens();
+                    String[] endOfChain = ((ForeignKeyColumnDescriptor) foreignColumnDescriptor).foreignKeyColumnChainTokens;
                     foreignKeyColumnChainTokens = ArrayUtils.addAll(foreignKeyColumnChainTokens, endOfChain);
                 }
             }
@@ -539,10 +539,6 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         return new ResultChainObject(resObj, resInctClass);
     }
 
-    public String[] getForeignKeyColumnChainTokens() {
-        return foreignKeyColumnChainTokens;
-    }
-
     public void setForeignKeyCellMetaInfo(IDataBase db) {
         if (foreignKeyCell != null) {
             ITable foreignTable = db.getTable(foreignKeyTable.getIdentifier());
@@ -561,6 +557,18 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
         // Not needed anymore
         foreignKeyCell = null;
+    }
+
+    public IOpenField getForeignKeyField(IOpenClass type) {
+        if (foreignKeyColumnChainTokens.length > 0) {
+            String fieldName = foreignKeyColumnChainTokens[foreignKeyColumnChainTokens.length - 1];
+            if (isValuesAnArray(type)) {
+                return type.getComponentClass().getField(fieldName);
+            } else {
+                return type.getField(fieldName);
+            }
+        }
+        return null;
     }
 
     static class ResultChainObject {

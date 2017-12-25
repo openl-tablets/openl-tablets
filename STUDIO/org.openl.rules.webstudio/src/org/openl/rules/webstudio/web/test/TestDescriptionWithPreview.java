@@ -56,15 +56,7 @@ public class TestDescriptionWithPreview extends TestDescription {
                     if (columnDescriptor.isReference() && columnDescriptor instanceof ForeignKeyColumnDescriptor) {
                         // Foreign key to a data described in the Data Table
                         ForeignKeyColumnDescriptor descriptor = (ForeignKeyColumnDescriptor) columnDescriptor;
-                        String[] foreignKeyColumnChain = descriptor.getForeignKeyColumnChainTokens();
-                        if (foreignKeyColumnChain.length > 0) {
-                            String fieldName = foreignKeyColumnChain[foreignKeyColumnChain.length - 1];
-                            if (Utils.isCollection(type)) {
-                                foreignKeyField = type.getComponentClass().getField(fieldName);
-                            } else {
-                                foreignKeyField = type.getField(fieldName);
-                            }
-                        }
+                        foreignKeyField = descriptor.getForeignKeyField(type);
                     } else {
                         // Test data is described in the current Test Table
                         if (fieldChainTokens.length > 1) {
