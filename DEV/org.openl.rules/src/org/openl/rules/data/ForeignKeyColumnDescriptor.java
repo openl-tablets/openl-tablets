@@ -495,17 +495,17 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             }
             
             boolean arrayAccess = token.getIdentifier().matches(ARRAY_ACCESS_PATTERN);
-            
+
+            Object prevResObj = resObj;
             try {
                 Method method;
-                Object prevResObj = resObj;
                 if (arrayAccess){
                     method = resObj.getClass().getMethod(StringTool.getGetterName(getArrayName(token)));
                 }else{
                     method = resObj.getClass().getMethod(StringTool.getGetterName(token.getIdentifier()));
                 }
                 resObj = method.invoke(resObj);
-                
+
                 /*Get null object information from method description*/
                 if (resObj == null) {
                     if (arrayAccess){
@@ -523,10 +523,12 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     }
                     resInctClass = resObj.getClass();
                 }
+            } catch (SyntaxNodeException e) {
+                throw e;
             } catch (Exception e) {
                 String message = String.format("Incorrect field '%s' in type [%s]",
                         token.getIdentifier(),
-                        resObj.getClass());
+                        resObj == null ? prevResObj.getClass() : resObj.getClass());
                 throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
             }
         }
