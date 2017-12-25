@@ -2,12 +2,7 @@ package org.openl.rules.data;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -159,7 +154,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         return values;
     }
 
-    private void addResValues(ArrayList<Object> values, Object res) throws SyntaxNodeException {
+    private void addResValues(ArrayList<Object> values, Object res) {
         if (res != null && res.getClass().isArray()) {
             for (int i = 0; i < Array.getLength(res); i++) {
                 values.add(Array.get(res, i));
@@ -425,7 +420,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     // searches null value elements and removes them.
                     //
 
-                    List<Object> values = CollectionUtils.findAll(cellValues, new CollectionUtils.Predicate() {
+                    List<Object> values = CollectionUtils.findAll(cellValues, new CollectionUtils.Predicate<Object>() {
                         public boolean evaluate(Object arg) {
                             return arg != null;
                         }
@@ -502,7 +497,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             boolean arrayAccess = token.getIdentifier().matches(ARRAY_ACCESS_PATTERN);
             
             try {
-                Method method = null; 
+                Method method;
                 Object prevResObj = resObj;
                 if (arrayAccess){
                     method = resObj.getClass().getMethod(StringTool.getGetterName(getArrayName(token)));
@@ -550,7 +545,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     foreignTable.getTableSyntaxNode().getHeaderLineValue().getValue(),
                     foreignTable.getTableSyntaxNode().getUri(),
                     NodeType.DATA);
-                CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, Arrays.asList(nodeUsage));
+                CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
                 foreignKeyCell.setMetaInfo(meta);
             }
         }
