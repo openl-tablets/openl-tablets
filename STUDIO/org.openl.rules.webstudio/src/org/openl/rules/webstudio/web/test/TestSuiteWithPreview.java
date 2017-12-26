@@ -1,24 +1,29 @@
 package org.openl.rules.webstudio.web.test;
 
+import org.openl.rules.data.IDataBase;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 
 public class TestSuiteWithPreview extends TestSuite {
     private final TestDescriptionWithPreview[] testsWithPreview;
+    private final IDataBase db;
 
-    public TestSuiteWithPreview(TestSuiteMethod testSuiteMethod) {
+    public TestSuiteWithPreview(IDataBase db, TestSuiteMethod testSuiteMethod) {
         super(testSuiteMethod);
+        this.db = db;
         testsWithPreview = initTestsWithPreview();
     }
 
-    public TestSuiteWithPreview(TestSuiteMethod testSuiteMethod, int... testIndices) {
+    public TestSuiteWithPreview(IDataBase db, TestSuiteMethod testSuiteMethod, int... testIndices) {
         super(testSuiteMethod, testIndices);
+        this.db = db;
         testsWithPreview = initTestsWithPreview();
     }
 
-    public TestSuiteWithPreview(TestDescription... tests) {
+    public TestSuiteWithPreview(IDataBase db, TestDescription... tests) {
         super(tests);
+        this.db = db;
         testsWithPreview = initTestsWithPreview();
     }
 
@@ -38,7 +43,7 @@ public class TestSuiteWithPreview extends TestSuite {
         TestDescriptionWithPreview[] testsWithPreview = new TestDescriptionWithPreview[tests.length];
         for (int i = 0; i < tests.length; i++) {
             TestDescription test = tests[i];
-            testsWithPreview[i] = new TestDescriptionWithPreview(test);
+            testsWithPreview[i] = new TestDescriptionWithPreview(test, db);
         }
         return testsWithPreview;
     }

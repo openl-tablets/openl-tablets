@@ -556,14 +556,16 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         foreignKeyCell = null;
     }
 
-    public IOpenField getForeignKeyField(IOpenClass type) {
+    public IOpenField getForeignKeyField(IOpenClass type, IDataBase db) {
         if (foreignKeyColumnChainTokens.length > 0) {
             String fieldName = foreignKeyColumnChainTokens[foreignKeyColumnChainTokens.length - 1];
+
             if (isValuesAnArray(type)) {
-                return type.getComponentClass().getField(fieldName);
-            } else {
-                return type.getField(fieldName);
+                type = type.getComponentClass();
             }
+
+            ITable table = db == null || foreignKeyTable == null ? null : db.getTable(foreignKeyTable.getIdentifier());
+            return table == null ? type.getField(fieldName) : DataTableBindHelper.findField(fieldName, table, type);
         }
         return null;
     }

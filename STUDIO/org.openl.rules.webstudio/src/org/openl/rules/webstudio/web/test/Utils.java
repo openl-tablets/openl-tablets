@@ -3,6 +3,8 @@ package org.openl.rules.webstudio.web.test;
 import javax.servlet.http.HttpSession;
 
 import org.openl.base.INameSpacedThing;
+import org.openl.rules.data.IDataBase;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
@@ -39,14 +41,16 @@ public class Utils {
             if (method instanceof TestSuiteMethod) {
                 TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
 
+                IDataBase db = getDb(model);
+
                 TestSuite testSuite;
                 if (testRanges == null) {
                     // Run all test cases of selected test suite
-                    testSuite = new TestSuiteWithPreview(testSuiteMethod);
+                    testSuite = new TestSuiteWithPreview(db, testSuiteMethod);
                 } else {
                     // Run only selected test cases of selected test suite
                     int[] indices = testSuiteMethod.getIndices(testRanges);
-                    testSuite = new TestSuiteWithPreview(testSuiteMethod, indices);
+                    testSuite = new TestSuiteWithPreview(db, testSuiteMethod, indices);
                 }
                 // Concrete test with cases
                 results = new TestUnitsResults[1];
@@ -66,13 +70,27 @@ public class Utils {
 
     private static TestUnitsResults[] runAllTests(ProjectModel model, IOpenMethod[] tests) {
         if (tests != null) {
+            IDataBase db = getDb(model);
             TestUnitsResults[] results = new TestUnitsResults[tests.length];
             for (int i = 0; i < tests.length; i++) {
-                TestSuiteWithPreview testSuite = new TestSuiteWithPreview((TestSuiteMethod) tests[i]);
+                TestSuiteWithPreview testSuite = new TestSuiteWithPreview(db, (TestSuiteMethod) tests[i]);
                 results[i] = model.runTest(testSuite);
             }
             return results;
         }
         return new TestUnitsResults[0];
+    }
+
+    public static IDataBase getDb(ProjectModel model) {
+        if (model == null) {
+            return null;
+        }
+
+        IOpenClass moduleClass = model.getCompiledOpenClass().getOpenClassWithErrors();
+        if (moduleClass instanceof XlsModuleOpenClass) {
+            return ((XlsModuleOpenClass) moduleClass).getDataBase();
+        }
+
+        return null;
     }
 }
