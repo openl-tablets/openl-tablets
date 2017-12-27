@@ -398,15 +398,14 @@ public class AProject extends AProjectFolder {
 
                     InputStream stream = null;
                     try {
+                        FileItem fileItem;
                         if (projectFrom.isHistoric()) {
-                            FileItem fileItem = projectFrom.getRepository().readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
-                            fileData.setSize(fileItem.getData().getSize());
-                            stream = fileItem.getStream();
+                            fileItem = projectFrom.getRepository().readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
                         } else {
-                            FileItem fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
-                            fileData.setSize(fileItem.getData().getSize());
-                            stream = fileItem.getStream();
+                            fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
                         }
+                        fileData.setSize(fileItem.getData().getSize());
+                        stream = fileItem.getStream();
                         fileData.setAuthor(user.getUserName());
                         setFileData(repositoryTo.save(fileData, stream));
                     } catch (IOException ex) {
