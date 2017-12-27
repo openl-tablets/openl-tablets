@@ -49,14 +49,14 @@ public class AProject extends AProjectFolder {
         if (fileData == null) {
             if (!isFolder()) {
                 try {
-                if (!isHistoric() || isLastVersion()) {
-                    fileData = getRepository().check(getFolderPath());
-                    if (fileData == null) {
-                        fileData = new LazyFileData(getFolderPath(), getHistoryVersion(), this);
+                    if (!isHistoric() || isLastVersion()) {
+                        fileData = getRepository().check(getFolderPath());
+                        if (fileData == null) {
+                            fileData = new LazyFileData(getFolderPath(), getHistoryVersion(), this);
+                        }
+                    } else {
+                        fileData = getRepository().checkHistory(getFolderPath(), getHistoryVersion());
                     }
-                } else {
-                    fileData = getRepository().checkHistory(getFolderPath(), getHistoryVersion());
-                }
                 } catch (IOException ex) {
                     throw new IllegalStateException(ex);
                 }
@@ -92,7 +92,8 @@ public class AProject extends AProjectFolder {
             return true;
         }
         String lastHistoryVersion = getLastHistoryVersion();
-        return lastHistoryVersion == null || historyVersion.equals(lastHistoryVersion);    }
+        return lastHistoryVersion == null || historyVersion.equals(lastHistoryVersion);
+    }
 
     @Override
     public List<ProjectVersion> getVersions() {
@@ -196,14 +197,14 @@ public class AProject extends AProjectFolder {
             FileItem read;
             InputStream stream = null;
             try {
-            if (isHistoric()) {
-                read = getRepository().readHistory(fileData.getName(), fileData.getVersion());
-            } else {
-                read = getRepository().read(fileData.getName());
-            }
-            stream = read.getStream();
-            fileData.setSize(read.getData().getSize());
-            setFileData(getRepository().save(fileData, stream));
+                if (isHistoric()) {
+                    read = getRepository().readHistory(fileData.getName(), fileData.getVersion());
+                } else {
+                    read = getRepository().read(fileData.getName());
+                }
+                stream = read.getStream();
+                fileData.setSize(read.getData().getSize());
+                setFileData(getRepository().save(fileData, stream));
             } catch (IOException ex) {
                 throw new ProjectException("Project cannot be saved", ex);
             } finally {
@@ -314,11 +315,11 @@ public class AProject extends AProjectFolder {
         final Repository repository = getRepository();
         FileItem fileItem;
         try {
-        if (isHistoric()) {
-            fileItem = repository.readHistory(folderPath, getFileData().getVersion());
-        } else {
-            fileItem = repository.read(folderPath);
-        }
+            if (isHistoric()) {
+                fileItem = repository.readHistory(folderPath, getFileData().getVersion());
+            } else {
+                fileItem = repository.read(folderPath);
+            }
         } catch (IOException ex) {
             throw new IllegalArgumentException(ex);
         }
@@ -399,7 +400,8 @@ public class AProject extends AProjectFolder {
                     try {
                         FileItem fileItem;
                         if (projectFrom.isHistoric()) {
-                            fileItem = projectFrom.getRepository().readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
+                            fileItem = projectFrom.getRepository()
+                                    .readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
                         } else {
                             fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
                         }
@@ -446,7 +448,8 @@ public class AProject extends AProjectFolder {
         try {
             FileItem fileItem;
             if (projectFrom.isHistoric()) {
-                fileItem = projectFrom.getRepository().readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
+                fileItem = projectFrom.getRepository()
+                        .readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
             } else {
                 fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
             }
