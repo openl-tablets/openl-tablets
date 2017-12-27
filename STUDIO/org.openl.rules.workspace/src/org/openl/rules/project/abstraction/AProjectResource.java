@@ -40,10 +40,6 @@ public class AProjectResource extends AProjectArtefact {
         }
     }
 
-    private void setContent(AProjectResource resource) throws ProjectException {
-        setContent(resourceTransformer != null ? resourceTransformer.transform(resource) : resource.getContent());
-    }
-
     @Override
     public boolean isFolder() {
     	return false;
@@ -53,7 +49,7 @@ public class AProjectResource extends AProjectArtefact {
     public void update(AProjectArtefact artefact, CommonUser user) throws ProjectException {
         super.update(artefact, user);
         AProjectResource resource = (AProjectResource)artefact;
-        setContent(resource);
+        setContent(resourceTransformer != null ? resourceTransformer.transform(resource) : resource.getContent());
     }
 
     public void setResourceTransformer(ResourceTransformer resourceTransformer) {
