@@ -8,8 +8,6 @@ import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.LockInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.common.PropertiesContainer;
-import org.openl.rules.common.Property;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.common.impl.RepositoryVersionInfoImpl;
@@ -17,13 +15,8 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.dtr.impl.LockInfoImpl;
 import org.openl.util.RuntimeExceptionWrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-// TODO: Remove PropertiesContainer interface from the class
-public class AProjectArtefact implements PropertiesContainer {
-    private final Logger log = LoggerFactory.getLogger(AProjectArtefact.class);
-
+public class AProjectArtefact {
     private AProject project;
     private Repository repository;
     private FileData fileData;
@@ -56,26 +49,6 @@ public class AProjectArtefact implements PropertiesContainer {
 
     public void setRepository(Repository repository) {
         this.repository = repository;
-    }
-
-    public void addProperty(Property property) {
-        throw new UnsupportedOperationException();
-    }
-
-    public Collection<Property> getProperties() {
-        return Collections.emptyList();
-    }
-
-    public Property getProperty(String name) {
-        return null;
-    }
-
-    public boolean hasProperty(String name) {
-        return false;
-    }
-
-    public Property removeProperty(String name) {
-        throw new UnsupportedOperationException();
     }
 
     public void delete() throws ProjectException {
@@ -196,7 +169,6 @@ public class AProjectArtefact implements PropertiesContainer {
     }
 
     public void refresh() {
-        // TODO
     }
 
     public void lock() throws ProjectException {
