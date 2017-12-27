@@ -75,11 +75,10 @@ public class AProjectFolder extends AProjectArtefact {
         return createdFolder;
     }
 
-    public AProjectResource addResource(String name, AProjectResource resource) throws ProjectException {
+    private void addResource(String name, AProjectResource resource) throws ProjectException {
         InputStream content = resourceTransformer != null ? resourceTransformer.transform(resource) : resource.getContent();
         AProjectResource addedResource = addResource(name, content);
         addedResource.setResourceTransformer(resourceTransformer);
-        return addedResource;
     }
 
     public AProjectResource addResource(String name, InputStream content) throws ProjectException {
