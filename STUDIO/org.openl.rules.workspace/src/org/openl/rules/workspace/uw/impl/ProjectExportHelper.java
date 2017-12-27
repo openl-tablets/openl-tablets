@@ -13,6 +13,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -39,7 +40,7 @@ public final class ProjectExportHelper {
         }
     }
 
-    protected static void packDir(ZipOutputStream zipOutputStream, AProjectFolder dir) throws IOException, ProjectException {
+    private static void packDir(ZipOutputStream zipOutputStream, AProjectFolder dir) throws IOException, ProjectException {
         Collection<AProjectArtefact> artefacts = dir.getArtefacts();
         if (artefacts.isEmpty()) {
             return;
@@ -57,7 +58,7 @@ public final class ProjectExportHelper {
         }
     }
 
-    protected static void packFile(ZipOutputStream zipOutputStream, AProjectResource file) throws IOException, ProjectException {
+    private static void packFile(ZipOutputStream zipOutputStream, AProjectResource file) throws IOException, ProjectException {
         ZipEntry entry = new ZipEntry(file.getInternalPath());
         zipOutputStream.putNextEntry(entry);
 
@@ -74,17 +75,28 @@ public final class ProjectExportHelper {
         zipOutputStream.closeEntry();
     }
 
-    protected static void packIntoZip(File zipFile, AProjectArtefact rootDir, String zipComment) throws IOException, ProjectException {
+    private static void packIntoZip(File zipFile, AProject project, String zipComment) throws IOException, ProjectException {
         FileOutputStream fileOutputStream = null;
         ZipOutputStream zipOutputStream = null;
 
         try {
             fileOutputStream = new FileOutputStream(zipFile);
-            zipOutputStream = new ZipOutputStream(fileOutputStream);
-            zipOutputStream.setLevel(9);
-            zipOutputStream.setComment(zipComment);
 
-            packDir(zipOutputStream, (AProjectFolder) rootDir);
+            if (project.isFolder()) {
+                zipOutputStream = new ZipOutputStream(fileOutputStream);
+                zipOutputStream.setLevel(9);
+                zipOutputStream.setComment(zipComment);
+                packDir(zipOutputStream, project);
+            } else {
+                FileItem fileItem;
+                if (project.isHistoric()) {
+                    fileItem = project.getRepository().readHistory(project.getFolderPath(), project.getFileData().getVersion());
+                } else {
+                    fileItem = project.getRepository().read(project.getFolderPath());
+                }
+
+                IOUtils.copyAndClose(fileItem.getStream(), fileOutputStream);
+            }
         } finally {
             if (zipOutputStream != null) {
                 zipOutputStream.close();
