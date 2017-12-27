@@ -1,6 +1,7 @@
 package org.openl.rules.project.abstraction;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -14,6 +15,8 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.repository.file.FileRepository;
+import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringUtils;
@@ -360,49 +363,35 @@ public class AProject extends AProjectFolder {
 
         AProject projectFrom = (AProject) newFolder;
 
+        Repository repositoryTo = getRepository();
+
         if (isFolder()) {
             if (projectFrom.isFolder()) {
                 super.update(projectFrom, user);
             } else {
-                ZipInputStream stream = null;
-                try {
-                    if (projectFrom.isHistoric()) {
-                        FileItem fileItem = projectFrom.getRepository().readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
-                        if (fileItem == null) {
-                            return;
-                        }
-                        stream = new ZipInputStream(fileItem.getStream());
-                    } else {
-                        FileItem fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
-                        if (fileItem == null) {
-                            return;
-                        }
-                        stream = new ZipInputStream(fileItem.getStream());
-                    }
-                    String folderPath = getFolderPath();
-
-                    ZipEntry entry;
-                    while ((entry = stream.getNextEntry()) != null) {
-                        if (entry.isDirectory()) {
-                            continue;
-                        }
-                        FileData fileData = new FileData();
-                        fileData.setName(folderPath + "/" + entry.getName());
-                        fileData.setSize(entry.getSize());
-                        fileData.setModifiedAt(new Date(entry.getTime()));
-                        getRepository().save(fileData, stream);
-                    }
-                } catch (IOException e) {
-                    throw new ProjectException("Can't update: " + e.getMessage(), e);
-                } finally {
-                    IOUtils.closeQuietly(stream);
-                }
+                unpack(projectFrom, repositoryTo, getFolderPath());
             }
         } else {
             if (!projectFrom.isFolder()) {
                 if (getResourceTransformer() != null) {
                     // projectFrom will be unarchived, transformed and then archived
-                    transformAndArchive(projectFrom, user);
+
+                    File tempFolder = null;
+                    try {
+                        // Unpack to temp folder
+                        tempFolder = Files.createTempDirectory("openl").toFile();
+                        FileRepository tempRepository = new FileRepository();
+                        tempRepository.setRoot(tempFolder);
+                        tempRepository.initialize();
+                        unpack(projectFrom, tempRepository, projectFrom.getName());
+                        AProject tempProject = new AProject(tempRepository, projectFrom.getName(), true);
+
+                        transformAndArchive(tempProject, user);
+                    } catch (IOException e) {
+                        throw new ProjectException(e.getMessage(), e);
+                    } finally {
+                        FileUtils.deleteQuietly(tempFolder);
+                    }
                 } else {
                     // Just copy a single file
                     FileData fileData = getFileData();
@@ -419,7 +408,7 @@ public class AProject extends AProjectFolder {
                             stream = fileItem.getStream();
                         }
                         fileData.setAuthor(user.getUserName());
-                        setFileData(getRepository().save(fileData, stream));
+                        setFileData(repositoryTo.save(fileData, stream));
                     } catch (IOException ex) {
                         throw new ProjectException("Can't update: " + ex.getMessage(), ex);
                     } finally {
@@ -451,6 +440,38 @@ public class AProject extends AProjectFolder {
             throw new ProjectException(e.getMessage(), e);
         } finally {
             IOUtils.closeQuietly(zipOutputStream);
+        }
+    }
+
+    private void unpack(AProject projectFrom, Repository repositoryTo, String folderTo) throws ProjectException {
+        ZipInputStream stream = null;
+        try {
+            FileItem fileItem;
+            if (projectFrom.isHistoric()) {
+                fileItem = projectFrom.getRepository().readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
+            } else {
+                fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
+            }
+            if (fileItem == null) {
+                return;
+            }
+            stream = new ZipInputStream(fileItem.getStream());
+
+            ZipEntry entry;
+            while ((entry = stream.getNextEntry()) != null) {
+                if (entry.isDirectory()) {
+                    continue;
+                }
+                FileData fileData = new FileData();
+                fileData.setName(folderTo + "/" + entry.getName());
+                fileData.setSize(entry.getSize());
+                fileData.setModifiedAt(new Date(entry.getTime()));
+                repositoryTo.save(fileData, stream);
+            }
+        } catch (IOException e) {
+            throw new ProjectException("Can't update: " + e.getMessage(), e);
+        } finally {
+            IOUtils.closeQuietly(stream);
         }
     }
 
