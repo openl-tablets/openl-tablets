@@ -10,13 +10,11 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.PropertiesContainer;
 import org.openl.rules.common.Property;
-import org.openl.rules.common.PropertyException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.common.impl.RepositoryVersionInfoImpl;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.dtr.impl.LockInfoImpl;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.slf4j.Logger;
@@ -60,7 +58,7 @@ public class AProjectArtefact implements PropertiesContainer {
         this.repository = repository;
     }
 
-    public void addProperty(Property property) throws PropertyException {
+    public void addProperty(Property property) {
         throw new UnsupportedOperationException();
     }
 
@@ -68,7 +66,7 @@ public class AProjectArtefact implements PropertiesContainer {
         return Collections.emptyList();
     }
 
-    public Property getProperty(String name) throws PropertyException {
+    public Property getProperty(String name) {
         return null;
     }
 
@@ -76,7 +74,7 @@ public class AProjectArtefact implements PropertiesContainer {
         return false;
     }
 
-    public Property removeProperty(String name) throws PropertyException {
+    public Property removeProperty(String name) {
         throw new UnsupportedOperationException();
     }
 
@@ -111,7 +109,7 @@ public class AProjectArtefact implements PropertiesContainer {
     }
 
     public ProjectVersion getLastVersion() {
-        List<FileData> fileDatas = null;
+        List<FileData> fileDatas;
         try {
             fileDatas = getRepository().listHistory(getFileData().getName());
         } catch (IOException ex) {
@@ -123,20 +121,16 @@ public class AProjectArtefact implements PropertiesContainer {
     }
 
     public ProjectVersion getFirstVersion() {
-        int versionsCount = getVersionsCount();
-        if (versionsCount == 0) {
-            return new RepositoryProjectVersionImpl("0", null);
-        }
-
-        if (versionsCount == 1) {
-            try {
-                return getVersion(0);
-            } catch (RRepositoryException e1) {
+        try {
+            int versionsCount = getVersionsCount();
+            if (versionsCount == 0) {
                 return new RepositoryProjectVersionImpl("0", null);
             }
-        }
 
-        try {
+            if (versionsCount == 1) {
+                return getVersion(0);
+            }
+
             return getVersion(getFirstRevisionIndex());
         } catch (Exception e) {
             return new RepositoryProjectVersionImpl("0", null);
@@ -151,13 +145,13 @@ public class AProjectArtefact implements PropertiesContainer {
         if (getFileData() == null) {
             return Collections.emptyList();
         }
-        Collection<FileData> fileDatas = null;
+        Collection<FileData> fileDatas;
         try {
             fileDatas = getRepository().listHistory(getFileData().getName());
         } catch (IOException ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         }
-        List<ProjectVersion> versions = new ArrayList<ProjectVersion>();
+        List<ProjectVersion> versions = new ArrayList<>();
         for (FileData data : fileDatas) {
             versions.add(createProjectVersion(data));
         }
@@ -176,8 +170,8 @@ public class AProjectArtefact implements PropertiesContainer {
         }
     }
 
-    protected ProjectVersion getVersion(int index) throws RRepositoryException {
-        List<FileData> fileDatas = null;
+    protected ProjectVersion getVersion(int index) {
+        List<FileData> fileDatas;
         try {
             fileDatas = getRepository().listHistory(getFileData().getName());
         } catch (IOException ex) {
@@ -224,13 +218,8 @@ public class AProjectArtefact implements PropertiesContainer {
     protected boolean isLockedByUser(LockInfo lockInfo, CommonUser user) {
         if (lockInfo.isLocked()) {
             CommonUser lockedBy = lockInfo.getLockedBy();
-            if (lockedBy.getUserName().equals(user.getUserName())) {
-                return true;
-            }
+            return lockedBy.getUserName().equals(user.getUserName()) || isLockedByDefaultUser(lockedBy, user);
 
-            if (isLockedByDefaultUser(lockedBy, user)) {
-                return true;
-            }
         }
         return false;
     }
@@ -239,15 +228,9 @@ public class AProjectArtefact implements PropertiesContainer {
         return LockInfoImpl.NO_LOCK;
     }
 
-    public boolean isModified(){
+    public boolean isModified() {
         FileData fileData = getFileData();
-        if (fileData == null) {
-            return false;
-        }
-        if (modifiedTime == null) {
-            return true;
-        }
-        return !modifiedTime.equals(fileData.getModifiedAt());
+        return fileData != null && (modifiedTime == null || !modifiedTime.equals(fileData.getModifiedAt()));
     }
 
     public void setVersionComment(String versionComment) {

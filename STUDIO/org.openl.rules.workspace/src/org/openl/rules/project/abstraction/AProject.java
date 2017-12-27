@@ -14,7 +14,6 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.file.FileRepository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -98,7 +97,7 @@ public class AProject extends AProjectFolder {
     @Override
     public List<ProjectVersion> getVersions() {
         Collection<FileData> fileDatas = getHistoryFileDatas();
-        List<ProjectVersion> versions = new ArrayList<ProjectVersion>();
+        List<ProjectVersion> versions = new ArrayList<>();
         for (FileData data : fileDatas) {
             versions.add(createProjectVersion(data));
         }
@@ -111,7 +110,7 @@ public class AProject extends AProjectFolder {
     }
 
     @Override
-    protected ProjectVersion getVersion(int index) throws RRepositoryException {
+    protected ProjectVersion getVersion(int index) {
         List<FileData> fileDatas = getHistoryFileDatas();
         return fileDatas.isEmpty() ? null : createProjectVersion(fileDatas.get(index));
     }
@@ -309,7 +308,7 @@ public class AProject extends AProjectFolder {
             return super.createInternalArtefacts();
         }
 
-        final HashMap<String, AProjectArtefact> internalArtefacts = new HashMap<String, AProjectArtefact>();
+        final HashMap<String, AProjectArtefact> internalArtefacts = new HashMap<>();
 
         final String folderPath = getFolderPath();
         final Repository repository = getRepository();
