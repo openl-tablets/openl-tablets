@@ -91,10 +91,19 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 addRulesProjectToTree(project);
             }
         }
+        if (rulesProjects.isEmpty()) {
+            // Initialize content of empty node
+            rulesRepository.getElements();
+        }
 
         try {
-            for (ADeploymentProject project : userWorkspace.getDDProjects()) {
+            List<ADeploymentProject> deployConfigurations = userWorkspace.getDDProjects();
+            for (ADeploymentProject project : deployConfigurations) {
                 addDeploymentProjectToTree(project);
+            }
+            if (deployConfigurations.isEmpty()) {
+                // Initialize content of empty node
+                deploymentRepository.getElements();
             }
         } catch (ProjectException e) {
             log.error("Cannot get deployment projects", e);

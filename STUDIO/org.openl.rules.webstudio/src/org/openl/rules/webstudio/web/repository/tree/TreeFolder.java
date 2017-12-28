@@ -72,6 +72,12 @@ public class TreeFolder extends AbstractTreeNode {
         return elements;
     }
 
+    @Override
+    public boolean isLeaf() {
+        // If elements aren't initialized, consider it as not leaf
+        return isLeafOnly() || elements != null && elements.isEmpty();
+    }
+
     protected Collection<AProjectArtefact> getFilteredArtefacts(AProjectFolder folder) {
         AProjectFolder filteredFolder = new AProjectFolder(new HashMap<String, AProjectArtefact>(),
                 folder.getProject(),
