@@ -176,7 +176,7 @@
             </div>
         </div>
         <div id="footer">
-            &#169; 2017 <a style="text-decoration: none" href="http://openl-tablets.org" target="_blank">OpenL Tablets</a>
+            &#169; 2018 <a style="text-decoration: none" href="http://openl-tablets.org" target="_blank">OpenL Tablets</a>
         </div>
     </body>
 </html>
