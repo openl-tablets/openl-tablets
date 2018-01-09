@@ -1,0 +1,1 @@
+ERROR: Ambiguous expectation in the test case. Both expected result and expected error have been declared.
