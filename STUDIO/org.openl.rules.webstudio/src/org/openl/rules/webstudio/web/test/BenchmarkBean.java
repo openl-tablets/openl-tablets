@@ -18,10 +18,13 @@ import org.openl.rules.ui.benchmark.BenchmarkInfo;
 import org.openl.rules.ui.benchmark.BenchmarkOrder;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ManagedBean
 @SessionScoped
 public class BenchmarkBean {
+    private final Logger log = LoggerFactory.getLogger(BenchmarkBean.class);
 
     @ManagedProperty("#{runTestHelper}")
     private RunTestHelper runTestHelper;
@@ -54,7 +57,7 @@ public class BenchmarkBean {
                 studio.addBenchmark(biv);
                 benchmarkResults.add(biv);
             } catch (Exception e) {
-                e.printStackTrace(System.out);
+                log.error(e.getMessage(), e);
             }
         } else {
             for (int i = 0; i < testSuite.getNumberOfTests(); i++) {
@@ -65,7 +68,7 @@ public class BenchmarkBean {
                     studio.addBenchmark(biv);
                     benchmarkResults.add(biv);
                 } catch (Exception e) {
-                    e.printStackTrace(System.out);
+                    log.error(e.getMessage(), e);
                 }
 
             }

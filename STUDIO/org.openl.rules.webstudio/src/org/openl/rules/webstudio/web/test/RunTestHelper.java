@@ -4,6 +4,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
 import org.openl.commons.web.jsf.FacesUtils;
+import org.openl.rules.data.IDataBase;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
@@ -31,7 +32,7 @@ public final class RunTestHelper {
         catchParams();
         TestSuite testSuite = getTestSuite();
         ProjectModel model = WebStudioUtils.getProjectModel();
-        ITracerObject t = null;
+        ITracerObject t;
         try {
             t = TreeBuildTracer.initialize();
             model.traceElement(testSuite);
@@ -64,6 +65,8 @@ public final class RunTestHelper {
             method = model.getCurrentDispatcherMethod(method, uri);
         }
 
+        IDataBase db = Utils.getDb(model);
+
         TestSuite testSuite;
         if (method instanceof TestSuiteMethod) {
             TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
@@ -71,11 +74,11 @@ public final class RunTestHelper {
             String testRanges = FacesUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_RANGES);
             if (testRanges == null) {
                 // Run all test cases of selected test suite
-                testSuite = new TestSuiteWithPreview(testSuiteMethod);
+                testSuite = new TestSuiteWithPreview(db, testSuiteMethod);
             } else {
                 // Run only selected test cases of selected test suite
                 int[] indices = testSuiteMethod.getIndices(testRanges);
-                testSuite = new TestSuiteWithPreview(testSuiteMethod, indices);
+                testSuite = new TestSuiteWithPreview(db, testSuiteMethod, indices);
             }
         } else {
             if (method.getSignature().getNumberOfParameters() > params.length) {
@@ -83,7 +86,7 @@ public final class RunTestHelper {
                 return null;
             }
             TestDescription testDescription = new TestDescription(method, params);
-            testSuite = new TestSuiteWithPreview(testDescription);
+            testSuite = new TestSuiteWithPreview(db, testDescription);
         }
 
         params = new Object[0]; // Reset caught params

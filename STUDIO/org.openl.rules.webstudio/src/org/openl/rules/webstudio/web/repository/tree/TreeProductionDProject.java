@@ -56,6 +56,12 @@ public class TreeProductionDProject extends TreeProductFolder {
     }
 
     @Override
+    public boolean isLeaf() {
+        // If elements aren't initialized, consider it as not leaf
+        return isLeafOnly() || elements != null && elements.isEmpty();
+    }
+
+    @Override
     public void addChild(AProjectArtefact childArtefact){
         String name = childArtefact.getName();
         String id = RepositoryUtils.getTreeNodeId(name);

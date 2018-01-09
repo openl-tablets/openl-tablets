@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.test;
 
 import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.ForeignKeyColumnDescriptor;
+import org.openl.rules.data.IDataBase;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.syntax.impl.IdentifierNode;
@@ -10,9 +11,11 @@ import org.openl.types.IOpenField;
 
 public class TestDescriptionWithPreview extends TestDescription {
     private ParameterWithValueAndPreviewDeclaration[] paramsWithPreview;
+    private final IDataBase db;
 
-    public TestDescriptionWithPreview(TestDescription delegate) {
+    public TestDescriptionWithPreview(TestDescription delegate, IDataBase db) {
         super(delegate.getTestedMethod(), delegate.getTestObject(), delegate.getFields(), delegate.getColumnDescriptors());
+        this.db = db;
         setIndex(delegate.getIndex());
     }
 
@@ -56,15 +59,7 @@ public class TestDescriptionWithPreview extends TestDescription {
                     if (columnDescriptor.isReference() && columnDescriptor instanceof ForeignKeyColumnDescriptor) {
                         // Foreign key to a data described in the Data Table
                         ForeignKeyColumnDescriptor descriptor = (ForeignKeyColumnDescriptor) columnDescriptor;
-                        String[] foreignKeyColumnChain = descriptor.getForeignKeyColumnChainTokens();
-                        if (foreignKeyColumnChain.length > 0) {
-                            String fieldName = foreignKeyColumnChain[foreignKeyColumnChain.length - 1];
-                            if (Utils.isCollection(type)) {
-                                foreignKeyField = type.getComponentClass().getField(fieldName);
-                            } else {
-                                foreignKeyField = type.getField(fieldName);
-                            }
-                        }
+                        foreignKeyField = descriptor.getForeignKeyField(type, db);
                     } else {
                         // Test data is described in the current Test Table
                         if (fieldChainTokens.length > 1) {

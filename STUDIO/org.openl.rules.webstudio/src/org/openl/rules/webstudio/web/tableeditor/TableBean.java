@@ -16,6 +16,7 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.OpenLWarnMessage;
 import org.openl.message.Severity;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.data.IDataBase;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -35,6 +36,7 @@ import org.openl.rules.ui.*;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.util.XSSFOptimizer;
 import org.openl.rules.webstudio.web.test.TestDescriptionWithPreview;
+import org.openl.rules.webstudio.web.test.Utils;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.syntax.ISyntaxNode;
@@ -256,7 +258,8 @@ public class TableBean {
         if (testCase != null) {
             ParameterWithValueDeclaration[] contextParams = TestUtils.getContextParams(
                     new TestSuite((TestSuiteMethod) method), testCase);
-            ParameterWithValueDeclaration[] inputParams = new TestDescriptionWithPreview(testCase).getExecutionParams();
+            IDataBase db = Utils.getDb(WebStudioUtils.getProjectModel());
+            ParameterWithValueDeclaration[] inputParams = new TestDescriptionWithPreview(testCase, db).getExecutionParams();
 
             params = new ParameterWithValueDeclaration[contextParams.length + inputParams.length];
             int n = 0;

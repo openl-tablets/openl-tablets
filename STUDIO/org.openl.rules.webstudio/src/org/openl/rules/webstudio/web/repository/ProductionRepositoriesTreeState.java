@@ -79,6 +79,11 @@ public class ProductionRepositoriesTreeState {
                 productionRepository.add(tpdp);
             }
 
+            if (repoList.isEmpty()) {
+                // Initialize content of empty node
+                productionRepository.getElements();
+            }
+
         }
 
         log.debug("Finishing buildTree()");

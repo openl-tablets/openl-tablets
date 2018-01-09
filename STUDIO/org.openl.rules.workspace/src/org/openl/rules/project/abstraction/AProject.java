@@ -1,6 +1,7 @@
 package org.openl.rules.project.abstraction;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -13,7 +14,8 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.repository.file.FileRepository;
+import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringUtils;
@@ -47,14 +49,14 @@ public class AProject extends AProjectFolder {
         if (fileData == null) {
             if (!isFolder()) {
                 try {
-                if (!isHistoric() || isLastVersion()) {
-                    fileData = getRepository().check(getFolderPath());
-                    if (fileData == null) {
-                        fileData = new LazyFileData(getFolderPath(), getHistoryVersion(), this);
+                    if (!isHistoric() || isLastVersion()) {
+                        fileData = getRepository().check(getFolderPath());
+                        if (fileData == null) {
+                            fileData = new LazyFileData(getFolderPath(), getHistoryVersion(), this);
+                        }
+                    } else {
+                        fileData = getRepository().checkHistory(getFolderPath(), getHistoryVersion());
                     }
-                } else {
-                    fileData = getRepository().checkHistory(getFolderPath(), getHistoryVersion());
-                }
                 } catch (IOException ex) {
                     throw new IllegalStateException(ex);
                 }
@@ -90,12 +92,13 @@ public class AProject extends AProjectFolder {
             return true;
         }
         String lastHistoryVersion = getLastHistoryVersion();
-        return lastHistoryVersion == null || historyVersion.equals(lastHistoryVersion);    }
+        return lastHistoryVersion == null || historyVersion.equals(lastHistoryVersion);
+    }
 
     @Override
     public List<ProjectVersion> getVersions() {
         Collection<FileData> fileDatas = getHistoryFileDatas();
-        List<ProjectVersion> versions = new ArrayList<ProjectVersion>();
+        List<ProjectVersion> versions = new ArrayList<>();
         for (FileData data : fileDatas) {
             versions.add(createProjectVersion(data));
         }
@@ -108,7 +111,7 @@ public class AProject extends AProjectFolder {
     }
 
     @Override
-    protected ProjectVersion getVersion(int index) throws RRepositoryException {
+    protected ProjectVersion getVersion(int index) {
         List<FileData> fileDatas = getHistoryFileDatas();
         return fileDatas.isEmpty() ? null : createProjectVersion(fileDatas.get(index));
     }
@@ -194,14 +197,14 @@ public class AProject extends AProjectFolder {
             FileItem read;
             InputStream stream = null;
             try {
-            if (isHistoric()) {
-                read = getRepository().readHistory(fileData.getName(), fileData.getVersion());
-            } else {
-                read = getRepository().read(fileData.getName());
-            }
-            stream = read.getStream();
-            fileData.setSize(read.getData().getSize());
-            setFileData(getRepository().save(fileData, stream));
+                if (isHistoric()) {
+                    read = getRepository().readHistory(fileData.getName(), fileData.getVersion());
+                } else {
+                    read = getRepository().read(fileData.getName());
+                }
+                stream = read.getStream();
+                fileData.setSize(read.getData().getSize());
+                setFileData(getRepository().save(fileData, stream));
             } catch (IOException ex) {
                 throw new ProjectException("Project cannot be saved", ex);
             } finally {
@@ -306,17 +309,17 @@ public class AProject extends AProjectFolder {
             return super.createInternalArtefacts();
         }
 
-        final HashMap<String, AProjectArtefact> internalArtefacts = new HashMap<String, AProjectArtefact>();
+        final HashMap<String, AProjectArtefact> internalArtefacts = new HashMap<>();
 
         final String folderPath = getFolderPath();
         final Repository repository = getRepository();
         FileItem fileItem;
         try {
-        if (isHistoric()) {
-            fileItem = repository.readHistory(folderPath, getFileData().getVersion());
-        } else {
-            fileItem = repository.read(folderPath);
-        }
+            if (isHistoric()) {
+                fileItem = repository.readHistory(folderPath, getFileData().getVersion());
+            } else {
+                fileItem = repository.read(folderPath);
+            }
         } catch (IOException ex) {
             throw new IllegalArgumentException(ex);
         }
@@ -360,66 +363,52 @@ public class AProject extends AProjectFolder {
 
         AProject projectFrom = (AProject) newFolder;
 
+        Repository repositoryTo = getRepository();
+
         if (isFolder()) {
             if (projectFrom.isFolder()) {
                 super.update(projectFrom, user);
             } else {
-                ZipInputStream stream = null;
-                try {
-                    if (projectFrom.isHistoric()) {
-                        FileItem fileItem = projectFrom.getRepository().readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
-                        if (fileItem == null) {
-                            return;
-                        }
-                        stream = new ZipInputStream(fileItem.getStream());
-                    } else {
-                        FileItem fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
-                        if (fileItem == null) {
-                            return;
-                        }
-                        stream = new ZipInputStream(fileItem.getStream());
-                    }
-                    String folderPath = getFolderPath();
-
-                    ZipEntry entry;
-                    while ((entry = stream.getNextEntry()) != null) {
-                        if (entry.isDirectory()) {
-                            continue;
-                        }
-                        FileData fileData = new FileData();
-                        fileData.setName(folderPath + "/" + entry.getName());
-                        fileData.setSize(entry.getSize());
-                        fileData.setModifiedAt(new Date(entry.getTime()));
-                        getRepository().save(fileData, stream);
-                    }
-                } catch (IOException e) {
-                    throw new ProjectException("Can't update: " + e.getMessage(), e);
-                } finally {
-                    IOUtils.closeQuietly(stream);
-                }
+                unpack(projectFrom, repositoryTo, getFolderPath());
             }
         } else {
             if (!projectFrom.isFolder()) {
                 if (getResourceTransformer() != null) {
                     // projectFrom will be unarchived, transformed and then archived
-                    transformAndArchive(projectFrom, user);
+
+                    File tempFolder = null;
+                    try {
+                        // Unpack to temp folder
+                        tempFolder = Files.createTempDirectory("openl").toFile();
+                        FileRepository tempRepository = new FileRepository();
+                        tempRepository.setRoot(tempFolder);
+                        tempRepository.initialize();
+                        unpack(projectFrom, tempRepository, projectFrom.getName());
+                        AProject tempProject = new AProject(tempRepository, projectFrom.getName(), true);
+
+                        transformAndArchive(tempProject, user);
+                    } catch (IOException e) {
+                        throw new ProjectException(e.getMessage(), e);
+                    } finally {
+                        FileUtils.deleteQuietly(tempFolder);
+                    }
                 } else {
                     // Just copy a single file
                     FileData fileData = getFileData();
 
                     InputStream stream = null;
                     try {
+                        FileItem fileItem;
                         if (projectFrom.isHistoric()) {
-                            FileItem fileItem = projectFrom.getRepository().readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
-                            fileData.setSize(fileItem.getData().getSize());
-                            stream = fileItem.getStream();
+                            fileItem = projectFrom.getRepository()
+                                    .readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
                         } else {
-                            FileItem fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
-                            fileData.setSize(fileItem.getData().getSize());
-                            stream = fileItem.getStream();
+                            fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
                         }
+                        fileData.setSize(fileItem.getData().getSize());
+                        stream = fileItem.getStream();
                         fileData.setAuthor(user.getUserName());
-                        setFileData(getRepository().save(fileData, stream));
+                        setFileData(repositoryTo.save(fileData, stream));
                     } catch (IOException ex) {
                         throw new ProjectException("Can't update: " + ex.getMessage(), ex);
                     } finally {
@@ -451,6 +440,39 @@ public class AProject extends AProjectFolder {
             throw new ProjectException(e.getMessage(), e);
         } finally {
             IOUtils.closeQuietly(zipOutputStream);
+        }
+    }
+
+    private void unpack(AProject projectFrom, Repository repositoryTo, String folderTo) throws ProjectException {
+        ZipInputStream stream = null;
+        try {
+            FileItem fileItem;
+            if (projectFrom.isHistoric()) {
+                fileItem = projectFrom.getRepository()
+                        .readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
+            } else {
+                fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
+            }
+            if (fileItem == null) {
+                return;
+            }
+            stream = new ZipInputStream(fileItem.getStream());
+
+            ZipEntry entry;
+            while ((entry = stream.getNextEntry()) != null) {
+                if (entry.isDirectory()) {
+                    continue;
+                }
+                FileData fileData = new FileData();
+                fileData.setName(folderTo + "/" + entry.getName());
+                fileData.setSize(entry.getSize());
+                fileData.setModifiedAt(new Date(entry.getTime()));
+                repositoryTo.save(fileData, stream);
+            }
+        } catch (IOException e) {
+            throw new ProjectException("Can't update: " + e.getMessage(), e);
+        } finally {
+            IOUtils.closeQuietly(stream);
         }
     }
 

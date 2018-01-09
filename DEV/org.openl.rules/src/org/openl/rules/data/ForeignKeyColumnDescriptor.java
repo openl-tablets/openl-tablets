@@ -2,12 +2,7 @@ package org.openl.rules.data;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -159,7 +154,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         return values;
     }
 
-    private void addResValues(ArrayList<Object> values, Object res) throws SyntaxNodeException {
+    private void addResValues(ArrayList<Object> values, Object res) {
         if (res != null && res.getClass().isArray()) {
             for (int i = 0; i < Array.getLength(res); i++) {
                 values.add(Array.get(res, i));
@@ -188,7 +183,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 ColumnDescriptor foreignColumnDescriptor = foreignTable.getDataModel().getDescriptor()[foreignKeyIndex];
                 if (foreignColumnDescriptor.isReference() && foreignColumnDescriptor instanceof ForeignKeyColumnDescriptor) {
                     // In the case when foreign key is like: ">policies.driver"
-                    String[] endOfChain = ((ForeignKeyColumnDescriptor) foreignColumnDescriptor).getForeignKeyColumnChainTokens();
+                    String[] endOfChain = ((ForeignKeyColumnDescriptor) foreignColumnDescriptor).foreignKeyColumnChainTokens;
                     foreignKeyColumnChainTokens = ArrayUtils.addAll(foreignKeyColumnChainTokens, endOfChain);
                 }
             }
@@ -425,7 +420,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     // searches null value elements and removes them.
                     //
 
-                    List<Object> values = CollectionUtils.findAll(cellValues, new CollectionUtils.Predicate() {
+                    List<Object> values = CollectionUtils.findAll(cellValues, new CollectionUtils.Predicate<Object>() {
                         public boolean evaluate(Object arg) {
                             return arg != null;
                         }
@@ -500,17 +495,17 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             }
             
             boolean arrayAccess = token.getIdentifier().matches(ARRAY_ACCESS_PATTERN);
-            
+
+            Object prevResObj = resObj;
             try {
-                Method method = null; 
-                Object prevResObj = resObj;
+                Method method;
                 if (arrayAccess){
                     method = resObj.getClass().getMethod(StringTool.getGetterName(getArrayName(token)));
                 }else{
                     method = resObj.getClass().getMethod(StringTool.getGetterName(token.getIdentifier()));
                 }
                 resObj = method.invoke(resObj);
-                
+
                 /*Get null object information from method description*/
                 if (resObj == null) {
                     if (arrayAccess){
@@ -528,19 +523,17 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     }
                     resInctClass = resObj.getClass();
                 }
+            } catch (SyntaxNodeException e) {
+                throw e;
             } catch (Exception e) {
                 String message = String.format("Incorrect field '%s' in type [%s]",
                         token.getIdentifier(),
-                        resObj.getClass());
+                        resObj == null ? prevResObj.getClass() : resObj.getClass());
                 throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
             }
         }
 
         return new ResultChainObject(resObj, resInctClass);
-    }
-
-    public String[] getForeignKeyColumnChainTokens() {
-        return foreignKeyColumnChainTokens;
     }
 
     public void setForeignKeyCellMetaInfo(IDataBase db) {
@@ -554,13 +547,27 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     foreignTable.getTableSyntaxNode().getHeaderLineValue().getValue(),
                     foreignTable.getTableSyntaxNode().getUri(),
                     NodeType.DATA);
-                CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, Arrays.asList(nodeUsage));
+                CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE, null, JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
                 foreignKeyCell.setMetaInfo(meta);
             }
         }
 
         // Not needed anymore
         foreignKeyCell = null;
+    }
+
+    public IOpenField getForeignKeyField(IOpenClass type, IDataBase db) {
+        if (foreignKeyColumnChainTokens.length > 0) {
+            String fieldName = foreignKeyColumnChainTokens[foreignKeyColumnChainTokens.length - 1];
+
+            if (isValuesAnArray(type)) {
+                type = type.getComponentClass();
+            }
+
+            ITable table = db == null || foreignKeyTable == null ? null : db.getTable(foreignKeyTable.getIdentifier());
+            return table == null ? type.getField(fieldName) : DataTableBindHelper.findField(fieldName, table, type);
+        }
+        return null;
     }
 
     static class ResultChainObject {

@@ -19,6 +19,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.CompiledOpenClass;
+import org.openl.rules.data.IDataBase;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.testmethod.TestMethodNodeBinder;
@@ -35,11 +37,13 @@ public class TestResultExportTest {
 
     private static TestUnitsResults[] testResults;
     private static TestUnitsResults[] trivialResults;
+    private static TestUnitsResults[] resultsWithPK;
 
     @BeforeClass
     public static void runTests() throws Exception {
         testResults = runTests("test-resources/test/export/example3");
         trivialResults = runTests("test-resources/test/export/trivial");
+        resultsWithPK = runTests("test-resources/test/export/example3-pk");
     }
 
     @AfterClass
@@ -67,7 +71,8 @@ public class TestResultExportTest {
         TestUnitsResults[] results = new TestUnitsResults[tests.length];
         for (int i = 0; i < tests.length; i++) {
             TestSuiteMethod test = tests[i];
-            results[i] = new TestSuiteWithPreview(test).invokeSequentially(openClass, 1L);
+            IDataBase db = ((XlsModuleOpenClass) openClass).getDataBase();
+            results[i] = new TestSuiteWithPreview(db, test).invokeSequentially(openClass, 1L);
         }
 
         // Tests can appear in a random order. For testing convenience sort them alphabetically
@@ -166,6 +171,72 @@ public class TestResultExportTest {
                 row = sheet.getRow(++rowNum);
                 assertRowText(row, "2", "Passed", "22", "Good Night");
                 assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS);
+
+                assertEquals(rowNum, sheet.getLastRowNum());
+            }
+        }
+
+        assertFalse(xlsx.exists());
+    }
+
+    @Test
+    public void testParametersWithPrimaryKey() throws Exception {
+        File xlsx;
+        try (TestResultExport export = new TestResultExport(resultsWithPK, -1)) {
+            xlsx = export.createExcelFile();
+            assertTrue(xlsx.exists());
+
+            try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
+                assertEquals(1, workbook.getNumberOfSheets());
+
+                // Test the case when parameter is referenced by primary key
+                XSSFSheet sheet = workbook.getSheetAt(0);
+                int rowNum = TestResultExport.FIRST_ROW;
+                assertRowText(sheet.getRow(rowNum), "DriverPremiumTest1");
+
+                rowNum++;
+                assertRowText(sheet.getRow(rowNum), "3 test cases (1 failed)");
+
+                rowNum += 2;
+                XSSFRow row = sheet.getRow(rowNum);
+                assertRowText(row, "ID", "Status", "Driver", "Expected Age Type", "Expected Eligibility", "Expected Risk");
+                assertRowColors(row, HEADER, HEADER, HEADER, HEADER, HEADER, HEADER);
+
+                row = sheet.getRow(++rowNum);
+                assertRowText(row, "1", "Passed", "a1", "Standard Driver", "Eligible", "Standard Risk Driver");
+                assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS);
+
+                row = sheet.getRow(++rowNum);
+                assertRowText(row, "2", "Failed", "b2", "Young Driver", "Eligible", "Standard Risk Driver");
+                assertRowColors(row, RED_MAIN, RED_MAIN, null, GREEN_FIELDS, RED_FIELDS, GREEN_FIELDS);
+
+                row = sheet.getRow(++rowNum);
+                assertRowText(row, "3", "Passed", "c3", "Young Driver", "Not Eligible", "High Risk Driver");
+                assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS);
+
+                // Test the case when parameter is referenced by field name despite that data table is with primary key
+                rowNum += TestResultExport.SPACE_BETWEEN_RESULTS + 1;
+                assertRowText(sheet.getRow(rowNum), "DriverPremiumTest2");
+
+                rowNum++;
+                assertRowText(sheet.getRow(rowNum), "3 test cases (1 failed)");
+
+                rowNum += 2;
+                row = sheet.getRow(rowNum);
+                assertRowText(row, "ID", "Status", "Driver", "Expected Age Type", "Expected Eligibility", "Expected Risk");
+                assertRowColors(row, HEADER, HEADER, HEADER, HEADER, HEADER, HEADER);
+
+                row = sheet.getRow(++rowNum);
+                assertRowText(row, "1", "Passed", "Sara", "Standard Driver", "Eligible", "Standard Risk Driver");
+                assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS);
+
+                row = sheet.getRow(++rowNum);
+                assertRowText(row, "2", "Failed", "Spencer, Sara's Son", "Young Driver", "Eligible", "Standard Risk Driver");
+                assertRowColors(row, RED_MAIN, RED_MAIN, null, GREEN_FIELDS, RED_FIELDS, GREEN_FIELDS);
+
+                row = sheet.getRow(++rowNum);
+                assertRowText(row, "3", "Passed", "Spencer, No Training", "Young Driver", "Not Eligible", "High Risk Driver");
+                assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS);
 
                 assertEquals(rowNum, sheet.getLastRowNum());
             }

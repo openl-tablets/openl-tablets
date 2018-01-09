@@ -16,6 +16,9 @@ public class SpreadsheetTableSyntaxNodeRelationsDeterminer implements TableSynta
             // Check if there are usages of custom spreadsheet type
             //
             CellsHeaderExtractor extractor1 = extractNames(node);
+            if (extractor1 == null) {
+                return false;
+            }
 
             String methodName2 = TableSyntaxNodeHelper.getTableName(dependsOnNode);
             if (StringUtils.isNotBlank(methodName2)) {
@@ -33,7 +36,7 @@ public class SpreadsheetTableSyntaxNodeRelationsDeterminer implements TableSynta
     }
 
     private static CellsHeaderExtractor extractNames(TableSyntaxNode tableSyntaxNode) {
-        CellsHeaderExtractor extractor = null;
+        CellsHeaderExtractor extractor;
 
         // try to get previously stored extractor
         //
@@ -42,15 +45,17 @@ public class SpreadsheetTableSyntaxNodeRelationsDeterminer implements TableSynta
 
         if (extractor == null) {
             ILogicalTable body = tableSyntaxNode.getTableBody();
-            extractor = new CellsHeaderExtractor(TableSyntaxNodeHelper.getSignature(tableSyntaxNode),
-                body.getRow(0).getColumns(1),
-                body.getColumn(0).getRows(1));
-            extractor.extract();
+            if (body != null) {
+                extractor = new CellsHeaderExtractor(TableSyntaxNodeHelper.getSignature(tableSyntaxNode),
+                        body.getRow(0).getColumns(1),
+                        body.getColumn(0).getRows(1));
+                extractor.extract();
 
-            // set cells header extractor to the table syntax node, to avoid
-            // extracting several times
-            //
-            header.setCellHeadersExtractor(extractor);
+                // set cells header extractor to the table syntax node, to avoid
+                // extracting several times
+                //
+                header.setCellHeadersExtractor(extractor);
+            }
         }
 
         return extractor;
