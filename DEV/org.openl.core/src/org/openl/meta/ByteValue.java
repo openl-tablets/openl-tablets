@@ -51,8 +51,8 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        byte[] primitiveArray = unwrap(values);
-        byte avg = MathUtils.avg(primitiveArray);
+        Byte[] unwrappedArray = unwrap(values);
+        Byte avg = MathUtils.avg(unwrappedArray);
         return new org.openl.meta.ByteValue(new org.openl.meta.ByteValue(avg), NumberOperations.AVG, values);
     }
      /**
@@ -64,8 +64,8 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        byte[] primitiveArray = unwrap(values);
-        byte sum = MathUtils.sum(primitiveArray);
+        Byte[] unwrappedArray = unwrap(values);
+        Byte sum = MathUtils.sum(unwrappedArray);
         return new org.openl.meta.ByteValue(new org.openl.meta.ByteValue(sum), NumberOperations.SUM, values);
     }
      /**
@@ -77,8 +77,8 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        byte[] primitiveArray = unwrap(values);
-        byte median = MathUtils.median(primitiveArray);
+        Byte[] unwrappedArray = unwrap(values);
+        Byte median = MathUtils.median(unwrappedArray);
         return new org.openl.meta.ByteValue(new org.openl.meta.ByteValue(median), NumberOperations.MEDIAN, values);
     }
 
@@ -328,8 +328,8 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        byte[] primitiveArray = unwrap(values);
-        double product = MathUtils.product(primitiveArray);
+        Byte[] unwrappedArray = unwrap(values);
+        double product = MathUtils.product(unwrappedArray);
         // we loose the parameters, but not the result of computation.
         return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
     }
@@ -357,8 +357,8 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        byte[] primitiveArray = unwrap(values);
-        byte small = MathUtils.small(primitiveArray, position);
+        Byte[] unwrappedArray = unwrap(values);
+        Byte small = MathUtils.small(unwrappedArray, position);
         return new org.openl.meta.ByteValue((org.openl.meta.ByteValue) getAppropriateValue(values, new org.openl.meta.ByteValue(small)), 
             NumberOperations.SMALL, values);
     }
@@ -373,8 +373,8 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        byte[] primitiveArray = unwrap(values);
-        byte big = MathUtils.big(primitiveArray, position);
+        Byte[] unwrappedArray = unwrap(values);
+        Byte big = MathUtils.big(unwrappedArray, position);
         return new org.openl.meta.ByteValue((org.openl.meta.ByteValue) getAppropriateValue(values, new org.openl.meta.ByteValue(big)),
             NumberOperations.BIG, values);
     }
@@ -702,14 +702,14 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         return ((Byte) value).hashCode();
     }
 
-    private static byte[] unwrap(ByteValue[] values) {
+    private static Byte[] unwrap(ByteValue[] values) {
         values = ArrayTool.removeNulls(values);
 
-        byte[] primitiveArray = new byte[values.length];
+        Byte[] unwrappedArray = new Byte[values.length];
         for (int i = 0; i < values.length; i++) {
-            primitiveArray[i] = values[i].getValue();
+            unwrappedArray[i] = values[i].getValue();
         }
-        return primitiveArray;
+        return unwrappedArray;
     }
 
 }

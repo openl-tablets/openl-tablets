@@ -813,51 +813,92 @@ public class MathUtils {
 
     // MEDIAN for all wrapper types
     public static java.lang.Byte median(java.lang.Byte[] values) {
-        // TODO implement
-        throw new NotImplementedException(String.format("Method median for %s is not implemented yet",
-            values.getClass().getName()));
+        if (values == null) {
+            return null;
+        }
+        Byte[] notNullValues = ArrayTool.removeNulls(values);
+        if (notNullValues.length == 0) {
+            return null;
+        }
+        double[] doubleArray = byteArrayToDouble(notNullValues);
+        return (byte) median(doubleArray);
     }
 
     public static java.lang.Short median(java.lang.Short[] values) {
-        // TODO implement
-        throw new NotImplementedException(String.format("Method median for %s is not implemented yet",
-            values.getClass().getName()));
+        if (values == null) {
+            return null;
+        }
+        Short[] notNullValues = ArrayTool.removeNulls(values);
+        if (notNullValues.length == 0) {
+            return null;
+        }
+        double[] doubleArray = shortArrayToDouble(notNullValues);
+        return (short) median(doubleArray);
     }
 
     public static java.lang.Integer median(java.lang.Integer[] values) {
-        // TODO implement
-        throw new NotImplementedException(String.format("Method median for %s is not implemented yet",
-            values.getClass().getName()));
+        if (values == null) {
+            return null;
+        }
+        Integer[] notNullValues = ArrayTool.removeNulls(values);
+        if (notNullValues.length == 0) {
+            return null;
+        }
+        double[] doubleArray = intArrayToDouble(notNullValues);
+        return (int) median(doubleArray);
     }
 
     public static java.lang.Long median(java.lang.Long[] values) {
-        // TODO implement
-        throw new NotImplementedException(String.format("Method median for %s is not implemented yet",
-            values.getClass().getName()));
+        if (values == null) {
+            return null;
+        }
+        Long[] notNullValues = ArrayTool.removeNulls(values);
+        if (notNullValues.length == 0) {
+            return null;
+        }
+        double[] doubleArray = longArrayToDouble(notNullValues);
+        return (long) median(doubleArray);
     }
 
     public static java.lang.Float median(java.lang.Float[] values) {
-        // TODO implement
-        throw new NotImplementedException(String.format("Method median for %s is not implemented yet",
-            values.getClass().getName()));
+        if (values == null) {
+            return null;
+        }
+        Float[] notNullValues = ArrayTool.removeNulls(values);
+        if (notNullValues.length == 0) {
+            return null;
+        }
+        double[] doubleArray = floatArrayToDouble(notNullValues);
+        return (float) median(doubleArray);
     }
 
     public static java.lang.Double median(java.lang.Double[] values) {
-        // TODO implement
-        throw new NotImplementedException(String.format("Method median for %s is not implemented yet",
-            values.getClass().getName()));
+        if (values == null) {
+            return null;
+        }
+        Double[] notNullValues = ArrayTool.removeNulls(values);
+        if (notNullValues.length == 0) {
+            return null;
+        }
+
+        double[] doubleArray = new double[notNullValues.length];
+        for (int i = 0; i < notNullValues.length; i++) {
+            doubleArray[i] = notNullValues[i];
+        }
+
+        return median(doubleArray);
     }
 
     public static java.math.BigInteger median(java.math.BigInteger[] values) {
         // TODO implement
-        throw new NotImplementedException(String.format("Method median for %s is not implemented yet",
-            values.getClass().getName()));
+        throw new NotImplementedException(
+            String.format("Method median for %s is not implemented yet", values.getClass().getName()));
     }
 
     public static java.math.BigDecimal median(java.math.BigDecimal[] values) {
         // TODO implement
-        throw new NotImplementedException(String.format("Method median for %s is not implemented yet",
-            values.getClass().getName()));
+        throw new NotImplementedException(
+            String.format("Method median for %s is not implemented yet", values.getClass().getName()));
     }
 
     // PRODUCT
@@ -882,6 +923,46 @@ public class MathUtils {
     }
 
     // PRODUCT
+    private static double[] byteArrayToDouble(Byte[] values) {
+        double[] doubleArray = new double[values.length];
+        for (int i = 0; i < values.length; i++) {
+            doubleArray[i] = (double) values[i];
+        }
+        return doubleArray;
+    }
+
+    private static double[] shortArrayToDouble(Short[] values) {
+        double[] doubleArray = new double[values.length];
+        for (int i = 0; i < values.length; i++) {
+            doubleArray[i] = (double) values[i];
+        }
+        return doubleArray;
+    }
+
+    private static double[] intArrayToDouble(Integer[] values) {
+        double[] doubleArray = new double[values.length];
+        for (int i = 0; i < values.length; i++) {
+            doubleArray[i] = (double) values[i];
+        }
+        return doubleArray;
+    }
+
+    private static double[] longArrayToDouble(Long[] values) {
+        double[] doubleArray = new double[values.length];
+        for (int i = 0; i < values.length; i++) {
+            doubleArray[i] = (double) values[i];
+        }
+        return doubleArray;
+    }
+
+    private static double[] floatArrayToDouble(Float[] values) {
+        double[] doubleArray = new double[values.length];
+        for (int i = 0; i < values.length; i++) {
+            doubleArray[i] = (double) values[i];
+        }
+        return doubleArray;
+    }
+
     private static double[] byteArrayToDouble(byte[] values) {
         double[] doubleArray = new double[values.length];
         for (int i = 0; i < values.length; i++) {
@@ -1292,7 +1373,6 @@ public class MathUtils {
         }
         return values;
     }
-    
 
     // SORT for all wrapper types
     public static java.lang.Byte[] sort(java.lang.Byte[] values) {
@@ -1426,9 +1506,8 @@ public class MathUtils {
         if (values.length == 0) {
             return null;
         }
-        if (!(ClassUtils.isAssignable(values.getClass().getComponentType(), Number.class) && ClassUtils.isAssignable(values.getClass()
-            .getComponentType(),
-            Comparable.class))) {
+        if (!(ClassUtils.isAssignable(values.getClass().getComponentType(), Number.class) && ClassUtils
+            .isAssignable(values.getClass().getComponentType(), Comparable.class))) {
             throw new IllegalArgumentException("Income array must be comparable numeric.");
         }
         Comparable<Number>[] numberArray = (Comparable<Number>[]) values;
@@ -1478,9 +1557,8 @@ public class MathUtils {
         if (values.length == 0) {
             return null;
         }
-        if (!(ClassUtils.isAssignable(values.getClass().getComponentType(), Number.class) && ClassUtils.isAssignable(values.getClass()
-            .getComponentType(),
-            Comparable.class))) {
+        if (!(ClassUtils.isAssignable(values.getClass().getComponentType(), Number.class) && ClassUtils
+            .isAssignable(values.getClass().getComponentType(), Comparable.class))) {
             throw new IllegalArgumentException("Income array must be comparable numeric.");
         }
         Comparable<Number>[] numberArray = (Comparable<Number>[]) values;
@@ -1495,7 +1573,8 @@ public class MathUtils {
 
     // SUMMARY
     public static double sum(double[] values) {
-        if (values == null) throw new IllegalArgumentException("The Array must not be null");
+        if (values == null)
+            throw new IllegalArgumentException("The Array must not be null");
         if (values.length == 0) {
             return Double.NaN;
         }
@@ -1508,7 +1587,8 @@ public class MathUtils {
 
     // MEDIAN
     public static double median(double[] values) {
-        if (values == null) throw new IllegalArgumentException("The Array must not be null");
+        if (values == null)
+            throw new IllegalArgumentException("The Array must not be null");
         int length = values.length;
         if (length == 0) {
             return Double.NaN;
@@ -1527,9 +1607,11 @@ public class MathUtils {
             return (copy[index] + copy[index + 1]) * 0.5;
         }
     }
+
     // PRODUCT
     public static double product(double[] values) {
-        if (values == null) throw new IllegalArgumentException("The Array must not be null");
+        if (values == null)
+            throw new IllegalArgumentException("The Array must not be null");
         if (values.length == 0) {
             return Double.NaN;
         }

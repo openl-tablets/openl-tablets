@@ -51,8 +51,8 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        int[] primitiveArray = unwrap(values);
-        int avg = MathUtils.avg(primitiveArray);
+        Integer[] unwrappedArray = unwrap(values);
+        Integer avg = MathUtils.avg(unwrappedArray);
         return new org.openl.meta.IntValue(new org.openl.meta.IntValue(avg), NumberOperations.AVG, values);
     }
      /**
@@ -64,8 +64,8 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        int[] primitiveArray = unwrap(values);
-        int sum = MathUtils.sum(primitiveArray);
+        Integer[] unwrappedArray = unwrap(values);
+        Integer sum = MathUtils.sum(unwrappedArray);
         return new org.openl.meta.IntValue(new org.openl.meta.IntValue(sum), NumberOperations.SUM, values);
     }
      /**
@@ -77,8 +77,8 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        int[] primitiveArray = unwrap(values);
-        int median = MathUtils.median(primitiveArray);
+        Integer[] unwrappedArray = unwrap(values);
+        Integer median = MathUtils.median(unwrappedArray);
         return new org.openl.meta.IntValue(new org.openl.meta.IntValue(median), NumberOperations.MEDIAN, values);
     }
 
@@ -329,8 +329,8 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        int[] primitiveArray = unwrap(values);
-        double product = MathUtils.product(primitiveArray);
+        Integer[] unwrappedArray = unwrap(values);
+        double product = MathUtils.product(unwrappedArray);
         // we loose the parameters, but not the result of computation.
         return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
     }
@@ -358,8 +358,8 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        int[] primitiveArray = unwrap(values);
-        int small = MathUtils.small(primitiveArray, position);
+        Integer[] unwrappedArray = unwrap(values);
+        Integer small = MathUtils.small(unwrappedArray, position);
         return new org.openl.meta.IntValue((org.openl.meta.IntValue) getAppropriateValue(values, new org.openl.meta.IntValue(small)), 
             NumberOperations.SMALL, values);
     }
@@ -374,8 +374,8 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        int[] primitiveArray = unwrap(values);
-        int big = MathUtils.big(primitiveArray, position);
+        Integer[] unwrappedArray = unwrap(values);
+        Integer big = MathUtils.big(unwrappedArray, position);
         return new org.openl.meta.IntValue((org.openl.meta.IntValue) getAppropriateValue(values, new org.openl.meta.IntValue(big)),
             NumberOperations.BIG, values);
     }
@@ -718,10 +718,10 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         return ((Integer) value).hashCode();
     }   
     
-    private static int[] unwrap(IntValue[] values) {
+    private static Integer[] unwrap(IntValue[] values) {
         values = ArrayTool.removeNulls(values);
         
-        int[] intArray = new int[values.length];
+        Integer[] intArray = new Integer[values.length];
         for (int i = 0; i < values.length; i++) {
             intArray[i] = values[i].getValue();
         }

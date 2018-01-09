@@ -163,8 +163,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        double[] primitiveArray = unwrap(values);
-        double avg = MathUtils.avg(primitiveArray);
+        Double[] unwrappedArray = unwrap(values);
+        Double avg = MathUtils.avg(unwrappedArray);
         return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(avg), NumberOperations.AVG, values);
     }
      /**
@@ -176,8 +176,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        double[] primitiveArray = unwrap(values);
-        double sum = MathUtils.sum(primitiveArray);
+        Double[] unwrappedArray = unwrap(values);
+        Double sum = MathUtils.sum(unwrappedArray);
         return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(sum), NumberOperations.SUM, values);
     }
      /**
@@ -189,8 +189,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        double[] primitiveArray = unwrap(values);
-        double median = MathUtils.median(primitiveArray);
+        Double[] unwrappedArray = unwrap(values);
+        Double median = MathUtils.median(unwrappedArray);
         return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(median), NumberOperations.MEDIAN, values);
     }
 
@@ -444,8 +444,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        double[] primitiveArray = unwrap(values);
-        double product = MathUtils.product(primitiveArray);
+        Double[] unwrappedArray = unwrap(values);
+        double product = MathUtils.product(unwrappedArray);
         // we loose the parameters, but not the result of computation.
         return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
     }
@@ -473,8 +473,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        double[] primitiveArray = unwrap(values);
-        double small = MathUtils.small(primitiveArray, position);
+        Double[] unwrappedArray = unwrap(values);
+        Double small = MathUtils.small(unwrappedArray, position);
         return new org.openl.meta.DoubleValue((org.openl.meta.DoubleValue) getAppropriateValue(values, new org.openl.meta.DoubleValue(small)), 
             NumberOperations.SMALL, values);
     }
@@ -489,8 +489,8 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        double[] primitiveArray = unwrap(values);
-        double big = MathUtils.big(primitiveArray, position);
+        Double[] unwrappedArray = unwrap(values);
+        Double big = MathUtils.big(unwrappedArray, position);
         return new org.openl.meta.DoubleValue((org.openl.meta.DoubleValue) getAppropriateValue(values, new org.openl.meta.DoubleValue(big)),
             NumberOperations.BIG, values);
     }
@@ -944,14 +944,14 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         return ((Double) value).hashCode();
     }
 
-    private static double[] unwrap(DoubleValue[] values) {
+    private static Double[] unwrap(DoubleValue[] values) {
         values = ArrayTool.removeNulls(values);
 
-        double[] primitiveArray = new double[values.length];
+        Double[] unwrappedArray = new Double[values.length];
         for (int i = 0; i < values.length; i++) {
-            primitiveArray[i] = values[i].getValue();
+            unwrappedArray[i] = values[i].getValue();
         }
-        return primitiveArray;
+        return unwrappedArray;
     }
 
 }

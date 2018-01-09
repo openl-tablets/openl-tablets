@@ -124,8 +124,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        float[] primitiveArray = unwrap(values);
-        float avg = MathUtils.avg(primitiveArray);
+        Float[] unwrappedArray = unwrap(values);
+        Float avg = MathUtils.avg(unwrappedArray);
         return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(avg), NumberOperations.AVG, values);
     }
      /**
@@ -137,8 +137,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        float[] primitiveArray = unwrap(values);
-        float sum = MathUtils.sum(primitiveArray);
+        Float[] unwrappedArray = unwrap(values);
+        Float sum = MathUtils.sum(unwrappedArray);
         return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(sum), NumberOperations.SUM, values);
     }
      /**
@@ -150,8 +150,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        float[] primitiveArray = unwrap(values);
-        float median = MathUtils.median(primitiveArray);
+        Float[] unwrappedArray = unwrap(values);
+        Float median = MathUtils.median(unwrappedArray);
         return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(median), NumberOperations.MEDIAN, values);
     }
 
@@ -401,8 +401,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        float[] primitiveArray = unwrap(values);
-        double product = MathUtils.product(primitiveArray);
+        Float[] unwrappedArray = unwrap(values);
+        double product = MathUtils.product(unwrappedArray);
         // we loose the parameters, but not the result of computation.
         return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
     }
@@ -430,8 +430,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        float[] primitiveArray = unwrap(values);
-        float small = MathUtils.small(primitiveArray, position);
+        Float[] unwrappedArray = unwrap(values);
+        Float small = MathUtils.small(unwrappedArray, position);
         return new org.openl.meta.FloatValue((org.openl.meta.FloatValue) getAppropriateValue(values, new org.openl.meta.FloatValue(small)), 
             NumberOperations.SMALL, values);
     }
@@ -446,8 +446,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        float[] primitiveArray = unwrap(values);
-        float big = MathUtils.big(primitiveArray, position);
+        Float[] unwrappedArray = unwrap(values);
+        Float big = MathUtils.big(unwrappedArray, position);
         return new org.openl.meta.FloatValue((org.openl.meta.FloatValue) getAppropriateValue(values, new org.openl.meta.FloatValue(big)),
             NumberOperations.BIG, values);
     }
@@ -824,14 +824,14 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         return ((Float) value).hashCode();
     }
 
-    private static float[] unwrap(FloatValue[] values) {
+    private static Float[] unwrap(FloatValue[] values) {
         values = ArrayTool.removeNulls(values);
 
-        float[] primitiveArray = new float[values.length];
+        Float[] unwrappedArray = new Float[values.length];
         for (int i = 0; i < values.length; i++) {
-            primitiveArray[i] = values[i].getValue();
+            unwrappedArray[i] = values[i].getValue();
         }
-        return primitiveArray;
+        return unwrappedArray;
     }
 
 }

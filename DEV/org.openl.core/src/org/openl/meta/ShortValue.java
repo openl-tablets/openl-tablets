@@ -51,8 +51,8 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        short[] primitiveArray = unwrap(values);
-        short avg = MathUtils.avg(primitiveArray);
+        Short[] unwrappedArray = unwrap(values);
+        Short avg = MathUtils.avg(unwrappedArray);
         return new org.openl.meta.ShortValue(new org.openl.meta.ShortValue(avg), NumberOperations.AVG, values);
     }
      /**
@@ -64,8 +64,8 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        short[] primitiveArray = unwrap(values);
-        short sum = MathUtils.sum(primitiveArray);
+        Short[] unwrappedArray = unwrap(values);
+        Short sum = MathUtils.sum(unwrappedArray);
         return new org.openl.meta.ShortValue(new org.openl.meta.ShortValue(sum), NumberOperations.SUM, values);
     }
      /**
@@ -77,8 +77,8 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        short[] primitiveArray = unwrap(values);
-        short median = MathUtils.median(primitiveArray);
+        Short[] unwrappedArray = unwrap(values);
+        Short median = MathUtils.median(unwrappedArray);
         return new org.openl.meta.ShortValue(new org.openl.meta.ShortValue(median), NumberOperations.MEDIAN, values);
     }
 
@@ -327,8 +327,8 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        short[] primitiveArray = unwrap(values);
-        double product = MathUtils.product(primitiveArray);
+        Short[] unwrappedArray = unwrap(values);
+        double product = MathUtils.product(unwrappedArray);
         // we loose the parameters, but not the result of computation.
         return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
     }
@@ -356,8 +356,8 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        short[] primitiveArray = unwrap(values);
-        short small = MathUtils.small(primitiveArray, position);
+        Short[] unwrappedArray = unwrap(values);
+        Short small = MathUtils.small(unwrappedArray, position);
         return new org.openl.meta.ShortValue((org.openl.meta.ShortValue) getAppropriateValue(values, new org.openl.meta.ShortValue(small)), 
             NumberOperations.SMALL, values);
     }
@@ -372,8 +372,8 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        short[] primitiveArray = unwrap(values);
-        short big = MathUtils.big(primitiveArray, position);
+        Short[] unwrappedArray = unwrap(values);
+        Short big = MathUtils.big(unwrappedArray, position);
         return new org.openl.meta.ShortValue((org.openl.meta.ShortValue) getAppropriateValue(values, new org.openl.meta.ShortValue(big)),
             NumberOperations.BIG, values);
     }
@@ -705,9 +705,9 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         return ((Short) value).hashCode();
     }    
     
-    private static short[] unwrap(ShortValue[] values) {
+    private static Short[] unwrap(ShortValue[] values) {
         values = ArrayTool.removeNulls(values);
-        short[] shortArray = new short[values.length];
+        Short[] shortArray = new Short[values.length];
         for (int i = 0; i < values.length; i++) {
             shortArray[i] = values[i].getValue();
         }

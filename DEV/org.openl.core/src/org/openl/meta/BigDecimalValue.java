@@ -121,8 +121,8 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        java.math.BigDecimal[] primitiveArray = unwrap(values);
-        java.math.BigDecimal avg = MathUtils.avg(primitiveArray);
+        java.math.BigDecimal[] unwrappedArray = unwrap(values);
+        java.math.BigDecimal avg = MathUtils.avg(unwrappedArray);
         return new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(avg), NumberOperations.AVG, values);
     }
      /**
@@ -134,8 +134,8 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        java.math.BigDecimal[] primitiveArray = unwrap(values);
-        java.math.BigDecimal sum = MathUtils.sum(primitiveArray);
+        java.math.BigDecimal[] unwrappedArray = unwrap(values);
+        java.math.BigDecimal sum = MathUtils.sum(unwrappedArray);
         return new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(sum), NumberOperations.SUM, values);
     }
      /**
@@ -147,8 +147,8 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        java.math.BigDecimal[] primitiveArray = unwrap(values);
-        java.math.BigDecimal median = MathUtils.median(primitiveArray);
+        java.math.BigDecimal[] unwrappedArray = unwrap(values);
+        java.math.BigDecimal median = MathUtils.median(unwrappedArray);
         return new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(median), NumberOperations.MEDIAN, values);
     }
 
@@ -398,8 +398,8 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        java.math.BigDecimal[] primitiveArray = unwrap(values);
-        java.math.BigDecimal product = MathUtils.product(primitiveArray);
+        java.math.BigDecimal[] unwrappedArray = unwrap(values);
+        java.math.BigDecimal product = MathUtils.product(unwrappedArray);
         // we loose the parameters, but not the result of computation.
         return new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(product), NumberOperations.PRODUCT, null);
     }
@@ -427,8 +427,8 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        java.math.BigDecimal[] primitiveArray = unwrap(values);
-        java.math.BigDecimal small = MathUtils.small(primitiveArray, position);
+        java.math.BigDecimal[] unwrappedArray = unwrap(values);
+        java.math.BigDecimal small = MathUtils.small(unwrappedArray, position);
         return new org.openl.meta.BigDecimalValue((org.openl.meta.BigDecimalValue) getAppropriateValue(values, new org.openl.meta.BigDecimalValue(small)), 
             NumberOperations.SMALL, values);
     }
@@ -443,8 +443,8 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
-        java.math.BigDecimal[] primitiveArray = unwrap(values);
-        java.math.BigDecimal big = MathUtils.big(primitiveArray, position);
+        java.math.BigDecimal[] unwrappedArray = unwrap(values);
+        java.math.BigDecimal big = MathUtils.big(unwrappedArray, position);
         return new org.openl.meta.BigDecimalValue((org.openl.meta.BigDecimalValue) getAppropriateValue(values, new org.openl.meta.BigDecimalValue(big)),
             NumberOperations.BIG, values);
     }
@@ -845,11 +845,11 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
     private static BigDecimal[] unwrap(BigDecimalValue[] values) {
         values = ArrayTool.removeNulls(values);
 
-        BigDecimal[] primitiveArray = new BigDecimal[values.length];
+        BigDecimal[] unwrappedArray = new BigDecimal[values.length];
         for (int i = 0; i < values.length; i++) {
-            primitiveArray[i] = values[i].getValue();
+            unwrappedArray[i] = values[i].getValue();
         }
-        return primitiveArray;
+        return unwrappedArray;
     }
 
 }
