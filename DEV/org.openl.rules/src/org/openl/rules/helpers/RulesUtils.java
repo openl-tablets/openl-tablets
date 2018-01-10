@@ -43,7 +43,6 @@ public class RulesUtils {
     public static final double E = Math.E;
     public static final double PI = Math.PI;
 
-    // <<< INSERT Functions >>>
     // MAX
 
     /**
@@ -1602,8 +1601,6 @@ public class RulesUtils {
         }
         return sortedArray;
     }
-
-    // <<< END INSERT Functions >>>
 
     // <<< Contains Functions >>>
 
