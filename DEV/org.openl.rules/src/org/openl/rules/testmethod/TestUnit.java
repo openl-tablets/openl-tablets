@@ -48,7 +48,8 @@ public class TestUnit {
         this.actualResult = res;
         this.actualError = error;
         if (expectedError != null && expectedResult != null) {
-            throw new IllegalArgumentException(
+            // Force testcase failure
+            actualError = new IllegalArgumentException(
                 "Ambiguous expectation in the test case. Two expected result has been declared.");
         }
     }
