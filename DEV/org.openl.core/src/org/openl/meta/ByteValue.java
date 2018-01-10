@@ -29,35 +29,54 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     public static final ByteValue ONE = new ByteValue((byte) 1);
     public static final ByteValue MINUS_ONE = new ByteValue((byte) -1);
 
-    public static class ByteValueAdapter extends XmlAdapter<Byte,ByteValue> {
+    public static class ByteValueAdapter extends XmlAdapter<Byte, ByteValue> {
         public ByteValue unmarshal(Byte val) throws Exception {
             return new ByteValue(val);
         }
-        
+
         public Byte marshal(ByteValue val) throws Exception {
             return val.getValue();
         }
     }
-    
+
     // <<< INSERT Functions >>>
     private final byte value;
 
-     /**
+    private static DoubleValue[] toDoubleValues(org.openl.meta.ByteValue[] values) {
+        if (values == null) {
+            return null;
+        }
+        DoubleValue[] doubleValues = new DoubleValue[values.length];
+        int i = 0;
+        for (ByteValue value : values) {
+            doubleValues[i] = autocast(value, DoubleValue.ZERO);
+            i++;
+        }
+        return doubleValues;
+    }
+
+    /**
      * average
-     * @param values  array of org.openl.meta.ByteValue values
+     * 
+     * @param values array of org.openl.meta.ByteValue values
      * @return the average value from the array
      */
-    public static org.openl.meta.ByteValue avg(org.openl.meta.ByteValue[] values) {
+    public static org.openl.meta.DoubleValue avg(org.openl.meta.ByteValue[] values) {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
         Byte[] unwrappedArray = unwrap(values);
-        Byte avg = MathUtils.avg(unwrappedArray);
-        return new org.openl.meta.ByteValue(new org.openl.meta.ByteValue(avg), NumberOperations.AVG, values);
+        Double avg = MathUtils.avg(unwrappedArray);
+
+        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(avg),
+            NumberOperations.AVG,
+            toDoubleValues(values));
     }
-     /**
+
+    /**
      * sum
-     * @param values  array of org.openl.meta.ByteValue values
+     * 
+     * @param values array of org.openl.meta.ByteValue values
      * @return the sum value from the array
      */
     public static org.openl.meta.ByteValue sum(org.openl.meta.ByteValue[] values) {
@@ -68,22 +87,27 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         Byte sum = MathUtils.sum(unwrappedArray);
         return new org.openl.meta.ByteValue(new org.openl.meta.ByteValue(sum), NumberOperations.SUM, values);
     }
-     /**
+
+    /**
      * median
-     * @param values  array of org.openl.meta.ByteValue values
+     * 
+     * @param values array of org.openl.meta.ByteValue values
      * @return the median value from the array
      */
-    public static org.openl.meta.ByteValue median(org.openl.meta.ByteValue[] values) {
+    public static org.openl.meta.DoubleValue median(org.openl.meta.ByteValue[] values) {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
         Byte[] unwrappedArray = unwrap(values);
-        Byte median = MathUtils.median(unwrappedArray);
-        return new org.openl.meta.ByteValue(new org.openl.meta.ByteValue(median), NumberOperations.MEDIAN, values);
+        Double median = MathUtils.median(unwrappedArray);
+        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(median),
+            NumberOperations.MEDIAN,
+            toDoubleValues(values));
     }
 
-     /**
+    /**
      * Compares value1 and value2 and returns the max value
+     * 
      * @param value1
      * @param value2
      * @return max value
@@ -93,16 +117,18 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         // "null" means that data does not exist
         // validate(value1, value2, NumberOperations.MAX.toString());
         if (value1 == null)
-            return value2; 
+            return value2;
         if (value2 == null)
-            return value1; 
+            return value1;
 
         return new org.openl.meta.ByteValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
             NumberOperations.MAX,
             new org.openl.meta.ByteValue[] { value1, value2 });
     }
-     /**
+
+    /**
      * Compares value1 and value2 and returns the min value
+     * 
      * @param value1
      * @param value2
      * @return min value
@@ -112,9 +138,9 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         // "null" means that data does not exist
         // validate(value1, value2, NumberOperations.MIN.toString());
         if (value1 == null)
-            return value2; 
+            return value2;
         if (value2 == null)
-            return value1; 
+            return value1;
 
         return new org.openl.meta.ByteValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
             NumberOperations.MIN,
@@ -133,8 +159,10 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         }
 
         return new org.openl.meta.ByteValue((org.openl.meta.ByteValue) getAppropriateValue(values, result),
-            NumberOperations.MAX_IN_ARRAY, values);
+            NumberOperations.MAX_IN_ARRAY,
+            values);
     }
+
     /**
      * 
      * @param values an array org.openl.meta.ByteValue, must not be null
@@ -147,13 +175,16 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         }
 
         return new org.openl.meta.ByteValue((org.openl.meta.ByteValue) getAppropriateValue(values, result),
-            NumberOperations.MIN_IN_ARRAY, values);
+            NumberOperations.MIN_IN_ARRAY,
+            values);
     }
-        /**
+
+    /**
      * 
      * @param value of variable which should be copied
      * @param name of new variable
-     * @return the new org.openl.meta.ByteValue variable with name <b>name</b> and value <b>value</b>
+     * @return the new org.openl.meta.ByteValue variable with name <b>name</b>
+     *         and value <b>value</b>
      */
     public static org.openl.meta.ByteValue copy(org.openl.meta.ByteValue value, String name) {
         if (value.getName() == null) {
@@ -161,7 +192,8 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
 
             return value;
         } else if (!value.getName().equals(name)) {
-            org.openl.meta.ByteValue result = new org.openl.meta.ByteValue (value, NumberOperations.COPY, 
+            org.openl.meta.ByteValue result = new org.openl.meta.ByteValue(value,
+                NumberOperations.COPY,
                 new org.openl.meta.ByteValue[] { value });
             result.setName(name);
 
@@ -170,11 +202,12 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         return value;
     }
 
-    //REM
+    // REM
     /**
      * Divides left hand operand by right hand operand and returns remainder
-     * @param value1 org.openl.meta.ByteValue 
-     * @param value2 org.openl.meta.ByteValue 
+     * 
+     * @param value1 org.openl.meta.ByteValue
+     * @param value2 org.openl.meta.ByteValue
      * @return remainder from division value1 by value2
      */
     public static org.openl.meta.ByteValue rem(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
@@ -184,21 +217,24 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
             return ZERO;
         }
 
-        return new org.openl.meta.ByteValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.ByteValue(value1,
+            value2,
+            Operators.rem(value1.getValue(), value2.getValue()),
             Formulas.REM);
     }
 
-    //ADD
+    // ADD
     public static String add(ByteValue value1, String value2) {
         return value1 + value2;
     }
-    
+
     public static String add(String value1, ByteValue value2) {
         return value1 + value2;
     }
 
-     /**
+    /**
      * Adds left hand operand to right hand operand
+     * 
      * @param value1 org.openl.meta.ByteValue
      * @param value2 org.openl.meta.ByteValue
      * @return the result of addition operation
@@ -206,8 +242,8 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     public static org.openl.meta.ByteValue add(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
         // temporary commented to support operations with nulls
         //
-        //        validate(value1, value2, Formulas.ADD.toString());
-        //conditions for classes that are wrappers over primitives
+        // validate(value1, value2, Formulas.ADD.toString());
+        // conditions for classes that are wrappers over primitives
         if (value1 == null) {
             return value2;
         }
@@ -216,21 +252,24 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
             return value1;
         }
 
-        return new org.openl.meta.ByteValue(value1, value2, Operators.add(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.ByteValue(value1,
+            value2,
+            Operators.add(value1.getValue(), value2.getValue()),
             Formulas.ADD);
-}
+    }
 
     // MULTIPLY
-     /**
+    /**
      * Multiplies left hand operand to right hand operand
+     * 
      * @param value1 org.openl.meta.ByteValue
      * @param value2 org.openl.meta.ByteValue
-     * @return the result of multiplication  operation
+     * @return the result of multiplication operation
      */
     public static org.openl.meta.ByteValue multiply(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
         // temporary commented to support operations with nulls
         //
-        //        validate(value1, value2, Formulas.MULTIPLY.toString());
+        // validate(value1, value2, Formulas.MULTIPLY.toString());
         if (value1 == null) {
             return value2;
         }
@@ -239,21 +278,24 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
             return value1;
         }
 
-        return new org.openl.meta.ByteValue(value1, value2, Operators.multiply(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.ByteValue(value1,
+            value2,
+            Operators.multiply(value1.getValue(), value2.getValue()),
             Formulas.MULTIPLY);
     }
 
-    //SUBTRACT
+    // SUBTRACT
     /**
      * Subtracts left hand operand to right hand operand
+     * 
      * @param value1 org.openl.meta.ByteValue
      * @param value2 org.openl.meta.ByteValue
-     * @return the result of subtraction  operation
+     * @return the result of subtraction operation
      */
     public static org.openl.meta.ByteValue subtract(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
         // temporary commented to support operations with nulls
         //
-        //        validate(value1, value2, Formulas.SUBTRACT.toString());
+        // validate(value1, value2, Formulas.SUBTRACT.toString());
         if (value1 == null && value2 == null) {
             return null;
         }
@@ -266,49 +308,61 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
             return value1;
         }
 
-        return new org.openl.meta.ByteValue(value1, value2, Operators.subtract(value1.getValue(), value2.getValue()), 
+        return new org.openl.meta.ByteValue(value1,
+            value2,
+            Operators.subtract(value1.getValue(), value2.getValue()),
             Formulas.SUBTRACT);
     }
 
     // DIVIDE
     /**
      * Divides left hand operand by right hand operand
+     * 
      * @param value1 org.openl.meta.ByteValue
      * @param value2 org.openl.meta.ByteValue
-     * @return the result of division  operation
+     * @return the result of division operation
      */
     public static org.openl.meta.DoubleValue divide(org.openl.meta.ByteValue value1, org.openl.meta.ByteValue value2) {
         // temporary commented to support operations with nulls
         //
-        //        validate(value1, value2, Formulas.DIVIDE.toString());
+        // validate(value1, value2, Formulas.DIVIDE.toString());
         if (value1 == null && value2 == null) {
             return null;
         }
 
         if (value1 == null) {
             if (value2 != null && value2.doubleValue() != 0) {
-                return new org.openl.meta.DoubleValue(null, new DoubleValue(value2.doubleValue()), divide(ONE, value2).getValue(), Formulas.DIVIDE);
+                return new org.openl.meta.DoubleValue(null,
+                    new DoubleValue(value2.doubleValue()),
+                    divide(ONE, value2).getValue(),
+                    Formulas.DIVIDE);
             }
         }
 
         if (value2 == null) {
-            return new org.openl.meta.DoubleValue(new DoubleValue(value1.doubleValue()), null, value1.getValue(), Formulas.DIVIDE);
+            return new org.openl.meta.DoubleValue(new DoubleValue(value1.doubleValue()),
+                null,
+                value1.getValue(),
+                Formulas.DIVIDE);
         }
 
         if (value2.doubleValue() == 0) {
             throw new OpenLRuntimeException("Division by zero");
         }
 
-        return new org.openl.meta.DoubleValue(new DoubleValue(value1.doubleValue()), new DoubleValue(value2.doubleValue()), Operators.divide(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.DoubleValue(new DoubleValue(value1.doubleValue()),
+            new DoubleValue(value2.doubleValue()),
+            Operators.divide(value1.getValue(), value2.getValue()),
             Formulas.DIVIDE);
     }
 
     // QUAOTIENT
     /**
      * Divides left hand operand by right hand operand
+     * 
      * @param number org.openl.meta.ByteValue
      * @param divisor org.openl.meta.ByteValue
-     * @return LongValue the result of division  operation
+     * @return LongValue the result of division operation
      */
     public static LongValue quotient(org.openl.meta.ByteValue number, org.openl.meta.ByteValue divisor) {
         if (number != null && divisor != null) {
@@ -319,8 +373,10 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     }
 
     // generated product function for types that are wrappers over primitives
-     /**
-     * Multiplies the numbers from the provided array and returns the product as a number.
+    /**
+     * Multiplies the numbers from the provided array and returns the product as
+     * a number.
+     * 
      * @param values an array of IntValue which will be converted to DoubleValue
      * @return the product as a number
      */
@@ -333,23 +389,30 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         // we loose the parameters, but not the result of computation.
         return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
     }
-     /**
-     *   
+
+    /**
+     * 
      * @param number
      * @param divisor
-     * @return the remainder after a number is divided by a divisor. The result is a numeric value and has the same sign as the devisor.
+     * @return the remainder after a number is divided by a divisor. The result
+     *         is a numeric value and has the same sign as the devisor.
      */
     public static org.openl.meta.ByteValue mod(org.openl.meta.ByteValue number, org.openl.meta.ByteValue divisor) {
         if (number != null && divisor != null) {
-            org.openl.meta.ByteValue result = new org.openl.meta.ByteValue(MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new org.openl.meta.ByteValue(result, NumberOperations.MOD, new org.openl.meta.ByteValue[]{number, divisor} );
+            org.openl.meta.ByteValue result = new org.openl.meta.ByteValue(
+                MathUtils.mod(number.getValue(), divisor.getValue()));
+            return new org.openl.meta.ByteValue(result,
+                NumberOperations.MOD,
+                new org.openl.meta.ByteValue[] { number, divisor });
         }
         return null;
     }
 
     /**
-     * Sorts the array <b>values</b> in ascending order and returns the value from array <b>values</b> at position <b>position</b>
-     * @param values array of org.openl.meta.ByteValue values 
+     * Sorts the array <b>values</b> in ascending order and returns the value
+     * from array <b>values</b> at position <b>position</b>
+     * 
+     * @param values array of org.openl.meta.ByteValue values
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
      */
@@ -359,13 +422,17 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         }
         Byte[] unwrappedArray = unwrap(values);
         Byte small = MathUtils.small(unwrappedArray, position);
-        return new org.openl.meta.ByteValue((org.openl.meta.ByteValue) getAppropriateValue(values, new org.openl.meta.ByteValue(small)), 
-            NumberOperations.SMALL, values);
+        return new org.openl.meta.ByteValue(
+            (org.openl.meta.ByteValue) getAppropriateValue(values, new org.openl.meta.ByteValue(small)),
+            NumberOperations.SMALL,
+            values);
     }
 
     /**
-     * Sorts the array <b>values</b> in descending order and returns the value from array <b>values</b> at position <b>position</b>
-     * @param values array of org.openl.meta.ByteValue values 
+     * Sorts the array <b>values</b> in descending order and returns the value
+     * from array <b>values</b> at position <b>position</b>
+     * 
+     * @param values array of org.openl.meta.ByteValue values
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
      */
@@ -375,8 +442,10 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         }
         Byte[] unwrappedArray = unwrap(values);
         Byte big = MathUtils.big(unwrappedArray, position);
-        return new org.openl.meta.ByteValue((org.openl.meta.ByteValue) getAppropriateValue(values, new org.openl.meta.ByteValue(big)),
-            NumberOperations.BIG, values);
+        return new org.openl.meta.ByteValue(
+            (org.openl.meta.ByteValue) getAppropriateValue(values, new org.openl.meta.ByteValue(big)),
+            NumberOperations.BIG,
+            values);
     }
 
     /**
@@ -396,8 +465,10 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
             return value1;
         }
 
-        return new org.openl.meta.ByteValue(new org.openl.meta.ByteValue(Operators.pow(value1.getValue(), value2.getValue())), 
-            NumberOperations.POW, new org.openl.meta.ByteValue[] { value1, value2 });
+        return new org.openl.meta.ByteValue(
+            new org.openl.meta.ByteValue(Operators.pow(value1.getValue(), value2.getValue())),
+            NumberOperations.POW,
+            new org.openl.meta.ByteValue[] { value1, value2 });
     }
 
     /**
@@ -459,7 +530,9 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     // Autocasts
 
     /**
-     * Is used to overload implicit cast operators from byte to org.openl.meta.ByteValue
+     * Is used to overload implicit cast operators from byte to
+     * org.openl.meta.ByteValue
+     * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.ByteValue
@@ -473,44 +546,45 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         this.value = value;
     }
 
-    /**Formula constructor**/
+    /** Formula constructor **/
     public ByteValue(org.openl.meta.ByteValue lv1, org.openl.meta.ByteValue lv2, byte value, Formulas operand) {
         super(lv1, lv2, operand);
         this.value = value;
     }
 
-    /**Cast constructor**/
+    /** Cast constructor **/
     public ByteValue(byte value, ExplanationNumberValue<?> beforeCastValue, boolean autocast) {
         super(beforeCastValue, new CastOperand("ByteValue", autocast));
         this.value = value;
     }
 
     /**
-    *Copy the current value with new name <b>name</b>
-    */
+     * Copy the current value with new name <b>name</b>
+     */
     @Override
     public org.openl.meta.ByteValue copy(String name) {
         return copy(this, name);
     }
 
     /**
-    * Prints the value of the current variable
-    */
+     * Prints the value of the current variable
+     */
     public String printValue() {
         return String.valueOf(value);
     }
 
     /**
-    * Returns the value of the current variable
-    */
+     * Returns the value of the current variable
+     */
     public byte getValue() {
         return value;
     }
 
-    //Equals
+    // Equals
     @Override
-     /**
-     * Indicates whether some other object is "equal to" this org.openl.meta.ByteValue variable. 
+    /**
+     * Indicates whether some other object is "equal to" this
+     * org.openl.meta.ByteValue variable.
      */
     public boolean equals(Object obj) {
         return obj instanceof ByteValue && value == ((ByteValue) obj).value;
@@ -518,15 +592,16 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
 
     // sort
     /**
-    * Sorts the array <b>values</b>
-    * @param values an array for sorting
-    * @return the sorted array
-    */
-    public static org.openl.meta.ByteValue[] sort (org.openl.meta.ByteValue[] values ) {
+     * Sorts the array <b>values</b>
+     * 
+     * @param values an array for sorting
+     * @return the sorted array
+     */
+    public static org.openl.meta.ByteValue[] sort(org.openl.meta.ByteValue[] values) {
         org.openl.meta.ByteValue[] sortedArray = null;
         if (values != null) {
             sortedArray = new org.openl.meta.ByteValue[values.length];
-           org.openl.meta.ByteValue[] notNullArray = ArrayTool.removeNulls(values);
+            org.openl.meta.ByteValue[] notNullArray = ArrayTool.removeNulls(values);
 
             Arrays.sort(notNullArray);
 
@@ -535,7 +610,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         }
         return sortedArray;
     }
-        // <<< END INSERT Functions >>>
+    // <<< END INSERT Functions >>>
 
     // ******* Autocasts *************
 
@@ -596,37 +671,37 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     // ******* Casts *************
 
     public static ByteValue cast(short x, ByteValue y) {
-    	return new ByteValue((byte) x);
+        return new ByteValue((byte) x);
     }
 
     public static ByteValue cast(char x, ByteValue y) {
-    	return new ByteValue((byte) x);
+        return new ByteValue((byte) x);
     }
 
     public static ByteValue cast(int x, ByteValue y) {
-    	return new ByteValue((byte) x);
+        return new ByteValue((byte) x);
     }
 
     public static ByteValue cast(long x, ByteValue y) {
-    	return new ByteValue((byte) x);
+        return new ByteValue((byte) x);
     }
 
     public static ByteValue cast(float x, ByteValue y) {
-    	return new ByteValue((byte) x);
+        return new ByteValue((byte) x);
     }
-    
+
     public static ByteValue cast(double x, ByteValue y) {
-    	return new ByteValue((byte) x);
+        return new ByteValue((byte) x);
     }
 
     public static ByteValue cast(BigInteger x, ByteValue y) {
-    	return new ByteValue(x.byteValue());
+        return new ByteValue(x.byteValue());
     }
 
     public static ByteValue cast(BigDecimal x, ByteValue y) {
-    	return new ByteValue(x.byteValue());
+        return new ByteValue(x.byteValue());
     }
-    
+
     public static byte cast(ByteValue x, byte y) {
         return x.byteValue();
     }
@@ -658,11 +733,11 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
     public static BigInteger cast(ByteValue x, BigInteger y) {
         return BigInteger.valueOf(x.byteValue());
     }
-    
+
     public static BigDecimal cast(ByteValue x, BigDecimal y) {
         return BigDecimal.valueOf(x.byteValue());
     }
-    
+
     public ByteValue(String valueString) {
         value = Byte.parseByte(valueString);
     }

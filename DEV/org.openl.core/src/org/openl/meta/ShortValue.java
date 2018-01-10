@@ -24,40 +24,58 @@ import org.openl.util.math.MathUtils;
 public class ShortValue extends ExplanationNumberValue<ShortValue> {
 
     private static final long serialVersionUID = 5259931539737847856L;
-    
+
     public static final ShortValue ZERO = new ShortValue((short) 0);
     public static final ShortValue ONE = new ShortValue((short) 1);
     public static final ShortValue MINUS_ONE = new ShortValue((short) -1);
 
-    public static class ShortValueAdapter extends XmlAdapter<Short,ShortValue> {
+    public static class ShortValueAdapter extends XmlAdapter<Short, ShortValue> {
         public ShortValue unmarshal(Short val) throws Exception {
             return new ShortValue(val);
         }
-        
+
         public Short marshal(ShortValue val) throws Exception {
             return val.getValue();
         }
     }
-    
+
     // <<< INSERT Functions >>>
     private final short value;
 
-     /**
+    private static DoubleValue[] toDoubleValues(org.openl.meta.ShortValue[] values) {
+        if (values == null) {
+            return null;
+        }
+        DoubleValue[] doubleValues = new DoubleValue[values.length];
+        int i = 0;
+        for (ShortValue value : values) {
+            doubleValues[i] = autocast(value, DoubleValue.ZERO);
+            i++;
+        }
+        return doubleValues;
+    }
+
+    /**
      * average
-     * @param values  array of org.openl.meta.ShortValue values
+     * 
+     * @param values array of org.openl.meta.ShortValue values
      * @return the average value from the array
      */
-    public static org.openl.meta.ShortValue avg(org.openl.meta.ShortValue[] values) {
+    public static org.openl.meta.DoubleValue avg(org.openl.meta.ShortValue[] values) {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
         Short[] unwrappedArray = unwrap(values);
-        Short avg = MathUtils.avg(unwrappedArray);
-        return new org.openl.meta.ShortValue(new org.openl.meta.ShortValue(avg), NumberOperations.AVG, values);
+        Double avg = MathUtils.avg(unwrappedArray);
+        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(avg),
+            NumberOperations.AVG,
+            toDoubleValues(values));
     }
-     /**
+
+    /**
      * sum
-     * @param values  array of org.openl.meta.ShortValue values
+     * 
+     * @param values array of org.openl.meta.ShortValue values
      * @return the sum value from the array
      */
     public static org.openl.meta.ShortValue sum(org.openl.meta.ShortValue[] values) {
@@ -68,22 +86,27 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         Short sum = MathUtils.sum(unwrappedArray);
         return new org.openl.meta.ShortValue(new org.openl.meta.ShortValue(sum), NumberOperations.SUM, values);
     }
-     /**
+
+    /**
      * median
-     * @param values  array of org.openl.meta.ShortValue values
+     * 
+     * @param values array of org.openl.meta.ShortValue values
      * @return the median value from the array
      */
-    public static org.openl.meta.ShortValue median(org.openl.meta.ShortValue[] values) {
+    public static org.openl.meta.DoubleValue median(org.openl.meta.ShortValue[] values) {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
         Short[] unwrappedArray = unwrap(values);
-        Short median = MathUtils.median(unwrappedArray);
-        return new org.openl.meta.ShortValue(new org.openl.meta.ShortValue(median), NumberOperations.MEDIAN, values);
+        Double median = MathUtils.median(unwrappedArray);
+        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(median),
+            NumberOperations.MEDIAN,
+            toDoubleValues(values));
     }
 
-     /**
+    /**
      * Compares value1 and value2 and returns the max value
+     * 
      * @param value1
      * @param value2
      * @return max value
@@ -93,16 +116,18 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         // "null" means that data does not exist
         // validate(value1, value2, NumberOperations.MAX.toString());
         if (value1 == null)
-            return value2; 
+            return value2;
         if (value2 == null)
-            return value1; 
+            return value1;
 
         return new org.openl.meta.ShortValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
             NumberOperations.MAX,
             new org.openl.meta.ShortValue[] { value1, value2 });
     }
-     /**
+
+    /**
      * Compares value1 and value2 and returns the min value
+     * 
      * @param value1
      * @param value2
      * @return min value
@@ -112,9 +137,9 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         // "null" means that data does not exist
         // validate(value1, value2, NumberOperations.MIN.toString());
         if (value1 == null)
-            return value2; 
+            return value2;
         if (value2 == null)
-            return value1; 
+            return value1;
 
         return new org.openl.meta.ShortValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
             NumberOperations.MIN,
@@ -133,8 +158,10 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         }
 
         return new org.openl.meta.ShortValue((org.openl.meta.ShortValue) getAppropriateValue(values, result),
-            NumberOperations.MAX_IN_ARRAY, values);
+            NumberOperations.MAX_IN_ARRAY,
+            values);
     }
+
     /**
      * 
      * @param values an array org.openl.meta.ShortValue, must not be null
@@ -147,13 +174,16 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         }
 
         return new org.openl.meta.ShortValue((org.openl.meta.ShortValue) getAppropriateValue(values, result),
-            NumberOperations.MIN_IN_ARRAY, values);
+            NumberOperations.MIN_IN_ARRAY,
+            values);
     }
-        /**
+
+    /**
      * 
      * @param value of variable which should be copied
      * @param name of new variable
-     * @return the new org.openl.meta.ShortValue variable with name <b>name</b> and value <b>value</b>
+     * @return the new org.openl.meta.ShortValue variable with name <b>name</b>
+     *         and value <b>value</b>
      */
     public static org.openl.meta.ShortValue copy(org.openl.meta.ShortValue value, String name) {
         if (value.getName() == null) {
@@ -161,7 +191,8 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 
             return value;
         } else if (!value.getName().equals(name)) {
-            org.openl.meta.ShortValue result = new org.openl.meta.ShortValue (value, NumberOperations.COPY, 
+            org.openl.meta.ShortValue result = new org.openl.meta.ShortValue(value,
+                NumberOperations.COPY,
                 new org.openl.meta.ShortValue[] { value });
             result.setName(name);
 
@@ -170,11 +201,12 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         return value;
     }
 
-    //REM
+    // REM
     /**
      * Divides left hand operand by right hand operand and returns remainder
-     * @param value1 org.openl.meta.ShortValue 
-     * @param value2 org.openl.meta.ShortValue 
+     * 
+     * @param value1 org.openl.meta.ShortValue
+     * @param value2 org.openl.meta.ShortValue
      * @return remainder from division value1 by value2
      */
     public static org.openl.meta.ShortValue rem(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
@@ -184,20 +216,24 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
             return ZERO;
         }
 
-        return new org.openl.meta.ShortValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.ShortValue(value1,
+            value2,
+            Operators.rem(value1.getValue(), value2.getValue()),
             Formulas.REM);
     }
 
-    //ADD
+    // ADD
     public static String add(ShortValue value1, String value2) {
         return value1 + value2;
     }
-    
+
     public static String add(String value1, ShortValue value2) {
         return value1 + value2;
-    }    
-     /**
+    }
+
+    /**
      * Adds left hand operand to right hand operand
+     * 
      * @param value1 org.openl.meta.ShortValue
      * @param value2 org.openl.meta.ShortValue
      * @return the result of addition operation
@@ -205,8 +241,8 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     public static org.openl.meta.ShortValue add(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
         // temporary commented to support operations with nulls
         //
-        //        validate(value1, value2, Formulas.ADD.toString());
-        //conditions for classes that are wrappers over primitives
+        // validate(value1, value2, Formulas.ADD.toString());
+        // conditions for classes that are wrappers over primitives
         if (value1 == null) {
             return value2;
         }
@@ -215,21 +251,25 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
             return value1;
         }
 
-        return new org.openl.meta.ShortValue(value1, value2, Operators.add(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.ShortValue(value1,
+            value2,
+            Operators.add(value1.getValue(), value2.getValue()),
             Formulas.ADD);
-}
+    }
 
     // MULTIPLY
-     /**
+    /**
      * Multiplies left hand operand to right hand operand
+     * 
      * @param value1 org.openl.meta.ShortValue
      * @param value2 org.openl.meta.ShortValue
-     * @return the result of multiplication  operation
+     * @return the result of multiplication operation
      */
-    public static org.openl.meta.ShortValue multiply(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+    public static org.openl.meta.ShortValue multiply(org.openl.meta.ShortValue value1,
+            org.openl.meta.ShortValue value2) {
         // temporary commented to support operations with nulls
         //
-        //        validate(value1, value2, Formulas.MULTIPLY.toString());
+        // validate(value1, value2, Formulas.MULTIPLY.toString());
         if (value1 == null) {
             return value2;
         }
@@ -238,21 +278,25 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
             return value1;
         }
 
-        return new org.openl.meta.ShortValue(value1, value2, Operators.multiply(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.ShortValue(value1,
+            value2,
+            Operators.multiply(value1.getValue(), value2.getValue()),
             Formulas.MULTIPLY);
     }
 
-    //SUBTRACT
+    // SUBTRACT
     /**
      * Subtracts left hand operand to right hand operand
+     * 
      * @param value1 org.openl.meta.ShortValue
      * @param value2 org.openl.meta.ShortValue
-     * @return the result of subtraction  operation
+     * @return the result of subtraction operation
      */
-    public static org.openl.meta.ShortValue subtract(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+    public static org.openl.meta.ShortValue subtract(org.openl.meta.ShortValue value1,
+            org.openl.meta.ShortValue value2) {
         // temporary commented to support operations with nulls
         //
-        //        validate(value1, value2, Formulas.SUBTRACT.toString());
+        // validate(value1, value2, Formulas.SUBTRACT.toString());
         if (value1 == null && value2 == null) {
             return null;
         }
@@ -265,49 +309,62 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
             return value1;
         }
 
-        return new org.openl.meta.ShortValue(value1, value2, Operators.subtract(value1.getValue(), value2.getValue()), 
+        return new org.openl.meta.ShortValue(value1,
+            value2,
+            Operators.subtract(value1.getValue(), value2.getValue()),
             Formulas.SUBTRACT);
     }
 
     // DIVIDE
     /**
      * Divides left hand operand by right hand operand
+     * 
      * @param value1 org.openl.meta.ShortValue
      * @param value2 org.openl.meta.ShortValue
-     * @return the result of division  operation
+     * @return the result of division operation
      */
-    public static org.openl.meta.DoubleValue divide(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+    public static org.openl.meta.DoubleValue divide(org.openl.meta.ShortValue value1,
+            org.openl.meta.ShortValue value2) {
         // temporary commented to support operations with nulls
         //
-        //        validate(value1, value2, Formulas.DIVIDE.toString());
+        // validate(value1, value2, Formulas.DIVIDE.toString());
         if (value1 == null && value2 == null) {
             return null;
         }
 
         if (value1 == null) {
             if (value2 != null && value2.doubleValue() != 0) {
-                return new org.openl.meta.DoubleValue(null, new DoubleValue(value2.doubleValue()), divide(ONE, value2).getValue(), Formulas.DIVIDE);
+                return new org.openl.meta.DoubleValue(null,
+                    new DoubleValue(value2.doubleValue()),
+                    divide(ONE, value2).getValue(),
+                    Formulas.DIVIDE);
             }
         }
 
         if (value2 == null) {
-            return new org.openl.meta.DoubleValue(new DoubleValue(value1.doubleValue()), null, value1.getValue(), Formulas.DIVIDE);
+            return new org.openl.meta.DoubleValue(new DoubleValue(value1.doubleValue()),
+                null,
+                value1.getValue(),
+                Formulas.DIVIDE);
         }
 
         if (value2.doubleValue() == 0) {
             throw new OpenLRuntimeException("Division by zero");
         }
 
-        return new org.openl.meta.DoubleValue(new DoubleValue(value1.doubleValue()), new DoubleValue(value2.doubleValue()), Operators.divide(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.DoubleValue(new DoubleValue(value1.doubleValue()),
+            new DoubleValue(value2.doubleValue()),
+            Operators.divide(value1.getValue(), value2.getValue()),
             Formulas.DIVIDE);
     }
 
     // QUAOTIENT
     /**
      * Divides left hand operand by right hand operand
+     * 
      * @param number org.openl.meta.ShortValue
      * @param divisor org.openl.meta.ShortValue
-     * @return LongValue the result of division  operation
+     * @return LongValue the result of division operation
      */
     public static LongValue quotient(org.openl.meta.ShortValue number, org.openl.meta.ShortValue divisor) {
         if (number != null && divisor != null) {
@@ -318,8 +375,10 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     }
 
     // generated product function for types that are wrappers over primitives
-     /**
-     * Multiplies the numbers from the provided array and returns the product as a number.
+    /**
+     * Multiplies the numbers from the provided array and returns the product as
+     * a number.
+     * 
      * @param values an array of IntValue which will be converted to DoubleValue
      * @return the product as a number
      */
@@ -332,23 +391,30 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         // we loose the parameters, but not the result of computation.
         return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
     }
-     /**
-     *   
+
+    /**
+     * 
      * @param number
      * @param divisor
-     * @return the remainder after a number is divided by a divisor. The result is a numeric value and has the same sign as the devisor.
+     * @return the remainder after a number is divided by a divisor. The result
+     *         is a numeric value and has the same sign as the devisor.
      */
     public static org.openl.meta.ShortValue mod(org.openl.meta.ShortValue number, org.openl.meta.ShortValue divisor) {
         if (number != null && divisor != null) {
-            org.openl.meta.ShortValue result = new org.openl.meta.ShortValue(MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new org.openl.meta.ShortValue(result, NumberOperations.MOD, new org.openl.meta.ShortValue[]{number, divisor} );
+            org.openl.meta.ShortValue result = new org.openl.meta.ShortValue(
+                MathUtils.mod(number.getValue(), divisor.getValue()));
+            return new org.openl.meta.ShortValue(result,
+                NumberOperations.MOD,
+                new org.openl.meta.ShortValue[] { number, divisor });
         }
         return null;
     }
 
     /**
-     * Sorts the array <b>values</b> in ascending order and returns the value from array <b>values</b> at position <b>position</b>
-     * @param values array of org.openl.meta.ShortValue values 
+     * Sorts the array <b>values</b> in ascending order and returns the value
+     * from array <b>values</b> at position <b>position</b>
+     * 
+     * @param values array of org.openl.meta.ShortValue values
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
      */
@@ -358,13 +424,17 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         }
         Short[] unwrappedArray = unwrap(values);
         Short small = MathUtils.small(unwrappedArray, position);
-        return new org.openl.meta.ShortValue((org.openl.meta.ShortValue) getAppropriateValue(values, new org.openl.meta.ShortValue(small)), 
-            NumberOperations.SMALL, values);
+        return new org.openl.meta.ShortValue(
+            (org.openl.meta.ShortValue) getAppropriateValue(values, new org.openl.meta.ShortValue(small)),
+            NumberOperations.SMALL,
+            values);
     }
 
     /**
-     * Sorts the array <b>values</b> in descending order and returns the value from array <b>values</b> at position <b>position</b>
-     * @param values array of org.openl.meta.ShortValue values 
+     * Sorts the array <b>values</b> in descending order and returns the value
+     * from array <b>values</b> at position <b>position</b>
+     * 
+     * @param values array of org.openl.meta.ShortValue values
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
      */
@@ -374,8 +444,10 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         }
         Short[] unwrappedArray = unwrap(values);
         Short big = MathUtils.big(unwrappedArray, position);
-        return new org.openl.meta.ShortValue((org.openl.meta.ShortValue) getAppropriateValue(values, new org.openl.meta.ShortValue(big)),
-            NumberOperations.BIG, values);
+        return new org.openl.meta.ShortValue(
+            (org.openl.meta.ShortValue) getAppropriateValue(values, new org.openl.meta.ShortValue(big)),
+            NumberOperations.BIG,
+            values);
     }
 
     /**
@@ -395,8 +467,10 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
             return value1;
         }
 
-        return new org.openl.meta.ShortValue(new org.openl.meta.ShortValue(Operators.pow(value1.getValue(), value2.getValue())), 
-            NumberOperations.POW, new org.openl.meta.ShortValue[] { value1, value2 });
+        return new org.openl.meta.ShortValue(
+            new org.openl.meta.ShortValue(Operators.pow(value1.getValue(), value2.getValue())),
+            NumberOperations.POW,
+            new org.openl.meta.ShortValue[] { value1, value2 });
     }
 
     /**
@@ -458,7 +532,9 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     // Autocasts
 
     /**
-     * Is used to overload implicit cast operators from byte to org.openl.meta.ShortValue
+     * Is used to overload implicit cast operators from byte to
+     * org.openl.meta.ShortValue
+     * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.ShortValue
@@ -466,8 +542,11 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     public static org.openl.meta.ShortValue autocast(byte x, org.openl.meta.ShortValue y) {
         return new org.openl.meta.ShortValue((short) x);
     }
+
     /**
-     * Is used to overload implicit cast operators from short to org.openl.meta.ShortValue
+     * Is used to overload implicit cast operators from short to
+     * org.openl.meta.ShortValue
+     * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.ShortValue
@@ -481,44 +560,45 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         this.value = value;
     }
 
-    /**Formula constructor**/
+    /** Formula constructor **/
     public ShortValue(org.openl.meta.ShortValue lv1, org.openl.meta.ShortValue lv2, short value, Formulas operand) {
         super(lv1, lv2, operand);
         this.value = value;
     }
 
-    /**Cast constructor**/
+    /** Cast constructor **/
     public ShortValue(short value, ExplanationNumberValue<?> beforeCastValue, boolean autocast) {
         super(beforeCastValue, new CastOperand("ShortValue", autocast));
         this.value = value;
     }
 
     /**
-    *Copy the current value with new name <b>name</b>
-    */
+     * Copy the current value with new name <b>name</b>
+     */
     @Override
     public org.openl.meta.ShortValue copy(String name) {
         return copy(this, name);
     }
 
     /**
-    * Prints the value of the current variable
-    */
+     * Prints the value of the current variable
+     */
     public String printValue() {
         return String.valueOf(value);
     }
 
     /**
-    * Returns the value of the current variable
-    */
+     * Returns the value of the current variable
+     */
     public short getValue() {
         return value;
     }
 
-    //Equals
+    // Equals
     @Override
-     /**
-     * Indicates whether some other object is "equal to" this org.openl.meta.ShortValue variable. 
+    /**
+     * Indicates whether some other object is "equal to" this
+     * org.openl.meta.ShortValue variable.
      */
     public boolean equals(Object obj) {
         return obj instanceof ShortValue && value == ((ShortValue) obj).value;
@@ -526,15 +606,16 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
 
     // sort
     /**
-    * Sorts the array <b>values</b>
-    * @param values an array for sorting
-    * @return the sorted array
-    */
-    public static org.openl.meta.ShortValue[] sort (org.openl.meta.ShortValue[] values ) {
+     * Sorts the array <b>values</b>
+     * 
+     * @param values an array for sorting
+     * @return the sorted array
+     */
+    public static org.openl.meta.ShortValue[] sort(org.openl.meta.ShortValue[] values) {
         org.openl.meta.ShortValue[] sortedArray = null;
         if (values != null) {
             sortedArray = new org.openl.meta.ShortValue[values.length];
-           org.openl.meta.ShortValue[] notNullArray = ArrayTool.removeNulls(values);
+            org.openl.meta.ShortValue[] notNullArray = ArrayTool.removeNulls(values);
 
             Arrays.sort(notNullArray);
 
@@ -543,9 +624,9 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         }
         return sortedArray;
     }
-        // <<< END INSERT Functions >>>
-    
-    // ******* Autocasts*************    
+    // <<< END INSERT Functions >>>
+
+    // ******* Autocasts*************
 
     public static IntValue autocast(ShortValue x, IntValue y) {
         if (x == null) {
@@ -592,37 +673,37 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         }
         return new BigDecimalValue(String.valueOf(x.getValue()), x, true);
     }
-    
+
     // ******* Casts*************
 
     public static ShortValue cast(char x, ShortValue y) {
-    	return new ShortValue((short) x);
+        return new ShortValue((short) x);
     }
 
     public static ShortValue cast(int x, ShortValue y) {
-    	return new ShortValue((short) x);
+        return new ShortValue((short) x);
     }
 
     public static ShortValue cast(long x, ShortValue y) {
-    	return new ShortValue((short) x);
+        return new ShortValue((short) x);
     }
 
     public static ShortValue cast(float x, ShortValue y) {
-    	return new ShortValue((short) x);
+        return new ShortValue((short) x);
     }
-    
+
     public static ShortValue cast(double x, ShortValue y) {
-    	return new ShortValue((short) x);
+        return new ShortValue((short) x);
     }
 
     public static ShortValue cast(BigInteger x, ShortValue y) {
-    	return new ShortValue(x.shortValue());
+        return new ShortValue(x.shortValue());
     }
 
     public static ShortValue cast(BigDecimal x, ShortValue y) {
-    	return new ShortValue(x.shortValue());
+        return new ShortValue(x.shortValue());
     }
-    
+
     public static byte cast(ShortValue x, byte y) {
         return x.byteValue();
     }
@@ -657,42 +738,42 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         }
         return new ByteValue(x.byteValue(), x, false);
     }
-    
+
     public static BigInteger cast(ShortValue x, BigInteger y) {
         return BigInteger.valueOf(x.shortValue());
     }
-    
+
     public static BigDecimal cast(ShortValue x, BigDecimal y) {
         return BigDecimal.valueOf(x.shortValue());
     }
 
     public ShortValue(String valueString) {
         value = Short.parseShort(valueString);
-    }    
+    }
 
     /** Function constructor **/
     public ShortValue(ShortValue result, NumberOperations function, ShortValue[] params) {
         super(function, params);
         this.value = result.shortValue();
-    }   
-    
+    }
+
     @Override
-    public double doubleValue() {        
+    public double doubleValue() {
         return (double) value;
     }
 
     @Override
-    public float floatValue() {        
+    public float floatValue() {
         return (float) value;
     }
 
     @Override
-    public int intValue() {        
+    public int intValue() {
         return (int) value;
     }
-    
+
     @Override
-    public long longValue() {        
+    public long longValue() {
         return (long) value;
     }
 
@@ -703,8 +784,8 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
     @Override
     public int hashCode() {
         return ((Short) value).hashCode();
-    }    
-    
+    }
+
     private static Short[] unwrap(ShortValue[] values) {
         values = ArrayTool.removeNulls(values);
         Short[] shortArray = new Short[values.length];
@@ -713,6 +794,5 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         }
         return shortArray;
     }
-    
 
 }

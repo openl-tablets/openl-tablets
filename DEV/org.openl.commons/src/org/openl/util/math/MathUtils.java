@@ -6,11 +6,9 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Arrays;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.openl.util.ArrayTool;
-import org.openl.util.ClassUtils;
 
 /**
  * The biggest part of methods is being generated. See org.openl.rules.gen
@@ -21,8 +19,75 @@ import org.openl.util.ClassUtils;
  */
 public class MathUtils {
 
-    // <<< INSERT Functions >>>
-    // MAX function
+    private static <T extends Number> double[] numberArrayToDoubleArray(T[] values) {
+        if (values == null) {
+            return null;
+        }
+        double[] doubleArray = new double[values.length];
+        for (int i = 0; i < values.length; i++) {
+            if (values[i] != null) {
+                doubleArray[i] = values[i].doubleValue();
+            }
+        }
+        return doubleArray;
+    }
+
+    private static double[] byteArrayToDoubleArray(byte[] values) {
+        if (values == null) {
+            return null;
+        }
+        double[] doubleArray = new double[values.length];
+        for (int i = 0; i < values.length; i++) {
+            doubleArray[i] = values[i];
+        }
+        return doubleArray;
+    }
+
+    private static double[] shortArrayToDoubleArray(short[] values) {
+        if (values == null) {
+            return null;
+        }
+        double[] doubleArray = new double[values.length];
+        for (int i = 0; i < values.length; i++) {
+            doubleArray[i] = values[i];
+        }
+        return doubleArray;
+    }
+
+    private static double[] intArrayToDoubleArray(int[] values) {
+        if (values == null) {
+            return null;
+        }
+        double[] doubleArray = new double[values.length];
+        for (int i = 0; i < values.length; i++) {
+            doubleArray[i] = values[i];
+        }
+        return doubleArray;
+    }
+
+    private static double[] longArrayToDoubleArray(long[] values) {
+        if (values == null) {
+            return null;
+        }
+        double[] doubleArray = new double[values.length];
+        for (int i = 0; i < values.length; i++) {
+            doubleArray[i] = values[i];
+        }
+        return doubleArray;
+    }
+
+    private static double[] floatArrayToDoubleArray(float[] values) {
+        if (values == null) {
+            return null;
+        }
+        double[] doubleArray = new double[values.length];
+        for (int i = 0; i < values.length; i++) {
+            doubleArray[i] = values[i];
+        }
+        return doubleArray;
+    }
+
+    // MAX
     public static boolean max(byte value1, byte value2) {
         return value1 > value2;
     }
@@ -47,32 +112,76 @@ public class MathUtils {
         return value1 > value2;
     }
 
-    // MAX IN ARRAY function
-    public static byte max(byte[] values) {
+    public static <T extends Comparable<T>> Boolean max(T value1, T value2) {
+        if (value1 == null || value2 == null) {
+            return null;
+        }
+        if (value1.compareTo(value2) > 0) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    public static <T extends Comparable<T>> T max(T[] values) {
+        if (values == null) {
+            return null;
+        }
+        values = ArrayTool.removeNulls(values);
+        if (values.length == 0) {
+            return null;
+        }
+        T max = values[0];
+        for (int i = 1; i < values.length; i++) {
+            if (values[i].compareTo(max) > 0) {
+                max = values[i];
+            }
+        }
+        return max;
+    }
+
+    public static Byte max(byte[] values) {
+        if (values == null || values.length == 0) {
+            return null;
+        }
         return NumberUtils.max(values);
     }
 
-    public static short max(short[] values) {
+    public static Short max(short[] values) {
+        if (values == null || values.length == 0) {
+            return null;
+        }
         return NumberUtils.max(values);
     }
 
-    public static int max(int[] values) {
+    public static Integer max(int[] values) {
+        if (values == null || values.length == 0) {
+            return null;
+        }
         return NumberUtils.max(values);
     }
 
-    public static long max(long[] values) {
+    public static Long max(long[] values) {
+        if (values == null || values.length == 0) {
+            return null;
+        }
         return NumberUtils.max(values);
     }
 
-    public static float max(float[] values) {
+    public static Float max(float[] values) {
+        if (values == null || values.length == 0) {
+            return null;
+        }
         return NumberUtils.max(values);
     }
 
-    public static double max(double[] values) {
+    public static Double max(double[] values) {
+        if (values == null || values.length == 0) {
+            return null;
+        }
         return NumberUtils.max(values);
     }
 
-    // MIN function
+    // MIN
     public static boolean min(byte value1, byte value2) {
         return value1 < value2;
     }
@@ -97,796 +206,846 @@ public class MathUtils {
         return value1 < value2;
     }
 
-    // MIN IN ARRAY function
-    public static byte min(byte[] values) {
+    public static <T extends Comparable<T>> Boolean min(T value1, T value2) {
+        if (value1 == null || value2 == null) {
+            return null;
+        }
+        if (value1.compareTo(value2) < 0) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    public static <T extends Comparable<T>> T min(T[] values) {
+        if (values == null) {
+            return null;
+        }
+        values = ArrayTool.removeNulls(values);
+        if (values.length == 0) {
+            return null;
+        }
+        T min = values[0];
+        for (int i = 1; i < values.length; i++) {
+            if (values[i].compareTo(min) < 0) {
+                min = values[i];
+            }
+        }
+        return min;
+    }
+
+    public static Byte min(byte[] values) {
+        if (values == null || values.length == 0) {
+            return null;
+        }
         return NumberUtils.min(values);
     }
 
-    public static short min(short[] values) {
+    public static Short min(short[] values) {
+        if (values == null || values.length == 0) {
+            return null;
+        }
         return NumberUtils.min(values);
     }
 
-    public static int min(int[] values) {
+    public static Integer min(int[] values) {
+        if (values == null || values.length == 0) {
+            return null;
+        }
         return NumberUtils.min(values);
     }
 
-    public static long min(long[] values) {
+    public static Long min(long[] values) {
+        if (values == null || values.length == 0) {
+            return null;
+        }
         return NumberUtils.min(values);
     }
 
-    public static float min(float[] values) {
+    public static Float min(float[] values) {
+        if (values == null || values.length == 0) {
+            return null;
+        }
         return NumberUtils.min(values);
     }
 
-    public static double min(double[] values) {
+    public static Double min(double[] values) {
+        if (values == null || values.length == 0) {
+            return null;
+        }
         return NumberUtils.min(values);
     }
 
     // AVERAGE
-    public static byte avg(byte[] values) {
-        if (!ArrayUtils.isEmpty(values)) {
-            return (byte) (sum(values) / values.length);
-        }
-        return 0;
-    }
-
-    public static short avg(short[] values) {
-        if (!ArrayUtils.isEmpty(values)) {
-            return (short) (sum(values) / values.length);
-        }
-        return 0;
-    }
-
-    public static int avg(int[] values) {
-        if (!ArrayUtils.isEmpty(values)) {
-            return (int) (sum(values) / values.length);
-        }
-        return 0;
-    }
-
-    public static long avg(long[] values) {
-        if (!ArrayUtils.isEmpty(values)) {
-            return (long) (sum(values) / values.length);
-        }
-        return 0;
-    }
-
-    public static float avg(float[] values) {
-        if (!ArrayUtils.isEmpty(values)) {
-            return (float) (sum(values) / values.length);
-        }
-        return 0;
-    }
-
-    public static double avg(double[] values) {
-        if (!ArrayUtils.isEmpty(values)) {
-            return (double) (sum(values) / values.length);
-        }
-        return 0;
-    }
-
-    // AVERAGE for wrapper types
-    public static java.lang.Byte avg(java.lang.Byte[] values) {
-        int valuableSize = ArrayTool.getNotNullValuesCount(values);
-        if (valuableSize == 0) {
-            return java.lang.Byte.valueOf("0");
-        }
-
-        return (byte) (sum(values) / java.lang.Byte.valueOf((byte) valuableSize));
-    }
-
-    public static java.lang.Short avg(java.lang.Short[] values) {
-        int valuableSize = ArrayTool.getNotNullValuesCount(values);
-        if (valuableSize == 0) {
-            return java.lang.Short.valueOf("0");
-        }
-
-        return (short) (sum(values) / java.lang.Short.valueOf((short) valuableSize));
-    }
-
-    public static java.lang.Integer avg(java.lang.Integer[] values) {
-        int valuableSize = ArrayTool.getNotNullValuesCount(values);
-        if (valuableSize == 0) {
-            return java.lang.Integer.valueOf("0");
-        }
-
-        return (int) (sum(values) / java.lang.Integer.valueOf((int) valuableSize));
-    }
-
-    public static java.lang.Long avg(java.lang.Long[] values) {
-        int valuableSize = ArrayTool.getNotNullValuesCount(values);
-        if (valuableSize == 0) {
-            return java.lang.Long.valueOf("0");
-        }
-
-        return (long) (sum(values) / java.lang.Long.valueOf((long) valuableSize));
-    }
-
-    public static java.lang.Float avg(java.lang.Float[] values) {
-        int valuableSize = ArrayTool.getNotNullValuesCount(values);
-        if (valuableSize == 0) {
-            return java.lang.Float.valueOf("0");
-        }
-
-        return (float) (sum(values) / java.lang.Float.valueOf((float) valuableSize));
-    }
-
-    public static java.lang.Double avg(java.lang.Double[] values) {
-        int valuableSize = ArrayTool.getNotNullValuesCount(values);
-        if (valuableSize == 0) {
-            return java.lang.Double.valueOf("0");
-        }
-
-        return (double) (sum(values) / java.lang.Double.valueOf((double) valuableSize));
-    }
-
-    // AVERAGE for big numeric types
-    public static java.math.BigInteger avg(java.math.BigInteger[] values) {
-        int valuableSize = ArrayTool.getNotNullValuesCount(values);
-        if (valuableSize == 0) {
-            return java.math.BigInteger.ZERO;
-        }
-
-        return divide(sum(values), java.math.BigInteger.valueOf(valuableSize));
-    }
-
-    public static java.math.BigDecimal avg(java.math.BigDecimal[] values) {
-        int valuableSize = ArrayTool.getNotNullValuesCount(values);
-        if (valuableSize == 0) {
-            return java.math.BigDecimal.ZERO;
-        }
-
-        return divide(sum(values), java.math.BigDecimal.valueOf(valuableSize));
-    }
-
-    // SMALL for primitives
-    public static byte small(byte[] values, int position) {
-        byte result = 0;
-        int index = position - 1; // arrays are 0-based
+    public static <T extends Number> Double avg(T[] values) {
         if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
+            return null;
         }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        values = ArrayTool.removeNulls(values);
+        if (values.length == 0) {
+            return null;
         }
-        Arrays.sort(values);
-        result = values[index];
 
-        return result;
+        double[] doubleValues = numberArrayToDoubleArray(values);
+        return sum(doubleValues) / values.length;
     }
 
-    public static short small(short[] values, int position) {
-        short result = 0;
-        int index = position - 1; // arrays are 0-based
+    public static Float avg(Float[] values) {
         if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
+            return null;
         }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        values = ArrayTool.removeNulls(values);
+        if (values.length == 0) {
+            return null;
         }
-        Arrays.sort(values);
-        result = values[index];
 
-        return result;
+        return sum(values) / values.length;
     }
 
-    public static int small(int[] values, int position) {
-        int result = 0;
-        int index = position - 1; // arrays are 0-based
+    public static BigDecimal avg(java.math.BigInteger[] values) {
         if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
+            return null;
         }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        values = ArrayTool.removeNulls(values);
+        if (values.length == 0) {
+            return null;
         }
-        Arrays.sort(values);
-        result = values[index];
 
-        return result;
+        return divide(new BigDecimal(sum(values)), java.math.BigDecimal.valueOf(values.length));
     }
 
-    public static long small(long[] values, int position) {
-        long result = 0;
-        int index = position - 1; // arrays are 0-based
+    public static BigDecimal avg(java.math.BigDecimal[] values) {
         if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
+            return null;
         }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        values = ArrayTool.removeNulls(values);
+        if (values.length == 0) {
+            return null;
         }
-        Arrays.sort(values);
-        result = values[index];
 
-        return result;
+        return divide(sum(values), java.math.BigDecimal.valueOf(values.length));
     }
 
-    public static float small(float[] values, int position) {
-        float result = 0;
-        int index = position - 1; // arrays are 0-based
-        if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
+    public static Double avg(byte[] values) {
+        if (values == null || values.length == 0) {
+            return null;
         }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        double sum = 0d;
+        for (byte a : values) {
+            sum = sum + a;
         }
-        Arrays.sort(values);
-        result = values[index];
-
-        return result;
+        return sum / values.length;
     }
 
-    public static double small(double[] values, int position) {
-        double result = 0;
-        int index = position - 1; // arrays are 0-based
-        if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
+    public static Double avg(short[] values) {
+        if (values == null || values.length == 0) {
+            return null;
         }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        double sum = 0d;
+        for (short a : values) {
+            sum = sum + a;
         }
-        Arrays.sort(values);
-        result = values[index];
-
-        return result;
+        return sum / values.length;
     }
 
-    // SMALL for wrapper types
-    public static java.lang.Byte small(java.lang.Byte[] values, int position) {
-        java.lang.Byte result = java.lang.Byte.valueOf("0");
+    public static Double avg(int[] values) {
+        if (values == null || values.length == 0) {
+            return null;
+        }
+        double sum = 0d;
+        for (int a : values) {
+            sum = sum + a;
+        }
+        return sum / values.length;
+    }
+
+    public static Double avg(long[] values) {
+        if (values == null || values.length == 0) {
+            return null;
+        }
+        double sum = 0d;
+        for (long a : values) {
+            sum = sum + a;
+        }
+        return sum / values.length;
+    }
+
+    public static Float avg(float[] values) {
+        if (values == null || values.length == 0) {
+            return null;
+        }
+        float sum = 0f;
+        for (float a : values) {
+            sum = sum + a;
+        }
+        return sum / values.length;
+    }
+
+    public static Double avg(double[] values) {
+        if (values == null || values.length == 0) {
+            return null;
+        }
+        double sum = 0d;
+        for (double a : values) {
+            sum = sum + a;
+        }
+        return sum / values.length;
+    }
+
+    // SMALL
+    public static <T extends Comparable<T>> T small(T[] values, int position) {
         int index = position - 1;
         if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
+            return null;
         }
         values = ArrayTool.removeNulls(values);
         if (index < 0 || values.length <= index) {
             throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
         }
-        Arrays.sort(values);
-        result = values[index];
-
-        return result;
+        T[] v = values.clone();
+        Arrays.sort(v);
+        return v[index];
     }
 
-    public static java.lang.Short small(java.lang.Short[] values, int position) {
-        java.lang.Short result = java.lang.Short.valueOf("0");
+    public static Byte small(byte[] values, int position) {
         int index = position - 1;
         if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
+            return null;
+        }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        }
+        byte[] v = values.clone();
+        Arrays.sort(v);
+        return v[index];
+    }
+
+    public static Short small(short[] values, int position) {
+        int index = position - 1;
+        if (values == null) {
+            return null;
+        }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        }
+        short[] v = values.clone();
+        Arrays.sort(v);
+        return v[index];
+    }
+
+    public static Integer small(int[] values, int position) {
+        int index = position - 1;
+        if (values == null) {
+            return null;
+        }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        }
+        int[] v = values.clone();
+        Arrays.sort(v);
+        return v[index];
+    }
+
+    public static Long small(long[] values, int position) {
+        int index = position - 1;
+        if (values == null) {
+            return null;
+        }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        }
+        long[] v = values.clone();
+        Arrays.sort(v);
+        return v[index];
+    }
+
+    public static Float small(float[] values, int position) {
+        int index = position - 1;
+        if (values == null) {
+            return null;
+        }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        }
+        float[] v = values.clone();
+        Arrays.sort(v);
+        return v[index];
+    }
+
+    public static Double small(double[] values, int position) {
+        int index = position - 1;
+        if (values == null) {
+            return null;
+        }
+        if (index < 0 || values.length <= index) {
+            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
+        }
+        double[] v = values.clone();
+        Arrays.sort(v);
+        return v[index];
+    }
+
+    // BIG
+    public static <T extends Comparable<T>> T big(T[] values, int position) {
+        int index = position - 1;
+        if (values == null) {
+            return null;
         }
         values = ArrayTool.removeNulls(values);
         if (index < 0 || values.length <= index) {
             throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
         }
-        Arrays.sort(values);
-        result = values[index];
-
-        return result;
+        T[] v = values.clone();
+        Arrays.sort(v);
+        return v[v.length - 1 - index];
     }
 
-    public static java.lang.Integer small(java.lang.Integer[] values, int position) {
-        java.lang.Integer result = java.lang.Integer.valueOf("0");
+    public static Byte big(byte[] values, int position) {
         int index = position - 1;
         if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
+            return null;
         }
-        values = ArrayTool.removeNulls(values);
         if (index < 0 || values.length <= index) {
             throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
         }
-        Arrays.sort(values);
-        result = values[index];
-
-        return result;
+        byte[] v = values.clone();
+        Arrays.sort(v);
+        return v[v.length - 1 - index];
     }
 
-    public static java.lang.Long small(java.lang.Long[] values, int position) {
-        java.lang.Long result = java.lang.Long.valueOf("0");
+    public static Short big(short[] values, int position) {
         int index = position - 1;
         if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
+            return null;
         }
-        values = ArrayTool.removeNulls(values);
         if (index < 0 || values.length <= index) {
             throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
         }
-        Arrays.sort(values);
-        result = values[index];
-
-        return result;
+        short[] v = values.clone();
+        Arrays.sort(v);
+        return v[v.length - 1 - index];
     }
 
-    public static java.lang.Float small(java.lang.Float[] values, int position) {
-        java.lang.Float result = java.lang.Float.valueOf("0");
+    public static Integer big(int[] values, int position) {
         int index = position - 1;
         if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
+            return null;
         }
-        values = ArrayTool.removeNulls(values);
         if (index < 0 || values.length <= index) {
             throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
         }
-        Arrays.sort(values);
-        result = values[index];
-
-        return result;
+        int[] v = values.clone();
+        Arrays.sort(v);
+        return v[v.length - 1 - index];
     }
 
-    public static java.lang.Double small(java.lang.Double[] values, int position) {
-        java.lang.Double result = java.lang.Double.valueOf("0");
+    public static Long big(long[] values, int position) {
         int index = position - 1;
         if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
+            return null;
         }
-        values = ArrayTool.removeNulls(values);
         if (index < 0 || values.length <= index) {
             throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
         }
-        Arrays.sort(values);
-        result = values[index];
-
-        return result;
+        long[] v = values.clone();
+        Arrays.sort(v);
+        return v[v.length - 1 - index];
     }
 
-    // SMALL for big numeric types
-    public static java.math.BigInteger small(java.math.BigInteger[] values, int position) {
-        java.math.BigInteger result = java.math.BigInteger.ZERO;
+    public static Float big(float[] values, int position) {
         int index = position - 1;
         if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
+            return null;
         }
-        values = ArrayTool.removeNulls(values);
         if (index < 0 || values.length <= index) {
             throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
         }
-        Arrays.sort(values);
-        result = values[index];
-
-        return result;
+        float[] v = values.clone();
+        Arrays.sort(v);
+        return v[v.length - 1 - index];
     }
 
-    public static java.math.BigDecimal small(java.math.BigDecimal[] values, int position) {
-        java.math.BigDecimal result = java.math.BigDecimal.ZERO;
+    public static Double big(double[] values, int position) {
         int index = position - 1;
         if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
-        }
-        values = ArrayTool.removeNulls(values);
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
-        Arrays.sort(values);
-        result = values[index];
-
-        return result;
-    }
-
-    // BIG for primitives
-    public static byte big(byte[] values, int position) {
-        byte result = 0;
-        int index = position - 1; // arrays are 0-based
-        if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
+            return null;
         }
         if (index < 0 || values.length <= index) {
             throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
         }
-        Arrays.sort(values);
-        result = values[values.length - 1 - index];
-
-        return result;
-    }
-
-    public static short big(short[] values, int position) {
-        short result = 0;
-        int index = position - 1; // arrays are 0-based
-        if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
-        }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
-        Arrays.sort(values);
-        result = values[values.length - 1 - index];
-
-        return result;
-    }
-
-    public static int big(int[] values, int position) {
-        int result = 0;
-        int index = position - 1; // arrays are 0-based
-        if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
-        }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
-        Arrays.sort(values);
-        result = values[values.length - 1 - index];
-
-        return result;
-    }
-
-    public static long big(long[] values, int position) {
-        long result = 0;
-        int index = position - 1; // arrays are 0-based
-        if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
-        }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
-        Arrays.sort(values);
-        result = values[values.length - 1 - index];
-
-        return result;
-    }
-
-    public static float big(float[] values, int position) {
-        float result = 0;
-        int index = position - 1; // arrays are 0-based
-        if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
-        }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
-        Arrays.sort(values);
-        result = values[values.length - 1 - index];
-
-        return result;
-    }
-
-    public static double big(double[] values, int position) {
-        double result = 0;
-        int index = position - 1; // arrays are 0-based
-        if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
-        }
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
-        Arrays.sort(values);
-        result = values[values.length - 1 - index];
-
-        return result;
-    }
-
-    // BIG for wrapper types
-    public static java.lang.Byte big(java.lang.Byte[] values, int position) {
-        java.lang.Byte result = java.lang.Byte.valueOf("0");
-        int index = position - 1;
-        if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
-        }
-        values = ArrayTool.removeNulls(values);
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
-        Arrays.sort(values);
-        result = values[values.length - 1 - index];
-
-        return result;
-    }
-
-    public static java.lang.Short big(java.lang.Short[] values, int position) {
-        java.lang.Short result = java.lang.Short.valueOf("0");
-        int index = position - 1;
-        if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
-        }
-        values = ArrayTool.removeNulls(values);
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
-        Arrays.sort(values);
-        result = values[values.length - 1 - index];
-
-        return result;
-    }
-
-    public static java.lang.Integer big(java.lang.Integer[] values, int position) {
-        java.lang.Integer result = java.lang.Integer.valueOf("0");
-        int index = position - 1;
-        if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
-        }
-        values = ArrayTool.removeNulls(values);
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
-        Arrays.sort(values);
-        result = values[values.length - 1 - index];
-
-        return result;
-    }
-
-    public static java.lang.Long big(java.lang.Long[] values, int position) {
-        java.lang.Long result = java.lang.Long.valueOf("0");
-        int index = position - 1;
-        if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
-        }
-        values = ArrayTool.removeNulls(values);
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
-        Arrays.sort(values);
-        result = values[values.length - 1 - index];
-
-        return result;
-    }
-
-    public static java.lang.Float big(java.lang.Float[] values, int position) {
-        java.lang.Float result = java.lang.Float.valueOf("0");
-        int index = position - 1;
-        if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
-        }
-        values = ArrayTool.removeNulls(values);
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
-        Arrays.sort(values);
-        result = values[values.length - 1 - index];
-
-        return result;
-    }
-
-    public static java.lang.Double big(java.lang.Double[] values, int position) {
-        java.lang.Double result = java.lang.Double.valueOf("0");
-        int index = position - 1;
-        if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
-        }
-        values = ArrayTool.removeNulls(values);
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
-        Arrays.sort(values);
-        result = values[values.length - 1 - index];
-
-        return result;
-    }
-
-    // BIG for big numeric types
-    public static java.math.BigInteger big(java.math.BigInteger[] values, int position) {
-        java.math.BigInteger result = java.math.BigInteger.ZERO;
-        int index = position - 1;
-        if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
-        }
-        values = ArrayTool.removeNulls(values);
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
-        Arrays.sort(values);
-        result = values[values.length - 1 - index];
-
-        return result;
-    }
-
-    public static java.math.BigDecimal big(java.math.BigDecimal[] values, int position) {
-        java.math.BigDecimal result = java.math.BigDecimal.ZERO;
-        int index = position - 1;
-        if (values == null) {
-            throw new IllegalArgumentException("The array cannot be null");
-        }
-        values = ArrayTool.removeNulls(values);
-        if (index < 0 || values.length <= index) {
-            throw new IllegalArgumentException(String.format("There is no position '%d' in the given array", position));
-        }
-        Arrays.sort(values);
-        result = values[values.length - 1 - index];
-
-        return result;
+        double[] v = values.clone();
+        Arrays.sort(v);
+        return v[v.length - 1 - index];
     }
 
     // SUM
-    public static byte sum(byte[] values) {
-        return (byte) sum(byteArrayToDouble(values));
+    private static interface Adder<T extends Number> {
+        T add(T a, T b);
+
+        T zero();
     }
 
-    public static short sum(short[] values) {
-        return (short) sum(shortArrayToDouble(values));
-    }
-
-    public static int sum(int[] values) {
-        return (int) sum(intArrayToDouble(values));
-    }
-
-    public static long sum(long[] values) {
-        return (long) sum(longArrayToDouble(values));
-    }
-
-    public static float sum(float[] values) {
-        return (float) sum(floatArrayToDouble(values));
-    }
-
-    // SUM for wrapper types
-    public static java.lang.Byte sum(java.lang.Byte[] values) {
-        byte sum = java.lang.Byte.valueOf("0");
-        for (java.lang.Byte value : values) {
+    private static <T extends Number> T sum(T[] values, Adder<T> adder) {
+        if (values == null) {
+            return null;
+        }
+        T sum = adder.zero();
+        for (T value : values) {
             if (value != null) {
-                sum += value;
+                sum = adder.add(sum, value);
             }
         }
         return sum;
+
     }
 
-    public static java.lang.Short sum(java.lang.Short[] values) {
-        short sum = java.lang.Short.valueOf("0");
-        for (java.lang.Short value : values) {
-            if (value != null) {
-                sum += value;
+    public static Byte sum(Byte[] values) {
+        return sum(values, new Adder<Byte>() {
+            @Override
+            public Byte add(Byte a, Byte b) {
+                return (byte) (a + b);
             }
-        }
-        return sum;
-    }
 
-    public static java.lang.Integer sum(java.lang.Integer[] values) {
-        int sum = java.lang.Integer.valueOf("0");
-        for (java.lang.Integer value : values) {
-            if (value != null) {
-                sum += value;
+            @Override
+            public Byte zero() {
+                return 0;
             }
-        }
-        return sum;
+        });
     }
 
-    public static java.lang.Long sum(java.lang.Long[] values) {
-        long sum = java.lang.Long.valueOf("0");
-        for (java.lang.Long value : values) {
-            if (value != null) {
-                sum += value;
+    public static Short sum(Short[] values) {
+        return sum(values, new Adder<Short>() {
+            @Override
+            public Short add(Short a, Short b) {
+                return (short) (a + b);
             }
-        }
-        return sum;
-    }
 
-    public static java.lang.Float sum(java.lang.Float[] values) {
-        float sum = java.lang.Float.valueOf("0");
-        for (java.lang.Float value : values) {
-            if (value != null) {
-                sum += value;
+            @Override
+            public Short zero() {
+                return 0;
             }
-        }
-        return sum;
+        });
     }
 
-    public static java.lang.Double sum(java.lang.Double[] values) {
-        double sum = java.lang.Double.valueOf("0");
-        for (java.lang.Double value : values) {
-            if (value != null) {
-                sum += value;
+    public static Integer sum(Integer[] values) {
+        return sum(values, new Adder<Integer>() {
+            @Override
+            public Integer add(Integer a, Integer b) {
+                return a + b;
             }
-        }
-        return sum;
+
+            @Override
+            public Integer zero() {
+                return 0;
+            }
+        });
     }
 
-    // SUM for big numeric types
+    public static Long sum(Long[] values) {
+        return sum(values, new Adder<Long>() {
+            @Override
+            public Long add(Long a, Long b) {
+                return a + b;
+            }
+
+            @Override
+            public Long zero() {
+                return 0l;
+            }
+        });
+    }
+
+    public static Float sum(Float[] values) {
+        return sum(values, new Adder<Float>() {
+            @Override
+            public Float add(Float a, Float b) {
+                return a + b;
+            }
+
+            @Override
+            public Float zero() {
+                return 0f;
+            }
+        });
+    }
+
+    public static Double sum(Double[] values) {
+        return sum(values, new Adder<Double>() {
+            @Override
+            public Double add(Double a, Double b) {
+                return a + b;
+            }
+
+            @Override
+            public Double zero() {
+                return 0d;
+            }
+        });
+    }
+
     public static java.math.BigInteger sum(java.math.BigInteger[] values) {
-        java.math.BigInteger sum = java.math.BigInteger.ZERO;
-        for (java.math.BigInteger value : values) {
-            if (value != null) {
-                sum = sum.add(value);
+        return sum(values, new Adder<java.math.BigInteger>() {
+            @Override
+            public java.math.BigInteger add(java.math.BigInteger a, java.math.BigInteger b) {
+                return a.add(b);
             }
-        }
-        return sum;
+
+            @Override
+            public java.math.BigInteger zero() {
+                return BigInteger.ZERO;
+            }
+        });
     }
 
     public static java.math.BigDecimal sum(java.math.BigDecimal[] values) {
-        java.math.BigDecimal sum = java.math.BigDecimal.ZERO;
-        for (java.math.BigDecimal value : values) {
-            if (value != null) {
-                sum = sum.add(value);
+        return sum(values, new Adder<java.math.BigDecimal>() {
+            @Override
+            public java.math.BigDecimal add(java.math.BigDecimal a, java.math.BigDecimal b) {
+                return a.add(b);
             }
+
+            @Override
+            public java.math.BigDecimal zero() {
+                return BigDecimal.ZERO;
+            }
+        });
+    }
+
+    public static Byte sum(byte[] values) {
+        if (values == null) {
+            return null;
+        }
+        byte sum = 0;
+        for (byte a : values) {
+            sum = (byte) (sum + a);
         }
         return sum;
     }
 
+    public static Short sum(short[] values) {
+        if (values == null) {
+            return null;
+        }
+        short sum = 0;
+        for (short a : values) {
+            sum = (short) (sum + a);
+        }
+        return sum;
+    }
+
+    public static Integer sum(int[] values) {
+        if (values == null) {
+            return null;
+        }
+        int sum = 0;
+        for (int a : values) {
+            sum = sum + a;
+        }
+        return sum;
+    }
+
+    public static Long sum(long[] values) {
+        if (values == null) {
+            return null;
+        }
+        long sum = 0;
+        for (long a : values) {
+            sum = sum + (long) a;
+        }
+        return sum;
+    }
+
+    public static Float sum(float[] values) {
+        if (values == null) {
+            return null;
+        }
+        float sum = 0;
+        for (float a : values) {
+            sum = sum + a;
+        }
+        return sum;
+    }
+
+    public static Double sum(double[] values) {
+        if (values == null) {
+            return null;
+        }
+        double sum = 0;
+        for (double a : values) {
+            sum = sum + a;
+        }
+        return sum;
+    }
+
+    // PRODUCT
+    private static interface Multiplicator<T extends Number, R extends Number> {
+        R multiply(R a, T b);
+
+        R one();
+
+        R zero();
+    }
+
+    private static <T extends Number, R extends Number> R product(T[] values, Multiplicator<T, R> multiplicator) {
+        if (values == null) {
+            return null;
+        }
+        boolean hasValues = false;
+        R res = multiplicator.one();
+        for (T value : values) {
+            if (value != null) {
+                res = multiplicator.multiply(res, value);
+                hasValues = true;
+            }
+        }
+        return hasValues ? res : multiplicator.zero();
+
+    }
+
+    public static Long product(Byte[] values) {
+        return product(values, new Multiplicator<Byte, Long>() {
+            @Override
+            public Long multiply(Long a, Byte b) {
+                return a * (long) b;
+            }
+
+            @Override
+            public Long one() {
+                return 1l;
+            }
+
+            @Override
+            public Long zero() {
+                return 0l;
+            }
+        });
+    }
+
+    public static Long product(Short[] values) {
+        return product(values, new Multiplicator<Short, Long>() {
+            @Override
+            public Long multiply(Long a, Short b) {
+                return a * (long) b;
+            }
+
+            @Override
+            public Long one() {
+                return 1l;
+            }
+
+            @Override
+            public Long zero() {
+                return 0l;
+            }
+        });
+    }
+
+    public static Long product(Integer[] values) {
+        return product(values, new Multiplicator<Integer, Long>() {
+            @Override
+            public Long multiply(Long a, Integer b) {
+                return a * (long) b;
+            }
+
+            @Override
+            public Long one() {
+                return 1l;
+            }
+
+            @Override
+            public Long zero() {
+                return 0l;
+            }
+        });
+    }
+
+    public static Long product(Long[] values) {
+        return product(values, new Multiplicator<Long, Long>() {
+            @Override
+            public Long multiply(Long a, Long b) {
+                return a * b;
+            }
+
+            @Override
+            public Long one() {
+                return 1l;
+            }
+
+            @Override
+            public Long zero() {
+                return 0l;
+            }
+        });
+    }
+
+    public static Float product(Float[] values) {
+        return product(values, new Multiplicator<Float, Float>() {
+            @Override
+            public Float multiply(Float a, Float b) {
+                return a * b;
+            }
+
+            @Override
+            public Float one() {
+                return 1f;
+            }
+
+            @Override
+            public Float zero() {
+                return 0f;
+            }
+        });
+    }
+
+    public static Double product(Double[] values) {
+        return product(values, new Multiplicator<Double, Double>() {
+            @Override
+            public Double multiply(Double a, Double b) {
+                return a * b;
+            }
+
+            @Override
+            public Double one() {
+                return 1d;
+            }
+
+            @Override
+            public Double zero() {
+                return 0d;
+            }
+        });
+    }
+
+    public static java.math.BigInteger product(java.math.BigInteger[] values) {
+        return product(values, new Multiplicator<BigInteger, BigInteger>() {
+            @Override
+            public BigInteger multiply(BigInteger a, BigInteger b) {
+                return a.multiply(b);
+            }
+
+            @Override
+            public BigInteger one() {
+                return BigInteger.ONE;
+            }
+
+            @Override
+            public BigInteger zero() {
+                return BigInteger.ZERO;
+            }
+        });
+    }
+
+    public static java.math.BigDecimal product(java.math.BigDecimal[] values) {
+        return product(values, new Multiplicator<BigDecimal, BigDecimal>() {
+            @Override
+            public BigDecimal multiply(BigDecimal a, BigDecimal b) {
+                return a.multiply(b);
+            }
+
+            @Override
+            public BigDecimal one() {
+                return BigDecimal.ONE;
+            }
+
+            @Override
+            public BigDecimal zero() {
+                return BigDecimal.ZERO;
+            }
+        });
+    }
+
+    public static Long product(byte[] values) {
+        if (values == null) {
+            return null;
+        }
+        long res = 1;
+        for (byte a : values) {
+            res = res * (long) a;
+        }
+        return values.length > 0 ? res : 0l;
+    }
+
+    public static Long product(short[] values) {
+        if (values == null) {
+            return null;
+        }
+        long res = 1;
+        for (short a : values) {
+            res = res * (long) a;
+        }
+        return values.length > 0 ? res : 0l;
+    }
+
+    public static Long product(int[] values) {
+        if (values == null) {
+            return null;
+        }
+        long res = 1;
+        for (int a : values) {
+            res = res * (long) a;
+        }
+        return values.length > 0 ? res : 0l;
+    }
+
+    public static Long product(long[] values) {
+        if (values == null) {
+            return null;
+        }
+        long res = 1;
+        for (long a : values) {
+            res = res * a;
+        }
+        return values.length > 0 ? res : 0l;
+    }
+
+    public static Float product(float[] values) {
+        if (values == null) {
+            return null;
+        }
+        float res = 1;
+        for (float a : values) {
+            res = res * a;
+        }
+        return values.length > 0 ? res : 0l;
+    }
+
+    public static Double product(double[] values) {
+        if (values == null) {
+            return null;
+        }
+        double res = 1;
+        for (double a : values) {
+            res = res * a;
+        }
+        return values.length > 0 ? res : 0l;
+    }
+
     // MEDIAN
-    public static byte median(byte[] values) {
-        double[] doubleArray = byteArrayToDouble(values);
-        return (byte) median(doubleArray);
-    }
-
-    public static short median(short[] values) {
-        double[] doubleArray = shortArrayToDouble(values);
-        return (short) median(doubleArray);
-    }
-
-    public static int median(int[] values) {
-        double[] doubleArray = intArrayToDouble(values);
-
-        return (int) median(doubleArray);
-    }
-
-    public static long median(long[] values) {
-        double[] doubleArray = longArrayToDouble(values);
-        return (long) median(doubleArray);
-    }
-
-    public static float median(float[] values) {
-        double[] doubleArray = floatArrayToDouble(values);
-        return (float) median(doubleArray);
-    }
-
-    // MEDIAN for all wrapper types
-    public static java.lang.Byte median(java.lang.Byte[] values) {
+    public static <T extends Number> Double median(T[] values) {
         if (values == null) {
             return null;
         }
-        Byte[] notNullValues = ArrayTool.removeNulls(values);
-        if (notNullValues.length == 0) {
+        values = ArrayTool.removeNulls(values);
+        if (values.length == 0) {
             return null;
         }
-        double[] doubleArray = byteArrayToDouble(notNullValues);
-        return (byte) median(doubleArray);
-    }
-
-    public static java.lang.Short median(java.lang.Short[] values) {
-        if (values == null) {
-            return null;
-        }
-        Short[] notNullValues = ArrayTool.removeNulls(values);
-        if (notNullValues.length == 0) {
-            return null;
-        }
-        double[] doubleArray = shortArrayToDouble(notNullValues);
-        return (short) median(doubleArray);
-    }
-
-    public static java.lang.Integer median(java.lang.Integer[] values) {
-        if (values == null) {
-            return null;
-        }
-        Integer[] notNullValues = ArrayTool.removeNulls(values);
-        if (notNullValues.length == 0) {
-            return null;
-        }
-        double[] doubleArray = intArrayToDouble(notNullValues);
-        return (int) median(doubleArray);
-    }
-
-    public static java.lang.Long median(java.lang.Long[] values) {
-        if (values == null) {
-            return null;
-        }
-        Long[] notNullValues = ArrayTool.removeNulls(values);
-        if (notNullValues.length == 0) {
-            return null;
-        }
-        double[] doubleArray = longArrayToDouble(notNullValues);
-        return (long) median(doubleArray);
-    }
-
-    public static java.lang.Float median(java.lang.Float[] values) {
-        if (values == null) {
-            return null;
-        }
-        Float[] notNullValues = ArrayTool.removeNulls(values);
-        if (notNullValues.length == 0) {
-            return null;
-        }
-        double[] doubleArray = floatArrayToDouble(notNullValues);
-        return (float) median(doubleArray);
-    }
-
-    public static java.lang.Double median(java.lang.Double[] values) {
-        if (values == null) {
-            return null;
-        }
-        Double[] notNullValues = ArrayTool.removeNulls(values);
-        if (notNullValues.length == 0) {
-            return null;
-        }
-
-        double[] doubleArray = new double[notNullValues.length];
-        for (int i = 0; i < notNullValues.length; i++) {
-            doubleArray[i] = notNullValues[i];
-        }
-
+        double[] doubleArray = numberArrayToDoubleArray(values);
         return median(doubleArray);
+    }
+
+    public static Float median(Float[] values) {
+        if (values == null) {
+            return null;
+        }
+        values = ArrayTool.removeNulls(values);
+        if (values.length == 0) {
+            return null;
+        }
+        double[] doubleArray = numberArrayToDoubleArray(values);
+        Double median = median(doubleArray);
+        if (median == null) {
+            return null;
+        }
+        return median.floatValue();
     }
 
     public static java.math.BigInteger median(java.math.BigInteger[] values) {
@@ -901,220 +1060,51 @@ public class MathUtils {
             String.format("Method median for %s is not implemented yet", values.getClass().getName()));
     }
 
-    // PRODUCT
-    public static double product(byte[] values) {
-        return product(byteArrayToDouble(values));
-    }
-
-    public static double product(short[] values) {
-        return product(shortArrayToDouble(values));
-    }
-
-    public static double product(int[] values) {
-        return product(intArrayToDouble(values));
-    }
-
-    public static double product(long[] values) {
-        return product(longArrayToDouble(values));
-    }
-
-    public static double product(float[] values) {
-        return product(floatArrayToDouble(values));
-    }
-
-    // PRODUCT
-    private static double[] byteArrayToDouble(Byte[] values) {
-        double[] doubleArray = new double[values.length];
-        for (int i = 0; i < values.length; i++) {
-            doubleArray[i] = (double) values[i];
+    public static Double median(double[] values) {
+        if (values == null) {
+            return null;
         }
-        return doubleArray;
+        int length = values.length;
+        if (length == 0) {
+            return Double.NaN;
+        } else if (length == 1) {
+            return values[0];
+        } else if (length == 2) {
+            return (values[0] + values[1]) * 0.5;
+        }
+        double[] copy = Arrays.copyOf(values, length);
+        Arrays.sort(copy);
+        length--;
+        int index = length >> 1;
+        if (length % 2 == 0) {
+            return copy[index];
+        } else {
+            return (copy[index] + copy[index + 1]) * 0.5;
+        }
     }
 
-    private static double[] shortArrayToDouble(Short[] values) {
-        double[] doubleArray = new double[values.length];
-        for (int i = 0; i < values.length; i++) {
-            doubleArray[i] = (double) values[i];
-        }
-        return doubleArray;
+    public static Double median(byte[] values) {
+        return median(byteArrayToDoubleArray(values));
     }
 
-    private static double[] intArrayToDouble(Integer[] values) {
-        double[] doubleArray = new double[values.length];
-        for (int i = 0; i < values.length; i++) {
-            doubleArray[i] = (double) values[i];
-        }
-        return doubleArray;
+    public static Double median(short[] values) {
+        return median(shortArrayToDoubleArray(values));
     }
 
-    private static double[] longArrayToDouble(Long[] values) {
-        double[] doubleArray = new double[values.length];
-        for (int i = 0; i < values.length; i++) {
-            doubleArray[i] = (double) values[i];
-        }
-        return doubleArray;
+    public static Double median(int[] values) {
+        return median(intArrayToDoubleArray(values));
     }
 
-    private static double[] floatArrayToDouble(Float[] values) {
-        double[] doubleArray = new double[values.length];
-        for (int i = 0; i < values.length; i++) {
-            doubleArray[i] = (double) values[i];
-        }
-        return doubleArray;
+    public static Double median(long[] values) {
+        return median(longArrayToDoubleArray(values));
     }
 
-    private static double[] byteArrayToDouble(byte[] values) {
-        double[] doubleArray = new double[values.length];
-        for (int i = 0; i < values.length; i++) {
-            doubleArray[i] = (double) values[i];
+    public static Float median(float[] values) {
+        Double median = median(floatArrayToDoubleArray(values));
+        if (median == null) {
+            return null;
         }
-        return doubleArray;
-    }
-
-    private static double[] shortArrayToDouble(short[] values) {
-        double[] doubleArray = new double[values.length];
-        for (int i = 0; i < values.length; i++) {
-            doubleArray[i] = (double) values[i];
-        }
-        return doubleArray;
-    }
-
-    private static double[] intArrayToDouble(int[] values) {
-        double[] doubleArray = new double[values.length];
-        for (int i = 0; i < values.length; i++) {
-            doubleArray[i] = (double) values[i];
-        }
-        return doubleArray;
-    }
-
-    private static double[] longArrayToDouble(long[] values) {
-        double[] doubleArray = new double[values.length];
-        for (int i = 0; i < values.length; i++) {
-            doubleArray[i] = (double) values[i];
-        }
-        return doubleArray;
-    }
-
-    private static double[] floatArrayToDouble(float[] values) {
-        double[] doubleArray = new double[values.length];
-        for (int i = 0; i < values.length; i++) {
-            doubleArray[i] = (double) values[i];
-        }
-        return doubleArray;
-    }
-
-    // PRODUCT for wrapper types
-    public static double product(java.lang.Byte[] values) {
-        boolean hasValues = false;
-
-        double res = 1;
-        for (java.lang.Byte value : values) {
-            if (value != null) {
-                res *= value;
-                hasValues = true;
-            }
-        }
-
-        return hasValues ? res : 0;
-    }
-
-    public static double product(java.lang.Short[] values) {
-        boolean hasValues = false;
-
-        double res = 1;
-        for (java.lang.Short value : values) {
-            if (value != null) {
-                res *= value;
-                hasValues = true;
-            }
-        }
-
-        return hasValues ? res : 0;
-    }
-
-    public static double product(java.lang.Integer[] values) {
-        boolean hasValues = false;
-
-        double res = 1;
-        for (java.lang.Integer value : values) {
-            if (value != null) {
-                res *= value;
-                hasValues = true;
-            }
-        }
-
-        return hasValues ? res : 0;
-    }
-
-    public static double product(java.lang.Long[] values) {
-        boolean hasValues = false;
-
-        double res = 1;
-        for (java.lang.Long value : values) {
-            if (value != null) {
-                res *= value;
-                hasValues = true;
-            }
-        }
-
-        return hasValues ? res : 0;
-    }
-
-    public static double product(java.lang.Float[] values) {
-        boolean hasValues = false;
-
-        double res = 1;
-        for (java.lang.Float value : values) {
-            if (value != null) {
-                res *= value;
-                hasValues = true;
-            }
-        }
-
-        return hasValues ? res : 0;
-    }
-
-    public static double product(java.lang.Double[] values) {
-        boolean hasValues = false;
-
-        double res = 1;
-        for (java.lang.Double value : values) {
-            if (value != null) {
-                res *= value;
-                hasValues = true;
-            }
-        }
-
-        return hasValues ? res : 0;
-    }
-
-    // PRODUCT for big numeric types
-    public static java.math.BigInteger product(java.math.BigInteger[] values) {
-        boolean hasValues = false;
-
-        java.math.BigInteger res = java.math.BigInteger.ONE;
-        for (java.math.BigInteger value : values) {
-            if (value != null) {
-                res = res.multiply(value);
-                hasValues = true;
-            }
-        }
-
-        return hasValues ? res : java.math.BigInteger.ZERO;
-    }
-
-    public static java.math.BigDecimal product(java.math.BigDecimal[] values) {
-        boolean hasValues = false;
-
-        java.math.BigDecimal res = java.math.BigDecimal.ONE;
-        for (java.math.BigDecimal value : values) {
-            if (value != null) {
-                res = res.multiply(value);
-                hasValues = true;
-            }
-        }
-
-        return hasValues ? res : java.math.BigDecimal.ZERO;
+        return median.floatValue();
     }
 
     // MOD is implemented as in Excel.
@@ -1179,44 +1169,44 @@ public class MathUtils {
     }
 
     // MOD for wrapper types
-    public static java.lang.Byte mod(java.lang.Byte number, java.lang.Byte divisor) {
+    public static Byte mod(Byte number, Byte divisor) {
         if (number == null || divisor == null) {
-            return java.lang.Byte.valueOf("0");
+            return Byte.valueOf("0");
         }
         return mod((byte) number, (byte) divisor);
     }
 
-    public static java.lang.Short mod(java.lang.Short number, java.lang.Short divisor) {
+    public static Short mod(Short number, Short divisor) {
         if (number == null || divisor == null) {
-            return java.lang.Short.valueOf("0");
+            return Short.valueOf("0");
         }
         return mod((short) number, (short) divisor);
     }
 
-    public static java.lang.Integer mod(java.lang.Integer number, java.lang.Integer divisor) {
+    public static Integer mod(Integer number, Integer divisor) {
         if (number == null || divisor == null) {
-            return java.lang.Integer.valueOf("0");
+            return Integer.valueOf("0");
         }
         return mod((int) number, (int) divisor);
     }
 
-    public static java.lang.Long mod(java.lang.Long number, java.lang.Long divisor) {
+    public static Long mod(Long number, Long divisor) {
         if (number == null || divisor == null) {
-            return java.lang.Long.valueOf("0");
+            return Long.valueOf("0");
         }
         return mod((long) number, (long) divisor);
     }
 
-    public static java.lang.Float mod(java.lang.Float number, java.lang.Float divisor) {
+    public static Float mod(Float number, Float divisor) {
         if (number == null || divisor == null) {
-            return java.lang.Float.valueOf("0");
+            return Float.valueOf("0");
         }
         return mod((float) number, (float) divisor);
     }
 
-    public static java.lang.Double mod(java.lang.Double number, java.lang.Double divisor) {
+    public static Double mod(Double number, Double divisor) {
         if (number == null || divisor == null) {
-            return java.lang.Double.valueOf("0");
+            return Double.valueOf("0");
         }
         return mod((double) number, (double) divisor);
     }
@@ -1274,42 +1264,42 @@ public class MathUtils {
     }
 
     // QUAOTIENT for wrapper types
-    public static long quotient(java.lang.Byte number, java.lang.Byte divisor) {
+    public static long quotient(Byte number, Byte divisor) {
         if (number == null || divisor == null) {
             return 0;
         }
         return quotient((byte) number, (byte) divisor);
     }
 
-    public static long quotient(java.lang.Short number, java.lang.Short divisor) {
+    public static long quotient(Short number, Short divisor) {
         if (number == null || divisor == null) {
             return 0;
         }
         return quotient((short) number, (short) divisor);
     }
 
-    public static long quotient(java.lang.Integer number, java.lang.Integer divisor) {
+    public static long quotient(Integer number, Integer divisor) {
         if (number == null || divisor == null) {
             return 0;
         }
         return quotient((int) number, (int) divisor);
     }
 
-    public static long quotient(java.lang.Long number, java.lang.Long divisor) {
+    public static long quotient(Long number, Long divisor) {
         if (number == null || divisor == null) {
             return 0;
         }
         return quotient((long) number, (long) divisor);
     }
 
-    public static long quotient(java.lang.Float number, java.lang.Float divisor) {
+    public static long quotient(Float number, Float divisor) {
         if (number == null || divisor == null) {
             return 0;
         }
         return quotient((float) number, (float) divisor);
     }
 
-    public static long quotient(java.lang.Double number, java.lang.Double divisor) {
+    public static long quotient(Double number, Double divisor) {
         if (number == null || divisor == null) {
             return 0;
         }
@@ -1332,6 +1322,13 @@ public class MathUtils {
     }
 
     // SORT
+    public static <T extends Comparable<?>> T[] sort(T[] values) {
+        if (values != null) {
+            Arrays.sort(values);
+        }
+        return values;
+    }
+
     public static byte[] sort(byte[] values) {
         if (values != null) {
             Arrays.sort(values);
@@ -1374,73 +1371,6 @@ public class MathUtils {
         return values;
     }
 
-    // SORT for all wrapper types
-    public static java.lang.Byte[] sort(java.lang.Byte[] values) {
-        if (values != null) {
-            values = ArrayTool.removeNulls(values);
-            Arrays.sort(values);
-        }
-        return values;
-    }
-
-    public static java.lang.Short[] sort(java.lang.Short[] values) {
-        if (values != null) {
-            values = ArrayTool.removeNulls(values);
-            Arrays.sort(values);
-        }
-        return values;
-    }
-
-    public static java.lang.Integer[] sort(java.lang.Integer[] values) {
-        if (values != null) {
-            values = ArrayTool.removeNulls(values);
-            Arrays.sort(values);
-        }
-        return values;
-    }
-
-    public static java.lang.Long[] sort(java.lang.Long[] values) {
-        if (values != null) {
-            values = ArrayTool.removeNulls(values);
-            Arrays.sort(values);
-        }
-        return values;
-    }
-
-    public static java.lang.Float[] sort(java.lang.Float[] values) {
-        if (values != null) {
-            values = ArrayTool.removeNulls(values);
-            Arrays.sort(values);
-        }
-        return values;
-    }
-
-    public static java.lang.Double[] sort(java.lang.Double[] values) {
-        if (values != null) {
-            values = ArrayTool.removeNulls(values);
-            Arrays.sort(values);
-        }
-        return values;
-    }
-
-    public static java.math.BigInteger[] sort(java.math.BigInteger[] values) {
-        if (values != null) {
-            values = ArrayTool.removeNulls(values);
-            Arrays.sort(values);
-        }
-        return values;
-    }
-
-    public static java.math.BigDecimal[] sort(java.math.BigDecimal[] values) {
-        if (values != null) {
-            values = ArrayTool.removeNulls(values);
-            Arrays.sort(values);
-        }
-        return values;
-    }
-
-    // <<< END INSERT Functions >>>
-
     /**
      * Divide one BigDecimal to another. When providing a result of divide
      * operation, the precision '5' and {@link RoundingMode#HALF_UP} settings
@@ -1463,162 +1393,4 @@ public class MathUtils {
         return number.divide(divisor);
     }
 
-    // public static BigInteger divide(Number number, Number divisor) {
-    // if (number == null || divisor == null) {
-    // return null;
-    // }
-    // return number / divisor;
-    // }
-
-    // MAX for Big types
-    public static boolean max(BigInteger value1, BigInteger value2) {
-        return value1.compareTo(value2) > 0;
-    }
-
-    public static boolean max(BigDecimal value1, BigDecimal value2) {
-        return value1.compareTo(value2) > 0;
-    }
-
-    // MAX IN ARRAY
-    public static char max(char[] values) {
-        char max = Character.MIN_VALUE;
-        for (char value : values) {
-            if (value > max)
-                max = value;
-        }
-        return max;
-    }
-
-    public static BigInteger max(BigInteger[] values) {
-        return (BigInteger) max((Object[]) values);
-    }
-
-    public static BigDecimal max(BigDecimal[] values) {
-        return (BigDecimal) max((Object[]) values);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static Object max(Object[] values) {
-        if (values == null) {
-            return null;
-        }
-        values = ArrayTool.removeNulls(values);
-        if (values.length == 0) {
-            return null;
-        }
-        if (!(ClassUtils.isAssignable(values.getClass().getComponentType(), Number.class) && ClassUtils
-            .isAssignable(values.getClass().getComponentType(), Comparable.class))) {
-            throw new IllegalArgumentException("Income array must be comparable numeric.");
-        }
-        Comparable<Number>[] numberArray = (Comparable<Number>[]) values;
-        Number max = (Number) numberArray[0];
-        for (int i = 1; i < numberArray.length; i++) {
-            if (numberArray[i].compareTo(max) > 0) {
-                max = (Number) numberArray[i];
-            }
-        }
-        return max;
-    }
-
-    // MIN for big types
-    public static boolean min(BigInteger value1, BigInteger value2) {
-        return value1.compareTo(value2) < 0;
-    }
-
-    public static boolean min(BigDecimal value1, BigDecimal value2) {
-        return value1.compareTo(value2) < 0;
-    }
-
-    // MIN IN ARRAY
-    public static char min(char[] values) {
-        char min = values[0];
-        for (int i = 1; i < values.length; i++) {
-            if (values[i] < min) {
-                min = values[i];
-            }
-        }
-        return min;
-    }
-
-    public static BigInteger min(BigInteger[] values) {
-        return (BigInteger) min((Object[]) values);
-    }
-
-    public static BigDecimal min(BigDecimal[] values) {
-        return (BigDecimal) min((Object[]) values);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static Object min(Object[] values) {
-        if (values == null) {
-            return null;
-        }
-        values = ArrayTool.removeNulls(values);
-        if (values.length == 0) {
-            return null;
-        }
-        if (!(ClassUtils.isAssignable(values.getClass().getComponentType(), Number.class) && ClassUtils
-            .isAssignable(values.getClass().getComponentType(), Comparable.class))) {
-            throw new IllegalArgumentException("Income array must be comparable numeric.");
-        }
-        Comparable<Number>[] numberArray = (Comparable<Number>[]) values;
-        Number min = (Number) numberArray[0];
-        for (int i = 1; i < numberArray.length; i++) {
-            if (numberArray[i].compareTo(min) < 0) {
-                min = (Number) numberArray[i];
-            }
-        }
-        return min;
-    }
-
-    // SUMMARY
-    public static double sum(double[] values) {
-        if (values == null)
-            throw new IllegalArgumentException("The Array must not be null");
-        if (values.length == 0) {
-            return Double.NaN;
-        }
-        double res = 0.0;
-        for (double val : values) {
-            res += val;
-        }
-        return res;
-    }
-
-    // MEDIAN
-    public static double median(double[] values) {
-        if (values == null)
-            throw new IllegalArgumentException("The Array must not be null");
-        int length = values.length;
-        if (length == 0) {
-            return Double.NaN;
-        } else if (length == 1) {
-            return values[0];
-        } else if (length == 2) {
-            return (values[0] + values[1]) * 0.5;
-        }
-        double[] copy = Arrays.copyOf(values, length);
-        Arrays.sort(copy);
-        length--;
-        int index = length >> 1;
-        if (length % 2 == 0) {
-            return copy[index];
-        } else {
-            return (copy[index] + copy[index + 1]) * 0.5;
-        }
-    }
-
-    // PRODUCT
-    public static double product(double[] values) {
-        if (values == null)
-            throw new IllegalArgumentException("The Array must not be null");
-        if (values.length == 0) {
-            return Double.NaN;
-        }
-        double res = 1.0;
-        for (double val : values) {
-            res *= val;
-        }
-        return res;
-    }
 }

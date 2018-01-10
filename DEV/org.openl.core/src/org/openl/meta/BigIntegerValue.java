@@ -43,21 +43,34 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 
     // <<< INSERT Functions >>>
 
+    private static BigDecimalValue[] toBigDecimalValueValues(org.openl.meta.BigIntegerValue[] values) {
+        if (values == null) {
+            return null;
+        }
+        BigDecimalValue[] doubleValues = new BigDecimalValue[values.length];
+        int i = 0;
+        for (BigIntegerValue value : values) {
+            doubleValues[i] = BigDecimalValue.autocast(value, new BigDecimalValue("0"));
+            i++;
+        }
+        return doubleValues;
+    }
+
     /**
      * average
      * 
      * @param values array of org.openl.meta.BigIntegerValue values
      * @return the average value from the array
      */
-    public static org.openl.meta.BigIntegerValue avg(org.openl.meta.BigIntegerValue[] values) {
+    public static org.openl.meta.BigDecimalValue avg(org.openl.meta.BigIntegerValue[] values) {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
         java.math.BigInteger[] unwrappedArray = unwrap(values);
-        java.math.BigInteger avg = MathUtils.avg(unwrappedArray);
-        return new org.openl.meta.BigIntegerValue(new org.openl.meta.BigIntegerValue(avg),
+        java.math.BigDecimal avg = MathUtils.avg(unwrappedArray);
+        return new org.openl.meta.BigDecimalValue(new org.openl.meta.BigDecimalValue(avg),
             NumberOperations.AVG,
-            values);
+            toBigDecimalValueValues(values));
     }
 
     /**
@@ -328,12 +341,18 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 
         if (value1 == null) {
             if (value2 != null && value2.doubleValue() != 0) {
-                return new org.openl.meta.BigDecimalValue(null, new BigDecimalValue(new BigDecimal(value2.getValue())), divide(ONE, value2).getValue(), Formulas.DIVIDE);
+                return new org.openl.meta.BigDecimalValue(null,
+                    new BigDecimalValue(new BigDecimal(value2.getValue())),
+                    divide(ONE, value2).getValue(),
+                    Formulas.DIVIDE);
             }
         }
 
         if (value2 == null) {
-            return new org.openl.meta.BigDecimalValue(new BigDecimalValue(new BigDecimal(value1.getValue())), null, new BigDecimal(value1.getValue()), Formulas.DIVIDE);
+            return new org.openl.meta.BigDecimalValue(new BigDecimalValue(new BigDecimal(value1.getValue())),
+                null,
+                new BigDecimal(value1.getValue()),
+                Formulas.DIVIDE);
         }
 
         if (value2.doubleValue() == 0) {
@@ -570,7 +589,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
      * @return the casted value to org.openl.meta.BigIntegerValue
      */
     public static org.openl.meta.BigIntegerValue autocast(char x, org.openl.meta.BigIntegerValue y) {
-        return new org.openl.meta.BigIntegerValue(String.valueOf((int)x));
+        return new org.openl.meta.BigIntegerValue(String.valueOf((int) x));
     }
 
     /**
@@ -671,37 +690,35 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 
     // ******* Casts 8*************
 
-	public static BigIntegerValue cast(float x, BigIntegerValue y) {
-		return new BigIntegerValue(String.valueOf((long) x));
-	}
+    public static BigIntegerValue cast(float x, BigIntegerValue y) {
+        return new BigIntegerValue(String.valueOf((long) x));
+    }
 
-	public static BigIntegerValue cast(double x, BigIntegerValue y) {
-		return new BigIntegerValue(String.valueOf((long) x));
-	}
+    public static BigIntegerValue cast(double x, BigIntegerValue y) {
+        return new BigIntegerValue(String.valueOf((long) x));
+    }
 
-	
-	public static BigIntegerValue cast(FloatValue x, BigIntegerValue y) {
-		if (x == null){
-			return null;
-		}
-		return new BigIntegerValue(String.valueOf(x.longValue()));
-	}
+    public static BigIntegerValue cast(FloatValue x, BigIntegerValue y) {
+        if (x == null) {
+            return null;
+        }
+        return new BigIntegerValue(String.valueOf(x.longValue()));
+    }
 
-	public static BigIntegerValue cast(DoubleValue x, BigIntegerValue y) {
-		if (x == null){
-			return null;
-		}
-		return new BigIntegerValue(String.valueOf(x.longValue()));
-	}
-	
-	public static BigIntegerValue cast(BigDecimal x, BigIntegerValue y) {
-		if (x == null){
-			return null;
-		}
-		return new BigIntegerValue(x.toBigInteger());
-	}
+    public static BigIntegerValue cast(DoubleValue x, BigIntegerValue y) {
+        if (x == null) {
+            return null;
+        }
+        return new BigIntegerValue(String.valueOf(x.longValue()));
+    }
 
-	
+    public static BigIntegerValue cast(BigDecimal x, BigIntegerValue y) {
+        if (x == null) {
+            return null;
+        }
+        return new BigIntegerValue(x.toBigInteger());
+    }
+
     public static byte cast(BigIntegerValue x, byte y) {
         return x.byteValue();
     }
@@ -744,7 +761,7 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
 
         return new BigDecimal(x.getValue());
     }
-    
+
     public static ByteValue cast(BigIntegerValue x, ByteValue y) {
         if (x == null) {
             return null;

@@ -42,19 +42,34 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
     // <<< INSERT Functions >>>
     private final long value;
 
+    private static DoubleValue[] toDoubleValues(org.openl.meta.LongValue[] values) {
+        if (values == null) {
+            return null;
+        }
+        DoubleValue[] doubleValues = new DoubleValue[values.length];
+        int i = 0;
+        for (LongValue value : values) {
+            doubleValues[i] = autocast(value, DoubleValue.ZERO);
+            i++;
+        }
+        return doubleValues;
+    }
+
     /**
      * average
      * 
      * @param values array of org.openl.meta.LongValue values
      * @return the average value from the array
      */
-    public static org.openl.meta.LongValue avg(org.openl.meta.LongValue[] values) {
+    public static org.openl.meta.DoubleValue avg(org.openl.meta.LongValue[] values) {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
         Long[] unwrappedArray = unwrap(values);
-        Long avg = MathUtils.avg(unwrappedArray);
-        return new org.openl.meta.LongValue(new org.openl.meta.LongValue(avg), NumberOperations.AVG, values);
+        Double avg = MathUtils.avg(unwrappedArray);
+        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(avg),
+            NumberOperations.AVG,
+            toDoubleValues(values));
     }
 
     /**
@@ -78,13 +93,15 @@ public class LongValue extends ExplanationNumberValue<LongValue> {
      * @param values array of org.openl.meta.LongValue values
      * @return the median value from the array
      */
-    public static org.openl.meta.LongValue median(org.openl.meta.LongValue[] values) {
+    public static org.openl.meta.DoubleValue median(org.openl.meta.LongValue[] values) {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
         Long[] unwrappedArray = unwrap(values);
-        Long median = MathUtils.median(unwrappedArray);
-        return new org.openl.meta.LongValue(new org.openl.meta.LongValue(median), NumberOperations.MEDIAN, values);
+        Double median = MathUtils.median(unwrappedArray);
+        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(median),
+            NumberOperations.MEDIAN,
+            toDoubleValues(values));
     }
 
     /**

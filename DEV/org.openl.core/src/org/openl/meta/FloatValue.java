@@ -31,93 +31,104 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     private static final FloatValue ONE = new FloatValue((float) 1);
     private static final FloatValue MINUS_ONE = new FloatValue((float) -1);
 
-    public static class FloatValueAdapter extends XmlAdapter<Float,FloatValue> {
+    public static class FloatValueAdapter extends XmlAdapter<Float, FloatValue> {
         public FloatValue unmarshal(Float val) throws Exception {
             return new FloatValue(val);
         }
-        
+
         public Float marshal(FloatValue val) throws Exception {
             return val.getValue();
         }
     }
-    
+
     // <<< INSERT Functions >>>
     private final float value;
 
-
     /**
      * Compares two values
+     * 
      * @param value1
      * @param value2
-     * @return true if  value1 equal value2
+     * @return true if value1 equal value2
      */
     public static boolean eq(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
-        if (value1 == null || value2 == null){
+        if (value1 == null || value2 == null) {
             return value1 == value2;
         }
         return Comparison.eq(value1.getValue(), value2.getValue());
     }
+
     /**
      * Compares two values
+     * 
      * @param value1
      * @param value2
-     * @return true if  value1 greater or equal value2
+     * @return true if value1 greater or equal value2
      */
     public static Boolean ge(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
         Float v1 = value1 == null ? null : value1.value;
         Float v2 = value2 == null ? null : value2.value;
         return Comparison.ge(v1, v2);
     }
+
     /**
      * Compares two values
+     * 
      * @param value1
      * @param value2
-     * @return true if  value1 greater value2
+     * @return true if value1 greater value2
      */
     public static Boolean gt(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
         Float v1 = value1 == null ? null : value1.value;
         Float v2 = value2 == null ? null : value2.value;
         return Comparison.gt(v1, v2);
     }
+
     /**
      * Compares two values
+     * 
      * @param value1
      * @param value2
-     * @return true if  value1 less or equal value2
+     * @return true if value1 less or equal value2
      */
     public static Boolean le(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
         Float v1 = value1 == null ? null : value1.value;
         Float v2 = value2 == null ? null : value2.value;
         return Comparison.le(v1, v2);
     }
+
     /**
      * Compares two values
+     * 
      * @param value1
      * @param value2
-     * @return true if  value1 less value2
+     * @return true if value1 less value2
      */
     public static Boolean lt(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
         Float v1 = value1 == null ? null : value1.value;
         Float v2 = value2 == null ? null : value2.value;
         return Comparison.lt(v1, v2);
     }
+
     /**
      * Compares two values
+     * 
      * @param value1
      * @param value2
-     * @return true if  value1 not equal value2
+     * @return true if value1 not equal value2
      */
     public static boolean ne(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
-        if (value1 == null || value2 == null){
+        if (value1 == null || value2 == null) {
             return value1 != value2;
         }
 
         return Comparison.ne(value1.getValue(), value2.getValue());
     }
 
-     /**
+    /**
      * average
-     * @param values  array of org.openl.meta.FloatValue values
+     * 
+     * @param values array of org.openl.meta.FloatValue values
      * @return the average value from the array
      */
     public static org.openl.meta.FloatValue avg(org.openl.meta.FloatValue[] values) {
@@ -128,9 +139,11 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         Float avg = MathUtils.avg(unwrappedArray);
         return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(avg), NumberOperations.AVG, values);
     }
-     /**
+
+    /**
      * sum
-     * @param values  array of org.openl.meta.FloatValue values
+     * 
+     * @param values array of org.openl.meta.FloatValue values
      * @return the sum value from the array
      */
     public static org.openl.meta.FloatValue sum(org.openl.meta.FloatValue[] values) {
@@ -141,9 +154,11 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         Float sum = MathUtils.sum(unwrappedArray);
         return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(sum), NumberOperations.SUM, values);
     }
-     /**
+
+    /**
      * median
-     * @param values  array of org.openl.meta.FloatValue values
+     * 
+     * @param values array of org.openl.meta.FloatValue values
      * @return the median value from the array
      */
     public static org.openl.meta.FloatValue median(org.openl.meta.FloatValue[] values) {
@@ -155,8 +170,9 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(median), NumberOperations.MEDIAN, values);
     }
 
-     /**
+    /**
      * Compares value1 and value2 and returns the max value
+     * 
      * @param value1
      * @param value2
      * @return max value
@@ -166,16 +182,18 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         // "null" means that data does not exist
         // validate(value1, value2, NumberOperations.MAX.toString());
         if (value1 == null)
-            return value2; 
+            return value2;
         if (value2 == null)
-            return value1; 
+            return value1;
 
         return new org.openl.meta.FloatValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
             NumberOperations.MAX,
             new org.openl.meta.FloatValue[] { value1, value2 });
     }
-     /**
+
+    /**
      * Compares value1 and value2 and returns the min value
+     * 
      * @param value1
      * @param value2
      * @return min value
@@ -185,9 +203,9 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         // "null" means that data does not exist
         // validate(value1, value2, NumberOperations.MIN.toString());
         if (value1 == null)
-            return value2; 
+            return value2;
         if (value2 == null)
-            return value1; 
+            return value1;
 
         return new org.openl.meta.FloatValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
             NumberOperations.MIN,
@@ -206,8 +224,10 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         }
 
         return new org.openl.meta.FloatValue((org.openl.meta.FloatValue) getAppropriateValue(values, result),
-            NumberOperations.MAX_IN_ARRAY, values);
+            NumberOperations.MAX_IN_ARRAY,
+            values);
     }
+
     /**
      * 
      * @param values an array org.openl.meta.FloatValue, must not be null
@@ -220,13 +240,16 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         }
 
         return new org.openl.meta.FloatValue((org.openl.meta.FloatValue) getAppropriateValue(values, result),
-            NumberOperations.MIN_IN_ARRAY, values);
+            NumberOperations.MIN_IN_ARRAY,
+            values);
     }
-        /**
+
+    /**
      * 
      * @param value of variable which should be copied
      * @param name of new variable
-     * @return the new org.openl.meta.FloatValue variable with name <b>name</b> and value <b>value</b>
+     * @return the new org.openl.meta.FloatValue variable with name <b>name</b>
+     *         and value <b>value</b>
      */
     public static org.openl.meta.FloatValue copy(org.openl.meta.FloatValue value, String name) {
         if (value.getName() == null) {
@@ -234,7 +257,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 
             return value;
         } else if (!value.getName().equals(name)) {
-            org.openl.meta.FloatValue result = new org.openl.meta.FloatValue (value, NumberOperations.COPY, 
+            org.openl.meta.FloatValue result = new org.openl.meta.FloatValue(value,
+                NumberOperations.COPY,
                 new org.openl.meta.FloatValue[] { value });
             result.setName(name);
 
@@ -243,11 +267,12 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         return value;
     }
 
-    //REM
+    // REM
     /**
      * Divides left hand operand by right hand operand and returns remainder
-     * @param value1 org.openl.meta.FloatValue 
-     * @param value2 org.openl.meta.FloatValue 
+     * 
+     * @param value1 org.openl.meta.FloatValue
+     * @param value2 org.openl.meta.FloatValue
      * @return remainder from division value1 by value2
      */
     public static org.openl.meta.FloatValue rem(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
@@ -257,21 +282,24 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
             return ZERO;
         }
 
-        return new org.openl.meta.FloatValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.FloatValue(value1,
+            value2,
+            Operators.rem(value1.getValue(), value2.getValue()),
             Formulas.REM);
     }
 
-    //ADD
+    // ADD
     public static String add(FloatValue value1, String value2) {
         return value1 + value2;
     }
-    
+
     public static String add(String value1, FloatValue value2) {
-       return value1 + value2;
-    }   
-    
-     /**
+        return value1 + value2;
+    }
+
+    /**
      * Adds left hand operand to right hand operand
+     * 
      * @param value1 org.openl.meta.FloatValue
      * @param value2 org.openl.meta.FloatValue
      * @return the result of addition operation
@@ -279,8 +307,8 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     public static org.openl.meta.FloatValue add(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
         // temporary commented to support operations with nulls
         //
-        //        validate(value1, value2, Formulas.ADD.toString());
-        //conditions for classes that are wrappers over primitives
+        // validate(value1, value2, Formulas.ADD.toString());
+        // conditions for classes that are wrappers over primitives
         if (value1 == null) {
             return value2;
         }
@@ -289,21 +317,25 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
             return value1;
         }
 
-        return new org.openl.meta.FloatValue(value1, value2, Operators.add(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.FloatValue(value1,
+            value2,
+            Operators.add(value1.getValue(), value2.getValue()),
             Formulas.ADD);
     }
 
     // MULTIPLY
-     /**
+    /**
      * Multiplies left hand operand to right hand operand
+     * 
      * @param value1 org.openl.meta.FloatValue
      * @param value2 org.openl.meta.FloatValue
-     * @return the result of multiplication  operation
+     * @return the result of multiplication operation
      */
-    public static org.openl.meta.FloatValue multiply(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+    public static org.openl.meta.FloatValue multiply(org.openl.meta.FloatValue value1,
+            org.openl.meta.FloatValue value2) {
         // temporary commented to support operations with nulls
         //
-        //        validate(value1, value2, Formulas.MULTIPLY.toString());
+        // validate(value1, value2, Formulas.MULTIPLY.toString());
         if (value1 == null) {
             return value2;
         }
@@ -312,21 +344,25 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
             return value1;
         }
 
-        return new org.openl.meta.FloatValue(value1, value2, Operators.multiply(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.FloatValue(value1,
+            value2,
+            Operators.multiply(value1.getValue(), value2.getValue()),
             Formulas.MULTIPLY);
     }
 
-    //SUBTRACT
+    // SUBTRACT
     /**
      * Subtracts left hand operand to right hand operand
+     * 
      * @param value1 org.openl.meta.FloatValue
      * @param value2 org.openl.meta.FloatValue
-     * @return the result of subtraction  operation
+     * @return the result of subtraction operation
      */
-    public static org.openl.meta.FloatValue subtract(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
+    public static org.openl.meta.FloatValue subtract(org.openl.meta.FloatValue value1,
+            org.openl.meta.FloatValue value2) {
         // temporary commented to support operations with nulls
         //
-        //        validate(value1, value2, Formulas.SUBTRACT.toString());
+        // validate(value1, value2, Formulas.SUBTRACT.toString());
         if (value1 == null && value2 == null) {
             return null;
         }
@@ -339,21 +375,24 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
             return value1;
         }
 
-        return new org.openl.meta.FloatValue(value1, value2, Operators.subtract(value1.getValue(), value2.getValue()), 
+        return new org.openl.meta.FloatValue(value1,
+            value2,
+            Operators.subtract(value1.getValue(), value2.getValue()),
             Formulas.SUBTRACT);
     }
 
     // DIVIDE
     /**
      * Divides left hand operand by right hand operand
+     * 
      * @param value1 org.openl.meta.FloatValue
      * @param value2 org.openl.meta.FloatValue
-     * @return the result of division  operation
+     * @return the result of division operation
      */
     public static org.openl.meta.FloatValue divide(org.openl.meta.FloatValue value1, org.openl.meta.FloatValue value2) {
         // temporary commented to support operations with nulls
         //
-        //        validate(value1, value2, Formulas.DIVIDE.toString());
+        // validate(value1, value2, Formulas.DIVIDE.toString());
         if (value1 == null && value2 == null) {
             return null;
         }
@@ -372,16 +411,19 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
             throw new OpenLRuntimeException("Division by zero");
         }
 
-        return new org.openl.meta.FloatValue(value1, value2, Operators.divide(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.FloatValue(value1,
+            value2,
+            Operators.divide(value1.getValue(), value2.getValue()),
             Formulas.DIVIDE);
     }
 
     // QUAOTIENT
     /**
      * Divides left hand operand by right hand operand
+     * 
      * @param number org.openl.meta.FloatValue
      * @param divisor org.openl.meta.FloatValue
-     * @return LongValue the result of division  operation
+     * @return LongValue the result of division operation
      */
     public static LongValue quotient(org.openl.meta.FloatValue number, org.openl.meta.FloatValue divisor) {
         if (number != null && divisor != null) {
@@ -392,8 +434,10 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     }
 
     // generated product function for types that are wrappers over primitives
-     /**
-     * Multiplies the numbers from the provided array and returns the product as a number.
+    /**
+     * Multiplies the numbers from the provided array and returns the product as
+     * a number.
+     * 
      * @param values an array of IntValue which will be converted to DoubleValue
      * @return the product as a number
      */
@@ -406,23 +450,30 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         // we loose the parameters, but not the result of computation.
         return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
     }
-     /**
-     *   
+
+    /**
+     * 
      * @param number
      * @param divisor
-     * @return the remainder after a number is divided by a divisor. The result is a numeric value and has the same sign as the devisor.
+     * @return the remainder after a number is divided by a divisor. The result
+     *         is a numeric value and has the same sign as the devisor.
      */
     public static org.openl.meta.FloatValue mod(org.openl.meta.FloatValue number, org.openl.meta.FloatValue divisor) {
         if (number != null && divisor != null) {
-            org.openl.meta.FloatValue result = new org.openl.meta.FloatValue(MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new org.openl.meta.FloatValue(result, NumberOperations.MOD, new org.openl.meta.FloatValue[]{number, divisor} );
+            org.openl.meta.FloatValue result = new org.openl.meta.FloatValue(
+                MathUtils.mod(number.getValue(), divisor.getValue()));
+            return new org.openl.meta.FloatValue(result,
+                NumberOperations.MOD,
+                new org.openl.meta.FloatValue[] { number, divisor });
         }
         return null;
     }
 
     /**
-     * Sorts the array <b>values</b> in ascending order and returns the value from array <b>values</b> at position <b>position</b>
-     * @param values array of org.openl.meta.FloatValue values 
+     * Sorts the array <b>values</b> in ascending order and returns the value
+     * from array <b>values</b> at position <b>position</b>
+     * 
+     * @param values array of org.openl.meta.FloatValue values
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
      */
@@ -432,13 +483,17 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         }
         Float[] unwrappedArray = unwrap(values);
         Float small = MathUtils.small(unwrappedArray, position);
-        return new org.openl.meta.FloatValue((org.openl.meta.FloatValue) getAppropriateValue(values, new org.openl.meta.FloatValue(small)), 
-            NumberOperations.SMALL, values);
+        return new org.openl.meta.FloatValue(
+            (org.openl.meta.FloatValue) getAppropriateValue(values, new org.openl.meta.FloatValue(small)),
+            NumberOperations.SMALL,
+            values);
     }
 
     /**
-     * Sorts the array <b>values</b> in descending order and returns the value from array <b>values</b> at position <b>position</b>
-     * @param values array of org.openl.meta.FloatValue values 
+     * Sorts the array <b>values</b> in descending order and returns the value
+     * from array <b>values</b> at position <b>position</b>
+     * 
+     * @param values array of org.openl.meta.FloatValue values
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
      */
@@ -448,8 +503,10 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         }
         Float[] unwrappedArray = unwrap(values);
         Float big = MathUtils.big(unwrappedArray, position);
-        return new org.openl.meta.FloatValue((org.openl.meta.FloatValue) getAppropriateValue(values, new org.openl.meta.FloatValue(big)),
-            NumberOperations.BIG, values);
+        return new org.openl.meta.FloatValue(
+            (org.openl.meta.FloatValue) getAppropriateValue(values, new org.openl.meta.FloatValue(big)),
+            NumberOperations.BIG,
+            values);
     }
 
     /**
@@ -469,8 +526,10 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
             return value1;
         }
 
-        return new org.openl.meta.FloatValue(new org.openl.meta.FloatValue(Operators.pow(value1.getValue(), value2.getValue())), 
-            NumberOperations.POW, new org.openl.meta.FloatValue[] { value1, value2 });
+        return new org.openl.meta.FloatValue(
+            new org.openl.meta.FloatValue(Operators.pow(value1.getValue(), value2.getValue())),
+            NumberOperations.POW,
+            new org.openl.meta.FloatValue[] { value1, value2 });
     }
 
     /**
@@ -532,7 +591,9 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     // Autocasts
 
     /**
-     * Is used to overload implicit cast operators from byte to org.openl.meta.FloatValue
+     * Is used to overload implicit cast operators from byte to
+     * org.openl.meta.FloatValue
+     * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.FloatValue
@@ -540,8 +601,11 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     public static org.openl.meta.FloatValue autocast(byte x, org.openl.meta.FloatValue y) {
         return new org.openl.meta.FloatValue((float) x);
     }
+
     /**
-     * Is used to overload implicit cast operators from short to org.openl.meta.FloatValue
+     * Is used to overload implicit cast operators from short to
+     * org.openl.meta.FloatValue
+     * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.FloatValue
@@ -549,8 +613,11 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     public static org.openl.meta.FloatValue autocast(short x, org.openl.meta.FloatValue y) {
         return new org.openl.meta.FloatValue((float) x);
     }
+
     /**
-     * Is used to overload implicit cast operators from int to org.openl.meta.FloatValue
+     * Is used to overload implicit cast operators from int to
+     * org.openl.meta.FloatValue
+     * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.FloatValue
@@ -558,8 +625,11 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     public static org.openl.meta.FloatValue autocast(int x, org.openl.meta.FloatValue y) {
         return new org.openl.meta.FloatValue((float) x);
     }
+
     /**
-     * Is used to overload implicit cast operators from char to org.openl.meta.FloatValue
+     * Is used to overload implicit cast operators from char to
+     * org.openl.meta.FloatValue
+     * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.FloatValue
@@ -567,8 +637,11 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     public static org.openl.meta.FloatValue autocast(char x, org.openl.meta.FloatValue y) {
         return new org.openl.meta.FloatValue((float) x);
     }
+
     /**
-     * Is used to overload implicit cast operators from long to org.openl.meta.FloatValue
+     * Is used to overload implicit cast operators from long to
+     * org.openl.meta.FloatValue
+     * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.FloatValue
@@ -576,8 +649,11 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
     public static org.openl.meta.FloatValue autocast(long x, org.openl.meta.FloatValue y) {
         return new org.openl.meta.FloatValue((float) x);
     }
+
     /**
-     * Is used to overload implicit cast operators from float to org.openl.meta.FloatValue
+     * Is used to overload implicit cast operators from float to
+     * org.openl.meta.FloatValue
+     * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.FloatValue
@@ -591,44 +667,45 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         this.value = value;
     }
 
-    /**Formula constructor**/
+    /** Formula constructor **/
     public FloatValue(org.openl.meta.FloatValue lv1, org.openl.meta.FloatValue lv2, float value, Formulas operand) {
         super(lv1, lv2, operand);
         this.value = value;
     }
 
-    /**Cast constructor**/
+    /** Cast constructor **/
     public FloatValue(float value, ExplanationNumberValue<?> beforeCastValue, boolean autocast) {
         super(beforeCastValue, new CastOperand("FloatValue", autocast));
         this.value = value;
     }
 
     /**
-    *Copy the current value with new name <b>name</b>
-    */
+     * Copy the current value with new name <b>name</b>
+     */
     @Override
     public org.openl.meta.FloatValue copy(String name) {
         return copy(this, name);
     }
 
     /**
-    * Prints the value of the current variable
-    */
+     * Prints the value of the current variable
+     */
     public String printValue() {
         return String.valueOf(value);
     }
 
     /**
-    * Returns the value of the current variable
-    */
+     * Returns the value of the current variable
+     */
     public float getValue() {
         return value;
     }
 
-    //Equals
+    // Equals
     @Override
-     /**
-     * Indicates whether some other object is "equal to" this org.openl.meta.FloatValue variable. 
+    /**
+     * Indicates whether some other object is "equal to" this
+     * org.openl.meta.FloatValue variable.
      */
     public boolean equals(Object obj) {
         if (obj instanceof org.openl.meta.FloatValue) {
@@ -641,15 +718,16 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
 
     // sort
     /**
-    * Sorts the array <b>values</b>
-    * @param values an array for sorting
-    * @return the sorted array
-    */
-    public static org.openl.meta.FloatValue[] sort (org.openl.meta.FloatValue[] values ) {
+     * Sorts the array <b>values</b>
+     * 
+     * @param values an array for sorting
+     * @return the sorted array
+     */
+    public static org.openl.meta.FloatValue[] sort(org.openl.meta.FloatValue[] values) {
         org.openl.meta.FloatValue[] sortedArray = null;
         if (values != null) {
             sortedArray = new org.openl.meta.FloatValue[values.length];
-           org.openl.meta.FloatValue[] notNullArray = ArrayTool.removeNulls(values);
+            org.openl.meta.FloatValue[] notNullArray = ArrayTool.removeNulls(values);
 
             Arrays.sort(notNullArray);
 
@@ -658,7 +736,7 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         }
         return sortedArray;
     }
-        // <<< END INSERT Functions >>>
+    // <<< END INSERT Functions >>>
 
     // ******* Autocasts*************
 
@@ -676,21 +754,21 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         }
         return new BigDecimalValue(String.valueOf(x.getValue()), x, true);
     }
-    
+
     // ******* Casts *************
 
     public static FloatValue cast(double x, FloatValue y) {
-    	return new FloatValue((float) x);
+        return new FloatValue((float) x);
     }
 
     public static FloatValue cast(BigInteger x, FloatValue y) {
-    	return new FloatValue(x.floatValue());
+        return new FloatValue(x.floatValue());
     }
 
     public static FloatValue cast(BigDecimal x, FloatValue y) {
-    	return new FloatValue(x.floatValue());
+        return new FloatValue(x.floatValue());
     }
-    
+
     public static byte cast(FloatValue x, byte y) {
         return x.byteValue();
     }
@@ -746,11 +824,11 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         }
         return new LongValue(x.longValue(), x, false);
     }
-    
+
     public static BigInteger cast(FloatValue x, BigInteger y) {
         return BigInteger.valueOf(x.longValue());
     }
-    
+
     public static BigDecimal cast(FloatValue x, BigDecimal y) {
         return BigDecimal.valueOf(x.doubleValue());
     }

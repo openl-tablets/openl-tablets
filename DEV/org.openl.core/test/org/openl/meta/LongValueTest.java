@@ -73,7 +73,7 @@ public class LongValueTest {
     @Test
     public void testAvg() {
         LongValue[] la = getTestArray();
-        assertEquals(new LongValue(38), LongValue.avg(la));
+        assertEquals(38.3333333d, LongValue.avg(la).doubleValue(), 0.001);
         
         LongValue[] nullArray = null;
         assertEquals(null, LongValue.avg(nullArray));
@@ -97,7 +97,7 @@ public class LongValueTest {
     @Test
     public void testMedian() {
         LongValue[] la = getTestArray();
-        assertEquals(new LongValue(10), LongValue.median(la));
+        assertEquals(new DoubleValue(10), LongValue.median(la));
         
         LongValue[] nullArray = null;
         assertEquals(null, LongValue.median(nullArray));

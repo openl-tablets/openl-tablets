@@ -22,42 +22,60 @@ import org.openl.util.math.MathUtils;
 @XmlRootElement
 @XmlJavaTypeAdapter(IntValueAdapter.class)
 public class IntValue extends ExplanationNumberValue<IntValue> {
-    
-    private static final long serialVersionUID = -3821702883606493390L;    
-    
+
+    private static final long serialVersionUID = -3821702883606493390L;
+
     public static final IntValue ZERO = new IntValue((int) 0);
     public static final IntValue ONE = new IntValue((int) 1);
     public static final IntValue MINUS_ONE = new IntValue((int) -1);
 
-    public static class IntValueAdapter extends XmlAdapter<Integer,IntValue> {
+    public static class IntValueAdapter extends XmlAdapter<Integer, IntValue> {
         public IntValue unmarshal(Integer val) throws Exception {
             return new IntValue(val);
         }
-        
+
         public Integer marshal(IntValue val) throws Exception {
             return val.getValue();
         }
     }
-    
+
     // <<< INSERT Functions >>>
     private final int value;
 
-     /**
+    private static DoubleValue[] toDoubleValues(org.openl.meta.IntValue[] values) {
+        if (values == null) {
+            return null;
+        }
+        DoubleValue[] doubleValues = new DoubleValue[values.length];
+        int i = 0;
+        for (IntValue value : values) {
+            doubleValues[i] = autocast(value, DoubleValue.ZERO);
+            i++;
+        }
+        return doubleValues;
+    }
+
+    /**
      * average
-     * @param values  array of org.openl.meta.IntValue values
+     * 
+     * @param values array of org.openl.meta.IntValue values
      * @return the average value from the array
      */
-    public static org.openl.meta.IntValue avg(org.openl.meta.IntValue[] values) {
+    public static org.openl.meta.DoubleValue avg(org.openl.meta.IntValue[] values) {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
         Integer[] unwrappedArray = unwrap(values);
-        Integer avg = MathUtils.avg(unwrappedArray);
-        return new org.openl.meta.IntValue(new org.openl.meta.IntValue(avg), NumberOperations.AVG, values);
+        Double avg = MathUtils.avg(unwrappedArray);
+        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(avg),
+            NumberOperations.AVG,
+            toDoubleValues(values));
     }
-     /**
+
+    /**
      * sum
-     * @param values  array of org.openl.meta.IntValue values
+     * 
+     * @param values array of org.openl.meta.IntValue values
      * @return the sum value from the array
      */
     public static org.openl.meta.IntValue sum(org.openl.meta.IntValue[] values) {
@@ -68,22 +86,27 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         Integer sum = MathUtils.sum(unwrappedArray);
         return new org.openl.meta.IntValue(new org.openl.meta.IntValue(sum), NumberOperations.SUM, values);
     }
-     /**
+
+    /**
      * median
-     * @param values  array of org.openl.meta.IntValue values
+     * 
+     * @param values array of org.openl.meta.IntValue values
      * @return the median value from the array
      */
-    public static org.openl.meta.IntValue median(org.openl.meta.IntValue[] values) {
+    public static org.openl.meta.DoubleValue median(org.openl.meta.IntValue[] values) {
         if (ArrayUtils.isEmpty(values)) {
             return null;
         }
         Integer[] unwrappedArray = unwrap(values);
-        Integer median = MathUtils.median(unwrappedArray);
-        return new org.openl.meta.IntValue(new org.openl.meta.IntValue(median), NumberOperations.MEDIAN, values);
+        Double median = MathUtils.median(unwrappedArray);
+        return new org.openl.meta.DoubleValue(new org.openl.meta.DoubleValue(median),
+            NumberOperations.MEDIAN,
+            toDoubleValues(values));
     }
 
-     /**
+    /**
      * Compares value1 and value2 and returns the max value
+     * 
      * @param value1
      * @param value2
      * @return max value
@@ -93,16 +116,18 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         // "null" means that data does not exist
         // validate(value1, value2, NumberOperations.MAX.toString());
         if (value1 == null)
-            return value2; 
+            return value2;
         if (value2 == null)
-            return value1; 
+            return value1;
 
         return new org.openl.meta.IntValue(MathUtils.max(value1.getValue(), value2.getValue()) ? value1 : value2,
             NumberOperations.MAX,
             new org.openl.meta.IntValue[] { value1, value2 });
     }
-     /**
+
+    /**
      * Compares value1 and value2 and returns the min value
+     * 
      * @param value1
      * @param value2
      * @return min value
@@ -112,9 +137,9 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         // "null" means that data does not exist
         // validate(value1, value2, NumberOperations.MIN.toString());
         if (value1 == null)
-            return value2; 
+            return value2;
         if (value2 == null)
-            return value1; 
+            return value1;
 
         return new org.openl.meta.IntValue(MathUtils.min(value1.getValue(), value2.getValue()) ? value1 : value2,
             NumberOperations.MIN,
@@ -133,8 +158,10 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         }
 
         return new org.openl.meta.IntValue((org.openl.meta.IntValue) getAppropriateValue(values, result),
-            NumberOperations.MAX_IN_ARRAY, values);
+            NumberOperations.MAX_IN_ARRAY,
+            values);
     }
+
     /**
      * 
      * @param values an array org.openl.meta.IntValue, must not be null
@@ -147,13 +174,16 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         }
 
         return new org.openl.meta.IntValue((org.openl.meta.IntValue) getAppropriateValue(values, result),
-            NumberOperations.MIN_IN_ARRAY, values);
+            NumberOperations.MIN_IN_ARRAY,
+            values);
     }
-        /**
+
+    /**
      * 
      * @param value of variable which should be copied
      * @param name of new variable
-     * @return the new org.openl.meta.IntValue variable with name <b>name</b> and value <b>value</b>
+     * @return the new org.openl.meta.IntValue variable with name <b>name</b>
+     *         and value <b>value</b>
      */
     public static org.openl.meta.IntValue copy(org.openl.meta.IntValue value, String name) {
         if (value.getName() == null) {
@@ -161,7 +191,8 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
 
             return value;
         } else if (!value.getName().equals(name)) {
-            org.openl.meta.IntValue result = new org.openl.meta.IntValue (value, NumberOperations.COPY, 
+            org.openl.meta.IntValue result = new org.openl.meta.IntValue(value,
+                NumberOperations.COPY,
                 new org.openl.meta.IntValue[] { value });
             result.setName(name);
 
@@ -170,11 +201,12 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         return value;
     }
 
-    //REM
+    // REM
     /**
      * Divides left hand operand by right hand operand and returns remainder
-     * @param value1 org.openl.meta.IntValue 
-     * @param value2 org.openl.meta.IntValue 
+     * 
+     * @param value1 org.openl.meta.IntValue
+     * @param value2 org.openl.meta.IntValue
      * @return remainder from division value1 by value2
      */
     public static org.openl.meta.IntValue rem(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
@@ -184,21 +216,24 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
             return ZERO;
         }
 
-        return new org.openl.meta.IntValue(value1, value2, Operators.rem(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.IntValue(value1,
+            value2,
+            Operators.rem(value1.getValue(), value2.getValue()),
             Formulas.REM);
     }
 
-    //ADD
+    // ADD
     public static String add(IntValue value1, String value2) {
         return value1 + value2;
     }
-    
+
     public static String add(String value1, IntValue value2) {
         return value1 + value2;
-    }    
-    
-     /**
+    }
+
+    /**
      * Adds left hand operand to right hand operand
+     * 
      * @param value1 org.openl.meta.IntValue
      * @param value2 org.openl.meta.IntValue
      * @return the result of addition operation
@@ -206,8 +241,8 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     public static org.openl.meta.IntValue add(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
         // temporary commented to support operations with nulls
         //
-        //        validate(value1, value2, Formulas.ADD.toString());
-        //conditions for classes that are wrappers over primitives
+        // validate(value1, value2, Formulas.ADD.toString());
+        // conditions for classes that are wrappers over primitives
         if (value1 == null) {
             return value2;
         }
@@ -216,21 +251,24 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
             return value1;
         }
 
-        return new org.openl.meta.IntValue(value1, value2, Operators.add(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.IntValue(value1,
+            value2,
+            Operators.add(value1.getValue(), value2.getValue()),
             Formulas.ADD);
-}
+    }
 
     // MULTIPLY
-     /**
+    /**
      * Multiplies left hand operand to right hand operand
+     * 
      * @param value1 org.openl.meta.IntValue
      * @param value2 org.openl.meta.IntValue
-     * @return the result of multiplication  operation
+     * @return the result of multiplication operation
      */
     public static org.openl.meta.IntValue multiply(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
         // temporary commented to support operations with nulls
         //
-        //        validate(value1, value2, Formulas.MULTIPLY.toString());
+        // validate(value1, value2, Formulas.MULTIPLY.toString());
         if (value1 == null) {
             return value2;
         }
@@ -239,21 +277,24 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
             return value1;
         }
 
-        return new org.openl.meta.IntValue(value1, value2, Operators.multiply(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.IntValue(value1,
+            value2,
+            Operators.multiply(value1.getValue(), value2.getValue()),
             Formulas.MULTIPLY);
     }
 
-    //SUBTRACT
+    // SUBTRACT
     /**
      * Subtracts left hand operand to right hand operand
+     * 
      * @param value1 org.openl.meta.IntValue
      * @param value2 org.openl.meta.IntValue
-     * @return the result of subtraction  operation
+     * @return the result of subtraction operation
      */
     public static org.openl.meta.IntValue subtract(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
         // temporary commented to support operations with nulls
         //
-        //        validate(value1, value2, Formulas.SUBTRACT.toString());
+        // validate(value1, value2, Formulas.SUBTRACT.toString());
         if (value1 == null && value2 == null) {
             return null;
         }
@@ -266,40 +307,51 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
             return value1;
         }
 
-        return new org.openl.meta.IntValue(value1, value2, Operators.subtract(value1.getValue(), value2.getValue()), 
+        return new org.openl.meta.IntValue(value1,
+            value2,
+            Operators.subtract(value1.getValue(), value2.getValue()),
             Formulas.SUBTRACT);
     }
 
     // DIVIDE
     /**
      * Divides left hand operand by right hand operand
+     * 
      * @param value1 org.openl.meta.IntValue
      * @param value2 org.openl.meta.IntValue
-     * @return the result of division  operation
+     * @return the result of division operation
      */
     public static org.openl.meta.DoubleValue divide(org.openl.meta.IntValue value1, org.openl.meta.IntValue value2) {
         // temporary commented to support operations with nulls
         //
-        //        validate(value1, value2, Formulas.DIVIDE.toString());
+        // validate(value1, value2, Formulas.DIVIDE.toString());
         if (value1 == null && value2 == null) {
             return null;
         }
 
         if (value1 == null) {
             if (value2 != null && value2.doubleValue() != 0) {
-                return new org.openl.meta.DoubleValue(null, new DoubleValue(value2.doubleValue()), divide(ONE, value2).getValue(), Formulas.DIVIDE);
+                return new org.openl.meta.DoubleValue(null,
+                    new DoubleValue(value2.doubleValue()),
+                    divide(ONE, value2).getValue(),
+                    Formulas.DIVIDE);
             }
         }
 
         if (value2 == null) {
-            return new org.openl.meta.DoubleValue(new DoubleValue(value1.doubleValue()), null, value1.getValue(), Formulas.DIVIDE);
+            return new org.openl.meta.DoubleValue(new DoubleValue(value1.doubleValue()),
+                null,
+                value1.getValue(),
+                Formulas.DIVIDE);
         }
 
         if (value2.doubleValue() == 0) {
             throw new OpenLRuntimeException("Division by zero");
         }
 
-        return new org.openl.meta.DoubleValue(new DoubleValue(value1.doubleValue()), new DoubleValue(value2.doubleValue()), Operators.divide(value1.getValue(), value2.getValue()),
+        return new org.openl.meta.DoubleValue(new DoubleValue(value1.doubleValue()),
+            new DoubleValue(value2.doubleValue()),
+            Operators.divide(value1.getValue(), value2.getValue()),
             Formulas.DIVIDE);
 
     }
@@ -307,9 +359,10 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     // QUAOTIENT
     /**
      * Divides left hand operand by right hand operand
+     * 
      * @param number org.openl.meta.IntValue
      * @param divisor org.openl.meta.IntValue
-     * @return LongValue the result of division  operation
+     * @return LongValue the result of division operation
      */
     public static LongValue quotient(org.openl.meta.IntValue number, org.openl.meta.IntValue divisor) {
         if (number != null && divisor != null) {
@@ -320,8 +373,10 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     }
 
     // generated product function for types that are wrappers over primitives
-     /**
-     * Multiplies the numbers from the provided array and returns the product as a number.
+    /**
+     * Multiplies the numbers from the provided array and returns the product as
+     * a number.
+     * 
      * @param values an array of IntValue which will be converted to DoubleValue
      * @return the product as a number
      */
@@ -334,23 +389,30 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         // we loose the parameters, but not the result of computation.
         return new DoubleValue(new DoubleValue(product), NumberOperations.PRODUCT, null);
     }
-     /**
-     *   
+
+    /**
+     * 
      * @param number
      * @param divisor
-     * @return the remainder after a number is divided by a divisor. The result is a numeric value and has the same sign as the devisor.
+     * @return the remainder after a number is divided by a divisor. The result
+     *         is a numeric value and has the same sign as the devisor.
      */
     public static org.openl.meta.IntValue mod(org.openl.meta.IntValue number, org.openl.meta.IntValue divisor) {
         if (number != null && divisor != null) {
-            org.openl.meta.IntValue result = new org.openl.meta.IntValue(MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new org.openl.meta.IntValue(result, NumberOperations.MOD, new org.openl.meta.IntValue[]{number, divisor} );
+            org.openl.meta.IntValue result = new org.openl.meta.IntValue(
+                MathUtils.mod(number.getValue(), divisor.getValue()));
+            return new org.openl.meta.IntValue(result,
+                NumberOperations.MOD,
+                new org.openl.meta.IntValue[] { number, divisor });
         }
         return null;
     }
 
     /**
-     * Sorts the array <b>values</b> in ascending order and returns the value from array <b>values</b> at position <b>position</b>
-     * @param values array of org.openl.meta.IntValue values 
+     * Sorts the array <b>values</b> in ascending order and returns the value
+     * from array <b>values</b> at position <b>position</b>
+     * 
+     * @param values array of org.openl.meta.IntValue values
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
      */
@@ -360,13 +422,17 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         }
         Integer[] unwrappedArray = unwrap(values);
         Integer small = MathUtils.small(unwrappedArray, position);
-        return new org.openl.meta.IntValue((org.openl.meta.IntValue) getAppropriateValue(values, new org.openl.meta.IntValue(small)), 
-            NumberOperations.SMALL, values);
+        return new org.openl.meta.IntValue(
+            (org.openl.meta.IntValue) getAppropriateValue(values, new org.openl.meta.IntValue(small)),
+            NumberOperations.SMALL,
+            values);
     }
 
     /**
-     * Sorts the array <b>values</b> in descending order and returns the value from array <b>values</b> at position <b>position</b>
-     * @param values array of org.openl.meta.IntValue values 
+     * Sorts the array <b>values</b> in descending order and returns the value
+     * from array <b>values</b> at position <b>position</b>
+     * 
+     * @param values array of org.openl.meta.IntValue values
      * @param position int value
      * @return the value from array <b>values</b> at position <b>position</b>
      */
@@ -376,8 +442,10 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         }
         Integer[] unwrappedArray = unwrap(values);
         Integer big = MathUtils.big(unwrappedArray, position);
-        return new org.openl.meta.IntValue((org.openl.meta.IntValue) getAppropriateValue(values, new org.openl.meta.IntValue(big)),
-            NumberOperations.BIG, values);
+        return new org.openl.meta.IntValue(
+            (org.openl.meta.IntValue) getAppropriateValue(values, new org.openl.meta.IntValue(big)),
+            NumberOperations.BIG,
+            values);
     }
 
     /**
@@ -397,8 +465,10 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
             return value1;
         }
 
-        return new org.openl.meta.IntValue(new org.openl.meta.IntValue(Operators.pow(value1.getValue(), value2.getValue())), 
-            NumberOperations.POW, new org.openl.meta.IntValue[] { value1, value2 });
+        return new org.openl.meta.IntValue(
+            new org.openl.meta.IntValue(Operators.pow(value1.getValue(), value2.getValue())),
+            NumberOperations.POW,
+            new org.openl.meta.IntValue[] { value1, value2 });
     }
 
     /**
@@ -460,7 +530,9 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     // Autocasts
 
     /**
-     * Is used to overload implicit cast operators from byte to org.openl.meta.IntValue
+     * Is used to overload implicit cast operators from byte to
+     * org.openl.meta.IntValue
+     * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.IntValue
@@ -468,8 +540,11 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     public static org.openl.meta.IntValue autocast(byte x, org.openl.meta.IntValue y) {
         return new org.openl.meta.IntValue((int) x);
     }
+
     /**
-     * Is used to overload implicit cast operators from short to org.openl.meta.IntValue
+     * Is used to overload implicit cast operators from short to
+     * org.openl.meta.IntValue
+     * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.IntValue
@@ -477,8 +552,11 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     public static org.openl.meta.IntValue autocast(short x, org.openl.meta.IntValue y) {
         return new org.openl.meta.IntValue((int) x);
     }
+
     /**
-     * Is used to overload implicit cast operators from int to org.openl.meta.IntValue
+     * Is used to overload implicit cast operators from int to
+     * org.openl.meta.IntValue
+     * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.IntValue
@@ -488,7 +566,9 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     }
 
     /**
-     * Is used to overload implicit cast operators from char to org.openl.meta.IntValue
+     * Is used to overload implicit cast operators from char to
+     * org.openl.meta.IntValue
+     * 
      * @param x
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.IntValue
@@ -497,50 +577,50 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         return new org.openl.meta.IntValue((int) x);
     }
 
-    
     // Constructors
     public IntValue(int value) {
         this.value = value;
     }
 
-    /**Formula constructor**/
+    /** Formula constructor **/
     public IntValue(org.openl.meta.IntValue lv1, org.openl.meta.IntValue lv2, int value, Formulas operand) {
         super(lv1, lv2, operand);
         this.value = value;
     }
 
-    /**Cast constructor**/
+    /** Cast constructor **/
     public IntValue(int value, ExplanationNumberValue<?> beforeCastValue, boolean autocast) {
         super(beforeCastValue, new CastOperand("IntValue", autocast));
         this.value = value;
     }
 
     /**
-    *Copy the current value with new name <b>name</b>
-    */
+     * Copy the current value with new name <b>name</b>
+     */
     @Override
     public org.openl.meta.IntValue copy(String name) {
         return copy(this, name);
     }
 
     /**
-    * Prints the value of the current variable
-    */
+     * Prints the value of the current variable
+     */
     public String printValue() {
         return String.valueOf(value);
     }
 
     /**
-    * Returns the value of the current variable
-    */
+     * Returns the value of the current variable
+     */
     public int getValue() {
         return value;
     }
 
-    //Equals
+    // Equals
     @Override
-     /**
-     * Indicates whether some other object is "equal to" this org.openl.meta.IntValue variable. 
+    /**
+     * Indicates whether some other object is "equal to" this
+     * org.openl.meta.IntValue variable.
      */
     public boolean equals(Object obj) {
         return obj instanceof IntValue && value == ((IntValue) obj).value;
@@ -548,15 +628,16 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
 
     // sort
     /**
-    * Sorts the array <b>values</b>
-    * @param values an array for sorting
-    * @return the sorted array
-    */
-    public static org.openl.meta.IntValue[] sort (org.openl.meta.IntValue[] values ) {
+     * Sorts the array <b>values</b>
+     * 
+     * @param values an array for sorting
+     * @return the sorted array
+     */
+    public static org.openl.meta.IntValue[] sort(org.openl.meta.IntValue[] values) {
         org.openl.meta.IntValue[] sortedArray = null;
         if (values != null) {
             sortedArray = new org.openl.meta.IntValue[values.length];
-           org.openl.meta.IntValue[] notNullArray = ArrayTool.removeNulls(values);
+            org.openl.meta.IntValue[] notNullArray = ArrayTool.removeNulls(values);
 
             Arrays.sort(notNullArray);
 
@@ -565,8 +646,8 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         }
         return sortedArray;
     }
-        // <<< END INSERT Functions >>>
-    
+    // <<< END INSERT Functions >>>
+
     // ******* Autocasts*************
 
     public static LongValue autocast(IntValue x, LongValue y) {
@@ -576,7 +657,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
 
         return new LongValue(x.getValue(), x, true);
     }
-    
+
     public static FloatValue autocast(IntValue x, FloatValue y) {
         if (x == null) {
             return null;
@@ -584,7 +665,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
 
         return new FloatValue(x.getValue(), x, true);
     }
-    
+
     public static DoubleValue autocast(IntValue x, DoubleValue y) {
         if (x == null) {
             return null;
@@ -592,43 +673,43 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
 
         return new DoubleValue(x.getValue(), x, true);
     }
-    
+
     public static BigIntegerValue autocast(IntValue x, BigIntegerValue y) {
         if (x == null) {
             return null;
         }
         return new BigIntegerValue(String.valueOf(x.getValue()), x, true);
     }
-    
+
     public static BigDecimalValue autocast(IntValue x, BigDecimalValue y) {
         if (x == null) {
             return null;
         }
         return new BigDecimalValue(String.valueOf(x.getValue()), x, true);
     }
-    
+
     // ******* Casts*************
 
     public static IntValue cast(long x, IntValue y) {
-    	return new IntValue((int) x);
+        return new IntValue((int) x);
     }
 
     public static IntValue cast(float x, IntValue y) {
-    	return new IntValue((int) x);
+        return new IntValue((int) x);
     }
-    
+
     public static IntValue cast(double x, IntValue y) {
-    	return new IntValue((int) x);
+        return new IntValue((int) x);
     }
 
     public static IntValue cast(BigInteger x, IntValue y) {
-    	return new IntValue(x.intValue());
+        return new IntValue(x.intValue());
     }
 
     public static IntValue cast(BigDecimal x, IntValue y) {
-    	return new IntValue(x.intValue());
+        return new IntValue(x.intValue());
     }
-    
+
     public static byte cast(IntValue x, byte y) {
         return x.byteValue();
     }
@@ -636,7 +717,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     public static short cast(IntValue x, short y) {
         return x.shortValue();
     }
-    
+
     public static char cast(IntValue x, char y) {
         return (char) x.intValue();
     }
@@ -652,7 +733,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     public static float cast(IntValue x, float y) {
         return x.floatValue();
     }
-    
+
     public static double cast(IntValue x, double y) {
         return x.doubleValue();
     }
@@ -663,51 +744,51 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         }
         return new ByteValue(x.byteValue(), x, false);
     }
-        
+
     public static ShortValue cast(IntValue x, ShortValue y) {
         if (x == null) {
             return null;
         }
         return new ShortValue(x.shortValue(), x, false);
     }
-    
+
     public static BigInteger cast(IntValue x, BigInteger y) {
         return BigInteger.valueOf(x.intValue());
     }
-    
+
     public static BigDecimal cast(IntValue x, BigDecimal y) {
         return BigDecimal.valueOf(x.intValue());
     }
 
-    public IntValue(String valueString) {        
+    public IntValue(String valueString) {
         value = Integer.parseInt(valueString);
     }
 
-    /**Function constructor**/
+    /** Function constructor **/
     public IntValue(IntValue result, NumberOperations function, IntValue[] params) {
         super(function, params);
         this.value = result.intValue();
     }
-    
+
     @Override
-    public double doubleValue() {        
+    public double doubleValue() {
         return (double) value;
     }
 
     @Override
-    public float floatValue() {        
-        return (float )value;
+    public float floatValue() {
+        return (float) value;
     }
 
     @Override
-    public int intValue() {        
+    public int intValue() {
         return value;
     }
-    
+
     @Override
-    public long longValue() {        
+    public long longValue() {
         return (long) value;
-    }    
+    }
 
     public int compareTo(IntValue o) {
         return Integer.compare(value, o.value);
@@ -716,16 +797,16 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
     @Override
     public int hashCode() {
         return ((Integer) value).hashCode();
-    }   
-    
+    }
+
     private static Integer[] unwrap(IntValue[] values) {
         values = ArrayTool.removeNulls(values);
-        
+
         Integer[] intArray = new Integer[values.length];
         for (int i = 0; i < values.length; i++) {
             intArray[i] = values[i].getValue();
         }
         return intArray;
     }
-    
+
 }

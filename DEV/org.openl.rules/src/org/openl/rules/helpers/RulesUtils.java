@@ -53,7 +53,7 @@ public class RulesUtils {
      * @return max Byte
      */
     public static java.lang.Byte max(java.lang.Byte[] values) {
-        return (java.lang.Byte) MathUtils.max(values);
+        return MathUtils.max(values);
     }
 
     /**
@@ -63,7 +63,7 @@ public class RulesUtils {
      * @return max short
      */
     public static java.lang.Short max(java.lang.Short[] values) {
-        return (java.lang.Short) MathUtils.max(values);
+        return MathUtils.max(values);
     }
 
     /**
@@ -75,7 +75,7 @@ public class RulesUtils {
      * @return the minimum value in the array
      */
     public static java.lang.Integer max(java.lang.Integer[] values) {
-        return (java.lang.Integer) MathUtils.max(values);
+        return MathUtils.max(values);
     }
 
     /**
@@ -87,7 +87,7 @@ public class RulesUtils {
      * @return the minimum value in the array
      */
     public static java.lang.Long max(java.lang.Long[] values) {
-        return (java.lang.Long) MathUtils.max(values);
+        return MathUtils.max(values);
     }
 
     /**
@@ -99,7 +99,7 @@ public class RulesUtils {
      * @return the minimum value in the array
      */
     public static java.lang.Float max(java.lang.Float[] values) {
-        return (java.lang.Float) MathUtils.max(values);
+        return MathUtils.max(values);
     }
 
     /**
@@ -111,7 +111,7 @@ public class RulesUtils {
      * @return the minimum value in the array
      */
     public static java.lang.Double max(java.lang.Double[] values) {
-        return (java.lang.Double) MathUtils.max(values);
+        return MathUtils.max(values);
     }
 
     /**
@@ -123,7 +123,7 @@ public class RulesUtils {
      * @return the minimum value in the array
      */
     public static java.math.BigInteger max(java.math.BigInteger[] values) {
-        return (java.math.BigInteger) MathUtils.max(values);
+        return MathUtils.max(values);
     }
 
     /**
@@ -135,18 +135,6 @@ public class RulesUtils {
      * @return the minimum value in the array
      */
     public static java.math.BigDecimal max(java.math.BigDecimal[] values) {
-        return (java.math.BigDecimal) MathUtils.max(values);
-    }
-
-    /**
-     * <p>
-     * Returns the maximum value in an array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the minimum value in the array
-     */
-    public static byte max(byte[] values) {
         return MathUtils.max(values);
     }
 
@@ -158,7 +146,7 @@ public class RulesUtils {
      * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
-    public static short max(short[] values) {
+    public static Byte max(byte[] values) {
         return MathUtils.max(values);
     }
 
@@ -170,7 +158,7 @@ public class RulesUtils {
      * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
-    public static int max(int[] values) {
+    public static Short max(short[] values) {
         return MathUtils.max(values);
     }
 
@@ -182,7 +170,7 @@ public class RulesUtils {
      * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
-    public static long max(long[] values) {
+    public static Integer max(int[] values) {
         return MathUtils.max(values);
     }
 
@@ -194,7 +182,7 @@ public class RulesUtils {
      * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
-    public static float max(float[] values) {
+    public static Long max(long[] values) {
         return MathUtils.max(values);
     }
 
@@ -206,7 +194,19 @@ public class RulesUtils {
      * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
-    public static double max(double[] values) {
+    public static Float max(float[] values) {
+        return MathUtils.max(values);
+    }
+
+    /**
+     * <p>
+     * Returns the maximum value in an array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the minimum value in the array
+     */
+    public static Double max(double[] values) {
         return MathUtils.max(values);
     }
 
@@ -221,150 +221,6 @@ public class RulesUtils {
      * @return the minimum value in the array
      */
     public static java.lang.Byte min(java.lang.Byte[] values) {
-        return (java.lang.Byte) MathUtils.min(values);
-    }
-
-    /**
-     * <p>
-     * Returns the minimum value in an array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the minimum value in the array
-     */
-    public static java.lang.Short min(java.lang.Short[] values) {
-        return (java.lang.Short) MathUtils.min(values);
-    }
-
-    /**
-     * <p>
-     * Returns the minimum value in an array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the minimum value in the array
-     */
-    public static java.lang.Integer min(java.lang.Integer[] values) {
-        return (java.lang.Integer) MathUtils.min(values);
-    }
-
-    /**
-     * <p>
-     * Returns the minimum value in an array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the minimum value in the array
-     */
-    public static java.lang.Long min(java.lang.Long[] values) {
-        return (java.lang.Long) MathUtils.min(values);
-    }
-
-    /**
-     * <p>
-     * Returns the minimum value in an array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the minimum value in the array
-     */
-    public static java.lang.Float min(java.lang.Float[] values) {
-        return (java.lang.Float) MathUtils.min(values);
-    }
-
-    /**
-     * <p>
-     * Returns the minimum value in an array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the minimum value in the array
-     */
-    public static java.lang.Double min(java.lang.Double[] values) {
-        return (java.lang.Double) MathUtils.min(values);
-    }
-
-    /**
-     * <p>
-     * Returns the minimum value in an array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the minimum value in the array
-     */
-    public static java.math.BigInteger min(java.math.BigInteger[] values) {
-        return (java.math.BigInteger) MathUtils.min(values);
-    }
-
-    /**
-     * <p>
-     * Returns the minimum value in an array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the minimum value in the array
-     */
-    public static java.math.BigDecimal min(java.math.BigDecimal[] values) {
-        return (java.math.BigDecimal) MathUtils.min(values);
-    }
-
-    /**
-     * <p>
-     * Returns the minimum value in an array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the minimum value in the array
-     */
-    public static byte min(byte[] values) {
-        return (byte) MathUtils.min(values);
-    }
-
-    /**
-     * <p>
-     * Returns the minimum value in an array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the minimum value in the array
-     */
-    public static short min(short[] values) {
-        return (short) MathUtils.min(values);
-    }
-
-    /**
-     * <p>
-     * Returns the minimum value in an array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the minimum value in the array
-     */
-    public static int min(int[] values) {
-        return (int) MathUtils.min(values);
-    }
-
-    /**
-     * <p>
-     * Returns the minimum value in an array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the minimum value in the array
-     */
-    public static long min(long[] values) {
-        return (long) MathUtils.min(values);
-    }
-
-    /**
-     * <p>
-     * Returns the minimum value in an array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the minimum value in the array
-     */
-    public static float min(float[] values) {
         return MathUtils.min(values);
     }
 
@@ -376,7 +232,151 @@ public class RulesUtils {
      * @param values an array, must not be null or empty
      * @return the minimum value in the array
      */
-    public static double min(double[] values) {
+    public static java.lang.Short min(java.lang.Short[] values) {
+        return MathUtils.min(values);
+    }
+
+    /**
+     * <p>
+     * Returns the minimum value in an array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the minimum value in the array
+     */
+    public static java.lang.Integer min(java.lang.Integer[] values) {
+        return MathUtils.min(values);
+    }
+
+    /**
+     * <p>
+     * Returns the minimum value in an array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the minimum value in the array
+     */
+    public static java.lang.Long min(java.lang.Long[] values) {
+        return  MathUtils.min(values);
+    }
+
+    /**
+     * <p>
+     * Returns the minimum value in an array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the minimum value in the array
+     */
+    public static java.lang.Float min(java.lang.Float[] values) {
+        return  MathUtils.min(values);
+    }
+
+    /**
+     * <p>
+     * Returns the minimum value in an array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the minimum value in the array
+     */
+    public static java.lang.Double min(java.lang.Double[] values) {
+        return  MathUtils.min(values);
+    }
+
+    /**
+     * <p>
+     * Returns the minimum value in an array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the minimum value in the array
+     */
+    public static java.math.BigInteger min(java.math.BigInteger[] values) {
+        return  MathUtils.min(values);
+    }
+
+    /**
+     * <p>
+     * Returns the minimum value in an array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the minimum value in the array
+     */
+    public static java.math.BigDecimal min(java.math.BigDecimal[] values) {
+        return  MathUtils.min(values);
+    }
+
+    /**
+     * <p>
+     * Returns the minimum value in an array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the minimum value in the array
+     */
+    public static Byte min(byte[] values) {
+        return MathUtils.min(values);
+    }
+
+    /**
+     * <p>
+     * Returns the minimum value in an array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the minimum value in the array
+     */
+    public static Short min(short[] values) {
+        return MathUtils.min(values);
+    }
+
+    /**
+     * <p>
+     * Returns the minimum value in an array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the minimum value in the array
+     */
+    public static Integer min(int[] values) {
+        return  MathUtils.min(values);
+    }
+
+    /**
+     * <p>
+     * Returns the minimum value in an array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the minimum value in the array
+     */
+    public static Long min(long[] values) {
+        return MathUtils.min(values);
+    }
+
+    /**
+     * <p>
+     * Returns the minimum value in an array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the minimum value in the array
+     */
+    public static Float min(float[] values) {
+        return MathUtils.min(values);
+    }
+
+    /**
+     * <p>
+     * Returns the minimum value in an array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the minimum value in the array
+     */
+    public static Double min(double[] values) {
         return MathUtils.min(values);
     }
 
@@ -391,150 +391,6 @@ public class RulesUtils {
      * @return the sum of the elements in the array
      */
     public static java.lang.Byte sum(java.lang.Byte[] values) {
-        return (java.lang.Byte) MathUtils.sum(values);
-    }
-
-    /**
-     * <p>
-     * Returns the sum of the elements in the array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the sum of the elements in the array
-     */
-    public static java.lang.Short sum(java.lang.Short[] values) {
-        return (java.lang.Short) MathUtils.sum(values);
-    }
-
-    /**
-     * <p>
-     * Returns the sum of the elements in the array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the sum of the elements in the array
-     */
-    public static java.lang.Integer sum(java.lang.Integer[] values) {
-        return (java.lang.Integer) MathUtils.sum(values);
-    }
-
-    /**
-     * <p>
-     * Returns the sum of the elements in the array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the sum of the elements in the array
-     */
-    public static java.lang.Long sum(java.lang.Long[] values) {
-        return (java.lang.Long) MathUtils.sum(values);
-    }
-
-    /**
-     * <p>
-     * Returns the sum of the elements in the array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the sum of the elements in the array
-     */
-    public static java.lang.Float sum(java.lang.Float[] values) {
-        return (java.lang.Float) MathUtils.sum(values);
-    }
-
-    /**
-     * <p>
-     * Returns the sum of the elements in the array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the sum of the elements in the array
-     */
-    public static java.lang.Double sum(java.lang.Double[] values) {
-        return (java.lang.Double) MathUtils.sum(values);
-    }
-
-    /**
-     * <p>
-     * Returns the sum of the elements in the array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the sum of the elements in the array
-     */
-    public static java.math.BigInteger sum(java.math.BigInteger[] values) {
-        return (java.math.BigInteger) MathUtils.sum(values);
-    }
-
-    /**
-     * <p>
-     * Returns the sum of the elements in the array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the sum of the elements in the array
-     */
-    public static java.math.BigDecimal sum(java.math.BigDecimal[] values) {
-        return (java.math.BigDecimal) MathUtils.sum(values);
-    }
-
-    /**
-     * <p>
-     * Returns the sum of the elements in the array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the sum of the elements in the array
-     */
-    public static byte sum(byte[] values) {
-        return (byte) MathUtils.sum(values);
-    }
-
-    /**
-     * <p>
-     * Returns the sum of the elements in the array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the sum of the elements in the array
-     */
-    public static short sum(short[] values) {
-        return (short) MathUtils.sum(values);
-    }
-
-    /**
-     * <p>
-     * Returns the sum of the elements in the array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the sum of the elements in the array
-     */
-    public static int sum(int[] values) {
-        return (int) MathUtils.sum(values);
-    }
-
-    /**
-     * <p>
-     * Returns the sum of the elements in the array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the sum of the elements in the array
-     */
-    public static long sum(long[] values) {
-        return (long) MathUtils.sum(values);
-    }
-
-    /**
-     * <p>
-     * Returns the sum of the elements in the array.
-     * </p>
-     *
-     * @param values an array, must not be null or empty
-     * @return the sum of the elements in the array
-     */
-    public static float sum(float[] values) {
         return MathUtils.sum(values);
     }
 
@@ -546,7 +402,151 @@ public class RulesUtils {
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
-    public static double sum(double[] values) {
+    public static java.lang.Short sum(java.lang.Short[] values) {
+        return  MathUtils.sum(values);
+    }
+
+    /**
+     * <p>
+     * Returns the sum of the elements in the array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the sum of the elements in the array
+     */
+    public static java.lang.Integer sum(java.lang.Integer[] values) {
+        return MathUtils.sum(values);
+    }
+
+    /**
+     * <p>
+     * Returns the sum of the elements in the array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the sum of the elements in the array
+     */
+    public static java.lang.Long sum(java.lang.Long[] values) {
+        return  MathUtils.sum(values);
+    }
+
+    /**
+     * <p>
+     * Returns the sum of the elements in the array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the sum of the elements in the array
+     */
+    public static java.lang.Float sum(java.lang.Float[] values) {
+        return MathUtils.sum(values);
+    }
+
+    /**
+     * <p>
+     * Returns the sum of the elements in the array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the sum of the elements in the array
+     */
+    public static java.lang.Double sum(java.lang.Double[] values) {
+        return  MathUtils.sum(values);
+    }
+
+    /**
+     * <p>
+     * Returns the sum of the elements in the array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the sum of the elements in the array
+     */
+    public static java.math.BigInteger sum(java.math.BigInteger[] values) {
+        return  MathUtils.sum(values);
+    }
+
+    /**
+     * <p>
+     * Returns the sum of the elements in the array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the sum of the elements in the array
+     */
+    public static java.math.BigDecimal sum(java.math.BigDecimal[] values) {
+        return  MathUtils.sum(values);
+    }
+
+    /**
+     * <p>
+     * Returns the sum of the elements in the array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the sum of the elements in the array
+     */
+    public static Byte sum(byte[] values) {
+        return MathUtils.sum(values);
+    }
+
+    /**
+     * <p>
+     * Returns the sum of the elements in the array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the sum of the elements in the array
+     */
+    public static Short sum(short[] values) {
+        return MathUtils.sum(values);
+    }
+
+    /**
+     * <p>
+     * Returns the sum of the elements in the array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the sum of the elements in the array
+     */
+    public static Integer sum(int[] values) {
+        return MathUtils.sum(values);
+    }
+
+    /**
+     * <p>
+     * Returns the sum of the elements in the array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the sum of the elements in the array
+     */
+    public static Long sum(long[] values) {
+        return MathUtils.sum(values);
+    }
+
+    /**
+     * <p>
+     * Returns the sum of the elements in the array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the sum of the elements in the array
+     */
+    public static Float sum(float[] values) {
+        return MathUtils.sum(values);
+    }
+
+    /**
+     * <p>
+     * Returns the sum of the elements in the array.
+     * </p>
+     *
+     * @param values an array, must not be null or empty
+     * @return the sum of the elements in the array
+     */
+    public static Double sum(double[] values) {
         return MathUtils.sum(values);
     }
 
@@ -560,7 +560,7 @@ public class RulesUtils {
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
-    public static java.lang.Byte avg(java.lang.Byte[] values) {
+    public static java.lang.Double avg(java.lang.Byte[] values) {
         return MathUtils.avg(values);
     }
 
@@ -572,7 +572,7 @@ public class RulesUtils {
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
-    public static java.lang.Short avg(java.lang.Short[] values) {
+    public static java.lang.Double avg(java.lang.Short[] values) {
         return MathUtils.avg(values);
     }
 
@@ -584,7 +584,7 @@ public class RulesUtils {
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
-    public static java.lang.Integer avg(java.lang.Integer[] values) {
+    public static java.lang.Double avg(java.lang.Integer[] values) {
         return MathUtils.avg(values);
     }
 
@@ -596,7 +596,7 @@ public class RulesUtils {
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
-    public static java.lang.Long avg(java.lang.Long[] values) {
+    public static java.lang.Double avg(java.lang.Long[] values) {
         return MathUtils.avg(values);
     }
 
@@ -632,7 +632,7 @@ public class RulesUtils {
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
-    public static java.math.BigInteger avg(java.math.BigInteger[] values) {
+    public static java.math.BigDecimal avg(java.math.BigInteger[] values) {
         return MathUtils.avg(values);
     }
 
@@ -656,7 +656,7 @@ public class RulesUtils {
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
-    public static byte avg(byte[] values) {
+    public static Double avg(byte[] values) {
         return MathUtils.avg(values);
     }
 
@@ -668,7 +668,7 @@ public class RulesUtils {
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
-    public static short avg(short[] values) {
+    public static Double avg(short[] values) {
         return MathUtils.avg(values);
     }
 
@@ -680,7 +680,7 @@ public class RulesUtils {
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
-    public static int avg(int[] values) {
+    public static Double avg(int[] values) {
         return MathUtils.avg(values);
     }
 
@@ -692,7 +692,7 @@ public class RulesUtils {
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
-    public static long avg(long[] values) {
+    public static Double avg(long[] values) {
         return MathUtils.avg(values);
     }
 
@@ -704,7 +704,7 @@ public class RulesUtils {
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
-    public static float avg(float[] values) {
+    public static Float avg(float[] values) {
         return MathUtils.avg(values);
     }
 
@@ -716,7 +716,7 @@ public class RulesUtils {
      * @param values an array, must not be null or empty
      * @return the sum of the elements in the array
      */
-    public static double avg(double[] values) {
+    public static Double avg(double[] values) {
         return MathUtils.avg(values);
     }
 
@@ -844,7 +844,7 @@ public class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static byte small(byte[] values, int position) {
+    public static Byte small(byte[] values, int position) {
         return MathUtils.small(values, position);
     }
 
@@ -858,7 +858,7 @@ public class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static short small(short[] values, int position) {
+    public static Short small(short[] values, int position) {
         return MathUtils.small(values, position);
     }
 
@@ -872,7 +872,7 @@ public class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static int small(int[] values, int position) {
+    public static Integer small(int[] values, int position) {
         return MathUtils.small(values, position);
     }
 
@@ -886,7 +886,7 @@ public class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static long small(long[] values, int position) {
+    public static Long small(long[] values, int position) {
         return MathUtils.small(values, position);
     }
 
@@ -900,7 +900,7 @@ public class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static float small(float[] values, int position) {
+    public static Float small(float[] values, int position) {
         return MathUtils.small(values, position);
     }
 
@@ -914,7 +914,7 @@ public class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static double small(double[] values, int position) {
+    public static Double small(double[] values, int position) {
         return MathUtils.small(values, position);
     }
 
@@ -1042,7 +1042,7 @@ public class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static byte big(byte[] values, int position) {
+    public static Byte big(byte[] values, int position) {
         return MathUtils.big(values, position);
     }
 
@@ -1056,7 +1056,7 @@ public class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static short big(short[] values, int position) {
+    public static Short big(short[] values, int position) {
         return MathUtils.big(values, position);
     }
 
@@ -1070,7 +1070,7 @@ public class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static int big(int[] values, int position) {
+    public static Integer big(int[] values, int position) {
         return MathUtils.big(values, position);
     }
 
@@ -1084,7 +1084,7 @@ public class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static long big(long[] values, int position) {
+    public static Long big(long[] values, int position) {
         return MathUtils.big(values, position);
     }
 
@@ -1098,7 +1098,7 @@ public class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static float big(float[] values, int position) {
+    public static Float big(float[] values, int position) {
         return MathUtils.big(values, position);
     }
 
@@ -1112,7 +1112,7 @@ public class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static double big(double[] values, int position) {
+    public static Double big(double[] values, int position) {
         return MathUtils.big(values, position);
     }
 
@@ -1124,7 +1124,7 @@ public class RulesUtils {
      * @param values
      * @return
      */
-    public static java.lang.Byte median(java.lang.Byte[] values) {
+    public static java.lang.Double median(java.lang.Byte[] values) {
         return MathUtils.median(values);
     }
 
@@ -1134,7 +1134,7 @@ public class RulesUtils {
      * @param values
      * @return
      */
-    public static java.lang.Short median(java.lang.Short[] values) {
+    public static java.lang.Double median(java.lang.Short[] values) {
         return MathUtils.median(values);
     }
 
@@ -1144,7 +1144,7 @@ public class RulesUtils {
      * @param values
      * @return
      */
-    public static java.lang.Integer median(java.lang.Integer[] values) {
+    public static java.lang.Double median(java.lang.Integer[] values) {
         return MathUtils.median(values);
     }
 
@@ -1154,7 +1154,7 @@ public class RulesUtils {
      * @param values
      * @return
      */
-    public static java.lang.Long median(java.lang.Long[] values) {
+    public static java.lang.Double median(java.lang.Long[] values) {
         return MathUtils.median(values);
     }
 
@@ -1204,7 +1204,7 @@ public class RulesUtils {
      * @param values
      * @return
      */
-    public static byte median(byte[] values) {
+    public static Double median(byte[] values) {
         return MathUtils.median(values);
     }
 
@@ -1214,7 +1214,7 @@ public class RulesUtils {
      * @param values
      * @return
      */
-    public static short median(short[] values) {
+    public static Double median(short[] values) {
         return MathUtils.median(values);
     }
 
@@ -1224,7 +1224,7 @@ public class RulesUtils {
      * @param values
      * @return
      */
-    public static int median(int[] values) {
+    public static Double median(int[] values) {
         return MathUtils.median(values);
     }
 
@@ -1234,7 +1234,7 @@ public class RulesUtils {
      * @param values
      * @return
      */
-    public static long median(long[] values) {
+    public static Double median(long[] values) {
         return MathUtils.median(values);
     }
 
@@ -1244,7 +1244,7 @@ public class RulesUtils {
      * @param values
      * @return
      */
-    public static float median(float[] values) {
+    public static Float median(float[] values) {
         return MathUtils.median(values);
     }
 
@@ -1254,7 +1254,7 @@ public class RulesUtils {
      * @param values
      * @return
      */
-    public static double median(double[] values) {
+    public static Double median(double[] values) {
         return MathUtils.median(values);
     }
 
@@ -1440,8 +1440,9 @@ public class RulesUtils {
      * arrays and sort the resulting array.
      * <p/>
      * <p/>
-     * The implementation was adapted from Tim Peters's list sort for Python (<a
-     * href="http://svn.python.org/projects/python/trunk/Objects/listsort.txt">
+     * The implementation was adapted from Tim Peters's list sort for Python
+     * (<a href=
+     * "http://svn.python.org/projects/python/trunk/Objects/listsort.txt">
      * TimSort</a>). It uses techiques from Peter McIlroy's "Optimistic Sorting
      * and Information Theoretic Complexity", in Proceedings of the Fourth
      * Annual ACM-SIAM Symposium on Discrete Algorithms, pp 467-474, January
@@ -1867,16 +1868,16 @@ public class RulesUtils {
      * </p>
      * <p/>
      * <p>
-     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) for a
-     * <code>null</code> input array.
+     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>)
+     * for a <code>null</code> input array.
      * </p>
      *
      * @param array the array to search through for the object, may be
      *            <code>null</code>
      * @param obj the object to find, may be <code>null</code>
      * @return the index of the object within the array,
-     *         {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) if not found or
-     *         <code>null</code> array input
+     *         {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) if not found
+     *         or <code>null</code> array input
      */
     public static int indexOf(Object[] array, Object obj) {
         return ArrayUtils.indexOf(array, obj);
@@ -1888,15 +1889,16 @@ public class RulesUtils {
      * </p>
      * <p/>
      * <p>
-     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) for a
-     * <code>null</code> input array.
+     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>)
+     * for a <code>null</code> input array.
      * </p>
      *
      * @param array the array to search through for the object, may be
      *            <code>null</code>
      * @param elem the value to find
-     * @return the index of the value within the array, {@link ArrayUtils#INDEX_NOT_FOUND}
-     *         (<code>-1</code>) if not found or <code>null</code> array input
+     * @return the index of the value within the array,
+     *         {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) if not found
+     *         or <code>null</code> array input
      */
     public static int indexOf(int[] array, int elem) {
         return ArrayUtils.indexOf(array, elem);
@@ -1908,15 +1910,16 @@ public class RulesUtils {
      * </p>
      * <p/>
      * <p>
-     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) for a
-     * <code>null</code> input array.
+     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>)
+     * for a <code>null</code> input array.
      * </p>
      *
      * @param array the array to search through for the object, may be
      *            <code>null</code>
      * @param elem the value to find
-     * @return the index of the value within the array, {@link ArrayUtils#INDEX_NOT_FOUND}
-     *         (<code>-1</code>) if not found or <code>null</code> array input
+     * @return the index of the value within the array,
+     *         {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) if not found
+     *         or <code>null</code> array input
      */
     public static int indexOf(long[] array, long elem) {
         return ArrayUtils.indexOf(array, elem);
@@ -1928,15 +1931,16 @@ public class RulesUtils {
      * </p>
      * <p/>
      * <p>
-     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) for a
-     * <code>null</code> input array.
+     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>)
+     * for a <code>null</code> input array.
      * </p>
      *
      * @param array the array to search through for the object, may be
      *            <code>null</code>
      * @param elem the value to find
-     * @return the index of the value within the array, {@link ArrayUtils#INDEX_NOT_FOUND}
-     *         (<code>-1</code>) if not found or <code>null</code> array input
+     * @return the index of the value within the array,
+     *         {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) if not found
+     *         or <code>null</code> array input
      */
     public static int indexOf(byte[] array, byte elem) {
         return ArrayUtils.indexOf(array, elem);
@@ -1948,15 +1952,16 @@ public class RulesUtils {
      * </p>
      * <p/>
      * <p>
-     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) for a
-     * <code>null</code> input array.
+     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>)
+     * for a <code>null</code> input array.
      * </p>
      *
      * @param array the array to search through for the object, may be
      *            <code>null</code>
      * @param elem the value to find
-     * @return the index of the value within the array, {@link ArrayUtils#INDEX_NOT_FOUND}
-     *         (<code>-1</code>) if not found or <code>null</code> array input
+     * @return the index of the value within the array,
+     *         {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) if not found
+     *         or <code>null</code> array input
      */
     public static int indexOf(short[] array, short elem) {
         return ArrayUtils.indexOf(array, elem);
@@ -1968,15 +1973,16 @@ public class RulesUtils {
      * </p>
      * <p/>
      * <p>
-     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) for a
-     * <code>null</code> input array.
+     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>)
+     * for a <code>null</code> input array.
      * </p>
      *
      * @param array the array to search through for the object, may be
      *            <code>null</code>
      * @param elem the value to find
-     * @return the index of the value within the array, {@link ArrayUtils#INDEX_NOT_FOUND}
-     *         (<code>-1</code>) if not found or <code>null</code> array input
+     * @return the index of the value within the array,
+     *         {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) if not found
+     *         or <code>null</code> array input
      * @since 2.1
      */
     public static int indexOf(char[] array, char elem) {
@@ -1989,15 +1995,16 @@ public class RulesUtils {
      * </p>
      * <p/>
      * <p>
-     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) for a
-     * <code>null</code> input array.
+     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>)
+     * for a <code>null</code> input array.
      * </p>
      *
      * @param array the array to search through for the object, may be
      *            <code>null</code>
      * @param elem the value to find
-     * @return the index of the value within the array, {@link ArrayUtils#INDEX_NOT_FOUND}
-     *         (<code>-1</code>) if not found or <code>null</code> array input
+     * @return the index of the value within the array,
+     *         {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) if not found
+     *         or <code>null</code> array input
      */
     public static int indexOf(float[] array, float elem) {
         return ArrayUtils.indexOf(array, elem);
@@ -2009,15 +2016,16 @@ public class RulesUtils {
      * </p>
      * <p/>
      * <p>
-     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) for a
-     * <code>null</code> input array.
+     * This method returns {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>)
+     * for a <code>null</code> input array.
      * </p>
      *
      * @param array the array to search through for the object, may be
      *            <code>null</code>
      * @param elem the value to find
-     * @return the index of the value within the array, {@link ArrayUtils#INDEX_NOT_FOUND}
-     *         (<code>-1</code>) if not found or <code>null</code> array input
+     * @return the index of the value within the array,
+     *         {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) if not found
+     *         or <code>null</code> array input
      */
     public static int indexOf(double[] array, double elem) {
         return ArrayUtils.indexOf(array, elem);
@@ -3052,8 +3060,8 @@ public class RulesUtils {
      * Returns the maximum of {@code a} and {@code b}.
      *
      * @param b value with which the maximum is to be computed.
-     * @return the BigInteger whose value is the greater of {@code a} and {@code b}
-     *         . If they are equal, either may be returned.
+     * @return the BigInteger whose value is the greater of {@code a} and
+     *         {@code b} . If they are equal, either may be returned.
      */
     public static java.math.BigInteger max(java.math.BigInteger a, java.math.BigInteger b) {
         return a == null ? b : (b == null ? a : a.max(b));
@@ -3063,9 +3071,9 @@ public class RulesUtils {
      * Returns the maximum of {@code a} and {@code b}.
      *
      * @param b value with which the maximum is to be computed.
-     * @return the {@code BigDecimal} whose value is the greater of
-     *         {@code a} and {@code b}. If they are equal, as defined
-     *         by the {@link BigDecimal#compareTo(BigDecimal) compareTo} method,
+     * @return the {@code BigDecimal} whose value is the greater of {@code a}
+     *         and {@code b}. If they are equal, as defined by the
+     *         {@link BigDecimal#compareTo(BigDecimal) compareTo} method,
      *         {@code a} is returned.
      * @see BigDecimal#compareTo(java.math.BigDecimal)
      */
@@ -3164,7 +3172,7 @@ public class RulesUtils {
      *
      * @param b value with which the minimum is to be computed.
      * @return the BigInteger whose value is the lesser of {@code a} and
-     *         {@code b}.  If they are equal, either may be returned.
+     *         {@code b}. If they are equal, either may be returned.
      */
     public static java.math.BigInteger min(java.math.BigInteger a, java.math.BigInteger b) {
         return a == null ? b : (b == null ? a : a.min(b));
@@ -3174,9 +3182,9 @@ public class RulesUtils {
      * Returns the minimum of {@code a} and {@code b}.
      *
      * @param b value with which the minimum is to be computed.
-     * @return the {@code BigDecimal} whose value is the lesser of
-     *         {@code a} and {@code b}. If they are equal, as defined
-     *         by the {@link BigDecimal#compareTo(BigDecimal) compareTo} method,
+     * @return the {@code BigDecimal} whose value is the lesser of {@code a} and
+     *         {@code b}. If they are equal, as defined by the
+     *         {@link BigDecimal#compareTo(BigDecimal) compareTo} method,
      *         {@code this} is returned.
      * @see BigDecimal#compareTo(java.math.BigDecimal)
      */
@@ -3719,9 +3727,11 @@ public class RulesUtils {
      * <li>If the argument is zero, then the result is a zero with the same sign
      * as the argument.
      * <p/>
-     * <li>If the argument is positive infinity, then the result is {@code +1.0}.
+     * <li>If the argument is positive infinity, then the result is
+     * {@code +1.0}.
      * <p/>
-     * <li>If the argument is negative infinity, then the result is {@code -1.0}.
+     * <li>If the argument is negative infinity, then the result is
+     * {@code -1.0}.
      * <p/>
      * </ul>
      * <p/>
@@ -4333,7 +4343,7 @@ public class RulesUtils {
      *             || index > array.length).
      */
 
-	public static <T> T[] add(T[] array, int index, T element) {
+    public static <T> T[] add(T[] array, int index, T element) {
         return (T[]) ArrayUtils.add(array, index, element);
     }
 
@@ -4370,7 +4380,7 @@ public class RulesUtils {
      *         The returned array type will be that of the input array (unless
      *         null), in which case it will have the same type as the element.
      */
-	public static <T> T[] add(T[] array, T element) {
+    public static <T> T[] add(T[] array, T element) {
         return (T[]) ArrayUtils.add(array, element);
     }
 
@@ -5523,7 +5533,8 @@ public class RulesUtils {
      * <p/>
      * This method returns a new array with the same elements of the input array
      * except the first occurrence of the specified element. The component type
-     * of the returned array is always the same as that of the input array. <br />
+     * of the returned array is always the same as that of the input array.
+     * <br />
      * <br />
      * <p/>
      * <code>
@@ -5593,10 +5604,10 @@ public class RulesUtils {
     // <<< replace functions for Strings >>>
 
     @AutoCastReturnType
-	public static Object[] flatten(@ReturnType Object... data) {
-    	if (data == null){
-    		return null;
-    	}
+    public static Object[] flatten(@ReturnType Object... data) {
+        if (data == null) {
+            return null;
+        }
         List<Object> values = new ArrayList<Object>();
         Class<?> type = Void.class;
         for (Object obj : data) {
@@ -5647,7 +5658,7 @@ public class RulesUtils {
 
         Class<?> type = clazz.getInstanceClass();
         Object result = Array.newInstance(type, size);
-        int i=0;
+        int i = 0;
         for (Object item : domain) {
             Array.set(result, i, item);
             i++;
@@ -5655,11 +5666,11 @@ public class RulesUtils {
         return result;
     }
 
-    public static boolean instanceOf(Object o, Class<?> clazz){
-        if (o == null){
+    public static boolean instanceOf(Object o, Class<?> clazz) {
+        if (o == null) {
             return false;
         }
-        if (clazz == null){
+        if (clazz == null) {
             return false;
         }
         return clazz.isAssignableFrom(o.getClass());
