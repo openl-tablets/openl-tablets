@@ -101,29 +101,29 @@ public class FileBasedProjectHistoryManager implements SourceHistoryManager<File
         return sources;
     }
 
-    public void revert(long date) throws Exception {
-        File fileToRevert = getPrev(date);
-        if (fileToRevert != null) {
-            File currentSourceFile = projectModel.getSourceByName(fileToRevert.getName());
+    public void restore(long date) throws Exception {
+        File fileToRestore = get(date);
+        if (fileToRestore != null) {
+            File currentSourceFile = projectModel.getSourceByName(fileToRestore.getName());
             if (currentSourceFile == null) {
                 // Module compilation error, can't find source by logical modules.
-                // Check current module's path (most often user reverts only current module)
+                // Check current module's path (most often user restores only current module)
                 String path = projectModel.getModuleInfo().getRulesRootPath().getPath();
                 String[] pathElements = path.replace('\\', '/').split("/");
-                if (fileToRevert.getName().equals(pathElements[pathElements.length - 1])) {
+                if (fileToRestore.getName().equals(pathElements[pathElements.length - 1])) {
                     currentSourceFile = new File(path);
                 } else {
-                    throw new IllegalStateException("Can revert only current module");
+                    throw new IllegalStateException("Can restore only current module");
                 }
             }
             try {
-                FileUtils.copyFile(fileToRevert, currentSourceFile);
-                save(fileToRevert);
+                FileUtils.copyFile(fileToRestore, currentSourceFile);
+                save(fileToRestore);
                 projectModel.reset(ReloadType.FORCED);
                 projectModel.buildProjectTree();
-                log.info("Project was reverted successfully");
+                log.info("Project was restored successfully");
             } catch (Exception e) {
-                log.error("Can't revert project at {}", new SimpleDateFormat().format(new Date(date)));
+                log.error("Can't restore project at {}", new SimpleDateFormat().format(new Date(date)));
                 throw e;
             }
         }

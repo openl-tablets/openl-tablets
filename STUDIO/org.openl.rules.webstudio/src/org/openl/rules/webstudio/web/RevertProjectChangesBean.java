@@ -68,12 +68,14 @@ public class RevertProjectChangesBean {
         return model.getModuleSourceNames();
     }
 
-    public String revert() throws Exception {
-        String versionToRevertParam = FacesUtils.getRequestParameter("toRevert");
-        long versionToRevert = Long.parseLong(versionToRevertParam);
+    public String restore() throws Exception {
+        String versionToRestoreParam = FacesUtils.getRequestParameter("toRestore");
+        long versionToRestore = Long.parseLong(versionToRestoreParam);
 
         ProjectModel model = WebStudioUtils.getProjectModel();
-        model.getHistoryManager().revert(versionToRevert);
+        if (model != null) {
+            model.getHistoryManager().restore(versionToRestore);
+        }
         return null;
     }
 

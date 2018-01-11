@@ -19,25 +19,24 @@
 
     <div class="page">
 
-        <h1 class="page-header">#{msg['ws.revert.header']}</h1>
+        <h1 class="page-header">#{msg['ws.changes.header']}</h1>
 
         <h:panelGroup rendered="#{empty history}">
             <h:panelGrid>
-                <p class="problem-info">#{msg['ws.revert.no']}</p>
+                <p class="problem-info">#{msg['ws.changes.no']}</p>
             </h:panelGrid>
         </h:panelGroup>
 
         <h:panelGroup rendered="#{not empty history}">
             <h:panelGrid>
                 <h:messages globalOnly="true" errorClass="problem-error" infoClass="problem-info"
-                    style="list-style: none; padding: 0px" />
+                    style="list-style: none; padding: 0" />
             </h:panelGrid>
 
-            <h:form>
+            <h:form id="changesForm">
 
                 <rich:dataTable id="revertTable" value="#{history}" var="historyItem" rowKeyVar="row"
                     onrowmouseover="rowMouseOver(this)" onrowmouseout="rowMouseOut(this)"
-                    onrowclick="if (#{!historyItem.disabled}) { setVersionToRevert(#{historyItem.version}); rowMouseClick(this); }"
                     styleClass="table revertTable">
                     <rich:column>
                         <f:facet name="header">
@@ -47,9 +46,9 @@
                     </rich:column>
                     <rich:column>
                         <f:facet name="header">
-                            <h:outputText value="#{msg['ws.revert.modifiedon']}" />
+                            <h:outputText value="#{msg['ws.changes.modifiedon']}" />
                         </f:facet>
-                        <h:outputText value="#{historyItem.disabled ? msg['ws.revert.initial'] : historyItem.modifiedOn}"
+                        <h:outputText value="#{historyItem.disabled ? msg['ws.changes.initial'] : historyItem.modifiedOn}"
                             style="#{historyItem.disabled ? 'font-weight: bold; color:red;' : ''}" />
                     </rich:column>
                     <c:forEach items="#{revertProjectChangesBean.sources}" var="source">
@@ -63,70 +62,52 @@
                     </c:forEach>
                     <rich:column>
                         <f:facet name="header">
-                            <h:outputText value="#{msg['ws.revert.compare']}" />
+                            <h:outputText value="#{msg['ws.changes.compare']}" />
                         </f:facet>
                         <h:selectBooleanCheckbox
-                            onclick="return checkVersionToCompare(this, #{historyItem.version})" />
+                            onclick="return checkVersionToCompare(this, '#{historyItem.version}')" />
+                    </rich:column>
+                    <rich:column>
+                        <f:facet name="header">
+                            <h:outputText value="#{msg['ws.changes.action']}" />
+                        </f:facet>
+
+                        <a4j:commandLink onclick="confirmRestore('#{historyItem.version}', '#{historyItem.modifiedOn}'); return false;">
+                            #{msg['ws.changes.action.restore']}
+                        </a4j:commandLink>
                     </rich:column>
                 </rich:dataTable>
 
                 <br />
-                <input type="hidden" id="versionToRevert" name="toRevert" value=""  />
                 <input type="hidden" id="versionsToCompare" name="toCompare" value="" />
-                <a4j:commandButton id="revertBtn" value="Revert" action="#{revertProjectChangesBean.revert}"
-                    onclick="if(!confirm('#{msg['ws.revert.confirm']}'))return false;"
-                    oncomplete="ws.ui.success('#{msg['ws.revert.successful']}'); ws.nav.reload(true)"
-                    styleClass="button-primary" />
-                <a4j:commandButton id="compareBtn" value="#{msg['ws.revert.compare']}" action="#{revertProjectChangesBean.compare}"
-                    oncomplete="window.open('#{contextPath}/faces/pages/modules/compare.xhtml?disableUpload=true','#{msg['ws.revert.compare']}','width=1240,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');" />
+                <a4j:commandButton id="compareBtn" value="#{msg['ws.changes.compare']}" action="#{revertProjectChangesBean.compare}"
+                                   oncomplete="window.open('#{contextPath}/faces/pages/modules/compare.xhtml?disableUpload=true','#{msg['ws.changes.compare']}','width=1240,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');" />
             </h:form>
 
             <script>
+                //<![CDATA[
                 var rowHoverColor = "#FAE5C1";
                 var rowDefaultColor = "#{richSkin.tableBackgroundColor}";
-                var rowSelectedColor = "#FBBE83";
-                var selectedRow;
 
                 var versionsToCompare = [];
 
-                var revertBtn = #{rich:element('revertBtn')};
-                revertBtn.disabled = true;
-                var compareBtn = #{rich:element('compareBtn')};
-                compareBtn.disabled = true;
+                var $compareBtn = $j('#changesForm\\:compareBtn');
+                $compareBtn.prop( "disabled", true);
 
                 function rowMouseOver(row) {
                     row.style.cursor = 'pointer';
-                    if (row != selectedRow) {
-                        row.style.backgroundColor = rowHoverColor;
-                    }
+                    row.style.backgroundColor = rowHoverColor;
                 }
 
                 function rowMouseOut(row) {
-                    if (row != selectedRow) {
-                        row.style.backgroundColor =  rowDefaultColor;
-                    }
-                }
-
-                function rowMouseClick(row, disabled) {
-                    if (!disabled) {
-                        if (selectedRow) {
-                            selectedRow.style.backgroundColor = rowDefaultColor;
-                        }
-                        row.style.backgroundColor = rowSelectedColor;
-                        selectedRow = row;
-                    }
-                }
-
-                function setVersionToRevert(version) {
-                    $j("#versionToRevert").val(version);
-                    revertBtn.disabled = false;
+                    row.style.backgroundColor =  rowDefaultColor;
                 }
 
                 function checkVersionToCompare(checkbox, version) {
                     // Check
                     if (checkbox.checked) {
                         if (versionsToCompare.length >= 2) {
-                            ws.ui.info("#{msg['ws.revert.compare.max']}");
+                            ws.ui.info("#{msg['ws.changes.compare.max']}");
                             return false;
                         }
                         versionsToCompare.push(version);
@@ -138,15 +119,48 @@
 
                     $j("#versionsToCompare").val(versionsToCompare.join());
 
-                    if (versionsToCompare.length >= 2) {
-                        compareBtn.disabled = false;
-                    } else {
-                        compareBtn.disabled = true;
-                    }
+                    $compareBtn.prop("disabled", versionsToCompare.length < 2);
                 }
+                //]]>
             </script>
 
         </h:panelGroup>
     </div>
+
+    <rich:popupPanel id="confirmRestore" width="400" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Confirm Restore" />
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close" onclick="RichFaces.$('confirmRestore').hide();" alt="Close" />
+        </f:facet>
+
+        <h:form id="confirmRestoreForm">
+            <h:panelGroup id="confirmRestoreData">
+                Do you really want to restore version modified on <span id="changeDate"/>?
+
+                <input type="hidden" id="versionToRestore" name="toRestore" value=""/>
+            </h:panelGroup>
+
+            <footer>
+                <a4j:commandButton value="#{msg['ws.changes.action.restore']}"
+                                   action="#{revertProjectChangesBean.restore}"
+                                   oncomplete="ws.ui.success('#{msg['ws.changes.successful']}'); RichFaces.$('confirmRestore').hide(); ws.nav.reload(true)"/>
+
+                <input type="button" value="Cancel" onclick="RichFaces.$('confirmRestore').hide();" />
+            </footer>
+        </h:form>
+
+        <script>
+            //<![CDATA[
+            function confirmRestore(version, date) {
+                $j('#versionToRestore').val(version);
+                $j('#changeDate').text(date);
+                RichFaces.$('confirmRestore').show();
+            }
+            //]]>
+        </script>
+    </rich:popupPanel>
 
 </ui:composition>
