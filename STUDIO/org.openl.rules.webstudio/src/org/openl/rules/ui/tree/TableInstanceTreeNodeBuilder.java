@@ -83,7 +83,9 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
                 || XlsNodeTypes.XLS_DATATYPE.toString().equals(tsn.getType())
                 || XlsNodeTypes.XLS_DATA.toString().equals(tsn.getType())
                 || XlsNodeTypes.XLS_TEST_METHOD.toString().equals(tsn.getType())
-                || XlsNodeTypes.XLS_ENVIRONMENT.toString().equals(tsn.getType());
+                || XlsNodeTypes.XLS_ENVIRONMENT.toString().equals(tsn.getType())
+                || XlsNodeTypes.XLS_OTHER.toString().equals(tsn.getType()) // These tables don't have versions and can't be grouped
+                || tsn.getMember() == null; // When table contains syntax errors and can't be grouped with other tables.
     }
 
     /**
