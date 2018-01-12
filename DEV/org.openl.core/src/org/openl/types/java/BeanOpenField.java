@@ -54,9 +54,9 @@ public class BeanOpenField implements IOpenField {
                 }
 
                 String fieldName = pd.getName();
-
+                Field field = null;
                 try {
-                    c.getDeclaredField(fieldName);
+                    field = c.getDeclaredField(fieldName);
                 } catch (NoSuchFieldException ex) {
                     // Catch it
                     // if there is no such field => it was
@@ -67,9 +67,9 @@ public class BeanOpenField implements IOpenField {
                         if (fname.equals(fieldName)) {
                             fname = StringUtils.uncapitalize(fieldName);
                         }
-                        Field f = c.getDeclaredField(fname);
+                        field = c.getDeclaredField(fname);
                         // Reset the name
-                        fieldName = f.getName();
+                        fieldName = field.getName();
                         pd.setName(fieldName);
                     } catch (NoSuchFieldException e1) {
                         // It is possible that there is no such field at all
@@ -78,18 +78,20 @@ public class BeanOpenField implements IOpenField {
 
                 }
                 BeanOpenField bf = new BeanOpenField(pd);
-
-                map.put(fieldName, bf);
-                if (getters != null) {
-                    if (pd.getReadMethod() != null) {
-                        getters.put(pd.getReadMethod(), bf);
+                
+                if (field == null || !java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+                	map.put(fieldName, bf);
+                	if (getters != null) {
+                        if (pd.getReadMethod() != null) {
+                            getters.put(pd.getReadMethod(), bf);
+                        }
                     }
-                }
-                if (setters != null) {
-                    if (pd.getWriteMethod() != null) {
-                        setters.put(pd.getWriteMethod(), bf);
+                    if (setters != null) {
+                        if (pd.getWriteMethod() != null) {
+                            setters.put(pd.getWriteMethod(), bf);
+                        }
                     }
-                }
+                } 
             }
         } catch (Throwable t) {
             throw RuntimeExceptionWrapper.wrap(t);
