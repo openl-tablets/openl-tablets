@@ -6,20 +6,20 @@
 
 package org.openl.types.java;
 
-import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.util.ArrayTool;
-import org.openl.util.RuntimeExceptionWrapper;
-import org.openl.util.StringUtils;
-import org.openl.vm.IRuntimeEnv;
-
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.util.ArrayTool;
+import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
@@ -54,18 +54,22 @@ public class BeanOpenField implements IOpenField {
                 }
 
                 String fieldName = pd.getName();
-
+                Field field = null;
                 try {
-                    c.getDeclaredField(fieldName);
+                    field = c.getDeclaredField(fieldName);
                 } catch (NoSuchFieldException ex) {
                     // Catch it
                     // if there is no such field => it was
                     // named with the first letter as upper case
                     //
                     try {
-                        Field f = c.getDeclaredField(StringUtils.capitalize(fieldName));
+                        String fname = StringUtils.capitalize(fieldName);
+                        if (fname.equals(fieldName)) {
+                            fname = StringUtils.uncapitalize(fieldName);
+                        }
+                        field = c.getDeclaredField(fname);
                         // Reset the name
-                        fieldName = f.getName();
+                        fieldName = field.getName();
                         pd.setName(fieldName);
                     } catch (NoSuchFieldException e1) {
                         // It is possible that there is no such field at all
@@ -74,18 +78,20 @@ public class BeanOpenField implements IOpenField {
 
                 }
                 BeanOpenField bf = new BeanOpenField(pd);
-
-                map.put(fieldName, bf);
-                if (getters != null) {
-                    if (pd.getReadMethod() != null) {
-                        getters.put(pd.getReadMethod(), bf);
+                
+                if (field == null || !java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+                	map.put(fieldName, bf);
+                	if (getters != null) {
+                        if (pd.getReadMethod() != null) {
+                            getters.put(pd.getReadMethod(), bf);
+                        }
                     }
-                }
-                if (setters != null) {
-                    if (pd.getWriteMethod() != null) {
-                        setters.put(pd.getWriteMethod(), bf);
+                    if (setters != null) {
+                        if (pd.getWriteMethod() != null) {
+                            setters.put(pd.getWriteMethod(), bf);
+                        }
                     }
-                }
+                } 
             }
         } catch (Throwable t) {
             throw RuntimeExceptionWrapper.wrap(t);
@@ -96,7 +102,7 @@ public class BeanOpenField implements IOpenField {
     /**
      *
      */
-    public BeanOpenField(PropertyDescriptor descriptor) {
+    private BeanOpenField(PropertyDescriptor descriptor) {
         this.descriptor = descriptor;
         this.readMethod = descriptor.getReadMethod();
         this.writeMethod = descriptor.getWriteMethod();
