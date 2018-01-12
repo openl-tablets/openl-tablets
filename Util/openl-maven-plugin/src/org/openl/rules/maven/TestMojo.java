@@ -338,7 +338,7 @@ public final class TestMojo extends BaseOpenLMojo {
                             "> but was <" + testUnit.getActualResult() + ">");
                 } else {
                     Throwable error = (Throwable) testUnit.getActualResult();
-                    info("  Error: ", error, "\n");
+                    info("  Error: ", error, "\n", ExceptionUtils.getStackTrace(error));
                     Throwable cause = ExceptionUtils.getRootCause(error);
                     if (cause == null) {
                         cause = error;
