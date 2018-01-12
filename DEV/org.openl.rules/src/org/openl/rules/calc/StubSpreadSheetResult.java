@@ -172,11 +172,34 @@ public class StubSpreadSheetResult extends SpreadsheetResult {
 
     @Override
     public ITableAdaptor makeTableAdaptor() {
-        throw new UnsupportedOperationException();
-    }
+        return new ITableAdaptor() {
+            public int width(int row) {
+                return 2;
+            }
 
-    @Override
-    public String printAsTable() {
-        throw new UnsupportedOperationException();
+            public int maxWidth() {
+                return 2;
+            }
+
+            public int height() {
+                return lastRow;
+            }
+
+            public Object get(int col, int row) {
+                for (java.util.Map.Entry<String, Point> entry : fieldCoordinates.entrySet()) {
+                    Point p = entry.getValue();
+                    if (p.getRow() == row) {
+                        if (col == 0) {
+                            return entry.getKey();
+                        } else if (col == 1) {
+                            return values.get(entry.getKey());
+                        } else {
+                            throw new IllegalArgumentException("Can't find column " + col);
+                        }
+                    }
+                }
+                throw new IllegalArgumentException("Can't find row " + row);
+            }
+        };
     }
 }
