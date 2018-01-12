@@ -269,6 +269,11 @@ public class SpreadsheetResult implements Serializable {
 
     @Override
     public String toString() {
-        return printAsTable();
+        try {
+            return printAsTable();
+        } catch (Exception e) {
+            // If it's impossible to print the table, fallback to default toString() implementation
+            return super.toString();
+        }
     }
 }

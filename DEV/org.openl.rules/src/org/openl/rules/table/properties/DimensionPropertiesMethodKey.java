@@ -43,18 +43,24 @@ public final class DimensionPropertiesMethodKey {
         EqualsBuilder equalsBuilder = new EqualsBuilder();
         equalsBuilder.append(new MethodKey(method), new MethodKey(key.getMethod()));
         String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
-        for (int i = 0; i < dimensionalPropertyNames.length; i++) {
-            Object propertyValue1 = PropertiesHelper.getMethodProperties(method).get(
-                    dimensionalPropertyNames[i]);
-            Object propertyValue2 = PropertiesHelper.getMethodProperties(key.getMethod()).get(
-                    dimensionalPropertyNames[i]);
-            
+        for (String dimensionalPropertyName : dimensionalPropertyNames) {
+            Map<String, Object> thisMethodProperties = PropertiesHelper.getMethodProperties(method);
+            Map<String, Object> otherMethodProperties = PropertiesHelper.getMethodProperties(key.getMethod());
+            if (thisMethodProperties == null || otherMethodProperties == null) {
+                // There is no meaning in properties with "null" values.
+                // If such properties exists, we should skip them like there is no empty properties.
+                continue;
+            }
+
+            Object propertyValue1 = thisMethodProperties.get(dimensionalPropertyName);
+            Object propertyValue2 = otherMethodProperties.get(dimensionalPropertyName);
+
             if (isEmpty(propertyValue1) && isEmpty(propertyValue2)) {
                 // There is no meaning in properties with "null" values.
                 // If such properties exists, we should skip them like there is no empty properties.
                 continue;
             }
-            
+
             equalsBuilder.append(propertyValue1, propertyValue2);
         }
         return equalsBuilder.isEquals();

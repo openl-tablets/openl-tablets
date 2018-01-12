@@ -1,6 +1,3 @@
-/**
- * Created Mar 24, 2007
- */
 package org.openl.rules.testmethod;
 
 import java.util.ArrayList;
@@ -120,12 +117,16 @@ public final class ProjectHelper {
             if (testSuite.isRunmethod()) {
                 if (numberOfTests < 1) {
                     info = "No runs";
+                } else if (numberOfTests == 1) {
+                    info = numberOfTests + " run";
                 } else {
                     info = numberOfTests + " runs";
                 }
             } else {
                 if (numberOfTests < 1) {
                     info = "No test cases";
+                } else if (numberOfTests == 1) {
+                    info = numberOfTests + " test case";
                 } else {
                     info = numberOfTests + " test cases";
                 }

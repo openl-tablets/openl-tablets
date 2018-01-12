@@ -11,10 +11,7 @@ import java.util.Comparator;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.xssf.usermodel.XSSFColor;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,6 +31,7 @@ public class TestResultExportTest {
      * Date format used to convert Date to String in this test
      */
     private static final String DATE_FORMAT = "yyyy-MM-dd";
+    private static final String TRIVIAL_PROJECT = "test-resources/test/export/trivial";
 
     private static TestUnitsResults[] testResults;
     private static TestUnitsResults[] trivialResults;
@@ -42,7 +40,7 @@ public class TestResultExportTest {
     @BeforeClass
     public static void runTests() throws Exception {
         testResults = runTests("test-resources/test/export/example3");
-        trivialResults = runTests("test-resources/test/export/trivial");
+        trivialResults = runTests(TRIVIAL_PROJECT);
         resultsWithPK = runTests("test-resources/test/export/example3-pk");
     }
 
@@ -84,6 +82,31 @@ public class TestResultExportTest {
         });
 
         return results;
+    }
+
+    private static TestUnitsResults runTest(String path, String testName, int... indices) throws Exception {
+        SimpleProjectEngineFactory<?> factory = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>()
+                .setProject(path)
+                .setExecutionMode(false)
+                .build();
+
+        CompiledOpenClass openLRules;
+        try {
+            TestMethodNodeBinder.keepTestsInExecutionMode();
+            openLRules = factory.getCompiledOpenClass();
+        } finally {
+            TestMethodNodeBinder.removeTestsInExecutionMode();
+        }
+        IOpenClass openClass = openLRules.getOpenClassWithErrors();
+        TestSuiteMethod[] tests = ProjectHelper.allTesters(openClass);
+        for (TestSuiteMethod test : tests) {
+            if (test.getName().equals(testName)) {
+                IDataBase db = ((XlsModuleOpenClass) openClass).getDataBase();
+                return new TestSuiteWithPreview(db, test, indices).invokeSequentially(openClass, 1L);
+            }
+        }
+
+        throw new IllegalArgumentException("Test '" + testName + "' not found");
     }
 
     @Test
@@ -163,16 +186,62 @@ public class TestResultExportTest {
                 XSSFRow row = sheet.getRow(rowNum);
                 assertRowText(row, "ID", "Status", "Hour", "Result");
                 assertRowColors(row, HEADER, HEADER, HEADER, HEADER);
+                assertComments(row, 3, (String) null);
 
                 row = sheet.getRow(++rowNum);
                 assertRowText(row, "1", "Failed", "5", "Good Morning");
                 assertRowColors(row, RED_MAIN, RED_MAIN, null, RED_FIELDS);
+                assertComments(row, 3, "Expected: aaa");
 
                 row = sheet.getRow(++rowNum);
                 assertRowText(row, "2", "Passed", "22", "Good Night");
                 assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS);
+                assertComments(row, 3, (String) null);
 
                 assertEquals(rowNum, sheet.getLastRowNum());
+            }
+        }
+
+        assertFalse(xlsx.exists());
+    }
+
+    @Test
+    public void testOneTestCase() throws Exception {
+        File xlsx;
+        TestUnitsResults singleTestCase = runTest(TRIVIAL_PROJECT, "HelloTest", 0);
+
+        try (TestResultExport export = new TestResultExport(new TestUnitsResults[] {singleTestCase}, -1)) {
+            xlsx = export.createExcelFile();
+            assertTrue(xlsx.exists());
+
+            try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
+                assertEquals(1, workbook.getNumberOfSheets());
+
+                XSSFSheet sheet = workbook.getSheetAt(0);
+                int rowNum = TestResultExport.FIRST_ROW;
+                assertRowText(sheet.getRow(rowNum), "HelloTest");
+
+                rowNum++;
+                assertRowText(sheet.getRow(rowNum), "1 test case (1 failed)");
+            }
+        }
+
+        assertFalse(xlsx.exists());
+
+        singleTestCase = runTest(TRIVIAL_PROJECT, "HelloTest", 1);
+        try (TestResultExport export = new TestResultExport(new TestUnitsResults[] {singleTestCase}, -1)) {
+            xlsx = export.createExcelFile();
+            assertTrue(xlsx.exists());
+
+            try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
+                assertEquals(1, workbook.getNumberOfSheets());
+
+                XSSFSheet sheet = workbook.getSheetAt(0);
+                int rowNum = TestResultExport.FIRST_ROW;
+                assertRowText(sheet.getRow(rowNum), "HelloTest");
+
+                rowNum++;
+                assertRowText(sheet.getRow(rowNum), "1 test case");
             }
         }
 
@@ -205,14 +274,17 @@ public class TestResultExportTest {
                 row = sheet.getRow(++rowNum);
                 assertRowText(row, "1", "Passed", "a1", "Standard Driver", "Eligible", "Standard Risk Driver");
                 assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS);
+                assertComments(row, 3, null, null, null);
 
                 row = sheet.getRow(++rowNum);
                 assertRowText(row, "2", "Failed", "b2", "Young Driver", "Eligible", "Standard Risk Driver");
                 assertRowColors(row, RED_MAIN, RED_MAIN, null, GREEN_FIELDS, RED_FIELDS, GREEN_FIELDS);
+                assertComments(row, 3, null, "Expected: Provisional", null);
 
                 row = sheet.getRow(++rowNum);
                 assertRowText(row, "3", "Passed", "c3", "Young Driver", "Not Eligible", "High Risk Driver");
                 assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS);
+                assertComments(row, 3, null, null, null);
 
                 // Test the case when parameter is referenced by field name despite that data table is with primary key
                 rowNum += TestResultExport.SPACE_BETWEEN_RESULTS + 1;
@@ -229,14 +301,17 @@ public class TestResultExportTest {
                 row = sheet.getRow(++rowNum);
                 assertRowText(row, "1", "Passed", "Sara", "Standard Driver", "Eligible", "Standard Risk Driver");
                 assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS);
+                assertComments(row, 3, null, null, null);
 
                 row = sheet.getRow(++rowNum);
                 assertRowText(row, "2", "Failed", "Spencer, Sara's Son", "Young Driver", "Eligible", "Standard Risk Driver");
                 assertRowColors(row, RED_MAIN, RED_MAIN, null, GREEN_FIELDS, RED_FIELDS, GREEN_FIELDS);
+                assertComments(row, 3, null, "Expected: Provisional", null);
 
                 row = sheet.getRow(++rowNum);
                 assertRowText(row, "3", "Passed", "Spencer, No Training", "Young Driver", "Not Eligible", "High Risk Driver");
                 assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS);
+                assertComments(row, 3, null, null, null);
 
                 assertEquals(rowNum, sheet.getLastRowNum());
             }
@@ -287,14 +362,17 @@ public class TestResultExportTest {
         row = sheet.getRow(++rowNum);
         assertRowText(row, "1", "Passed", "Sara", "Standard Driver", "Eligible", "Standard Risk Driver");
         assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS);
+        assertComments(row, 3, null, null, null);
 
         row = sheet.getRow(++rowNum);
         assertRowText(row, "2", "Failed", "Spencer, Sara's Son", "Young Driver", "Eligible", "Standard Risk Driver");
         assertRowColors(row, RED_MAIN, RED_MAIN, null, GREEN_FIELDS, RED_FIELDS, GREEN_FIELDS);
+        assertComments(row, 3, null, "Expected: Provisional", null);
 
         row = sheet.getRow(++rowNum);
         assertRowText(row, "3", "Passed", "Spencer, No Training", "Young Driver", "Not Eligible", "High Risk Driver");
         assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS);
+        assertComments(row, 3, null, null, null);
 
         return rowNum;
     }
@@ -309,14 +387,17 @@ public class TestResultExportTest {
         XSSFRow row = sheet.getRow(rowNum);
         assertRowText(row, "ID", "Status", "Description", "Name of Policy", "Expected Score", "Expected Eligibility", "Expected Premium");
         assertRowColors(row, HEADER, HEADER, HEADER, HEADER, HEADER, HEADER);
+        assertComments(row, 4, null, null, null);
 
         row = sheet.getRow(++rowNum);
         assertRowText(row, "case1", "Passed", "Test Policy1", "Policy1", "0", "Eligible", "922.5");
         assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, null, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS);
+        assertComments(row, 4, null, null, null);
 
         row = sheet.getRow(++rowNum);
         assertRowText(row, "case2", "Passed", "Test Second policy", "Policy2", "110", "Eligible", "2960");
         assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, null, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS);
+        assertComments(row, 4, null, null, null);
 
         return rowNum;
     }
@@ -331,18 +412,22 @@ public class TestResultExportTest {
         XSSFRow row = sheet.getRow(rowNum);
         assertRowText(row, "ID", "Status", "Car", "Expected Theft Rating", "Expected Injury Rating", "Expected Eligibility", "Created date");
         assertRowColors(row, HEADER, HEADER, HEADER, HEADER, HEADER, HEADER, HEADER);
+        assertComments(row, 3, null, null, null, null);
 
         row = sheet.getRow(++rowNum);
         assertRowText(row, "1", "Passed", "2005 Honda Odyssey", "Moderate", "Low", "Eligible", "2017-01-02");
         assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS);
+        assertComments(row, 3, null, null, null, null);
 
         row = sheet.getRow(++rowNum);
         assertRowText(row, "2", "Passed", "2002 Toyota Camry", "Low", "Moderate", "Eligible", "2017-01-02");
         assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS);
+        assertComments(row, 3, null, null, null, null);
 
         row = sheet.getRow(++rowNum);
         assertRowText(row, "3", "Passed", "1965 VW Bug", "High", "Extremely High", "Not Eligible", "2017-01-02");
         assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS, GREEN_FIELDS);
+        assertComments(row, 3, null, null, null, null);
 
         return rowNum;
     }
@@ -370,6 +455,22 @@ public class TestResultExportTest {
             String message = "Incorrect color in: {" + sheetName + "[" + row.getRowNum() + ", " + column + "]}";
             assertEquals(message, expected, row.getCell(column).getCellStyle().getFillForegroundColorColor());
             column++;
+        }
+    }
+
+    private void assertComments(XSSFRow row, int firstResultColumn, String... expectedTexts) {
+        int columnNum = firstResultColumn;
+        for (String expectedText : expectedTexts) {
+            XSSFComment comment = row.getCell(TestResultExport.FIRST_COLUMN + columnNum).getCellComment();
+
+            if (expectedText == null) {
+                assertNull(comment);
+            } else {
+                assertNotNull(comment);
+                assertEquals(expectedText, comment.getString().getString());
+            }
+
+            columnNum++;
         }
     }
 

@@ -147,7 +147,7 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
     /**
      * Gets the majority name of methods group.
      * 
-     * @param methods collection of TableSyntaxNodeKeys what belong to group.
+     * @param overloads collection of TableSyntaxNodeKeys what belong to group.
      * @return majority name
      */
     private String getMajorityName(Set<TableSyntaxNodeKey> overloads) {

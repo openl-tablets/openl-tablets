@@ -247,16 +247,16 @@ public final class TestMojo extends BaseOpenLMojo {
         IOpenClass openClass = openLRules.getOpenClassWithErrors();
 
         if (openLRules.hasErrors()) {
-            warn("");
-            warn("There are compilation errors. It can affect test execution.");
+            error("");
+            error("There are compilation errors. It can affect test execution.");
             List<OpenLMessage> errors = OpenLMessagesUtils.filterMessagesBySeverity(openLRules.getMessages(),
                     Severity.ERROR);
             for (int i = 0; i < errors.size(); i++) {
                 OpenLMessage error = errors.get(i);
                 String location = error.getSourceLocation() == null ? "" : " at " + error.getSourceLocation();
-                warn((i + 1) + ". '", error.getSummary(), "'", location);
+                error((i + 1) + ". '", error.getSummary(), "'", location);
             }
-            warn("");
+            error("");
         }
 
         int runTests = 0;
@@ -338,7 +338,7 @@ public final class TestMojo extends BaseOpenLMojo {
                             "> but was <" + testUnit.getActualResult() + ">");
                 } else {
                     Throwable error = (Throwable) testUnit.getActualResult();
-                    info("  Error: ", error, "\n");
+                    info("  Error: ", error, "\n", ExceptionUtils.getStackTrace(error));
                     Throwable cause = ExceptionUtils.getRootCause(error);
                     if (cause == null) {
                         cause = error;
