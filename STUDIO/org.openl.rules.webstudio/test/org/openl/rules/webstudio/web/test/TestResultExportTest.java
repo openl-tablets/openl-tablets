@@ -31,6 +31,7 @@ public class TestResultExportTest {
      * Date format used to convert Date to String in this test
      */
     private static final String DATE_FORMAT = "yyyy-MM-dd";
+    private static final String TRIVIAL_PROJECT = "test-resources/test/export/trivial";
 
     private static TestUnitsResults[] testResults;
     private static TestUnitsResults[] trivialResults;
@@ -39,7 +40,7 @@ public class TestResultExportTest {
     @BeforeClass
     public static void runTests() throws Exception {
         testResults = runTests("test-resources/test/export/example3");
-        trivialResults = runTests("test-resources/test/export/trivial");
+        trivialResults = runTests(TRIVIAL_PROJECT);
         resultsWithPK = runTests("test-resources/test/export/example3-pk");
     }
 
@@ -81,6 +82,31 @@ public class TestResultExportTest {
         });
 
         return results;
+    }
+
+    private static TestUnitsResults runTest(String path, String testName, int... indices) throws Exception {
+        SimpleProjectEngineFactory<?> factory = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>()
+                .setProject(path)
+                .setExecutionMode(false)
+                .build();
+
+        CompiledOpenClass openLRules;
+        try {
+            TestMethodNodeBinder.keepTestsInExecutionMode();
+            openLRules = factory.getCompiledOpenClass();
+        } finally {
+            TestMethodNodeBinder.removeTestsInExecutionMode();
+        }
+        IOpenClass openClass = openLRules.getOpenClassWithErrors();
+        TestSuiteMethod[] tests = ProjectHelper.allTesters(openClass);
+        for (TestSuiteMethod test : tests) {
+            if (test.getName().equals(testName)) {
+                IDataBase db = ((XlsModuleOpenClass) openClass).getDataBase();
+                return new TestSuiteWithPreview(db, test, indices).invokeSequentially(openClass, 1L);
+            }
+        }
+
+        throw new IllegalArgumentException("Test '" + testName + "' not found");
     }
 
     @Test
@@ -173,6 +199,49 @@ public class TestResultExportTest {
                 assertComments(row, 3, (String) null);
 
                 assertEquals(rowNum, sheet.getLastRowNum());
+            }
+        }
+
+        assertFalse(xlsx.exists());
+    }
+
+    @Test
+    public void testOneTestCase() throws Exception {
+        File xlsx;
+        TestUnitsResults singleTestCase = runTest(TRIVIAL_PROJECT, "HelloTest", 0);
+
+        try (TestResultExport export = new TestResultExport(new TestUnitsResults[] {singleTestCase}, -1)) {
+            xlsx = export.createExcelFile();
+            assertTrue(xlsx.exists());
+
+            try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
+                assertEquals(1, workbook.getNumberOfSheets());
+
+                XSSFSheet sheet = workbook.getSheetAt(0);
+                int rowNum = TestResultExport.FIRST_ROW;
+                assertRowText(sheet.getRow(rowNum), "HelloTest");
+
+                rowNum++;
+                assertRowText(sheet.getRow(rowNum), "1 test case (1 failed)");
+            }
+        }
+
+        assertFalse(xlsx.exists());
+
+        singleTestCase = runTest(TRIVIAL_PROJECT, "HelloTest", 1);
+        try (TestResultExport export = new TestResultExport(new TestUnitsResults[] {singleTestCase}, -1)) {
+            xlsx = export.createExcelFile();
+            assertTrue(xlsx.exists());
+
+            try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
+                assertEquals(1, workbook.getNumberOfSheets());
+
+                XSSFSheet sheet = workbook.getSheetAt(0);
+                int rowNum = TestResultExport.FIRST_ROW;
+                assertRowText(sheet.getRow(rowNum), "HelloTest");
+
+                rowNum++;
+                assertRowText(sheet.getRow(rowNum), "1 test case");
             }
         }
 
