@@ -9,6 +9,10 @@
             <name>Rules With Error</name>
             <rules-root path="rules/RulesWithError.xlsx"/>
         </module>
+        <module>
+            <name>Spreadsheets</name>
+            <rules-root path="rules/Spreadsheets.xls"/>
+        </module>
     </modules>
     <classpath>
         <entry path="lib/*.jar"/>
