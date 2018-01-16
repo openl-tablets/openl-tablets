@@ -20,7 +20,7 @@ import org.openl.util.formatters.IFormatter;
 
 public class XlsDataFormatterFactory {
 
-    private static final String GENERAL_FORMAT = "General";
+    public static final String GENERAL_FORMAT = "General";
 
     private static Locale locale = Locale.US;
     private static DataFormatter dataFormatter = new DataFormatter(locale);
