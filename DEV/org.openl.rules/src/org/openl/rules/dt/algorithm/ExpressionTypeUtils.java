@@ -6,7 +6,12 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 
 public class ExpressionTypeUtils {
-    public static final String ARRAY_ACCESS_PATTERN = ".+\\[[0-9]+\\]$";
+    /**
+     * See also "Using datatype arrays in rules by user defined index" in Reference Guide.
+     * Array can be accessed using syntax: drivers[“David”], drivers[“7”].
+     * @see org.openl.types.impl.ArrayFieldIndex
+     */
+    private static final String ARRAY_ACCESS_PATTERN = ".+\\[.+]$";
 
     public static IOpenClass findExpressionType(IOpenClass type, String expression) {
         StringTokenizer stringTokenizer = new StringTokenizer(expression, ".");
@@ -21,7 +26,7 @@ public class ExpressionTypeUtils {
                 isFirst = false;
                 continue;
             }
-            IOpenField field = null;
+            IOpenField field;
             if (arrayAccess) {
                 v = v.substring(0, v.indexOf("["));
             }
@@ -36,7 +41,7 @@ public class ExpressionTypeUtils {
 
     public static String cutExpressionRoot(String expression) {
         StringTokenizer stringTokenizer = new StringTokenizer(expression, ".");
-        while (stringTokenizer.hasMoreTokens()) {
+        if (stringTokenizer.hasMoreTokens()) {
             String v = stringTokenizer.nextToken();
             boolean arrayAccess = v.matches(ARRAY_ACCESS_PATTERN);
             if (arrayAccess) {
