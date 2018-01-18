@@ -10,6 +10,7 @@ var NumericEditor = Class.create(BaseTextEditor, {
 
     min: null,
     max: null,
+    intOnly: false,
 
     editor_initialize: function(param) {
         this.createInput();
@@ -21,6 +22,7 @@ var NumericEditor = Class.create(BaseTextEditor, {
         if (param) {
             this.min = param.min;
             this.max = param.max;
+            this.intOnly = param.intOnly;
         }
     },
 
@@ -32,13 +34,13 @@ var NumericEditor = Class.create(BaseTextEditor, {
 
     keyPressed: function(event) {
         var v = this.input.getValue();
-        if (event.charCode == 0) return true;
+        if (event.charCode === 0) return true;
         var code = event.charCode == undefined ? event.keyCode : event.charCode;
 
         if (code == 45)  // minus
             return v.indexOf("-") < 0;
         if (code == 46)  // point
-            return v.indexOf(".") < 0;
+            return !this.intOnly && v.indexOf(".") < 0;
 
         return code >= 48 && code <= 57; // digits (0-9)
     }

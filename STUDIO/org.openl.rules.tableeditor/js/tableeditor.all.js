@@ -4739,6 +4739,7 @@ var NumericEditor = Class.create(BaseTextEditor, {
 
     min: null,
     max: null,
+    intOnly: false,
 
     editor_initialize: function(param) {
         this.createInput();
@@ -4750,6 +4751,7 @@ var NumericEditor = Class.create(BaseTextEditor, {
         if (param) {
             this.min = param.min;
             this.max = param.max;
+            this.intOnly = param.intOnly;
         }
     },
 
@@ -4767,7 +4769,7 @@ var NumericEditor = Class.create(BaseTextEditor, {
         if (code == 45)  // minus
             return v.indexOf("-") < 0;
         if (code == 46)  // point
-            return v.indexOf(".") < 0;
+            return !this.intOnly && v.indexOf(".") < 0;
 
         return code >= 48 && code <= 57; // digits (0-9)
     }
@@ -5265,13 +5267,18 @@ var ArrayEditor = Class.create(BaseTextEditor, {
 
     separator: null,
     entryEditor: null,
+    intOnly: false,
 
     editor_initialize: function(param) {
         this.createInput();
 
+        var self = this;
+        this.input.onkeypress = function(event) {return self.keyPressed(event || window.event);};
+
         if (param) {
             this.separator = param.separator;
             this.entryEditor = param.entryEditor;
+            this.intOnly = param.intOnly;
         }
     },
 
@@ -5287,6 +5294,18 @@ var ArrayEditor = Class.create(BaseTextEditor, {
             });
         }
         return valid;
+    },
+
+    keyPressed: function(event) {
+        if (event.charCode === 0) return true;
+
+        var code = event.charCode == undefined ? event.keyCode : event.charCode;
+        if (code == 46) {
+            // point
+            return !this.intOnly || this.separator === '.';
+        }
+
+        return /^[,0-9]$/.test(String.fromCharCode(code));
     }
 
 });

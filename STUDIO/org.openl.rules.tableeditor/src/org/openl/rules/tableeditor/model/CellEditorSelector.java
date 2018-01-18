@@ -15,6 +15,7 @@ import org.openl.rules.table.ICell;
 import org.openl.types.IOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.EnumUtils;
+import org.openl.util.IntegerValuesUtils;
 import org.openl.util.NumberUtils;
 
 // TODO Reimplement
@@ -23,7 +24,7 @@ public class CellEditorSelector {
     private ICellEditorFactory factory = new CellEditorFactory();
 
     public ICellEditor selectEditor(ICell cell) {
-        if (cell != null && cell.getFormula() != null) {
+        if (cell.getFormula() != null) {
             return factory.makeFormulaEditor();
         }
         CellMetaInfo cellMetaInfo = cell.getMetaInfo();
@@ -79,10 +80,11 @@ public class CellEditorSelector {
                     if (!meta.isMultiValue()) {
                         Number minValue = NumberUtils.getMinValue(instanceClass);
                         Number maxValue = NumberUtils.getMaxValue(instanceClass);
-                        result = factory.makeNumericEditor(minValue, maxValue);
+                        result = factory.makeNumericEditor(minValue, maxValue, IntegerValuesUtils.isIntegerValue(instanceClass));
                     } else {
                         // Numeric Array
-                        return factory.makeArrayEditor(",", ICellEditor.CE_NUMERIC);
+                        return factory.makeArrayEditor(ArrayCellEditor.DEFAULT_SEPARATOR, ICellEditor.CE_NUMERIC,
+                                IntegerValuesUtils.isIntegerValue(instanceClass));
                     }
                 }
 
