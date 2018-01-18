@@ -58,6 +58,8 @@ import org.openl.types.java.JavaOpenClass;
 
 public class DecisionTableHelper {
 
+    private static final Pattern RANGE_PATTERN = Pattern.compile(".*(more|less|[;<>\\[(+]).*|.*\\d+.*(-|\\.\\.).*");
+
     /**
      * Check if table is vertical.<br>
      * Vertical table is when conditions are represented from left to right,
@@ -336,7 +338,7 @@ public class DecisionTableHelper {
         int compoundReturnColumnsCount = calculateCompoundReturnColumnsCount(originalTable,
             numberOfConditions,
             numberOfMergedRows);
-        IOpenClass compoundType = null;
+        IOpenClass compoundType;
         if (isCollectTable){
             if (tableSyntaxNode.getHeader().getCollectParameters().length > 0){
                 compoundType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, tableSyntaxNode.getHeader().getCollectParameters()[retParameterIndex]);
@@ -1126,9 +1128,7 @@ public class DecisionTableHelper {
     }
 
     private static boolean maybeIsRange(String cellValue) {
-        Pattern p = Pattern.compile(".*(more|less|[;<>\\[\\(+\\.]).*|.*\\d+.*-.*");
-        Matcher m = p.matcher(cellValue);
-
+        Matcher m = RANGE_PATTERN.matcher(cellValue);
         return m.matches();
     }
 
