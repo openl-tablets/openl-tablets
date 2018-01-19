@@ -26,6 +26,8 @@ public interface IRulesRuntimeContext extends IRuntimeContext {
 	void setRequestDate(java.util.Date requestDate);	
 	java.lang.String getLob();
 	void setLob(java.lang.String lob);	
+	java.lang.String getNature();
+	void setNature(java.lang.String nature);	
 	org.openl.rules.enumeration.UsStatesEnum getUsState();
 	void setUsState(org.openl.rules.enumeration.UsStatesEnum usState);	
 	org.openl.rules.enumeration.CountriesEnum getCountry();

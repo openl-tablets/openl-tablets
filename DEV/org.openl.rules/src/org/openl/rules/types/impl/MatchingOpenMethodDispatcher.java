@@ -357,6 +357,9 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         if (context.getUsState() != null) {
             propNames.add("state");
         }
+        if (context.getNature() != null) {
+            propNames.add("nature");
+        }
 
         return propNames;
     }

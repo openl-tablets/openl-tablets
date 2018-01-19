@@ -133,6 +133,18 @@ public class DefaultPropertiesIntersectionFinder {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
+        constraints.put("nature", new IntersectionConstraint<java.lang.String>() { 
+
+            @Override
+            protected java.lang.String getPropertyValue(ITableProperties properties) {
+                return properties.getNature();
+            }
+
+            @Override
+            protected IntersectionType matchNotNulls(java.lang.String firstValue, java.lang.String secondValue) {
+                return intersectionForEQ(firstValue, secondValue);
+            }
+        });
 // <<< END INSERT >>>
     }
 

@@ -59,6 +59,12 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext {
 	public void setLob(java.lang.String lob) {
 		setValue("lob", lob);
 	}	
+	public java.lang.String getNature() {
+		return (java.lang.String) getValue("nature"); 
+	}
+	public void setNature(java.lang.String nature) {
+		setValue("nature", nature);
+	}	
 	public org.openl.rules.ruleservice.context.enumeration.UsStatesEnum getUsState() {
 		return (org.openl.rules.ruleservice.context.enumeration.UsStatesEnum) getValue("usState"); 
 	}

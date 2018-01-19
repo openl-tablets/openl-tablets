@@ -48,6 +48,13 @@ public class RulesRuntimeContextDelegator extends DefaultRulesRuntimeContext {
 		return super.getLob();
 	}
 	@Override
+	public java.lang.String getNature() {
+	    if (super.getNature() == null){
+			return delegate.getNature();
+		}
+		return super.getNature();
+	}
+	@Override
 	public org.openl.rules.enumeration.UsStatesEnum getUsState() {
 	    if (super.getUsState() == null){
 			return delegate.getUsState();

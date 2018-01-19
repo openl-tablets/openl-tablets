@@ -263,6 +263,24 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
 			}
 			
         });
+		constraints.put("nature", new MatchingConstraint<java.lang.String, java.lang.String>() { 
+
+			@Override
+			protected java.lang.String getContextValue(IRulesRuntimeContext context) {
+			    return context.getNature();
+			}
+			
+			@Override
+			protected java.lang.String getPropertyValue(ITableProperties properties) {
+			    return properties.getNature();
+			}
+			
+			@Override
+			protected boolean matchNotNulls(java.lang.String propertyValue, java.lang.String contextValue) {
+			    return EQ(propertyValue, contextValue);
+			}
+			
+        });
 // <<< END INSERT >>>
     }
 

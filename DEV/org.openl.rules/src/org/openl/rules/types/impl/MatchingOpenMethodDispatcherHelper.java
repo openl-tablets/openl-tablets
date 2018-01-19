@@ -183,6 +183,17 @@ public class MatchingOpenMethodDispatcherHelper {
 			    return properties.getState();
 			}
 		});
+		put("nature", new PropertyAccessDelegation<java.lang.String, java.lang.String>() { 
+			@Override
+			protected java.lang.String getContextValue(IRulesRuntimeContext context) {
+			    return context.getNature();
+			}
+	
+			@Override
+			protected java.lang.String getPropertyValue(ITableProperties properties) {
+			    return properties.getNature();
+			}
+		});
 // <<< END INSERT >>>
     }
 
