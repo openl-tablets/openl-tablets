@@ -139,7 +139,12 @@ public class TableBean {
 
     private void initRunnableTestMethods() {
         if (method instanceof TestSuiteMethod) {
-            runnableTestMethods = ((TestSuiteMethod) method).getTests();
+            try {
+                runnableTestMethods = ((TestSuiteMethod) method).getTests();
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+                runnableTestMethods = new TestDescription[0];
+            }
         }
     }
 

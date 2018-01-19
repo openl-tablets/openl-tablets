@@ -7,6 +7,8 @@ import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodDelegator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author snshor
@@ -43,8 +45,14 @@ public final class ProjectHelper {
      */
     public static boolean isTester(IOpenMethod tester) {
         if (tester instanceof TestSuiteMethod) {
-            TestSuiteMethod testSuiteMethod = (TestSuiteMethod) tester;
-            return !testSuiteMethod.isRunmethod() && testSuiteMethod.isRunmethodTestable() && (testSuiteMethod.getSyntaxNode() == null || !testSuiteMethod.getSyntaxNode().hasErrors());
+            try {
+                TestSuiteMethod testSuiteMethod = (TestSuiteMethod) tester;
+                return !testSuiteMethod.isRunmethod() && testSuiteMethod.isRunmethodTestable() && (testSuiteMethod.getSyntaxNode() == null || !testSuiteMethod.getSyntaxNode().hasErrors());
+            } catch (Exception e) {
+                Logger log = LoggerFactory.getLogger(ProjectHelper.class);
+                log.error(e.getMessage(), e);
+                return false;
+            }
 
         }
         return false;

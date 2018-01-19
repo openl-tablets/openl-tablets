@@ -87,7 +87,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         if (tests == null) {
             initTestsAndIndexes();
         }
-        TreeSet<Integer> result = new TreeSet<Integer>();
+        TreeSet<Integer> result = new TreeSet<>();
 
         String ranges[] = ids.trim().split(",");
         for (String range : ranges) {
@@ -349,9 +349,11 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                                 arrayField = spreadsheetResultOpenClass
                                     .getField(getArrayName(nodes[i + 1 - startIndex]));
                             }
-                            int arrayIndex = getArrayIndex(nodes[i + 1 - startIndex]);
-                            IOpenField arrayAccessField = new DatatypeArrayElementField(arrayField, arrayIndex);
-                            fieldSequence[i] = arrayAccessField;
+                            if (arrayField != null) {
+                                int arrayIndex = getArrayIndex(nodes[i + 1 - startIndex]);
+                                IOpenField arrayAccessField = new DatatypeArrayElementField(arrayField, arrayIndex);
+                                fieldSequence[i] = arrayAccessField;
+                            }
                         } else {
                             fieldSequence[i] = currentType.getField(nodes[i + 1 - startIndex].getIdentifier());
                             if (fieldSequence[i] == null) {
@@ -380,10 +382,23 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                         }
                         if (fieldPrecision != null) {
                             fieldsToTest.add(new PrecisionFieldChain(currentType, fieldSequence, fieldPrecision));
-                        } else if (fieldSequence.length > 1) {
-                            fieldsToTest.add(new FieldChain(currentType, fieldSequence));
                         } else {
-                            fieldsToTest.add(fieldSequence[0]);
+                            if (fieldSequence.length > 1) {
+                                boolean hasNull = false;
+                                for (IOpenField field : fieldSequence) {
+                                    if (field == null) {
+                                        hasNull = true;
+                                    }
+                                }
+                                if (!hasNull) {
+                                    fieldsToTest.add(new FieldChain(currentType, fieldSequence));
+                                }
+                            } else {
+                                IOpenField field = fieldSequence[0];
+                                if (field != null) {
+                                    fieldsToTest.add(field);
+                                }
+                            }
                         }
                     }
                 }
