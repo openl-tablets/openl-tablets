@@ -17,7 +17,10 @@ public class RowIdField extends AOpenField {
 
     public Object get(Object target, IRuntimeEnv env) {
 
-        int row = table.getRowIndex(target);
+        Integer row = table.getRowIndex(target);
+        if (row == null) {
+            return null;
+        }
 
         return table.getPrimaryIndexKey(row);
     }

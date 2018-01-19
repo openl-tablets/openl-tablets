@@ -48,7 +48,7 @@ public interface ITable {
 
     String getPrimaryIndexKey(int row);
 
-    int getRowIndex(Object target);
+    Integer getRowIndex(Object target);
 
     IGridTable getRowTable(int row);
 

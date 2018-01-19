@@ -124,7 +124,7 @@ public class Table implements ITable {
         return primaryIndexMap.get(row);
     }
 
-    public int getRowIndex(Object target) {
+    public Integer getRowIndex(Object target) {
         return rowIndexMap.getKey(target);
     }
 
