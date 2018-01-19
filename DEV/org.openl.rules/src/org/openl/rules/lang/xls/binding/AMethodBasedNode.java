@@ -130,7 +130,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
         try {
             openClass.addMethod(getServiceMethod(originalMethod));
         } catch (DuplicatedMethodException e) {
-            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(null, e, getTableSyntaxNode());
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, getTableSyntaxNode());
             getTableSyntaxNode().addError(error);
             OpenLMessagesUtils.addError(error);
         }

@@ -45,11 +45,11 @@ public class ColumnMatchBuilder {
 
         IOpenSourceCodeModule alg = columnMatch.getAlgorithm();
         String nameOfAlgorithm = (alg != null) ? alg.getCode() : null;
-        IMatchAlgorithmCompiler algorithm = null;
+        IMatchAlgorithmCompiler algorithm;
         try {
             algorithm = MatchAlgorithmFactory.getAlgorithm(nameOfAlgorithm);
         } catch (Exception ex) {
-            throw SyntaxNodeExceptionUtils.createError(null, ex, columnMatch.getSyntaxNode());
+            throw SyntaxNodeExceptionUtils.createError(ex, columnMatch.getSyntaxNode());
         }
 
         algorithm.compile(bindingContext, columnMatch);

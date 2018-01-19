@@ -23,6 +23,8 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.text.LocationUtils;
+import org.openl.util.text.TextInterval;
 
 public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
     public static final String NAMES = "names";
@@ -53,10 +55,6 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      * <p>
      * Side effect: when matcher parse cell as numeric binding will block range
      * there.
-     *
-     * @param columnMatch
-     * @param subValues
-     * @param objValues
      */
     protected void bindMetaInfo(ColumnMatch columnMatch, String paramName, SubValue[] subValues, Object[] objValues) {
         IGridTable tableBodyGrid = columnMatch.getSyntaxNode().getTableBody().getSource();
@@ -78,9 +76,6 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
 
     /**
      * Sets CellMetaInfo for 'names' column (except special rows).
-     *
-     * @param columnMatch
-     * @param argumentsHelper
      */
     protected void bindNamesMetaInfo(ColumnMatch columnMatch, ArgumentsHelper argumentsHelper) {
         DomainOpenClass domainOpenClass = argumentsHelper.generateDomainClassByArgNames();
@@ -102,10 +97,8 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
     /**
      * Builds tree based on indentation of each row.
      *
-     * @param rows
      * @param nodes (special rows must be null)
      * @return root of tree
-     * @throws BoundError
      */
     protected MatchNode buildTree(List<TableRow> rows, MatchNode[] nodes) throws SyntaxNodeException {
         MatchNode rootNode = new MatchNode(-1);
@@ -153,9 +146,6 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
 
     /**
      * Checks that all required columns are defined.
-     *
-     * @param columns
-     * @see #getRequiredColumns()
      */
     private void checkReqColumns(List<TableColumn> columns) {
         for (ColumnDefinition colDef : getColumnDefinition()) {
@@ -274,10 +264,6 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
     /**
      * Parses CheckValues for node(row). It is up to matcher (type of variable
      * in 'names') how to parse it.
-     *
-     * @param row
-     * @param node
-     * @param retValuesCount
      */
     protected void parseCheckValues(TableRow row, MatchNode node, int retValuesCount) {
         SubValue[] inValues = row.get(VALUES);
@@ -299,8 +285,6 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
 
     /**
      * Compiles (parses) return values based on return type.
-     *
-     * @param columnMatch
      */
     protected void parseSpecialRows(ColumnMatch columnMatch) throws SyntaxNodeException {
         IOpenClass returnType = columnMatch.getHeader().getType();
@@ -325,7 +309,8 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             try {
                 result[i] = converter.parse(s, null);
             } catch (Exception ex) {
-                throw SyntaxNodeExceptionUtils.createError(null, ex, null, sv.getStringValue().asSourceCodeModule());
+                TextInterval location = LocationUtils.createTextInterval(s);
+                throw SyntaxNodeExceptionUtils.createError(ex, location, sv.getStringValue().asSourceCodeModule());
             }
         }
 
@@ -338,10 +323,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      * Special rows are ignored. That is why first n elements in return array is
      * always null.
      *
-     * @param rows
-     * @param argumentsHelper
      * @return array of nodes, elements corresponds rows
-     * @throws BoundError
      */
     protected MatchNode[] prepareNodes(ColumnMatch columnMatch, ArgumentsHelper argumentsHelper, int retValuesCount)
             throws SyntaxNodeException {
@@ -392,7 +374,6 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      *
      * @param rootNode root of tree
      * @param rows rows to point out errors
-     * @throws BoundError
      */
     protected void validateTree(MatchNode rootNode, List<TableRow> rows, MatchNode[] nodes) throws SyntaxNodeException {
         for (MatchNode node : rootNode.getChildren()) {

@@ -43,6 +43,12 @@ public class SyntaxNodeExceptionUtils {
         return new SyntaxNodeException(message, throwable, location, source);
     }
 
+    public static SyntaxNodeException createError(Throwable throwable,
+            ILocation location,
+            IOpenSourceCodeModule source) {
+        return createError(formatErrorMessage(throwable), throwable, location, source);
+    }
+
     public static SyntaxNodeException createError(String message, Throwable throwable, ISyntaxNode syntaxNode) {
         Logger logger = LoggerFactory.getLogger(SyntaxNodeExceptionUtils.class);
         logger.debug(message, throwable);
