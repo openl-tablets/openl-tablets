@@ -17,7 +17,7 @@ public class DefaultPropertyDefinitions
     
     static {  
         // <<< INSERT TablePropertiesDefinition >>>
-		definitions = new TablePropertyDefinition[38];
+		definitions = new TablePropertyDefinition[39];
 		definitions[0] = new TablePropertyDefinition();
 		definitions[0].setConstraints(new org.openl.rules.table.constraints.Constraints("unique in:module"));
 		definitions[0].setDeprecation("removed");
@@ -507,6 +507,19 @@ public class DefaultPropertyDefinitions
 		definitions[37].setSystem(false);
 		definitions[37].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[37].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
+		definitions[38] = new TablePropertyDefinition();
+		definitions[38].setConstraints(new org.openl.rules.table.constraints.Constraints("list: Defined by method getNature()"));
+		definitions[38].setDescription("Nature (type) for which this table works and should be used");
+		definitions[38].setDimensional(true);
+		definitions[38].setDisplayName("Nature");
+		definitions[38].setExpression(new org.openl.rules.table.properties.expressions.match.MatchingExpression("eq(nature)"));
+		definitions[38].setGroup("Business Dimension");
+		definitions[38].setInheritanceLevel(new InheritanceLevel[] {InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
+		definitions[38].setName("nature");
+		definitions[38].setPrimaryKey(false);
+		definitions[38].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
+		definitions[38].setSystem(false);
+		definitions[38].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 // <<< END INSERT TablePropertiesDefinition >>>
     }
 

@@ -343,6 +343,13 @@ public class TableProperties extends DynamicObject implements ITableProperties {
 		setFieldValue("parallel", parallel);
 		allProperties = null;
 	}	
+	public java.lang.String getNature() {
+		return (java.lang.String) getPropertyValue("nature"); 
+	}
+	public void setNature(java.lang.String nature) {
+		setFieldValue("nature", nature);
+		allProperties = null;
+	}	
 // <<< END INSERT >>>
 
     /**

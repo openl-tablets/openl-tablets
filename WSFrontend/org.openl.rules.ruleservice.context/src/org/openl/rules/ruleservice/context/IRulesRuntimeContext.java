@@ -34,6 +34,8 @@ public interface IRulesRuntimeContext {
 	void setRequestDate(java.util.Date requestDate);	
 	java.lang.String getLob();
 	void setLob(java.lang.String lob);	
+	java.lang.String getNature();
+	void setNature(java.lang.String nature);	
 	org.openl.rules.ruleservice.context.enumeration.UsStatesEnum getUsState();
 	void setUsState(org.openl.rules.ruleservice.context.enumeration.UsStatesEnum usState);	
 	org.openl.rules.ruleservice.context.enumeration.CountriesEnum getCountry();

@@ -208,6 +208,8 @@ public interface ITableProperties {
 	void setAutoType(java.lang.Boolean autoType);
 	java.lang.Boolean getParallel();
 	void setParallel(java.lang.Boolean parallel);
+	java.lang.String getNature();
+	void setNature(java.lang.String nature);
 // <<< END INSERT >>>
 	
 	

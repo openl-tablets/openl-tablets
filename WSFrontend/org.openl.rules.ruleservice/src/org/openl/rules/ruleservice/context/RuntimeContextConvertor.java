@@ -65,6 +65,7 @@ public class RuntimeContextConvertor {
 		rulesRuntimeContext.setCurrentDate(context.getCurrentDate());
 		rulesRuntimeContext.setRequestDate(context.getRequestDate());
 		rulesRuntimeContext.setLob(context.getLob());
+		rulesRuntimeContext.setNature(context.getNature());
 		rulesRuntimeContext.setUsState(convertUsState(context.getUsState()));
 		rulesRuntimeContext.setCountry(convertCountry(context.getCountry()));
 		rulesRuntimeContext.setUsRegion(convertUsRegion(context.getUsRegion()));

@@ -125,6 +125,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
 		defaultRulesRuntimeContext.setCurrentDate(this.currentDate);
 		defaultRulesRuntimeContext.setRequestDate(this.requestDate);
 		defaultRulesRuntimeContext.setLob(this.lob);
+		defaultRulesRuntimeContext.setNature(this.nature);
 		defaultRulesRuntimeContext.setUsState(this.usState);
 		defaultRulesRuntimeContext.setCountry(this.country);
 		defaultRulesRuntimeContext.setUsRegion(this.usRegion);
@@ -149,6 +150,11 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
 		}
 		if ("lob".equals(name)){
 			setLob((java.lang.String)value);
+			uuid = UUID.randomUUID();
+			return;
+		}
+		if ("nature".equals(name)){
+			setNature((java.lang.String)value);
 			uuid = UUID.randomUUID();
 			return;
 		}
@@ -221,6 +227,16 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
 	public void setLob(java.lang.String lob) {
 		this.lob = lob;
 		internalMap.put("lob", lob);
+		uuid = UUID.randomUUID();
+	}
+		
+	private java.lang.String nature = null;
+	public java.lang.String getNature() {
+		return nature;
+	}
+	public void setNature(java.lang.String nature) {
+		this.nature = nature;
+		internalMap.put("nature", nature);
 		uuid = UUID.randomUUID();
 	}
 		
