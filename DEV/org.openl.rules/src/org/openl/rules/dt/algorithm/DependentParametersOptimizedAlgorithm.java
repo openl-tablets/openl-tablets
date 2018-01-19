@@ -2,7 +2,6 @@ package org.openl.rules.dt.algorithm;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.nio.channels.IllegalSelectorException;
 import java.util.Date;
 import java.util.regex.Pattern;
 
@@ -288,14 +287,14 @@ public class DependentParametersOptimizedAlgorithm {
 
     }
 
-    private static String buildFieldName(IndexNode indexNode) {
+    private static String buildFieldName(IndexNode indexNode) throws SyntaxNodeException {
         String value = "[";
         IBoundNode[] children = indexNode.getChildren();
         if (children != null && children.length == 1 && children[0] instanceof LiteralBoundNode) {
             LiteralBoundNode literalBoundNode = (LiteralBoundNode) children[0];
             value = value + literalBoundNode.getValue().toString() + "]";
         } else {
-            throw new IllegalSelectorException();
+            throw new SyntaxNodeException("Can't parse array index", null, indexNode.getSyntaxNode());
         }
 
         if (indexNode.getTargetNode() != null) {
@@ -305,12 +304,12 @@ public class DependentParametersOptimizedAlgorithm {
             if (indexNode.getTargetNode() instanceof IndexNode) {
                 return value + buildFieldName((IndexNode) indexNode.getTargetNode());
             }
-            throw new IllegalStateException();
+            throw new SyntaxNodeException("Can't parse array index", null, indexNode.getSyntaxNode());
         }
         return value;
     }
 
-    private static String buildFieldName(FieldBoundNode field) {
+    private static String buildFieldName(FieldBoundNode field) throws SyntaxNodeException {
         String value = field.getFieldName();
         if (field.getTargetNode() != null) {
             if (field.getTargetNode() instanceof FieldBoundNode) {
@@ -319,12 +318,12 @@ public class DependentParametersOptimizedAlgorithm {
             if (field.getTargetNode() instanceof IndexNode) {
                 return buildFieldName((IndexNode) field.getTargetNode()) + "." + value;
             }
-            throw new IllegalStateException();
+            throw new SyntaxNodeException("Can't parse field name", null, field.getSyntaxNode());
         }
         return value;
     }
 
-    private static String[] parseBinaryOpExpression(BinaryOpNode binaryOpNode) {
+    private static String[] parseBinaryOpExpression(BinaryOpNode binaryOpNode) throws SyntaxNodeException {
         IBoundNode[] children = binaryOpNode.getChildren();
         if (children != null && children.length == 2 && children[0] instanceof FieldBoundNode && children[1] instanceof FieldBoundNode) {
             String[] ret = new String[3];
@@ -356,7 +355,7 @@ public class DependentParametersOptimizedAlgorithm {
         return null;
     }
 
-    private static String[] oneParameterExpressionParse(ICondition condition) {
+    private static String[] oneParameterExpressionParse(ICondition condition) throws SyntaxNodeException {
         if (condition.getMethod() instanceof CompositeMethod) {
             IBoundNode boundNode = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode();
             if (boundNode instanceof BlockNode) {
@@ -376,7 +375,7 @@ public class DependentParametersOptimizedAlgorithm {
         throw new IllegalStateException("Condition method should be an instance of CompositeMethod!");
     }
 
-    private static String[][] twoParameterExpressionParse(ICondition condition) {
+    private static String[][] twoParameterExpressionParse(ICondition condition) throws SyntaxNodeException {
         if (condition.getMethod() instanceof CompositeMethod) {
             IBoundNode boundNode = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode();
             if (boundNode instanceof BlockNode) {
@@ -408,7 +407,7 @@ public class DependentParametersOptimizedAlgorithm {
         throw new IllegalStateException("Condition method should be an instance of CompositeMethod!");
     }
 
-    private static EvaluatorFactory determineOptimizedEvaluationFactory(ICondition condition, IMethodSignature signature) {
+    private static EvaluatorFactory determineOptimizedEvaluationFactory(ICondition condition, IMethodSignature signature) throws SyntaxNodeException {
         IParameterDeclaration[] params = condition.getParams();
 
         String code = condition.getSourceCodeModule().getCode();
@@ -848,6 +847,6 @@ public class DependentParametersOptimizedAlgorithm {
             return null;
         }
 
-    };
+    }
 
 }

@@ -13,8 +13,8 @@ public interface ICellEditorFactory {
     /**
      * Creates combobox editor with choices in String array
      *
-     * @param choices
-     * @return
+     * @param choices choices to select from
+     * @return cell editor editor
      */
     ICellEditor makeComboboxEditor(String[] choices);
 
@@ -27,13 +27,12 @@ public interface ICellEditorFactory {
     /**
      * Creates numeric editor with min, max bounds.
      *
-     * @param min
-     * @param max
-     * @return
+     * @param min minimum possible number
+     * @param max maximum possible number
+     * @param intOnly true if only integer numbers only allowed (byte, int, long etc)
+     * @return cell editor
      */
-    ICellEditor makeNumericEditor(Number min, Number max);
-
-    ICellEditor makeNumericEditor();
+    ICellEditor makeNumericEditor(Number min, Number max, boolean intOnly);
 
     ICellEditor makeMultilineEditor();
 
@@ -45,9 +44,7 @@ public interface ICellEditorFactory {
 
     ICellEditor makeBooleanEditor();
 
-    ICellEditor makeArrayEditor();
-
-    ICellEditor makeArrayEditor(String separator, String entryEditor);
+    ICellEditor makeArrayEditor(String separator, String entryEditor, boolean intOnly);
     
     ICellEditor makeNumberRangeEditor(String entryEditor, String initialValue);
 

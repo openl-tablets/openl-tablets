@@ -1,21 +1,18 @@
 package org.openl.rules.tableeditor.model;
 
-import org.openl.rules.tableeditor.model.RangeParam;
 import org.openl.rules.tableeditor.event.TableEditorController.EditorTypeResponse;
 
 public class NumericCellEditor implements ICellEditor {
 
-    private Number min;
-    private Number max;
+    private final RangeParam params;
 
-    public NumericCellEditor(Number min, Number max) {
-        this.min = min;
-        this.max = max;
+    public NumericCellEditor(Number min, Number max, boolean intOnly) {
+        this.params = new RangeParam(min, max, intOnly);
     }
 
     public EditorTypeResponse getEditorTypeAndMetadata() {
         EditorTypeResponse typeResponse = new EditorTypeResponse(CE_NUMERIC);
-        typeResponse.setParams(new RangeParam(min, max));
+        typeResponse.setParams(params);
         return typeResponse;
     }
 

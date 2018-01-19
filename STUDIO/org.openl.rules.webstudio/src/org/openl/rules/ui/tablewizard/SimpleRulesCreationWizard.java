@@ -44,6 +44,7 @@ import org.openl.rules.ui.tablewizard.util.CellStyleManager;
 import org.openl.rules.ui.tablewizard.util.JSONHolder;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
+import org.openl.util.IntegerValuesUtils;
 import org.openl.util.StringUtils;
 import org.richfaces.json.JSONException;
 import org.slf4j.Logger;
@@ -283,7 +284,7 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     public final class DomainTypeHolder {
         private String name;
         private String type;
-        private boolean iterable = false;
+        private boolean iterable;
         private String typeName;
 
         public String getName() {
@@ -314,22 +315,14 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
                 } else if (openClass.toString().equals(boolean.class.getCanonicalName()) ||
                         openClass.toString().equals(Boolean.class.getCanonicalName())) {
                     this.type = "BOOLEAN";
-                } else if (openClass.toString().equals(BigInteger.class.getCanonicalName()) ||
-                        openClass.toString().equals(BigIntegerValue.class.getCanonicalName()) ||
-                        openClass.toString().equals(ByteValue.class.getCanonicalName()) ||
-                        openClass.toString().equals(LongValue.class.getCanonicalName()) ||
-                        openClass.toString().equals(ShortValue.class.getCanonicalName()) ||
-                        openClass.toString().equals(byte.class.getCanonicalName()) ||
-                        openClass.toString().equals(long.class.getCanonicalName()) ||
-                        openClass.toString().equals(short.class.getCanonicalName()) ||
-                        openClass.toString().equals(int.class.getCanonicalName()) ||
-                        openClass.toString().equals(IntValue.class.getCanonicalName())) {
+                } else if (IntegerValuesUtils.isIntegerValue(openClass.getInstanceClass())) {
                     this.type = "INT";
                 } else if (openClass.toString().equals(BigDecimal.class.getCanonicalName()) ||
                         openClass.toString().equals(BigDecimalValue.class.getCanonicalName()) ||
                         openClass.toString().equals(DoubleValue.class.getCanonicalName()) ||
                         openClass.toString().equals(Double.class.getCanonicalName()) ||
                         openClass.toString().equals(FloatValue.class.getCanonicalName()) ||
+                        openClass.toString().equals(Float.class.getCanonicalName()) ||
                         openClass.toString().equals(double.class.getCanonicalName()) ||
                         openClass.toString().equals(float.class.getCanonicalName())) {
                     this.type = "FLOAT";

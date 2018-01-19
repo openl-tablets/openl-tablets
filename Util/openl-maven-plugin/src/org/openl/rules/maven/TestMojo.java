@@ -30,7 +30,9 @@ import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.testmethod.*;
 import org.openl.rules.testmethod.TestStatus;
+import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.types.IOpenClass;
+import org.openl.types.impl.ThisField;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 
@@ -331,11 +333,47 @@ public final class TestMojo extends BaseOpenLMojo {
                         failureType);
 
                 if (status == TR_NEQ) {
-                    info("    Expected: <", testUnit.getExpectedResult(),
-                            "> but was: <", testUnit.getActualResult() + ">");
-                    summaryFailures.add(modulePrefix + test.getName() + "#" + num +
-                            " expected: <" + testUnit.getExpectedResult() +
-                            "> but was <" + testUnit.getActualResult() + ">");
+                    StringBuilder summaryBuilder = new StringBuilder(modulePrefix + test.getName() + "#" + num);
+
+                    List<ComparedResult> comparisonResults = testUnit.getComparisonResults();
+                    int rowNum = 0;
+                    for (ComparedResult comparisonResult : comparisonResults) {
+                        if (comparisonResult.getStatus() != TR_OK) {
+                            if (comparisonResult.getFieldName().equals(ThisField.THIS)) {
+                                info("    Expected: <"
+                                        + comparisonResult.getExpectedValue()
+                                        + "> but was: <"
+                                        + comparisonResult.getActualValue()
+                                        + ">");
+                                summaryBuilder.append(" expected: <")
+                                        .append(comparisonResult.getExpectedValue())
+                                        .append("> but was <")
+                                        .append(comparisonResult.getActualValue())
+                                        .append(">");
+                            } else {
+                                if (rowNum > 0) {
+                                    summaryBuilder.append(",");
+                                }
+                                info("    Field "
+                                        + comparisonResult.getFieldName()
+                                        + " expected: <"
+                                        + comparisonResult.getExpectedValue()
+                                        + "> but was: <"
+                                        + comparisonResult.getActualValue()
+                                        + ">");
+
+                                summaryBuilder.append(" field ")
+                                        .append(comparisonResult.getFieldName())
+                                        .append(" expected: <")
+                                        .append(comparisonResult.getExpectedValue())
+                                        .append("> but was <")
+                                        .append(comparisonResult.getActualValue())
+                                        .append(">");
+                            }
+                            rowNum++;
+                        }
+                    }
+                    summaryFailures.add(summaryBuilder.toString());
                 } else {
                     Throwable error = (Throwable) testUnit.getActualResult();
                     info("  Error: ", error, "\n", ExceptionUtils.getStackTrace(error));

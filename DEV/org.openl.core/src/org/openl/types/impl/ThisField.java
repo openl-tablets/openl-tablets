@@ -4,8 +4,10 @@ import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 public class ThisField extends AOpenField {
+    public static final String THIS = "this";
+
     public ThisField(IOpenClass type) {
-        super("this", type);
+        super(THIS, type);
     }
 
     @Override

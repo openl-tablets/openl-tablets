@@ -1,8 +1,8 @@
 package org.openl.util;
 
-import org.openl.meta.IntValue;
-import org.openl.meta.LongValue;
-import org.openl.meta.ShortValue;
+import java.math.BigInteger;
+
+import org.openl.meta.*;
 
 public class IntegerValuesUtils {
     public static boolean isIntegerValue(Class<?> clazz) {
@@ -14,9 +14,12 @@ public class IntegerValuesUtils {
                 || Short.class.equals(clazz)
                 || Integer.class.equals(clazz)
                 || Long.class.equals(clazz)
+                || BigInteger.class.equals(clazz)
+                || ByteValue.class.equals(clazz)
                 || ShortValue.class.equals(clazz)
                 || IntValue.class.equals(clazz)
-                || LongValue.class.equals(clazz);
+                || LongValue.class.equals(clazz)
+                || BigIntegerValue.class.equals(clazz);
     }
     
     public static Object createNewObjectByType(Class<?> clazz, String value) {
@@ -36,12 +39,18 @@ public class IntegerValuesUtils {
             return Integer.valueOf(value);
         } else if (Long.class.equals(clazz)) {
             return Long.valueOf(value);
+        } else if (BigInteger.class.equals(clazz)) {
+            return new BigInteger(value);
+        } else if (ByteValue.class.equals(clazz)) {
+            return new org.openl.meta.ByteValue(value);
         } else if (ShortValue.class.equals(clazz)) {
             return new org.openl.meta.ShortValue((Short.valueOf(value)));
         } else if (IntValue.class.equals(clazz)) {
             return new org.openl.meta.IntValue(Integer.valueOf(value));
         } else if (LongValue.class.equals(clazz)) {
             return new org.openl.meta.LongValue((Long.valueOf(value)));
+        } else if (BigIntegerValue.class.equals(clazz)) {
+            return new BigIntegerValue(value);
         }
 
         return null;

@@ -19,7 +19,7 @@ function PropsEditor () {
             }
         });
     };
-};
+}
 
 function createDiv() {
     var newElement = document.createElement('div');
@@ -51,7 +51,7 @@ function initComplexSelect(data, cell) {
    }
 
    setNewEditor(cell, editor);
-};
+}
 
 function showEditorDiv(cell, elementForAdding) {
     var editorDiv = $j("#editor_div");
@@ -133,7 +133,7 @@ function closeEditor(cell, editor) {
     dataCell.value = editor.getValue();
     editor.destroy();
     cell.innerHTML = dataCell.getValue();
-};
+}
 
 function Editor(){
     this.initElement = function(cell) {
@@ -144,7 +144,12 @@ function Editor(){
         var editor = null;
 
         if ((dataCell.valueType == "INT" || dataCell.valueType == "FLOAT" ) && !dataCell.iterable) {
-            editor = new NumericEditor('', element.id, '', dataCell.getValue() , true);
+            var params = null;
+            if (dataCell.valueType == "INT") {
+                params = {};
+                params.intOnly = true;
+            }
+            editor = new NumericEditor('', element.id, params, dataCell.getValue() , true);
         } else if (dataCell.valueType == "BOOLEAN" && !dataCell.iterable) {
             editor = new BooleanEditor('', element.id, '', dataCell.getValue() == true ? "true" : "false", true);
         } else if (dataCell.valueType == "DATE" && !dataCell.iterable) {
@@ -159,4 +164,4 @@ function Editor(){
 
         setNewEditor(cell, editor);
     };
-};
+}

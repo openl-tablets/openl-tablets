@@ -8,13 +8,10 @@ public class ArrayCellEditor implements ICellEditor {
 
     private ArrayEditorParams params = new ArrayEditorParams();
 
-    public ArrayCellEditor() {
-        this.params.setSeparator(DEFAULT_SEPARATOR);
-    }
-
-    public ArrayCellEditor(String separator, String entryEditor) {
+    public ArrayCellEditor(String separator, String entryEditor, boolean intOnly) {
         this.params.setSeparator(separator);
         this.params.setEntryEditor(entryEditor);
+        this.params.setIntOnly(intOnly);
     }
 
     public EditorTypeResponse getEditorTypeAndMetadata() {
@@ -28,6 +25,7 @@ public class ArrayCellEditor implements ICellEditor {
 
         private String separator;
         private String entryEditor;
+        private boolean intOnly;
 
         public String getSeparator() {
             return separator;
@@ -45,6 +43,13 @@ public class ArrayCellEditor implements ICellEditor {
             this.entryEditor = entryEditor;
         }
 
+        public boolean isIntOnly() {
+            return intOnly;
+        }
+
+        public void setIntOnly(boolean intOnly) {
+            this.intOnly = intOnly;
+        }
     }
 
 }

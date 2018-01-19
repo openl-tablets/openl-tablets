@@ -10,12 +10,8 @@ public class CellEditorFactory implements ICellEditorFactory {
         return new ComboBoxCellEditor(choices, displayValues);
     }
 
-    public ICellEditor makeNumericEditor(Number min, Number max) {
-        return new NumericCellEditor(min, max);
-    }
-
-    public ICellEditor makeNumericEditor() {
-        return makeNumericEditor(null, null);
+    public ICellEditor makeNumericEditor(Number min, Number max, boolean intOnly) {
+        return new NumericCellEditor(min, max, intOnly);
     }
 
     public ICellEditor makeMultilineEditor() {
@@ -46,12 +42,8 @@ public class CellEditorFactory implements ICellEditorFactory {
         return new MultiSelectCellEditor(choices, dispalayValues);
     }
 
-    public ICellEditor makeArrayEditor() {
-        return new ArrayCellEditor();
-    }
-
-    public ICellEditor makeArrayEditor(String separator, String entryEditor) {
-        return new ArrayCellEditor(separator, entryEditor);
+    public ICellEditor makeArrayEditor(String separator, String entryEditor, boolean intOnly) {
+        return new ArrayCellEditor(separator, entryEditor, intOnly);
     }
     
     public ICellEditor makeNumberRangeEditor(String entryEditor, String initialValue) {
