@@ -6,9 +6,11 @@ import javax.faces.bean.RequestScoped;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.CommonException;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.WebContext;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
+import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -50,6 +52,27 @@ public class MainBean {
         String moduleName = FacesUtils.getRequestParameter("module");
 
         studio.init(projectName, moduleName);
+    }
+
+
+    public String getVersionComment() {
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        RulesProject project = studio.getCurrentProject();
+
+        if (project != null && project.isOpenedOtherVersion()) {
+            return Constants.RESTORED_FROM_REVISION_PREFIX + project.getHistoryVersion();
+        }
+
+
+        return "";
+    }
+
+    public void setVersionComment(String comment) {
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        RulesProject project = studio.getCurrentProject();
+        if (project != null) {
+            project.setVersionComment(comment);
+        }
     }
 
     public void saveProject() {

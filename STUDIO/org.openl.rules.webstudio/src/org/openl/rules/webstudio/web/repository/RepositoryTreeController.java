@@ -44,6 +44,7 @@ import org.openl.rules.webstudio.web.repository.upload.ProjectDescriptorUtils;
 import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
+import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -1078,6 +1079,13 @@ public class RepositoryTreeController {
     }
 
     public String getVersionComment() {
+        UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+
+        if (project != null && project.isOpenedOtherVersion()) {
+            return Constants.RESTORED_FROM_REVISION_PREFIX + project.getHistoryVersion();
+        }
+
+
         return "";
     }
 
