@@ -246,7 +246,9 @@ class TestResultExport implements AutoCloseable {
                 // Return preview field for complex objects
                 IOpenField previewField = ((ParameterWithValueAndPreviewDeclaration) value).getPreviewField();
                 if (previewField != null) {
-                    simpleValue = previewField.get(simpleValue, null);
+                    // If preview can't be found, return the object itself
+                    Object previewValue = previewField.get(simpleValue, null);
+                    simpleValue = previewValue == null ? simpleValue : previewValue;
                 }
             }
 

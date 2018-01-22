@@ -348,6 +348,51 @@ public class TestResultExportTest {
         assertFalse(xlsx.exists());
     }
 
+
+    @Test
+    public void partialObjectInitializationUsedInPrimaryKey() throws Exception {
+        File xlsx;
+        TestUnitsResults[] results = runTests("test-resources/test/export/EPBDS-7147-partial-object-initialization");
+
+        try (TestResultExport export = new TestResultExport(results, -1)) {
+            xlsx = export.createExcelFile();
+            assertTrue(xlsx.exists());
+
+            try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
+                assertEquals(1, workbook.getNumberOfSheets());
+
+                XSSFSheet sheet = workbook.getSheetAt(0);
+                int rowNum = TestResultExport.FIRST_ROW;
+                assertRowText(sheet.getRow(rowNum), "TestDataDReturnTest7");
+
+                rowNum++;
+                assertRowText(sheet.getRow(rowNum), "3 test cases");
+
+                rowNum += 2;
+                XSSFRow row = sheet.getRow(rowNum);
+                assertRowText(row, "ID", "Status", "obj", "Result field 2");
+                assertRowColors(row, HEADER, HEADER, HEADER, HEADER);
+
+                row = sheet.getRow(++rowNum);
+                assertRowText(row, "1", "Passed", "MyObjectD{ field1=2.0 field2=null }", "2");
+                assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS);
+                assertComments(row, 3, (String) null);
+
+                row = sheet.getRow(++rowNum);
+                assertRowText(row, "2", "Passed", "MyObjectD{ field1=4.0 field2=null }", "4");
+                assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS);
+                assertComments(row, 3, (String) null);
+
+                row = sheet.getRow(++rowNum);
+                assertRowText(row, "3", "Passed", "MyObjectD{ field1=5.0 field2=null }", "5");
+                assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS);
+                assertComments(row, 3, (String) null);
+            }
+        }
+
+        assertFalse(xlsx.exists());
+    }
+
     private int checkDriverPremiumTest(XSSFSheet sheet, int rowNum) {
         assertRowText(sheet.getRow(rowNum), "DriverPremiumTest");
 
