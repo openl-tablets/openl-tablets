@@ -12,7 +12,7 @@ import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.impl.local.LocalFolderAPI;
 import org.openl.rules.project.impl.local.LocalRepository;
-import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,8 +43,6 @@ public class FileSystemDataSource implements DataSource {
     /**
      * Sets localWorkspaceFileFilter @see LocalFolderAPI. Spring bean
      * configuration property.
-     *
-     * @param localWorkspaceFileFilter
      */
     public void setLocalWorkspaceFileFilter(FileFilter localWorkspaceFileFilter) {
         this.localWorkspaceFileFilter = localWorkspaceFileFilter;
@@ -53,8 +51,6 @@ public class FileSystemDataSource implements DataSource {
     /**
      * Sets localWorkspaceFolderFilter @see LocalFolderAPI. Spring bean
      * configuration property.
-     *
-     * @param localWorkspaceFolderFilter
      */
     public void setLocalWorkspaceFolderFilter(FileFilter localWorkspaceFolderFilter) {
         this.localWorkspaceFolderFilter = localWorkspaceFolderFilter;
@@ -118,7 +114,12 @@ public class FileSystemDataSource implements DataSource {
                         deploymentFolder.getParentFile(),
                         localWorkspaceFolderFilter,
                         localWorkspaceFileFilter));
-                Repository repository = new LocalRepository(deploymentFolder.getParentFile());
+                LocalRepository repository = new LocalRepository(deploymentFolder.getParentFile());
+                try {
+                    repository.initialize();
+                } catch (RRepositoryException e) {
+                    log.error("Failed to initialize local repository: {}", e.getMessage(), e);
+                }
                 Deployment deployment = new Deployment(repository,
                     localFolderAPI.getArtefactPath().getStringValue(),
                     deploymentName,
@@ -178,7 +179,12 @@ public class FileSystemDataSource implements DataSource {
                     deploymentFolder.getParentFile(),
                     localWorkspaceFolderFilter,
                     localWorkspaceFileFilter));
-            Repository repository = new LocalRepository(deploymentFolder.getParentFile());
+            LocalRepository repository = new LocalRepository(deploymentFolder.getParentFile());
+            try {
+                repository.initialize();
+            } catch (RRepositoryException e) {
+                log.error("Failed to initialize local repository: {}", e.getMessage(), e);
+            }
             Deployment deployment = new Deployment(repository,
                 localFolderAPI.getArtefactPath().getStringValue(),
                 deploymentName,

@@ -805,6 +805,7 @@ public class RepositoryTreeController {
                     if (!LockEngineImpl.LOCKS_FOLDER_NAME.equals(userName)) {
                         try {
                             LocalRepository repository = new LocalRepository(file);
+                            repository.initialize();
                             for (FileData fileData : repository.list(projectName)) {
                                 if (!repository.delete(fileData)) {
                                     if (repository.check(fileData.getName()) == null) {
