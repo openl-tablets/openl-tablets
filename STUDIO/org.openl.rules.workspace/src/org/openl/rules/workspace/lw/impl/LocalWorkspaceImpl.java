@@ -142,7 +142,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             log.error(e.getMessage(), e);
         }
 
-        for (LocalWorkspaceListener lwl : listeners) {
+        for (LocalWorkspaceListener lwl : new ArrayList<>(listeners)) {
             lwl.workspaceReleased(this);
         }
     }

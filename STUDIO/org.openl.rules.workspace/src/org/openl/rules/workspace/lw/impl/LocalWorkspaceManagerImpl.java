@@ -58,7 +58,12 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
             throw new WorkspaceException("Cannot create folder ''{0}'' for local workspace!", null, userWorkspace.getAbsolutePath());
         }
         log.debug("Creating workspace for user ''{}'' at ''{}''", user.getUserId(), userWorkspace.getAbsolutePath());
-        return new LocalWorkspaceImpl(user, userWorkspace, localWorkspaceFolderFilter, localWorkspaceFileFilter);
+        LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(user,
+                userWorkspace,
+                localWorkspaceFolderFilter,
+                localWorkspaceFileFilter);
+        workspace.addWorkspaceListener(this);
+        return workspace;
     }
 
     public LocalWorkspace getWorkspace(WorkspaceUser user) throws WorkspaceException {
@@ -104,6 +109,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
     }
 
     public void workspaceReleased(LocalWorkspace workspace) {
+        workspace.removeWorkspaceListener(this);
         localWorkspaces.remove(((LocalWorkspaceImpl) workspace).getUser().getUserId());
     }
 }

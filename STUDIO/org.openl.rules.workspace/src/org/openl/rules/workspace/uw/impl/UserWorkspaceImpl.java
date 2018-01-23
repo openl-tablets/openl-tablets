@@ -368,7 +368,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         scheduleProjectsRefresh();
         scheduleDeploymentsRefresh();
 
-        for (UserWorkspaceListener listener : listeners) {
+        for (UserWorkspaceListener listener : new ArrayList<>(listeners)) {
             listener.workspaceReleased(this);
         }
     }

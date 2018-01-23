@@ -28,9 +28,11 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
 
     private UserWorkspace createUserWorkspace(WorkspaceUser user) throws WorkspaceException {
         LocalWorkspace usersLocalWorkspace = localWorkspaceManager.getWorkspace(user);
-        return new UserWorkspaceImpl(user, usersLocalWorkspace, designTimeRepository,
+        UserWorkspaceImpl userWorkspace = new UserWorkspaceImpl(user, usersLocalWorkspace, designTimeRepository,
                 localWorkspaceManager.getLockEngine("rules"),
                 localWorkspaceManager.getLockEngine("deployments"));
+        userWorkspace.addWorkspaceListener(this);
+        return userWorkspace;
     }
 
     /**
@@ -65,6 +67,7 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
      * ended and it must be removed from cache.
      */
     public void workspaceReleased(UserWorkspace workspace) {
+        workspace.removeWorkspaceListener(this);
         userWorkspaces.remove(workspace.getUser().getUserId());
     }
 }
