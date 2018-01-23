@@ -48,11 +48,12 @@ public abstract class AProjectCreator {
 
             projectBuilder.getProject().open();
         } catch (Exception e) {
+            log.error("Error creating project.", e);
+
             if (projectBuilder != null) {
                 projectBuilder.cancel();
             }
 
-            log.error("Error creating project.", e);
             errorMessage = e.getMessage();
 
             // add detailed information
@@ -75,7 +76,7 @@ public abstract class AProjectCreator {
         return errorMessage;
     }
 
-    protected InputStream changeFileIfNeeded(String fileName, InputStream inputStream) throws UnsupportedEncodingException, ProjectException {
+    protected InputStream changeFileIfNeeded(String fileName, InputStream inputStream) throws ProjectException {
         if (ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME.equals(fileName)) {
             // Read the stream to memory and try to parse it and then change project name. If it can't be parsed return original rules.xml.
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
