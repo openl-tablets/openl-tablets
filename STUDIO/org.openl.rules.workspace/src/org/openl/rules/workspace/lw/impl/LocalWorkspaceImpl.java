@@ -24,7 +24,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     private final WorkspaceUser user;
     private final File location;
     private final Map<String, AProject> localProjects;
-    private final List<LocalWorkspaceListener> listeners = new ArrayList<LocalWorkspaceListener>();
+    private final List<LocalWorkspaceListener> listeners = new ArrayList<>();
     private final FileFilter localWorkspaceFolderFilter;
     private final FileFilter localWorkspaceFileFilter;
     private final LocalRepository localRepository;
@@ -36,7 +36,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         this.localWorkspaceFolderFilter = localWorkspaceFolderFilter;
         this.localWorkspaceFileFilter = localWorkspaceFileFilter;
 
-        localProjects = new HashMap<String, AProject>();
+        localProjects = new HashMap<>();
         localRepository = new LocalRepository(location);
         try {
             localRepository.initialize();

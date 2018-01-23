@@ -31,10 +31,10 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
     private boolean enableLocks = true;
 
     // User name -> user workspace
-    private Map<String, LocalWorkspaceImpl> localWorkspaces = new HashMap<String, LocalWorkspaceImpl>();
+    private Map<String, LocalWorkspaceImpl> localWorkspaces = new HashMap<>();
 
     // Project type (rules/deployment) -> Lock Engine
-    private final Map<String, LockEngine> lockEngines = new HashMap<String, LockEngine>();
+    private final Map<String, LockEngine> lockEngines = new HashMap<>();
 
     /**
      * init-method

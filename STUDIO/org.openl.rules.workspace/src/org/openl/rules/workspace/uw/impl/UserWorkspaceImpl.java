@@ -38,7 +38,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private boolean projectsRefreshNeeded = true;
     private boolean deploymentsRefreshNeeded = true;
 
-    private final List<UserWorkspaceListener> listeners = new ArrayList<UserWorkspaceListener>();
+    private final List<UserWorkspaceListener> listeners = new ArrayList<>();
     private final LockEngine projectsLockEngine;
     private final LockEngine deploymentsLockEngine;
 
@@ -53,8 +53,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
         this.projectsLockEngine = projectsLockEngine;
         this.deploymentsLockEngine = deploymentsLockEngine;
 
-        userRulesProjects = new HashMap<String, RulesProject>();
-        userDProjects = new HashMap<String, ADeploymentProject>();
+        userRulesProjects = new HashMap<>();
+        userDProjects = new HashMap<>();
     }
 
     public void activate() {
@@ -141,7 +141,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
         ArrayList<ADeploymentProject> result;
         synchronized (userDProjects) {
-            result = new ArrayList<ADeploymentProject>(userDProjects.values());
+            result = new ArrayList<>(userDProjects.values());
         }
         Collections.sort(result, PROJECTS_COMPARATOR);
 
@@ -191,7 +191,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
         ArrayList<RulesProject> result;
         synchronized (userRulesProjects) {
-            result = new ArrayList<RulesProject>(userRulesProjects.values());
+            result = new ArrayList<>(userRulesProjects.values());
         }
 
         Collections.sort(result, PROJECTS_COMPARATOR);
@@ -261,7 +261,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
         synchronized (userDProjects) {
             // add new
-            HashMap<String, ADeploymentProject> dtrProjectsMap = new HashMap<String, ADeploymentProject>();
+            HashMap<String, ADeploymentProject> dtrProjectsMap = new HashMap<>();
             for (ADeploymentProject ddp : dtrProjects) {
                 String name = ddp.getName();
                 dtrProjectsMap.put(name, ddp);
