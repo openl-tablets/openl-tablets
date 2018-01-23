@@ -310,8 +310,8 @@ fieldset {
 }
 
 /* Workaround for a bug in FF: it doesn't repaint table's low border when table is regenerated dynamically */
-.table tr:last-child > td {
-    border-bottom: 0;
+.table > tbody > tr:last-child > td {
+    border-bottom-width: 0;
 }
 
 .badge {
