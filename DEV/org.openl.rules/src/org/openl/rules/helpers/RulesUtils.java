@@ -31,8 +31,7 @@ import org.openl.util.math.MathUtils;
 
 /**
  * This class is connected to rules and all these methods can be used from
- * rules. The biggest part of methods is being generated. See
- * org.openl.rules.gen module.
+ * rules.
  *
  * @author snshor
  */

@@ -11,9 +11,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.openl.util.ArrayTool;
 
 /**
- * The biggest part of methods is being generated. See org.openl.rules.gen
- * module.
- * 
+ *
  * @author DLiauchuk
  * 
  */
