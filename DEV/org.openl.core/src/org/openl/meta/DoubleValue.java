@@ -74,7 +74,6 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
     public static final DoubleValue ONE = new DoubleValueOne();
     public static final DoubleValue MINUS_ONE = new DoubleValue(-1);
 
-    // <<< INSERT Functions >>>
     private double value;
 
     /**
@@ -741,7 +740,6 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
         }
         return sortedArray;
     }
-        // <<< END INSERT Functions >>>
 
     // ******* Autocasts *************
 

@@ -39,7 +39,6 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         }
     }
 
-    // <<< INSERT Functions >>>
     private final int value;
 
     private static DoubleValue[] toDoubleValues(org.openl.meta.IntValue[] values) {
@@ -646,7 +645,6 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
         }
         return sortedArray;
     }
-    // <<< END INSERT Functions >>>
 
     // ******* Autocasts*************
 

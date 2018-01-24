@@ -41,7 +41,6 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         }
     }
 
-    // <<< INSERT Functions >>>
     /**
      * Compares two values
      * @param value1
@@ -664,7 +663,6 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
         }
         return sortedArray;
     }
-        // <<< END INSERT Functions >>>
 
     // ******* Autocasts *************
 

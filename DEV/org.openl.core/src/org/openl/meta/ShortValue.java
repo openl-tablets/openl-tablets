@@ -39,7 +39,6 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         }
     }
 
-    // <<< INSERT Functions >>>
     private final short value;
 
     private static DoubleValue[] toDoubleValues(org.openl.meta.ShortValue[] values) {
@@ -624,7 +623,6 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> {
         }
         return sortedArray;
     }
-    // <<< END INSERT Functions >>>
 
     // ******* Autocasts*************
 

@@ -39,7 +39,6 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         }
     }
 
-    // <<< INSERT Functions >>>
     private final byte value;
 
     private static DoubleValue[] toDoubleValues(org.openl.meta.ByteValue[] values) {
@@ -610,7 +609,6 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
         }
         return sortedArray;
     }
-    // <<< END INSERT Functions >>>
 
     // ******* Autocasts *************
 

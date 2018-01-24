@@ -41,8 +41,6 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         }
     }
 
-    // <<< INSERT Functions >>>
-
     private static BigDecimalValue[] toBigDecimalValueValues(org.openl.meta.BigIntegerValue[] values) {
         if (values == null) {
             return null;
@@ -676,7 +674,6 @@ public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> {
         }
         return sortedArray;
     }
-    // <<< END INSERT Functions >>>
 
     // ******* Autocasts 8*************
 

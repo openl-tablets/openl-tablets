@@ -41,7 +41,6 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         }
     }
 
-    // <<< INSERT Functions >>>
     private final float value;
 
     /**
@@ -736,7 +735,6 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> {
         }
         return sortedArray;
     }
-    // <<< END INSERT Functions >>>
 
     // ******* Autocasts*************
 
