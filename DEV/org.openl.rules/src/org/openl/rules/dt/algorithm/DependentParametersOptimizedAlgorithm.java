@@ -31,6 +31,7 @@ import org.openl.rules.dt.type.ITypeAdaptor;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
@@ -488,7 +489,7 @@ public class DependentParametersOptimizedAlgorithm {
             String op,
             String p2,
             ICondition condition,
-            IMethodSignature signature) {
+            IMethodSignature signature) throws SyntaxNodeException {
 
         IParameterDeclaration signatureParam = getParameter(p1, signature);
 
@@ -503,7 +504,7 @@ public class DependentParametersOptimizedAlgorithm {
         RelationType relation = RelationType.findElement(op);
 
         if (relation == null)
-            throw new RuntimeException("Could not find relation: " + op);
+            throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + op, condition.getSourceCodeModule());
 
         if (p1.startsWith(signatureParam.getName() + "[") || p1.startsWith(signatureParam.getName() + ".") || p1.equals(signatureParam.getName())){
             return new OneParameterRangeFactory(signatureParam, conditionParam, relation, p1);
@@ -519,9 +520,14 @@ public class DependentParametersOptimizedAlgorithm {
             String op2,
             String p22,
             ICondition condition,
-            IMethodSignature signature) {
+            IMethodSignature signature) throws SyntaxNodeException {
 
         RelationType rel1 = RelationType.findElement(op1);
+
+        if (rel1 == null) {
+            throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + op1,
+                    condition.getSourceCodeModule());
+        }
 
         if (!rel1.isLessThan()) {
             rel1 = RelationType.findElement(rel1.opposite);
@@ -531,6 +537,10 @@ public class DependentParametersOptimizedAlgorithm {
         }
 
         RelationType rel2 = RelationType.findElement(op2);
+        if (rel2 == null) {
+            throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + op2,
+                    condition.getSourceCodeModule());
+        }
 
         if (!rel2.isLessThan()) {
             rel2 = RelationType.findElement(rel2.opposite);
@@ -609,7 +619,7 @@ public class DependentParametersOptimizedAlgorithm {
             String op,
             String p2,
             ICondition condition,
-            IMethodSignature signature) {
+            IMethodSignature signature) throws SyntaxNodeException {
 
         IParameterDeclaration signatureParam = getParameter(p2, signature);
 
@@ -624,14 +634,14 @@ public class DependentParametersOptimizedAlgorithm {
         RelationType relation = RelationType.findElement(op);
 
         if (relation == null)
-            throw new RuntimeException("Could not find relation: " + op);
+            throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + op, condition.getSourceCodeModule());
 
         String oppositeOp = relation.opposite;
 
         relation = RelationType.findElement(oppositeOp);
 
         if (relation == null)
-            throw new RuntimeException("Could not find relation: " + oppositeOp);
+            throw SyntaxNodeExceptionUtils.createError("Could not find relation: " + oppositeOp, condition.getSourceCodeModule());
 
         if (p2.startsWith(signatureParam.getName() + "[") || p2.startsWith(signatureParam.getName() + "[") || p2.startsWith(signatureParam.getName() + ".") || p2.equals(signatureParam.getName())){
             return new OneParameterRangeFactory(signatureParam, conditionParam, relation, p2);
