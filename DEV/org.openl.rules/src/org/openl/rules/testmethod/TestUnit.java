@@ -128,7 +128,7 @@ public class TestUnit {
     }
 
     /**
-     * Return the comparasion of the expected result and actual.
+     * Return the comparison of the expected result and actual.
      *
      */
     public TestStatus compareResult() {

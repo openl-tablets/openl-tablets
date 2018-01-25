@@ -20,7 +20,7 @@ public class RangeSelector implements IIntSelector {
         this.adaptor = adaptor;
         
         // As income value is of Number type, it should be adapted to the value type 
-        // from range adaptor for further comparasion.
+        // from range adaptor for further comparison.
         //
         if (adaptor != null) {
             this.value = this.adaptor.adaptValueType(value);

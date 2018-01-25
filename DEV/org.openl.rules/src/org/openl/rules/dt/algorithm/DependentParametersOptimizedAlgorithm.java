@@ -61,7 +61,7 @@ public class DependentParametersOptimizedAlgorithm {
                 IOpenCast openCast = bindingContext.getCast(paramType, expressionType);
 
                 if (openCast == null) {
-                    String message = String.format("Can not convert from '%s' to '%s'. incompatible types comparasion in '%s' condition",
+                    String message = String.format("Can not convert from '%s' to '%s'. incompatible types comparison in '%s' condition",
                         paramType.getName(),
                         expressionType.getName(), condition.getName());
                     
@@ -82,7 +82,7 @@ public class DependentParametersOptimizedAlgorithm {
                 if (paramType0.equals(paramType1)) {
                     IOpenCast cast = bindingContext.getCast(paramType0, expressionType);
                     if (cast == null) {
-                        String message = String.format("Can not convert from '%s' to '%s'. incompatible types comparasion in '%s' condition",
+                        String message = String.format("Can not convert from '%s' to '%s'. incompatible types comparison in '%s' condition",
                             paramType0.getName(),
                             expressionType.getName(), condition.getName());
                         throw new SyntaxNodeException(message, null, null, condition.getSourceCodeModule());
