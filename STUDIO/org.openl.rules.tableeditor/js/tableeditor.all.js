@@ -742,15 +742,14 @@ var TableEditor = Class.create({
     /**
      *  Create and activate new editor.
      */
-    editBegin : function(cell, response, initialValue) {
-        if (!initialValue) {
-            if (response.initValue) {
-                initialValue = response.initValue;
-            } else {
-                // Get initial value from table cell
-                initialValue = this.unescapeHTML(
-                        cell.innerHTML.replace(/<br>/ig, "\n")).strip();
-            }
+    editBegin : function(cell, response, typedText) {
+        var initialValue;
+        if (response.initValue) {
+            initialValue = response.initValue;
+        } else {
+            // Get initial value from table cell
+            initialValue = this.unescapeHTML(
+                cell.innerHTML.replace(/<br>/ig, "\n")).strip();
         }
 
         var editorStyle = this.getCellEditorStyle(cell);
@@ -758,6 +757,9 @@ var TableEditor = Class.create({
         this.showEditorWrapper(cell);
 
         this.showCellEditor(response.editor, this.editorWrapper, initialValue, response.params, editorStyle);
+        if (typedText) {
+            this.editor.setValue(typedText);
+        }
 
         this.editCell = cell;
         this.selectElement(cell);
@@ -4763,7 +4765,7 @@ var NumericEditor = Class.create(BaseTextEditor, {
 
     keyPressed: function(event) {
         var v = this.input.getValue();
-        if (event.charCode == 0) return true;
+        if (event.charCode === 0) return true;
         var code = event.charCode == undefined ? event.keyCode : event.charCode;
 
         if (code == 45)  // minus
