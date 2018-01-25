@@ -65,7 +65,7 @@
         <connection>scm:hg:${staging.hg.repo.url}</connection>
         <developerConnection>scm:hg:${staging.hg.repo.url}</developerConnection>
         <url>scm:git:git://github.com/openl-tablets/openl-tablets.git</url>
-        <tag>my-branch</tag>
+        <tag>HEAD</tag>
     </scm>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -92,7 +92,7 @@
         <maven.api.version>3.2.5</maven.api.version>
         <maven.plugin.version>3.5</maven.plugin.version>
         <!-- Empty for building without JaCoCo agent -->
-        <jacococ.argLine />
+        <jacococ.argLine/>
     </properties>
 
     <modules>
