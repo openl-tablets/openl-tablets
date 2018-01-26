@@ -784,16 +784,22 @@
                 return _tet_te; // variable name of a table, is generated from it's editorId te_toolbar
             }
 
-            return {hasChanges: false};
+            return {
+                isHasChanges: function () {
+                    return false;
+                },
+                setHasChanges: function () {
+                }
+            };
         }
 
         function setTableHasChanges(hasChanges) {
-            getCurrentTable().hasChanges = hasChanges;
+            getCurrentTable().setHasChanges(hasChanges);
         }
 
         $j(function () {
             var hasChanges = function () {
-                return getCurrentTable().hasChanges;
+                return getCurrentTable().isHasChanges();
             };
 
             var showConfirmDialog = function (revertAndProceed) {
