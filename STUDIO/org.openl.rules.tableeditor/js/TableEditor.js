@@ -663,6 +663,7 @@ var TableEditor = Class.create({
                 this.editor.initialValue = prevValue;
             }
             if (!this.editor.isCancelled()) {
+                this.hasChanges = true;
                 var val = this.editor.getValue();
                 var self = this;
 
@@ -730,7 +731,6 @@ var TableEditor = Class.create({
     },
 
     tableBlur: function() {
-        
         if (this.currentElement) {
             this.decorator.undecorate(this.currentElement);
             this.currentElement = null;
@@ -1030,7 +1030,15 @@ var TableEditor = Class.create({
     hasSelection : function() {
         return this.selectionPos && this.currentElement;
     },
-    
+
+    isHasChanges: function () {
+        return this.hasChanges;
+    },
+
+    setHasChanges: function (hasChanges) {
+        this.hasChanges = hasChanges;
+    },
+
     // Callback functions
     undoStateUpdated : Prototype.emptyFunction,
     redoStateUpdated : Prototype.emptyFunction,
