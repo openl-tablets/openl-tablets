@@ -26,7 +26,7 @@
     </bean>
 
     <!-- Data source storage that provides information about deployments, projects and their properties and version -->
-    <bean id="localdatasource" class="org.openl.rules.ruleservice.loader.FileSystemDataSource"
+    <bean id="fileSystemDataSource" class="org.openl.rules.ruleservice.loader.FileSystemDataSource"
           depends-on="unpackClasspathAutoJarToDirectoryBean">
         <constructor-arg name="loadDeploymentsFromDirectory" value="${ruleservice.datasource.dir}"/>
         <property name="localWorkspaceFileFilter" ref="localWorkspaceFileFilter"/>
@@ -43,13 +43,12 @@
         <property name="supportDeploymentVersion" value="${ruleservice.datasource.filesystem.supportVersion}"/>
         <property name="clearDestinationDirectory" value="${ruleservice.datasource.deploy.clean.datasource}"/>
         <property name="enabled"
-                  value="#{${ruleservice.datasource.deploy.classpath.jars} and '${ruleservice.datasource.type}' eq 'local'}"/>
+                  value="#{${ruleservice.datasource.deploy.classpath.jars} and '${production-repository.factory}' eq 'org.openl.rules.repository.LocalRepositoryFactory'}"/>
     </bean>
 
     <!-- Data source storage that provides information about deployments, projects
         and their properties and version -->
-    <!-- This implementation based on JCR repository -->
-    <bean id="jcrdatasource" class="org.openl.rules.ruleservice.loader.JcrDataSource"
+    <bean id="productionRepositoryDataSource" class="org.openl.rules.ruleservice.loader.ProductionRepositoryDataSource"
           depends-on="deployClasspathJarsBean">
         <property name="repository" ref="repository"/>
         <property name="includeVersionInDeploymentName" value="${version-in-deployment-name}"/>
@@ -58,6 +57,6 @@
     <bean id="deployClasspathJarsBean" class="org.openl.rules.ruleservice.loader.DeployClasspathJarsBean">
         <property name="rulesDeployerService" ref="rulesDeployerService"/>
         <property name="enabled"
-                  value="#{${ruleservice.datasource.deploy.classpath.jars} and '${ruleservice.datasource.type}' eq 'jcr'}"/>
+                  value="#{${ruleservice.datasource.deploy.classpath.jars} and '${production-repository.factory}' ne 'org.openl.rules.repository.LocalRepositoryFactory'}"/>
     </bean>
 </beans>
