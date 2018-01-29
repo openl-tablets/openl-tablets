@@ -1,6 +1,3 @@
-/**
- * Created Apr 3, 2007
- */
 package org.openl.rules.ui.tree;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -26,7 +23,7 @@ public class CategoryNTreeNodeBuilder extends CategoryTreeNodeBuilder {
     @Override
     protected String getCategory(TableSyntaxNode tableSyntaxNode) {
 
-        String result = null;
+        String result;
         String category = super.getCategory(tableSyntaxNode);
 
         String[] categories = StringTool.tokenize(category, separators);
@@ -56,4 +53,15 @@ public class CategoryNTreeNodeBuilder extends CategoryTreeNodeBuilder {
         return IProjectTypes.PT_FOLDER;
     }
 
+    @Override
+    public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
+        if (!super.isBuilderApplicableForObject(tableSyntaxNode)) {
+            return false;
+        }
+
+        String category = super.getCategory(tableSyntaxNode);
+        String[] categories = StringTool.tokenize(category, separators);
+
+        return categoryLevel < categories.length;
+    }
 }
