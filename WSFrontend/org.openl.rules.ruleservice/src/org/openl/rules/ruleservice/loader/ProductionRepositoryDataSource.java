@@ -21,14 +21,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * JCR repository data source. Uses
+ * Repository data source. Uses
  * ProductionRepositoryFactoryProxy.getRepositoryInstance() repository. Thread
  * safe implementation.
  *
  * @author Marat Kamalov
  */
-public class JcrDataSource implements DataSource {
-    private final Logger log = LoggerFactory.getLogger(JcrDataSource.class);
+public class ProductionRepositoryDataSource implements DataSource {
+    private final Logger log = LoggerFactory.getLogger(ProductionRepositoryDataSource.class);
 
     private Repository repository;
     private boolean includeVersionInDeploymentName = false;

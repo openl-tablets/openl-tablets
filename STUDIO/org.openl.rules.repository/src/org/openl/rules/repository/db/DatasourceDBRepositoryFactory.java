@@ -7,7 +7,6 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.StringUtils;
 
 public class DatasourceDBRepositoryFactory extends DBRepository {

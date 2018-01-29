@@ -10,7 +10,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.annotation.Resource;
 import java.util.Collection;
 
 import static org.junit.Assert.assertFalse;
@@ -28,7 +27,7 @@ import static org.junit.Assert.assertTrue;
 public class LocalTemporaryDeploymentsStorageTest {
 
     @Autowired
-    @Qualifier("jcrdatasource")
+    @Qualifier("productionRepositoryDataSource")
     private DataSource dataSource;
 
     private Deployment deployment;
