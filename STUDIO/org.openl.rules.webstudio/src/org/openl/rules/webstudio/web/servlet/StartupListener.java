@@ -56,11 +56,9 @@ public class StartupListener implements ServletContextListener {
             String userMode = systemConfig.getStringProperty("user.mode");
             System.setProperty("user.mode", userMode);
 
-            String repoPassKey = systemConfig.getStringProperty(ConfigurationManager.REPO_PASS_KEY);
-            if (StringUtils.isNotBlank(repoPassKey)) {
-                // Make it globally available. It will not be changed during application execution.
-                System.setProperty(ConfigurationManager.REPO_PASS_KEY, repoPassKey);
-            }
+            String repoPassKey = StringUtils.trimToEmpty(systemConfig.getStringProperty(ConfigurationManager.REPO_PASS_KEY));
+            // Make it globally available. It will not be changed during application execution.
+            System.setProperty(ConfigurationManager.REPO_PASS_KEY, repoPassKey);
         }
     }
 
