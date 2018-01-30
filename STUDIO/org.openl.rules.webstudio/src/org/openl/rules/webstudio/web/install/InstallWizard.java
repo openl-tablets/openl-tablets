@@ -161,6 +161,10 @@ public class InstallWizard {
                     systemConfig = new ConfigurationManager(true,
                             workingDir + "/system-settings/system.properties",
                             System.getProperty("webapp.root") + "/WEB-INF/conf/system.properties");
+                    String repoPassKey = StringUtils.trimToEmpty(systemConfig.getStringProperty(ConfigurationManager.REPO_PASS_KEY));
+                    // Make it globally available. It will not be changed during application execution.
+                    System.setProperty(ConfigurationManager.REPO_PASS_KEY, repoPassKey);
+
                     designRepositoryConfiguration = new RepositoryConfiguration("", systemConfig, RepositoryType.DESIGN);
 
                     initProductionRepositoryEditor();
@@ -366,7 +370,7 @@ public class InstallWizard {
         }
     }
 
-    private void fillDbForUserManagement() throws IOException {
+    private void fillDbForUserManagement() {
         if (groupsAreManagedInStudio) {
             initializeTemporaryContext();
             GroupManagementService groupManagementService = (GroupManagementService) temporaryContext.getBean(

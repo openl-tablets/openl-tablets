@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.servlet;
 
 import org.openl.config.*;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,10 +50,15 @@ public class StartupListener implements ServletContextListener {
         // from property files and then redefine property if needed (in Install Wizard for example). It'll be set globally
         // later when configuration will be finished.
         if (configured) {
-            String userMode = new ConfigurationManager(true,
+            ConfigurationManager systemConfig = new ConfigurationManager(true,
                     System.getProperty("webstudio.home") + "/system-settings/system.properties",
-                    System.getProperty("webapp.root") + "/WEB-INF/conf/system.properties").getStringProperty("user.mode");
+                    System.getProperty("webapp.root") + "/WEB-INF/conf/system.properties");
+            String userMode = systemConfig.getStringProperty("user.mode");
             System.setProperty("user.mode", userMode);
+
+            String repoPassKey = StringUtils.trimToEmpty(systemConfig.getStringProperty(ConfigurationManager.REPO_PASS_KEY));
+            // Make it globally available. It will not be changed during application execution.
+            System.setProperty(ConfigurationManager.REPO_PASS_KEY, repoPassKey);
         }
     }
 
