@@ -19,6 +19,7 @@ import java.util.Map;
  *         TODO Separate configuration sets from the manager
  */
 public class ConfigurationManager {
+    public static String REPO_PASS_KEY = "repository.encode.decode.key";
 
     private final Logger log = LoggerFactory.getLogger(ConfigurationManager.class);
 
@@ -146,7 +147,7 @@ public class ConfigurationManager {
     }
 
     public Map<String, Object> getProperties(boolean cross) {
-        Map<String, Object> properties = new HashMap<String, Object>();
+        Map<String, Object> properties = new HashMap<>();
         for (Iterator<?> iterator = compositeConfiguration.getKeys(); iterator.hasNext(); ) {
             String key = (String) iterator.next();
 
@@ -254,7 +255,6 @@ public class ConfigurationManager {
         }
     }
 
-    private static String REPO_PASS_KEY = "repository.encode.decode.key";
     private String getRepoPassKey() {
         return compositeConfiguration.containsKey(REPO_PASS_KEY) ? compositeConfiguration.getString(REPO_PASS_KEY) : "";
     }
