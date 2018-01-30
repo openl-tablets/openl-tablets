@@ -293,7 +293,11 @@ public class DependentParametersOptimizedAlgorithm {
         IBoundNode[] children = indexNode.getChildren();
         if (children != null && children.length == 1 && children[0] instanceof LiteralBoundNode) {
             LiteralBoundNode literalBoundNode = (LiteralBoundNode) children[0];
-            value = value + literalBoundNode.getValue().toString() + "]";
+			if ("literal.string".equals(literalBoundNode.getSyntaxNode().getType())) {
+				value = value + "\""+literalBoundNode.getValue().toString() + "\"]";
+			} else {
+				value = value + literalBoundNode.getValue().toString() + "]";
+			}
         } else {
             throw new SyntaxNodeException("Can't parse array index", null, indexNode.getSyntaxNode());
         }
