@@ -1,6 +1,3 @@
-/**
- * Created Feb 16, 2007
- */
 package org.openl.rules.table.actions;
 
 import org.openl.rules.table.ICell;
@@ -27,6 +24,7 @@ public class UndoableSetValueAction extends AUndoableCellAction {
         ICell cell = grid.getCell(getCol(), getRow());
         setPrevValue(cell.getObjectValue());
         setPrevFormula(cell.getFormula());
+        setPrevMetaInfo(cell.getMetaInfo());
 
         grid.setCellValue(getCol(), getRow(), newValue);
     }
@@ -38,6 +36,7 @@ public class UndoableSetValueAction extends AUndoableCellAction {
         } else {
             grid.setCellValue(getCol(), getRow(), getPrevValue());
         }
+        grid.getCell(getCol(), getRow()).setMetaInfo(getPrevMetaInfo());
     }
 
 }
