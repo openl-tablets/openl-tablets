@@ -31,7 +31,12 @@ public class BaseTableEditorController {
         int numRows = HTMLRenderer.getMaxNumRowsToDisplay(table);
 
         TableEditor editor = editorModel.getTableEditor();
-        return TableModel.initializeTableModel(table, null, numRows, editor.getLinkBuilder(), editor.getMode(), editor.getView());
+        String mode = editor.getMode();
+        if (mode == null && editor.isEditable()) {
+            // This method is invoked only while editing the table. So we can assume that mode is EDIT.
+            mode = Constants.MODE_EDIT;
+        }
+        return TableModel.initializeTableModel(table, null, numRows, editor.getLinkBuilder(), mode, editor.getView());
     }
 
     protected String render(String editorId) {
