@@ -8,6 +8,8 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.openl.base.INamedThing;
+import org.openl.binding.impl.NodeDescriptionHolder;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.calc.ASpreadsheetField;
@@ -17,7 +19,7 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
 
-public class SpreadsheetRangeField extends ASpreadsheetField {
+public class SpreadsheetRangeField extends ASpreadsheetField implements NodeDescriptionHolder {
 
     private static final String GENERATED_CLASS_NAME_PREFIX = SpreadsheetRangeObject.class.getName() + "$";
 
@@ -37,6 +39,8 @@ public class SpreadsheetRangeField extends ASpreadsheetField {
 
     private final IOpenCast[][] casts;
 
+    private String rangeTypeName;
+
     public SpreadsheetRangeField(String name,
             SpreadsheetCellField fstart,
             SpreadsheetCellField fend,
@@ -46,6 +50,7 @@ public class SpreadsheetRangeField extends ASpreadsheetField {
         this.fstart = fstart;
         this.fend = fend;
         this.casts = casts;
+        rangeTypeName = rangeType.getDisplayName(INamedThing.SHORT);
         try {
             Class<?> toClass = rangeType.getInstanceClass();
             typeClass = generateClass(GENERATED_CLASS_NAME_PREFIX + toClass.getName().replaceAll("\\.", "\\$"),
@@ -151,5 +156,10 @@ public class SpreadsheetRangeField extends ASpreadsheetField {
         } catch (InstantiationException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    @Override
+    public String getDescription() {
+        return rangeTypeName + "[] "+ getStart().getName() + ":" + getEnd().getName();
     }
 }

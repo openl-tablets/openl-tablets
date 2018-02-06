@@ -10,7 +10,7 @@ import org.openl.meta.IMetaInfo;
  * Display name is implemented to return the same name for all modes. Should be updated if needed.
  * 
  * @author DLiauchuk
- *
+ * TODO: Replace with org.openl.meta.TableMetaInfo
  */
 public class DatatypeMetaInfo implements IMetaInfo {
 	
@@ -23,7 +23,7 @@ public class DatatypeMetaInfo implements IMetaInfo {
 	}
 		
 	public String getDisplayName(int mode) {
-		/** Default implementation.
+		/* Default implementation.
 		 *  Don`t know if we need any displayName for Datatype.
 		 *  @author DLiauchuk
 		 */

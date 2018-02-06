@@ -6,11 +6,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
+import org.openl.meta.TableMetaInfo;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.result.DefaultResultBuilder;
 import org.openl.rules.calc.result.IResultBuilder;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.Point;
 import org.openl.types.IOpenClass;
@@ -115,6 +117,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
         String typeName = SPREADSHEETRESULT_TYPE_PREFIX + getName();
         Map<String, Point> fieldCoordinates = getFieldsCoordinates();
         CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(typeName, getRowNames(), getColumnNames(), getRowTitles(), getColumnTitles(), fieldCoordinates);
+        customSpreadsheetResultOpenClass.setMetaInfo(new TableMetaInfo("Spreadsheet", getName(), getSourceUrl()));
         for (IOpenField field : spreadsheetOpenClassFields.values()) {
             CustomSpreadsheetResultField customSpreadsheetResultField = new CustomSpreadsheetResultField(spreadsheetCustomType, field.getName(), field.getType());
             customSpreadsheetResultOpenClass.addField(customSpreadsheetResultField);
@@ -138,7 +141,8 @@ public class Spreadsheet extends ExecutableRulesMethod {
     }
 
     public String getSourceUrl() {
-        return getSyntaxNode().getUri();
+        TableSyntaxNode syntaxNode = getSyntaxNode();
+        return syntaxNode == null ? null : syntaxNode.getUri();
     }
 
     public SpreadsheetOpenClass getSpreadsheetType() {
