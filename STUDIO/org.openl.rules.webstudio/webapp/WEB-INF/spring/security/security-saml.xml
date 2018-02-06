@@ -165,7 +165,7 @@
     <bean id="samlAuthenticationProvider" class="org.springframework.security.saml.SAMLAuthenticationProvider">
         <!-- OPTIONAL property: can be used to store/load user data after login -->
         <property name="userDetails">
-            <bean class="org.openl.rules.webstudio.security.SAMLAttributesToOpenLUserDetailsService">
+            <bean class="org.openl.security.saml.SAMLAttributesToOpenLUserDetailsService">
                 <constructor-arg name="usernameAttribute" value="#{systemConfig['security.saml.attribute.username']}"/>
                 <constructor-arg name="firstNameAttribute" value="#{systemConfig['security.saml.attribute.first-name']}"/>
                 <constructor-arg name="lastNameAttribute" value="#{systemConfig['security.saml.attribute.last-name']}"/>
