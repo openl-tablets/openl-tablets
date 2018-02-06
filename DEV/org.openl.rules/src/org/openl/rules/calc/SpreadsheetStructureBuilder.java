@@ -344,7 +344,7 @@ public class SpreadsheetStructureBuilder {
                 String fieldname = getSpreadsheetCellFieldName(columnName, rowName);
 
                 /** create spreadsheet cell field */
-                SpreadsheetCellField field = createSpreadsheetCellField(spreadsheetHeader.getType(),
+                SpreadsheetCellField field = createSpreadsheetCellField(spreadsheetType,
                     spreadsheetCell,
                     fieldname);
 

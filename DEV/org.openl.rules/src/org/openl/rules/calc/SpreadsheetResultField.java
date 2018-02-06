@@ -1,12 +1,14 @@
 package org.openl.rules.calc;
 
+import org.openl.base.INamedThing;
+import org.openl.binding.impl.NodeDescriptionHolder;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.table.Point;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.AOpenField;
 import org.openl.vm.IRuntimeEnv;
 
-public class SpreadsheetResultField extends AOpenField {
+public class SpreadsheetResultField extends AOpenField implements NodeDescriptionHolder {
     private IOpenClass declaringClass;
 
     public SpreadsheetResultField(IOpenClass declaringClass, String name, IOpenClass type) {
@@ -56,4 +58,8 @@ public class SpreadsheetResultField extends AOpenField {
         this.declaringClass = declaringClass;
     }
 
+    @Override
+    public String getDescription() {
+        return "Spreadsheet\n" + getType().getDisplayName(INamedThing.SHORT) + " " + getName();
+    }
 }

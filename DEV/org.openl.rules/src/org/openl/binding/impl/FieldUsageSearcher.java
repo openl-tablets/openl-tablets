@@ -54,7 +54,10 @@ public final class FieldUsageSearcher {
             ISyntaxNode syntaxNode = boundNode.getSyntaxNode();
             String description;
             String uri = null;
-            if (type instanceof XlsModuleOpenClass && boundField instanceof DataOpenField) {
+            if (boundField instanceof NodeDescriptionHolder) {
+                NodeDescriptionHolder nodeDescriptionHolder = (NodeDescriptionHolder) boundField;
+                description = nodeDescriptionHolder.getDescription();
+            } else if (type instanceof XlsModuleOpenClass && boundField instanceof DataOpenField) {
                 final ITable foreignTable = ((DataOpenField) boundField).getTable();
                 TableSyntaxNode tableSyntaxNode = foreignTable.getTableSyntaxNode();
                 description = tableSyntaxNode.getHeaderLineValue().getValue();
