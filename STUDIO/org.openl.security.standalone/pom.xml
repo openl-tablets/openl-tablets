@@ -7,9 +7,9 @@
         <version>5.22.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>org.openl.rules.security.standalone</artifactId>
+    <artifactId>org.openl.security.standalone</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL - STUDIO - Standalone Security</name>
+    <name>OpenL - Security - Standalone</name>
     <description>Internal OpenL security implementation</description>
     <url>//openl-tablets.org</url>
     <dependencies>
@@ -19,7 +19,7 @@
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.security</artifactId>
+            <artifactId>org.openl.security</artifactId>
         </dependency>
         <!-- Spring related -->
         <dependency>
