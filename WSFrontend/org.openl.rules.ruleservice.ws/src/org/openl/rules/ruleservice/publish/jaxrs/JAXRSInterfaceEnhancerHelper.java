@@ -36,7 +36,6 @@ import org.openl.util.generation.InterfaceTransformer;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import net.sf.cglib.core.ReflectUtils;
 
 /**
  * Utility class for generate JAXRS annotations for service interface.

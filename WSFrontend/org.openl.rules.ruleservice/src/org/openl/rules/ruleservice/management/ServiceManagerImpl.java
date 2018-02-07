@@ -135,33 +135,39 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
 
     protected void deployServices(Map<String, ServiceDescription> newServices) {
         for (ServiceDescription serviceDescription : newServices.values()) {
+            String serviceName = serviceDescription.getName();
             try {
                 ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
-                if (!isServiceDeployed(serviceDescription.getName())) {
-                    ServiceDescription failedServiceDescription = failedServiceDescriptions
-                        .get(serviceDescription.getName());
+                if (!isServiceDeployed(serviceName)) {
+                    ServiceDescription failedServiceDescription = failedServiceDescriptions.get(serviceName);
                     if (failedServiceDescription != null) {
+                        if (!serviceName.equals(failedServiceDescription.getName())) {
+                            throw new IllegalStateException();
+                        }
                         if (failedServiceDescription.getDeployment().getVersion().compareTo(
                             serviceDescription.getDeployment().getVersion()) != 0) {
-                            failedServiceDescriptions.remove(failedServiceDescription.getName());
+                            failedServiceDescriptions.remove(serviceName);
                             ruleService.deploy(serviceDescription);
+                            serviceDescriptions.put(serviceName, serviceDescription);
                         }
                     } else {
                         ruleService.deploy(serviceDescription);
+                        serviceDescriptions.put(serviceName, serviceDescription);
                     }
                 } else {
                     ruleService.redeploy(serviceDescription);
+                    serviceDescriptions.put(serviceName, serviceDescription);
                 }
-                serviceDescriptions.put(serviceDescription.getName(), serviceDescription);
             } catch (RuleServiceDeployException e) {
-                failedServiceDescriptions.put(serviceDescription.getName(), serviceDescription);
-                log.error("Failed to deploy '{}' service.", serviceDescription.getName(), e);
+                failedServiceDescriptions.put(serviceName, serviceDescription);
+                log.error("Failed to deploy '{}' service.", serviceName, e);
             } catch (RuleServiceRedeployException e) {
-                log.error("Failed to redeploy '{}' service.", serviceDescription.getName(), e);
+                log.error("Failed to redeploy '{}' service.", serviceName, e);
+            } catch (RuleServiceUndeployException e) {
+                log.error("Failed to undeploy '{}' service.", serviceName, e);
             } finally {
                 ServiceDescriptionHolder.getInstance().remove();
             }
-
         }
     }
 
