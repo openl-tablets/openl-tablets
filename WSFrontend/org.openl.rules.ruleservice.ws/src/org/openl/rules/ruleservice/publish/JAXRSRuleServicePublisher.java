@@ -246,13 +246,13 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
         }
 
         String swaggerUrl = url;
-        swaggerUrl = swaggerUrl + "/api-docs/swagger.json";
+        swaggerUrl = swaggerUrl + "/swagger.json";
         if (service.getPublishers().size() != 1) {
             swaggerUrl = REST_PREFIX + swaggerUrl;
         }
 
         String swaggerYamlUrl = url;
-        swaggerYamlUrl = swaggerYamlUrl + "/api-docs/swagger.yaml";
+        swaggerYamlUrl = swaggerYamlUrl + "/swagger.yaml";
         if (service.getPublishers().size() != 1) {
             swaggerYamlUrl = REST_PREFIX + swaggerYamlUrl;
         }
