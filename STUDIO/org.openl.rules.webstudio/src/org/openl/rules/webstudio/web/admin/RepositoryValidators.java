@@ -76,7 +76,8 @@ public final class RepositoryValidators {
 
     private static void validateCommonRepository(RepositoryConfiguration prodConfig,
             List<RepositoryConfiguration> productionRepositoryConfigurations) throws RepositoryValidationException {
-        String path = ((CommonRepositorySettings) prodConfig.getSettings()).getPath();
+        CommonRepositorySettings settings = (CommonRepositorySettings) prodConfig.getSettings();
+        String path = settings.getPath();
         if (StringUtils.isEmpty(path)) {
             String msg = "Repository path is empty. Please, enter repository path";
             throw new RepositoryValidationException(msg);
@@ -93,9 +94,13 @@ public final class RepositoryValidators {
 
                 if (other.getSettings() instanceof CommonRepositorySettings) {
                     CommonRepositorySettings otherSettings = (CommonRepositorySettings) other.getSettings();
-                    if (path.equals(otherSettings.getPath())) {
-                        String msg = String.format("Repository path '%s' already exists. Please, insert a new one", path);
-                        throw new RepositoryValidationException(msg);
+                    if (path.equals(otherSettings.getPath()) && settings.isSecure() == otherSettings.isSecure()) {
+                        // Different users can access different schemas
+                        String login = settings.getLogin();
+                        if (!settings.isSecure() || login != null && login.equals(otherSettings.getLogin())) {
+                            String msg = String.format("Repository path '%s' already exists. Please, insert a new one", path);
+                            throw new RepositoryValidationException(msg);
+                        }
                     }
                 }
             }
@@ -124,7 +129,7 @@ public final class RepositoryValidators {
     public static void validateConnection(RepositoryConfiguration repoConfig,
             ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy) throws RepositoryValidationException {
         try {
-            /**Close connection to jcr before checking connection*/
+            /* Close connection to jcr before checking connection */
             productionRepositoryFactoryProxy.releaseRepository(repoConfig.getConfigName());
             Repository repository = RepositoryFactoryInstatiator.newFactory(repoConfig.getProperties(), false);
             if (repository instanceof Closeable) {

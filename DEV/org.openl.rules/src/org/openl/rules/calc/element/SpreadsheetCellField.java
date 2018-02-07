@@ -1,12 +1,14 @@
 package org.openl.rules.calc.element;
 
+import org.openl.base.INamedThing;
+import org.openl.binding.impl.NodeDescriptionHolder;
 import org.openl.rules.calc.ASpreadsheetField;
 import org.openl.rules.calc.SpreadsheetResultCalculator;
 import org.openl.rules.table.Point;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
-public class SpreadsheetCellField extends ASpreadsheetField {
+public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescriptionHolder {
 
     protected SpreadsheetCell cell;
     private SpreadsheetStructureBuilderHolder structureBuilderContainer;
@@ -71,7 +73,13 @@ public class SpreadsheetCellField extends ASpreadsheetField {
     public Point getAbsoluteCoordinates() {
         return new Point(getCell().getSourceCell().getAbsoluteColumn(), getCell().getSourceCell().getAbsoluteRow());
     }
-    
+
+    @Override
+    public String getDescription() {
+        // This class is always used for internal spreadsheet cell references, so no need to show Spreadsheet name
+        return getType().getDisplayName(INamedThing.SHORT) + " " + getName();
+    }
+
     static class ConstSpreadsheetCellField extends SpreadsheetCellField {
 
         ConstSpreadsheetCellField(SpreadsheetStructureBuilderHolder structureBuilderContainer,

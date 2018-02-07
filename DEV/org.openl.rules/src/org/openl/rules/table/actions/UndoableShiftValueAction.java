@@ -37,6 +37,7 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
         setPrevFormula(cell.getFormula());
         setPrevStyle(cell.getStyle());
         setPrevComment(cell.getComment());
+        setPrevMetaInfo(cell.getMetaInfo());
 
         if (rrFrom != null) {
             toRestore = rrFrom;
@@ -51,9 +52,10 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
         grid.setCellValue(getCol(), getRow(), getPrevValue());
         grid.setCellStyle(getCol(), getRow(), getPrevStyle());
         grid.setCellComment(getCol(), getRow(), getPrevComment());
+        grid.getCell(getCol(), getRow()).setMetaInfo(getPrevMetaInfo());
 
         ICell newCell = grid.getCell(getCol(), getRow());
-        if (cell != null && cell.getType() == Cell.CELL_TYPE_STRING && newCell.getType() == Cell.CELL_TYPE_FORMULA) {
+        if (cell.getType() == Cell.CELL_TYPE_STRING && newCell.getType() == Cell.CELL_TYPE_FORMULA) {
             grid.setCellStringValue(getCol(), getRow(), cell.getObjectValue().toString());
         }
     }
@@ -79,6 +81,7 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
         grid.setCellValue(colFrom, rowFrom, getPrevValue());
         grid.setCellStyle(colFrom, rowFrom, getPrevStyle());
         grid.setCellComment(colFrom, rowFrom, getPrevComment());
+        grid.getCell(colFrom, rowFrom).setMetaInfo(getPrevMetaInfo());
     }
 
 }

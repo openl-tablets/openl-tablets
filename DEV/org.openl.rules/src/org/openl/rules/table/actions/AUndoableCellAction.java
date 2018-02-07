@@ -1,8 +1,6 @@
-/**
- * Created Feb 16, 2007
- */
 package org.openl.rules.table.actions;
 
+import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IWritableGrid;
@@ -21,6 +19,7 @@ public abstract class AUndoableCellAction implements IUndoableGridTableAction {
     private String prevFormula;
     private ICellStyle prevStyle;
     private ICellComment prevComment;
+    private CellMetaInfo prevMetaInfo;
 
     public AUndoableCellAction(int col, int row) {
         this.col = col;
@@ -34,6 +33,7 @@ public abstract class AUndoableCellAction implements IUndoableGridTableAction {
         setPrevFormula(cell.getFormula());
         setPrevStyle(cell.getStyle());
         setPrevComment(cell.getComment());
+        setPrevMetaInfo(cell.getMetaInfo());
     }
 
     protected void restorePrevCell(IWritableGrid grid) {
@@ -42,6 +42,7 @@ public abstract class AUndoableCellAction implements IUndoableGridTableAction {
         } else {
             grid.clearCell(col, row);
         }
+        grid.getCell(col, row).setMetaInfo(prevMetaInfo);
     }
 
     public int getCol() {
@@ -92,4 +93,11 @@ public abstract class AUndoableCellAction implements IUndoableGridTableAction {
         this.prevComment = prevComment;
     }
 
+    public CellMetaInfo getPrevMetaInfo() {
+        return prevMetaInfo;
+    }
+
+    public void setPrevMetaInfo(CellMetaInfo prevMetaInfo) {
+        this.prevMetaInfo = prevMetaInfo;
+    }
 }

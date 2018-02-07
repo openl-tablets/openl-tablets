@@ -236,6 +236,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements C
         for (IOpenField field : getFields().values()) {
             type.addField(field);
         }
+        type.setMetaInfo(getMetaInfo());
         return type;
     }
 

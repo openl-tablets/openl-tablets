@@ -307,7 +307,7 @@ public class DeploymentController {
                 String projectName = item.getName();
                 try {
                     RulesProject project = workspace.getProject(projectName, false);
-                    if (!project.isOpenedForEditing()) {
+                    if (!project.isModified()) {
                         project.openVersion(item.getVersion().getVersionName());
                     }
                     repositoryTreeState.refreshNode(repositoryTreeState.getRulesRepository().getChild(RepositoryUtils.getTreeNodeId(projectName)));
