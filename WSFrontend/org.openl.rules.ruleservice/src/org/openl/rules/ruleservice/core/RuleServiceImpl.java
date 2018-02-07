@@ -10,9 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Default implementation of RulesService. Uses publisher and instantiation
- * factory. Publisher is responsible for service exposing. Instantiation factory
- * is responsible for build OpenLService instances from ServiceDescription. This
+ * Default implementation of RulesService. Uses publisher and instantiation factory. Publisher is responsible for
+ * service exposing. Instantiation factory is responsible for build OpenLService instances from ServiceDescription. This
  * class designed for using it from Spring.
  *
  * @author Marat Kamalov
@@ -35,7 +34,9 @@ public class RuleServiceImpl implements RuleService {
     /**
      * {@inheritDoc}
      */
-    public void redeploy(ServiceDescription serviceDescription) throws RuleServiceRedeployException {
+    public void redeploy(ServiceDescription serviceDescription) throws RuleServiceRedeployException,
+                                                                RuleServiceDeployException,
+                                                                RuleServiceUndeployException {
         OpenLService service = ruleServicePublisher.getServiceByName(serviceDescription.getName());
         if (service == null) {
             throw new RuleServiceRedeployException(
@@ -47,19 +48,12 @@ public class RuleServiceImpl implements RuleService {
                 throw new IllegalStateException("Invalid state!!!");
             }
             if (sd.getDeployment().getVersion().compareTo(serviceDescription.getDeployment().getVersion()) != 0) {
-                try {
-                    OpenLService openLService = ruleServiceInstantiationFactory.createService(serviceDescription);
-                    undeploy(openLService.getName());
-                    deploy(serviceDescription, openLService);
-                } catch (RuleServiceDeployException e) {
-                    throw new RuleServiceRedeployException("Failed on deploy a service.", e);
-                } catch (RuleServiceUndeployException e) {
-                    throw new RuleServiceRedeployException("Failed on undeploy a service.", e);
-                }
-
+                undeploy(service.getName());
+                OpenLService openLService = ruleServiceInstantiationFactory.createService(serviceDescription);
+                deploy(serviceDescription, openLService);
             }
         } catch (RuleServiceInstantiationException e) {
-            throw new RuleServiceRedeployException("Failed on redeploy service", e);
+            throw new RuleServiceDeployException("Failed on redeploy service", e);
         }
     }
 
@@ -72,8 +66,7 @@ public class RuleServiceImpl implements RuleService {
         }
         OpenLService service = ruleServicePublisher.getServiceByName(serviceName);
         if (service == null) {
-            throw new RuleServiceUndeployException(
-                String.format("There is no running service '%s'", serviceName));
+            throw new RuleServiceUndeployException(String.format("There is no running service '%s'", serviceName));
         }
 
         ServiceDescription serviceDescription = mapping.get(serviceName);
@@ -125,7 +118,8 @@ public class RuleServiceImpl implements RuleService {
         }
     }
 
-    private void deploy(ServiceDescription serviceDescription, OpenLService newService) throws RuleServiceDeployException {
+    private void deploy(ServiceDescription serviceDescription,
+            OpenLService newService) throws RuleServiceDeployException {
         ServiceDescription sd = mapping.get(serviceDescription.getName());
         if (sd != null) {
             throw new IllegalStateException("Illegal State!!");
