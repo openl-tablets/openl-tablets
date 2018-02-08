@@ -34,12 +34,11 @@ public class RuleServiceImpl implements RuleService {
     /**
      * {@inheritDoc}
      */
-    public void redeploy(ServiceDescription serviceDescription) throws RuleServiceRedeployException,
-                                                                RuleServiceDeployException,
+    public void redeploy(ServiceDescription serviceDescription) throws RuleServiceDeployException,
                                                                 RuleServiceUndeployException {
         OpenLService service = ruleServicePublisher.getServiceByName(serviceDescription.getName());
         if (service == null) {
-            throw new RuleServiceRedeployException(
+            throw new RuleServiceUndeployException(
                 String.format("There is no running service with name '%s'.", serviceDescription.getName()));
         }
         try {

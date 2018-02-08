@@ -161,8 +161,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
             } catch (RuleServiceDeployException e) {
                 failedServiceDescriptions.put(serviceName, serviceDescription);
                 log.error("Failed to deploy '{}' service.", serviceName, e);
-            } catch (RuleServiceRedeployException e) {
-                log.error("Failed to redeploy '{}' service.", serviceName, e);
             } catch (RuleServiceUndeployException e) {
                 log.error("Failed to undeploy '{}' service.", serviceName, e);
             } finally {
