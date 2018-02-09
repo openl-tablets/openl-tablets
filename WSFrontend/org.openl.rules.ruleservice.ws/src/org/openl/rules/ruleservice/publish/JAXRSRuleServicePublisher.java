@@ -259,9 +259,9 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
             service.getName(),
             methodNames,
             new ServiceInfoDescriptionUrl[] { new ServiceInfoDescriptionUrl(wadlUrl, "WADL"),
+            		new ServiceInfoDescriptionUrl(swaggerUI, "Swagger (UI)"),
                     new ServiceInfoDescriptionUrl(swaggerUrl, "Swagger (JSON)"),
-                    new ServiceInfoDescriptionUrl(swaggerYamlUrl, "Swagger (YAML)"),
-                    new ServiceInfoDescriptionUrl(swaggerUI, "Swagger (UI)")});
+                    new ServiceInfoDescriptionUrl(swaggerYamlUrl, "Swagger (YAML)")});
     }
 
     @Override
