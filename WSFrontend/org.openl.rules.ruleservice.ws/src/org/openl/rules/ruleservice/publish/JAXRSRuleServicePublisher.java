@@ -245,15 +245,13 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
             wadlUrl = REST_PREFIX + wadlUrl;
         }
 
-        String swaggerUrl = url;
-        swaggerUrl = swaggerUrl + "/swagger.json";
+        String swaggerUI = url + "/api-docs?/url=swagger.json";
+        String swaggerUrl = url + "/swagger.json";
+        String swaggerYamlUrl = url + "/swagger.yaml";
+        
         if (service.getPublishers().size() != 1) {
-            swaggerUrl = REST_PREFIX + swaggerUrl;
-        }
-
-        String swaggerYamlUrl = url;
-        swaggerYamlUrl = swaggerYamlUrl + "/swagger.yaml";
-        if (service.getPublishers().size() != 1) {
+        	swaggerUI = REST_PREFIX + swaggerUI;
+        	swaggerUrl = REST_PREFIX + swaggerUrl;
             swaggerYamlUrl = REST_PREFIX + swaggerYamlUrl;
         }
 
@@ -262,7 +260,8 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
             methodNames,
             new ServiceInfoDescriptionUrl[] { new ServiceInfoDescriptionUrl(wadlUrl, "WADL"),
                     new ServiceInfoDescriptionUrl(swaggerUrl, "Swagger (JSON)"),
-                    new ServiceInfoDescriptionUrl(swaggerYamlUrl, "Swagger (YAML)") });
+                    new ServiceInfoDescriptionUrl(swaggerYamlUrl, "Swagger (YAML)"),
+                    new ServiceInfoDescriptionUrl(swaggerUI, "Swagger (UI)")});
     }
 
     @Override
