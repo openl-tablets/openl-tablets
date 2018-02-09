@@ -115,8 +115,8 @@
                 }
             }
             function changeURL(elementId, url){
-        document.getElementById(elementId).href = url;
-        document.getElementById(elementId).innerHTML = url;
+                document.getElementById(elementId).href = url;
+                document.getElementById(elementId).innerHTML = url;
             }
         </script>
     </head>
