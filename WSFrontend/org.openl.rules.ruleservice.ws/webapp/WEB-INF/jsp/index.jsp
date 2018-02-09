@@ -15,9 +15,19 @@
         <link href="${contextPath}/css/common.css" rel="stylesheet" />
 
         <style>
+            .url {
+                display: inline;
+            }
             .url,
             .date-time {
                 padding-left: 3px;
+            }
+
+            .serviceLinkUrl {
+                padding: 30px 10px 3px 10px;
+            }
+            .serviceLinkUrl a:link, .serviceLinkUrl a:visited, .serviceLinkUrl a:hover, .serviceLinkUrl a:active {
+                color: #9a9a9a;
             }
 
             .date-time {
@@ -104,6 +114,10 @@
                     methods.className = "methods hidden";
                 }
             }
+            function changeURL(elementId, url){
+                document.getElementById(elementId).href = url;
+                document.getElementById(elementId).innerHTML = url;
+            }
         </script>
     </head>
 
@@ -145,14 +159,15 @@
                                                         </div>
                                                     </div>
                                                     
-													<c:forEach items="${service.serviceInfoDescriptionUrls}" var="serviceInfoDescriptionUrl" varStatus="i">
+                                                    <c:forEach items="${service.serviceInfoDescriptionUrls}" var="serviceInfoDescriptionUrl" varStatus="j">
                                                         <c:if test="${!empty serviceInfoDescriptionUrl.url}">
                                                             <div class="url" >
-                                                                ${serviceInfoDescriptionUrl.description}:
-                                                                <a href="${contextPath}/${serviceInfoDescriptionUrl.url}">${contextPath}/${serviceInfoDescriptionUrl.url}</a>
+                                                                <a href="${contextPath}/${serviceInfoDescriptionUrl.url}" onmouseover="changeURL('id-href-${sg.index}-${i.index}', '${contextPath}/${serviceInfoDescriptionUrl.url}')">${serviceInfoDescriptionUrl.description}</a>
                                                             </div>
                                                         </c:if>
                                                     </c:forEach>
+
+                                                    <div class="serviceLinkUrl"><a id="id-href-${sg.index}-${i.index}" href="${contextPath}/${service.serviceInfoDescriptionUrls[0].url}">${contextPath}/${service.serviceInfoDescriptionUrls[0].url}</a></div>
                                                     
                                                     <c:if test="${!empty service.address}">
                                                         <div class="url" >
