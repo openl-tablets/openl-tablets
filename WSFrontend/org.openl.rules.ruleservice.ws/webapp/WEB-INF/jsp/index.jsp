@@ -15,67 +15,42 @@
         <link href="${contextPath}/css/common.css" rel="stylesheet" />
 
         <style>
-            .url {
-                display: inline;
+            html {
+                font-family: verdana, helvetica, arial, sans-serif;
             }
-            .url,
             .date-time {
                 padding-left: 3px;
-            }
-
-            .serviceLinkUrl {
-                padding: 30px 10px 3px 10px;
-            }
-            .serviceLinkUrl a:link, .serviceLinkUrl a:visited, .serviceLinkUrl a:hover, .serviceLinkUrl a:active {
                 color: #9a9a9a;
             }
-
-            .date-time {
-                color: #9a9a9a;
+            a {
+                padding: 3px;
+                color: #0078D0;
             }
 
-            .services,
-            .services a,
-            .service-name {
-                margin: 0;
-                font-family: verdana, helvetica, arial, sans-serif;
-                font-size: 12px;
-                padding: 0 4px 0 3px;
-                vertical-align: middle;
-            }
-
-            .services {
+            .service {
                 color: #444;
-
-                padding: 1px 0 1px 0;
-                overflow: hidden;
-                width: 100%;
                 white-space: nowrap;
-            }
+                border-bottom: #cccccc dotted 1px;
+                padding: 10px 0;
 
-            .services > td > div {
-                padding-top: 2px;
-                padding-bottom: 2px;
             }
-
+            .service:last-child {
+                border: 0;
+            }
 
             .service-description {
-                font-size: 0; /* Collapse whitespaces */
                 min-height: 16px;
-            }
-
-            .services > td > div.service-description {
                 padding-top: 3px;
                 padding-bottom: 3px;
             }
 
             .expand-button, .collapse-button {
-                vertical-align: middle;
                 margin: 0;
                 cursor: pointer;
                 width: 16px;
                 height: 16px;
                 display: inline-block;
+                vertical-align: bottom;
             }
 
             .expand-button {
@@ -89,6 +64,7 @@
             .methods {
                 margin-left: 29px;
                 margin-top: 2px;
+                display: none;
             }
 
             .methods > div {
@@ -100,23 +76,20 @@
                 font-size: 11px;
                 vertical-align: middle;
             }
+            .collapse-button ~ .methods {
+                display: block;
+            }
         </style>
 
         <script>
-            function pressButton(button, methods) {
+            function pressButton(button) {
                 if (button.className == "expand-button") {
                     // Expand the node
                     button.className = "collapse-button";
-                    methods.className = "methods";
                 } else {
                     // Collapse the node
                     button.className = "expand-button";
-                    methods.className = "methods hidden";
                 }
-            }
-            function changeURL(elementId, url){
-                document.getElementById(elementId).href = url;
-                document.getElementById(elementId).innerHTML = url;
             }
         </script>
     </head>
@@ -127,62 +100,34 @@
             <div>
                 <form>
                     <div>
-                        <c:if test="${requestScope.servicesGroup == null}">
+                        <c:if test="${requestScope.services == null}">
                             <c:redirect url="/"/>
                         </c:if>
                         
-                        <c:if test="${!empty requestScope.servicesGroup}">
-                            <c:forEach items="${requestScope.servicesGroup}" var="servicesGroup" varStatus="sg">
+                        <c:if test="${!empty requestScope.services}">
+                            <h2>Available services:</h2>
+                                <c:forEach items="${services}" var="service">
+                                        <div class="service">
+                                            <span class="date-time">Started time: <fmt:formatDate value="${service.startedTime}" pattern="MM/dd/yyyy hh:mm:ss a"/></span>
 
-                                <h2>Available ${servicesGroup.groupName} services:</h2>
-
-                                <table class="table">
-                                    <tbody>
-                                    <c:forEach items="${servicesGroup.availableServices}" var="service" varStatus="i">
-
-                                            <tr class="services">
-                                                <td>
-                                                    <div class="date-time">
-                                                        Started time:
-                                                        <fmt:formatDate value="${service.startedTime}" pattern="MM/dd/yyyy hh:mm:ss a"/>
+                                                <div class="service-description">
+                                                    <span class="expand-button" onclick="pressButton(this);"></span>
+                                                    <span class="service-name"><c:out value="${service.name}"/></span>
+                                                    <div class="methods">
+                                                        <c:forEach items="${service.methodNames}" var="methodName">
+                                                            <div><c:out value="${methodName}"/></div>
+                                                        </c:forEach>
                                                     </div>
-
-                                                    <div class="service-description">
-                                                        <c:if test="${!empty service.methodNames}">
-                                                            <span class="expand-button" onclick="pressButton(this, document.getElementById('methods${sg.index}_${i.index}'));"></span>
-                                                        </c:if>
-                                                        <span class="service-name"><c:out value="${service.name}"/></span>
-                                                        <div id="methods${sg.index}_${i.index}" class="methods hidden">
-                                                            <c:forEach items="${service.methodNames}" var="methodName">
-                                                                <div><c:out value="${methodName}"/></div>
-                                                            </c:forEach>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <c:forEach items="${service.serviceInfoDescriptionUrls}" var="serviceInfoDescriptionUrl" varStatus="j">
-                                                        <c:if test="${!empty serviceInfoDescriptionUrl.url}">
-                                                            <div class="url" >
-                                                                <a href="${contextPath}/${serviceInfoDescriptionUrl.url}" onmouseover="changeURL('id-href-${sg.index}-${i.index}', '${contextPath}/${serviceInfoDescriptionUrl.url}')">${serviceInfoDescriptionUrl.description}</a>
-                                                            </div>
-                                                        </c:if>
-                                                    </c:forEach>
-
-                                                    <div class="serviceLinkUrl"><a id="id-href-${sg.index}-${i.index}" href="${contextPath}/${service.serviceInfoDescriptionUrls[0].url}">${contextPath}/${service.serviceInfoDescriptionUrls[0].url}</a></div>
-                                                    
-                                                    <c:if test="${!empty service.address}">
-                                                        <div class="url" >
-                                                            ${service.urlDescription}: ${service.address}
-                                                        </div>
-                                                    </c:if>
-                                                </td>
-                                            </tr>
-                                        </c:forEach>
-                                    </tbody>
-                                </table>
-
-                            </c:forEach>
+                                                </div>
+                                                <c:forEach items="${service.serviceResources}" var="serviceResource">
+                                                    <a href="${serviceResource.url.contains('://') ? '' : contextPath.concat('/')}${serviceResource.url}">${serviceResource.name}</a>
+                                                </c:forEach>
+                                        </div>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
                         </c:if>
-                        <c:if test="${empty requestScope.servicesGroup}">
+                        <c:if test="${empty requestScope.services}">
                             <h2>There are no available services</h2>
                         </c:if>
                     </div>

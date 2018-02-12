@@ -8,42 +8,19 @@ public class ServiceInfo {
     private final Date startedTime;
     private final String name;
     private final List<String> methodNames;
-    private final String address;
-    private final ServiceInfoDescriptionUrl[] serviceInfoDescriptionUrls;
+    private final ServiceResource[] serviceResources;
 
-    public ServiceInfo(Date startedTime, String name, List<String> methodNames, String url, String urlDescription) {
+    public ServiceInfo(Date startedTime, String name, List<String> methodNames, String url, String urlName) {
         this(startedTime,
             name,
             methodNames,
-            new ServiceInfoDescriptionUrl[] { new ServiceInfoDescriptionUrl(url, urlDescription) },
-            null);
+            new ServiceResource[] { new ServiceResource(url, urlName) });
     }
 
     public ServiceInfo(Date startedTime,
             String name,
             List<String> methodNames,
-            String url,
-            String urlDescription,
-            String address) {
-        this(startedTime,
-            name,
-            methodNames,
-            new ServiceInfoDescriptionUrl[] { new ServiceInfoDescriptionUrl(url, urlDescription) },
-            address);
-    }
-
-    public ServiceInfo(Date startedTime,
-            String name,
-            List<String> methodNames,
-            ServiceInfoDescriptionUrl[] serviceInfoDescriptionUrls) {
-        this(startedTime, name, methodNames, serviceInfoDescriptionUrls, null);
-    }
-
-    public ServiceInfo(Date startedTime,
-            String name,
-            List<String> methodNames,
-            ServiceInfoDescriptionUrl[] serviceInfoDescriptionUrls,
-            String address) {
+            ServiceResource[] serviceResources) {
         if (startedTime == null || name == null) {
             throw new IllegalArgumentException("'startedTime' and 'name' parameters must not be null!");
         }
@@ -53,8 +30,7 @@ public class ServiceInfo {
         this.startedTime = startedTime;
         this.name = name;
         this.methodNames = methodNames;
-        this.serviceInfoDescriptionUrls = serviceInfoDescriptionUrls;
-        this.address = address;
+        this.serviceResources = serviceResources;
     }
 
     public String getName() {
@@ -69,11 +45,7 @@ public class ServiceInfo {
         return methodNames;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public ServiceInfoDescriptionUrl[] getServiceInfoDescriptionUrls() {
-        return serviceInfoDescriptionUrls.clone();
+    public ServiceResource[] getServiceResources() {
+        return serviceResources;
     }
 }

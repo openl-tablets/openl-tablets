@@ -23,9 +23,9 @@ import org.openl.rules.ruleservice.logging.CollectOpenLServiceIntercepror;
 import org.openl.rules.ruleservice.logging.CollectOperationResourceInfoInterceptor;
 import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSInterfaceEnhancerHelper;
-import org.openl.rules.ruleservice.servlet.AvailableServicesGroup;
+import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
-import org.openl.rules.ruleservice.servlet.ServiceInfoDescriptionUrl;
+import org.openl.rules.ruleservice.servlet.ServiceResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
@@ -35,7 +35,7 @@ import org.springframework.beans.factory.ObjectFactory;
  *
  * @author Nail Samatov, Marat Kamalov
  */
-public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesGroup {
+public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesPresenter {
     public static final String REST_PREFIX = "REST/";
 
     private final Logger log = LoggerFactory.getLogger(JAXRSRuleServicePublisher.class);
@@ -211,11 +211,6 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
     }
 
     @Override
-    public String getGroupName() {
-        return "RESTful";
-    }
-
-    @Override
     public List<ServiceInfo> getAvailableServices() {
         List<ServiceInfo> services = new ArrayList<ServiceInfo>(availableServices);
         Collections.sort(services, new Comparator<ServiceInfo>() {
@@ -258,10 +253,10 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
         return new ServiceInfo(new Date(),
             service.getName(),
             methodNames,
-            new ServiceInfoDescriptionUrl[] { new ServiceInfoDescriptionUrl(wadlUrl, "WADL"),
-            		new ServiceInfoDescriptionUrl(swaggerUI, "Swagger (UI)"),
-                    new ServiceInfoDescriptionUrl(swaggerUrl, "Swagger (JSON)"),
-                    new ServiceInfoDescriptionUrl(swaggerYamlUrl, "Swagger (YAML)")});
+            new ServiceResource[] { new ServiceResource(wadlUrl, "WADL"),
+            		new ServiceResource(swaggerUI, "Swagger (UI)"),
+                    new ServiceResource(swaggerUrl, "Swagger (JSON)"),
+                    new ServiceResource(swaggerYamlUrl, "Swagger (YAML)")});
     }
 
     @Override

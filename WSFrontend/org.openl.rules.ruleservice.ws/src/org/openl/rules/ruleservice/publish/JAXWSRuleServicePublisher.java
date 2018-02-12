@@ -24,7 +24,7 @@ import org.openl.rules.ruleservice.logging.CollectOperationResourceInfoIntercept
 import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
 import org.openl.rules.ruleservice.publish.jaxws.JAXWSInterfaceEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxws.JAXWSInvocationHandler;
-import org.openl.rules.ruleservice.servlet.AvailableServicesGroup;
+import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ import org.springframework.beans.factory.ObjectFactory;
  * 
  * @author PUdalau, Marat Kamalov
  */
-public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesGroup {
+public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesPresenter {
 
     private final Logger log = LoggerFactory.getLogger(JAXWSRuleServicePublisher.class);
 
@@ -181,11 +181,6 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
         } catch (Exception t) {
             throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", serviceName), t);
         }
-    }
-
-    @Override
-    public String getGroupName() {
-        return "SOAP";
     }
 
     @Override

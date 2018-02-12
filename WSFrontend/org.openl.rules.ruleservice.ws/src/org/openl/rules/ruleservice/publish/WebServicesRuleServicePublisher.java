@@ -23,7 +23,7 @@ import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.logging.CollectOpenLServiceIntercepror;
 import org.openl.rules.ruleservice.logging.CollectOperationResourceInfoInterceptor;
 import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
-import org.openl.rules.ruleservice.servlet.AvailableServicesGroup;
+import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ import org.springframework.beans.factory.ObjectFactory;
  * @author PUdalau, Marat Kamalov
  */
 @Deprecated
-public class WebServicesRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesGroup {
+public class WebServicesRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesPresenter {
 
     private final Logger log = LoggerFactory.getLogger(WebServicesRuleServicePublisher.class);
 
@@ -175,11 +175,6 @@ public class WebServicesRuleServicePublisher extends AbstractRuleServicePublishe
         } catch (Exception t) {
             throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", serviceName), t);
         }
-    }
-
-    @Override
-    public String getGroupName() {
-        return "SOAP";
     }
 
     @Override
