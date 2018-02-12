@@ -1,29 +1,23 @@
-package org.openl.rules.webstudio.web.test;
-
-import static org.apache.poi.hssf.util.HSSFColor.HSSFColorPredefined.*;
+package org.openl.rules.webstudio.web.test.export;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.table.xls.PoiExcelHelper;
-import org.openl.rules.table.xls.formatters.XlsDateFormatter;
 import org.openl.rules.testmethod.*;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.ui.TableSyntaxNodeUtils;
+import org.openl.rules.webstudio.web.test.ParameterWithValueAndPreviewDeclaration;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.util.FileUtils;
 
-class TestResultExport implements AutoCloseable {
+public class TestResultExport implements AutoCloseable {
     static final int FIRST_COLUMN = 1;
     static final int FIRST_ROW = 2;
     static final int SPACE_BETWEEN_RESULTS = 3;
@@ -33,18 +27,20 @@ class TestResultExport implements AutoCloseable {
 
     private File tempFile;
     private Styles styles;
+    private Map<IOpenClass, List<ParameterWithValueDeclaration>> allParams = new LinkedHashMap<>();
 
-    TestResultExport(TestUnitsResults[] results, int testsPerPage) {
+    public TestResultExport(TestUnitsResults[] results, int testsPerPage) {
         this.results = results;
         this.testsPerPage = testsPerPage;
     }
 
-    File createExcelFile() throws IOException {
+    public File createExcelFile() throws IOException {
         close(); // Clear previous file if invoked twice
 
         SXSSFWorkbook workbook = new SXSSFWorkbook();
         try {
             styles = new Styles(workbook);
+            ParameterExport parameterExport = new ParameterExport(styles);
 
             SXSSFSheet sheet = workbook.createSheet("Result " + 1);
             sheet.trackAllColumnsForAutoSizing();
@@ -67,6 +63,15 @@ class TestResultExport implements AutoCloseable {
             }
             autoSizeColumns(sheet);
 
+            for (Map.Entry<IOpenClass, List<ParameterWithValueDeclaration>> entry : allParams.entrySet()) {
+                IOpenClass type = entry.getKey();
+                String typeName = type.isArray() ? type.getComponentClass().getName() : type.getName();
+                sheet = workbook.createSheet("Data " + typeName);
+                sheet.trackAllColumnsForAutoSizing();
+                parameterExport.write(sheet, type, entry.getValue());
+                autoSizeColumns(sheet);
+            }
+
             tempFile = File.createTempFile("test-results", ".xlsx");
             workbook.write(new FileOutputStream(tempFile));
             workbook.close();
@@ -80,6 +85,7 @@ class TestResultExport implements AutoCloseable {
     public void close() {
         styles = null;
         FileUtils.deleteQuietly(tempFile);
+        allParams.clear();
     }
 
     private void autoSizeColumns(SXSSFSheet sheet) {
@@ -191,6 +197,16 @@ class TestResultExport implements AutoCloseable {
 
             // Input data
             for (ParameterWithValueDeclaration parameter : testUnit.getTest().getExecutionParams()) {
+                IOpenClass type = parameter.getType();
+                if (!type.isSimple()) {
+                    List<ParameterWithValueDeclaration> paramsForType = allParams.get(type);
+                    if (paramsForType == null) {
+                        paramsForType = new ArrayList<>();
+                        allParams.put(type, paramsForType);
+                    }
+                    paramsForType.add(parameter);
+                }
+
                 createCell(row, colNum++, parameter, styles.resultOther);
             }
 
@@ -247,7 +263,7 @@ class TestResultExport implements AutoCloseable {
                 IOpenField previewField = ((ParameterWithValueAndPreviewDeclaration) value).getPreviewField();
                 if (previewField != null) {
                     // If preview can't be found, return the object itself
-                    Object previewValue = previewField.get(simpleValue, null);
+                    Object previewValue = ExportUtils.fieldValue(simpleValue, previewField);
                     simpleValue = previewValue == null ? simpleValue : previewValue;
                 }
             }
@@ -276,98 +292,5 @@ class TestResultExport implements AutoCloseable {
 
         // Assign the comment to the cell
         cell.setCellComment(comment);
-    }
-
-    static final class Styles {
-        static final int HEADER = 0xBFBFBF;
-        static final int GREEN_MAIN = 0xC4D79B;
-        static final int RED_MAIN = 0xDA9694;
-        static final int GREEN_FIELDS = 0xD8E4BC;
-        static final int RED_FIELDS = 0xE6B8B7;
-
-        private final CellStyle testNameSuccess;
-        private final CellStyle testNameFailure;
-        private final CellStyle testInfo;
-
-        private final CellStyle header;
-
-        private final CellStyle resultSuccessId;
-        private final CellStyle resultFailureId;
-        private final CellStyle resultSuccessStatus;
-        private final CellStyle resultFailureStatus;
-        private final CellStyle resultSuccess;
-        private final CellStyle resultFailure;
-        private final CellStyle resultOther;
-
-        private final Map<CellStyle, CellStyle> dateStyles = new HashMap<>();
-
-        private Styles(SXSSFWorkbook wb) {
-            testNameSuccess = textStyle(wb, createFont(wb, GREEN.getIndex()));
-            testNameFailure = textStyle(wb, createFont(wb, RED.getIndex()));
-            testInfo = textStyle(wb, createFont(wb, GREY_50_PERCENT.getIndex()));
-
-            header = backgroundStyle(wb, HEADER);
-            resultSuccessId = backgroundStyle(wb, GREEN_MAIN);
-            resultFailureId = backgroundStyle(wb, RED_MAIN);
-            resultSuccessStatus = backgroundStyle(wb, GREEN_MAIN, createFont(wb, GREEN.getIndex()));
-            resultFailureStatus = backgroundStyle(wb, RED_MAIN, createFont(wb, RED.getIndex()));
-            resultSuccess = backgroundStyle(wb, GREEN_FIELDS);
-            resultFailure = backgroundStyle(wb, RED_FIELDS);
-            resultOther = backgroundStyle(wb, null);
-        }
-
-        CellStyle getDateStyle(Workbook workbook, CellStyle original) {
-            CellStyle dateStyle = dateStyles.get(original);
-
-            if (dateStyle == null) {
-                dateStyle = PoiExcelHelper.createCellStyle(workbook);
-                dateStyle.cloneStyleFrom(original);
-                dateStyle.setDataFormat((short) BuiltinFormats.getBuiltinFormat(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));
-                dateStyles.put(original, dateStyle);
-            }
-
-            return dateStyle;
-        }
-
-        private CellStyle textStyle(Workbook workbook, Font font) {
-            CellStyle style = workbook.createCellStyle();
-            if (font != null) {
-                style.setFont(font);
-            }
-            return style;
-        }
-
-        private CellStyle backgroundStyle(SXSSFWorkbook workbook, Integer rgb) {
-            return backgroundStyle(workbook, rgb, null);
-        }
-
-        private CellStyle backgroundStyle(SXSSFWorkbook workbook, Integer rgb, Font font) {
-            XSSFCellStyle style = (XSSFCellStyle) workbook.createCellStyle();
-
-            if (rgb != null) {
-                XSSFColor color = new XSSFColor(new java.awt.Color(rgb));
-                style.setFillForegroundColor(color);
-                style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-            }
-
-            style.setBorderBottom(BorderStyle.THIN);
-            style.setBorderTop(BorderStyle.THIN);
-            style.setBorderLeft(BorderStyle.THIN);
-            style.setBorderRight(BorderStyle.THIN);
-
-            if (font != null) {
-                style.setFont(font);
-            }
-
-            style.setWrapText(true);
-            return style;
-        }
-
-        private Font createFont(Workbook workbook, short color) {
-            Font font = workbook.createFont();
-            font.setColor(color);
-            font.setBold(true);
-            return font;
-        }
     }
 }

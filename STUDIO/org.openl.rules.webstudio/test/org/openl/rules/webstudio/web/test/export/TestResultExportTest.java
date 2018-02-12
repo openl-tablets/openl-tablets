@@ -1,7 +1,7 @@
-package org.openl.rules.webstudio.web.test;
+package org.openl.rules.webstudio.web.test.export;
 
 import static org.junit.Assert.*;
-import static org.openl.rules.webstudio.web.test.TestResultExport.Styles.*;
+import static org.openl.rules.webstudio.web.test.export.Styles.*;
 
 import java.awt.*;
 import java.io.File;
@@ -23,6 +23,7 @@ import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.testmethod.TestMethodNodeBinder;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.webstudio.web.test.TestSuiteWithPreview;
 import org.openl.types.IOpenClass;
 import org.openl.util.NumberUtils;
 
