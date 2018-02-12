@@ -21,7 +21,7 @@ import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.publish.rmi.RmiEnhancerHelper;
 import org.openl.rules.ruleservice.rmi.DefaultRmiHandler;
-import org.openl.rules.ruleservice.servlet.AvailableServicesGroup;
+import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author PUdalau, Marat Kamalov
  */
-public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesGroup  {
+public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesPresenter  {
 
     private final Logger log = LoggerFactory.getLogger(RmiRuleServicePublisher.class);
     
@@ -141,11 +141,6 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
     }
 
     @Override
-    public String getGroupName() {
-        return "RMI";
-    }
-
-    @Override
     public List<ServiceInfo> getAvailableServices() {
         List<ServiceInfo> services = new ArrayList<ServiceInfo>(availableServices);
         Collections.sort(services, new Comparator<ServiceInfo>() {
@@ -170,7 +165,7 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
         });
         String address = "rmi://" + getRmiHost() + ":" + getRmiPort() + "/" + URLHelper.processURL(service.getUrl());
        
-        return new ServiceInfo(new Date(), service.getName(), methodNames, null, "RMI", address);
+        return new ServiceInfo(new Date(), service.getName(), methodNames, address, "RMI");
     }
 
     private void removeServiceInfo(String serviceName) {

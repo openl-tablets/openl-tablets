@@ -114,9 +114,13 @@
                     methods.className = "methods hidden";
                 }
             }
-            function changeURL(elementId, url){
-                document.getElementById(elementId).href = url;
+            function changeURL(elementId, url, isLink) {
                 document.getElementById(elementId).innerHTML = url;
+                if (isLink) {
+                    document.getElementById(elementId).href = url;
+                } else {
+                    document.getElementById(elementId).href = 'javascript:void(0)';
+                }
             }
         </script>
     </head>
@@ -127,62 +131,63 @@
             <div>
                 <form>
                     <div>
-                        <c:if test="${requestScope.servicesGroup == null}">
+                        <c:if test="${requestScope.services == null}">
                             <c:redirect url="/"/>
                         </c:if>
                         
-                        <c:if test="${!empty requestScope.servicesGroup}">
-                            <c:forEach items="${requestScope.servicesGroup}" var="servicesGroup" varStatus="sg">
+                        <c:if test="${!empty requestScope.services}">
+                            <h2>Available services:</h2>
+                            <table class="table">
+                                <tbody>
+                                <c:forEach items="${services}" var="service" varStatus="i">
+                                        <tr class="services">
+                                            <td>
+                                                <div class="date-time">
+                                                    Started time:
+                                                    <fmt:formatDate value="${service.startedTime}" pattern="MM/dd/yyyy hh:mm:ss a"/>
+                                                </div>
 
-                                <h2>Available ${servicesGroup.groupName} services:</h2>
-
-                                <table class="table">
-                                    <tbody>
-                                    <c:forEach items="${servicesGroup.availableServices}" var="service" varStatus="i">
-
-                                            <tr class="services">
-                                                <td>
-                                                    <div class="date-time">
-                                                        Started time:
-                                                        <fmt:formatDate value="${service.startedTime}" pattern="MM/dd/yyyy hh:mm:ss a"/>
+                                                <div class="service-description">
+                                                    <c:if test="${!empty service.methodNames}">
+                                                        <span class="expand-button" onclick="pressButton(this, document.getElementById('methods_${i.index}'));"></span>
+                                                    </c:if>
+                                                    <span class="service-name"><c:out value="${service.name}"/></span>
+                                                    <div id="methods_${i.index}" class="methods hidden">
+                                                        <c:forEach items="${service.methodNames}" var="methodName">
+                                                            <div><c:out value="${methodName}"/></div>
+                                                        </c:forEach>
                                                     </div>
-
-                                                    <div class="service-description">
-                                                        <c:if test="${!empty service.methodNames}">
-                                                            <span class="expand-button" onclick="pressButton(this, document.getElementById('methods${sg.index}_${i.index}'));"></span>
-                                                        </c:if>
-                                                        <span class="service-name"><c:out value="${service.name}"/></span>
-                                                        <div id="methods${sg.index}_${i.index}" class="methods hidden">
-                                                            <c:forEach items="${service.methodNames}" var="methodName">
-                                                                <div><c:out value="${methodName}"/></div>
-                                                            </c:forEach>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <c:forEach items="${service.serviceInfoDescriptionUrls}" var="serviceInfoDescriptionUrl" varStatus="j">
-                                                        <c:if test="${!empty serviceInfoDescriptionUrl.url}">
-                                                            <div class="url" >
-                                                                <a href="${contextPath}/${serviceInfoDescriptionUrl.url}" onmouseover="changeURL('id-href-${sg.index}-${i.index}', '${contextPath}/${serviceInfoDescriptionUrl.url}')">${serviceInfoDescriptionUrl.description}</a>
-                                                            </div>
-                                                        </c:if>
-                                                    </c:forEach>
-
-                                                    <div class="serviceLinkUrl"><a id="id-href-${sg.index}-${i.index}" href="${contextPath}/${service.serviceInfoDescriptionUrls[0].url}">${contextPath}/${service.serviceInfoDescriptionUrls[0].url}</a></div>
-                                                    
-                                                    <c:if test="${!empty service.address}">
+                                                </div>
+                                                
+                                                <c:forEach items="${service.serviceResources}" var="serviceResource" varStatus="j">
+                                                    <c:if test="${!empty serviceResource.url}">
                                                         <div class="url" >
-                                                            ${service.urlDescription}: ${service.address}
+                                                            <c:if test="${serviceResource.name eq 'RMI'}">
+                                                                <a href="javascript:void(0)" onmouseover="changeURL('id-href-${i.index}', '${serviceResource.url}', false)">${serviceResource.name}</a>
+                                                            </c:if>
+                                                            <c:if test="${serviceResource.name ne 'RMI'}">
+                                                                <a href="${contextPath}/${serviceResource.url}" onmouseover="changeURL('id-href-${i.index}', '${contextPath}/${serviceResource.url}', true)">${serviceResource.name}</a>
+                                                            </c:if>
                                                         </div>
                                                     </c:if>
-                                                </td>
-                                            </tr>
-                                        </c:forEach>
-                                    </tbody>
-                                </table>
+                                                </c:forEach>
 
-                            </c:forEach>
+                                                <div class="serviceLinkUrl">
+                                                    <c:if test="${service.serviceResources[0].name eq 'RMI'}">
+                                                        <a id="id-href-${i.index}" href="javascript:void(0)">${service.serviceResources[0].url}</a>
+                                                    </c:if>
+                                                    <c:if test="${service.serviceResources[0].name ne 'RMI'}">
+                                                        <a id="id-href-${i.index}" href="${contextPath}/${service.serviceResources[0].url}">${contextPath}/${service.serviceResources[0].url}</a>
+                                                    </c:if>     
+                                                </div>
+                                              
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
                         </c:if>
-                        <c:if test="${empty requestScope.servicesGroup}">
+                        <c:if test="${empty requestScope.services}">
                             <h2>There are no available services</h2>
                         </c:if>
                     </div>

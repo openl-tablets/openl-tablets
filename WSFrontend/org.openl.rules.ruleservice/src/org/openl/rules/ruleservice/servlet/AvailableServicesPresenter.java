@@ -8,7 +8,6 @@ import java.util.List;
  * @author Nail Samatov
  *
  */
-public interface AvailableServicesGroup {
-    String getGroupName();
+public interface AvailableServicesPresenter {
     List<ServiceInfo> getAvailableServices();
 }
