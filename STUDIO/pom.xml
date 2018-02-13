@@ -24,8 +24,10 @@
         <module>org.openl.rules.variation</module>
         <module>org.openl.rules.project</module>
         <module>org.openl.rules.demo</module>
-        <module>org.openl.rules.security</module>
-        <module>org.openl.rules.security.standalone</module>
+        <module>org.openl.security</module>
+        <module>org.openl.security.standalone</module>
+        <module>org.openl.security.saml</module>
+        <module>org.openl.security.cas</module>
         <module>org.openl.rules.diff</module>
         <module>org.openl.extension.xmlrules</module>
         <module>org.openl.rules.activiti</module>
