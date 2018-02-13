@@ -182,7 +182,7 @@ public class ColumnDescriptor {
             if (!valuesAnArray) {
                 env.pushThis(literal);
                 if (supportMultirows) {
-                    processWithMultiRowsSupport(literal, valuesTable, toolAdapter, env, paramType);
+                    processWithMultiRowsSupport(literal, valuesTable, toolAdapter, env, paramType, valuesAnArray);
                 } else {
                     Object res = RuleRowHelper.loadSingleParam(paramType,
                         field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(),
@@ -196,9 +196,14 @@ public class ColumnDescriptor {
                 }
                 return env.popThis();
             } else {
-                Object arrayValues = getArrayValues(valuesTable, toolAdapter, paramType);
                 env.pushThis(literal);
-                field.set(literal, arrayValues, getRuntimeEnv());
+                Object arrayValues = null;
+                if (supportMultirows) {
+                	processWithMultiRowsSupport(literal, valuesTable, toolAdapter, env, paramType, valuesAnArray);
+                } else {
+                	arrayValues = getArrayValues(valuesTable, toolAdapter, paramType);
+                	field.set(literal, arrayValues, getRuntimeEnv()); 
+                }
                 return env.popThis();
             }
         } else {
@@ -212,35 +217,34 @@ public class ColumnDescriptor {
         return literal;
     }
 
-    private void processWithMultiRowsSupport(Object literal,
-            ILogicalTable valuesTable,
-            OpenlToolAdaptor toolAdapter,
-            IRuntimeEnv env,
-            IOpenClass paramType) throws SyntaxNodeException {
-        DatatypeArrayMultiRowElementContext datatypeArrayMultiRowElementContext = (DatatypeArrayMultiRowElementContext) env
-            .getLocalFrame()[0];
-        Object prevRes = new Object();
-        for (int i = 0; i < valuesTable.getSource().getHeight(); i++) {
-            datatypeArrayMultiRowElementContext.setRow(i);
-            Object res = RuleRowHelper.loadSingleParam(paramType,
-                field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(),
-                null,
-                LogicalTableHelper.logicalTable(valuesTable.getSource().getSubtable(0, i, 1, i + 1))
-                    .getSubtable(0, 0, 1, 1),
-                toolAdapter);
-            if ((prevRes == null && res == null) || (prevRes != null && prevRes.equals(res))) {
-                datatypeArrayMultiRowElementContext.setRowValueIsTheSameAsPrevious(true);
-            } else {
-                datatypeArrayMultiRowElementContext.setRowValueIsTheSameAsPrevious(false);
-            }
-            if (res != null) {
-                field.set(literal, res, env);
-            } else {
-                field.get(literal, env); //Do not delete this line!!! 
-            }
-            prevRes = res;
-        }
-    }
+	private void processWithMultiRowsSupport(Object literal, ILogicalTable valuesTable, OpenlToolAdaptor toolAdapter,
+			IRuntimeEnv env, IOpenClass paramType, boolean valuesAnArray) throws SyntaxNodeException {
+		DatatypeArrayMultiRowElementContext datatypeArrayMultiRowElementContext = (DatatypeArrayMultiRowElementContext) env
+				.getLocalFrame()[0];
+		Object prevRes = new Object();
+		for (int i = 0; i < valuesTable.getSource().getHeight(); i++) {
+			datatypeArrayMultiRowElementContext.setRow(i);
+			Object res = null;
+			ILogicalTable logicalTable = LogicalTableHelper.logicalTable(valuesTable.getSource().getSubtable(0, i, 1, i + 1)).getSubtable(0, 0, 1, 1);
+			if (valuesAnArray) {
+				res = getArrayValues(logicalTable, toolAdapter, paramType);
+			} else {
+				res = RuleRowHelper.loadSingleParam(paramType,
+						field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(), null, logicalTable, toolAdapter);
+			}
+			if ((prevRes == null && res == null) || (prevRes != null && prevRes.equals(res))) {
+				datatypeArrayMultiRowElementContext.setRowValueIsTheSameAsPrevious(true);
+			} else {
+				datatypeArrayMultiRowElementContext.setRowValueIsTheSameAsPrevious(false);
+			}
+			if (res != null) {
+				field.set(literal, res, env);
+			} else {
+				field.get(literal, env); // Do not delete this line!!!
+			}
+			prevRes = res;
+		}
+	}
 
     public boolean isReference() {
         return false;

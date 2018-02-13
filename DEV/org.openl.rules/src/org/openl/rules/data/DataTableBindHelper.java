@@ -665,7 +665,7 @@ public class DataTableBindHelper {
             }
 
             boolean arrayAccessByIndex = fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_BY_INDEX_PATTERN); 
-            boolean arrayAccessMultiRows = fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_MULTI_ROWS_PATTERN);
+            boolean arrayAccessMultiRows = fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_MULTI_ROWS_PATTERN) && (fieldIndex != fieldAccessorChain.length - 1);
 
             if (fieldNameNode.getIdentifier().matches(PRECISION_PATTERN)) {
                 fieldAccessorChain = ArrayUtils.remove(fieldAccessorChain, fieldIndex);
