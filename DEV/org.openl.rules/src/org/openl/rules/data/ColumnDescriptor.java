@@ -216,12 +216,14 @@ public class ColumnDescriptor {
         }
         return literal;
     }
+    
+    private static final Object PREV_RES_EMPTY = new Object();
 
 	private void processWithMultiRowsSupport(Object literal, ILogicalTable valuesTable, OpenlToolAdaptor toolAdapter,
 			IRuntimeEnv env, IOpenClass paramType, boolean valuesAnArray) throws SyntaxNodeException {
 		DatatypeArrayMultiRowElementContext datatypeArrayMultiRowElementContext = (DatatypeArrayMultiRowElementContext) env
 				.getLocalFrame()[0];
-		Object prevRes = new Object();
+		Object prevRes = PREV_RES_EMPTY;
 		for (int i = 0; i < valuesTable.getSource().getHeight(); i++) {
 			datatypeArrayMultiRowElementContext.setRow(i);
 			Object res = null;
@@ -237,7 +239,7 @@ public class ColumnDescriptor {
 			} else {
 				datatypeArrayMultiRowElementContext.setRowValueIsTheSameAsPrevious(false);
 			}
-			if (res != null) {
+			if (res != null || PREV_RES_EMPTY == prevRes) {
 				field.set(literal, res, env);
 			} else {
 				field.get(literal, env); // Do not delete this line!!!
