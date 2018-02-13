@@ -20,6 +20,7 @@ final class Styles {
     static final int RED_MAIN = 0xDA9694;
     static final int GREEN_FIELDS = 0xD8E4BC;
     static final int RED_FIELDS = 0xE6B8B7;
+    static final int ABSENT_VALUE = 0xEFEFEF;
 
     final CellStyle testNameSuccess;
     final CellStyle testNameFailure;
@@ -34,6 +35,9 @@ final class Styles {
     final CellStyle resultSuccess;
     final CellStyle resultFailure;
     final CellStyle resultOther;
+    
+    final CellStyle parameterValue;
+    final CellStyle parameterAbsent;
 
     private final Map<CellStyle, CellStyle> dateStyles = new HashMap<>();
 
@@ -50,6 +54,8 @@ final class Styles {
         resultSuccess = backgroundStyle(wb, GREEN_FIELDS);
         resultFailure = backgroundStyle(wb, RED_FIELDS);
         resultOther = backgroundStyle(wb, null);
+        parameterValue = backgroundStyle(wb, null);
+        parameterAbsent = backgroundStyle(wb, ABSENT_VALUE);
     }
 
     CellStyle getDateStyle(Workbook workbook, CellStyle original) {
@@ -96,6 +102,7 @@ final class Styles {
         }
 
         style.setWrapText(true);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
         return style;
     }
 

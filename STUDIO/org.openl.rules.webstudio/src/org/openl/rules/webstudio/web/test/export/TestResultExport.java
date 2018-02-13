@@ -66,7 +66,7 @@ public class TestResultExport implements AutoCloseable {
             for (Map.Entry<IOpenClass, List<ParameterWithValueDeclaration>> entry : allParams.entrySet()) {
                 IOpenClass type = entry.getKey();
                 String typeName = type.isArray() ? type.getComponentClass().getName() : type.getName();
-                sheet = workbook.createSheet("Data " + typeName);
+                sheet = workbook.createSheet("Type " + typeName);
                 sheet.trackAllColumnsForAutoSizing();
                 parameterExport.write(sheet, type, entry.getValue());
                 autoSizeColumns(sheet);

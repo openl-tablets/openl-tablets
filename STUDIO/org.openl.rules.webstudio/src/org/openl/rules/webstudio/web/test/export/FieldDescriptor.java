@@ -1,9 +1,7 @@
 package org.openl.rules.webstudio.web.test.export;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -41,6 +39,15 @@ class FieldDescriptor {
                 }
             }
         }
+
+        // Put array fields later
+        Collections.sort(result, new Comparator<FieldDescriptor>() {
+            @Override
+            public int compare(FieldDescriptor o1, FieldDescriptor o2) {
+                return Boolean.compare(o1.isArray(), o2.isArray());
+            }
+        });
+
         return result;
     }
 
@@ -57,21 +64,79 @@ class FieldDescriptor {
         return children;
     }
 
+    public boolean isArray() {
+        return field.getType().isArray();
+    }
+
     /**
      * Returns leaf node count
      *
      * @return the count of leaf node or 1 if the node doesn't contain children
      */
-    public int getWidth() {
+    public int getLeafNodeCount() {
         if (children == null) {
             return 1;
         }
 
         int width = 0;
         for (FieldDescriptor child : children) {
-            width += child.getWidth();
+            width += child.getLeafNodeCount();
         }
 
         return width;
     }
+
+    /**
+     * Returns maximum array elements of the the field value from a given parent object
+     *
+     * @param object parent object (contains this field)
+     * @return max array size if exist or 1 if there are no arrays
+     */
+    public int getMaxArraySize(Object object) {
+        if (object == null) {
+            return 1;
+        }
+
+        if (object.getClass().isArray()) {
+            int count = Array.getLength(object);
+            int height = 0;
+            for (int i = 0; i < count; i++) {
+                height += getMaxArraySize(Array.get(object, i));
+            }
+            return height == 0 ? 1 : height;
+        }
+
+        Object fieldValue = ExportUtils.fieldValue(object, getField());
+        return calcArraySizeForChild(fieldValue);
+    }
+
+    private int calcArraySizeForChild(Object fieldValue) {
+        if (fieldValue == null) {
+            return 1;
+        }
+
+        if (fieldValue.getClass().isArray()) {
+            int size = 0;
+            int count = Array.getLength(fieldValue);
+            for (int i = 0; i < count; i++) {
+                size += calcArraySizeForChild(Array.get(fieldValue, i));
+            }
+            return size == 0 ? 1 : size;
+        } else {
+            // In excel each element contains at least one cell even if it's empty.
+            if (children == null) {
+                return 1;
+            }
+
+            int max = 1;
+            for (FieldDescriptor child : children) {
+                int childSize = child.getMaxArraySize(fieldValue);
+                if (childSize > max) {
+                    max = childSize;
+                }
+            }
+            return max;
+        }
+    }
+
 }
