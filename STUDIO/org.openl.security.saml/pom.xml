@@ -7,15 +7,23 @@
         <version>5.22.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>org.openl.rules.security</artifactId>
+    <artifactId>org.openl.security.saml</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL - STUDIO - Security</name>
-    <description>OpenL Common Security</description>
+    <name>OpenL - Security - SAML</name>
+    <description>SAML integration</description>
     <url>//openl-tablets.org</url>
     <dependencies>
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
+            <groupId>org.openl</groupId>
+            <artifactId>org.openl.commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security.extensions</groupId>
+            <artifactId>spring-security-saml2-core</artifactId>
         </dependency>
     </dependencies>
 </project>

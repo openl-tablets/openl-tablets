@@ -80,7 +80,7 @@
             </bean>
         </property>
         <property name="authenticationUserDetailsService">
-            <bean class="org.openl.rules.webstudio.security.CASAttributesToOpenLUserDetailsService">
+            <bean class="org.openl.security.cas.CASAttributesToOpenLUserDetailsService">
                 <constructor-arg name="firstNameAttribute" value="#{systemConfig['security.cas.attribute.first-name']}"/>
                 <constructor-arg name="lastNameAttribute" value="#{systemConfig['security.cas.attribute.last-name']}"/>
                 <constructor-arg name="groupsAttribute" value="#{systemConfig['security.cas.attribute.groups']}"/>
