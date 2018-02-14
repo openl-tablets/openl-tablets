@@ -170,6 +170,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
         swagger2Feature.setRunAsFilter(true);
         swagger2Feature.setScan(false);
         swagger2Feature.setPrettyPrint(isSwaggerPrettyPrint());
+        swagger2Feature.setUsePathBasedConfig(true);
         if (serviceClass.getPackage() == null) {
             swagger2Feature.setResourcePackage("default");
         } else {
