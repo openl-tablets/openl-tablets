@@ -240,7 +240,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
             wadlUrl = REST_PREFIX + wadlUrl;
         }
 
-        String swaggerUI = url + "/api-docs?/url=swagger.json";
+        String swaggerUI = url + "/api-docs?url=swagger.json";
         String swaggerUrl = url + "/swagger.json";
         String swaggerYamlUrl = url + "/swagger.yaml";
         
