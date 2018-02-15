@@ -170,16 +170,18 @@
         // Date and time
         html += "<div class='note'>Started time: " + new Date(service.startedTime).toLocaleString() + "</div>";
         // URLs
-        service.serviceResources.forEach(function (resource) {
-            if (resource.name == "SOAP") {
-                html += "<a href='" + resource.url + "?wsdl'\>WSDL</a>";
-            } else if (resource.name == "REST") {
-                html += "<a href='" + resource.url + "?_wadl'\>WADL</a>";
-                html += "<a href='" + resource.url + "/api-docs?url=swagger.json'\>Swagger (UI)</a>";
-                html += "<a href='" + resource.url + "/swagger.json'\>Swagger (JSON)</a>";
-                html += "<a href='" + resource.url + "/swagger.yaml'\>Swagger (YAML)</a>";
+        var urls = service.urls;
+        Object.keys(urls).forEach(function (name) {
+            var url = urls[name];
+            if (name == "SOAP") {
+                html += "<a href='" + url + "?wsdl'\>WSDL</a>";
+            } else if (name == "REST") {
+                html += "<a href='" + url + "?_wadl'\>WADL</a>";
+                html += "<a href='" + url + "/api-docs?url=swagger.json'\>Swagger (UI)</a>";
+                html += "<a href='" + url + "/swagger.json'\>Swagger (JSON)</a>";
+                html += "<a href='" + url + "/swagger.yaml'\>Swagger (YAML)</a>";
             } else {
-                html += "<a href='" + resource.url + "'\>" + resource.name + "</a>";
+                html += "<a href='" + url + "'\>" + name + "</a>";
             }
         });
         return html;
