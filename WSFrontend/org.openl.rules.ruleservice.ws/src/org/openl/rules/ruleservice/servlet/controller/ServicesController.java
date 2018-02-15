@@ -85,7 +85,7 @@ public class ServicesController {
 				}
 			}
 			ret.add(new ServiceInfo(upToDateServiceInfo.getStartedTime(), upToDateServiceInfo.getName(),
-					upToDateServiceInfo.getMethodNames(), serviceResources.toArray(new ServiceResource[] {})));
+					serviceResources.toArray(new ServiceResource[] {})));
 		}
 		return ret;
 	}

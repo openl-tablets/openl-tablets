@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.publish;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -190,18 +189,8 @@ public class WebServicesRuleServicePublisher extends AbstractRuleServicePublishe
     }
 
     private ServiceInfo createServiceInfo(OpenLService service) {
-        List<String> methodNames = new ArrayList<String>();
-        for (Method method : service.getServiceClass().getMethods()) {
-            methodNames.add(method.getName());
-        }
-        Collections.sort(methodNames, new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                return o1.compareToIgnoreCase(o2);
-            }
-        });
         String url = processURL(service.getUrl()) + "?wsdl";
-        return new ServiceInfo(new Date(), service.getName(), methodNames, url, "WSDL");
+        return new ServiceInfo(new Date(), service.getName(), url, "WSDL");
     }
 
     @Override
