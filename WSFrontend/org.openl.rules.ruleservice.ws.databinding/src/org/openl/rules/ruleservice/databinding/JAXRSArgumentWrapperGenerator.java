@@ -13,18 +13,29 @@ package org.openl.rules.ruleservice.databinding;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
+import net.sf.cglib.core.NamingPolicy;
+import net.sf.cglib.core.Predicate;
+
 public class JAXRSArgumentWrapperGenerator {
 
 	Map<String, Class<?>> props = new HashMap<String, Class<?>>();
 	String xmlTypeName;
 	String xmlTypeNamespace;
+	String prefix;
 
 	public JAXRSArgumentWrapperGenerator() {
 	}
 
 	public JAXRSArgumentWrapperGenerator(String xmlTypeName, String namespace) {
+		this(xmlTypeName, namespace, null);
+	}
+
+	public JAXRSArgumentWrapperGenerator(String xmlTypeName, String namespace, String prefix) {
 		this.xmlTypeName = xmlTypeName;
 		this.xmlTypeNamespace = namespace;
+		this.prefix = prefix;
 	}
 
 	public String getXmlTypeName() {
@@ -53,6 +64,7 @@ public class JAXRSArgumentWrapperGenerator {
 
 	public Class<?> generateClass(ClassLoader classLoader) throws Exception {
 		BeanGeneratorWithJAXBAnnotations beanGenerator = new BeanGeneratorWithJAXBAnnotations();
+		beanGenerator.setNamingPolicy(new JAXRSArgumentWrapperGeneratorNamingPolicy(prefix));
 		for (String name : props.keySet()) {
 			beanGenerator.addProperty(name, props.get(name));
 		}
@@ -63,4 +75,28 @@ public class JAXRSArgumentWrapperGenerator {
 		Class<?> generatedClass = (Class<?>) beanGenerator.createClass();
 		return generatedClass;
 	}
+
+	public static class JAXRSArgumentWrapperGeneratorNamingPolicy implements NamingPolicy {
+
+		private String methodPrefix;
+
+		public JAXRSArgumentWrapperGeneratorNamingPolicy(String methodPrefix) {
+			this.methodPrefix = methodPrefix;
+		}
+
+		public String getClassName(String prefix, String source, Object key, Predicate names) {
+			if (methodPrefix == null) {
+				prefix = "Request";
+			} else {
+				prefix = StringUtils.capitalize(methodPrefix) + "Request";
+			}
+			String base = prefix + "$$" + Integer.toHexString(key.hashCode());
+			String attempt = base;
+			int index = 2;
+			while (names.evaluate(attempt))
+				attempt = base + "_" + index++;
+			return attempt;
+		}
+	}
+
 }

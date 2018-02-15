@@ -126,7 +126,7 @@ public class JAXRSInterfaceEnhancerHelper {
             String[] parameterNames = MethodUtil.getParameterNames(originalMethod, service);
             int i = 0;
             JAXRSArgumentWrapperGenerator generator = new JAXRSArgumentWrapperGenerator(getRequestParameterName(originalMethod),
-                JAXRS_RULESERVICE_NAMESPACE);
+                JAXRS_RULESERVICE_NAMESPACE, originalMethod.getName());
             for (Class<?> type : originalMethod.getParameterTypes()) {
                 generator.addProperty(parameterNames[i], type);
                 i++;

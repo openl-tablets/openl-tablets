@@ -95,11 +95,13 @@
 		</property>
 	</bean>
 
+    <bean id="swaggerInitializationBean" class="org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerInitializationBean" scope="singleton"/>
+
 	<!-- Initializes OpenL Engine instances according to web services configuration 
 		description and calls RuleServicePublisher to expose corresponding web service -->
 	<!-- Exposes web services. -->
 	<bean id="JAXRSServicesRuleServicePublisher"
-		class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher">
+		class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher" depends-on="swaggerInitializationBean">
 		<property name="serverFactory" ref="JAXRSServicesServerPrototypeFactory" />
 		<property name="baseAddress" value="${ruleservice.baseAddress}" />
 		<property name="storeLoggingFeatureFactoryBean" ref="storeLoggingFeaturePrototypeFactory"/>
