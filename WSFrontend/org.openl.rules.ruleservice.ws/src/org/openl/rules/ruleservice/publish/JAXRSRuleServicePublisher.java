@@ -46,7 +46,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
     private boolean loggingStoreEnable = false;
     private ObjectFactory<? extends Feature> storeLoggingFeatureFactoryBean;
     private boolean swaggerPrettyPrint = false;
-
+    
     public ObjectFactory<? extends Feature> getStoreLoggingFeatureFactoryBean() {
         return storeLoggingFeatureFactoryBean;
     }
