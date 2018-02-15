@@ -2,8 +2,11 @@ package org.openl.rules.ruleservice.servlet.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -11,8 +14,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.openl.rules.ruleservice.publish.MultipleRuleServicePublisher;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
@@ -24,90 +25,79 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Controller
 public class ServicesController {
 
-	@RequestMapping(value = { "/" }, method = RequestMethod.GET)
-	public String doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		return "index";
-	}
+    @RequestMapping(value = { "/" }, method = RequestMethod.GET)
+    public String doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        return "index";
+    }
 
-	public static String getServices(HttpServletRequest request) throws JsonProcessingException {
-		WebApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(request.getServletContext());
-		RuleServicePublisher ruleServicePublisher = context.getBean("ruleServicePublisher", RuleServicePublisher.class);
-		List<ServiceInfo> servicesGroup = getServicesGroup(ruleServicePublisher);
-		String json = new ObjectMapper().writeValueAsString(servicesGroup);
-		return json;
-	}
+    public static String getServices(HttpServletRequest request) throws JsonProcessingException {
+        WebApplicationContext context = WebApplicationContextUtils
+            .getWebApplicationContext(request.getServletContext());
+        RuleServicePublisher ruleServicePublisher = context.getBean("ruleServicePublisher", RuleServicePublisher.class);
+        Collection<ServiceInfo> serviceInfos = getServiceInfos(ruleServicePublisher);
+        String json = new ObjectMapper().writeValueAsString(serviceInfos);
+        return json;
+    }
 
+    private static Collection<ServiceInfo> getServiceInfos(RuleServicePublisher publisher) {
+        Map<String, ServiceInfo> serviceInfos = new HashMap<>();
 
-	private static List<ServiceInfo> getServicesGroup(RuleServicePublisher ruleServicePublisher) {
-		List<AvailableServicesPresenter> services = new ArrayList<AvailableServicesPresenter>();
+        if (publisher instanceof MultipleRuleServicePublisher) {
+            // Wrapped into collection of publishers
+            MultipleRuleServicePublisher multiplePublisher = (MultipleRuleServicePublisher) publisher;
 
-		addServicesGroup(services, ruleServicePublisher);
+            Collection<RuleServicePublisher> defaultPublishers = multiplePublisher.getDefaultRuleServicePublishers();
+            HashSet<RuleServicePublisher> publishers = new HashSet<>(defaultPublishers);
 
-		for (Iterator<AvailableServicesPresenter> iterator = services.iterator(); iterator.hasNext();) {
-			AvailableServicesPresenter servicesGroup = iterator.next();
-			if (servicesGroup.getAvailableServices().isEmpty()) {
-				iterator.remove();
-			}
-		}
+            Map<String, RuleServicePublisher> supportedPublishers = multiplePublisher.getSupportedPublishers();
+            if (supportedPublishers != null) {
+                publishers.addAll(supportedPublishers.values());
+            }
 
-		return mergeServicesServiceInfos(services);
-	}
+            for (RuleServicePublisher p : publishers) {
+                collectServiceInfos(serviceInfos, p);
+            }
+        } else {
+            // Or single service publisher
+            collectServiceInfos(serviceInfos, publisher);
+        }
 
-	private static List<ServiceInfo> mergeServicesServiceInfos(List<AvailableServicesPresenter> services) {
-		Map<String, List<ServiceInfo>> serviceInfos = new HashMap<String, List<ServiceInfo>>();
-		for (AvailableServicesPresenter service : services) {
-			for (ServiceInfo serviceInfo : service.getAvailableServices()) {
-				List<ServiceInfo> list = serviceInfos.get(serviceInfo.getName());
-				if (list == null) {
-					list = new ArrayList<ServiceInfo>();
-					serviceInfos.put(serviceInfo.getName(), list);
-				}
-				list.add(serviceInfo);
-			}
-		}
-		List<ServiceInfo> ret = new ArrayList<ServiceInfo>();
-		for (List<ServiceInfo> list : serviceInfos.values()) {
-			ServiceInfo upToDateServiceInfo = null;
-			List<ServiceResource> serviceResources = new ArrayList<ServiceResource>();
-			for (ServiceInfo serviceInfo : list) {
-				for (ServiceResource serviceUrlInfo : serviceInfo.getServiceResources()) {
-					serviceResources.add(serviceUrlInfo);
-				}
-				if (upToDateServiceInfo == null) {
-					upToDateServiceInfo = serviceInfo;
-				} else {
-					if (upToDateServiceInfo.getStartedTime().before(serviceInfo.getStartedTime())) {
-						upToDateServiceInfo = serviceInfo;
-					}
-				}
-			}
-			ret.add(new ServiceInfo(upToDateServiceInfo.getStartedTime(), upToDateServiceInfo.getName(),
-					serviceResources.toArray(new ServiceResource[] {})));
-		}
-		return ret;
-	}
+        return serviceInfos.values();
+    }
 
-	private static void addServicesGroup(List<AvailableServicesPresenter> services, RuleServicePublisher publisher) {
-		if (publisher instanceof AvailableServicesPresenter) {
-			if (services.contains(publisher)) {
-				return;
-			}
-			services.add((AvailableServicesPresenter) publisher);
-		}
+    private static void collectServiceInfos(Map<String, ServiceInfo> serviceInfos, RuleServicePublisher publisher) {
+        if (publisher instanceof AvailableServicesPresenter) {
+            List<ServiceInfo> services = ((AvailableServicesPresenter) publisher).getAvailableServices();
+            for (ServiceInfo serviceInfo : services) {
+                String serviceName = serviceInfo.getName();
+                ServiceInfo current = serviceInfos.get(serviceName);
+                if (current == null) {
+                    serviceInfos.put(serviceName, serviceInfo);
+                } else {
+                    // Join Resources
+                    List<ServiceResource> res1 = Arrays.asList(current.getServiceResources());
+                    List<ServiceResource> res2 = Arrays.asList(serviceInfo.getServiceResources());
+                    List<ServiceResource> serviceResources = new ArrayList<>(res1);
+                    serviceResources.addAll(res2);
+                    ServiceResource[] resTotal = serviceResources.toArray(new ServiceResource[] {});
 
-		if (publisher instanceof MultipleRuleServicePublisher) {
-			MultipleRuleServicePublisher multiplePublisher = (MultipleRuleServicePublisher) publisher;
+                    // Select the latest time
+                    Date startedTime = current.getStartedTime();
+                    Date newStartedTime = serviceInfo.getStartedTime();
+                    if (startedTime.before(newStartedTime)) {
+                        startedTime = newStartedTime;
+                    }
 
-			for (RuleServicePublisher p : multiplePublisher.getDefaultRuleServicePublishers()) {
-				addServicesGroup(services, p);
-			}
-
-			for (RuleServicePublisher p : multiplePublisher.getSupportedPublishers().values()) {
-				addServicesGroup(services, p);
-			}
-		}
-	}
+                    ServiceInfo newServiceInfo = new ServiceInfo(startedTime, serviceName, resTotal);
+                    serviceInfos.put(serviceName, newServiceInfo);
+                }
+            }
+        }
+    }
 }
