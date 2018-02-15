@@ -25,7 +25,6 @@ import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSInterfaceEnhancerHelper;
 import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
-import org.openl.rules.ruleservice.servlet.ServiceResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
@@ -234,30 +233,17 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 return o1.compareToIgnoreCase(o2);
             }
         });
-        final String url = processURL(service.getUrl());
-        String wadlUrl = url;
-        wadlUrl = wadlUrl + "?_wadl";
-        if (service.getPublishers().size() != 1) {
-            wadlUrl = REST_PREFIX + wadlUrl;
-        }
+        String url = processURL(service.getUrl());
 
-        String swaggerUI = url + "/api-docs?url=swagger.json";
-        String swaggerUrl = url + "/swagger.json";
-        String swaggerYamlUrl = url + "/swagger.yaml";
-        
         if (service.getPublishers().size() != 1) {
-        	swaggerUI = REST_PREFIX + swaggerUI;
-        	swaggerUrl = REST_PREFIX + swaggerUrl;
-            swaggerYamlUrl = REST_PREFIX + swaggerYamlUrl;
+            url = REST_PREFIX + url;
         }
 
         return new ServiceInfo(new Date(),
             service.getName(),
             methodNames,
-            new ServiceResource[] { new ServiceResource(wadlUrl, "WADL"),
-            		new ServiceResource(swaggerUI, "Swagger (UI)"),
-                    new ServiceResource(swaggerUrl, "Swagger (JSON)"),
-                    new ServiceResource(swaggerYamlUrl, "Swagger (YAML)")});
+            url,
+            "REST");
     }
 
     @Override

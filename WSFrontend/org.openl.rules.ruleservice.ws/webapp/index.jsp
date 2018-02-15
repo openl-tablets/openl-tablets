@@ -171,7 +171,16 @@
         html += "<div class='note'>Started time: " + new Date(service.startedTime).toLocaleString() + "</div>";
         // URLs
         service.serviceResources.forEach(function (resource) {
-            html += "<a href='" + resource.url + "'\>" + resource.name + "</a>";
+            if (resource.name == "SOAP") {
+                html += "<a href='" + resource.url + "?wsdl'\>WSDL</a>";
+            } else if (resource.name == "REST") {
+                html += "<a href='" + resource.url + "?_wadl'\>WADL</a>";
+                html += "<a href='" + resource.url + "/api-docs?url=swagger.json'\>Swagger (UI)</a>";
+                html += "<a href='" + resource.url + "/swagger.json'\>Swagger (JSON)</a>";
+                html += "<a href='" + resource.url + "/swagger.yaml'\>Swagger (YAML)</a>";
+            } else {
+                html += "<a href='" + resource.url + "'\>" + resource.name + "</a>";
+            }
         });
         return html;
     }
