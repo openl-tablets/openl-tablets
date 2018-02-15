@@ -94,7 +94,10 @@ public class ServicesController {
                         startedTime = newStartedTime;
                     }
 
-                    ServiceInfo newServiceInfo = new ServiceInfo(startedTime, serviceName, resTotal);
+                    // Methods names
+                    List<String> methodNames = current.getMethodNames();
+
+                    ServiceInfo newServiceInfo = new ServiceInfo(startedTime, serviceName, methodNames, resTotal);
                     serviceInfos.put(serviceName, newServiceInfo);
                 }
             }

@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.publish;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -223,22 +224,37 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
     }
 
     private ServiceInfo createServiceInfo(OpenLService service) {
+        List<String> methodNames = new ArrayList<String>();
+        for (Method method : service.getServiceClass().getMethods()) {
+            methodNames.add(method.getName());
+        }
+        Collections.sort(methodNames, new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return o1.compareToIgnoreCase(o2);
+            }
+        });
         final String url = processURL(service.getUrl());
-        String wadlUrl = url + "?_wadl";
+        String wadlUrl = url;
+        wadlUrl = wadlUrl + "?_wadl";
+        if (service.getPublishers().size() != 1) {
+            wadlUrl = REST_PREFIX + wadlUrl;
+        }
+
         String swaggerUI = url + "/api-docs?url=swagger.json";
         String swaggerUrl = url + "/swagger.json";
         String swaggerYamlUrl = url + "/swagger.yaml";
         
         if (service.getPublishers().size() != 1) {
-            wadlUrl = REST_PREFIX + wadlUrl;
-            swaggerUI = REST_PREFIX + swaggerUI;
-            swaggerUrl = REST_PREFIX + swaggerUrl;
+        	swaggerUI = REST_PREFIX + swaggerUI;
+        	swaggerUrl = REST_PREFIX + swaggerUrl;
             swaggerYamlUrl = REST_PREFIX + swaggerYamlUrl;
         }
 
         return new ServiceInfo(new Date(),
             service.getName(),
-                new ServiceResource[] { new ServiceResource(wadlUrl, "WADL"),
+            methodNames,
+            new ServiceResource[] { new ServiceResource(wadlUrl, "WADL"),
             		new ServiceResource(swaggerUI, "Swagger (UI)"),
                     new ServiceResource(swaggerUrl, "Swagger (JSON)"),
                     new ServiceResource(swaggerYamlUrl, "Swagger (YAML)")});

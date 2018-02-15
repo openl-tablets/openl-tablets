@@ -23,7 +23,7 @@
         h3 {
             font-weight: normal;
             font-size: 14px;
-            margin: 3px 0;
+            display: inline;
         }
 
         a {
@@ -78,6 +78,37 @@
         #main > div:last-child {
             border: 0;
         }
+
+        .expand-button, .collapse-button {
+            margin: 0;
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+            vertical-align: bottom;
+        }
+
+        .expand-button {
+            background: url('data:image/gif;base64,R0lGODlhCQAJAOMOAAAAAN/c1enn4+vp5e3r5+/t6vDv7PLx7vTz8fb18/j39fn5+Pv7+v39/P///////yH5BAEKAA8ALAAAAAAJAAkAAAQmMMhJXWNLJSTvAtshYQqAHIb0ASxQSBoCGAUhhS4xSCetC5RgIAIAOw==') no-repeat center;
+        }
+
+        .collapse-button {
+            background: url('data:image/gif;base64,R0lGODlhCQAJAOMOAAAAAN/c1enn4+vp5e3r5+/t6vDv7PLx7vTz8fb18/j39fn5+Pv7+v39/P///////yH5BAEKAA8ALAAAAAAJAAkAAAQjMMhJXWNLJSRv3oeEachhSAugqoVEmgUhgUY8SGVNDALlBxEAOw==') no-repeat center;
+        }
+
+        .methods {
+            margin-top: 2px;
+            display: none;
+        }
+
+        .methods > li {
+            margin-top: 2px;
+            font-size: 11px;
+        }
+
+        .collapse-button ~ .methods {
+            display: block;
+        }
     </style>
 </head>
 
@@ -118,7 +149,15 @@
     function createServiceHtml(service) {
         var html = "";
         // Name
-        html += "<h3>" + service.name + "</h3>";
+        html += "<span class='expand-button'></span><h3>" + service.name + "</h3>";
+
+        // Methods
+        html += "<ul class='methods'>";
+        service.methodNames.forEach(function (methodName) {
+            html += "<li>" + methodName + "</li>";
+        })
+        html += "</ul>";
+
         // Date and time
         html += "<div class='note'>Started time: " + new Date(service.startedTime).toLocaleString() + "</div>";
         // URLs
