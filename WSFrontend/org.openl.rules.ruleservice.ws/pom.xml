@@ -219,10 +219,6 @@
             <artifactId>spring-test</artifactId>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>jstl</artifactId>
-        </dependency>
         <!-- Logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
