@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.servlet.controller;
+package org.openl.rules.ruleservice.servlet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,31 +9,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.openl.rules.ruleservice.publish.MultipleRuleServicePublisher;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
-import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
-import org.openl.rules.ruleservice.servlet.ServiceInfo;
-import org.openl.rules.ruleservice.servlet.ServiceResource;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+public class PublisherUtils {
 
-public class ServicesController {
-
-    public static String getServices(HttpServletRequest request) throws JsonProcessingException {
-        WebApplicationContext context = WebApplicationContextUtils
-            .getWebApplicationContext(request.getServletContext());
-        RuleServicePublisher ruleServicePublisher = context.getBean("ruleServicePublisher", RuleServicePublisher.class);
-        Collection<ServiceInfo> serviceInfos = getServiceInfos(ruleServicePublisher);
-        String json = new ObjectMapper().writeValueAsString(serviceInfos);
-        return json;
-    }
-
-    private static Collection<ServiceInfo> getServiceInfos(RuleServicePublisher publisher) {
+    public static Collection<ServiceInfo> getServicesInfo(RuleServicePublisher publisher) {
         Map<String, ServiceInfo> serviceInfos = new HashMap<>();
 
         if (publisher instanceof MultipleRuleServicePublisher) {
@@ -49,24 +30,24 @@ public class ServicesController {
             }
 
             for (RuleServicePublisher p : publishers) {
-                collectServiceInfos(serviceInfos, p);
+                collectServicesInfo(serviceInfos, p);
             }
         } else {
             // Or single service publisher
-            collectServiceInfos(serviceInfos, publisher);
+            collectServicesInfo(serviceInfos, publisher);
         }
 
         return serviceInfos.values();
     }
 
-    private static void collectServiceInfos(Map<String, ServiceInfo> serviceInfos, RuleServicePublisher publisher) {
+    private static void collectServicesInfo(Map<String, ServiceInfo> servicesInfo, RuleServicePublisher publisher) {
         if (publisher instanceof AvailableServicesPresenter) {
             List<ServiceInfo> services = ((AvailableServicesPresenter) publisher).getAvailableServices();
             for (ServiceInfo serviceInfo : services) {
                 String serviceName = serviceInfo.getName();
-                ServiceInfo current = serviceInfos.get(serviceName);
+                ServiceInfo current = servicesInfo.get(serviceName);
                 if (current == null) {
-                    serviceInfos.put(serviceName, serviceInfo);
+                    servicesInfo.put(serviceName, serviceInfo);
                 } else {
                     // Join Resources
                     List<ServiceResource> res1 = Arrays.asList(current.getServiceResources());
@@ -86,7 +67,7 @@ public class ServicesController {
                     List<String> methodNames = current.getMethodNames();
 
                     ServiceInfo newServiceInfo = new ServiceInfo(startedTime, serviceName, methodNames, resTotal);
-                    serviceInfos.put(serviceName, newServiceInfo);
+                    servicesInfo.put(serviceName, newServiceInfo);
                 }
             }
         }
