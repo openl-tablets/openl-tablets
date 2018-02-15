@@ -224,19 +224,15 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
 
     private ServiceInfo createServiceInfo(OpenLService service) {
         final String url = processURL(service.getUrl());
-        String wadlUrl = url;
-        wadlUrl = wadlUrl + "?_wadl";
-        if (service.getPublishers().size() != 1) {
-            wadlUrl = REST_PREFIX + wadlUrl;
-        }
-
+        String wadlUrl = url + "?_wadl";
         String swaggerUI = url + "/api-docs?url=swagger.json";
         String swaggerUrl = url + "/swagger.json";
         String swaggerYamlUrl = url + "/swagger.yaml";
         
         if (service.getPublishers().size() != 1) {
-        	swaggerUI = REST_PREFIX + swaggerUI;
-        	swaggerUrl = REST_PREFIX + swaggerUrl;
+            wadlUrl = REST_PREFIX + wadlUrl;
+            swaggerUI = REST_PREFIX + swaggerUI;
+            swaggerUrl = REST_PREFIX + swaggerUrl;
             swaggerYamlUrl = REST_PREFIX + swaggerYamlUrl;
         }
 
