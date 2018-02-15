@@ -1,13 +1,12 @@
 package org.openl.rules.ruleservice.servlet;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.openl.rules.ruleservice.publish.MultipleRuleServicePublisher;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
@@ -49,12 +48,9 @@ public class PublisherUtils {
                 if (current == null) {
                     servicesInfo.put(serviceName, serviceInfo);
                 } else {
-                    // Join Resources
-                    List<ServiceResource> res1 = Arrays.asList(current.getServiceResources());
-                    List<ServiceResource> res2 = Arrays.asList(serviceInfo.getServiceResources());
-                    List<ServiceResource> serviceResources = new ArrayList<>(res1);
-                    serviceResources.addAll(res2);
-                    ServiceResource[] resTotal = serviceResources.toArray(new ServiceResource[] {});
+                    // Join urls
+                    Map<String, String> urls = new TreeMap<>(current.getUrls());
+                    urls.putAll(serviceInfo.getUrls());
 
                     // Select the latest time
                     Date startedTime = current.getStartedTime();
@@ -66,7 +62,7 @@ public class PublisherUtils {
                     // Methods names
                     List<String> methodNames = current.getMethodNames();
 
-                    ServiceInfo newServiceInfo = new ServiceInfo(startedTime, serviceName, methodNames, resTotal);
+                    ServiceInfo newServiceInfo = new ServiceInfo(startedTime, serviceName, methodNames, urls);
                     servicesInfo.put(serviceName, newServiceInfo);
                 }
             }

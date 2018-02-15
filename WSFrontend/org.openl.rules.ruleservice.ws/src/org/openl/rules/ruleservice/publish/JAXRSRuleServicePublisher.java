@@ -239,11 +239,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
             url = REST_PREFIX + url;
         }
 
-        return new ServiceInfo(new Date(),
-            service.getName(),
-            methodNames,
-            url,
-            "REST");
+        return new ServiceInfo(new Date(), service.getName(), methodNames, url, "REST");
     }
 
     @Override

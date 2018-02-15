@@ -2,25 +2,17 @@ package org.openl.rules.ruleservice.servlet;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ServiceInfo {
     private final Date startedTime;
     private final String name;
     private final List<String> methodNames;
-    private final ServiceResource[] serviceResources;
+    private final Map<String, String> urls = new HashMap<>(1);
 
     public ServiceInfo(Date startedTime, String name, List<String> methodNames, String url, String urlName) {
-        this(startedTime,
-            name,
-            methodNames,
-            new ServiceResource[] { new ServiceResource(url, urlName) });
-    }
-
-    ServiceInfo(Date startedTime,
-            String name,
-            List<String> methodNames,
-            ServiceResource[] serviceResources) {
         if (startedTime == null || name == null) {
             throw new IllegalArgumentException("'startedTime' and 'name' parameters must not be null!");
         }
@@ -30,7 +22,17 @@ public class ServiceInfo {
         this.startedTime = startedTime;
         this.name = name;
         this.methodNames = methodNames;
-        this.serviceResources = serviceResources;
+        urls.put(urlName, url);
+    }
+
+    ServiceInfo(Date startedTime,
+            String name,
+            List<String> methodNames,
+                Map<String, String> urls) {
+        this.startedTime = startedTime;
+        this.name = name;
+        this.methodNames = methodNames;
+        this.urls.putAll(urls);
     }
 
     public String getName() {
@@ -45,7 +47,7 @@ public class ServiceInfo {
         return methodNames;
     }
 
-    public ServiceResource[] getServiceResources() {
-        return serviceResources;
+    public Map<String, String> getUrls() {
+        return urls;
     }
 }
