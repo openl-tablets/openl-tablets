@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.publish;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -224,16 +223,6 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
     }
 
     private ServiceInfo createServiceInfo(OpenLService service) {
-        List<String> methodNames = new ArrayList<String>();
-        for (Method method : service.getServiceClass().getMethods()) {
-            methodNames.add(method.getName());
-        }
-        Collections.sort(methodNames, new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                return o1.compareToIgnoreCase(o2);
-            }
-        });
         final String url = processURL(service.getUrl());
         String wadlUrl = url;
         wadlUrl = wadlUrl + "?_wadl";
@@ -253,8 +242,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
 
         return new ServiceInfo(new Date(),
             service.getName(),
-            methodNames,
-            new ServiceResource[] { new ServiceResource(wadlUrl, "WADL"),
+                new ServiceResource[] { new ServiceResource(wadlUrl, "WADL"),
             		new ServiceResource(swaggerUI, "Swagger (UI)"),
                     new ServiceResource(swaggerUrl, "Swagger (JSON)"),
                     new ServiceResource(swaggerYamlUrl, "Swagger (YAML)")});

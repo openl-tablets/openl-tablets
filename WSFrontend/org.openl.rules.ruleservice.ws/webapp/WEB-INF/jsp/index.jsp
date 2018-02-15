@@ -20,9 +20,15 @@
             margin: 29px 0 16px;
         }
 
+        h3 {
+            font-weight: normal;
+            font-size: 14px;
+            margin: 3px 0;
+        }
+
         a {
-            padding: 3px;
             color: #0078D0;
+            margin-right: 10px;
         }
 
         #header {
@@ -35,11 +41,8 @@
 
         #main {
             padding: 0 20px 40px;
-        }
-
-        #main > div {
-            display: inline-block;
-            width: 100%;
+            color: #444;
+            white-space: nowrap;
         }
 
         #footer {
@@ -60,14 +63,13 @@
             text-decoration: none;
         }
 
-        .date-time {
-            padding-left: 3px;
+        .note {
             color: #9a9a9a;
+            font-size: 10px;
+            margin: 3px 0;
         }
 
         #main > div {
-            color: #444;
-            white-space: nowrap;
             border-bottom: #cccccc dotted 1px;
             padding: 10px 0;
 
@@ -75,43 +77,6 @@
 
         #main > div:last-child {
             border: 0;
-        }
-
-        .service-description {
-            min-height: 16px;
-            padding-top: 3px;
-            padding-bottom: 3px;
-        }
-
-        .expand-button, .collapse-button {
-            margin: 0;
-            cursor: pointer;
-            width: 16px;
-            height: 16px;
-            display: inline-block;
-            vertical-align: bottom;
-        }
-
-        .expand-button {
-            background: url('data:image/gif;base64,R0lGODlhCQAJAOMOAAAAAN/c1enn4+vp5e3r5+/t6vDv7PLx7vTz8fb18/j39fn5+Pv7+v39/P///////yH5BAEKAA8ALAAAAAAJAAkAAAQmMMhJXWNLJSTvAtshYQqAHIb0ASxQSBoCGAUhhS4xSCetC5RgIAIAOw==') no-repeat center;
-        }
-
-        .collapse-button {
-            background: url('data:image/gif;base64,R0lGODlhCQAJAOMOAAAAAN/c1enn4+vp5e3r5+/t6vDv7PLx7vTz8fb18/j39fn5+Pv7+v39/P///////yH5BAEKAA8ALAAAAAAJAAkAAAQjMMhJXWNLJSRv3oeEachhSAugqoVEmgUhgUY8SGVNDALlBxEAOw==') no-repeat center;
-        }
-
-        .methods {
-            margin-top: 2px;
-            display: none;
-        }
-
-        .methods > li {
-            margin-top: 2px;
-            font-size: 11px;
-        }
-
-        .collapse-button ~ .methods {
-            display: block;
         }
     </style>
 </head>
@@ -151,21 +116,14 @@
 
     // Creating innerHTML of one service
     function createServiceHtml(service) {
+        var html = "";
+        // Name
+        html += "<h3>" + service.name + "</h3>";
         // Date and time
-        var html = "<span class='date-time'>Started time: " + new Date(service.startedTime).toLocaleString() + "</span>";
-
-        // Name and methods
-        html += "<div class='service-description'><span class='expand-button'></span>";
-        html += "<span class='service-name'>" + service.name + "</span>";
-        html += "<ul class='methods'>";
-        service.methodNames.forEach(function (methodName) {
-            html += "<li>" + methodName + "</li>";
-        })
-        html += "</ul></div>";
-
+        html += "<div class='note'>Started time: " + new Date(service.startedTime).toLocaleString() + "</div>";
         // URLs
         service.serviceResources.forEach(function (resource) {
-            html += "<a href='" + resource.url + "'\>" + resource.name + "</a> ";
+            html += "<a href='" + resource.url + "'\>" + resource.name + "</a>";
         });
         return html;
     }
