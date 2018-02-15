@@ -234,7 +234,7 @@ public class ColumnDescriptor {
 				res = RuleRowHelper.loadSingleParam(paramType,
 						field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(), null, logicalTable, toolAdapter);
 			}
-			if ((prevRes == null && res == null) || (prevRes != null && prevRes.equals(res))) {
+			if ((prevRes == null && res == null) || (prevRes != null && prevRes.equals(res)) || (prevRes != PREV_RES_EMPTY && res == null)) {
 				datatypeArrayMultiRowElementContext.setRowValueIsTheSameAsPrevious(true);
 			} else {
 				datatypeArrayMultiRowElementContext.setRowValueIsTheSameAsPrevious(false);
