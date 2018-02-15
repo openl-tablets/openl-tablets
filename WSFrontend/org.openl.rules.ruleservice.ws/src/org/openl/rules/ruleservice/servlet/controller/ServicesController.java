@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.servlet.controller;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,31 +9,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.openl.rules.ruleservice.publish.MultipleRuleServicePublisher;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.openl.rules.ruleservice.servlet.ServiceResource;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@Controller
 public class ServicesController {
-
-    @RequestMapping(value = { "/" }, method = RequestMethod.GET)
-    public String doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        return "index";
-    }
 
     public static String getServices(HttpServletRequest request) throws JsonProcessingException {
         WebApplicationContext context = WebApplicationContextUtils
