@@ -1,4 +1,13 @@
-<%@ page import="org.openl.rules.ruleservice.servlet.controller.ServicesController" %>
+<%
+    WebApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(request.getServletContext());
+    RuleServicePublisher ruleServicePublisher = context.getBean("ruleServicePublisher", RuleServicePublisher.class);
+    String services = new ObjectMapper().writeValueAsString(PublisherUtils.getServicesInfo(ruleServicePublisher));
+%>
+<%@ page import="org.openl.rules.ruleservice.servlet.PublisherUtils" %>
+<%@ page import="org.springframework.web.context.WebApplicationContext" %>
+<%@ page import="org.springframework.web.context.support.WebApplicationContextUtils" %>
+<%@ page import="org.openl.rules.ruleservice.publish.RuleServicePublisher" %>
+<%@ page import="com.fasterxml.jackson.databind.ObjectMapper" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -118,7 +127,7 @@
 <div id="footer">&#169; 2018 <a href="http://openl-tablets.org" target="_blank">OpenL Tablets</a></div>
 <script>
     // Get JSON of available services
-    var services = <%= ServicesController.getServices(request) %>;
+    var services = <%= services %>;
 
     // The block for rendering of the available services
     var mainBlock = document.getElementById("main");
