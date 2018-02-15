@@ -17,7 +17,7 @@ public class ServiceInfo {
             new ServiceResource[] { new ServiceResource(url, urlName) });
     }
 
-    public ServiceInfo(Date startedTime,
+    ServiceInfo(Date startedTime,
             String name,
             List<String> methodNames,
             ServiceResource[] serviceResources) {

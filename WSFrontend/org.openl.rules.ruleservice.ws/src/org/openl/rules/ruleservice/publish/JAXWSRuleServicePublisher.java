@@ -206,8 +206,8 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 return o1.compareToIgnoreCase(o2);
             }
         });
-        String url = processURL(service.getUrl()) + "?wsdl";
-        return new ServiceInfo(new Date(), service.getName(), methodNames, url, "WSDL");
+        String url = processURL(service.getUrl());
+        return new ServiceInfo(new Date(), service.getName(), methodNames, url, "SOAP");
     }
 
     private void removeServiceInfo(String serviceName) {
