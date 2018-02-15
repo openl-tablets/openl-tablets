@@ -36,7 +36,7 @@ public class XlsDataFormatterFactory {
             if (ClassUtils.isAssignable(instanceClass, Number.class)) {
                 IFormatter numberFormatter = getNumberFormatter(cell);
                 // Numeric Array
-                if (cellMetaInfo.isMultiValue()) {
+                if (cellMetaInfo.isMultiValue() && numberFormatter != null) {
                     formatter = new ArrayFormatter(numberFormatter);
                 } else {
                     formatter = numberFormatter;
