@@ -16,7 +16,11 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.webstudio.web.test.export.ResultExport;
+import org.openl.rules.webstudio.web.test.export.RulesResultExport;
 import org.openl.rules.webstudio.web.test.export.TestResultExport;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -32,7 +36,7 @@ public class TestDownloadService {
     private final Logger log = LoggerFactory.getLogger(TestDownloadService.class);
 
     @GET
-    @Path("download")
+    @Path("testcase")
     @Produces("application/zip")
     public Response download(@QueryParam(Constants.REQUEST_PARAM_ID) String id,
             @QueryParam(Constants.REQUEST_PARAM_TEST_RANGES) String testRanges,
@@ -48,8 +52,11 @@ public class TestDownloadService {
         TestUnitsResults[] results = Utils.runTests(id, testRanges, session);
 
         String cookieName = Constants.RESPONSE_MONITOR_COOKIE + "_" + cookieId;
+        return prepareResponse(request, cookieName, new TestResultExport(results, testsPerPage));
+    }
+
+    private Response prepareResponse(@Context HttpServletRequest request, String cookieName, final ResultExport export) {
         try {
-            final TestResultExport export = new TestResultExport(results, testsPerPage);
             final File file = export.createExcelFile();
 
             StreamingOutput streamingOutput = new StreamingOutput() {
@@ -76,6 +83,29 @@ public class TestDownloadService {
                     .cookie(newCookie(cookieName, message, request.getContextPath()))
                     .build();
         }
+    }
+
+    @GET
+    @Path("rule")
+    @Produces("application/zip")
+    public Response manual(@QueryParam(Constants.REQUEST_PARAM_ID) String id,
+            @QueryParam(Constants.RESPONSE_MONITOR_COOKIE) String cookieId,
+            @Context HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        String cookieName = Constants.RESPONSE_MONITOR_COOKIE + "_" + cookieId;
+
+        ProjectModel model = WebStudioUtils.getWebStudio(session).getModel();
+        TestSuite testSuite = Utils.pollTestFromSession(session);
+        if (testSuite != null) {
+            RulesResultExport export = new RulesResultExport(model.runTest(testSuite));
+            return prepareResponse(request, cookieName, export);
+        }
+
+        String failure = "Test data isn't available anymore";
+        return Response.status(Response.Status.NOT_FOUND)
+                .entity("Input parameters not found")
+                .cookie(newCookie(cookieName, failure, request.getContextPath()))
+                .build();
     }
 
     private NewCookie newCookie(String cookieName, String value, String contextPath) {

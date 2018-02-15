@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.web.test.export;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -13,17 +12,12 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.openl.rules.data.PrimaryKeyField;
-import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.webstudio.web.test.ParameterWithValueAndPreviewDeclaration;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 
-class ParameterExport {
-    private static final int FIRST_COLUMN = 1;
-    private static final int FIRST_ROW = 2;
-    private final Styles styles;
-
+class ParameterExport extends BaseExport {
     ParameterExport(Styles styles) {
         this.styles = styles;
     }
@@ -254,22 +248,7 @@ class ParameterExport {
         return values;
     }
 
-    private void createCell(Row row, int cellNum, Object value, CellStyle style) {
-        Cell cell = row.createCell(cellNum);
-
-        if (value != null) {
-            if (value instanceof Date) {
-                style = styles.getDateStyle(row.getSheet().getWorkbook(), style);
-                cell.setCellValue((Date) value);
-            } else {
-                cell.setCellValue(FormattersManager.format(value));
-            }
-        }
-
-        cell.setCellStyle(style);
-    }
-
-    private static class WriteTask implements Comparable<WriteTask> {
+    private final static class WriteTask implements Comparable<WriteTask> {
         private final Cursor cursor;
         private final Object value;
         private final CellStyle style;

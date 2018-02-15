@@ -14,7 +14,12 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
-public class Utils {
+public final class Utils {
+    private Utils() {
+    }
+
+    private static final String INPUT_ARGS_PARAMETER = "inputArgsParam";
+
     static boolean isCollection(IOpenClass openClass) {
         return openClass.getAggregateInfo() != null && openClass.getAggregateInfo().isAggregate(openClass);
     }
@@ -92,5 +97,15 @@ public class Utils {
         }
 
         return null;
+    }
+
+    public static void saveTestToSession(HttpSession session, TestSuite testSuite) {
+        session.setAttribute(Utils.INPUT_ARGS_PARAMETER, testSuite);
+    }
+
+    public static TestSuite pollTestFromSession(HttpSession session) {
+        TestSuite suite = (TestSuite) session.getAttribute(Utils.INPUT_ARGS_PARAMETER);
+        session.removeAttribute(Utils.INPUT_ARGS_PARAMETER);
+        return suite;
     }
 }

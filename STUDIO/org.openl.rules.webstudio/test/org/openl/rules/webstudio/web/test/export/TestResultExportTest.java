@@ -118,7 +118,7 @@ public class TestResultExportTest {
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
-                assertEquals(1, workbook.getNumberOfSheets());
+                assertEquals(4, workbook.getNumberOfSheets());
 
                 XSSFSheet sheet = workbook.getSheetAt(0);
                 int rowNum = TestResultExport.FIRST_ROW;
@@ -144,7 +144,7 @@ public class TestResultExportTest {
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
-                assertEquals(3, workbook.getNumberOfSheets());
+                assertEquals(6, workbook.getNumberOfSheets());
 
                 XSSFSheet sheet = workbook.getSheetAt(0);
                 int rowNum = TestResultExport.FIRST_ROW;
@@ -257,7 +257,7 @@ public class TestResultExportTest {
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
-                assertEquals(1, workbook.getNumberOfSheets());
+                assertEquals(2, workbook.getNumberOfSheets());
 
                 // Test the case when parameter is referenced by primary key
                 XSSFSheet sheet = workbook.getSheetAt(0);
@@ -329,7 +329,7 @@ public class TestResultExportTest {
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
-                assertEquals(2, workbook.getNumberOfSheets());
+                assertEquals(5, workbook.getNumberOfSheets());
 
                 XSSFSheet sheet = workbook.getSheetAt(0);
                 int rowNum = TestResultExport.FIRST_ROW;
@@ -360,7 +360,7 @@ public class TestResultExportTest {
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
-                assertEquals(1, workbook.getNumberOfSheets());
+                assertEquals(2, workbook.getNumberOfSheets());
 
                 XSSFSheet sheet = workbook.getSheetAt(0);
                 int rowNum = TestResultExport.FIRST_ROW;
