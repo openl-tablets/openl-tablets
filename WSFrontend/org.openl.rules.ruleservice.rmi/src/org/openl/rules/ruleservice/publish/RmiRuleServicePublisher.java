@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.publish;
 
+import java.lang.reflect.Method;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -152,8 +153,19 @@ public class RmiRuleServicePublisher extends AbstractRuleServicePublisher implem
     }
 
     private ServiceInfo createServiceInfo(OpenLService service) {
+        List<String> methodNames = new ArrayList<String>();
+        for (Method method : service.getServiceClass().getMethods()) {
+            methodNames.add(method.getName());
+        }
+        Collections.sort(methodNames, new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return o1.compareToIgnoreCase(o2);
+            }
+        });
         String address = "rmi://" + getRmiHost() + ":" + getRmiPort() + "/" + URLHelper.processURL(service.getUrl());
-        return new ServiceInfo(new Date(), service.getName(), address, "RMI");
+       
+        return new ServiceInfo(new Date(), service.getName(), methodNames, address, "RMI");
     }
 
     private void removeServiceInfo(String serviceName) {
