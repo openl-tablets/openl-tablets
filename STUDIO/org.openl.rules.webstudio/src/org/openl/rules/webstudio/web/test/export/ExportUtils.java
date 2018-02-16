@@ -27,7 +27,7 @@ final class ExportUtils {
         }
     }
 
-    static List<Object> fieldValues(List<Object> values, IOpenField field) {
+    static List<Object> fieldValues(List<?> values, IOpenField field) {
         List<Object> result = new ArrayList<>(values.size());
         for (Object value : values) {
             result.add(value == null ? null : field.get(value, null));
@@ -35,7 +35,7 @@ final class ExportUtils {
         return result;
     }
 
-    static List<Object> flatten(List<Object> list) {
+    static List<Object> flatten(List<?> list) {
         List<Object> result = new ArrayList<>();
         for (Object element : list) {
             if (element == null) {

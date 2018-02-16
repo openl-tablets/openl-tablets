@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.test.export;
 
+import static org.openl.types.java.JavaOpenClass.CLASS;
+
 import java.lang.reflect.Array;
 import java.util.*;
 
@@ -10,7 +12,7 @@ class FieldDescriptor {
     private final IOpenField field;
     private final List<FieldDescriptor> children;
 
-    static List<FieldDescriptor> nonEmptyFields(IOpenClass type, List<Object> values) {
+    static List<FieldDescriptor> nonEmptyFields(IOpenClass type, List<?> values) {
         if (type.isArray()) {
             type = type.getComponentClass();
         }
@@ -24,6 +26,9 @@ class FieldDescriptor {
         Map<String, IOpenField> fields = type.getFields();
 
         for (Map.Entry<String, IOpenField> entry : fields.entrySet()) {
+            if (entry.getValue().getType().equals(CLASS)) {
+                continue;
+            }
             IOpenField field = entry.getValue();
             IOpenClass fieldType = field.getType();
 
@@ -115,6 +120,11 @@ class FieldDescriptor {
             return 1;
         }
 
+        // In excel each element contains at least one cell even if it's empty.
+        if (children == null) {
+            return 1;
+        }
+
         if (fieldValue.getClass().isArray()) {
             int size = 0;
             int count = Array.getLength(fieldValue);
@@ -123,10 +133,6 @@ class FieldDescriptor {
             }
             return size == 0 ? 1 : size;
         } else {
-            // In excel each element contains at least one cell even if it's empty.
-            if (children == null) {
-                return 1;
-            }
 
             int max = 1;
             for (FieldDescriptor child : children) {

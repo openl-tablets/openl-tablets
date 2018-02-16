@@ -136,10 +136,16 @@ class ParameterExport extends BaseExport {
 
         if (value != null && value.getClass().isArray()) {
             int count = Array.getLength(value);
+            int heightLeft = rowHeight;
             for (int i = 0; i < count; i++) {
                 Object elem = Array.get(value, i);
                 int height = getRowHeight(elem, fields);
-                addValueTasks(tasks, new Cursor(rowNum, colNum), fields, elem, height);
+                if (i < count - 1) {
+                    addValueTasks(tasks, new Cursor(rowNum, colNum), fields, elem, height);
+                    heightLeft -= height;
+                } else {
+                    addValueTasks(tasks, new Cursor(rowNum, colNum), fields, elem, heightLeft);
+                }
                 rowNum += height;
             }
         } else {
