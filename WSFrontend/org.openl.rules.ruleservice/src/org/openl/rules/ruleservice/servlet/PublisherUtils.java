@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.servlet;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +13,7 @@ import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 public class PublisherUtils {
 
     public static Collection<ServiceInfo> getServicesInfo(RuleServicePublisher publisher) {
-        Map<String, ServiceInfo> serviceInfos = new HashMap<>();
+        Map<String, ServiceInfo> serviceInfos = new TreeMap<>();
 
         if (publisher instanceof MultipleRuleServicePublisher) {
             // Wrapped into collection of publishers
