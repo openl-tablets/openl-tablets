@@ -8,6 +8,7 @@ package org.openl.rules.data;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.openl.OpenL;
@@ -94,8 +95,8 @@ public class ColumnDescriptor {
     }
 
     /**
-     * Method is using to load data. Is used when data table is represents
-     * <b>AS</b> a constructor (see {@link #isConstructor()}).
+     * Method is using to load data. Is used when data table is represents <b>AS</b> a constructor (see
+     * {@link #isConstructor()}).
      * 
      * @throws SyntaxNodeException
      */
@@ -160,9 +161,8 @@ public class ColumnDescriptor {
     }
 
     /**
-     * Method is using to load data. Is used when data table is represents as
-     * <b>NOT</b> a constructor (see {@link #isConstructor()}). Support loading
-     * single value, array of values.
+     * Method is using to load data. Is used when data table is represents as <b>NOT</b> a constructor (see
+     * {@link #isConstructor()}). Support loading single value, array of values.
      * 
      * @throws SyntaxNodeException
      */
@@ -199,54 +199,77 @@ public class ColumnDescriptor {
                 env.pushThis(literal);
                 Object arrayValues = null;
                 if (supportMultirows) {
-                	processWithMultiRowsSupport(literal, valuesTable, toolAdapter, env, paramType, valuesAnArray);
+                    processWithMultiRowsSupport(literal, valuesTable, toolAdapter, env, paramType, valuesAnArray);
                 } else {
-                	arrayValues = getArrayValues(valuesTable, toolAdapter, paramType);
-                	field.set(literal, arrayValues, getRuntimeEnv()); 
+                    arrayValues = getArrayValues(valuesTable, toolAdapter, paramType);
+                    field.set(literal, arrayValues, getRuntimeEnv());
                 }
                 return env.popThis();
             }
         } else {
             /**
-             * field == null, in this case don`t do anything. The appropriate
-             * information why it is null would have been processed during
-             * prepDaring column descriptor. See
+             * field == null, in this case don`t do anything. The appropriate information why it is null would have been
+             * processed during prepDaring column descriptor. See
              * {@link DataTableBindHelper#makeDescriptors(IBindingContext bindingContext, ITable table, IOpenClass type, OpenL openl, ILogicalTable descriptorRows, ILogicalTable dataWithTitleRows, boolean hasForeignKeysRow, boolean hasColumnTytleRow)}
              */
         }
         return literal;
     }
-    
+
     private static final Object PREV_RES_EMPTY = new Object();
 
-	private void processWithMultiRowsSupport(Object literal, ILogicalTable valuesTable, OpenlToolAdaptor toolAdapter,
-			IRuntimeEnv env, IOpenClass paramType, boolean valuesAnArray) throws SyntaxNodeException {
-		DatatypeArrayMultiRowElementContext datatypeArrayMultiRowElementContext = (DatatypeArrayMultiRowElementContext) env
-				.getLocalFrame()[0];
-		Object prevRes = PREV_RES_EMPTY;
-		for (int i = 0; i < valuesTable.getSource().getHeight(); i++) {
-			datatypeArrayMultiRowElementContext.setRow(i);
-			Object res = null;
-			ILogicalTable logicalTable = LogicalTableHelper.logicalTable(valuesTable.getSource().getSubtable(0, i, 1, i + 1)).getSubtable(0, 0, 1, 1);
-			if (valuesAnArray) {
-				res = getArrayValues(logicalTable, toolAdapter, paramType);
-			} else {
-				res = RuleRowHelper.loadSingleParam(paramType,
-						field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(), null, logicalTable, toolAdapter);
-			}
-			if ((prevRes == null && res == null) || (prevRes != null && prevRes.equals(res)) || (prevRes != PREV_RES_EMPTY && res == null)) {
-				datatypeArrayMultiRowElementContext.setRowValueIsTheSameAsPrevious(true);
-			} else {
-				datatypeArrayMultiRowElementContext.setRowValueIsTheSameAsPrevious(false);
-			}
-			if (res != null || PREV_RES_EMPTY == prevRes) {
-				field.set(literal, res, env);
-			} else {
-				field.get(literal, env); // Do not delete this line!!!
-			}
-			prevRes = res;
-		}
-	}
+    private void processWithMultiRowsSupport(Object literal,
+            ILogicalTable valuesTable,
+            OpenlToolAdaptor toolAdapter,
+            IRuntimeEnv env,
+            IOpenClass paramType,
+            boolean valuesAnArray) throws SyntaxNodeException {
+        DatatypeArrayMultiRowElementContext datatypeArrayMultiRowElementContext = (DatatypeArrayMultiRowElementContext) env
+            .getLocalFrame()[0];
+        Object prevRes = PREV_RES_EMPTY;
+        for (int i = 0; i < valuesTable.getSource().getHeight(); i++) {
+            datatypeArrayMultiRowElementContext.setRow(i);
+            Object res = null;
+            ILogicalTable logicalTable = LogicalTableHelper
+                .logicalTable(valuesTable.getSource().getSubtable(0, i, 1, i + 1))
+                .getSubtable(0, 0, 1, 1);
+            if (valuesAnArray) {
+                res = getArrayValues(logicalTable, toolAdapter, paramType);
+                if (prevRes != null && prevRes.getClass().isArray()) {
+                    boolean prevResIsEmpty = Array.getLength(prevRes) == 0;
+                    boolean resIsEmpty = Array.getLength(res) == 0;
+                    if ((prevResIsEmpty && resIsEmpty) || (Arrays.deepEquals((Object[]) prevRes,
+                        (Object[]) res)) || (prevRes != PREV_RES_EMPTY && resIsEmpty)) {
+                        res = prevRes;
+                        datatypeArrayMultiRowElementContext.setRowValueIsTheSameAsPrevious(true);
+                    } else {
+                        datatypeArrayMultiRowElementContext.setRowValueIsTheSameAsPrevious(false);
+                    }
+                } else {
+                    datatypeArrayMultiRowElementContext.setRowValueIsTheSameAsPrevious(false);
+                }
+            } else {
+                res = RuleRowHelper.loadSingleParam(paramType,
+                    field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(),
+                    null,
+                    logicalTable,
+                    toolAdapter);
+                if ((prevRes == null && res == null) || (prevRes != null && prevRes
+                    .equals(res)) || (prevRes != PREV_RES_EMPTY && res == null)) {
+                    res = prevRes;
+                    datatypeArrayMultiRowElementContext.setRowValueIsTheSameAsPrevious(true);
+                } else {
+                    datatypeArrayMultiRowElementContext.setRowValueIsTheSameAsPrevious(false);
+                }
+            }
+            if (res != null || PREV_RES_EMPTY == prevRes) {
+                field.set(literal, res, env);
+            } else {
+                field.get(literal, env); // Do not delete this line!!!
+            }
+            prevRes = res;
+        }
+    }
 
     public boolean isReference() {
         return false;
@@ -269,8 +292,7 @@ public class ColumnDescriptor {
 
         // get height of table without empty cells at the end
         //
-        int valuesTableHeight = RuleRowHelper
-            .calculateHeight(logicalTable);/* logicalTable.getHeight(); */
+        int valuesTableHeight = RuleRowHelper.calculateHeight(logicalTable);/* logicalTable.getHeight(); */
         ArrayList<Object> values = new ArrayList<Object>(valuesTableHeight);
 
         for (int i = 0; i < valuesTableHeight; i++) {
