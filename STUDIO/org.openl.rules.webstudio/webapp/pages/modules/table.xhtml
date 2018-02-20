@@ -789,38 +789,36 @@
                     return false;
                 },
                 setHasChanges: function () {
+                },
+                setCellValue: function () {
                 }
             };
         }
-
-        function setTableHasChanges(hasChanges) {
-            getCurrentTable().setHasChanges(hasChanges);
-        }
-
         $j(function () {
-            var hasChanges = function () {
-                return getCurrentTable().isHasChanges();
-            };
+            var projectAdapter = {
+                hasChanges: function () {
+                    return getCurrentTable().isHasChanges();
+                },
+                setHasChanges: function (hasChanges) {
+                    getCurrentTable().setHasChanges(hasChanges);
+                },
+                applyCurrentChanges: function () {
+                    return getCurrentTable().setCellValue();
+                },
+                showConfirmDialog: function (revertAndProceed) {
+                    var $discardButton = $j('#discardChangesForm\\:discardButton');
+                    $discardButton.off("click");
+                    $discardButton.click(function () {
+                        revertAndProceed();
+                        RichFaces.$('modalDiscardChanges').hide();
+                        return false;
+                    });
 
-            var showConfirmDialog = function (revertAndProceed) {
-                var $discardButton = $j('#discardChangesForm\\:discardButton');
-                $discardButton.off("click");
-                $discardButton.click(function () {
-                    revertAndProceed();
-                    RichFaces.$('modalDiscardChanges').hide();
-                    return false;
-                });
-
-                RichFaces.$('modalDiscardChanges').show();
-            };
-
-            var beforeUnload = function (e) {
-                if (hasChanges()) {
-                    return 'Table is not saved. If you leave this page, all changes will be lost.';
+                    RichFaces.$('modalDiscardChanges').show();
                 }
             };
 
-            ws.changes.configure(hasChanges, setTableHasChanges, showConfirmDialog, beforeUnload);
+            ws.changes.configure(projectAdapter);
 
             $j(".title").each(function () {
                 var elem = $j(this);
