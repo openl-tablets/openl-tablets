@@ -1,4 +1,13 @@
-<%@ page import="org.openl.rules.ruleservice.servlet.controller.ServicesController" %>
+<%
+    WebApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(request.getServletContext());
+    RuleServicePublisher ruleServicePublisher = context.getBean("ruleServicePublisher", RuleServicePublisher.class);
+    String services = new ObjectMapper().writeValueAsString(PublisherUtils.getServicesInfo(ruleServicePublisher));
+%>
+<%@ page import="org.openl.rules.ruleservice.servlet.PublisherUtils" %>
+<%@ page import="org.springframework.web.context.WebApplicationContext" %>
+<%@ page import="org.springframework.web.context.support.WebApplicationContextUtils" %>
+<%@ page import="org.openl.rules.ruleservice.publish.RuleServicePublisher" %>
+<%@ page import="com.fasterxml.jackson.databind.ObjectMapper" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -23,7 +32,7 @@
         h3 {
             font-weight: normal;
             font-size: 14px;
-            margin: 3px 0;
+            display: inline;
         }
 
         a {
@@ -78,6 +87,37 @@
         #main > div:last-child {
             border: 0;
         }
+
+        .expand-button, .collapse-button {
+            margin: 0;
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+            vertical-align: bottom;
+        }
+
+        .expand-button {
+            background: url('data:image/gif;base64,R0lGODlhCQAJAOMOAAAAAN/c1enn4+vp5e3r5+/t6vDv7PLx7vTz8fb18/j39fn5+Pv7+v39/P///////yH5BAEKAA8ALAAAAAAJAAkAAAQmMMhJXWNLJSTvAtshYQqAHIb0ASxQSBoCGAUhhS4xSCetC5RgIAIAOw==') no-repeat center;
+        }
+
+        .collapse-button {
+            background: url('data:image/gif;base64,R0lGODlhCQAJAOMOAAAAAN/c1enn4+vp5e3r5+/t6vDv7PLx7vTz8fb18/j39fn5+Pv7+v39/P///////yH5BAEKAA8ALAAAAAAJAAkAAAQjMMhJXWNLJSRv3oeEachhSAugqoVEmgUhgUY8SGVNDALlBxEAOw==') no-repeat center;
+        }
+
+        .methods {
+            margin-top: 2px;
+            display: none;
+        }
+
+        .methods > li {
+            margin-top: 2px;
+            font-size: 11px;
+        }
+
+        .collapse-button ~ .methods {
+            display: block;
+        }
     </style>
 </head>
 
@@ -87,7 +127,7 @@
 <div id="footer">&#169; 2018 <a href="http://openl-tablets.org" target="_blank">OpenL Tablets</a></div>
 <script>
     // Get JSON of available services
-    var services = <%= ServicesController.getServices(request) %>;
+    var services = <%= services %>;
 
     // The block for rendering of the available services
     var mainBlock = document.getElementById("main");
@@ -118,12 +158,31 @@
     function createServiceHtml(service) {
         var html = "";
         // Name
-        html += "<h3>" + service.name + "</h3>";
+        html += "<span class='expand-button'></span><h3>" + service.name + "</h3>";
+
+        // Methods
+        html += "<ul class='methods'>";
+        service.methodNames.forEach(function (methodName) {
+            html += "<li>" + methodName + "</li>";
+        })
+        html += "</ul>";
+
         // Date and time
         html += "<div class='note'>Started time: " + new Date(service.startedTime).toLocaleString() + "</div>";
         // URLs
-        service.serviceResources.forEach(function (resource) {
-            html += "<a href='" + resource.url + "'\>" + resource.name + "</a>";
+        var urls = service.urls;
+        Object.keys(urls).forEach(function (name) {
+            var url = urls[name];
+            if (name == "SOAP") {
+                html += "<a href='" + url + "?wsdl'\>WSDL</a>";
+            } else if (name == "REST") {
+                html += "<a href='" + url + "?_wadl'\>WADL</a>";
+                html += "<a href='" + url + "/api-docs?url=swagger.json'\>Swagger (UI)</a>";
+                html += "<a href='" + url + "/swagger.json'\>Swagger (JSON)</a>";
+                html += "<a href='" + url + "/swagger.yaml'\>Swagger (YAML)</a>";
+            } else {
+                html += "<a href='" + url + "'\>" + name + "</a>";
+            }
         });
         return html;
     }

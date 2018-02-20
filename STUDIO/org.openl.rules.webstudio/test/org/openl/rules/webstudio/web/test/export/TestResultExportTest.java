@@ -1,7 +1,7 @@
-package org.openl.rules.webstudio.web.test;
+package org.openl.rules.webstudio.web.test.export;
 
 import static org.junit.Assert.*;
-import static org.openl.rules.webstudio.web.test.TestResultExport.Styles.*;
+import static org.openl.rules.webstudio.web.test.export.Styles.*;
 
 import java.awt.*;
 import java.io.File;
@@ -23,6 +23,7 @@ import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.testmethod.TestMethodNodeBinder;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.webstudio.web.test.TestSuiteWithPreview;
 import org.openl.types.IOpenClass;
 import org.openl.util.NumberUtils;
 
@@ -117,7 +118,10 @@ public class TestResultExportTest {
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
-                assertEquals(1, workbook.getNumberOfSheets());
+                assertEquals(4, workbook.getNumberOfSheets());
+                assertNotNull(workbook.getSheet("Type Driver"));
+                assertNotNull(workbook.getSheet("Type Vehicle"));
+                assertNotNull(workbook.getSheet("Type Policy"));
 
                 XSSFSheet sheet = workbook.getSheetAt(0);
                 int rowNum = TestResultExport.FIRST_ROW;
@@ -143,7 +147,10 @@ public class TestResultExportTest {
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
-                assertEquals(3, workbook.getNumberOfSheets());
+                assertEquals(6, workbook.getNumberOfSheets());
+                assertNotNull(workbook.getSheet("Type Driver"));
+                assertNotNull(workbook.getSheet("Type Vehicle"));
+                assertNotNull(workbook.getSheet("Type Policy"));
 
                 XSSFSheet sheet = workbook.getSheetAt(0);
                 int rowNum = TestResultExport.FIRST_ROW;
@@ -256,7 +263,8 @@ public class TestResultExportTest {
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
-                assertEquals(1, workbook.getNumberOfSheets());
+                assertEquals(2, workbook.getNumberOfSheets());
+                assertNotNull(workbook.getSheet("Type Driver"));
 
                 // Test the case when parameter is referenced by primary key
                 XSSFSheet sheet = workbook.getSheetAt(0);
@@ -328,7 +336,10 @@ public class TestResultExportTest {
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
-                assertEquals(2, workbook.getNumberOfSheets());
+                assertEquals(5, workbook.getNumberOfSheets());
+                assertNotNull(workbook.getSheet("Type Driver"));
+                assertNotNull(workbook.getSheet("Type Vehicle"));
+                assertNotNull(workbook.getSheet("Type Policy"));
 
                 XSSFSheet sheet = workbook.getSheetAt(0);
                 int rowNum = TestResultExport.FIRST_ROW;
@@ -359,7 +370,8 @@ public class TestResultExportTest {
             assertTrue(xlsx.exists());
 
             try (XSSFWorkbook workbook = new XSSFWorkbook(xlsx)) {
-                assertEquals(1, workbook.getNumberOfSheets());
+                assertEquals(2, workbook.getNumberOfSheets());
+                assertNotNull(workbook.getSheet("Type MyObjectD"));
 
                 XSSFSheet sheet = workbook.getSheetAt(0);
                 int rowNum = TestResultExport.FIRST_ROW;

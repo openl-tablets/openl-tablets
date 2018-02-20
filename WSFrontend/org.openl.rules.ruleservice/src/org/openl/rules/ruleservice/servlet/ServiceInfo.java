@@ -1,23 +1,38 @@
 package org.openl.rules.ruleservice.servlet;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ServiceInfo {
     private final Date startedTime;
     private final String name;
-    private final ServiceResource[] serviceResources;
+    private final List<String> methodNames;
+    private final Map<String, String> urls = new HashMap<>(1);
 
-    public ServiceInfo(Date startedTime, String name, String url, String urlName) {
-        this(startedTime, name, new ServiceResource[] { new ServiceResource(url, urlName) });
-    }
-
-    public ServiceInfo(Date startedTime, String name, ServiceResource[] serviceResources) {
+    public ServiceInfo(Date startedTime, String name, List<String> methodNames, String url, String urlName) {
         if (startedTime == null || name == null) {
             throw new IllegalArgumentException("'startedTime' and 'name' parameters must not be null!");
         }
+        if (methodNames == null) {
+            methodNames = Collections.emptyList();
+        }
         this.startedTime = startedTime;
         this.name = name;
-        this.serviceResources = serviceResources;
+        this.methodNames = methodNames;
+        urls.put(urlName, url);
+    }
+
+    ServiceInfo(Date startedTime,
+            String name,
+            List<String> methodNames,
+                Map<String, String> urls) {
+        this.startedTime = startedTime;
+        this.name = name;
+        this.methodNames = methodNames;
+        this.urls.putAll(urls);
     }
 
     public String getName() {
@@ -28,7 +43,11 @@ public class ServiceInfo {
         return startedTime;
     }
 
-    public ServiceResource[] getServiceResources() {
-        return serviceResources;
+    public List<String> getMethodNames() {
+        return methodNames;
+    }
+
+    public Map<String, String> getUrls() {
+        return urls;
     }
 }

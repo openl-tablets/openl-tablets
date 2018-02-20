@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.publish;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,7 +25,6 @@ import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSInterfaceEnhancerHelper;
 import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
-import org.openl.rules.ruleservice.servlet.ServiceResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
@@ -223,29 +223,23 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
     }
 
     private ServiceInfo createServiceInfo(OpenLService service) {
-        final String url = processURL(service.getUrl());
-        String wadlUrl = url;
-        wadlUrl = wadlUrl + "?_wadl";
+        List<String> methodNames = new ArrayList<String>();
+        for (Method method : service.getServiceClass().getMethods()) {
+            methodNames.add(method.getName());
+        }
+        Collections.sort(methodNames, new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return o1.compareToIgnoreCase(o2);
+            }
+        });
+        String url = processURL(service.getUrl());
+
         if (service.getPublishers().size() != 1) {
-            wadlUrl = REST_PREFIX + wadlUrl;
+            url = REST_PREFIX + url;
         }
 
-        String swaggerUI = url + "/api-docs?url=swagger.json";
-        String swaggerUrl = url + "/swagger.json";
-        String swaggerYamlUrl = url + "/swagger.yaml";
-        
-        if (service.getPublishers().size() != 1) {
-        	swaggerUI = REST_PREFIX + swaggerUI;
-        	swaggerUrl = REST_PREFIX + swaggerUrl;
-            swaggerYamlUrl = REST_PREFIX + swaggerYamlUrl;
-        }
-
-        return new ServiceInfo(new Date(),
-            service.getName(),
-                new ServiceResource[] { new ServiceResource(wadlUrl, "WADL"),
-            		new ServiceResource(swaggerUI, "Swagger (UI)"),
-                    new ServiceResource(swaggerUrl, "Swagger (JSON)"),
-                    new ServiceResource(swaggerYamlUrl, "Swagger (YAML)")});
+        return new ServiceInfo(new Date(), service.getName(), methodNames, url, "REST");
     }
 
     @Override
