@@ -55,7 +55,6 @@ public class DataTableBindHelper {
 
     // patter for field like addressArry[0]
     public static final String ARRAY_ACCESS_BY_INDEX_PATTERN = ".+\\[\\s*[0-9]+\\s*\\]$";
-    public static final String ARRAY_ACCESS_MULTI_ROWS_PATTERN = ".+\\[\\s*\\]$";
     public static final String THIS_ARRAY_ACCESS_PATTERN = "\\s*\\[[0-9]+\\]$";
     public static final String PRECISION_PATTERN = "^\\(\\-?[0-9]+\\)$";
     public static final String SPREADSHEETRESULTFIELD_PATTERN = "^\\$.+\\$.+$";
@@ -665,7 +664,6 @@ public class DataTableBindHelper {
             }
 
             boolean arrayAccessByIndex = fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_BY_INDEX_PATTERN); 
-            boolean arrayAccessMultiRows = fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_MULTI_ROWS_PATTERN) && (fieldIndex != fieldAccessorChain.length - 1);
 
             if (fieldNameNode.getIdentifier().matches(PRECISION_PATTERN)) {
                 fieldAccessorChain = ArrayUtils.remove(fieldAccessorChain, fieldIndex);
@@ -673,16 +671,25 @@ public class DataTableBindHelper {
                 // Skip creation of IOpenField
                 continue;
             }
-
-            if (arrayAccessByIndex || arrayAccessMultiRows) {
+            
+            boolean arrayAccessMultiRows = false;
+            
+            if (arrayAccessByIndex) {
                 hasAccessByArrayId = true;
                 fieldInChain = getWritableArrayElement(fieldNameNode,
                     table,
                     loadedFieldType,
-                    partPathFromRoot.toString(),
-                    arrayAccessMultiRows && !multiRowsArentSupported);
+                    partPathFromRoot.toString(), false);
             } else {
                 fieldInChain = getWritableField(fieldNameNode, table, loadedFieldType);
+                
+                if ((fieldIndex != fieldAccessorChain.length - 1) && fieldInChain != null && fieldInChain.getType().isArray()) {
+                    fieldInChain = getWritableArrayElement(fieldNameNode,
+                        table,
+                        loadedFieldType,
+                        partPathFromRoot.toString(), !multiRowsArentSupported);
+                    arrayAccessMultiRows = true;
+                }
             }
 
             if (fieldIndex > 0 && (fieldAccessorChain[fieldIndex - 1] instanceof DatatypeArrayElementField || fieldAccessorChain[fieldIndex - 1] instanceof SpreadsheetResultField) && fieldAccessorChain[fieldIndex - 1]
@@ -743,7 +750,11 @@ public class DataTableBindHelper {
 
     private static String getArrayName(IdentifierNode fieldNameNode) {
         String fieldName = fieldNameNode.getIdentifier();
-        return fieldName.substring(0, fieldName.indexOf("["));
+        int ind = fieldName.indexOf("[");
+        if (ind > 0) {
+            return fieldName.substring(0, ind);
+        }
+        return fieldName;
     }
 
     private static void processError(ITable table, SyntaxNodeException error) {
