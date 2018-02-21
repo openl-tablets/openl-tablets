@@ -106,12 +106,18 @@
                     }
                 };
 
-                this.configure = function (hasChangesFunc, setHasChangesFunc, showConfirmDialogFunc, beforeUnloadFunc) {
-                    hasChanges = hasChangesFunc;
-                    showConfirmDialog = showConfirmDialogFunc;
-                    setHasChanges = setHasChangesFunc;
+                this.applyCurrentChanges = function () {};
+
+                this.configure = function (project) {
+                    var empty = function () {};
+
+                    hasChanges = project.hasChanges || empty;
+                    showConfirmDialog = project.showConfirmDialog || empty;
+                    setHasChanges = project.setHasChanges || empty;
+                    this.applyCurrentChanges = project.applyCurrentChanges || empty;
+
                     window.onbeforeunload = function (e) {
-                        var result = beforeUnloadFunc(e);
+                        var result = hasChanges() ? 'Table is not saved. If you leave this page, all changes will be lost.' : null;
                         for (var i = 0; i < afterUnloadActions.length; i++) {
                             afterUnloadActions[i](e);
                         }
@@ -159,6 +165,7 @@
                                         href && $location.set(href);
                                     }
                                 };
+                                api.changes.applyCurrentChanges();
                                 api.changes.checkForChanges(proceed);
                                 e.preventDefault();
                             }
