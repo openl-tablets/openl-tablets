@@ -8,6 +8,7 @@
 <%@ page import="org.springframework.web.context.support.WebApplicationContextUtils" %>
 <%@ page import="org.openl.rules.ruleservice.publish.RuleServicePublisher" %>
 <%@ page import="com.fasterxml.jackson.databind.ObjectMapper" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
 <!DOCTYPE html>
 <html>
 <head>
