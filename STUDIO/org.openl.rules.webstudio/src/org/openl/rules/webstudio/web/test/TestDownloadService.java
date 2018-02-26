@@ -63,7 +63,7 @@ public class TestDownloadService {
                 @Override
                 public void write(OutputStream output) throws IOException {
                     try {
-                        IOUtils.copy(new FileInputStream(file), output);
+                        IOUtils.copyAndClose(new FileInputStream(file), output);
                     } finally {
                         // Delete temporary files when stream writing is completed
                         export.close();
