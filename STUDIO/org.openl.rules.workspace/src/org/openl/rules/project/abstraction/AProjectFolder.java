@@ -215,7 +215,7 @@ public class AProjectFolder extends AProjectArtefact {
             throw RuntimeExceptionWrapper.wrap(ex);
         }
         for (FileData fileData : fileDatas) {
-            if (!fileData.getName().equals(folderPath)) {
+            if (!fileData.getName().equals(folderPath) && !fileData.isDeleted()) {
                 String artefactName = fileData.getName().substring(folderPath.length() + 1);
                 internalArtefacts.put(artefactName, new AProjectResource(getProject(), getRepository(), fileData));
             }

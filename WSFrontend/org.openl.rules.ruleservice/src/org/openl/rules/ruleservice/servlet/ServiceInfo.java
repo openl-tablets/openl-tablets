@@ -2,48 +2,17 @@ package org.openl.rules.ruleservice.servlet;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ServiceInfo {
     private final Date startedTime;
     private final String name;
     private final List<String> methodNames;
-    private final String address;
-    private final ServiceInfoDescriptionUrl[] serviceInfoDescriptionUrls;
+    private final Map<String, String> urls = new HashMap<>(1);
 
-    public ServiceInfo(Date startedTime, String name, List<String> methodNames, String url, String urlDescription) {
-        this(startedTime,
-            name,
-            methodNames,
-            new ServiceInfoDescriptionUrl[] { new ServiceInfoDescriptionUrl(url, urlDescription) },
-            null);
-    }
-
-    public ServiceInfo(Date startedTime,
-            String name,
-            List<String> methodNames,
-            String url,
-            String urlDescription,
-            String address) {
-        this(startedTime,
-            name,
-            methodNames,
-            new ServiceInfoDescriptionUrl[] { new ServiceInfoDescriptionUrl(url, urlDescription) },
-            address);
-    }
-
-    public ServiceInfo(Date startedTime,
-            String name,
-            List<String> methodNames,
-            ServiceInfoDescriptionUrl[] serviceInfoDescriptionUrls) {
-        this(startedTime, name, methodNames, serviceInfoDescriptionUrls, null);
-    }
-
-    public ServiceInfo(Date startedTime,
-            String name,
-            List<String> methodNames,
-            ServiceInfoDescriptionUrl[] serviceInfoDescriptionUrls,
-            String address) {
+    public ServiceInfo(Date startedTime, String name, List<String> methodNames, String url, String urlName) {
         if (startedTime == null || name == null) {
             throw new IllegalArgumentException("'startedTime' and 'name' parameters must not be null!");
         }
@@ -53,8 +22,17 @@ public class ServiceInfo {
         this.startedTime = startedTime;
         this.name = name;
         this.methodNames = methodNames;
-        this.serviceInfoDescriptionUrls = serviceInfoDescriptionUrls;
-        this.address = address;
+        urls.put(urlName, url);
+    }
+
+    ServiceInfo(Date startedTime,
+            String name,
+            List<String> methodNames,
+                Map<String, String> urls) {
+        this.startedTime = startedTime;
+        this.name = name;
+        this.methodNames = methodNames;
+        this.urls.putAll(urls);
     }
 
     public String getName() {
@@ -69,11 +47,7 @@ public class ServiceInfo {
         return methodNames;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public ServiceInfoDescriptionUrl[] getServiceInfoDescriptionUrls() {
-        return serviceInfoDescriptionUrls.clone();
+    public Map<String, String> getUrls() {
+        return urls;
     }
 }

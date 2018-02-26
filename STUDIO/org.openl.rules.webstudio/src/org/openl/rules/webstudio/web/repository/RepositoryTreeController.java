@@ -463,7 +463,10 @@ public class RepositoryTreeController {
                 FacesUtils.addErrorMessage("Deploy Configuration name must not be empty.");
                 return null;
             }
-
+            if (!NameChecker.checkName(projectName)) {
+                FacesUtils.addErrorMessage("Specified name is not a valid Deploy Configuration name." + " " + NameChecker.BAD_NAME_MSG);
+                return null;
+            }
             if (userWorkspace.hasDDProject(projectName)) {
                 String msg = "Cannot create configuration because configuration with such name already exists.";
                 FacesUtils.addErrorMessage(msg, null);
@@ -1280,7 +1283,7 @@ public class RepositoryTreeController {
     }
 
     public void setFileName(String fileName) {
-        this.fileName = fileName;
+        this.fileName = StringUtils.trim(fileName);
     }
 
     public void setFilterString(String filterString) {
@@ -1288,7 +1291,7 @@ public class RepositoryTreeController {
     }
 
     public void setFolderName(String folderName) {
-        this.folderName = folderName;
+        this.folderName = StringUtils.trim(folderName);
     }
 
     public void setVersionComment(String versionComment) {
@@ -1296,11 +1299,11 @@ public class RepositoryTreeController {
     }
 
     public void setNewProjectName(String newProjectName) {
-        this.newProjectName = newProjectName;
+        this.newProjectName = StringUtils.trim(newProjectName);
     }
 
     public void setProjectName(String newProjectName) {
-        projectName = newProjectName;
+        projectName = StringUtils.trim(newProjectName);
     }
 
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {

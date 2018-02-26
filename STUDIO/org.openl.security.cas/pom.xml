@@ -4,18 +4,26 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.studio-pom</artifactId>
-        <version>5.21.0</version>
+        <version>5.21.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>org.openl.rules.security</artifactId>
+    <artifactId>org.openl.security.cas</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL - STUDIO - Security</name>
-    <description>OpenL Common Security</description>
+    <name>OpenL - Security - CAS</name>
+    <description>CAS integration</description>
     <url>//openl-tablets.org</url>
     <dependencies>
         <dependency>
+            <groupId>org.openl</groupId>
+            <artifactId>org.openl.commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.security</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
+            <artifactId>spring-security-cas</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -24,7 +24,7 @@ import org.openl.rules.ruleservice.logging.CollectOperationResourceInfoIntercept
 import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
 import org.openl.rules.ruleservice.publish.jaxws.JAXWSInterfaceEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxws.JAXWSInvocationHandler;
-import org.openl.rules.ruleservice.servlet.AvailableServicesGroup;
+import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ import org.springframework.beans.factory.ObjectFactory;
  * 
  * @author PUdalau, Marat Kamalov
  */
-public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesGroup {
+public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesPresenter {
 
     private final Logger log = LoggerFactory.getLogger(JAXWSRuleServicePublisher.class);
 
@@ -184,11 +184,6 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
     }
 
     @Override
-    public String getGroupName() {
-        return "SOAP";
-    }
-
-    @Override
     public List<ServiceInfo> getAvailableServices() {
         List<ServiceInfo> services = new ArrayList<ServiceInfo>(availableServices);
         Collections.sort(services, new Comparator<ServiceInfo>() {
@@ -211,8 +206,8 @@ public class JAXWSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 return o1.compareToIgnoreCase(o2);
             }
         });
-        String url = processURL(service.getUrl()) + "?wsdl";
-        return new ServiceInfo(new Date(), service.getName(), methodNames, url, "WSDL");
+        String url = processURL(service.getUrl());
+        return new ServiceInfo(new Date(), service.getName(), methodNames, url, "SOAP");
     }
 
     private void removeServiceInfo(String serviceName) {

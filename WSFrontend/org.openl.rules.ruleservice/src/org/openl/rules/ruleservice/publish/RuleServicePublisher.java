@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.publish;
 
 import java.util.Collection;
 
-import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;

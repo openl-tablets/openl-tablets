@@ -31,6 +31,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
     private ServiceConfigurer serviceConfigurer;
     private RuleServiceLoader ruleServiceLoader;
     private Map<String, ServiceDescription> serviceDescriptions = new HashMap<String, ServiceDescription>();
+    private Map<String, ServiceDescription> failedServiceDescriptions = new HashMap<String, ServiceDescription>();
 
     public void setRuleServiceLoader(RuleServiceLoader ruleServiceLoader) {
         if (this.ruleServiceLoader != null) {
@@ -90,14 +91,14 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
 
     protected Map<String, ServiceDescription> gatherServicesToBeDeployed() {
         try {
-            Collection<ServiceDescription> servicesToBeDeployed = serviceConfigurer.getServicesToBeDeployed(
-                    ruleServiceLoader);
+            Collection<ServiceDescription> servicesToBeDeployed = serviceConfigurer
+                .getServicesToBeDeployed(ruleServiceLoader);
             Map<String, ServiceDescription> services = new HashMap<String, ServiceDescription>();
             for (ServiceDescription serviceDescription : servicesToBeDeployed) {
                 if (services.containsKey(serviceDescription.getName())) {
                     log.warn(
-                            "Service '{}' is duplicated! Only one service with this the same name can be deployed! Please, check your configuration!",
-                            serviceDescription.getName());
+                        "Service '{}' is duplicated! Only one service with this the same name can be deployed! Please, check your configuration!",
+                        serviceDescription.getName());
                 } else {
                     services.put(serviceDescription.getName(), serviceDescription);
                 }
@@ -118,6 +119,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
                     ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
                     ruleService.undeploy(runningServiceName);
                     serviceDescriptions.remove(runningServiceName);
+                    failedServiceDescriptions.remove(runningServiceName);
                 } catch (RuleServiceUndeployException e) {
                     log.error("Failed to undeploy '{}' service.", runningServiceName, e);
                 } finally {
@@ -127,33 +129,51 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener {
         }
     }
 
-    private boolean isServiceExists(String serviceName) {
+    private boolean isServiceDeployed(String serviceName) {
         return ruleService.getServiceByName(serviceName) != null;
     }
 
     protected void deployServices(Map<String, ServiceDescription> newServices) {
         for (ServiceDescription serviceDescription : newServices.values()) {
+            String serviceName = serviceDescription.getName();
             try {
                 ServiceDescriptionHolder.getInstance().setServiceDescription(serviceDescription);
-                if (!isServiceExists(serviceDescription.getName())) {
-                    ruleService.deploy(serviceDescription);
+                if (!isServiceDeployed(serviceName)) {
+                    ServiceDescription failedServiceDescription = failedServiceDescriptions.get(serviceName);
+                    if (failedServiceDescription != null) {
+                        if (!serviceName.equals(failedServiceDescription.getName())) {
+                            throw new IllegalStateException();
+                        }
+                        if (failedServiceDescription.getDeployment().getVersion().compareTo(
+                            serviceDescription.getDeployment().getVersion()) != 0) {
+                            failedServiceDescriptions.remove(serviceName);
+                            ruleService.deploy(serviceDescription);
+                            serviceDescriptions.put(serviceName, serviceDescription);
+                        }
+                    } else {
+                        ruleService.deploy(serviceDescription);
+                        serviceDescriptions.put(serviceName, serviceDescription);
+                    }
                 } else {
                     ruleService.redeploy(serviceDescription);
+                    serviceDescriptions.put(serviceName, serviceDescription);
                 }
-                serviceDescriptions.put(serviceDescription.getName(), serviceDescription);
             } catch (RuleServiceDeployException e) {
-                log.error("Failed to deploy '{}' service.", serviceDescription.getName(), e);
+                failedServiceDescriptions.put(serviceName, serviceDescription);
+                log.error("Failed to deploy '{}' service.", serviceName, e);
             } catch (RuleServiceRedeployException e) {
-                log.error("Failed to redeploy '{}' service.", serviceDescription.getName(), e);
+                log.error("Failed to redeploy '{}' service.", serviceName, e);
+            } catch (RuleServiceUndeployException e) {
+                log.error("Failed to undeploy '{}' service.", serviceName, e);
             } finally {
                 ServiceDescriptionHolder.getInstance().remove();
             }
-
         }
     }
 
     private void resetOpenL() {
-        // TODO Refactor the classes below to not have static HashMap fields: it's bad for multithreading and memory-leak prone.
+        // TODO Refactor the classes below to not have static HashMap fields: it's bad
+        // for multithreading and memory-leak prone.
         OpenL.reset();
         OpenLConfiguration.reset();
         ClassLoaderFactory.reset();

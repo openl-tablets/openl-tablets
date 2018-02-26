@@ -22,53 +22,28 @@
 		<servlet-name>WSServlet</servlet-name>
 		<servlet-class>org.openl.rules.ruleservice.servlet.WSServlet</servlet-class>
 		<init-param>
-			<param-name>static-resources-list</param-name>
-			<param-value>
-                /css/.+\.css
-                /images/.+\.png
-            </param-value>
-		</init-param>
-		<init-param>
 			<param-name>redirects-list</param-name>
-			<param-value>
-                		/
-            </param-value>
+			<param-value>/</param-value>
 		</init-param>
 		<init-param>
 			<param-name>redirect-servlet-name</param-name>
-			<param-value>DispatcherServlet</param-value>
-		</init-param>
-	
-		<load-on-startup>2</load-on-startup>
-	</servlet>
-
-	<!-- Spring dispatcher context -->
-	<servlet>
-		<servlet-name>DispatcherServlet</servlet-name>
-		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-		<init-param>
-			<param-name>contextConfigLocation</param-name>
-			<param-value>/WEB-INF/classes/spring-dispatcher-servlet-context.xml</param-value>
+			<param-value>index.jsp</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	<!-- JSPs -->
 	<servlet>
 		<servlet-name>index.jsp</servlet-name>
-		<jsp-file>/WEB-INF/jsp/index.jsp</jsp-file>
+		<jsp-file>/index.jsp</jsp-file>
 	</servlet>
 	<!-- Mapping -->
-	<servlet-mapping>
-		<servlet-name>DispatcherServlet</servlet-name>
-		<url-pattern>/application/*</url-pattern>
-	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>WSServlet</servlet-name>
 		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>index.jsp</servlet-name>
-		<url-pattern>/WEB-INF/jsp/index.jsp</url-pattern>
+		<url-pattern>/</url-pattern>
 	</servlet-mapping>
 	<!-- Other stuff -->
 	<context-param>

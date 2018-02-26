@@ -2,9 +2,7 @@ package org.openl.rules.webstudio.web.repository;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectDescriptor;
@@ -90,6 +88,13 @@ public class DeploymentManager implements InitializingBean {
             DeployID id = new DeployID(sb.toString());
 
             String deploymentPath = DeployUtils.DEPLOY_PATH + id.getName();
+
+            List<FileData> existingProjects = deployRepo.list(deploymentPath + "/");
+            List<FileData> projectsToDelete = findProjectsToDelete(existingProjects, projectDescriptors);
+            for (FileData fileData : projectsToDelete) {
+                deployRepo.delete(fileData);
+            }
+
             Repository designRepo = designRepository.getRepository();
             for (ProjectDescriptor<?> pd : projectDescriptors) {
                 InputStream stream = null;
@@ -115,6 +120,23 @@ public class DeploymentManager implements InitializingBean {
         } catch (Exception e) {
             throw new DeploymentException("Failed to deploy: " + e.getMessage(), e);
         }
+    }
+
+    private List<FileData> findProjectsToDelete(List<FileData> existingProjects, Collection<ProjectDescriptor> projectsToDeploy) {
+        List<FileData> projectsToDelete = new ArrayList<>(existingProjects);
+        // Filter out projects that will be replaced with a new version
+        for (ProjectDescriptor projectToDeploy : projectsToDeploy) {
+            for (Iterator<FileData> it = projectsToDelete.iterator(); it.hasNext(); ) {
+                String folderPath = it.next().getName();
+                String projectName = folderPath.substring(folderPath.lastIndexOf("/") + 1);
+                if (projectName.equals(projectToDeploy.getProjectName())) {
+                    // This project will be replaced with a new version. No need to delete it
+                    it.remove();
+                    break;
+                }
+            }
+        }
+        return projectsToDelete;
     }
 
     private String getApiVersion(ADeploymentProject deploymentConfiguration) {

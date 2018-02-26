@@ -23,9 +23,8 @@ import org.openl.rules.ruleservice.logging.CollectOpenLServiceIntercepror;
 import org.openl.rules.ruleservice.logging.CollectOperationResourceInfoInterceptor;
 import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSInterfaceEnhancerHelper;
-import org.openl.rules.ruleservice.servlet.AvailableServicesGroup;
+import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
-import org.openl.rules.ruleservice.servlet.ServiceInfoDescriptionUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
@@ -35,7 +34,7 @@ import org.springframework.beans.factory.ObjectFactory;
  *
  * @author Nail Samatov, Marat Kamalov
  */
-public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesGroup {
+public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher implements AvailableServicesPresenter {
     public static final String REST_PREFIX = "REST/";
 
     private final Logger log = LoggerFactory.getLogger(JAXRSRuleServicePublisher.class);
@@ -47,7 +46,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
     private boolean loggingStoreEnable = false;
     private ObjectFactory<? extends Feature> storeLoggingFeatureFactoryBean;
     private boolean swaggerPrettyPrint = false;
-
+    
     public ObjectFactory<? extends Feature> getStoreLoggingFeatureFactoryBean() {
         return storeLoggingFeatureFactoryBean;
     }
@@ -170,6 +169,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
         swagger2Feature.setRunAsFilter(true);
         swagger2Feature.setScan(false);
         swagger2Feature.setPrettyPrint(isSwaggerPrettyPrint());
+        swagger2Feature.setUsePathBasedConfig(true);
         if (serviceClass.getPackage() == null) {
             swagger2Feature.setResourcePackage("default");
         } else {
@@ -211,11 +211,6 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
     }
 
     @Override
-    public String getGroupName() {
-        return "RESTful";
-    }
-
-    @Override
     public List<ServiceInfo> getAvailableServices() {
         List<ServiceInfo> services = new ArrayList<ServiceInfo>(availableServices);
         Collections.sort(services, new Comparator<ServiceInfo>() {
@@ -238,31 +233,13 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 return o1.compareToIgnoreCase(o2);
             }
         });
-        final String url = processURL(service.getUrl());
-        String wadlUrl = url;
-        wadlUrl = wadlUrl + "?_wadl";
+        String url = processURL(service.getUrl());
+
         if (service.getPublishers().size() != 1) {
-            wadlUrl = REST_PREFIX + wadlUrl;
+            url = REST_PREFIX + url;
         }
 
-        String swaggerUrl = url;
-        swaggerUrl = swaggerUrl + "/api-docs/swagger.json";
-        if (service.getPublishers().size() != 1) {
-            swaggerUrl = REST_PREFIX + swaggerUrl;
-        }
-
-        String swaggerYamlUrl = url;
-        swaggerYamlUrl = swaggerYamlUrl + "/api-docs/swagger.yaml";
-        if (service.getPublishers().size() != 1) {
-            swaggerYamlUrl = REST_PREFIX + swaggerYamlUrl;
-        }
-
-        return new ServiceInfo(new Date(),
-            service.getName(),
-            methodNames,
-            new ServiceInfoDescriptionUrl[] { new ServiceInfoDescriptionUrl(wadlUrl, "WADL"),
-                    new ServiceInfoDescriptionUrl(swaggerUrl, "Swagger (JSON)"),
-                    new ServiceInfoDescriptionUrl(swaggerYamlUrl, "Swagger (YAML)") });
+        return new ServiceInfo(new Date(), service.getName(), methodNames, url, "REST");
     }
 
     @Override
