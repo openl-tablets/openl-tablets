@@ -65,8 +65,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
     // ------ private methods ------
 
     /**
-     * Starts modeshape JCR repository over DataBase. If there was no repository
-     * it will be created automatically.
+     * Starts modeshape JCR repository over DataBase. If there was no repository it will be created automatically.
      */
     private void init() throws Exception {
         JDBCDriverRegister.registerDrivers();
@@ -87,6 +86,15 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         log.info("Preparing a repository...");
         initTable(conn, properties);
         String repoID = getRepoID(conn, properties);
+
+        try {
+            if (!conn.getAutoCommit()) {
+                conn.commit();
+            }
+        } catch (Exception e) {
+            log.info("Failed to commit changes!", e);
+        }
+
         conn.close();
         log.info("The repository for ID=[{}] has been prepared", repoID);
 
@@ -153,8 +161,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
             String user,
             String password,
             CompositeConfiguration properties,
-            Case namesCase) throws SQLException,
-                                          NamingException {
+            Case namesCase) throws SQLException, NamingException {
 
         // Infinispan's configuration
         ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
@@ -419,9 +426,9 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
     }
 
     private Case getCase(DatabaseMetaData metaData) throws SQLException {
-        return metaData.storesLowerCaseIdentifiers() ? Case.LOWER : metaData.storesUpperCaseIdentifiers() ? Case.UPPER : Case.MIXED;
+        return metaData.storesLowerCaseIdentifiers() ? Case.LOWER
+                                                     : metaData.storesUpperCaseIdentifiers() ? Case.UPPER : Case.MIXED;
     }
-
 
     private static class ModeshapeJcrRepo extends JcrRepository {
 
