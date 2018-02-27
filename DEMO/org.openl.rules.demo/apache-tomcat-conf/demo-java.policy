@@ -42,4 +42,8 @@ grant {
         permission java.io.FilePermission "${catalina.base}/work/-", "write,delete";
 
         permission java.sql.SQLPermission "deregisterDriver";
+
+        // Java 8 compatibility
+        permission java.io.FilePermission "\\\\dummy.jar", "read";
+        permission java.io.FilePermission "C:\\Windows\\Sun\\Java\\-", "read";
 };
