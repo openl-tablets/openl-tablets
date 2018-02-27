@@ -26,9 +26,13 @@ public class JdbcDBRepositoryFactory extends DBRepository {
     @Override
     protected Connection getConnection() throws SQLException {
         if (StringUtils.isBlank(login)) {
-            return DriverManager.getConnection(uri);
+            Connection conn = DriverManager.getConnection(uri);
+            conn.setAutoCommit(false);
+            return conn;
         } else {
-            return DriverManager.getConnection(uri, login, password);
+            Connection conn = DriverManager.getConnection(uri, login, password);
+            conn.setAutoCommit(false);
+            return conn;
         }
     }
 }
