@@ -45,5 +45,5 @@ grant {
 
         // Java 8 compatibility
         permission java.io.FilePermission "\\\\dummy.jar", "read";
-        permission java.io.FilePermission "C:\\Windows\\Sun\\Java\\-", "read";
+        permission java.io.FilePermission "${sysdir}\\Sun\\Java\\-", "read";
 };
