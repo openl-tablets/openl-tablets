@@ -77,9 +77,7 @@ abstract class DBRepositoryFactory extends AbstractJcrRepositoryFactory {
         log.info("Checking a connection to DB [{}]", dbUrl);
         Connection conn;
         conn = createConnection(dbUrl, user, pwd);
-        
-        conn.setAutoCommit(false);
-        
+
         DatabaseMetaData metaData = conn.getMetaData();
         String databaseName = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
         CompositeConfiguration properties = getConfiguration(databaseName);

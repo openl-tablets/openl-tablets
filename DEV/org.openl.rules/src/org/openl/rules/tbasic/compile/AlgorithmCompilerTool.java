@@ -93,7 +93,7 @@ public class AlgorithmCompilerTool {
         if (codeField == null) {
             IOpenSourceCodeModule errorSource = candidateNodes.get(0).getAlgorithmRow().getOperation()
                     .asSourceCodeModule();
-            throw SyntaxNodeExceptionUtils.createError(String.format("Compilation failure. Can't find %s field", fieldName), errorSource);
+            throw SyntaxNodeExceptionUtils.createError(String.format("Compilation failure. Can't find '%s' field", fieldName), errorSource);
         }
 
         // Get the operation node from the candidate nodes, that suits to the given instruction

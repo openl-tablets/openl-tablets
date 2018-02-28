@@ -112,16 +112,21 @@ public class DatatypeOpenClass extends ADynamicClass {
         if (fields == null){
             synchronized (this) {
                 if (fields == null){
-                    fields = new LinkedHashMap<String, IOpenField>();
-                    Iterable<IOpenClass> superClasses = superClasses();
-                    for(IOpenClass superClass : superClasses) {
-                        fields.putAll(superClass.getFields());
-                    }
-                    fields.putAll(fieldMap());
+                    fields = initializeFields();
                 }
             }
         }
         return Collections.unmodifiableMap(fields);
+    }
+
+    private Map<String, IOpenField> initializeFields() {
+        Map<String, IOpenField> fields = new LinkedHashMap<String, IOpenField>();
+        Iterable<IOpenClass> superClasses = superClasses();
+        for(IOpenClass superClass : superClasses) {
+            fields.putAll(superClass.getFields());
+        }
+        fields.putAll(fieldMap());
+        return fields;
     }
 
     @SuppressWarnings("unchecked")

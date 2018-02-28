@@ -35,13 +35,9 @@ public class DatasourceDBRepositoryFactory extends DBRepository {
     @Override
     protected Connection getConnection() throws SQLException {
         if (StringUtils.isBlank(login)) {
-            Connection conn = dataSource.getConnection();
-            conn.setAutoCommit(false);
-            return conn;
+            return dataSource.getConnection();
         } else {
-            Connection conn = dataSource.getConnection(login, password);
-            conn.setAutoCommit(false);
-            return conn;
+            return dataSource.getConnection(login, password);
         }
     }
 
