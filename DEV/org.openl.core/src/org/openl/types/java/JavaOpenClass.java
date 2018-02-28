@@ -161,9 +161,9 @@ public class JavaOpenClass extends AOpenClass {
 
     public static synchronized void resetClassloader(ClassLoader cl) {
         List<Class<?>> toRemove = new ArrayList<Class<?>>();
-        
+
         Collection<Class<?>> nonJavaClasses = JavaOpenClassCache.getInstance().getNonJavaClasses();
-        
+
         for (Class<?> c : nonJavaClasses) {
             ClassLoader classLoader = c.getClassLoader();
             if (classLoader == cl) {
@@ -185,10 +185,6 @@ public class JavaOpenClass extends AOpenClass {
         return JavaOpenClass.VOID.equals(clazz);
     }
 
-    protected void collectBeanFields() {
-        BeanOpenField.collectFields(fields, instanceClass, null, null);
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof JavaOpenClass)) {
@@ -202,26 +198,39 @@ public class JavaOpenClass extends AOpenClass {
         if (fields == null) {
             synchronized (this) {
                 if (fields == null) {
-                    fields = new HashMap<String, IOpenField>();
-                    Field[] ff = instanceClass.getDeclaredFields();
-
-                    if (isPublic(instanceClass)) {
-                        for (int i = 0; i < ff.length; i++) {
-                            if (isPublic(ff[i])) {
-                                fields.put(ff[i].getName(), new JavaOpenField(ff[i]));
-                            }
-                        }
-                    }
-                    if (instanceClass.isArray()) {
-                        fields.put("length", new JavaArrayLengthField());
-                    }
-
-                    fields.put("class", new JavaClassClassField(instanceClass));
-                    collectBeanFields();
+                    fields = initalizeFields();
                 }
             }
         }
         return fields;
+    }
+
+    private Map<String, IOpenField> initalizeFields() {
+        Map<String, IOpenField> fields = new HashMap<String, IOpenField>();
+        Field[] ff = instanceClass.getDeclaredFields();
+
+        if (isPublic(instanceClass)) {
+            for (int i = 0; i < ff.length; i++) {
+                if (isPublic(ff[i])) {
+                    fields.put(ff[i].getName(), new JavaOpenField(ff[i]));
+                }
+            }
+        }
+        if (instanceClass.isArray()) {
+            fields.put("length", new JavaArrayLengthField());
+        }
+
+        fields.put("class", new JavaClassClassField(instanceClass));
+        BeanOpenField.collectFields(fields, instanceClass, getGetters(), getSetters());
+        return fields;
+    }
+
+    protected Map<Method, BeanOpenField> getGetters() {
+        return null;
+    }
+
+    protected Map<Method, BeanOpenField> getSetters() {
+        return null;
     }
 
     public synchronized IAggregateInfo getAggregateInfo() {
@@ -480,8 +489,8 @@ public class JavaOpenClass extends AOpenClass {
         private static Method equals;
         private static Method hashCode;
 
-        private Map<Method, BeanOpenField> getters;
-        private Map<Method, BeanOpenField> setters;
+        private Map<Method, BeanOpenField> getters = new HashMap<Method, BeanOpenField>();
+        private Map<Method, BeanOpenField> setters = new HashMap<Method, BeanOpenField>();
 
         @SuppressWarnings("unused")
         private Class<?> proxyClass;
@@ -505,10 +514,13 @@ public class JavaOpenClass extends AOpenClass {
         }
 
         @Override
-        protected void collectBeanFields() {
-            getters = new HashMap<Method, BeanOpenField>();
-            setters = new HashMap<Method, BeanOpenField>();
-            BeanOpenField.collectFields(fields, instanceClass, getters, setters);
+        protected Map<Method, BeanOpenField> getGetters() {
+            return getters;
+        }
+
+        @Override
+        protected Map<Method, BeanOpenField> getSetters() {
+            return setters;
         }
 
         private synchronized InvocationHandler getInvocationHandler(Class<?> instClass) {
