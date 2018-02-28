@@ -141,7 +141,7 @@ set _MEMORY=%_MEMORY:~0,-9%
 )
 
 @rem Apply security policy for demo
-@if exist demo-java.policy set CATALINA_OPTS=%CATALINA_OPTS% -Djava.security.manager -Djava.security.policy=demo-java.policy
+@if exist demo-java.policy set CATALINA_OPTS=%CATALINA_OPTS% -Djava.security.manager -Djava.security.policy=demo-java.policy -Dsysdir=%windir%
 
 @rem Run Apache Tomcat
 @setlocal
