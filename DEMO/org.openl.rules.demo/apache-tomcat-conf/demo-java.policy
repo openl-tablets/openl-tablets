@@ -1,0 +1,49 @@
+grant {
+        // Allows any thread to stop itself using the java.lang.Thread.stop()
+        // method that takes no argument.
+        // Note that this permission is granted by default only to remain
+        // backwards compatible.
+        // It is strongly recommended that you either remove this permission
+        // from this policy file or further restrict it to code sources
+        // that you specify, because Thread.stop() is potentially unsafe.
+        // See the API specification of java.lang.Thread.stop() for more
+        // information.
+        permission java.lang.RuntimePermission "stopThread";
+
+        // allows anyone to listen on dynamic ports
+        permission java.net.SocketPermission "*", "accept,connect,listen,resolve";
+
+        // Read and Modify any properties
+        permission java.util.PropertyPermission "*", "read,write";
+
+        permission java.lang.RuntimePermission "*";
+        permission java.util.logging.LoggingPermission "control";
+        permission javax.management.MBeanServerPermission "*";
+        permission javax.management.MBeanPermission "*", "*";
+        permission javax.management.MBeanTrustPermission "*";
+        permission java.security.SecurityPermission "*";
+        permission javax.security.auth.AuthPermission "*";
+        permission java.lang.reflect.ReflectPermission "*";
+        permission java.net.NetPermission "*";
+        permission java.awt.AWTPermission "*";
+
+        permission java.lang.management.ManagementPermission "monitor";
+        permission java.io.FilePermission "${java.home}/-", "read";
+
+        permission java.io.FilePermission "${catalina.base}", "read";
+        permission java.io.FilePermission "${catalina.base}/-", "read";
+        permission java.io.FilePermission "${catalina.base}/logs/-", ",write";
+        permission java.io.FilePermission "${catalina.base}/conf/Catalina", "write";
+        permission java.io.FilePermission "${catalina.base}/conf/Catalina/-", "write";
+
+        permission java.io.FilePermission "${catalina.base}/openl-demo/-", "write,delete";
+        permission java.io.FilePermission "${catalina.base}/temp/-", "write,delete";
+        permission java.io.FilePermission "${catalina.base}/webapps/-", "write,delete";
+        permission java.io.FilePermission "${catalina.base}/work/-", "write,delete";
+
+        permission java.sql.SQLPermission "deregisterDriver";
+
+        // Java 8 compatibility
+        permission java.io.FilePermission "\\\\dummy.jar", "read";
+        permission java.io.FilePermission "C:\\Windows\\Sun\\Java\\-", "read";
+};

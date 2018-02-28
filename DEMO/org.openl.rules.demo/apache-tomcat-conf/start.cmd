@@ -108,8 +108,8 @@ rem SUBROUTINES
 
 @if not defined _JAVA_OPTS (
 @rem set parameters for Java 9
-@if "%_JAVA_VERSION%" == "9" set _JAVA_OPTS=--add-modules java.se.ee
-@if "%_JAVA_VERSION:~0,2%" == "9." set _JAVA_OPTS=--add-modules java.se.ee
+@if "%_JAVA_VERSION%" == "9" set _JAVA_OPTS=--add-modules java.se.ee --patch-module java.xml.ws.annotation=lib/annotations-api.jar --add-exports=java.xml.ws.annotation/javax.annotation.security=ALL-UNNAMED
+@if "%_JAVA_VERSION:~0,2%" == "9." set _JAVA_OPTS=--add-modules java.se.ee --patch-module java.xml.ws.annotation=lib/annotations-api.jar --add-exports=java.xml.ws.annotation/javax.annotation.security=ALL-UNNAMED
 
 @rem set parameters for Java 8
 @if "%_JAVA_VERSION:~0,3%" == "1.8" set _JAVA_OPTS=-XX:+UseParNewGC -XX:+UseConcMarkSweepGC
@@ -139,6 +139,9 @@ set _MEMORY=%_MEMORY:~0,-9%
 @rem 12GiB
 @if %_MEMORY% GEQ 12 set _JAVA_MEMORY=-Xms8g -Xmx10g
 )
+
+@rem Apply security policy for demo
+@if exist demo-java.policy set CATALINA_OPTS=%CATALINA_OPTS% -Djava.security.manager -Djava.security.policy=demo-java.policy
 
 @rem Run Apache Tomcat
 @setlocal
