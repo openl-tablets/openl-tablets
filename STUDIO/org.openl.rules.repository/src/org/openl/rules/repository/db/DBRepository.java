@@ -488,10 +488,18 @@ public abstract class DBRepository implements Repository, Closeable, RRepository
                 settings = new Settings(databaseCode);
                 initializeDatabase(connection, databaseCode);
                 monitor = new ChangesMonitor(new DBRepositoryRevisionGetter(), settings.timerPeriod);
-
             } catch (Exception e) {
                 actualException = e;
             } finally {
+                try {
+                    if (!connection.getAutoCommit()) {
+                        connection.commit();
+                    }
+                } catch (Exception e) {
+                    if (actualException == null) {
+                        actualException = e;
+                    }
+                }
                 try {
                     connection.close();
                 } catch (Exception e) {
