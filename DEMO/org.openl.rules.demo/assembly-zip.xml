@@ -53,14 +53,6 @@
             <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>${tomcat.webapps}</outputDirectory>
-            <includes>
-                <include>org.openl.rules.demo:org.openl.rules.demo.webservice.client</include>
-            </includes>
-            <outputFileNameMapping>webservice-client.war</outputFileNameMapping>
-            <useProjectArtifact>false</useProjectArtifact>
-        </dependencySet>
-        <dependencySet>
             <outputDirectory>${tomcat.lib}</outputDirectory>
             <includes>
                 <include>com.h2database:h2</include>
