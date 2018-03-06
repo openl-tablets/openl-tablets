@@ -12,9 +12,9 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.openl.rules.data.PrimaryKeyField;
-import org.openl.rules.testmethod.ParameterWithValueDeclaration;
+import org.openl.rules.testmethod.*;
+import org.openl.rules.ui.TableSyntaxNodeUtils;
 import org.openl.rules.webstudio.web.test.ParameterWithValueAndPreviewDeclaration;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 
 class ParameterExport extends BaseExport {
@@ -22,47 +22,88 @@ class ParameterExport extends BaseExport {
         this.styles = styles;
     }
 
-    public void write(SXSSFSheet sheet, IOpenClass type, List<ParameterWithValueDeclaration> data) {
-        if (data.isEmpty()) {
+    public void write(SXSSFSheet sheet, List<TestUnitsResults> tests) {
+        if (tests.isEmpty()) {
             return;
         }
 
-        List<FieldDescriptor> fields = FieldDescriptor.nonEmptyFields(type, toObjects(data));
-        if (fields == null) {
-            return;
-        }
 
         int rowNum = FIRST_ROW;
         int colNum = FIRST_COLUMN;
 
-        // Create header
-        ParameterWithValueDeclaration firstParam = data.get(0);
-        boolean hasPK = firstParam instanceof ParameterWithValueAndPreviewDeclaration &&
-                ((ParameterWithValueAndPreviewDeclaration) firstParam).getPreviewField() instanceof PrimaryKeyField;
-        Cursor lowestRight = writeHeaderForFields(sheet, new Cursor(rowNum, colNum), fields, hasPK);
-        rowNum = lowestRight.getRowNum() + 1;
-        colNum = FIRST_COLUMN;
+        for (TestUnitsResults test : tests) {
+            if (test.getTestSuite().getNumberOfTests() == 0) {
+                continue;
+            }
+            Row row = sheet.createRow(rowNum);
+            String testName = getTestName(test);
+            createCell(row, colNum, "Parameters of " + testName, styles.parametersInfo);
 
-        writeValuesForFields(sheet, new Cursor(rowNum, colNum), fields, hasPK, data);
+            rowNum += 2; // Skip one row
+
+            // Create header
+            final Cursor start = new Cursor(rowNum, colNum);
+            Cursor lowestRight = writeHeaderForFields(sheet, start, test);
+            rowNum = lowestRight.getRowNum() + 1;
+            colNum = FIRST_COLUMN;
+
+            rowNum = writeValuesForFields(sheet, new Cursor(rowNum, colNum), test);
+
+            rowNum += SPACE_BETWEEN_RESULTS;
+        }
     }
 
-    private Cursor writeHeaderForFields(Sheet sheet, Cursor start, List<FieldDescriptor> fields, boolean hasPK) {
+    private String getTestName(TestUnitsResults test) {
+        TestSuite testSuite = test.getTestSuite();
+        TestSuiteMethod testSuiteMethod = testSuite.getTestSuiteMethod();
+        if (testSuiteMethod != null) {
+            return TableSyntaxNodeUtils.getTestName(testSuiteMethod);
+        } else {
+            if (testSuite.getNumberOfTests() > 0) {
+                return testSuite.getTest(0).getTestedMethod().getName();
+            } else {
+                return "Unknown";
+            }
+        }
+    }
+
+    private Cursor writeHeaderForFields(SXSSFSheet sheet, Cursor start, TestUnitsResults test) {
         TreeSet<WriteTask> tasks = new TreeSet<>();
 
         int rowNum = start.getRowNum();
         int colNum = start.getColNum();
 
         tasks.add(new WriteTask(new Cursor(rowNum, colNum++), "ID", styles.header));
-        if (hasPK) {
-            tasks.add(new WriteTask(new Cursor(rowNum, colNum++), "_PK_", styles.header));
+
+        TestSuite testSuite = test.getTestSuite();
+        ParameterWithValueDeclaration[] params = testSuite.getTest(0).getExecutionParams();
+        for (int i = 0; i < params.length; i++) {
+            ParameterWithValueDeclaration param = params[i];
+            boolean hasPK = isHasPK(param);
+
+            List<FieldDescriptor> fields = FieldDescriptor.nonEmptyFields(param.getType(), valuesForAllCases(testSuite.getTests(), i));
+            if (fields == null || fields.isEmpty()) {
+                tasks.add(new WriteTask(new Cursor(rowNum, colNum++), param.getName(), styles.header));
+                continue;
+            }
+
+            String prefix = param.getName() + ".";
+            if (hasPK) {
+                tasks.add(new WriteTask(new Cursor(rowNum, colNum++), prefix + "_PK_", styles.header));
+            }
+
+            colNum = addHeaderTasks(tasks, new Cursor(rowNum, colNum), fields, prefix);
         }
 
-        addHeaderTasks(tasks, new Cursor(rowNum, colNum), fields, "");
-
-        return performWrite(sheet, start, tasks, getLastColumn(fields, hasPK));
+        return performWrite(sheet, start, tasks, getLastColumn(test));
     }
 
-    private void addHeaderTasks(TreeSet<WriteTask> tasks, Cursor cursor, List<FieldDescriptor> fields, String prefix) {
+    private boolean isHasPK(ParameterWithValueDeclaration param) {
+        return param instanceof ParameterWithValueAndPreviewDeclaration &&
+                ((ParameterWithValueAndPreviewDeclaration) param).getPreviewField() instanceof PrimaryKeyField;
+    }
+
+    private int addHeaderTasks(TreeSet<WriteTask> tasks, Cursor cursor, List<FieldDescriptor> fields, String prefix) {
         int colNum = cursor.getColNum();
         int rowNum = cursor.getRowNum();
 
@@ -74,60 +115,74 @@ class ParameterExport extends BaseExport {
             if (fieldDescriptor.getChildren() == null) {
                 tasks.add(new WriteTask(new Cursor(rowNum, colNum), prefix + fieldName, styles.header));
             } else {
-                if (fieldDescriptor.isArray()) {
-                    fieldName += "[]";
-                }
                 addHeaderTasks(tasks, new Cursor(rowNum, colNum), fieldDescriptor.getChildren(), prefix + fieldName + ".");
             }
 
             colNum += width;
         }
+
+        return colNum;
     }
 
-    private void writeValuesForFields(Sheet sheet,
-            Cursor start,
-            List<FieldDescriptor> fields,
-            boolean hasPK,
-            List<ParameterWithValueDeclaration> data) {
+    private int writeValuesForFields(Sheet sheet, Cursor start, TestUnitsResults test) {
         int rowNum = start.getRowNum();
         int colNum = FIRST_COLUMN;
-        int paramNum = 1;
-        int lastColNum = getLastColumn(fields, hasPK);
+        int lastColNum = getLastColumn(test);
 
-        for (ParameterWithValueDeclaration parameter : data) {
+        TestDescription[] descriptions = test.getTestSuite().getTests();
+        for (TestDescription description : descriptions) {
             TreeSet<WriteTask> tasks = new TreeSet<>();
-            Object value = parameter.getValue();
 
             // ID
-            int rowHeight = getRowHeight(value, fields);
-            tasks.add(new WriteTask(new Cursor(rowNum, colNum++), paramNum++, styles.parameterValue, rowHeight));
+            int maxHeight = getMaxHeight(descriptions, description);
+            tasks.add(new WriteTask(new Cursor(rowNum, colNum++), description.getId(), styles.parameterValue, maxHeight));
 
-            // _PK_
-            if (hasPK) {
-                IOpenField previewField = ((ParameterWithValueAndPreviewDeclaration) parameter).getPreviewField();
-                Object id = ExportUtils.fieldValue(parameter.getValue(), previewField);
+            ParameterWithValueDeclaration[] executionParams = description.getExecutionParams();
+            for (int p = 0; p < executionParams.length; p++) {
+                ParameterWithValueDeclaration parameter = executionParams[p];
+                Object value = parameter.getValue();
 
-                if (id != null && id.getClass().isArray()) {
-                    int pkRow = rowNum;
-                    int count = Array.getLength(id);
-                    for (int i = 0; i < count; i++) {
-                        int height = getRowHeight(Array.get(value, i), fields);
-                        tasks.add(new WriteTask(new Cursor(pkRow, colNum), Array.get(id, i), styles.parameterValue, height));
-                        pkRow += height;
-                    }
-                } else {
-                    tasks.add(new WriteTask(new Cursor(rowNum, colNum), id, styles.parameterValue, rowHeight));
+                List<FieldDescriptor> fields = FieldDescriptor.nonEmptyFields(parameter.getType(), valuesForAllCases(descriptions, p));
+                if (fields == null) {
+                    tasks.add(new WriteTask(new Cursor(rowNum, colNum++), value, styles.parameterValue, maxHeight));
+                    continue;
                 }
-                colNum++;
+
+                // _PK_
+                if (isHasPK(parameter)) {
+                    IOpenField previewField = ((ParameterWithValueAndPreviewDeclaration) parameter).getPreviewField();
+                    Object id = ExportUtils.fieldValue(parameter.getValue(), previewField);
+
+
+                    if (id != null && id.getClass().isArray()) {
+                        int pkRow = rowNum;
+                        int count = Array.getLength(id);
+                        for (int i = 0; i < count; i++) {
+                            int height = getRowHeight(Array.get(value, i), fields);
+                            tasks.add(new WriteTask(new Cursor(pkRow, colNum),
+                                    Array.get(id, i),
+                                    styles.parameterValue,
+                                    height));
+                            pkRow += height;
+                        }
+                    } else {
+                        tasks.add(new WriteTask(new Cursor(rowNum, colNum), id, styles.parameterValue, maxHeight));
+                    }
+                    colNum++;
+                }
+
+                // Actual fields
+                addValueTasks(tasks, new Cursor(rowNum, colNum), fields, value, maxHeight);
+                colNum += getFieldWidth(fields);
             }
 
-            // Actual fields
-            addValueTasks(tasks, new Cursor(rowNum, colNum), fields, value, rowHeight);
             Cursor cursor = performWrite(sheet, new Cursor(rowNum, FIRST_COLUMN), tasks, lastColNum);
 
             rowNum = cursor.getRowNum() + 1;
             colNum = FIRST_COLUMN;
         }
+
+        return rowNum;
     }
 
     private void addValueTasks(TreeSet<WriteTask> tasks, Cursor cursor, List<FieldDescriptor> fields, Object value, int rowHeight) {
@@ -165,7 +220,7 @@ class ParameterExport extends BaseExport {
     }
 
     private int getRowHeight(Object value, List<FieldDescriptor> fields) {
-        if (value == null) {
+        if (value == null || fields == null) {
             return 1;
         }
 
@@ -186,6 +241,31 @@ class ParameterExport extends BaseExport {
             }
         }
         return maxSize;
+    }
+
+    private int getFieldWidth(List<FieldDescriptor> fields) {
+        int colNum = 0;
+        for (FieldDescriptor fieldDescriptor : fields) {
+            colNum += fieldDescriptor.getLeafNodeCount();
+        }
+
+        return colNum == 0 ? 1 : colNum;
+
+    }
+
+    private int getMaxHeight(TestDescription[] descriptions, TestDescription description) {
+        int maxHeight = 1;
+        ParameterWithValueDeclaration[] executionParams = description.getExecutionParams();
+        for (int i = 0; i < executionParams.length; i++) {
+            ParameterWithValueDeclaration param = executionParams[i];
+            List<FieldDescriptor> fields = FieldDescriptor.nonEmptyFields(param.getType(), valuesForAllCases(descriptions, i));
+
+            int rowHeight = getRowHeight(param.getValue(), fields);
+            if (rowHeight > maxHeight) {
+                maxHeight = rowHeight;
+            }
+        }
+        return maxHeight;
     }
 
     /**
@@ -235,21 +315,37 @@ class ParameterExport extends BaseExport {
         }
     }
 
-    private int getLastColumn(List<FieldDescriptor> fields, boolean hasPK) {
+    private int getLastColumn(TestUnitsResults test) {
         int lastColumn = FIRST_COLUMN; // ID column
-        if (hasPK) {
-            lastColumn++; // _PK_ column
-        }
-        for (FieldDescriptor field : fields) {
-            lastColumn += field.getLeafNodeCount();
+        TestSuite testSuite = test.getTestSuite();
+        ParameterWithValueDeclaration[] params = testSuite.getTest(0).getExecutionParams();
+        for (int i = 0; i < params.length; i++) {
+            ParameterWithValueDeclaration param = params[i];
+            if (isHasPK(param)) {
+                lastColumn++; // _PK_ column
+            }
+            List<FieldDescriptor> fields = FieldDescriptor.nonEmptyFields(param.getType(), valuesForAllCases(testSuite.getTests(), i));
+            if (fields == null) {
+                // Simple type
+                lastColumn++;
+            } else {
+                for (FieldDescriptor field : fields) {
+                    lastColumn += field.getLeafNodeCount();
+                }
+            }
         }
         return lastColumn;
     }
 
-    private List<Object> toObjects(List<ParameterWithValueDeclaration> data) {
+    private List<Object> valuesForAllCases(TestDescription[] testDescriptions, int paramNum) {
         List<Object> values = new ArrayList<>();
-        for (ParameterWithValueDeclaration param : data) {
-            values.add(param.getValue());
+        for (TestDescription description : testDescriptions) {
+            ParameterWithValueDeclaration[] executionParams = description.getExecutionParams();
+            if (executionParams.length > 0) {
+                values.add(executionParams[paramNum].getValue());
+            } else {
+                values.add(null);
+            }
         }
         return values;
     }

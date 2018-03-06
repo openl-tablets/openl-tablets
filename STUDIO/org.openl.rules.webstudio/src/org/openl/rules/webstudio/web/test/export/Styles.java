@@ -1,8 +1,6 @@
 package org.openl.rules.webstudio.web.test.export;
 
-import static org.apache.poi.hssf.util.HSSFColor.HSSFColorPredefined.GREEN;
-import static org.apache.poi.hssf.util.HSSFColor.HSSFColorPredefined.GREY_50_PERCENT;
-import static org.apache.poi.hssf.util.HSSFColor.HSSFColorPredefined.RED;
+import static org.apache.poi.hssf.util.HSSFColor.HSSFColorPredefined.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +34,7 @@ final class Styles {
     final CellStyle resultFailure;
     final CellStyle resultOther;
     
+    final CellStyle parametersInfo;
     final CellStyle parameterValue;
     final CellStyle parameterAbsent;
 
@@ -54,6 +53,8 @@ final class Styles {
         resultSuccess = backgroundStyle(wb, GREEN_FIELDS);
         resultFailure = backgroundStyle(wb, RED_FIELDS);
         resultOther = backgroundStyle(wb, null);
+
+        parametersInfo = textStyle(wb, createFont(wb, BLACK.getIndex()));
         parameterValue = backgroundStyle(wb, null);
         parameterAbsent = backgroundStyle(wb, ABSENT_VALUE);
     }
