@@ -1,5 +1,7 @@
 package org.openl.binding.impl;
 
+import java.lang.reflect.Array;
+
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundNode;
 import org.openl.exception.OpenLRuntimeException;
@@ -18,22 +20,28 @@ public class MethodBoundNode extends ATargetBoundNode {
     protected IMethodCaller boundMethod;
 
     public MethodBoundNode(ISyntaxNode syntaxNode, IBoundNode[] child, IMethodCaller methodCaller) {
-        this(syntaxNode, child, methodCaller, null);        
+        this(syntaxNode, child, methodCaller, null);
     }
 
-    public MethodBoundNode(ISyntaxNode syntaxNode, IBoundNode[] child, IMethodCaller methodCaller, IBoundNode targetNode) {
+    public MethodBoundNode(ISyntaxNode syntaxNode,
+            IBoundNode[] child,
+            IMethodCaller methodCaller,
+            IBoundNode targetNode) {
         super(syntaxNode, targetNode, child);
         boundMethod = methodCaller;
     }
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-
         try {
             Object target = getTarget(env);
             Object[] pars = evaluateChildren(env);
-            if (target == null && !(boundMethod instanceof IOwnTargetMethod) && !boundMethod.getMethod().isStatic() && !boundMethod.getMethod().getType().getClass().isPrimitive()) {
-                return null;
+            if (target == null && !(boundMethod instanceof IOwnTargetMethod) && !boundMethod.getMethod().isStatic()) {
+                if (!boundMethod.getMethod().getType().getInstanceClass().isPrimitive()) {
+                    return null;
+                } else {
+                    return Array.get(Array.newInstance(boundMethod.getMethod().getType().getInstanceClass(), 1), 0);
+                }
             } else {
                 return boundMethod.invoke(target, pars, env);
             }
