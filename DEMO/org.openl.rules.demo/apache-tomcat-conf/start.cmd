@@ -1,6 +1,8 @@
 @rem set JRE_HOME=C:\Program Files\Java\jre1.8.0_92
 @rem set _JAVA_MEMORY=-Xms512m -Xmx2g
 
+@set JAVA_EXTENSIONS_DIR=%SystemRoot%\Sun\Java\lib\ext
+
 @setlocal
 @if exist "setenv.cmd" (
 @echo ### Loading environment from setenv.cmd ...
@@ -141,7 +143,7 @@ set _MEMORY=%_MEMORY:~0,-9%
 )
 
 @rem Apply security policy for demo
-@if exist demo-java.policy set CATALINA_OPTS=%CATALINA_OPTS% -Djava.security.manager -Djava.security.policy=demo-java.policy -Dsysdir=%windir%
+@if exist demo-java.policy set CATALINA_OPTS=%CATALINA_OPTS% -Djava.security.manager -Djava.security.policy=demo-java.policy -Djava.extensions=%JAVA_EXTENSIONS_DIR%
 
 @rem Run Apache Tomcat
 @setlocal

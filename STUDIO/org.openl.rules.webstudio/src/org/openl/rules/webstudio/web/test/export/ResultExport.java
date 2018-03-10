@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -16,14 +14,13 @@ import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestStatus;
 import org.openl.rules.testmethod.TestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
-import org.openl.types.IOpenClass;
 import org.openl.util.FileUtils;
 
 public abstract class ResultExport extends BaseExport implements AutoCloseable {
     protected final TestUnitsResults[] results;
     private final int testsPerPage;
     private File tempFile;
-    private Map<IOpenClass, List<ParameterWithValueDeclaration>> allParams = new LinkedHashMap<>();
+    private List<List<TestUnitsResults>> listsWithResults = new ArrayList<>();
 
     protected ResultExport(TestUnitsResults[] results, int testsPerPage) {
         this.results = results;
@@ -39,6 +36,7 @@ public abstract class ResultExport extends BaseExport implements AutoCloseable {
             ParameterExport parameterExport = new ParameterExport(styles);
 
             SXSSFSheet sheet = workbook.createSheet("Result " + 1);
+            listsWithResults.add(new ArrayList<TestUnitsResults>());
             sheet.trackAllColumnsForAutoSizing();
             int rowNum = FIRST_ROW;
             for (int i = 0; i < results.length; i++) {
@@ -50,21 +48,22 @@ public abstract class ResultExport extends BaseExport implements AutoCloseable {
                         autoSizeColumns(sheet);
 
                         sheet = workbook.createSheet("Result " + pageNum);
+                        listsWithResults.add(new ArrayList<TestUnitsResults>());
                         sheet.trackAllColumnsForAutoSizing();
                         rowNum = FIRST_ROW;
                     }
                 }
 
                 rowNum = write(sheet, results[i], rowNum) + SPACE_BETWEEN_RESULTS;
+                listsWithResults.get(listsWithResults.size() - 1).add(results[i]);
             }
             autoSizeColumns(sheet);
 
-            for (Map.Entry<IOpenClass, List<ParameterWithValueDeclaration>> entry : allParams.entrySet()) {
-                IOpenClass type = entry.getKey();
-                String typeName = type.isArray() ? type.getComponentClass().getName() : type.getName();
-                sheet = workbook.createSheet("Type " + typeName);
+            for (int i = 0; i < listsWithResults.size(); i++) {
+                List<TestUnitsResults> resultsList = listsWithResults.get(i);
+                sheet = workbook.createSheet("Parameters " + (i + 1));
                 sheet.trackAllColumnsForAutoSizing();
-                parameterExport.write(sheet, type, entry.getValue());
+                parameterExport.write(sheet, resultsList);
                 autoSizeColumns(sheet);
             }
 
@@ -81,7 +80,7 @@ public abstract class ResultExport extends BaseExport implements AutoCloseable {
     public void close() {
         styles = null;
         FileUtils.deleteQuietly(tempFile);
-        allParams.clear();
+        listsWithResults.clear();
     }
 
     private int write(Sheet sheet, TestUnitsResults result, int startRow) {
@@ -173,16 +172,6 @@ public abstract class ResultExport extends BaseExport implements AutoCloseable {
 
             // Input data
             for (ParameterWithValueDeclaration parameter : testUnit.getTest().getExecutionParams()) {
-                IOpenClass type = parameter.getType();
-                if (!type.isSimple()) {
-                    List<ParameterWithValueDeclaration> paramsForType = allParams.get(type);
-                    if (paramsForType == null) {
-                        paramsForType = new ArrayList<>();
-                        allParams.put(type, paramsForType);
-                    }
-                    paramsForType.add(parameter);
-                }
-
                 createCell(row, colNum++, parameter, styles.resultOther);
             }
 

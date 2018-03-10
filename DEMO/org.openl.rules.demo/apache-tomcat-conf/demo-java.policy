@@ -45,5 +45,5 @@ grant {
 
         // Java 8 compatibility
         permission java.io.FilePermission "\\\\dummy.jar", "read";
-        permission java.io.FilePermission "${sysdir}\\Sun\\Java\\-", "read";
+        permission java.io.FilePermission "${java.extensions}", "read"; // For example: /usr/java/packages/lib/ext or C:\Windows\Sun\Java\lib\ext
 };

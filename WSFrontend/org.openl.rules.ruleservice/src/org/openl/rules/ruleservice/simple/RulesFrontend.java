@@ -15,15 +15,15 @@ public interface RulesFrontend {
      * This method is designed for extending service functionality. Modify returned OpenLService object, can be result of system failure.
      * Please, don't modify returned OpenLService object.
      * 
-     * @param serviceName
-     * @return
+     * @param serviceName service name
+     * @return found service
      */
     OpenLService findServiceByName(String serviceName);
 
     /**
      * Executes method with specified parameters.
      * 
-     * @param serviceNmae Name of deployed service
+     * @param serviceName Name of deployed service
      * @param ruleName Technical name of the rule to execute
      * @param inputParamsTypes Types of method input parameters to discover
      *            method
@@ -37,7 +37,7 @@ public interface RulesFrontend {
      * Executes method with specified parameters. Method discovery is done based
      * on parameters types.
      * 
-     * @param serviceNmae Name of deployed service
+     * @param serviceName Name of deployed service
      * @param ruleName Technical name of the rule to execute
      * @param params Parameters for method execution
      * @return Result of execution
@@ -47,7 +47,7 @@ public interface RulesFrontend {
     /**
      * Gets values defined in rules.
      * 
-     * @param serviceNmae Name of deployed service
+     * @param serviceName Name of deployed service
      * @param fieldName Technical name of the rule to execute
      * @return Data stored in field
      */
@@ -55,8 +55,6 @@ public interface RulesFrontend {
     
     /**
      * Gets service names.
-     * 
-     * @param service Service to register.
      */
     Collection<String> getServiceNames();
 
@@ -64,16 +62,14 @@ public interface RulesFrontend {
      * Registers service to use it in calculations.
      * 
      * @param service Service to register.
-     * @return replaced service
-     * 
+     *
      */
     void registerService(OpenLService service);
 
     /**
      * Unregister service.
      * 
-     * @param serviceName
-     * @return unregistered service
+     * @param serviceName Service to unregister
      */
     void unregisterService(String serviceName);
     
@@ -81,7 +77,7 @@ public interface RulesFrontend {
      * Return proxy object for defined service.
      * @param serviceName service name
      * @param proxyInterface interface for proxy
-     * @return
+     * @return Proxy object for service
      */
     <T> T buildServiceProxy(String serviceName, Class<T> proxyInterface);
 
@@ -90,7 +86,7 @@ public interface RulesFrontend {
      * @param serviceName service name
      * @param proxyInterface interface for proxy
      * @param classLoader classloader
-     * @return
+     * @return Proxy object for service
      */
     <T> T buildServiceProxy(String serviceName, Class<T> proxyInterface, ClassLoader classLoader);
 }
