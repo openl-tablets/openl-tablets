@@ -190,19 +190,13 @@ public class ExecutionModeTest {
         engineFactory.setExecutionMode(true);
 
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
-        IOpenMethod methodWithError = moduleOpenClass.getMethod("getStrLength", new IOpenClass[] { JavaOpenClass.INT });
+        IOpenMethod methodWithError = moduleOpenClass.getMethod("npe", new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
         assertNotNull(methodWithError);
-        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        try {
-            methodWithError.invoke(moduleOpenClass.newInstance(env), new Object[] { 5 }, env);
-        } catch (OpenLRuntimeException e) {
-            assertNotNull(e.getSourceModule());
-        }
 
         Class<?> interfaceClass = engineFactory.getInterfaceClass();
-        Method method = interfaceClass.getMethod("getStrLength", int.class);
+        Method method = interfaceClass.getMethod("npe", Integer.class);
         assertNotNull(method);
         Object instance = engineFactory.newInstance();
-        method.invoke(instance, 5);
+        method.invoke(instance, new Object[] {null});
     }
 }
