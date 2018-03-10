@@ -1,8 +1,13 @@
 package org.openl.rules.data;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -20,16 +25,15 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
-import org.openl.util.StringTool;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
 
@@ -50,8 +54,6 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
     private ICell foreignKeyCell;
     
-    public static final String ARRAY_ACCESS_PATTERN = ".+\\[[0-9]+\\]$";
-
     public ForeignKeyColumnDescriptor(IOpenField field,
             IdentifierNode foreignKeyTable,
             IdentifierNode foreignKey,
@@ -193,7 +195,10 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             }
 
             if (!ArrayUtils.isEmpty(foreignKeyTableAccessorChainTokens)) {
-                ResultChainObject chainRes = getChainObject(result, foreignKeyTableAccessorChainTokens);
+                ResultChainObject chainRes = getChainObject(bindingContext, result, foreignKeyTableAccessorChainTokens);
+                if (chainRes == null) {
+                    throwIndexNotFound(foreignTable, valueTable, key, null, bindingContext);
+                }
                 result = chainRes.getValue();
             }
 
@@ -361,23 +366,27 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 IOpenClass resType = foreignTable.getDataModel().getType();
                 String s = getCellStringValue(valuesTable);
                 if (!StringUtils.isEmpty(s)) {
+                    Object result = null;
                     try {
-                        Object result = foreignTable.findObject(foreignKeyIndex, s, cxt);
-                        if (result != null) {
-                            ResultChainObject chainRes = getChainObject(result, foreignKeyTableAccessorChainTokens);
-                            Class<?> instanceClass = chainRes.instanceClass;
-                            int dim = 0;
-                            while (instanceClass.isArray()) {
-                                instanceClass = instanceClass.getComponentType();
-                                dim++;
-                            }
-                            resType = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, instanceClass.getSimpleName());
-                            if (dim > 0) {
-                                resType = resType.getArrayType(dim);
-                            }
-                        }
+                        result = foreignTable.findObject(foreignKeyIndex, s, cxt);
                     } catch (SyntaxNodeException ex) {
                         throwIndexNotFound(foreignTable, valuesTable, s, ex, cxt);
+                    }
+                    if (result != null) {
+                        ResultChainObject chainRes = getChainObject(cxt, result, foreignKeyTableAccessorChainTokens);
+                        if (chainRes == null) {
+                            throwIndexNotFound(foreignTable, valuesTable, s, null, cxt);
+                        }
+                        Class<?> instanceClass = chainRes.instanceClass;
+                        int dim = 0;
+                        while (instanceClass.isArray()) {
+                            instanceClass = instanceClass.getComponentType();
+                            dim++;
+                        }
+                        resType = JavaOpenClass.getOpenClass(instanceClass);
+                        if (dim > 0) {
+                            resType = resType.getArrayType(dim);
+                        } 
                     }
                 }
                 
@@ -469,70 +478,17 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         }
     }
     
-    private static int getArrayIndex(IdentifierNode fieldNameNode) {
-        String fieldName = fieldNameNode.getIdentifier();
-        String txtIndex = fieldName.substring(fieldName.indexOf("[") + 1, fieldName.indexOf("]"));
-
-        return Integer.parseInt(txtIndex);
-    }
-
-    private static String getArrayName(IdentifierNode fieldNameNode) {
-        String fieldName = fieldNameNode.getIdentifier();
-        return fieldName.substring(0, fieldName.indexOf("["));
-    }
-
-    private ResultChainObject getChainObject(Object parentObj, IdentifierNode[] fieldChainTokens) throws SyntaxNodeException {
+    private ResultChainObject getChainObject(IBindingContext bindingContext, Object parentObj, IdentifierNode[] fieldChainTokens) throws SyntaxNodeException {
         Object resObj = parentObj;
         Class<?> resInctClass = parentObj.getClass();
-
-        for (int i = 1; i < fieldChainTokens.length; i++) {
-            IdentifierNode token = fieldChainTokens[i];
-            if (resObj == null) {
-                String message = String.format("Incorrect field '%s' in type [%s]",
-                        token.getIdentifier(),
-                        resInctClass);
-                throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+        if (fieldChainTokens.length > 1) {
+            IOpenField openField = DataTableBindHelper.processFieldsChain(bindingContext, null, JavaOpenClass.getOpenClass(resInctClass), ArrayUtils.subarray(fieldChainTokens, 1, fieldChainTokens.length));
+            if (openField == null) {
+                return null;
             }
-            
-            boolean arrayAccess = token.getIdentifier().matches(ARRAY_ACCESS_PATTERN);
-
-            Object prevResObj = resObj;
-            try {
-                Method method;
-                if (arrayAccess){
-                    method = resObj.getClass().getMethod(StringTool.getGetterName(getArrayName(token)));
-                }else{
-                    method = resObj.getClass().getMethod(StringTool.getGetterName(token.getIdentifier()));
-                }
-                resObj = method.invoke(resObj);
-
-                /*Get null object information from method description*/
-                if (resObj == null) {
-                    if (arrayAccess){
-                        String message = String.format("Incorrect array access in field '%s' of type [%s]",
-                            token.getIdentifier(),
-                            prevResObj.getClass());
-                        throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-                    }else{
-                        resInctClass = method.getReturnType();
-                    }
-                } else {
-                    if (arrayAccess){
-                        int arrayIndex = getArrayIndex(token);
-                        resObj = Array.get(resObj, arrayIndex);
-                    }
-                    resInctClass = resObj.getClass();
-                }
-            } catch (SyntaxNodeException e) {
-                throw e;
-            } catch (Exception e) {
-                String message = String.format("Incorrect field '%s' in type [%s]",
-                        token.getIdentifier(),
-                        resObj == null ? prevResObj.getClass() : resObj.getClass());
-                throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-            }
+            resObj = openField.get(resObj, new SimpleRulesVM().getRuntimeEnv());
+            resInctClass = openField.getType().getInstanceClass();
         }
-
         return new ResultChainObject(resObj, resInctClass);
     }
 

@@ -60,7 +60,7 @@ public class ColumnDescriptor {
             if (field instanceof FieldChain) {
                 FieldChain fieldChain = (FieldChain) field;
                 for (IOpenField f : fieldChain.getFields()) {
-                    if (f instanceof DatatypeArrayMultiRowElementField) {
+                    if (f instanceof DatatypeCollectionMultiRowElementField) {
                         this.supportMultirows = true;
                     }
                 }
