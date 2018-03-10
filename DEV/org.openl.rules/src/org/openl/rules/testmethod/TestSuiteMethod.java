@@ -27,7 +27,8 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
-import org.openl.types.impl.DatatypeArrayElementField;
+import org.openl.types.impl.CollectionType;
+import org.openl.types.impl.DatatypeCollectionElementField;
 import org.openl.types.impl.DynamicObject;
 import org.openl.types.impl.ThisField;
 import org.openl.types.java.JavaOpenClass;
@@ -324,7 +325,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                         fieldSequence = new IOpenField[nodes.length];
                         IOpenField arrayField = new ThisField(resultType);
                         int arrayIndex = getArrayIndex(nodes[0]);
-                        IOpenField arrayAccessField = new DatatypeArrayElementField(arrayField, arrayIndex);
+                        IOpenField arrayAccessField = new DatatypeCollectionElementField(arrayField, arrayIndex, arrayField.getType().getComponentClass(), CollectionType.ARRAY);
                         if (arrayAccessField.getType().isArray()) {
                             currentType = arrayAccessField.getType().getComponentClass();
                         } else {
@@ -351,7 +352,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                             }
                             if (arrayField != null) {
                                 int arrayIndex = getArrayIndex(nodes[i + 1 - startIndex]);
-                                IOpenField arrayAccessField = new DatatypeArrayElementField(arrayField, arrayIndex);
+                                IOpenField arrayAccessField = new DatatypeCollectionElementField(arrayField, arrayIndex, arrayField.getType().getComponentClass(), CollectionType.ARRAY);
                                 fieldSequence[i] = arrayAccessField;
                             }
                         } else {
