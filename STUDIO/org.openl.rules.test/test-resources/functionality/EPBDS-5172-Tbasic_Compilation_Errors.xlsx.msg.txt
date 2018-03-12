@@ -1,0 +1,9 @@
+WARN: DEPRECATED 'length' field for arrays will be removed in the next version. Use length() function instead!
+ERROR: Type 'Dote' is not found
+ERROR: Field not found: 'polID'
+ERROR: Method add(java.lang.String, null-Class) is ambiguous:
+ERROR: Method add(null-Class, java.lang.String) is ambiguous:
+ERROR: Type 'Dute' is not found
+ERROR: Field not found: 'polID2'
+ERROR: Method add(java.lang.String, null-Class) is ambiguous:
+ERROR: Method add(null-Class, java.lang.String) is ambiguous:

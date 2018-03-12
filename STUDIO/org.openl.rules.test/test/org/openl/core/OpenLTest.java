@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -164,8 +165,8 @@ public final class OpenLTest {
             // Check messages
             if (pass) {
                 File msgFile = new File(sourceDir, sourceFile + ".msg.txt");
-                Set<String> expectedMessages = new LinkedHashSet<>();
-                ;
+                List<String> expectedMessages = new ArrayList<>();
+
                 if (msgFile.exists()) {
                     try {
                         String content = IOUtils.toStringAndClose(new FileInputStream(msgFile));
@@ -181,15 +182,23 @@ public final class OpenLTest {
 
                     List<OpenLMessage> actualMessages = compiledOpenClass.getMessages();
                     List<OpenLMessage> missedMessages = new ArrayList<>();
-                    Set<String> restMessages = new LinkedHashSet<>(expectedMessages.size());
+                    List<String> restMessages = new ArrayList<>(expectedMessages.size());
                     restMessages.addAll(expectedMessages);
                     for (OpenLMessage msg : actualMessages) {
                         String actual = msg.getSeverity() + ": " + msg.getSummary();
                         if (msg.getSeverity().equals(Severity.ERROR) || msg.getSeverity().equals(Severity.FATAL)) {
                             success = false;
                         }
-                        restMessages.remove(actual);
-                        if (!expectedMessages.contains(actual)) {
+                        Iterator<String> itr = restMessages.iterator();
+                        boolean found = false;
+                        while (itr.hasNext()) {
+                            if (actual.startsWith(itr.next())) {
+                                itr.remove();
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
                             missedMessages.add(msg);
                         }
                     }

@@ -5,6 +5,8 @@ import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.TBasicSpecificationKey;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 
@@ -60,7 +62,7 @@ public class AlgoritmNodesCompiler {
 
     private List<RuntimeOperation> compileNestedNodes(List<AlgorithmTreeNode> nodesToProcess) throws Exception {
         List<RuntimeOperation> emittedOperations = new ArrayList<RuntimeOperation>();
-
+        List<SyntaxNodeException> syntaxNodeExceptions = new ArrayList<>();
         // process nodes by groups of linked nodes
         for (int i = 0, linkedNodesGroupSize; i < nodesToProcess.size(); i += linkedNodesGroupSize) {
             if (hasUnreachableCode(nodesToProcess, i)) {
@@ -72,8 +74,20 @@ public class AlgoritmNodesCompiler {
             linkedNodesGroupSize = AlgorithmCompilerTool.getLinkedNodesGroupSize(nodesToProcess, i);
 
             List<AlgorithmTreeNode> nodesToCompile = nodesToProcess.subList(i, i + linkedNodesGroupSize);
-
-            emittedOperations.addAll(compileLinkedNodesGroup(nodesToCompile));
+            try {
+                emittedOperations.addAll(compileLinkedNodesGroup(nodesToCompile));
+            } catch (SyntaxNodeException error) {
+                syntaxNodeExceptions.add(error);
+            } catch (CompositeSyntaxNodeException ex) {
+                if (ex.getErrors() != null) {
+                    for (SyntaxNodeException error : ex.getErrors()) {
+                        syntaxNodeExceptions.add(error);
+                    }
+                }
+            }
+        }
+        if (!syntaxNodeExceptions.isEmpty()) {
+            throw new CompositeSyntaxNodeException("Compilation fails!", syntaxNodeExceptions.toArray(new SyntaxNodeException[] {}));
         }
 
         return emittedOperations;
