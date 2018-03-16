@@ -1,5 +1,7 @@
 package org.openl.rules.constants;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 
 import org.openl.OpenL;
@@ -9,7 +11,6 @@ import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.meta.TableMetaInfo;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
@@ -27,6 +28,7 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
+import org.openl.types.FieldMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
 import org.openl.util.text.LocationUtils;
@@ -38,6 +40,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
     private ModuleOpenClass moduleOpenClass;
     private ILogicalTable table;
     private OpenL openl;
+    private Collection<ConstantOpenField> constantOpenFields = new ArrayList<>();
 
     public ConstantsTableBoundNode(TableSyntaxNode syntaxNode,
             XlsModuleOpenClass moduleOpenClass,
@@ -109,13 +112,13 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
 
             IOpenClass constantType = getConstantType(cxt, row, rowSrc);
 
-            /*if (!cxt.isExecutionMode()) {
-                IdentifierNode[] parsedHeader = Tokenizer.tokenize(rowSrc, "[]\n\r");
-                IMetaInfo metaInfo = constantType.getMetaInfo();
-
-                // Link to field type table
-                RuleRowHelper.setCellMetaInfoWithNodeUsage(row, parsedHeader[0], metaInfo, NodeType.DATATYPE);
-            }*/
+            /*
+             * if (!cxt.isExecutionMode()) { IdentifierNode[] parsedHeader = Tokenizer.tokenize(rowSrc, "[]\n\r");
+             * IMetaInfo metaInfo = constantType.getMetaInfo();
+             * 
+             * // Link to field type table RuleRowHelper.setCellMetaInfoWithNodeUsage(row, parsedHeader[0], metaInfo,
+             * NodeType.DATATYPE); }
+             */
 
             String value = DatatypeTableBoundNode.getDefaultValue(row, cxt);
             Object objectValue = null;
@@ -127,7 +130,8 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                     RuleRowHelper.setCellMetaInfo(row.getColumn(2), null, constantType, false);
                     objectValue = dateValue;
                 }
-            } else {
+            }
+            if (objectValue == null) { // Wasn't parsed as Date
                 try {
                     if (constantType.getName().startsWith("[[")) {
                         throw new IllegalStateException("Multi-dimensional arrays aren't supported!");
@@ -156,13 +160,20 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
             }
 
             try {
+                FieldMetaInfo fieldMetaInfo = new FieldMetaInfo(constantType.getName(),
+                    constantName,
+                    tableSyntaxNode,
+                    tableSyntaxNode.getUri());
+
                 ConstantOpenField constantField = new ConstantOpenField(constantName,
                     objectValue,
                     constantType,
                     moduleOpenClass,
-                    tableSyntaxNode.getUri());
-                
+                    fieldMetaInfo);
+
                 moduleOpenClass.addField(constantField);
+
+                constantOpenFields.add(constantField);
             } catch (Exception t) {
                 throw SyntaxNodeExceptionUtils
                     .createError(t.getMessage(), t, null, DatatypeTableBoundNode.getCellSource(row, cxt, 1));
@@ -213,6 +224,12 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
 
     @Override
     public void removeDebugInformation(IBindingContext cxt) throws Exception {
+        if (cxt.isExecutionMode()) {
+            for (ConstantOpenField constantOpenField : constantOpenFields) {
+                constantOpenField.setMemberMetaInfo(null);
+            }
+            constantOpenFields = null;
+        }
     }
 
 }
