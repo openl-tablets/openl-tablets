@@ -15,7 +15,6 @@ import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
 import org.openl.rules.lang.xls.prebind.LazyMethodWrapper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ITablePropertiesMethod;
-import org.openl.rules.method.TableUriMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -282,9 +281,9 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
              * Throw the error with the right message for the case when the
              * methods are equal
              */
-            if (newMethod instanceof TableUriMethod && existedMethod instanceof TableUriMethod) {
-                String newMethodHashUrl = ((TableUriMethod) newMethod).getTableUri();
-                String existedMethodHashUrl = ((TableUriMethod) existedMethod).getTableUri();
+            if (newMethod instanceof TableUriMember && existedMethod instanceof TableUriMember) {
+                String newMethodHashUrl = ((TableUriMember) newMethod).getTableUri();
+                String existedMethodHashUrl = ((TableUriMember) existedMethod).getTableUri();
 
                 if (!newMethodHashUrl.equals(existedMethodHashUrl)) {
                     String message = ValidationMessages.getDuplicatedMethodMessage(existedMethod, newMethod);

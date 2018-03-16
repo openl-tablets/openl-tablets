@@ -88,7 +88,7 @@ public class DatatypeHelper {
                 isDefault(table.getCell(DEFAULTS_COLUMN, FIELD_NAME_COLUMN));
     }
 
-    private static boolean isDefault(ICell cell) {
+    public static boolean isDefault(ICell cell) {
         // Type name and field name can't be blank or start with number but default value can.
         String value = cell.getStringValue();
         if (StringUtils.isBlank(value)) {
@@ -100,7 +100,7 @@ public class DatatypeHelper {
 
     }
 
-    private static int countTypes(ILogicalTable table, OpenL openl, IBindingContext cxt) {
+    public static int countTypes(ILogicalTable table, OpenL openl, IBindingContext cxt) {
 
         int height = table.getHeight();
         int count = 1; // The first cell is always type name, there is no need to check it. Start from the second one.

@@ -9,6 +9,7 @@ import org.openl.rules.enumeration.RecalculateEnum;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.types.TableUriMember;
 import org.openl.rules.vm.CacheMode;
 import org.openl.rules.vm.ResultNotFoundException;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
@@ -22,7 +23,7 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
 
-public abstract class ExecutableRulesMethod extends ExecutableMethod implements ITablePropertiesMethod, TableUriMethod {
+public abstract class ExecutableRulesMethod extends ExecutableMethod implements ITablePropertiesMethod, TableUriMember {
 
     private ITableProperties properties;
     // FIXME: it should be AMethodBasedNode but currently it will be

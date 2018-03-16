@@ -158,6 +158,8 @@ public class PropertiesChecker {
                 return "OpenL";
             case XLS_ENVIRONMENT:
                 return "Environment";
+            case XLS_CONSTANTS:
+                return "Constants";                
             case XLS_TABLEPART:
                 return "TablePart";
             case XLS_OTHER:

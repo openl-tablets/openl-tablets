@@ -1,20 +1,20 @@
 package org.openl.rules.data;
 
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.types.TableUriMember;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.AOpenField;
 import org.openl.vm.IRuntimeEnv;
 
-public class DataOpenField extends AOpenField{
+public class DataOpenField extends AOpenField implements TableUriMember {
 
     private ITable table;
     private Object data;
     private ModuleOpenClass declaringClass;
     private String tableUri;
 
-    public DataOpenField(ITable table, TableSyntaxNode tableSyntaxNode, ModuleOpenClass declaringClass) {
+    public DataOpenField(ITable table, ModuleOpenClass declaringClass) {
 
         super(table.getDataModel().getName(), table.getDataModel()
             .getType()
