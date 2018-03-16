@@ -56,8 +56,8 @@ public class DecisionTable2Wrapper extends DecisionTable implements IOpenMethodW
     }
 
     @Override
-    public String getTableUri() {
-        return delegate.getTableUri();
+    public String getUri() {
+        return delegate.getUri();
     }
 
     @Override

@@ -38,22 +38,20 @@ import org.openl.util.Log;
 public class ModuleOpenClass extends ComponentOpenClass {
 
     /**
-     * Map of internal types. XLS document can have internal types defined using
-     * <code>Datatype</code> tables, e.g. domain model.<br>
+     * Map of internal types. XLS document can have internal types defined using <code>Datatype</code> tables, e.g.
+     * domain model.<br>
      * 
      * Key: type name.<br>
      * Value: {@link IOpenClass} for datatype.
      */
     private ConcurrentHashMap<String, IOpenClass> internalTypes = new ConcurrentHashMap<String, IOpenClass>();
     private Collection<IOpenClass> types = Collections.unmodifiableCollection(internalTypes.values());
-    
+
     /**
      * Set of dependencies for current module.
      * 
-     * NOTE!!!
-     * Be careful when calling {@link CompiledOpenClass#getOpenClass()} as it
-     * throws errors when there are any ones in {@link CompiledOpenClass}.
-     * Check if there are errors: {@link CompiledOpenClass#hasErrors()} 
+     * NOTE!!! Be careful when calling {@link CompiledOpenClass#getOpenClass()} as it throws errors when there are any
+     * ones in {@link CompiledOpenClass}. Check if there are errors: {@link CompiledOpenClass#hasErrors()}
      * 
      */
     private Set<CompiledDependency> usingModules = new HashSet<CompiledDependency>();
@@ -65,23 +63,24 @@ public class ModuleOpenClass extends ComponentOpenClass {
     }
 
     /**
-     * Populate current module fields with data from dependent modules. 
+     * Populate current module fields with data from dependent modules.
      */
-    protected void initDependencies() throws OpenLCompilationException{
+    protected void initDependencies() throws OpenLCompilationException {
         for (CompiledDependency dependency : usingModules) {
             // commented as there is no need to add each datatype to upper module.
             // as now it`s will be impossible to validate from which module the datatype is.
             //
-            //addTypes(dependency);
+            // addTypes(dependency);
             addDependencyTypes(dependency);
             addMethods(dependency);
+            addFields(dependency);
         }
     }
 
-    protected boolean shouldAddMethodFromDependency(IOpenMethod method) {
-        return true;
+    protected boolean isDependencyMethodIgnorable(IOpenMethod method) {
+        return false;
     }
-    
+
     /**
      * Add methods form dependent modules to current one.
      * 
@@ -94,14 +93,14 @@ public class ModuleOpenClass extends ComponentOpenClass {
             //
             if (!(depMethod.isConstructor()) && !(depMethod instanceof GetOpenClass)) {
                 try {
-                    //Workaround for set dependency names in method while compile
-                    if (depMethod instanceof AMethod){
+                    // Workaround for set dependency names in method while compile
+                    if (depMethod instanceof AMethod) {
                         AMethod methodDependencyInfo = (AMethod) depMethod;
-                        if (methodDependencyInfo.getModuleName() == null){
+                        if (methodDependencyInfo.getModuleName() == null) {
                             methodDependencyInfo.setModuleName(dependency.getDependencyName());
                         }
                     }
-                    if (shouldAddMethodFromDependency(depMethod)){
+                    if (!isDependencyMethodIgnorable(depMethod)) {
                         addMethod(depMethod);
                     }
                 } catch (OpenlNotCheckedException e) {
@@ -110,6 +109,29 @@ public class ModuleOpenClass extends ComponentOpenClass {
                     }
                     addError(e);
                 }
+            }
+        }
+    }
+
+    protected boolean isDependencyFieldIgnorable(IOpenField openField) {
+        if (openField instanceof ThisField || openField instanceof org.openl.types.impl.ThisField) {
+            return true;
+        }
+        return false;
+    }
+
+    protected void addFields(CompiledDependency dependency) {
+        CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
+        for (IOpenField depMethod : compiledOpenClass.getOpenClassWithErrors().getFields().values()) {
+            try {
+                if (!isDependencyFieldIgnorable(depMethod)) {
+                    addField(depMethod);
+                }
+            } catch (OpenlNotCheckedException e) {
+                if (Log.isDebugEnabled()) {
+                    Log.debug(e.getMessage(), e);
+                }
+                addError(e);
             }
         }
     }
@@ -149,21 +171,21 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
         // get fields from dependencies
         //
-        if (dependencyFields == null){
-            synchronized(this) {
-                if (dependencyFields == null){
+        if (dependencyFields == null) {
+            synchronized (this) {
+                if (dependencyFields == null) {
                     dependencyFields = new HashMap<String, IOpenField>();
                     for (CompiledDependency dependency : usingModules) {
-                        CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass(); 
+                        CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
                         if (!compiledOpenClass.hasErrors()) {
                             dependencyFields.putAll(compiledOpenClass.getOpenClass().getFields());
-                        }            
+                        }
                     }
                 }
             }
         }
         fields.putAll(dependencyFields);
-        
+
         // get own fields. if current module has duplicated fields they will
         // override the same from dependencies.
         //
@@ -175,39 +197,39 @@ public class ModuleOpenClass extends ComponentOpenClass {
     /**
      * Set compiled module dependencies for current module.
      */
-    public void setDependencies(Set<CompiledDependency> moduleDependencies){
+    public void setDependencies(Set<CompiledDependency> moduleDependencies) {
         if (moduleDependencies != null) {
             this.usingModules = new HashSet<CompiledDependency>(moduleDependencies);
         }
     }
-    
+
     /**
      * Gets compiled module dependencies for current module.
+     * 
      * @return compiled module dependencies for current module.
      */
     public Set<CompiledDependency> getDependencies() {
-        if (usingModules == null){
+        if (usingModules == null) {
             return Collections.emptySet();
         }
         return Collections.unmodifiableSet(usingModules);
     }
-    
+
     protected void addDependencyTypes(CompiledDependency dependency) {
         CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
-        for (IOpenClass type : compiledOpenClass.getTypes()){
-            try{
+        for (IOpenClass type : compiledOpenClass.getTypes()) {
+            try {
                 addType(type);
             } catch (OpenLCompilationException e) {
                 addError(e);
             }
         }
     }
-    
+
     /**
-     * Return the whole map of internal types. Where the key is namespace of the type, 
-     * the value is {@link IOpenClass}.
+     * Return the whole map of internal types. Where the key is namespace of the type, the value is {@link IOpenClass}.
      * 
-     * @return map of internal types 
+     * @return map of internal types
      */
     @Override
     public Collection<IOpenClass> getTypes() {
@@ -215,13 +237,10 @@ public class ModuleOpenClass extends ComponentOpenClass {
     }
 
     /**
-     * Add new type to internal types list. If the type with the same name
-     * already exists exception will be thrown.
+     * Add new type to internal types list. If the type with the same name already exists exception will be thrown.
      * 
-     * @param type
-     *            IOpenClass instance
-     * @throws OpenLCompilationException
-     *             if an error had occurred.
+     * @param type IOpenClass instance
+     * @throws OpenLCompilationException if an error had occurred.
      */
     @Override
     public void addType(IOpenClass type) throws OpenLCompilationException {
@@ -230,12 +249,12 @@ public class ModuleOpenClass extends ComponentOpenClass {
             throw new OpenLCompilationException("The type " + type.getName() + " has been already defined.");
         }
     }
-    
+
     @Override
     public IOpenClass findType(String name) {
         return internalTypes.get(name);
     }
-    
+
     public void addError(Throwable error) {
         errors.add(error);
     }

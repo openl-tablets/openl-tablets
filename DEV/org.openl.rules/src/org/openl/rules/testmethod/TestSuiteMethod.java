@@ -60,7 +60,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         this.runmethod = copy.isRunmethod();
         this.testObjects = copy.getTestObjects();
         this.descriptors = copy.getDescriptors();
-        this.setTableUri(copy.getTableUri());
+        this.setUri(copy.getUri());
     }
 
     private TestDescription[] initTestsAndIndexes() {

@@ -7,6 +7,7 @@ import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.rules.lang.xls.prebind.ILazyMember;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
@@ -29,7 +30,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Marat Kamalov
  */
-public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
+public abstract class LazyMember<T extends IOpenMember> implements ILazyMember<T>, IOpenMember {
     private final Logger log = LoggerFactory.getLogger(LazyMember.class);
 
     private IDependencyManager dependencyManager;
@@ -58,7 +59,7 @@ public abstract class LazyMember<T extends IOpenMember> implements IOpenMember {
         this.externalParameters = externalParameters;
     }
 
-    protected abstract T getMember();
+    public abstract T getMember();
 
     protected T getCachedMember() {
         return cachedMember;

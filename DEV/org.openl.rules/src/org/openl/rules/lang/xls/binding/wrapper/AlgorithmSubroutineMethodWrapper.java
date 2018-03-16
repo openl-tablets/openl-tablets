@@ -64,8 +64,8 @@ public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod 
     }
 
     @Override
-    public String getTableUri() {
-        return delegate.getTableUri();
+    public String getUri() {
+        return delegate.getUri();
     }
 
     @Override

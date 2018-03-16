@@ -1,18 +1,18 @@
 package org.openl.rules.data;
 
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.rules.types.TableUriMember;
+import org.openl.rules.types.IUriMember;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.AOpenField;
 import org.openl.vm.IRuntimeEnv;
 
-public class DataOpenField extends AOpenField implements TableUriMember {
+public class DataOpenField extends AOpenField implements IUriMember {
 
     private ITable table;
     private Object data;
     private ModuleOpenClass declaringClass;
-    private String tableUri;
+    private String uri;
 
     public DataOpenField(ITable table, ModuleOpenClass declaringClass) {
 
@@ -22,13 +22,13 @@ public class DataOpenField extends AOpenField implements TableUriMember {
             .getIndexedAggregateType(table.getDataModel().getType(), 1));
         
         this.table = table;
-        this.tableUri = table.getTableSyntaxNode().getTable().getSource().getUri();
+        this.uri = table.getTableSyntaxNode().getTable().getSource().getUri();
         data = table.getDataArray();
         this.declaringClass = declaringClass;
     }
     
-    public String getTableUri() {
-        return tableUri;
+    public String getUri() {
+        return uri;
     }
     
     @Override

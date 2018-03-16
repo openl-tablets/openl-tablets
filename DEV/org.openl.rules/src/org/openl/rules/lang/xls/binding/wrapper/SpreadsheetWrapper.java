@@ -68,8 +68,8 @@ public class SpreadsheetWrapper extends Spreadsheet implements IOpenMethodWrappe
     }
 
     @Override
-    public String getTableUri() {
-        return delegate.getTableUri();
+    public String getUri() {
+        return delegate.getUri();
     }
 
     @Override

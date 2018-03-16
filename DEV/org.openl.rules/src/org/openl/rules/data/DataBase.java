@@ -37,9 +37,9 @@ public class DataBase implements IDataBase {
             ITable table = getTable(tableName);
 
             if (table != null) {
-                String tableUri = table.getTableSyntaxNode().getTable().getSource().getUri();
-                String newTableUri = tsn.getTable().getSource().getUri();
-                if (!tableUri.equals(newTableUri)){
+                String uri = table.getTableSyntaxNode().getTable().getSource().getUri();
+                String newUri = tsn.getTable().getSource().getUri();
+                if (!uri.equals(newUri)){
                     throw new DuplicatedTableException(tableName, table.getTableSyntaxNode(), tsn);
                 }else{
                     return table;    
@@ -68,9 +68,9 @@ public class DataBase implements IDataBase {
             ITable table = getTable(newTable.getName());
 
             if (table != null) {
-                String tableUri = table.getTableSyntaxNode().getTable().getSource().getUri();
-                String newTableUri = newTable.getTableSyntaxNode().getTable().getSource().getUri();
-                if (!tableUri.equals(newTableUri)){
+                String uri = table.getTableSyntaxNode().getTable().getSource().getUri();
+                String newUri = newTable.getTableSyntaxNode().getTable().getSource().getUri();
+                if (!uri.equals(newUri)){
                     throw new DuplicatedTableException(newTable.getName(), table.getTableSyntaxNode(), newTable.getTableSyntaxNode());
                 }
             }

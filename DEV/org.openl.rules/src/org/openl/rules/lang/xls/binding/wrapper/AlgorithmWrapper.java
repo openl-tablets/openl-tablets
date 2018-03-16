@@ -62,8 +62,8 @@ public class AlgorithmWrapper extends Algorithm implements IOpenMethodWrapper{
     }
 
     @Override
-    public String getTableUri() {
-        return delegate.getTableUri();
+    public String getUri() {
+        return delegate.getUri();
     }
 
     @Override
