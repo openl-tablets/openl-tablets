@@ -6,8 +6,10 @@ package org.openl.rules.datatype.binding;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -33,7 +35,9 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.utils.ParserUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
+import org.openl.syntax.exception.Runnable;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
@@ -46,6 +50,7 @@ import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringTool;
+import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
 import org.slf4j.Logger;
@@ -134,9 +139,9 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
      *
      * @param cxt binding context
      */
-    private void addFields(IBindingContext cxt) throws Exception {
+    private void addFields(final IBindingContext cxt) throws Exception {
 
-        ILogicalTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, openl, cxt);
+        final ILogicalTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, openl, cxt);
 
         int tableHeight = 0;
 
@@ -147,14 +152,27 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         // map of fields that will be used for byte code generation.
         // key: name of the field, value: field type.
         //
-        Map<String, FieldDescription> fields = new LinkedHashMap<String, FieldDescription>();
-
+        final Map<String, FieldDescription> fields = new LinkedHashMap<String, FieldDescription>();
+        SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
         for (int i = 0; i < tableHeight; i++) {
-            ILogicalTable row = dataTable.getRow(i);
-            boolean firstField = (i == 0);
-            processRow(row, cxt, fields, firstField);
+            final int index = i;
+            syntaxNodeExceptionCollector.run(new Runnable() {
+                @Override
+                public void run() throws Exception {
+                    ILogicalTable row = dataTable.getRow(index);
+                    boolean firstField = (index == 0);
+                    processRow(row, cxt, fields, firstField);
+                }
+            });
         }
-        checkInheritedFieldsDuplication(cxt);
+        syntaxNodeExceptionCollector.run(new Runnable() {
+            @Override
+            public void run() throws Exception {
+                checkInheritedFieldsDuplication(cxt);
+            }
+        });
+
+        syntaxNodeExceptionCollector.throwIfAny();
 
         if (beanClassCanBeGenerated(cxt)) {
             Class<?> beanClass;
@@ -169,7 +187,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     beanClass = ClassUtils.defineClass(beanName, byteCode, classLoader);
                     log.debug("bean {} is using generated at runtime", beanName);
                 } catch (Exception e2) {
-                    throw SyntaxNodeExceptionUtils.createError("Can't generate a Java bean for datatype " + beanName, tableSyntaxNode);
+                    throw SyntaxNodeExceptionUtils.createError("Can't generate a Java bean for datatype " + beanName,
+                        tableSyntaxNode);
                 }
             }
 
@@ -438,7 +457,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
     }
 
-    private String getDefaultValue(ILogicalTable row, IBindingContext cxt) throws OpenLCompilationException {
+    public static String getDefaultValue(ILogicalTable row, IBindingContext cxt) throws OpenLCompilationException {
         String defaultValue = null;
         GridCellSourceCodeModule defaultValueSrc = getCellSource(row, cxt, 2);
         if (!ParserUtils.isCommented(defaultValueSrc.getCode())) {
@@ -525,26 +544,33 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         moduleOpenClass.addType(dataType);
     }
 
-    private void checkInheritedFieldsDuplication(IBindingContext cxt) throws Exception {
-        IOpenClass superClass = dataType.getSuperClass();
+    private void checkInheritedFieldsDuplication(final IBindingContext cxt) throws Exception {
+        final IOpenClass superClass = dataType.getSuperClass();
         if (superClass != null) {
-            for (Entry<String, IOpenField> field : dataType.getDeclaredFields().entrySet()) {
-                IOpenField fieldInParent = superClass.getField(field.getKey());
-                if (fieldInParent != null) {
-                    if (fieldInParent.getType().getInstanceClass().equals(
-                        field.getValue().getType().getInstanceClass())) {
-                        BindHelper.processWarn(String.format("Field [%s] has been already defined in class \"%s\"",
-                            field.getKey(),
-                            fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode, cxt);
-                    } else {
-                        throw SyntaxNodeExceptionUtils.createError(
-                            String.format("Field [%s] has been already defined in class \"%s\" with another type",
-                                field.getKey(),
-                                fieldInParent.getDeclaringClass().getDisplayName(0)),
-                            tableSyntaxNode);
+            SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
+            for (final Entry<String, IOpenField> field : dataType.getDeclaredFields().entrySet()) {
+                syntaxNodeExceptionCollector.run(new Runnable() {
+                    @Override
+                    public void run() throws Exception {
+                        IOpenField fieldInParent = superClass.getField(field.getKey());
+                        if (fieldInParent != null) {
+                            if (fieldInParent.getType().getInstanceClass().equals(
+                                field.getValue().getType().getInstanceClass())) {
+                                BindHelper.processWarn(String.format("Field [%s] has been already defined in class \"%s\"",
+                                    field.getKey(),
+                                    fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode, cxt);
+                            } else {
+                                throw SyntaxNodeExceptionUtils.createError(
+                                    String.format("Field [%s] has been already defined in class \"%s\" with another type",
+                                        field.getKey(),
+                                        fieldInParent.getDeclaringClass().getDisplayName(0)),
+                                    tableSyntaxNode);
+                            }
+                        }
                     }
-                }
+                });
             }
+            syntaxNodeExceptionCollector.throwIfAny();
         }
     }
 

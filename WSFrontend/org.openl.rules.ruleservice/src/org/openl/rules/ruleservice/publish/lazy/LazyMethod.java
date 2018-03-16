@@ -7,11 +7,11 @@ import org.openl.dependency.IDependencyManager;
 import org.openl.rules.lang.xls.prebind.LazyMethodWrapper;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.method.ITablePropertiesMethod;
-import org.openl.rules.method.TableUriMethod;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLCompilationException;
 import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.types.TableUriMember;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -24,7 +24,7 @@ import org.openl.vm.IRuntimeEnv;
  * 
  * @author Marat Kamalov
  */
-public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpenMethod, TableUriMethod, LazyMethodWrapper {
+public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpenMethod, TableUriMember, LazyMethodWrapper {
     private String methodName;
 
     private Class<?>[] argTypes;
@@ -131,8 +131,8 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
 
     @Override
     public String getTableUri() {
-        if (getOriginal() instanceof TableUriMethod) {
-            return ((TableUriMethod) getOriginal()).getTableUri();
+        if (getOriginal() instanceof TableUriMember) {
+            return ((TableUriMember) getOriginal()).getTableUri();
         } else {
             throw new IllegalStateException("Implementation doesn't support methods other than ExecutableRulesMethod!");
         }

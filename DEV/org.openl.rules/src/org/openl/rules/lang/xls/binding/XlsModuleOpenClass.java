@@ -14,12 +14,10 @@ import java.util.Set;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
-import org.openl.binding.ICastFactory;
 import org.openl.binding.MethodUtil;
+import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.exception.DuplicatedVarException;
-import org.openl.binding.impl.cast.CastFactory;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.module.DeferredMethod;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.dependency.CompiledDependency;
@@ -49,7 +47,6 @@ import org.openl.rules.lang.xls.binding.wrapper.SpreadsheetWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.TableMethodWrapper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
-import org.openl.rules.method.TableUriMethod;
 import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.properties.ITableProperties;
@@ -60,6 +57,7 @@ import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
+import org.openl.rules.types.TableUriMember;
 import org.openl.rules.types.ValidationMessages;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
@@ -69,17 +67,12 @@ import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IMethodCaller;
 import org.openl.types.IModuleInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AMethod;
-import org.openl.types.impl.CastingMethodCaller;
 import org.openl.types.impl.CompositeMethod;
-import org.openl.types.impl.DomainOpenClass;
-import org.openl.types.impl.MethodDelegator;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.util.Log;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -446,9 +439,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
     
     private void validateTestSuiteMethod(IOpenMethod method, IOpenMethod existedMethod) {
-        if (method instanceof TableUriMethod && existedMethod instanceof TableUriMethod) {
-            String methodHashUrl = ((TableUriMethod) method).getTableUri();
-            String existedMethodHashUrl = ((TableUriMethod) existedMethod).getTableUri();
+        if (method instanceof TableUriMember && existedMethod instanceof TableUriMember) {
+            String methodHashUrl = ((TableUriMember) method).getTableUri();
+            String existedMethodHashUrl = ((TableUriMember) existedMethod).getTableUri();
             if (!methodHashUrl.equals(existedMethodHashUrl)) {
                 duplicatedMethodUrls.add(method.getInfo().getSourceUrl());
                 String message = ValidationMessages.getDuplicatedMethodMessage(existedMethod, method);
@@ -511,7 +504,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     @Override
     public void addError(Throwable error) {
-        if (error instanceof DuplicatedMethodException || error instanceof DuplicatedVarException || error instanceof DuplicatedTableException || error instanceof SyntaxNodeException) {
+        if (error instanceof DuplicatedMethodException || error instanceof DuplicatedVarException || error instanceof DuplicatedTableException || error instanceof DuplicatedFieldException || error instanceof SyntaxNodeException) {
             if (VirtualSourceCodeModule.SOURCE_URI.equals(metaInfo.getSourceUrl())) {
                 // Avoid duplication of error messages. This error was defined
                 // in dependent module already.

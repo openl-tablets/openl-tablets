@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.binding.exception.DuplicatedVarException;
+import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
@@ -54,7 +54,7 @@ public abstract class ADynamicClass extends AOpenClass {
         if (fields.containsKey(field.getName())) {
             IOpenField existedField = fields.get(field.getName());
             if (existedField != field) {
-                throw new DuplicatedVarException("", field.getName());
+                throw new DuplicatedFieldException("", field.getName());
             }else {
                 return;
             }

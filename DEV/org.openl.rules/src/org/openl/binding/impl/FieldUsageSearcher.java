@@ -5,6 +5,7 @@ import java.util.List;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
 import org.openl.meta.IMetaInfo;
+import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.data.DataOpenField;
 import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -62,6 +63,9 @@ public final class FieldUsageSearcher {
                 TableSyntaxNode tableSyntaxNode = foreignTable.getTableSyntaxNode();
                 description = tableSyntaxNode.getHeaderLineValue().getValue();
                 uri = tableSyntaxNode.getUri();
+            } else if (type instanceof XlsModuleOpenClass && boundField instanceof ConstantOpenField) {
+                description = MethodUtil.printType(boundField.getType()) + " " + boundField.getName();
+                uri = ((ConstantOpenField) boundField).getTableUri();
             } else {
                 IMetaInfo metaInfo = type.getMetaInfo();
                 while (metaInfo == null && type.isArray()) {

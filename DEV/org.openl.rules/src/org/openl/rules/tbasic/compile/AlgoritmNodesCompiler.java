@@ -1,17 +1,17 @@
 package org.openl.rules.tbasic.compile;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.TBasicSpecificationKey;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.Runnable;
+import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The <code>AlgoritmNodesCompiler</code> class compiles sequence of nodes
@@ -61,8 +61,8 @@ public class AlgoritmNodesCompiler {
     }
 
     private List<RuntimeOperation> compileNestedNodes(List<AlgorithmTreeNode> nodesToProcess) throws Exception {
-        List<RuntimeOperation> emittedOperations = new ArrayList<RuntimeOperation>();
-        List<SyntaxNodeException> syntaxNodeExceptions = new ArrayList<>();
+        final List<RuntimeOperation> emittedOperations = new ArrayList<RuntimeOperation>();
+        SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
         // process nodes by groups of linked nodes
         for (int i = 0, linkedNodesGroupSize; i < nodesToProcess.size(); i += linkedNodesGroupSize) {
             if (hasUnreachableCode(nodesToProcess, i)) {
@@ -73,22 +73,16 @@ public class AlgoritmNodesCompiler {
 
             linkedNodesGroupSize = AlgorithmCompilerTool.getLinkedNodesGroupSize(nodesToProcess, i);
 
-            List<AlgorithmTreeNode> nodesToCompile = nodesToProcess.subList(i, i + linkedNodesGroupSize);
-            try {
-                emittedOperations.addAll(compileLinkedNodesGroup(nodesToCompile));
-            } catch (SyntaxNodeException error) {
-                syntaxNodeExceptions.add(error);
-            } catch (CompositeSyntaxNodeException ex) {
-                if (ex.getErrors() != null) {
-                    for (SyntaxNodeException error : ex.getErrors()) {
-                        syntaxNodeExceptions.add(error);
-                    }
+            final List<AlgorithmTreeNode> nodesToCompile = nodesToProcess.subList(i, i + linkedNodesGroupSize);
+            syntaxNodeExceptionCollector.run(new Runnable() {
+                @Override
+                public void run() throws Exception {
+                    emittedOperations.addAll(compileLinkedNodesGroup(nodesToCompile));
                 }
-            }
+            });
         }
-        if (!syntaxNodeExceptions.isEmpty()) {
-            throw new CompositeSyntaxNodeException("Compilation fails!", syntaxNodeExceptions.toArray(new SyntaxNodeException[] {}));
-        }
+        
+        syntaxNodeExceptionCollector.throwIfAny("Compilation fails!");
 
         return emittedOperations;
     }

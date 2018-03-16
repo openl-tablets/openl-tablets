@@ -7,6 +7,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.openl.OpenL;
+import org.openl.binding.exception.DuplicatedFieldException;
+import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.types.IOpenField;
 
@@ -37,6 +39,15 @@ public class AlgorithmOpenClass extends ComponentOpenClass {
     @Override
     public Map<String, IOpenField> getFields() {
         return filterFields(super.getFields());
+    }
+
+    @Override
+    public void addField(IOpenField field) {
+        try {
+            super.addField(field);
+        } catch (DuplicatedFieldException e) {
+            throw new DuplicatedVarException("", e.getFieldName());
+        }
     }
 
     private Map<String, IOpenField> filterFields(Map<String, IOpenField> fields) {

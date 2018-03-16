@@ -20,7 +20,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeMetaInfo;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -46,7 +45,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             XlsModuleOpenClass module) throws Exception {
 
         ILogicalTable table = tsn.getTable();
-        IOpenSourceCodeModule tableSource = new GridCellSourceCodeModule(table.getSource(), cxt);
+        IOpenSourceCodeModule tableSource = tsn.getHeader().getModule();
 
         IdentifierNode[] parsedHeader = DatatypeHelper.tokenizeHeader(tableSource);
 
@@ -69,31 +68,21 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             int beginIndex = 1;
             int endIndex = parsedHeader[2].getIdentifier().length() - 1;
 
-            // Get type name.
-            //
-            String type = parsedHeader[2].getIdentifier().substring(beginIndex, endIndex).trim();
-
-            // Create source code module for type definition.
-            // Domain values are loaded as elements of array. We are create one
-            // more type for it - array with appropriate type of elements.
-            //
-            IOpenSourceCodeModule aliasTypeSource = new StringSourceCodeModule(type, tableSource.getUri());
-            IOpenSourceCodeModule arrayAliasTypeSource = new StringSourceCodeModule(type + "[]", tableSource.getUri());
-
-            // Create appropriate OpenL class for type definition.
-            //
-            IOpenClass baseOpenClass = OpenLManager.makeType(openl, aliasTypeSource, (IBindingContextDelegator) cxt);
-            IOpenClass arrayOpenClass = OpenLManager
-                .makeType(openl, arrayAliasTypeSource, (IBindingContextDelegator) cxt);
-
             // Load data part of table (part where domain values are defined).
             //
             ILogicalTable dataPart = DatatypeHelper.getNormalizedDataPartTable(table, openl, cxt);
 
+            // Get type name.
+            //
+            String type = parsedHeader[2].getIdentifier().substring(beginIndex, endIndex).trim();
+            
             // Create appropriate domain object.
             //
             Object[] res = {};
             if (dataPart != null) {
+                IOpenSourceCodeModule arrayAliasTypeSource = new StringSourceCodeModule(type + "[]", tableSource.getUri());
+                IOpenClass arrayOpenClass = OpenLManager
+                        .makeType(openl, arrayAliasTypeSource, (IBindingContextDelegator) cxt);
 
                 OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, cxt);
 
@@ -106,6 +95,16 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
             IDomain<?> domain = new EnumDomain<Object>(res);
 
+            // Create source code module for type definition.
+            // Domain values are loaded as elements of array. We are create one
+            // more type for it - array with appropriate type of elements.
+            //
+            IOpenSourceCodeModule aliasTypeSource = new StringSourceCodeModule(type, tableSource.getUri());
+            
+            // Create appropriate OpenL class for type definition.
+            //
+            IOpenClass baseOpenClass = OpenLManager.makeType(openl, aliasTypeSource, (IBindingContextDelegator) cxt);
+            
             // Create domain class definition which will be used by OpenL engine at runtime.
             //
             DomainOpenClass tableType = new DomainOpenClass(typeName,
@@ -121,7 +120,6 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             //
             return new AliasDatatypeBoundNode(tsn, tableType, module);
         } else {
-
             if (parsedHeader.length != 2 && parsedHeader.length != 4 || (parsedHeader.length == 4 && !parsedHeader[2]
                 .getIdentifier()
                 .equals("extends"))) {

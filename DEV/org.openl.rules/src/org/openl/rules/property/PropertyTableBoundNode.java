@@ -63,14 +63,14 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
         return tableName;        
     }
     
-    private static TableProperties getTablePropertiesForExecutionMode(ITableProperties properties){
-        if(properties != null){
+    private static TableProperties getTablePropertiesForExecutionMode(ITableProperties properties) {
+        if (properties != null) {
             TableProperties clonedProperties = new TableProperties();
-            for(Entry<String, Object> pair: properties.getAllProperties().entrySet()){
+            for (Entry<String, Object> pair : properties.getAllProperties().entrySet()) {
                 clonedProperties.setFieldValue(pair.getKey(), pair.getValue());
             }
             return clonedProperties;
-        }else{
+        } else {
             return null;
         }
     }

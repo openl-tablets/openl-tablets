@@ -42,6 +42,7 @@ import org.openl.rules.binding.RecursiveOpenMethodPreBinder;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.SpreadsheetNodeBinder;
 import org.openl.rules.cmatch.ColumnMatchNodeBinder;
+import org.openl.rules.constants.ConstantsTableBinder;
 import org.openl.rules.data.DataBase;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.IDataBase;
@@ -104,7 +105,9 @@ public class XlsBinder implements IOpenBinder {
             { XlsNodeTypes.XLS_RUN_METHOD.toString(), TestMethodNodeBinder.class.getName() },
             { XlsNodeTypes.XLS_TBASIC.toString(), AlgorithmNodeBinder.class.getName() },
             { XlsNodeTypes.XLS_COLUMN_MATCH.toString(), ColumnMatchNodeBinder.class.getName() },
-            { XlsNodeTypes.XLS_PROPERTIES.toString(), PropertyTableBinder.class.getName() }, };
+            { XlsNodeTypes.XLS_PROPERTIES.toString(), PropertyTableBinder.class.getName() },
+            { XlsNodeTypes.XLS_CONSTANTS.toString(), ConstantsTableBinder.class.getName() }
+    };
 
     public static synchronized Map<String, AXlsTableBinder> getBinderFactory() {
 
@@ -247,17 +250,18 @@ public class XlsBinder implements IOpenBinder {
             // Selectors
             //
             ASelector<ISyntaxNode> propertiesSelector = getSelector(XlsNodeTypes.XLS_PROPERTIES);
+            ASelector<ISyntaxNode> constantsSelector = getSelector(XlsNodeTypes.XLS_CONSTANTS);
             ASelector<ISyntaxNode> dataTypeSelector = getSelector(XlsNodeTypes.XLS_DATATYPE);
             
-            ISelector<ISyntaxNode> notPropertiesAndNotDatatypeSelector = propertiesSelector.not()
-                .and(dataTypeSelector.not());
+            ISelector<ISyntaxNode> notPropertiesAndNotDatatypeAndNotConstantsSelector = propertiesSelector.not()
+                .and(dataTypeSelector.not()).and(constantsSelector.not());
     
             ISelector<ISyntaxNode> spreadsheetSelector = getSelector(XlsNodeTypes.XLS_SPREADSHEET);
             ISelector<ISyntaxNode> dtSelector = getSelector(XlsNodeTypes.XLS_DT);
             ISelector<ISyntaxNode> testMethodSelector = getSelector(XlsNodeTypes.XLS_TEST_METHOD);
             ISelector<ISyntaxNode> runMethodSelector = getSelector(XlsNodeTypes.XLS_RUN_METHOD);
     
-            ISelector<ISyntaxNode> commonTablesSelector = notPropertiesAndNotDatatypeSelector
+            ISelector<ISyntaxNode> commonTablesSelector = notPropertiesAndNotDatatypeAndNotConstantsSelector
                 .and(spreadsheetSelector.not().and(testMethodSelector.not().and(runMethodSelector.not().and(dtSelector.not()))));
     
             // Bind property node at first.
@@ -268,6 +272,10 @@ public class XlsBinder implements IOpenBinder {
             bindPropertiesForAllTables(moduleNode, moduleOpenClass, openl, moduleContext);
     
             IBoundNode topNode = null;
+
+            //Bind constants
+            TableSyntaxNode[] constantNodes = selectNodes(moduleNode, constantsSelector);
+            bindInternal(moduleNode, moduleOpenClass, constantNodes, openl, moduleContext);
             
             // Bind datatype nodes.
             TableSyntaxNode[] datatypeNodes = selectNodes(moduleNode, dataTypeSelector);

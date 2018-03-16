@@ -19,7 +19,9 @@ import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.RuleRow;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
+import org.openl.syntax.exception.Runnable;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
@@ -141,26 +143,20 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
 
     protected IConditionEvaluator[] prepareConditions() throws Exception {
         int nConditions = table.getNumberOfConditions();
-        IConditionEvaluator[] evaluators = new IConditionEvaluator[nConditions];
+        final IConditionEvaluator[] evaluators = new IConditionEvaluator[nConditions];
 
-        List<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
-
+        SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
         for (int i = 0; i < nConditions; i++) {
-            try {
-                ICondition condition = table.getCondition(i);
-                evaluators[i] = prepareCondition(condition);
-            } catch (SyntaxNodeException e) {
-                errors.add(e);
-            } catch (CompositeSyntaxNodeException e) {
-                for (SyntaxNodeException syntaxNodeException : e.getErrors()) {
-                    errors.add(syntaxNodeException);
+            final int index = i;
+            syntaxNodeExceptionCollector.run(new Runnable() {
+                @Override
+                public void run() throws Exception {
+                    ICondition condition = table.getCondition(index);
+                    evaluators[index] = prepareCondition(condition);
                 }
-            }
+            });
         }
-
-        if (!errors.isEmpty()) {
-            throw new CompositeSyntaxNodeException("Error:", errors.toArray(new SyntaxNodeException[0]));
-        }
+        syntaxNodeExceptionCollector.throwIfAny("Error:");
 
         return evaluators;
     }

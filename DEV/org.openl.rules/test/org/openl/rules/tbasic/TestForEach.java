@@ -52,7 +52,7 @@ public class TestForEach extends Test0 {
     @Test
     public void test7() {
         Exception ex = catchEx(new File("test/rules/tbasic1/FOR_EACH_F7.xls"));
-        TestUtils.assertEx(ex, "Variable el has already been defined");
+        TestUtils.assertEx(ex, "Variable 'el' has already been defined");
     }
 
     @Test

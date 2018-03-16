@@ -6,9 +6,7 @@
 
 package org.openl.rules.dt.element;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.openl.OpenL;
@@ -32,8 +30,8 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
@@ -47,7 +45,6 @@ import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.impl.ParameterDeclaration;
-import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -268,21 +265,18 @@ public abstract class FunctionalRow implements IDecisionRow {
 
 		boolean[] paramIndexed = getParamIndexed(paramDecl);
 
-		ArrayList<SyntaxNodeException> errors = new ArrayList<SyntaxNodeException>();
 		IStorageBuilder<?>[] builders = makeStorageBuilders(len, paramDecl);
-
+		SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
+		
 		int actualStorageSize = scale.getActualSize(len);
 
 		for (int i = 0; i < actualStorageSize; i++) {
 			int ruleN = scale.getLogicalIndex(i);
-			loadParamsFromColumn(ota, ruleRow, paramDecl, paramIndexed, errors,
+			loadParamsFromColumn(ota, ruleRow, paramDecl, paramIndexed, syntaxNodeExceptionCollector,
 					ruleN, builders);
 		}
-
-		if (errors.size() > 0) {
-			throw new CompositeSyntaxNodeException("Error:",
-					errors.toArray(new SyntaxNodeException[errors.size()]));
-		}
+		
+		syntaxNodeExceptionCollector.throwIfAny("Error:");
 
 		storage = new IStorage<?>[builders.length];
 		for (int i = 0; i < builders.length; i++) {
@@ -306,7 +300,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 
 	private void loadParamsFromColumn(OpenlToolAdaptor ota, RuleRow ruleRow,
 			IParameterDeclaration[] paramDecl, boolean[] paramIndexed,
-			List<SyntaxNodeException> errors, int ruleN,
+			SyntaxNodeExceptionCollector syntaxNodeExceptionCollector, int ruleN,
 			IStorageBuilder<?>[] builders) {
 		IGridTable paramGridColumn = getValueCell(ruleN).getSource();
 
@@ -336,33 +330,15 @@ public abstract class FunctionalRow implements IDecisionRow {
 						LogicalTableHelper.logicalTable(singleParamGridTable),
 						paramType, paramDecl[j].getName(), ruleName, ota,
 						paramIndexed[j]);
-			} catch (SyntaxNodeException error) {
+			} catch (SyntaxNodeException e) {
 				// Avoid repeating error messages for same cell in Lookup
 				// tables.
-				if (!haveSameError(errors, error)) {
-					errors.add(error);
-				}
+			    syntaxNodeExceptionCollector.addSyntaxNodeException(e, true);
 			}
 			builders[j].writeObject(loadedValue, ruleN);
 
 			fromHeight += gridHeight;
 		}
-	}
-
-	private boolean haveSameError(List<SyntaxNodeException> errors,
-			SyntaxNodeException error) {
-		boolean errorAddedAlready = false;
-		for (SyntaxNodeException e : errors) {
-			if (StringUtils.equals(e.getMessage(), error.getMessage())
-					&& e.getSourceModule() != null
-					&& error.getSourceModule() != null
-					&& StringUtils.equals(e.getSourceModule().getUri(), error
-							.getSourceModule().getUri())) {
-				errorAddedAlready = true;
-				break;
-			}
-		}
-		return errorAddedAlready;
 	}
 
 	private boolean[] getParamIndexed(IParameterDeclaration[] paramDecl) {

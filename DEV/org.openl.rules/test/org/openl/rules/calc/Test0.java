@@ -75,7 +75,7 @@ public class Test0 {
                 File xlsFile = new File("test/rules/calc0/calc0-5.xls");
                 new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
             }
-        }, "Col1 has already been defined", "cell=E4");
+        }, "'Col1' has already been defined", "cell=E4");
     }
 
     @Test
@@ -85,6 +85,6 @@ public class Test0 {
                 File xlsFile = new File("test/rules/calc0/calc0-6.xls");
                 new TestHelper<ITestCalc>(xlsFile, ITestCalc.class);
             }
-        }, "Row1 has already been defined", "cell=B7");
+        }, "'Row1' has already been defined", "cell=B7");
     }
 }
