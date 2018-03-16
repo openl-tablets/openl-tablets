@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.openl.CompiledOpenClass;
@@ -29,6 +30,7 @@ import org.openl.message.Severity;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.cmatch.ColumnMatch;
+import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.data.DataOpenField;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITable;
@@ -48,6 +50,7 @@ import org.openl.rules.lang.xls.binding.wrapper.TableMethodWrapper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.table.TableMethod;
+import org.openl.rules.property.PropertiesOpenField;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
@@ -57,7 +60,8 @@ import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.rules.types.TableUriMember;
+import org.openl.rules.types.UriMemberHelper;
+import org.openl.rules.types.IUriMember;
 import org.openl.rules.types.ValidationMessages;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
@@ -85,13 +89,12 @@ import org.slf4j.LoggerFactory;
 public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableModuleOpenClass {
     private Logger log = LoggerFactory.getLogger(XlsModuleOpenClass.class);
 
-    protected Set<String> duplicatedMethodUrls = new HashSet<String>();
+    protected Set<String> duplicatedErrosUris = new HashSet<String>();
     private IDataBase dataBase = null;
 
     /**
-     * Whether DecisionTable should be used as a dispatcher for overloaded
-     * tables. By default(this flag equals false) dispatching logic will be
-     * performed in Java code.
+     * Whether DecisionTable should be used as a dispatcher for overloaded tables. By default(this flag equals false)
+     * dispatching logic will be performed in Java code.
      */
     private boolean useDescisionTableDispatcher;
 
@@ -172,6 +175,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             // for data tables inheriting from dependend modules.
             addDataTables(dependency.getCompiledOpenClass()); // Required for
                                                               // data tables.
+            addFields(dependency);
         }
     }
 
@@ -180,11 +184,19 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     @Override
-    protected boolean shouldAddMethodFromDependency(IOpenMethod method) {
+    protected boolean isDependencyMethodIgnorable(IOpenMethod method) {
         if (method instanceof TestSuiteMethod) {
-            return false;
+            return true;
         }
-        return true;
+        return false;
+    }
+
+    @Override
+    protected boolean isDependencyFieldIgnorable(IOpenField openField) {
+        if (openField instanceof DataOpenField || openField instanceof PropertiesOpenField) {
+            return true;
+        }
+        return super.isDependencyFieldIgnorable(openField);
     }
 
     @Override
@@ -205,11 +217,11 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
         Map<String, IOpenField> fieldsMap = openClass.getFields();
 
-        Set<String> tableUrls = new HashSet<String>();
+        Set<String> existingDataTablesUris = new HashSet<String>();
         Map<String, IOpenField> fields = getFields();
         for (IOpenField openField : fields.values()) {
             if (openField instanceof DataOpenField) {
-                tableUrls.add(((DataOpenField) openField).getTableUri());
+                existingDataTablesUris.add(((DataOpenField) openField).getUri());
             }
         }
         for (String key : fieldsMap.keySet()) {
@@ -217,16 +229,15 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             if (field instanceof DataOpenField) {
                 DataOpenField dataOpenField = (DataOpenField) field;
                 try {
-                    String tableUrl = dataOpenField.getTableUri();
+                    String uri = dataOpenField.getUri();
                     // Test tables are added both as methods and variables.
-                    if (!tableUrls.contains(tableUrl) && !duplicatedMethodUrls.contains(tableUrl)) {
+                    if (!existingDataTablesUris.contains(uri) && !duplicatedErrosUris.contains(uri)) {
                         boolean containsInDependency = false;
                         if (VirtualSourceCodeModule.SOURCE_URI.equals(metaInfo.getSourceUrl())) {
                             for (CompiledDependency d : getDependencies()) {
                                 IOpenClass dependentModuleClass = d.getCompiledOpenClass().getOpenClassWithErrors();
                                 if (dependentModuleClass instanceof XlsModuleOpenClass) {
-                                    if (((XlsModuleOpenClass) dependentModuleClass).duplicatedMethodUrls
-                                        .contains(tableUrl)) {
+                                    if (((XlsModuleOpenClass) dependentModuleClass).duplicatedErrosUris.contains(uri)) {
                                         containsInDependency = true;
                                         break;
                                     }
@@ -235,14 +246,13 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                         }
                         if (!containsInDependency) {
                             addField(field);
-                            tableUrls.add(tableUrl);
+                            existingDataTablesUris.add(uri);
                         }
                     }
                 } catch (OpenlNotCheckedException e) {
                     ITable table = dataOpenField.getTable();
-                    SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e.getMessage(),
-                        e,
-                        table == null ? null : table.getTableSyntaxNode());
+                    SyntaxNodeException error = SyntaxNodeExceptionUtils
+                        .createError(e.getMessage(), e, table == null ? null : table.getTableSyntaxNode());
                     addError(error);
                 }
             }
@@ -321,6 +331,35 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return openMethod;
     }
 
+    public void addField(IOpenField field) {
+        Map<String, IOpenField> fields = fieldMap();
+        if (fields.containsKey(field.getName())) {
+            IOpenField existedField = fields.get(field.getName());
+            if (field instanceof ConstantOpenField && existedField instanceof ConstantOpenField) { // Ignore constants
+                                                                                                   // with the same
+                                                                                                   // values
+                if (Objects.equals(((ConstantOpenField) field).getValue(),
+                    ((ConstantOpenField) existedField).getValue())) {
+                    return;
+                }
+            }
+
+            if (field instanceof IUriMember && existedField instanceof IUriMember) {
+                if (!UriMemberHelper.isTheSame((IUriMember) field, (IUriMember) existedField)) {
+                    throw new DuplicatedFieldException("", field.getName());
+                }
+            } else {
+                if (existedField != field) {
+                    throw new DuplicatedFieldException("", field.getName());
+                } else {
+                    return;
+                }
+            }
+        }
+        fieldMap().put(field.getName(), field);
+        addFieldToLowerCaseMap(field);
+    }
+
     /**
      * Adds method to <code>XlsModuleOpenClass</code>.
      *
@@ -397,9 +436,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) m;
                     if (memberMetaInfo.getSyntaxNode() != null) {
                         if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
-                            error = SyntaxNodeExceptionUtils.createError(e.getMessage(),
-                                e,
-                                memberMetaInfo.getSyntaxNode());
+                            error = SyntaxNodeExceptionUtils
+                                .createError(e.getMessage(), e, memberMetaInfo.getSyntaxNode());
                             ((TableSyntaxNode) memberMetaInfo.getSyntaxNode()).addError(error);
                         }
                     }
@@ -437,18 +475,15 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             }
         }
     }
-    
+
     private void validateTestSuiteMethod(IOpenMethod method, IOpenMethod existedMethod) {
-        if (method instanceof TableUriMember && existedMethod instanceof TableUriMember) {
-            String methodHashUrl = ((TableUriMember) method).getTableUri();
-            String existedMethodHashUrl = ((TableUriMember) existedMethod).getTableUri();
-            if (!methodHashUrl.equals(existedMethodHashUrl)) {
-                duplicatedMethodUrls.add(method.getInfo().getSourceUrl());
+        if (method instanceof IUriMember && existedMethod instanceof IUriMember) {
+            if (!UriMemberHelper.isTheSame((IUriMember) method, (IUriMember) existedMethod)) {
                 String message = ValidationMessages.getDuplicatedMethodMessage(existedMethod, method);
                 addDuplicatedMethodError(message, method, existedMethod);
             }
         } else {
-            throw new IllegalStateException("Implementation supports only TableUriMethod!");
+            throw new IllegalStateException("Implementation supports only IUriMember!");
         }
     }
 
@@ -466,15 +501,13 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     /**
-     * Dispatcher method should be added by adding all candidates of the
-     * specified dispatcher to current XlsModuleOpenClass(it will cause adding
-     * methods to dispatcher of current module or creating new dispatcher in
+     * Dispatcher method should be added by adding all candidates of the specified dispatcher to current
+     * XlsModuleOpenClass(it will cause adding methods to dispatcher of current module or creating new dispatcher in
      * current module).
      *
-     * Previously there was problems because dispatcher from dependency was
-     * either added to dispatcher of current module(dispatcher as a candidate in
-     * another dispatcher) or added to current module and was modified during
-     * the current module processing. FIXME
+     * Previously there was problems because dispatcher from dependency was either added to dispatcher of current
+     * module(dispatcher as a candidate in another dispatcher) or added to current module and was modified during the
+     * current module processing. FIXME
      *
      * @param dispatcher Dispatcher methods to add.
      */
@@ -562,6 +595,12 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     private void addDuplicatedMethodError(String message, IOpenMethod method, IOpenMethod existedMethod) {
+        if (method instanceof IUriMember) {
+            String uri = ((IUriMember) method).getUri();
+            if (duplicatedErrosUris.contains(uri)) {
+                return;
+            }
+        }
         ISyntaxNode newMethodSyntaxNode = method.getInfo().getSyntaxNode();
         if (newMethodSyntaxNode instanceof TableSyntaxNode) {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, newMethodSyntaxNode);

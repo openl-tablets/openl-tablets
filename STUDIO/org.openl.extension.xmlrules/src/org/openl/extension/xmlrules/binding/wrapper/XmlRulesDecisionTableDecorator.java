@@ -95,8 +95,8 @@ public class XmlRulesDecisionTableDecorator extends DecisionTable {
         return delegate.getHeader();
     }
 
-    public String getTableUri() {
-        return delegate.getTableUri();
+    public String getUri() {
+        return delegate.getUri();
     }
 
     public String getName() {

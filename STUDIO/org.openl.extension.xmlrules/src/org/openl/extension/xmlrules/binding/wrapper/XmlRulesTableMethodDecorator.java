@@ -73,8 +73,8 @@ public class XmlRulesTableMethodDecorator extends TableMethod {
         return delegate.getHeader();
     }
 
-    public String getTableUri() {
-        return delegate.getTableUri();
+    public String getUri() {
+        return delegate.getUri();
     }
 
     public IOpenMethod getMethod() {

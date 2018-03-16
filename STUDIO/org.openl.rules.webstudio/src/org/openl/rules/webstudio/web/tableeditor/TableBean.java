@@ -31,7 +31,7 @@ import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.*;
-import org.openl.rules.types.TableUriMember;
+import org.openl.rules.types.IUriMember;
 import org.openl.rules.ui.*;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.util.XSSFOptimizer;
@@ -363,7 +363,7 @@ public class TableBean {
         }
         List<TableDescription> tableDescriptions = new ArrayList<TableDescription>(allTests.length);
         for (IOpenMethod test : allTests) {
-            String tableUri = ((TableUriMember) test).getTableUri();
+            String tableUri = ((IUriMember) test).getUri();
             TableSyntaxNode syntaxNode = (TableSyntaxNode) test.getInfo().getSyntaxNode();
             tableDescriptions.add(new TableDescription(tableUri, syntaxNode.getId(), getTestName(test)));
         }

@@ -11,7 +11,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLCompilationException;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.types.TableUriMember;
+import org.openl.rules.types.IUriMember;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -24,7 +24,7 @@ import org.openl.vm.IRuntimeEnv;
  * 
  * @author Marat Kamalov
  */
-public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpenMethod, TableUriMember, LazyMethodWrapper {
+public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpenMethod, IUriMember, LazyMethodWrapper {
     private String methodName;
 
     private Class<?>[] argTypes;
@@ -99,7 +99,7 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
      *
      * @return member in compiled module.
      */
-    protected IOpenMethod getMember() {
+    public IOpenMethod getMember() {
         IOpenMethod cachedMember = getCachedMember();
         if (cachedMember != null) {
             return cachedMember;
@@ -130,9 +130,9 @@ public abstract class LazyMethod extends LazyMember<IOpenMethod> implements IOpe
     }
 
     @Override
-    public String getTableUri() {
-        if (getOriginal() instanceof TableUriMember) {
-            return ((TableUriMember) getOriginal()).getTableUri();
+    public String getUri() {
+        if (getOriginal() instanceof IUriMember) {
+            return ((IUriMember) getOriginal()).getUri();
         } else {
             throw new IllegalStateException("Implementation doesn't support methods other than ExecutableRulesMethod!");
         }
