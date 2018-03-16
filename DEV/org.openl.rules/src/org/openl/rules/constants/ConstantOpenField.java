@@ -1,26 +1,22 @@
 package org.openl.rules.constants;
 
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.rules.types.TableUriMember;
+import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.AOpenField;
 import org.openl.vm.IRuntimeEnv;
 
-public class ConstantOpenField extends AOpenField implements TableUriMember{
+public class ConstantOpenField extends AOpenField {
 
     private ModuleOpenClass declaringClass;
     private Object value;
-    private String tableUri;
+    private IMemberMetaInfo memberMetaInfo;
 
-    public ConstantOpenField(String name, Object value, IOpenClass type, ModuleOpenClass declaringClass, String tableUri) {
+    public ConstantOpenField(String name, Object value, IOpenClass type, ModuleOpenClass declaringClass, IMemberMetaInfo memberMetaInfo) {
         super(name, type);
         this.declaringClass = declaringClass;
         this.value = value;
-        this.tableUri = tableUri;
-    }
-    
-    public String getTableUri() {
-        return tableUri;
+        this.memberMetaInfo = memberMetaInfo;
     }
     
     @Override
@@ -31,10 +27,22 @@ public class ConstantOpenField extends AOpenField implements TableUriMember{
     public Object get(Object target, IRuntimeEnv env) {
         return value;
     }
+    
+    public Object getValue() {
+        return value;
+    }
 
     @Override
     public boolean isWritable() {
         return false;
+    }
+    
+    public IMemberMetaInfo getMemberMetaInfo() {
+        return memberMetaInfo;
+    }
+    
+    public void setMemberMetaInfo(IMemberMetaInfo memberMetaInfo) {
+        this.memberMetaInfo = memberMetaInfo;
     }
     
     @Override

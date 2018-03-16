@@ -64,8 +64,9 @@ public final class FieldUsageSearcher {
                 description = tableSyntaxNode.getHeaderLineValue().getValue();
                 uri = tableSyntaxNode.getUri();
             } else if (type instanceof XlsModuleOpenClass && boundField instanceof ConstantOpenField) {
-                description = MethodUtil.printType(boundField.getType()) + " " + boundField.getName();
-                uri = ((ConstantOpenField) boundField).getTableUri();
+                ConstantOpenField constantOpenField = ((ConstantOpenField) boundField);
+                description = MethodUtil.printType(boundField.getType()) + " " + boundField.getName() + " = " + String.valueOf(constantOpenField.getValue());
+                uri = constantOpenField.getMemberMetaInfo().getSourceUrl();
             } else {
                 IMetaInfo metaInfo = type.getMetaInfo();
                 while (metaInfo == null && type.isArray()) {
