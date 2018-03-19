@@ -1,13 +1,6 @@
-/*
- * Created on Jul 24, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.conf;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
+import java.util.Objects;
 
 /**
  * The implementation of the hashCode() and equals() for the derives classes.
@@ -33,17 +26,13 @@ public abstract class AUserContext implements IUserContext {
         }
         IUserContext c = (IUserContext) obj;
 
-        return new EqualsBuilder()
-                .append(getUserClassLoader(), c.getUserClassLoader())
-                .append(getUserHome(), c.getUserHome()).isEquals();
+        return Objects.equals(getUserClassLoader(), c.getUserClassLoader()) &&
+        Objects.equals(getUserHome(), c.getUserHome());
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder()
-                .append(getUserClassLoader())
-                .append(getUserHome())
-                .toHashCode();
+        return Objects.hash(getUserClassLoader(), getUserHome());
     }
 
 }

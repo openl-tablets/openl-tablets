@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.ByteValue.ByteValueAdapter;
@@ -17,6 +16,7 @@ import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
+import org.openl.util.CollectionUtils;
 import org.openl.util.math.MathUtils;
 
 @XmlRootElement
@@ -61,7 +61,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * @return the average value from the array
      */
     public static org.openl.meta.DoubleValue avg(org.openl.meta.ByteValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         Byte[] unwrappedArray = unwrap(values);
@@ -79,7 +79,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * @return the sum value from the array
      */
     public static org.openl.meta.ByteValue sum(org.openl.meta.ByteValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         Byte[] unwrappedArray = unwrap(values);
@@ -94,7 +94,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * @return the median value from the array
      */
     public static org.openl.meta.DoubleValue median(org.openl.meta.ByteValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         Byte[] unwrappedArray = unwrap(values);
@@ -380,7 +380,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * @return the product as a number
      */
     public static DoubleValue product(org.openl.meta.ByteValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         Byte[] unwrappedArray = unwrap(values);
@@ -416,7 +416,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.ByteValue small(org.openl.meta.ByteValue[] values, int position) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         Byte[] unwrappedArray = unwrap(values);
@@ -436,7 +436,7 @@ public class ByteValue extends ExplanationNumberValue<ByteValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.ByteValue big(org.openl.meta.ByteValue[] values, int position) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         Byte[] unwrappedArray = unwrap(values);
