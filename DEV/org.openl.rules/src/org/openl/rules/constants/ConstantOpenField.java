@@ -11,21 +11,28 @@ public class ConstantOpenField extends AOpenField implements IUriMember {
 
     private ModuleOpenClass declaringClass;
     private Object value;
+    private String valueAsString;
     private IMemberMetaInfo memberMetaInfo;
     private String uri;
 
     public ConstantOpenField(String name,
             Object value,
+            String valueAsString,
             IOpenClass type,
             ModuleOpenClass declaringClass,
             IMemberMetaInfo memberMetaInfo) {
         super(name, type);
         this.declaringClass = declaringClass;
         this.value = value;
+        this.valueAsString = valueAsString;
         this.memberMetaInfo = memberMetaInfo;
         this.uri = memberMetaInfo.getSourceUrl();
     }
 
+    public String getValueAsString() {
+        return valueAsString;
+    }
+    
     @Override
     public String getUri() {
         return uri;

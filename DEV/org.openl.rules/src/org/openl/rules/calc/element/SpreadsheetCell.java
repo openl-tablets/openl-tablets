@@ -75,6 +75,10 @@ public class SpreadsheetCell implements Invokable {
     public boolean isValueCell() {
         return spreadsheetCellType == SpreadsheetCellType.VALUE;
     }
+    
+    public boolean isConstantCell() {
+        return spreadsheetCellType == SpreadsheetCellType.CONSTANT;
+    }
 
     public void setMethod(IOpenMethod method) {
         this.method = method;
@@ -96,7 +100,6 @@ public class SpreadsheetCell implements Invokable {
         // Add cell type meta info
         if (sourceCell != null) {
             String formattedValue = sourceCell.getFormattedValue();
-
             if (formattedValue.startsWith("=")) {
                 CellMetaInfo metaInfo = sourceCell.getMetaInfo();
                 if (metaInfo == null) {
@@ -129,7 +132,7 @@ public class SpreadsheetCell implements Invokable {
     }
 
     public Object invoke(Object spreadsheetResult, Object[] params, IRuntimeEnv env) {
-        if (isValueCell()) {
+        if (isValueCell() || isConstantCell()) {
             Object value = getValue();
             return value;
         } else if (isMethodCell()) {

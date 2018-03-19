@@ -48,6 +48,9 @@ public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
                     case VALUE:
                         res[i][j] = cell.getValue();
                         break;
+                    case CONSTANT:
+                        res[i][j] = cell.getValue();
+                        break;
                     case METHOD:
                         res[i][j] = SpreadsheetResultCalculator.NEED_TO_CALCULATE_VALUE;
                         break;

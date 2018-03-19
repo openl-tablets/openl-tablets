@@ -9,7 +9,9 @@ import java.util.List;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.NodeType;
+import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.domain.IDomain;
 import org.openl.exception.OpenLCompilationException;
@@ -18,13 +20,20 @@ import org.openl.meta.IMetaHolder;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.ValueMetaInfo;
 import org.openl.rules.OpenlToolAdaptor;
+import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.convertor.IObjectToDataConvertor;
 import org.openl.rules.convertor.ObjectToDataConvertorFactory;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.dt.element.ArrayHolder;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.table.*;
+import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGrid;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.LogicalTableHelper;
+import org.openl.rules.table.SingleCellGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
@@ -34,6 +43,7 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
@@ -83,10 +93,9 @@ public class RuleRowHelper {
     }
 
     /**
-     * Method to support loading Arrays through
-     * {@link #ARRAY_ELEMENTS_SEPARATOR} in one cell. Gets the cell string
-     * value. Split it by {@link #ARRAY_ELEMENTS_SEPARATOR}, and process every
-     * token as single parameter. Returns array of parameters.
+     * Method to support loading Arrays through {@link #ARRAY_ELEMENTS_SEPARATOR} in one cell. Gets the cell string
+     * value. Split it by {@link #ARRAY_ELEMENTS_SEPARATOR}, and process every token as single parameter. Returns array
+     * of parameters.
      *
      * @return Array of parameters.
      */
@@ -255,9 +264,9 @@ public class RuleRowHelper {
                 for (int j = 0; j < table.getWidth(); j++) {
                     if ((!(i == 0 && j == 0))) {
                         ICell cell = table.getCell(j, i);
-                        if ((theCell.getAbsoluteRegion().getTop() != cell.getAbsoluteRegion()
-                            .getTop() || theCell.getAbsoluteRegion().getLeft() != cell.getAbsoluteRegion()
-                                .getLeft()) && cell.getStringValue() != null) {
+                        if ((theCell.getAbsoluteRegion().getTop() != cell.getAbsoluteRegion().getTop() || theCell
+                            .getAbsoluteRegion()
+                            .getLeft() != cell.getAbsoluteRegion().getLeft()) && cell.getStringValue() != null) {
                             if (!cell.getStringValue().startsWith(COMMETARY)) {
                                 IGridTable cellTable = getTopLeftCellFromMergedRegion(table.getSource());
                                 throw SyntaxNodeExceptionUtils.createError(
@@ -318,6 +327,44 @@ public class RuleRowHelper {
         return res;
     }
 
+    public static void setMetaInfoWithNodeUsageForConstantCell(ICell sourceCell,
+            String cellCode,
+            IOpenField openField,
+            IBindingContext bindingContext) {
+        if (!bindingContext.isExecutionMode()) {
+            ConstantOpenField constantOpenField = (ConstantOpenField) openField;
+            CellMetaInfo metaInfo = sourceCell.getMetaInfo();
+            if (metaInfo == null) {
+                metaInfo = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE,
+                    null,
+                    JavaOpenClass.STRING,
+                    false,
+                    Collections.<NodeUsage> emptyList());
+            }
+
+            List<NodeUsage> nodeUsages = new ArrayList<NodeUsage>();
+            String description = MethodUtil.printType(constantOpenField.getType()) + " " + constantOpenField
+                .getName() + " = " + constantOpenField.getValueAsString(); 
+            nodeUsages.add(new SimpleNodeUsage(0, cellCode.length() - 1, description, constantOpenField.getUri(), NodeType.OTHER)); 
+            if (metaInfo.getUsedNodes() != null) {
+                nodeUsages.addAll(metaInfo.getUsedNodes());
+            }
+            metaInfo.setUsedNodes(nodeUsages);
+            sourceCell.setMetaInfo(metaInfo);
+        }
+    }
+    
+    public static ConstantOpenField findConstantField(IBindingContext bindingContext, String source) {
+        if (source == null) {
+            return null;
+        }
+        IOpenField openField = bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, source.trim(), true);
+        if (openField instanceof ConstantOpenField) {
+            return (ConstantOpenField) openField;
+        }
+        return null;
+    }
+
     private static Object loadSingleParam(IOpenClass paramType,
             String paramName,
             String ruleName,
@@ -361,18 +408,31 @@ public class RuleRowHelper {
 
             // Set cell meta information at first.
             //
-            if (!openlAdapter.getBindingContext().isExecutionMode())
+            if (!openlAdapter.getBindingContext().isExecutionMode()) {
                 setCellMetaInfo(cell, paramName, paramType, isPartOfArray);
+            }
 
             // Try to get cell object value with appropriate string parser.
             // A parser instance will be selected using expected type of cell
             // value.
             //
-            Object result;
+            Object result = null;
 
             try {
                 IBindingContext bindingContext = openlAdapter.getBindingContext();
-                result = String2DataConvertorFactory.parse(expectedType, source, bindingContext);
+                // Pasre as constant value
+                ConstantOpenField constantOpenField = findConstantField(bindingContext, source);
+                if (constantOpenField != null) {
+                    ICell iCell = cell.getSource().getCell(0, 0);
+                    result = constantOpenField.getValue();
+                    setMetaInfoWithNodeUsageForConstantCell(iCell, iCell.getStringValue(), constantOpenField, bindingContext);
+                    if (result != null && !expectedType.isAssignableFrom(result.getClass())) {
+                        throw new ClassCastException(
+                            String.format("Expected value of type '%s'.", expectedType.getSimpleName()));
+                    }
+                } else {
+                    result = String2DataConvertorFactory.parse(expectedType, source, bindingContext);
+                }
 
             } catch (Exception e) {
                 // Parsing of loaded string value can be sophisticated process.
@@ -419,9 +479,8 @@ public class RuleRowHelper {
     }
 
     /**
-     * The cell in merged region must point to the top left cell of the region.
-     * If the cell is not in merged region, return cellTable object unchanged.
-     * If cellTable is not cell return cellTable object unchanged.
+     * The cell in merged region must point to the top left cell of the region. If the cell is not in merged region,
+     * return cellTable object unchanged. If cellTable is not cell return cellTable object unchanged.
      *
      * @param cellTable original cell
      * @return top left cell if region is merged or the cell itself otherwise
@@ -653,14 +712,13 @@ public class RuleRowHelper {
     }
 
     /**
-     * Checks if the elements of parameters array are the instances of
-     * {@link CompositeMethod}, if yes process it through {@link ArrayHolder}.
-     * If no return Object[].
+     * Checks if the elements of parameters array are the instances of {@link CompositeMethod}, if yes process it
+     * through {@link ArrayHolder}. If no return Object[].
      *
      * @param paramType parameter type
      * @param paramsArray array of parameters
-     * @return {@link ArrayHolder} if elements of parameters array are instances
-     *         of {@link CompositeMethod}, in other case Object[].
+     * @return {@link ArrayHolder} if elements of parameters array are instances of {@link CompositeMethod}, in other
+     *         case Object[].
      */
     private static Object processAsObjectParams(IOpenClass paramType, Object[] paramsArray) {
         List<CompositeMethod> methodsList = null;

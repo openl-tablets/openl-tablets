@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
-import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.types.IUriMember;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;

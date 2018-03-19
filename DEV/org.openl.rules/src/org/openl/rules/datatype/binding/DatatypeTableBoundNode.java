@@ -6,10 +6,8 @@ package org.openl.rules.datatype.binding;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -25,6 +23,7 @@ import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.binding.RuleRowHelper;
+import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.datatype.gen.FieldDescription;
 import org.openl.rules.datatype.gen.SimpleBeanByteCodeGenerator;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -50,7 +49,6 @@ import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringTool;
-import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
 import org.slf4j.Logger;
@@ -391,44 +389,53 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
             if (row.getWidth() > 2) {
                 String defaultValue = getDefaultValue(row, cxt);
-                fieldDescription.setDefaultValueAsString(defaultValue);
-                if (fieldDescription.getTypeName().equals(Date.class.getName())) {
-                    // EPBDS-6068 add metainfo for XlsDataFormatterFactory.getFormatter can define correct formater for
-                    // cell.
-                    Object value = row.getColumn(2).getCell(0, 0).getObjectValue();
-                    if (value != null && fieldDescription.getTypeName().equals(value.getClass().getName())) {
-                        RuleRowHelper.setCellMetaInfo(row.getColumn(2), null, fieldType, false);
-                        fieldDescription.setDefaultValue(value);
-                    }
-                }
-                Object value;
-                try {
-                    value = fieldDescription.getDefaultValue();
-                } catch (RuntimeException e) {
-                    String message = String.format("Can't parse cell value '%s'", defaultValue);
-                    IOpenSourceCodeModule cellSourceCodeModule = getCellSource(row, cxt, 2);
-
-                    if (e instanceof CompositeSyntaxNodeException) {
-                        CompositeSyntaxNodeException exception = (CompositeSyntaxNodeException) e;
-                        if (exception.getErrors() != null && exception.getErrors().length == 1) {
-                            SyntaxNodeException syntaxNodeException = exception.getErrors()[0];
-                            throw SyntaxNodeExceptionUtils
-                                .createError(message, null, syntaxNodeException.getLocation(), cellSourceCodeModule);
+                
+                ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(cxt, defaultValue);
+                if (constantOpenField != null) {
+                    fieldDescription.setDefaultValue(constantOpenField.getValue());
+                    fieldDescription.setDefaultValueAsString(constantOpenField.getValueAsString());
+                    RuleRowHelper.setMetaInfoWithNodeUsageForConstantCell(getCellSource(row, cxt, 2).getCell(), defaultValue, constantOpenField, cxt);
+                } else {
+                    fieldDescription.setDefaultValueAsString(defaultValue);
+                
+                    if (fieldDescription.getTypeName().equals(Date.class.getName())) {
+                        // EPBDS-6068 add metainfo for XlsDataFormatterFactory.getFormatter can define correct formater for
+                        // cell.
+                        Object value = row.getColumn(2).getCell(0, 0).getObjectValue();
+                        if (value != null && fieldDescription.getTypeName().equals(value.getClass().getName())) {
+                            RuleRowHelper.setCellMetaInfo(row.getColumn(2), null, fieldType, false);
+                            fieldDescription.setDefaultValue(value);
                         }
-                        throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
-                    } else {
-                        TextInterval location = defaultValue == null ? null
-                                                                     : LocationUtils.createTextInterval(defaultValue);
-                        throw SyntaxNodeExceptionUtils.createError(message, e, location, cellSourceCodeModule);
                     }
-                }
-                if (value != null && !(fieldDescription.hasDefaultKeyWord() && fieldDescription.isArray())) {
-                    // Validate not null default value
-                    // The null value is allowed for alias types
+                    Object value;
                     try {
-                        RuleRowHelper.validateValue(value, fieldType);
-                    } catch (Exception e) {
-                        throw SyntaxNodeExceptionUtils.createError(e.getMessage(), e, null, getCellSource(row, cxt, 2));
+                        value = fieldDescription.getDefaultValue();
+                    } catch (RuntimeException e) {
+                        String message = String.format("Can't parse cell value '%s'", defaultValue);
+                        IOpenSourceCodeModule cellSourceCodeModule = getCellSource(row, cxt, 2);
+    
+                        if (e instanceof CompositeSyntaxNodeException) {
+                            CompositeSyntaxNodeException exception = (CompositeSyntaxNodeException) e;
+                            if (exception.getErrors() != null && exception.getErrors().length == 1) {
+                                SyntaxNodeException syntaxNodeException = exception.getErrors()[0];
+                                throw SyntaxNodeExceptionUtils
+                                    .createError(message, null, syntaxNodeException.getLocation(), cellSourceCodeModule);
+                            }
+                            throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
+                        } else {
+                            TextInterval location = defaultValue == null ? null
+                                                                         : LocationUtils.createTextInterval(defaultValue);
+                            throw SyntaxNodeExceptionUtils.createError(message, e, location, cellSourceCodeModule);
+                        }
+                    }
+                    if (value != null && !(fieldDescription.hasDefaultKeyWord() && fieldDescription.isArray())) {
+                        // Validate not null default value
+                        // The null value is allowed for alias types
+                        try {
+                            RuleRowHelper.validateValue(value, fieldType);
+                        } catch (Exception e) {
+                            throw SyntaxNodeExceptionUtils.createError(e.getMessage(), e, null, getCellSource(row, cxt, 2));
+                        }
                     }
                 }
             }
