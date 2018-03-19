@@ -1,5 +1,6 @@
 package org.openl.rules.vm;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -10,8 +11,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.rules.table.OpenLArgumentsCloner;
 
 public class ArgumentCachingStorage {
@@ -188,10 +187,8 @@ public class ArgumentCachingStorage {
 
         public int getParamsHashCode() {
             if (!paramsHashCodeCalculated) {
-                HashCodeBuilder builder = new HashCodeBuilder();
-                builder.append(getParams());
                 paramsHashCodeCalculated = true;
-                paramsHashCode = builder.toHashCode();
+                paramsHashCode = Arrays.deepHashCode(getParams());
             }
             return paramsHashCode;
         }
@@ -208,16 +205,12 @@ public class ArgumentCachingStorage {
         int size = 0;
 
         public Object get(Object[] params) throws ResultNotFoundException {
-            HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
-            hashCodeBuilder.append(params);
-            int hashCode = hashCodeBuilder.toHashCode();
+            int hashCode = Arrays.deepHashCode(params);
 
             for (int i = 0; i < size; i++) {
                 InvocationData invocationData = invocationDatas[i];
                 if (hashCode == invocationData.getParamsHashCode()) {
-                    EqualsBuilder equalsBuilder = new EqualsBuilder();
-                    equalsBuilder.append(invocationData.getParams(), params);
-                    if (equalsBuilder.isEquals()) {
+                    if (Arrays.deepEquals(invocationData.getParams(), params)) {
                         return invocationData.getResult();
                     }
                 }

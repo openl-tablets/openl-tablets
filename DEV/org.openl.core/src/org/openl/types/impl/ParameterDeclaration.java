@@ -1,16 +1,10 @@
-/*
- * Created on Nov 10, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.types.impl;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
 import org.openl.util.ClassUtils;
+
+import java.util.Objects;
 
 /**
  * @author snshor
@@ -45,13 +39,13 @@ public class ParameterDeclaration implements IParameterDeclaration {
         }
         ParameterDeclaration paramDecl = (ParameterDeclaration) obj;
 
-        return new EqualsBuilder().append(name, paramDecl.name).append(type, paramDecl.getType()).isEquals();
+        return Objects.equals(name, paramDecl.name) &&
+                Objects.equals(type, paramDecl.getType());
     }
 
     @Override
     public int hashCode() {
-        int hashCode = new HashCodeBuilder().append(name).append(type).toHashCode();
-        return hashCode;
+        return Objects.hash(name, type);
     }
 
     @Override

@@ -1,8 +1,5 @@
 package org.openl.rules.datatype.binding;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import java.util.*;
 
 /**
@@ -67,15 +64,15 @@ public class TopologicalSort<T> {
         @Override
         public boolean equals(Object obj) {
             if (obj instanceof TopoGraphNode) {
-                TopoGraphNode<T> node = (TopoGraphNode<T>) obj;
-                return new EqualsBuilder().append(this.obj, node.getObj()).isEquals();
+                TopoGraphNode<?> node = (TopoGraphNode<?>) obj;
+                return Objects.equals(this.obj, node.getObj());
             }
             return false;
         }
 
         @Override
         public int hashCode() {
-            return new HashCodeBuilder().append(obj).toHashCode();
+            return Objects.hashCode(obj);
         }
     }
 }
