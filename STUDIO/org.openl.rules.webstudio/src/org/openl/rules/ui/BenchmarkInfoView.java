@@ -1,10 +1,10 @@
 package org.openl.rules.ui;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.benchmark.BenchmarkInfo;
 import org.openl.rules.ui.benchmark.BenchmarkUnit;
+
+import java.util.Objects;
 
 /**
  * Benchmark Info that will be displayed in the form. Contains BenchmarkInfo and
@@ -78,7 +78,7 @@ public class BenchmarkInfoView {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(benchmarkInfo).append(tableId).toHashCode();
+        return Objects.hash(benchmarkInfo, tableId);
     }
 
     @Override
@@ -90,7 +90,8 @@ public class BenchmarkInfoView {
 
         BenchmarkInfoView other = (BenchmarkInfoView) obj;
 
-        return new EqualsBuilder().append(benchmarkInfo, other.benchmarkInfo).append(tableId, other.tableId).isEquals();
+        return Objects.equals(benchmarkInfo, other.benchmarkInfo) &&
+                Objects.equals(tableId, other.tableId);
     }
 
     // delegated methods

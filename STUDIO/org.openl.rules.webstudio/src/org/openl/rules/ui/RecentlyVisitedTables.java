@@ -2,8 +2,6 @@ package org.openl.rules.ui;
 
 import java.util.*;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.ITableProperties;
@@ -179,11 +177,11 @@ public class RecentlyVisitedTables {
             
             VisitedTableWrapper wrapper = (VisitedTableWrapper) obj;
             
-            return  new EqualsBuilder().append(getId(), wrapper.getId()).isEquals();
+            return  Objects.equals(getId(), wrapper.getId());
         }
         
         public int hashCode() {
-            return new HashCodeBuilder(17, 31).append(getId()).toHashCode();
+            return Objects.hashCode(getId());
         }
     }
 

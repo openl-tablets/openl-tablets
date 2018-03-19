@@ -15,9 +15,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.binding.exception.AmbiguousVarException;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.domain.IDomain;
@@ -460,7 +459,7 @@ public abstract class AOpenClass implements IOpenClass {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(getName()).toHashCode();
+        return Objects.hashCode(getName());
     }
 
     @Override
@@ -468,7 +467,7 @@ public abstract class AOpenClass implements IOpenClass {
         if (!(obj instanceof IOpenClass)) {
             return false;
         }
-        return new EqualsBuilder().append(getName(), ((IOpenClass) obj).getName()).isEquals();
+        return Objects.equals(getName(), ((IOpenClass) obj).getName());
     }
 
     private Map<String, List<IOpenMethod>> allMethodNamesMap = null;

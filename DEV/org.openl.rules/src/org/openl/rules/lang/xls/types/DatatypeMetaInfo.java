@@ -1,8 +1,8 @@
 package org.openl.rules.lang.xls.types;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.openl.meta.IMetaInfo;
+
+import java.util.Objects;
 
 /**
  * Implementation of {@link IMetaInfo} for datatypes. 
@@ -40,7 +40,7 @@ public class DatatypeMetaInfo implements IMetaInfo {
 
 	@Override
 	public int hashCode() {
-		return new HashCodeBuilder().append(displayName).append(sourceUrl).toHashCode();
+        return Objects.hash(displayName, sourceUrl);
 	}
 
 	@Override
@@ -53,7 +53,8 @@ public class DatatypeMetaInfo implements IMetaInfo {
 			return false;
 		DatatypeMetaInfo other = (DatatypeMetaInfo) obj;
 		
-		return new EqualsBuilder().append(displayName, other.getDisplayName()).append(sourceUrl, other.getSourceUrl()).isEquals();
+        return Objects.equals(displayName, other.getDisplayName()) &&
+                Objects.equals(sourceUrl, other.getSourceUrl());
 	}
 	
 	

@@ -44,7 +44,7 @@ public class DoubleRangeParsingTest {
     @Test
     public void testThousandsSeparator() {
         assertEquals(new DoubleRange(-123456, 987654.3), new DoubleRange("-123,456 - 987,654.3"));
-        assertEquals(new DoubleRange(123456.7, Double.POSITIVE_INFINITY, BoundType.EXCLUDING, BoundType.INCLUDING), new DoubleRange("123,456.7+"));
+        assertEquals(new DoubleRange(123456.7, Double.POSITIVE_INFINITY, BoundType.INCLUDING, BoundType.INCLUDING), new DoubleRange("123,456.7+"));
         assertEquals(new DoubleRange(123456.7, Double.POSITIVE_INFINITY, BoundType.EXCLUDING, BoundType.INCLUDING), new DoubleRange(">123,456.7"));
         assertEquals(new DoubleRange(123456.7, 123456.7), new DoubleRange("123,456.7"));
         assertEquals(new DoubleRange(123456.7, 987654, BoundType.INCLUDING, BoundType.EXCLUDING), new DoubleRange("[123,456.7 - 987,654)"));

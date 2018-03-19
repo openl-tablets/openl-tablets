@@ -1,13 +1,10 @@
-/*
- * Created on Jul 7, 2005
- */
 package org.openl.rules.helpers;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.openl.meta.DoubleValue;
 import org.openl.util.RangeWithBounds;
 import org.openl.util.RangeWithBounds.BoundType;
@@ -143,20 +140,19 @@ public class DoubleRange implements INumberRange {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof DoubleRange)) {
-            return false;
-        }
-        DoubleRange other = (DoubleRange) obj;
-        EqualsBuilder builder = new EqualsBuilder();
-        builder.append(lowerBound, other.lowerBound);
-        builder.append(upperBound, other.upperBound);
-        builder.append(upperBoundType, other.upperBoundType);
-        builder.append(upperBoundType, other.upperBoundType);
-        return builder.isEquals();
+    public int hashCode() {
+        return Objects.hash(lowerBound, upperBound, lowerBoundType, upperBoundType);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DoubleRange)) return false;
+        DoubleRange that = (DoubleRange) o;
+        return Double.compare(that.lowerBound, lowerBound) == 0 &&
+                Double.compare(that.upperBound, upperBound) == 0 &&
+                lowerBoundType == that.lowerBoundType &&
+                upperBoundType == that.upperBoundType;
     }
 
     /**
