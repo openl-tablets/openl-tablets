@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.IntValue.IntValueAdapter;
@@ -17,6 +16,7 @@ import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
+import org.openl.util.CollectionUtils;
 import org.openl.util.math.MathUtils;
 
 @XmlRootElement
@@ -61,7 +61,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @return the average value from the array
      */
     public static org.openl.meta.DoubleValue avg(org.openl.meta.IntValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         Integer[] unwrappedArray = unwrap(values);
@@ -78,7 +78,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @return the sum value from the array
      */
     public static org.openl.meta.IntValue sum(org.openl.meta.IntValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         Integer[] unwrappedArray = unwrap(values);
@@ -93,7 +93,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @return the median value from the array
      */
     public static org.openl.meta.DoubleValue median(org.openl.meta.IntValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         Integer[] unwrappedArray = unwrap(values);
@@ -380,7 +380,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @return the product as a number
      */
     public static DoubleValue product(org.openl.meta.IntValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         Integer[] unwrappedArray = unwrap(values);
@@ -416,7 +416,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.IntValue small(org.openl.meta.IntValue[] values, int position) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         Integer[] unwrappedArray = unwrap(values);
@@ -436,7 +436,7 @@ public class IntValue extends ExplanationNumberValue<IntValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.IntValue big(org.openl.meta.IntValue[] values, int position) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         Integer[] unwrappedArray = unwrap(values);

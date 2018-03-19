@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.Operators;
 import org.openl.binding.impl.operator.Comparison;
 import org.openl.exception.OpenLRuntimeException;
@@ -18,6 +17,7 @@ import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
 import org.openl.util.ArrayTool;
+import org.openl.util.CollectionUtils;
 import org.openl.util.math.MathUtils;
 
 @XmlRootElement
@@ -117,7 +117,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
      * @return the average value from the array
      */
     public static org.openl.meta.BigDecimalValue avg(org.openl.meta.BigDecimalValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         java.math.BigDecimal[] unwrappedArray = unwrap(values);
@@ -130,7 +130,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
      * @return the sum value from the array
      */
     public static org.openl.meta.BigDecimalValue sum(org.openl.meta.BigDecimalValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         java.math.BigDecimal[] unwrappedArray = unwrap(values);
@@ -143,7 +143,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
      * @return the median value from the array
      */
     public static org.openl.meta.BigDecimalValue median(org.openl.meta.BigDecimalValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         java.math.BigDecimal[] unwrappedArray = unwrap(values);
@@ -394,7 +394,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
      * @return the product as a number
      */
     public static org.openl.meta.BigDecimalValue product(org.openl.meta.BigDecimalValue[] values) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         java.math.BigDecimal[] unwrappedArray = unwrap(values);
@@ -423,7 +423,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.BigDecimalValue small(org.openl.meta.BigDecimalValue[] values, int position) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         java.math.BigDecimal[] unwrappedArray = unwrap(values);
@@ -439,7 +439,7 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> {
      * @return the value from array <b>values</b> at position <b>position</b>
      */
     public static org.openl.meta.BigDecimalValue big(org.openl.meta.BigDecimalValue[] values, int position) {
-        if (ArrayUtils.isEmpty(values)) {
+        if (CollectionUtils.isEmpty(values)) {
             return null;
         }
         java.math.BigDecimal[] unwrappedArray = unwrap(values);
