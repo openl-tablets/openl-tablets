@@ -167,6 +167,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
 
                 ConstantOpenField constantField = new ConstantOpenField(constantName,
                     objectValue,
+                    value,
                     constantType,
                     moduleOpenClass,
                     fieldMetaInfo);

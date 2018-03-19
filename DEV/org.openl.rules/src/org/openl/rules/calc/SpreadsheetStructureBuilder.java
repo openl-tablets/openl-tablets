@@ -17,12 +17,14 @@ import org.openl.meta.IMetaHolder;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.StringValue;
 import org.openl.meta.ValueMetaInfo;
+import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.element.SpreadsheetCellField;
 import org.openl.rules.calc.element.SpreadsheetCellType;
 import org.openl.rules.calc.element.SpreadsheetExpressionMarker;
 import org.openl.rules.calc.element.SpreadsheetStructureBuilderHolder;
 import org.openl.rules.calc.result.IResultBuilder;
+import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ICell;
@@ -34,6 +36,7 @@ import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -88,8 +91,7 @@ public class SpreadsheetStructureBuilder {
     private SpreadsheetCell[][] cells;
 
     /**
-     * Add to {@link SpreadsheetOpenClass} fields that are represented by
-     * spreadsheet cells.
+     * Add to {@link SpreadsheetOpenClass} fields that are represented by spreadsheet cells.
      * 
      * @param spreadsheetType open class of the spreadsheet
      */
@@ -286,8 +288,16 @@ public class SpreadsheetStructureBuilder {
                     .createError(message, t, LocationUtils.createTextInterval(source.getCode()), source));
             }
 
+        } else if (spreadsheetCell.isConstantCell()) {
+            try {
+                IOpenField openField = rowBindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, code, true);
+                ConstantOpenField constOpenField = (ConstantOpenField) openField;
+                spreadsheetCell.setValue(constOpenField.getValue());
+            } catch (Exception e) {
+                String message = String.format("Cannot parse cell!", code);
+                addError(SyntaxNodeExceptionUtils.createError(message, e, null, source));
+            }
         } else {
-
             Class<?> instanceClass = type.getInstanceClass();
             if (instanceClass == null) {
                 String message = String.format("Type '%s' was loaded with errors", type.getName());
@@ -305,7 +315,7 @@ public class SpreadsheetStructureBuilder {
 
                 IOpenCast openCast = bindingContext.getCast(JavaOpenClass.getOpenClass(instanceClass), type);
                 spreadsheetCell.setValue(openCast.convert(result));
-            } catch (Throwable t) {
+            } catch (Exception t) {
                 String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
                 addError(SyntaxNodeExceptionUtils.createError(message, t, null, source));
             }
@@ -318,8 +328,7 @@ public class SpreadsheetStructureBuilder {
     }
 
     /**
-     * Creates a field from the spreadsheet cell and add it to the
-     * spreadsheetType
+     * Creates a field from the spreadsheet cell and add it to the spreadsheetType
      */
     private void addSpreadsheetFields(SpreadsheetOpenClass spreadsheetType,
             SpreadsheetCell spreadsheetCell,
@@ -344,9 +353,7 @@ public class SpreadsheetStructureBuilder {
                 String fieldname = getSpreadsheetCellFieldName(columnName, rowName);
 
                 /** create spreadsheet cell field */
-                SpreadsheetCellField field = createSpreadsheetCellField(spreadsheetType,
-                    spreadsheetCell,
-                    fieldname);
+                SpreadsheetCellField field = createSpreadsheetCellField(spreadsheetType, spreadsheetCell, fieldname);
 
                 /** add spreadsheet cell field to its open class */
                 spreadsheetType.addField(field);
@@ -356,13 +363,11 @@ public class SpreadsheetStructureBuilder {
 
     /**
      * Gets the name of the spreadsheet cell field. <br>
-     * Is represented as {@link #DOLLAR_SIGN}columnName{@link #DOLLAR_SIGN}
-     * rowName, e.g. $Value$Final
+     * Is represented as {@link #DOLLAR_SIGN}columnName{@link #DOLLAR_SIGN} rowName, e.g. $Value$Final
      * 
      * @param columnName name of cell column
      * @param rowName name of the row column
-     * @return {@link #DOLLAR_SIGN}columnName{@link #DOLLAR_SIGN}rowName, e.g.
-     *         $Value$Final
+     * @return {@link #DOLLAR_SIGN}columnName{@link #DOLLAR_SIGN}rowName, e.g. $Value$Final
      */
     private String getSpreadsheetCellFieldName(String columnName, String rowName) {
         return (DOLLAR_SIGN + columnName + DOLLAR_SIGN + rowName).intern();
@@ -379,6 +384,8 @@ public class SpreadsheetStructureBuilder {
 
         String cellCode = sourceCell.getStringValue();
 
+        IOpenField openField = null;
+
         SpreadsheetCellType spreadsheetCellType = null;
         if (cellCode == null || cellCode.isEmpty() || columnHeaders.get(columnIndex) == null || rowHeaders
             .get(rowIndex) == null) {
@@ -387,6 +394,10 @@ public class SpreadsheetStructureBuilder {
             spreadsheetCellType = SpreadsheetCellType.METHOD;
         } else {
             spreadsheetCellType = SpreadsheetCellType.VALUE;
+            openField = RuleRowHelper.findConstantField(spreadsheetBindingContext, cellCode);
+            if (openField != null) {
+                spreadsheetCellType = SpreadsheetCellType.CONSTANT;
+            }
         }
 
         SpreadsheetCell spreadsheetCell;
@@ -394,9 +405,15 @@ public class SpreadsheetStructureBuilder {
             spreadsheetCell = new SpreadsheetCell(rowIndex, columnIndex, null, spreadsheetCellType);
         } else {
             spreadsheetCell = new SpreadsheetCell(rowIndex, columnIndex, sourceCell, spreadsheetCellType);
+            if (SpreadsheetCellType.CONSTANT.equals(spreadsheetCellType)) {
+                RuleRowHelper.setMetaInfoWithNodeUsageForConstantCell(sourceCell, cellCode, openField, spreadsheetBindingContext);
+            }
         }
 
-        IOpenClass cellType = deriveCellType(columnHeaders.get(columnIndex), rowHeaders.get(rowIndex), cellCode);
+        IOpenClass cellType = deriveCellType(columnHeaders.get(columnIndex),
+            rowHeaders.get(rowIndex),
+            cellCode,
+            openField);
         spreadsheetCell.setType(cellType);
 
         return spreadsheetCell;
@@ -404,9 +421,11 @@ public class SpreadsheetStructureBuilder {
 
     private IOpenClass deriveCellType(SpreadsheetHeaderDefinition columnHeader,
             SpreadsheetHeaderDefinition rowHeader,
-            String cellValue) {
-
-        if (columnHeader != null && columnHeader.getType() != null) {
+            String cellValue,
+            IOpenField constantField) {
+        if (constantField != null) {
+            return constantField.getType();
+        } else if (columnHeader != null && columnHeader.getType() != null) {
             return columnHeader.getType();
         } else if (rowHeader != null && rowHeader.getType() != null) {
             return rowHeader.getType();
