@@ -29,20 +29,10 @@ public abstract class BaseOpenlBuilderHelper {
     private XlsModuleSyntaxNode xsn;
     private CompiledOpenClass compiledOpenClass;
 
-    public BaseOpenlBuilderHelper() {
-
-    }
-
     public BaseOpenlBuilderHelper(String src) {
-        build(src);
-    }
-
-    public void build(String sourceFile) {
-        if (compiledOpenClass == null) {
-            EngineFactory<Object> engineFactory = new RulesEngineFactory<>(sourceFile);
-            engineFactory.setExecutionMode(false);
-            compiledOpenClass = engineFactory.getCompiledOpenClass();
-        }
+        EngineFactory<Object> engineFactory = new RulesEngineFactory<>(src);
+        engineFactory.setExecutionMode(false);
+        compiledOpenClass = engineFactory.getCompiledOpenClass();
         XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
         xsn = xmi.getXlsModuleNode();
     }
