@@ -278,52 +278,58 @@ public final class TestMojo extends BaseOpenLMojo {
         List<String> summaryFailures = new ArrayList<>();
         List<String> summaryErrors = new ArrayList<>();
 
-        TestSuiteExecutor testSuiteExecutor = getTestSuiteExecutor();
+        TestSuiteExecutor testSuiteExecutor = createTestSuiteExecutor();
 
-        TestSuiteMethod[] tests = ProjectHelper.allTesters(openClass);
-        for (TestSuiteMethod test : tests) {
-            String moduleName = test.getModuleName();
-            try {
-                info("");
-                String moduleInfo = moduleName == null ? "" : " from the module " + moduleName;
-                info("Running ", test.getName(), moduleInfo);
-                TestUnitsResults result;
-                if (testSuiteExecutor == null) {
-                    result = new TestSuite(test).invokeSequentially(openClass, 1L);
-                } else {
-                    result = new TestSuite(test).invokeParallel(testSuiteExecutor, openClass, 1L);
+        try {
+            TestSuiteMethod[] tests = ProjectHelper.allTesters(openClass);
+            for (TestSuiteMethod test : tests) {
+                String moduleName = test.getModuleName();
+                try {
+                    info("");
+                    String moduleInfo = moduleName == null ? "" : " from the module " + moduleName;
+                    info("Running ", test.getName(), moduleInfo);
+                    TestUnitsResults result;
+                    if (testSuiteExecutor == null) {
+                        result = new TestSuite(test).invokeSequentially(openClass, 1L);
+                    } else {
+                        result = new TestSuite(test).invokeParallel(testSuiteExecutor, openClass, 1L);
+                    }
+
+                    int suitTests = result.getNumberOfTestUnits();
+                    int suitFailures = result.getNumberOfAssertionFailures();
+                    int suitErrors = result.getNumberOfErrors();
+
+                    info("Tests run: ", suitTests,
+                            ", Failures: ", suitFailures,
+                            ", Errors: ", suitErrors,
+                            ". Time elapsed: ", formatTime(result.getExecutionTime()), " sec.",
+                            result.getNumberOfFailures() > 0 ? " " + FAILURE : "");
+
+                    if (result.getNumberOfFailures() > 0) {
+                        showFailures(test, result, summaryFailures, summaryErrors);
+                    }
+
+                    runTests += suitTests;
+                    failedTests += suitFailures;
+                    errors += suitErrors;
+                } catch (Exception e) {
+                    error(e);
+                    errors++;
+                    String modulePrefix = moduleName == null ? "" : moduleName + ".";
+                    Throwable cause = ExceptionUtils.getRootCause(e);
+                    if (cause == null) {
+                        cause = e;
+                    }
+                    summaryErrors.add(modulePrefix + test.getName() + " " + cause.getClass().getName());
                 }
+            }
 
-                int suitTests = result.getNumberOfTestUnits();
-                int suitFailures = result.getNumberOfAssertionFailures();
-                int suitErrors = result.getNumberOfErrors();
-
-                info("Tests run: ", suitTests,
-                        ", Failures: ", suitFailures,
-                        ", Errors: ", suitErrors,
-                        ". Time elapsed: ", formatTime(result.getExecutionTime()), " sec.",
-                        result.getNumberOfFailures() > 0 ? " " + FAILURE : "");
-
-                if (result.getNumberOfFailures() > 0) {
-                    showFailures(test, result, summaryFailures, summaryErrors);
-                }
-
-                runTests += suitTests;
-                failedTests += suitFailures;
-                errors += suitErrors;
-            } catch (Exception e) {
-                error(e);
-                errors++;
-                String modulePrefix = moduleName == null ? "" : moduleName + ".";
-                Throwable cause = ExceptionUtils.getRootCause(e);
-                if (cause == null) {
-                    cause = e;
-                }
-                summaryErrors.add(modulePrefix + test.getName() + " " + cause.getClass().getName());
+            return new Summary(runTests, failedTests, errors, summaryFailures, summaryErrors, openLRules.hasErrors());
+        } finally {
+            if (testSuiteExecutor != null) {
+                testSuiteExecutor.destroy();
             }
         }
-
-        return new Summary(runTests, failedTests, errors, summaryFailures, summaryErrors, openLRules.hasErrors());
     }
 
     private void showFailures(TestSuiteMethod test, TestUnitsResults result, List<String> summaryFailures, List<String> summaryErrors) {
@@ -415,7 +421,7 @@ public final class TestMojo extends BaseOpenLMojo {
         return time < 0.001 ? "< 0.001" : df.format(time);
     }
 
-    private TestSuiteExecutor getTestSuiteExecutor() {
+    private TestSuiteExecutor createTestSuiteExecutor() {
         int threads;
 
         switch (threadCount) {
