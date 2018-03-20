@@ -1,4 +1,3 @@
-WARN: DEPRECATED 'length' field for arrays will be removed in the next version. Use length() function instead!
 ERROR: Type 'Dote' is not found
 ERROR: Field not found: 'polID'
 ERROR: Method add(java.lang.String, null-Class) is ambiguous:
