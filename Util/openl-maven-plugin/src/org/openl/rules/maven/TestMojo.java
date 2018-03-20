@@ -152,26 +152,31 @@ public final class TestMojo extends BaseOpenLMojo {
                                                         ProjectResolvingException,
                                                         ClassNotFoundException {
         URL[] urls = toURLs(classpath);
-        ClassLoader classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
-
-        SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
-        if (hasDependencies) {
-            builder.setWorkspace(workspaceFolder.getPath());
-        }
-        SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
-                .setClassLoader(classLoader)
-                .setExecutionMode(true)
-                .setExternalParameters(externalParameters)
-                .build();
-
-        CompiledOpenClass openLRules;
+        ClassLoader classLoader = null;
         try {
-            TestMethodNodeBinder.keepTestsInExecutionMode();
-            openLRules = factory.getCompiledOpenClass();
+            classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
+
+            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
+            if (hasDependencies) {
+                builder.setWorkspace(workspaceFolder.getPath());
+            }
+            SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
+                    .setClassLoader(classLoader)
+                    .setExecutionMode(true)
+                    .setExternalParameters(externalParameters)
+                    .build();
+
+            CompiledOpenClass openLRules;
+            try {
+                TestMethodNodeBinder.keepTestsInExecutionMode();
+                openLRules = factory.getCompiledOpenClass();
+            } finally {
+                TestMethodNodeBinder.removeTestsInExecutionMode();
+            }
+            return executeTests(openLRules);
         } finally {
-            TestMethodNodeBinder.removeTestsInExecutionMode();
+            releaseResources(classLoader);
         }
-        return executeTests(openLRules);
     }
 
     private Summary executeModuleByModule(String sourcePath, boolean hasDependencies) throws
@@ -211,35 +216,40 @@ public final class TestMojo extends BaseOpenLMojo {
 
         for (Module module : modules) {
             URL[] urls = toURLs(classpath);
-            ClassLoader classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
-
-            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
-            if (hasDependencies) {
-                builder.setWorkspace(workspaceFolder.getPath());
-            }
-            SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
-                    .setClassLoader(classLoader)
-                    .setExecutionMode(true)
-                    .setModule(module.getName())
-                    .setExternalParameters(externalParameters)
-                    .build();
-
-            info("Searching tests in the module '", module.getName(), "'...");
-            CompiledOpenClass openLRules;
+            ClassLoader classLoader = null;
             try {
-                TestMethodNodeBinder.keepTestsInExecutionMode();
-                openLRules = factory.getCompiledOpenClass();
-            } finally {
-                TestMethodNodeBinder.removeTestsInExecutionMode();
-            }
-            Summary summary = executeTests(openLRules);
+                classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
 
-            runTests += summary.getRunTests();
-            failedTests += summary.getFailedTests();
-            errors += summary.getErrors();
-            summaryFailures.addAll(summary.getSummaryFailures());
-            summaryErrors.addAll(summary.getSummaryErrors());
-            hasCompilationErrors |= summary.isHasCompilationErrors();
+                SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
+                if (hasDependencies) {
+                    builder.setWorkspace(workspaceFolder.getPath());
+                }
+                SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
+                        .setClassLoader(classLoader)
+                        .setExecutionMode(true)
+                        .setModule(module.getName())
+                        .setExternalParameters(externalParameters)
+                        .build();
+
+                info("Searching tests in the module '", module.getName(), "'...");
+                CompiledOpenClass openLRules;
+                try {
+                    TestMethodNodeBinder.keepTestsInExecutionMode();
+                    openLRules = factory.getCompiledOpenClass();
+                } finally {
+                    TestMethodNodeBinder.removeTestsInExecutionMode();
+                }
+                Summary summary = executeTests(openLRules);
+
+                runTests += summary.getRunTests();
+                failedTests += summary.getFailedTests();
+                errors += summary.getErrors();
+                summaryFailures.addAll(summary.getSummaryFailures());
+                summaryErrors.addAll(summary.getSummaryErrors());
+                hasCompilationErrors |= summary.isHasCompilationErrors();
+            } finally {
+                releaseResources(classLoader);
+            }
         }
 
         return new Summary(runTests, failedTests, errors, summaryFailures, summaryErrors, hasCompilationErrors);
