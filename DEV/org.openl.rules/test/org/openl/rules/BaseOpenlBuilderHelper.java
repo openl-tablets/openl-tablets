@@ -2,9 +2,6 @@ package org.openl.rules;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.util.Map.Entry;
-
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Assert;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
@@ -12,7 +9,6 @@ import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.runtime.RulesEngineFactory;
-import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.runtime.EngineFactory;
@@ -119,23 +115,6 @@ public abstract class BaseOpenlBuilderHelper {
         for (TableSyntaxNode tsn : getTableSyntaxNodes()) {
             if (tableName.equals(tsn.getDisplayName())) {
                 result = tsn;
-            }
-        }
-        return result;
-    }
-
-    protected TableSyntaxNode findTable(String tableName, ITableProperties properties) {
-        TableSyntaxNode result = null;
-        for (TableSyntaxNode tsn : getTableSyntaxNodes()) {
-            if (tableName.equals(tsn.getDisplayName())) {
-                EqualsBuilder equalsBuilder = new EqualsBuilder();
-                for (Entry<String, Object> property : properties.getAllProperties().entrySet()) {
-                    equalsBuilder.append(property.getValue(),
-                        tsn.getTableProperties().getPropertyValue(property.getKey()));
-                }
-                if (equalsBuilder.isEquals()) {
-                    result = tsn;
-                }
             }
         }
         return result;

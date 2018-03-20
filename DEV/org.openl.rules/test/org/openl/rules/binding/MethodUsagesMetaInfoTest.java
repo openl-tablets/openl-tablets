@@ -2,6 +2,7 @@ package org.openl.rules.binding;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.junit.Test;
 import org.openl.binding.impl.MethodUsagesSearcher.MethodUsage;
@@ -13,7 +14,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.properties.TableProperties;
 import org.openl.types.IOpenMethod;
 
 import static org.junit.Assert.*;
@@ -27,15 +27,12 @@ public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void testMetaInfoInDT() {
-        TableProperties tableProperties = new TableProperties();
         // method in return expression
-        tableProperties.setLob(null);
-        TableSyntaxNode firstTable = findTable("Rules String testDT(int arg)", tableProperties);
+        TableSyntaxNode firstTable = findTable("Rules String testDT(int arg)", null);
         ICell returnExpressionCell = firstTable.getGridTable().getCell(1, 2);
         assertTrue(CellMetaInfo.isCellContainsNodeUsages(returnExpressionCell));
         // method in return values
-        tableProperties.setLob("test");
-        TableSyntaxNode secondTable = findTable("Rules String testDT(int arg)", tableProperties);
+        TableSyntaxNode secondTable = findTable("Rules String testDT(int arg)", "test");
         ICell firstRetCell = secondTable.getGridTable().getCell(1, 7);
         ICell secondRetCell = secondTable.getGridTable().getCell(1, 8);
         assertTrue(CellMetaInfo.isCellContainsNodeUsages(firstRetCell));
@@ -90,5 +87,17 @@ public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals(2, usedMethods.size());
         assertTrue(usedMethods.contains("testTBasic"));
         assertTrue(usedMethods.contains("testDT"));
+    }
+
+    private TableSyntaxNode findTable(String name, String lob) {
+        for (TableSyntaxNode tsn : getTableSyntaxNodes()) {
+            if (name.equals(tsn.getDisplayName())) {
+                String tableLob = tsn.getTableProperties().getLob();
+                if (Objects.equals(lob, tableLob)) {
+                    return tsn;
+                }
+            }
+        }
+        throw new RuntimeException("unreachable code");
     }
 }
