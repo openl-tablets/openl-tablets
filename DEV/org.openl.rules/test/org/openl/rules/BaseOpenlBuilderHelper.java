@@ -4,7 +4,6 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Assert;
 import org.openl.CompiledOpenClass;
-import org.openl.dependency.IDependencyManager;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
@@ -29,9 +28,6 @@ public abstract class BaseOpenlBuilderHelper {
 
     private XlsModuleSyntaxNode xsn;
     private CompiledOpenClass compiledOpenClass;
-    private EngineFactory<Object> engineFactory;
-    private IDependencyManager dependencyManager;
-    private boolean executionMode = false;
 
     public BaseOpenlBuilderHelper() {
 
@@ -41,52 +37,19 @@ public abstract class BaseOpenlBuilderHelper {
         build(src);
     }
 
-    public BaseOpenlBuilderHelper(String src, IDependencyManager dependencyManager) {
-        this(src, dependencyManager, false);
-    }
-
-    public BaseOpenlBuilderHelper(String src, boolean executionMode) {
-        this(src, null, executionMode);
-    }
-
-    public BaseOpenlBuilderHelper(String src, IDependencyManager dependencyManager, boolean executionMode) {
-        this.dependencyManager = dependencyManager;
-        this.executionMode = executionMode;
-        build(src);
-    }
-
     public void build(String sourceFile) {
-        buildEngineFactory(sourceFile);
-        buildCompiledOpenClass();
-        if (!executionMode) {
-            XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
-            xsn = xmi.getXlsModuleNode();
+        if (compiledOpenClass == null) {
+            EngineFactory<Object> engineFactory = new RulesEngineFactory<>(sourceFile);
+            engineFactory.setExecutionMode(false);
+            compiledOpenClass = engineFactory.getCompiledOpenClass();
         }
-    }
-
-    protected EngineFactory<Object> buildEngineFactory(String sourceFile) {
-        if (engineFactory == null) {
-            engineFactory = new RulesEngineFactory<Object>(sourceFile);
-            engineFactory.setDependencyManager(dependencyManager);
-            engineFactory.setExecutionMode(executionMode);
-        }
-        return engineFactory;
-    }
-
-    public EngineFactory<Object> getEngineFactory() {
-        return engineFactory;
+        XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
+        xsn = xmi.getXlsModuleNode();
     }
 
     public Object newInstance() {
         SimpleRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         return getCompiledOpenClass().getOpenClass().newInstance(env);
-    }
-
-    protected CompiledOpenClass buildCompiledOpenClass() {
-        if (compiledOpenClass == null) {
-            compiledOpenClass = getEngineFactory().getCompiledOpenClass();
-        }
-        return compiledOpenClass;
     }
 
     public CompiledOpenClass getCompiledOpenClass() {
@@ -97,17 +60,6 @@ public abstract class BaseOpenlBuilderHelper {
         Class<?> clazz = getCompiledOpenClass().getClassLoader().loadClass(name);
         assertNotNull(clazz);
         return clazz;
-    }
-
-    @Deprecated
-    protected TableSyntaxNode findTable(String tableName, TableSyntaxNode[] tsns) {
-        TableSyntaxNode result = null;
-        for (TableSyntaxNode tsn : tsns) {
-            if (tableName.equals(tsn.getDisplayName())) {
-                result = tsn;
-            }
-        }
-        return result;
     }
 
     protected TableSyntaxNode findTable(String tableName) {
@@ -134,12 +86,7 @@ public abstract class BaseOpenlBuilderHelper {
     }
 
     protected TableSyntaxNode[] getTableSyntaxNodes() {
-        TableSyntaxNode[] tsns = xsn.getXlsTableSyntaxNodes();
-        return tsns;
-    }
-
-    protected XlsModuleSyntaxNode getModuleSuntaxNode() {
-        return xsn;
+        return xsn.getXlsTableSyntaxNodes();
     }
 
     protected Object invokeMethod(IOpenMethod testMethod, Object[] paramValues) {
