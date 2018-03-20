@@ -1,5 +1,16 @@
 package org.openl.rules.calculation.result.convertor2;
 
+/*-
+ * #%L
+ * OpenL - DEV - Rules - Calculation Result
+ * %%
+ * Copyright (C) 2015 - 2018 OpenL Tablets
+ * %%
+ * See the file LICENSE.txt for copying permission.
+ * #L%
+ */
+
+
 import java.io.Serializable;
 
 public class SpreadsheetResultPoint implements Serializable {
