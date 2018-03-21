@@ -49,7 +49,6 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
     }
 
     private AlgorithmTableParserManager() {
-        String sourceType = OpenL.OPENL_JAVA_RULE_NAME;
         URL sourceFile = AlgorithmTableParserManager.class.getResource("AlgorithmTableSpecification.xls");
 
         RulesEngineFactory<IAlgorithmTableParserManager> engineFactory = new RulesEngineFactory<IAlgorithmTableParserManager>(

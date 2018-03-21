@@ -112,14 +112,6 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
 
             IOpenClass constantType = getConstantType(cxt, row, rowSrc);
 
-            /*
-             * if (!cxt.isExecutionMode()) { IdentifierNode[] parsedHeader = Tokenizer.tokenize(rowSrc, "[]\n\r");
-             * IMetaInfo metaInfo = constantType.getMetaInfo();
-             * 
-             * // Link to field type table RuleRowHelper.setCellMetaInfoWithNodeUsage(row, parsedHeader[0], metaInfo,
-             * NodeType.DATATYPE); }
-             */
-
             String value = DatatypeTableBoundNode.getDefaultValue(row, cxt);
             Object objectValue = null;
             if (constantType.getInstanceClass().equals(Date.class)) {
