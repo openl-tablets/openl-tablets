@@ -14,6 +14,7 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
+import org.openl.rules.datatype.binding.DatatypeHelper;
 import org.openl.rules.datatype.binding.DatatypeTableBoundNode;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -194,7 +195,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
     }
 
     private void addConstants(final IBindingContext cxt) throws Exception {
-        final ILogicalTable dataTable = ConstantsHelper.getNormalizedDataPartTable(table, openl, cxt);
+        final ILogicalTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, openl, cxt);
 
         int tableHeight = 0;
         if (dataTable != null) {
