@@ -69,6 +69,7 @@ public class CastFactory implements ICastFactory {
     public static final int PRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE = 34;
 
     public static final int ARRAY_CAST_DISTANCE = 1000;
+    public static final int ONE_ELEMENT_ARRAY_CAST_DISTANCE = 2000;
 
     public static final String AUTO_CAST_METHOD_NAME = "autocast";
     public static final String CAST_METHOD_NAME = "cast";
@@ -260,6 +261,18 @@ public class CastFactory implements ICastFactory {
         typeCast = findAliasCast(from, to);
         IOpenCast javaCast = findJavaCast(from, to);
         // Select minimum between alias cast and java cast
+        typeCast = useCastWithBetterDistance(from, to, typeCast, javaCast);
+
+        IOpenCast methodBasedCast = findMethodBasedCast(from, to, methodFactory);
+        typeCast = useCastWithBetterDistance(from, to, typeCast, methodBasedCast);
+
+        return typeCast;
+    }
+
+    private IOpenCast useCastWithBetterDistance(IOpenClass from,
+            IOpenClass to,
+            IOpenCast typeCast,
+            IOpenCast javaCast) {
         if (typeCast == null) {
             typeCast = javaCast;
         } else {
@@ -267,18 +280,6 @@ public class CastFactory implements ICastFactory {
                 typeCast = javaCast;
             }
         }
-
-        IOpenCast methodBasedCast = findMethodBasedCast(from, to, methodFactory);
-
-        // Select minimum between alias cast and java cast
-        if (typeCast == null) {
-            typeCast = methodBasedCast;
-        } else {
-            if (methodBasedCast != null && typeCast.getDistance(from, to) > methodBasedCast.getDistance(from, to)) {
-                typeCast = methodBasedCast;
-            }
-        }
-
         return typeCast;
     }
 
@@ -320,6 +321,13 @@ public class CastFactory implements ICastFactory {
                 if (arrayElementCast != null) {
                     return new ArrayCast(t, arrayElementCast, dimt);
                 }
+            }
+        }
+        if (!from.isArray() && to.isArray() && !to.getComponentClass().isArray()) {
+            IOpenClass componentClass = to.getComponentClass();
+            IOpenCast cast = getCast(from, componentClass);
+            if (cast != null) {
+                return new OneElementArrayCast(componentClass, cast);
             }
         }
         return null;
