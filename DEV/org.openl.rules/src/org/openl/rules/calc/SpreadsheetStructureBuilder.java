@@ -405,9 +405,6 @@ public class SpreadsheetStructureBuilder {
             spreadsheetCell = new SpreadsheetCell(rowIndex, columnIndex, null, spreadsheetCellType);
         } else {
             spreadsheetCell = new SpreadsheetCell(rowIndex, columnIndex, sourceCell, spreadsheetCellType);
-            if (SpreadsheetCellType.CONSTANT.equals(spreadsheetCellType)) {
-                RuleRowHelper.setMetaInfoWithNodeUsageForConstantCell(sourceCell, cellCode, openField, spreadsheetBindingContext);
-            }
         }
 
         IOpenClass cellType = deriveCellType(columnHeaders.get(columnIndex),
