@@ -398,15 +398,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 } else {
                     fieldDescription.setDefaultValueAsString(defaultValue);
                 
-                    if (fieldDescription.getTypeName().equals(Date.class.getName())) {
-                        // EPBDS-6068 add metainfo for XlsDataFormatterFactory.getFormatter can define correct formater for
-                        // cell.
-                        Object value = row.getColumn(2).getCell(0, 0).getObjectValue();
-                        if (value != null && fieldDescription.getTypeName().equals(value.getClass().getName())) {
-                            RuleRowHelper.setCellMetaInfo(row.getColumn(2), null, fieldType, false);
-                            fieldDescription.setDefaultValue(value);
-                        }
-                    }
+                    workaroundForDateType(row, fieldType, fieldDescription);
+                    
                     Object value;
                     try {
                         value = fieldDescription.getDefaultValue();
@@ -438,6 +431,18 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    private void workaroundForDateType(ILogicalTable row, IOpenClass fieldType, FieldDescription fieldDescription) {
+        if (fieldDescription.getTypeName().equals(Date.class.getName())) {
+            // EPBDS-6068 add metainfo for XlsDataFormatterFactory.getFormatter can define correct formater for
+            // cell.
+            Object value = row.getColumn(2).getCell(0, 0).getObjectValue();
+            if (value != null && fieldDescription.getTypeName().equals(value.getClass().getName())) {
+                RuleRowHelper.setCellMetaInfo(row.getColumn(2), null, fieldType, false);
+                fieldDescription.setDefaultValue(value);
             }
         }
     }

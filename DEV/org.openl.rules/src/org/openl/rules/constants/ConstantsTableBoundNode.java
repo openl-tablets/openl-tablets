@@ -115,15 +115,9 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
 
             String value = DatatypeTableBoundNode.getDefaultValue(row, cxt);
             Object objectValue = null;
-            if (constantType.getInstanceClass().equals(Date.class)) {
-                // EPBDS-6068 add metainfo for XlsDataFormatterFactory.getFormatter can define correct formater for
-                // cell.
-                Object dateValue = row.getColumn(2).getCell(0, 0).getObjectValue();
-                if (dateValue != null && constantType.getInstanceClass().isAssignableFrom(value.getClass())) {
-                    RuleRowHelper.setCellMetaInfo(row.getColumn(2), null, constantType, false);
-                    objectValue = dateValue;
-                }
-            }
+            
+            objectValue = workaroundForDateType(row, constantType, value, objectValue);
+            
             if (objectValue == null) { // Wasn't parsed as Date
                 try {
                     if (constantType.getName().startsWith("[[")) {
@@ -184,6 +178,19 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                 }
             }
         }
+    }
+
+    private Object workaroundForDateType(ILogicalTable row, IOpenClass constantType, String value, Object objectValue) {
+        if (constantType.getInstanceClass().equals(Date.class)) {
+            // EPBDS-6068 add metainfo for XlsDataFormatterFactory.getFormatter can define correct formater for
+            // cell.
+            Object dateValue = row.getColumn(2).getCell(0, 0).getObjectValue();
+            if (dateValue != null && constantType.getInstanceClass().isAssignableFrom(value.getClass())) {
+                RuleRowHelper.setCellMetaInfo(row.getColumn(2), null, constantType, false);
+                return dateValue;
+            }
+        }
+        return objectValue;
     }
 
     private void addConstants(final IBindingContext cxt) throws Exception {

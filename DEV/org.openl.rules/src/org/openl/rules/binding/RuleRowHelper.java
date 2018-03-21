@@ -13,6 +13,7 @@ import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.SimpleNodeUsage;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.IDomain;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.BigDecimalValue;
@@ -424,9 +425,11 @@ public class RuleRowHelper {
                 ConstantOpenField constantOpenField = findConstantField(bindingContext, source);
                 if (constantOpenField != null) {
                     ICell iCell = cell.getSource().getCell(0, 0);
-                    result = constantOpenField.getValue();
                     setMetaInfoWithNodeUsageForConstantCell(iCell, iCell.getStringValue(), constantOpenField, bindingContext);
-                    if (result != null && !expectedType.isAssignableFrom(result.getClass())) {
+                    IOpenCast openCast = bindingContext.getCast(constantOpenField.getType(), paramType);
+                    if (constantOpenField.getValue() == null || openCast != null && openCast.isImplicit()) {
+                        result = openCast.convert(constantOpenField.getValue());
+                    } else {
                         throw new ClassCastException(
                             String.format("Expected value of type '%s'.", expectedType.getSimpleName()));
                     }
