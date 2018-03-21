@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
-import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.lang.xls.prebind.XlsLazyModuleOpenClass;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
