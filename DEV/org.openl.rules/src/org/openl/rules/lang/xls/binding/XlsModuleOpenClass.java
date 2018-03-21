@@ -47,6 +47,7 @@ import org.openl.rules.lang.xls.binding.wrapper.MatchingOpenMethodDispatcherWrap
 import org.openl.rules.lang.xls.binding.wrapper.OverloadedMethodsDispatcherTableWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.SpreadsheetWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.TableMethodWrapper;
+import org.openl.rules.lang.xls.prebind.ILazyMember;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.table.TableMethod;
@@ -183,16 +184,24 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return imports;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected boolean isDependencyMethodIgnorable(IOpenMethod method) {
+        if (method instanceof ILazyMember) {
+            return isDependencyMethodIgnorable(((ILazyMember<IOpenMethod>) method).getMember());
+        }
         if (method instanceof TestSuiteMethod) {
             return true;
         }
         return false;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected boolean isDependencyFieldIgnorable(IOpenField openField) {
+        if (openField instanceof ILazyMember) {
+            return isDependencyFieldIgnorable(((ILazyMember<IOpenField>) openField).getMember());
+        }
         if (openField instanceof DataOpenField || openField instanceof PropertiesOpenField) {
             return true;
         }

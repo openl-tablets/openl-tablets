@@ -122,10 +122,10 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
     protected void addFields(CompiledDependency dependency) {
         CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
-        for (IOpenField depMethod : compiledOpenClass.getOpenClassWithErrors().getFields().values()) {
+        for (IOpenField depField : compiledOpenClass.getOpenClassWithErrors().getFields().values()) {
             try {
-                if (!isDependencyFieldIgnorable(depMethod)) {
-                    addField(depMethod);
+                if (!isDependencyFieldIgnorable(depField)) {
+                    addField(depField);
                 }
             } catch (OpenlNotCheckedException e) {
                 if (Log.isDebugEnabled()) {
