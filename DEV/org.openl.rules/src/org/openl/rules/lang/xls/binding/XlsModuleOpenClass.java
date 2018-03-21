@@ -19,7 +19,6 @@ import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.exception.DuplicatedVarException;
-import org.openl.binding.impl.module.DeferredMethod;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.engine.ExtendableModuleOpenClass;
@@ -28,42 +27,27 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.binding.RulesModuleBindingContext;
-import org.openl.rules.calc.Spreadsheet;
-import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.data.DataOpenField;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITable;
-import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.lang.xls.binding.wrapper.AlgorithmSubroutineMethodWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.AlgorithmWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.ColumnMatchWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.CompositeMethodWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.DecisionTable2Wrapper;
-import org.openl.rules.lang.xls.binding.wrapper.DeferredMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.MatchingOpenMethodDispatcherWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.OverloadedMethodsDispatcherTableWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.SpreadsheetWrapper;
-import org.openl.rules.lang.xls.binding.wrapper.TableMethodWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
 import org.openl.rules.lang.xls.prebind.ILazyMember;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
-import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.property.PropertiesOpenField;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.tbasic.Algorithm;
-import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.testmethod.TestMethodNodeBinder;
 import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.types.IUriMember;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.types.UriMemberHelper;
-import org.openl.rules.types.IUriMember;
 import org.openl.rules.types.ValidationMessages;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
@@ -78,7 +62,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AMethod;
-import org.openl.types.impl.CompositeMethod;
 import org.openl.util.Log;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -203,8 +186,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         if (openField instanceof ILazyMember) {
             return isDependencyFieldIgnorable(((ILazyMember<IOpenField>) openField).getMember());
         }
-        if (openField instanceof DataOpenField || openField instanceof PropertiesOpenField) {
-            return true;
+        if (openField instanceof ConstantOpenField) {
+            return false;
         }
         return super.isDependencyFieldIgnorable(openField);
     }
@@ -305,40 +288,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                                                                                             // fix
                                                                                             // for
                                                                                             // mul1ti-module
-        if (openMethod instanceof IOpenMethodWrapper || openMethod instanceof TestSuiteMethod) {
-            return openMethod;
-        }
-        if (openMethod instanceof OverloadedMethodsDispatcherTable) {
-            return new OverloadedMethodsDispatcherTableWrapper(this, (OverloadedMethodsDispatcherTable) openMethod);
-        }
-        if (openMethod instanceof MatchingOpenMethodDispatcher) {
-            return new MatchingOpenMethodDispatcherWrapper(this, (MatchingOpenMethodDispatcher) openMethod);
-        }
-        if (openMethod instanceof DeferredMethod) {
-            return new DeferredMethodWrapper(this, (DeferredMethod) openMethod);
-        }
-        if (openMethod instanceof CompositeMethod) {
-            return new CompositeMethodWrapper(this, (CompositeMethod) openMethod);
-        }
-        if (openMethod instanceof Algorithm) {
-            return new AlgorithmWrapper(this, (Algorithm) openMethod);
-        }
-        if (openMethod instanceof AlgorithmSubroutineMethod) {
-            return new AlgorithmSubroutineMethodWrapper(this, (AlgorithmSubroutineMethod) openMethod);
-        }
-        if (openMethod instanceof DecisionTable) {
-            return new DecisionTable2Wrapper(this, (DecisionTable) openMethod);
-        }
-        if (openMethod instanceof ColumnMatch) {
-            return new ColumnMatchWrapper(this, (ColumnMatch) openMethod);
-        }
-        if (openMethod instanceof Spreadsheet) {
-            return new SpreadsheetWrapper(this, (Spreadsheet) openMethod);
-        }
-        if (openMethod instanceof TableMethod) {
-            return new TableMethodWrapper(this, (TableMethod) openMethod);
-        }
-        return openMethod;
+        return WrapperLogic.wrapOpenMethod(openMethod, this);
     }
 
     public void addField(IOpenField field) {
