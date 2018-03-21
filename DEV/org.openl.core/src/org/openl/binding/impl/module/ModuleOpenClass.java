@@ -114,10 +114,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
     }
 
     protected boolean isDependencyFieldIgnorable(IOpenField openField) {
-        if (openField instanceof ThisField || openField instanceof org.openl.types.impl.ThisField) {
-            return true;
-        }
-        return false;
+        return true;
     }
 
     protected void addFields(CompiledDependency dependency) {
