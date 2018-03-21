@@ -140,6 +140,7 @@ public class DefaultPropertyDefinitions
 		definitions[8].setPrimaryKey(true);
 		definitions[8].setSecurityFilter("no");
 		definitions[8].setSystem(false);
+		definitions[8].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[8].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.util.Date.class));
 		definitions[9] = new TablePropertyDefinition();
 		definitions[9].setConstraints(new org.openl.rules.table.constraints.Constraints("> effectiveDate"));
@@ -154,6 +155,7 @@ public class DefaultPropertyDefinitions
 		definitions[9].setPrimaryKey(false);
 		definitions[9].setSecurityFilter("no");
 		definitions[9].setSystem(false);
+		definitions[9].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[9].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.util.Date.class));
 		definitions[10] = new TablePropertyDefinition();
 		definitions[10].setConstraints(new org.openl.rules.table.constraints.Constraints("< endRequestDate"));
@@ -168,6 +170,7 @@ public class DefaultPropertyDefinitions
 		definitions[10].setPrimaryKey(true);
 		definitions[10].setSecurityFilter("no");
 		definitions[10].setSystem(false);
+		definitions[10].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[10].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.util.Date.class));
 		definitions[11] = new TablePropertyDefinition();
 		definitions[11].setConstraints(new org.openl.rules.table.constraints.Constraints("> startRequestDate"));
@@ -182,6 +185,7 @@ public class DefaultPropertyDefinitions
 		definitions[11].setPrimaryKey(false);
 		definitions[11].setSecurityFilter("no");
 		definitions[11].setSystem(false);
+		definitions[11].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[11].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.util.Date.class));
 		definitions[12] = new TablePropertyDefinition();
 		definitions[12].setConstraints(new org.openl.rules.table.constraints.Constraints("data: caRegions"));
@@ -195,6 +199,7 @@ public class DefaultPropertyDefinitions
 		definitions[12].setPrimaryKey(false);
 		definitions[12].setSecurityFilter("no");
 		definitions[12].setSystem(false);
+		definitions[12].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[12].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.CaRegionsEnum[].class));
 		definitions[13] = new TablePropertyDefinition();
 		definitions[13].setConstraints(new org.openl.rules.table.constraints.Constraints("data: caProvinces"));
@@ -208,6 +213,7 @@ public class DefaultPropertyDefinitions
 		definitions[13].setPrimaryKey(false);
 		definitions[13].setSecurityFilter("no");
 		definitions[13].setSystem(false);
+		definitions[13].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[13].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.CaProvincesEnum[].class));
 		definitions[14] = new TablePropertyDefinition();
 		definitions[14].setConstraints(new org.openl.rules.table.constraints.Constraints("data: countries"));
@@ -221,6 +227,7 @@ public class DefaultPropertyDefinitions
 		definitions[14].setPrimaryKey(false);
 		definitions[14].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
 		definitions[14].setSystem(false);
+		definitions[14].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[14].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.CountriesEnum[].class));
 		definitions[15] = new TablePropertyDefinition();
 		definitions[15].setConstraints(new org.openl.rules.table.constraints.Constraints("data: regions"));
@@ -234,6 +241,7 @@ public class DefaultPropertyDefinitions
 		definitions[15].setPrimaryKey(false);
 		definitions[15].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
 		definitions[15].setSystem(false);
+		definitions[15].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[15].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.RegionsEnum[].class));
 		definitions[16] = new TablePropertyDefinition();
 		definitions[16].setConstraints(new org.openl.rules.table.constraints.Constraints("data: currencies"));
@@ -247,6 +255,7 @@ public class DefaultPropertyDefinitions
 		definitions[16].setPrimaryKey(false);
 		definitions[16].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
 		definitions[16].setSystem(false);
+		definitions[16].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[16].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.CurrenciesEnum[].class));
 		definitions[17] = new TablePropertyDefinition();
 		definitions[17].setConstraints(new org.openl.rules.table.constraints.Constraints("data: languages"));
@@ -260,6 +269,7 @@ public class DefaultPropertyDefinitions
 		definitions[17].setPrimaryKey(false);
 		definitions[17].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
 		definitions[17].setSystem(false);
+		definitions[17].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[17].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.LanguagesEnum[].class));
 		definitions[18] = new TablePropertyDefinition();
 		definitions[18].setConstraints(new org.openl.rules.table.constraints.Constraints("list: Defined by method getLob()"));
@@ -273,6 +283,7 @@ public class DefaultPropertyDefinitions
 		definitions[18].setPrimaryKey(false);
 		definitions[18].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
 		definitions[18].setSystem(false);
+		definitions[18].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[18].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 		definitions[19] = new TablePropertyDefinition();
 		definitions[19].setConstraints(new org.openl.rules.table.constraints.Constraints("data: origins"));
@@ -300,6 +311,7 @@ public class DefaultPropertyDefinitions
 		definitions[20].setPrimaryKey(false);
 		definitions[20].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
 		definitions[20].setSystem(false);
+		definitions[20].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[20].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.UsRegionsEnum[].class));
 		definitions[21] = new TablePropertyDefinition();
 		definitions[21].setConstraints(new org.openl.rules.table.constraints.Constraints("data: usStates"));
@@ -313,6 +325,7 @@ public class DefaultPropertyDefinitions
 		definitions[21].setPrimaryKey(false);
 		definitions[21].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
 		definitions[21].setSystem(false);
+		definitions[21].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[21].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.UsStatesEnum[].class));
 		definitions[22] = new TablePropertyDefinition();
 		definitions[22].setConstraints(new org.openl.rules.table.constraints.Constraints("NN.NN[.NN]"));
@@ -456,6 +469,7 @@ public class DefaultPropertyDefinitions
 		definitions[33].setName("cacheable");
 		definitions[33].setPrimaryKey(false);
 		definitions[33].setSystem(false);
+		definitions[33].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[33].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
 		definitions[34] = new TablePropertyDefinition();
 		definitions[34].setConstraints(new org.openl.rules.table.constraints.Constraints("data: recalculate"));
@@ -468,6 +482,7 @@ public class DefaultPropertyDefinitions
 		definitions[34].setName("recalculate");
 		definitions[34].setPrimaryKey(false);
 		definitions[34].setSystem(false);
+		definitions[34].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
 		definitions[34].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.RecalculateEnum.class));
 		definitions[35] = new TablePropertyDefinition();
 		definitions[35].setConstraints(new org.openl.rules.table.constraints.Constraints("regexp:(-?[0-9]+)"));
@@ -519,6 +534,7 @@ public class DefaultPropertyDefinitions
 		definitions[38].setPrimaryKey(false);
 		definitions[38].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
 		definitions[38].setSystem(false);
+		definitions[38].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD});
 		definitions[38].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 // <<< END INSERT TablePropertiesDefinition >>>
     }
