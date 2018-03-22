@@ -1,10 +1,6 @@
-/**
- * Created Feb 15, 2007
- */
 package org.openl.rules.table;
 
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ui.ICellStyle;
 
 /**
@@ -34,8 +30,6 @@ public interface IWritableGrid extends IGrid {
     IGridRegion findEmptyRect(int width, int height);
 
     void removeMergedRegion(IGridRegion to);
-
-    void setCellMetaInfo(int col, int row, CellMetaInfo meta);
 
     void setCellStyle(int col, int row, ICellStyle style);
     

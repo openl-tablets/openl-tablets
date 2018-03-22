@@ -15,7 +15,6 @@ import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.tbasic.compile.AlgorithmCompiler;
@@ -98,9 +97,10 @@ public class AlgorithmBuilder {
      * @param grid
      */
     private void bindMetaInfo(IGridTable grid, int c, int r) { 
-        IWritableGrid wgrid = (IWritableGrid) grid.getGrid();
-        wgrid.setCellMetaInfo(IGridRegion.Tool.getAbsoluteColumn(grid.getRegion(), c), IGridRegion.Tool.getAbsoluteRow(
-                grid.getRegion(), r), cellMetaInfo);
+        grid.getGrid().getCell(
+                IGridRegion.Tool.getAbsoluteColumn(grid.getRegion(), c),
+                IGridRegion.Tool.getAbsoluteRow(grid.getRegion(), r)
+        ).setMetaInfo(cellMetaInfo);
     }
 
     public void build(ILogicalTable tableBody) throws Exception {
