@@ -15,9 +15,9 @@ import org.openl.rules.cmatch.matcher.MatcherFactory;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.IWritableGrid;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
@@ -58,7 +58,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      */
     protected void bindMetaInfo(ColumnMatch columnMatch, String paramName, SubValue[] subValues, Object[] objValues) {
         IGridTable tableBodyGrid = columnMatch.getSyntaxNode().getTableBody().getSource();
-        IWritableGrid wgrid = (IWritableGrid) tableBodyGrid.getGrid();
+        IGrid grid = tableBodyGrid.getGrid();
 
         // Bind cell data type based on parsed data
         for (int i = 0; i < subValues.length; i++) {
@@ -68,7 +68,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             if (cv != null) {
                 IOpenClass paramType = JavaOpenClass.getOpenClass(cv.getClass());
                 CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, paramName, paramType, false);
-                wgrid.setCellMetaInfo(gridRegion.getLeft(), gridRegion.getTop(), meta);
+                grid.getCell(gridRegion.getLeft(), gridRegion.getTop()).setMetaInfo(meta);
             }
             // empty cells are left 'as is' -- suppose they are of String type
         }
@@ -81,7 +81,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         DomainOpenClass domainOpenClass = argumentsHelper.generateDomainClassByArgNames();
 
         IGridTable tableBodyGrid = columnMatch.getSyntaxNode().getTableBody().getSource();
-        IWritableGrid wgrid = (IWritableGrid) tableBodyGrid.getGrid();
+        IGrid grid = tableBodyGrid.getGrid();
 
         List<TableRow> rows = columnMatch.getRows();
         for (int i = getSpecialRowCount(); i < rows.size(); i++) {
@@ -90,7 +90,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             IGridRegion gridRegion = nameSV.getGridRegion();
 
             CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, null, domainOpenClass, false);
-            wgrid.setCellMetaInfo(gridRegion.getLeft(), gridRegion.getTop(), meta);
+            grid.getCell(gridRegion.getLeft(), gridRegion.getTop()).setMetaInfo(meta);
         }
     }
 
