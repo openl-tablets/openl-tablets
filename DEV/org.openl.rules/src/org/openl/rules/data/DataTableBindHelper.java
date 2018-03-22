@@ -33,7 +33,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.AOpenField;
 import org.openl.types.impl.CollectionType;
-import org.openl.types.impl.DatatypeCollectionElementField;
+import org.openl.types.impl.CollectionElementField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
@@ -57,11 +57,12 @@ public class DataTableBindHelper {
     private static final String LINK_DELIMETERS = ".";
 
     // patter for field like addressArry[0]
-    public static final String ARRAY_ACCESS_BY_INDEX_PATTERN = ".+\\[\\s*[0-9]+\\s*\\]\\s*$";
-    public static final String COLLECTION_ACCESS_BY_INDEX_PATTERN = ".+\\[\\s*([0-9]+|\\\"[^\\:]+\\\")\\s*\\]\\s*\\:?\\s*[^\\:]+$";
+    public static final String COLLECTION_ACCESS_BY_INDEX_PATTERN = "\\s*[^\\:\\s]+\\s*\\[\\s*[0-9]+\\s*\\]\\s*(\\:\\s*[^\\:\\s]+|)\\s*$";
+    public static final String COLLECTION_ACCESS_BY_KEY_PATTERN = "\\s*[^\\:\\s]+\\s*\\[\\s*(\\\".*\\\"|[0-9]+)\\s*\\]\\s*(\\:\\s*[^\\:\\s]+|)\\s*$";
+    
     public static final String THIS_ARRAY_ACCESS_PATTERN = "\\s*\\[\\s*[0-9]+\\s*\\]\\s*$";
-    public static final String THIS_LIST_ACCESS_PATTERN = "\\s*\\[\\s*[0-9]+\\s*\\]\\s*\\:?\\s*[^\\:]+$";
-    public static final String THIS_MAP_ACCESS_PATTERN = "\\s*\\[\\s*([0-9]+|\\\"[^\\:]+\\\")\\s*\\]\\s*\\:?\\s*[^\\:]+$";
+    public static final String THIS_LIST_ACCESS_PATTERN = "\\s*\\[\\s*[0-9]+\\s*\\]\\s*(\\:\\s*[^\\:]+|)$";
+    public static final String THIS_MAP_ACCESS_PATTERN = "\\s*\\[\\s*(\\\".*\\\"|[0-9]+)\\s*\\]\\s*(\\:\\s*[^\\:\\s]+|)\\s*$";
     public static final String PRECISION_PATTERN = "^\\(\\-?[0-9]+\\)$";
     public static final String SPREADSHEETRESULTFIELD_PATTERN = "^\\$.+\\$.+$";
     private static final Pattern FIELD_WITH_PRECISION_PATTERN = Pattern.compile("^(.*\\S)\\s*(\\(-?[0-9]+\\))$");
@@ -404,44 +405,15 @@ public class DataTableBindHelper {
                 ICell foreignKeyCell = null;
 
                 if (fieldAccessorChainTokens.length == 1 && !hasForeignKeysRow) {
-                    // process single field in chain, e.g. driver;
                     IdentifierNode fieldNameNode = fieldAccessorChainTokens[0];
-                    if (fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_BY_INDEX_PATTERN) || fieldNameNode
-                        .getIdentifier()
-                        .matches(COLLECTION_ACCESS_BY_INDEX_PATTERN)) {
-                        descriptorField = getWritableCollectionElement(bindingContext,
-                            fieldNameNode,
-                            table,
-                            type,
-                            StringUtils.EMPTY,
-                            false);
-                    } else if (fieldNameNode.getIdentifier().matches(THIS_ARRAY_ACCESS_PATTERN) && type.isArray()) {
-                        descriptorField = new ThisCollectionElementField(getArrayIndex(fieldNameNode),
-                            type.getComponentClass(),
-                            CollectionType.ARRAY);
-                    } else if (fieldNameNode.getIdentifier().matches(THIS_LIST_ACCESS_PATTERN) && List.class
-                        .isAssignableFrom(type.getInstanceClass())) {
-                        IOpenClass elementType = getTypeForCollection(bindingContext, table, fieldNameNode);
-                        descriptorField = new ThisCollectionElementField(getArrayIndex(fieldNameNode),
-                            elementType,
-                            CollectionType.LIST);
-                    } else if (fieldNameNode.getIdentifier().matches(THIS_MAP_ACCESS_PATTERN) && Map.class
-                        .isAssignableFrom(type.getInstanceClass())) {
-                        IOpenClass elementType = getTypeForCollection(bindingContext, table, fieldNameNode);
-                        descriptorField = new ThisCollectionElementField(getMapKey(fieldNameNode),
-                            elementType);
-                    } else {
-                        if (supportConstructorFields && CONSTRUCTOR_FIELD.equals(fieldNameNode.getIdentifier())) {
-                            constructorField = true;
-                        } else {
-                            descriptorField = getWritableField(fieldNameNode, table, type);
-                        }
+                    if (supportConstructorFields && CONSTRUCTOR_FIELD.equals(fieldNameNode.getIdentifier())) {
+                        constructorField = true;
                     }
-                } else {
-                    // process the chain of fields, e.g.
-                    // driver.homeAdress.street;
+                } 
+                if (!constructorField) {
                     descriptorField = processFieldsChain(bindingContext, table, type, fieldAccessorChainTokens);
                 }
+                
                 if (hasForeignKeysRow) {
                     IdentifierNode[] foreignKeyTokens = getForeignKeyTokens(bindingContext, descriptorRows, columnNum);
                     foreignKeyTable = foreignKeyTokens.length > 0 ? foreignKeyTokens[0] : null;
@@ -672,13 +644,13 @@ public class DataTableBindHelper {
 
             if (fieldIndex > 0 && (fieldIndex == fieldAccessorChain.length - 1) && fieldNameNode.getIdentifier()
                 .matches(
-                    FPK) && (fieldAccessorChain[fieldIndex - 1] instanceof DatatypeCollectionMultiRowElementField)) { // Multi-rows
+                    FPK) && (fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementWithMultiRowField)) { // Multi-rows
                 // support.
                 // PK
                 // for
                 // arrays.
-                DatatypeCollectionMultiRowElementField datatypeCollectionMultiRowElementField = (DatatypeCollectionMultiRowElementField) fieldAccessorChain[fieldIndex - 1];
-                DatatypeCollectionMultiRowElementField newDatatypeArrayMultiRowElementField = new DatatypeCollectionMultiRowElementField(
+                CollectionElementWithMultiRowField datatypeCollectionMultiRowElementField = (CollectionElementWithMultiRowField) fieldAccessorChain[fieldIndex - 1];
+                CollectionElementWithMultiRowField newDatatypeArrayMultiRowElementField = new CollectionElementWithMultiRowField(
                     datatypeCollectionMultiRowElementField.getField(),
                     datatypeCollectionMultiRowElementField.getFieldPathFromRoot(),
                     JavaOpenClass.STRING,
@@ -693,7 +665,7 @@ public class DataTableBindHelper {
 
             if (fieldIndex == 0 && fieldNameNode.getIdentifier()
                 .matches(THIS_ARRAY_ACCESS_PATTERN) && (!(type instanceof TestMethodOpenClass)) && type.isArray()) {
-                fieldAccessorChain[fieldIndex] = new ThisCollectionElementField(getArrayIndex(fieldNameNode),
+                fieldAccessorChain[fieldIndex] = new ThisCollectionElementField(getCollectionIndex(fieldNameNode),
                     type.getComponentClass(),
                     CollectionType.ARRAY);
                 loadedFieldType = type.getComponentClass();
@@ -704,7 +676,7 @@ public class DataTableBindHelper {
                 .matches(THIS_LIST_ACCESS_PATTERN) && (!(type instanceof TestMethodOpenClass)) && List.class
                     .isAssignableFrom(type.getInstanceClass())) {
                 IOpenClass elementType = getTypeForCollection(bindingContext, table, fieldNameNode);
-                fieldAccessorChain[fieldIndex] = new ThisCollectionElementField(getArrayIndex(fieldNameNode),
+                fieldAccessorChain[fieldIndex] = new ThisCollectionElementField(getCollectionIndex(fieldNameNode),
                     elementType,
                     CollectionType.LIST);
                 loadedFieldType = elementType;
@@ -715,7 +687,7 @@ public class DataTableBindHelper {
                 .matches(THIS_MAP_ACCESS_PATTERN) && (!(type instanceof TestMethodOpenClass)) && Map.class
                     .isAssignableFrom(type.getInstanceClass())) {
                 IOpenClass elementType = getTypeForCollection(bindingContext, table, fieldNameNode);
-                fieldAccessorChain[fieldIndex] = new ThisCollectionElementField(getMapKey(fieldNameNode),
+                fieldAccessorChain[fieldIndex] = new ThisCollectionElementField(getCollectionKey(fieldNameNode),
                     elementType);
                 loadedFieldType = elementType;
                 continue;
@@ -728,10 +700,9 @@ public class DataTableBindHelper {
                 continue;
             }
 
-            boolean arrayAccessByIndex = fieldNameNode.getIdentifier().matches(ARRAY_ACCESS_BY_INDEX_PATTERN);
-            boolean collectionAccessByIndex = fieldNameNode.getIdentifier().matches(COLLECTION_ACCESS_BY_INDEX_PATTERN);
-            boolean arrayAccessMultiRows = false;
-            if (arrayAccessByIndex || collectionAccessByIndex) {
+            boolean collectionAccessPattern = fieldNameNode.getIdentifier().matches(COLLECTION_ACCESS_BY_INDEX_PATTERN) || fieldNameNode.getIdentifier().matches(COLLECTION_ACCESS_BY_KEY_PATTERN);
+            
+            if (collectionAccessPattern) {
                 hasAccessByArrayId = true;
                 fieldInChain = getWritableCollectionElement(bindingContext,
                     fieldNameNode,
@@ -750,11 +721,10 @@ public class DataTableBindHelper {
                         loadedFieldType,
                         partPathFromRoot.toString(),
                         !multiRowsArentSupported);
-                    arrayAccessMultiRows = true;
                 }
             }
 
-            if (fieldIndex > 0 && (fieldAccessorChain[fieldIndex - 1] instanceof DatatypeCollectionElementField || fieldAccessorChain[fieldIndex - 1] instanceof SpreadsheetResultField) && fieldAccessorChain[fieldIndex - 1]
+            if (fieldIndex > 0 && (fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementField || fieldAccessorChain[fieldIndex - 1] instanceof SpreadsheetResultField) && fieldAccessorChain[fieldIndex - 1]
                 .getType()
                 .getOpenClass()
                 .equals(JavaOpenClass.OBJECT)) {
@@ -770,13 +740,8 @@ public class DataTableBindHelper {
                 //
                 break;
             }
-
-            if (fieldInChain.getType() != null && fieldInChain.getType()
-                .isArray() && (arrayAccessByIndex || arrayAccessMultiRows)) {
-                loadedFieldType = fieldInChain.getType().getComponentClass();
-            } else {
-                loadedFieldType = fieldInChain.getType();
-            }
+            
+            loadedFieldType = fieldInChain.getType();
 
             fieldAccessorChain[fieldIndex] = fieldInChain;
             if (fieldIndex > 0) {
@@ -804,7 +769,7 @@ public class DataTableBindHelper {
         }
     }
 
-    private static int getArrayIndex(IdentifierNode fieldNameNode) {
+    public static int getCollectionIndex(IdentifierNode fieldNameNode) {
         String fieldName = fieldNameNode.getIdentifier();
         String txtIndex = fieldName.substring(fieldName.indexOf("[") + 1, fieldName.indexOf("]")).trim();
         return Integer.parseInt(txtIndex);
@@ -943,19 +908,19 @@ public class DataTableBindHelper {
         if (multiRowElement) {
             if (List.class.isAssignableFrom(field.getType().getInstanceClass())) {
                 IOpenClass elementType = getTypeForCollection(bindingContext, table, currentFieldNameNode);
-                collectionAccessField = new DatatypeCollectionMultiRowElementField(field,
+                collectionAccessField = new CollectionElementWithMultiRowField(field,
                     buildRootPathForDatatypeArrayMultiRowElementField(partPathFromRoot, field.getName()),
                     elementType,
                     CollectionType.LIST);
             } else {
                 if (!field.getType().isArray() && field.getType().getOpenClass().getInstanceClass().equals(
                     Object.class)) {
-                    collectionAccessField = new DatatypeCollectionMultiRowElementField(field,
+                    collectionAccessField = new CollectionElementWithMultiRowField(field,
                         buildRootPathForDatatypeArrayMultiRowElementField(partPathFromRoot, field.getName()),
                         JavaOpenClass.OBJECT,
                         CollectionType.ARRAY);
                 } else {
-                    collectionAccessField = new DatatypeCollectionMultiRowElementField(field,
+                    collectionAccessField = new CollectionElementWithMultiRowField(field,
                         buildRootPathForDatatypeArrayMultiRowElementField(partPathFromRoot, field.getName()),
                         field.getType().getComponentClass(),
                         CollectionType.ARRAY);
@@ -965,7 +930,7 @@ public class DataTableBindHelper {
             if (Map.class.isAssignableFrom(field.getType().getInstanceClass())) {
                 Object mapKey;
                 try {
-                    mapKey = getMapKey(currentFieldNameNode);
+                    mapKey = getCollectionKey(currentFieldNameNode);
                 } catch (Exception e) {
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse map key.",
                         currentFieldNameNode);
@@ -973,13 +938,13 @@ public class DataTableBindHelper {
                     return null;
                 }
                 IOpenClass elementType = getTypeForCollection(bindingContext, table, currentFieldNameNode);
-                collectionAccessField = new DatatypeCollectionElementField(field,
+                collectionAccessField = new CollectionElementField(field,
                     mapKey,
                     elementType);
             } else {
-                int arrayIndex;
+                int index;
                 try {
-                    arrayIndex = getArrayIndex(currentFieldNameNode);
+                    index = getCollectionIndex(currentFieldNameNode);
                 } catch (Exception e) {
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse array index.",
                         currentFieldNameNode);
@@ -988,20 +953,20 @@ public class DataTableBindHelper {
                 }
                 if (List.class.isAssignableFrom(field.getType().getInstanceClass())) {
                     IOpenClass elementType = getTypeForCollection(bindingContext, table, currentFieldNameNode);
-                    collectionAccessField = new DatatypeCollectionElementField(field,
-                        arrayIndex,
+                    collectionAccessField = new CollectionElementField(field,
+                        index,
                         elementType,
                         CollectionType.LIST);
                 } else {
                     if (!field.getType().isArray() && field.getType().getOpenClass().getInstanceClass().equals(
                         Object.class)) {
-                        collectionAccessField = new DatatypeCollectionElementField(field,
-                            arrayIndex,
+                        collectionAccessField = new CollectionElementField(field,
+                            index,
                             JavaOpenClass.OBJECT,
                             CollectionType.ARRAY);
                     } else {
-                        collectionAccessField = new DatatypeCollectionElementField(field,
-                            arrayIndex,
+                        collectionAccessField = new CollectionElementField(field,
+                            index,
                             field.getType().getComponentClass(),
                             CollectionType.ARRAY);
                     }
@@ -1018,7 +983,7 @@ public class DataTableBindHelper {
         return collectionAccessField;
     }
 
-    private static Object getMapKey(IdentifierNode currentFieldNameNode) {
+    private static Object getCollectionKey(IdentifierNode currentFieldNameNode) {
         String s = currentFieldNameNode.getIdentifier();
         s = s.substring(s.indexOf("[") + 1, s.lastIndexOf("]")).trim();
         if (s.matches("\\\".*\\\"")) {
