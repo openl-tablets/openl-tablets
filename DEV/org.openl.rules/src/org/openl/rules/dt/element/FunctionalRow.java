@@ -380,12 +380,12 @@ public abstract class FunctionalRow implements IDecisionRow {
 
 		return (NO_PARAM + noParamsIndex).intern();
 	}
-
-	private CompositeMethod generateMethod(IMethodSignature signature,
+	
+	protected final CompositeMethod generateMethod(IMethodSignature signature,
 			OpenL openl, IBindingContextDelegator bindingContextDelegator,
 			IOpenClass declaringClass, IOpenClass methodType) throws Exception {
 
-		IOpenSourceCodeModule source = getExpressionSource(bindingContextDelegator);
+		IOpenSourceCodeModule source = getExpressionSource(bindingContextDelegator, openl, declaringClass, signature, methodType);
 
 		IParameterDeclaration[] methodParams = getParams(source, signature,
 				declaringClass, methodType, openl, bindingContextDelegator);
@@ -398,11 +398,13 @@ public abstract class FunctionalRow implements IDecisionRow {
 				methodHeader, bindingContextDelegator);
 	}
 
-	protected IOpenSourceCodeModule getExpressionSource(
-			IBindingContext bindingContext) {
-		return new GridCellSourceCodeModule(codeTable.getSource(),
-				bindingContext);
-	}
+    protected IOpenSourceCodeModule getExpressionSource(IBindingContext bindingContext,
+            OpenL openl,
+            IOpenClass declaringClass,
+            IMethodSignature signature,
+            IOpenClass methodType) throws Exception {
+        return new GridCellSourceCodeModule(codeTable.getSource(), bindingContext);
+    }
 
 	/**
 	 * Gets local parameter declaration from specified source.

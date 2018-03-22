@@ -177,15 +177,15 @@ public class Action extends FunctionalRow implements IAction {
     }
 
     @Override
-    protected IOpenSourceCodeModule getExpressionSource(IBindingContext bindingContext) {
+    protected IOpenSourceCodeModule getExpressionSource(IBindingContext bindingContext, OpenL openl, IOpenClass declaringClass, IMethodSignature signature, IOpenClass methodType) throws Exception {
 
-        IOpenSourceCodeModule source = super.getExpressionSource(bindingContext);
+        IOpenSourceCodeModule source = super.getExpressionSource(bindingContext, openl, declaringClass, signature, methodType);
 
         if ((isReturnAction() || isCollectReturnAction() || isCollectReturnKeyAction()) && StringUtils.isEmpty(source.getCode()) && getParams() == null) {
             return new StringSourceCodeModule(EXTRA_RET, source.getUri());
         }
 
-        return super.getExpressionSource(bindingContext);
+        return source;
     }
 
     @Override
