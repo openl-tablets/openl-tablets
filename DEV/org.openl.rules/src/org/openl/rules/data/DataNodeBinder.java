@@ -223,7 +223,7 @@ public class DataNodeBinder extends AXlsTableBinder {
      * @param tableSyntaxNode <code>TableSyntaxNode</code> representing table.
      * @param tableType Type of the data in table.
      */
-    private void putSubTableForBussinesView(TableSyntaxNode tableSyntaxNode, IOpenClass tableType) {
+    public static void putSubTableForBussinesView(TableSyntaxNode tableSyntaxNode, IOpenClass tableType) {
 
         ILogicalTable tableBody = DataTableBindHelper.getTableBody(tableSyntaxNode);
         ILogicalTable dataWithTitle = DataTableBindHelper.getSubTableForBusinessView(tableBody, tableType);
