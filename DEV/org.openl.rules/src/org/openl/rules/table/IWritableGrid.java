@@ -1,7 +1,6 @@
 package org.openl.rules.table;
 
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ui.ICellStyle;
 
 /**
