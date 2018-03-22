@@ -196,7 +196,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     }
 
     // Protected to be accessible from XlsCell
-    protected CellMetaInfo getCellMetaInfo(int col, int row) {
+    CellMetaInfo getCellMetaInfo(int col, int row) {
         CellKey ck = CellKey.CellKeyFactory.getCellKey(col, row);
         return metaInfoMap.get(ck);
     }
@@ -295,7 +295,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         }
     }
 
-    public synchronized void setCellMetaInfo(int col, int row, CellMetaInfo meta) {
+    synchronized void setCellMetaInfo(int col, int row, CellMetaInfo meta) {
         CellKey ck = CellKey.CellKeyFactory.getCellKey(col, row);
         if (meta == null) {
             metaInfoMap.remove(ck);

@@ -62,7 +62,7 @@ public abstract class AXlsCellWriter {
         // We need to set cell meta info for the cell, to open appropriate editor for it on UI.
         CellMetaInfo cellMeta = new CellMetaInfo(CellMetaInfo.Type.DT_DATA_CELL, strValue,
                 JavaOpenClass.getOpenClass(valueClass), multiValue);
-        xlsSheetGridModel.setCellMetaInfo(cellToWrite.getColumnIndex(), cellToWrite.getRowIndex(), cellMeta);
+        xlsSheetGridModel.getCell(cellToWrite.getColumnIndex(), cellToWrite.getRowIndex()).setMetaInfo(cellMeta);
     }
 
     protected void setMetaInfo(Class<?> valueClass) {
