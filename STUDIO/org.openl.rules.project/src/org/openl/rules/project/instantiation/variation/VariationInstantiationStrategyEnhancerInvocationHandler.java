@@ -14,7 +14,6 @@ import java.util.concurrent.RecursiveTask;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.core.ce.ServiceMT;
 import org.openl.rules.project.SafeCloner;

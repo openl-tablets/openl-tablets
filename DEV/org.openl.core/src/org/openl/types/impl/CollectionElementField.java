@@ -15,19 +15,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Element in array field
+ * Element in array/list/map field
  *
  * @author PTarasevich
  */
 
-public class DatatypeCollectionElementField extends AOpenField {
-    private final Logger log = LoggerFactory.getLogger(DatatypeCollectionElementField.class);
+public class CollectionElementField extends AOpenField {
+    private final Logger log = LoggerFactory.getLogger(CollectionElementField.class);
     private int elementIndex;
     private Object mapKey;
     private IOpenField field;
     private CollectionType collectionType;
     
-    public DatatypeCollectionElementField(IOpenField field,
+    public CollectionElementField(IOpenField field,
             int elementIndex,
             IOpenClass type,
             CollectionType collectionType) {
@@ -37,7 +37,7 @@ public class DatatypeCollectionElementField extends AOpenField {
         this.collectionType = collectionType;
     }
 
-    public DatatypeCollectionElementField(IOpenField field,
+    public CollectionElementField(IOpenField field,
             Object mapKey,
             IOpenClass type) {
         super(getName(field.getName(), String.valueOf(mapKey)), type);

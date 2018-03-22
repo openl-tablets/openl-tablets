@@ -14,21 +14,21 @@ import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DatatypeCollectionMultiRowElementField extends AOpenField {
-    private final Logger log = LoggerFactory.getLogger(DatatypeCollectionMultiRowElementField.class);
+public class CollectionElementWithMultiRowField extends AOpenField {
+    private final Logger log = LoggerFactory.getLogger(CollectionElementWithMultiRowField.class);
     private IOpenField field;
     private String fieldPathFromRoot;
     private boolean pkField = false;
     private CollectionType collectionType;
 
-    public DatatypeCollectionMultiRowElementField(IOpenField field,
+    public CollectionElementWithMultiRowField(IOpenField field,
             String fieldPathFromRoot,
             IOpenClass type,
             CollectionType collectionType) {
         this(field, fieldPathFromRoot, type, collectionType, false);
     }
 
-    public DatatypeCollectionMultiRowElementField(IOpenField field,
+    public CollectionElementWithMultiRowField(IOpenField field,
             String fieldPathFromRoot,
             IOpenClass type,
             CollectionType collectionType,
