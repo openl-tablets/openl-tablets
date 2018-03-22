@@ -346,9 +346,10 @@ public class RuleRowHelper {
             List<NodeUsage> nodeUsages = new ArrayList<NodeUsage>();
             String description = MethodUtil.printType(constantOpenField.getType()) + " " + constantOpenField
                 .getName() + " = " + constantOpenField.getValueAsString(); 
-            nodeUsages.add(new SimpleNodeUsage(0, cellCode.length() - 1, description, constantOpenField.getUri(), NodeType.OTHER)); 
             if (metaInfo.getUsedNodes() != null) {
                 nodeUsages.addAll(metaInfo.getUsedNodes());
+            } else {
+                nodeUsages.add(new SimpleNodeUsage(0, cellCode.length() - 1, description, constantOpenField.getUri(), NodeType.OTHER));
             }
             metaInfo.setUsedNodes(nodeUsages);
             sourceCell.setMetaInfo(metaInfo);
