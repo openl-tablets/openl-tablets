@@ -10,8 +10,8 @@ package org.openl.rules.variation;
  * #L%
  */
 
-
 import com.rits.cloning.Cloner;
+import com.rits.cloning.ObjenesisInstantiationStrategy;
 
 final class ArgumentsClonerFactory {
     private ArgumentsClonerFactory() {
@@ -21,7 +21,7 @@ final class ArgumentsClonerFactory {
         try {
             return (Cloner) Class.forName("org.openl.rules.table.OpenLArgumentsCloner").newInstance();
         } catch (Exception e) {
-            return new Cloner();
+            return new Cloner(new ObjenesisInstantiationStrategy());
         }
     }
 }
