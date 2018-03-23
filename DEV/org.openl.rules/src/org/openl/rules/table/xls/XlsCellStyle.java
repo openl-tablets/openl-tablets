@@ -83,7 +83,7 @@ public class XlsCellStyle implements ICellStyle {
     }
 
     @Override
-    public int getIdent() {
+    public int getIndent() {
         return xlsStyle.getIndention();
     }
 

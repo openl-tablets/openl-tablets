@@ -212,7 +212,7 @@ public class TableEditorController extends BaseTableEditorController {
             int indent = getRequestIntParam(Constants.REQUEST_PARAM_INDENT);
 
             ICellStyle style = editorModel.getOriginalGridTable().getCell(col, row).getStyle();
-            int currentIndent = style != null ? style.getIdent() : 0;
+            int currentIndent = style != null ? style.getIndent() : 0;
             int resultIndent = currentIndent + indent;
 
             try {

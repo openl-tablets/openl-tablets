@@ -19,7 +19,7 @@ public class SetIndentAction extends AUndoableCellAction {
         IWritableGrid grid = (IWritableGrid) table.getGrid();
 
         ICellStyle style = grid.getCell(getCol(), getRow()).getStyle();
-        prevIndent = style != null ? style.getIdent() : 0;
+        prevIndent = style != null ? style.getIndent() : 0;
 
         grid.setCellIndent(getCol(), getRow(), newIndent);
     }

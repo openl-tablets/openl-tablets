@@ -58,10 +58,8 @@ public interface ICellStyle {
     /**
      * get the number of spaces to indent the text in the cell
      * @return indent - number of spaces
-     * 
-     * TODO: rename to getIndent() (wrong spelling)
      */
-    int getIdent();
+    int getIndent();
     
     /**
      * get the degree of rotation for the text in the cell
