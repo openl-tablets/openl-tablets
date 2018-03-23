@@ -28,7 +28,7 @@ public class CellStyle implements ICellStyle {
     private BorderStyle[] borderStyle;
 
     private short[][] borderRGB;
-    private int ident;
+    private int indent;
 
     private boolean wrappedText;
 
@@ -53,7 +53,7 @@ public class CellStyle implements ICellStyle {
         borderStyle = cellStyle.getBorderStyle();
         borderRGB = cellStyle.getBorderRGB();
 
-        ident = cellStyle.getIdent();
+        indent = cellStyle.getIndent();
 
         wrappedText = cellStyle.isWrappedText();
 
@@ -80,8 +80,8 @@ public class CellStyle implements ICellStyle {
         return horizontalAlignment;
     }
 
-    public int getIdent() {
-        return ident;
+    public int getIndent() {
+        return indent;
     }
 
     public int getRotation() {

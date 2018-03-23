@@ -160,7 +160,7 @@ public class AlgorithmBuilder {
                 setRowField(aRow, column.id, sv);
                 if (OPERATION.equalsIgnoreCase(column.id)) {
                     ICellStyle cellStyle = grid.getCell(c, r).getStyle();
-                    int i = (cellStyle == null) ? 0 : cellStyle.getIdent();
+                    int i = (cellStyle == null) ? 0 : cellStyle.getIndent();
                     aRow.setOperationLevel(i);
                     bindMetaInfo(grid, c, r);
                 }
