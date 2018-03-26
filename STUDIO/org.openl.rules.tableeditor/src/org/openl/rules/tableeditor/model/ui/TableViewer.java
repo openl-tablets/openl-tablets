@@ -69,8 +69,8 @@ public class TableViewer {
                 break;
         }
 
-        if (style.getIdent() > 0) {
-            cm.setIdent(style.getIdent());
+        if (style.getIndent() > 0) {
+            cm.setIndent(style.getIndent());
         }
 
         short[] rgb = style.getFillForegroundColor();

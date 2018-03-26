@@ -13,13 +13,13 @@ public class CellModel implements ICellModel {
     private int colspan = 1;
     private int rowspan = 1;
 
-    private int ident = 0;
+    private int indent = 0;
     private String halign;
     private String valign;
     private short[] rgbBackground;
     private BorderStyle[] borderStyle;
 
-    private static final Map<String, Object> DEFAULT_CELL_STYLES = new HashMap<String, Object>();
+    private static final Map<String, Object> DEFAULT_CELL_STYLES = new HashMap<>();
     static {
         // tableeditor.all.css
         DEFAULT_CELL_STYLES.put("padding", 1);
@@ -219,16 +219,16 @@ public class CellModel implements ICellModel {
             fontToHtml(font, sb);
         }
 
-        if (ident > 0) {
-            sb.append("padding-left:").append((Integer) DEFAULT_CELL_STYLES.get("padding") * 0.063 + ident).append("em").append(";");
+        if (indent > 0) {
+            sb.append("padding-left:").append((Integer) DEFAULT_CELL_STYLES.get("padding") * 0.063 + indent).append("em").append(";");
         }
 
         return sb.toString();
     }
 
-    public static StringBuilder fontToHtml(ICellFont font, StringBuilder buf) {
+    public static void fontToHtml(ICellFont font, StringBuilder buf) {
         if (font == null) {
-            return buf;
+            return;
         }
 
         if (font.isUnderlined() || font.isStrikeout()) {
@@ -264,8 +264,6 @@ public class CellModel implements ICellModel {
                 buf.append("color:").append(colorStr).append(";");
             }
         }
-
-        return buf;
     }
 
     public int getRow() {
@@ -276,8 +274,8 @@ public class CellModel implements ICellModel {
         return column;
     }
 
-    public int getIdent() {
-        return ident;
+    public int getIndent() {
+        return indent;
     }
 
     public short[] getRgbBackground() {
@@ -329,8 +327,8 @@ public class CellModel implements ICellModel {
         this.halign = halign;
     }
 
-    public void setIdent(int ident) {
-        this.ident = ident;
+    public void setIndent(int indent) {
+        this.indent = indent;
     }
 
     public void setRgbBackground(short[] rgbBackground) {

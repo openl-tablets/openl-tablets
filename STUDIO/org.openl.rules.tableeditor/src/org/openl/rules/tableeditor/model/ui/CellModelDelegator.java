@@ -27,8 +27,8 @@ public class CellModelDelegator implements ICellModel {
         return model.getFont();
     }
 
-    public int getIdent() {
-        return model.getIdent();
+    public int getIndent() {
+        return model.getIndent();
     }
 
     public CellModel getModel() {
@@ -73,8 +73,8 @@ public class CellModelDelegator implements ICellModel {
         model.setFont(font);
     }
 
-    public void setIdent(int ident) {
-        model.setIdent(ident);
+    public void setIndent(int indent) {
+        model.setIndent(indent);
     }
 
     public void setRgbBackground(short[] rgbBackground) {
