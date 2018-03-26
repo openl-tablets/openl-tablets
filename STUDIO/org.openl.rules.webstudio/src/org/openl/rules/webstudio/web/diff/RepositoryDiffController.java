@@ -1,4 +1,4 @@
-package org.openl.rules.webstudio.web.repository.diff;
+package org.openl.rules.webstudio.web.diff;
 
 import org.openl.commons.web.jsf.FacesUtils;
 import org.openl.rules.common.ProjectException;
@@ -8,8 +8,6 @@ import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls2.XlsDiff2;
 import org.openl.rules.project.abstraction.*;
-import org.openl.rules.project.impl.local.LocalRepository;
-import org.openl.rules.webstudio.web.diff.AbstractDiffController;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.FileTypeHelper;
@@ -200,9 +198,8 @@ public class RepositoryDiffController extends AbstractDiffController {
 
         File tempFile = null;
         OutputStream out = null;
-        String filePrefix = ((excelArtefact.getRepository() instanceof LocalRepository) ? "uw" : selectedVersionRepo) + "_";
         try {
-            tempFile = new File(filePrefix + excelArtefact.getName());
+            tempFile = File.createTempFile("openl-cmp", excelArtefact.getName());
             out = new FileOutputStream(tempFile);
             IOUtils.copy(in, out);
         } catch (IOException e) {
@@ -256,7 +253,7 @@ public class RepositoryDiffController extends AbstractDiffController {
             // further calculations.
             setDiffTree(null);
             XlsDiff2 x = new XlsDiff2();
-            DiffTreeNode diffTree = x.diffFiles(excelFile1.getAbsolutePath(), excelFile2.getAbsolutePath());
+            DiffTreeNode diffTree = x.diffFiles(excelFile1, excelFile2);
             setDiffTree(diffTree);
         } catch (Exception e) {
             Throwable cause = e.getCause();
