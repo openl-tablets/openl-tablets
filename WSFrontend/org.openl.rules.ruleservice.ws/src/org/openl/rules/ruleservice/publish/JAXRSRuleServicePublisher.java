@@ -23,11 +23,14 @@ import org.openl.rules.ruleservice.logging.CollectOpenLServiceIntercepror;
 import org.openl.rules.ruleservice.logging.CollectOperationResourceInfoInterceptor;
 import org.openl.rules.ruleservice.logging.CollectPublisherTypeInterceptor;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSInterfaceEnhancerHelper;
+import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerStaticFieldsWorkaround;
 import org.openl.rules.ruleservice.servlet.AvailableServicesPresenter;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
+
+import io.swagger.jaxrs.config.SwaggerScannerLocator;
 
 /**
  * DeploymentAdmin to expose services via HTTP using JAXRS.
@@ -200,6 +203,7 @@ public class JAXRSRuleServicePublisher extends AbstractRuleServicePublisher impl
                 String.format("There is no running service with name '%s'", serviceName));
         }
         try {
+            SwaggerStaticFieldsWorkaround.reset();
             runningServices.get(service).destroy();
             log.info("Service '{}' has been undeployed succesfully.", serviceName, baseAddress, service.getUrl());
             runningServices.remove(service);
