@@ -126,13 +126,26 @@ public class Condition extends FunctionalRow implements ICondition {
                 methodType,
                 openl,
                 bindingContext);
-            IOpenCast openCast = bindingContext.getCast(params[0].getType(), signature.getParameterType(0));
-            if (openCast != null && openCast.isImplicit()) {
-                return new StringSourceCodeModule(source.getCode() + "==" + params[0].getName(), source.getUri()); // Simple
-                                                                                                                   // syntax
-                                                                                                                   // to
-                                                                                                                   // full
-                                                                                                                   // code
+            if (params.length == 1) {
+                IOpenCast openCast = bindingContext.getCast(params[0].getType(), signature.getParameterType(0));
+                if (openCast != null && openCast.isImplicit()) {
+                    return new StringSourceCodeModule(source.getCode() + "==" + params[0].getName(), source.getUri()); // Simple
+                                                                                                                       // syntax
+                                                                                                                       // to
+                                                                                                                       // full
+                                                                                                                       // code
+                }
+            }
+            if (params.length == 2) {
+                IOpenCast openCast1 = bindingContext.getCast(params[0].getType(), signature.getParameterType(0));
+                IOpenCast openCast2 = bindingContext.getCast(params[1].getType(), signature.getParameterType(0));
+                if (openCast1 != null && openCast1.isImplicit() && openCast2 != null && openCast2.isImplicit()) {
+                    return new StringSourceCodeModule(params[0].getName() + "<=" + source.getCode() + " and " + source.getCode() + "<" + params[1].getName(), source.getUri()); // Simple
+                                                                                                                       // syntax
+                                                                                                                       // to
+                                                                                                                       // full
+                                                                                                                       // code
+                }
             }
             if (params[0].getType()
                 .isArray() && params[0].getType().getComponentClass().getInstanceClass() != null && params[0].getType()
