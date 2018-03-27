@@ -1,29 +1,19 @@
 package org.openl.rules.ruleservice.databinding;
 
-/*
+/*-
  * #%L
- * OpenL - RuleService - RuleService - Web Services Databinding
+ * OpenL - RuleService - Web Services - Databinding
  * %%
- * Copyright (C) 2013 OpenL Tablets
+ * Copyright (C) 2015 - 2018 OpenL Tablets
  * %%
  * See the file LICENSE.txt for copying permission.
  * #L%
  */
 
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
 import org.apache.cxf.aegis.type.TypeMapping;
+import org.apache.cxf.aegis.type.basic.CharacterAsStringType;
 import org.apache.cxf.common.util.XMLSchemaQNames;
-import org.openl.rules.ruleservice.databinding.aegis.java.BigDecimalType;
-import org.openl.rules.ruleservice.databinding.aegis.java.BigIntegerType;
-import org.openl.rules.ruleservice.databinding.aegis.java.ByteType;
-import org.openl.rules.ruleservice.databinding.aegis.java.DoubleType;
-import org.openl.rules.ruleservice.databinding.aegis.java.FloatType;
-import org.openl.rules.ruleservice.databinding.aegis.java.IntType;
-import org.openl.rules.ruleservice.databinding.aegis.java.LongType;
-import org.openl.rules.ruleservice.databinding.aegis.java.ShortType;
 
 public class AegisDatabindingFactoryBean27 extends AbstractAegisDatabindingFactoryBean{ 
     
@@ -50,22 +40,8 @@ public class AegisDatabindingFactoryBean27 extends AbstractAegisDatabindingFacto
 
     protected void registerCustomJavaTypes(TypeMapping typeMapping) {
         //CUSTOM JAVA TYPES REGISTER
-        loadAegisTypeClassAndRegister(Double.class.getCanonicalName(),
-            DoubleType.class, XMLSchemaQNames.XSD_DOUBLE, typeMapping);
-        loadAegisTypeClassAndRegister(Float.class.getCanonicalName(),
-            FloatType.class, XMLSchemaQNames.XSD_FLOAT, typeMapping);
-        loadAegisTypeClassAndRegister(Integer.class.getCanonicalName(),
-            IntType.class, XMLSchemaQNames.XSD_INT, typeMapping);
-        loadAegisTypeClassAndRegister(Long.class.getCanonicalName(),
-            LongType.class, XMLSchemaQNames.XSD_LONG, typeMapping);
-        loadAegisTypeClassAndRegister(Short.class.getCanonicalName(),
-            ShortType.class, XMLSchemaQNames.XSD_SHORT, typeMapping);
-        loadAegisTypeClassAndRegister(Byte.class.getCanonicalName(),
-            ByteType.class, XMLSchemaQNames.XSD_BYTE, typeMapping);
-        loadAegisTypeClassAndRegister(BigInteger.class.getCanonicalName(),
-            BigIntegerType.class, XMLSchemaQNames.XSD_INTEGER, typeMapping);
-        loadAegisTypeClassAndRegister(BigDecimal.class.getCanonicalName(),
-            BigDecimalType.class, XMLSchemaQNames.XSD_DECIMAL, typeMapping);
+        loadAegisTypeClassAndRegister(Character.class, CharacterAsStringType.class, XMLSchemaQNames.XSD_INT, typeMapping);
+        loadAegisTypeClassAndRegister(char.class, CharacterAsStringType.class, XMLSchemaQNames.XSD_INT, typeMapping);
         //END
     }
 }
