@@ -54,7 +54,7 @@ public class XlsLoader {
         this.includeSeeker = includeSeeker;
     }
 
-    public void addError(SyntaxNodeException error) {
+    private void addError(SyntaxNodeException error) {
         errors.add(error);
     }
 
