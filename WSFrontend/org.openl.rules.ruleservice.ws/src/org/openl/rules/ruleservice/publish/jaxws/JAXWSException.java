@@ -1,25 +1,23 @@
 package org.openl.rules.ruleservice.publish.jaxws;
 
-import javax.xml.ws.WebFault;
+import org.apache.cxf.binding.soap.SoapFault;
+import org.apache.cxf.helpers.DOMUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
-@WebFault(name="Exception", faultBean="org.openl.rules.ruleservice.publish.jaxws.FaultInfo", targetNamespace="http://jaxws.publish.ruleservice.rules.openl.org")
-public class JAXWSException extends RuntimeException{
-    
+public class JAXWSException extends SoapFault {
+
     private static final long serialVersionUID = 6412876579527950740L;
 
-    private FaultInfo faultInfo;
-    
-    public JAXWSException(String message, FaultInfo faultInfo){
-        super(message);
-        this.faultInfo = faultInfo;
+    public JAXWSException(String message) {
+        super(message, SoapFault.FAULT_CODE_SERVER);
     }
-    
-    public JAXWSException(String message, FaultInfo faultInfo, Throwable cause){
-        super(message, cause);
-        this.faultInfo = faultInfo;
+
+    public void setDetail(String type, String stacktrace) {
+        Document document = DOMUtils.createDocument();
+        Element detail = document.createElement("detail");
+        detail.setTextContent("Error: " + type + System.lineSeparator() + stacktrace);
+        super.setDetail(detail);
     }
-    
-    public FaultInfo getFaultInfo() {
-        return faultInfo;
-    }
+
 }

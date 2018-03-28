@@ -113,7 +113,7 @@ public abstract class AbstractAegisDatabindingFactoryBean {
         registerCustomJavaTypes(typeMapping);
 
         registerOpenLTypes(typeMapping);
-
+        
         return aegisDatabinding;
     }
 
@@ -192,24 +192,40 @@ public abstract class AbstractAegisDatabindingFactoryBean {
         }
     }
 
+    private void tryToLoadClass(String className) {
+        try {
+            Thread.currentThread().getContextClassLoader().loadClass(className);
+        } catch (ClassNotFoundException e) {
+            log.warn("Class '{}' hasn't been found!", className, e);
+        }
+    }
+    
     protected Set<String> getOverrideTypesWithDefaultOpenLTypes() {
         Set<String> overrideTypes = new HashSet<String>();
         if (getOverrideTypes() != null) {
+            for (String className : getOverrideTypes()) {
+                tryToLoadClass(className);
+            }
             overrideTypes.addAll(getOverrideTypes());
         }
         overrideTypes.add(SpreadsheetResult.class.getCanonicalName());
         overrideTypes.add(Point.class.getCanonicalName());
 
         if (supportVariations) {
-            overrideTypes.add("org.openl.rules.variation.VariationsResult");
-            overrideTypes.add("org.openl.rules.variation.Variation");
-            overrideTypes.add("org.openl.rules.variation.ComplexVariation");
-            overrideTypes.add("org.openl.rules.variation.NoVariation");
-            overrideTypes.add("org.openl.rules.variation.JXPathVariation");
-            overrideTypes.add("org.openl.rules.variation.DeepCloningVariation");
-            overrideTypes.add("org.openl.rules.variation.ArgumentReplacementVariation");
+            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.VariationsResult");
+            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.Variation");
+            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.ComplexVariation");
+            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.NoVariation");
+            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.JXPathVariation");
+            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.DeepCloningVariation");
+            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.ArgumentReplacementVariation");
         }
         return overrideTypes;
+    }
+
+    private void tryToLoadAndAppend(Set<String> overrideTypes, String className) {
+        tryToLoadClass(className);
+        overrideTypes.add(className);
     }
 
     public Boolean getWriteXsiTypes() {

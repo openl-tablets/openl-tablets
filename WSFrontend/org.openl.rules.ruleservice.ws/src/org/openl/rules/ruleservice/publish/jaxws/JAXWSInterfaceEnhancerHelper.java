@@ -25,8 +25,6 @@ import org.openl.rules.ruleservice.publish.common.MethodUtil;
 import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
-import net.sf.cglib.core.ReflectUtils;
-
 /**
  * Utility class for generate JAXWS annotations for service interface.
  * 
@@ -91,9 +89,7 @@ public class JAXWSInterfaceEnhancerHelper {
                 throw new RuleServiceRuntimeException("Method is not found in the original class");
             }
 
-            String[] exceotions = extendExceptionsWithJAXWSException(arg4);
-
-            MethodVisitor mv = super.visitMethod(arg0, methodName, arg2, arg3, exceotions);
+            MethodVisitor mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
 
             boolean foundWebMethodAnnotation = false;
             if (originalMethod.getAnnotation(WebMethod.class) != null) {
@@ -132,17 +128,6 @@ public class JAXWSInterfaceEnhancerHelper {
                 }
             }
             return mv;
-        }
-
-        private String[] extendExceptionsWithJAXWSException(String[] arg4) {
-            Set<String> exceptions = new HashSet<>();
-            if (arg4 != null) {
-                for (String s : arg4) {
-                    exceptions.add(s);
-                }
-            }
-            exceptions.add(Type.getInternalName(JAXWSException.class));
-            return exceptions.toArray(new String[] {});
         }
 
         private String getOperationName(Method method) {

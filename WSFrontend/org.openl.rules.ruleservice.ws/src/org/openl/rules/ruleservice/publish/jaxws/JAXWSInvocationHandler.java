@@ -36,23 +36,22 @@ public class JAXWSInvocationHandler implements InvocationHandler {
                 }
             }
 
-            FaultInfo faultInfo = new FaultInfo();
-
             if (t instanceof RuleServiceWrapperException) {
                 RuleServiceWrapperException ruleServiceWrapperException = (RuleServiceWrapperException) t;
-                faultInfo.setType(ruleServiceWrapperException.getType().toString());
+                String type = ruleServiceWrapperException.getType().toString();
                 boolean detailedFault = ExceptionType.SYSTEM
                     .equals(ruleServiceWrapperException.getType()) || ExceptionType.RULES_RUNTIME
                         .equals(ruleServiceWrapperException.getType()) || ExceptionType.COMPILATION
                             .equals(ruleServiceWrapperException.getType());
+                JAXWSException jaxwsException = new JAXWSException(ruleServiceWrapperException.getSimpleMessage());
                 if (detailedFault) {
-                    faultInfo.setDetails(ExceptionUtils.getStackTrace(e.getCause()));
+                    jaxwsException.setDetail(type, ExceptionUtils.getStackTrace(e.getCause()));
                 }
-                throw new JAXWSException(ruleServiceWrapperException.getSimpleMessage(), faultInfo); 
+                throw jaxwsException;
             } else {
-                faultInfo.setType(ExceptionType.SYSTEM.toString());
-                faultInfo.setDetails(ExceptionUtils.getStackTrace(e.getCause()));
-                throw new JAXWSException(t.getMessage(), faultInfo);
+                JAXWSException jaxwsException = new JAXWSException(t.getMessage());
+                jaxwsException.setDetail(ExceptionType.SYSTEM.toString(), ExceptionUtils.getStackTrace(e.getCause()));
+                throw jaxwsException;
             }
         }
     }
