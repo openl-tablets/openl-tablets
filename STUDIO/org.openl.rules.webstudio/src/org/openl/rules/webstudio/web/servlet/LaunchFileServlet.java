@@ -1,5 +1,21 @@
 package org.openl.rules.webstudio.web.servlet;
 
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.EDIT_TABLES;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.openl.commons.web.util.WebTool;
 import org.openl.extension.ExtensionWrapperGrid;
 import org.openl.rules.table.IOpenLTable;
@@ -13,21 +29,6 @@ import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.EDIT_TABLES;
 
 public class LaunchFileServlet extends HttpServlet {
 
@@ -123,25 +124,23 @@ public class LaunchFileServlet extends HttpServlet {
 
                 model.afterOpenWorkbookForEdit(wbName);
 
+                return;
             } catch (Exception e) {
-                log.error("Can't launch file", e);
+                log.info("Can't launch an excel file", e);
             }
+        }
 
-        } else { // remote mode
+        File file1 = new File(wbPath, wbName);
 
-            File file1 = new File(wbPath, wbName);
+        if (file1.isFile()) {
+            response.setContentType("application/octet-stream");
+            WebTool.setContentDisposition(response, file1.getName());
 
-
-            if (file1.isFile()) {
-                response.setContentType("application/octet-stream");
-                WebTool.setContentDisposition(response, file1.getName());
-
-                OutputStream outputStream = response.getOutputStream();
-                FileInputStream fis = new FileInputStream(file1);
-                IOUtils.copyAndClose(fis, outputStream);
-            } else {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            }
+            OutputStream outputStream = response.getOutputStream();
+            FileInputStream fis = new FileInputStream(file1);
+            IOUtils.copyAndClose(fis, outputStream);
+        } else {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 
