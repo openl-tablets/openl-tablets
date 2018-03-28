@@ -105,6 +105,7 @@ public class XlsLoader {
                 preprocessImportTable(row.getSource());
             } else if (ParserUtils.isBlankOrCommented(value)) {
                 // ignore comment
+                log.debug("Comment: {}", value);
             } else {
                 String message = String.format("Error in Environment table: unrecognized keyword '%s'", value);
                 log.warn(message);
