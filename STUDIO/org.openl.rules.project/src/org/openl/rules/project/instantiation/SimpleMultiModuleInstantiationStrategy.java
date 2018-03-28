@@ -71,7 +71,7 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
 
     @SuppressWarnings("unchecked")
     protected RulesEngineFactory<?> getEngineFactory() {
-        Class<?> serviceClass = null;
+        Class<?> serviceClass;
         try {
             serviceClass = getServiceClass();
         } catch (ClassNotFoundException e) {
@@ -79,13 +79,12 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
             serviceClass = null;
         }
         if (engineFactory == null || (serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass))) {
-            engineFactory = new RulesEngineFactory<Object>(createVirtualSourceCodeModule(),
-                    (Class<Object>) serviceClass);// FIXME
+            engineFactory = new RulesEngineFactory<>(createVirtualSourceCodeModule(), (Class<Object>) serviceClass);
             engineFactory.setExecutionMode(isExecutionMode());
 
             // Information for interface generation, if generation required.
-            Collection<String> allIncludes = new HashSet<String>();
-            Collection<String> allExcludes = new HashSet<String>();
+            Collection<String> allIncludes = new HashSet<>();
+            Collection<String> allExcludes = new HashSet<>();
             for (Module m : getModules()) {
                 MethodFilter methodFilter = m.getMethodFilter();
                 if (methodFilter != null) {
