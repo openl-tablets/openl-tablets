@@ -261,7 +261,7 @@ public class XlsLoader {
         workbookNodes.add(createWorkbookNode(tablePartProcessor, workbookSourceModule, sheetNodes));
     }
 
-    private WorksheetSyntaxNode[] createWorksheetNodes(TablePartProcessor tablePartProcessor,
+    protected WorksheetSyntaxNode[] createWorksheetNodes(TablePartProcessor tablePartProcessor,
             XlsWorkbookSourceCodeModule workbookSourceModule) {
         int nsheets = workbookSourceModule.getWorkbookLoader().getNumberOfSheets();
         WorksheetSyntaxNode[] sheetNodes = new WorksheetSyntaxNode[nsheets];
@@ -293,7 +293,7 @@ public class XlsLoader {
         return new WorkbookSyntaxNode(sheetNodes, mergedNodes, workbookSourceModule);
     }
 
-    private WorksheetSyntaxNode createWorksheetSyntaxNode(TablePartProcessor tablePartProcessor,
+    protected WorksheetSyntaxNode createWorksheetSyntaxNode(TablePartProcessor tablePartProcessor,
             XlsSheetSourceCodeModule sheetSource,
             IGridTable[] tables) {
         List<TableSyntaxNode> tableNodes = new ArrayList<>();

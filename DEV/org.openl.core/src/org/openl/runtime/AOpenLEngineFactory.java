@@ -105,6 +105,13 @@ public abstract class AOpenLEngineFactory extends AEngineFactory {
         return openlName;
     }
 
+    protected void setOpenlName(String openlName) {
+        if (this.openl != null) {
+            throw new IllegalStateException("'OpenL' instance is initialized already. Can't change OpenL name");
+        }
+        this.openlName = openlName;
+    }
+
     public String getUserHome() {
         return userHome;
     }

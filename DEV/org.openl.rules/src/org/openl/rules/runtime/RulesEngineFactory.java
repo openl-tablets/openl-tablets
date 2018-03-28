@@ -123,10 +123,6 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
     
     /**
      * Added to allow using other openl names, such as org.openl.xls.ce
-     *
-     * @param source
-     * @param userHome
-     * @param openlName
      */
     public RulesEngineFactory(IOpenSourceCodeModule source, String userHome, String openlName) {
         super(openlName, source, userHome);
@@ -169,6 +165,15 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
             }
         } else {
             return super.getInterfaceClass();
+        }
+    }
+
+    @Override
+    public void setExecutionMode(boolean executionMode) {
+        super.setExecutionMode(executionMode);
+
+        if (executionMode && RULES_XLS_OPENL_NAME.equals(getOpenlName())) {
+            setOpenlName(OpenL.OPENL_JAVA_SEQUENTIAL_NAME);
         }
     }
 
