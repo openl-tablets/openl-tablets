@@ -268,7 +268,7 @@ public class XlsLoader {
 
         for (int i = 0; i < nsheets; i++) {
             XlsSheetSourceCodeModule sheetSource = new XlsSheetSourceCodeModule(i, workbookSourceModule);
-            IGridTable[] tables = getAllGridTables(sheetSource);
+            IGridTable[] tables = new XlsSheetGridModel(sheetSource).getTables();
             sheetNodes[i] = createWorksheetSyntaxNode(tablePartProcessor, sheetSource, tables);
         }
         return sheetNodes;
@@ -312,16 +312,6 @@ public class XlsLoader {
 
         return new WorksheetSyntaxNode(tableNodes.toArray(new TableSyntaxNode[tableNodes
                 .size()]), sheetSource);
-    }
-
-    /**
-     * Gets all grid tables from the sheet.
-     */
-    private IGridTable[] getAllGridTables(XlsSheetSourceCodeModule sheetSource) {
-
-        XlsSheetGridModel xlsGrid = new XlsSheetGridModel(sheetSource);
-
-        return xlsGrid.getTables();
     }
 
     private void setOpenl(OpenlSyntaxNode openl) {
