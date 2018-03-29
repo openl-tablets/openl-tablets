@@ -39,7 +39,7 @@ public class OpenL {
     public static final String OPENL_JAVA_NAME = "org.openl.rules.java"; 
     public static final String OPENL_JAVA_CE_NAME = "org.openl.rules.java.ce"; 
     public static final String OPENL_JAVA_RULE_NAME = "org.openl.xls";    
-    
+    public static final String OPENL_JAVA_SEQUENTIAL_NAME = "org.openl.xls.sequential";
 
     private static final String DEFAULT_USER_HOME = ".";
 
