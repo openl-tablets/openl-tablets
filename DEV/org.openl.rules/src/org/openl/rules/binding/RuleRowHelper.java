@@ -346,7 +346,7 @@ public class RuleRowHelper {
             List<NodeUsage> nodeUsages = new ArrayList<NodeUsage>();
             String description = MethodUtil.printType(constantOpenField.getType()) + " " + constantOpenField
                 .getName() + " = " + constantOpenField.getValueAsString(); 
-            if (metaInfo.getUsedNodes() != null) {
+            if (metaInfo.getUsedNodes() != null && !metaInfo.getUsedNodes().isEmpty()) {
                 nodeUsages.addAll(metaInfo.getUsedNodes());
             } else {
                 nodeUsages.add(new SimpleNodeUsage(0, cellCode.length() - 1, description, constantOpenField.getUri(), NodeType.OTHER));
@@ -365,6 +365,15 @@ public class RuleRowHelper {
             return (ConstantOpenField) openField;
         }
         return null;
+    }
+    
+    public static Object castConstantToExpectedType(IBindingContext bindingContext, ConstantOpenField constantOpenField, IOpenClass expectedType) {
+        IOpenCast openCast = bindingContext.getCast(constantOpenField.getType(), expectedType);
+        if (openCast != null && openCast.isImplicit()) {
+            return openCast.convert(constantOpenField.getValue());
+        } else {
+            throw new ClassCastException(String.format("Expected value of type '%s'.", expectedType.getName()));
+        }
     }
 
     private static Object loadSingleParam(IOpenClass paramType,
@@ -427,12 +436,8 @@ public class RuleRowHelper {
                 if (constantOpenField != null) {
                     ICell iCell = cell.getSource().getCell(0, 0);
                     setMetaInfoWithNodeUsageForConstantCell(iCell, iCell.getStringValue(), constantOpenField, bindingContext);
-                    IOpenCast openCast = bindingContext.getCast(constantOpenField.getType(), paramType);
-                    if (constantOpenField.getValue() == null || openCast != null && openCast.isImplicit()) {
-                        result = openCast.convert(constantOpenField.getValue());
-                    } else {
-                        throw new ClassCastException(
-                            String.format("Expected value of type '%s'.", expectedType.getSimpleName()));
+                    if (constantOpenField.getValue() != null) {
+                        result = castConstantToExpectedType(bindingContext, constantOpenField, paramType);
                     }
                 } else {
                     result = String2DataConvertorFactory.parse(expectedType, source, bindingContext);
