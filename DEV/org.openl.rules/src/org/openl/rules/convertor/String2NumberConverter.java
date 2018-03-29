@@ -41,8 +41,12 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
     @Override
     public T parse(String data, String format) {
         if (data == null) return null;
-        if (data.length() == 0) throw new NumberFormatException("Cannot convert an empty String to numeric type");
-        if ("%".equals(data)) throw new NumberFormatException("Cannot convert \"%\" to numeric type");
+        if (data.length() == 0) { 
+            throw new NumberFormatException("Cannot convert an empty String to numeric type");
+        }
+        if ("%".equals(data)) {
+            throw new NumberFormatException("Cannot convert \"%\" to numeric type");
+        }
         DecimalFormat df = getFormatter(format);
         if (data.endsWith("%")) {
             // Configure to parse percents

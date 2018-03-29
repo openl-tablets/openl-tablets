@@ -446,7 +446,7 @@ public class SpreadsheetStructureBuilder {
                     String2DataConvertorFactory.getConvertor(DoubleValue.class).parse(cellValue, null);
                     return JavaOpenClass.getOpenClass(DoubleValue.class);
                 }
-            } catch (Throwable t) {
+            } catch (Exception t) {
                 if (autoType) {
                     return JavaOpenClass.getOpenClass(String.class);
                 } else {

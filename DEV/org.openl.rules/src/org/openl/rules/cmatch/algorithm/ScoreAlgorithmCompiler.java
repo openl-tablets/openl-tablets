@@ -3,16 +3,20 @@ package org.openl.rules.cmatch.algorithm;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.openl.binding.IBindingContext;
+import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.MatchNode;
 import org.openl.rules.cmatch.SubValue;
 import org.openl.rules.cmatch.TableRow;
+import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
+import org.openl.types.java.JavaOpenClass;
 
 public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
     public static final String WEIGHT = "weight";
@@ -72,8 +76,8 @@ public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
     }
 
     @Override
-    protected void parseSpecialRows(ColumnMatch columnMatch) throws SyntaxNodeException {
-        super.parseSpecialRows(columnMatch);
+    protected void parseSpecialRows(IBindingContext bindingContext, ColumnMatch columnMatch) throws SyntaxNodeException {
+        super.parseSpecialRows(bindingContext, columnMatch);
 
         IOpenClass retType = columnMatch.getHeader().getType();
         Class<?> retClass = retType.getInstanceClass();
@@ -97,7 +101,7 @@ public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
         }
 
         // score(s)
-        Object[] objScores = parseValues(scoreRow, Integer.class);
+        Object[] objScores = parseValues(bindingContext, columnMatch, scoreRow, JavaOpenClass.getOpenClass(Integer.class));
         int[] scores = new int[retValuesCount];
         for (int i = 0; i < retValuesCount; i++) {
             scores[i] = (Integer) objScores[i];
@@ -107,19 +111,26 @@ public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
     }
 
     @Override
-    protected MatchNode[] prepareNodes(ColumnMatch columnMatch, ArgumentsHelper argumentsHelper, int retValuesCount)
+    protected MatchNode[] prepareNodes(IBindingContext bindingContext, ColumnMatch columnMatch, ArgumentsHelper argumentsHelper, int retValuesCount)
             throws SyntaxNodeException {
-        MatchNode[] nodes = super.prepareNodes(columnMatch, argumentsHelper, retValuesCount);
+        MatchNode[] nodes = super.prepareNodes(bindingContext, columnMatch, argumentsHelper, retValuesCount);
 
         List<TableRow> rows = columnMatch.getRows();
 
         // parse weight(s) of each row
-        IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(Integer.class);
         for (int i = getSpecialRowCount(); i < rows.size(); i++) {
             TableRow row = rows.get(i);
             SubValue weightSV = row.get(WEIGHT)[0];
-
-            Integer rowWeight = (Integer) convertor.parse(weightSV.getString(), null);
+            
+            ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, weightSV.getString());
+            Integer rowWeight = null;
+            if (constantOpenField != null && constantOpenField.getValue() != null) {
+                setMetaInfoForConstant(bindingContext, columnMatch, weightSV, weightSV.getString(), constantOpenField);
+                rowWeight = (Integer) RuleRowHelper.castConstantToExpectedType(bindingContext, constantOpenField, JavaOpenClass.getOpenClass(Integer.class));
+            } else {
+                IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(Integer.class);
+                rowWeight = (Integer) convertor.parse(weightSV.getString(), null);
+            }
             nodes[i].setWeight(rowWeight);
         }
 

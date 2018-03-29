@@ -25,6 +25,8 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.rules.binding.RuleRowHelper;
+import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.fuzzy.OpenLFuzzySearch;
 import org.openl.rules.fuzzy.Token;
 import org.openl.rules.helpers.DoubleRange;
@@ -770,7 +772,7 @@ public class DecisionTableHelper {
                 decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex()));
 
             // Set type of condition values(for Ranges and Array)
-            Pair<String, String> typeOfValue = checkTypeOfValues(originalTable,
+            Pair<String, String> typeOfValue = checkTypeOfValues(bindingContext, originalTable,
                 i,
                 decisionTable.getSignature().getParameterTypes()[conditions[i].getParameterIndex()],
                 isThatVCondition,
@@ -1043,7 +1045,7 @@ public class DecisionTableHelper {
      *            calculating position of horizontal condition
      * @return type of condition values
      */
-    private static Pair<String, String> checkTypeOfValues(ILogicalTable originalTable,
+    private static Pair<String, String> checkTypeOfValues(IBindingContext bindingContext, ILogicalTable originalTable,
             int column,
             IOpenClass type,
             boolean isThatVCondition,
@@ -1108,6 +1110,12 @@ public class DecisionTableHelper {
 
             if (cellValue.getSource().getCell(0, 0).getStringValue() == null) {
                 continue;
+            }
+            
+            ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, cellValue.getSource().getCell(0, 0).getStringValue());
+            if (constantOpenField != null && (IntRange.class.equals(constantOpenField.getType().getInstanceClass()) || DoubleRange.class.equals(constantOpenField.getType().getInstanceClass()))) {
+                return new ImmutablePair<String, String>(constantOpenField.getType().getInstanceClass().getSimpleName(),
+                        constantOpenField.getType().getInstanceClass().getSimpleName());
             }
 
             if (maybeIsRange(cellValue.getSource().getCell(0, 0).getStringValue())) {
