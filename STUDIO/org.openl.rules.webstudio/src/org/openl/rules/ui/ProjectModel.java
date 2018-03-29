@@ -962,7 +962,10 @@ public class ProjectModel {
             return;
         }
 
+        boolean moduleInfoWasChanged = false;
+        
         if (moduleInfo != this.moduleInfo) {
+            moduleInfoWasChanged = true;
             // Current module changed - mark the previous one as read only
             XlsModuleSyntaxNode moduleSyntaxNode = xlsModuleSyntaxNode;
             if (moduleSyntaxNode != null) {
@@ -1004,7 +1007,7 @@ public class ProjectModel {
         xlsModuleSyntaxNode = null;
         allXlsModuleSyntaxNodes.clear();
         
-        prepareWebstudioWorkspaceDependencyManager(singleModuleMode);
+        prepareWebstudioWorkspaceDependencyManager(singleModuleMode, moduleInfoWasChanged);
         
         Map<String, Object> externalParameters;
         RulesInstantiationStrategy instantiationStrategy;
@@ -1096,30 +1099,31 @@ public class ProjectModel {
 
     }
 
-    private void prepareWebstudioWorkspaceDependencyManager(boolean singleModuleMode) {
-        if (webStudioWorkspaceDependencyManager == null){
-            webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory.getDependencyManager(this.moduleInfo,
-                singleModuleMode);
+    private void prepareWebstudioWorkspaceDependencyManager(boolean singleModuleMode, boolean moduleInfoWasChanged) {
+        if (webStudioWorkspaceDependencyManager == null) {
+            webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
+                .getDependencyManager(this.moduleInfo, singleModuleMode);
             openedInSingleModuleMode = singleModuleMode;
-        }else{
-            if (openedInSingleModuleMode == singleModuleMode){
+        } else {
+            if (openedInSingleModuleMode == singleModuleMode) {
                 boolean found = false;
-                for (ProjectDescriptor projectDescriptor : webStudioWorkspaceDependencyManager.getProjectDescriptors()){
-                    if (this.moduleInfo.getProject().equals(projectDescriptor)){
+                for (ProjectDescriptor projectDescriptor : webStudioWorkspaceDependencyManager
+                    .getProjectDescriptors()) {
+                    if (this.moduleInfo.getProject().equals(projectDescriptor)) {
                         found = true;
                         break;
                     }
                 }
-                if (!found) {
+                if (!found || moduleInfoWasChanged && singleModuleMode) {
                     webStudioWorkspaceDependencyManager.resetAll();
-                    webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory.getDependencyManager(this.moduleInfo,
-                        singleModuleMode);
+                    webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
+                        .getDependencyManager(this.moduleInfo, singleModuleMode);
                     openedInSingleModuleMode = singleModuleMode;
                 }
             } else {
                 webStudioWorkspaceDependencyManager.resetAll();
-                webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory.getDependencyManager(this.moduleInfo,
-                    singleModuleMode);
+                webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
+                    .getDependencyManager(this.moduleInfo, singleModuleMode);
                 openedInSingleModuleMode = singleModuleMode;
             }
         }
