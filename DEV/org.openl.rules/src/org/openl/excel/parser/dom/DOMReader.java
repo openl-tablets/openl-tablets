@@ -174,7 +174,8 @@ public class DOMReader implements ExcelReader {
 
     private void initializeWorkbook() throws IOException, InvalidFormatException {
         if (workbook == null) {
-            workbook = WorkbookFactory.create(new File(fileName));
+            // Open the file in read only mode
+            workbook = WorkbookFactory.create(new File(fileName), null, true);
         }
     }
 
