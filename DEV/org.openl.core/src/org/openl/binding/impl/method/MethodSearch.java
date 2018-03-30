@@ -18,7 +18,7 @@ import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.cast.CastsLinkageCast;
-import org.openl.binding.impl.cast.ConflictsWithVarargsOpenCast;
+import org.openl.binding.impl.cast.IgnoredByMethodSearchOpenCast;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
@@ -190,10 +190,12 @@ public class MethodSearch {
             }
         }
         
-        if (castHolder.length > 0 && castHolder[castHolder.length - 1] instanceof ConflictsWithVarargsOpenCast) {
-            return NO_MATCH;
+        for (int i = 0;i<castHolder.length;i++) {
+            if (castHolder[i] instanceof IgnoredByMethodSearchOpenCast) {
+                return NO_MATCH;
+            }
         }
-
+        
         return m;
     }
 
