@@ -248,15 +248,15 @@ public class DoubleRange implements INumberRange {
         return new DoubleRange(x);
     }
 
-    public static DoubleRange cast(long x, DoubleRange y) {
+    public static DoubleRange autocast(long x, DoubleRange y) {
         return new DoubleRange(x);
     }
 
-    public static DoubleRange cast(float x, DoubleRange y) {
+    public static DoubleRange autocast(float x, DoubleRange y) {
         return new DoubleRange(x);
     }
 
-    public static DoubleRange cast(double x, DoubleRange y) {
+    public static DoubleRange autocast(double x, DoubleRange y) {
         return new DoubleRange(x);
     }
 
