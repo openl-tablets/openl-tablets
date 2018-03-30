@@ -17,13 +17,13 @@ public class StringsTest {
     @Test
     public void testContains() {
         // String
-        assertFalse(contains(null, null));
+        assertFalse(contains((String)null, (String)null));
         assertFalse(contains(null, ""));
         assertFalse(contains(null, "s"));
-        assertFalse(contains("", null));
+        assertFalse(contains("", (String)null));
         assertTrue(contains("", ""));
         assertFalse(contains("", "s"));
-        assertFalse(contains("asd", null));
+        assertFalse(contains("asd", (String)null));
         assertTrue(contains("asd", ""));
         assertTrue(contains("asd", "a"));
         assertTrue(contains("asd", "s"));
