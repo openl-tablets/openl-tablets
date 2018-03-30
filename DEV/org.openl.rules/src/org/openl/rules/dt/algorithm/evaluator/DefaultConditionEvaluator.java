@@ -44,7 +44,7 @@ public class DefaultConditionEvaluator implements IConditionEvaluator {
     }
 
     public IDomain<?> getConditionParameterDomain(int paramIdx, IBaseCondition condition) throws DomainCanNotBeDefined {
-        throw new DomainCanNotBeDefined("Non-indexed Evaluator", getFormalSourceCode(condition).getCode());
+        return null;
     }
 
 	@Override
