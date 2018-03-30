@@ -35,7 +35,7 @@ public interface IDecisionRow  extends IBaseDecisionRow{
 	boolean hasFormula(int ruleN);
 
 	
-	boolean hasFormulasInStorage();
+	boolean hasFormulas();
 	
 	/**
 	 * 
