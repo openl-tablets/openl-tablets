@@ -114,17 +114,17 @@ public class CastFactory implements ICastFactory {
     }
 
     @Override
-    public IOpenClass findImplicitCastableClassInAutocasts(IOpenClass openClass1, IOpenClass openClass2) {
+    public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
         Iterable<IOpenMethod> autocastMethods = methodFactory.methods(AUTO_CAST_METHOD_NAME);
-        return findImplicitCastableClassInAutocasts(openClass1, openClass2, this, autocastMethods);
+        return findClosestClass(openClass1, openClass2, this, autocastMethods);
     }
 
-    public static IOpenClass findImplicitCastableClassInAutocasts(IOpenClass openClass1,
+    public static IOpenClass findClosestClass(IOpenClass openClass1,
             IOpenClass openClass2,
             ICastFactory casts,
-            Iterable<IOpenMethod> autocastMethods) {
+            Iterable<IOpenMethod> methods) {
 
-        Iterator<IOpenMethod> itr = autocastMethods.iterator();
+        Iterator<IOpenMethod> itr = methods.iterator();
         Set<IOpenClass> openClass1Candidates = new HashSet<>();
         addClassToCandidates(openClass1, openClass1Candidates);
         Set<IOpenClass> openClass2Candidates = new HashSet<>();

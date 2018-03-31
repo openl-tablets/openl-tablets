@@ -8,13 +8,13 @@ package org.openl.conf;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
-import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.StaticClassLibrary;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -86,10 +86,14 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
 
     }
 
-    private ArrayList<JavaCastComponent> components = new ArrayList<JavaCastComponent>();
+    private List<JavaCastComponent> components = new ArrayList<JavaCastComponent>();
 
     public void addJavaCast(JavaCastComponent cmp) {
         components.add(cmp);
+    }
+    
+    public Collection<JavaCastComponent> getJavaCastComponents() {
+        return Collections.unmodifiableList(components);
     }
 
     /*
@@ -106,30 +110,6 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
             }
         }
         return null;
-    }
-
-    public IOpenClass findImplicitCastableClassInAutocasts(IOpenClass openClass1,
-            IOpenClass openClass2,
-            final IConfigurableResourceContext cxt) {
-        Collection<IOpenMethod> allMethods = new ArrayList<>();
-        for (JavaCastComponent component : components) {
-            CastFactory castFactory = component.getCastFactory(cxt);
-            Iterable<IOpenMethod> methods = castFactory.getMethodFactory().methods(CastFactory.AUTO_CAST_METHOD_NAME);
-            for (IOpenMethod method : methods) {
-                allMethods.add(method);
-            }
-        }
-        return CastFactory.findImplicitCastableClassInAutocasts(openClass1, openClass2, new ICastFactory() {
-            @Override
-            public IOpenClass findImplicitCastableClassInAutocasts(IOpenClass openClass1, IOpenClass openClass2) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public IOpenCast getCast(IOpenClass from, IOpenClass to) {
-                return TypeCastFactory.this.getCast(from, to, cxt);
-            }
-        }, allMethods);
     }
 
     /*
