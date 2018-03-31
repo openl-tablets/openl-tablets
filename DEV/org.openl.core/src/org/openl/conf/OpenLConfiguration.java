@@ -17,9 +17,11 @@ import java.util.Set;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.INodeBinder;
 import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.method.MethodSearch;
 import org.openl.cache.GenericKey;
+import org.openl.conf.TypeCastFactory.JavaCastComponent;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.grammar.IGrammar;
 import org.openl.types.IMethodCaller;
@@ -133,17 +135,54 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         }
         return parent == null ? null : parent.getCast(from, to);
     }
+    
+    protected Collection<JavaCastComponent> getAllJavaCastComponents() {
+        Collection<JavaCastComponent> javaCastComponents = new ArrayList<>();
+        if (typeCastFactory != null) {
+            javaCastComponents.addAll(typeCastFactory.getJavaCastComponents());
+        }
+        if (parent != null && parent instanceof OpenLConfiguration) {
+            javaCastComponents.addAll(((OpenLConfiguration) parent).getAllJavaCastComponents());
+        }
+        return javaCastComponents;
+    }
 
     @Override
-    public IOpenClass findImplicitCastableClassInAutocasts(IOpenClass openClass1, IOpenClass openClass2) {
-        IOpenClass openClass = typeCastFactory == null ? null
-                                                       : typeCastFactory.findImplicitCastableClassInAutocasts(openClass1,
-                                                           openClass2,
-                                                           configurationContext);
-        if (openClass != null) {
-            return openClass;
+    public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
+        Collection<JavaCastComponent> components = getAllJavaCastComponents();
+        Collection<IOpenMethod> allMethods = new ArrayList<>();
+        for (JavaCastComponent component : components) {
+            CastFactory castFactory = component.getCastFactory(configurationContext);
+            Iterable<IOpenMethod> methods = castFactory.getMethodFactory().methods(CastFactory.AUTO_CAST_METHOD_NAME);
+            for (IOpenMethod method : methods) {
+                allMethods.add(method);
+            }
         }
-        return parent == null ? null : parent.findImplicitCastableClassInAutocasts(openClass1, openClass2);
+
+        TypeCastFactory tcf = typeCastFactory;
+        if (tcf == null) {
+            if (parent != null && parent instanceof OpenLConfiguration) {
+                tcf = ((OpenLConfiguration) parent).getTypeCastFactory();
+            }
+        }
+
+        if (tcf == null) {
+            return null;
+        }
+        
+        final TypeCastFactory finalTcf = tcf;
+
+        return CastFactory.findClosestClass(openClass1, openClass2, new ICastFactory() {
+            @Override
+            public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public IOpenCast getCast(IOpenClass from, IOpenClass to) {
+                return finalTcf.getCast(from, to, configurationContext);
+            }
+        }, allMethods);
     }
 
     public IConfigurableResourceContext getConfigurationContext() {

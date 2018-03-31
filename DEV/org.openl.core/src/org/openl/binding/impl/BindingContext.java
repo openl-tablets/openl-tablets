@@ -176,9 +176,9 @@ public class BindingContext implements IBindingContext {
 	}
 	
 	@Override
-	public IOpenClass findImplicitCastableClassInAutocasts(IOpenClass openClass1, IOpenClass openClass2) {
+	public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
 	    
-	    return binder.getCastFactory().findImplicitCastableClassInAutocasts(openClass1, openClass2);
+	    return binder.getCastFactory().findClosestClass(openClass1, openClass2);
 	    
 	}
 

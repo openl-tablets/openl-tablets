@@ -87,7 +87,7 @@ public class MethodSearch {
                         IOpenCast cast1 = casts.getCast(existedType, t);
                         IOpenCast cast2 = casts.getCast(t, existedType);
                         if ((cast1 == null || !cast1.isImplicit()) && (cast2 == null || !cast2.isImplicit())) {
-                            IOpenClass clazz = casts.findImplicitCastableClassInAutocasts(t, existedType);
+                            IOpenClass clazz = casts.findClosestClass(t, existedType);
                             if (clazz != null && clazz.getInstanceClass() != null && clazz.getInstanceClass()
                                 .isPrimitive()) {
                                 clazz = JavaOpenClass
@@ -422,7 +422,7 @@ public class MethodSearch {
                 System.arraycopy(params, 0, args, 0, i);
                 IOpenClass varArgType = params[i];
                 for (int j = i + 1; j < params.length; j++) {
-                    varArgType = casts.findImplicitCastableClassInAutocasts(varArgType, params[j]);
+                    varArgType = casts.findClosestClass(varArgType, params[j]);
                     if (varArgType == null) {
                         break;
                     }
