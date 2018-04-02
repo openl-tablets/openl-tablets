@@ -297,10 +297,12 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             if (field instanceof ConstantOpenField && existedField instanceof ConstantOpenField) { // Ignore constants
                                                                                                    // with the same
                                                                                                    // values
-                if (Objects.equals(((ConstantOpenField) field).getValue(),
+                if (field.getType().equals(existedField.getType()) && Objects.equals(((ConstantOpenField) field).getValue(),
                     ((ConstantOpenField) existedField).getValue())) {
                     return;
                 }
+                
+                throw new DuplicatedFieldException("", field.getName());
             }
 
             if (field instanceof IUriMember && existedField instanceof IUriMember) {
