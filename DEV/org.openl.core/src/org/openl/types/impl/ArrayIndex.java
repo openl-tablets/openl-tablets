@@ -43,11 +43,7 @@ public class ArrayIndex implements IOpenIndex {
 	public Object getValue(Object container, Object index) {
 		Integer ind = (Integer) index;
 		if (ind < 0 || ind >= Array.getLength(container)) {
-			if (elementType.getInstanceClass().isPrimitive()) {
-				return Array.get(Array.newInstance(elementType.getInstanceClass(), 1), 0);
-			} else {
-				return null;
-			}
+		    return getElementType().nullObject();
 		}
 		return Array.get(container, ind);
 	}
