@@ -48,6 +48,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
     private final Logger log = LoggerFactory.getLogger(VariationInstantiationStrategyEnhancerInvocationHandler.class);
 
     private Map<Method, Method> methodsMap;
+    @Deprecated
     private Map<Method, Method> variationsFromRules;
     private Object serviceClassInstance;
 
@@ -58,6 +59,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
         initVariationFromRules(methodsMap, serviceClassInstance);
     }
 
+    @Deprecated
     private void initVariationFromRules(Map<Method, Method> methodsMap,
             Object serviceClassInstance) throws OpenLCompilationException {
         variationsFromRules = new HashMap<Method, Method>();
@@ -193,6 +195,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler implements Invocat
         return variationsPack;
     }
 
+    @Deprecated
     private VariationDescription[] getVariationsFromRules(Object[] args, Method variationsGetter) {
         try {
             Object[] argumentsForVariationsGetter = Arrays.copyOf(args, args.length - 1);

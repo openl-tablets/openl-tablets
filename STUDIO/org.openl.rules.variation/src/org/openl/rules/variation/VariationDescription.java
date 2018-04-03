@@ -17,6 +17,7 @@ package org.openl.rules.variation;
  * 
  * @author PUdalau
  */
+@Deprecated
 public class VariationDescription {
     private String variationID;
     private int updatedArgumentIndex;
