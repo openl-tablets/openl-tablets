@@ -47,17 +47,13 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class JavaOpenClass extends AOpenClass {
 
-    public static final JavaOpenClass INT = new JavaPrimitiveClass(int.class, Integer.class, Integer.valueOf(0));
-    public static final JavaOpenClass LONG = new JavaPrimitiveClass(long.class, Long.class, Long.valueOf(0));
-    public static final JavaOpenClass DOUBLE = new JavaPrimitiveClass(double.class, Double.class, Double.valueOf(0));
-    public static final JavaOpenClass FLOAT = new JavaPrimitiveClass(float.class, Float.class, Float.valueOf(0));
-    public static final JavaOpenClass SHORT = new JavaPrimitiveClass(short.class,
-        Short.class,
-        Short.valueOf((short) 0));
-    public static final JavaOpenClass CHAR = new JavaPrimitiveClass(char.class,
-        Character.class,
-        Character.valueOf('\0'));
-    public static final JavaOpenClass BYTE = new JavaPrimitiveClass(byte.class, Byte.class, Byte.valueOf((byte) 0));
+    public static final JavaOpenClass INT = new JavaPrimitiveClass(int.class, Integer.class, 0);
+    public static final JavaOpenClass LONG = new JavaPrimitiveClass(long.class, Long.class, 0L);
+    public static final JavaOpenClass DOUBLE = new JavaPrimitiveClass(double.class, Double.class, 0.0);
+    public static final JavaOpenClass FLOAT = new JavaPrimitiveClass(float.class, Float.class, 0.0f);
+    public static final JavaOpenClass SHORT = new JavaPrimitiveClass(short.class, Short.class, (short) 0);
+    public static final JavaOpenClass CHAR = new JavaPrimitiveClass(char.class, Character.class,'\0');
+    public static final JavaOpenClass BYTE = new JavaPrimitiveClass(byte.class, Byte.class, (byte) 0);
     public static final JavaOpenClass BOOLEAN = new JavaPrimitiveClass(boolean.class, Boolean.class, Boolean.FALSE);
     public static final JavaOpenClass VOID = new JavaPrimitiveClass(void.class, Void.class, null);
     public static final JavaOpenClass STRING = new JavaOpenClass(String.class, true);
