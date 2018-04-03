@@ -38,19 +38,18 @@ public class JAXWSInvocationHandler implements InvocationHandler {
 
             if (t instanceof RuleServiceWrapperException) {
                 RuleServiceWrapperException ruleServiceWrapperException = (RuleServiceWrapperException) t;
-                String type = ruleServiceWrapperException.getType().toString();
                 boolean detailedFault = ExceptionType.SYSTEM
                     .equals(ruleServiceWrapperException.getType()) || ExceptionType.RULES_RUNTIME
                         .equals(ruleServiceWrapperException.getType()) || ExceptionType.COMPILATION
                             .equals(ruleServiceWrapperException.getType());
-                JAXWSException jaxwsException = new JAXWSException(ruleServiceWrapperException.getSimpleMessage());
+                JAXWSException jaxwsException = new JAXWSException(ruleServiceWrapperException.getType(), ruleServiceWrapperException.getSimpleMessage());
                 if (detailedFault) {
-                    jaxwsException.setDetail(type, ExceptionUtils.getStackTrace(e.getCause()));
+                    jaxwsException.setDetail(ExceptionUtils.getStackTrace(e.getCause()));
                 }
                 throw jaxwsException;
             } else {
-                JAXWSException jaxwsException = new JAXWSException(t.getMessage());
-                jaxwsException.setDetail(ExceptionType.SYSTEM.toString(), ExceptionUtils.getStackTrace(e.getCause()));
+                JAXWSException jaxwsException = new JAXWSException(ExceptionType.SYSTEM, t.getMessage());
+                jaxwsException.setDetail(ExceptionUtils.getStackTrace(e.getCause()));
                 throw jaxwsException;
             }
         }
