@@ -1,7 +1,5 @@
 package org.openl.binding.impl;
 
-import java.lang.reflect.Array;
-
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundNode;
 import org.openl.exception.OpenLRuntimeException;
@@ -37,11 +35,7 @@ public class MethodBoundNode extends ATargetBoundNode {
             Object target = getTarget(env);
             Object[] pars = evaluateChildren(env);
             if (target == null && !(boundMethod instanceof IOwnTargetMethod) && !boundMethod.getMethod().isStatic()) {
-                if (!boundMethod.getMethod().getType().getInstanceClass().isPrimitive()) {
-                    return null;
-                } else {
-                    return Array.get(Array.newInstance(boundMethod.getMethod().getType().getInstanceClass(), 1), 0);
-                }
+                return getType().nullObject();
             } else {
                 return boundMethod.invoke(target, pars, env);
             }
