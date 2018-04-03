@@ -31,15 +31,12 @@ public class JAXRSExceptionMapper implements ExceptionMapper<Exception> {
         if (t instanceof RuleServiceWrapperException) {
             RuleServiceWrapperException ruleServiceWrapperException = (RuleServiceWrapperException) t;
             Response.Status status = Response.Status.INTERNAL_SERVER_ERROR;
-            if (ExceptionType.USER_ERROR.equals(ruleServiceWrapperException.getType())) {
+            ExceptionType type = ruleServiceWrapperException.getType();
+            if (ExceptionType.USER_ERROR.equals(type)) {
                 status = Response.Status.BAD_REQUEST;
             }
-            if (ExceptionType.VALIDATION.equals(ruleServiceWrapperException.getType())) {
-                status = Response.Status.BAD_REQUEST;
-            } 
-
             JAXRSErrorResponse errorResponse = new JAXRSErrorResponse(ruleServiceWrapperException.getSimpleMessage(),
-                ruleServiceWrapperException.getType().toString(),
+                type.toString(),
                 Response.Status.INTERNAL_SERVER_ERROR.equals(status)
                                                                      ? ExceptionUtils
                                                                          .getStackTrace(
