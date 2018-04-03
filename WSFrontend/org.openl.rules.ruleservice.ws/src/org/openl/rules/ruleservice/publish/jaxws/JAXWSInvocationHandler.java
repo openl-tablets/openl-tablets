@@ -6,8 +6,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.cxf.binding.soap.SoapFault;
 import org.openl.rules.ruleservice.core.ExceptionType;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
+import org.w3c.dom.Element;
 
 public class JAXWSInvocationHandler implements InvocationHandler {
 
@@ -36,22 +38,30 @@ public class JAXWSInvocationHandler implements InvocationHandler {
                 }
             }
 
+            String message = t.getMessage();
+            ExceptionType type = ExceptionType.SYSTEM;
             if (t instanceof RuleServiceWrapperException) {
                 RuleServiceWrapperException ruleServiceWrapperException = (RuleServiceWrapperException) t;
-                boolean detailedFault = ExceptionType.SYSTEM
-                    .equals(ruleServiceWrapperException.getType()) || ExceptionType.RULES_RUNTIME
-                        .equals(ruleServiceWrapperException.getType()) || ExceptionType.COMPILATION
-                            .equals(ruleServiceWrapperException.getType());
-                JAXWSException jaxwsException = new JAXWSException(ruleServiceWrapperException.getType(), ruleServiceWrapperException.getSimpleMessage());
-                if (detailedFault) {
-                    jaxwsException.setDetail(ExceptionUtils.getStackTrace(e.getCause()));
-                }
-                throw jaxwsException;
-            } else {
-                JAXWSException jaxwsException = new JAXWSException(ExceptionType.SYSTEM, t.getMessage());
-                jaxwsException.setDetail(ExceptionUtils.getStackTrace(e.getCause()));
-                throw jaxwsException;
+                type = ruleServiceWrapperException.getType();
+                message = ruleServiceWrapperException.getSimpleMessage();
             }
+
+            // Create a standart fault
+            SoapFault fault = new SoapFault(message, SoapFault.FAULT_CODE_SERVER);
+
+            // <detail> <type>TYPE</type> <stackTrace>stacktrace of cause</stackTrace> </detail>
+            Element detailEl = fault.getOrCreateDetail();
+            Element typeEl = detailEl.getOwnerDocument().createElement("type");
+            typeEl.setTextContent(type.toString());
+            detailEl.appendChild(typeEl);
+
+            if (!ExceptionType.USER_ERROR.equals(type)) {
+                Element stackTraceEl = detailEl.getOwnerDocument().createElement("stackTrace");
+                stackTraceEl.setTextContent(ExceptionUtils.getStackTrace(e.getCause()));
+                detailEl.appendChild(stackTraceEl);
+            }
+
+            throw fault;
         }
     }
 }
