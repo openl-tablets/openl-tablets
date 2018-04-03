@@ -159,19 +159,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
             }
         }
 
-        TypeCastFactory tcf = typeCastFactory;
-        if (tcf == null) {
-            if (parent != null && parent instanceof OpenLConfiguration) {
-                tcf = ((OpenLConfiguration) parent).getTypeCastFactory();
-            }
-        }
-
-        if (tcf == null) {
-            return null;
-        }
-        
-        final TypeCastFactory finalTcf = tcf;
-
         return CastFactory.findClosestClass(openClass1, openClass2, new ICastFactory() {
             @Override
             public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
@@ -180,7 +167,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
             @Override
             public IOpenCast getCast(IOpenClass from, IOpenClass to) {
-                return finalTcf.getCast(from, to, configurationContext);
+                return OpenLConfiguration.this.getCast(from, to);
             }
         }, allMethods);
     }
