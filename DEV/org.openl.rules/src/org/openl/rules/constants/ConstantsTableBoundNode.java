@@ -12,7 +12,6 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.binding.RuleRowHelper;
-import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.datatype.binding.DatatypeHelper;
 import org.openl.rules.datatype.binding.DatatypeTableBoundNode;
@@ -123,34 +122,40 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
 
             String value = DatatypeTableBoundNode.getDefaultValue(row, cxt);
             Object objectValue = null;
-            
-            objectValue = workaroundForDateType(row, constantType, value, objectValue);
-            
-            if (objectValue == null) { // Wasn't parsed as Date
-                try {
-                    if (constantType.getName().startsWith("[[")) {
-                        throw new IllegalStateException("Multi-dimensional arrays aren't supported!");
-                    }
 
-                    IString2DataConvertor convertor = String2DataConvertorFactory
-                        .getConvertor(constantType.getInstanceClass());
-                    objectValue = convertor.parse(value, null);
-                } catch (RuntimeException e) {
-                    String message = String.format("Can't parse cell value '%s'", value);
-                    IOpenSourceCodeModule cellSourceCodeModule = DatatypeTableBoundNode.getCellSource(row, cxt, 2);
+            try {
+                if (constantType.getName().startsWith("[[")) {
+                    throw new IllegalStateException("Multi-dimensional arrays aren't supported!");
+                }
 
-                    if (e instanceof CompositeSyntaxNodeException) {
-                        CompositeSyntaxNodeException exception = (CompositeSyntaxNodeException) e;
-                        if (exception.getErrors() != null && exception.getErrors().length == 1) {
-                            SyntaxNodeException syntaxNodeException = exception.getErrors()[0];
-                            throw SyntaxNodeExceptionUtils
-                                .createError(message, null, syntaxNodeException.getLocation(), cellSourceCodeModule);
-                        }
-                        throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
+                if (String.class.equals(constantType.getInstanceClass())) {
+                    objectValue = String2DataConvertorFactory.parse(String.class, value, cxt);
+                } else {
+                    objectValue = RuleRowHelper.loadNativeValue(row.getColumn(2).getCell(0, 0), constantType, cxt);
+                    if (objectValue == null) {
+                        objectValue = String2DataConvertorFactory.parse(constantType.getInstanceClass(), value, cxt);
                     } else {
-                        TextInterval location = value == null ? null : LocationUtils.createTextInterval(value);
-                        throw SyntaxNodeExceptionUtils.createError(message, e, location, cellSourceCodeModule);
+                        RuleRowHelper.validateValue(objectValue, constantType);
                     }
+                }
+                if (Date.class.equals(constantType.getInstanceClass())) {
+                    RuleRowHelper.setCellMetaInfo(row.getColumn(2), null, constantType, false);
+                }
+            } catch (RuntimeException e) {
+                String message = String.format("Can't parse cell value '%s'", value);
+                IOpenSourceCodeModule cellSourceCodeModule = DatatypeTableBoundNode.getCellSource(row, cxt, 2);
+
+                if (e instanceof CompositeSyntaxNodeException) {
+                    CompositeSyntaxNodeException exception = (CompositeSyntaxNodeException) e;
+                    if (exception.getErrors() != null && exception.getErrors().length == 1) {
+                        SyntaxNodeException syntaxNodeException = exception.getErrors()[0];
+                        throw SyntaxNodeExceptionUtils
+                            .createError(message, null, syntaxNodeException.getLocation(), cellSourceCodeModule);
+                    }
+                    throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
+                } else {
+                    TextInterval location = value == null ? null : LocationUtils.createTextInterval(value);
+                    throw SyntaxNodeExceptionUtils.createError(message, e, location, cellSourceCodeModule);
                 }
             }
 
@@ -186,19 +191,6 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                 }
             }
         }
-    }
-
-    private Object workaroundForDateType(ILogicalTable row, IOpenClass constantType, String value, Object objectValue) {
-        if (constantType.getInstanceClass().equals(Date.class)) {
-            // EPBDS-6068 add metainfo for XlsDataFormatterFactory.getFormatter can define correct formater for
-            // cell.
-            Object dateValue = row.getColumn(2).getCell(0, 0).getObjectValue();
-            if (dateValue != null && constantType.getInstanceClass().isAssignableFrom(value.getClass())) {
-                RuleRowHelper.setCellMetaInfo(row.getColumn(2), null, constantType, false);
-                return dateValue;
-            }
-        }
-        return objectValue;
     }
 
     private void addConstants(final IBindingContext cxt) throws Exception {
