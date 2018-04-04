@@ -75,12 +75,4 @@ public abstract class VariationsFactory {
         }
         return variation;
     }
-
-    public static Variation getVariation(VariationDescription description) {
-        return getVariation(description.getVariationID(),
-            description.getUpdatedArgumentIndex(),
-            description.getPath(),
-            description.getValueToSet(),
-            description.isUseCloning());
-    }
 }
