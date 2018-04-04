@@ -50,7 +50,7 @@ public class VariationInstantiationStrategyEnhancer extends AbstractServiceClass
         if (VariationInstantiationStrategyEnhancerHelper.isDecoratedClass(serviceClass)) {
             return true;
         } else {
-            throw new ValidationServiceClassException("Variation pack parameter is required in each variation method!");
+            throw new ValidationServiceClassException("Variation result return type and variation pack parameter is required in each variation method!");
         }
     }
 
