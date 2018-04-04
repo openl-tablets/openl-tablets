@@ -29,6 +29,7 @@ import org.openl.rules.datatype.gen.SimpleBeanByteCodeGenerator;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass.OpenFieldsConstructor;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.utils.ParserUtils;
@@ -398,7 +399,16 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 } else {
                     fieldDescription.setDefaultValueAsString(defaultValue);
                 
-                    workaroundForDateType(row, fieldType, fieldDescription);
+                    ICell theCellValue = row.getColumn(2).getCell(0, 0);
+                    if (theCellValue.hasNativeType()) {
+                        Object value = RuleRowHelper.loadNativeValue(theCellValue, fieldType, cxt);
+                        if (value != null) {
+                            fieldDescription.setDefaultValue(value);
+                            if (Date.class.equals(fieldType.getInstanceClass())) {
+                                RuleRowHelper.setCellMetaInfo(row.getColumn(2), null, fieldType, false);
+                            }
+                        }
+                    }
                     
                     Object value;
                     try {
@@ -431,18 +441,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         }
                     }
                 }
-            }
-        }
-    }
-
-    private void workaroundForDateType(ILogicalTable row, IOpenClass fieldType, FieldDescription fieldDescription) {
-        if (fieldDescription.getTypeName().equals(Date.class.getName())) {
-            // EPBDS-6068 add metainfo for XlsDataFormatterFactory.getFormatter can define correct formater for
-            // cell.
-            Object value = row.getColumn(2).getCell(0, 0).getObjectValue();
-            if (value != null && fieldDescription.getTypeName().equals(value.getClass().getName())) {
-                RuleRowHelper.setCellMetaInfo(row.getColumn(2), null, fieldType, false);
-                fieldDescription.setDefaultValue(value);
             }
         }
     }

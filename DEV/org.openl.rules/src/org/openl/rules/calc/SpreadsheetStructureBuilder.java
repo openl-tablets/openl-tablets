@@ -306,7 +306,18 @@ public class SpreadsheetStructureBuilder {
 
             try {
                 IBindingContext bindingContext = getColumnContext(columnIndex, rowIndex, rowBindingContext);
-                Object result = String2DataConvertorFactory.parse(instanceClass, code, bindingContext);
+                ICell theCellValue = cell.getCell(0, 0);
+                Object result = null;
+                if (String.class.equals(instanceClass)) {
+                    result = String2DataConvertorFactory.parse(instanceClass, code, bindingContext);
+                } else {
+                    if (theCellValue.hasNativeType()) {
+                        result = RuleRowHelper.loadNativeValue(theCellValue, type, bindingContext);
+                    }
+                    if (result == null) {
+                        result = String2DataConvertorFactory.parse(instanceClass, code, bindingContext);
+                    }
+                }
 
                 if (bindingContext.isExecutionMode() && result instanceof IMetaHolder) {
                     IMetaInfo meta = new ValueMetaInfo(name, null, source);

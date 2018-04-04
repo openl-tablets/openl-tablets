@@ -218,33 +218,7 @@ public class RuleRowHelper {
 
         // load value as native type
         if (theValueCell.hasNativeType()) {
-            if (theValueCell.getNativeType() == IGrid.CELL_TYPE_NUMERIC) {
-                try {
-                    Object res = loadNativeValue(theValueCell,
-                        paramType,
-                        openlAdapter.getBindingContext(),
-                        paramName,
-                        ruleName,
-                        table);
-                    if (res != null) {
-                        validateValue(res, paramType);
-                        if (!openlAdapter.getBindingContext().isExecutionMode()) {
-                            setCellMetaInfo(table, paramName, paramType, false);
-                        }
-                        return res;
-                    }
-                } catch (Throwable t) {
-                    String message = t.getMessage();
-                    if (message == null) {
-                        message = "Can't load cell value";
-                    }
-                    IGridTable cellTable = getTopLeftCellFromMergedRegion(table.getSource());
-                    throw SyntaxNodeExceptionUtils.createError(message,
-                        t,
-                        LocationUtils.createTextInterval(theValueCell.getStringValue()),
-                        new GridCellSourceCodeModule(cellTable, openlAdapter.getBindingContext()));
-                }
-            }
+            loadNativeValue(paramType, paramName, ruleName, table, openlAdapter, theValueCell);
         }
 
         // don`t move it up, as this call will convert native values such as
@@ -255,6 +229,42 @@ public class RuleRowHelper {
         // @see http://java-performance.info/string-intern-in-java-6-7-8/
         // if (src != null) src = src.intern();
         return loadSingleParam(paramType, paramName, ruleName, table, openlAdapter, src, false);
+    }
+
+    private static Object loadNativeValue(IOpenClass paramType,
+            String paramName,
+            String ruleName,
+            ILogicalTable table,
+            OpenlToolAdaptor openlAdapter,
+            ICell theValueCell) throws SyntaxNodeException {
+        if (theValueCell.getNativeType() == IGrid.CELL_TYPE_NUMERIC) {
+            try {
+                Object res = loadNativeValue(theValueCell, paramType, openlAdapter.getBindingContext());
+
+                if (res != null && res instanceof IMetaHolder) {
+                    setMetaInfo((IMetaHolder) res, table, paramName, ruleName, openlAdapter.getBindingContext());
+                }
+
+                if (res != null) {
+                    validateValue(res, paramType);
+                    if (!openlAdapter.getBindingContext().isExecutionMode()) {
+                        setCellMetaInfo(table, paramName, paramType, false);
+                    }
+                    return res;
+                }
+            } catch (Exception t) {
+                String message = t.getMessage();
+                if (message == null) {
+                    message = "Can't load cell value";
+                }
+                IGridTable cellTable = getTopLeftCellFromMergedRegion(table.getSource());
+                throw SyntaxNodeExceptionUtils.createError(message,
+                    t,
+                    LocationUtils.createTextInterval(theValueCell.getStringValue()),
+                    new GridCellSourceCodeModule(cellTable, openlAdapter.getBindingContext()));
+            }
+        }
+        return null;
     }
 
     private static void validateSimpleParam(ILogicalTable table,
@@ -281,50 +291,43 @@ public class RuleRowHelper {
         }
     }
 
-    private static Object loadNativeValue(ICell cell,
-            IOpenClass paramType,
-            IBindingContext bindingContext,
-            String paramName,
-            String ruleName,
-            ILogicalTable table) {
-        Class<?> expectedType = paramType.getInstanceClass();
+    public static Object loadNativeValue(ICell cell, IOpenClass paramType, IBindingContext bindingContext) {
         Object res = null;
+        if (cell.getNativeType() == IGrid.CELL_TYPE_NUMERIC) {
+            Class<?> expectedType = paramType.getInstanceClass();
 
-        if (BigDecimal.class.isAssignableFrom(expectedType) || BigDecimalValue.class.isAssignableFrom(expectedType)) {
-            // Convert String -> BigDecimal instead of double ->BigDecimal,
-            // otherwise we lose in precision (part of EPBDS-5879)
-            IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType,
-                String.class);
-            res = objectConvertor.convert(cell.getStringValue(), bindingContext);
-        } else {
-            double value = cell.getNativeNumber();
-            IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType,
-                double.class);
-            if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor) {
-                res = objectConvertor.convert(value, bindingContext);
+            if (BigDecimal.class.isAssignableFrom(expectedType) || BigDecimalValue.class
+                .isAssignableFrom(expectedType)) {
+                // Convert String -> BigDecimal instead of double ->BigDecimal,
+                // otherwise we lose in precision (part of EPBDS-5879)
+                IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType,
+                    String.class);
+                res = objectConvertor.convert(cell.getStringValue(), bindingContext);
             } else {
-                objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Double.class);
+                double value = cell.getNativeNumber();
+                IObjectToDataConvertor objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType,
+                    double.class);
                 if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor) {
                     res = objectConvertor.convert(value, bindingContext);
                 } else {
-                    objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Date.class);
+                    objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Double.class);
                     if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor) {
-                        Date dateValue = cell.getNativeDate();
-                        res = objectConvertor.convert(dateValue, bindingContext);
-                    } else if (((int) value) == value) {
-                        objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Integer.class);
-                        if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor)
-                            res = objectConvertor.convert((int) value, bindingContext);
+                        res = objectConvertor.convert(value, bindingContext);
+                    } else {
+                        objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Date.class);
+                        if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor) {
+                            Date dateValue = cell.getNativeDate();
+                            res = objectConvertor.convert(dateValue, bindingContext);
+                        } else if (((int) value) == value) {
+                            objectConvertor = ObjectToDataConvertorFactory.getConvertor(expectedType, Integer.class);
+                            if (objectConvertor != ObjectToDataConvertorFactory.NO_Convertor)
+                                res = objectConvertor.convert((int) value, bindingContext);
 
+                        }
                     }
                 }
             }
         }
-
-        if (res != null && res instanceof IMetaHolder) {
-            setMetaInfo((IMetaHolder) res, table, paramName, ruleName, bindingContext);
-        }
-
         return res;
     }
 
@@ -345,17 +348,21 @@ public class RuleRowHelper {
 
             List<NodeUsage> nodeUsages = new ArrayList<NodeUsage>();
             String description = MethodUtil.printType(constantOpenField.getType()) + " " + constantOpenField
-                .getName() + " = " + constantOpenField.getValueAsString(); 
+                .getName() + " = " + constantOpenField.getValueAsString();
             if (metaInfo.getUsedNodes() != null && !metaInfo.getUsedNodes().isEmpty()) {
                 nodeUsages.addAll(metaInfo.getUsedNodes());
             } else {
-                nodeUsages.add(new SimpleNodeUsage(0, cellCode.length() - 1, description, constantOpenField.getUri(), NodeType.OTHER));
+                nodeUsages.add(new SimpleNodeUsage(0,
+                    cellCode.length() - 1,
+                    description,
+                    constantOpenField.getUri(),
+                    NodeType.OTHER));
             }
             metaInfo.setUsedNodes(nodeUsages);
             sourceCell.setMetaInfo(metaInfo);
         }
     }
-    
+
     public static ConstantOpenField findConstantField(IBindingContext bindingContext, String source) {
         if (source == null) {
             return null;
@@ -366,8 +373,10 @@ public class RuleRowHelper {
         }
         return null;
     }
-    
-    public static Object castConstantToExpectedType(IBindingContext bindingContext, ConstantOpenField constantOpenField, IOpenClass expectedType) {
+
+    public static Object castConstantToExpectedType(IBindingContext bindingContext,
+            ConstantOpenField constantOpenField,
+            IOpenClass expectedType) {
         IOpenCast openCast = bindingContext.getCast(constantOpenField.getType(), expectedType);
         if (openCast != null && openCast.isImplicit()) {
             return openCast.convert(constantOpenField.getValue());
@@ -433,14 +442,26 @@ public class RuleRowHelper {
                 IBindingContext bindingContext = openlAdapter.getBindingContext();
                 // Pasre as constant value
                 ConstantOpenField constantOpenField = findConstantField(bindingContext, source);
+                ICell theValueCell = cell.getSource().getCell(0, 0);
                 if (constantOpenField != null) {
-                    ICell iCell = cell.getSource().getCell(0, 0);
-                    setMetaInfoWithNodeUsageForConstantCell(iCell, iCell.getStringValue(), constantOpenField, bindingContext);
+                    setMetaInfoWithNodeUsageForConstantCell(theValueCell,
+                        theValueCell.getStringValue(),
+                        constantOpenField,
+                        bindingContext);
                     if (constantOpenField.getValue() != null) {
                         result = castConstantToExpectedType(bindingContext, constantOpenField, paramType);
                     }
                 } else {
-                    result = String2DataConvertorFactory.parse(expectedType, source, bindingContext);
+                    if (String.class.equals(paramType.getInstanceClass())) {
+                        result = String2DataConvertorFactory.parse(expectedType, source, bindingContext);
+                    } else {
+                        if (theValueCell.hasNativeType()) {
+                            result = loadNativeValue(paramType, paramName, ruleName, cell, openlAdapter, theValueCell);
+                        }
+                        if (result == null) {
+                            result = String2DataConvertorFactory.parse(expectedType, source, bindingContext);
+                        }
+                    }
                 }
 
             } catch (Exception e) {
@@ -582,7 +603,7 @@ public class RuleRowHelper {
     }
 
     @SuppressWarnings("unchecked")
-    public static void validateValue(Object value, IOpenClass paramType) throws Exception {
+    public static void validateValue(Object value, IOpenClass paramType) throws OpenLCompilationException {
         IDomain<Object> domain = (IDomain<Object>) paramType.getDomain();
 
         if (domain != null) {
