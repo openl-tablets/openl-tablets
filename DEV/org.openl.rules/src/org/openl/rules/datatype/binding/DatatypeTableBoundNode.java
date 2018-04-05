@@ -390,44 +390,52 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
             if (row.getWidth() > 2) {
                 String defaultValue = getDefaultValue(row, cxt);
-                
+
                 ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(cxt, defaultValue);
                 if (constantOpenField != null) {
                     fieldDescription.setDefaultValue(constantOpenField.getValue());
                     fieldDescription.setDefaultValueAsString(constantOpenField.getValueAsString());
-                    RuleRowHelper.setMetaInfoWithNodeUsageForConstantCell(getCellSource(row, cxt, 2).getCell(), defaultValue, constantOpenField, cxt);
+                    RuleRowHelper.setMetaInfoWithNodeUsageForConstantCell(getCellSource(row, cxt, 2).getCell(),
+                        defaultValue,
+                        constantOpenField,
+                        cxt);
                 } else {
                     fieldDescription.setDefaultValueAsString(defaultValue);
-                
-                    ICell theCellValue = row.getColumn(2).getCell(0, 0);
-                    if (theCellValue.hasNativeType()) {
-                        Object value = RuleRowHelper.loadNativeValue(theCellValue, fieldType, cxt);
-                        if (value != null) {
-                            fieldDescription.setDefaultValue(value);
-                            if (Date.class.equals(fieldType.getInstanceClass())) {
-                                RuleRowHelper.setCellMetaInfo(row.getColumn(2), null, fieldType, false);
+
+                    if (!String.class.equals(fieldType.getInstanceClass())) {
+                        ICell theCellValue = row.getColumn(2).getCell(0, 0);
+                        if (theCellValue.hasNativeType()) {
+                            Object value = RuleRowHelper.loadNativeValue(theCellValue, fieldType, cxt);
+                            if (value != null) {
+                                fieldDescription.setDefaultValue(value);
+                                if (Date.class.equals(fieldType.getInstanceClass())) {
+                                    RuleRowHelper.setCellMetaInfo(row.getColumn(2), null, fieldType, false);
+                                }
                             }
                         }
                     }
-                    
+
                     Object value;
                     try {
                         value = fieldDescription.getDefaultValue();
                     } catch (RuntimeException e) {
                         String message = String.format("Can't parse cell value '%s'", defaultValue);
                         IOpenSourceCodeModule cellSourceCodeModule = getCellSource(row, cxt, 2);
-    
+
                         if (e instanceof CompositeSyntaxNodeException) {
                             CompositeSyntaxNodeException exception = (CompositeSyntaxNodeException) e;
                             if (exception.getErrors() != null && exception.getErrors().length == 1) {
                                 SyntaxNodeException syntaxNodeException = exception.getErrors()[0];
-                                throw SyntaxNodeExceptionUtils
-                                    .createError(message, null, syntaxNodeException.getLocation(), cellSourceCodeModule);
+                                throw SyntaxNodeExceptionUtils.createError(message,
+                                    null,
+                                    syntaxNodeException.getLocation(),
+                                    cellSourceCodeModule);
                             }
                             throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
                         } else {
                             TextInterval location = defaultValue == null ? null
-                                                                         : LocationUtils.createTextInterval(defaultValue);
+                                                                         : LocationUtils
+                                                                             .createTextInterval(defaultValue);
                             throw SyntaxNodeExceptionUtils.createError(message, e, location, cellSourceCodeModule);
                         }
                     }
@@ -437,7 +445,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         try {
                             RuleRowHelper.validateValue(value, fieldType);
                         } catch (Exception e) {
-                            throw SyntaxNodeExceptionUtils.createError(e.getMessage(), e, null, getCellSource(row, cxt, 2));
+                            throw SyntaxNodeExceptionUtils
+                                .createError(e.getMessage(), e, null, getCellSource(row, cxt, 2));
                         }
                     }
                 }
@@ -566,15 +575,15 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         if (fieldInParent != null) {
                             if (fieldInParent.getType().getInstanceClass().equals(
                                 field.getValue().getType().getInstanceClass())) {
-                                BindHelper.processWarn(String.format("Field [%s] has been already defined in class \"%s\"",
-                                    field.getKey(),
-                                    fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode, cxt);
-                            } else {
-                                throw SyntaxNodeExceptionUtils.createError(
-                                    String.format("Field [%s] has been already defined in class \"%s\" with another type",
+                                BindHelper
+                                    .processWarn(String.format("Field [%s] has been already defined in class \"%s\"",
                                         field.getKey(),
-                                        fieldInParent.getDeclaringClass().getDisplayName(0)),
-                                    tableSyntaxNode);
+                                        fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode, cxt);
+                            } else {
+                                throw SyntaxNodeExceptionUtils.createError(String.format(
+                                    "Field [%s] has been already defined in class \"%s\" with another type",
+                                    field.getKey(),
+                                    fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode);
                             }
                         }
                     }
