@@ -682,30 +682,7 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> {
      * Indicates whether some other object is "equal to" this org.openl.meta.DoubleValue variable. 
      */
     public boolean equals(Object obj) {
-        if (obj instanceof org.openl.meta.DoubleValue) {
-            org.openl.meta.DoubleValue secondObj = (org.openl.meta.DoubleValue) obj;
-            return Comparison.eq(getValue(), secondObj.getValue());
-        }
-
-        // FIXME: Temporary fix for the commercial line to support
-        // var == "0" where var is of type DoubleValue
-        // In this case autocast should work, need investigation
-        //
-        if (obj instanceof String) {
-            double d;
-            try
-            {
-                d = Double.parseDouble((String)obj);
-            }
-            catch(NumberFormatException nfe)
-            {
-                return false;
-            }
-
-            return Comparison.eq(getValue(), d);
-        }
-
-        return false;
+        return obj instanceof DoubleValue && value == ((DoubleValue) obj).value;
     }
 
     public static boolean isNumeric(String str)
