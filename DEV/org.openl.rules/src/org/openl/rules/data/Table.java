@@ -147,13 +147,6 @@ public class Table implements ITable {
         return descriptor.getUniqueIndex(this, columnIndex);
     }
 
-    public Map<String, Integer> getFormattedUniqueIndex(int columnIndex) throws SyntaxNodeException {
-
-        ColumnDescriptor descriptor = dataModel.getDescriptor()[columnIndex];
-
-        return descriptor.getFormattedUniqueIndex(this, columnIndex);
-    }
-
     public Object getValue(int col, int row) {
 
         Object rowObject = Array.get(getDataArray(), row);
@@ -171,35 +164,6 @@ public class Table implements ITable {
 
             IGridTable gridTable = logicalTable.getSubtable(colIdx, i, 1, 1).getSource();
             String key = gridTable.getCell(0, 0).getStringValue();
-
-            if (key == null) {
-                throw SyntaxNodeExceptionUtils.createError("Empty key in an unique index",
-                    new GridCellSourceCodeModule(gridTable));
-            }
-
-            key = key.trim();
-
-            if (index.containsKey(key)) {
-                throw SyntaxNodeExceptionUtils.createError("Duplicated key in an unique index: " + key,
-                    new GridCellSourceCodeModule(gridTable));
-            }
-
-            index.put(key, i - 1);
-        }
-
-        return index;
-    }
-
-    public Map<String, Integer> makeFormattedUniqueIndex(int colIdx) throws SyntaxNodeException {
-
-        Map<String, Integer> index = new HashMap<String, Integer>();
-
-        int rows = logicalTable.getHeight();
-
-        for (int i = 1; i < rows; i++) {
-
-            IGridTable gridTable = logicalTable.getSubtable(colIdx, i, 1, 1).getSource();
-            String key = gridTable.getCell(0, 0).getFormattedValue();
 
             if (key == null) {
                 throw SyntaxNodeExceptionUtils.createError("Empty key in an unique index",

@@ -338,7 +338,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
                 }
 
-                final Map<String, Integer> index = foreignTable.getFormattedUniqueIndex(foreignKeyIndex);
+                final Map<String, Integer> index = foreignTable.getUniqueIndex(foreignKeyIndex);
                 Set<String> strings = index.keySet();
                 String[] domainStrings = strings.toArray(new String[strings.size()]);
                 Arrays.sort(domainStrings, new Comparator<String>() {

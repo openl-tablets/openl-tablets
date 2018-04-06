@@ -42,7 +42,6 @@ public class ColumnDescriptor {
     private boolean constructor = false;
 
     private Map<String, Integer> uniqueIndex = null;
-    private Map<String, Integer> formattedUniqueIndex = null;
     private IdentifierNode[] fieldChainTokens;
 
     public ColumnDescriptor(IOpenField field,
@@ -143,13 +142,6 @@ public class ColumnDescriptor {
             uniqueIndex = table.makeUniqueIndex(idx);
         }
         return uniqueIndex;
-    }
-
-    public synchronized Map<String, Integer> getFormattedUniqueIndex(ITable table, int idx) throws SyntaxNodeException {
-        if (formattedUniqueIndex == null) {
-            formattedUniqueIndex = table.makeFormattedUniqueIndex(idx);
-        }
-        return formattedUniqueIndex;
     }
 
     public boolean isConstructor() {
