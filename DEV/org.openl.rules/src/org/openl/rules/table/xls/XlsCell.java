@@ -233,7 +233,7 @@ public class XlsCell implements ICell {
                     double value = cell.getNumericCellValue();
                     return NumberUtils.intOrDouble(value);
                 case Cell.CELL_TYPE_STRING:
-                    String str = cell.getStringCellValue();
+                    String str = StringUtils.trimToNull(cell.getStringCellValue());
                     return StringPool.intern(str);
                 default:
                     return "unknown type: " + cell.getCellType();

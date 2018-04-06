@@ -17,7 +17,7 @@ public class HeadersWithSpacesTest extends BaseOpenlBuilderHelper {
 	public void testDT() {
 		// find the table by the header with first 3 spaces
 		//
-		TableSyntaxNode tsn = findTable("   Rules DoubleValue getILFactor(String coverageCD, String vehicleGroup)");
+		TableSyntaxNode tsn = findTable("Rules DoubleValue getILFactor(String coverageCD, String vehicleGroup)");
 		if (tsn == null) {
 			fail("Cannot find Decision table");
 		} else {
