@@ -17,9 +17,6 @@ import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.EnumFormatter;
 import org.openl.util.formatters.IFormatter;
 
-/**
- * TODO: Move this class to WebStudio
- */
 public class XlsDataFormatterFactory {
 
     private static Locale locale = Locale.US;
