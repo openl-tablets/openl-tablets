@@ -99,8 +99,8 @@ public class SpreadsheetCell implements Invokable {
 
         // Add cell type meta info
         if (sourceCell != null) {
-            String formattedValue = sourceCell.getFormattedValue();
-            if (formattedValue.startsWith("=")) {
+            String formattedValue = sourceCell.getStringValue();
+            if (formattedValue != null && formattedValue.startsWith("=")) {
                 CellMetaInfo metaInfo = sourceCell.getMetaInfo();
                 if (metaInfo == null) {
                     metaInfo = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE,

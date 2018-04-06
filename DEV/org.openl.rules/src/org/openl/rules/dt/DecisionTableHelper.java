@@ -1,14 +1,6 @@
 package org.openl.rules.dt;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,15 +31,7 @@ import org.openl.rules.lang.xls.load.SimpleSheetLoader;
 import org.openl.rules.lang.xls.load.SimpleWorkbookLoader;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.table.CompositeGrid;
-import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.GridTable;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGrid;
-import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.IWritableGrid;
-import org.openl.rules.table.LogicalTableHelper;
+import org.openl.rules.table.*;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -67,7 +51,7 @@ public class DecisionTableHelper {
      * Vertical table is when conditions are represented from left to right,
      * table is reading from top to bottom.</br>
      * Example of vertical table:
-     * 
+     *
      * <table cellspacing="2">
      * <tr>
      * <td align="center" bgcolor="#ccffff"><b>Rule</b></td>
@@ -105,7 +89,7 @@ public class DecisionTableHelper {
      * <td align="center" bgcolor="#ffff99">value23</td>
      * </tr>
      * </table>
-     * 
+     *
      * @param table checked table
      * @return <code>TRUE</code> if table is vertical.
      */
@@ -155,12 +139,12 @@ public class DecisionTableHelper {
         return s.length() >= 3 && s.startsWith(
             DecisionTableColumnHeaders.RETURN.getHeaderKey()) && (s.length() == 3 || Character.isDigit(s.charAt(3)));
     }
-    
+
     public static boolean isValidKeyHeader(String s) {
         return s.length() >= 3 && s.startsWith(
             DecisionTableColumnHeaders.KEY.getHeaderKey()) && (s.length() == 3 || Character.isDigit(s.charAt(3)));
     }
-    
+
     public static boolean isValidCRetHeader(String s) {
         return s.length() >= 4 && s.startsWith(
             DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey()) && (s.length() == 4 || Character.isDigit(s.charAt(4)));
@@ -198,7 +182,7 @@ public class DecisionTableHelper {
 
     /**
      * Checks if given table contain any horizontal condition header.
-     * 
+     *
      * @param table checked table
      * @return true if there is is any horizontal condition header in the table.
      */
@@ -209,7 +193,7 @@ public class DecisionTableHelper {
     /**
      * Creates virtual headers for condition and return columns to load simple
      * Decision Table as an usual Decision Table
-     * 
+     *
      * @param decisionTable method description for simple Decision Table.
      * @param originalTable The original body of simple Decision Table.
      * @param numberOfHcondition The number of horizontal conditions. In
@@ -259,7 +243,7 @@ public class DecisionTableHelper {
             grid));
     }
 
-    private static void writeVirtualHeadersForSimpleDecisionTable(TableSyntaxNode tableSyntaxNode, 
+    private static void writeVirtualHeadersForSimpleDecisionTable(TableSyntaxNode tableSyntaxNode,
             IWritableGrid grid,
             ILogicalTable originalTable,
             DecisionTable decisionTable,
@@ -306,7 +290,7 @@ public class DecisionTableHelper {
             c = c + originalTable.getSource().getCell(c, 0).getWidth();
             compoundTypeParameterCount++;
         }
-        
+
         IOpenClass returnType = decisionTable.getType();
         if (isCollectTable){
             return compoundTypeParameterCount > 1;
@@ -325,7 +309,7 @@ public class DecisionTableHelper {
         }
     }
 
-    private static void writeCompoundReturnColumns(TableSyntaxNode tableSyntaxNode, 
+    private static void writeCompoundReturnColumns(TableSyntaxNode tableSyntaxNode,
             IWritableGrid grid,
             ILogicalTable originalTable,
             DecisionTable decisionTable,
@@ -395,19 +379,19 @@ public class DecisionTableHelper {
 
                 previoush = h;
                 h = h + originalTable.getSource().getCell(column, h).getHeight();
-                
+
                 IOpenMethod[] m = null;
-                
+
                 if (h < numberOfMergedRows) {
                     IOpenMethod bestMatchMethod = findBestMatchOpenMethod(description, type, false);
                     if (bestMatchMethod != null){
                         m = new IOpenMethod[] { bestMatchMethod };
                     }
-                } 
+                }
                 if (m == null){
                     m = findBestMatchOpenMethodRecursively(description, type);
                 }
-                
+
                 if (!bindingContext.isExecutionMode()) {
                     if (fieldChainSb == null) {
                         fieldChainSb = new StringBuilder();
@@ -424,7 +408,7 @@ public class DecisionTableHelper {
                         t = m[j].getSignature().getParameterType(0);
                     }
                 }
-                
+
                 /*
                  * if (type.isArray()){ throw new
                  * OpenLCompilationException(String.
@@ -542,7 +526,7 @@ public class DecisionTableHelper {
 
         return openClassFuzzyTokens.get(fuzzyBestMatches[0])[0];
     }
-    
+
     private static IOpenMethod[] findBestMatchOpenMethodRecursively(String description,
             IOpenClass openClass) throws OpenLCompilationException {
         Map<Token, IOpenMethod[][]> openClassFuzzyTokens = OpenLFuzzySearch.tokensMapToOpenClassSetterMethodsRecursively(openClass);
@@ -570,7 +554,7 @@ public class DecisionTableHelper {
         }
         return openClassFuzzyTokens.get(fuzzyBestMatches[0])[0];
     }
-    
+
     private static void validateCollectSyntaxNode(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
             ILogicalTable originalTable,
@@ -631,9 +615,9 @@ public class DecisionTableHelper {
         //
         int firstReturnColumn = firstColumnAfterConditionColumns;
         int retParameterIndex = 0;
-        if (isCollectTable) { 
+        if (isCollectTable) {
             validateCollectSyntaxNode(tableSyntaxNode, decisionTable, originalTable, bindingContext);
-            
+
             if (Map.class.isAssignableFrom(decisionTable.getType().getInstanceClass())){
                 grid.setCellValue(firstReturnColumn, 0, KEY1_COLUMN_NAME);
                 if (tableSyntaxNode.getHeader().getCollectParameters().length > 0){
@@ -644,7 +628,7 @@ public class DecisionTableHelper {
                 int mergedColumnsCounts = originalTable.getSource().getCell(firstReturnColumn, numberOfMergedRows).getWidth();
                 firstReturnColumn = firstReturnColumn + mergedColumnsCounts;
             }
-            
+
             grid.setCellValue(firstReturnColumn, 0, CRET1_COLUMN_NAME);
             if (tableSyntaxNode.getHeader().getCollectParameters().length > 0){
                 grid.setCellValue(firstReturnColumn, 1, "extraRet");
@@ -826,22 +810,26 @@ public class DecisionTableHelper {
         for (int i = numberOfConditions - numberOfHcondition; i < numberOfConditions; i++) {
             int c = hColumn;
             while (c <= originalTable.getSource().getWidth()) {
-                String cellValue = originalTable.getSource().getCell(c, j).getFormattedValue();
-                String text = String.format("Condition for %s: %s",
-                    decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex()), decisionTable.getSignature().getParameterType(i).getDisplayName(0));
                 ICell cell = originalTable.getSource().getCell(c, j);
-                SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
-                    cellValue.length() - 1,
-                    text,
-                    null,
-                    NodeType.OTHER);
-                CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE,
-                    null,
-                    JavaOpenClass.STRING,
-                    false,
-                    Collections.singletonList(simpleNodeUsage));
-                cell.setMetaInfo(meta);
-                c = c + originalTable.getSource().getCell(c, j).getWidth();
+
+                String cellValue = cell.getStringValue();
+                if (cellValue != null) {
+                    String text = String.format("Condition for %s: %s",
+                            decisionTable.getSignature().getParameterName(conditions[i].getParameterIndex()),
+                            decisionTable.getSignature().getParameterType(i).getDisplayName(0));
+                    SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
+                            cellValue.length() - 1,
+                            text,
+                            null,
+                            NodeType.OTHER);
+                    CellMetaInfo meta = new CellMetaInfo(CellMetaInfo.Type.DT_CA_CODE,
+                            null,
+                            JavaOpenClass.STRING,
+                            false,
+                            Collections.singletonList(simpleNodeUsage));
+                    cell.setMetaInfo(meta);
+                }
+                c = c + cell.getWidth();
             }
             j++;
         }
@@ -851,7 +839,11 @@ public class DecisionTableHelper {
             int column,
             String parameterName,
             String typeOfValue) {
-        String cellValue = originalTable.getSource().getCell(column, 0).getFormattedValue();
+        String cellValue = originalTable.getSource().getCell(column, 0).getStringValue();
+        if (cellValue == null) {
+            return;
+        }
+
         String text = String.format("Condition for %s: %s", parameterName, typeOfValue);
         ICell cell = originalTable.getSource().getCell(column, 0);
         SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0, cellValue.length() - 1, text, null, NodeType.OTHER);
