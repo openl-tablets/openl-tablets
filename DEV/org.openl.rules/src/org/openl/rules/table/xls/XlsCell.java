@@ -21,8 +21,6 @@ import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.table.xls.writers.AXlsCellWriter;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringPool;
-import org.openl.util.StringUtils;
-import org.openl.util.formatters.IFormatter;
 
 public class XlsCell implements ICell {
 
@@ -153,35 +151,7 @@ public class XlsCell implements ICell {
     }
 
     public String getFormattedValue() {
-        String formattedValue = null;
-
-        Object value = getObjectValue();
-
-        if (value != null) {
-            IFormatter cellDataFormatter = XlsDataFormatterFactory.getFormatter(this);
-
-            if (cellDataFormatter == null && value instanceof Date) {
-                // Cell type is unknown but in Excel it's stored as a Date.
-                // We can't override getDataFormatter() or XlsDataFormatterFactory.getFormatter() to support this case
-                // because they are also invoked when editing a cell. When editing cells with unknown type null must be
-                // returned to be able to edit such cell as if it can contain any text.
-                // But we can safely format it's value when just viewing it's value.
-                cellDataFormatter = XlsDataFormatterFactory.getDateFormatter(this);
-            }
-
-            if (cellDataFormatter != null) {
-                formattedValue = cellDataFormatter.format(value);
-            }
-        }
-
-        if (formattedValue == null) {
-            formattedValue = getStringValue();
-            if (formattedValue == null) {
-                formattedValue = StringUtils.EMPTY;
-            }
-        }
-
-        return formattedValue;
+        return XlsDataFormatterFactory.getFormattedValue(this);
     }
 
     @Override

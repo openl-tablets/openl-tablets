@@ -106,4 +106,34 @@ public class XlsDataFormatterFactory {
         return formatter;
     }
 
+    public static String getFormattedValue(ICell cell) {
+        Object value = cell.getObjectValue();
+
+        String formattedValue = null;
+        if (value != null) {
+            IFormatter cellDataFormatter = getFormatter(cell);
+
+            if (cellDataFormatter == null && value instanceof Date) {
+                // Cell type is unknown but in Excel it's stored as a Date.
+                // We can't override getDataFormatter() or XlsDataFormatterFactory.getFormatter() to support this case
+                // because they are also invoked when editing a cell. When editing cells with unknown type null must be
+                // returned to be able to edit such cell as if it can contain any text.
+                // But we can safely format it's value when just viewing it's value.
+                cellDataFormatter = getDateFormatter(cell);
+            }
+
+            if (cellDataFormatter != null) {
+                formattedValue = cellDataFormatter.format(value);
+            }
+        }
+
+        if (formattedValue == null) {
+            formattedValue = cell.getStringValue();
+            if (formattedValue == null) {
+                formattedValue = StringUtils.EMPTY;
+            }
+        }
+
+        return formattedValue;
+    }
 }

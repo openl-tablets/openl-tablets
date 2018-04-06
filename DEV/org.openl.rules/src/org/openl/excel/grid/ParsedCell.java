@@ -88,36 +88,7 @@ public class ParsedCell implements ICell {
     public String getFormattedValue() {
         // TODO: Remove this method from ICell. Formatting should be occurred in UI code only, not in core.
         // Copied from XlsCell
-
-        String formattedValue = null;
-
-        Object value = getObjectValue();
-
-        if (value != null) {
-            IFormatter cellDataFormatter = XlsDataFormatterFactory.getFormatter(this);
-
-            if (cellDataFormatter == null && value instanceof Date) {
-                // Cell type is unknown but in Excel it's stored as a Date.
-                // We can't override getDataFormatter() or XlsDataFormatterFactory.getFormatter() to support this case
-                // because they are also invoked when editing a cell. When editing cells with unknown type null must be
-                // returned to be able to edit such cell as if it can contain any text.
-                // But we can safely format it's value when just viewing it's value.
-                cellDataFormatter = XlsDataFormatterFactory.getDateFormatter(this);
-            }
-
-            if (cellDataFormatter != null) {
-                formattedValue = cellDataFormatter.format(value);
-            }
-        }
-
-        if (formattedValue == null) {
-            formattedValue = getStringValue();
-            if (formattedValue == null) {
-                formattedValue = StringUtils.EMPTY;
-            }
-        }
-
-        return formattedValue;
+        return XlsDataFormatterFactory.getFormattedValue(this);
     }
 
     @Override
