@@ -14,6 +14,7 @@ import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.tableeditor.model.CellEditorSelector;
 import org.openl.rules.tableeditor.model.ICellEditor;
 import org.openl.rules.tableeditor.model.TableEditorModel;
@@ -275,7 +276,7 @@ public class TableEditorController extends BaseTableEditorController {
         if (ICellEditor.CE_FORMULA.equals(cellEditor)) {
             ICell cell = editorModel.getOriginalGridTable().getCell(col, row);
 
-            IFormatter currentFormatter = cell.getDataFormatter();
+            IFormatter currentFormatter = XlsDataFormatterFactory.getFormatter(cell);
             IFormatter formulaResultFormatter = null;
             if (!(currentFormatter instanceof FormulaFormatter)) {
                 formulaResultFormatter = currentFormatter;

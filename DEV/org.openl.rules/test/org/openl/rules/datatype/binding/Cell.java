@@ -195,10 +195,6 @@ public class Cell implements ICell {
         this.comment = comment;
     }
 
-    public IFormatter getDataFormatter() {
-        return dataFormatter;
-    }
-    
     public void setDataFormatter(IFormatter dataFormatter) {
         this.dataFormatter = dataFormatter;
     }

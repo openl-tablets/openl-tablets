@@ -5,7 +5,6 @@ import java.util.Date;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.util.formatters.IFormatter;
 
 class GridTableCell implements ICell {
 
@@ -121,10 +120,6 @@ class GridTableCell implements ICell {
 
     public ICellComment getComment() {
         return cell.getComment();
-    }
-
-    public IFormatter getDataFormatter() {
-        return cell.getDataFormatter();
     }
 
 }

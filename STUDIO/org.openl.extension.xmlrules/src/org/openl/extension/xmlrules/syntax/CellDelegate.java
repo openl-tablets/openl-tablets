@@ -8,7 +8,6 @@ import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.util.formatters.IFormatter;
 
 public class CellDelegate implements ICell {
     private final ICell delegate;
@@ -141,8 +140,4 @@ public class CellDelegate implements ICell {
         return delegate.getComment();
     }
 
-    @Override
-    public IFormatter getDataFormatter() {
-        return delegate.getDataFormatter();
-    }
 }

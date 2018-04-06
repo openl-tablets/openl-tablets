@@ -8,7 +8,6 @@ import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsUtil;
 import org.openl.util.StringUtils;
-import org.openl.util.formatters.IFormatter;
 
 public class SimpleCell implements ICell {
 
@@ -157,11 +156,7 @@ public class SimpleCell implements ICell {
         return null;
     }
 
-    public IFormatter getDataFormatter() {
-        return null;
-    }
-
-	@Override
+    @Override
 	public ICell getTopLeftCellFromRegion() {
 		// TODO implementation should be updated once we support native types in SimpleCell
 		return this;

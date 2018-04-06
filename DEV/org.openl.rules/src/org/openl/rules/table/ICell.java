@@ -6,7 +6,6 @@ import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.IncorrectFormulaException;
-import org.openl.util.formatters.IFormatter;
 
 public interface ICell {
 
@@ -87,8 +86,6 @@ public interface ICell {
 
     ICellComment getComment();
 
-    IFormatter getDataFormatter();
-
-	ICell getTopLeftCellFromRegion();
+    ICell getTopLeftCellFromRegion();
 
 }

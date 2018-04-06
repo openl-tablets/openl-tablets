@@ -23,6 +23,7 @@ import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.tableeditor.renderkit.TableEditor;
 import org.openl.util.StringUtils;
 import org.openl.util.formatters.IFormatter;
@@ -172,7 +173,7 @@ public class TableEditorModel {
             dataFormatter = formatter;
         } else {
             ICell cell = gridTable.getGrid().getCell(gcol, grow);
-            dataFormatter = cell.getDataFormatter();
+            dataFormatter = XlsDataFormatterFactory.getFormatter(cell);
         }
 
         Object result;

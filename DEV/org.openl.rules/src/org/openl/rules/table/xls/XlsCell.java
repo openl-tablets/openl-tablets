@@ -158,7 +158,7 @@ public class XlsCell implements ICell {
         Object value = getObjectValue();
 
         if (value != null) {
-            IFormatter cellDataFormatter = getDataFormatter();
+            IFormatter cellDataFormatter = XlsDataFormatterFactory.getFormatter(this);
 
             if (cellDataFormatter == null && value instanceof Date) {
                 // Cell type is unknown but in Excel it's stored as a Date.
@@ -182,10 +182,6 @@ public class XlsCell implements ICell {
         }
 
         return formattedValue;
-    }
-
-    public IFormatter getDataFormatter() {
-        return XlsDataFormatterFactory.getFormatter(this);
     }
 
     @Override

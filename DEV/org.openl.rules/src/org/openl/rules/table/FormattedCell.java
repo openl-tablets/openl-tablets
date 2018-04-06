@@ -1,4 +1,4 @@
-/**
+/*
  * Created Feb 27, 2007
  */
 package org.openl.rules.table;
@@ -10,7 +10,6 @@ import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.xls.IncorrectFormulaException;
-import org.openl.util.formatters.IFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -165,10 +164,6 @@ public class FormattedCell implements ICell {
 
     public ICellComment getComment() {
         return delegate.getComment();
-    }
-
-    public IFormatter getDataFormatter() {
-        return delegate.getDataFormatter();
     }
 
 }

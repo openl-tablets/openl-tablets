@@ -5,7 +5,6 @@ import java.util.Date;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.util.formatters.IFormatter;
 
 class CompositeCell implements ICell {
 
@@ -129,10 +128,6 @@ class CompositeCell implements ICell {
 
     public ICellComment getComment() {
         return delegate.getComment();
-    }
-
-    public IFormatter getDataFormatter() {
-        return delegate.getDataFormatter();
     }
 
 }
