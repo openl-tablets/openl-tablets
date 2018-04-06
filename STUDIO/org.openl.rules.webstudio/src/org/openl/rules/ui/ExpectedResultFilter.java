@@ -1,4 +1,4 @@
-package org.openl.rules.table.ui.filters;
+package org.openl.rules.ui;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,16 +6,17 @@ import java.util.Map;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.Point;
 import org.openl.rules.table.formatters.FormattersManager;
+import org.openl.rules.table.ui.filters.AGridFilter;
 import org.openl.rules.testmethod.IParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestStatus;
 import org.openl.rules.testmethod.result.ComparedResult;
 
-public class ExpectedResultFilter extends AGridFilter {
+class ExpectedResultFilter extends AGridFilter {
 
     private Map<Point, ComparedResult> spreadsheetCellsForTest;
 
     public ExpectedResultFilter(Map<Point, ComparedResult> spreadsheetCellsForTest) {
-        this.spreadsheetCellsForTest = new HashMap<Point, ComparedResult>(spreadsheetCellsForTest);
+        this.spreadsheetCellsForTest = new HashMap<>(spreadsheetCellsForTest);
     }
 
     public FormattedCell filterFormat(FormattedCell cell) {
