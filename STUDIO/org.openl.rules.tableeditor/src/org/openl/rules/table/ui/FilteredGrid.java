@@ -1,6 +1,3 @@
-/**
- * Created Feb 27, 2007
- */
 package org.openl.rules.table.ui;
 
 import org.openl.rules.table.AGrid;

@@ -1,6 +1,3 @@
-/**
- * Created Mar 1, 2007
- */
 package org.openl.rules.table.ui.filters;
 
 import org.openl.rules.table.ui.IGridSelector;

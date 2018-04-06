@@ -1,6 +1,3 @@
-/**
- * Created Mar 5, 2007
- */
 package org.openl.rules.table.ui.filters;
 
 
