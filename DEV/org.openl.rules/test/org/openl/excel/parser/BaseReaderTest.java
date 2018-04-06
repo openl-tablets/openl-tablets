@@ -50,7 +50,7 @@ public abstract class BaseReaderTest {
     @Test
     public void getMainSheet() {
         Object[][] cells = reader.getCells(reader.getSheets().get(0));
-        assertEquals(12, cells.length);
+        assertEquals(14, cells.length);
         assertEquals(1, cells[0].length);
 
         //// Different type assertions
@@ -108,6 +108,13 @@ public abstract class BaseReaderTest {
 
         row++;
         assertEquals(new AlignedValue("Indent 2", (short) 2), cells[row][0]);
+
+        //// Trim assertions
+        row++;
+        assertEquals("Trim me!", cells[row][0]);
+
+        row++;
+        assertNull(cells[row][0]);
     }
 
     @Test

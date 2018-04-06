@@ -13,6 +13,7 @@ import org.openl.excel.parser.AlignedValue;
 import org.openl.excel.parser.ExcelParseException;
 import org.openl.excel.parser.MergedCell;
 import org.openl.util.NumberUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
@@ -152,7 +153,7 @@ public class SheetHandler extends DefaultHandler {
                     // To be precise it's a formula with String type. But we care only about a value.
                     // Fallback to INLINE_STRING
                 case INLINE_STRING:
-                    parsedValue = value.toString();
+                    parsedValue = StringUtils.trimToNull(value.toString());
                     break;
                 case SHARED_STRING_TABLE_STRING:
                     String sstIndex = value.toString();
@@ -163,7 +164,7 @@ public class SheetHandler extends DefaultHandler {
                             strValue = new XSSFRichTextString(sharedStringsTable.getEntryAt(idx)).toString();
                             lruCache.put(idx, strValue);
                         }
-                        parsedValue = strValue;
+                        parsedValue = StringUtils.trimToNull(strValue);
                     } catch (NumberFormatException ex) {
                         throw new ExcelParseException("Failed to parse SST index '" + sstIndex, ex);
                     }

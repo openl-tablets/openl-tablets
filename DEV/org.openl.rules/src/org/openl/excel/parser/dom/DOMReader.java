@@ -22,6 +22,7 @@ import org.openl.rules.table.xls.XlsCellStyle;
 import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
 import org.openl.util.NumberUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -245,7 +246,7 @@ public class DOMReader implements ExcelReader {
                     double value = cell.getNumericCellValue();
                     return NumberUtils.intOrDouble(value);
                 case Cell.CELL_TYPE_STRING:
-                    return cell.getStringCellValue();
+                    return StringUtils.trimToNull(cell.getStringCellValue());
                 default:
                     return "unknown type: " + cell.getCellType();
             }
