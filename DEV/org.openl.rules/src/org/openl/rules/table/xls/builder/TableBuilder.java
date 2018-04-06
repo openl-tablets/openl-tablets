@@ -16,7 +16,7 @@ import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsCellComment;
 import org.openl.rules.table.xls.XlsCellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.rules.table.xls.formatters.XlsDateFormatter;
+import org.openl.rules.table.xls.formatters.FormatConstants;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridTable;
@@ -182,7 +182,7 @@ public class TableBuilder {
             cellStyle.setBorderLeft(BorderStyle.THIN);
             cellStyle.setBorderRight(BorderStyle.THIN);
 
-            cellStyle.setDataFormat((short) BuiltinFormats.getBuiltinFormat(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));
+            cellStyle.setDataFormat((short) BuiltinFormats.getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT));
 
             defaultDateCellStyle = cellStyle;
         }
@@ -299,7 +299,7 @@ public class TableBuilder {
         cell.setCellStyle(PoiExcelHelper.createCellStyle(cell.getSheet().getWorkbook()));
         cell.getCellStyle().cloneStyleFrom(previousStyle);
         cell.getCellStyle()
-            .setDataFormat((short) BuiltinFormats.getBuiltinFormat(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));
+            .setDataFormat((short) BuiltinFormats.getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT));
         return cell.getCellStyle();
     }
 

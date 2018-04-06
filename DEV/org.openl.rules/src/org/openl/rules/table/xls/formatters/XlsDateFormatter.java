@@ -1,6 +1,3 @@
-/**
- * Created Feb 28, 2007
- */
 package org.openl.rules.table.xls.formatters;
 
 import java.util.regex.Pattern;
@@ -14,7 +11,6 @@ import org.openl.util.formatters.DateFormatter;
 public class XlsDateFormatter extends DateFormatter {
 
     private static final Pattern date_ptrn = Pattern.compile("^\\[\\$\\-.*?\\]");
-    public static final String DEFAULT_XLS_DATE_FORMAT = "m/d/yy";
 
     @Deprecated
     public static String convertToJavaFormat(String xlsFormat) {

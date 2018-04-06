@@ -22,8 +22,6 @@ import org.openl.util.formatters.IFormatter;
  */
 public class XlsDataFormatterFactory {
 
-    public static final String GENERAL_FORMAT = "General";
-
     private static Locale locale = Locale.US;
     private static DataFormatter dataFormatter = new DataFormatter(locale);
 
@@ -108,8 +106,8 @@ public class XlsDataFormatterFactory {
 
         if (xlsStyle != null) {
             String format = xlsStyle.getFormatString();
-            if (StringUtils.isBlank(format) || format.equals(GENERAL_FORMAT)) {
-                format = XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT;
+            if (StringUtils.isBlank(format) || format.equals(FormatConstants.GENERAL_FORMAT)) {
+                format = FormatConstants.DEFAULT_XLS_DATE_FORMAT;
             }
             formatter = new XlsDateFormatter(format);
         }

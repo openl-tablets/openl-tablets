@@ -10,7 +10,7 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.openl.rules.table.xls.PoiExcelHelper;
-import org.openl.rules.table.xls.formatters.XlsDateFormatter;
+import org.openl.rules.table.xls.formatters.FormatConstants;
 
 final class Styles {
     static final int HEADER = 0xBFBFBF;
@@ -65,7 +65,7 @@ final class Styles {
         if (dateStyle == null) {
             dateStyle = PoiExcelHelper.createCellStyle(workbook);
             dateStyle.cloneStyleFrom(original);
-            dateStyle.setDataFormat((short) BuiltinFormats.getBuiltinFormat(XlsDateFormatter.DEFAULT_XLS_DATE_FORMAT));
+            dateStyle.setDataFormat((short) BuiltinFormats.getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT));
             dateStyles.put(original, dateStyle);
         }
 
