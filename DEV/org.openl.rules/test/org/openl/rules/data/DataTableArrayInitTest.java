@@ -30,7 +30,7 @@ public class DataTableArrayInitTest extends BaseOpenlBuilderHelper{
 
     @Test
     public void testTypeWithArrayColumns() {
-        String tableName = "Data TestHelperDataBean_v10 testArray ";
+        String tableName = "Data TestHelperDataBean_v10 testArray";
         TableSyntaxNode resultTsn = findTable(tableName);
         if (resultTsn != null) {
             DataOpenField member = (DataOpenField)resultTsn.getMember();

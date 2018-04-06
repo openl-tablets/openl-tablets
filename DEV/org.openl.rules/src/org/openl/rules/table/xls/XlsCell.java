@@ -20,6 +20,7 @@ import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.writers.AXlsCellWriter;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringPool;
+import org.openl.util.StringUtils;
 
 public class XlsCell implements ICell {
 
@@ -194,7 +195,7 @@ public class XlsCell implements ICell {
                     double value = cell.getNumericCellValue();
                     return NumberUtils.intOrDouble(value);
                 case Cell.CELL_TYPE_STRING:
-                    String str = cell.getStringCellValue();
+                    String str = StringUtils.trimToNull(cell.getStringCellValue());
                     return StringPool.intern(str);
                 default:
                     return "unknown type: " + cell.getCellType();
