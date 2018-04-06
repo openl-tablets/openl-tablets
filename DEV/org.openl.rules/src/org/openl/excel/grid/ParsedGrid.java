@@ -19,8 +19,6 @@ public class ParsedGrid extends AGrid {
     private final String uri;
     private final XlsSheetSourceCodeModule sheetSource;
     private final SheetDescriptor sheetDescriptor;
-    private final int firstRowNum;
-    private final int firstColNum;
     private final boolean use1904Windowing;
     private final List<IGridRegion> regions = new ArrayList<>();
 
@@ -36,8 +34,6 @@ public class ParsedGrid extends AGrid {
         this.sheetSource = sheetSource;
         this.uri = sheetSource.getUri();
         this.sheetDescriptor = sheet;
-        this.firstRowNum = sheet.getFirstRowNum();
-        this.firstColNum = sheet.getFirstColNum();
         this.use1904Windowing = use1904Windowing;
 
         findRegions();
@@ -57,17 +53,17 @@ public class ParsedGrid extends AGrid {
 
     @Override
     public int getMaxColumnIndex(int row) {
-        int internalRow = row - firstRowNum;
+        int internalRow = row - getFirstRowNum();
 
         if (cells.length <= internalRow) {
             return 0;
         }
-        return firstColNum + cells[internalRow].length - 1;
+        return getFirstColNum() + cells[internalRow].length - 1;
     }
 
     @Override
     public int getMaxRowIndex() {
-        return firstRowNum + cells.length - 1;
+        return getFirstRowNum() + cells.length - 1;
     }
 
     @Override
@@ -77,12 +73,12 @@ public class ParsedGrid extends AGrid {
 
     @Override
     public int getMinColumnIndex(int row) {
-        return firstColNum;
+        return getFirstColNum();
     }
 
     @Override
     public int getMinRowIndex() {
-        return firstRowNum;
+        return getFirstRowNum();
     }
 
     @Override
@@ -130,10 +126,10 @@ public class ParsedGrid extends AGrid {
         // Find bottom right points and create regions
         for (CellRowCol start : startPoints) {
             CellRowCol end = findBottomRight(start.row, start.col);
-            regions.add(new GridRegion(firstRowNum + start.row,
-                    firstColNum + start.col,
-                    firstRowNum + end.row,
-                    firstColNum + end.col));
+            regions.add(new GridRegion(getFirstRowNum() + start.row,
+                    getFirstColNum() + start.col,
+                    getFirstRowNum() + end.row,
+                    getFirstColNum() + end.col));
         }
     }
 
@@ -163,8 +159,8 @@ public class ParsedGrid extends AGrid {
     /////////////////////////// Methods used in ParsedCell ///////////////////////////////////
 
     protected Object getCellValue(int row, int column) {
-        int internalRow = row - firstRowNum;
-        int internalCol = column - firstColNum;
+        int internalRow = row - getFirstRowNum();
+        int internalCol = column - getFirstColNum();
 
         if (internalRow < 0 || internalCol < 0 || cells.length <= internalRow || cells[internalRow].length <= internalCol) {
             return null;
@@ -183,8 +179,8 @@ public class ParsedGrid extends AGrid {
     }
 
     protected ICellStyle getCellStyle(int row, int column) {
-        int internalRow = row - firstRowNum;
-        int internalCol = column - firstColNum;
+        int internalRow = row - getFirstRowNum();
+        int internalCol = column - getFirstColNum();
 
         if (internalRow < 0 || internalCol < 0 || cells.length <= internalRow || cells[internalRow].length <= internalCol) {
             return null;
@@ -277,12 +273,12 @@ public class ParsedGrid extends AGrid {
         return cells;
     }
 
-    protected int getFirstRowNum() {
-        return firstRowNum;
+    private int getFirstRowNum() {
+        return sheetDescriptor.getFirstRowNum();
     }
 
-    protected int getFirstColNum() {
-        return firstColNum;
+    private int getFirstColNum() {
+        return sheetDescriptor.getFirstColNum();
     }
 
     protected boolean isUse1904Windowing() {
